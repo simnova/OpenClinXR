@@ -2210,6 +2210,20 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb` - keep-current; keep; #263 first promoted MPFB2 humanoid runtime cast (OB triage patient Aisha Khan); byte-identical promote of the candidates/ comparator.
 - `apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json` - keep-current; keep; #263 MPFB2 lineage provenance sidecar for the promoted OB patient cast; preserve for evidence continuity.
 - `apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/adult_ed_abdominal_bay_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/behavioral_health_private_room_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/ed_exam_bay_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/ed_stroke_bay_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/inpatient_ward_room_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/ob_triage_room_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/oncology_consult_room_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/pediatric_fever_urgent_care_bay_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/pediatric_urgent_care_bay_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/primary_care_clinic_room_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/stepdown_room_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/surgical_ward_room_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/telehealth_home_visit_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/lighting/urgent_care_clinic_room_v1.rig.json` - keep-current; keep; Station-designed lighting rig for runtime; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.

@@ -27,6 +27,7 @@ export {
   CLOTHING_CONSUME_STAGE_REL,
   clothingConsumeRunner,
   planClothingConsume,
+  refitContractFrom,
   runClothingConsume,
   type ClothingConsumeRunOptions,
 } from "./clothing_consume/run.js";
@@ -65,3 +66,20 @@ export {
 export { writeLipSyncFixtureWav } from "./lip_sync/fixture-wav.js";
 export { clothingGenerateRunner, planClothingGenerate, runClothingGenerate } from "./clothing_generate/run.js";
 export { dialogueRuntimeRunner, planDialogueRuntime, runDialogueRuntime } from "./dialogue_runtime/run.js";
+export {
+  KNOWN_ROOM_IDS,
+  LIGHTING_MOODS,
+  LIGHTING_RIG_SCHEMA_VERSION,
+  LIGHTING_RIG_STAGE_REL,
+  designLightingRig,
+  lightingDesignRunner,
+  planLightingDesign,
+  runLightingDesign,
+  type CastMember,
+  type LightingBBox,
+  type LightingDesignRunOptions,
+  type LightingMood,
+  type LightingRig,
+  type RigLight,
+  type RigLightType,
+} from "./lighting_design/run.js";

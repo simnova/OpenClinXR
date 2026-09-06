@@ -19,10 +19,11 @@ type CliOptions = {
   roles: CaptureRole[];
   /** When true, run ED gown branch (legacy). Ignored when roles include parent/nurse. */
   useEd: boolean;
+  /** When true, the ED branch appends -ed-bay-visible so room shell/floor/dressing stay visible. */
+  edBayVisible: boolean;
 };
 
 const PEDS_BUNDLE_ID = "peds_asthma_parent_anxiety_v1:learner-runtime-bundle:v1";
-const ED_BUNDLE_ID = "ed_chest_pain_priority_v2:learner-runtime-bundle:v1";
 
 const ROLE_COMPARATOR: Record<CaptureRole, string> = {
   patient: "peds_anny_real_garment_patient",
@@ -56,7 +57,11 @@ function buildBaseUrl(
   const useEd = opts.useEd === true;
   const role = opts.role ?? "patient";
   const scenario = useEd ? "ed_chest_pain_priority_v2" : "peds_asthma_parent_anxiety_v1";
-  const bundle = useEd ? ED_BUNDLE_ID : PEDS_BUNDLE_ID;
+  // No runtimeAssetBundleId pin: the capture dev server has no station API
+  // (stationApi undefined), so a pin can never resolve and only hijacks boot
+  // into the refused-pin path. Without it, boot loads the factory-built
+  // static bundle (/xr-assets/generated/<scenario>/learner-runtime-bundle.v1.json)
+  // via the visual-review path, with evidence gates intact.
   const comparator = useEd
     ? "ed_anny_real_garment_patient"
     : ROLE_COMPARATOR[role];
@@ -65,8 +70,10 @@ function buildBaseUrl(
     openclinxrPortalStart: "encounter",
     openclinxrAcceleratedExam: "1",
     humanoidSourceComparator: comparator,
-    runtimeAssetBundleId: bundle,
     capture: captureMode,
+    // Deterministic capture clock: pins the app frame-loop clock to t=0 so
+    // procedural breathing/idle/blink poses are run-identical across runs.
+    openclinxrDeterministicCapture: "1",
   });
   return `http://127.0.0.1:${port}/?${params.toString()}`;
 }
@@ -121,9 +128,9 @@ async function main(): Promise<void> {
               generatedAt: new Date().toISOString(),
               claimScope:
                 "ui_xr_ed_anny_real_garment_sleeve_deform_ed_bay_runtime_evidence_ed_gown_geo_reorchestrate_Q1Q5",
-              baseUrl: buildBaseUrl(options.port, options.captureMode, { useEd: true }),
+              baseUrl: buildBaseUrl(options.port, String((edEvidence as { edMode?: unknown }).edMode ?? options.captureMode), { useEd: true }),
               edGownGeoReorchestrateEvidence: edEvidence,
-              captureModeDriven: options.captureMode,
+              captureModeDriven: String((edEvidence as { edMode?: unknown }).edMode ?? options.captureMode),
               uiXrPngs: [
                 "ui-xr-peds-real-garment-sleeve-front_2026-06-07.png",
                 "ui-xr-peds-real-garment-sleeve-three-quarter_2026-06-07.png",
@@ -311,9 +318,10 @@ async function captureRoleSleeveDeform(
     try {
       await page.waitForFunction(
         ({ expectedComparator, expectedAsset }) => {
-          const scene = (browserPageWindow as any).__openClinXrSceneAssetEvidence;
-          const mouthGaze = (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence;
-          const adaptive = (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence;
+          const pageWindow = globalThis as unknown as typeof globalThis & Record<string, any>;
+          const scene = pageWindow.__openClinXrSceneAssetEvidence as any;
+          const mouthGaze = pageWindow.__openClinXrMouthGazePoseComparatorEvidence as any;
+          const adaptive = pageWindow.__openClinXrPedsAdaptiveDialogueEvidence as any;
           const humanoids =
             scene?.assets?.filter(
               (asset: { assetPath?: string; status?: string }) =>
@@ -344,12 +352,15 @@ async function captureRoleSleeveDeform(
       console.warn(
         `[ui-xr-role-sleeve] waitForFunction timeout role=${role}; fallback screenshot. ${String(e)}`,
       );
-      const currentEvidence = await page.evaluate(() => ({
-        adaptive: (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
-        playback: (browserPageWindow as any).__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
-        scene: (browserPageWindow as any).__openClinXrSceneAssetEvidence ?? null,
-        mouthGaze: (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
-      }));
+      const currentEvidence = await page.evaluate(() => {
+        const roleWindow = globalThis as unknown as typeof globalThis & Record<string, any>;
+        return {
+          adaptive: roleWindow.__openClinXrPedsAdaptiveDialogueEvidence ?? null,
+          playback: roleWindow.__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
+          scene: roleWindow.__openClinXrSceneAssetEvidence ?? null,
+          mouthGaze: roleWindow.__openClinXrMouthGazePoseComparatorEvidence ?? null,
+        };
+      });
       console.warn(
         `[ui-xr-role-sleeve] current evidence role=${role}:`,
         JSON.stringify(currentEvidence).slice(0, 2000),
@@ -365,12 +376,11 @@ async function captureRoleSleeveDeform(
 
     const inspection = await page.evaluate(
       ({ expectedComparator, expectedAsset, garmentCue }) => {
-        const adaptive = (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null;
-        const playback =
-          (browserPageWindow as any).__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null;
-        const sceneAssets = (browserPageWindow as any).__openClinXrSceneAssetEvidence ?? null;
-        const mouthGaze =
-          (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence ?? null;
+        const roleWindow = globalThis as unknown as typeof globalThis & Record<string, any>;
+        const adaptive = roleWindow.__openClinXrPedsAdaptiveDialogueEvidence ?? null;
+        const playback = roleWindow.__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null;
+        const sceneAssets = roleWindow.__openClinXrSceneAssetEvidence ?? null;
+        const mouthGaze = roleWindow.__openClinXrMouthGazePoseComparatorEvidence ?? null;
         return {
           comparator: expectedComparator,
           assetPath: expectedAsset,
@@ -383,9 +393,9 @@ async function captureRoleSleeveDeform(
           sleeveDeform:
             mouthGaze?.garmentGeometry?.sleeveDeform
             ?? `load_time_userData_openClinXrSleeveDeformEvidence;${garmentCue};${expectedComparator}`,
-          pageErrors: (browserPageWindow as any).__openClinXrBootEvidence?.pageErrors ?? [],
+          pageErrors: roleWindow.__openClinXrBootEvidence?.pageErrors ?? [],
           cameraFraming:
-            (browserPageWindow as any).__openClinXrBootEvidence?.cameraFraming
+            roleWindow.__openClinXrBootEvidence?.cameraFraming
             ?? mouthGaze?.cameraFraming
             ?? null,
         };
@@ -448,9 +458,10 @@ async function captureAdaptiveBranch(
     try {
       await page.waitForFunction(
         (expectedPolicyTrigger) => {
-          const adaptive = browserPageWindow.__openClinXrPedsAdaptiveDialogueEvidence;
-          const playback = browserPageWindow.__openClinXrPedsActorPlayerRuntimePlaybackEvidence;
-          const mouthGaze = (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence;
+          const pageWindow = globalThis as unknown as typeof globalThis & Record<string, any>;
+          const adaptive = pageWindow.__openClinXrPedsAdaptiveDialogueEvidence as any;
+          const playback = pageWindow.__openClinXrPedsActorPlayerRuntimePlaybackEvidence as any;
+          const mouthGaze = pageWindow.__openClinXrMouthGazePoseComparatorEvidence as any;
           return Boolean(
             adaptive?.latestPolicyTrigger === expectedPolicyTrigger
             && adaptive.latestSequenceSource === "bundle_dialogue_adaptive_branch"
@@ -471,12 +482,15 @@ async function captureAdaptiveBranch(
       console.warn(
         `[ui-xr-peds-adaptive] waitForFunction timeout for ${policyTrigger} on real garment; fallback screenshot (sleeves prominent 3D per expansion + main.ts). Error: ${String(e)}`,
       );
-      const currentEvidence = await page.evaluate(() => ({
-        adaptive: (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
-        playback: (browserPageWindow as any).__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
-        scene: (browserPageWindow as any).__openClinXrSceneAssetEvidence ?? null,
-        mouthGaze: (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
-      }));
+      const currentEvidence = await page.evaluate(() => {
+        const adaptiveWindow = globalThis as unknown as typeof globalThis & Record<string, any>;
+        return {
+          adaptive: adaptiveWindow.__openClinXrPedsAdaptiveDialogueEvidence ?? null,
+          playback: adaptiveWindow.__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
+          scene: adaptiveWindow.__openClinXrSceneAssetEvidence ?? null,
+          mouthGaze: adaptiveWindow.__openClinXrMouthGazePoseComparatorEvidence ?? null,
+        };
+      });
       console.warn(
         "[ui-xr-peds-adaptive] current evidence at fallback:",
         JSON.stringify(currentEvidence),
@@ -506,17 +520,20 @@ async function captureAdaptiveBranch(
     await page.screenshot({ path: pedsThreePath, fullPage: false });
     await page.waitForTimeout(Math.max(4000, (options.durationMs || 30000) / 5));
     await page.screenshot({ path: pedsBodyPath, fullPage: false });
-    const inspection = await page.evaluate(() => ({
-      adaptiveDialogue: browserPageWindow.__openClinXrPedsAdaptiveDialogueEvidence ?? null,
-      playback: browserPageWindow.__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
-      sceneAssets: browserPageWindow.__openClinXrSceneAssetEvidence ?? null,
-      mouthGaze: browserPageWindow.__openClinXrMouthGazePoseComparatorEvidence ?? null,
-      pageErrors: browserPageWindow.__openClinXrBootEvidence?.pageErrors ?? [],
-      liveLipsyncBind:
-        (browserPageWindow.__openClinXrHumanoidSpeechEvidence as any)?.liveSource
-        ?? (browserPageWindow.__openClinXrMouthGazePoseComparatorEvidence as any)?.liveSource
-        ?? "live_blueprint_dialogue_emotion_source",
-    }));
+    const inspection = await page.evaluate(() => {
+      const adaptiveWindow = globalThis as unknown as typeof globalThis & Record<string, any>;
+      return {
+        adaptiveDialogue: adaptiveWindow.__openClinXrPedsAdaptiveDialogueEvidence ?? null,
+        playback: adaptiveWindow.__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
+        sceneAssets: adaptiveWindow.__openClinXrSceneAssetEvidence ?? null,
+        mouthGaze: adaptiveWindow.__openClinXrMouthGazePoseComparatorEvidence ?? null,
+        pageErrors: adaptiveWindow.__openClinXrBootEvidence?.pageErrors ?? [],
+        liveLipsyncBind:
+          adaptiveWindow.__openClinXrHumanoidSpeechEvidence?.liveSource
+          ?? adaptiveWindow.__openClinXrMouthGazePoseComparatorEvidence?.liveSource
+          ?? "live_blueprint_dialogue_emotion_source",
+      };
+    });
     return {
       policyTrigger,
       screenshotPath,
@@ -554,7 +571,8 @@ async function waitForRuntimeReady(page: Page, role: CaptureRole = "patient"): P
   try {
     await page.waitForFunction(
       (expected) => {
-        const scene = (browserPageWindow as any).__openClinXrSceneAssetEvidence;
+        const readyWindow = globalThis as unknown as typeof globalThis & Record<string, any>;
+        const scene = readyWindow.__openClinXrSceneAssetEvidence as any;
         const humanoids =
           scene?.assets?.filter(
             (asset: { assetPath?: string; status?: string }) =>
@@ -605,34 +623,212 @@ async function captureEdSeedRealGarmentEvidence(
   const frontAltPath = path.join(targetDir, "ed-gown-real-garment-front_2026-06-07.png");
   try {
     await mkdir(targetDir, { recursive: true });
-    const edUrl = buildBaseUrl(options.port, options.captureMode, { useEd: true });
+    const edMode = options.edBayVisible && !options.captureMode.includes("ed-bay-visible")
+      ? `${options.captureMode}-ed-bay-visible`
+      : options.captureMode;
+    const edUrl = buildBaseUrl(options.port, edMode, { useEd: true });
     await page.goto(edUrl, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(10000);
+    // Evidence-driven readiness (replaces the fixed wait): the room shell
+    // streams in after domcontentloaded; screenshotting early captures a void.
+    // Fails LOUDLY (non-zero exit) instead of screenshotting a dark frame.
+    await waitForEdBayReady(page, edUrl);
+    // Determinism: all four PNGs come from the SAME settled state. The render
+    // loop is pinned to t=0 (?openclinxrDeterministicCapture=1), so poses are
+    // identical frame-to-frame; the only yields below are single rAF quanta so
+    // Playwright screenshots consecutive settled frames.
+    await page.evaluate(`new Promise((resolve) => window.requestAnimationFrame(() => resolve(0)))`);
     await page.screenshot({ path: frontPath, fullPage: false });
     await page.screenshot({ path: frontAltPath, fullPage: false });
-    await page.waitForTimeout(1500);
+    await page.evaluate(`new Promise((resolve) => window.requestAnimationFrame(() => resolve(0)))`);
     await page.screenshot({ path: threeQuarterPath, fullPage: false });
-    await page.waitForTimeout(Math.max(3000, (options.durationMs || 10000) / 3));
+    await page.evaluate(`new Promise((resolve) => window.requestAnimationFrame(() => resolve(0)))`);
     await page.screenshot({ path: bodyMotionPath, fullPage: false });
-    const inspection = await page.evaluate(() => ({
-      schemaVersion: "openclinxr.ui-xr-ed-gown-geo-reorchestrate-capture.v1",
-      sceneAssets: (browserPageWindow as any).__openClinXrSceneAssetEvidence ?? null,
-      mouthGaze: (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
-      adaptive: (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
-      boot: (browserPageWindow as any).__openClinXrBootEvidence ?? null,
-      promotionSurfaces:
-        (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence?.promotionFlow
-        ?? "ed_gown_geo_reorchestrate:promotionStatus_realismGrade_realGarmentRegionFromPhenotype_via_userData+garmentGeometry",
-      garmentDeformEvidence:
-        (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence?.garmentGeometry?.sleeveDeform
-        || "exercised_via_ed_anny_real_garment_patient_traverse_in_main.ts (no-cull/cyan/openClinXrSleeveDeformEvidence)",
-      captureEvidence:
-        "ui-xr-peds-real-garment-sleeve-*.png in anny-real-garment-2026-06-07/ per done_when; ed bay framing + gown regex + sleeveDeform in MouthGaze",
-    }));
-    return { frontPath, threeQuarterPath, bodyMotionPath, frontAltPath, inspection, edUrl, targetDir };
+    const inspection = await page.evaluate(
+      `(() => {
+        var scene = window.__openClinXrSceneAssetEvidence;
+        var mouthGaze = window.__openClinXrMouthGazePoseComparatorEvidence;
+        var adaptive = window.__openClinXrPedsAdaptiveDialogueEvidence;
+        var boot = window.__openClinXrBootEvidence;
+        var sleeveDeform = (mouthGaze && mouthGaze.garmentGeometry && mouthGaze.garmentGeometry.sleeveDeform)
+          || "exercised_via_ed_anny_real_garment_patient_traverse_in_main.ts (no-cull/cyan/openClinXrSleeveDeformEvidence)";
+        var promotion = (adaptive && adaptive.promotionFlow)
+          || "ed_gown_geo_reorchestrate:promotionStatus_realismGrade_realGarmentRegionFromPhenotype_via_userData+garmentGeometry";
+        return {
+          schemaVersion: "openclinxr.ui-xr-ed-gown-geo-reorchestrate-capture.v1",
+          sceneAssets: scene || null,
+          mouthGaze: mouthGaze || null,
+          adaptive: adaptive || null,
+          boot: boot || null,
+          promotionSurfaces: promotion,
+          garmentDeformEvidence: sleeveDeform,
+          captureEvidence:
+            "ui-xr-peds-real-garment-sleeve-*.png in anny-real-garment-2026-06-07/ per done_when; ed bay framing + gown regex + sleeveDeform in MouthGaze",
+        };
+      })()`,
+    );
+    return { frontPath, threeQuarterPath, bodyMotionPath, frontAltPath, inspection, edUrl, targetDir, edMode };
   } finally {
     await page.close();
   }
+}
+
+const ED_ENVIRONMENT_READY_TIMEOUT_MS = 120_000;
+const ED_CAMERA_FRAMING_CUE = "humanoid_camera_framing_decluttered_three_actor_environment_review";
+
+type EdBayReadinessStatus = {
+  reason: string;
+  expectedAssetCount: number;
+  loadedCount: number;
+  failedCount: number;
+  pendingCount: number;
+  fallbackActiveCount: number;
+};
+
+/**
+ * Evidence-driven ED bay readiness gate. Polls window.__openClinXrSceneAssetEvidence
+ * until the room shell slot (ed_environment / ed-exam-bay-shell.glb from the static
+ * generated bundle) reports loaded with no fallback, the decluttered framing cue is
+ * present, and the ED comparator framing has taken effect. Throws LOUDLY on timeout
+ * or shell failure so the capture exits non-zero instead of screenshotting a void.
+ *
+ * Determinism addendum: after the shell gate passes, waits for the patient figure
+ * mesh to be registered (primary actor slot has a loaded humanoid with visible
+ * garment meshes) AND for the render loop to settle (framesObserved >= 30 with
+ * two consecutive reads at least 500ms apart showing no new pending assets) AND
+ * for the comparator camera pose to match its authored ED values. All fixed sleeps
+ * after this gate are render-quantum yields (rAF settle), not wall-clock waits —
+ * every screenshot below fires from this same settled state.
+ */
+async function waitForEdBayReady(page: Page, url: string): Promise<void> {
+  const deadline = Date.now() + ED_ENVIRONMENT_READY_TIMEOUT_MS;
+  let lastSnapshot = "not_polled";
+  while (Date.now() < deadline) {
+    // The string body is sent to the browser verbatim: it references the real
+    // page `window` directly and is never compiled by tsx (which would inject
+    // an undefined `__name` helper for closures and has no binding for the
+    // Node-side browserPageWindow type shim).
+    const status = await page.evaluate(
+      `(() => {
+        var scene = window.__openClinXrSceneAssetEvidence;
+        var mouthGaze = window.__openClinXrMouthGazePoseComparatorEvidence;
+        var assets = (scene && Array.isArray(scene.assets)) ? scene.assets : [];
+        var shell = null;
+        for (var i = 0; i < assets.length; i++) {
+          var a = assets[i];
+          if (
+            a.assetId === "ed_environment"
+            || String(a.assetId || "").includes("ed_exam_bay_environment_shell")
+            || String(a.assetPath || "").includes("ed-exam-bay-shell.glb")
+          ) { shell = a; break; }
+        }
+        var reason =
+          !scene || !Array.isArray(scene.assets) ? "waiting_for_scene_asset_evidence"
+          : shell === null ? "waiting_for_ed_environment_slot"
+          : shell.status === "failed" ? "ed_environment_failed"
+          : shell.status !== "loaded" || shell.fallbackActive === true
+            ? "waiting_for_ed_environment_loaded_no_fallback"
+            : scene.cameraFramingCue !== ${JSON.stringify(ED_CAMERA_FRAMING_CUE)}
+              ? "waiting_for_camera_framing_cue"
+              : !mouthGaze || mouthGaze.comparator !== "ed_anny_real_garment_patient"
+                ? "waiting_for_ed_comparator_framing"
+                : "ready";
+        return {
+          reason: reason,
+          expectedAssetCount: (scene && scene.expectedAssetCount) || -1,
+          loadedCount: (scene && scene.loadedCount) || -1,
+          failedCount: (scene && scene.failedCount) || -1,
+          pendingCount: (scene && scene.pendingCount) || -1,
+          fallbackActiveCount: (scene && scene.fallbackActiveCount) || -1,
+        };
+      })()`,
+    ) as EdBayReadinessStatus;
+    lastSnapshot = JSON.stringify(status);
+    if (status.reason === "ready") break;
+    if (status.reason === "ed_environment_failed") {
+      throw new Error(
+        `[ui-xr-ed-capture] ED bay room shell failed to load (${url}); refusing void screenshot. snapshot=${lastSnapshot}`,
+      );
+    }
+    await page.waitForTimeout(1000);
+  }
+  if (Date.now() >= deadline) {
+    throw new Error(
+      `[ui-xr-ed-capture] ED bay readiness timeout after ${ED_ENVIRONMENT_READY_TIMEOUT_MS}ms (${url}); refusing void screenshot. snapshot=${lastSnapshot}`,
+    );
+  }
+  // Phase 2: figure-mesh attached + camera settled + render loop settled.
+  // Fails loudly on timeout; never falls through to a screenshot.
+  await waitForEdFigureAndCameraSettled(page, url);
+}
+
+type EdFigureSettledStatus = {
+  reason: string;
+  figureLoaded: boolean;
+  garmentVisible: boolean;
+  framingOk: boolean;
+  framesObserved: number;
+  pendingCount: number;
+};
+
+// Authored ED comparator camera pose (apps/ui-xr/src/main.ts ED branch).
+const ED_CAMERA_POS = { x: -0.35, y: 1.0, z: 2.45 };
+const ED_CAMERA_FRAMING = "clean_ed_anny_real_garment_source_comparator_full_body_ed_gown_sleeve_deform_capture_ed_bay_ed-gown-geo-reorchestrate";
+
+async function waitForEdFigureAndCameraSettled(page: Page, url: string): Promise<void> {
+  const deadline = Date.now() + ED_ENVIRONMENT_READY_TIMEOUT_MS;
+  let lastSnapshot = "not_polled";
+  let framesAtLastPoll = -1;
+  let settledPolls = 0;
+  while (Date.now() < deadline) {
+    const status = await page.evaluate(
+      `(() => {
+        var scene = window.__openClinXrSceneAssetEvidence;
+        var mouthGaze = window.__openClinXrMouthGazePoseComparatorEvidence;
+        var frameStats = window.__openClinXrFrameStats;
+        var camPose = window.__openClinXrEdBayVisibleCameraPose;
+        var assets = (scene && Array.isArray(scene.assets)) ? scene.assets : [];
+        var figureLoaded = false;
+        var garmentVisible = false;
+        for (var i = 0; i < assets.length; i++) {
+          var a = assets[i];
+          if (String(a.assetPath || "").includes("ed_chest_pain_patient_real_garment.glb") && a.status === "loaded") figureLoaded = true;
+        }
+        var garment = mouthGaze && mouthGaze.garmentGeometry;
+        garmentVisible = Boolean(garment && garment.visible && garment.hasVisibleVolume);
+        var framingOk = Boolean(camPose)
+          && camPose.framing === ${JSON.stringify(ED_CAMERA_FRAMING)}
+          && Math.abs(camPose.position.x - ${ED_CAMERA_POS.x}) < 0.01
+          && Math.abs(camPose.position.y - ${ED_CAMERA_POS.y}) < 0.01
+          && Math.abs(camPose.position.z - ${ED_CAMERA_POS.z}) < 0.01;
+        var framesObserved = (frameStats && frameStats.framesObserved) || 0;
+        var pendingCount = (scene && scene.pendingCount) || 0;
+        var reason =
+          !figureLoaded ? "waiting_for_ed_figure_loaded"
+          : !garmentVisible ? "waiting_for_ed_garment_mesh_visible"
+          : !framingOk ? "waiting_for_ed_camera_pose"
+          : framesObserved < 30 ? "waiting_for_render_loop_settle"
+          : pendingCount !== 0 ? "waiting_for_zero_pending_assets"
+          : "ready";
+        return { reason: reason, figureLoaded: figureLoaded, garmentVisible: garmentVisible, framingOk: framingOk, framesObserved: framesObserved, pendingCount: pendingCount };
+      })()`,
+    ) as EdFigureSettledStatus;
+    lastSnapshot = JSON.stringify(status);
+    if (status.reason === "ready") {
+      // Two consecutive polls with frames advancing and zero pending = settled.
+      if (status.framesObserved !== framesAtLastPoll) {
+        settledPolls += 1;
+        framesAtLastPoll = status.framesObserved;
+      }
+      if (settledPolls >= 2) return;
+    } else {
+      settledPolls = 0;
+      framesAtLastPoll = status.framesObserved;
+    }
+    await page.waitForTimeout(500);
+  }
+  throw new Error(
+    `[ui-xr-ed-capture] ED figure/camera settle timeout after ${ED_ENVIRONMENT_READY_TIMEOUT_MS}ms (${url}); refusing screenshot. snapshot=${lastSnapshot}`,
+  );
 }
 
 async function clickTraceTag(page: Page, traceTag: string): Promise<void> {
@@ -673,6 +869,7 @@ function parseArgs(args: string[]): CliOptions {
     settleMs: 10000,
     roles: ["patient"],
     useEd: false,
+    edBayVisible: false,
   };
 
   let roleFlag: string | undefined;
@@ -694,6 +891,7 @@ function parseArgs(args: string[]): CliOptions {
     else if (arg === "--role") roleFlag = requireNext(args, ++index, arg);
     else if (arg === "--comparator") comparatorFlag = requireNext(args, ++index, arg);
     else if (arg === "--use-ed") options.useEd = true;
+    else if (arg === "--ed-bay-visible") options.edBayVisible = true;
   }
 
   // Resolve roles from --role and/or --comparator

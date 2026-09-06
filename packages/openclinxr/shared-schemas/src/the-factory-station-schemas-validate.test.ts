@@ -32,6 +32,13 @@ const VALID: Record<ProductionStationId, Record<string, unknown>> = {
   },
   staging: { actorId: "actor_a", supportSurface: "stretcher", plantOffsetMeters: 0.1 },
   dialogue_runtime: { actorId: "actor_a", openingUtterance: "hello", policyId: "peds_v1" },
+  lighting_design: {
+    environmentId: "ed_bay_v1",
+    bboxJson: '{"minX":-2,"minY":-2.5,"minZ":0,"maxX":2,"maxY":2.5,"maxZ":2.8}',
+    castJson: '[{"actorId":"patient_maya","position":[0.5,0,0]}]',
+    mood: "ed_exam_bright",
+    seed: 7,
+  },
 };
 
 describe("the factory station schemas validate", () => {

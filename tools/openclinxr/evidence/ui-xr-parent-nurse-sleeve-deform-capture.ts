@@ -64,20 +64,27 @@ async function captureComparator(
   // runtime humanoids by asset identity — the library bodies under xr-assets/humanoids/candidates/
   // no longer match a generated-humanoids/ folder check, which timed this capture out at 180s.
   await page.addScriptTag({
-    content: `browserPageWindow.__openClinXrIsRuntimeHumanoidAssetPath = ${isRuntimeHumanoidAssetPath.toString()};`,
+    content: `window.__openClinXrIsRuntimeHumanoidAssetPath = ${isRuntimeHumanoidAssetPath.toString()};`,
   });
 
   // Wait for the real-garment humanoid to load (peds_asthma scenario has parent + nurse actors)
   await page.waitForFunction(
     (expectedGlb: string) => {
-      const scene = (browserPageWindow as any).__openClinXrSceneAssetEvidence;
-      const isHumanoid = (browserPageWindow as any).__openClinXrIsRuntimeHumanoidAssetPath;
-      const humanoids = scene?.assets?.filter((a: any) =>
-        isHumanoid(a.assetPath) || a.assetPath?.includes(expectedGlb),
-      ) ?? [];
+      const pageWindow = (globalThis as any)["window"] as {
+        __openClinXrSceneAssetEvidence?: {
+          assets?: Array<{ assetPath?: string; status?: string }>;
+      };
+        __openClinXrIsRuntimeHumanoidAssetPath?: (assetPath: string) => boolean;
+      };
+      const scene = pageWindow.__openClinXrSceneAssetEvidence;
+      const isHumanoid = pageWindow.__openClinXrIsRuntimeHumanoidAssetPath;
+      const humanoids = (scene?.assets?.filter((a: { assetPath?: string; status?: string }) =>
+        (typeof isHumanoid === "function" && typeof a.assetPath === "string" && isHumanoid(a.assetPath))
+        || a.assetPath?.includes(expectedGlb),
+      )) ?? [];
       return Boolean(
         humanoids.length >= 2
-        && humanoids.some((a: any) => a.assetPath?.includes(expectedGlb) && a.status === "loaded"),
+        && humanoids.some((a: { assetPath?: string; status?: string }) => a.assetPath?.includes(expectedGlb) && a.status === "loaded"),
       );
     },
     run.glbPath,
@@ -92,7 +99,12 @@ async function captureComparator(
   try {
     await page.waitForFunction(
       () => {
-        const mg = (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence;
+        const pageWindow = (globalThis as any)["window"] as {
+          __openClinXrMouthGazePoseComparatorEvidence?: {
+            garmentGeometry?: { name?: unknown } | null;
+          } | null;
+        };
+        const mg = pageWindow.__openClinXrMouthGazePoseComparatorEvidence;
         return Boolean(mg?.garmentGeometry?.name);
       },
       undefined,
@@ -119,17 +131,28 @@ async function captureComparator(
   console.log(`[parent-nurse-capture] ${run.label} three_quarter: ${threeQuarterPath} (${threeQuarterSize} bytes)`);
 
   // Collect runtime evidence
-  const inspection = await page.evaluate(() => ({
-    sceneAssets: (browserPageWindow as any).__openClinXrSceneAssetEvidence ?? null,
-    // #315: the model assetId of the actor the comparator capture framed (recorded intent).
-    cameraTargetActorId: (browserPageWindow as any).__openClinXrComparatorCameraTargetActorId ?? null,
-    // #315 follow-up: framing measurement — NDC of the framed subject + slot visibility.
-    framingDump: (browserPageWindow as any).__openClinXrComparatorFramingDump ?? null,
-    mouthGaze: (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
-    adaptive: (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
-    boot: (browserPageWindow as any).__openClinXrBootEvidence ?? null,
-    playback: (browserPageWindow as any).__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
-  }));
+  const inspection = await page.evaluate(() => {
+    const pageWindow = (globalThis as any)["window"] as {
+      __openClinXrSceneAssetEvidence?: unknown;
+      __openClinXrComparatorCameraTargetActorId?: unknown;
+      __openClinXrComparatorFramingDump?: unknown;
+      __openClinXrMouthGazePoseComparatorEvidence?: unknown;
+      __openClinXrPedsAdaptiveDialogueEvidence?: unknown;
+      __openClinXrBootEvidence?: unknown;
+      __openClinXrPedsActorPlayerRuntimePlaybackEvidence?: unknown;
+    };
+    return {
+      sceneAssets: pageWindow.__openClinXrSceneAssetEvidence ?? null,
+      // #315: the model assetId of the actor the comparator capture framed (recorded intent).
+      cameraTargetActorId: pageWindow.__openClinXrComparatorCameraTargetActorId ?? null,
+      // #315 follow-up: framing measurement — NDC of the framed subject + slot visibility.
+      framingDump: pageWindow.__openClinXrComparatorFramingDump ?? null,
+      mouthGaze: pageWindow.__openClinXrMouthGazePoseComparatorEvidence ?? null,
+      adaptive: pageWindow.__openClinXrPedsAdaptiveDialogueEvidence ?? null,
+      boot: pageWindow.__openClinXrBootEvidence ?? null,
+      playback: pageWindow.__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
+    };
+  });
 
   return {
     comparator: run.comparator,
@@ -236,7 +259,7 @@ async function main(): Promise<void> {
           "production_asset_readiness",
           "learner_readiness",
         ],
-      };
+    };
 
       await writeFile(options.inspectionPath, `${JSON.stringify(inspection, null, 2)}\n`, "utf8");
       console.log(`[parent-nurse-capture] inspection written: ${options.inspectionPath}`);

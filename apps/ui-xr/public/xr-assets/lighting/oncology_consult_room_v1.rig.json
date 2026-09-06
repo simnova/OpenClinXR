@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "openclinxr.lighting-rig.v1",
+  "room": {
+    "environmentId": "oncology_consult_room_v1"
+  },
+  "bbox": {
+    "minX": -2.75,
+    "minY": -2.75,
+    "minZ": -0.1206,
+    "maxX": 2.75,
+    "maxY": 2.75,
+    "maxZ": 2.5294
+  },
+  "cast": [
+    {
+      "actorId": "patient_david_miller_v1",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actorId": "sister_rachel_miller_v1",
+      "position": [
+        -0.8,
+        0.95,
+        0.75
+      ]
+    }
+  ],
+  "mood": "evening_calm",
+  "seed": 7,
+  "exposure": 0.7,
+  "lights": [
+    {
+      "name": "key",
+      "type": "area",
+      "position": [
+        -0.0741,
+        -0.066,
+        2.2794
+      ],
+      "energy": 57.6,
+      "size": 2.475,
+      "colorTemperatureK": 2700
+    },
+    {
+      "name": "fill",
+      "type": "point",
+      "position": [
+        0.0797,
+        0.0608,
+        1.2044
+      ],
+      "energy": 69.8182,
+      "size": 0,
+      "colorTemperatureK": 3000
+    },
+    {
+      "name": "wash_px",
+      "type": "area",
+      "position": [
+        2.55,
+        0.0615,
+        1.2044
+      ],
+      "energy": 27.9273,
+      "size": 1.4575,
+      "colorTemperatureK": 3000
+    },
+    {
+      "name": "wash_nx",
+      "type": "area",
+      "position": [
+        -2.55,
+        -0.0155,
+        1.2044
+      ],
+      "energy": 27.9273,
+      "size": 1.4575,
+      "colorTemperatureK": 3000
+    },
+    {
+      "name": "wash_py",
+      "type": "area",
+      "position": [
+        0.0982,
+        2.55,
+        1.2044
+      ],
+      "energy": 27.9273,
+      "size": 1.4575,
+      "colorTemperatureK": 3000
+    },
+    {
+      "name": "wash_ny",
+      "type": "area",
+      "position": [
+        -0.1091,
+        -2.55,
+        1.2044
+      ],
+      "energy": 27.9273,
+      "size": 1.4575,
+      "colorTemperatureK": 3000
+    },
+    {
+      "name": "spill",
+      "type": "directional",
+      "position": [
+        -2.75,
+        -2.75,
+        2.5294
+      ],
+      "target": [
+        0,
+        0,
+        1.2044
+      ],
+      "energy": 13.0909,
+      "size": 0,
+      "colorTemperatureK": 2700
+    }
+  ],
+  "bakePathLlm": false
+}

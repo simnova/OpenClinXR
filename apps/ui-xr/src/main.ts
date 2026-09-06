@@ -67,6 +67,7 @@ import {
 } from "./actor-floor-composition.js";
 import { enableCaptureRendererShadowMap, isCaptureShadowPath, markActorCastShadow, markFloorReceiveShadow } from "./capture-shadow-map.js";
 import { applyStationInteriorLighting, resolveStationInteriorLightingVariantId } from "./station-interior-lighting.js";
+import { applyStationInteriorLightingForEnvironment } from "./lighting-rig-runtime.js";
 import {
   addGeneratedHumanoidRoleContinuityWardrobeCue,
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,
@@ -162,7 +163,6 @@ import {
 } from "./station-api-client.js";
 import { assertHumanoidRootUpright } from "./humanoid-load-guard.js";
 import { applyRealGarmentEvidenceSurfaces, sleeveDeformCueForAssetPath } from "./real-garment-evidence-surfaces.js";
-import { computeMeshBounds, frameCamera } from "./camera-fit-to-bounds.js";
 import {
   resolvePedsAdaptiveDialogueBranch,
   type PedsAdaptiveDialogueBranchResolution,
@@ -171,6 +171,15 @@ import { applyGeneratedScalarVisemeToRoot, applyNamedSpeechVisemes, attachBakedC
 import { collectResolvedMorphTargets, MOUTH_OPEN_CAP } from "./viseme-morph-apply.js";
 import { applyBlinkClosureToRoot } from "./blink-runtime-wire.js";
 import { applyGazeToHumanoid } from "./gaze-drives-eyes.js";
+import {
+  applyEdBayVisibleComparatorCameraPose,
+  frameComparatorCaptureOnNamedActor as frameComparatorCaptureOnNamedActorImpl,
+  isDeterministicCaptureClock,
+  isEdBayVisibleCaptureMode,
+  recordEdBayVisibleCameraPose,
+  setComparatorCaptureCamera,
+  setComparatorCaptureSceneRoot,
+} from "./capture-comparator.js";
 import {
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
@@ -532,30 +541,7 @@ declare global {
     __openClinXrTraceActionHandoffEvidence?: XrTraceActionHandoffEvidence;
     __openClinXrTraceInteractionEvidenceSummary?: XrTraceInteractionEvidenceSummary;
     __openClinXrSceneAssetEvidence?: SceneAssetEvidence;
-    /** #315: model assetId of the actor a comparator capture framed (recorded intent). */
-    __openClinXrComparatorCameraTargetActorId?: string;
-    /** #315 follow-up: framing measurement — NDC of the framed subject + per-slot visibility/NDC. */
-    __openClinXrComparatorFramingDump?: {
-      comparator: string;
-      namedActorId: string;
-      boundsMin: { x: number; y: number; z: number };
-      boundsMax: { x: number; y: number; z: number };
-      boundsCenter: { x: number; y: number; z: number };
-      camPositionLocal: { x: number; y: number; z: number };
-      camWorldPosition: { x: number; y: number; z: number };
-      camParentName: string | null;
-      camParentMatrixWorld: number[] | null;
-      frameSpanFraction: number | null;
-      ndcBoundsCenter: { x: number; y: number; z: number };
-      namedActorSlotVisible: boolean | null;
-      slots: Array<{
-        slotKind: string;
-        actorId: string;
-        visible: boolean;
-        worldCenter: { x: number; y: number; z: number };
-        ndc: { x: number; y: number; z: number };
-      }>;
-    };
+    // Comparator + ED-bay-visible window fields live in capture-comparator.ts.
     __openClinXrEnvironmentStateEvidence?: EnvironmentStateEvidence;
     __openClinXrHumanoidSpeechEvidence?: HumanoidSpeechEvidence;
     __openClinXrLiveActorTurnConsumption?: LiveActorTurnConsumption;
@@ -724,9 +710,6 @@ function recordBootPhase(phase: string, error?: unknown): void {
 
 const sceneAssetStatusRecords = new Map<string, SceneAssetEvidence["assets"][number]>();
 const runtimeEquipmentSlotsByAssetId = new Map<string, Group>();
-/** #315: camera + scene root the comparator capture frames through (assigned in createStationScene). */
-let comparatorCaptureCamera: PerspectiveCamera | null = null;
-let comparatorCaptureSceneRoot: Object3D | null = null;
 let encounterRuntimeAssetBundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
 let patientRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
   findRuntimeActorAsset(encounterRuntimeAssetBundle, "patient_robert_hayes_v1")?.model,
@@ -1445,7 +1428,7 @@ function shouldShowInSceneEvidencePanels(): boolean {
 
 function shouldShowActorRealismRequirementPanel(evidence: HumanoidSpeechEvidence | null = window.__openClinXrHumanoidSpeechEvidence ?? null): boolean {
   const captureMode = selectedCaptureMode();
-  if (shouldUseCleanHumanoidSourceComparatorCapture()) {
+  if (shouldUseCleanHumanoidSourceComparatorCapture() && !isEdBayVisibleComparatorCapture()) {
     return false;
   }
   return shouldShowInSceneEvidencePanels()
@@ -1464,10 +1447,12 @@ function shouldShowInSceneIdentityLabels(): boolean {
 
 function isSceneOnlyVisualReviewCaptureMode(): boolean {
   const captureMode = selectedCaptureMode();
+  // ed-bay-visible keeps the room shell: never route it through the scene-only review filter.
+  if (captureMode.includes("ed-bay-visible")) return false;
   return captureMode.includes("scene-only")
     || captureMode.includes("dynamic-only")
     || captureMode.includes("visual-cleanup")
-    || shouldUseCleanHumanoidSourceComparatorCapture();
+    || (shouldUseCleanHumanoidSourceComparatorCapture() && !isEdBayVisibleComparatorCapture());
 }
 
 const sceneOnlyEssentialRoomPropIds = new Set([
@@ -3209,7 +3194,7 @@ function addReusableExteriorPreEncounterRoom(scene: Scene, doorwayTheme: Scenari
     "note_capture_affordance_reused_outside_dynamic_clinical_world";
   exterior.add(notePanel.mesh);
 
-  if (shouldUseCleanHumanoidSourceComparatorCapture()) {
+  if (shouldUseCleanHumanoidSourceComparatorCapture() && !isEdBayVisibleComparatorCapture()) {
     exterior.visible = false;
     exterior.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   }
@@ -3331,7 +3316,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   const scene = new Scene();
   scene.name = iwsdkStationSceneObjects.stationRoot;
   window.__openClinXrDebugScene = scene;
-  comparatorCaptureSceneRoot = scene;
+  setComparatorCaptureSceneRoot(scene);
   scene.background = new Color(doorwayTheme.backgroundColor);
   scene.userData.openClinXrEncounterDoorwayTheme = {
     scenarioId: encounterRuntimeAssetBundle.scenarioId,
@@ -3351,6 +3336,8 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   const actorCloseCapture = isActorCloseRealismCaptureMode() || actorPoseReviewCapture;
   const generatedSceneOverviewCapture = isGeneratedSceneOverviewCaptureMode();
   const cleanHumanoidSourceComparatorCapture = shouldUseCleanHumanoidSourceComparatorCapture();
+  const edBayVisibleCapture = isEdBayVisibleComparatorCapture();
+  const hideRoomForCleanCapture = cleanHumanoidSourceComparatorCapture && !edBayVisibleCapture;
   const selectedScenarioRuntimeMismatch = isSelectedScenarioRuntimeBundleMismatch();
   reportRuntimeBundleScenarioMatch();
   const selectedStationContext = stationContextForSelectedScenario();
@@ -3392,11 +3379,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       camera.lookAt(0.0, 0.95, 0.0);
       camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_nurse_source_comparator_full_body_candidate_capture";
     } else if (selectedHumanoidSourceComparator() === "ed_anny_real_garment_patient") {
-      // ed-gown-geo-reorchestrate (Q1+Q5): expanded framing for hospital_gown sleeves (baggier adult topology vs peds tshirt); lower/closer to expose 3D deforming sleeve volume + motion in ed bay (cyan/no-cull/userData/garmentGeometry visible in screenshots)
-      camera.fov = 50;
-      camera.position.set(0.12, 0.92, 2.95);
-      camera.lookAt(0.08, 0.68, -0.72);
-      camera.userData.openClinXrCameraFraming = "clean_ed_anny_real_garment_source_comparator_full_body_ed_gown_sleeve_deform_capture_ed_bay_ed-gown-geo-reorchestrate";
+      applyEdBayVisibleComparatorCameraPose(camera, selectedHumanoidSourceComparator());
     } else {
       camera.fov = 48;
       camera.position.set(-0.08, 0.86, 3.45);
@@ -3419,9 +3402,9 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     usesAuthoredWideDefaultFraming = true;
   }
   locomotionRig.add(camera);
-  comparatorCaptureCamera = camera;
+  setComparatorCaptureCamera(camera);
 
-  applyStationInteriorLighting({ scene, renderer, variantId: resolveStationInteriorLightingVariantId(new URLSearchParams(window.location.search).get("stationLighting")), ambientLightName: iwsdkStationSceneObjects.ambientLight, keyLightName: iwsdkStationSceneObjects.keyLight, keyCastShadow: isCaptureShadowPath(selectedCaptureMode()) });
+  await applyStationInteriorLightingForEnvironment({ scene, renderer, environmentId: resolveActiveEnvironmentId(), variantId: resolveStationInteriorLightingVariantId(new URLSearchParams(window.location.search).get("stationLighting")), ambientLightName: iwsdkStationSceneObjects.ambientLight, keyLightName: iwsdkStationSceneObjects.keyLight, keyCastShadow: isCaptureShadowPath(selectedCaptureMode()) });
 
   addReusableExteriorPreEncounterRoom(scene, doorwayTheme);
 
@@ -3435,10 +3418,12 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   floor.userData.openClinXrSceneNecessityPolicy = "dynamic_encounter_world_floor_from_environment_descriptor";
   floor.userData.openClinXrEncounterSpecificRuntimeTheme = "floor_color_derived_from_environmentId_descriptor";
   floor.userData.openClinXrPortalBoundaryPolicy = "belongs_to_dynamic_world_on_encounter_side_of_doorway";
-  if (cleanHumanoidSourceComparatorCapture) {
+  if (hideRoomForCleanCapture) {
     stationEnvironment.visible = false;
     floor.visible = false;
     floor.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+  } else if (edBayVisibleCapture) {
+    floor.userData.openClinXrComparatorVisibilityPolicy = "kept_visible_for_ed_bay_visible_comparator_capture";
   }
   // Case-env glTF handoff (factory caseDerivedVirtualEnvironment → player load).
   // #85 + #189: NEVER load a humanoid/candidate GLB as "environment". The peds asthma
@@ -3464,7 +3449,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     environmentFallbackActive: stationEnvironment.userData.environmentFallbackActive,
   };
   // #336: generated Infinigen room selected by environmentId; procedural box stays as fallback.
-  if (!cleanHumanoidSourceComparatorCapture && stationEnvironment.userData.openClinXrCompiledRoom !== true) {
+  if (!hideRoomForCleanCapture && stationEnvironment.userData.openClinXrCompiledRoom !== true) {
     loadInfinigenEnvironmentIntoStation({
       scene,
       environmentId: activeEnvironmentId,
@@ -3481,14 +3466,14 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   gltfEnvContainer.userData.producedManifestPath = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedManifestPath;
   gltfEnvContainer.userData.producedGltfUrl = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedGltfUrl;
   gltfEnvContainer.userData.openClinXrLaunchTestPolicy = "virtual env world launched in player (props + gltf handoff + authoring vet from case); experience via dev server + station select";
-  if (cleanHumanoidSourceComparatorCapture) {
+  if (hideRoomForCleanCapture) {
     gltfEnvContainer.visible = false;
     gltfEnvContainer.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   }
   scene.add(gltfEnvContainer);
   // Load produced/stub env glTF into the container when available.
   const gltfUrlForActualLoad = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedGltfUrl || floor.userData.caseDerivedVirtualEnvGltfHandoff?.gltfAssetUrl;
-  if (gltfUrlForActualLoad && !cleanHumanoidSourceComparatorCapture) {
+  if (gltfUrlForActualLoad && !hideRoomForCleanCapture) {
     try {
       const loader = new GLTFLoader();
       loader.load(
@@ -3526,7 +3511,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       gltfEnvContainer.userData.actualGltfLoadSetupError = String(e);
     }
   }
-  if (!cleanHumanoidSourceComparatorCapture) {
+  if (!hideRoomForCleanCapture) {
     // Room walls/floor: mountStationEnvironmentForRuntime; buildStationEnvironment is parametric fallback.
     addScenarioSpecificClinicalSetDressing(scene, doorwayTheme);
   }
@@ -3550,7 +3535,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     mismatchPanel.mesh.userData.openClinXrScenarioMismatchPolicy =
       "selected_scenario_specific_3d_pending_ed_fallback_hidden_to_prevent_false_realism_evidence";
     scene.add(mismatchPanel.mesh);
-  } else if (!cleanHumanoidSourceComparatorCapture) {
+  } else if (!hideRoomForCleanCapture) {
     addScenarioExpectationPanel(scene, selectedStationContext);
   }
 
@@ -3562,7 +3547,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   } else if (shouldSuppressGeneratedEnvironmentShell(encounterRuntimeAssetBundle.environment)) {
     environmentShell.visible = false;
     environmentShell.userData.openClinXrDynamicScenePolicy = "suppressed_mismatched_placeholder_environment_for_case_defined_scene_manifest";
-  } else if (cleanHumanoidSourceComparatorCapture) {
+  } else if (hideRoomForCleanCapture) {
     environmentShell.visible = false;
     environmentShell.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (actorPoseReviewCapture) {
@@ -3585,7 +3570,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   } else if (isDynamicGeneratedEncounterSceneMode()) {
     bed.visible = false;
     bed.userData.openClinXrDynamicScenePolicy = "hidden_when_scene_manifest_and_generated_environment_supply_encounter_context";
-  } else if (cleanHumanoidSourceComparatorCapture) {
+  } else if (hideRoomForCleanCapture) {
     bed.visible = false;
     bed.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (actorPoseReviewCapture) {
@@ -3603,7 +3588,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   } else if (isDynamicGeneratedEncounterSceneMode()) {
     monitor.visible = false;
     monitor.userData.openClinXrDynamicScenePolicy = "hidden_when_scene_manifest_and_generated_environment_supply_encounter_context";
-  } else if (cleanHumanoidSourceComparatorCapture) {
+  } else if (hideRoomForCleanCapture) {
     monitor.visible = false;
     monitor.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (actorPoseReviewCapture) {
@@ -3636,9 +3621,9 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     if (selectedScenarioRuntimeMismatch) {
       prop.visible = false;
       prop.userData.openClinXrDynamicScenePolicy = "hidden_because_selected_scenario_specific_3d_bundle_missing";
-    } else if (cleanHumanoidSourceComparatorCapture || actorPoseReviewCapture) {
+    } else if (hideRoomForCleanCapture || actorPoseReviewCapture) {
       prop.visible = false;
-      prop.userData.openClinXrCaptureDeclutterPolicy = cleanHumanoidSourceComparatorCapture
+      prop.userData.openClinXrCaptureDeclutterPolicy = hideRoomForCleanCapture
         ? "hidden_for_clean_humanoid_source_comparator_capture"
         : "hidden_for_actor_pose_review_only";
     } else if (encounterRuntimeAssetBundle.scenarioId === "ob_headache_preeclampsia_triage_v1") {
@@ -3665,7 +3650,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     }
     slot.position.set(item.position.x, item.position.y, item.position.z);
     slot.visible = !selectedScenarioRuntimeMismatch;
-    if (cleanHumanoidSourceComparatorCapture) {
+    if (hideRoomForCleanCapture) {
       slot.visible = false;
       slot.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
     }
@@ -4147,9 +4132,15 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     timestamp?: number,
     qualitySource: NonNullable<OpenClinXrFrameStats["qualitySource"]> = "webxr_animation_loop",
   ): void {
-    const now = typeof timestamp === "number" ? timestamp : performance.now();
+    // Deterministic capture clock: fixed t=0 instead of wall-clock rAF time.
+    const now = isDeterministicCaptureClock()
+      ? bootStartedAtMs
+      : typeof timestamp === "number" ? timestamp : performance.now();
     lastRenderLoopAtMs = now;
-    const deltaSeconds = Math.min((now - lastAnimateAtMs) / 1000, 0.05);
+    // Fixed 16ms step under the deterministic clock; wall-clock delta otherwise.
+    const deltaSeconds = isDeterministicCaptureClock()
+      ? 1 / 60
+      : Math.min((now - lastAnimateAtMs) / 1000, 0.05);
     lastAnimateAtMs = now;
     resize();
     applyInteriorPreviewCameraOnce();
@@ -4496,7 +4487,7 @@ function resolveActiveEnvironmentId(): string {
 }
 
 function addScenarioSpecificClinicalSetDressing(scene: Scene, doorwayTheme: ScenarioDoorwayVisualTheme): void {
-  if (shouldUseCleanHumanoidSourceComparatorCapture()) {
+  if (shouldUseCleanHumanoidSourceComparatorCapture() && !isEdBayVisibleComparatorCapture()) {
     return;
   }
   const sid = encounterRuntimeAssetBundle.scenarioId;
@@ -6855,77 +6846,23 @@ function handleClinicalTouch(
 
 /**
  * #315: frame a comparator capture on the NAMED actor after it loads.
- * `peds_anny_real_garment_parent` names the family actor, `..._nurse` the clinical-team
- * actor. The camera is constructed before any humanoid exists, so authored numbers were
- * always a guess about where an actor would end up (two hand-fixes reverted — see the
- * planted contract header). Reuse the proven fit-to-bounds solve (frameCamera) against
- * the loaded actor's world AABB, and record the model assetId it framed so a gate can
- * check recorded intent — a test cannot see a picture and byte size is not identity.
+ * Solve lives in capture-comparator.ts; main.ts only resolves the named actor.
  */
 function frameComparatorCaptureOnNamedActor(actorId: string, humanoid: Object3D, modelAssetId: string): void {
   const comparator = selectedHumanoidSourceComparator();
-  if (comparator !== "peds_anny_real_garment_parent" && comparator !== "peds_anny_real_garment_nurse") return;
-  if (!shouldUseCleanHumanoidSourceComparatorCapture()) return;
   const namedActorId = comparator === "peds_anny_real_garment_parent"
     ? runtimeFamilyActorId()
-    : runtimeClinicalTeamActorId();
-  if (!namedActorId || actorId !== namedActorId) return;
-  const cam = comparatorCaptureCamera;
-  if (!cam) return;
-  // World matrices must be current for the freshly-added subtree (#315 parent-aware solve).
-  comparatorCaptureSceneRoot?.updateMatrixWorld(true);
-  const bounds = computeMeshBounds(humanoid);
-  if (!Number.isFinite(bounds.min.x) || !Number.isFinite(bounds.max.x)) return;
-  const center = bounds.getCenter(new Vector3());
-  const frameSpanFraction = frameCamera(cam, bounds, "front");
-  cam.userData.openClinXrCameraFraming =
-    `clean_${comparator}_source_comparator_fit_to_bounds_named_actor_${namedActorId}_no_authored_numbers`;
-  cam.userData.openClinXrComparatorFrameSpanFraction = frameSpanFraction;
-  window.__openClinXrComparatorCameraTargetActorId = modelAssetId;
-  // #315 follow-up: recorded framing dump — NDC projection of the framed subject's
-  // world center plus every actor slot's visibility/NDC, so a framing miss is a
-  // measurement, not a pixel guess. A slot with visible=false cannot be the figure
-  // in the frame even though the camera aims at it.
-  cam.updateMatrixWorld(true);
-  cam.matrixWorldInverse.copy(cam.matrixWorld).invert();
-  const projectNdc = (point: Vector3): { x: number; y: number; z: number } => {
-    const p = point.clone().applyMatrix4(cam.matrixWorldInverse).applyMatrix4(cam.projectionMatrix);
-    return { x: Number(p.x.toFixed(3)), y: Number(p.y.toFixed(3)), z: Number(p.z.toFixed(3)) };
-  };
-  const slotRows: NonNullable<NonNullable<Window["__openClinXrComparatorFramingDump"]>["slots"]> = [];
-  comparatorCaptureSceneRoot?.updateMatrixWorld(true);
-  comparatorCaptureSceneRoot?.traverse((o) => {
-    const slotKind = (o as { userData?: { openClinXrSlotKind?: string } }).userData?.openClinXrSlotKind;
-    const slotActorId = (o as { userData?: { openClinXrActorId?: string } }).userData?.openClinXrActorId;
-    if (typeof slotKind !== "string" || typeof slotActorId !== "string" || slotActorId.length === 0) return;
-    const slotBounds = computeMeshBounds(o as Object3D);
-    if (!Number.isFinite(slotBounds.min.x)) return;
-    const slotCenter = slotBounds.getCenter(new Vector3());
-    slotRows.push({
-      slotKind,
-      actorId: slotActorId,
-      visible: (o as { visible: boolean }).visible,
-      worldCenter: { x: Number(slotCenter.x.toFixed(3)), y: Number(slotCenter.y.toFixed(3)), z: Number(slotCenter.z.toFixed(3)) },
-      ndc: projectNdc(slotCenter),
-    });
-  });
-  const worldPos = new Vector3();
-  cam.getWorldPosition(worldPos);
-  window.__openClinXrComparatorFramingDump = {
+    : comparator === "peds_anny_real_garment_nurse"
+      ? runtimeClinicalTeamActorId()
+      : null;
+  frameComparatorCaptureOnNamedActorImpl({
+    actorId,
+    humanoid,
+    modelAssetId,
     comparator,
     namedActorId,
-    boundsMin: { x: bounds.min.x, y: bounds.min.y, z: bounds.min.z },
-    boundsMax: { x: bounds.max.x, y: bounds.max.y, z: bounds.max.z },
-    boundsCenter: { x: center.x, y: center.y, z: center.z },
-    camPositionLocal: { x: cam.position.x, y: cam.position.y, z: cam.position.z },
-    camWorldPosition: { x: worldPos.x, y: worldPos.y, z: worldPos.z },
-    camParentName: cam.parent?.name ?? null,
-    camParentMatrixWorld: cam.parent ? Array.from(cam.parent.matrixWorld.elements) : null,
-    frameSpanFraction,
-    ndcBoundsCenter: projectNdc(center),
-    namedActorSlotVisible: humanoid.parent?.visible ?? null,
-    slots: slotRows,
-  };
+    cleanCapture: shouldUseCleanHumanoidSourceComparatorCapture(),
+  });
 }
 
 /**
@@ -7194,6 +7131,11 @@ function loadGeneratedHumanoidIntoActorSlot(
       // patient at the origin) via the proven fit-to-bounds solve, and record the target.
       frameComparatorCaptureOnNamedActor(options.actorId, humanoid, options.assetId);
       if (isCaptureShadowPath(selectedCaptureMode())) markActorCastShadow(humanoid);
+      // Deterministic ED-bay-visible capture: a debug scene graph readback so the
+      // capture script can verify camera pose without traversing live objects.
+      if (isEdBayVisibleComparatorCapture()) {
+        recordEdBayVisibleCameraPose();
+      }
       if (isHumanoidMouthGazePoseReviewCaptureMode()) {
         // #315 follow-up: the review subject is the comparator's NAMED actor — family for
         // _parent, clinical for _nurse, patient for the patient comparators. This block
@@ -7316,6 +7258,12 @@ function shouldUseCleanHumanoidSourceComparatorCapture(): boolean {
   return captureMode.includes("source-clean")
     || new URLSearchParams(window.location.search).get("humanoidSourceCleanCapture") === "1"
     || isRealGarmentSleeveDeformCapture();
+}
+
+// ED-bay-visible: keeps room shell/floor/set-dressing while preserving comparator
+// framing, garment evidence, and mouth-gaze evidence. Void stays default.
+function isEdBayVisibleComparatorCapture(): boolean {
+  return isEdBayVisibleCaptureMode(selectedCaptureMode());
 }
 
 function suppressRuntimeDiagnosticOverlaysForSourceComparator(humanoid: Group): void {
@@ -8888,7 +8836,8 @@ function createHumanoidEmotionExpressionState(): HumanoidEmotionExpressionState 
     targetEmotion: "neutral",
     weights: { ...weights },
     targetWeights: { ...weights },
-    transitionStartedAtMs: performance.now(),
+    // Deterministic capture: anchor to the frozen clock so emotion ramps are run-identical.
+    transitionStartedAtMs: isDeterministicCaptureClock() ? 0 : performance.now(),
     transitionDurationMs: 850,
   };
 }
@@ -9913,7 +9862,10 @@ function formatPortalTransitionEvidence(evidence: PortalTransitionEvidence | nul
 
 let start = performance.now();
 function tick(): void {
-  state = { ...state, elapsedSecond: Math.floor((performance.now() - start) / 1000) };
+  // Deterministic capture clock: freeze the wall-clock encounter timer at 00:00
+  // so DOM timer text is run-identical (PNG byte-identical, not just 3D-identical).
+  const tickNow = isDeterministicCaptureClock() ? start : performance.now();
+  state = { ...state, elapsedSecond: Math.floor((tickNow - start) / 1000) };
   clock.textContent = formatStationClock(state.elapsedSecond);
   if (examFormRunState) {
     examFormRunState = tickExamFormRunClock(examFormRunState, formElapsedSecondForCurrentStation());

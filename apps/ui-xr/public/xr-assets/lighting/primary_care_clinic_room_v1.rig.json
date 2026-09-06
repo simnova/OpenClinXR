@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "openclinxr.lighting-rig.v1",
+  "room": {
+    "environmentId": "primary_care_clinic_room_v1"
+  },
+  "bbox": {
+    "minX": -3.25,
+    "minY": -3.25,
+    "minZ": -0.12,
+    "maxX": 3.25,
+    "maxY": 3.25,
+    "maxZ": 2.53
+  },
+  "cast": [
+    {
+      "actorId": "patient_mario_guzman_v1",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actorId": "medical_assistant_jones_v1",
+      "position": [
+        -0.8,
+        0.95,
+        0.75
+      ]
+    }
+  ],
+  "mood": "clinic_day",
+  "seed": 7,
+  "exposure": 0.9,
+  "lights": [
+    {
+      "name": "key",
+      "type": "area",
+      "position": [
+        0.0598,
+        -0.0723,
+        2.28
+      ],
+      "energy": 92.0615,
+      "size": 2.925,
+      "colorTemperatureK": 4000
+    },
+    {
+      "name": "fill",
+      "type": "point",
+      "position": [
+        0.1232,
+        -0.09,
+        1.205
+      ],
+      "energy": 106.3385,
+      "size": 0,
+      "colorTemperatureK": 4200
+    },
+    {
+      "name": "wash_px",
+      "type": "area",
+      "position": [
+        3.05,
+        0.0911,
+        1.205
+      ],
+      "energy": 50.2154,
+      "size": 1.4575,
+      "colorTemperatureK": 4200
+    },
+    {
+      "name": "wash_nx",
+      "type": "area",
+      "position": [
+        -3.05,
+        0.0363,
+        1.205
+      ],
+      "energy": 50.2154,
+      "size": 1.4575,
+      "colorTemperatureK": 4200
+    },
+    {
+      "name": "wash_py",
+      "type": "area",
+      "position": [
+        0.1131,
+        3.05,
+        1.205
+      ],
+      "energy": 50.2154,
+      "size": 1.4575,
+      "colorTemperatureK": 4200
+    },
+    {
+      "name": "wash_ny",
+      "type": "area",
+      "position": [
+        0.105,
+        -3.05,
+        1.205
+      ],
+      "energy": 50.2154,
+      "size": 1.4575,
+      "colorTemperatureK": 4200
+    },
+    {
+      "name": "spill",
+      "type": "directional",
+      "position": [
+        -3.25,
+        -3.25,
+        2.53
+      ],
+      "target": [
+        0,
+        0,
+        1.205
+      ],
+      "energy": 20.9231,
+      "size": 0,
+      "colorTemperatureK": 4000
+    }
+  ],
+  "bakePathLlm": false
+}

@@ -16,6 +16,7 @@ export const PRODUCTION_STATION_IDS = [
   "equipment_generate",
   "staging",
   "dialogue_runtime",
+  "lighting_design",
 ] as const;
 
 export type ProductionStationId = (typeof PRODUCTION_STATION_IDS)[number];
@@ -52,7 +53,7 @@ export type FactoryStationSchema = {
   };
 };
 
-type FieldDef = { type: "string" | "number" | "boolean"; description?: string; required?: boolean };
+type FieldDef = { type: "string" | "number" | "boolean"; description?: string; required?: boolean; nullable?: boolean };
 
 function defineStation(stationId: ProductionStationId, fields: Record<string, FieldDef>): FactoryStationSchema {
   const required = Object.entries(fields)
@@ -85,6 +86,7 @@ function defineStation(stationId: ProductionStationId, fields: Record<string, Fi
     }
     for (const [name, def] of Object.entries(fields)) {
       if (!(name in rec) || rec[name] === undefined) continue;
+      if (rec[name] === null && def.nullable === true) continue;
       const got = typeof rec[name];
       if (got !== def.type) {
         issues.push({ message: `${name} expected ${def.type}`, path: [name] });
@@ -121,6 +123,23 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
   clothing_consume: defineStation("clothing_consume", {
     actorId: { type: "string", required: true },
     mhcloPath: { type: "string", required: true },
+    // Refit contract (pants-fit proof 2026-09-05). All optional; absent = legacy path.
+    garmentSourceHash: { type: "string", required: false, description: "sha256 of the authored .mhclo" },
+    bodyIdentity: { type: "string", required: false, description: "MPFB macro set id or materialized body asset id" },
+    bindingTopologyId: { type: "string", required: false, description: "basemesh topology the .mhclo binding indexes" },
+    licenseToken: { type: "string", required: false },
+    licenseSource: { type: "string", required: false },
+    // Per-actor body definition (2026-09-05). JSON string: { macros?, statureTargetM?, bodyAssetId? }.
+    // Canonical source is the MPFB macro dict + stature target derived from the case-authored
+    // phenotype (body_param/phenotype_macros.py); actor-casting/cast-asset-constants map
+    // role->shipped GLB (artifacts, no params), so bodyAssetId is provenance only.
+    // Absent = legacy default-body behavior.
+    bodyDefinition: { type: "string", required: false, description: "JSON per-actor body definition (macros + stature target + body asset reference)" },
+    topologyPreserved: { type: "boolean", required: false },
+    uvPreserved: { type: "boolean", required: false },
+    displacementMeanM: { type: "number", required: false },
+    displacementMaxM: { type: "number", required: false },
+    refusalReason: { type: "string", required: false, nullable: true, description: "null on success" },
   }),
   motion_retarget: defineStation("motion_retarget", {
     actorId: { type: "string", required: true },
@@ -153,6 +172,20 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
     actorId: { type: "string", required: true },
     openingUtterance: { type: "string", required: true },
     policyId: { type: "string", required: true },
+  }),
+  lighting_design: defineStation("lighting_design", {
+    // Room identity: environmentId (known shipped room) or roomGlbPath (.glb);
+    // at least one required (refused at plan time, not schema time).
+    environmentId: { type: "string", required: false, description: "known shipped room id" },
+    roomGlbPath: { type: "string", required: false, description: "room GLB path (must end in .glb)" },
+    // Deterministic JSON inputs (both required; parsed at plan time).
+    // bboxJson: {minX,minY,minZ,maxX,maxY,maxZ} with max > min.
+    bboxJson: { type: "string", required: true, description: "room bounding box JSON" },
+    // castJson: non-empty [{actorId, position:[x,y,z]}].
+    castJson: { type: "string", required: true, description: "cast positions JSON" },
+    // Closed mood enum (plan-time refusal on unknown values): ed_exam_bright, clinic_day, evening_calm.
+    mood: { type: "string", required: true, description: "scenario mood (closed enum)" },
+    seed: { type: "number", required: true },
   }),
 };
 

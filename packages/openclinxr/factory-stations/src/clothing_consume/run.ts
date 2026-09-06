@@ -8,10 +8,34 @@ import { spawnBlenderProcess } from "../spawn-blender.js";
 export const CLOTHING_CONSUME_STAGE_REL =
   "packages/openclinxr/factory-stations/src/clothing_consume/fit_stage.py";
 
+const REFIT_FIELDS = [
+  "garmentSourceHash",
+  "bodyIdentity",
+  "bindingTopologyId",
+  "bodyDefinition",
+  "licenseToken",
+  "licenseSource",
+  "topologyPreserved",
+  "uvPreserved",
+  "displacementMeanM",
+  "displacementMaxM",
+  "refusalReason",
+] as const;
+
+/** Refit contract fields that were present on the validated plan input. */
+export function refitContractFrom(value: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const key of REFIT_FIELDS) {
+    if (value[key] !== undefined) out[key] = value[key];
+  }
+  return out;
+}
+
 export function planClothingConsume(input: unknown): StationPlanResult {
   return planFromCatalog("clothing_consume", input, (value) => ({
     actorId: value["actorId"],
     mhcloPath: value["mhcloPath"],
+    ...refitContractFrom(value),
     bakerId: "makeclothes_fit_stage",
     stageId: "makeclothes_fit_stage",
     stageScript: path.join(repoRoot(), CLOTHING_CONSUME_STAGE_REL),
@@ -29,6 +53,15 @@ export type ClothingConsumeRunOptions = {
   report: string;
   garmentMeshName: string;
   annyObj?: string;
+  // Refit contract passthrough to fit_stage.py flags (all optional).
+  // bodyDefinition is JSON { macros?, statureTargetM?, bodyAssetId? }; the baker
+  // builds the actor's body from it instead of the station-default body.
+  garmentSourceHash?: string;
+  bodyIdentity?: string;
+  bindingTopologyId?: string;
+  bodyDefinition?: string;
+  licenseToken?: string;
+  licenseSource?: string;
   extraStageFlags?: string[];
   cwd?: string;
   timeoutMs?: number;
@@ -72,6 +105,21 @@ export async function runClothingConsume(
     options.garmentMeshName,
   ];
   if (options.annyObj) blenderArgs.push("--anny-obj", options.annyObj);
+  // Plan-carried refit contract: options override, plan fills the rest.
+  const flagFrom = (opt: string | undefined, key: string): string | undefined =>
+    opt !== undefined ? opt : (typeof planned.plan[key] === "string" ? String(planned.plan[key]) : undefined);
+  const garmentSourceHash = flagFrom(options.garmentSourceHash, "garmentSourceHash");
+  const bodyIdentity = flagFrom(options.bodyIdentity, "bodyIdentity");
+  const bindingTopologyId = flagFrom(options.bindingTopologyId, "bindingTopologyId");
+  const bodyDefinition = flagFrom(options.bodyDefinition, "bodyDefinition");
+  const licenseToken = flagFrom(options.licenseToken, "licenseToken");
+  const licenseSource = flagFrom(options.licenseSource, "licenseSource");
+  if (garmentSourceHash !== undefined) blenderArgs.push("--garment-source-hash", garmentSourceHash);
+  if (bodyIdentity !== undefined) blenderArgs.push("--body-identity", bodyIdentity);
+  if (bindingTopologyId !== undefined) blenderArgs.push("--binding-topology-id", bindingTopologyId);
+  if (bodyDefinition !== undefined) blenderArgs.push("--body-definition", bodyDefinition);
+  if (options.licenseToken !== undefined) blenderArgs.push("--license-token", options.licenseToken);
+  if (options.licenseSource !== undefined) blenderArgs.push("--license-source", options.licenseSource);
 
   const result = await spawnBlenderProcess(options.blender, blenderArgs, {
     cwd: options.cwd ?? repoRoot(),

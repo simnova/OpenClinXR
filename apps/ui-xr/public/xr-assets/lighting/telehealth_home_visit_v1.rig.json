@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "openclinxr.lighting-rig.v1",
+  "room": {
+    "environmentId": "telehealth_home_visit_v1"
+  },
+  "bbox": {
+    "minX": -4.75,
+    "minY": -3.25,
+    "minZ": -0.1214,
+    "maxX": 4.75,
+    "maxY": 3.25,
+    "maxZ": 2.5286
+  },
+  "cast": [
+    {
+      "actorId": "patient_luis_martinez_v1",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actorId": "daughter_elena_martinez_v1",
+      "position": [
+        -0.8,
+        0.95,
+        0.75
+      ]
+    }
+  ],
+  "mood": "evening_calm",
+  "seed": 7,
+  "exposure": 0.7,
+  "lights": [
+    {
+      "name": "key",
+      "type": "area",
+      "position": [
+        -0.0004,
+        0.0742,
+        2.2786
+      ],
+      "energy": 48.7385,
+      "size": 2.925,
+      "colorTemperatureK": 2700
+    },
+    {
+      "name": "fill",
+      "type": "point",
+      "position": [
+        -0.0502,
+        0.1182,
+        1.2036
+      ],
+      "energy": 59.0769,
+      "size": 0,
+      "colorTemperatureK": 3000
+    },
+    {
+      "name": "wash_px",
+      "type": "area",
+      "position": [
+        4.55,
+        -0.1151,
+        1.2036
+      ],
+      "energy": 23.6308,
+      "size": 1.4575,
+      "colorTemperatureK": 3000
+    },
+    {
+      "name": "wash_nx",
+      "type": "area",
+      "position": [
+        -4.55,
+        -0.1203,
+        1.2036
+      ],
+      "energy": 23.6308,
+      "size": 1.4575,
+      "colorTemperatureK": 3000
+    },
+    {
+      "name": "wash_py",
+      "type": "area",
+      "position": [
+        0.1073,
+        3.05,
+        1.2036
+      ],
+      "energy": 23.6308,
+      "size": 1.4575,
+      "colorTemperatureK": 3000
+    },
+    {
+      "name": "wash_ny",
+      "type": "area",
+      "position": [
+        -0.0647,
+        -3.05,
+        1.2036
+      ],
+      "energy": 23.6308,
+      "size": 1.4575,
+      "colorTemperatureK": 3000
+    },
+    {
+      "name": "spill",
+      "type": "directional",
+      "position": [
+        -4.75,
+        -3.25,
+        2.5286
+      ],
+      "target": [
+        0,
+        0,
+        1.2036
+      ],
+      "energy": 11.0769,
+      "size": 0,
+      "colorTemperatureK": 2700
+    }
+  ],
+  "bakePathLlm": false
+}

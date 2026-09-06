@@ -68,6 +68,71 @@ _BLENDER_DUP_SUFFIX = re.compile(r"\.\d+$")
 # would export without a baseColorTexture (measured 2026-08-28 on the ED re-bake).
 _BAKE_IMAGE_NAMES_USED: set = set()
 
+# lighting_design rig consumer: lighting-rig.py writes this report schema;
+# the bake accepts the RIG JSON (not the report) via --rig-json.
+LIGHTING_RIG_SCHEMA_VERSION = "openclinxr.lighting-rig.v1"
+
+RIG_BLENDER_TYPE = {"point": "POINT", "area": "AREA", "directional": "SUN"}
+
+# Indoor comfort cap enforced on rig energies before use as bake probe lights.
+RIG_MAX_ENERGY = 500.0
+
+
+def load_lighting_rig(path: str) -> List[Dict[str, object]]:
+    """Load rig lights from a lighting_design rig JSON (validated, fail closed)."""
+    with open(path, "r", encoding="utf8") as fh:
+        rig = json.load(fh)
+    if not isinstance(rig, dict) or rig.get("schemaVersion") != LIGHTING_RIG_SCHEMA_VERSION:
+        raise ValueError(f"unsupported lighting rig schema in {path}")
+    lights = rig.get("lights")
+    if not isinstance(lights, list) or len(lights) == 0:
+        raise ValueError(f"lighting rig has no lights: {path}")
+    out: List[Dict[str, object]] = []
+    for light in lights:
+        if not isinstance(light, dict):
+            raise ValueError("rig light must be an object")
+        kind = str(light.get("type"))
+        if kind not in RIG_BLENDER_TYPE:
+            raise ValueError(f"unknown rig light type {kind!r}")
+        pos = light.get("position")
+        if not isinstance(pos, list) or len(pos) != 3 or not all(isinstance(v, (int, float)) for v in pos):
+            raise ValueError(f"rig light {light.get('name')!r} has bad position")
+        energy = light.get("energy")
+        if not isinstance(energy, (int, float)) or not (0 < float(energy) <= RIG_MAX_ENERGY):
+            raise ValueError(f"rig light {light.get('name')!r} energy {energy!r} outside indoor range")
+        out.append(light)
+    return out
+
+
+def place_rig_probe_lights(rig_lights: List[Dict[str, object]]) -> None:
+    """Probe lights from the lighting_design rig (deleted before export)."""
+    for entry in rig_lights:
+        name = f"openclinxr_room_bake_rig_{entry.get('name')}"
+        blender_type = RIG_BLENDER_TYPE[str(entry.get("type"))]
+        data = bpy.data.lights.new(name, type=blender_type)
+        obj = bpy.data.objects.new(name, data)
+        bpy.context.collection.objects.link(obj)
+        pos = entry["position"]
+        assert isinstance(pos, list)
+        obj.location = (float(pos[0]), float(pos[1]), float(pos[2]))
+        if blender_type == "SUN":
+            target = entry.get("target")
+            if isinstance(target, list) and len(target) == 3:
+                dx = float(target[0]) - float(pos[0])
+                dy = float(target[1]) - float(pos[1])
+                dz = float(target[2]) - float(pos[2])
+                obj.rotation_euler = (
+                    math.atan2(math.hypot(dx, dy), -dz) if dz != 0 else 0.0,
+                    0.0,
+                    math.atan2(dy, dx) - math.pi / 2.0,
+                )
+        size = entry.get("size")
+        if blender_type == "AREA" and isinstance(size, (int, float)) and float(size) > 0:
+            data.size = float(size)
+            data.size_y = float(size)
+        data.energy = float(entry["energy"])
+    print(f"[room-bake] probe lights from lighting rig: {len(rig_lights)}")
+
 
 def bake_image_name_for_material(mat: bpy.types.Material) -> str:
     """Stable bake texture name matching shipped GLB bytes.
@@ -253,7 +318,7 @@ def restore_bright_albedo(mat: bpy.types.Material, surface: str) -> None:
     bsdf.inputs["Base Color"].default_value = albedo_for_surface(surface)
 
 
-def setup_scene(bbox: Dict[str, float], light_rig: str) -> None:
+def setup_scene(bbox: Dict[str, float], light_rig: str, rig_json: str = "") -> None:
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
     scene.cycles.samples = 32
@@ -284,6 +349,15 @@ def setup_scene(bbox: Dict[str, float], light_rig: str) -> None:
     cy = (bbox["minY"] + bbox["maxY"]) / 2.0
     cz = (bbox["minZ"] + bbox["maxZ"]) / 2.0
     energy_scale = 6.4 / span
+
+    if light_rig == "rig":
+        # lighting_design consumer: probe lights come from the rig JSON
+        # instead of hardcoded placement. Deleted before export like all
+        # probe lights. Empty rig_json refuses (fail closed, no fallback).
+        if not rig_json:
+            raise ValueError("--light-rig rig requires --rig-json <rig.json>")
+        place_rig_probe_lights(load_lighting_rig(rig_json))
+        return
 
     if light_rig == "legacy":
         # Pre-#537: single AREA 25 cm below ceiling — control/falsifier path.
@@ -508,6 +582,7 @@ def remove_probe_lights() -> None:
         "openclinxr_room_bake_key",
         "openclinxr_room_bake_fill",
         "openclinxr_room_bake_wall_",
+        "openclinxr_room_bake_rig_",
     )
     for obj in list(bpy.data.objects):
         if any(obj.name.startswith(p) for p in prefixes):
@@ -531,9 +606,14 @@ def main() -> None:
     )
     ap.add_argument(
         "--light-rig",
-        choices=("legacy", "distributed"),
+        choices=("legacy", "distributed", "rig"),
         default="distributed",
-        help="legacy=pre-#537 ceiling AREA only; distributed=#537 fill+key",
+        help="legacy=pre-#537 ceiling AREA only; distributed=#537 fill+key; rig=lighting_design rig JSON",
+    )
+    ap.add_argument(
+        "--rig-json",
+        default="",
+        help="lighting_design rig JSON (required with --light-rig rig)",
     )
     ap.add_argument(
         "--restore-albedo",
@@ -550,7 +630,7 @@ def main() -> None:
     bpy.ops.import_scene.gltf(filepath=args.input)
 
     bbox = scene_bbox()
-    setup_scene(bbox, args.light_rig)
+    setup_scene(bbox, args.light_rig, args.rig_json)
     results = bake_materials(args.resolution, args.restore_albedo)
     wire_textures_to_base_color()
 

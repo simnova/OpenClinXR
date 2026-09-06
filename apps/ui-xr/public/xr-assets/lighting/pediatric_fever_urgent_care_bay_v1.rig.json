@@ -1,0 +1,135 @@
+{
+  "schemaVersion": "openclinxr.lighting-rig.v1",
+  "room": {
+    "environmentId": "pediatric_fever_urgent_care_bay_v1"
+  },
+  "bbox": {
+    "minX": -3.25,
+    "minY": -3.25,
+    "minZ": -0.1095,
+    "maxX": 3.25,
+    "maxY": 3.25,
+    "maxZ": 2.5405
+  },
+  "cast": [
+    {
+      "actorId": "patient_noah_chen_v1",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actorId": "parent_mei_chen_v1",
+      "position": [
+        -0.8,
+        0.95,
+        0.75
+      ]
+    },
+    {
+      "actorId": "nurse_aisha_brooks_v1",
+      "position": [
+        0.8,
+        0.95,
+        0.3
+      ]
+    }
+  ],
+  "mood": "ed_exam_bright",
+  "seed": 7,
+  "exposure": 1,
+  "lights": [
+    {
+      "name": "key",
+      "type": "area",
+      "position": [
+        -0.0135,
+        -0.0814,
+        2.2905
+      ],
+      "energy": 108.3077,
+      "size": 2.925,
+      "colorTemperatureK": 5000
+    },
+    {
+      "name": "fill",
+      "type": "point",
+      "position": [
+        0.0667,
+        -0.0798,
+        1.2155
+      ],
+      "energy": 118.1538,
+      "size": 0,
+      "colorTemperatureK": 5000
+    },
+    {
+      "name": "wash_px",
+      "type": "area",
+      "position": [
+        3.05,
+        -0.117,
+        1.2155
+      ],
+      "energy": 59.0769,
+      "size": 1.4575,
+      "colorTemperatureK": 5000
+    },
+    {
+      "name": "wash_nx",
+      "type": "area",
+      "position": [
+        -3.05,
+        0.1004,
+        1.2155
+      ],
+      "energy": 59.0769,
+      "size": 1.4575,
+      "colorTemperatureK": 5000
+    },
+    {
+      "name": "wash_py",
+      "type": "area",
+      "position": [
+        0.1021,
+        3.05,
+        1.2155
+      ],
+      "energy": 59.0769,
+      "size": 1.4575,
+      "colorTemperatureK": 5000
+    },
+    {
+      "name": "wash_ny",
+      "type": "area",
+      "position": [
+        -0.0341,
+        -3.05,
+        1.2155
+      ],
+      "energy": 59.0769,
+      "size": 1.4575,
+      "colorTemperatureK": 5000
+    },
+    {
+      "name": "spill",
+      "type": "directional",
+      "position": [
+        -3.25,
+        -3.25,
+        2.5405
+      ],
+      "target": [
+        0,
+        0,
+        1.2155
+      ],
+      "energy": 24.6154,
+      "size": 0,
+      "colorTemperatureK": 5000
+    }
+  ],
+  "bakePathLlm": false
+}

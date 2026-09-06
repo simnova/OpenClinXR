@@ -16,6 +16,7 @@ shipping GPL MPFB code, full body migration.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import sys
@@ -62,6 +63,19 @@ def parse_args() -> argparse.Namespace:
         "still produces a named garment.",
     )
     p.add_argument("--body-mesh-name", default="hm08_basemesh_library")
+    # Refit contract (pants-fit proof 2026-09-05). Optional passthrough only; when
+    # absent the station keeps its legacy behavior. Values land in the report.
+    p.add_argument("--garment-source-hash", default="")
+    p.add_argument("--body-identity", default="")
+    p.add_argument("--binding-topology-id", default="")
+    p.add_argument("--license-token", default="")
+    p.add_argument("--license-source", default="")
+    # Per-actor body definition (2026-09-05). JSON: { macros?, statureTargetM?, bodyAssetId? }.
+    # Canonical source is the MPFB macro dict + stature target derived from the
+    # case-authored phenotype (body_param/phenotype_macros.py); actor-casting maps
+    # role->shipped GLB (artifacts, no params), so bodyAssetId is provenance only.
+    # Absent = legacy default-body behavior.
+    p.add_argument("--body-definition", default="")
     # DEFAULT IS STILL THE RAW IMPORT, deliberately. `--create-human` is PROVEN for the BODY
     # (19,158 verts / 152 vgroups / no helper shell, against 73,920 / 0 / shell-shrouded) and is NOT
     # yet correct end to end: the Anny stature-align step below re-scales the body and re-parents the
@@ -125,6 +139,143 @@ def world_bounds(obj: bpy.types.Object) -> dict:
 
 def stature_meters(obj: bpy.types.Object) -> float:
     return max(world_bounds(obj)["size"])
+
+
+def sha256_json(value: object) -> str:
+    return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+
+
+def garment_signature(obj: bpy.types.Object) -> dict:
+    return {
+        "vertices": len(obj.data.vertices),
+        "faces": len(obj.data.polygons),
+        "topologySha256": sha256_json([list(p.vertices) for p in obj.data.polygons]),
+        "uvSha256": sha256_json([[list(d.uv) for d in layer.data] for layer in obj.data.uv_layers]),
+        "uvLayers": len(obj.data.uv_layers),
+    }
+
+
+def max_binding_vertex_index(mhclo: object) -> int:
+    verts = getattr(mhclo, "verts", None) or {}
+    idx = [i for info in verts.values() for i in (info.get("verts") or [])]
+    return max(idx) if idx else -1
+
+
+def refuse_fit(report: dict, report_path: str, reason: str, t0: float) -> None:
+    # Explicit refusal. Never a renamed body-derived cover shell under the garment name.
+    report["status"] = "refused"
+    report["refusalReason"] = reason
+    refit = report.get("refit")
+    if isinstance(refit, dict):
+        refit["refusalReason"] = reason
+    else:
+        report["refit"] = {"active": True, "refusalReason": reason}
+    report["totalWallClockS"] = round(time.perf_counter() - t0, 3)
+    write_report(report_path, report)
+    print(json.dumps({"status": "refused", "refusalReason": reason, "report": report_path}))
+
+
+def parse_body_definition(raw: str) -> tuple:
+    # Pure-python parse of --body-definition JSON. Returns (definition, error).
+    text = (raw or "").strip()
+    if not text:
+        return None, None
+    try:
+        parsed = json.loads(text)
+    except Exception as exc:  # noqa: BLE001
+        return None, f"bodyDefinition is not valid JSON: {exc}"
+    if not isinstance(parsed, dict):
+        return None, "bodyDefinition must be a JSON object"
+    macros_raw = parsed.get("macros", {})
+    if not isinstance(macros_raw, dict):
+        return None, "bodyDefinition.macros must be an object"
+    macros: dict = {}
+    for key, val in macros_raw.items():
+        if key == "race":
+            continue
+        try:
+            macros[key] = float(val)
+        except (TypeError, ValueError):
+            return None, f"bodyDefinition.macros.{key} is not a number"
+    race = None
+    if isinstance(macros_raw.get("race"), dict):
+        try:
+            race = {k: float(v) for k, v in macros_raw["race"].items()}
+        except (TypeError, ValueError):
+            return None, "bodyDefinition.macros.race values must be numbers"
+    target = parsed.get("statureTargetM")
+    stature_target_m = None
+    if target is not None:
+        try:
+            stature_target_m = float(target)
+        except (TypeError, ValueError):
+            return None, "bodyDefinition.statureTargetM is not a number"
+        if not stature_target_m > 0:
+            return None, "bodyDefinition.statureTargetM must be positive"
+    asset = parsed.get("bodyAssetId")
+    return {
+        "macros": macros,
+        "race": race,
+        "statureTargetM": stature_target_m,
+        "bodyAssetId": str(asset) if asset is not None else None,
+    }, None
+
+
+def build_actor_body(HumanService, TargetService, definition: dict, mesh_name: str) -> tuple:
+    # Per-actor body (pants-fit-proof.py make_body pattern): create_human with the
+    # actor macro dict, bake immediately, solve height against the stature target
+    # by rebuilding, ground by translation. Never scales garment or body.
+    base = TargetService.get_default_macro_info_dict()
+    base.update({k: v for k, v in definition["macros"].items() if k in base})
+    if definition.get("race") and isinstance(base.get("race"), dict):
+        base["race"].update(definition["race"])
+    info: dict = {"macroKeys": sorted(definition["macros"].keys()), "heightTrials": []}
+
+    def _make(macros: dict, name: str) -> bpy.types.Object:
+        obj = HumanService.create_human(
+            mask_helpers=True, detailed_helpers=True,
+            extra_vertex_groups=True, feet_on_ground=False,
+            macro_detail_dict=macros,
+        )
+        TargetService.bake_targets(obj)
+        bpy.context.view_layer.update()
+        obj.location.z -= world_bounds(obj)["min"][2]
+        bpy.context.view_layer.update()
+        obj.name = name
+        return obj
+
+    target = definition.get("statureTargetM")
+    if target is not None:
+        lo, hi = 0.2, 0.8
+        trial = None
+        for _ in range(10):
+            base["height"] = (lo + hi) / 2
+            trial = _make(dict(base), "body_definition_height_trial")
+            height = stature_meters(trial)
+            info["heightTrials"].append({"heightMacro": base["height"], "statureM": height})
+            if abs(height - target) < 0.0005:
+                break
+            if height < target:
+                lo = base["height"]
+            else:
+                hi = base["height"]
+            bpy.data.objects.remove(trial, do_unlink=True)
+            trial = None
+        if trial is None:
+            trial = _make(dict(base), "body_definition_height_trial")
+            height = stature_meters(trial)
+            info["heightTrials"].append({"heightMacro": base["height"], "statureM": height})
+        body = trial
+        body.name = mesh_name
+        info["solvedHeightMacro"] = base["height"]
+        info["measuredStatureM"] = stature_meters(body)
+        info["statureTargetM"] = target
+    else:
+        body = _make(dict(base), mesh_name)
+        info["measuredStatureM"] = stature_meters(body)
+    if definition.get("bodyAssetId"):
+        info["bodyAssetId"] = definition["bodyAssetId"]
+    return body, info
 
 
 def apply_object_transforms(obj: bpy.types.Object) -> None:
@@ -292,6 +443,27 @@ def main() -> None:
         print(json.dumps(report))
         return
 
+    # Refit contract passthrough (pants-fit proof). Absent flags = legacy path.
+    body_definition, body_definition_error = parse_body_definition(args.body_definition)
+    refit_active = bool(
+        args.body_identity or args.binding_topology_id or args.garment_source_hash
+        or body_definition is not None or body_definition_error is not None
+    )
+    report["refit"] = {
+        "active": refit_active,
+        "garmentSource": {"mhcloPath": args.mhclo, "sourceHash": args.garment_source_hash or None},
+        "bodyIdentity": args.body_identity or None,
+        "bindingTopologyId": args.binding_topology_id or None,
+        "bodyDefinition": body_definition,
+        "license": {"token": args.license_token or None, "source": args.license_source or None},
+        "fitMetrics": {},
+        "refusalReason": None,
+    }
+
+    if body_definition_error is not None:
+        refuse_fit(report, args.report, body_definition_error, t0)
+        return
+
     try:
         # 1) Basemesh via HumanService.create_human — the documented single call.
         #
@@ -318,6 +490,17 @@ def main() -> None:
         if args.legacy_base_obj:
             mh = import_obj(args.mh_base_obj, args.body_mesh_name, force_z=False)
             create_human_used = False
+        elif body_definition is not None:
+            # Per-actor body (pants-fit-proof.py make_body): macros + bake + stature
+            # solve + grounding. build_actor_body already bakes, so the legacy
+            # refit-path bake below is skipped for this body.
+            from bl_ext.user_default.mpfb.services.targetservice import TargetService as _PerActorTarget
+
+            mh, actor_body_info = build_actor_body(
+                HumanService, _PerActorTarget, body_definition, args.body_mesh_name
+            )
+            create_human_used = True
+            report["steps"]["actorBody"] = actor_body_info
         else:
             # NO macro_detail_dict — this is MPFB's DEFAULT human, deliberately, and it is NOT
             # step 3 of the operator's process ("build a make human that looks like the anny model").
@@ -369,6 +552,7 @@ def main() -> None:
         garment = import_obj(args.garment_obj, args.garment_mesh_name, force_z=False)
         garment.data.materials.clear()
         garment.data.materials.append(make_material("scrub_teal", (0.12, 0.48, 0.52, 1.0)))
+        source_signature = garment_signature(garment)
 
         mhclo = Mhclo()
         mhclo.load(args.mhclo)
@@ -376,6 +560,26 @@ def main() -> None:
             mhclo.clothes = garment
         except Exception:
             pass
+
+        # Refit path (pants-fit proof): binding indices must index THIS body
+        # (per-actor when bodyDefinition is present, else the station default).
+        if refit_active:
+            from bl_ext.user_default.mpfb.services.targetservice import TargetService
+
+            if body_definition is None:
+                TargetService.bake_targets(mh)
+            bpy.context.view_layer.update()
+            max_ref = max_binding_vertex_index(mhclo)
+            body_verts = len(mh.data.vertices)
+            if max_ref >= body_verts or len(getattr(mhclo, "verts", {})) != len(garment.data.vertices):
+                refuse_fit(
+                    report,
+                    args.report,
+                    f"binding_topology_mismatch max_ref={max_ref} body_verts={body_verts} "
+                    f"binding_verts={len(getattr(mhclo, 'verts', {}))} garment_verts={len(garment.data.vertices)}",
+                    t0,
+                )
+                return
 
         t_fit = time.perf_counter()
         ClothesService.fit_clothes_to_human(garment, mh, mhclo=mhclo, set_parent=True)
@@ -414,6 +618,24 @@ def main() -> None:
             "fittedOnNativeBaseObj": True,
             "notBodySurfaceDerived": True,
         }
+        if refit_active:
+            # Proof rule: topology/UV hashes must survive the fit unchanged.
+            fitted_signature = garment_signature(garment)
+            topology_preserved = fitted_signature["topologySha256"] == source_signature["topologySha256"]
+            uv_preserved = fitted_signature["uvSha256"] == source_signature["uvSha256"]
+            report["refit"]["garmentSource"]["signature"] = source_signature
+            report["refit"]["fitMetrics"] = {
+                "topologyPreserved": topology_preserved,
+                "uvPreserved": uv_preserved,
+                "fitWallClockS": round(fit_s, 4),
+            }
+            if not (topology_preserved and uv_preserved):
+                refuse_fit(
+                    report, args.report,
+                    f"topology_uv_changed topology={topology_preserved} uv={uv_preserved}",
+                    t0,
+                )
+                return
 
         # 3) Optional stature align to Anny reference (0044 measured path)
         if args.anny_obj and Path(args.anny_obj).is_file():

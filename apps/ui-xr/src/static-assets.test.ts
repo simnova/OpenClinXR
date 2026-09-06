@@ -172,6 +172,14 @@ describe("static browser assets", () => {
   it("exposes timed encounter progression and patient note evidence for station-to-station runs", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const styles = readFileSync(new URL("./styles.css", import.meta.url), "utf8");
+    // 1466a091 moved the exam-flow intent state machine into runtime-state.ts
+    // (canonical assembled-exam phase traces); main.ts keeps the call sites.
+    // The fence follows the CODE: both timer reasons must still exist verbatim
+    // in shipped runtime source.
+    const examFlowSources = [
+      mainSource,
+      readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8"),
+    ].join("\n");
 
     expect(mainSource).toContain("__openClinXrExamFlowEvidence");
     expect(mainSource).toContain("__openClinXrExamRunSummaryEvidence");
@@ -185,8 +193,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("Submit note / next encounter");
     expect(mainSource).toContain("advanceExamFlowForElapsedTime");
     expect(mainSource).toContain("advanceExamNoteForElapsedTime");
-    expect(mainSource).toContain("encounter_timer_elapsed_note_phase_started");
-    expect(mainSource).toContain("note_timer_elapsed_patient_note_required");
+    expect(examFlowSources).toContain("encounter_timer_elapsed_note_phase_started");
+    expect(examFlowSources).toContain("note_timer_elapsed_patient_note_required");
     expect(mainSource).toContain("examAutoAdvanceOnNoteTimeout");
     expect(mainSource).toContain("navigateToExamScenario");
     expect(mainSource).toContain("canAdvanceToNextEncounter");
@@ -1183,7 +1191,11 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("portalTransitionEvidence: window.__openClinXrPortalTransitionEvidence ?? null");
     expect(mainSource).toContain("exterior shell hidden");
     expect(mainSource).toContain("portal_crossed_into_dynamic_encounter_world");
-    expect(mainSource).toContain("portal_crossing_started_or_resumed_encounter");
+    // 1466a091 removed the main.ts examLastAdvanceReason assignment; the portal still
+    // records its transition reason and the canonical phase view still reports
+    // encounterStartedByPortal, so the fence asserts those live signals instead.
+    expect(mainSource).toContain("portalEncounterStartedByPortal");
+    expect(mainSource).toContain("encounterStartedByPortal");
     expect(mainSource).toContain('noteCaptureLocation: "reusable_exterior_anteroom"');
     expect(mainSource).toContain("encounter_specific_theme_applied_to_reused_runtime_assets_no_hardcoded_scene_identity");
     expect(mainSource).toContain("floor_color_derived_from_environmentId_descriptor");
