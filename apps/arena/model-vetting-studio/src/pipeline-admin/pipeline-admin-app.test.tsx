@@ -7,12 +7,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "./jsdom-setup.js";
 
 // Stub the three.js preview/compare so jsdom never touches WebGL.
-vi.mock("./CandidatePreview.js", () => ({
+vi.mock("./candidate-preview.js", () => ({
   CandidatePreview: () => <div data-testid="stub-preview" />,
   CandidateCompare: () => <div data-testid="stub-compare" />,
 }));
 
-import { PipelineAdminApp } from "./PipelineAdminApp.js";
+import { PipelineAdminApp } from "./pipeline-admin-app.js";
 import { openClinXrVettingTheme } from "./theme.js";
 
 // Small fixture (kept tiny so antd Table rendering stays fast in jsdom; the full

@@ -4,7 +4,7 @@ import type { PipelineCandidate } from "@openclinxr/model-vetting";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import "./jsdom-setup.js";
-import { PromotePanel } from "./PromotePanel.js";
+import { PromotePanel } from "./promote-panel.js";
 
 const candidate: PipelineCandidate = {
   candidateId: "photoreal-skin-rung-2026-08-03/nurse_winner",

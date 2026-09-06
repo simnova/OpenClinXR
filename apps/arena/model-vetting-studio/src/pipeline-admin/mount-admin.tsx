@@ -1,6 +1,6 @@
 import { ConfigProvider } from "antd";
 import { createRoot } from "react-dom/client";
-import { PipelineAdminApp } from "./PipelineAdminApp.js";
+import { PipelineAdminApp } from "./pipeline-admin-app.js";
 import { openClinXrVettingTheme } from "./theme.js";
 
 /** Mount the React + antd Pipeline Administration admin surface into an element. */

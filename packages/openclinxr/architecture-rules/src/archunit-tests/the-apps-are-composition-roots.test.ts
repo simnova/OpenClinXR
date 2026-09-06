@@ -1,4 +1,13 @@
 import { describe, expect, it } from "vitest";
+import {
+  checkAppFileNaming,
+  checkAppSourceBudgets,
+  checkValidationSeparation,
+  COMPOSITION_ROOT_APP_BUDGETS,
+  KEBAB_CASE_APP_ROOTS,
+  measureAppSource,
+  VALIDATION_SEPARATION_FREEZE,
+} from "../checks/composition-root-conventions.js";
 
 /**
  * OBSERVABLE: apps/ are not composition roots. They hold the product.
@@ -45,24 +54,24 @@ import { describe, expect, it } from "vitest";
  * ocom's; runtime behaviour of anything measured here.
  */
 
-const CHECK_SPECIFIER = ["./checks/composition-root", "-conventions.js"].join("");
-
-type AppBudget = { app: string; maxFiles: number; maxLines: number; reason: string };
-type Violation = { app?: string; file?: string; detail: string };
-
 async function check(): Promise<{
-  COMPOSITION_ROOT_APP_BUDGETS: readonly AppBudget[];
-  VALIDATION_SEPARATION_FREEZE: Record<string, { reason: string }>;
-  KEBAB_CASE_APP_ROOTS: readonly string[];
-  measureAppSource: (app: string) => { files: number; lines: number };
-  checkAppSourceBudgets: (budgets?: readonly AppBudget[]) => Violation[];
-  checkValidationSeparation: (opts?: {
-    freeze?: Record<string, { reason: string }>;
-    sources?: { file: string; text: string }[];
-  }) => Violation[];
-  checkAppFileNaming: (opts?: { sources?: { file: string; text: string }[] }) => Violation[];
+  COMPOSITION_ROOT_APP_BUDGETS: typeof COMPOSITION_ROOT_APP_BUDGETS;
+  VALIDATION_SEPARATION_FREEZE: typeof VALIDATION_SEPARATION_FREEZE;
+  KEBAB_CASE_APP_ROOTS: typeof KEBAB_CASE_APP_ROOTS;
+  measureAppSource: typeof measureAppSource;
+  checkAppSourceBudgets: typeof checkAppSourceBudgets;
+  checkValidationSeparation: typeof checkValidationSeparation;
+  checkAppFileNaming: typeof checkAppFileNaming;
 }> {
-  return (await import(/* @vite-ignore */ CHECK_SPECIFIER)) as never;
+  return {
+    COMPOSITION_ROOT_APP_BUDGETS,
+    VALIDATION_SEPARATION_FREEZE,
+    KEBAB_CASE_APP_ROOTS,
+    measureAppSource,
+    checkAppSourceBudgets: checkAppSourceBudgets as typeof checkAppSourceBudgets,
+    checkValidationSeparation: checkValidationSeparation as typeof checkValidationSeparation,
+    checkAppFileNaming: checkAppFileNaming as typeof checkAppFileNaming,
+  };
 }
 
 describe("the apps are composition roots", () => {

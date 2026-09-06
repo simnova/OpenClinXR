@@ -5,7 +5,7 @@ import { ConfigProvider } from "antd";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import "./jsdom-setup.js";
-import { CandidateDiffView } from "./CandidateDiffView.js";
+import { CandidateDiffView } from "./candidate-diff-view.js";
 import { openClinXrVettingTheme } from "./theme.js";
 
 const left: PipelineCandidate = {

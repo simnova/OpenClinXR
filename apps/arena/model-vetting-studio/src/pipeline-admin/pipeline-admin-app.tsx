@@ -1,8 +1,8 @@
 import type { PipelineCandidate, PipelineCandidateIndex } from "@openclinxr/model-vetting";
 import { Alert, Button, Descriptions, Modal, Progress, Segmented, Space, Spin, Statistic, Table, type TableColumnsType, Tag, Typography, message } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CandidateDiffView } from "./CandidateDiffView.js";
-import { CandidateCompare, CandidatePreview } from "./CandidatePreview.js";
+import { CandidateDiffView } from "./candidate-diff-view.js";
+import { CandidateCompare, CandidatePreview } from "./candidate-preview.js";
 import {
   aggregateClothing,
   aggregateRealism,
@@ -17,7 +17,7 @@ import {
   requestBatchScore,
   type ScoreFraming,
 } from "./pipeline-admin-data.js";
-import { PromotePanel } from "./PromotePanel.js";
+import { PromotePanel } from "./promote-panel.js";
 
 const { Title, Text, Paragraph } = Typography;
 
