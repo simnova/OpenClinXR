@@ -129,9 +129,9 @@ describe("the apps are composition roots", () => {
     expect(padded).toEqual([]);
   });
 
-  it("(6) the frozen validation-mixing set is the 16 measured files", async () => {
+  it("(6) the frozen validation-mixing set is the 15 measured files", async () => {
     const { checkValidationSeparation } = await check();
-    expect(checkValidationSeparation({ freeze: {} })).toHaveLength(16);
+    expect(checkValidationSeparation({ freeze: {} })).toHaveLength(15);
   });
 
   it("(7) COUNTERWEIGHT: a NEW file mixing a validator with other exports is reported", async () => {

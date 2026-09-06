@@ -14,7 +14,7 @@ import {
   readStretcherDeckSectionNames,
   readStretcherInclineDegrees,
 } from "@openclinxr/xr-station";
-import { readSupineTorsoWorldDeg } from "./supine-deck-plant.js";
+import { readSupineTorsoWorldDeg } from "@openclinxr/xr-pose";
 
 export type ArticulatingHobMeasure = {
   requestedDeg: number;
@@ -44,7 +44,7 @@ function findHumanoid(root: Object3D): Object3D | null {
 import {
   measureBackToDeckGap,
   measurePelvisOnSeat,
-} from "./hob-contact-metrics.js";
+} from "@openclinxr/xr-pose";
 export {
   measureBackToDeckGap,
   measurePelvisOnSeat,
@@ -53,7 +53,7 @@ export {
   readBackSectionPlane,
   settleSupineOntoBackSection,
   settleSupineOntoBackSectionPreservingSeat,
-} from "./hob-contact-metrics.js";
+} from "@openclinxr/xr-pose";
 
 function measureRailsClippingTorso(root: Object3D, humanoid: Object3D): boolean {
   const railBoxes: Box3[] = [];

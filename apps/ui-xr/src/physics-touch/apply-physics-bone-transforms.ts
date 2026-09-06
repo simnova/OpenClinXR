@@ -18,7 +18,7 @@ import {
   type Vector3,
 } from "three";
 import physicsBoneTransformsArtifact from "./ed-palpation-bone-transforms.json" with { type: "json" };
-import { collectJointNames, sanitiseBoneName } from "../pose-bone-runtime.js";
+import { collectJointNames, sanitiseBoneName } from "@openclinxr/xr-pose";
 import { resolvePoseBone } from "@openclinxr/asset-registry";
 
 export type PhysicsBoneTransformSlot = {

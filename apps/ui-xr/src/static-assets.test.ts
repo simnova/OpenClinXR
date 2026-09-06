@@ -280,7 +280,10 @@ describe("static browser assets", () => {
     // #91: clinical idle arm hang + joint aliases live in clinical-idle-posture.ts (shrink extract).
     const mainSource = [
       readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
-      readFileSync(new URL("./clinical-idle-posture.ts", import.meta.url), "utf8"),
+      readFileSync(
+      new URL("../../../packages/openclinxr/xr-pose/src/clinical-idle-posture.ts", import.meta.url),
+      "utf8",
+    ),
       readFileSync(new URL("./real-garment-evidence-surfaces.ts", import.meta.url), "utf8"),
     ].join("\n");
     const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
@@ -653,7 +656,10 @@ describe("static browser assets", () => {
     const mainSource = [
       readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
       readFileSync(new URL("./humanoid-runtime-asset-url.ts", import.meta.url), "utf8"),
-      readFileSync(new URL("./clinical-idle-posture.ts", import.meta.url), "utf8"),
+      readFileSync(
+      new URL("../../../packages/openclinxr/xr-pose/src/clinical-idle-posture.ts", import.meta.url),
+      "utf8",
+    ),
       readFileSync(
         new URL("../../../packages/openclinxr/xr-station/src/room-prop-geometry.ts", import.meta.url),
         "utf8",

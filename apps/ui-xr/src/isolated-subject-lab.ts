@@ -44,9 +44,9 @@ import {
   STRETCHER_DECK_TOP_METERS,
   STRETCHER_LENGTH_METERS,
 } from "@openclinxr/xr-station";
-import { applyAndPlantSupineOnDeck } from "./supine-deck-plant.js";
+import { applyAndPlantSupineOnDeck } from "@openclinxr/xr-pose";
 import { resolvePoseBone } from "@openclinxr/asset-registry";
-import { collectJointNames, findBonesBySanitisedName } from "./pose-bone-runtime.js";
+import { collectJointNames, findBonesBySanitisedName } from "@openclinxr/xr-pose";
 
 /**
  * Reference-pack capture views (#262). Mirrors the #232 pack view set

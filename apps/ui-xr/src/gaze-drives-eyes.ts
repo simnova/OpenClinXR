@@ -25,7 +25,7 @@
 import { resolvePoseBone } from "@openclinxr/asset-registry";
 import type { Object3D } from "three";
 import { Vector3 } from "three";
-import { collectJointNames, findBonesBySanitisedName } from "./pose-bone-runtime.js";
+import { collectJointNames, findBonesBySanitisedName } from "@openclinxr/xr-pose";
 
 /** three.js `PropertyBinding.sanitizeNodeName` strips dots at load, so the graph sees `eyeL`. */
 const EYE_BONE_LANDMARKS = ["eyeL", "eyeR"] as const;

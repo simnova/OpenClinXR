@@ -64,7 +64,7 @@ import {
 import {
   describeRuntimeBundleScenarioMatch,
   resolveEffectiveVerticalOffsetMeters,
-} from "./actor-floor-composition.js";
+} from "@openclinxr/xr-pose";
 import { enableCaptureRendererShadowMap, isCaptureShadowPath, markActorCastShadow, markFloorReceiveShadow } from "@openclinxr/xr-station";
 import { applyStationInteriorLighting, resolveStationInteriorLightingVariantId } from "@openclinxr/xr-station";
 import { applyStationInteriorLightingForEnvironment } from "./lighting-rig-runtime.js";
@@ -80,16 +80,16 @@ import {
   resolveLocalEquipmentRuntimeAssetFileName,
 } from "./runtime-local-asset-filenames.js";
 import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
-import { applyPosturePose, plantSeatedPelvisOnSeat } from "./seated-pose.js";
-import { applySupinePose } from "./supine-pose.js";
+import { applyPosturePose, plantSeatedPelvisOnSeat } from "@openclinxr/xr-pose";
+import { applySupinePose } from "@openclinxr/xr-pose";
 import {
   applyAndPlantSupineOnDeck, applySupinePoseHoldingIncline, holdSupinePlantFrame, reapplySupineHeadToStoredPillow,
-} from "./supine-deck-plant.js";
+} from "@openclinxr/xr-pose";
 import {
   applyGeneratedHumanoidClinicalIdlePosture,
   applyHumanoidJointRotationsByAlias,
-} from "./clinical-idle-posture.js";
-import { animatedTranslationBoneNames, seatedRoleClipIsPlayable } from "./seated-role-clip-policy.js";
+} from "@openclinxr/xr-pose";
+import { animatedTranslationBoneNames, seatedRoleClipIsPlayable } from "@openclinxr/xr-pose";
 import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "@openclinxr/xr-station";
 import { findProceduralStretcherInSceneOf, STRETCHER_DECK_TOP_METERS } from "@openclinxr/xr-station";
 import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "./virtual-device-actor.js";
