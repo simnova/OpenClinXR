@@ -2,6 +2,11 @@ import { mkdir, readdir, readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { Hono } from "hono";
 import { hasFacultyAccess } from "@openclinxr/auth";
+import {
+  PRODUCTION_STATION_IDS,
+  factoryStationSchemas,
+  type ProductionStationId,
+} from "@openclinxr/factory-stations";
 import type { ApiAppContext } from "./api-app-context.js";
 import type { ApiAppVariables } from "./api-types.js";
 import { repoRoot } from "./scenario-promotion-io.js";
@@ -29,7 +34,7 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
       return context.json({ error: "forbidden", reason: "faculty_role_required" }, 403);
     }
 
-    const body = (await context.req.json().catch(() => ({}))) as { scenarioId?: unknown; compileNodes?: unknown; infinigenPrompt?: unknown; facultyLocks?: unknown; removedNodeIds?: unknown };
+    const body = (await context.req.json().catch(() => ({}))) as { scenarioId?: unknown; compileNodes?: unknown; infinigenPrompt?: unknown; facultyLocks?: unknown; removedNodeIds?: unknown; stationPayloads?: unknown };
     const scenarioId =
       typeof body.scenarioId === "string" && body.scenarioId.trim().length > 0 ? body.scenarioId.trim() : undefined;
     if (!scenarioId || !SCENARIO_ID_PATTERN.test(scenarioId)) {
@@ -44,6 +49,12 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
       typeof body.infinigenPrompt === "string" && body.infinigenPrompt.trim().length > 0
         ? body.infinigenPrompt.trim()
         : undefined;
+
+    const parsedPayloads = parseStationPayloads(body.stationPayloads);
+    if (!parsedPayloads.ok) {
+      return context.json({ error: "invalid_body", reason: parsedPayloads.reason }, 400);
+    }
+    const stationPayloads = parsedPayloads.value;
 
     const priorPath = await resolvePriorEvidencePathForScenario(scenarioId);
     if (!priorPath) {
@@ -72,6 +83,7 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
         ...(facultyLocks ? { facultyLocks } : {}),
         ...(removedNodeIds && removedNodeIds.length > 0 ? { removedNodeIds } : {}),
         ...(infinigenPrompt ? { infinigenPrompt } : {}),
+        ...(stationPayloads ? { stationPayloads } : {}),
       });
       const nodes = (result.report.compileNodes ?? []) as Array<{ wouldInvoke?: string | null }>;
       return context.json({
@@ -94,6 +106,33 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
       return context.json({ error: "world_compile_failed", reason }, 500);
     }
   });
+}
+
+export function parseStationPayloads(raw: unknown):
+  | { ok: true; value: Record<string, Record<string, unknown>> | undefined }
+  | { ok: false; reason: string } {
+  if (raw === undefined) {
+    return { ok: true, value: undefined };
+  }
+  if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+    return { ok: false, reason: "stationPayloads_expected_object" };
+  }
+  const known = new Set<string>(PRODUCTION_STATION_IDS);
+  const value: Record<string, Record<string, unknown>> = {};
+  for (const [stationId, payload] of Object.entries(raw as Record<string, unknown>)) {
+    if (!known.has(stationId)) {
+      return { ok: false, reason: `unknown_station_${stationId}` };
+    }
+    const schema = factoryStationSchemas[stationId as ProductionStationId];
+    const checked = schema["~standard"].validate(payload);
+    if ("issues" in checked) {
+      const first = checked.issues[0];
+      const field = first?.path?.[0] !== undefined ? String(first.path[0]) : (first?.message ?? "unknown_field");
+      return { ok: false, reason: `invalid_station_${stationId}_field_${field}` };
+    }
+    value[stationId] = checked.value;
+  }
+  return { ok: true, value };
 }
 
 /** Scenario ids are slug-like; refuse anything that could escape a directory. */
@@ -153,6 +192,7 @@ type WorldCompileModule = {
     facultyLocks?: unknown[];
     removedNodeIds?: string[];
     infinigenPrompt?: string;
+    stationPayloads?: Record<string, Record<string, unknown>>;
   }) => Promise<{
     compileVersion: number;
     skippedBakers: string[];

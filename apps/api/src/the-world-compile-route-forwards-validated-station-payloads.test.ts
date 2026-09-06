@@ -118,3 +118,13 @@ describe("the world-compile route forwards validated station payloads", () => {
 // NOT TESTED: that the compiler changes its plan for a non-equipment station payload;
 // that the worldview passes its stationPayloads into compileEncounterWorld (that wire is
 // asserted by the ui-admin suite, not here); live Blender; Quest readiness.
+
+// ## FIXED (cohesion-w1b-station-payloads)
+// parseStationPayloads exported from world-compile-routes.ts validates each key
+// against PRODUCTION_STATION_IDS and each value through
+// factoryStationSchemas[stationId]["~standard"].validate; the POST handler
+// refuses invalid bodies with 400 before the prior-evidence lookup and forwards
+// valid payloads via conditional spread into compileEncounterMaterialization.
+// compile-encounter-world.ts sends stationPayloads under the same spread style;
+// SeedWorldviewCompileGraph carries the field and app.tsx passes it through.
+// Measured: 8/8 clauses green on this worktree.

@@ -8,6 +8,7 @@ import {
 export type SeedWorldviewCompileGraph = {
   compileNodes: unknown[];
   facultyLocks: EnvironmentGenerationQueuePanelProps["facultyCompileLockRows"];
+  stationPayloads?: Partial<Record<string, Record<string, unknown>>>;
 };
 
 export type SeedWorldviewQueueProps = Omit<
@@ -48,6 +49,9 @@ export function SeedWorldviewQueue({
               onCompileEncounter(scenarioId, {
                 compileNodes: [...mergedEdges, ...worldview.state.actors],
                 facultyLocks: mergedLocks,
+                ...(Object.keys(worldview.state.stationPayloads).length > 0
+                  ? { stationPayloads: worldview.state.stationPayloads }
+                  : {}),
               }),
           }
         : {})}

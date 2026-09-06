@@ -1238,6 +1238,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
         compileNodes: graph?.compileNodes ?? compileEdges,
         facultyLocks: graph?.facultyLocks ?? facultyCompileLockRows,
         ...(infinigenPrompt.trim() ? { infinigenPrompt: infinigenPrompt.trim() } : {}),
+        ...(graph?.stationPayloads ? { stationPayloads: graph.stationPayloads } : {}),
       });
       setCompileEncounterState({ status: "compiled", scenarioId });
     } catch (error) {

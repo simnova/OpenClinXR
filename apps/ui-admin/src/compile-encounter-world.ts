@@ -15,6 +15,7 @@ export async function compileEncounterWorld(
     facultyLocks?: unknown[];
     infinigenPrompt?: string;
     removedNodeIds?: string[];
+    stationPayloads?: Partial<Record<string, Record<string, unknown>>>;
   },
   options: Pick<AdminControlPlaneClientOptions, "baseUrl" | "fetch" | "accessToken" | "getAccessToken"> = {},
 ): Promise<Record<string, unknown>> {
@@ -35,6 +36,7 @@ export async function compileEncounterWorld(
       ...(input.facultyLocks ? { facultyLocks: input.facultyLocks } : {}),
       ...(input.infinigenPrompt ? { infinigenPrompt: input.infinigenPrompt } : {}),
       ...(input.removedNodeIds ? { removedNodeIds: input.removedNodeIds } : {}),
+      ...(input.stationPayloads ? { stationPayloads: input.stationPayloads } : {}),
     }),
   });
 
