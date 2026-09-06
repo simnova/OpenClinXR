@@ -8,7 +8,7 @@ import { resolveHumanoidVariantOrCastPath } from "./humanoid-runtime-asset-url.j
  * freeze) into speech-hud-formatting.ts; the strings below still render through the imported
  * functions, so their source guards now read the module that owns them.
  */
-const speechHudFormattingSource = readFileSync(new URL("./speech-hud-formatting.ts", import.meta.url), "utf8");
+const speechHudFormattingSource = readFileSync(new URL("../../../packages/openclinxr/xr-dialogue/src/speech-hud-formatting.ts", import.meta.url), "utf8");
 
 const genericHandAssetHashes = {
   "left.glb": "bc67783144944ea1cda54d9247885825ea5fb9d4651469fe7d00be517a5c2b87",

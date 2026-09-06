@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { visemesForText } from "../../../apps/ui-xr/src/dialogue-visemes.js";
+import { visemesForText } from "../../../packages/openclinxr/xr-dialogue/src/dialogue-visemes.js";
 
 /**
  * **Every actor's mouth is driven by English SPELLING, not pronunciation.** `phonemesForText`

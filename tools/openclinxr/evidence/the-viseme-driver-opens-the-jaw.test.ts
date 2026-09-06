@@ -2,7 +2,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO, type Node, type Primitive } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { driveVisemeTimeline, type VisemeFrame } from "../../../apps/ui-xr/src/viseme-timeline-drive.js";
+import { driveVisemeTimeline, type VisemeFrame } from "../../../packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.js";
 
 /**
  * **OBSERVABLE: the lip-sync driver opens the jaw, so a spoken vowel parts the lips.**

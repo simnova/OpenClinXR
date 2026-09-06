@@ -13,7 +13,7 @@
 
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
 import { factoryInitialDialogueTextForScenario } from "../factory/generated-ed-station-runtime-bundle.js";
-import { initialDialogueTextForScenario } from "../../../apps/ui-xr/src/initial-dialogue-text.js";
+import { initialDialogueTextForScenario } from "../../../packages/openclinxr/xr-dialogue/src/initial-dialogue-text.js";
 
 export type StationOpening = {
   scenarioId: string;

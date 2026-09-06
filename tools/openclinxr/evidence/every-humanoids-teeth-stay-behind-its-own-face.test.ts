@@ -82,7 +82,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const DIR = "apps/ui-xr/public/generated-humanoids";
-const CAP_SOURCE = "apps/ui-xr/src/viseme-morph-apply.ts";
+const CAP_SOURCE = "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
 
 /** The runtime's morph weight, read from source so a re-sweep binds automatically. */
 function runtimeCap(): number {

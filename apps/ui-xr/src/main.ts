@@ -73,7 +73,7 @@ import {
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,
 } from "./encounter-actor-framing.js";
 import { generatedDriveScalar, type GeneratedDriveScalarValue } from "./generated-drive-scalar.js";
-import { phonemesForText, visemesForText } from "./dialogue-visemes.js";
+import { phonemesForText, visemesForText } from "@openclinxr/xr-dialogue";
 import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
 import {
   resolveLocalEnvironmentRuntimeAssetFileName,
@@ -93,12 +93,12 @@ import { animatedTranslationBoneNames, seatedRoleClipIsPlayable } from "@opencli
 import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "@openclinxr/xr-station";
 import { findProceduralStretcherInSceneOf, STRETCHER_DECK_TOP_METERS } from "@openclinxr/xr-station";
 import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "./virtual-device-actor.js";
-import { initialDialogueTextForScenario } from "./initial-dialogue-text.js";
-import { initSpeakFixtureBridge } from "./speak-fixture-bridge.js";
+import { initialDialogueTextForScenario } from "@openclinxr/xr-dialogue";
+import { initSpeakFixtureBridge } from "@openclinxr/xr-dialogue";
 import {
   formatActiveActorRealismRequirementLines,
   formatHumanoidSpeechAffectEvidence,
-} from "./speech-hud-formatting.js";
+} from "@openclinxr/xr-dialogue";
 import {
   consumeLiveActorTurn,
   expressionWeightsForEmotion,
@@ -106,8 +106,8 @@ import {
   registerLiveActorTurn,
   resolveLiveActorTurnForTrace,
   type LiveActorTurnConsumption,
-} from "./actor-turn-plan-consumption.js";
-import { playFrozenActorTurnOnSlot, type ActorTurnPlayback } from "./actor-turn-playback.js";
+} from "@openclinxr/xr-dialogue";
+import { playFrozenActorTurnOnSlot, type ActorTurnPlayback } from "@openclinxr/xr-dialogue";
 import { stationContextForScenario } from "@openclinxr/xr-station";
 import {
   resolveActorPosture,
@@ -168,10 +168,10 @@ import {
   resolvePedsAdaptiveDialogueBranch,
   type PedsAdaptiveDialogueBranchResolution,
 } from "./peds-adaptive-dialogue-policy.js";
-import { applyGeneratedScalarVisemeToRoot, applyNamedSpeechVisemes, attachBakedCuesToSpeech, loadBakedMouthCuesForUtterance, resolveMorphIndex, type PhonemeCue } from "./viseme-runtime-wire.js";
-import { collectResolvedMorphTargets, MOUTH_OPEN_CAP } from "./viseme-morph-apply.js";
-import { applyBlinkClosureToRoot } from "./blink-runtime-wire.js";
-import { applyGazeToHumanoid } from "./gaze-drives-eyes.js";
+import { applyGeneratedScalarVisemeToRoot, applyNamedSpeechVisemes, attachBakedCuesToSpeech, loadBakedMouthCuesForUtterance, resolveMorphIndex, type PhonemeCue } from "@openclinxr/xr-dialogue";
+import { collectResolvedMorphTargets, MOUTH_OPEN_CAP } from "@openclinxr/xr-dialogue";
+import { applyBlinkClosureToRoot } from "@openclinxr/xr-dialogue";
+import { applyGazeToHumanoid } from "@openclinxr/xr-dialogue";
 import {
   applyEdBayVisibleComparatorCameraPose,
   frameComparatorCaptureOnNamedActor as frameComparatorCaptureOnNamedActorImpl,

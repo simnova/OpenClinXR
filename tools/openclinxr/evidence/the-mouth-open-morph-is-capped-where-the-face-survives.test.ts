@@ -80,9 +80,9 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 const LEDGER = join(HERE, "mouth-open-cap.json");
 const SWEEP_SHEET = join(HERE, "mouth-open-sweep-sheet.png");
 const SWEEP_LEDGER = join(HERE, "mouth-open-sweep.json");
-const APPLY = join(REPO_ROOT, "apps/ui-xr/src/viseme-morph-apply.ts");
+const APPLY = join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts");
 /** Computed so TypeScript cannot resolve a not-yet-exported symbol at compile time (#383/#352). */
-const SPECIFIER = ["../../../apps/ui-xr/src/viseme-morph", "apply.js"].join("-");
+const SPECIFIER = ["../../../packages/openclinxr/xr-dialogue/src/viseme-morph", "apply.js"].join("-");
 
 /** The graded cap. Chosen from rendered evidence, not picked by the orchestrator. */
 const CAP = 0.3;
@@ -123,7 +123,7 @@ function makeTarget() {
 }
 
 function requireApply(): NonNullable<ApplyMod["applyVisemeWeights"]> {
-  expect(mod.applyVisemeWeights, `apps/ui-xr/src/viseme-morph-apply.ts must export applyVisemeWeights`)
+  expect(mod.applyVisemeWeights, `xr-dialogue/src/viseme-morph-apply.ts must export applyVisemeWeights`)
     .toBeTypeOf("function");
   return mod.applyVisemeWeights as NonNullable<ApplyMod["applyVisemeWeights"]>;
 }

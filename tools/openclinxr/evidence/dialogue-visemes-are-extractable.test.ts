@@ -103,7 +103,7 @@ import { describe, expect, it } from "vitest";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const MAIN_TS = join(REPO_ROOT, "apps/ui-xr/src/main.ts");
-const MODULE_REL = "apps/ui-xr/src/dialogue-visemes.ts";
+const MODULE_REL = "packages/openclinxr/xr-dialogue/src/dialogue-visemes.ts";
 
 /** main.ts measured at 9,890 lines on 2026-08-13; the extraction must take at least 15 out. */
 const MAIN_TS_MAX_LINES_AFTER = 9875;

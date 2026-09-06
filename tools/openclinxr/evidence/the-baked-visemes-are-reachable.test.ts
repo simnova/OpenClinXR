@@ -3,7 +3,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { mapDialoguePhonemeToArkit } from "../../../apps/ui-xr/src/viseme-runtime-wire.js";
+import { mapDialoguePhonemeToArkit } from "../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.js";
 import { resolveMorphTarget } from "../../../packages/openclinxr/asset-registry/src/morph-target-resolver.js";
 
 /**
@@ -80,8 +80,8 @@ import { resolveMorphTarget } from "../../../packages/openclinxr/asset-registry/
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb");
-const PRONUNCIATIONS = join(REPO_ROOT, "apps/ui-xr/src/dialogue-pronunciations.ts");
-const WIRE = join(REPO_ROOT, "apps/ui-xr/src/viseme-runtime-wire.ts");
+const PRONUNCIATIONS = join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/dialogue-pronunciations.ts");
+const WIRE = join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts");
 
 /** Machine-read, never typed — the two errors in the header were both hand-typed populations. */
 async function shippedTargets(): Promise<Set<string>> {

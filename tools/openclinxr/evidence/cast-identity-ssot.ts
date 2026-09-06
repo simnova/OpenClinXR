@@ -18,7 +18,7 @@ import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src
 import {
   bankPatientDisplayNameForScenario,
   initialDialogueTextForScenario,
-} from "../../../apps/ui-xr/src/initial-dialogue-text.js";
+} from "../../../packages/openclinxr/xr-dialogue/src/initial-dialogue-text.js";
 
 export type StationCastAgreement = {
   scenarioId: string;

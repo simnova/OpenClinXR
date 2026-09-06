@@ -2,8 +2,8 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { applyDialogueVisemeTimelineToRoot } from "../../../apps/ui-xr/src/viseme-runtime-wire.js";
-import { phonemesForText } from "../../../apps/ui-xr/src/dialogue-visemes.js";
+import { applyDialogueVisemeTimelineToRoot } from "../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.js";
+import { phonemesForText } from "../../../packages/openclinxr/xr-dialogue/src/dialogue-visemes.js";
 
 /**
  * **Every phoneme holds for exactly the same length of time.** A stop consonant and a stressed vowel

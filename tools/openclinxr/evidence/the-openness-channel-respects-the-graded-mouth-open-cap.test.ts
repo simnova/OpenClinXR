@@ -80,7 +80,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const REPORT = "tools/openclinxr/evidence/mouth-open-channel.json";
-const CAP_SOURCE = "apps/ui-xr/src/viseme-morph-apply.ts";
+const CAP_SOURCE = "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
 
 /** Read the graded cap from its source rather than restating it (SS9h known-good). */
 function gradedCap(): number {

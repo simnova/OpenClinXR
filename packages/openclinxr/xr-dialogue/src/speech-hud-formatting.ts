@@ -10,9 +10,31 @@
  * readiness, clinical affect scoring, Quest.
  */
 
-import type { HumanoidSpeechEvidence } from "./runtime-state.js";
+import type { EncounterRuntimeDialogueTurn } from "@openclinxr/asset-registry/runtime-bundles";
 
-export function formatHumanoidSpeechAffectEvidence(evidence: HumanoidSpeechEvidence | null): string {
+export type DialogueHudRealismRequirement = NonNullable<
+  NonNullable<EncounterRuntimeDialogueTurn["caseDefinitionRuntimeSignals"]>["actorRuntimeRealismRequirement"]
+>;
+
+export type DialogueHudLaunchBadge = {
+  actorId: string;
+  actorRole: string;
+  status: "realismBlocked";
+  blockers: string[];
+  claimBoundary: "case_defined_actor_realism_launch_badge_metadata_only";
+};
+
+export type HumanoidSpeechHudEvidence = {
+  activeActorId: string | null;
+  activeEmotionState?: "neutral" | "anxious" | "concerned" | "reassured" | "pain" | undefined;
+  activeExpressionTransitionMs?: number | undefined;
+  activeExpressionWeights?: Partial<Record<"mouthOpen" | "browConcern" | "cheekTension", number>> | undefined;
+  activeExpressionCueIds?: string[] | undefined;
+  activeActorRuntimeRealismRequirement?: DialogueHudRealismRequirement | undefined;
+  activeActorRealismLaunchBadge?: DialogueHudLaunchBadge | undefined;
+};
+
+export function formatHumanoidSpeechAffectEvidence(evidence: HumanoidSpeechHudEvidence | null): string {
   if (!evidence?.activeActorId) {
     return "speech affect pending";
   }
@@ -41,7 +63,7 @@ export function formatHumanoidSpeechAffectEvidence(evidence: HumanoidSpeechEvide
   ].join(" | ");
 }
 
-export function formatActiveActorRealismRequirementLines(evidence: HumanoidSpeechEvidence | null): string[] {
+export function formatActiveActorRealismRequirementLines(evidence: HumanoidSpeechHudEvidence | null): string[] {
   const requirement = evidence?.activeActorRuntimeRealismRequirement;
   const launchBadge = evidence?.activeActorRealismLaunchBadge;
   if (!requirement) {

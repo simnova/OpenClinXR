@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { NodeIO } from "@gltf-transform/core";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
-import { mpfbForearmIdleEuler } from "../../../apps/ui-xr/src/clinical-idle-posture.js";
+import { mpfbForearmIdleEuler } from "@openclinxr/xr-pose";
 
 /*
  * ## FIXED (#0): the runtime now applies bind-relative forearm flexion on the MPFB2 rail.

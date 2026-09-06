@@ -40,7 +40,7 @@ import { fileURLToPath } from "node:url";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const BUNDLES = join(REPO_ROOT, "apps/ui-xr/public/xr-assets/generated");
-const OUTPUT = join(REPO_ROOT, "apps/ui-xr/src/dialogue-pronunciations.ts");
+const OUTPUT = join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/dialogue-pronunciations.ts");
 const CMUDICT = process.env.OPENCLINXR_CMUDICT ?? join(homedir(), ".openclinxr-tools/cmudict/cmudict.dict");
 const CMUDICT_URL = "https://raw.githubusercontent.com/cmusphinx/cmudict/master/cmudict.dict";
 const LICENSE_URL = "https://raw.githubusercontent.com/cmusphinx/cmudict/master/LICENSE";

@@ -45,7 +45,7 @@ import { describe, expect, it } from "vitest";
 const REPO = join(import.meta.dirname, "../../..");
 const CUES = join(REPO, ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-lip-sync/utterance-6539634edf.mouth-cues.json");
 const REPORT = join(REPO, "tools/openclinxr/evidence/viseme-runtime-application.json");
-const WIRE = join(REPO, "apps/ui-xr/src/viseme-runtime-wire.ts");
+const WIRE = join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts");
 
 /** The representative timeline, measured at planting. Counterweight (3) pins it. */
 const CUE_COUNT = 25;

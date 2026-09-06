@@ -8,8 +8,8 @@ import {
   type ActorTurnLiveSlot,
   type ActorTurnPlaybackAdapters,
   type ActorTurnPlaybackStartContext,
-} from "./actor-turn-playback.js";
-import { expressionWeightsForEmotion } from "./actor-turn-plan-consumption.js";
+} from "@openclinxr/xr-dialogue";
+import { expressionWeightsForEmotion } from "@openclinxr/xr-dialogue";
 
 /**
  * Frozen ActorTurnPlan must start voice/viseme/affect/gaze/motion through

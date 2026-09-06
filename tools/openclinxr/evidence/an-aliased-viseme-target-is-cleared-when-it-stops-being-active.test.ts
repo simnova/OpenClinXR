@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { driveVisemeTimeline, resolveVisemeTarget } from "../../../apps/ui-xr/src/viseme-timeline-drive.js";
+import { driveVisemeTimeline, resolveVisemeTarget } from "../../../packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.js";
 
 /**
  * #732 / xr-systems-architect.

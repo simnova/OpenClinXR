@@ -11,7 +11,7 @@ import {
   registerLiveActorTurn,
   resetLiveActorTurnRegistry,
   resolveLiveActorTurnForTrace,
-} from "./actor-turn-plan-consumption.js";
+} from "@openclinxr/xr-dialogue";
 
 /**
  * OBSERVABLE: live UI-XR FACE inferred emotion from actor-line keywords

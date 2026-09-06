@@ -93,7 +93,7 @@ const REPO = join(import.meta.dirname, "../../..");
 const APPLIED = join(REPO, "tools/openclinxr/evidence/viseme-runtime-application.json");
 const CUES_SRC = join(REPO, ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-lip-sync/utterance-6539634edf.mouth-cues.json");
 const CUES_SERVED = join(REPO, "apps/ui-xr/public/lip-sync-cues/utterance-6539634edf.mouth-cues.json");
-const WIRE = join(REPO, "apps/ui-xr/src/viseme-runtime-wire.ts");
+const WIRE = join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts");
 
 /** #722's pins, held across every copy that exists. */
 const CUE_COUNT = 25;

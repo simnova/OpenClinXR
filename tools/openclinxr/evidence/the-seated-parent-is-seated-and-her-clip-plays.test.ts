@@ -95,7 +95,7 @@ describe("the seated parent is seated and her clip plays", () => {
     // The #83 carve-out now admits named seated-rig clips whose animated translation
     // tracks stay off seated-height ownership. Measured on the shipped clip: all 411
     // translation channels constant; legs rotate but never translate.
-    const mod = await import("../../../apps/ui-xr/src/seated-role-clip-policy.js") as Record<string, unknown>;
+    const mod = await import("@openclinxr/xr-pose") as Record<string, unknown>;
     const fn = mod["seatedRoleClipIsPlayable"];
     expect(
       typeof fn,

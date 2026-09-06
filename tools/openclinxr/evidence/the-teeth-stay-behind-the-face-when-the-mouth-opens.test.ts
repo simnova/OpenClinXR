@@ -73,7 +73,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const GLB = "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb";
-const CAP_SOURCE = "apps/ui-xr/src/viseme-morph-apply.ts";
+const CAP_SOURCE = "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
 const BODY = "mpfb_ob_patient_aisha_body";
 const SKIN_MAT = "mpfb_skin_ob_patient_aisha";
 const TEETH = "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh";

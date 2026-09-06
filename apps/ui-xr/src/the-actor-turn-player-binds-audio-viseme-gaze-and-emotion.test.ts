@@ -1,6 +1,4 @@
 import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 import type { ActorTurnPlan } from "@openclinxr/shared-schemas";
 import {
@@ -12,8 +10,8 @@ import {
   type ActorTurnPlayerAdapterContext,
   type ActorTurnPlayerAdapters,
   type IdentityBoundRef,
-} from "./actor-turn-player.js";
-import { mouthCuesToPhonemeCues } from "./viseme-baked-cues.js";
+} from "@openclinxr/xr-dialogue";
+import { mouthCuesToPhonemeCues } from "@openclinxr/xr-dialogue";
 
 /**
  * Frozen ActorTurnPlan + execution artifacts play as one identity-bound
@@ -259,8 +257,10 @@ describe("the actor turn player binds audio viseme gaze and emotion", () => {
   });
 
   it("(6) COUNTERWEIGHT: player source never imports dialogue-visemes / visemesForText", () => {
-    const here = dirname(fileURLToPath(import.meta.url));
-    const source = readFileSync(join(here, "actor-turn-player.ts"), "utf8");
+    const source = readFileSync(
+      new URL("../../../packages/openclinxr/xr-dialogue/src/actor-turn-player.ts", import.meta.url),
+      "utf8",
+    );
     expect(source).not.toMatch(/from ["'].*dialogue-visemes/);
     expect(source).not.toMatch(/from ["'].*actor-turn-playback/);
     expect(source).toMatch(/baker: "rhubarb"/);

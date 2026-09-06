@@ -82,7 +82,7 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 const GEN = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 const PARENT = join(GEN, "mpfb-peds-parent-aisha.glb");
 const INSPECT = join(GEN, "mpfb-viseme-inspect.glb");
-const APPLY = join(REPO_ROOT, "apps/ui-xr/src/viseme-morph-apply.ts");
+const APPLY = join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts");
 const LEDGER = join(HERE, "parent-visemes02.json");
 
 /** The 15 targets the proven E6.3 bake emits, read off the inspect GLB, not typed by me. */

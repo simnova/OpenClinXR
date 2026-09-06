@@ -1,0 +1,41 @@
+{
+  "extends": "@cellix/config-typescript/base",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "noPropertyAccessFromIndexSignature": false,
+    "types": [
+      "node",
+      "vitest"
+    ],
+    "composite": true,
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "lib": [
+      "ES2023",
+      "DOM",
+      "DOM.Iterable"
+    ]
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "dist"
+  ],
+  "references": [
+    {
+      "path": "../asset-registry"
+    },
+    {
+      "path": "../scenario-fixtures"
+    },
+    {
+      "path": "../shared-schemas"
+    }
+  ]
+}
