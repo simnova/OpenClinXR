@@ -20,7 +20,7 @@ import {
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import {
   resolveHumanoidVariantOrCastPath,
-} from "../../../apps/ui-xr/src/humanoid-runtime-asset-url.js";
+} from "@openclinxr/xr-scene";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
   ROOM_CAPTURE_MODE,

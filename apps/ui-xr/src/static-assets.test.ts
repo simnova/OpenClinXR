@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { resolveHumanoidVariantOrCastPath } from "./humanoid-runtime-asset-url.js";
+import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
 /**
  * #710: the speech-affect / actor-realism HUD formatting moved out of main.ts (shrink-only
  * freeze) into speech-hud-formatting.ts; the strings below still render through the imported
@@ -212,7 +212,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("__openClinXrExamFormRunEvidence");
     expect(mainSource).toContain("persistExamFormRunQueueSnapshot");
     expect(mainSource).toContain("createStationApiPersistenceSink");
-    const bootSource = readFileSync(new URL("./learner-exam-form-boot.ts", import.meta.url), "utf8");
+    const bootSource = readFileSync(new URL("../../../packages/openclinxr/xr-scene/src/learner-exam-form-boot.ts", import.meta.url), "utf8");
     expect(bootSource).toContain("createMultiStationExamRuntime");
     expect(bootSource).toContain("applyExamFormBootPresentation");
     expect(mainSource).toContain("examEquivalenceGate");
@@ -284,7 +284,7 @@ describe("static browser assets", () => {
       new URL("../../../packages/openclinxr/xr-pose/src/clinical-idle-posture.ts", import.meta.url),
       "utf8",
     ),
-      readFileSync(new URL("./real-garment-evidence-surfaces.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene/src/real-garment-evidence-surfaces.ts", import.meta.url), "utf8"),
     ].join("\n");
     const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
@@ -655,7 +655,7 @@ describe("static browser assets", () => {
     // Strength is unchanged: every string below must still appear verbatim in shipped runtime source.
     const mainSource = [
       readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
-      readFileSync(new URL("./humanoid-runtime-asset-url.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene/src/humanoid-runtime-asset-url.ts", import.meta.url), "utf8"),
       readFileSync(
       new URL("../../../packages/openclinxr/xr-pose/src/clinical-idle-posture.ts", import.meta.url),
       "utf8",

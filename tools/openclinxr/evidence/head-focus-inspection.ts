@@ -37,7 +37,7 @@ import {
   isFittedHairMeshName,
   type HeadBoxGeometry,
   type Vec3,
-} from "../../../apps/ui-xr/src/head-box-from-geometry.js";
+} from "@openclinxr/xr-scene";
 import { projectPixelSpan } from "./mpfb-eyes-inspection.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));

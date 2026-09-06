@@ -70,6 +70,7 @@ export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> =
   "packages/openclinxr/ui-route-admin/src/dialogue-seed-authoring-panel.tsx": { maxLines: 606, reason: "large panel — extract sub-sections/containers (moved from apps/ui-admin in the composition-root migration)" },
   "packages/openclinxr/ui-route-admin/src/environment-generation-queue-panel.tsx": { maxLines: 595, reason: "large panel — extract sub-sections/containers (moved from apps/ui-admin in the composition-root migration)" },
   "packages/openclinxr/xr-pose/src/supine-deck-plant.ts": { maxLines: 558, reason: "supine deck plant + HOB incline follow (moved from apps/ui-xr in the composition-root migration) — split plant/head-align/lift next" },
+  "packages/openclinxr/xr-scene/src/isolated-subject-lab.ts": { maxLines: 581, reason: "isolated subject harness lab (moved from apps/ui-xr in the composition-root migration) — split boot/render/evidence next" },
   "packages/openclinxr/ui-route-admin/src/faculty-adjudication-workspace.tsx": { maxLines: 557, reason: "large workspace — extract containers next (moved from apps/ui-admin in the composition-root migration)" },
   "packages/openclinxr/xr-pose/src/seated-pose.ts": { maxLines: 543, reason: "procedural seated pose (moved from apps/ui-xr in the composition-root migration) — split by rail/map next" },
   "packages/openclinxr/ui-route-admin/src/faculty-compile-lock.tsx": { maxLines: 514, reason: "compile-lock table — extract columns/rows next (moved from apps/ui-admin in the composition-root migration)" },

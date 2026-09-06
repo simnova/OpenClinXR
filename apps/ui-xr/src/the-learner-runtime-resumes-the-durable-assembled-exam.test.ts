@@ -7,7 +7,7 @@ import {
   bootLearnerExamFormFromApi,
   createLearnerExamFormRunState,
   learnerExamResumeNextStation,
-} from "./learner-exam-form-boot.js";
+} from "@openclinxr/xr-scene";
 import {
   createLearnerCanonicalPhaseTraceStore,
   LEARNER_CANONICAL_PHASE_TYPES,

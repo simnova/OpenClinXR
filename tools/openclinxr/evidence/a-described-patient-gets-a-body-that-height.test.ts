@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { resolveHumanoidVariantOrCastPath } from "../../../apps/ui-xr/src/humanoid-runtime-asset-url.js";
+import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 
 /**

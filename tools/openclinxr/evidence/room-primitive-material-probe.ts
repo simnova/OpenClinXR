@@ -24,7 +24,7 @@ import { chromium, type Page } from "playwright";
 import {
   assignMissingRoomPrimitiveMaterials,
   isGltfMissingAuthoredMaterial,
-} from "../../../apps/ui-xr/src/infinigen-room-primitive-materials.ts";
+} from "@openclinxr/xr-scene";
 import { regionLuminance } from "./lib/png-region-luminance.js";
 import {
   spawnPortlessDevServer,

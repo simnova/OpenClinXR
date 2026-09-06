@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   resolveScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { resolveHumanoidVariantOrCastPath } from "../../../apps/ui-xr/src/humanoid-runtime-asset-url.js";
+import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
 
 /**
  * PLANTED CONTRACTS (#366). Resolution is not loading. The peds patient resolves to MPFB in

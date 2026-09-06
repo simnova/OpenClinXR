@@ -13,7 +13,7 @@ import {
 import {
   resolveHumanoidVariantOrCastPath,
   resolveLocalHumanoidRuntimeAssetUrl,
-} from "./humanoid-runtime-asset-url.js";
+} from "@openclinxr/xr-scene";
 import {
   assignRuntimeActorSlots,
   type RuntimeSlotAssignment,
@@ -35,15 +35,15 @@ import { isPedsAsthmaScenario, learnerVisiblePedsDialogueForTraceTag } from "./p
 import {
   bootLearnerExamFormFromApi,
   createLearnerExamFormRunState,
-} from "./learner-exam-form-boot.js";
-import { scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
-import { mountStationEnvironmentForRuntime } from "./compiled-room-runtime-mount.js";
+} from "@openclinxr/xr-scene";
+import { scenariosFromFixtureSequence } from "@openclinxr/xr-scene";
+import { mountStationEnvironmentForRuntime } from "@openclinxr/xr-scene";
 import { bootLearnerRuntimeFromAssembledExam, resolveAssembledExamPinnedBundleId, type PinnedEncounterBundleRuntimeTrace } from "./encounter-bundle-boot/index.js";
 import {
   collectActorWorldBoxes,
   deriveInteriorPreviewCamera,
   loadInfinigenEnvironmentIntoStation,
-} from "./infinigen-station-environment.js";
+} from "@openclinxr/xr-scene";
 import { roomPropColourNumbers } from "@openclinxr/xr-station";
 import { buildRoomPropGroup } from "@openclinxr/xr-station";
 import {
@@ -71,7 +71,7 @@ import { applyStationInteriorLightingForEnvironment } from "./lighting-rig-runti
 import {
   addGeneratedHumanoidRoleContinuityWardrobeCue,
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,
-} from "./encounter-actor-framing.js";
+} from "@openclinxr/xr-scene";
 import { generatedDriveScalar, type GeneratedDriveScalarValue } from "@openclinxr/xr-runtime-state";
 import { phonemesForText, visemesForText } from "@openclinxr/xr-dialogue";
 import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
@@ -79,7 +79,7 @@ import {
   resolveLocalEnvironmentRuntimeAssetFileName,
   resolveLocalEquipmentRuntimeAssetFileName,
 } from "@openclinxr/xr-runtime-state";
-import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
+import { createPrimitiveActorMesh } from "@openclinxr/xr-scene";
 import { applyPosturePose, plantSeatedPelvisOnSeat } from "@openclinxr/xr-pose";
 import { applySupinePose } from "@openclinxr/xr-pose";
 import {
@@ -92,7 +92,7 @@ import {
 import { animatedTranslationBoneNames, seatedRoleClipIsPlayable } from "@openclinxr/xr-pose";
 import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "@openclinxr/xr-station";
 import { findProceduralStretcherInSceneOf, STRETCHER_DECK_TOP_METERS } from "@openclinxr/xr-station";
-import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "./virtual-device-actor.js";
+import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "@openclinxr/xr-scene";
 import { initialDialogueTextForScenario } from "@openclinxr/xr-dialogue";
 import { initSpeakFixtureBridge } from "@openclinxr/xr-dialogue";
 import {
@@ -162,8 +162,8 @@ import {
   syncRemoteAssembledPhase,
   type AssembledStationApiClient as StationApiClient,
 } from "@openclinxr/xr-station";
-import { assertHumanoidRootUpright } from "./humanoid-load-guard.js";
-import { applyRealGarmentEvidenceSurfaces, sleeveDeformCueForAssetPath } from "./real-garment-evidence-surfaces.js";
+import { assertHumanoidRootUpright } from "@openclinxr/xr-scene";
+import { applyRealGarmentEvidenceSurfaces, sleeveDeformCueForAssetPath } from "@openclinxr/xr-scene";
 import {
   resolvePedsAdaptiveDialogueBranch,
   type PedsAdaptiveDialogueBranchResolution,

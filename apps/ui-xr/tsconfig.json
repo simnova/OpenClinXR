@@ -41,6 +41,9 @@
     },
     {
       "path": "../../packages/openclinxr/xr-pose"
+    },
+    {
+      "path": "../../packages/openclinxr/xr-scene"
     }
   ]
 }

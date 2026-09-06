@@ -8,7 +8,7 @@ import {
   MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH,
   resolveHumanoidVariantOrCastPath,
   resolveLocalHumanoidRuntimeAssetUrl,
-} from "../../../apps/ui-xr/src/humanoid-runtime-asset-url.js";
+} from "@openclinxr/xr-scene";
 
 /**
  * OBSERVABLE: seven humanoids a learner loads are still Anny-derived, and only the MPFB half of the

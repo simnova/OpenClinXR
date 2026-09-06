@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { resolveHumanoidVariantOrCastPath } from "../../../apps/ui-xr/src/humanoid-runtime-asset-url.js";
+import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
 
 /**
  * A learner walking into the peds asthma station sees a child, a parent and a NURSE wearing

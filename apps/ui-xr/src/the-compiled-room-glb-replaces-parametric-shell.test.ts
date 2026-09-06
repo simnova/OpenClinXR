@@ -6,7 +6,7 @@ import type { EncounterRuntimeAsset } from "@openclinxr/asset-registry/runtime-b
 import {
   mountStationEnvironmentForRuntime,
   resolveCompiledRoomFromRuntimeEnvironment,
-} from "./compiled-room-runtime-mount.js";
+} from "@openclinxr/xr-scene";
 import { resolveStationEnvironment } from "@openclinxr/xr-station";
 
 /**

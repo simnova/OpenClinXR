@@ -4,7 +4,7 @@
  */
 import type { Object3D, PerspectiveCamera } from "three";
 import { Vector3 } from "three";
-import { computeMeshBounds, frameCamera } from "./camera-fit-to-bounds.js";
+import { computeMeshBounds, frameCamera } from "@openclinxr/xr-scene";
 
 declare global {
   // eslint-disable-next-line no-unused-vars

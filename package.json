@@ -411,6 +411,7 @@
     "@openclinxr/factory-stations": "workspace:*",
     "@openclinxr/xr-pose": "workspace:*",
     "@openclinxr/xr-runtime-state": "workspace:*",
+    "@openclinxr/xr-scene": "workspace:*",
     "@openclinxr/xr-station": "workspace:*",
     "@playwright/test": "^1.59.1",
     "@types/node": "catalog:",

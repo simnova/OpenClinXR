@@ -8,7 +8,7 @@ import {
   listShippedCastScenarioIds,
   resolveScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { resolveHumanoidVariantOrCastPath } from "../../../apps/ui-xr/src/humanoid-runtime-asset-url.js";
+import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
 
 /**
  * # THE DEFECT, MEASURED 2026-08-19 on main 5294a8a5 — do not re-derive these rows

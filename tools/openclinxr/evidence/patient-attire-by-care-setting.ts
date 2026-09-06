@@ -35,7 +35,7 @@ import {
   resolveScenarioActorCast,
   type PatientWardrobeClass,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { resolveHumanoidVariantOrCastPath } from "../../../apps/ui-xr/src/humanoid-runtime-asset-url.js";
+import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
 
 export type GarmentShell = {
   meshName: string;

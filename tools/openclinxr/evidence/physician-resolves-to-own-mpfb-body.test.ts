@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { resolveHumanoidVariantOrCastPath } from "../../../apps/ui-xr/src/humanoid-runtime-asset-url.js";
+import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
 
 /**
  * 2026-08-14 medical wardrobe — the physician is no longer a shared clinical-team

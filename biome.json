@@ -90,7 +90,8 @@
     },
     {
       "includes": [
-        "packages/openclinxr/rest/src/**"
+        "packages/openclinxr/rest/src/**",
+        "packages/openclinxr/xr-scene/src/**"
       ],
       "linter": {
         "rules": {

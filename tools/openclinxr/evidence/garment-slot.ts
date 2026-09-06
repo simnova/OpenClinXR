@@ -1,4 +1,4 @@
-import { isFittedHairMeshName } from "../../../apps/ui-xr/src/head-box-from-geometry.js";
+import { isFittedHairMeshName } from "@openclinxr/xr-scene";
 
 /**
  * #389 — shared upper-garment slot classifier for MPFB cast GLBs.

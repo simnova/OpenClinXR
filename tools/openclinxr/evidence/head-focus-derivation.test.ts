@@ -7,7 +7,7 @@ import {
   deriveHeadBoxFromPoints,
   isFittedHairMeshName,
   type Vec3,
-} from "../../../apps/ui-xr/src/head-box-from-geometry.js";
+} from "@openclinxr/xr-scene";
 
 /**
  * #358 — the head-focus station must frame the head on EVERY rail, not only MPFB.

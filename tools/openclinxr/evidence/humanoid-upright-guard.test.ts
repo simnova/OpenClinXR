@@ -167,7 +167,7 @@ describe("shipped humanoids stand up (#67)", () => {
   it("the ui-xr humanoid load path refuses a humanoid whose root rotation is not identity", async () => {
     // Kills the generator-fix-with-no-consumer shape. A bad bake must not be able to reach a learner
     // just because someone re-ran the pipeline without looking.
-    const mod = (await import("../../../apps/ui-xr/src/humanoid-load-guard.js")) as Record<string, unknown>;
+    const mod = (await import("@openclinxr/xr-scene")) as Record<string, unknown>;
     const guard = mod["assertHumanoidRootUpright"] as undefined | ((scene: unknown) => void);
     expect(guard).toBeTypeOf("function");
 
