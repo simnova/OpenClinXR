@@ -37,3 +37,4 @@ export {
 } from "./viseme-baked-cues.js";
 export { resolveMorphIndex } from "./viseme-morph-apply.js";
 export type { PhonemeCue } from "./viseme-timeline-drive.js";
+export * from "./peds-scenario-validation.js";

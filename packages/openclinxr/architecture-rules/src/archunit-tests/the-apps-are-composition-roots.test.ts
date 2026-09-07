@@ -57,6 +57,12 @@ import {
  * 40 / 11,941 to 7 / 3,724. The mixer count fell 31 -> 16.
  * Both ratchets are shrink-only: they may fall further, never rise.
  *
+ * ## SUPERSEDED (validation separation reached zero)
+ * The header's 31 is the measurement at plant time and stays. Every one of those modules
+ * has since had its validator moved into a package, so the freeze is empty and clause (6)
+ * asserts zero rather than a count. A freeze that may only shrink, having shrunk to
+ * nothing, becomes a hard rule; clause (7) still refuses a NEW mixer.
+ *
  * claimScope: gates that stop apps/ growing and force new code into packages.
  * notEvidenceFor: that any code has moved yet; that the package layout matches
  * ocom's; runtime behaviour of anything measured here.
@@ -129,9 +135,9 @@ describe("the apps are composition roots", () => {
     expect(padded).toEqual([]);
   });
 
-  it("(6) the frozen validation-mixing set is the 3 measured files", async () => {
+  it("(6) no apps/ module mixes a validator with other exports", async () => {
     const { checkValidationSeparation } = await check();
-    expect(checkValidationSeparation({ freeze: {} })).toHaveLength(3);
+    expect(checkValidationSeparation({ freeze: {} })).toEqual([]);
   });
 
   it("(7) COUNTERWEIGHT: a NEW file mixing a validator with other exports is reported", async () => {

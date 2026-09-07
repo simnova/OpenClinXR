@@ -5,3 +5,4 @@ export * from "./real-garment-capture.js";
 export * from "./scene-asset-evidence.js";
 export * from "./scene-manifest-evidence.js";
 export * from "./visual-review-filter.js";
+export * from "./capture-clock-validation.js";

@@ -20,3 +20,5 @@ export * from "./learner-phase-trace-source.js";
 export * from "./primitive-actor-mesh.js";
 export * from "./real-garment-evidence-surfaces.js";
 export * from "./virtual-device-actor.js";
+export * from "./lighting-rig-contract.js";
+export * from "./lighting-rig-validation.js";

@@ -24,9 +24,7 @@ export type LearnerVisiblePedsTurn = {
 
 const PEDS_ACTORS = pediatricAsthmaScenario.actors;
 
-export function isPedsAsthmaScenario(scenarioId: string): boolean {
-  return scenarioId === PEDS_ASTHMA_SCENARIO_ID;
-}
+export { isPedsAsthmaScenario } from "@openclinxr/xr-dialogue";
 
 export function learnerVisiblePedsDialogueForTraceTag(tag: string): string | undefined {
   const seed = pediatricAsthmaDialogueSeeds.find(

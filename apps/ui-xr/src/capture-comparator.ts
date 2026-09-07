@@ -41,22 +41,7 @@ declare global {
   }
 }
 
-// Deterministic capture clock (?openclinxrDeterministicCapture=1): pins the frame-loop
-// clock to t=0 so every procedural pose/breathing/blink term is run-identical.
-// Capture-gated: the learner runtime never carries the param.
-const deterministicCaptureClock =
-  new URLSearchParams(window.location.search).get("openclinxrDeterministicCapture") === "1";
-
-export function isDeterministicCaptureClock(): boolean {
-  return deterministicCaptureClock;
-}
-
-// ED-bay-visible: keeps room shell/floor/set-dressing while preserving comparator
-// framing, garment evidence, and mouth-gaze evidence. Void stays default.
-export function isEdBayVisibleCaptureMode(captureMode: string): boolean {
-  return captureMode.includes("ed-bay-visible")
-    || new URLSearchParams(window.location.search).get("edBayVisibleCapture") === "1";
-}
+export { isDeterministicCaptureClock, isEdBayVisibleCaptureMode } from "@openclinxr/xr-capture-evidence";
 
 /** #315: camera + scene root the comparator capture frames through (assigned in createStationScene). */
 let comparatorCaptureCamera: PerspectiveCamera | null = null;

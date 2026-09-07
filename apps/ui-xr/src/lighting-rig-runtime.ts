@@ -20,105 +20,33 @@ import {
   type StationInteriorLightingVariantId,
 } from "@openclinxr/xr-station";
 
-export const LIGHTING_RIG_SCHEMA_VERSION = "openclinxr.lighting-rig.v1";
-export const LIGHTING_RIG_PUBLIC_DIR = "/xr-assets/lighting";
+import {
+  LIGHTING_RIG_SCHEMA_VERSION,
+  parseLightingRig,
+  type LightingRig,
+  type LightingRigLight,
+  type RigLightType,
+} from "@openclinxr/xr-scene";
 
-/** Indoor ranges enforced by the station (lighting-rig.py MAX_ENERGY/MAX_SIZE_M). */
-const MAX_RIG_ENERGY = 500;
-const MAX_RIG_SIZE_M = 4;
+export {
+  LIGHTING_RIG_SCHEMA_VERSION,
+  parseLightingRig,
+  type LightingRig,
+  type LightingRigLight,
+  type RigLightType,
+};
+
+export const LIGHTING_RIG_PUBLIC_DIR = "/xr-assets/lighting";
 
 /** Blender bake energy -> three.js intensity. Key 234.7 -> ~2.35. */
 const RIG_ENERGY_TO_THREE = 0.01;
 const MAX_THREE_INTENSITY = 5;
 
-export type RigLightType = "point" | "area" | "directional";
-
-export type LightingRigLight = {
-  name: string;
-  type: RigLightType;
-  position: [number, number, number];
-  target?: [number, number, number];
-  energy: number;
-  size: number;
-  colorTemperatureK: number;
-};
-
-export type LightingRig = {
-  schemaVersion: typeof LIGHTING_RIG_SCHEMA_VERSION;
-  room: { environmentId?: string };
-  bbox: { minX: number; minY: number; minZ: number; maxX: number; maxY: number; maxZ: number };
-  exposure: number;
-  lights: LightingRigLight[];
-};
-
 export function resolveLightingRigPublicPath(environmentId: string): string {
   return `${LIGHTING_RIG_PUBLIC_DIR}/${environmentId}.rig.json`;
 }
 
-function isFiniteVec3(value: unknown): value is [number, number, number] {
-  return (
-    Array.isArray(value)
-    && value.length === 3
-    && value.every((v) => typeof v === "number" && Number.isFinite(v))
-  );
-}
 
-/** Refuse malformed rigs (null = fall back to constants). */
-export function parseLightingRig(value: unknown): LightingRig | null {
-  if (value === null || typeof value !== "object" || Array.isArray(value)) return null;
-  const rec = value as Record<string, unknown>;
-  if (rec["schemaVersion"] !== LIGHTING_RIG_SCHEMA_VERSION) return null;
-  const lights = rec["lights"];
-  if (!Array.isArray(lights) || lights.length === 0) return null;
-  const bbox = rec["bbox"] as Record<string, unknown> | undefined;
-  if (
-    !bbox
-    || !["minX", "minY", "minZ", "maxX", "maxY", "maxZ"].every(
-      (k) => typeof bbox[k] === "number" && Number.isFinite(bbox[k]),
-    )
-  ) {
-    return null;
-  }
-  const parsed: LightingRigLight[] = [];
-  for (const entry of lights) {
-    if (entry === null || typeof entry !== "object" || Array.isArray(entry)) return null;
-    const light = entry as Record<string, unknown>;
-    if (typeof light["name"] !== "string" || (light["name"] as string).length === 0) return null;
-    if (light["type"] !== "point" && light["type"] !== "area" && light["type"] !== "directional") {
-      return null;
-    }
-    if (!isFiniteVec3(light["position"])) return null;
-    if (light["target"] !== undefined && !isFiniteVec3(light["target"])) return null;
-    const energy = light["energy"];
-    if (typeof energy !== "number" || !(energy > 0 && energy <= MAX_RIG_ENERGY)) return null;
-    const size = light["size"];
-    if (typeof size !== "number" || !(size >= 0 && size <= MAX_RIG_SIZE_M)) return null;
-    const temp = light["colorTemperatureK"];
-    if (typeof temp !== "number" || !(temp >= 1000 && temp <= 10000)) return null;
-    parsed.push({
-      name: light["name"] as string,
-      type: light["type"] as RigLightType,
-      position: light["position"] as [number, number, number],
-      ...(isFiniteVec3(light["target"]) ? { target: light["target"] } : {}),
-      energy,
-      size,
-      colorTemperatureK: temp,
-    });
-  }
-  const exposure = rec["exposure"];
-  if (typeof exposure !== "number" || !(exposure > 0 && exposure <= 2)) return null;
-  const roomValue = rec["room"] as Record<string, unknown> | undefined;
-  const roomEnvironmentId = roomValue?.["environmentId"];
-  return {
-    schemaVersion: LIGHTING_RIG_SCHEMA_VERSION,
-    room: typeof roomEnvironmentId === "string" ? { environmentId: roomEnvironmentId } : {},
-    bbox: bbox as unknown as LightingRig["bbox"],
-    exposure,
-    lights: parsed,
-  };
-}
-
-/** Tanner Helland kelvin -> RGB approximation for rig color temperatures. */
 export function colorForTemperatureK(kelvin: number): number {
   const t = Math.min(100, Math.max(10, kelvin / 100));
   const r = t <= 66 ? 255 : 329.698727446 * Math.pow(t - 60, -0.1332047592);

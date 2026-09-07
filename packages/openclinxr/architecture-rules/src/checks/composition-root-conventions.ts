@@ -58,7 +58,7 @@ export const COMPOSITION_ROOT_APP_BUDGETS: readonly CompositionRootAppBudget[] =
   {
     app: "apps/ui-xr",
     maxFiles: 10,
-    maxLines: 8686,
+    maxLines: 8597,
     reason:
       "frozen at the 2026-09-06 measurement; ratchet toward the CellixJs largest app (ui-community, 19 files / 1,506 lines) — behaviour moves to packages",
   },
@@ -163,11 +163,7 @@ const VALIDATION_SCAN_ROOTS = [
  * with an empty freeze and pasting what it found. Entries may only be REMOVED (by
  * splitting the module); never add one to excuse a new mixer.
  */
-export const VALIDATION_SEPARATION_FREEZE: Record<string, { reason: string }> = {
-  "apps/ui-xr/src/capture-comparator.ts": { reason: "frozen mixer: isDeterministicCaptureClock/isEdBayVisibleCaptureMode beside capture helpers — move validators to a package" },
-  "apps/ui-xr/src/lighting-rig-runtime.ts": { reason: "frozen mixer: parseLightingRig beside lighting-rig paths — move the validator to a package" },
-  "apps/ui-xr/src/peds-authored-turn-surface.ts": { reason: "frozen mixer: isPedsAsthmaScenario beside turn-surface helpers — move the validator to a package" },
-};
+export const VALIDATION_SEPARATION_FREEZE: Record<string, { reason: string }> = {};
 
 export type ValidationSeparationOptions = {
   freeze?: Record<string, { reason: string }>;
