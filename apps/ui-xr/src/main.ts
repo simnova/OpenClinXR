@@ -298,6 +298,20 @@ import {
   shouldSuppressGeneratedEnvironmentShell as shouldPackageSuppressGeneratedEnvironmentShell,
   shouldSuppressGeneratedEquipmentModel as shouldPackageSuppressGeneratedEquipmentModel,
 } from "@openclinxr/xr-capture-evidence";
+import {
+  booleanQueryParam as packageBooleanQueryParam,
+  buildExamNavigationHref as packageBuildExamNavigationHref,
+  buildExamRunStationOutcome as packageBuildExamRunStationOutcome,
+  configuredExamRunId as packageConfiguredExamRunId,
+  configuredExamSequence as packageConfiguredExamSequence,
+  findFormStationOutcome as packageFindFormStationOutcome,
+  formElapsedSecondForCurrentStation as packageFormElapsedSecondForCurrentStation,
+  mergeExamRunStationOutcome as packageMergeExamRunStationOutcome,
+  nextExamScenarioId as packageNextExamScenarioId,
+  positiveIntegerQueryParam as packagePositiveIntegerQueryParam,
+  type ExamRunQueryDeps,
+  type ExamStationContext,
+} from "@openclinxr/xr-runtime-wiring";
 import "./styles.css";
 
 // Physics clinical-touch realbind R3 (AD-3): precomputed bone transforms — see physics-touch/.
@@ -1268,51 +1282,44 @@ function shouldRenderRoomPropInVisualReview(prop: EncounterRuntimeRoomProp): boo
   return shouldPackageRenderRoomPropInVisualReview(prop, isSceneOnlyVisualReviewCaptureMode());
 }
 
+function uiXrQueryDeps(): ExamRunQueryDeps {
+  return {
+    readQueryParam: (name: string) => new URLSearchParams(window.location.search).get(name),
+    readStoredValue: (key: string) => window.localStorage.getItem(key),
+    writeStoredValue: (key: string, value: string) => {
+      window.localStorage.setItem(key, value);
+    },
+  };
+}
+
+function uiXrExamStationContext(): ExamStationContext {
+  return {
+    sequence: examNormalizedSequence,
+    scenarioIndex: examScenarioIndex,
+    scenarioId: examScenarioId,
+    examRunId,
+    timing: {
+      encounterSeconds: examEncounterDurationSeconds,
+      noteSeconds: examNoteDurationSeconds,
+      autoAdvanceOnNoteTimeout: examAutoAdvanceOnNoteTimeout,
+    },
+  };
+}
+
 function configuredExamSequence(): string[] {
-  const params = new URLSearchParams(window.location.search);
-  const configured = params.get("examSequence")
-    ?.split(",")
-    .map((scenarioId) => scenarioId.trim())
-    .filter((scenarioId) => scenarioId.length > 0);
-  if (configured && configured.length > 0) {
-    return configured;
-  }
-  return [
-    "ed_chest_pain_priority_v1",
-    "ob_headache_preeclampsia_triage_v1",
-    "clinic_abdominal_pain_interpreter_v1",
-    "oncology_bad_news_family_v1",
-    "postop_fever_consult_pressure_v1",
-  ];
+  return packageConfiguredExamSequence(uiXrQueryDeps());
 }
 
 function positiveIntegerQueryParam(name: string, fallback: number): number {
-  const params = new URLSearchParams(window.location.search);
-  const value = Number.parseInt(params.get(name) ?? "", 10);
-  return Number.isFinite(value) && value > 0 ? value : fallback;
+  return packagePositiveIntegerQueryParam(uiXrQueryDeps(), name, fallback);
 }
 
 function booleanQueryParam(name: string, fallback: boolean): boolean {
-  const params = new URLSearchParams(window.location.search);
-  const value = params.get(name);
-  if (value === null) return fallback;
-  return value !== "0" && value.toLowerCase() !== "false";
+  return packageBooleanQueryParam(uiXrQueryDeps(), name, fallback);
 }
 
 function configuredExamRunId(): string {
-  const params = new URLSearchParams(window.location.search);
-  const queryRunId = params.get("examRunId")?.trim();
-  if (queryRunId) {
-    window.localStorage.setItem("openclinxr.examRunId", queryRunId);
-    return queryRunId;
-  }
-  const storedRunId = window.localStorage.getItem("openclinxr.examRunId")?.trim();
-  if (storedRunId) {
-    return storedRunId;
-  }
-  const generatedRunId = `local_${Date.now().toString(36)}`;
-  window.localStorage.setItem("openclinxr.examRunId", generatedRunId);
-  return generatedRunId;
+  return packageConfiguredExamRunId(uiXrQueryDeps());
 }
 
 function initialDialogueTextForSelectedScenario(): string {
@@ -1891,34 +1898,20 @@ function renderControls(): void {
 }
 
 function nextExamScenarioId(): string | null {
-  if (examFormRunState) {
-    const nextFromForm = nextExamFormRunStation(examFormRunState)?.scenarioId ?? null;
-    if (nextFromForm) {
-      return nextFromForm;
-    }
-    // Form run may be single-station while URL sequence still has more entries.
-  }
-  return examNormalizedSequence[examScenarioIndex + 1] ?? null;
+  return packageNextExamScenarioId(examFormRunState, {
+    sequence: examNormalizedSequence,
+    scenarioIndex: examScenarioIndex,
+  });
 }
 
-function navigateToExamScenario(nextScenarioId: string): void {
-  const nextUrl = new URL(window.location.href);
-  nextUrl.searchParams.set("scenarioId", nextScenarioId);
-  nextUrl.searchParams.set("examSequence", examNormalizedSequence.join(","));
-  nextUrl.searchParams.set("examRunId", examRunId);
-  nextUrl.searchParams.set("examEncounterSeconds", String(examEncounterDurationSeconds));
-  nextUrl.searchParams.set("examNoteSeconds", String(examNoteDurationSeconds));
-  nextUrl.searchParams.set("examAutoAdvanceOnNoteTimeout", examAutoAdvanceOnNoteTimeout ? "1" : "0");
-  window.location.assign(nextUrl.toString());
+function navigateToExamScenario(nextScenarioIdParam: string): void {
+  window.location.assign(
+    packageBuildExamNavigationHref(window.location.href, nextScenarioIdParam, uiXrExamStationContext()),
+  );
 }
 
 function formElapsedSecondForCurrentStation(): number {
-  if (!examFormRunState) {
-    return state.elapsedSecond;
-  }
-  const station = currentExamFormRunStation(examFormRunState);
-  const stationOffset = station?.timing.doorway.startsAtSecond ?? 0;
-  return stationOffset + state.elapsedSecond;
+  return packageFormElapsedSecondForCurrentStation(examFormRunState, state.elapsedSecond);
 }
 
 function updateExamFormRunEvidence(): OpenClinXrExamFormRunEvidence | null {
@@ -2004,31 +1997,23 @@ function recordExamRunStationOutcome(): void {
     }
   }
 
-  const formOutcome = examFormRunState?.stationOutcomes.find(
-    (outcome) => outcome.stationOrder === examScenarioIndex + 1,
-  ) ?? examFormRunState?.stationOutcomes.find(
-    (outcome) => outcome.scenarioId === examScenarioId,
-  );
+  const formOutcome = packageFindFormStationOutcome(examFormRunState, examScenarioIndex, examScenarioId);
   const outcomes = readExamRunSummaryOutcomes();
-  const nextOutcome: ExamRunStationOutcome = {
-    scenarioId: examScenarioId,
-    scenarioIndex: examScenarioIndex,
-    phase: viewLearnerCanonicalExamPhase(examPhaseStore).phase,
-    noteTextLength: patientNoteText.value.trim().length,
-    noteSubmitted: viewLearnerCanonicalExamPhase(examPhaseStore).noteSubmitted,
-    lastAdvanceReason: examPhaseRefusalReason ?? viewLearnerCanonicalExamPhase(examPhaseStore).lastAdvanceReason,
-    recordedAtIso: formOutcome?.recordedAtIso ?? new Date().toISOString(),
-    stationOrder: formOutcome?.stationOrder ?? examScenarioIndex + 1,
-    endedAtFormSecond: formOutcome?.endedAtFormSecond ?? formSecond,
-  };
-  if (formOutcome?.slotId !== undefined) {
-    nextOutcome.slotId = formOutcome.slotId;
-  }
-  if (formOutcome?.startedAtFormSecond !== undefined) {
-    nextOutcome.startedAtFormSecond = formOutcome.startedAtFormSecond;
-  }
-  const withoutCurrent = outcomes.filter((outcome) => outcome.scenarioId !== examScenarioId || outcome.scenarioIndex !== examScenarioIndex);
-  window.localStorage.setItem(examRunSummaryStorageKey, JSON.stringify([...withoutCurrent, nextOutcome]));
+  const nextOutcome: ExamRunStationOutcome = packageBuildExamRunStationOutcome(
+    {
+      scenarioId: examScenarioId,
+      scenarioIndex: examScenarioIndex,
+      phase: viewLearnerCanonicalExamPhase(examPhaseStore).phase,
+      noteTextLength: patientNoteText.value.trim().length,
+      noteSubmitted: viewLearnerCanonicalExamPhase(examPhaseStore).noteSubmitted,
+      lastAdvanceReason: examPhaseRefusalReason ?? viewLearnerCanonicalExamPhase(examPhaseStore).lastAdvanceReason,
+      recordedAtIso: new Date().toISOString(),
+      formSecond,
+    },
+    formOutcome,
+  );
+  const withoutCurrent = packageMergeExamRunStationOutcome(outcomes, nextOutcome);
+  window.localStorage.setItem(examRunSummaryStorageKey, JSON.stringify(withoutCurrent));
   updateExamRunSummaryEvidence();
 }
 
