@@ -59,6 +59,9 @@
     },
     {
       "path": "../../packages/openclinxr/xr-runtime-wiring"
+    },
+    {
+      "path": "../../packages/openclinxr/xr-trace-readiness"
     }
   ]
 }

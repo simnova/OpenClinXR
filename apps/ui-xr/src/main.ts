@@ -224,6 +224,35 @@ import {
   xrExperienceModeEvidence,
 } from "@openclinxr/xr-runtime-state";
 import {
+  ROOM_ENVIRONMENTAL_REALISM_CUE_IDS as roomPackageEnvironmentalRealismCueIds,
+  applyPedsActorPlayerSequenceListenerCues as applyPackagePedsActorPlayerSequenceListenerCues,
+  buildHumanoidSpeechEvidence as buildPackageTraceHumanoidSpeechEvidence,
+  buildRuntimeReproducibilityEvidence as buildPackageTraceRuntimeReproducibilityEvidence,
+  createFrameAccumulator as createPackageTraceFrameAccumulator,
+  createTraceSelectLatencyRecorder as createPackageTraceSelectLatencyRecorder,
+  formatActorPlayerRuntimeMetadataSummary as formatPackageTraceActorPlayerRuntimeMetadataSummary,
+  formatEnvironmentRoomSummary as formatPackageTraceEnvironmentRoomSummary,
+  formatLearnerRuntimeUseGate as formatPackageTraceLearnerRuntimeUseGate,
+  formatMaterializationAttachmentSummary as formatPackageTraceMaterializationAttachmentSummary,
+  formatRemainingRuntimeBlockerReasons as formatPackageTraceRemainingRuntimeBlockerReasons,
+  formatRuntimePostureLane as formatPackageTraceRuntimePostureLane,
+  formatRuntimeReadinessDecision as formatPackageTraceRuntimeReadinessDecision,
+  formatTechnicalGapStatus as formatPackageTraceTechnicalGapStatus,
+  formatTraceInteractionEvidenceSummary as formatPackageTraceTraceInteractionEvidenceSummary,
+  listenerEmotionForSequence as listenerPackageEmotionForSequence,
+  pedsActorPlayerRuntimeTurns as pedsPackageActorPlayerRuntimeTurns,
+  recordFrame as recordPackageTraceFrame,
+  recordPedsActorPlayerRuntimePlaybackEvidence as recordPackagePedsActorPlayerRuntimePlaybackEvidence,
+  recordTraceSelectLatency as recordPackageTraceTraceSelectLatency,
+  updateEnvironmentStateForTrace as updatePackageTraceEnvironmentStateForTrace,
+  updateManualEvidencePanel as updatePackageTraceManualEvidencePanel,
+  updateRuntimePosturePanel as updatePackageTraceRuntimePosturePanel,
+  updateTraceActionHandoffEvidence as updatePackageTraceTraceActionHandoffEvidence,
+  updateTraceInteractionEvidenceSummary as updatePackageTraceTraceInteractionEvidenceSummary,
+  updateTraceReadiness as updatePackageTraceReadiness,
+  updateXrStatus as updatePackageTraceXrStatus,
+} from "@openclinxr/xr-trace-readiness";
+import {
   type ExamRunQueryDeps,
   type ExamStationContext,
   booleanQueryParam as packageBooleanQueryParam,
@@ -1480,23 +1509,7 @@ let lastObservedLocomotionSummary: {
   turnRadians: number;
   atMs: number;
 } | null = null;
-const roomEnvironmentalRealismCueIds = [
-  "floor_scuff_path_between_door_bed_monitor",
-  "infection_control_wall_signage",
-  "handoff_whiteboard_patient_flow_cue",
-  "supply_drawer_labels",
-  "privacy_zone_floor_tape",
-  "glove_and_sanitizer_touchpoint_cluster",
-  "monitor_escalation_status_badge",
-  "ecg_paper_strip_ready_cue",
-  "nurse_task_tray_workflow_cue",
-  "doorway_escalation_badge",
-  "monitor_lead_cable_run",
-  "bed_wheel_lock_safety_cues",
-  "curtain_track_ring_hardware",
-  "biohazard_trash_liner_detail",
-  "iv_tubing_line_context",
-] as const;
+const roomEnvironmentalRealismCueIds = roomPackageEnvironmentalRealismCueIds;
 
 function _recordAppBootPhaseError(error: unknown): string {
   return formatPackageUnknownError(error);
@@ -1526,7 +1539,10 @@ const stationApi = configuredApiBaseUrl ? createStationApiClient({ baseUrl: conf
 window.__openClinXrRuntimeSceneManifestEvidence = buildAppRuntimeSceneManifestEvidence(encounterRuntimeAssetBundle);
 let remoteStationRunId: string | undefined;
 let immersiveSessionActive = false;
-let lastTraceSelectLatencyMs: number | null = null;
+const traceSelectLatencyRecorder = createPackageTraceSelectLatencyRecorder();
+function currentTraceSelectLatencyMs(): number | null {
+  return traceSelectLatencyRecorder.currentLatencyMs();
+}
 let runtimeWebXrSupportEvidence: RuntimeWebXrSupportEvidence = {
   navigatorXrPresent: false,
   immersiveVrSupported: null,
@@ -2024,15 +2040,20 @@ function recordTraceSelectLatency(
   tag: string,
   source: OpenClinXrTraceLatencyEvidence["source"],
 ): number {
-  lastTraceSelectLatencyMs = Number((performance.now() - startedAtMs).toFixed(2));
+  const latencyMs = recordPackageTraceTraceSelectLatency(
+    traceSelectLatencyRecorder,
+    startedAtMs,
+    tag,
+    source,
+  );
   window.__openClinXrTraceLatencyEvidence = {
     lastTraceTag: tag,
-    lastSelectLatencyMs: lastTraceSelectLatencyMs,
+    lastSelectLatencyMs: latencyMs,
     source,
     measuredAtMs: Number(performance.now().toFixed(2)),
     productionControllerLatencySubstitute: false,
   };
-  return lastTraceSelectLatencyMs;
+  return latencyMs;
 }
 
 function publishConversationTurnStateEvidence(options?: {
@@ -2186,75 +2207,20 @@ function completeTraceActionFromInput(
 }
 
 function updateEnvironmentStateForTrace(tag: string): EnvironmentStateEvidence {
-  const activeTraceTags = Array.from(new Set([...(window.__openClinXrEnvironmentStateEvidence?.activeTraceTags ?? []), tag]));
-  const activeRuntimeEquipmentIds = Array.from(new Set(activeTraceTags.flatMap(runtimeEquipmentIdsForTraceTag)));
-  const stressCueIds = [
-    ...(activeTraceTags.includes("vitals_review") ? ["monitor_waveform_card_soft_warning", "nurse_workflow_lane_attention"] : []),
-    ...(activeTraceTags.includes("ecg_request") ? ["ekg_leads_on_bed_ready", "ecg_cart_workflow_attention"] : []),
-    ...(activeTraceTags.includes("work_of_breathing_assessment") ? ["work_of_breathing_runtime_attention", "pulse_oximeter_runtime_attention"] : []),
-    ...(activeTraceTags.includes("inhaler_history") ? ["inhaler_spacer_history_runtime_attention"] : []),
-    ...(activeTraceTags.includes("trigger_history") ? ["asthma_trigger_history_runtime_attention", "parent_chair_runtime_attention"] : []),
-    ...(activeTraceTags.includes("oxygen_request") ? ["oxygen_wall_port_runtime_attention", "pulse_oximeter_runtime_attention"] : []),
-    ...(activeTraceTags.includes("bronchodilator_plan") ? ["nebulizer_mask_runtime_attention", "inhaler_spacer_runtime_attention"] : []),
-    ...(activeTraceTags.includes("urgent_escalation") ? ["doorway_station_sign_escalation", "ceiling_exam_light_attention"] : []),
-    ...(activeTraceTags.includes("urgent_escalation") ? ["pediatric_escalation_runtime_attention", "urgent_family_support_runtime_attention"] : []),
-    ...(activeTraceTags.includes("empathy_statement") ? ["pediatric_empathy_deescalation_runtime_attention", "child_parent_reassurance_runtime_attention"] : []),
-    ...(activeTraceTags.includes("patient_note_submitted") ? ["patient_note_runtime_completion_attention", "faculty_review_handoff_runtime_attention"] : []),
-  ];
-  const evidence: EnvironmentStateEvidence = {
-    source: "local_trace_tied_environment_state",
-    activeTraceTags,
-    stressCueIds,
-    environmentalRealismCueIds: [...roomEnvironmentalRealismCueIds],
-    monitorState: activeTraceTags.includes("bronchodilator_plan")
-      ? "bronchodilator_in_progress"
-      : activeTraceTags.includes("oxygen_request")
-        ? "oxygen_started"
-        : activeTraceTags.includes("ecg_request")
-          ? "urgent_ecg_requested"
-          : activeTraceTags.includes("vitals_review") || activeTraceTags.includes("work_of_breathing_assessment")
-            ? "vitals_concerning"
-            : "baseline",
-    alarmState: activeTraceTags.includes("urgent_escalation")
-      ? "urgent_attention"
-      : activeTraceTags.includes("vitals_review") || activeTraceTags.includes("work_of_breathing_assessment") || activeTraceTags.includes("oxygen_request")
-        ? "soft_warning"
-        : "quiet",
-    alarmCueMode: activeTraceTags.includes("vitals_review")
-      || activeTraceTags.includes("work_of_breathing_assessment")
-      || activeTraceTags.includes("oxygen_request")
-      || activeTraceTags.includes("urgent_escalation")
-      ? "visual_only_no_audio"
-      : "none",
-    environmentMotionCueMode: activeTraceTags.length > 0 ? "deterministic_visual_pulse" : "none",
-    propStateCueIds: [
-      "monitor-waveform-card",
-      "monitor-vitals-badge",
-      "ekg-leads-on-bed",
-      "ecg-paper-strip",
-      "nurse-task-tray",
-      "call-light-remote",
-      "ceiling-exam-light",
-      "doorway-escalation-badge",
-      ...activeRuntimeEquipmentIds,
-    ],
-    activePropIds: [
-      ...(activeTraceTags.includes("vitals_review") ? ["monitor-waveform-card", "monitor-vitals-badge"] : []),
-      ...(activeTraceTags.includes("ecg_request") ? ["ekg-leads-on-bed", "ecg-paper-strip", "nurse-task-tray", "call-light-remote"] : []),
-      ...(activeTraceTags.includes("urgent_escalation") ? ["ceiling-exam-light", "doorway-escalation-badge"] : []),
-      ...activeRuntimeEquipmentIds,
-    ],
-    productionClinicalMonitoringClaimed: false,
-    notEvidenceFor: ["clinical_validity", "scoring_validity", "quest_readiness"],
-  };
-  window.__openClinXrEnvironmentStateEvidence = evidence;
-  applyEnvironmentStateVisuals(evidence);
-  applyRuntimeEquipmentTraceVisuals(evidence);
-  roomStateSummary.textContent = [
-    `monitor ${evidence.monitorState}`,
-    `alarm ${evidence.alarmState}`,
-    evidence.activePropIds.length > 0 ? `active ${evidence.activePropIds.join(", ")}` : "no active props",
-  ].join(" | ");
+  const evidence = updatePackageTraceEnvironmentStateForTrace(
+    {
+      previousActiveTraceTags: () => window.__openClinXrEnvironmentStateEvidence?.activeTraceTags ?? [],
+      equipmentIdsForTag: runtimeEquipmentIdsForTraceTag,
+      realismCueIds: [...roomEnvironmentalRealismCueIds],
+      applyEnvironmentStateVisuals,
+      applyRuntimeEquipmentTraceVisuals,
+      environmentStateWritten: (record) => {
+        window.__openClinXrEnvironmentStateEvidence = record;
+      },
+    },
+    tag,
+  );
+  roomStateSummary.textContent = formatPackageTraceEnvironmentRoomSummary(evidence);
   return evidence;
 }
 
@@ -2394,31 +2360,35 @@ function applyEnvironmentStateVisuals(evidence: EnvironmentStateEvidence): void 
 }
 
 function updateTraceActionHandoffEvidence(): XrTraceActionHandoffEvidence {
-  const evidence = buildXrTraceActionHandoffEvidence({
-    state,
-    actions: traceActionHandoffActions,
-    generatedAtMs: packageRoundPerformanceNow(),
-    lastTraceLatencyEvidence: window.__openClinXrTraceLatencyEvidence ?? null,
+  return updatePackageTraceTraceActionHandoffEvidence({
+    runtimeState: () => state,
+    handoffActions: () => traceActionHandoffActions,
+    lastTraceLatencyEvidence: () => window.__openClinXrTraceLatencyEvidence ?? null,
+    buildHandoffEvidence: (input) => buildXrTraceActionHandoffEvidence(input),
+    roundPerformanceNow: () => packageRoundPerformanceNow(),
+    handoffWritten: (evidence) => {
+      window.__openClinXrTraceActionHandoffEvidence = evidence;
+    },
+    interactionSummaryWritten: (summary) => {
+      window.__openClinXrTraceInteractionEvidenceSummary = summary;
+      evidenceTraceInteraction.textContent = formatPackageTraceTraceInteractionEvidenceSummary(summary);
+    },
+    buildInteractionSummary: (handoff) => buildXrTraceInteractionEvidenceSummary(handoff),
   });
-  window.__openClinXrTraceActionHandoffEvidence = evidence;
-  updateTraceInteractionEvidenceSummary(evidence);
-  return evidence;
 }
 
 function updateTraceInteractionEvidenceSummary(
   handoff: XrTraceActionHandoffEvidence | null | undefined,
 ): XrTraceInteractionEvidenceSummary {
-  const summary = buildXrTraceInteractionEvidenceSummary(handoff);
+  const summary = updatePackageTraceTraceInteractionEvidenceSummary(
+    {
+      buildSummary: (input) => buildXrTraceInteractionEvidenceSummary(input),
+      interactionSummaryWritten: () => {},
+    },
+    handoff,
+  );
   window.__openClinXrTraceInteractionEvidenceSummary = summary;
-  evidenceTraceInteraction.textContent = [
-    summary.latestTraceTag ?? "no learner action",
-    summary.latestTraceSource ?? "no source",
-    summary.sourceClass,
-    `${summary.observedRequiredCount}/${summary.requiredCount} required`,
-    summary.nextMissingTraceTag ? `next ${summary.nextMissingTraceTag}` : "all required observed",
-    summary.reviewSafe ? "review-safe" : "review pending",
-    summary.claimBoundary,
-  ].join(" | ");
+  evidenceTraceInteraction.textContent = formatPackageTraceTraceInteractionEvidenceSummary(summary);
   return summary;
 }
 
@@ -2537,10 +2507,41 @@ async function recordRemoteTraceAction(
   }
 }
 
+function traceReadinessPanelContext(): Parameters<typeof updatePackageTraceReadiness>[0] {
+  return {
+    runtimeState: () => state,
+    panels: {
+      traceSummary,
+      postureSummary,
+      postureModel,
+      postureVoice,
+      postureQuest,
+      postureMr,
+      postureBundleGate,
+      postureLaunch,
+    },
+    summarizeTraceReadiness: (input) => summarizeTraceReadiness(input),
+    buildRuntimeEvidencePosture: (input) =>
+      buildRuntimeEvidencePosture(input as Parameters<typeof buildRuntimeEvidencePosture>[0]),
+    buildReadinessDecision: (input) => buildXrRuntimeReadinessDecision(input),
+    formatPostureLane: (lane) => formatRuntimePostureLane(lane),
+    formatReadinessDecision: (decision) => formatRuntimeReadinessDecision(decision),
+    formatLearnerRuntimeUseGate: (evidence) => formatLearnerRuntimeUseGate(evidence),
+    roundPerformanceNow: () => packageRoundPerformanceNow(),
+    latestRuntimeInteractionEvidence: () => latestRuntimeInteractionEvidence,
+    webXrSupportEvidence: () => runtimeWebXrSupportEvidence,
+    handoffEvidence: () => window.__openClinXrTraceActionHandoffEvidence ?? null,
+    captureSummary: () => window.__openClinXrManualPerformanceCaptureSummary ?? null,
+    learnerRuntimeUseGateEvidence: () => window.__openClinXrLearnerRuntimeUseGateEvidence ?? null,
+    postureWritten: (posture, decision) => {
+      window.__openClinXrRuntimeEvidencePosture = posture;
+      window.__openClinXrRuntimeReadinessDecision = decision;
+    },
+  };
+}
+
 function updateReadiness(): void {
-  const summary = summarizeTraceReadiness(state);
-  traceSummary.textContent = `Trace ${summary.observedCount}/${state.requiredTraceTags.length}`;
-  updateRuntimePosturePanel(window.__openClinXrManualPerformanceCaptureSummary ?? null);
+  updatePackageTraceReadiness(traceReadinessPanelContext());
 }
 
 function dialogueFor(tag: string): string {
@@ -2596,167 +2597,90 @@ function runtimeDialogueTurnForTraceTag(tag: string) {
 
 async function updateXrStatus(): Promise<void> {
   const navigatorWithXr = navigator as NavigatorWithXr;
-  if (!navigatorWithXr.xr) {
-    runtimeWebXrSupportEvidence = {
-      navigatorXrPresent: false,
-      immersiveVrSupported: null,
-      immersiveVrSupportCheckedAtMs: packageRoundPerformanceNow(),
-      immersiveArSupported: null,
-      immersiveArSupportCheckedAtMs: null,
-      supportError: "navigator.xr_missing",
-    };
-    xrStatus.textContent = "WebXR unavailable";
-    enterXrButton.disabled = true;
-    updateRuntimePosturePanel(window.__openClinXrManualPerformanceCaptureSummary ?? null);
-    return;
-  }
-  try {
-    const immersiveVrSupported = await navigatorWithXr.xr.isSessionSupported("immersive-vr");
-    const immersiveVrSupportCheckedAtMs = packageRoundPerformanceNow();
-    let immersiveArSupported: boolean | null = null;
-    let immersiveArSupportCheckedAtMs: number | null = null;
-    let supportError: string | null = null;
-    try {
-      immersiveArSupported = await navigatorWithXr.xr.isSessionSupported("immersive-ar");
-      immersiveArSupportCheckedAtMs = packageRoundPerformanceNow();
-    } catch (error) {
-      supportError = `immersive_ar:${formatUnknownError(error)}`;
-    }
-    runtimeWebXrSupportEvidence = {
-      navigatorXrPresent: true,
-      immersiveVrSupported,
-      immersiveVrSupportCheckedAtMs,
-      immersiveArSupported,
-      immersiveArSupportCheckedAtMs,
-      supportError,
-    };
-    xrStatus.textContent = immersiveVrSupported ? "Full VR ready" : "WebXR unavailable";
-    enterXrButton.disabled = !immersiveVrSupported;
-    updateRuntimePosturePanel(window.__openClinXrManualPerformanceCaptureSummary ?? null);
-  } catch (error) {
-    runtimeWebXrSupportEvidence = {
-      navigatorXrPresent: true,
-      immersiveVrSupported: null,
-      immersiveVrSupportCheckedAtMs: packageRoundPerformanceNow(),
-      immersiveArSupported: null,
-      immersiveArSupportCheckedAtMs: null,
-      supportError: `immersive_vr:${formatUnknownError(error)}`,
-    };
-    xrStatus.textContent = "WebXR check blocked";
-    enterXrButton.disabled = true;
-    updateRuntimePosturePanel(window.__openClinXrManualPerformanceCaptureSummary ?? null);
-  }
+  await updatePackageTraceXrStatus(
+    {
+      supportEvidence: () => runtimeWebXrSupportEvidence,
+      captureSummary: () => window.__openClinXrManualPerformanceCaptureSummary ?? null,
+      traceReadinessForPanel: (captureSummary) => updateRuntimePosturePanel(captureSummary),
+      roundPerformanceNow: () => packageRoundPerformanceNow(),
+      formatUnknownError,
+      statusWritten: (evidence) => {
+        runtimeWebXrSupportEvidence = evidence;
+      },
+    },
+    navigatorWithXr.xr
+      ? {
+          isSessionSupported: (mode) => navigatorWithXr.xr?.isSessionSupported(mode) ?? Promise.resolve(false),
+        }
+      : undefined,
+    (outcome) => {
+      if (!navigatorWithXr.xr) {
+        xrStatus.textContent = "WebXR unavailable";
+        enterXrButton.disabled = true;
+        return;
+      }
+      if (outcome.blocked && !outcome.immersiveVrSupported) {
+        xrStatus.textContent = runtimeWebXrSupportEvidence.supportError === "navigator.xr_missing"
+          ? "WebXR unavailable"
+          : outcome.available
+            ? "Full VR ready"
+            : "WebXR unavailable";
+        enterXrButton.disabled = true;
+        if (runtimeWebXrSupportEvidence.supportError?.startsWith("immersive_vr:")) {
+          xrStatus.textContent = "WebXR check blocked";
+        }
+        return;
+      }
+      xrStatus.textContent = outcome.immersiveVrSupported ? "Full VR ready" : "WebXR unavailable";
+      enterXrButton.disabled = !outcome.immersiveVrSupported;
+    },
+  );
 }
 
 function buildRuntimeReproducibilityEvidence(): ManualPerformanceReproducibilityEvidence {
-  return buildManualPerformanceReproducibility({
-    url: window.location.href,
-    userAgent: navigator.userAgent,
-    app: __OPENCLINXR_UI_XR_APP_METADATA__,
-    webXr: runtimeWebXrSupportEvidence,
-    display: {
-      viewportWidth: window.innerWidth,
-      viewportHeight: window.innerHeight,
-      screenWidth: window.screen?.width ?? null,
-      screenHeight: window.screen?.height ?? null,
-      devicePixelRatio: window.devicePixelRatio,
-      visibilityState: document.visibilityState,
-    },
+  return buildPackageTraceRuntimeReproducibilityEvidence({
+    appMetadata: () => __OPENCLINXR_UI_XR_APP_METADATA__,
+    webXrSupportEvidence: () => runtimeWebXrSupportEvidence,
+    viewportSize: () => ({ width: window.innerWidth, height: window.innerHeight }),
+    screenSize: () => ({ width: window.screen?.width ?? null, height: window.screen?.height ?? null }),
+    devicePixelRatio: () => window.devicePixelRatio,
+    visibilityState: () => document.visibilityState,
+    pageUrl: () => window.location.href,
+    userAgent: () => navigator.userAgent,
+    buildReproducibility: (input) => buildManualPerformanceReproducibility(input),
   });
 }
 
 function updateRuntimePosturePanel(captureSummary: ManualPerformanceCaptureSummary | null): RuntimeEvidencePosture {
-  const now = performance.now();
-  const posture = buildRuntimeEvidencePosture({
-    traceSummary: summarizeTraceReadiness(state),
-    captureSummary,
-    webXrSupport: runtimeWebXrSupportEvidence,
-    traceActionHandoffEvidence: window.__openClinXrTraceActionHandoffEvidence ?? null,
-    runtimeInteractionEvidence: latestRuntimeInteractionEvidence,
-    runtimeNowMs: now,
-  });
-  const lanes = new Map(posture.lanes.map((lane) => [lane.id, lane]));
-  const readinessDecision = buildXrRuntimeReadinessDecision({
-    posture,
-    iwsdkStationMcpSmokeReady: false,
-  });
-  window.__openClinXrRuntimeEvidencePosture = posture;
-  window.__openClinXrRuntimeReadinessDecision = readinessDecision;
-  postureSummary.textContent = posture.summary;
-  postureModel.textContent = formatRuntimePostureLane(lanes.get("model_dialogue"));
-  postureVoice.textContent = formatRuntimePostureLane(lanes.get("voice_synthesis"));
-  postureQuest.textContent = formatRuntimePostureLane(lanes.get("quest_foreground"));
-  postureMr.textContent = formatRuntimePostureLane(lanes.get("mixed_reality"));
-  postureBundleGate.textContent = formatLearnerRuntimeUseGate(window.__openClinXrLearnerRuntimeUseGateEvidence ?? null);
-  postureLaunch.textContent = formatRuntimeReadinessDecision(readinessDecision);
-  return posture;
+  return updatePackageTraceRuntimePosturePanel(traceReadinessPanelContext(), captureSummary);
 }
 
 function formatLearnerRuntimeUseGate(evidence: LearnerRuntimeUseGateEvidence | null): string {
-  if (!evidence) {
-    return "bundle gate pending";
-  }
-  const gateText = evidence.blockingGateIds.length > 0
-    ? `blocking ${evidence.blockingGateIds.join(", ")}`
-    : "required gates attached";
-  const sourceText = evidence.fallbackActive
-    ? `using ${evidence.activeBundleSource}`
-    : `using ${evidence.activeBundleSource}`;
-  const generatedText = evidence.generatedBundleLearnerUseBlocked
-    ? "generated learner use blocked"
-    : evidence.approvedLocalFixtureOnly
-      ? "approved local fixture assets only"
-      : "generated learner use gate clear";
-  const materializationText = evidence.actorEquipmentMaterializationGate?.runtimeSelectionBlockedUntilEvidenceAttached
-    ? `actor/equipment materialization blocked ${[
-      ...evidence.actorEquipmentMaterializationGate.actorBlockers,
-      ...evidence.actorEquipmentMaterializationGate.equipmentBlockers,
-    ].join(", ")}${formatMaterializationAttachmentSummary(evidence.actorEquipmentMaterializationGate.materializationEvidenceAttachmentSummary)}${formatRemainingRuntimeBlockerReasons(evidence.actorEquipmentMaterializationGate.remainingRuntimeBlockerReasons)}`
-    : "actor/equipment materialization gate not attached";
-  return [
-    sourceText,
-    generatedText,
-    gateText,
-    materializationText,
-    evidence.fallbackReason ? `fallback ${evidence.fallbackReason}` : "no production/clinical/scoring claim",
-  ].join(" | ");
+  return formatPackageTraceLearnerRuntimeUseGate(
+    evidence,
+    (summary) => formatMaterializationAttachmentSummary(summary),
+    (reasons) => formatRemainingRuntimeBlockerReasons(reasons),
+  );
 }
 
 function formatRemainingRuntimeBlockerReasons(
   reasons: RuntimeRemainingRuntimeBlockerReasons | null | undefined,
 ): string {
-  if (!reasons) {
-    return "";
-  }
-  const categories = reasons.categories.map((category) => `${category.category}:${category.blockerIds.join("+")}`).join(", ");
-  return `; remaining runtime blockers after materialization complete ${String(reasons.materializationEvidenceComplete)}: ${categories}; runtime ${reasons.runtimeSelectionAllowed ? "allowed" : "blocked"}`;
+  return formatPackageTraceRemainingRuntimeBlockerReasons(reasons);
 }
 
 function formatMaterializationAttachmentSummary(
   summary: RuntimeMaterializationEvidenceAttachmentSummary | null | undefined,
 ): string {
-  if (!summary) {
-    return "";
-  }
-  return `; materialization evidence slots ${summary.attachedSlotCount}/${summary.totalRequiredSlotCount} attached, ${summary.missingSlotCount} missing, runtime ${summary.runtimeSelectionAllowed ? "allowed" : "blocked"}`;
+  return formatPackageTraceMaterializationAttachmentSummary(summary);
 }
 
 function formatRuntimePostureLane(lane: RuntimeEvidencePosture["lanes"][number] | undefined): string {
-  if (!lane) {
-    return "missing";
-  }
-  const blockerText = lane.blockers.length === 0
-    ? "no blockers"
-    : `${lane.blockers.length} ${lane.blockers.length === 1 ? "blocker" : "blockers"}`;
-  return `${lane.display}; ${blockerText}`;
+  return formatPackageTraceRuntimePostureLane(lane);
 }
 
 function formatRuntimeReadinessDecision(decision: XrRuntimeReadinessDecision): string {
-  return [
-    decision.learnerLaunchReady ? "learner launch ready" : "learner launch blocked",
-    `${decision.blockerCount} blockers`,
-    `next ${decision.recommendedNextAction}`,
-  ].join(" | ");
+  return formatPackageTraceRuntimeReadinessDecision(decision);
 }
 
 type ScenarioDoorwayVisualTheme = {
@@ -4275,9 +4199,8 @@ function formatCaptureReadinessStatus(summary: ManualPerformanceCaptureSummary |
 }
 
 function formatTechnicalGapStatus(summary: ManualPerformanceCaptureSummary | null): string {
-  return summary?.technicalGaps[0] ?? "none";
+  return formatPackageTraceTechnicalGapStatus(summary);
 }
-
 
 function configureSemanticRolePoseOverlay(mesh: Mesh, cueId: string): void {
   mesh.userData.openClinXrRolePoseCueId = cueId;
@@ -6096,65 +6019,54 @@ function playPedsActorPlayerRuntimeTurn(
   dialogueLine.textContent = turn.text;
 }
 
+function pedsActorListenerCuePanelContext(): Parameters<typeof applyPackagePedsActorPlayerSequenceListenerCues>[0] {
+  return {
+    actorSlotsByActorId: generatedHumanoidActorSlotsByActorId,
+    animationSlotsByActorId:
+      generatedHumanoidAnimationSlotsByActorId as unknown as Parameters<
+        typeof applyPackagePedsActorPlayerSequenceListenerCues
+      >[0]["animationSlotsByActorId"],
+    orientEyeFocusCue: (slot, gazeOrigin, boundedTarget) =>
+      orientHumanoidEyeFocusCue(slot as unknown as GeneratedHumanoidAnimationSlot, gazeOrigin, boundedTarget),
+    orientTowardGazeTarget: (slot, targetWorld) =>
+      orientHumanoidTowardGazeTarget(slot as unknown as GeneratedHumanoidAnimationSlot, targetWorld),
+    startEmotionTransition: (slot, emotion, nowMs) =>
+      startHumanoidEmotionTransition(slot as unknown as GeneratedHumanoidAnimationSlot, emotion as HumanoidExpressionEmotion, nowMs),
+    updateEmotionExpression: (slot, nowMs) => {
+      const state = updateHumanoidEmotionExpression(slot as unknown as GeneratedHumanoidAnimationSlot, nowMs);
+      return {
+        targetEmotion: state.targetEmotion as "concerned" | "reassured" | "neutral" | "anxious" | "pain",
+        weights: state.weights,
+      };
+    },
+    applyMorphTargetCue: (slot, openness, viseme, weights) =>
+      applyHumanoidMorphTargetCue(
+        slot as unknown as GeneratedHumanoidAnimationSlot,
+        openness,
+        viseme,
+        weights as unknown as HumanoidExpressionWeights,
+      ),
+    createVector: (x, y, z) => new Vector3(x, y, z),
+  };
+}
+
 function applyPedsActorPlayerSequenceListenerCues(
   activeTurn: PedsActorPlayerRuntimeTurn,
   sequence: PedsActorPlayerRuntimeSequenceEvidence | null,
   nowMs: number,
 ): { actorIds: string[]; coupledSignalIds: string[] } {
-  if (!sequence || sequence.turns.length <= 1) {
-    return { actorIds: [], coupledSignalIds: [] };
-  }
-  const activeActorSlot = generatedHumanoidActorSlotsByActorId.get(activeTurn.actorId);
-  if (!activeActorSlot) {
-    return { actorIds: [], coupledSignalIds: [] };
-  }
-  const targetWorld = activeActorSlot.getWorldPosition(new Vector3());
-  targetWorld.y += 1.18;
-  const listenerActorIds = Array.from(new Set(sequence.turns
-    .map((turn) => turn.actorId)
-    .filter((actorId) => actorId !== activeTurn.actorId)));
-  const coupledSignalIds = [
-    "sequence_listener_gaze_to_active_speaker",
-    "sequence_listener_expression_residual",
-    "sequence_listener_body_attention_shift",
-  ];
-  for (const listenerActorId of listenerActorIds) {
-    const slot = generatedHumanoidAnimationSlotsByActorId.get(listenerActorId);
-    if (!slot || slot.activeSpeech || slot.sourceComparatorFreezeEnabled) {
-      continue;
-    }
-    const gazeOrigin = new Vector3(0, 1.57, 0.29);
-    const targetLocal = slot.root.worldToLocal(targetWorld.clone());
-    const boundedTarget = targetLocal.sub(gazeOrigin).clampLength(0.35, 1.15).add(gazeOrigin);
-    slot.gazeCue.geometry.setFromPoints([gazeOrigin, boundedTarget]);
-    slot.gazeCue.visible = true;
-    orientHumanoidEyeFocusCue(slot, gazeOrigin, boundedTarget);
-    orientHumanoidTowardGazeTarget(slot, targetWorld);
-    startHumanoidEmotionTransition(slot, listenerEmotionForSequence(activeTurn), nowMs);
-    const expressionState = updateHumanoidEmotionExpression(slot, nowMs);
-    slot.expressionCue.visible = true;
-    slot.expressionCue.scale.set(1 + expressionState.weights.cheekTension * 0.12, 1 + expressionState.weights.browConcern * 0.09, 1);
-    applyHumanoidMorphTargetCue(slot, 0.025, "rest", expressionState.weights);
-    slot.root.userData.openClinXrSequenceListeningCue = {
-      activeSpeakerActorId: activeTurn.actorId,
-      sequenceId: sequence.sequenceId,
-      traceTag: sequence.traceTag,
-      listenerEmotion: expressionState.targetEmotion,
-      cueIds: coupledSignalIds,
-      notEvidenceFor: "production social gaze, clinical communication scoring, or motion-capture realism",
-    };
-  }
-  return { actorIds: listenerActorIds, coupledSignalIds };
+  return applyPackagePedsActorPlayerSequenceListenerCues(
+    pedsActorListenerCuePanelContext(),
+    { actorId: activeTurn.actorId, emotion: activeTurn.emotion },
+    sequence
+      ? { sequenceId: sequence.sequenceId, traceTag: sequence.traceTag, turns: sequence.turns.map((turn) => ({ actorId: turn.actorId })) }
+      : null,
+    nowMs,
+  );
 }
 
 function listenerEmotionForSequence(activeTurn: PedsActorPlayerRuntimeTurn): HumanoidExpressionEmotion {
-  if (activeTurn.emotion === "pain" || activeTurn.emotion === "anxious") {
-    return "concerned";
-  }
-  if (activeTurn.emotion === "reassured") {
-    return "reassured";
-  }
-  return "concerned";
+  return listenerPackageEmotionForSequence(activeTurn) as HumanoidExpressionEmotion;
 }
 
 function playPedsActorPlayerRuntimeSequence(sequence: PedsActorPlayerRuntimeSequenceEvidence, fallbackTurns: PedsActorPlayerRuntimeTurn[]): void {
@@ -6173,74 +6085,19 @@ function playPedsActorPlayerRuntimeSequence(sequence: PedsActorPlayerRuntimeSequ
 }
 
 function pedsActorPlayerRuntimeTurns(): PedsActorPlayerRuntimeTurn[] {
-  return [
-    {
-      actorId: "patient_maya_johnson_v1",
-      turnId: "turn_1_inhaler_history",
-      cue: "inhaler_history",
-      text: "Maya: It feels tight when I breathe.",
-      emotion: "pain",
-      gazeTargetKind: "learner_camera",
-      gazeTargetActorId: null,
-      roleAnimationClipName: "openclinxr_role_patient_asthma_breathing_effort",
-      source: "actor_player_sample_fallback",
+  return pedsPackageActorPlayerRuntimeTurns() as PedsActorPlayerRuntimeTurn[];
+}
+
+function pedsActorPlayerPlaybackPanelContext(): Parameters<typeof recordPackagePedsActorPlayerRuntimePlaybackEvidence>[0] {
+  return {
+    dialogueTurnCount: () => encounterRuntimeAssetBundle.sceneManifest.dialogueTurns?.length ?? 0,
+    selectedHumanoidSourceComparator: () => selectedHumanoidSourceComparator(),
+    activeGeneratedActorSlotCount: () => generatedHumanoidAnimationSlotsByActorId.size,
+    activeHumanoidSpeechEvidenceActorId: () => window.__openClinXrHumanoidSpeechEvidence?.activeActorId ?? null,
+    playbackEvidenceWritten: (evidence) => {
+      window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence = evidence as PedsActorPlayerRuntimePlaybackEvidence;
     },
-    {
-      actorId: "parent_tara_johnson_v1",
-      turnId: "turn_6_parent_communication",
-      cue: "parent_communication",
-      text: "Tara: I am really worried about Maya's breathing.",
-      emotion: "anxious",
-      gazeTargetKind: "actor",
-      gazeTargetActorId: "patient_maya_johnson_v1",
-      roleAnimationClipName: "openclinxr_role_parent_anxious_fidget_guard",
-      source: "actor_player_sample_fallback",
-    },
-    {
-      actorId: "nurse_kevin_lee_v1",
-      turnId: "turn_0_work_of_breathing_assessment",
-      cue: "work_of_breathing_assessment",
-      text: "Kevin: I am watching her breathing effort and will call out any change.",
-      emotion: "concerned",
-      gazeTargetKind: "actor",
-      gazeTargetActorId: "patient_maya_johnson_v1",
-      roleAnimationClipName: "openclinxr_role_nurse_clinical_check_reassure",
-      source: "actor_player_sample_fallback",
-    },
-    {
-      actorId: "nurse_kevin_lee_v1",
-      turnId: "turn_3_oxygen_request",
-      cue: "oxygen_request",
-      text: "Kevin: I am starting oxygen and keeping her positioned upright.",
-      emotion: "concerned",
-      gazeTargetKind: "actor",
-      gazeTargetActorId: "patient_maya_johnson_v1",
-      roleAnimationClipName: "openclinxr_role_nurse_clinical_check_reassure",
-      source: "actor_player_sample_fallback",
-    },
-    {
-      actorId: "parent_tara_johnson_v1",
-      turnId: "turn_7_empathy_statement",
-      cue: "empathy_statement",
-      text: "Tara: Please tell me what is happening and what you need me to do.",
-      emotion: "anxious",
-      gazeTargetKind: "learner_camera",
-      gazeTargetActorId: null,
-      roleAnimationClipName: "openclinxr_role_parent_anxious_fidget_guard",
-      source: "actor_player_sample_fallback",
-    },
-    {
-      actorId: "patient_maya_johnson_v1",
-      turnId: "turn_8_reassessment",
-      cue: "reassessment",
-      text: "Maya: It is a little easier when I sit up.",
-      emotion: "reassured",
-      gazeTargetKind: "learner_camera",
-      gazeTargetActorId: null,
-      roleAnimationClipName: "openclinxr_role_patient_asthma_breathing_effort",
-      source: "actor_player_sample_fallback",
-    },
-  ];
+  };
 }
 
 function recordPedsActorPlayerRuntimePlaybackEvidence(input: {
@@ -6255,53 +6112,36 @@ function recordPedsActorPlayerRuntimePlaybackEvidence(input: {
   latestListenerActorIds: string[];
   latestCoupledSignalIds: string[];
 }): void {
-  const bundleDialogueTurnCount = encounterRuntimeAssetBundle.sceneManifest.dialogueTurns?.length ?? 0;
-  window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence = {
-    source: "window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence",
-    scenarioId: (selectedHumanoidSourceComparator() === "ed_anny_real_garment_patient" ? "ed_chest_pain_priority_v1" : "peds_asthma_parent_anxiety_v1"),
-    playbackMode: "local_desktop_preview_from_bundle_dialogue_or_actor_player_samples",
-    sourceArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
-    scheduled: input.scheduled,
-    actorCount: Array.from(new Set(input.turns.map((turn) => turn.actorId))).length,
-    turnCount: input.turns.length,
-    bundleDialogueTurnCount,
-    fallbackTurnCount: input.turns.length,
-    latestTurnIndex: input.latestTurnIndex,
-    latestActorId: input.latestTurn?.actorId ?? null,
-    latestTurnId: input.latestTurn?.turnId ?? null,
-    latestCue: input.latestTurn?.cue ?? null,
-    latestEmotion: input.latestTurn?.emotion ?? null,
-    latestRoleAnimationClipName: input.latestTurn?.roleAnimationClipName ?? null,
-    latestTurnSource: input.latestTurn?.source ?? null,
-    latestTriggerSource: input.latestTriggerSource,
-    latestTraceTag: input.latestTraceTag,
-    latestSequenceId: input.latestSequence?.sequenceId ?? null,
-    latestSequenceSource: input.latestSequence?.source ?? null,
-    latestSequenceStepIndex: input.latestSequenceStepIndex,
-    latestSequenceTurnCount: input.latestSequence?.turns.length ?? 0,
-    latestSequenceActorIds: input.latestSequence
-      ? Array.from(new Set(input.latestSequence.turns.map((turn) => turn.actorId)))
-      : [],
-    latestListenerActorIds: input.latestListenerActorIds,
-    latestCoupledSignalIds: input.latestCoupledSignalIds,
-    activeGeneratedActorSlotCount: generatedHumanoidAnimationSlotsByActorId.size,
-    activeHumanoidSpeechEvidenceActorId: window.__openClinXrHumanoidSpeechEvidence?.activeActorId ?? null,
-    scenePlacementEvidenceAllowed: false,
-    learnerLaunchAllowed: false,
-    questEvidenceRefreshAllowed: false,
-    productionAssetReadinessClaimed: false,
-    clinicalValidityClaimed: false,
-    scoringValidityClaimed: false,
-    claimBoundary: "local_actor_player_runtime_preview_not_readiness",
-    notEvidenceFor: [
-      "scene_placement_readiness",
-      "learner_launch_readiness",
-      "quest_readiness",
-      "production_asset_readiness",
-      "clinical_validity",
-      "scoring_validity",
-    ],
-  };
+  recordPackagePedsActorPlayerRuntimePlaybackEvidence(
+    pedsActorPlayerPlaybackPanelContext(),
+    {
+      scheduled: input.scheduled,
+      turns: input.turns.map((turn) => ({ actorId: turn.actorId })),
+      latestTurnIndex: input.latestTurnIndex,
+      latestTurn: input.latestTurn
+        ? {
+            actorId: input.latestTurn.actorId,
+            turnId: input.latestTurn.turnId,
+            cue: input.latestTurn.cue,
+            emotion: input.latestTurn.emotion,
+            roleAnimationClipName: input.latestTurn.roleAnimationClipName,
+            source: input.latestTurn.source,
+          }
+        : null,
+      latestTriggerSource: input.latestTriggerSource,
+      latestTraceTag: input.latestTraceTag,
+      latestSequence: input.latestSequence
+        ? {
+            sequenceId: input.latestSequence.sequenceId,
+            source: input.latestSequence.source,
+            turns: input.latestSequence.turns.map((turn) => ({ actorId: turn.actorId })),
+          }
+        : null,
+      latestSequenceStepIndex: input.latestSequenceStepIndex,
+      latestListenerActorIds: input.latestListenerActorIds,
+      latestCoupledSignalIds: input.latestCoupledSignalIds,
+    },
+  );
 }
 
 function hasAuthoredClinicalIdlePoseClip(animationClips: unknown[]): boolean {
@@ -6963,157 +6803,165 @@ function loadGeneratedEnvironmentIntoSceneSlot(
   );
 }
 
-const frameDeltasMs: number[] = [];
-let framesObserved = 0;
-let previewFramesObserved = 0;
-let immersiveFramesObserved = 0;
-let firstFrameAtMs: number | null = null;
-let lastFrameAtMs: number | undefined;
+const traceFrameAccumulator = createPackageTraceFrameAccumulator();
+
+function frameRecordingPanelContext(): Parameters<typeof recordPackageTraceFrame>[1] {
+  return {
+    elapsedSecond: () => state.elapsedSecond,
+    completedTraceTags: () => state.completedTraceTags,
+    lastTraceSelectLatencyMs: () => currentTraceSelectLatencyMs(),
+    experienceModeEvidence: () => window.__openClinXrExperienceModeEvidence ?? xrExperienceModeEvidence,
+    experienceModeFallback: xrExperienceModeEvidence,
+    inputEvidence: () => window.__openClinXrInputEvidence ?? null,
+    traceLatencyEvidence: () => window.__openClinXrTraceLatencyEvidence ?? null,
+    reproducibilityEvidence: () => buildRuntimeReproducibilityEvidence(),
+    immersiveSessionStarted: () => immersiveSessionActive,
+    foregroundPageConfirmed: () => document.visibilityState === "visible",
+    generatedAt: () => new Date().toISOString(),
+    nowMs: () => performance.now(),
+    frameStatsWritten: (stats) => {
+      window.__openClinXrFrameStats = stats;
+    },
+    draftWritten: (draft) => {
+      window.__openClinXrManualPerformanceDraft = draft;
+    },
+    captureSummaryWritten: (summary) => {
+      window.__openClinXrManualPerformanceCaptureSummary = summary;
+    },
+    afterFirstOrThirtiethFrame: () => {
+      updateManualEvidencePanel();
+    },
+    buildFrameStats: (input) => buildRuntimeFrameStats(input),
+    buildDraft: (input) =>
+      buildManualPerformanceDraft({
+        generatedAt: input.generatedAt,
+        elapsedSecond: input.elapsedSecond,
+        foregroundPageConfirmed: input.foregroundPageConfirmed,
+        traceInteractionPassed: input.traceInteractionPassed,
+        frameStats: input.frameStats,
+        controllerSelectLatencyMs: input.controllerSelectLatencyMs,
+        ...(input.experienceModeEvidence === undefined ? {} : { experienceModeEvidence: input.experienceModeEvidence }),
+        ...(input.inputEvidence == null ? {} : { inputEvidence: input.inputEvidence }),
+        ...(input.traceLatencyEvidence == null ? {} : { traceLatencyEvidence: input.traceLatencyEvidence }),
+        reproducibilityEvidence: input.reproducibilityEvidence,
+        immersiveSessionStarted: input.immersiveSessionStarted,
+      }),
+    buildCaptureSummary: (input) => buildManualPerformanceCaptureSummary(input),
+  };
+}
 
 function recordFrame(now: number, evidence: {
   qualitySource: NonNullable<OpenClinXrFrameStats["qualitySource"]>;
   isPresenting: boolean;
   visibilityState: string;
 }): ManualPerformanceCaptureSummary {
-  if (lastFrameAtMs !== undefined) {
-    frameDeltasMs.push(now - lastFrameAtMs);
-    if (frameDeltasMs.length > 180) {
-      frameDeltasMs.shift();
-    }
-  }
-  firstFrameAtMs ??= now;
-  lastFrameAtMs = now;
-  framesObserved += 1;
-  if (evidence.isPresenting) {
-    immersiveFramesObserved += 1;
-  } else {
-    previewFramesObserved += 1;
-  }
-  window.__openClinXrFrameStats = buildRuntimeFrameStats({
-    frameDeltasMs,
-    framesObserved,
-    firstFrameAtMs,
-    latestFrameAtMs: now,
-    previewFramesObserved,
-    immersiveFramesObserved,
-    qualitySource: evidence.qualitySource,
-    isPresenting: evidence.isPresenting,
-    visibilityState: evidence.visibilityState,
-  });
-  window.__openClinXrManualPerformanceDraft = buildManualPerformanceDraft({
-    generatedAt: new Date().toISOString(),
-    elapsedSecond: state.elapsedSecond,
-    foregroundPageConfirmed: document.visibilityState === "visible",
-    traceInteractionPassed: state.completedTraceTags.length > 0,
-    frameStats: window.__openClinXrFrameStats,
-    controllerSelectLatencyMs: lastTraceSelectLatencyMs,
-    experienceModeEvidence: window.__openClinXrExperienceModeEvidence ?? xrExperienceModeEvidence,
-    inputEvidence: window.__openClinXrInputEvidence ?? null,
-    traceLatencyEvidence: window.__openClinXrTraceLatencyEvidence ?? null,
-    reproducibilityEvidence: buildRuntimeReproducibilityEvidence(),
-    immersiveSessionStarted: immersiveSessionActive,
-  });
-  const captureSummary = buildManualPerformanceCaptureSummary({
-    draft: window.__openClinXrManualPerformanceDraft,
-    frameStats: window.__openClinXrFrameStats,
-    now,
-  });
-  window.__openClinXrManualPerformanceCaptureSummary = captureSummary;
-  if (framesObserved === 1 || framesObserved % 30 === 0) {
-    updateManualEvidencePanel();
-  }
-  return captureSummary;
+  return recordPackageTraceFrame(traceFrameAccumulator, frameRecordingPanelContext(), now, evidence);
+}
+
+function manualEvidencePanelContext(): Parameters<typeof updatePackageTraceManualEvidencePanel>[0] {
+  const readiness = traceReadinessPanelContext();
+  void readiness;
+  const full: Parameters<typeof updatePackageTraceManualEvidencePanel>[0] = {
+    runtimeState: () => state,
+    panels: {
+      traceSummary,
+      postureSummary,
+      postureModel,
+      postureVoice,
+      postureQuest,
+      postureMr,
+      postureBundleGate,
+      postureLaunch,
+      evidenceFrames,
+      evidenceLoop,
+      evidenceInput,
+      evidenceSceneAssets,
+      evidenceSpeechAffect,
+      evidenceActorPlayer,
+      evidenceLocomotion,
+      evidenceTraceInteraction,
+      evidenceTrace,
+      evidenceValidation,
+      copyEvidenceStatus,
+      manualEvidenceJson,
+    },
+    summarizeTraceReadiness: (input) => summarizeTraceReadiness(input),
+    buildRuntimeEvidencePosture: (input) =>
+      buildRuntimeEvidencePosture(input as Parameters<typeof buildRuntimeEvidencePosture>[0]),
+    buildReadinessDecision: (input) => buildXrRuntimeReadinessDecision(input),
+    formatPostureLane: (lane) => formatRuntimePostureLane(lane),
+    formatReadinessDecision: (decision) => formatRuntimeReadinessDecision(decision),
+    formatLearnerRuntimeUseGate: (evidence) => formatLearnerRuntimeUseGate(evidence),
+    roundPerformanceNow: () => packageRoundPerformanceNow(),
+    latestRuntimeInteractionEvidence: () => latestRuntimeInteractionEvidence,
+    webXrSupportEvidence: () => runtimeWebXrSupportEvidence,
+    handoffEvidence: () => window.__openClinXrTraceActionHandoffEvidence ?? null,
+    captureSummary: () => window.__openClinXrManualPerformanceCaptureSummary ?? null,
+    learnerRuntimeUseGateEvidence: () => window.__openClinXrLearnerRuntimeUseGateEvidence ?? null,
+    postureWritten: (posture, decision) => {
+      window.__openClinXrRuntimeEvidencePosture = posture;
+      window.__openClinXrRuntimeReadinessDecision = decision;
+    },
+    frameStats: () => window.__openClinXrFrameStats ?? null,
+    draft: () => window.__openClinXrManualPerformanceDraft ?? null,
+    copyDisposition: () => evidenceCopyDisposition,
+    formatSceneAssetEvidenceStatus: (evidence) => formatPackageSceneAssetEvidenceStatus(evidence as SceneAssetEvidence | null),
+    formatHumanoidSpeechAffectEvidence: (evidence) => formatHumanoidSpeechAffectEvidence(evidence),
+    formatPerformanceContractEvidence: (evidence) =>
+      formatPackageCaseDefinedHumanoidPerformanceContractEvidence(evidence as CaseDefinedHumanoidPerformanceContractEvidence | null),
+    formatActorPlayerRuntimeMetadataSummary: (evidence, playback) =>
+      formatActorPlayerRuntimeMetadataSummary(
+        evidence as ActorPlayerRuntimeMetadataSummary | null,
+        playback as PedsActorPlayerRuntimePlaybackEvidence | null,
+      ),
+    formatPortalTransitionEvidence: (evidence) =>
+      formatPackagePortalTransitionEvidence(evidence as PackagePortalTransitionEvidence | null),
+    formatLocomotionPathQuality: (quality) => formatLocomotionPathQuality(quality),
+    formatLocomotionDiagnosticSummary: (summary) => formatLocomotionDiagnosticSummary(summary),
+    formatLocomotionProbeSummary: (summary) => formatLocomotionProbeSummary(summary),
+    formatTechnicalGapStatus: (summary) => formatTechnicalGapStatus(summary),
+    formatManualEvidenceCopyStatus: (summary, disposition) =>
+      formatManualEvidenceCopyStatus(summary, disposition as ManualEvidenceCopyDisposition),
+    buildCaptureSummary: (input) => buildManualPerformanceCaptureSummary(input),
+    buildEvidencePayload: (input) =>
+      buildManualPerformanceEvidencePayload({
+        ...input,
+        runtimeSceneManifestEvidence: input.runtimeSceneManifestEvidence as never,
+        textPanelEvidence: input.textPanelEvidence as never,
+        sceneAssetEvidence: input.sceneAssetEvidence as never,
+        caseDefinedHumanoidPerformanceContractEvidence: input.caseDefinedHumanoidPerformanceContractEvidence as never,
+        actorPlayerRuntimeMetadataSummary: input.actorPlayerRuntimeMetadataSummary as never,
+        examineeLocomotionEvidence: input.examineeLocomotionEvidence as never,
+      }) as unknown as Record<string, unknown>,
+    sceneAssetEvidence: () => window.__openClinXrSceneAssetEvidence as unknown as Record<string, unknown> | null,
+    humanoidSpeechEvidence: () => window.__openClinXrHumanoidSpeechEvidence ?? null,
+    performanceContractEvidence: () =>
+      window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence as unknown as Record<string, unknown> | null,
+    actorPlayerRuntimeMetadataSummary: () =>
+      window.__openClinXrActorPlayerRuntimeMetadataSummary as unknown as Record<string, unknown> | null,
+    examineeLocomotionEvidence: () =>
+      window.__openClinXrExamineeLocomotionEvidence as unknown as Record<string, unknown> | null,
+    selectedRuntimeAssetBundleId: () => window.__openClinXrSelectedRuntimeAssetBundleId ?? null,
+    runtimeSceneManifestEvidence: () =>
+      window.__openClinXrRuntimeSceneManifestEvidence as unknown as Record<string, unknown> | null,
+    textPanelEvidence: () => window.__openClinXrTextPanelEvidence as unknown as Record<string, unknown> | null,
+    environmentStateEvidence: () => window.__openClinXrEnvironmentStateEvidence ?? null,
+    pedsActorPlayerRuntimePlaybackEvidence: () =>
+      window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence as unknown as Record<string, unknown> | null,
+    portalTransitionEvidence: () =>
+      window.__openClinXrPortalTransitionEvidence as unknown as Record<string, unknown> | null,
+    examFlowEvidence: () => window.__openClinXrExamFlowEvidence as unknown as Record<string, unknown> | null,
+    examRunSummaryEvidence: () => window.__openClinXrExamRunSummaryEvidence as unknown as Record<string, unknown> | null,
+    interactionSummary: () => window.__openClinXrTraceInteractionEvidenceSummary ?? null,
+    captureSummaryWritten: (summary) => {
+      window.__openClinXrManualPerformanceCaptureSummary = summary;
+    },
+  };
+  return full;
 }
 
 function updateManualEvidencePanel(): string {
-  const now = performance.now();
-  const summary = buildManualPerformanceCaptureSummary({
-    draft: window.__openClinXrManualPerformanceDraft ?? null,
-    frameStats: window.__openClinXrFrameStats ?? null,
-    now,
-  });
-  window.__openClinXrManualPerformanceCaptureSummary = summary;
-  updateRuntimePosturePanel(summary);
-  evidenceFrames.textContent = [
-    `${summary.framesObserved ?? 0} / ${summary.sampleWindowSize ?? 0}`,
-    `vr ${summary.immersiveFramesObserved ?? 0}`,
-    `preview ${summary.previewFramesObserved ?? 0}`,
-    summary.immersiveFrameEvidenceReady ? "frame evidence ready" : "frame gap",
-  ].join(" | ");
-  evidenceLoop.textContent = [
-    summary.qualitySource ?? "pending",
-    summary.isPresenting ? "presenting" : "not presenting",
-    summary.visibilityState ?? "unknown",
-    summary.frameStatsFresh === null ? "freshness pending" : summary.frameStatsFresh ? `${summary.frameStatsAgeMs}ms fresh` : `${summary.frameStatsAgeMs}ms stale`,
-  ].join(" | ");
-  evidenceInput.textContent = [
-    `${summary.handInputsObserved ?? 0} hand inputs`,
-    `hand rep ${summary.handRepresentationKind ?? "unknown"}`,
-    summary.inputSourceKinds.length > 0 ? summary.inputSourceKinds.join(", ") : "no source",
-  ].join(" | ");
-  evidenceSceneAssets.textContent = formatPackageSceneAssetEvidenceStatus(window.__openClinXrSceneAssetEvidence ?? null);
-  evidenceSpeechAffect.textContent = [
-    formatHumanoidSpeechAffectEvidence(window.__openClinXrHumanoidSpeechEvidence ?? null),
-    formatPackageCaseDefinedHumanoidPerformanceContractEvidence(window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence ?? null),
-  ].join(" | ");
-  evidenceActorPlayer.textContent = formatActorPlayerRuntimeMetadataSummary(
-    window.__openClinXrActorPlayerRuntimeMetadataSummary ?? null,
-    window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
-  );
-  evidenceLocomotion.textContent = [
-    formatPackagePortalTransitionEvidence(window.__openClinXrPortalTransitionEvidence ?? null),
-    summary.activeLocomotionSource ?? "none",
-    summary.locomotionEvidenceReady ? "locomotion ready" : "locomotion gap",
-    `attempt ${summary.locomotionAttempt ?? "unknown"}`,
-    summary.lastLocomotionAtMs === null ? "no movement timestamp" : `moved ${summary.lastLocomotionAtMs}ms`,
-    summary.locomotionDistanceMeters === null ? "no distance delta" : `d ${summary.locomotionDistanceMeters}m`,
-    summary.locomotionTurnRadians === null ? "no turn delta" : `turn ${summary.locomotionTurnRadians}rad`,
-    formatLocomotionPathQuality(summary.locomotionPathQuality),
-    formatLocomotionDiagnosticSummary(summary.locomotionDiagnosticSummary),
-    formatLocomotionProbeSummary(summary.locomotionProbeSummary),
-  ].join(" | ");
-  evidenceTrace.textContent = [
-    summary.traceLatencySource ?? "no trace source",
-    summary.headsetSelectLatencyReady ? "headset latency ready" : "headset latency gap",
-    `attempt ${summary.traceInteractionAttempt ?? "unknown"}`,
-    summary.handSelectStatus === null
-      ? "hand select unavailable"
-      : `hand select ${summary.handSelectStatus}; dwell ${summary.handSelectDwellMs ?? 0}ms; fired ${summary.handSelectFiredCount ?? 0}${summary.handSelectBlockedReason ? `; ${summary.handSelectBlockedReason}` : ""}`,
-    summary.lastTraceTag ?? "no tag",
-    summary.lastTraceLatencyMs === null ? "no latency" : `${summary.lastTraceLatencyMs}ms`,
-  ].join(" | ");
-  evidenceValidation.textContent = [
-    summary.manualValidationReady ? "manual validation ready" : "draft only",
-    summary.blockers.length === 0 ? "no blockers" : `${summary.blockers.length} blockers`,
-    `gap ${formatTechnicalGapStatus(summary)}`,
-  ].join(" | ");
-  copyEvidenceStatus.textContent = formatManualEvidenceCopyStatus(summary, evidenceCopyDisposition);
-  const manualPerformanceDraft = window.__openClinXrManualPerformanceDraft ?? null;
-  const payload = JSON.stringify({
-    ...buildManualPerformanceEvidencePayload({
-    manualPerformanceDraft,
-    captureSummary: summary,
-    runtimeAssetBundleId: window.__openClinXrSelectedRuntimeAssetBundleId ?? null,
-    learnerRuntimeUseGateEvidence: window.__openClinXrLearnerRuntimeUseGateEvidence ?? null,
-    runtimeSceneManifestEvidence: window.__openClinXrRuntimeSceneManifestEvidence ?? null,
-    textPanelEvidence: window.__openClinXrTextPanelEvidence ?? null,
-    traceActionHandoffEvidence: window.__openClinXrTraceActionHandoffEvidence ?? null,
-    sceneAssetEvidence: window.__openClinXrSceneAssetEvidence ?? null,
-    environmentStateEvidence: window.__openClinXrEnvironmentStateEvidence ?? null,
-    humanoidSpeechEvidence: window.__openClinXrHumanoidSpeechEvidence ?? null,
-    caseDefinedHumanoidPerformanceContractEvidence: window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence ?? null,
-    actorPlayerRuntimeMetadataSummary: window.__openClinXrActorPlayerRuntimeMetadataSummary ?? null,
-    examineeLocomotionEvidence: window.__openClinXrExamineeLocomotionEvidence ?? null,
-    runtimeInteractionEvidence: latestRuntimeInteractionEvidence,
-    traceInteractionEvidenceSummary: window.__openClinXrTraceInteractionEvidenceSummary ?? null,
-    }),
-    portalTransitionEvidence: window.__openClinXrPortalTransitionEvidence ?? null,
-    pedsActorPlayerRuntimePlaybackEvidence: window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
-    examFlowEvidence: window.__openClinXrExamFlowEvidence ?? null,
-    examRunSummaryEvidence: window.__openClinXrExamRunSummaryEvidence ?? null,
-  }, null, 2);
-  manualEvidenceJson.value = payload;
-  return payload;
+  return updatePackageTraceManualEvidencePanel(manualEvidencePanelContext());
 }
 
 function _formatAppSceneAssetEvidenceStatus(evidence: SceneAssetEvidence | null): string {
@@ -7128,32 +6976,10 @@ function formatActorPlayerRuntimeMetadataSummary(
   evidence: ActorPlayerRuntimeMetadataSummary | null,
   playback: PedsActorPlayerRuntimePlaybackEvidence | null = null,
 ): string {
-  if (!evidence) {
-    return "actor-player metadata pending";
-  }
-  const actorRows = evidence.actorSummaries
-    .map((actor) => {
-      const clips = actor.roleAnimationClipNames?.length ? ` clips ${actor.roleAnimationClipNames.join(",")}` : "";
-      return `${actor.actorId} ${actor.turnCount}t/${actor.sampleCount}s ${actor.sceneExecutionStatus}${clips}`;
-    })
-    .join("; ");
-  const blockers = Array.from(new Set(evidence.actorSummaries.flatMap((actor) => actor.blockerIds))).join(",");
-  return [
-    "review-only actor-player metadata",
-    evidence.executionMode,
-    `${evidence.actorCount} actors`,
-    `${evidence.projectedTurnCount} turns`,
-    `${evidence.projectedSampleCount} samples`,
-    actorRows,
-    `source ${evidence.sourceArtifactPath}`,
-    playback?.scheduled
-      ? `live preview ${playback.latestTriggerSource ?? "pending"} ${playback.latestTraceTag ?? "no-trace"} ${playback.latestTurnSource ?? "unknown-source"} ${playback.latestActorId ?? "pending"} ${playback.latestCue ?? "pending"} emotion ${playback.latestEmotion ?? "pending"} ${playback.latestRoleAnimationClipName ?? "no-role-clip"} sequence ${playback.latestSequenceSource ?? "none"} ${playback.latestSequenceStepIndex + 1}/${playback.latestSequenceTurnCount || 0} actors ${playback.latestSequenceActorIds.join(",") || "none"} listeners ${playback.latestListenerActorIds.join(",") || "none"} coupled ${playback.latestCoupledSignalIds.join(",") || "none"} bundle ${playback.bundleDialogueTurnCount} fallback ${playback.fallbackTurnCount}`
-      : "live preview pending",
-    `blocked ${blockers || "none"}`,
-    evidence.claimBoundary,
-    playback?.claimBoundary ?? "local_actor_player_runtime_preview_not_started",
-    `not readiness ${evidence.notEvidenceFor.join(",")}`,
-  ].join(" | ");
+  return formatPackageTraceActorPlayerRuntimeMetadataSummary(
+    evidence as unknown as Parameters<typeof formatPackageTraceActorPlayerRuntimeMetadataSummary>[0],
+    playback as unknown as Parameters<typeof formatPackageTraceActorPlayerRuntimeMetadataSummary>[1],
+  );
 }
 
 /**
@@ -7271,7 +7097,29 @@ function buildHumanoidSpeechEvidence(
   emotionContext?: HumanoidDialogueEmotionContext,
   actorRuntimeRealismRequirement?: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"],
 ): HumanoidSpeechEvidence {
-  return buildPackageHumanoidSpeechEvidence(actorId, assetId, text, phonemeSequence, visemeSequence, gazeTarget, emotionContext, actorRuntimeRealismRequirement);
+  return buildPackageTraceHumanoidSpeechEvidence(
+    {
+      buildEvidence: (a, b, c, d, e, f, g, h) =>
+        buildPackageHumanoidSpeechEvidence(
+          a,
+          b,
+          c,
+          d,
+          e,
+          f,
+          g as unknown as PackageHumanoidDialogueEmotionContext | undefined,
+          h,
+        ),
+    },
+    actorId,
+    assetId,
+    text,
+    phonemeSequence,
+    visemeSequence,
+    gazeTarget,
+    emotionContext,
+    actorRuntimeRealismRequirement,
+  );
 }
 
 function _buildRuntimeActorRealismLaunchBadge(

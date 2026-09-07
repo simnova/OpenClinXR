@@ -27,6 +27,7 @@
     "@openclinxr/xr-scene": "workspace:*",
     "@openclinxr/xr-scene-cues": "workspace:*",
     "@openclinxr/xr-station": "workspace:*",
+    "@openclinxr/xr-trace-readiness": "workspace:*",
     "three": "catalog:"
   },
   "devDependencies": {

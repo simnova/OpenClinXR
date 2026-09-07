@@ -96,7 +96,8 @@
         "packages/openclinxr/xr-humanoid-animation/src/**",
         "packages/openclinxr/xr-locomotion/src/**",
         "packages/openclinxr/xr-runtime-wiring/src/**",
-        "packages/openclinxr/xr-scene-cues/src/**"
+        "packages/openclinxr/xr-scene-cues/src/**",
+        "packages/openclinxr/xr-trace-readiness/src/**"
       ],
       "linter": {
         "rules": {
