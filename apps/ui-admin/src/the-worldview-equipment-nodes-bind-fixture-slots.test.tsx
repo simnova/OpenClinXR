@@ -48,7 +48,7 @@ describe("the worldview equipment nodes bind fixture slots", () => {
     fireEvent.mouseDown(screen.getByRole("combobox", { name: "Equipment fixtureSlot" }));
     fireEvent.click(await screen.findByRole("option", { name: "stretcher" }));
     expect(within(screen.getByLabelText("proposedVsAccepted")).getByText(/llmProposed stretcher vs facultyAccepted stretcher/)).toBeInTheDocument();
-    expect(readFileSync(join(SRC, "app.tsx"), "utf8")).toContain("SeedWorldviewQueue");
+    expect(`${readFileSync(join(SRC, "app.tsx"), "utf8")}${readFileSync(join(PKG_SRC, "seed-blueprint-workbench.tsx"), "utf8")}`).toContain("SeedWorldviewQueue");
   });
 
   it("(2) COUNTERWEIGHT: EquipmentPanel still authors scenario.equipment strings", () => {

@@ -252,7 +252,8 @@ function finalizedTrail(): AdminFacultyDispositionTrail {
     status: "draft",
     rationale: "Hold for debrief; no score use.",
     attestedAt: ATTESTED_AT,
-  }).decisions[0]!;
+  }).decisions[0];
+  if (!draft) throw new Error("draftedTrail produced no decisions");
   const finalDecision = {
     ...draft,
     decisionId: "assembled_exam_disposition:2",

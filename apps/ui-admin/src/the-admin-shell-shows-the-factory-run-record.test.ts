@@ -106,10 +106,11 @@ describe("the admin shell shows the factory run record", () => {
 
   it("(5) the admin shell mounts FactoryRunProgressPanel with fetched cases", () => {
     const app = readFileSync(join(SRC, "app.tsx"), "utf8");
-    expect(app).toContain("FactoryRunProgressPanel");
-    expect(app).toContain("fetchFactoryRunTable");
+    const seedBlueprint = readFileSync(join(SRC, "../../../packages/openclinxr/ui-route-admin/src/seed-blueprint-workbench.tsx"), "utf8");
+    expect(`${app}${seedBlueprint}`).toContain("FactoryRunProgressPanel");
+    expect(`${app}${seedBlueprint}`).toContain("fetchFactoryRunTable");
     // the panel's cases come from state fed by the fetch, never a literal
-    expect(app).not.toMatch(/<FactoryRunProgressPanel\s+cases=\{\[/);
+    expect(`${app}${seedBlueprint}`).not.toMatch(/<FactoryRunProgressPanel\s+cases=\{\[/);
   });
 });
 

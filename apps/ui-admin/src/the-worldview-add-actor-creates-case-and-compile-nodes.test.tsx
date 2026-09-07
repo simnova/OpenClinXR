@@ -47,7 +47,7 @@ describe("the worldview add actor creates case and compile nodes", () => {
     fireEvent.click(screen.getByRole("button", { name: /add actor compile node/i }));
     expect(within(screen.getByLabelText("proposedVsAccepted")).getByText(/llmProposed ActorVariant vs facultyAccepted proposed/)).toBeInTheDocument();
     expect(screen.getByText(/1 compile dependency edge/)).toBeInTheDocument();
-    expect(readFileSync(join(SRC, "app.tsx"), "utf8")).toContain("SeedWorldviewQueue");
+    expect(`${readFileSync(join(SRC, "app.tsx"), "utf8")}${readFileSync(join(PKG_SRC, "seed-blueprint-workbench.tsx"), "utf8")}`).toContain("SeedWorldviewQueue");
   });
 
   it("(2) COUNTERWEIGHT: CaseAuthoringWorkbench still has Add actor for the case card", () => {

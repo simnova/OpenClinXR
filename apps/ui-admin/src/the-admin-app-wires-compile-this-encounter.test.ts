@@ -29,18 +29,19 @@ import { describe, expect, it } from "vitest";
 const PKG_SRC = join(dirname(fileURLToPath(import.meta.url)), "../../../packages/openclinxr/ui-route-admin/src");
 const SRC = dirname(fileURLToPath(import.meta.url));
 const APP = readFileSync(join(SRC, "app.tsx"), "utf8");
+const SEED_BLUEPRINT = readFileSync(join(PKG_SRC, "seed-blueprint-workbench.tsx"), "utf8");
 
 describe("the admin app wires Compile this encounter", () => {
   it("(1) App.tsx passes featuredScenarioId into EnvironmentGenerationQueuePanel", () => {
-    expect(APP).toMatch(/featuredScenarioId=/);
+    expect(`${APP}${SEED_BLUEPRINT}`).toMatch(/featuredScenarioId=/);
   });
 
   it("(2) App.tsx passes onCompileEncounter into EnvironmentGenerationQueuePanel", () => {
-    expect(APP).toMatch(/onCompileEncounter=/);
+    expect(`${APP}${SEED_BLUEPRINT}`).toMatch(/onCompileEncounter=/);
   });
 
   it("(3) App.tsx imports compileEncounterWorld", () => {
-    expect(APP).toMatch(/compileEncounterWorld/);
+    expect(`${APP}${SEED_BLUEPRINT}`).toMatch(/compileEncounterWorld/);
   });
 
   it("(4) COUNTERWEIGHT: the panel still hides the button when onCompileEncounter is omitted", () => {

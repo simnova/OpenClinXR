@@ -51,7 +51,7 @@ export const COMPOSITION_ROOT_APP_BUDGETS: readonly CompositionRootAppBudget[] =
   {
     app: "apps/ui-admin",
     maxFiles: 7,
-    maxLines: 3724,
+    maxLines: 2273,
     reason:
       "frozen at the 2026-09-06 measurement; ratchet toward the CellixJs largest app (ui-community, 19 files / 1,506 lines) — behaviour moves to packages",
   },
@@ -235,7 +235,7 @@ export function checkValidationSeparation(
 
 // ── App file naming ─────────────────────────────────────────────────────────
 
-export const KEBAB_CASE_APP_ROOTS: readonly string[] = ["apps/ui-xr/src", "apps/arena"] as const;
+export const KEBAB_CASE_APP_ROOTS: readonly string[] = ["apps/ui-admin/src", "apps/ui-xr/src", "apps/arena"] as const;
 
 const NAMING_ALLOWLIST_STEMS = new Set(["index", "main", "vite-env"]);
 

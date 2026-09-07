@@ -59,7 +59,6 @@ export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> =
   "packages/openclinxr/capability-gateway/src/asset-generation-jobs.ts": { maxLines: 2107, reason: "job orchestration — split by job kind" },
   "apps/ui-admin/src/api-client-types.ts": { maxLines: 1410, reason: "residual: admin DTO type surface (generated-adjacent) — split by domain area next; fetch client extracted to api-client.ts (586, under budget)" },
   "packages/openclinxr/asset-registry/src/runtime-bundles.ts": { maxLines: 1638, reason: "bundle builder — split builder/validate/shape" },
-  "apps/ui-admin/src/app.tsx": { maxLines: 1589, reason: "admin shell — extract panels/containers; #57 QueueReviewSnapshotHistory extract" },
   "apps/arena/ui-xr-iwsdk-spike/src/main.ts": { maxLines: 1456, reason: "arena spike entry — split by subsystem" },
   "packages/openclinxr/scenario-runtime/src/scenario-runtime.ts": { maxLines: 806, reason: "ScenarioRuntime orchestration class — extracted from the former 1162-line index.ts; decompose the class methods next" },
   "apps/api/src/api-bootstrap.ts": { maxLines: 908, reason: "bootstrap wiring — split by subsystem registration" },
@@ -70,7 +69,7 @@ export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> =
   "packages/openclinxr/agent-loop/src/grok-tier-routing.ts": { maxLines: 607, reason: "tier routing — split table/logic" },
   "packages/openclinxr/arena/model-vetting/src/pipeline-candidate.ts": { maxLines: 581, reason: "pipeline — split stages" },
   "packages/openclinxr/arena/physics-touch-contract/src/adapters/jolt.ts": { maxLines: 502, reason: "adapter — near budget; trim on next touch" },
-  "packages/openclinxr/ui-route-admin/src/admin-review-types.ts": { maxLines: 1230, reason: "admin review DTO type surface (moved from apps/ui-admin in the composition-root migration) — split by domain area next" },
+  "packages/openclinxr/ui-route-admin/src/admin-review-types.ts": { maxLines: 1288, reason: "admin review DTO type surface (moved from apps/ui-admin in the composition-root migration) — split by domain area next" },
   "packages/openclinxr/ui-route-admin/src/case-authoring-model.ts": { maxLines: 571, reason: "authoring model — split validators/options next (moved from apps/ui-admin in the composition-root migration)" },
   "packages/openclinxr/ui-route-admin/src/dialogue-seed-authoring-panel.tsx": { maxLines: 606, reason: "large panel — extract sub-sections/containers (moved from apps/ui-admin in the composition-root migration)" },
   "packages/openclinxr/ui-route-admin/src/environment-generation-queue-panel.tsx": { maxLines: 595, reason: "large panel — extract sub-sections/containers (moved from apps/ui-admin in the composition-root migration)" },
@@ -79,6 +78,8 @@ export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> =
   "packages/openclinxr/ui-route-admin/src/faculty-adjudication-workspace.tsx": { maxLines: 557, reason: "large workspace — extract containers next (moved from apps/ui-admin in the composition-root migration)" },
   "packages/openclinxr/xr-pose/src/seated-pose.ts": { maxLines: 543, reason: "procedural seated pose (moved from apps/ui-xr in the composition-root migration) — split by rail/map next" },
   "packages/openclinxr/ui-route-admin/src/faculty-compile-lock.tsx": { maxLines: 514, reason: "compile-lock table — extract columns/rows next (moved from apps/ui-admin in the composition-root migration)" },
+  "packages/openclinxr/ui-route-admin/src/review-replay-workbench.tsx": { maxLines: 581, reason: "review replay workbench provider+UI (moved from apps/ui-admin in the composition-root migration) — split provider/state/UI next" },
+  "packages/openclinxr/ui-route-admin/src/seed-blueprint-workbench.tsx": { maxLines: 636, reason: "seed blueprint workbench provider+UI (moved from apps/ui-admin in the composition-root migration) — split provider/state/UI next" },
 };
 
 // ── Config type ─────────────────────────────────────────────────────────────

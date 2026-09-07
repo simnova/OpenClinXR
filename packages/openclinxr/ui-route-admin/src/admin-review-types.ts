@@ -9,7 +9,6 @@ import type {
 } from "@openclinxr/asset-registry";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import type {
-  CreateStationRunQueueSnapshotMutation,
   ReviewPacketReplayQuery,
   SaveFacultyScoreDraftMutation,
   SaveFacultyScoreDraftMutationVariables,
@@ -28,6 +27,64 @@ import type {
   AdminRuntimeProtocolPosture,
   AdminRuntimeProviderReadiness,
 } from "@openclinxr/ui-shared/admin-runtime-posture";
+import type { AssembledExamReviewPacket } from "@openclinxr/review-workflow";
+import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
+
+export type AdminControlPlaneClient = {
+  getStep2CsSeedBlueprint(): Promise<ExamBlueprint>;
+  getStep2CsSeedBlueprintReadiness(): Promise<BlueprintScenarioReadiness>;
+  getStep2CsSeedTimingPlan(): Promise<ExamTimingPlan>;
+  getStep2CsSeedStationRunQueue(): Promise<ExamStationRunQueue>;
+  getRuntimeProviderReadiness(): Promise<AdminRuntimeProviderReadiness>;
+  getRuntimeSelectionReviewPacket(): Promise<AdminRuntimeSelectionReviewPacket>;
+  getRuntimeProtocolPosture(): Promise<AdminRuntimeProtocolPosture>;
+  getRealtimeVoicePosture(): Promise<AdminRealtimeVoicePosture>;
+  createLocalReviewReplaySeed(input?: CreateLocalReviewReplaySeedInput): Promise<CreateLocalReviewReplaySeedResult>;
+  listScenarios(input?: ListScenariosInput): Promise<AdminScenario[]>;
+  getScenarioDetail(input: GetScenarioDetailInput): Promise<AdminScenarioDetail>;
+  listScenarioReviewDecisions(input: ListScenarioReviewDecisionsInput): Promise<AdminScenarioReviewDecision[]>;
+  getReviewPacketReplay(input: GetReviewPacketReplayInput): Promise<AdminReviewPacketReplay>;
+  getReviewReplayReadinessSummary(input: GetReviewPacketReplayInput): Promise<AdminReviewReplayReadinessSummary>;
+  getAssembledExamReviewPacket?(input: { examRunId: string }): Promise<AssembledExamReviewPacket>;
+  submitScenarioReview(input: SubmitScenarioReviewInput): Promise<AdminScenarioReviewResult>;
+  saveFacultyScoreDraft(input: SaveFacultyScoreDraftInput): Promise<AdminReviewPacket>;
+  persistFacultyScoreDraft(input: PersistFacultyScoreDraftInput): Promise<AdminFacultyScoreDraftRecord>;
+  saveFacultyReviewDecision(input: SaveFacultyReviewDecisionInput): Promise<AdminFacultyReviewDecisionRecord>;
+  listStep2CsSeedStationRunQueueSnapshots(): Promise<AdminStationRunQueueSnapshot[]>;
+  createStep2CsSeedStationRunQueueSnapshot(input: CreateStationRunQueueSnapshotInput): Promise<AdminStationRunQueueSnapshot>;
+  getEdChestPainPublicationReadiness(input: GetScenarioPublicationReadinessInput): Promise<AdminScenarioPublicationReadiness>;
+  getScenarioBankMaturity(): Promise<AdminScenarioBankMaturityReport>;
+  getScenarioBankExamSequence(): Promise<AdminScenarioBankExamSequenceProjection>;
+  getDynamicEncounterFactoryPlanning(): Promise<AdminDynamicEncounterFactoryPlanningProjection>;
+  getScenarioBankAssetReadiness(): Promise<ScenarioAssetReadiness[]>;
+  getScenarioBankEnvironmentGenerationQueue(): Promise<EnvironmentGenerationQueue>;
+  getScenarioBankEnvironmentWorkOrderQueue(): Promise<EnvironmentGenerationWorkOrderQueue>;
+  getScenarioBankSceneGenerationPipelineQueue(): Promise<ScenarioSceneGenerationPipelineWorkOrderQueue>;
+  listScenarioSceneGenerationRequests(): Promise<ScenarioSceneGenerationRequestQueue>;
+  createScenarioSceneGenerationRequest(input: CreateScenarioSceneGenerationRequestInput): Promise<CreateScenarioSceneGenerationRequestResult>;
+  submitScenarioSceneGenerationRequestReview(input: SubmitScenarioSceneGenerationRequestReviewInput): Promise<CreateScenarioSceneGenerationRequestResult>;
+  submitScenarioSceneGenerationMaterializationInputReview(input: SubmitScenarioSceneGenerationMaterializationInputReviewInput): Promise<EncounterMaterializationInputReviewDecisionRecord>;
+  submitRuntimeRealismEvidenceInputReview(input: SubmitRuntimeRealismEvidenceInputReviewInput): Promise<RuntimeRealismEvidenceInputReviewDecisionRecord>;
+  submitRuntimeVisualEvidenceAttachment(input: SubmitRuntimeVisualEvidenceAttachmentInput): Promise<RuntimeVisualEvidenceAttachmentRecord>;
+  getScenarioSceneGenerationRequestPublicationReadiness(input: { requestId: string }): Promise<ScenarioSceneGenerationRequestPublicationReadiness>;
+  saveAuthoredScenario(scenario: import("@openclinxr/shared-schemas").Scenario): Promise<unknown>;
+  listAuthoredScenarios(): Promise<unknown>;
+  getAuthoredScenario(scenarioId: string): Promise<unknown>;
+  previewFacultyEncounterBundlePromotion(
+    input: import("@openclinxr/ui-route-admin/encounter-bundle-promotion").FacultyEncounterBundlePromotionSelection,
+  ): Promise<{
+    canPromote: boolean;
+    blockers: string[];
+    attestations: string[];
+  }>;
+  promoteFacultyEncounterBundle(
+    input: import("@openclinxr/ui-route-admin/encounter-bundle-promotion").FacultyEncounterBundlePromotionSelection,
+  ): Promise<{
+    promoted: boolean;
+    learnerLaunchIdentity: import("@openclinxr/ui-route-admin/encounter-bundle-promotion").FacultyLearnerLaunchIdentity | null;
+    blockers?: string[];
+  }>;
+} & FacultyCompileLockClient;
 
 export type {
   BlueprintScenarioReadiness,
