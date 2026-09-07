@@ -165,10 +165,14 @@ describe("the learner runtime path consumes compiled room identity", () => {
   });
 
   it("fails if main.ts station mount ignores the compiled runtime adapter", () => {
-    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
-    expect(mainSource).toContain("mountStationEnvironmentForRuntime");
-    expect(mainSource).toContain("await mountStationEnvironmentForRuntime({ environmentId: activeEnvironmentId, environment: encounterRuntimeAssetBundle.environment })");
-    expect(mainSource).not.toMatch(
+    // The call to mountStationEnvironmentForRuntime is now in @openclinxr/xr-station-room
+    const stationRoomSource = readFileSync(new URL("../../../packages/openclinxr/xr-station-room/src/index.ts", import.meta.url), "utf8");
+    expect(stationRoomSource).toContain("mountStationEnvironmentForRuntime");
+    expect(stationRoomSource).toContain("await mountStationEnvironmentForRuntime({");
+    expect(stationRoomSource).toContain("environmentId: envId");
+    expect(stationRoomSource).toContain("environment: bundle.environment");
+    // The old inline buildStationEnvironment fallback should not appear in the package either
+    expect(stationRoomSource).not.toMatch(
       /const stationEnvironment = buildStationEnvironment\(\{\s*environmentId: activeEnvironmentId\s*\}\)/,
     );
   });

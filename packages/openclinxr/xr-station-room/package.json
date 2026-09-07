@@ -1,0 +1,37 @@
+{
+  "name": "@openclinxr/xr-station-room",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "lint": "biome lint --no-errors-on-unmatched .",
+    "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
+    "test": "vitest run --root .",
+    "build": "tsgo --build",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@openclinxr/asset-registry": "workspace:*",
+    "@openclinxr/xr-asset-loading": "workspace:*",
+    "@openclinxr/xr-runtime-state": "workspace:*",
+    "@openclinxr/xr-scene": "workspace:*",
+    "@openclinxr/xr-scene-cues": "workspace:*",
+    "three": "catalog:"
+  },
+  "devDependencies": {
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
+    "@types/three": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "files": [
+    "dist"
+  ]
+}

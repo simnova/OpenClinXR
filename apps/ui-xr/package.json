@@ -17,6 +17,7 @@
     "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
+    "@openclinxr/xr-asset-loading": "workspace:*",
     "@openclinxr/xr-capture-evidence": "workspace:*",
     "@openclinxr/xr-dialogue": "workspace:*",
     "@openclinxr/xr-humanoid-animation": "workspace:*",
@@ -25,18 +26,18 @@
     "@openclinxr/xr-runtime-state": "workspace:*",
     "@openclinxr/xr-runtime-wiring": "workspace:*",
     "@openclinxr/xr-scene": "workspace:*",
-    "@openclinxr/xr-asset-loading": "workspace:*",
     "@openclinxr/xr-scene-cues": "workspace:*",
     "@openclinxr/xr-station": "workspace:*",
+    "@openclinxr/xr-station-room": "workspace:*",
     "@openclinxr/xr-trace-readiness": "workspace:*",
     "three": "catalog:"
   },
   "devDependencies": {
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
     "@types/three": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:",
-    "@cellix/config-vitest": "workspace:*",
-    "@cellix/config-typescript": "workspace:*"
+    "vitest": "catalog:"
   }
 }

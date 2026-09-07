@@ -12,17 +12,21 @@ import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-reg
 const speechHudFormattingSource = readFileSync(new URL("../../../packages/openclinxr/xr-dialogue/src/speech-hud-formatting.ts", import.meta.url), "utf8");
 
 /**
- * The shipped learner runtime, as one string: main.ts plus every @openclinxr/xr-* package
- * it composes.
+ * The shipped XR learner runtime as one string: main.ts plus every @openclinxr/xr-* package
+ * source it composes.
  *
- * The source-text fences below assert that runtime behaviour is WIRED, by looking for the
- * strings that wire it. They were written when all of that lived in main.ts. Eight
- * extractions have since moved most of it into packages, and each one broke a handful of
- * these fences for a reason that had nothing to do with the fence's subject: the code was
- * still there, in a different file. Reading the whole runtime makes the fence follow the
- * code, which is what it was always trying to measure.
+ * The source-text fences below assert that runtime behaviour is WIRED by looking for the
+ * strings that wire it, and they were written when all of that lived in main.ts. Nine
+ * extractions have since moved most of it into packages, and each broke a handful of these
+ * for a reason unrelated to the fence's subject: the code was still there, in a different
+ * file. Reading the whole runtime makes a fence follow the code it is about.
+ *
+ * Inlined here rather than shared from @openclinxr/test-harness: an archunit rule keeps
+ * production apps free of capability/arena package dependencies, and ui-xr taking a
+ * dependency on test-harness broke it. This is the only fence file that needs the whole
+ * runtime; the compiled-room test reads the one package it is about.
  */
-function shippedRuntimeSource(): string {
+function shippedXrRuntimeSource(): string {
   const packagesRoot = new URL("../../../packages/openclinxr/", import.meta.url);
   const parts: string[] = [readFileSync(new URL("./main.ts", import.meta.url), "utf8")];
   for (const pkg of readdirSync(packagesRoot).filter((name) => name.startsWith("xr-"))) {
@@ -45,7 +49,7 @@ function shippedRuntimeSource(): string {
   return parts.join("\n");
 }
 
-const RUNTIME_SOURCE = shippedRuntimeSource();
+const RUNTIME_SOURCE = shippedXrRuntimeSource();
 
 const genericHandAssetHashes = {
   "left.glb": "bc67783144944ea1cda54d9247885825ea5fb9d4651469fe7d00be517a5c2b87",
@@ -877,7 +881,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("generated_humanoid_asset_load_failed");
     expect(runtimeStateSource).toContain("procedural_dialogue_expression_gaze_fallback");
     expect(mainSource).toContain("runtimeGeneratedSceneObjectName(bundleModel)");
-    expect(mainSource).toContain("runtimeGeneratedSceneObjectName(encounterRuntimeAssetBundle.environment)");
+    expect(mainSource).toContain("runtimeGeneratedSceneObjectName(bundle.environment)");
     expect(mainSource).toContain("runtimeGeneratedSceneObjectName(patientRuntimeHumanoidAsset)");
     expect(mainSource).toContain("runtimeGeneratedSceneObjectName(nurseRuntimeHumanoidAsset)");
     expect(mainSource).toContain("runtimeGeneratedSceneObjectName(spouseRuntimeHumanoidAsset)");
