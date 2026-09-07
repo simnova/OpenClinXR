@@ -294,6 +294,8 @@ describe("static browser assets", () => {
       readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/real-garment-capture.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/scene-manifest-evidence.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/scene-asset-evidence.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/speech-evidence.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/animation-loop.ts", import.meta.url), "utf8"),
     ].join("\n");
     const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
@@ -592,6 +594,17 @@ describe("static browser assets", () => {
 
   it("plays peds actor-player sample turns through live humanoid speech and affect controls without promoting readiness", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    // Humanoid-animation subsystem lives in @openclinxr/xr-humanoid-animation
+    // (shrink extract); the runtime strings still ship, so the fence follows the code.
+    const animationSource = readFileSync(
+      new URL("../../../packages/openclinxr/xr-humanoid-animation/src/animation-loop.ts", import.meta.url),
+      "utf8",
+    );
+    const faceRigSource = readFileSync(
+      new URL("../../../packages/openclinxr/xr-humanoid-animation/src/face-rig.ts", import.meta.url),
+      "utf8",
+    );
+    const combinedSource = `${mainSource}\n${animationSource}\n${faceRigSource}`;
 
     expect(mainSource).toContain("schedulePedsActorPlayerRuntimePlaybackIfReady");
     expect(mainSource).toContain("triggerPedsActorPlayerRuntimeTurnForTrace");
@@ -611,9 +624,9 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("bundle_dialogue_turn");
     expect(mainSource).toContain("actor_player_sample_fallback");
     // live blueprint dialogue+emotion lipsync bind (Q1/Q5 slice)
-    expect(mainSource).toContain("live_blueprint_dialogue_emotion_source");
-    expect(mainSource).toContain("activeDialogueTurnRef");
-    expect(mainSource).toContain("normalizePedsActorPlayerEmotion");
+    expect(combinedSource).toContain("live_blueprint_dialogue_emotion_source");
+    expect(combinedSource).toContain("activeDialogueTurnRef");
+    expect(combinedSource).toContain("normalizePedsActorPlayerEmotion");
     expect(mainSource).toContain("triggerHumanoidDialogue(turn.actorId");
     expect(mainSource).toContain("latestTriggerSource: \"trace_action\"");
     expect(mainSource).toContain("latestTriggerSource: \"scheduled_preview\"");
@@ -681,6 +694,11 @@ describe("static browser assets", () => {
       // Manifest/actor-slot/gate evidence builders split to @openclinxr/xr-capture-evidence.
       readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/scene-manifest-evidence.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/learner-runtime-evidence.ts", import.meta.url), "utf8"),
+      // Humanoid-animation subsystem split to @openclinxr/xr-humanoid-animation (shrink extract).
+      readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/animation-loop.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/speech-evidence.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/face-rig.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/gaze-evidence.ts", import.meta.url), "utf8"),
     ].join("\n");
     const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 

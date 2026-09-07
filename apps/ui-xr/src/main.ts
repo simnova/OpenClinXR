@@ -165,6 +165,53 @@ import {
 import { assertHumanoidRootUpright } from "@openclinxr/xr-scene";
 import { applyRealGarmentEvidenceSurfaces, sleeveDeformCueForAssetPath } from "@openclinxr/xr-scene";
 import {
+  buildHumanoidSpeechEvidence as buildPackageHumanoidSpeechEvidence,
+  buildRuntimeActorRealismLaunchBadge as buildPackageRuntimeActorRealismLaunchBadge,
+  clampDialogueFacingYaw as clampPackageDialogueFacingYaw,
+  computeAffectRampIntensity as computePackageAffectRampIntensity,
+  computeHumanoidEyeMotionMetrics as computePackageHumanoidEyeMotionMetrics,
+  createHumanoidEmotionExpressionState as createPackageHumanoidEmotionExpressionState,
+  humanoidDialogueDurationMs as humanoidPackageDialogueDurationMs,
+  isGeneratedRuntimeDrive as isPackageGeneratedRuntimeDrive,
+  lerpHumanoidAnimation as lerpPackageHumanoidAnimation,
+  normalizeHumanoidAnimationAngle as normalizePackageHumanoidAnimationAngle,
+  orientHumanoidEyeFocusCue as orientPackageHumanoidEyeFocusCue,
+  orientHumanoidTowardGazeTarget as orientPackageHumanoidTowardGazeTarget,
+  pediatricAsthmaActingOverlayForSlot as pediatricPackageAsthmaActingOverlayForSlot,
+  recordMouthGazePoseComparatorEvidence as recordPackageMouthGazePoseComparatorEvidence,
+  recordRuntimeHumanoidActingCueEvidence as recordPackageRuntimeHumanoidActingCueEvidence,
+  resetHumanoidFaceRigControls as resetPackageHumanoidFaceRigControls,
+  applyHumanoidFaceRigControls as applyPackageHumanoidFaceRigControls,
+  applyHumanoidMorphTargetCue as applyPackageHumanoidMorphTargetCue,
+  resolveHumanoidGazeTargetWorld as resolvePackageHumanoidGazeTargetWorld,
+  roundHumanoidExpressionWeights as roundPackageHumanoidExpressionWeights,
+  startHumanoidEmotionTransition as startPackageHumanoidEmotionTransition,
+  updateGeneratedHumanoidAnimations as updatePackageGeneratedHumanoidAnimations,
+  updateHumanoidEmotionExpression as updatePackageHumanoidEmotionExpression,
+  updateHumanoidGazeCue as updatePackageHumanoidGazeCue,
+  updateHumanoidSpeechCue as updatePackageHumanoidSpeechCue,
+  updateVirtualDeviceActorSpeechPulses as updatePackageVirtualDeviceActorSpeechPulses,
+  visemeOpenness as visemePackageOpenness,
+  offsetHumanoidRigControl as offsetPackageHumanoidRigControl,
+  rotateHumanoidRigControl as rotatePackageHumanoidRigControl,
+  scaleHumanoidRigControl as scalePackageHumanoidRigControl,
+  writeHumanoidSpeechFrameEvidence as writePackageHumanoidSpeechFrameEvidence,
+  writeMouthGazePoseComparatorEvidence as writePackageMouthGazePoseComparatorEvidence,
+  type GeneratedHumanoidAnimationSlot as PackageGeneratedHumanoidAnimationSlot,
+  type HumanoidAnimationRuntimeContext as PackageHumanoidAnimationRuntimeContext,
+  type HumanoidDialogueEmotionContext as PackageHumanoidDialogueEmotionContext,
+  type HumanoidDialogueGazeTarget as PackageHumanoidDialogueGazeTarget,
+  type HumanoidEmotionExpressionState as PackageHumanoidEmotionExpressionState,
+  type HumanoidExpressionEmotion as PackageHumanoidExpressionEmotion,
+  type HumanoidExpressionWeights as PackageHumanoidExpressionWeights,
+  type HumanoidEyeMotionMetrics as PackageHumanoidEyeMotionMetrics,
+  type HumanoidRuntimeDrive as PackageHumanoidRuntimeDrive,
+  type HumanoidActingCueRecord as PackageHumanoidActingCueRecord,
+  type MouthGazePoseComparatorEvidenceRecord as PackageMouthGazePoseComparatorEvidenceRecord,
+  type RuntimeHumanoidActingCueEvidenceRecord as PackageRuntimeHumanoidActingCueEvidenceRecord,
+  type HumanoidSpeechPlayback as PackageHumanoidSpeechPlayback,
+} from "@openclinxr/xr-humanoid-animation";
+import {
   resolvePedsAdaptiveDialogueBranch,
   type PedsAdaptiveDialogueBranchResolution,
 } from "./peds-adaptive-dialogue-policy.js";
@@ -572,6 +619,8 @@ type ReadableVrTextPanel = {
 
 declare global {
   interface Window {
+    __openClinXrMouthGazePoseComparatorEvidence?: PackageMouthGazePoseComparatorEvidenceRecord;
+    __openClinXrRuntimeHumanoidActingCueEvidence?: PackageRuntimeHumanoidActingCueEvidenceRecord;
     __openClinXrFrameStats?: OpenClinXrFrameStats;
     __openClinXrManualPerformanceDraft?: ManualPerformanceDraft;
     __openClinXrManualPerformanceCaptureSummary?: ManualPerformanceCaptureSummary;
@@ -596,7 +645,6 @@ declare global {
     __openClinXrPedsActorPlayerRuntimePlaybackEvidence?: PedsActorPlayerRuntimePlaybackEvidence;
     __openClinXrPedsAdaptiveDialogueEvidence?: PedsAdaptiveDialogueEvidence;
     __openClinXrConversationTurnStateEvidence?: ConversationTurnStateEvidence;
-    __openClinXrMouthGazePoseComparatorEvidence?: MouthGazePoseComparatorEvidence;
     __openClinXrDebugScene?: Scene;
     __openClinXrSelectedRuntimeAssetBundleId?: string;
     __openClinXrRuntimeSceneManifestEvidence?: RuntimeSceneManifestEvidence;
@@ -620,7 +668,6 @@ declare global {
     __openClinXrRoleDistinctHumanoidCueEvidence?: RoleDistinctHumanoidCueEvidence;
      __openClinXrPediatricRespiratoryEquipmentCueEvidence?: PediatricRespiratoryEquipmentCueEvidence;
     __openClinXrDeclaredEquipmentMountEvidence?: DeclaredEquipmentMountEvidence;
-     __openClinXrRuntimeHumanoidActingCueEvidence?: RuntimeHumanoidActingCueEvidence;
       __openClinXrPedsDrive?: GeneratedRuntimeDrive;
       __openClinXrPortalTransitionEvidence?: PortalTransitionEvidence;
    }
@@ -1354,67 +1401,14 @@ function learnerRuntimeAssetBundleId(): string {
   return selectedBundleId;
 }
 
-type GeneratedHumanoidAnimationSlot = {
-  assetId: string;
-  actorId: string;
-  root: Group;
-  actorSlot: Group;
-  baseY: number;
-  baseX: number; // #150 plant X
-  baseScaleX: number;
-  baseScaleY: number;
-  baseScaleZ: number;
-  baseRotationY: number;
-  baseZ: number;
-  phaseOffsetMs: number;
-  mouthCue: Mesh;
-  gazeCue: Line;
-  eyeFocusCue: Group;
-  expressionCue: Group;
-  emotionExpression: HumanoidEmotionExpressionState;
-  sourceComparatorFreezeEnabled: boolean;
-  activeSpeech?: HumanoidSpeechPlayback | undefined;
-  mixer?: AnimationMixer;
-  responseClips?: AnimationClip[];
-  activeRoleAnimationClipName?: string | undefined;
-  activeGazeProbeAnimationClipName?: string | undefined;
-};
-type HumanoidExpressionEmotion = "neutral" | "anxious" | "concerned" | "reassured" | "pain";
-type HumanoidExpressionWeights = {
-  mouthOpen: number;
-  browConcern: number;
-  cheekTension: number;
-};
-type HumanoidEmotionExpressionState = {
-  currentEmotion: HumanoidExpressionEmotion;
-  targetEmotion: HumanoidExpressionEmotion;
-  weights: HumanoidExpressionWeights;
-  targetWeights: HumanoidExpressionWeights;
-  transitionStartedAtMs: number;
-  transitionDurationMs: number;
-};
-type HumanoidSpeechPlayback = {
-  actorId: string;
-  assetId: string;
-  gazeTargetKind: "learner_camera" | "actor";
-  gazeTargetActorId: string | null;
-  text: string;
-  emotion: HumanoidExpressionEmotion;
-  emotionContext: HumanoidDialogueEmotionContext;
-  actorRuntimeRealismRequirement?: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"];
-  phonemeSequence: string[];
-  visemeSequence: string[];
-  /** Baked Rhubarb cue timeline for this line, when a served cue file exists (#722). */
-  bakedCues?: PhonemeCue[];
-  startedAtMs: number;
-  durationMs: number;
-};
-type HumanoidDialogueEmotionContext = {
-  emotion: HumanoidExpressionEmotion;
-  source: "runtime_affect_timeline" | "plan.dialogueEmotionTo" | "plan_missing";
-  baselineMood: string[];
-  cueIds: string[];
-};
+type GeneratedHumanoidAnimationSlot = PackageGeneratedHumanoidAnimationSlot;
+type HumanoidExpressionEmotion = PackageHumanoidExpressionEmotion;
+type HumanoidExpressionWeights = PackageHumanoidExpressionWeights;
+type HumanoidEmotionExpressionState = PackageHumanoidEmotionExpressionState;
+type HumanoidSpeechPlayback = PackageHumanoidSpeechPlayback;
+type HumanoidDialogueGazeTarget = PackageHumanoidDialogueGazeTarget;
+type HumanoidDialogueEmotionContext = PackageHumanoidDialogueEmotionContext;
+type HumanoidEyeMotionMetrics = PackageHumanoidEyeMotionMetrics;
 type PedsActorPlayerRuntimeTurn = {
   actorId: string;
   turnId: string;
@@ -1433,37 +1427,7 @@ type PedsActorPlayerRuntimeSequenceEvidence = {
   source: PedsActorPlayerRuntimeSequenceSource;
   turns: PedsActorPlayerRuntimeTurn[];
 };
-type MouthGazePoseComparatorEvidence = {
-  source: "window.__openClinXrMouthGazePoseComparatorEvidence";
-  captureMode: string;
-  comparator: "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_real_garment_patient" | "peds_anny_real_garment_parent" | "peds_anny_real_garment_nurse" | "ed_anny_real_garment_patient";
-  scenarioId: "peds_asthma_parent_anxiety_v1" | "ed_chest_pain_priority_v1" | "ed_chest_pain_priority_v2";
-  actorId: string;
-  dialogueText: string;
-  traceTag: "work_of_breathing_assessment";
-  activeViseme: string;
-  activeMouthOpenness: number;
-  activeEmotionState: HumanoidExpressionEmotion;
-  activeExpressionTransitionMs: number;
-  activeExpressionWeights: HumanoidExpressionWeights;
-  gazeProbePlayback: string | null;
-  activeGazeProbeAnimationClipName: string | null;
-  morphTargetAppliedTargetCount: number;
-  morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue_with_emotion_transition";
-  emotionTransitionCuePresent: boolean;
-  visemeTimelineComparatorEvidencePresent: boolean;
-  activeDialogueTurnRef?: any;
-  liveSource?: "live_blueprint_dialogue_emotion_source" | undefined;
-  garmentGeometry?: {
-    name: string;
-    visible: boolean;
-    source: string; // surface prepared for future real-garment (phenotype.garmentLayers embed, Q1); null for current school-age peds comparator
-    hasVisibleVolume: boolean;
-    hasSeamFoldHints: boolean;
-    sleeveDeform?: string; // Q1: separate deforming 3D sleeves (skinned, phenotype garmentLayers) vs body; visible in UI-XR peds real_garment captures
-  } | null;
-  notEvidenceFor: string[];
-};
+type MouthGazePoseComparatorEvidence = PackageMouthGazePoseComparatorEvidenceRecord;
 type PedsAdaptiveDialogueEvidence = {
   source: "window.__openClinXrPedsAdaptiveDialogueEvidence";
   scenarioId: "peds_asthma_parent_anxiety_v1" | "ed_chest_pain_priority_v1" | "ed_chest_pain_priority_v2";
@@ -1532,6 +1496,70 @@ const generatedHumanoidAnimationSlotsByActorId = new Map<string, GeneratedHumano
 const generatedHumanoidActorSlotsByActorId = new Map<string, Group>();
 const virtualDeviceActorSlotsByActorId = new Map<string, Group>();
 const activeVirtualDeviceSpeechByActorId = new Map<string, HumanoidSpeechPlayback>();
+const humanoidAnimationContext: PackageHumanoidAnimationRuntimeContext = {
+  slots: generatedHumanoidAnimationSlots,
+  slotsByActorId: generatedHumanoidAnimationSlotsByActorId,
+  actorSlotsByActorId: generatedHumanoidActorSlotsByActorId,
+  virtualDeviceSlotsByActorId: virtualDeviceActorSlotsByActorId,
+  activeVirtualDeviceSpeechByActorId,
+  runtimePatientActorId: () => runtimePatientActorId(),
+  runtimeFamilyActorId: () => runtimeFamilyActorId(),
+  runtimeClinicalTeamActorId: () => runtimeClinicalTeamActorId(),
+  runtimeActorRole: (actorId: string) => runtimeActorRole(actorId),
+  isPediatricAsthmaRuntimeScenario: () => isPediatricAsthmaRuntimeScenario(),
+  shouldUseCleanHumanoidSourceComparatorCapture: () => shouldUseCleanHumanoidSourceComparatorCapture(),
+  humanoidDialogueDurationMs: (phonemeCount: number) => humanoidDialogueDurationMs(phonemeCount),
+  applyIdlePosture: (root: Group) => { applyGeneratedHumanoidClinicalIdlePosture(root); },
+  applyRolePosture: (root: Group, actorId: string) => { applyGeneratedHumanoidRoleSpecificPosture(root, actorId); },
+  seatedClipPerforming: (root: Group, actorId: string) => seatedRoleClipAutoLoopActive(root, actorId),
+  resolveGazeTargetWorld: (speech: PackageHumanoidSpeechPlayback, camera: PerspectiveCamera) => {
+    if (speech.gazeTargetKind === "actor" && speech.gazeTargetActorId) {
+      const targetActorSlot = generatedHumanoidActorSlotsByActorId.get(speech.gazeTargetActorId);
+      if (targetActorSlot) {
+        const position = targetActorSlot.getWorldPosition(new Vector3());
+        position.y += 1.18;
+        return position;
+      }
+    }
+    return camera.getWorldPosition(new Vector3());
+  },
+  normalizeLiveEmotion: (emotion: string) => normalizePedsActorPlayerEmotion(emotion),
+  liveTurnForCue: (cue: string) => {
+    const live = resolveLiveActorTurnForTrace(cue);
+    return live ? { faceEmotion: live.faceEmotion, caption: live.caption } : undefined;
+  },
+  bundleTurnsForScenario: () => pedsActorPlayerBundleDialogueTurns().map((turn) => ({
+    actorId: turn.actorId,
+    text: turn.text,
+    cue: turn.cue,
+  })),
+  runtimeTurnForTraceTag: (tag: string) => runtimeDialogueTurnForTraceTag(tag),
+  isDeterministicCaptureClock: () => isDeterministicCaptureClock(),
+  isMouthGazePoseReviewCaptureMode: () => isHumanoidMouthGazePoseReviewCaptureMode(),
+  selectedCaptureMode: () => selectedCaptureMode(),
+  selectedHumanoidSourceComparator: () => selectedHumanoidSourceComparator(),
+  scenarioIdForEvidence: () => encounterRuntimeAssetBundle.scenarioId,
+  comparatorScenarioId: (comparator: string) => comparator === "ed_anny_real_garment_patient" ? "ed_chest_pain_priority_v2" : "peds_asthma_parent_anxiety_v1",
+  assetPathForSlot: (slot: PackageGeneratedHumanoidAnimationSlot) => typeof slot.root.userData.openClinXrAssetPath === "string" ? slot.root.userData.openClinXrAssetPath : "",
+  animationPlaybackForSlot: (slot: PackageGeneratedHumanoidAnimationSlot) => typeof slot.root.userData.openClinXrAnimationPlayback === "string" ? slot.root.userData.openClinXrAnimationPlayback : undefined,
+  morphTargetAppliedTargetCount: (slot: PackageGeneratedHumanoidAnimationSlot) => {
+    const cue = slot.root.userData.openClinXrMorphTargetRuntimeCue as { appliedTargetCount?: number } | undefined;
+    return cue?.appliedTargetCount ?? 0;
+  },
+  visemeTimelineComparatorEvidencePresent: (slot: PackageGeneratedHumanoidAnimationSlot) => Boolean(slot.root.userData.openClinXrVisemeTimelineComparatorEvidence),
+  emotionTransitionCuePresent: (slot: PackageGeneratedHumanoidAnimationSlot) => Boolean(slot.root.userData.openClinXrEmotionExpressionTransitionCue),
+  currentSpeechEvidence: () => window.__openClinXrHumanoidSpeechEvidence ?? undefined,
+  recordActingCueEvidence: (actorCues: PackageHumanoidActingCueRecord[]) => {
+    window.__openClinXrRuntimeHumanoidActingCueEvidence = {
+      source: "window.__openClinXrRuntimeHumanoidActingCueEvidence",
+      scenarioId: encounterRuntimeAssetBundle.scenarioId,
+      actorCount: actorCues.length,
+      activeCueIds: Array.from(new Set(actorCues.flatMap((cue) => cue.cueIds))).sort(),
+      actorCues,
+      notEvidenceFor: ["quest_readiness", "clinical_validity", "scoring_validity", "production_readiness", "animation_quality"],
+    };
+  },
+};
 let pedsActorPlayerRuntimePlaybackScheduled = false;
 let pedsActorPlayerRuntimePlaybackLastTraceAtMs = 0;
 let pedsActorPlayerRuntimeSequenceActiveUntilMs = 0;
@@ -7856,120 +7884,7 @@ function seatedRoleClipAutoLoopActive(humanoidRoot: Object3D, actorId: string): 
 }
 
 function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, camera: PerspectiveCamera, drive?: GeneratedRuntimeDrive | null): void {
-  const actorCues: RuntimeHumanoidActingCueEvidence["actorCues"] = [];
-  for (const slot of generatedHumanoidAnimationSlots) {
-    if (slot.sourceComparatorFreezeEnabled) {
-      slot.mouthCue.visible = false;
-      slot.gazeCue.visible = false;
-      slot.eyeFocusCue.visible = false;
-      slot.expressionCue.visible = false;
-      slot.root.userData.openClinXrBodyMotionCue = {
-        cueIds: ["source_comparator_runtime_pose_freeze_cue"],
-        mode: "source_comparator_runtime_pose_updates_disabled",
-        intensity: 0,
-        notEvidenceFor: "runtime acting, body-motion realism, Quest headset kinematic certification, or production animation quality",
-      };
-      actorCues.push({
-        actorId: slot.actorId,
-        role: runtimeActorRole(slot.actorId) ?? null,
-        cueIds: slot.root.userData.openClinXrBodyMotionCue.cueIds,
-        bodyMotionMode: "source_comparator_runtime_pose_updates_disabled",
-      });
-      continue;
-    }
-    slot.mixer?.update(deltaSeconds);
-    const isSupineFrame =
-      slot.root.userData.openClinXrActorPosture === "supine"
-      || slot.actorSlot.userData.openClinXrActorPosture === "supine";
-    const isSeatedFrame =
-      slot.root.userData.openClinXrActorPosture === "seated"
-      || slot.actorSlot.userData.openClinXrActorPosture === "seated";
-    // #574: while a seated-rig role clip performs under the carve-out, the standing
-    // clinical-idle arm hang would pin arms/head over the clip every frame — hold both.
-    // Legs stay owned by applyPosturePose either way.
-    const seatedClipPerforming = isSeatedFrame && seatedRoleClipAutoLoopActive(slot.root, slot.actorId);
-    // Supine: skip standing clinical-idle arm hang (would fight recumbent limb map).
-    if (!isSupineFrame && !seatedClipPerforming) {
-      applyGeneratedHumanoidClinicalIdlePosture(slot.root);
-      applyGeneratedHumanoidRoleSpecificPosture(slot.root, slot.actorId);
-    }
-    // #81/#83: re-apply seated pose after mixer/clinical idle so legs stay folded (rotation-only sit).
-    // #150: re-apply supine after idle path so arm hang does not undo recumbent limbs.
-    // Do not re-plant every frame (would fight baseY); plant once at register, keep baseY.
-    if (isSeatedFrame) {
-      applyPosturePose(slot.root, "seated");
-    }
-    if (isSupineFrame) {
-      applySupinePoseHoldingIncline(slot.root); // #171 re-tip after flat basis
-    }
-    const t = (nowMs + slot.phaseOffsetMs) / 1000;
-    const breathing = Math.sin(t * 1.15);
-    const isSpeaking = slot.activeSpeech !== undefined;
-    const dialogueLean = isSpeaking ? -0.035 + Math.sin(t * 2.6) * 0.008 : Math.sin(t * 0.51) * 0.006;
-    const emotionalSway = Math.sin(t * 0.43) * 0.012;
-    const dialogueWeightShift = isSpeaking ? Math.sin(t * 3.1) * 0.008 : 0;
-    const pediatricAsthmaOverlay = pediatricAsthmaActingOverlayForSlot(slot, t, isSpeaking);
-    // Live apply from gen drive (loco/gaze/lip from case spec -> replay/drive for peds/ed) to humanoid for posture/loco/gaze/lip-sync/viseme in player (desktop fallback + WebXR). Makes the generated behavior drive actual humanoid motion in launched experience (Q1/2 blueprint->runtime consumption). Fallback to prior procedural if no drive. Smallest wire.
-    if (drive && !isSupineFrame) {
-      const locomotion = generatedDriveScalar(drive.locomotion);
-      if (locomotion !== null) {
-        slot.root.position.z = slot.baseZ + locomotion * 0.6;
-      }
-      const gaze = generatedDriveScalar(drive.gazeAversion ?? drive.gaze);
-      if (gaze !== null) applyGazeToHumanoid(slot.root, gaze); // #311: drive the eye bones, not the actor root
-      const viseme = generatedDriveScalar(drive.lipSyncViseme ?? drive.lipSync);
-      if (viseme !== null) applyGeneratedScalarVisemeToRoot(slot.root, viseme); // #63 named viseme_*
-    }
-    // baseY includes seated/supine plant. #150: hold plant XZ + root Z (no standing lean/sway).
-    if (isSupineFrame) {
-      holdSupinePlantFrame(slot.root, {
-        x: slot.baseX, y: slot.baseY, z: slot.baseZ,
-        scaleX: slot.baseScaleX, scaleY: slot.baseScaleY, scaleZ: slot.baseScaleZ,
-      }, breathing);
-      reapplySupineHeadToStoredPillow(slot.root); // #171 keep head on raised pillow after hold
-    } else {
-      slot.root.position.y = slot.baseY + breathing * 0.018;
-      slot.root.position.x = emotionalSway + dialogueWeightShift;
-      slot.root.rotation.x = dialogueLean + pediatricAsthmaOverlay.rotationX;
-      slot.root.rotation.z = Math.sin(t * 0.72) * 0.012 + pediatricAsthmaOverlay.rotationZ;
-      slot.root.scale.x = slot.baseScaleX + pediatricAsthmaOverlay.scaleXDelta;
-      slot.root.scale.y = slot.baseScaleY + breathing * 0.012 + pediatricAsthmaOverlay.scaleYDelta;
-      slot.root.scale.z = slot.baseScaleZ + pediatricAsthmaOverlay.scaleZDelta;
-    }
-    slot.root.userData.openClinXrBodyMotionCue = {
-      cueIds: isSpeaking
-        ? [
-            "scenario_dialogue_body_lean_cue",
-            "idle_breathing_sway_cue",
-            "emotion_microstep_weight_shift_cue",
-            ...pediatricAsthmaOverlay.cueIds,
-          ]
-        : ["idle_breathing_sway_cue", ...pediatricAsthmaOverlay.cueIds],
-      mode: pediatricAsthmaOverlay.cueIds.length > 0
-        ? "scenario_pediatric_respiratory_distress_idle_overlay"
-        : isSpeaking ? "scenario_dialogue_body_motion_runtime" : "procedural_idle_body_motion",
-      intensity: Number((Math.abs(dialogueLean) + Math.abs(dialogueWeightShift) + Math.abs(breathing) * 0.02 + pediatricAsthmaOverlay.intensity).toFixed(3)),
-      notEvidenceFor: "full-body motion-capture realism or Quest headset kinematic certification",
-    };
-    if (pediatricAsthmaOverlay.gazeTargetActorId) {
-      slot.root.userData.openClinXrIdleGazeAlternationCue = {
-        targetActorId: pediatricAsthmaOverlay.gazeTargetActorId,
-        cueIds: ["pediatric_patient_idle_gaze_alternates_parent_nurse_learner"],
-        notEvidenceFor: "production eye tracking or validated clinical communication scoring",
-      };
-    }
-    actorCues.push({
-      actorId: slot.actorId,
-      role: runtimeActorRole(slot.actorId) ?? null,
-      cueIds: slot.root.userData.openClinXrBodyMotionCue.cueIds,
-      respiratoryRateCueHz: pediatricAsthmaOverlay.respiratoryRateCueHz,
-      gazeAlternationTargetActorId: pediatricAsthmaOverlay.gazeTargetActorId,
-      bodyMotionMode: slot.root.userData.openClinXrBodyMotionCue.mode,
-    });
-    updateHumanoidSpeechCue(slot, nowMs, camera);
-  }
-  recordRuntimeHumanoidActingCueEvidence(actorCues);
-  updateVirtualDeviceActorSpeechPulses(nowMs);
+  updatePackageGeneratedHumanoidAnimations(humanoidAnimationContext, deltaSeconds, nowMs, camera, drive ?? null);
 }
 
 /** Capture-gated physics bone apply (#83 split from main for file-size freeze). */
@@ -7982,49 +7897,15 @@ function applyPhysicsBoneTransforms(nowMs: number): void {
 }
 
 function isGeneratedRuntimeDrive(value: unknown): value is GeneratedRuntimeDrive {
-  return typeof value === "object" && value !== null;
+  return isPackageGeneratedRuntimeDrive(value);
 }
 
 function pediatricAsthmaActingOverlayForSlot(
   slot: GeneratedHumanoidAnimationSlot,
   t: number,
   isSpeaking: boolean,
-): {
-  cueIds: string[];
-  intensity: number;
-  rotationX: number;
-  rotationZ: number;
-  scaleXDelta: number;
-  scaleYDelta: number;
-  scaleZDelta: number;
-  respiratoryRateCueHz?: number | undefined;
-  gazeTargetActorId?: string | null | undefined;
-} {
-  if (!isPediatricAsthmaRuntimeScenario()) {
-    return { cueIds: [], intensity: 0, rotationX: 0, rotationZ: 0, scaleXDelta: 0, scaleYDelta: 0, scaleZDelta: 0 };
-  }
-  if (slot.actorId !== runtimePatientActorId()) {
-    return { cueIds: ["scenario_actor_idle_attention_shift_cue"], intensity: 0.01, rotationX: 0, rotationZ: 0, scaleXDelta: 0, scaleYDelta: 0, scaleZDelta: 0 };
-  }
-  const respiratoryRateCueHz = 0.78;
-  const respiratoryPulse = Math.max(0, Math.sin(t * Math.PI * 2 * respiratoryRateCueHz));
-  const targetActorId = Math.sin(t * 0.34) > 0 ? runtimeFamilyActorId() : runtimeClinicalTeamActorId();
-  return {
-    cueIds: [
-      "pediatric_asthma_visible_work_of_breathing_idle_cue",
-      "pediatric_patient_shoulder_hunch_respiratory_distress_cue",
-      "pediatric_patient_idle_gaze_alternates_parent_nurse_learner",
-      ...(isSpeaking ? ["pediatric_dialogue_breathing_overlay_preserved_while_speaking"] : []),
-    ],
-    intensity: Number((0.028 + respiratoryPulse * 0.032).toFixed(3)),
-    rotationX: -0.018 - respiratoryPulse * 0.018,
-    rotationZ: Math.sin(t * 1.7) * 0.01,
-    scaleXDelta: respiratoryPulse * 0.012,
-    scaleYDelta: -respiratoryPulse * 0.006,
-    scaleZDelta: respiratoryPulse * 0.028,
-    respiratoryRateCueHz,
-    gazeTargetActorId: targetActorId,
-  };
+) {
+  return pediatricPackageAsthmaActingOverlayForSlot(humanoidAnimationContext, slot, t, isSpeaking);
 }
 
 function recordRuntimeHumanoidActingCueEvidence(actorCues: RuntimeHumanoidActingCueEvidence["actorCues"]): void {
@@ -8083,11 +7964,6 @@ function triggerHumanoidDialogueForTrace(tag: string, text: string): void {
   if (liveTurn) { playLiveFrozenActorTurn(liveTurn.plan, liveTurn.execution, gazeTarget, actorRuntimeRealismRequirement); return; }
   triggerHumanoidDialogue(actorId, caption, gazeTarget, emotion, actorRuntimeRealismRequirement, emotionSource);
 }
-
-type HumanoidDialogueGazeTarget = {
-  kind: "learner_camera" | "actor";
-  actorId: string | null;
-};
 
 function triggerHumanoidDialogue(
   actorId: string,
@@ -8171,195 +8047,13 @@ function playLiveFrozenActorTurn(
   });
 }
 function humanoidDialogueDurationMs(phonemeCount: number): number {
-  const baseDurationMs = Math.max(900, Math.min(4800, phonemeCount * 90));
-  return isHumanoidMouthGazePoseReviewCaptureMode() ? Math.max(baseDurationMs, 45_000) : baseDurationMs;
+  return humanoidPackageDialogueDurationMs(phonemeCount, isHumanoidMouthGazePoseReviewCaptureMode());
 }
 
 function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: number, camera: PerspectiveCamera): void {
-  const speech = slot.activeSpeech;
-  if (!speech) {
-    slot.mouthCue.visible = false;
-    slot.gazeCue.visible = false;
-    slot.eyeFocusCue.visible = false;
-    slot.expressionCue.visible = false;
-    slot.expressionCue.scale.set(1, 1, 1);
-    resetHumanoidFaceRigControls(slot);
-    (slot as any)._liveAffectRamp = undefined;
-    startHumanoidEmotionTransition(slot, "neutral", nowMs);
-    applyHumanoidMorphTargetCue(slot, 0, "rest", updateHumanoidEmotionExpression(slot, nowMs).weights);
-    slot.root.rotation.y += normalizeAngle(slot.baseRotationY - slot.root.rotation.y) * 0.08;
-    return;
-  }
-  if (shouldUseCleanHumanoidSourceComparatorCapture()) {
-    slot.mouthCue.visible = false;
-    slot.gazeCue.visible = false;
-    slot.eyeFocusCue.visible = false;
-    slot.expressionCue.visible = false;
-    slot.expressionCue.scale.set(1, 1, 1);
-    return;
-  }
-  const progress = (nowMs - speech.startedAtMs) / speech.durationMs;
-  if (progress >= 1) {
-    slot.activeSpeech = undefined;
-    slot.mouthCue.visible = false;
-    slot.gazeCue.visible = false;
-    slot.eyeFocusCue.visible = false;
-    slot.expressionCue.visible = false;
-    slot.expressionCue.scale.set(1, 1, 1);
-    resetHumanoidFaceRigControls(slot);
-    (slot as any)._liveAffectRamp = undefined;
-    startHumanoidEmotionTransition(slot, "neutral", nowMs);
-    applyHumanoidMorphTargetCue(slot, 0, "rest", updateHumanoidEmotionExpression(slot, nowMs).weights);
-    return;
-  }
-  // Live bind: dialogueTurns + adaptive policy + affectTimeline → lipsync/emotion.
-  // Peds adaptive: timed emotion ramp + viseme/emotion weights into effWeights (timeline or pre-bake).
-  let viseme = "rest";
-  let openness = 0.35;
-  let activeDialogueTurnRef: any ;
-  let liveSource: "live_blueprint_dialogue_emotion_source" | undefined ;
-  if (encounterRuntimeAssetBundle?.scenarioId === "peds_asthma_parent_anxiety_v1" && speech.actorId) {
-    const bundleTurns = pedsActorPlayerBundleDialogueTurns();
-    const matchingTurn = bundleTurns.find((t: any) => t.actorId === speech.actorId);
-    const rtTurn = matchingTurn ? runtimeDialogueTurnForTraceTag(matchingTurn.cue) : undefined;
-    if (matchingTurn && rtTurn) {
-      try {
-        // live from turn metadata (bundle dialogueTurn + full affectTimeline + peds policy emotion) using local viseme/phoneme fns
-        // (mirrors @openclinxr/model-vetting viseme-timeline + emotion-transition helpers; import not safe in ui-xr browser runtime)
-        const ttext = matchingTurn.text || speech.text;
-        const phon = phonemesForText(ttext);
-        const vseq = visemesForText(ttext);
-        const p = Math.min(1, Math.max(0, progress));
-        const lidx = Math.min(vseq.length - 1, Math.max(0, Math.floor(p * vseq.length)));
-        viseme = vseq[lidx] ?? "rest";
-        openness = visemeOpenness(viseme) * (0.65 + Math.sin(nowMs / 58) * 0.18);
-        const timeline = (rtTurn as any).affectTimeline ?? (matchingTurn as any).affectTimeline;
-        const liveTurn = resolveLiveActorTurnForTrace(matchingTurn.cue);
-        const turnEmotion = liveTurn?.faceEmotion ?? speech.emotion;
-        const bundleAffectEmotion = timeline?.emotion
-          ? normalizePedsActorPlayerEmotion(String(timeline.emotion))
-          : speech.emotion;
-        const elapsedMs = nowMs - speech.startedAtMs;
-        const rampIntensity = computeAffectRampIntensity(elapsedMs, speech.durationMs, timeline);
-        (slot as any)._liveAffectRamp = timeline ? {
-          emotion: turnEmotion,
-          intensity: Number(rampIntensity.toFixed(3)),
-          onsetMs: timeline.onsetMs,
-          transitionMs: timeline.transitionMs,
-          decayMs: timeline.decayMs,
-          sourceIntensity: timeline.intensity,
-        } : undefined;
-        activeDialogueTurnRef = {
-          traceTag: matchingTurn.cue,
-          turnId: (matchingTurn as any).turnId,
-          source: "bundle_dialogue_turn",
-          affectTimelineEmotion: bundleAffectEmotion,
-          affectTimeline: timeline ? {
-            emotion: timeline.emotion,
-            intensity: timeline.intensity,
-            onsetMs: timeline.onsetMs,
-            transitionMs: timeline.transitionMs,
-            decayMs: timeline.decayMs,
-            liveRampIntensity: Number(rampIntensity.toFixed(3)),
-          } : null,
-        };
-        liveSource = "live_blueprint_dialogue_emotion_source";
-      } catch {
-        (slot as any)._liveAffectRamp = undefined;
-        // pre-bake fallback
-      }
-    }
-  }
-  if (viseme === "rest" && openness === 0.35 && speech.visemeSequence && speech.visemeSequence.length) {
-    // pre-bake fallback path (when no live turn applied)
-    const index = Math.min(speech.visemeSequence.length - 1, Math.max(0, Math.floor(progress * speech.visemeSequence.length)));
-    viseme = speech.visemeSequence[index] ?? "rest";
-    openness = visemeOpenness(viseme) * (0.65 + Math.sin(nowMs / 58) * 0.18);
-  }
-  slot.mouthCue.visible = true;
-  slot.mouthCue.scale.set(1 + openness * 1.4, 1 + openness * 3.6, 1);
-  const expressionState = updateHumanoidEmotionExpression(slot, nowMs);
-  // Timeline-driven affect ramp from bundle turn onset/transition/decayMs.
-  // to drive scaled peak weights via expressionWeightsForEmotion + light blend with transitioned state into effWeights for rig/morph.
-  const ramp = (slot as any)._liveAffectRamp;
-  let effWeights = expressionState.weights;
-  if (ramp && ramp.intensity > 0.01) {
-    const peakW = expressionWeightsForEmotion(ramp.emotion || expressionState.targetEmotion);
-    const i = ramp.intensity;
-    effWeights = {
-      mouthOpen: Math.min(0.95, peakW.mouthOpen * i * 0.85 + expressionState.weights.mouthOpen * 0.15),
-      browConcern: Math.min(0.95, peakW.browConcern * i * 0.85 + expressionState.weights.browConcern * 0.15),
-      cheekTension: Math.min(0.95, peakW.cheekTension * i * 0.85 + expressionState.weights.cheekTension * 0.15),
-    };
-  }
-  slot.expressionCue.visible = true;
-  slot.expressionCue.scale.set(1 + effWeights.cheekTension * 0.22, 1 + effWeights.browConcern * 0.16, 1);
-  slot.expressionCue.position.y = -openness * 0.012 + effWeights.browConcern * 0.012;
-  slot.root.userData.openClinXrRuntimeExpressionCue = {
-    expressionSource: liveSource ? "live_blueprint_dialogue_emotion_source" : "scenario_dialogue_viseme_gaze_runtime",
-    currentViseme: viseme,
-    currentEmotion: expressionState.currentEmotion,
-    targetEmotion: expressionState.targetEmotion,
-    mouthOpenness: Number(openness.toFixed(3)),
-    expressionTransitionMs: Number(Math.max(0, nowMs - expressionState.transitionStartedAtMs).toFixed(0)),
-    expressionWeights: roundHumanoidExpressionWeights(effWeights),
-    cueIds: [
-      "visible_runtime_mouth_shape_cue",
-      "visible_runtime_eye_focus_cue",
-      "visible_runtime_eyebrow_jaw_cheek_cue",
-      "emotion_aligned_expression_transition_cue",
-    ],
-  };
-  slot.mouthCue.userData.openClinXrCurrentPhoneme = speech.phonemeSequence[0] ?? "sil";
-  slot.mouthCue.userData.openClinXrCurrentViseme = viseme;
-  const eyeMotion = computeHumanoidEyeMotionMetrics(speech, nowMs);
-  applyHumanoidFaceRigControls(slot, openness, viseme, speech, camera, eyeMotion, effWeights);
-  window.__openClinXrHumanoidSpeechEvidence = {
-    ...(window.__openClinXrHumanoidSpeechEvidence ??
-      buildHumanoidSpeechEvidence(
-        speech.actorId,
-        speech.assetId,
-        speech.text,
-        speech.phonemeSequence,
-        speech.visemeSequence,
-        { kind: speech.gazeTargetKind, actorId: speech.gazeTargetActorId },
-        speech.emotionContext,
-        speech.actorRuntimeRealismRequirement,
-      )),
-    activePhoneme: speech.phonemeSequence[0] ?? "sil",
-    activeViseme: viseme,
-    activeMouthOpenness: Number(openness.toFixed(3)),
-    activeEyeBlinkIntensity: eyeMotion.blinkIntensity,
-    activeEyeMicroSaccadeYaw: eyeMotion.microSaccadeYaw,
-    activeEyeMicroSaccadePitch: eyeMotion.microSaccadePitch,
-    activeEmotionState: expressionState.targetEmotion,
-    emotionSource: speech.emotionContext.source,
-    scenarioBaselineMood: speech.emotionContext.baselineMood,
-    scenarioEmotionCueIds: speech.emotionContext.cueIds,
-    activeActorRuntimeRealismRequirement: speech.actorRuntimeRealismRequirement,
-    activeExpressionTransitionMs: Number(Math.max(0, nowMs - expressionState.transitionStartedAtMs).toFixed(0)),
-    activeExpressionWeights: roundHumanoidExpressionWeights(effWeights),
-    activeExpressionCueIds: [
-      "visible_runtime_mouth_shape_cue",
-      "visible_runtime_eye_focus_cue",
-      "visible_runtime_eyebrow_jaw_cheek_cue",
-      "emotion_aligned_expression_transition_cue",
-      "dialogue_eye_micro_saccade_blink_cue",
-      "generated_eyelid_blink_control_cue",
-    ],
-    activeBodyMotionCueIds: [
-      "scenario_dialogue_body_lean_cue",
-      "idle_breathing_sway_cue",
-      "emotion_microstep_weight_shift_cue",
-    ],
-    activeBodyMotionIntensity: Number((openness + 0.18).toFixed(3)),
-    activeBodyMotionMode: "scenario_dialogue_body_motion_runtime",
-    activeDialogueTurnRef,
-    liveSource,
-  };
-  recordMouthGazePoseComparatorEvidence(slot, speech, viseme, openness, expressionState, nowMs);
-  updateHumanoidGazeCue(slot, speech, camera);
+  updatePackageHumanoidSpeechCue(humanoidAnimationContext, slot, nowMs, camera);
 }
+
 
 function recordMouthGazePoseComparatorEvidence(
   slot: GeneratedHumanoidAnimationSlot,
@@ -8369,86 +8063,9 @@ function recordMouthGazePoseComparatorEvidence(
   expressionState: HumanoidEmotionExpressionState,
   nowMs: number,
 ): void {
-  if (!isHumanoidMouthGazePoseReviewCaptureMode()) {
-    return;
-  }
-  const comparator = selectedHumanoidSourceComparator();
-  const isPedsRealGarmentOrSchoolForEvidence = comparator === "peds_anny_school_age_mpfb2_eye_patient" || comparator === "peds_anny_real_garment_patient" || comparator === "peds_anny_real_garment_parent" || comparator === "peds_anny_real_garment_nurse" || comparator === "ed_anny_real_garment_patient";
-  // parent/nurse: evidence primary is patient slot (role GLB resolved onto camera-centered primary)
-  const evidencePrimaryActorId = runtimePatientActorId();
-  if (!isPedsRealGarmentOrSchoolForEvidence || speech.actorId !== evidencePrimaryActorId) {
-    return;
-  }
-  const morphCue = slot.root.userData.openClinXrMorphTargetRuntimeCue as {
-    appliedTargetCount?: number;
-  } | undefined;
-  const liveTurnForMouth = (window.__openClinXrHumanoidSpeechEvidence as any)?.activeDialogueTurnRef;
-  const liveSrcForMouth = (window.__openClinXrHumanoidSpeechEvidence as any)?.liveSource;
-  let garmentGeometry: MouthGazePoseComparatorEvidence["garmentGeometry"] = null;
-  if (comparator === "peds_anny_real_garment_patient" || comparator === "ed_anny_real_garment_patient" || comparator === "peds_anny_real_garment_parent" || comparator === "peds_anny_real_garment_nurse") {
-    const tagged = applyRealGarmentEvidenceSurfaces(slot.root, comparator);
-    if (tagged) {
-      // #314: derive source/cue from the ACTUAL loaded asset (set at compose) so the
-      // parent/nurse comparators do not label the child primary's tshirt as the cardigan.
-      const loadedAssetPath =
-        typeof slot.root.userData.openClinXrAssetPath === "string" ? slot.root.userData.openClinXrAssetPath : "";
-      const garmentSource =
-        loadedAssetPath
-        || (comparator === "ed_anny_real_garment_patient"
-          ? "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb"
-          : comparator === "peds_anny_real_garment_parent"
-            ? "/generated-humanoids/peds_anxious_parent.glb"
-            : comparator === "peds_anny_real_garment_nurse"
-              ? "/generated-humanoids/peds_nurse_kevin.glb"
-              : "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb");
-      const sleeveDeformCue = sleeveDeformCueForAssetPath(loadedAssetPath, comparator);
-      garmentGeometry = {
-        name: tagged.name || "real_garment_mesh",
-        visible: tagged.visible,
-        source: garmentSource,
-        hasVisibleVolume: true,
-        hasSeamFoldHints: true,
-        sleeveDeform: sleeveDeformCue,
-      };
-    }
-  }
-  window.__openClinXrMouthGazePoseComparatorEvidence = {
-    source: "window.__openClinXrMouthGazePoseComparatorEvidence",
-    captureMode: selectedCaptureMode(),
-    comparator,
-    scenarioId: comparator === "ed_anny_real_garment_patient" ? "ed_chest_pain_priority_v2" : "peds_asthma_parent_anxiety_v1",
-    actorId: speech.actorId,
-    dialogueText: speech.text,
-    traceTag: "work_of_breathing_assessment",
-    activeViseme: viseme,
-    activeMouthOpenness: Number(openness.toFixed(3)),
-    activeEmotionState: expressionState.targetEmotion,
-    activeExpressionTransitionMs: Number(Math.max(0, nowMs - expressionState.transitionStartedAtMs).toFixed(0)),
-    activeExpressionWeights: roundHumanoidExpressionWeights(expressionState.weights),
-    gazeProbePlayback: typeof slot.root.userData.openClinXrAnimationPlayback === "string"
-      && slot.activeGazeProbeAnimationClipName
-      ? "gltf_gaze_probe_clip_playing"
-      : null,
-    activeGazeProbeAnimationClipName: slot.activeGazeProbeAnimationClipName ?? null,
-    morphTargetAppliedTargetCount: morphCue?.appliedTargetCount ?? 0,
-    morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue_with_emotion_transition",
-    emotionTransitionCuePresent: Boolean(slot.root.userData.openClinXrEmotionExpressionTransitionCue),
-    visemeTimelineComparatorEvidencePresent: Boolean(slot.root.userData.openClinXrVisemeTimelineComparatorEvidence),
-    activeDialogueTurnRef: liveTurnForMouth,
-    liveSource: liveSrcForMouth,
-    garmentGeometry,
-    notEvidenceFor: [
-      "production phoneme timing",
-      "validated facial animation",
-      "clinical affect scoring",
-      "b_plus_visual_realism_gate",
-      "quest_readiness",
-      "production_asset_readiness",
-      "learner_readiness",
-    ],
-  };
-  // Real-garment traverse: garmentLayers meshes, frustum off, cyan, sleeveDeform userData.
+  recordPackageMouthGazePoseComparatorEvidence(humanoidAnimationContext, slot, speech, viseme, openness, expressionState, nowMs);
 }
+
 
 function applyHumanoidFaceRigControls(
   slot: GeneratedHumanoidAnimationSlot,
@@ -8459,119 +8076,29 @@ function applyHumanoidFaceRigControls(
   eyeMotion: HumanoidEyeMotionMetrics,
   expressionWeights: HumanoidExpressionWeights,
 ): void {
-  const upperLip = slot.root.getObjectByName("openclinxr_upper_lip_sync_control");
-  const lowerLip = slot.root.getObjectByName("openclinxr_lower_lip_sync_control");
-  const leftEye = slot.root.getObjectByName("openclinxr_left_eye_gaze_control");
-  const rightEye = slot.root.getObjectByName("openclinxr_right_eye_gaze_control");
-  const leftUpperEyelid = slot.root.getObjectByName("openclinxr_left_upper_eyelid_blink_control");
-  const rightUpperEyelid = slot.root.getObjectByName("openclinxr_right_upper_eyelid_blink_control");
-
-  offsetRigControl(upperLip, 0, openness * 0.006, openness * 0.004);
-  offsetRigControl(lowerLip, 0, -openness * 0.024, openness * 0.01);
-  applyHumanoidMorphTargetCue(slot, openness, viseme, expressionWeights);
-
-  const gazeOrigin = new Vector3(0, 1.57, 0.29);
-  const targetWorld = resolveHumanoidGazeTargetWorld(speech, camera);
-  const targetLocal = slot.root.worldToLocal(targetWorld.clone());
-  const offset = targetLocal.sub(gazeOrigin).clampLength(0.35, 1.15);
-  const horizontal = Math.max(0.001, Math.hypot(offset.x, offset.z));
-  const yaw = Math.atan2(offset.x, -offset.z) * 0.35;
-  const pitch = -Math.atan2(offset.y, horizontal) * 0.28;
-  const { blinkIntensity, microSaccadeYaw, microSaccadePitch } = eyeMotion;
-  rotateRigControl(leftEye, pitch + microSaccadePitch, yaw + microSaccadeYaw, 0);
-  rotateRigControl(rightEye, pitch + microSaccadePitch * 0.92, yaw + microSaccadeYaw * 0.9, 0);
-  scaleRigControl(leftEye, 1, 1 - blinkIntensity * 0.72, 1 + blinkIntensity * 0.08);
-  scaleRigControl(rightEye, 1, 1 - blinkIntensity * 0.72, 1 + blinkIntensity * 0.08);
-  offsetRigControl(leftUpperEyelid, 0, -blinkIntensity * 0.002, -blinkIntensity * 0.012);
-  offsetRigControl(rightUpperEyelid, 0, -blinkIntensity * 0.002, -blinkIntensity * 0.012);
-  scaleRigControl(leftUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
-  scaleRigControl(rightUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
-  applyBlinkClosureToRoot(slot.root, blinkIntensity);
-
-  slot.root.userData.openClinXrFaceRigRuntimeCue = {
-    currentViseme: viseme,
-    currentEmotion: speech.emotion,
-    mouthOpenness: Number(openness.toFixed(3)),
-    expressionWeights: roundHumanoidExpressionWeights(expressionWeights),
-    activeControlNames: [
-      "openclinxr_upper_lip_sync_control",
-      "openclinxr_lower_lip_sync_control",
-      "openclinxr_left_eye_gaze_control",
-      "openclinxr_right_eye_gaze_control",
-      "openclinxr_left_upper_eyelid_blink_control",
-      "openclinxr_right_upper_eyelid_blink_control",
-    ],
-    blinkIntensity: Number(blinkIntensity.toFixed(3)),
-    microSaccadeYaw: Number(microSaccadeYaw.toFixed(3)),
-    microSaccadePitch: Number(microSaccadePitch.toFixed(3)),
-    cueIds: ["dialogue_viseme_and_gaze_mapping", "face_lip_eye_rig_contract_cue", "dialogue_eye_micro_saccade_blink_cue", "generated_eyelid_blink_control_cue", "emotion_aligned_expression_transition_cue"],
-    notEvidenceFor: "production facial animation quality or validated phoneme timing",
-  };
-}
-
-type HumanoidEyeMotionMetrics = {
-  blinkIntensity: number;
-  microSaccadeYaw: number;
-  microSaccadePitch: number;
-};
-
-function computeHumanoidEyeMotionMetrics(speech: HumanoidSpeechPlayback, nowMs: number): HumanoidEyeMotionMetrics {
-  const elapsedMs = Math.max(0, nowMs - speech.startedAtMs);
-  const microSaccadeYaw = Math.sin(elapsedMs / 173) * 0.018 + Math.sin(elapsedMs / 421) * 0.011;
-  const microSaccadePitch = Math.sin(elapsedMs / 229) * 0.012;
-  const blinkPhase = elapsedMs % 4300;
-  const blinkWindow = blinkPhase > 3940 && blinkPhase < 4140 ? (blinkPhase - 3940) / 200 : 0;
-  const blinkIntensity = blinkWindow > 0 ? Math.sin(Math.PI * blinkWindow) : 0;
-  return {
-    blinkIntensity: Number(blinkIntensity.toFixed(3)),
-    microSaccadeYaw: Number(microSaccadeYaw.toFixed(3)),
-    microSaccadePitch: Number(microSaccadePitch.toFixed(3)),
-  };
+  applyPackageHumanoidFaceRigControls(
+    slot,
+    openness,
+    viseme,
+    speech,
+    camera,
+    eyeMotion,
+    expressionWeights,
+    (entry, entryCamera) => resolveHumanoidGazeTargetWorld(entry, entryCamera),
+    (entry, entryOpenness, entryViseme, entryWeights) => applyHumanoidMorphTargetCue(entry, entryOpenness, entryViseme, entryWeights),
+  );
 }
 
 function createHumanoidEmotionExpressionState(): HumanoidEmotionExpressionState {
-  const weights = expressionWeightsForEmotion("neutral");
-  return {
-    currentEmotion: "neutral",
-    targetEmotion: "neutral",
-    weights: { ...weights },
-    targetWeights: { ...weights },
-    // Deterministic capture: anchor to the frozen clock so emotion ramps are run-identical.
-    transitionStartedAtMs: isDeterministicCaptureClock() ? 0 : performance.now(),
-    transitionDurationMs: 850,
-  };
+  return createPackageHumanoidEmotionExpressionState({ deterministicClock: isDeterministicCaptureClock() });
 }
 
 function startHumanoidEmotionTransition(slot: GeneratedHumanoidAnimationSlot, emotion: HumanoidExpressionEmotion, nowMs: number): void {
-  if (slot.emotionExpression.targetEmotion === emotion) {
-    return;
-  }
-  slot.emotionExpression.currentEmotion = slot.emotionExpression.targetEmotion;
-  slot.emotionExpression.targetEmotion = emotion;
-  slot.emotionExpression.targetWeights = expressionWeightsForEmotion(emotion);
-  slot.emotionExpression.transitionStartedAtMs = nowMs;
-  slot.emotionExpression.transitionDurationMs = emotion === "pain" || emotion === "anxious" ? 650 : 950;
+  startPackageHumanoidEmotionTransition(slot, emotion, nowMs);
 }
 
 function updateHumanoidEmotionExpression(slot: GeneratedHumanoidAnimationSlot, nowMs: number): HumanoidEmotionExpressionState {
-  const state = slot.emotionExpression;
-  const progress = Math.min(1, Math.max(0, (nowMs - state.transitionStartedAtMs) / state.transitionDurationMs));
-  const eased = progress * progress * (3 - 2 * progress);
-  state.weights = {
-    mouthOpen: lerp(state.weights.mouthOpen, state.targetWeights.mouthOpen, eased * 0.34),
-    browConcern: lerp(state.weights.browConcern, state.targetWeights.browConcern, eased * 0.34),
-    cheekTension: lerp(state.weights.cheekTension, state.targetWeights.cheekTension, eased * 0.34),
-  };
-  slot.root.userData.openClinXrEmotionExpressionTransitionCue = {
-    currentEmotion: state.currentEmotion,
-    targetEmotion: state.targetEmotion,
-    transitionProgress: Number(progress.toFixed(3)),
-    transitionDurationMs: state.transitionDurationMs,
-    weights: roundHumanoidExpressionWeights(state.weights),
-    cueIds: ["emotion_aligned_expression_transition_cue", "visible_runtime_eyebrow_jaw_cheek_cue"],
-    notEvidenceFor: "validated affect recognition, clinical scoring, or production facial animation quality",
-  };
-  return state;
+  return updatePackageHumanoidEmotionExpression(slot, nowMs);
 }
 
 function rememberLiveActorTurnFromPayload(
@@ -8621,31 +8148,20 @@ function scenarioDialogueEmotionContext(
   };
 }
 
+function computeHumanoidEyeMotionMetrics(speech: HumanoidSpeechPlayback, nowMs: number): HumanoidEyeMotionMetrics {
+  return computePackageHumanoidEyeMotionMetrics(speech, nowMs);
+}
+
 function lerp(from: number, to: number, alpha: number): number {
-  return from + (to - from) * Math.min(1, Math.max(0, alpha));
+  return lerpPackageHumanoidAnimation(from, to, alpha);
 }
 
 function roundHumanoidExpressionWeights(weights: HumanoidExpressionWeights): HumanoidExpressionWeights {
-  return {
-    mouthOpen: Number(weights.mouthOpen.toFixed(3)),
-    browConcern: Number(weights.browConcern.toFixed(3)),
-    cheekTension: Number(weights.cheekTension.toFixed(3)),
-  };
+  return roundPackageHumanoidExpressionWeights(weights);
 }
 
 function resetHumanoidFaceRigControls(slot: GeneratedHumanoidAnimationSlot): void {
-  offsetRigControl(slot.root.getObjectByName("openclinxr_upper_lip_sync_control"), 0, 0, 0);
-  offsetRigControl(slot.root.getObjectByName("openclinxr_lower_lip_sync_control"), 0, 0, 0);
-  for (const controlName of ["openclinxr_left_eye_gaze_control", "openclinxr_right_eye_gaze_control"]) {
-    const control = slot.root.getObjectByName(controlName);
-    rotateRigControl(control, 0, 0, 0);
-    scaleRigControl(control, 1, 1, 1);
-  }
-  for (const controlName of ["openclinxr_left_upper_eyelid_blink_control", "openclinxr_right_upper_eyelid_blink_control"]) {
-    const control = slot.root.getObjectByName(controlName);
-    offsetRigControl(control, 0, 0, 0);
-    scaleRigControl(control, 1, 1, 1);
-  }
+  resetPackageHumanoidFaceRigControls(slot);
 }
 
 function applyHumanoidMorphTargetCue(
@@ -8654,70 +8170,19 @@ function applyHumanoidMorphTargetCue(
   viseme: string,
   expressionWeights: HumanoidExpressionWeights,
 ): void {
-  let applied = 0;
-  // #730: runtime's own alias resolution, recorded for the capture's mouth-open-channel.json.
-  const resolvedTargets: Record<string, string | null> = { openclinxr_mouth_open: null, openclinxr_brow_concern: null, openclinxr_cheek_tension: null };
-  slot.root.traverse((object) => {
-    if (!(object instanceof Mesh) || !object.morphTargetDictionary || !object.morphTargetInfluences) {
-      return;
-    }
-    collectResolvedMorphTargets(object.morphTargetDictionary, resolvedTargets);
-    const mouthOpenIndex = resolveMorphIndex(object.morphTargetDictionary, "openclinxr_mouth_open");
-    const browConcernIndex = resolveMorphIndex(object.morphTargetDictionary, "openclinxr_brow_concern");
-    const cheekTensionIndex = resolveMorphIndex(object.morphTargetDictionary, "openclinxr_cheek_tension");
-    if (typeof mouthOpenIndex === "number") {
-      // #730: bound the openness write by the viseme channel's graded cap (bypassed at 0.95).
-      object.morphTargetInfluences[mouthOpenIndex] = Math.min(MOUTH_OPEN_CAP, Math.max(0, openness + expressionWeights.mouthOpen * 0.18));
-      applied++;
-    }
-    if (typeof browConcernIndex === "number") {
-      object.morphTargetInfluences[browConcernIndex] = Math.min(0.95, Math.max(0, expressionWeights.browConcern + (viseme === "rest" ? 0 : 0.05)));
-      applied++;
-    }
-    if (typeof cheekTensionIndex === "number") {
-      object.morphTargetInfluences[cheekTensionIndex] = Math.min(0.95, Math.max(0, expressionWeights.cheekTension + openness * 0.22));
-      applied++;
-    }
-  });
-  // #63 vertical: phonemes → driveVisemeTimeline → applyVisemeWeights (named viseme_*, not index 0)
-  const named = applyNamedSpeechVisemes(slot, performance.now());
-  if (named.activeTargetName) applied += 1;
-  slot.root.userData.openClinXrMorphTargetRuntimeCue = {
-    currentViseme: named.activeTargetName ?? viseme,
-    mouthOpenness: Number(openness.toFixed(3)),
-    expressionWeights: roundHumanoidExpressionWeights(expressionWeights),
-    appliedTargetCount: applied,
-    // #730: the runtime's own resolution of the canonical names onto the live dictionaries —
-    // recorded for the viseme-drive capture's mouth-open-channel.json known-good.
-    resolvedTargets,
-    targetNames: ["openclinxr_mouth_open", "openclinxr_brow_concern", "openclinxr_cheek_tension", ...(named.activeTargetName ? [named.activeTargetName] : [])],
-    cueIds: ["dialogue_viseme_and_gaze_mapping", "visible_runtime_mouth_shape_cue", "emotion_aligned_expression_transition_cue", "named_viseme_morph_drive"],
-    notEvidenceFor: "production phoneme timing, validated facial animation, or clinical affect scoring",
-  };
+  applyPackageHumanoidMorphTargetCue(slot, openness, viseme, expressionWeights, applyNamedSpeechVisemes);
 }
 
 function offsetRigControl(control: ReturnType<Group["getObjectByName"]>, x: number, y: number, z: number): void {
-  if (!control) {
-    return;
-  }
-  const base = ensureRigControlBase(control);
-  control.position.set(base.position.x + x, base.position.y + y, base.position.z + z);
+  offsetPackageHumanoidRigControl(control, x, y, z);
 }
 
 function rotateRigControl(control: ReturnType<Group["getObjectByName"]>, x: number, y: number, z: number): void {
-  if (!control) {
-    return;
-  }
-  const base = ensureRigControlBase(control);
-  control.rotation.set(base.rotation.x + x, base.rotation.y + y, base.rotation.z + z);
+  rotatePackageHumanoidRigControl(control, x, y, z);
 }
 
 function scaleRigControl(control: ReturnType<Group["getObjectByName"]>, x: number, y: number, z: number): void {
-  if (!control) {
-    return;
-  }
-  const base = ensureRigControlBase(control);
-  control.scale.set(base.scale.x * x, base.scale.y * y, base.scale.z * z);
+  scalePackageHumanoidRigControl(control, x, y, z);
 }
 
 function ensureRigControlBase(control: NonNullable<ReturnType<Group["getObjectByName"]>>): {
@@ -8749,199 +8214,39 @@ function ensureRigControlBase(control: NonNullable<ReturnType<Group["getObjectBy
 }
 
 function updateVirtualDeviceActorSpeechPulses(nowMs: number): void {
-  for (const [actorId, speech] of activeVirtualDeviceSpeechByActorId) {
-    const device = virtualDeviceActorSlotsByActorId.get(actorId);
-    if (!device) {
-      activeVirtualDeviceSpeechByActorId.delete(actorId);
-      continue;
-    }
-    const progress = (nowMs - speech.startedAtMs) / speech.durationMs;
-    if (progress >= 1) {
-      device.scale.setScalar(1);
-      device.userData.openClinXrVirtualDeviceSpeechPulse = "idle";
-      activeVirtualDeviceSpeechByActorId.delete(actorId);
-      continue;
-    }
-    const pulse = 1 + Math.sin(nowMs / 95) * 0.055;
-    device.scale.setScalar(pulse);
-    device.userData.openClinXrVirtualDeviceSpeechPulse = "active_non_humanoid_dialogue_pulse";
-  }
+  updatePackageVirtualDeviceActorSpeechPulses(humanoidAnimationContext, nowMs);
 }
+
 
 function updateHumanoidGazeCue(
   slot: GeneratedHumanoidAnimationSlot,
   speech: HumanoidSpeechPlayback,
   camera: PerspectiveCamera,
 ): void {
-  const gazeOrigin = new Vector3(0, 1.57, 0.29);
-  const targetWorld = resolveHumanoidGazeTargetWorld(speech, camera);
-  const targetLocal = slot.root.worldToLocal(targetWorld.clone());
-  const boundedTarget = targetLocal.sub(gazeOrigin).clampLength(0.35, 1.15).add(gazeOrigin);
-  slot.gazeCue.geometry.setFromPoints([gazeOrigin, boundedTarget]);
-  slot.gazeCue.visible = true;
-  orientHumanoidEyeFocusCue(slot, gazeOrigin, boundedTarget);
-  orientHumanoidTowardGazeTarget(slot, targetWorld);
-  slot.gazeCue.userData.openClinXrCurrentGazeTargetKind = speech.gazeTargetKind;
-  slot.gazeCue.userData.openClinXrCurrentGazeTargetActorId = speech.gazeTargetActorId;
-  slot.eyeFocusCue.userData.openClinXrCurrentGazeTargetKind = speech.gazeTargetKind;
-  slot.eyeFocusCue.userData.openClinXrCurrentGazeTargetActorId = speech.gazeTargetActorId;
+  updatePackageHumanoidGazeCue(humanoidAnimationContext, slot, speech, camera);
 }
+
 
 function orientHumanoidEyeFocusCue(slot: GeneratedHumanoidAnimationSlot, gazeOrigin: Vector3, boundedTarget: Vector3): void {
-  const offset = boundedTarget.clone().sub(gazeOrigin);
-  const horizontal = Math.max(0.001, Math.hypot(offset.x, offset.z));
-  slot.eyeFocusCue.visible = true;
-  slot.eyeFocusCue.rotation.y = Math.atan2(offset.x, -offset.z);
-  slot.eyeFocusCue.rotation.x = -Math.atan2(offset.y, horizontal) * 0.45;
+  orientPackageHumanoidEyeFocusCue(slot, gazeOrigin, boundedTarget);
 }
+
 
 function orientHumanoidTowardGazeTarget(slot: GeneratedHumanoidAnimationSlot, targetWorld: Vector3): void {
-  const targetInActorSlot = slot.actorSlot.worldToLocal(targetWorld.clone());
-  const direction = targetInActorSlot.sub(slot.root.position);
-  const desiredYaw = Math.atan2(direction.x, direction.z) + Math.PI;
-  const boundedYaw = slot.baseRotationY + clampDialogueFacingYaw(normalizeAngle(desiredYaw - slot.baseRotationY));
-  slot.root.rotation.y += normalizeAngle(boundedYaw - slot.root.rotation.y) * 0.14;
-  slot.root.userData.openClinXrDialogueFacingCue = "speaking_humanoid_turns_toward_gaze_target";
+  orientPackageHumanoidTowardGazeTarget(slot, targetWorld);
 }
 
+
 function normalizeAngle(angle: number): number {
-  return Math.atan2(Math.sin(angle), Math.cos(angle));
+  return normalizePackageHumanoidAnimationAngle(angle);
 }
 
 function clampDialogueFacingYaw(value: number): number {
-  return Math.min(0.42, Math.max(-0.42, value));
+  return clampPackageDialogueFacingYaw(value);
 }
 
 function resolveHumanoidGazeTargetWorld(speech: HumanoidSpeechPlayback, camera: PerspectiveCamera): Vector3 {
-  if (speech.gazeTargetKind === "actor" && speech.gazeTargetActorId) {
-    const targetActorSlot = generatedHumanoidActorSlotsByActorId.get(speech.gazeTargetActorId);
-    if (targetActorSlot) {
-      const position = targetActorSlot.getWorldPosition(new Vector3());
-      position.y += 1.18;
-      return position;
-    }
-  }
-  return camera.getWorldPosition(new Vector3());
-}
-
-function buildHumanoidSpeechEvidence(
-  actorId: string | null,
-  assetId: string | null,
-  text: string | null,
-  phonemeSequence: string[],
-  visemeSequence: string[],
-  gazeTarget: HumanoidDialogueGazeTarget | null,
-  emotionContext?: HumanoidDialogueEmotionContext,
-  actorRuntimeRealismRequirement?: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"],
-): HumanoidSpeechEvidence {
-  return {
-    source: "local_dialogue_phoneme_viseme_mapping",
-    activeActorId: actorId,
-    activeAssetId: assetId,
-    lastText: text,
-    phonemeSequence,
-    visemeSequence,
-    emotionSource: emotionContext?.source,
-    scenarioBaselineMood: emotionContext?.baselineMood,
-    scenarioEmotionCueIds: emotionContext?.cueIds,
-    activeActorRuntimeRealismRequirement: actorRuntimeRealismRequirement,
-    activeActorRealismLaunchBadge: actorRuntimeRealismRequirement
-      ? buildRuntimeActorRealismLaunchBadge(actorRuntimeRealismRequirement)
-      : undefined,
-    gazeTargetKind: gazeTarget?.kind ?? null,
-    gazeTargetActorId: gazeTarget?.actorId ?? null,
-    notEvidenceFor: [
-      "clinical_speech_quality",
-      "production_lip_sync",
-      "production_eye_tracking",
-      "scoring_validity",
-    ],
-  };
-}
-
-function buildRuntimeActorRealismLaunchBadge(
-  requirement: NonNullable<HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"]>,
-): NonNullable<HumanoidSpeechEvidence["activeActorRealismLaunchBadge"]> {
-  return {
-    actorId: requirement.actorId,
-    actorRole: requirement.role,
-    status: "realismBlocked",
-    blockers: [
-      "actor_specific_humanoid_realism_gate_not_attached",
-      "runtime_realism_evidence_not_attached_to_actor_badge",
-      "humanoid_visual_qa_evidence_not_attached_to_actor_badge",
-    ],
-    claimBoundary: "case_defined_actor_realism_launch_badge_metadata_only",
-  };
-}
-
-function localDialogueActorIdForTraceTag(tag: string): string | undefined {
-  const runtimeTurn = runtimeDialogueTurnForTraceTag(tag);
-  if (runtimeTurn) return runtimeTurn.actorId;
-  const actorIds: Record<string, string | undefined> = {
-    history_opqrst: runtimePatientActorId(),
-    risk_factor_question: runtimePatientActorId(),
-    associated_symptom_question: runtimePatientActorId(),
-    vitals_review: runtimeClinicalTeamActorId(),
-    ecg_request: runtimeClinicalTeamActorId(),
-    urgent_escalation: runtimeFamilyActorId(),
-    team_communication: runtimeClinicalTeamActorId(),
-    family_communication: runtimeFamilyActorId(),
-    empathy_statement: runtimePatientActorId(),
-  };
-  return actorIds[tag] ?? actorIdForTraceTag(tag, selectedScenarioId());
-}
-
-function localDialogueGazeTargetForTraceTag(tag: string): HumanoidDialogueGazeTarget {
-  const runtimeTurn = runtimeDialogueTurnForTraceTag(tag);
-  if (runtimeTurn) {
-    return {
-      kind: runtimeTurn.gazeTargetKind,
-      actorId: runtimeTurn.gazeTargetActorId,
-    };
-  }
-  const actorTargets: Record<string, string | undefined> = {
-    team_communication: runtimeClinicalTeamActorId(),
-    family_communication: runtimeFamilyActorId(),
-  };
-  const actorTarget = actorTargets[tag];
-  return actorTarget
-    ? { kind: "actor", actorId: actorTarget }
-    : { kind: "learner_camera", actorId: null };
-}
-
-function visemeOpenness(viseme: string): number {
-  const openness: Record<string, number> = {
-    rest: 0,
-    closed: 0.08,
-    teeth: 0.2,
-    rounded: 0.34,
-    wide: 0.46,
-    mid: 0.52,
-    open: 0.78,
-  };
-  return openness[viseme] ?? 0.35;
-}
-
-function computeAffectRampIntensity(elapsedMs: number, durationMs: number, timeline: any): number {
-  // Timed emotion ramp driven by explicit affectTimeline (onset/transition/decayMs + intensity) from bundle turn.
-  // Used for peds_asthma_parent_anxiety_v1 live bundle turns in updateHumanoidSpeechCue.
-  // Prefers explicit timeline data; linear ramp-up then hold+decay in final decay window.
-  if (!timeline || typeof timeline.intensity !== "number") return 0;
-  const peak = Math.max(0, Math.min(1, timeline.intensity));
-  const onset = Number(timeline.onsetMs ?? 0);
-  const trans = Number(timeline.transitionMs ?? 500);
-  const dec = Number(timeline.decayMs ?? 700);
-  if (elapsedMs < onset) return 0;
-  const rampEnd = onset + trans;
-  if (elapsedMs < rampEnd) {
-    const t = (elapsedMs - onset) / Math.max(1, trans);
-    return peak * Math.min(1, Math.max(0, t));
-  }
-  const decayStart = Math.max(rampEnd, durationMs - dec);
-  if (elapsedMs < decayStart) return peak;
-  const d = (elapsedMs - decayStart) / Math.max(1, dec);
-  return peak * Math.max(0, 1 - d);
+  return resolvePackageHumanoidGazeTargetWorld(humanoidAnimationContext, speech, camera);
 }
 
 function tintGeneratedSceneMaterials(root: Group, tintColor: number, actorId?: string): void {
@@ -9579,6 +8884,72 @@ initSpeakFixtureBridge({
     triggerHumanoidDialogue(actorId, text, { kind: "learner_camera", actorId: null });
   },
 });
+function buildHumanoidSpeechEvidence(
+  actorId: string | null,
+  assetId: string | null,
+  text: string | null,
+  phonemeSequence: string[],
+  visemeSequence: string[],
+  gazeTarget: HumanoidDialogueGazeTarget | null,
+  emotionContext?: HumanoidDialogueEmotionContext,
+  actorRuntimeRealismRequirement?: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"],
+): HumanoidSpeechEvidence {
+  return buildPackageHumanoidSpeechEvidence(actorId, assetId, text, phonemeSequence, visemeSequence, gazeTarget, emotionContext, actorRuntimeRealismRequirement);
+}
+
+function buildRuntimeActorRealismLaunchBadge(
+  requirement: NonNullable<HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"]>,
+): NonNullable<HumanoidSpeechEvidence["activeActorRealismLaunchBadge"]> {
+  return buildPackageRuntimeActorRealismLaunchBadge(requirement);
+}
+
+function localDialogueActorIdForTraceTag(tag: string): string | undefined {
+  const runtimeTurn = runtimeDialogueTurnForTraceTag(tag);
+  if (runtimeTurn) return runtimeTurn.actorId;
+  const actorIds: Record<string, string | undefined> = {
+    history_opqrst: runtimePatientActorId(),
+    risk_factor_question: runtimePatientActorId(),
+    associated_symptom_question: runtimePatientActorId(),
+    vitals_review: runtimeClinicalTeamActorId(),
+    ecg_request: runtimeClinicalTeamActorId(),
+    urgent_escalation: runtimeFamilyActorId(),
+    team_communication: runtimeClinicalTeamActorId(),
+    family_communication: runtimeFamilyActorId(),
+    empathy_statement: runtimePatientActorId(),
+  };
+  return actorIds[tag] ?? actorIdForTraceTag(tag, selectedScenarioId());
+}
+
+function localDialogueGazeTargetForTraceTag(tag: string): HumanoidDialogueGazeTarget {
+  const runtimeTurn = runtimeDialogueTurnForTraceTag(tag);
+  if (runtimeTurn) {
+    return {
+      kind: runtimeTurn.gazeTargetKind,
+      actorId: runtimeTurn.gazeTargetActorId,
+    };
+  }
+  const actorTargets: Record<string, string | undefined> = {
+    team_communication: runtimeClinicalTeamActorId(),
+    family_communication: runtimeFamilyActorId(),
+  };
+  const actorTarget = actorTargets[tag];
+  return actorTarget
+    ? { kind: "actor", actorId: actorTarget }
+    : { kind: "learner_camera", actorId: null };
+}
+
+function visemeOpenness(viseme: string): number {
+  return visemePackageOpenness(viseme);
+}
+
+function computeAffectRampIntensity(
+  elapsedMs: number,
+  durationMs: number,
+  timeline: { intensity?: unknown; onsetMs?: unknown; transitionMs?: unknown; decayMs?: unknown } | null | undefined,
+): number {
+  return computePackageAffectRampIntensity(elapsedMs, durationMs, timeline);
+}
+
 async function bootStationScene(): Promise<void> {
   await initializeLearnerRuntimeAssetBundle(stationApi);
   refreshStationContextFromRuntimeBundle();

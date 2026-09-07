@@ -523,6 +523,9 @@ importers:
       '@openclinxr/xr-dialogue':
         specifier: workspace:*
         version: link:../../packages/openclinxr/xr-dialogue
+      '@openclinxr/xr-humanoid-animation':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/xr-humanoid-animation
       '@openclinxr/xr-pose':
         specifier: workspace:*
         version: link:../../packages/openclinxr/xr-pose
@@ -1529,6 +1532,43 @@ importers:
       '@openclinxr/xr-pose':
         specifier: workspace:*
         version: link:../xr-pose
+      three:
+        specifier: 0.184.0
+        version: 0.184.0
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@types/three':
+        specifier: 'catalog:'
+        version: 0.184.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+
+  packages/openclinxr/xr-humanoid-animation:
+    dependencies:
+      '@openclinxr/asset-registry':
+        specifier: workspace:*
+        version: link:../asset-registry
+      '@openclinxr/xr-dialogue':
+        specifier: workspace:*
+        version: link:../xr-dialogue
+      '@openclinxr/xr-pose':
+        specifier: workspace:*
+        version: link:../xr-pose
+      '@openclinxr/xr-runtime-state':
+        specifier: workspace:*
+        version: link:../xr-runtime-state
+      '@openclinxr/xr-scene':
+        specifier: workspace:*
+        version: link:../xr-scene
       three:
         specifier: 0.184.0
         version: 0.184.0

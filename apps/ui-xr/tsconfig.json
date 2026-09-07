@@ -49,6 +49,9 @@
       "path": "../../packages/openclinxr/xr-capture-evidence"
     },
     {
+      "path": "../../packages/openclinxr/xr-humanoid-animation"
+    },
+    {
       "path": "../../packages/openclinxr/xr-runtime-wiring"
     }
   ]
