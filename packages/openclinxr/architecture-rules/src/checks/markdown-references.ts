@@ -111,7 +111,7 @@ export const BROKEN_REFERENCE_FREEZE: Record<string, number> = {
   ".cursor/rules/source-of-truth.md": 1,
   ".grok/rules/GUARD_DRIFT.md": 3,
   ".grok/rules/LEX_AGENTIC.md": 5,
-  "PROJECT_STATUS.md": 1,
+  "PROJECT_STATUS.md": 0,
   "agents/coordinator/hrbp/memory.md": 6,
   "agents/core/architect/charter.md": 1,
   "agents/rules/EXEC_REHYDRATE.md": 1,

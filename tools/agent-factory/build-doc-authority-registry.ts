@@ -62,6 +62,22 @@ const excluded = new Set(["node_modules", ".git", ".openclinxr-local", "tmp"]);
 const GENERATED_SLICE_PROMPT = /^\.openclinxr\/slices\/[^/]+\/prompt-[^/]+\.mdx?$/u;
 
 /**
+ * Agent worktrees checked out INSIDE the repo. `.claude/worktrees/<agent-id>/` is a full second
+ * copy of the tree created by the Claude harness; `excluded` above is a basename set and does not
+ * reach it, so a `docs:authority` run in main walked one and registered its ENTIRE doc tree.
+ *
+ * MEASURED 2026-09-07: 426 Markdown and 470 JSON entries in the registry pointed at
+ * `.claude/worktrees/agent-a9717ac97efcd8ebe/**`. Those paths exist only in the machine that
+ * created them, so `markdown-references.test.ts` passed in main and FAILED in every worker
+ * worktree, with 485 unresolved references against a frozen ceiling of 0. That made
+ * `pnpm --filter @openclinxr/architecture-rules architecture` unusable as a contract proof for
+ * worktree-bound workers, which is exactly where it is needed.
+ *
+ * A worktree copy is not a document. It is the same class as the generated slice prompts above.
+ */
+const AGENT_WORKTREE = /^\.(?:claude|grok|cursor)\/worktrees\//u;
+
+/**
  * CORRECTED 2026-08-29, before landing, because a blanket `.openclinxr/slices/` prefix was too broad
  * and the shrink guard caught it: `.openclinxr/slices/dispatch-chokepoint/EVIDENCE.md` is a genuine
  * registered evidence document living in that tree, and a directory-wide exclusion would have
@@ -71,7 +87,7 @@ const GENERATED_SLICE_PROMPT = /^\.openclinxr\/slices\/[^/]+\/prompt-[^/]+\.mdx?
  * directory, so the shape is stable and anything else in that tree keeps its registration.
  */
 export function isExcludedPath(rel: string): boolean {
-  return GENERATED_SLICE_PROMPT.test(rel);
+  return GENERATED_SLICE_PROMPT.test(rel) || AGENT_WORKTREE.test(rel);
 }
 const protectedPaths = new Set([
   "AGENTS.md",
@@ -573,7 +589,13 @@ export function buildDocAuthorityRegistry(
     nextPaths,
     allowShrink,
     // #580: existence is judged against the tree being regenerated, not process cwd.
-    pathExists: (registeredPath) => existsSync(path.resolve(cwd, registeredPath)),
+    // A path the scan now EXCLUDES is out of scope, not "still on disk and being dropped": the
+    // guard exists to stop a registry losing a live document, and an excluded path is no longer a
+    // document. Without this, adding an exclusion can never take effect, because the rows it
+    // removes point at files that are still present. A file that exists and is NOT excluded still
+    // refuses, which is the protection worth keeping.
+    pathExists: (registeredPath) =>
+      !isExcludedPath(registeredPath) && existsSync(path.resolve(cwd, registeredPath)),
   });
 
   if (decision.message) {

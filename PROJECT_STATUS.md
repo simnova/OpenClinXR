@@ -719,7 +719,7 @@ is what prompted this ruling:
 |---|---|---|
 | **Inventory (HOT)** | GitHub project **7** `OpenClinXR-Planning` | 533 items, 451 Done / 82 Todo, min #2 max #539. **Every open issue is on it.** Complete and auto-tracking. |
 | **Selection** | the active lane + this file's Next dequeue | **This is what gets acted on.** |
-| **Portfolio** | `.openclinxr/handoffs/superagent-portfolio-2026-08-18.md` | A dated COLD snapshot. **Audit only — dequeuing from it is the thing that was wrong.** E1–E5 are a stale assignment, not a collision matrix; E2/E3/E5 are already downstream of later landings. Do not revive them to block or to fill a tick. |
+| **Portfolio** | .openclinxr/handoffs/superagent-portfolio-2026-08-18.md (gitignored local evidence; not in the repo) | A dated COLD snapshot. **Audit only — dequeuing from it is the thing that was wrong.** E1–E5 are a stale assignment, not a collision matrix; E2/E3/E5 are already downstream of later landings. Do not revive them to block or to fill a tick. |
 
 `EXEC_REHYDRATE`'s "dequeue queue → GitHub" means **cards live on GitHub**, not "pick any dispatchable
 Todo". `AGENTS.md` binds selection to this file and the active lane.
@@ -852,7 +852,7 @@ Thread-decay mitigation: proactive re-open before empty_response zone.
 
 ### 2026-08-14 operator: MPFB2 throughout, Anny comparator-only (Q1)
 
-**Product path advanced.** Patrick: learner humanoids move to MPFB2; Anny stays for phenotype reference and cagematch only (eyes/bones are why Anny is not the mixer default). Recorded: `.openclinxr/handoffs/direction-mpfb2-throughout-2026-08-14.md`. Measured: 4/39 slots already MPFB, 35 Anny-pool. First lever: two new MPFB adults replacing `ed_chest_pain_nurse_adult` + `ed_chest_pain_spouse_adult` (19 slots, two identities). Land #400 first. Do not polish Anny eyes/bones. Do not #167. Push to origin is authorized (no force-push).
+**Product path advanced.** Patrick: learner humanoids move to MPFB2; Anny stays for phenotype reference and cagematch only (eyes/bones are why Anny is not the mixer default). Recorded in .openclinxr/handoffs/direction-mpfb2-throughout-2026-08-14.md (gitignored local evidence; not in the repo). Measured: 4/39 slots already MPFB, 35 Anny-pool. First lever: two new MPFB adults replacing `ed_chest_pain_nurse_adult` + `ed_chest_pain_spouse_adult` (19 slots, two identities). Land #400 first. Do not polish Anny eyes/bones. Do not #167. Push to origin is authorized (no force-push).
 
 ### 2026-08-14 dark-factory-multi-case campaign close (Q1 + Q5)
 
@@ -865,7 +865,7 @@ Thread-decay mitigation: proactive re-open before empty_response zone.
 | C visemes | already wired | isolated studio modest aperture; not speech-readable |
 | T compose | `fe273a36` + `9a182ca9` | `factory:case --motion-bind` execs existing CLI; hatch never invoked |
 
-**Evidence:** `.openclinxr/evidence/dark-factory-T/` (gitignored stills). Orchestrator opened native frames. SSOT: `.openclinxr/slices/dark-factory-multi-case/STATE.md`.
+**Evidence:** `.openclinxr/evidence/dark-factory-T/` (gitignored stills). Orchestrator opened native frames. SSOT: .openclinxr/slices/dark-factory-multi-case/STATE.md (gitignored local evidence; not in the repo).
 
 **Blueprint/factory tie.** One command inventories a case; live `--motion-bind` is the first station that actually runs. Exam-time still no LLM except dialogue.
 
@@ -1422,7 +1422,7 @@ Next queued slice: wire-api-durableStore-consumer-v1 (Q4) or matrix next Q1 vert
 
 ### 2026-08-02 warehouse-wiki-cruft-audit-v1 (Q5 harness)
 
-Product path advanced: Cruft audit + **wiki-capable cold archive**. Extended `docs:archive` with `--set agent-ops|cruft|all`, multi-area freeze, and `wiki` rebuild (`docs/_archive/README.md` + `wiki/index.md` + topic pages). Froze **cruft-audit-2026-08-02** (17 MD): root historical ledgers, openclinxr archive-candidates, iteration-0009 bodies → stubs at source; JSON leftovers moved to warehouse; `iterations/README.md` pointer.
+Product path advanced: Cruft audit + **wiki-capable cold archive**. Extended `docs:archive` with `--set agent-ops|cruft|all`, multi-area freeze, and `wiki` rebuild (`docs/_archive/README.md` plus a wiki/index.md and topic pages, which that run did not produce and which have never existed in the repo). Froze **cruft-audit-2026-08-02** (17 MD): root historical ledgers, openclinxr archive-candidates, iteration-0009 bodies → stubs at source; JSON leftovers moved to warehouse; `iterations/README.md` pointer.
 
 Blueprint/factory tie: Q5 factory instruction verification (thin hot rehydrate; cold multi-file wiki for archivist). Anti-toil: batch freeze not per-task.
 

@@ -106,3 +106,26 @@ describe("classifier coverage for semantic families", () => {
     expect(classify("apps/ui-xr/README.md").authority).toBe("current-reference");
   });
 });
+
+describe("the authority scan excludes agent worktrees checked out inside the repo", () => {
+  it("excludes .claude/worktrees, .grok/worktrees and .cursor/worktrees", () => {
+    // MEASURED 2026-09-07: 426 Markdown and 470 JSON registry entries pointed at
+    // .claude/worktrees/agent-a9717ac97efcd8ebe/**. Those paths exist only on the machine that
+    // created them, so markdown-references.test.ts passed in main and failed in EVERY worker
+    // worktree with 485 unresolved references against a frozen ceiling of 0 — which made
+    // `pnpm --filter @openclinxr/architecture-rules architecture` unusable as a contract proof
+    // for worktree-bound workers, the one place it is needed.
+    expect(isExcludedPath(".claude/worktrees/agent-a9717ac97efcd8ebe/AGENTS.md")).toBe(true);
+    expect(isExcludedPath(".claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/antd/SKILL.md")).toBe(true);
+    expect(isExcludedPath(".grok/worktrees/w1/docs/TOOLING.md")).toBe(true);
+    expect(isExcludedPath(".cursor/worktrees/x/README.md")).toBe(true);
+  });
+
+  it("COUNTERWEIGHT: does NOT exclude the real .claude and .grok trees", () => {
+    // Skills and prompts under .claude/ and .grok/ ARE documents and stay registered; only the
+    // worktrees subtree is a second copy of the repo.
+    expect(isExcludedPath(".claude/skills/contract-design/SKILL.md")).toBe(false);
+    expect(isExcludedPath(".grok/prompts/agentic-io-contract.md")).toBe(false);
+    expect(isExcludedPath("docs/TOOLING.md")).toBe(false);
+  });
+});
