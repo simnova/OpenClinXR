@@ -25,6 +25,7 @@
     "@openclinxr/xr-scene": "workspace:*",
     "@openclinxr/xr-capture-evidence": "workspace:*",
     "@openclinxr/xr-humanoid-animation": "workspace:*",
+    "@openclinxr/xr-locomotion": "workspace:*",
     "@openclinxr/xr-runtime-wiring": "workspace:*"
   },
   "devDependencies": {

@@ -52,6 +52,9 @@
       "path": "../../packages/openclinxr/xr-humanoid-animation"
     },
     {
+      "path": "../../packages/openclinxr/xr-locomotion"
+    },
+    {
       "path": "../../packages/openclinxr/xr-runtime-wiring"
     }
   ]

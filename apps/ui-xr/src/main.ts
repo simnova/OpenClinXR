@@ -1,9 +1,21 @@
 import {
+  type ActorPosture,
+  resolveActorPosture,
+  resolveEnvironmentShellDescriptor,
+  seatedActorWorldPosition,
+  seatedVerticalOffsetForSeatHeight,
+  supineActorWorldPosition,
+  supineVerticalOffsetSeed,
+} from "@openclinxr/asset-registry";
+// #196 pattern: subpath avoids growing the frozen asset-registry barrel (index.ts freeze 2843).
+import {
+  FAMILY_CHAIR,
+  resolveFixtureSlotPosition,
+} from "@openclinxr/asset-registry/environment-zone-templates";
+import {
   createEdChestPainLocalLearnerRuntimeAssetBundle,
-  ENCOUNTER_LEARNER_RUNTIME_REQUIRED_GATE_IDS,
   type EncounterRuntimeAsset,
   type EncounterRuntimeRoomProp,
-  evaluateEncounterRuntimeLearnerUseGate,
   findRuntimeActorAsset,
   findRuntimeEquipmentAsset,
   type LearnerRuntimeAssetBundle,
@@ -11,118 +23,248 @@ import {
   resolveRuntimeAssetUrl,
 } from "@openclinxr/asset-registry/runtime-bundles";
 import {
-  resolveHumanoidVariantOrCastPath,
-  resolveLocalHumanoidRuntimeAssetUrl,
-} from "@openclinxr/xr-scene";
-import {
-  assignRuntimeActorSlots,
-  type RuntimeSlotAssignment,
-} from "@openclinxr/xr-runtime-state";
-import {
-  additionalCastPlacementFallback,
-  ensureAndPublishActorPlacementSsot,
-} from "@openclinxr/xr-runtime-state";
-import {
   arbitrateTurnTaking,
   buildHistoryTakingCoverageSpec,
+  type HistoryTakingCoverageState,
   initialHistoryTakingCoverageState,
   updateHistoryTakingCoverage,
-  type HistoryTakingCoverageState,
 } from "@openclinxr/conversation-policy";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
-import { scenarioBank, responseClipForBodyRegion } from "@openclinxr/scenario-fixtures/scenario-bank";
-import { isPedsAsthmaScenario, learnerVisiblePedsDialogueForTraceTag } from "./peds-authored-turn-surface.js";
+import { responseClipForBodyRegion, scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
 import {
-  bootLearnerExamFormFromApi,
-  createLearnerExamFormRunState,
-} from "@openclinxr/xr-scene";
-import { scenariosFromFixtureSequence } from "@openclinxr/xr-scene";
-import { mountStationEnvironmentForRuntime } from "@openclinxr/xr-scene";
-import { bootLearnerRuntimeFromAssembledExam, resolveAssembledExamPinnedBundleId, type PinnedEncounterBundleRuntimeTrace } from "./encounter-bundle-boot/index.js";
+  buildCaseDefinedHumanoidPerformanceContractEvidence as buildPackageCaseDefinedHumanoidPerformanceContractEvidence,
+  buildRuntimeSceneManifestEvidence as buildPackageRuntimeSceneManifestEvidence,
+  formatCaseDefinedHumanoidPerformanceContractEvidence as formatPackageCaseDefinedHumanoidPerformanceContractEvidence,
+  formatSceneAssetEvidenceStatus as formatPackageSceneAssetEvidenceStatus,
+  formatUnknownError as formatPackageUnknownError,
+  isGeneratedPlaceholderAssetForDifferentScenario as isPackageGeneratedPlaceholderAssetForDifferentScenario,
+  isGeneratedPlaceholderSourceForDifferentScenario as isPackageGeneratedPlaceholderSourceForDifferentScenario,
+  isHumanoidMouthGazePoseReviewCaptureMode as isPackageHumanoidMouthGazePoseReviewCaptureMode,
+  isPhysicsClinicalTouchCapture as isPackagePhysicsClinicalTouchCapture,
+  isRealGarmentSleeveDeformCapture as isPackageRealGarmentSleeveDeformCapture,
+  isSceneOnlyVisualReviewCaptureMode as isPackageSceneOnlyVisualReviewCaptureMode,
+  roundPerformanceNow as packageRoundPerformanceNow,
+  runtimeAssetAffordanceCueIds as packageRuntimeAssetAffordanceCueIds,
+  publishRuntimeActorSlotAssignmentEvidence as publishPackageRuntimeActorSlotAssignmentEvidence,
+  recordLearnerRuntimeUseGateEvidence as recordPackageLearnerRuntimeUseGateEvidence,
+  recordSceneAssetStatus as recordPackageSceneAssetStatus,
+  recordXrEntryEvidence as recordPackageXrEntryEvidence,
+  refreshDeclaredEquipmentMountEvidenceFromScene as refreshPackageDeclaredEquipmentMountEvidenceFromScene,
+  resolveRuntimeSlotAssignment as resolvePackageRuntimeSlotAssignment,
+  shouldRenderRoomPropInVisualReview as shouldPackageRenderRoomPropInVisualReview,
+  shouldShowActorRealismRequirementPanel as shouldPackageShowActorRealismRequirementPanel,
+  shouldShowInSceneEvidencePanels as shouldPackageShowInSceneEvidencePanels,
+  shouldShowInSceneIdentityLabels as shouldPackageShowInSceneIdentityLabels,
+  shouldShowPrimitiveAssetFallbacks as shouldPackageShowPrimitiveAssetFallbacks,
+  shouldShowRuntimeAffordanceMarkers as shouldPackageShowRuntimeAffordanceMarkers,
+  shouldSuppressGeneratedEnvironmentShell as shouldPackageSuppressGeneratedEnvironmentShell,
+  shouldSuppressGeneratedEquipmentModel as shouldPackageSuppressGeneratedEquipmentModel,
+  shouldUseLearnerRuntimeAssetBundle,
+} from "@openclinxr/xr-capture-evidence";
+import { type ActorTurnPlayback, applyNamedSpeechVisemes, attachBakedCuesToSpeech, 
+  consumeLiveActorTurn,
+  formatActiveActorRealismRequirementLines,
+  formatHumanoidSpeechAffectEvidence,initialDialogueTextForScenario, initSpeakFixtureBridge, 
+  type LiveActorTurnConsumption,
+  liveActorTurnFromPayload,loadBakedMouthCuesForUtterance, phonemesForText, playFrozenActorTurnOnSlot, 
+  registerLiveActorTurn,
+  resolveLiveActorTurnForTrace,visemesForText } from "@openclinxr/xr-dialogue";
 import {
-  collectActorWorldBoxes,
-  deriveInteriorPreviewCamera,
-  loadInfinigenEnvironmentIntoStation,
-} from "@openclinxr/xr-scene";
-import { roomPropColourNumbers } from "@openclinxr/xr-station";
-import { buildRoomPropGroup } from "@openclinxr/xr-station";
+  applyHumanoidFaceRigControls as applyPackageHumanoidFaceRigControls,
+  applyHumanoidMorphTargetCue as applyPackageHumanoidMorphTargetCue,
+  buildHumanoidSpeechEvidence as buildPackageHumanoidSpeechEvidence,
+  buildRuntimeActorRealismLaunchBadge as buildPackageRuntimeActorRealismLaunchBadge,
+  clampDialogueFacingYaw as clampPackageDialogueFacingYaw,
+  computeAffectRampIntensity as computePackageAffectRampIntensity,
+  computeHumanoidEyeMotionMetrics as computePackageHumanoidEyeMotionMetrics,
+  createHumanoidEmotionExpressionState as createPackageHumanoidEmotionExpressionState,
+  humanoidDialogueDurationMs as humanoidPackageDialogueDurationMs,
+  isGeneratedRuntimeDrive as isPackageGeneratedRuntimeDrive,
+  lerpHumanoidAnimation as lerpPackageHumanoidAnimation,
+  normalizeHumanoidAnimationAngle as normalizePackageHumanoidAnimationAngle,
+  offsetHumanoidRigControl as offsetPackageHumanoidRigControl,
+  orientHumanoidEyeFocusCue as orientPackageHumanoidEyeFocusCue,
+  orientHumanoidTowardGazeTarget as orientPackageHumanoidTowardGazeTarget,
+  type GeneratedHumanoidAnimationSlot as PackageGeneratedHumanoidAnimationSlot,
+  type HumanoidActingCueRecord as PackageHumanoidActingCueRecord,
+  type HumanoidAnimationRuntimeContext as PackageHumanoidAnimationRuntimeContext,
+  type HumanoidDialogueEmotionContext as PackageHumanoidDialogueEmotionContext,
+  type HumanoidDialogueGazeTarget as PackageHumanoidDialogueGazeTarget,
+  type HumanoidEmotionExpressionState as PackageHumanoidEmotionExpressionState,
+  type HumanoidExpressionEmotion as PackageHumanoidExpressionEmotion,
+  type HumanoidExpressionWeights as PackageHumanoidExpressionWeights,
+  type HumanoidEyeMotionMetrics as PackageHumanoidEyeMotionMetrics,
+  type HumanoidSpeechPlayback as PackageHumanoidSpeechPlayback,
+  type MouthGazePoseComparatorEvidenceRecord as PackageMouthGazePoseComparatorEvidenceRecord,
+  type RuntimeHumanoidActingCueEvidenceRecord as PackageRuntimeHumanoidActingCueEvidenceRecord,
+  pediatricAsthmaActingOverlayForSlot as pediatricPackageAsthmaActingOverlayForSlot,
+  recordMouthGazePoseComparatorEvidence as recordPackageMouthGazePoseComparatorEvidence,
+  resetHumanoidFaceRigControls as resetPackageHumanoidFaceRigControls,
+  resolveHumanoidGazeTargetWorld as resolvePackageHumanoidGazeTargetWorld,
+  rotateHumanoidRigControl as rotatePackageHumanoidRigControl,
+  roundHumanoidExpressionWeights as roundPackageHumanoidExpressionWeights,
+  scaleHumanoidRigControl as scalePackageHumanoidRigControl,
+  startHumanoidEmotionTransition as startPackageHumanoidEmotionTransition,
+  updateGeneratedHumanoidAnimations as updatePackageGeneratedHumanoidAnimations,
+  updateHumanoidEmotionExpression as updatePackageHumanoidEmotionExpression,
+  updateHumanoidGazeCue as updatePackageHumanoidGazeCue,
+  updateHumanoidSpeechCue as updatePackageHumanoidSpeechCue,
+  updateVirtualDeviceActorSpeechPulses as updatePackageVirtualDeviceActorSpeechPulses,
+  visemeOpenness as visemePackageOpenness,
+} from "@openclinxr/xr-humanoid-animation";
 import {
-  roomPropSuppressedByFixtureOwnership,
-  stampSuppressedDeclaredEquipmentOntoFixtures,
-} from "@openclinxr/xr-station";
-import { prepareLoadedEnvironmentShell } from "@openclinxr/xr-station";
-import {
-  buildDeclaredEquipmentGeometry,
-  buildGltfEquipmentPlaceholderSlot,
-  collectDeclaredEquipmentEvidenceFromScene,
-  countEquipmentGeometry,
-  normalizeGltfEquipmentMount,
-  planStationEquipmentMounts,
-  REAL_EQUIPMENT_GLTF_BY_ID,
-  stampRoomPropAliasesOnEquipmentRoot,
-} from "@openclinxr/xr-station";
-import {
-  describeRuntimeBundleScenarioMatch,
-  resolveEffectiveVerticalOffsetMeters,
+  applyDeterministicPortalPreviewStart as applyPackageDeterministicPortalPreviewStart,
+  applyGeneratedHumanoidRoleSpecificPosture as applyPackageGeneratedHumanoidRoleSpecificPosture,
+  applyLocomotion as applyPackageLocomotion,
+  buildExamineeLocomotionEvidence as buildPackageExamineeLocomotionEvidence,
+  createExamineeLocomotionTrail as createPackageExamineeLocomotionTrail,
+  createKeyboardLocomotion as createPackageKeyboardLocomotion,
+  createXrHandGestureLocomotionState as createPackageXrHandGestureLocomotionState,
+  createXrHandSelectState as createPackageXrHandSelectState,
+  formatHandSelectStatus as formatPackageHandSelectStatus,
+  formatPortalTransitionEvidence as formatPackagePortalTransitionEvidence,
+  maybeCompleteTraceActionFromHandSelect as maybePackageCompleteTraceActionFromHandSelect,
+  type PortalTransitionEvidence as PackagePortalTransitionEvidence,
+  type XrHandGroup as PackageXrHandGroup,
+  type XrInputSourceWithGamepad as PackageXrInputSourceWithGamepad,
+  PORTAL_THRESHOLD_Z,
+  type PortalTransitionContext,
+  parsePortalPreviewStart,
+  type RolePostureContext,
+  recordHandSelectTraceLatency,
+  sampleRoomScalePose as samplePackageRoomScalePose,
+  updateExamineeLocomotionTrail as updatePackageExamineeLocomotionTrail,
+  updatePortalTransitionEvidence as updatePackagePortalTransitionEvidence,
+  type XrSessionLike,
+} from "@openclinxr/xr-locomotion";
+import {animatedTranslationBoneNames, 
+  applyAndPlantSupineOnDeck, 
+  applyGeneratedHumanoidClinicalIdlePosture,applyPosturePose, applySupinePose, 
+  describeRuntimeBundleScenarioMatch,plantSeatedPelvisOnSeat, 
+  resolveEffectiveVerticalOffsetMeters,seatedRoleClipIsPlayable 
 } from "@openclinxr/xr-pose";
-import { enableCaptureRendererShadowMap, isCaptureShadowPath, markActorCastShadow, markFloorReceiveShadow } from "@openclinxr/xr-station";
-import { applyStationInteriorLighting, resolveStationInteriorLightingVariantId } from "@openclinxr/xr-station";
-import { applyStationInteriorLightingForEnvironment } from "./lighting-rig-runtime.js";
 import {
-  addGeneratedHumanoidRoleContinuityWardrobeCue,
-  applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,
-} from "@openclinxr/xr-scene";
-import { generatedDriveScalar, type GeneratedDriveScalarValue } from "@openclinxr/xr-runtime-state";
-import { phonemesForText, visemesForText } from "@openclinxr/xr-dialogue";
-import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
-import {
+  type ActorPlayerRuntimeMetadataSummary,
+  actorIdForTraceTag,
+  actorResponseTextFromApiResult,
+  additionalCastPlacementFallback,
+  advanceExamFormRunStation,
+  applyLearnerExamFlowIntent,
+  buildConversationTurnStateEvidence,
+  buildManualPerformanceCaptureSummary,
+  buildManualPerformanceDraft,
+  buildManualPerformanceEvidencePayload,
+  buildManualPerformanceReproducibility,
+  buildReadableVrTextPanelEvidence,
+  buildRuntimeEvidencePosture,
+  buildRuntimeFrameStats,
+  buildXrRuntimeReadinessDecision,
+  buildXrTraceActionHandoffEvidence,
+  buildXrTraceInteractionEvidenceSummary,
+  type CaseDefinedHumanoidPerformanceContractEvidence,
+  type ConversationTurnStateEvidence,
+  completeTraceAction,
+  createInitialRuntimeState,
+  createLearnerCanonicalPhaseTraceStore,
+  createRuntimeStateFromBundle,
+  currentExamFormRunStation,
+  type EnvironmentStateEvidence,
+  type ExamFormRunState,
+  type ExamineeLocomotionEvidence,
+  ensureAndPublishActorPlacementSsot,
+  eventTypeForTraceTag,
+  examFormRunScenarioSequence,
+  formatExamFormRunClock,
+  formatManualEvidenceCopyStatus,
+  formatStationClock,type GeneratedDriveScalarValue, 
+  type HumanoidSpeechEvidence,
+  isImmersiveFrameEvidenceActive,
+  iwsdkStationSceneObjectNames,
+  iwsdkStationSceneObjects,
+  type LearnerCanonicalPhaseTraceStore,
+  type LearnerExamFlowPhase,
+  type LearnerRuntimeUseGateEvidence,
+  localHandMeshPath,
+  type ManualEvidenceCopyDisposition,
+  type ManualPerformanceCaptureSummary,
+  type ManualPerformanceDraft,
+  type ManualPerformanceFrameStats,
+  type ManualPerformanceInputEvidence,
+  type ManualPerformanceReproducibilityEvidence,
+  type ManualPerformanceTraceLatencyEvidence,
+  meshHandModelProfile,
+  meshHandRepresentationKind,
+  nextExamFormRunStation,
+  persistExamFormRunQueueSnapshot,
+  primitiveHandModelProfile,
+  primitiveHandRepresentationKind,
+  type ReadableVrTextPanelEvidence,
+  type ReadableVrTextPanelEvidenceSet,
+  type RigPoseEvidence,
+  type RuntimeEvidencePosture,
+  type RuntimeInteractionEvidence,
+  type RuntimeMaterializationEvidenceAttachmentSummary,
+  type RuntimeRemainingRuntimeBlockerReasons,
+  type RuntimeSceneManifestEvidence,
+  type RuntimeSlotAssignment,
+  remoteActorTurnForTraceTag,
   resolveLocalEnvironmentRuntimeAssetFileName,
   resolveLocalEquipmentRuntimeAssetFileName,
+  restoreLearnerCanonicalPhaseTraceFromJson,
+  type SceneAssetEvidence,
+  summarizeTraceReadiness,
+  tickExamFormRunClock,
+  viewLearnerCanonicalExamPhase,
+  type XrExperienceModeEvidence,
+  type XrRuntimeReadinessDecision,
+  type XrRuntimeState,
+  type XrTraceActionHandoffAction,
+  type XrTraceActionHandoffEvidence,
+  type XrTraceInteractionEvidenceSummary,
+  xrExperienceModeEvidence,
 } from "@openclinxr/xr-runtime-state";
-import { createPrimitiveActorMesh } from "@openclinxr/xr-scene";
-import { applyPosturePose, plantSeatedPelvisOnSeat } from "@openclinxr/xr-pose";
-import { applySupinePose } from "@openclinxr/xr-pose";
 import {
-  applyAndPlantSupineOnDeck, applySupinePoseHoldingIncline, holdSupinePlantFrame, reapplySupineHeadToStoredPillow,
-} from "@openclinxr/xr-pose";
+  type ExamRunQueryDeps,
+  type ExamStationContext,
+  booleanQueryParam as packageBooleanQueryParam,
+  buildExamNavigationHref as packageBuildExamNavigationHref,
+  buildExamRunStationOutcome as packageBuildExamRunStationOutcome,
+  configuredExamRunId as packageConfiguredExamRunId,
+  configuredExamSequence as packageConfiguredExamSequence,
+  findFormStationOutcome as packageFindFormStationOutcome,
+  formElapsedSecondForCurrentStation as packageFormElapsedSecondForCurrentStation,
+  mergeExamRunStationOutcome as packageMergeExamRunStationOutcome,
+  nextExamScenarioId as packageNextExamScenarioId,
+  positiveIntegerQueryParam as packagePositiveIntegerQueryParam,
+} from "@openclinxr/xr-runtime-wiring";
 import {
-  applyGeneratedHumanoidClinicalIdlePosture,
-  applyHumanoidJointRotationsByAlias,
-} from "@openclinxr/xr-pose";
-import { animatedTranslationBoneNames, seatedRoleClipIsPlayable } from "@openclinxr/xr-pose";
-import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "@openclinxr/xr-station";
-import { findProceduralStretcherInSceneOf, STRETCHER_DECK_TOP_METERS } from "@openclinxr/xr-station";
-import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "@openclinxr/xr-scene";
-import { initialDialogueTextForScenario } from "@openclinxr/xr-dialogue";
-import { initSpeakFixtureBridge } from "@openclinxr/xr-dialogue";
-import {
-  formatActiveActorRealismRequirementLines,
-  formatHumanoidSpeechAffectEvidence,
-} from "@openclinxr/xr-dialogue";
-import {
-  consumeLiveActorTurn,
-  expressionWeightsForEmotion,
-  liveActorTurnFromPayload,
-  registerLiveActorTurn,
-  resolveLiveActorTurnForTrace,
-  type LiveActorTurnConsumption,
-} from "@openclinxr/xr-dialogue";
-import { playFrozenActorTurnOnSlot, type ActorTurnPlayback } from "@openclinxr/xr-dialogue";
-import { stationContextForScenario } from "@openclinxr/xr-station";
-import {
-  resolveActorPosture,
-  resolveEnvironmentShellDescriptor,
-  seatedActorWorldPosition,
-  seatedVerticalOffsetForSeatHeight,
-  supineActorWorldPosition,
-  supineVerticalOffsetSeed,
-  type ActorPosture,
-} from "@openclinxr/asset-registry";
-// #196 pattern: subpath avoids growing the frozen asset-registry barrel (index.ts freeze 2843).
-import {
-  FAMILY_CHAIR,
-  resolveFixtureSlotPosition,
-} from "@openclinxr/asset-registry/environment-zone-templates";
+  addGeneratedHumanoidRoleContinuityWardrobeCue,
+  applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,applyRealGarmentEvidenceSurfaces, assertHumanoidRootUpright, 
+  bootLearnerExamFormFromApi,createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance, 
+  collectActorWorldBoxes,
+  createLearnerExamFormRunState,createPrimitiveActorMesh, 
+  deriveInteriorPreviewCamera,
+  loadInfinigenEnvironmentIntoStation,mountStationEnvironmentForRuntime, 
+  resolveHumanoidVariantOrCastPath,
+  resolveLocalHumanoidRuntimeAssetUrl,scenariosFromFixtureSequence, sleeveDeformCueForAssetPath 
+} from "@openclinxr/xr-scene";
+import { 
+  buildAssembledStationStartSessionInput,
+  buildDeclaredEquipmentGeometry,
+  buildGltfEquipmentPlaceholderSlot,buildRoomPropGroup, 
+  collectDeclaredEquipmentEvidenceFromScene,
+  countEquipmentGeometry,
+  // Both factories are exported; this file types against the assembled one.
+  createAssembledStationApiClient as createStationApiClient,
+  createStationApiPersistenceSink,enableCaptureRendererShadowMap, findProceduralStretcherInSceneOf, isCaptureShadowPath, markActorCastShadow, markFloorReceiveShadow, 
+  normalizeGltfEquipmentMount,PATIENT_CHAIR_SEAT_HEIGHT_METERS, 
+  planStationEquipmentMounts,prepareLoadedEnvironmentShell, 
+  REAL_EQUIPMENT_GLTF_BY_ID,resolveStationInteriorLightingVariantId, roomPropColourNumbers, 
+  roomPropSuppressedByFixtureOwnership,STRETCHER_DECK_TOP_METERS, 
+  type AssembledStationApiClient as StationApiClient,
+  stampRoomPropAliasesOnEquipmentRoot,
+  stampSuppressedDeclaredEquipmentOntoFixtures,stationContextForScenario, 
+  syncRemoteAssembledPhase,} from "@openclinxr/xr-station";
 import {
   AnimationClip,
   AnimationMixer,
@@ -150,75 +292,10 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
-import {
-  buildAssembledStationStartSessionInput,
-  // Both factories are exported; this file types against the assembled one.
-  createAssembledStationApiClient as createStationApiClient,
-  createStationApiPersistenceSink,
-  syncRemoteAssembledPhase,
-  type AssembledStationApiClient as StationApiClient,
-} from "@openclinxr/xr-station";
-import { assertHumanoidRootUpright } from "@openclinxr/xr-scene";
-import { applyRealGarmentEvidenceSurfaces, sleeveDeformCueForAssetPath } from "@openclinxr/xr-scene";
-import {
-  buildHumanoidSpeechEvidence as buildPackageHumanoidSpeechEvidence,
-  buildRuntimeActorRealismLaunchBadge as buildPackageRuntimeActorRealismLaunchBadge,
-  clampDialogueFacingYaw as clampPackageDialogueFacingYaw,
-  computeAffectRampIntensity as computePackageAffectRampIntensity,
-  computeHumanoidEyeMotionMetrics as computePackageHumanoidEyeMotionMetrics,
-  createHumanoidEmotionExpressionState as createPackageHumanoidEmotionExpressionState,
-  humanoidDialogueDurationMs as humanoidPackageDialogueDurationMs,
-  isGeneratedRuntimeDrive as isPackageGeneratedRuntimeDrive,
-  lerpHumanoidAnimation as lerpPackageHumanoidAnimation,
-  normalizeHumanoidAnimationAngle as normalizePackageHumanoidAnimationAngle,
-  orientHumanoidEyeFocusCue as orientPackageHumanoidEyeFocusCue,
-  orientHumanoidTowardGazeTarget as orientPackageHumanoidTowardGazeTarget,
-  pediatricAsthmaActingOverlayForSlot as pediatricPackageAsthmaActingOverlayForSlot,
-  recordMouthGazePoseComparatorEvidence as recordPackageMouthGazePoseComparatorEvidence,
-  recordRuntimeHumanoidActingCueEvidence as recordPackageRuntimeHumanoidActingCueEvidence,
-  resetHumanoidFaceRigControls as resetPackageHumanoidFaceRigControls,
-  applyHumanoidFaceRigControls as applyPackageHumanoidFaceRigControls,
-  applyHumanoidMorphTargetCue as applyPackageHumanoidMorphTargetCue,
-  resolveHumanoidGazeTargetWorld as resolvePackageHumanoidGazeTargetWorld,
-  roundHumanoidExpressionWeights as roundPackageHumanoidExpressionWeights,
-  startHumanoidEmotionTransition as startPackageHumanoidEmotionTransition,
-  updateGeneratedHumanoidAnimations as updatePackageGeneratedHumanoidAnimations,
-  updateHumanoidEmotionExpression as updatePackageHumanoidEmotionExpression,
-  updateHumanoidGazeCue as updatePackageHumanoidGazeCue,
-  updateHumanoidSpeechCue as updatePackageHumanoidSpeechCue,
-  updateVirtualDeviceActorSpeechPulses as updatePackageVirtualDeviceActorSpeechPulses,
-  visemeOpenness as visemePackageOpenness,
-  offsetHumanoidRigControl as offsetPackageHumanoidRigControl,
-  rotateHumanoidRigControl as rotatePackageHumanoidRigControl,
-  scaleHumanoidRigControl as scalePackageHumanoidRigControl,
-  writeHumanoidSpeechFrameEvidence as writePackageHumanoidSpeechFrameEvidence,
-  writeMouthGazePoseComparatorEvidence as writePackageMouthGazePoseComparatorEvidence,
-  type GeneratedHumanoidAnimationSlot as PackageGeneratedHumanoidAnimationSlot,
-  type HumanoidAnimationRuntimeContext as PackageHumanoidAnimationRuntimeContext,
-  type HumanoidDialogueEmotionContext as PackageHumanoidDialogueEmotionContext,
-  type HumanoidDialogueGazeTarget as PackageHumanoidDialogueGazeTarget,
-  type HumanoidEmotionExpressionState as PackageHumanoidEmotionExpressionState,
-  type HumanoidExpressionEmotion as PackageHumanoidExpressionEmotion,
-  type HumanoidExpressionWeights as PackageHumanoidExpressionWeights,
-  type HumanoidEyeMotionMetrics as PackageHumanoidEyeMotionMetrics,
-  type HumanoidRuntimeDrive as PackageHumanoidRuntimeDrive,
-  type HumanoidActingCueRecord as PackageHumanoidActingCueRecord,
-  type MouthGazePoseComparatorEvidenceRecord as PackageMouthGazePoseComparatorEvidenceRecord,
-  type RuntimeHumanoidActingCueEvidenceRecord as PackageRuntimeHumanoidActingCueEvidenceRecord,
-  type HumanoidSpeechPlayback as PackageHumanoidSpeechPlayback,
-} from "@openclinxr/xr-humanoid-animation";
-import {
-  resolvePedsAdaptiveDialogueBranch,
-  type PedsAdaptiveDialogueBranchResolution,
-} from "./peds-adaptive-dialogue-policy.js";
-import { applyGeneratedScalarVisemeToRoot, applyNamedSpeechVisemes, attachBakedCuesToSpeech, loadBakedMouthCuesForUtterance, resolveMorphIndex, type PhonemeCue } from "@openclinxr/xr-dialogue";
-import { collectResolvedMorphTargets, MOUTH_OPEN_CAP } from "@openclinxr/xr-dialogue";
-import { applyBlinkClosureToRoot } from "@openclinxr/xr-dialogue";
-import { applyGazeToHumanoid } from "@openclinxr/xr-dialogue";
 import {
   applyEdBayVisibleComparatorCameraPose,
   frameComparatorCaptureOnNamedActor as frameComparatorCaptureOnNamedActorImpl,
@@ -228,137 +305,14 @@ import {
   setComparatorCaptureCamera,
   setComparatorCaptureSceneRoot,
 } from "./capture-comparator.js";
+import { bootLearnerRuntimeFromAssembledExam, type PinnedEncounterBundleRuntimeTrace, resolveAssembledExamPinnedBundleId } from "./encounter-bundle-boot/index.js";
+import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
+import { applyStationInteriorLightingForEnvironment } from "./lighting-rig-runtime.js";
 import {
-  actorIdForTraceTag,
-  actorResponseTextFromApiResult,
-  advanceExamFormRunStation,
-  buildManualPerformanceCaptureSummary,
-  buildManualPerformanceDraft,
-  buildManualPerformanceEvidencePayload,
-  buildManualPerformanceInputEvidence,
-  buildManualPerformanceReproducibility,
-  buildReadableVrTextPanelEvidence,
-  buildRuntimeEvidencePosture,
-  buildRuntimeFrameStats,
-  buildXrRuntimeReadinessDecision,
-  buildConversationTurnStateEvidence,
-  buildXrTraceActionHandoffEvidence,
-  buildXrTraceInteractionEvidenceSummary,
-  type ActorPlayerRuntimeMetadataSummary,
-  type ConversationTurnStateEvidence,
-  type CaseDefinedHumanoidPerformanceContractEvidence,
-  type CaseDefinedHumanoidRuntimeHandoffEvidence,
-  completeTraceAction,
-  createInitialRuntimeState,
-  createRuntimeStateFromBundle,
-  currentExamFormRunStation,
-  type ExamFormRunState,
-  type EnvironmentStateEvidence,
-  type ExamineeLocomotionEvidence,
-  eventTypeForTraceTag,
-  examFormRunScenarioSequence,
-  formatExamFormRunClock,
-  formatManualEvidenceCopyStatus,
-  formatStationClock,
-  type HumanoidSpeechEvidence,
-  handGestureLocomotionOriginMeters,
-  handGestureRelativeOffsetMeters,
-  isImmersiveFrameEvidenceActive,
-  iwsdkStationSceneObjectNames,
-  iwsdkStationSceneObjects,
-  type LearnerRuntimeUseGateEvidence,
-  type LocomotionAttemptDiagnosticsEvidence,
-  type LocomotionVectorEvidence,
-  localHandMeshPath,
-  type ManualEvidenceCopyDisposition,
-  type ManualPerformanceCaptureSummary,
-  type ManualPerformanceDraft,
-  type ManualPerformanceFrameStats,
-  type ManualPerformanceInputEvidence,
-  type ManualPerformanceReproducibilityEvidence,
-  type ManualPerformanceTraceLatencyEvidence,
-  mapHandGestureLocomotionVector,
-  meshHandModelProfile,
-  meshHandRepresentationKind,
-  applyLearnerExamFlowIntent,
-  createLearnerCanonicalPhaseTraceStore,
-  type LearnerCanonicalPhaseTraceStore,
-  type LearnerExamFlowPhase,
-  nextExamFormRunStation,
-  persistExamFormRunQueueSnapshot,
-  restoreLearnerCanonicalPhaseTraceFromJson,
-  viewLearnerCanonicalExamPhase,
-  primitiveHandModelProfile,
-  primitiveHandRepresentationKind,
-  type ReadableVrTextPanelEvidence,
-  type ReadableVrTextPanelEvidenceSet,
-  type RigPoseEvidence,
-  type RuntimeMaterializationEvidenceAttachmentSummary,
-  type RuntimeRemainingRuntimeBlockerReasons,
-  type RuntimeEvidencePosture,
-  type RuntimeInteractionEvidence,
-  type RuntimeSceneManifestEvidence,
-  readRuntimeActorEquipmentMaterializationGate,
-  remoteActorTurnForTraceTag,
-  type SceneAssetEvidence,
-  summarizeTraceReadiness,
-  tickExamFormRunClock,
-  type XrExperienceModeEvidence,
-  type XrHandGestureStateEvidence,
-  type XrHandSelectStateEvidence,
-  type XrInputSourceEvidence,
-  type XrRuntimeReadinessDecision,
-  type XrRuntimeState,
-  type XrTraceActionHandoffAction,
-  type XrTraceActionHandoffEvidence,
-  type XrTraceInteractionEvidenceSummary,
-  xrExperienceModeEvidence,
-} from "@openclinxr/xr-runtime-state";
-import {
-  buildCaseDefinedHumanoidPerformanceContractEvidence as buildPackageCaseDefinedHumanoidPerformanceContractEvidence,
-  formatCaseDefinedHumanoidPerformanceContractEvidence as formatPackageCaseDefinedHumanoidPerformanceContractEvidence,
-  publishRuntimeActorSlotAssignmentEvidence as publishPackageRuntimeActorSlotAssignmentEvidence,
-  recordLearnerRuntimeUseGateEvidence as recordPackageLearnerRuntimeUseGateEvidence,
-  resolveRuntimeSlotAssignment as resolvePackageRuntimeSlotAssignment,
-  shouldUseLearnerRuntimeAssetBundle,
-  bundleUsesOnlyApprovedLocalFixtureAssets,
-  buildRuntimeSceneManifestEvidence as buildPackageRuntimeSceneManifestEvidence,
-  formatSceneAssetEvidenceStatus as formatPackageSceneAssetEvidenceStatus,
-  formatUnknownError as formatPackageUnknownError,
-  isHumanoidMouthGazePoseReviewCaptureMode as isPackageHumanoidMouthGazePoseReviewCaptureMode,
-  isPhysicsClinicalTouchCapture as isPackagePhysicsClinicalTouchCapture,
-  isSceneOnlyVisualReviewCaptureMode as isPackageSceneOnlyVisualReviewCaptureMode,
-  recordSceneAssetStatus as recordPackageSceneAssetStatus,
-  recordXrEntryEvidence as recordPackageXrEntryEvidence,
-  refreshDeclaredEquipmentMountEvidenceFromScene as refreshPackageDeclaredEquipmentMountEvidenceFromScene,
-  roundPerformanceNow as packageRoundPerformanceNow,
-  runtimeAssetAffordanceCueIds as packageRuntimeAssetAffordanceCueIds,
-  isGeneratedPlaceholderAssetForDifferentScenario as isPackageGeneratedPlaceholderAssetForDifferentScenario,
-  isGeneratedPlaceholderSourceForDifferentScenario as isPackageGeneratedPlaceholderSourceForDifferentScenario,
-  isRealGarmentSleeveDeformCapture as isPackageRealGarmentSleeveDeformCapture,
-  shouldRenderRoomPropInVisualReview as shouldPackageRenderRoomPropInVisualReview,
-  shouldShowActorRealismRequirementPanel as shouldPackageShowActorRealismRequirementPanel,
-  shouldShowInSceneEvidencePanels as shouldPackageShowInSceneEvidencePanels,
-  shouldShowInSceneIdentityLabels as shouldPackageShowInSceneIdentityLabels,
-  shouldShowPrimitiveAssetFallbacks as shouldPackageShowPrimitiveAssetFallbacks,
-  shouldShowRuntimeAffordanceMarkers as shouldPackageShowRuntimeAffordanceMarkers,
-  shouldSuppressGeneratedEnvironmentShell as shouldPackageSuppressGeneratedEnvironmentShell,
-  shouldSuppressGeneratedEquipmentModel as shouldPackageSuppressGeneratedEquipmentModel,
-} from "@openclinxr/xr-capture-evidence";
-import {
-  booleanQueryParam as packageBooleanQueryParam,
-  buildExamNavigationHref as packageBuildExamNavigationHref,
-  buildExamRunStationOutcome as packageBuildExamRunStationOutcome,
-  configuredExamRunId as packageConfiguredExamRunId,
-  configuredExamSequence as packageConfiguredExamSequence,
-  findFormStationOutcome as packageFindFormStationOutcome,
-  formElapsedSecondForCurrentStation as packageFormElapsedSecondForCurrentStation,
-  mergeExamRunStationOutcome as packageMergeExamRunStationOutcome,
-  nextExamScenarioId as packageNextExamScenarioId,
-  positiveIntegerQueryParam as packagePositiveIntegerQueryParam,
-  type ExamRunQueryDeps,
-  type ExamStationContext,
-} from "@openclinxr/xr-runtime-wiring";
+  type PedsAdaptiveDialogueBranchResolution,
+  resolvePedsAdaptiveDialogueBranch,
+} from "./peds-adaptive-dialogue-policy.js";
+import { isPedsAsthmaScenario, learnerVisiblePedsDialogueForTraceTag } from "./peds-authored-turn-surface.js";
 import "./styles.css";
 
 // Physics clinical-touch realbind R3 (AD-3): precomputed bone transforms — see physics-touch/.
@@ -378,8 +332,7 @@ type NavigatorWithXr = Navigator & {
   };
 };
 
-type XrSession = {
-  inputSources?: Iterable<XrInputSourceWithGamepad>;
+type XrSession = XrSessionLike & {
   addEventListener(type: "end", listener: () => void, options?: { once?: boolean }): void;
   end(): Promise<void>;
 };
@@ -464,43 +417,6 @@ type GeneratedRuntimeDrive = {
   lipSyncViseme?: boolean | number | string | GeneratedDriveScalarValue | null;
 };
 
-type PortalTransitionEvidence = {
-  source: "window.__openClinXrPortalTransitionEvidence";
-  scenarioId: string;
-  portalThresholdZ: number;
-  headWorldZ: number;
-  locomotionRigZ: number;
-  desktopPreviewCameraOffsetZ: number;
-  transitionProbeZ: number;
-  side: "exterior_note_room" | "portal_threshold" | "dynamic_encounter_world";
-  encounterEntered: boolean;
-  encounterStartedByPortal: boolean;
-  deterministicPreviewStart: "exterior_note_room" | "portal_threshold" | "dynamic_encounter_world" | null;
-  reusableExteriorHiddenForEncounterView: boolean;
-  portalInteriorHiddenObjectNames: string[];
-  noteCaptureLocation: "reusable_exterior_anteroom";
-  lastTransitionReason: string | null;
-  notEvidenceFor: Array<"quest_readiness" | "clinical_validity" | "scoring_validity" | "production_readiness" | "motion_comfort_validation">;
-};
-
-type XrInputSourceWithGamepad = {
-  handedness?: "left" | "right" | "none" | string;
-  hand?: unknown;
-  gamepad?: {
-    axes?: readonly number[];
-  };
-};
-
-type XrHandJointGroup = Group & {
-  jointRadius?: number;
-};
-
-type XrHandGroup = Group & {
-  joints?: Record<string, XrHandJointGroup | undefined>;
-  userData: {
-    openClinXrHandedness?: string;
-  };
-};
 
 type OpenClinXrFrameStats = ManualPerformanceFrameStats;
 
@@ -520,7 +436,7 @@ type OpenClinXrTraceLatencyEvidence = ManualPerformanceTraceLatencyEvidence;
 type XrHeadsetSelectSource = Extract<OpenClinXrTraceLatencyEvidence["source"], "xr_controller_select" | "xr_hand_select">;
 
 type XrSelectControllerEvent = {
-  data?: XrInputSourceWithGamepad;
+  data?: PackageXrInputSourceWithGamepad;
 };
 
 type OpenClinXrXrEntryEvidence = {
@@ -669,7 +585,7 @@ declare global {
      __openClinXrPediatricRespiratoryEquipmentCueEvidence?: PediatricRespiratoryEquipmentCueEvidence;
     __openClinXrDeclaredEquipmentMountEvidence?: DeclaredEquipmentMountEvidence;
       __openClinXrPedsDrive?: GeneratedRuntimeDrive;
-      __openClinXrPortalTransitionEvidence?: PortalTransitionEvidence;
+      __openClinXrPortalTransitionEvidence?: PackagePortalTransitionEvidence;
    }
  }
 
@@ -1510,7 +1426,7 @@ const humanoidAnimationContext: PackageHumanoidAnimationRuntimeContext = {
   shouldUseCleanHumanoidSourceComparatorCapture: () => shouldUseCleanHumanoidSourceComparatorCapture(),
   humanoidDialogueDurationMs: (phonemeCount: number) => humanoidDialogueDurationMs(phonemeCount),
   applyIdlePosture: (root: Group) => { applyGeneratedHumanoidClinicalIdlePosture(root); },
-  applyRolePosture: (root: Group, actorId: string) => { applyGeneratedHumanoidRoleSpecificPosture(root, actorId); },
+  applyRolePosture: (root: Group, actorId: string) => { applyPackageGeneratedHumanoidRoleSpecificPosture(uiXrRolePostureContext(), root, actorId); },
   seatedClipPerforming: (root: Group, actorId: string) => seatedRoleClipAutoLoopActive(root, actorId),
   resolveGazeTargetWorld: (speech: PackageHumanoidSpeechPlayback, camera: PerspectiveCamera) => {
     if (speech.gazeTargetKind === "actor" && speech.gazeTargetActorId) {
@@ -1588,7 +1504,7 @@ const roomEnvironmentalRealismCueIds = [
   "iv_tubing_line_context",
 ] as const;
 
-function recordAppBootPhaseError(error: unknown): string {
+function _recordAppBootPhaseError(error: unknown): string {
   return formatPackageUnknownError(error);
 }
 
@@ -2929,101 +2845,39 @@ function addReusableExteriorPreEncounterRoom(scene: Scene, doorwayTheme: Scenari
   scene.add(exterior);
 }
 
-const portalThresholdZ = 0.72;
+const portalThresholdZ = PORTAL_THRESHOLD_Z;
 let portalEncounterEntered = false;
 let portalEncounterStartedByPortal = false;
 let portalLastTransitionReason: string | null = null;
 let reusableExteriorAnteroom: Group | null = null;
 
-function selectedPortalPreviewStart(): PortalTransitionEvidence["deterministicPreviewStart"] {
-  const params = new URLSearchParams(window.location.search);
-  const selected = params.get("openclinxrPortalStart")?.trim() ?? "";
-  if (selected === "exterior" || selected === "exterior_note_room") return "exterior_note_room";
-  if (selected === "threshold" || selected === "portal_threshold") return "portal_threshold";
-  if (selected === "encounter" || selected === "dynamic_encounter_world") return "dynamic_encounter_world";
-  return null;
-}
-
-function applyDeterministicPortalPreviewStart(locomotionRig: Group): void {
-  const selected = selectedPortalPreviewStart();
-  if (!selected) return;
-  if (selected === "exterior_note_room") {
-    locomotionRig.position.z = 1.35;
-  } else if (selected === "portal_threshold") {
-    locomotionRig.position.z = portalThresholdZ;
-  } else {
-    locomotionRig.position.z = -0.62;
-  }
-  portalLastTransitionReason = `deterministic_portal_preview_start_${selected}`;
-}
-
-function updatePortalTransitionEvidence(locomotionRig: Group, camera: PerspectiveCamera): PortalTransitionEvidence {
-  const headWorldPosition = new Vector3();
-  camera.getWorldPosition(headWorldPosition);
-  const headWorldZ = Number(headWorldPosition.z.toFixed(3));
-  const locomotionRigZ = Number(locomotionRig.position.z.toFixed(3));
-  const desktopPreviewCameraOffsetZ = Number(camera.position.z.toFixed(3));
-  const transitionProbeZ = Number((headWorldZ - desktopPreviewCameraOffsetZ).toFixed(3));
-  const side: PortalTransitionEvidence["side"] = transitionProbeZ > portalThresholdZ + 0.25
-    ? "exterior_note_room"
-    : transitionProbeZ >= portalThresholdZ - 0.25
-      ? "portal_threshold"
-      : "dynamic_encounter_world";
-  if (!portalEncounterEntered && side === "dynamic_encounter_world") {
-    portalEncounterEntered = true;
-    portalEncounterStartedByPortal = viewLearnerCanonicalExamPhase(examPhaseStore).phase === "encounter";
-    portalLastTransitionReason = "portal_crossed_into_dynamic_encounter_world";
-  }
-  const portalInteriorHiddenObjectNames = updateReusableExteriorAnteroomVisibility(side);
-  const reusableExteriorHiddenForEncounterView = side === "dynamic_encounter_world";
-  const evidence: PortalTransitionEvidence = {
-    source: "window.__openClinXrPortalTransitionEvidence",
-    scenarioId: encounterRuntimeAssetBundle.scenarioId,
+function uiXrPortalTransitionContext(): PortalTransitionContext {
+  return {
     portalThresholdZ,
-    headWorldZ,
-    locomotionRigZ,
-    desktopPreviewCameraOffsetZ,
-    transitionProbeZ,
-    side,
-    encounterEntered: portalEncounterEntered,
-    encounterStartedByPortal: portalEncounterStartedByPortal,
-    deterministicPreviewStart: selectedPortalPreviewStart(),
-    reusableExteriorHiddenForEncounterView,
-    portalInteriorHiddenObjectNames,
-    noteCaptureLocation: "reusable_exterior_anteroom",
-    lastTransitionReason: portalLastTransitionReason,
-    notEvidenceFor: ["quest_readiness", "clinical_validity", "scoring_validity", "production_readiness", "motion_comfort_validation"],
+    portalEncounterEntered,
+    portalEncounterStartedByPortal,
+    portalLastTransitionReason,
+    reusableExteriorAnteroom,
+    scenarioId: encounterRuntimeAssetBundle.scenarioId,
+    examPhase: viewLearnerCanonicalExamPhase(examPhaseStore).phase,
+    deterministicPreviewStart: parsePortalPreviewStart(window.location.search),
+    setPortalEncounterEntered: (value: boolean) => { portalEncounterEntered = value; },
+    setPortalEncounterStartedByPortal: (value: boolean) => { portalEncounterStartedByPortal = value; },
+    setPortalLastTransitionReason: (value: string | null) => { portalLastTransitionReason = value; },
   };
-  window.__openClinXrPortalTransitionEvidence = evidence;
-  return evidence;
 }
 
-function updateReusableExteriorAnteroomVisibility(side: PortalTransitionEvidence["side"]): string[] {
-  if (!reusableExteriorAnteroom) return [];
-  const hiddenObjectNames: string[] = [];
-  const insideDynamicEncounter = side === "dynamic_encounter_world";
-  reusableExteriorAnteroom.traverse((object) => {
-    if (
-      object.name.includes("patient-note-capture-cue")
-      || object.name.includes("portal-left-wall")
-      || object.name.includes("portal-right-wall")
-      || object.name.includes("portal-header-wall")
-      || object.name.includes("portal-left-jamb")
-      || object.name.includes("portal-right-jamb")
-      || object.name.includes("portal-lintel")
-      || object.name.includes("encounter-portal-dynamic-threshold")
-      || object.name.includes("encounter-portal-dynamic-opening")
-      || object.name.endsWith(".floor")
-      || object.userData.openClinXrPortalInteriorReviewAffordance === true
-    ) {
-      object.visible = !insideDynamicEncounter;
-      object.userData.openClinXrPortalInteriorVisibilityPolicy =
-        "hidden_after_portal_entry_so_reusable_note_shell_and_frame_do_not_occlude_dynamic_encounter_world";
-      if (insideDynamicEncounter) hiddenObjectNames.push(object.name);
-    }
-  });
-  return hiddenObjectNames;
+function uiXrRolePostureContext(): RolePostureContext {
+  return {
+    actorRole: (actorId: string) => runtimeActorRole(actorId),
+    isPatient: (actorId: string) => actorId === runtimePatientActorId(),
+    isClinicalTeam: (actorId: string) => actorId === runtimeClinicalTeamActorId(),
+    isFamily: (actorId: string) => actorId === runtimeFamilyActorId(),
+    isPediatricAsthmaScenario: () => isPediatricAsthmaRuntimeScenario(),
+    scenarioId: encounterRuntimeAssetBundle.scenarioId,
+  };
 }
+
 
 async function createStationScene(): Promise<StationSceneRuntime> {
   recordBootPhase("station_scene_start");
@@ -3056,7 +2910,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
 
   const locomotionRig = new Group();
   locomotionRig.name = `${runtimeSceneObjectPrefix()}.locomotion-rig`;
-  applyDeterministicPortalPreviewStart(locomotionRig);
+  applyPackageDeterministicPortalPreviewStart(uiXrPortalTransitionContext(), locomotionRig);
   scene.add(locomotionRig);
 
   const faceDetailCapture = isHumanoidFaceDetailCaptureMode();
@@ -3778,7 +3632,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     const rect = renderer.domElement.getBoundingClientRect();
     return { x: rect.left + ((ndc.x + 1) / 2) * rect.width, y: rect.top + ((1 - ndc.y) / 2) * rect.height };
   };
-  const keyboardLocomotion = createKeyboardLocomotion();
+  const keyboardLocomotion = createPackageKeyboardLocomotion();
   let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
   let handModelsInstalled = false;
   let activeHandRepresentationKind: OpenClinXrInputEvidence["handRepresentationKind"] = primitiveHandRepresentationKind;
@@ -3788,10 +3642,10 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   let examineeLocomotionDistanceMeters = 0;
   let examineeLocomotionTurnRadians = 0;
   let examineeLocomotionSampleCount = 0;
-  const examineeLocomotionTrail = createExamineeLocomotionTrail();
+  const examineeLocomotionTrail = createPackageExamineeLocomotionTrail(isSceneOnlyVisualReviewCaptureMode());
   scene.add(examineeLocomotionTrail);
-  const handGestureLocomotionState = createXrHandGestureLocomotionState();
-  const handSelectState = createXrHandSelectState();
+  const handGestureLocomotionState = createPackageXrHandGestureLocomotionState();
+  const handSelectState = createPackageXrHandSelectState();
 
   function resize(): void {
     if (renderer.xr.isPresenting) {
@@ -3872,12 +3726,12 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     lastAnimateAtMs = now;
     resize();
     applyInteriorPreviewCameraOnce();
-    const roomScalePose = sampleRoomScalePose({
+    const roomScalePose = samplePackageRoomScalePose({
       camera,
       renderer,
       presenting: Boolean(activeXrSession && renderer.xr.isPresenting),
     });
-    const locomotionEvidence = applyLocomotion({
+    const locomotionEvidence = applyPackageLocomotion({
       deltaSeconds,
       keyboardLocomotion,
       locomotionRig,
@@ -3897,7 +3751,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     previousRoomScalePose = roomScalePose ?? previousRoomScalePose;
     const inputEvidence: OpenClinXrInputEvidence = {
       ...locomotionEvidence,
-      xrHandSelectState: maybeCompleteTraceActionFromHandSelect({
+      xrHandSelectState: maybePackageCompleteTraceActionFromHandSelect({
         renderer,
         handSelectState,
         now,
@@ -3914,7 +3768,16 @@ async function createStationScene(): Promise<StationSceneRuntime> {
         },
       }),
     };
-    recordHandSelectTraceInteractionDetail(inputEvidence.xrHandSelectState, now);
+    {
+      const latency = recordHandSelectTraceLatency(
+        inputEvidence.xrHandSelectState,
+        now,
+        window.__openClinXrTraceLatencyEvidence ?? null,
+      );
+      if (latency) {
+        window.__openClinXrTraceLatencyEvidence = latency;
+      }
+    }
     if ((inputEvidence.activeLocomotionSource ?? "none") !== "none" && inputEvidence.locomotionDelta) {
       lastObservedLocomotionSummary = {
         source: inputEvidence.activeLocomotionSource ?? "none",
@@ -3923,7 +3786,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
         atMs: now,
       };
     }
-    const examineeLocomotionEvidence = buildExamineeLocomotionEvidence({
+    const examineeLocomotionEvidence = buildPackageExamineeLocomotionEvidence({
       inputEvidence,
       startPose: examineeLocomotionStartPose,
       distanceMeters: examineeLocomotionDistanceMeters,
@@ -3935,13 +3798,21 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       examineeLocomotionDistanceMeters = examineeLocomotionEvidence.distanceMeters;
       examineeLocomotionTurnRadians = examineeLocomotionEvidence.turnRadians;
       examineeLocomotionSampleCount = examineeLocomotionEvidence.sampleCount;
-      updateExamineeLocomotionTrail(examineeLocomotionTrail, examineeLocomotionEvidence);
+      updatePackageExamineeLocomotionTrail(examineeLocomotionTrail, examineeLocomotionEvidence, isSceneOnlyVisualReviewCaptureMode());
       window.__openClinXrExamineeLocomotionEvidence = examineeLocomotionEvidence;
     }
     lastInputObservedAtMs = inputEvidence.lastInputObservedAtMs ?? lastInputObservedAtMs;
     lastLocomotionAtMs = inputEvidence.lastLocomotionAtMs;
     window.__openClinXrInputEvidence = inputEvidence;
-    updatePortalTransitionEvidence(locomotionRig, camera);
+    {
+      const portalEvidence = updatePackagePortalTransitionEvidence(uiXrPortalTransitionContext(), locomotionRig, camera);
+      portalEncounterEntered = portalEvidence.encounterEntered;
+      portalEncounterStartedByPortal = portalEvidence.encounterStartedByPortal;
+      portalLastTransitionReason = portalEvidence.lastTransitionReason;
+      if (portalEvidence !== undefined) {
+        window.__openClinXrPortalTransitionEvidence = portalEvidence;
+      }
+    }
     updateVrPanels(inputEvidence);
     // Wire gen drive from scaffold/replay metadata to live humanoid update; fallback keeps prior procedural motion.
     const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
@@ -4176,7 +4047,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       inputEvidence.xrHandGestureState?.armed
         ? `Gesture: armed; dwell ${inputEvidence.xrHandGestureState.dwellMs}ms`
         : `Gesture: ${inputEvidence.xrHandGestureState?.blockedReason ?? "not armed"}`,
-      `Trace hand select: ${formatHandSelectStatus(inputEvidence.xrHandSelectState)}`,
+      `Trace hand select: ${formatPackageHandSelectStatus(inputEvidence.xrHandSelectState)}`,
       formatRuntimeLocomotionLine(inputEvidence, captureSummary),
       `Speech affect: ${formatHumanoidSpeechAffectEvidence(window.__openClinXrHumanoidSpeechEvidence ?? null)}`,
       `Capture: ${captureReadinessStatus}; gap ${formatTechnicalGapStatus(captureSummary)}`,
@@ -4396,14 +4267,6 @@ function formatRuntimeLocomotionLine(
   return `Movement: none observed; ${formatLocomotionProbeSummary(captureSummary?.locomotionProbeSummary ?? null)}`;
 }
 
-function formatHandSelectStatus(state: XrHandSelectStateEvidence | undefined): string {
-  if (!state) {
-    return "idle";
-  }
-  const reason = state.blockedReason ? `; ${state.blockedReason}` : "";
-  const fired = state.firedCount > 0 ? `; fired ${state.firedCount}` : "";
-  return `${state.status}; dwell ${state.dwellMs}ms${fired}${reason}`;
-}
 
 function formatCaptureReadinessStatus(summary: ManualPerformanceCaptureSummary | null): string {
   if (!summary) {
@@ -4417,278 +4280,6 @@ function formatTechnicalGapStatus(summary: ManualPerformanceCaptureSummary | nul
   return summary?.technicalGaps[0] ?? "none";
 }
 
-function createExamineeLocomotionTrail(): Group {
-  const trail = new Group();
-  trail.name = "openclinxr.examinee-locomotion-trail-cue";
-  const visibleInSceneOnlyReview = !isSceneOnlyVisualReviewCaptureMode();
-  const ring = new Mesh(
-    new CylinderGeometry(0.2, 0.2, 0.012, 32),
-    new MeshBasicMaterial({ color: 0x2f80ed, transparent: true, opacity: 0.38 }),
-  );
-  ring.name = "examinee_runtime_position_ring_cue";
-  ring.position.y = 0.012;
-  ring.visible = visibleInSceneOnlyReview;
-  trail.add(ring);
-  const heading = new Mesh(
-    new BoxGeometry(0.055, 0.018, 0.32),
-    new MeshBasicMaterial({ color: 0x113f75, transparent: true, opacity: 0.6 }),
-  );
-  heading.name = "examinee_runtime_heading_cue";
-  heading.position.set(0, 0.04, -0.18);
-  heading.visible = visibleInSceneOnlyReview;
-  trail.add(heading);
-  trail.visible = false;
-  return trail;
-}
-
-function buildExamineeLocomotionEvidence(input: {
-  inputEvidence: OpenClinXrInputEvidence;
-  startPose: RigPoseEvidence | null;
-  distanceMeters: number;
-  turnRadians: number;
-  sampleCount: number;
-}): ExamineeLocomotionEvidence | null {
-  const source = input.inputEvidence.activeLocomotionSource ?? "none";
-  const delta = input.inputEvidence.locomotionDelta;
-  if (source === "none" || !delta) {
-    return null;
-  }
-  const currentPose: RigPoseEvidence = {
-    x: input.inputEvidence.rigPosition.x,
-    z: input.inputEvidence.rigPosition.z,
-    yawRadians: Number((input.turnRadians + delta.turnRadians).toFixed(3)),
-  };
-  return {
-    source: source === "mixed" ? "mixed" : source,
-    startPose: input.startPose ?? currentPose,
-    currentPose,
-    distanceMeters: Number((input.distanceMeters + delta.distanceMeters).toFixed(3)),
-    turnRadians: Number((input.turnRadians + delta.turnRadians).toFixed(3)),
-    sampleCount: input.sampleCount + 1,
-    pathCueIds: [
-      "examinee_runtime_position_ring_cue",
-      "examinee_runtime_heading_cue",
-      "structured_examinee_locomotion_path_evidence",
-    ],
-    notEvidenceFor: [
-      "quest_readiness",
-      "clinical_validity",
-      "scoring_validity",
-      "motion_comfort_validation",
-    ],
-  };
-}
-
-function updateExamineeLocomotionTrail(trail: Group, evidence: ExamineeLocomotionEvidence): void {
-  if (isSceneOnlyVisualReviewCaptureMode()) {
-    trail.visible = false;
-    for (const child of trail.children) {
-      child.visible = false;
-    }
-    trail.userData.openClinXrDynamicScenePolicy = "hidden_in_scene_only_visual_review_while_locomotion_evidence_remains_window_backed";
-    return;
-  }
-  trail.visible = true;
-  trail.position.set(evidence.currentPose.x, 0.01, evidence.currentPose.z);
-  trail.rotation.y = evidence.currentPose.yawRadians;
-  trail.userData.openClinXrExamineeLocomotionEvidence = evidence;
-}
-
-/**
- * #91: clinical idle owns arm hang (clinical-idle-posture.ts). Role maps keep head +
- * whole-root silhouette only — pre-fix showed role arm eulers overwrote hang and left
- * family wrists under 0.25 m drop / patient arms with z=±0.74 plank abduction.
- * Pediatric asthma keeps hands-near-chest (case-driven distress), still wrist-below-shoulder.
- */
-function applyGeneratedHumanoidRoleSpecificPosture(humanoid: Group, actorId: string): void {
-  const actorRole = runtimeActorRole(actorId);
-  if (actorId === runtimePatientActorId()) {
-    if (isPediatricAsthmaRuntimeScenario()) {
-      const pediatricRespiratoryDistressRotations = new Map<string, { x?: number; y?: number; z?: number }>([
-        ["head", { x: -0.18, y: 0.1 }],
-        // Hands near chest for work-of-breathing — hang-compatible drop, not T-pose plank.
-        ["upper_armL", { x: -1.34, y: 0.16, z: -0.5 }],
-        ["forearmL", { x: -0.78, y: -0.2, z: 0.62 }],
-        ["handL", { x: 0.18, y: 0.14, z: -0.24 }],
-        ["upper_armR", { x: -1.22, y: -0.12, z: 0.44 }],
-        ["forearmR", { x: -0.7, y: 0.2, z: -0.58 }],
-        ["handR", { x: 0.18, y: -0.14, z: 0.24 }],
-      ]);
-      applyHumanoidJointRotationsByAlias(
-        humanoid,
-        pediatricRespiratoryDistressRotations,
-        "pediatric_asthma_hunched_hands_near_chest",
-      );
-      humanoid.scale.set(0.78, 0.74, 0.78);
-      humanoid.rotation.x = -0.14;
-      humanoid.rotation.y = 0.08;
-      humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-        "pediatric_patient_smaller_silhouette_cue",
-        "pediatric_asthma_hunched_work_of_breathing_pose_cue",
-        "patient_hands_near_chest_respiratory_distress_cue",
-        "pediatric_patient_case_role_distinct_from_adult_actor_pose_cue",
-      ];
-      return;
-    }
-    // Head only — arms remain clinical-idle hang (#91). Rejected: re-planking with z=±0.74.
-    const patientRotations = new Map<string, { x?: number; y?: number; z?: number }>([
-      ["head", { x: -0.12, y: 0.08 }],
-    ]);
-    applyHumanoidJointRotationsByAlias(humanoid, patientRotations, "patient_low_guarded_clinical_attention_pose");
-    humanoid.rotation.x = -0.08;
-    humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-      "patient_chest_pain_guarding_pose_cue",
-      "patient_reclined_distress_attention_cue",
-    ];
-    applyScenarioDerivedPatientPosture(humanoid);
-    return;
-  }
-  if (actorId === runtimeClinicalTeamActorId()) {
-    const clinicalTeamRotations = new Map<string, { x?: number; y?: number; z?: number }>([
-      ["head", { x: -0.04, y: -0.1 }],
-    ]);
-    applyHumanoidJointRotationsByAlias(humanoid, clinicalTeamRotations, "clinical_team_low_asymmetric_attention_pose");
-    humanoid.scale.set(1.04, 1.08, 1.04);
-    humanoid.rotation.y = -0.16;
-    humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-      actorRole === "nurse" ? "nurse_adult_clinical_silhouette_cue" : "clinical_team_adult_silhouette_cue",
-      "nurse_monitor_workflow_attention_pose_cue",
-      "nurse_asymmetric_equipment_attention_pose_cue",
-    ];
-    applyScenarioDerivedClinicalTeamPosture(humanoid);
-    return;
-  }
-  if (actorId === runtimeFamilyActorId()) {
-    const familyRotations = new Map<string, { x?: number; y?: number; z?: number }>([
-      ["head", { x: -0.08, y: 0.14 }],
-    ]);
-    applyHumanoidJointRotationsByAlias(humanoid, familyRotations, "family_low_anxious_observer_pose");
-    humanoid.scale.set(1.05, 1.04, 1.05);
-    humanoid.rotation.y = 0.18;
-    humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-      "adult_family_member_silhouette_cue",
-      "family_worried_observer_pose_cue",
-      "parent_asymmetric_anxiety_pose_cue",
-    ];
-    applyScenarioDerivedFamilyPosture(humanoid);
-  }
-}
-
-function applyScenarioDerivedPatientPosture(humanoid: Group): void {
-  const scenarioId = encounterRuntimeAssetBundle.scenarioId;
-  if (scenarioId === "ob_headache_preeclampsia_triage_v1") {
-    humanoid.rotation.x = -0.04;
-    humanoid.rotation.y = -0.18;
-    humanoid.rotation.z = 0.04;
-    humanoid.scale.set(1.02, 1, 1.04);
-    humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-      "ob_preeclampsia_seated_headache_attention_pose_cue",
-      "ob_pregnancy_weight_shift_silhouette_cue",
-      "case_definition_driven_patient_pose_not_chest_pain_default",
-    ];
-    humanoid.userData.openClinXrScenarioDerivedPosture = "ob_preeclampsia_headache_weight_shift";
-    return;
-  }
-  if (scenarioId === "clinic_abdominal_pain_interpreter_v1") {
-    humanoid.rotation.x = -0.16;
-    humanoid.rotation.y = 0.2;
-    humanoid.rotation.z = -0.06;
-    humanoid.scale.set(0.98, 0.96, 1);
-    humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-      "clinic_rlq_pain_forward_guarding_pose_cue",
-      "interpreter_mediated_attention_shift_pose_cue",
-      "case_definition_driven_patient_pose_not_chest_pain_default",
-    ];
-    humanoid.userData.openClinXrScenarioDerivedPosture = "clinic_abdominal_pain_forward_guarding";
-    return;
-  }
-  if (scenarioId === "oncology_bad_news_family_v1") {
-    humanoid.rotation.x = -0.03;
-    humanoid.rotation.y = 0.12;
-    humanoid.rotation.z = -0.035;
-    humanoid.scale.set(0.96, 0.94, 0.98);
-    humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-      "oncology_serious_news_softened_seated_pose_cue",
-      "family_conversation_attention_pose_cue",
-      "case_definition_driven_patient_pose_not_chest_pain_default",
-    ];
-    humanoid.userData.openClinXrScenarioDerivedPosture = "oncology_bad_news_softened_seated";
-    return;
-  }
-  if (scenarioId === "postop_fever_consult_pressure_v1") {
-    humanoid.rotation.x = -0.1;
-    humanoid.rotation.y = -0.08;
-    humanoid.rotation.z = 0.05;
-    humanoid.scale.set(1, 0.97, 1.02);
-    humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-      "postop_fever_guarded_abdominal_dressing_pose_cue",
-      "consult_pressure_attention_pose_cue",
-      "case_definition_driven_patient_pose_not_chest_pain_default",
-    ];
-    humanoid.userData.openClinXrScenarioDerivedPosture = "postop_fever_guarded_abdomen";
-  }
-}
-
-function applyScenarioDerivedClinicalTeamPosture(humanoid: Group): void {
-  const scenarioId = encounterRuntimeAssetBundle.scenarioId;
-  if (scenarioId === "ob_headache_preeclampsia_triage_v1") {
-    humanoid.rotation.y = -0.28;
-    humanoid.rotation.z = -0.04;
-    humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-      "ob_bp_repeat_workflow_attention_pose_cue",
-      "preeclampsia_escalation_clinician_pose_cue",
-      "case_definition_driven_clinical_team_pose",
-    ];
-    humanoid.userData.openClinXrScenarioDerivedPosture = "ob_bp_escalation_clinical_team";
-  } else if (scenarioId === "clinic_abdominal_pain_interpreter_v1") {
-    humanoid.rotation.y = 0.34;
-    humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-      "clinic_interpreter_triangle_attention_pose_cue",
-      "case_definition_driven_clinical_team_pose",
-    ];
-    humanoid.userData.openClinXrScenarioDerivedPosture = "clinic_interpreter_triangle";
-  } else if (scenarioId === "oncology_bad_news_family_v1") {
-    humanoid.rotation.y = -0.08;
-    humanoid.rotation.x = -0.03;
-    humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-      "oncology_soft_consult_seated_attention_pose_cue",
-      "case_definition_driven_clinical_team_pose",
-    ];
-    humanoid.userData.openClinXrScenarioDerivedPosture = "oncology_soft_consult_attention";
-  } else if (scenarioId === "postop_fever_consult_pressure_v1") {
-    humanoid.rotation.y = -0.34;
-    humanoid.rotation.z = 0.05;
-    humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-      "postop_surgery_resident_time_pressure_pose_cue",
-      "case_definition_driven_clinical_team_pose",
-    ];
-    humanoid.userData.openClinXrScenarioDerivedPosture = "postop_time_pressure_consult";
-  }
-}
-
-function applyScenarioDerivedFamilyPosture(humanoid: Group): void {
-  const scenarioId = encounterRuntimeAssetBundle.scenarioId;
-  if (scenarioId === "clinic_abdominal_pain_interpreter_v1") {
-    humanoid.rotation.y = -0.32;
-    humanoid.rotation.z = 0.035;
-    humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-      "clinic_interpreter_attention_pose_cue",
-      "case_definition_driven_family_or_interpreter_pose",
-    ];
-    humanoid.userData.openClinXrScenarioDerivedPosture = "clinic_interpreter_attention";
-  } else if (scenarioId === "oncology_bad_news_family_v1") {
-    humanoid.rotation.y = 0.26;
-    humanoid.rotation.x = -0.06;
-    humanoid.rotation.z = 0.05;
-    humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
-      "oncology_family_emotion_support_pose_cue",
-      "case_definition_driven_family_or_interpreter_pose",
-    ];
-    humanoid.userData.openClinXrScenarioDerivedPosture = "oncology_family_emotional_support";
-  } else if (scenarioId === "peds_asthma_parent_anxiety_v1") {
-    humanoid.userData.openClinXrScenarioDerivedPosture = "pediatric_parent_anxiety_support";
-  }
-}
 
 function configureSemanticRolePoseOverlay(mesh: Mesh, cueId: string): void {
   mesh.userData.openClinXrRolePoseCueId = cueId;
@@ -5228,750 +4819,7 @@ function addHandModels(renderer: WebGLRenderer, scene: Scene, input: {
   }
 }
 
-type KeyboardLocomotionState = {
-  forward: number;
-  strafe: number;
-  turn: number;
-};
 
-type XrHandGestureLocomotionState = {
-  hands: Record<"left" | "right", XrHandGestureHandState>;
-  lastTurnAtMs: number | null;
-};
-
-type XrHandGestureHandState = {
-  pinchingSinceMs: number | null;
-  neutralOffsetX: number;
-  neutralOffsetZ: number;
-  armed: boolean;
-};
-
-type XrHandGestureLocomotionResult = LocomotionVectorEvidence & {
-  handInputsObserved: number;
-  state: XrHandGestureStateEvidence;
-  diagnostics: LocomotionAttemptDiagnosticsEvidence["handGestureHands"];
-};
-
-type XrHandGestureVectorResult = LocomotionVectorEvidence & {
-  armed: boolean;
-  dwellMs: number;
-  blockedReason?: XrHandGestureStateEvidence["blockedReason"] | "below_deadzone" | "turn_cooldown";
-  diagnostic: LocomotionAttemptDiagnosticsEvidence["handGestureHands"][number];
-};
-
-type XrHandSelectState = {
-  pinchingSinceMs: number | null;
-  neutralOffsetX: number;
-  neutralOffsetZ: number;
-  firedDuringPinch: boolean;
-  firedCount: number;
-  lastFiredAtMs: number | null;
-};
-
-const handGestureDwellMs = 450;
-const handGestureDeadzoneMeters = 0.045;
-const handGestureTurnDeadzoneMeters = 0.055;
-const handGestureTurnCooldownMs = 450;
-const handSelectDwellMs = 650;
-const handSelectMovementToleranceMeters = 0.025;
-const handSelectCooldownMs = 850;
-const handPinchDistanceThresholdMeters = 0.035;
-const xrGamepadDeadzone = 0.18;
-
-function createKeyboardLocomotion(): KeyboardLocomotionState {
-  const state = { forward: 0, strafe: 0, turn: 0 };
-  const pressedKeys = new Set<string>();
-
-  const update = (event: KeyboardEvent, pressed: boolean): void => {
-    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
-      return;
-    }
-    if (pressed) {
-      pressedKeys.add(event.code);
-    } else {
-      pressedKeys.delete(event.code);
-    }
-    state.forward = (pressedKeys.has("KeyW") || pressedKeys.has("ArrowUp") ? 1 : 0)
-      + (pressedKeys.has("KeyS") || pressedKeys.has("ArrowDown") ? -1 : 0);
-    state.strafe = (pressedKeys.has("KeyD") || pressedKeys.has("ArrowRight") ? 1 : 0)
-      + (pressedKeys.has("KeyA") || pressedKeys.has("ArrowLeft") ? -1 : 0);
-    state.turn = (pressedKeys.has("KeyE") ? -1 : 0) + (pressedKeys.has("KeyQ") ? 1 : 0);
-  };
-
-  window.addEventListener("keydown", (event) => update(event, true));
-  window.addEventListener("keyup", (event) => update(event, false));
-  return state;
-}
-
-function createXrHandGestureLocomotionState(): XrHandGestureLocomotionState {
-  return {
-    hands: {
-      left: createXrHandGestureHandState(),
-      right: createXrHandGestureHandState(),
-    },
-    lastTurnAtMs: null,
-  };
-}
-
-function createXrHandGestureHandState(): XrHandGestureHandState {
-  return {
-    pinchingSinceMs: null,
-    neutralOffsetX: 0,
-    neutralOffsetZ: 0,
-    armed: false,
-  };
-}
-
-function createXrHandSelectState(): XrHandSelectState {
-  return {
-    pinchingSinceMs: null,
-    neutralOffsetX: 0,
-    neutralOffsetZ: 0,
-    firedDuringPinch: false,
-    firedCount: 0,
-    lastFiredAtMs: null,
-  };
-}
-
-function applyLocomotion(input: {
-  deltaSeconds: number;
-  keyboardLocomotion: KeyboardLocomotionState;
-  locomotionRig: Group;
-  now: number;
-  renderer: WebGLRenderer;
-  session: XrSession | undefined;
-  lastInputObservedAtMs: number | null;
-  lastLocomotionAtMs: number | null;
-  handModelCount: number;
-  handModelStatus: OpenClinXrInputEvidence["handModelStatus"];
-  activeHandRepresentationKind?: OpenClinXrInputEvidence["handRepresentationKind"];
-  handAssetLoadErrors?: string[];
-  handGestureLocomotionState: XrHandGestureLocomotionState;
-  previousRoomScalePose: RigPoseEvidence | null;
-  roomScalePose: RigPoseEvidence | null;
-}): OpenClinXrInputEvidence {
-  const xrLocomotion = readXrGamepadLocomotion(input.session);
-  const keyboardVector: LocomotionVectorEvidence = {
-    forward: clampUnit(input.keyboardLocomotion.forward),
-    strafe: clampUnit(input.keyboardLocomotion.strafe),
-    turn: clampUnit(input.keyboardLocomotion.turn),
-  };
-  const xrVector: LocomotionVectorEvidence = {
-    forward: xrLocomotion.forward,
-    strafe: xrLocomotion.strafe,
-    turn: xrLocomotion.turn,
-  };
-  const xrHandGestureLocomotion = readXrHandGestureLocomotion({
-    renderer: input.renderer,
-    gestureState: input.handGestureLocomotionState,
-    now: input.now,
-    otherLocomotionSourceActive: isLocomotionVectorActive(keyboardVector) || isLocomotionVectorActive(xrVector),
-  });
-  const xrHandGestureVector: LocomotionVectorEvidence = {
-    forward: xrHandGestureLocomotion.forward,
-    strafe: xrHandGestureLocomotion.strafe,
-    turn: xrHandGestureLocomotion.turn,
-  };
-  const forward = clampUnit(keyboardVector.forward + xrVector.forward + xrHandGestureVector.forward);
-  const strafe = clampUnit(keyboardVector.strafe + xrVector.strafe + xrHandGestureVector.strafe);
-  const turn = clampUnit(keyboardVector.turn + xrVector.turn + xrHandGestureVector.turn);
-  const speedMetersPerSecond = 1.35;
-  const previousRigPose: RigPoseEvidence = {
-    x: Number(input.locomotionRig.position.x.toFixed(3)),
-    z: Number(input.locomotionRig.position.z.toFixed(3)),
-    yawRadians: Number(input.locomotionRig.rotation.y.toFixed(3)),
-  };
-
-  input.locomotionRig.rotation.y += turn * input.deltaSeconds * 1.8;
-  const yaw = input.locomotionRig.rotation.y;
-  const forwardVector = new Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
-  const rightVector = new Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
-  input.locomotionRig.position
-    .addScaledVector(forwardVector, forward * speedMetersPerSecond * input.deltaSeconds)
-    .addScaledVector(rightVector, strafe * speedMetersPerSecond * input.deltaSeconds);
-  input.locomotionRig.position.x = clamp(input.locomotionRig.position.x, -2.75, 2.75);
-  input.locomotionRig.position.z = clamp(input.locomotionRig.position.z, -2.25, 2.25);
-
-  return buildManualPerformanceInputEvidence({
-    handModelCount: input.handModelCount,
-    handModelStatus: input.handModelStatus,
-    ...(input.activeHandRepresentationKind ? { activeHandRepresentationKind: input.activeHandRepresentationKind } : {}),
-    ...(input.handAssetLoadErrors && input.handAssetLoadErrors.length > 0 ? { handAssetLoadErrors: input.handAssetLoadErrors } : {}),
-    handInputsObserved: Math.max(xrLocomotion.handInputsObserved, xrHandGestureLocomotion.handInputsObserved),
-    keyboardVector,
-    xrVector,
-    xrHandGestureVector,
-    xrHandGestureState: xrHandGestureLocomotion.state,
-    locomotionDiagnostics: {
-      claimScope: "attempt_diagnostics_only",
-      gamepadDeadzone: xrGamepadDeadzone,
-      handPinchThresholdMeters: handPinchDistanceThresholdMeters,
-      handGestureDeadzoneMeters,
-      handGestureTurnDeadzoneMeters,
-      gamepadSources: xrLocomotion.diagnostics,
-      handGestureHands: xrHandGestureLocomotion.diagnostics,
-    },
-    xrInputSources: xrLocomotion.inputSources,
-    now: input.now,
-    previousLastInputObservedAtMs: input.lastInputObservedAtMs,
-    previousLastLocomotionAtMs: input.lastLocomotionAtMs,
-    previousRigPose,
-    rigPosition: {
-      x: Number(input.locomotionRig.position.x.toFixed(3)),
-      z: Number(input.locomotionRig.position.z.toFixed(3)),
-    },
-    rigYawRadians: Number(input.locomotionRig.rotation.y.toFixed(3)),
-    previousRoomScalePose: input.previousRoomScalePose,
-    roomScalePose: input.roomScalePose,
-  });
-}
-
-function sampleRoomScalePose(input: {
-  camera: PerspectiveCamera;
-  renderer: WebGLRenderer;
-  presenting: boolean;
-}): RigPoseEvidence | null {
-  if (!input.presenting) {
-    return null;
-  }
-  input.renderer.xr.updateCamera(input.camera);
-  return {
-    x: Number(input.camera.position.x.toFixed(3)),
-    z: Number(input.camera.position.z.toFixed(3)),
-    yawRadians: 0,
-  };
-}
-
-function readXrHandGestureLocomotion(input: {
-  renderer: WebGLRenderer;
-  gestureState: XrHandGestureLocomotionState;
-  now: number;
-  otherLocomotionSourceActive: boolean;
-}): XrHandGestureLocomotionResult {
-  let forward = 0;
-  let strafe = 0;
-  let turn = 0;
-  let handInputsObserved = 0;
-  let leftPinch = false;
-  let rightPinch = false;
-  let dwellMs = 0;
-  let armed = false;
-  let blockedReason: NonNullable<XrHandGestureStateEvidence["blockedReason"]> = "not_pinching";
-  const diagnostics: LocomotionAttemptDiagnosticsEvidence["handGestureHands"] = [];
-
-  for (let index = 0; index < 2; index += 1) {
-    const hand = input.renderer.xr.getHand(index) as XrHandGroup;
-    if (isTrackedHandVisible(hand)) {
-      handInputsObserved += 1;
-    }
-    const handedness = handednessForHand(hand, index);
-    if (isXrHandPinching(hand)) {
-      if (handedness === "right") {
-        rightPinch = true;
-      } else {
-        leftPinch = true;
-      }
-    }
-    const gesture = readHandGestureVector({
-      hand,
-      index,
-      now: input.now,
-      gestureState: input.gestureState,
-      otherLocomotionSourceActive: input.otherLocomotionSourceActive,
-    });
-    forward += gesture.forward;
-    strafe += gesture.strafe;
-    turn += gesture.turn;
-    dwellMs = Math.max(dwellMs, gesture.dwellMs);
-    armed = armed || gesture.armed;
-    if (isXrHandGestureStateBlockedReason(gesture.blockedReason)) {
-      blockedReason = gesture.blockedReason;
-    }
-    diagnostics.push(gesture.diagnostic);
-  }
-
-  const state: XrHandGestureStateEvidence = {
-    armed,
-    dwellMs,
-    leftPinch,
-    rightPinch,
-    gestureDeadzoneMeters: handGestureDeadzoneMeters,
-    turnCooldownMs: handGestureTurnCooldownMs,
-  };
-  if (!armed) {
-    state.blockedReason = blockedReason;
-  }
-
-  return {
-    forward: clampUnit(forward),
-    strafe: clampUnit(strafe),
-    turn: clampUnit(turn),
-    handInputsObserved,
-    state,
-    diagnostics,
-  };
-}
-
-function isXrHandGestureStateBlockedReason(
-  reason: XrHandGestureVectorResult["blockedReason"],
-): reason is NonNullable<XrHandGestureStateEvidence["blockedReason"]> {
-  return reason === "not_pinching"
-    || reason === "arming_dwell"
-    || reason === "missing_joints"
-    || reason === "other_locomotion_source_active";
-}
-
-function readHandGestureVector(input: {
-  hand: XrHandGroup;
-  index: number;
-  now: number;
-  gestureState: XrHandGestureLocomotionState;
-  otherLocomotionSourceActive: boolean;
-}): XrHandGestureVectorResult {
-  const handedness = handednessForHand(input.hand, input.index);
-  const state = input.gestureState.hands[handedness];
-
-  const wrist = input.hand.joints?.wrist;
-  const indexTip = input.hand.joints?.["index-finger-tip"];
-  const thumbTip = input.hand.joints?.["thumb-tip"];
-  const jointsVisible = {
-    wrist: Boolean(wrist?.visible),
-    indexTip: Boolean(indexTip?.visible),
-    thumbTip: Boolean(thumbTip?.visible),
-  };
-  const pinchDistanceMeters = indexTip?.visible && thumbTip?.visible
-    ? indexTip.position.distanceTo(thumbTip.position)
-    : null;
-  const pinching = pinchDistanceMeters !== null && pinchDistanceMeters <= handPinchDistanceThresholdMeters;
-  if (!wrist?.visible || !indexTip?.visible || !thumbTip?.visible) {
-    resetHandGestureHandState(state);
-    return handGestureResult({
-      handedness,
-      jointsVisible,
-      pinchDistanceMeters,
-      pinching,
-      armed: false,
-      dwellMs: 0,
-      relativeOffsetMeters: null,
-      movementCrossedDeadzone: false,
-      blockedReason: "missing_joints",
-    });
-  }
-
-  if (!pinching) {
-    resetHandGestureHandState(state);
-    return handGestureResult({
-      handedness,
-      jointsVisible,
-      pinchDistanceMeters,
-      pinching,
-      armed: false,
-      dwellMs: 0,
-      relativeOffsetMeters: null,
-      movementCrossedDeadzone: false,
-      blockedReason: "not_pinching",
-    });
-  }
-
-  if (input.otherLocomotionSourceActive) {
-    resetHandGestureHandState(state);
-    return handGestureResult({
-      handedness,
-      jointsVisible,
-      pinchDistanceMeters,
-      pinching,
-      armed: false,
-      dwellMs: 0,
-      relativeOffsetMeters: null,
-      movementCrossedDeadzone: false,
-      blockedReason: "other_locomotion_source_active",
-    });
-  }
-
-  const gestureOriginMeters = handGestureLocomotionOriginMeters({
-    wrist: { x: wrist.position.x, z: wrist.position.z },
-    indexTip: { x: indexTip.position.x, z: indexTip.position.z },
-    thumbTip: { x: thumbTip.position.x, z: thumbTip.position.z },
-  });
-  if (state.pinchingSinceMs === null) {
-    state.pinchingSinceMs = input.now;
-    state.neutralOffsetX = gestureOriginMeters.x;
-    state.neutralOffsetZ = gestureOriginMeters.z;
-    state.armed = false;
-  }
-
-  const dwellMs = Math.max(0, input.now - state.pinchingSinceMs);
-  if (dwellMs < handGestureDwellMs) {
-    return handGestureResult({
-      handedness,
-      jointsVisible,
-      pinchDistanceMeters,
-      pinching,
-      armed: false,
-      dwellMs,
-      relativeOffsetMeters: null,
-      movementCrossedDeadzone: false,
-      blockedReason: "arming_dwell",
-    });
-  }
-  state.armed = true;
-  const relativeOffsetMeters = handGestureRelativeOffsetMeters({
-    neutralOriginMeters: {
-      x: state.neutralOffsetX,
-      z: state.neutralOffsetZ,
-    },
-    current: {
-      wrist: { x: wrist.position.x, z: wrist.position.z },
-      indexTip: { x: indexTip.position.x, z: indexTip.position.z },
-      thumbTip: { x: thumbTip.position.x, z: thumbTip.position.z },
-    },
-  });
-
-  const turnCoolingDown = handedness === "right"
-    && input.gestureState.lastTurnAtMs !== null
-    && input.now - input.gestureState.lastTurnAtMs < handGestureTurnCooldownMs;
-  const mappedGesture = mapHandGestureLocomotionVector({
-    handedness,
-    relativeOffsetMeters,
-    movementDeadzoneMeters: handGestureDeadzoneMeters,
-    turnDeadzoneMeters: handGestureTurnDeadzoneMeters,
-    movementSensitivity: 5,
-    turnSensitivity: 4,
-    turnCoolingDown,
-  });
-
-  if (handedness === "right") {
-    if (turnCoolingDown && mappedGesture.turnCrossedDeadzone && mappedGesture.forward === 0 && mappedGesture.strafe === 0) {
-      return handGestureResult({
-        handedness,
-        jointsVisible,
-        pinchDistanceMeters,
-        pinching,
-        armed: true,
-        dwellMs,
-        relativeOffsetMeters,
-        movementCrossedDeadzone: true,
-        blockedReason: "turn_cooldown",
-      });
-    }
-    if (mappedGesture.turn !== 0) {
-      input.gestureState.lastTurnAtMs = input.now;
-    }
-  }
-
-  return handGestureResult({
-    forward: mappedGesture.forward,
-    strafe: mappedGesture.strafe,
-    turn: mappedGesture.turn,
-    handedness,
-    jointsVisible,
-    pinchDistanceMeters,
-    pinching,
-    armed: true,
-    dwellMs,
-    relativeOffsetMeters,
-    movementCrossedDeadzone: mappedGesture.movementCrossedDeadzone,
-    ...(mappedGesture.movementCrossedDeadzone ? {} : { blockedReason: "below_deadzone" }),
-  });
-}
-
-function handGestureResult(input: Partial<LocomotionVectorEvidence> & {
-  handedness: "left" | "right";
-  jointsVisible: LocomotionAttemptDiagnosticsEvidence["handGestureHands"][number]["jointsVisible"];
-  pinchDistanceMeters: number | null;
-  pinching: boolean;
-  armed: boolean;
-  dwellMs: number;
-  relativeOffsetMeters: { x: number; z: number } | null;
-  movementCrossedDeadzone: boolean;
-  blockedReason?: XrHandGestureVectorResult["blockedReason"];
-}): XrHandGestureVectorResult {
-  const blockedReason = input.blockedReason;
-  return {
-    forward: input.forward ?? 0,
-    strafe: input.strafe ?? 0,
-    turn: input.turn ?? 0,
-    armed: input.armed,
-    dwellMs: input.dwellMs,
-    ...(blockedReason ? { blockedReason } : {}),
-    diagnostic: {
-      handedness: input.handedness,
-      jointsVisible: input.jointsVisible,
-      pinchDistanceMeters: input.pinchDistanceMeters,
-      pinching: input.pinching,
-      armed: input.armed,
-      dwellMs: input.dwellMs,
-      relativeOffsetMeters: input.relativeOffsetMeters,
-      movementCrossedDeadzone: input.movementCrossedDeadzone,
-      ...(blockedReason ? { blockedReason } : {}),
-    },
-  };
-}
-
-function maybeCompleteTraceActionFromHandSelect(input: {
-  renderer: WebGLRenderer;
-  handSelectState: XrHandSelectState;
-  now: number;
-  controllerInputActive: boolean;
-  isFullVrPresenting: () => boolean;
-  onSelect: () => boolean;
-}): XrHandSelectStateEvidence {
-  const hand = input.renderer.xr.getHand(1) as XrHandGroup;
-  const rightPinch = isXrHandPinching(hand);
-  if (!input.isFullVrPresenting()) {
-    resetHandSelectState(input.handSelectState);
-    return handSelectEvidence(input.handSelectState, input.now, {
-      status: "blocked",
-      armed: false,
-      rightPinch,
-      blockedReason: "trace_unavailable",
-    });
-  }
-  if (!rightPinch) {
-    resetHandSelectState(input.handSelectState);
-    return handSelectEvidence(input.handSelectState, input.now, {
-      status: "idle",
-      armed: false,
-      rightPinch,
-      blockedReason: "not_pinching",
-    });
-  }
-  if (input.controllerInputActive) {
-    resetHandSelectState(input.handSelectState);
-    return handSelectEvidence(input.handSelectState, input.now, {
-      status: "blocked",
-      armed: false,
-      rightPinch,
-      blockedReason: "controller_input_active",
-    });
-  }
-
-  const wrist = hand.joints?.wrist;
-  const indexTip = hand.joints?.["index-finger-tip"];
-  const thumbTip = hand.joints?.["thumb-tip"];
-  if (!wrist?.visible || !indexTip?.visible || !thumbTip?.visible) {
-    resetHandSelectState(input.handSelectState);
-    return handSelectEvidence(input.handSelectState, input.now, {
-      status: "blocked",
-      armed: false,
-      rightPinch,
-      blockedReason: "missing_joints",
-    });
-  }
-
-  const offsetX = indexTip.position.x - wrist.position.x;
-  const offsetZ = indexTip.position.z - wrist.position.z;
-  if (input.handSelectState.pinchingSinceMs === null) {
-    input.handSelectState.pinchingSinceMs = input.now;
-    input.handSelectState.neutralOffsetX = offsetX;
-    input.handSelectState.neutralOffsetZ = offsetZ;
-    input.handSelectState.firedDuringPinch = false;
-  }
-
-  const dwellMs = Math.max(0, input.now - input.handSelectState.pinchingSinceMs);
-  const movementMeters = Math.hypot(
-    offsetX - input.handSelectState.neutralOffsetX,
-    offsetZ - input.handSelectState.neutralOffsetZ,
-  );
-  if (movementMeters > handSelectMovementToleranceMeters) {
-    return handSelectEvidence(input.handSelectState, input.now, {
-      status: "blocked",
-      armed: false,
-      rightPinch,
-      blockedReason: "moving_too_much",
-    });
-  }
-  if (dwellMs < handSelectDwellMs) {
-    return handSelectEvidence(input.handSelectState, input.now, {
-      status: "arming",
-      armed: false,
-      rightPinch,
-      blockedReason: "arming_dwell",
-    });
-  }
-  const coolingDown = input.handSelectState.lastFiredAtMs !== null
-    && input.now - input.handSelectState.lastFiredAtMs < handSelectCooldownMs;
-  if (coolingDown && !input.handSelectState.firedDuringPinch) {
-    return handSelectEvidence(input.handSelectState, input.now, {
-      status: "blocked",
-      armed: true,
-      rightPinch,
-      blockedReason: "cooldown",
-    });
-  }
-  if (input.handSelectState.firedDuringPinch) {
-    return handSelectEvidence(input.handSelectState, input.now, {
-      status: "ready",
-      armed: true,
-      rightPinch,
-    });
-  }
-
-  const fired = input.onSelect();
-  if (!fired) {
-    return handSelectEvidence(input.handSelectState, input.now, {
-      status: "blocked",
-      armed: true,
-      rightPinch,
-      blockedReason: "trace_unavailable",
-    });
-  }
-  input.handSelectState.firedDuringPinch = true;
-  input.handSelectState.firedCount += 1;
-  input.handSelectState.lastFiredAtMs = input.now;
-  return handSelectEvidence(input.handSelectState, input.now, {
-    status: "fired",
-    armed: true,
-    rightPinch,
-  });
-}
-
-function handSelectEvidence(
-  state: XrHandSelectState,
-  now: number,
-  evidence: Pick<XrHandSelectStateEvidence, "status" | "armed" | "rightPinch"> & {
-    blockedReason?: XrHandSelectStateEvidence["blockedReason"];
-  },
-): XrHandSelectStateEvidence {
-  return {
-    status: evidence.status,
-    armed: evidence.armed,
-    dwellMs: state.pinchingSinceMs === null ? 0 : Number(Math.max(0, now - state.pinchingSinceMs).toFixed(2)),
-    rightPinch: evidence.rightPinch,
-    firedCount: state.firedCount,
-    lastFiredAtMs: state.lastFiredAtMs === null ? null : Number(state.lastFiredAtMs.toFixed(2)),
-    ...(evidence.blockedReason ? { blockedReason: evidence.blockedReason } : {}),
-  };
-}
-
-function recordHandSelectTraceInteractionDetail(
-  evidence: XrHandSelectStateEvidence | undefined,
-  now: number,
-): void {
-  if (!evidence) {
-    return;
-  }
-  if (evidence.status === "idle" && !evidence.rightPinch) {
-    return;
-  }
-  window.__openClinXrTraceLatencyEvidence = {
-    lastTraceTag: window.__openClinXrTraceLatencyEvidence?.source === "xr_hand_select"
-      ? window.__openClinXrTraceLatencyEvidence.lastTraceTag
-      : null,
-    lastSelectLatencyMs: window.__openClinXrTraceLatencyEvidence?.source === "xr_hand_select"
-      ? window.__openClinXrTraceLatencyEvidence.lastSelectLatencyMs
-      : null,
-    source: "xr_hand_select",
-    measuredAtMs: Number(now.toFixed(2)),
-    productionControllerLatencySubstitute: false,
-    interactionDetail: {
-      modality: "hand_pinch_select",
-      handedness: "right",
-      status: evidence.status,
-      ...(evidence.blockedReason ? { blockedReason: evidence.blockedReason } : {}),
-      dwellMs: evidence.dwellMs,
-      firedCount: evidence.firedCount,
-      rightPinch: evidence.rightPinch,
-    },
-  };
-}
-
-function resetHandSelectState(state: XrHandSelectState): void {
-  state.pinchingSinceMs = null;
-  state.neutralOffsetX = 0;
-  state.neutralOffsetZ = 0;
-  state.firedDuringPinch = false;
-}
-
-function resetHandGestureHandState(state: XrHandGestureHandState): void {
-  state.pinchingSinceMs = null;
-  state.neutralOffsetX = 0;
-  state.neutralOffsetZ = 0;
-  state.armed = false;
-}
-
-function handednessForHand(hand: XrHandGroup, index: number): "left" | "right" {
-  return hand.userData.openClinXrHandedness === "right" || index === 1 ? "right" : "left";
-}
-
-function isTrackedHandVisible(hand: XrHandGroup): boolean {
-  return Boolean(hand.visible || hand.joints?.wrist?.visible || hand.joints?.["index-finger-tip"]?.visible);
-}
-
-function isXrHandPinching(hand: XrHandGroup): boolean {
-  const indexTip = hand.joints?.["index-finger-tip"];
-  const thumbTip = hand.joints?.["thumb-tip"];
-  if (!indexTip?.visible || !thumbTip?.visible) {
-    return false;
-  }
-  return indexTip.position.distanceTo(thumbTip.position) <= handPinchDistanceThresholdMeters;
-}
-
-function readXrGamepadLocomotion(session: XrSession | undefined): {
-  forward: number;
-  strafe: number;
-  turn: number;
-  handInputsObserved: number;
-  inputSources: XrInputSourceEvidence[];
-  diagnostics: LocomotionAttemptDiagnosticsEvidence["gamepadSources"];
-} {
-  let forward = 0;
-  let strafe = 0;
-  let turn = 0;
-  let handInputsObserved = 0;
-  const inputSources: XrInputSourceEvidence[] = [];
-  const diagnostics: LocomotionAttemptDiagnosticsEvidence["gamepadSources"] = [];
-
-  for (const source of session?.inputSources ?? []) {
-    if (source.hand) {
-      handInputsObserved += 1;
-    }
-    const axes = source.gamepad?.axes ?? [];
-    inputSources.push({
-      handedness: source.handedness ?? "unknown",
-      hasHand: Boolean(source.hand),
-      hasGamepad: Boolean(source.gamepad),
-      axisCount: axes.length,
-    });
-    const selectedXAxisIndex = axes[2] === undefined ? (axes[0] === undefined ? null : 0) : 2;
-    const selectedYAxisIndex = axes[3] === undefined ? (axes[1] === undefined ? null : 1) : 3;
-    const xAxis = deadzone(selectedXAxisIndex === null ? 0 : axes[selectedXAxisIndex] ?? 0);
-    const yAxis = deadzone(selectedYAxisIndex === null ? 0 : axes[selectedYAxisIndex] ?? 0);
-    if (source.gamepad) {
-      diagnostics.push({
-        handedness: source.handedness ?? "unknown",
-        rawAxes: Array.from(axes),
-        selectedXAxisIndex,
-        selectedYAxisIndex,
-        xAxisAfterDeadzone: xAxis,
-        yAxisAfterDeadzone: yAxis,
-        activeAfterDeadzone: xAxis !== 0 || yAxis !== 0,
-        contribution: source.handedness === "right" ? "turn" : "move",
-      });
-    }
-    if (source.handedness === "right") {
-      turn += xAxis;
-      continue;
-    }
-    strafe += xAxis;
-    forward += -yAxis;
-  }
-
-  return {
-    forward: clampUnit(forward),
-    strafe: clampUnit(strafe),
-    turn: clampUnit(turn),
-    handInputsObserved,
-    inputSources,
-    diagnostics,
-  };
-}
-
-const deadzone = (v: number) => Math.abs(v) < xrGamepadDeadzone ? 0 : clampUnit(v);
-const isLocomotionVectorActive = (vector: LocomotionVectorEvidence) =>
-  Math.abs(vector.forward) > 0 || Math.abs(vector.strafe) > 0 || Math.abs(vector.turn) > 0;
-const clampUnit = (value: number) => clamp(value, -1, 1);
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 const actorMesh = (color: number): Group => createPrimitiveActorMesh(color);
 
 function createVirtualDeviceActorAffordance(actorId: string): Group {
@@ -6466,7 +5314,7 @@ function tryClinicalTouchFromHandPose(
   renderer: WebGLRenderer,
   source: OpenClinXrTraceLatencyEvidence["source"],
 ): boolean {
-  const hand = renderer.xr.getHand(1) as XrHandGroup;
+  const hand = renderer.xr.getHand(1) as PackageXrHandGroup;
   const wrist = hand?.joints?.wrist;
   const indexTip = hand?.joints?.["index-finger-tip"];
   if (!wrist?.visible || !indexTip?.visible) return false;
@@ -6799,7 +5647,7 @@ function loadGeneratedHumanoidIntoActorSlot(
       // recumbent limb map at load (frame loop already guards; load path did not).
       if (!cleanSourceComparatorCapture && posture !== "supine") {
         applyGeneratedHumanoidClinicalIdlePosture(humanoid);
-        applyGeneratedHumanoidRoleSpecificPosture(humanoid, options.actorId);
+        applyPackageGeneratedHumanoidRoleSpecificPosture(uiXrRolePostureContext(), humanoid, options.actorId);
       } else if (cleanSourceComparatorCapture) {
         humanoid.userData.openClinXrSourceComparatorPosturePolicy =
           "source_pose_preserved_for_clean_comparator_capture_no_runtime_posture_override";
@@ -6957,7 +5805,7 @@ function loadGeneratedHumanoidIntoActorSlot(
       for (const child of primitiveFallbackChildren) {
         child.visible = true;
       }
-      applyGeneratedHumanoidRoleSpecificPosture(actorSlot, options.actorId);
+      applyPackageGeneratedHumanoidRoleSpecificPosture(uiXrRolePostureContext(), actorSlot, options.actorId);
       addRoleSpecificHumanoidVisuals(actorSlot, options.actorId, "primitive_fallback");
       actorSlot.userData.openClinXrGeneratedHumanoidFallbackPolicy =
         "primitive_actor_restored_when_generated_humanoid_asset_unavailable_to_avoid_empty_encounter_scene";
@@ -7900,7 +6748,7 @@ function isGeneratedRuntimeDrive(value: unknown): value is GeneratedRuntimeDrive
   return isPackageGeneratedRuntimeDrive(value);
 }
 
-function pediatricAsthmaActingOverlayForSlot(
+function _pediatricAsthmaActingOverlayForSlot(
   slot: GeneratedHumanoidAnimationSlot,
   t: number,
   isSpeaking: boolean,
@@ -7908,7 +6756,7 @@ function pediatricAsthmaActingOverlayForSlot(
   return pediatricPackageAsthmaActingOverlayForSlot(humanoidAnimationContext, slot, t, isSpeaking);
 }
 
-function recordRuntimeHumanoidActingCueEvidence(actorCues: RuntimeHumanoidActingCueEvidence["actorCues"]): void {
+function _recordRuntimeHumanoidActingCueEvidence(actorCues: RuntimeHumanoidActingCueEvidence["actorCues"]): void {
   window.__openClinXrRuntimeHumanoidActingCueEvidence = {
     source: "window.__openClinXrRuntimeHumanoidActingCueEvidence",
     scenarioId: encounterRuntimeAssetBundle.scenarioId,
@@ -8050,12 +6898,12 @@ function humanoidDialogueDurationMs(phonemeCount: number): number {
   return humanoidPackageDialogueDurationMs(phonemeCount, isHumanoidMouthGazePoseReviewCaptureMode());
 }
 
-function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: number, camera: PerspectiveCamera): void {
+function _updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: number, camera: PerspectiveCamera): void {
   updatePackageHumanoidSpeechCue(humanoidAnimationContext, slot, nowMs, camera);
 }
 
 
-function recordMouthGazePoseComparatorEvidence(
+function _recordMouthGazePoseComparatorEvidence(
   slot: GeneratedHumanoidAnimationSlot,
   speech: HumanoidSpeechPlayback,
   viseme: string,
@@ -8067,7 +6915,7 @@ function recordMouthGazePoseComparatorEvidence(
 }
 
 
-function applyHumanoidFaceRigControls(
+function _applyHumanoidFaceRigControls(
   slot: GeneratedHumanoidAnimationSlot,
   openness: number,
   viseme: string,
@@ -8148,19 +6996,19 @@ function scenarioDialogueEmotionContext(
   };
 }
 
-function computeHumanoidEyeMotionMetrics(speech: HumanoidSpeechPlayback, nowMs: number): HumanoidEyeMotionMetrics {
+function _computeHumanoidEyeMotionMetrics(speech: HumanoidSpeechPlayback, nowMs: number): HumanoidEyeMotionMetrics {
   return computePackageHumanoidEyeMotionMetrics(speech, nowMs);
 }
 
-function lerp(from: number, to: number, alpha: number): number {
+function _lerp(from: number, to: number, alpha: number): number {
   return lerpPackageHumanoidAnimation(from, to, alpha);
 }
 
-function roundHumanoidExpressionWeights(weights: HumanoidExpressionWeights): HumanoidExpressionWeights {
+function _roundHumanoidExpressionWeights(weights: HumanoidExpressionWeights): HumanoidExpressionWeights {
   return roundPackageHumanoidExpressionWeights(weights);
 }
 
-function resetHumanoidFaceRigControls(slot: GeneratedHumanoidAnimationSlot): void {
+function _resetHumanoidFaceRigControls(slot: GeneratedHumanoidAnimationSlot): void {
   resetPackageHumanoidFaceRigControls(slot);
 }
 
@@ -8173,19 +7021,19 @@ function applyHumanoidMorphTargetCue(
   applyPackageHumanoidMorphTargetCue(slot, openness, viseme, expressionWeights, applyNamedSpeechVisemes);
 }
 
-function offsetRigControl(control: ReturnType<Group["getObjectByName"]>, x: number, y: number, z: number): void {
+function _offsetRigControl(control: ReturnType<Group["getObjectByName"]>, x: number, y: number, z: number): void {
   offsetPackageHumanoidRigControl(control, x, y, z);
 }
 
-function rotateRigControl(control: ReturnType<Group["getObjectByName"]>, x: number, y: number, z: number): void {
+function _rotateRigControl(control: ReturnType<Group["getObjectByName"]>, x: number, y: number, z: number): void {
   rotatePackageHumanoidRigControl(control, x, y, z);
 }
 
-function scaleRigControl(control: ReturnType<Group["getObjectByName"]>, x: number, y: number, z: number): void {
+function _scaleRigControl(control: ReturnType<Group["getObjectByName"]>, x: number, y: number, z: number): void {
   scalePackageHumanoidRigControl(control, x, y, z);
 }
 
-function ensureRigControlBase(control: NonNullable<ReturnType<Group["getObjectByName"]>>): {
+function _ensureRigControlBase(control: NonNullable<ReturnType<Group["getObjectByName"]>>): {
   position: { x: number; y: number; z: number };
   rotation: { x: number; y: number; z: number };
   scale: { x: number; y: number; z: number };
@@ -8213,12 +7061,12 @@ function ensureRigControlBase(control: NonNullable<ReturnType<Group["getObjectBy
   return base;
 }
 
-function updateVirtualDeviceActorSpeechPulses(nowMs: number): void {
+function _updateVirtualDeviceActorSpeechPulses(nowMs: number): void {
   updatePackageVirtualDeviceActorSpeechPulses(humanoidAnimationContext, nowMs);
 }
 
 
-function updateHumanoidGazeCue(
+function _updateHumanoidGazeCue(
   slot: GeneratedHumanoidAnimationSlot,
   speech: HumanoidSpeechPlayback,
   camera: PerspectiveCamera,
@@ -8237,11 +7085,11 @@ function orientHumanoidTowardGazeTarget(slot: GeneratedHumanoidAnimationSlot, ta
 }
 
 
-function normalizeAngle(angle: number): number {
+function _normalizeAngle(angle: number): number {
   return normalizePackageHumanoidAnimationAngle(angle);
 }
 
-function clampDialogueFacingYaw(value: number): number {
+function _clampDialogueFacingYaw(value: number): number {
   return clampPackageDialogueFacingYaw(value);
 }
 
@@ -8672,7 +7520,7 @@ function updateManualEvidencePanel(): string {
     window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
   );
   evidenceLocomotion.textContent = [
-    formatPortalTransitionEvidence(window.__openClinXrPortalTransitionEvidence ?? null),
+    formatPackagePortalTransitionEvidence(window.__openClinXrPortalTransitionEvidence ?? null),
     summary.activeLocomotionSource ?? "none",
     summary.locomotionEvidenceReady ? "locomotion ready" : "locomotion gap",
     `attempt ${summary.locomotionAttempt ?? "unknown"}`,
@@ -8727,11 +7575,11 @@ function updateManualEvidencePanel(): string {
   return payload;
 }
 
-function formatAppSceneAssetEvidenceStatus(evidence: SceneAssetEvidence | null): string {
+function _formatAppSceneAssetEvidenceStatus(evidence: SceneAssetEvidence | null): string {
   return formatPackageSceneAssetEvidenceStatus(evidence);
 }
 
-function formatAppCaseDefinedHumanoidPerformanceContractEvidence(evidence: CaseDefinedHumanoidPerformanceContractEvidence | null): string {
+function _formatAppCaseDefinedHumanoidPerformanceContractEvidence(evidence: CaseDefinedHumanoidPerformanceContractEvidence | null): string {
   return formatPackageCaseDefinedHumanoidPerformanceContractEvidence(evidence);
 }
 
@@ -8826,18 +7674,6 @@ function formatLocomotionProbeSummary(
   return `probe ${summary.primaryReason}; ctrl ${summary.controllerSources.activeAfterDeadzone}/${summary.controllerSources.total}; hand ${summary.handGesture.pinching}/${summary.handGesture.handsObserved}`;
 }
 
-function formatPortalTransitionEvidence(evidence: PortalTransitionEvidence | null): string {
-  if (!evidence) {
-    return "portal pending";
-  }
-  return [
-    `portal ${evidence.side}`,
-    evidence.encounterEntered ? "entered dynamic encounter" : "outside encounter",
-    evidence.encounterStartedByPortal ? "portal started encounter" : "portal start pending",
-    evidence.reusableExteriorHiddenForEncounterView ? "exterior shell hidden" : "exterior shell visible",
-    `note ${evidence.noteCaptureLocation}`,
-  ].join("; ");
-}
 
 let start = performance.now();
 function tick(): void {
@@ -8897,7 +7733,7 @@ function buildHumanoidSpeechEvidence(
   return buildPackageHumanoidSpeechEvidence(actorId, assetId, text, phonemeSequence, visemeSequence, gazeTarget, emotionContext, actorRuntimeRealismRequirement);
 }
 
-function buildRuntimeActorRealismLaunchBadge(
+function _buildRuntimeActorRealismLaunchBadge(
   requirement: NonNullable<HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"]>,
 ): NonNullable<HumanoidSpeechEvidence["activeActorRealismLaunchBadge"]> {
   return buildPackageRuntimeActorRealismLaunchBadge(requirement);
@@ -8938,11 +7774,11 @@ function localDialogueGazeTargetForTraceTag(tag: string): HumanoidDialogueGazeTa
     : { kind: "learner_camera", actorId: null };
 }
 
-function visemeOpenness(viseme: string): number {
+function _visemeOpenness(viseme: string): number {
   return visemePackageOpenness(viseme);
 }
 
-function computeAffectRampIntensity(
+function _computeAffectRampIntensity(
   elapsedMs: number,
   durationMs: number,
   timeline: { intensity?: unknown; onsetMs?: unknown; transitionMs?: unknown; decayMs?: unknown } | null | undefined,

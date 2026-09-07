@@ -85,10 +85,13 @@ describe("static browser assets", () => {
     const captureSource = readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/learner-runtime-evidence.ts", import.meta.url), "utf8");
     const gateSources = `${mainSource}\n${captureSource}`;
 
-    expect(mainSource).toContain("evaluateEncounterRuntimeLearnerUseGate");
-    expect(mainSource).toContain("ENCOUNTER_LEARNER_RUNTIME_REQUIRED_GATE_IDS");
-    expect(mainSource).toContain("shouldUseLearnerRuntimeAssetBundle");
-    expect(mainSource).toContain("bundleUsesOnlyApprovedLocalFixtureAssets");
+    // These four follow the CODE into @openclinxr/xr-capture-evidence: main.ts stopped
+    // calling them when the capture-evidence and humanoid-animation extracts landed, so
+    // asserting on mainSource alone made the fence measure where the code used to live.
+    expect(gateSources).toContain("evaluateEncounterRuntimeLearnerUseGate");
+    expect(gateSources).toContain("ENCOUNTER_LEARNER_RUNTIME_REQUIRED_GATE_IDS");
+    expect(gateSources).toContain("shouldUseLearnerRuntimeAssetBundle");
+    expect(gateSources).toContain("bundleUsesOnlyApprovedLocalFixtureAssets");
     expect(mainSource).toContain("learner_runtime_asset_bundle_api_generated_blocked_by_evidence_gates");
     expect(mainSource).toContain("learner_runtime_asset_bundle_static_generated_blocked_by_evidence_gates");
     expect(mainSource).toContain("__openClinXrLearnerRuntimeUseGateEvidence");
@@ -283,6 +286,7 @@ describe("static browser assets", () => {
   it("adds local mesh hand models with primitive fallback and experimental locomotion affordances", () => {
     // #91: clinical idle arm hang + joint aliases live in clinical-idle-posture.ts (shrink extract).
     // Capture/evidence literals moved to @openclinxr/xr-capture-evidence (shrink extract).
+    // Locomotion/portal-trail/role-posture subsystem moved to @openclinxr/xr-locomotion (shrink extract).
     const mainSource = [
       readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
       readFileSync(
@@ -296,6 +300,9 @@ describe("static browser assets", () => {
       readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/scene-asset-evidence.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/speech-evidence.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/animation-loop.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/locomotion.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/portal-trail.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/role-posture.ts", import.meta.url), "utf8"),
     ].join("\n");
     const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
@@ -471,8 +478,8 @@ describe("static browser assets", () => {
     expect(runtimeStateSource).toContain('localHandMeshPath = "/xr-hands/generic-hand/"');
     expect(runtimeStateSource).toContain('meshHandModelProfile = "mesh"');
     expect(runtimeStateSource).toContain('meshHandRepresentationKind = "mesh"');
-    expect(mainSource).toContain("handGestureDwellMs");
-    expect(mainSource).toContain("handPinchDistanceThresholdMeters");
+    expect(mainSource).toContain("HAND_GESTURE_DWELL_MS");
+    expect(mainSource).toContain("HAND_PINCH_DISTANCE_THRESHOLD_METERS");
     expect(mainSource).toContain("handGestureLocomotionOriginMeters");
     expect(mainSource).toContain("handGestureRelativeOffsetMeters");
     expect(mainSource).toContain("isXrHandPinching");
@@ -695,6 +702,9 @@ describe("static browser assets", () => {
       readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/scene-manifest-evidence.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/learner-runtime-evidence.ts", import.meta.url), "utf8"),
       // Humanoid-animation subsystem split to @openclinxr/xr-humanoid-animation (shrink extract).
+      readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/locomotion.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/portal-trail.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/role-posture.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/animation-loop.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/speech-evidence.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/face-rig.ts", import.meta.url), "utf8"),
@@ -1202,6 +1212,7 @@ describe("static browser assets", () => {
   it("derives doorway visual theme from the selected encounter bundle instead of hardcoding one shared room identity", () => {
     // #185: room_prop policy string lives in room-prop-geometry.ts (main is shrink-only).
     // Visual-review filter moved to @openclinxr/xr-capture-evidence (shrink extract).
+    // Locomotion/portal-trail subsystem moved to @openclinxr/xr-locomotion (shrink extract).
     const mainSource = [
       readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
       readFileSync(
@@ -1209,6 +1220,9 @@ describe("static browser assets", () => {
         "utf8",
       ),
       readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/visual-review-filter.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/portal-trail.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/locomotion.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/role-posture.ts", import.meta.url), "utf8"),
     ].join("\n");
 
     expect(mainSource).toContain("scenarioDoorwayVisualTheme");
@@ -1226,7 +1240,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("formatPortalTransitionEvidence");
     expect(mainSource).toContain("entered dynamic encounter");
     expect(mainSource).toContain("portal started encounter");
-    expect(mainSource).toContain("selectedPortalPreviewStart");
+    expect(mainSource).toContain("parsePortalPreviewStart");
     expect(mainSource).toContain("applyDeterministicPortalPreviewStart");
     expect(mainSource).toContain("openclinxrPortalStart");
     expect(mainSource).toContain("transitionProbeZ");
