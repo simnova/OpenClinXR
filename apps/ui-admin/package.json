@@ -13,23 +13,17 @@
   },
   "dependencies": {
     "@apollo/client": "4.1.9",
-    "@openclinxr/asset-registry": "workspace:*",
     "@openclinxr/domain": "workspace:*",
-    "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/factory-stations": "workspace:*",
-    "@openclinxr/graphql": "workspace:*",
-    "@openclinxr/rest": "workspace:*",
-    "@openclinxr/review-workflow": "workspace:*",
-    "@openclinxr/shared-schemas": "workspace:*",
     "@openclinxr/ui-route-admin": "workspace:*",
     "@openclinxr/ui-shared": "workspace:*",
     "@xyflow/react": "^12.11.5",
     "antd": "catalog:",
-    "graphql": "catalog:",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-router": "8.3.0",
-    "rxjs": "7.8.2"
+    "rxjs": "7.8.2",
+    "@openclinxr/ui-route-shared": "workspace:*"
   },
   "devDependencies": {
     "@testing-library/dom": "10.4.1",

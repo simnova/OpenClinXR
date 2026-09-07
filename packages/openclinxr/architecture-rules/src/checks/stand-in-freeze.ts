@@ -72,8 +72,6 @@ export const STAND_IN_FREEZE: Record<string, StandInCounts> = {
   "apps/arena/model-vetting-studio/src/pipeline-admin/promote-panel.test.tsx": { emptyArrows: 0, casts: 2 },
   "apps/arena/ui-xr-iwsdk-spike/src/uikitml-spatial-text.ts": { emptyArrows: 0, casts: 1 },
   "apps/ui-admin/src/app.test.tsx": { emptyArrows: 0, casts: 1 },
-  "apps/ui-admin/src/api-client.test.ts": { emptyArrows: 0, casts: 1 },
-  "apps/ui-admin/src/api-client.ts": { emptyArrows: 0, casts: 2 },
   "apps/ui-admin/src/the-scenario-edit-invalidates-stale-faculty-approval.test.tsx": { emptyArrows: 0, casts: 7 },
   "apps/ui-xr/src/lighting-rig-runtime.test.ts": { emptyArrows: 1, casts: 4 },
   "apps/ui-xr/src/main.ts": { emptyArrows: 1, casts: 23 },

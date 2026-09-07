@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import type { AdminScenario, AdminScenarioReviewDecision } from "./api-client.js";
+import type { AdminScenario, AdminScenarioReviewDecision } from "@openclinxr/ui-route-shared/admin-api-client-types";
 import {
   facultyCompileLockAllowsCompile,
   facultyCompileLockIdentityMoved,

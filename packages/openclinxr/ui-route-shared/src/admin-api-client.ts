@@ -42,7 +42,6 @@ import { print } from "graphql";
 
 import type {
   AdminApolloGraphqlClient,
-  AdminNoReadinessEvidenceClaim,
   AdminControlPlaneClientOptions,
   AdminControlPlaneClient,
   ListScenariosInput,
@@ -112,11 +111,11 @@ import type {
   AdminScenarioReviewResult,
   AdminReviewPacket,
   AdminStationRunQueueSnapshot,
-} from "./api-client-types.js";
-import type { FacultyCompileLockClient } from "@openclinxr/ui-route-admin"; import { encounterBundlePromotionMethods } from "./compile-encounter-world.js";
-export { compileEncounterWorld } from "./compile-encounter-world.js"; export * from "./api-client-types.js";
+} from "./admin-api-client-types.js";
+import { encounterBundlePromotionMethods } from "./compile-encounter-world.js";
+export { compileEncounterWorld } from "./compile-encounter-world.js"; export * from "./admin-api-client-types.js";
 
-export const defaultAdminApiBaseUrl = import.meta.env['VITE_OPENCLINXR_API_BASE_URL'] ?? "";
+export const defaultAdminApiBaseUrl = import.meta.env["VITE_OPENCLINXR_API_BASE_URL"] ?? "";
 
 const stationRunQueueSnapshotsDocument = print(StationRunQueueSnapshotsDocument);
 const createStationRunQueueSnapshotDocument = print(CreateStationRunQueueSnapshotDocument);
@@ -131,7 +130,7 @@ export function buildAdminGraphqlEndpoint(baseUrl: string = defaultAdminApiBaseU
   return `${normalizeBaseUrl(baseUrl)}${routeById("admin-graphql-execute").path}`;
 }
 
-export function createAdminControlPlaneClient(options: AdminControlPlaneClientOptions = {}): AdminControlPlaneClient & FacultyCompileLockClient {
+export function createAdminControlPlaneClient(options: AdminControlPlaneClientOptions = {}): AdminControlPlaneClient {
   const baseUrl = normalizeBaseUrl(options.baseUrl ?? defaultAdminApiBaseUrl);
   const fetcher = options.fetch ?? fetch;
   const apolloClient = options.apolloClient;

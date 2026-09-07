@@ -3,6 +3,11 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
+    "lib": [
+      "ES2023",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "types": [
       "node",
       "vitest"
@@ -20,5 +25,28 @@
     "**/*.test.tsx",
     "**/*.spec.ts",
     "dist"
+  ],
+  "references": [
+    {
+      "path": "../asset-registry"
+    },
+    {
+      "path": "../exam-assembly"
+    },
+    {
+      "path": "../graphql"
+    },
+    {
+      "path": "../rest"
+    },
+    {
+      "path": "../review-workflow"
+    },
+    {
+      "path": "../shared-schemas"
+    },
+    {
+      "path": "../ui-shared"
+    }
   ]
 }

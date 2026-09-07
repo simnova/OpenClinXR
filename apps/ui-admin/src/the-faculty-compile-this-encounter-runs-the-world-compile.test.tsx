@@ -85,7 +85,7 @@ describe("the faculty Compile this encounter runs the world compile", () => {
   });
 
   it("(2) api-client exposes compileEncounterWorld posting to /internal/world-compile", async () => {
-    const client = (await import("./api-client.js")) as Record<string, unknown>;
+    const client = (await import("@openclinxr/ui-route-shared/compile-encounter-world")) as Record<string, unknown>;
     expect(typeof client["compileEncounterWorld"]).toBe("function");
   });
 

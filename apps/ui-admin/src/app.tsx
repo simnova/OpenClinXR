@@ -7,7 +7,7 @@ import { Card, ConfigProvider, Layout, Space, Steps, Tag, Typography } from "ant
 import { Link } from "react-router";
 import { useMemo } from "react";
 import { BrowserRouter, MemoryRouter, Route, Routes } from "react-router";
-import { buildAdminGraphqlEndpoint, createAdminControlPlaneClient, compileEncounterWorld, type AdminControlPlaneClient } from "./api-client.js";
+import { buildAdminGraphqlEndpoint, createAdminControlPlaneClient, compileEncounterWorld, type AdminControlPlaneClient } from "@openclinxr/ui-route-shared";
 import { CaseAuthoringWorkbench, type FacultyCompileLockClient } from "@openclinxr/ui-route-admin";
 
 const { Content, Sider } = Layout;

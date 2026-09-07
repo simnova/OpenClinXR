@@ -10,7 +10,7 @@ import {
 } from "@openclinxr/graphql/client";
 import { print } from "graphql";
 import { describe, expect, it, vi } from "vitest";
-import { type AdminApolloGraphqlClient, buildAdminGraphqlEndpoint, createAdminControlPlaneClient } from "./api-client.js";
+import { type AdminApolloGraphqlClient, buildAdminGraphqlEndpoint, createAdminControlPlaneClient } from "./admin-api-client.js";
 
 describe("admin control-plane API client", () => {
   it("builds the Apollo endpoint from the same base URL as fetch-backed GraphQL requests", () => {

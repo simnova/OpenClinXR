@@ -1,4 +1,11 @@
-import type { AdminControlPlaneClientOptions } from "./api-client-types.js";
+import type {
+  AdminControlPlaneClientOptions,
+  FacultyEncounterBundlePromotionSelection,
+} from "./admin-api-client-types.js";
+import {
+  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH as PROMOTION_PATH,
+  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH as PROMOTION_PREVIEW_PATH,
+} from "@openclinxr/rest";
 
 /**
  * Faculty world-compile request: POSTs the featured scenario to
@@ -49,12 +56,6 @@ export async function compileEncounterWorld(
   return response.json() as Promise<Record<string, unknown>>;
 }
 
-import {
-  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH as PROMOTION_PATH,
-  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH as PROMOTION_PREVIEW_PATH,
-  type FacultyEncounterBundlePromotionSelection,
-} from "@openclinxr/ui-route-admin/encounter-bundle-promotion";
-
 async function post<TResponse = unknown>(
   fetcher: typeof fetch,
   baseUrl: string,
@@ -97,7 +98,7 @@ export function encounterBundlePromotionMethods(context: {
   baseUrl: string;
   authHeaders: () => Promise<Record<string, string>>;
 }): Pick<
-  import("./api-client-types.js").AdminControlPlaneClient,
+  import("./admin-api-client-types.js").AdminControlPlaneClient,
   "previewFacultyEncounterBundlePromotion" | "promoteFacultyEncounterBundle"
 > {
   const { fetcher, baseUrl, authHeaders } = context;

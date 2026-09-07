@@ -30,3 +30,16 @@ export function findRouteByPath<TRoute extends RouteManifestEntry>(
 ): Readonly<TRoute> | undefined {
   return routes.find((route) => route.path === path);
 }
+
+export {
+  buildAdminGraphqlEndpoint,
+  createAdminControlPlaneClient,
+  compileEncounterWorld,
+  defaultAdminApiBaseUrl,
+} from "./admin-api-client.js";
+export type {
+  AdminControlPlaneClient,
+  AdminControlPlaneClientOptions,
+  AdminApolloGraphqlClient,
+  FacultyCompileLockClient,
+} from "./admin-api-client-types.js";

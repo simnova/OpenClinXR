@@ -21,31 +21,13 @@
   ],
   "references": [
     {
-      "path": "../../packages/openclinxr/asset-registry"
-    },
-    {
       "path": "../../packages/openclinxr/domain"
     },
     {
-      "path": "../../packages/openclinxr/exam-assembly"
-    },
-    {
-      "path": "../../packages/openclinxr/graphql"
-    },
-    {
-      "path": "../../packages/openclinxr/rest"
-    },
-    {
-      "path": "../../packages/openclinxr/review-workflow"
-    },
-    {
-      "path": "../../packages/openclinxr/scenario-fixtures"
-    },
-    {
-      "path": "../../packages/openclinxr/shared-schemas"
-    },
-    {
       "path": "../../packages/openclinxr/ui-route-admin"
+    },
+    {
+      "path": "../../packages/openclinxr/ui-route-shared"
     },
     {
       "path": "../../packages/openclinxr/ui-shared"

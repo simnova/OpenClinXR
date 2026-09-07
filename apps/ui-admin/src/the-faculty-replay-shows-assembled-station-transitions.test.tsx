@@ -6,7 +6,7 @@ import {
   assembledExamDerivedBlockers,
   assembledExamStationReplayPosture,
 } from "@openclinxr/ui-shared/assembled-exam-replay-timeline";
-import type { AdminReviewPacketReplay } from "./api-client.js";
+import type { AdminReviewPacketReplay } from "@openclinxr/ui-route-shared/admin-api-client-types";
 import { ReviewReplayReadinessSummaryPanel } from "@openclinxr/ui-route-admin/review-replay-readiness-summary-panel";
 
 type ReviewReplayReadinessSummary = NonNullable<AdminReviewPacketReplay["reviewReplayReadinessSummary"]>;

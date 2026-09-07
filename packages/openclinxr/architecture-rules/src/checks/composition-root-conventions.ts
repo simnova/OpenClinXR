@@ -50,10 +50,10 @@ export const COMPOSITION_ROOT_APP_BUDGETS: readonly CompositionRootAppBudget[] =
   },
   {
     app: "apps/ui-admin",
-    maxFiles: 7,
-    maxLines: 2273,
+    maxFiles: 4,
+    maxLines: 239,
     reason:
-      "frozen at the 2026-09-06 measurement; ratchet toward the CellixJs largest app (ui-community, 19 files / 1,506 lines) — behaviour moves to packages",
+      "frozen at the 2026-09-07 measurement; ratchet toward the CellixJs largest app (ui-community, 19 files / 1,506 lines) — behaviour moves to packages",
   },
   {
     app: "apps/ui-xr",

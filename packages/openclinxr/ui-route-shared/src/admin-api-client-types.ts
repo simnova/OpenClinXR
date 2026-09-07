@@ -83,6 +83,50 @@ export type AdminControlPlaneClientOptions = {
   getAccessToken?: () => string | undefined | Promise<string | undefined>;
 };
 
+export type PersistFacultyCompileLockInput = {
+  scenarioId: string;
+  nodeId: string;
+  locked: boolean;
+  /** ActorPhenotypeSchema pointer; only the four constant paths are accepted (400 otherwise). */
+  overridePath?: string;
+  /**
+   * ActorPhenotypeSchema value the override applies (the value half of the
+   * `{ op, path, value }` overridePatch the World Compile Graph applies).
+   * Opaque review metadata: the store/baker honor of the value is not asserted here.
+   */
+  overrideValue?: unknown;
+};
+
+export type AdminFacultyCompileLockRecord = import("@openclinxr/rest").ApiFacultyCompileLockRecord;
+
+export type FacultyEncounterBundlePromotionMemberInput = {
+  memberKind: "humanoid" | "room" | "equipment" | "motion" | "voice" | "interaction";
+  assetId: string;
+  pipelineState: "generated" | "reviewed";
+  reviewStatus: "fixture_approved_for_local_runtime" | "approved_for_local_runtime" | "blocked";
+  provenanceRefs: readonly string[];
+  contentHash: string;
+  expectedContentHash: string;
+  missingReviewAttestations: readonly string[];
+};
+
+export type FacultyEncounterBundlePromotionSelection = {
+  scenarioId: string;
+  stationId: string;
+  scenarioReviewIdentity: string;
+  expectedScenarioReviewIdentity: string;
+  members: readonly FacultyEncounterBundlePromotionMemberInput[];
+};
+
+export type FacultyLearnerLaunchIdentity = {
+  bundleId: string;
+  href: string;
+};
+
+export type FacultyCompileLockClient = {
+  persistFacultyCompileLock(input: PersistFacultyCompileLockInput): Promise<AdminFacultyCompileLockRecord>;
+};
+
 export type AdminControlPlaneClient = {
   getStep2CsSeedBlueprint(): Promise<ExamBlueprint>;
   getStep2CsSeedBlueprintReadiness(): Promise<BlueprintScenarioReadiness>;
@@ -126,20 +170,20 @@ export type AdminControlPlaneClient = {
   listAuthoredScenarios(): Promise<unknown>;
   getAuthoredScenario(scenarioId: string): Promise<unknown>;
   previewFacultyEncounterBundlePromotion(
-    input: import("@openclinxr/ui-route-admin/encounter-bundle-promotion").FacultyEncounterBundlePromotionSelection,
+    input: FacultyEncounterBundlePromotionSelection,
   ): Promise<{
     canPromote: boolean;
     blockers: string[];
     attestations: string[];
   }>;
   promoteFacultyEncounterBundle(
-    input: import("@openclinxr/ui-route-admin/encounter-bundle-promotion").FacultyEncounterBundlePromotionSelection,
+    input: FacultyEncounterBundlePromotionSelection,
   ): Promise<{
     promoted: boolean;
-    learnerLaunchIdentity: import("@openclinxr/ui-route-admin/encounter-bundle-promotion").FacultyLearnerLaunchIdentity | null;
+    learnerLaunchIdentity: FacultyLearnerLaunchIdentity | null;
     blockers?: string[];
   }>;
-};
+} & FacultyCompileLockClient;
 
 export type ListScenariosInput = {
   status?: ScenarioStatus;
@@ -1310,4 +1354,8 @@ export type AdminScenarioReviewDecision = ScenarioReviewDecisionsQuery["scenario
 export type AdminScenarioReviewResult = SubmitScenarioReviewMutation["submitScenarioReview"];
 export type AdminReviewPacket = SaveFacultyScoreDraftMutation["saveFacultyScoreDraft"];
 export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
-export type { AuthoredDialogueSeedDraft, DialogueSeedPublicationGate, FrozenActorTurnPlanPreview } from "@openclinxr/ui-route-admin";
+export type {
+  AuthoredDialogueSeedDraft,
+  DialogueSeedPublicationGate,
+  FrozenActorTurnPlanPreview,
+} from "./dialogue-seed-types.js";
