@@ -46,6 +46,9 @@
       "path": "../../packages/openclinxr/xr-scene"
     },
     {
+      "path": "../../packages/openclinxr/xr-asset-loading"
+    },
+    {
       "path": "../../packages/openclinxr/xr-scene-cues"
     },
     {

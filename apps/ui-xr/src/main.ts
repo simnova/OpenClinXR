@@ -19,7 +19,6 @@ import {
   findRuntimeActorAsset,
   findRuntimeEquipmentAsset,
   type LearnerRuntimeAssetBundle,
-  type PedsHumanoidMaterializationHandoff,
   resolveRuntimeAssetUrl,
 } from "@openclinxr/asset-registry/runtime-bundles";
 import {
@@ -31,6 +30,37 @@ import {
 } from "@openclinxr/conversation-policy";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import { responseClipForBodyRegion, scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
+import {
+  addActorSpecificIdentityVariantCue as addPackageActorSpecificIdentityVariantCue,
+  addHumanoidSourceComparatorFaceReviewCues as addPackageHumanoidSourceComparatorFaceReviewCues,
+  addReusableExteriorPreEncounterRoom as addPackageReusableExteriorPreEncounterRoom,
+  addScenarioSpecificClinicalSetDressing as addPackageScenarioSpecificClinicalSetDressing,
+  addRoleSpecificHumanoidVisuals as addRoleSpecificHumanoidVisualsPackage,
+  addScenarioSpecificClinicalTeamCue as addScenarioSpecificClinicalTeamCuePackage,
+  addScenarioSpecificFamilyCue as addScenarioSpecificFamilyCuePackage,
+  addScenarioSpecificPatientCue as addScenarioSpecificPatientCuePackage,
+  clinicalTouchResponseClipNamesForActor as clinicalPackageTouchResponseClipNamesForActor,
+  comparatorCaptureSubjectActorId as comparatorPackageCaptureSubjectActorId,
+  configureSemanticRolePoseOverlay as configureSemanticRolePoseOverlayPackage,
+  frameComparatorCaptureOnNamedActor as framePackageComparatorCaptureOnNamedActor,
+  gazeProbeAnimationClipNamesFromGltf as gazePackageProbeAnimationClipNamesFromGltf,
+  hasAuthoredClinicalIdlePoseClip as hasPackageAuthoredClinicalIdlePoseClip,
+  loadGeneratedEnvironmentIntoSceneSlot as loadPackageGeneratedEnvironmentIntoSceneSlot,
+  loadGeneratedEquipmentIntoSceneSlot as loadPackageGeneratedEquipmentIntoSceneSlot,
+  loadGeneratedHumanoidIntoActorSlot as loadPackageGeneratedHumanoidIntoActorSlot,
+  neutralizeGeneratedHumanoidMorphTargets as neutralizePackageGeneratedHumanoidMorphTargets,
+  type AssetLoadingContext as PackageAssetLoadingContext,
+  type AssetLoadingScenarioTheme as PackageAssetLoadingScenarioTheme,
+  type HumanoidCueMode as PackageHumanoidCueMode,
+  pedsAsthmaPatientBundleVisemeUtterance as pedsPackageAsthmaPatientBundleVisemeUtterance,
+  registerGeneratedHumanoidAnimation as registerPackageGeneratedHumanoidAnimation,
+  roleAnimationClipNamesForActor as rolePackageAnimationClipNamesForActor,
+  runtimeHumanoidVariantAssetPath as runtimePackageHumanoidVariantAssetPath,
+  selectedHumanoidSourceComparator as selectedPackageHumanoidSourceComparator,
+  shouldShowProceduralHumanoidDetailCues as shouldShowProceduralHumanoidDetailCuesPackage,
+  suppressRuntimeDiagnosticOverlaysForSourceComparator as suppressPackageRuntimeDiagnosticOverlaysForSourceComparator,
+  tintGeneratedSceneMaterials as tintPackageGeneratedSceneMaterials,
+} from "@openclinxr/xr-asset-loading";
 import {
   buildCaseDefinedHumanoidPerformanceContractEvidence as buildPackageCaseDefinedHumanoidPerformanceContractEvidence,
   buildRuntimeSceneManifestEvidence as buildPackageRuntimeSceneManifestEvidence,
@@ -70,19 +100,11 @@ import { type ActorTurnPlayback, applyNamedSpeechVisemes, attachBakedCuesToSpeec
   registerLiveActorTurn,
   resolveLiveActorTurnForTrace,visemesForText } from "@openclinxr/xr-dialogue";
 import {
-  applyHumanoidFaceRigControls as applyPackageHumanoidFaceRigControls,
   applyHumanoidMorphTargetCue as applyPackageHumanoidMorphTargetCue,
   buildHumanoidSpeechEvidence as buildPackageHumanoidSpeechEvidence,
-  buildRuntimeActorRealismLaunchBadge as buildPackageRuntimeActorRealismLaunchBadge,
-  clampDialogueFacingYaw as clampPackageDialogueFacingYaw,
-  computeAffectRampIntensity as computePackageAffectRampIntensity,
-  computeHumanoidEyeMotionMetrics as computePackageHumanoidEyeMotionMetrics,
   createHumanoidEmotionExpressionState as createPackageHumanoidEmotionExpressionState,
   humanoidDialogueDurationMs as humanoidPackageDialogueDurationMs,
   isGeneratedRuntimeDrive as isPackageGeneratedRuntimeDrive,
-  lerpHumanoidAnimation as lerpPackageHumanoidAnimation,
-  normalizeHumanoidAnimationAngle as normalizePackageHumanoidAnimationAngle,
-  offsetHumanoidRigControl as offsetPackageHumanoidRigControl,
   orientHumanoidEyeFocusCue as orientPackageHumanoidEyeFocusCue,
   orientHumanoidTowardGazeTarget as orientPackageHumanoidTowardGazeTarget,
   type GeneratedHumanoidAnimationSlot as PackageGeneratedHumanoidAnimationSlot,
@@ -93,24 +115,13 @@ import {
   type HumanoidEmotionExpressionState as PackageHumanoidEmotionExpressionState,
   type HumanoidExpressionEmotion as PackageHumanoidExpressionEmotion,
   type HumanoidExpressionWeights as PackageHumanoidExpressionWeights,
-  type HumanoidEyeMotionMetrics as PackageHumanoidEyeMotionMetrics,
   type HumanoidSpeechPlayback as PackageHumanoidSpeechPlayback,
   type MouthGazePoseComparatorEvidenceRecord as PackageMouthGazePoseComparatorEvidenceRecord,
   type RuntimeHumanoidActingCueEvidenceRecord as PackageRuntimeHumanoidActingCueEvidenceRecord,
-  pediatricAsthmaActingOverlayForSlot as pediatricPackageAsthmaActingOverlayForSlot,
-  recordMouthGazePoseComparatorEvidence as recordPackageMouthGazePoseComparatorEvidence,
-  resetHumanoidFaceRigControls as resetPackageHumanoidFaceRigControls,
   resolveHumanoidGazeTargetWorld as resolvePackageHumanoidGazeTargetWorld,
-  rotateHumanoidRigControl as rotatePackageHumanoidRigControl,
-  roundHumanoidExpressionWeights as roundPackageHumanoidExpressionWeights,
-  scaleHumanoidRigControl as scalePackageHumanoidRigControl,
   startHumanoidEmotionTransition as startPackageHumanoidEmotionTransition,
   updateGeneratedHumanoidAnimations as updatePackageGeneratedHumanoidAnimations,
   updateHumanoidEmotionExpression as updatePackageHumanoidEmotionExpression,
-  updateHumanoidGazeCue as updatePackageHumanoidGazeCue,
-  updateHumanoidSpeechCue as updatePackageHumanoidSpeechCue,
-  updateVirtualDeviceActorSpeechPulses as updatePackageVirtualDeviceActorSpeechPulses,
-  visemeOpenness as visemePackageOpenness,
 } from "@openclinxr/xr-humanoid-animation";
 import {
   applyDeterministicPortalPreviewStart as applyPackageDeterministicPortalPreviewStart,
@@ -224,35 +235,6 @@ import {
   xrExperienceModeEvidence,
 } from "@openclinxr/xr-runtime-state";
 import {
-  ROOM_ENVIRONMENTAL_REALISM_CUE_IDS as roomPackageEnvironmentalRealismCueIds,
-  applyPedsActorPlayerSequenceListenerCues as applyPackagePedsActorPlayerSequenceListenerCues,
-  buildHumanoidSpeechEvidence as buildPackageTraceHumanoidSpeechEvidence,
-  buildRuntimeReproducibilityEvidence as buildPackageTraceRuntimeReproducibilityEvidence,
-  createFrameAccumulator as createPackageTraceFrameAccumulator,
-  createTraceSelectLatencyRecorder as createPackageTraceSelectLatencyRecorder,
-  formatActorPlayerRuntimeMetadataSummary as formatPackageTraceActorPlayerRuntimeMetadataSummary,
-  formatEnvironmentRoomSummary as formatPackageTraceEnvironmentRoomSummary,
-  formatLearnerRuntimeUseGate as formatPackageTraceLearnerRuntimeUseGate,
-  formatMaterializationAttachmentSummary as formatPackageTraceMaterializationAttachmentSummary,
-  formatRemainingRuntimeBlockerReasons as formatPackageTraceRemainingRuntimeBlockerReasons,
-  formatRuntimePostureLane as formatPackageTraceRuntimePostureLane,
-  formatRuntimeReadinessDecision as formatPackageTraceRuntimeReadinessDecision,
-  formatTechnicalGapStatus as formatPackageTraceTechnicalGapStatus,
-  formatTraceInteractionEvidenceSummary as formatPackageTraceTraceInteractionEvidenceSummary,
-  listenerEmotionForSequence as listenerPackageEmotionForSequence,
-  pedsActorPlayerRuntimeTurns as pedsPackageActorPlayerRuntimeTurns,
-  recordFrame as recordPackageTraceFrame,
-  recordPedsActorPlayerRuntimePlaybackEvidence as recordPackagePedsActorPlayerRuntimePlaybackEvidence,
-  recordTraceSelectLatency as recordPackageTraceTraceSelectLatency,
-  updateEnvironmentStateForTrace as updatePackageTraceEnvironmentStateForTrace,
-  updateManualEvidencePanel as updatePackageTraceManualEvidencePanel,
-  updateRuntimePosturePanel as updatePackageTraceRuntimePosturePanel,
-  updateTraceActionHandoffEvidence as updatePackageTraceTraceActionHandoffEvidence,
-  updateTraceInteractionEvidenceSummary as updatePackageTraceTraceInteractionEvidenceSummary,
-  updateTraceReadiness as updatePackageTraceReadiness,
-  updateXrStatus as updatePackageTraceXrStatus,
-} from "@openclinxr/xr-trace-readiness";
-import {
   type ExamRunQueryDeps,
   type ExamStationContext,
   booleanQueryParam as packageBooleanQueryParam,
@@ -268,7 +250,7 @@ import {
 } from "@openclinxr/xr-runtime-wiring";
 import {
   addGeneratedHumanoidRoleContinuityWardrobeCue,
-  applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,applyRealGarmentEvidenceSurfaces, assertHumanoidRootUpright, 
+  applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,applyRealGarmentEvidenceSurfaces, 
   bootLearnerExamFormFromApi,createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance, 
   collectActorWorldBoxes,
   createLearnerExamFormRunState,createPrimitiveActorMesh, 
@@ -296,8 +278,6 @@ import {
   createRuntimeHumanoidDetailCues as createPackageRuntimeHumanoidDetailCues,
   createVirtualDeviceActorAffordance as createPackageVirtualDeviceActorAffordance,
   type DynamicSceneObjectNamingEvidence,
-  drawWrappedText as drawPackageWrappedText,
-  ensureRuntimeEquipmentTraceMarker as ensurePackageRuntimeEquipmentTraceMarker,
   type PediatricRespiratoryEquipmentCueEvidence,
   type ReadableVrTextPanel,
   type RoleDistinctHumanoidCueEvidence,
@@ -337,8 +317,37 @@ import {
   stampSuppressedDeclaredEquipmentOntoFixtures,stationContextForScenario, 
   syncRemoteAssembledPhase,} from "@openclinxr/xr-station";
 import {
-  AnimationClip,
-  AnimationMixer,
+  applyPedsActorPlayerSequenceListenerCues as applyPackagePedsActorPlayerSequenceListenerCues,
+  buildHumanoidSpeechEvidence as buildPackageTraceHumanoidSpeechEvidence,
+  buildRuntimeReproducibilityEvidence as buildPackageTraceRuntimeReproducibilityEvidence,
+  createFrameAccumulator as createPackageTraceFrameAccumulator,
+  createTraceSelectLatencyRecorder as createPackageTraceSelectLatencyRecorder,
+  formatActorPlayerRuntimeMetadataSummary as formatPackageTraceActorPlayerRuntimeMetadataSummary,
+  formatEnvironmentRoomSummary as formatPackageTraceEnvironmentRoomSummary,
+  formatLearnerRuntimeUseGate as formatPackageTraceLearnerRuntimeUseGate,
+  formatMaterializationAttachmentSummary as formatPackageTraceMaterializationAttachmentSummary,
+  formatRemainingRuntimeBlockerReasons as formatPackageTraceRemainingRuntimeBlockerReasons,
+  formatRuntimePostureLane as formatPackageTraceRuntimePostureLane,
+  formatRuntimeReadinessDecision as formatPackageTraceRuntimeReadinessDecision,
+  formatTechnicalGapStatus as formatPackageTraceTechnicalGapStatus,
+  formatTraceInteractionEvidenceSummary as formatPackageTraceTraceInteractionEvidenceSummary,
+  listenerEmotionForSequence as listenerPackageEmotionForSequence,
+  pedsActorPlayerRuntimeTurns as pedsPackageActorPlayerRuntimeTurns,
+  recordPedsActorPlayerRuntimePlaybackEvidence as recordPackagePedsActorPlayerRuntimePlaybackEvidence,
+  recordFrame as recordPackageTraceFrame,
+  recordTraceSelectLatency as recordPackageTraceTraceSelectLatency,
+  ROOM_ENVIRONMENTAL_REALISM_CUE_IDS as roomPackageEnvironmentalRealismCueIds,
+  updateEnvironmentStateForTrace as updatePackageTraceEnvironmentStateForTrace,
+  updateManualEvidencePanel as updatePackageTraceManualEvidencePanel,
+  updateTraceReadiness as updatePackageTraceReadiness,
+  updateRuntimePosturePanel as updatePackageTraceRuntimePosturePanel,
+  updateTraceActionHandoffEvidence as updatePackageTraceTraceActionHandoffEvidence,
+  updateTraceInteractionEvidenceSummary as updatePackageTraceTraceInteractionEvidenceSummary,
+  updateXrStatus as updatePackageTraceXrStatus,
+} from "@openclinxr/xr-trace-readiness";
+import {
+  type AnimationClip,
+  type AnimationMixer,
   BoxGeometry,
   BufferGeometry,
   Color,
@@ -355,12 +364,10 @@ import {
   PerspectiveCamera,
   Raycaster,
   Scene,
-  SphereGeometry,
   Vector2,
   Vector3,
   WebGLRenderer,
 } from "three";
-import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
@@ -421,21 +428,6 @@ type DeclaredEquipmentMountEvidence = {
   notEvidenceFor: Array<"quest_readiness" | "clinical_validity" | "scoring_validity" | "production_readiness" | "equipment_asset_readiness">;
 };
 
-type RuntimeHumanoidActingCueEvidence = {
-  source: "window.__openClinXrRuntimeHumanoidActingCueEvidence";
-  scenarioId: string;
-  actorCount: number;
-  activeCueIds: string[];
-  actorCues: Array<{
-    actorId: string;
-    role: string | null;
-    cueIds: string[];
-    respiratoryRateCueHz?: number | undefined;
-    gazeAlternationTargetActorId?: string | null | undefined;
-    bodyMotionMode: "procedural_idle_body_motion" | "scenario_dialogue_body_motion_runtime" | "scenario_pediatric_respiratory_distress_idle_overlay" | "source_comparator_runtime_pose_updates_disabled";
-  }>;
-  notEvidenceFor: Array<"quest_readiness" | "clinical_validity" | "scoring_validity" | "production_readiness" | "animation_quality">;
-};
 
 type GeneratedRuntimeDrive = {
   locomotion?: boolean | number | string | GeneratedDriveScalarValue | null;
@@ -864,12 +856,8 @@ function runtimeAdditionalActorId(): string {
  * named actor was invisible. Showing only the named subject makes the frame match the aim.
  */
 function comparatorCaptureSubjectActorIdImpl(): string {
-  const comparator = selectedHumanoidSourceComparator();
-  if (comparator === "peds_anny_real_garment_parent") return runtimeFamilyActorId();
-  if (comparator === "peds_anny_real_garment_nurse") return runtimeClinicalTeamActorId();
-  return runtimePatientActorId();
+  return comparatorPackageCaptureSubjectActorId(assetLoadingContext());
 }
-
 function actorNameplateLabel(prefix: string, actorId: string): string {
   return `${prefix}: ${actorId.replace(/_v\d+$/u, "").replaceAll("_", " ")}`;
 }
@@ -1347,7 +1335,6 @@ type HumanoidEmotionExpressionState = PackageHumanoidEmotionExpressionState;
 type HumanoidSpeechPlayback = PackageHumanoidSpeechPlayback;
 type HumanoidDialogueGazeTarget = PackageHumanoidDialogueGazeTarget;
 type HumanoidDialogueEmotionContext = PackageHumanoidDialogueEmotionContext;
-type HumanoidEyeMotionMetrics = PackageHumanoidEyeMotionMetrics;
 type PedsActorPlayerRuntimeTurn = {
   actorId: string;
   turnId: string;
@@ -1511,9 +1498,6 @@ let lastObservedLocomotionSummary: {
 } | null = null;
 const roomEnvironmentalRealismCueIds = roomPackageEnvironmentalRealismCueIds;
 
-function _recordAppBootPhaseError(error: unknown): string {
-  return formatPackageUnknownError(error);
-}
 
 function formatUnknownError(error: unknown): string {
   return formatPackageUnknownError(error);
@@ -2344,9 +2328,6 @@ function applyRuntimeEquipmentTraceVisuals(evidence: EnvironmentStateEvidence): 
   applyPackageRuntimeEquipmentTraceVisuals(sceneCueTraceVisuals(), evidence);
 }
 
-function _ensureRuntimeEquipmentTraceMarker(slot: Group, assetId: string): Mesh {
-  return ensurePackageRuntimeEquipmentTraceMarker(sceneCueTraceVisuals(), slot, assetId);
-}
 
 function runtimeEquipmentIdsForTraceTag(tag: string): string[] {
   return runtimePackageEquipmentIdsForTag(
@@ -2377,7 +2358,7 @@ function updateTraceActionHandoffEvidence(): XrTraceActionHandoffEvidence {
   });
 }
 
-function updateTraceInteractionEvidenceSummary(
+function _updateTraceInteractionEvidenceSummary(
   handoff: XrTraceActionHandoffEvidence | null | undefined,
 ): XrTraceInteractionEvidenceSummary {
   const summary = updatePackageTraceTraceInteractionEvidenceSummary(
@@ -2683,13 +2664,7 @@ function formatRuntimeReadinessDecision(decision: XrRuntimeReadinessDecision): s
   return formatPackageTraceRuntimeReadinessDecision(decision);
 }
 
-type ScenarioDoorwayVisualTheme = {
-  backgroundColor: number;
-  floorColor: number;
-  panelBackground: string;
-  panelAccent: string;
-  reusedAssetAccentColor: number;
-};
+type ScenarioDoorwayVisualTheme = PackageAssetLoadingScenarioTheme;
 
 function scenarioDoorwayVisualTheme(): ScenarioDoorwayVisualTheme {
   const scenarioId = encounterRuntimeAssetBundle.scenarioId;
@@ -2714,97 +2689,8 @@ function scenarioDoorwayVisualTheme(): ScenarioDoorwayVisualTheme {
   return { backgroundColor: 0x101820, floorColor: 0x55606b, panelBackground: "#eef7f4", panelAccent: "#0f766e", reusedAssetAccentColor: 0x0f766e };
 }
 
-function addReusableExteriorPreEncounterRoom(scene: Scene, doorwayTheme: ScenarioDoorwayVisualTheme): void {
-  const exterior = new Group();
-  reusableExteriorAnteroom = exterior;
-  exterior.name = "openclinxr.reusable-pre-encounter-anteroom";
-  exterior.userData.openClinXrReusableExteriorRoomPolicy =
-    "reused_between_encounters_for_doorway_orientation_and_patient_note_capture_only";
-  exterior.userData.openClinXrPortalPolicy =
-    "clinical_world_beyond_doorway_is_generated_from_active_encounter_runtime_bundle";
-
-  const exteriorFloor = new Mesh(new BoxGeometry(7, 0.082, 1.7), new MeshStandardMaterial({ color: 0x3f4852, roughness: 0.86 }));
-  exteriorFloor.name = "openclinxr.reusable-pre-encounter-anteroom.floor";
-  exteriorFloor.position.set(0, -0.035, 1.82);
-  exteriorFloor.userData.openClinXrSceneNecessityPolicy = "reusable_exterior_floor_for_pre_encounter_note_capture_not_clinical_environment";
-  exterior.add(exteriorFloor);
-
-  const portalWallMaterial = new MeshStandardMaterial({ color: 0x111827, roughness: 0.92 });
-  const leftWall = new Mesh(new BoxGeometry(0.72, 2.58, 0.045), portalWallMaterial);
-  leftWall.name = "openclinxr.reusable-pre-encounter-anteroom.portal-left-wall";
-  leftWall.position.set(-2.35, 1.25, 0.9);
-  leftWall.userData.openClinXrPortalWallPolicy = "static_reusable_wall_segment_leaving_dynamic_encounter_window_open";
-  exterior.add(leftWall);
-  const rightWall = new Mesh(new BoxGeometry(0.72, 2.58, 0.045), portalWallMaterial);
-  rightWall.name = "openclinxr.reusable-pre-encounter-anteroom.portal-right-wall";
-  rightWall.position.set(2.35, 1.25, 0.9);
-  rightWall.userData.openClinXrPortalWallPolicy = "static_reusable_wall_segment_leaving_dynamic_encounter_window_open";
-  exterior.add(rightWall);
-  const headerWall = new Mesh(new BoxGeometry(5.35, 0.34, 0.045), portalWallMaterial);
-  headerWall.name = "openclinxr.reusable-pre-encounter-anteroom.portal-header-wall";
-  headerWall.position.set(0, 2.45, 0.9);
-  headerWall.userData.openClinXrPortalWallPolicy = "static_reusable_header_above_dynamic_encounter_window";
-  exterior.add(headerWall);
-
-  const portalOpening = new Mesh(new BoxGeometry(3.75, 2.0, 0.025), new MeshStandardMaterial({
-    color: doorwayTheme.backgroundColor,
-    roughness: 0.7,
-    emissive: doorwayTheme.backgroundColor,
-    emissiveIntensity: 0.18,
-    transparent: true,
-    opacity: 0.18,
-    depthWrite: false,
-  }));
-  portalOpening.name = `${runtimeSceneObjectPrefix()}.encounter-portal-dynamic-opening`;
-  portalOpening.position.set(0, 1.18, 0.86);
-  portalOpening.userData.openClinXrPortalOpeningPolicy =
-    "portal_surface_color_and_identity_derive_from_active_encounter_runtime_bundle";
-  exterior.add(portalOpening);
-
-  const portalFrameMaterial = new MeshStandardMaterial({ color: 0xe5e7eb, roughness: 0.62 });
-  const portalAccentMaterial = new MeshStandardMaterial({ color: doorwayTheme.reusedAssetAccentColor, roughness: 0.54, emissive: doorwayTheme.reusedAssetAccentColor, emissiveIntensity: 0.12 });
-  const leftJamb = new Mesh(new BoxGeometry(0.12, 2.2, 0.12), portalFrameMaterial);
-  leftJamb.name = "openclinxr.reusable-pre-encounter-anteroom.portal-left-jamb";
-  leftJamb.position.set(-1.95, 1.15, 0.74);
-  exterior.add(leftJamb);
-  const rightJamb = new Mesh(new BoxGeometry(0.12, 2.2, 0.12), portalFrameMaterial);
-  rightJamb.name = "openclinxr.reusable-pre-encounter-anteroom.portal-right-jamb";
-  rightJamb.position.set(1.95, 1.15, 0.74);
-  exterior.add(rightJamb);
-  const lintel = new Mesh(new BoxGeometry(4.02, 0.12, 0.12), portalFrameMaterial);
-  lintel.name = "openclinxr.reusable-pre-encounter-anteroom.portal-lintel";
-  lintel.position.set(0, 2.25, 0.74);
-  exterior.add(lintel);
-  const threshold = new Mesh(new BoxGeometry(4.1, 0.06, 0.18), portalAccentMaterial);
-  threshold.name = `${runtimeSceneObjectPrefix()}.encounter-portal-dynamic-threshold`;
-  threshold.position.set(0, 0.02, 0.72);
-  threshold.userData.openClinXrPortalThresholdPolicy = "crossing_threshold_enters_dynamic_encounter_world";
-  exterior.add(threshold);
-
-  const notePanel = createReadableVrTextPanel({
-    name: "openclinxr.reusable-pre-encounter-anteroom.patient-note-capture-cue",
-    title: "Pre-Encounter",
-    lines: [
-      "Review doorway context, then enter.",
-      "Patient note capture remains in this reusable exterior room.",
-      "Clinical scene beyond portal is encounter-generated.",
-    ],
-    widthMeters: 1.55,
-    heightMeters: 0.72,
-    background: "#f8fafc",
-    accent: "#64748b",
-  });
-  notePanel.mesh.position.set(-2.3, 1.35, 1.08);
-  notePanel.mesh.rotation.y = 0.46;
-  notePanel.mesh.userData.openClinXrReusableExteriorNotePolicy =
-    "note_capture_affordance_reused_outside_dynamic_clinical_world";
-  exterior.add(notePanel.mesh);
-
-  if (shouldUseCleanHumanoidSourceComparatorCapture() && !isEdBayVisibleComparatorCapture()) {
-    exterior.visible = false;
-    exterior.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
-  }
-  scene.add(exterior);
+function _addReusableExteriorPreEncounterRoom(scene: Scene, doorwayTheme: ScenarioDoorwayVisualTheme): void {
+  addPackageReusableExteriorPreEncounterRoom(assetLoadingContext(), scene, doorwayTheme, (room) => { reusableExteriorAnteroom = room; });
 }
 
 const portalThresholdZ = PORTAL_THRESHOLD_Z;
@@ -2837,6 +2723,179 @@ function uiXrRolePostureContext(): RolePostureContext {
     isFamily: (actorId: string) => actorId === runtimeFamilyActorId(),
     isPediatricAsthmaScenario: () => isPediatricAsthmaRuntimeScenario(),
     scenarioId: encounterRuntimeAssetBundle.scenarioId,
+  };
+}
+
+/**
+ * Clip-name context — scenario + metadata reads for animation-clip helpers.
+ */
+function clipNameContext(): Parameters<typeof clinicalPackageTouchResponseClipNamesForActor>[0] {
+  return {
+    selectedScenarioId: () => selectedScenarioId(),
+    scenarioForId: (scenarioId) => scenarioBank.find((candidate) => candidate.scenarioId === scenarioId),
+    actorMetadataRoleClipNames: (actorId) =>
+      window.__openClinXrActorPlayerRuntimeMetadataSummary?.actorSummaries.find((actor) => actor.actorId === actorId)
+        ?.roleAnimationClipNames ?? [],
+    touchResponseClipNames: (actorId) => clinicalTouchResponseClipNamesForActor(actorId),
+  };
+}
+
+/**
+ * Asset-loading context — the app owns module state; the package reads through this object.
+ * main.ts creates it once; @openclinxr/xr-asset-loading never exports or holds a mutable value.
+ */
+function assetLoadingContext(): PackageAssetLoadingContext {
+  return {
+    scenarioId: () => encounterRuntimeAssetBundle.scenarioId,
+    encounterBundle: () => encounterRuntimeAssetBundle,
+    scenarioTheme: () => scenarioDoorwayVisualTheme(),
+    sceneObjectPrefix: () => runtimeSceneObjectPrefix(),
+    runtimeActorRole: (actorId: string) => runtimeActorRole(actorId),
+    runtimePatientActorId: () => runtimePatientActorId(),
+    runtimeClinicalTeamActorId: () => runtimeClinicalTeamActorId(),
+    runtimeFamilyActorId: () => runtimeFamilyActorId(),
+    isPediatricAsthmaScenario: () => isPediatricAsthmaRuntimeScenario(),
+    selectedCaptureMode: () => selectedCaptureMode(),
+    selectedHumanoidSourceComparator: () => selectedHumanoidSourceComparator(),
+    shouldShowAffordanceMarkers: () => shouldShowRuntimeAffordanceMarkers(),
+    shouldUseCleanSourceComparatorCapture: () => shouldUseCleanHumanoidSourceComparatorCapture(),
+    isEdBayVisibleComparatorCapture: () => isEdBayVisibleComparatorCapture(),
+    shouldShowComparatorDebugFaceCues: () => shouldShowHumanoidSourceComparatorDebugFaceCues(),
+    isMouthGazePoseReviewCaptureMode: () => isHumanoidMouthGazePoseReviewCaptureMode(),
+    isCaptureShadowPath: (captureMode: string) => isCaptureShadowPath(captureMode),
+    isRealGarmentSleeveDeformCapture: () => isRealGarmentSleeveDeformCapture(),
+    recordBootPhase: (phase: string, error?: unknown) => { recordBootPhase(phase, error); },
+    roleCueEvidence: () => sceneCueRoleCueEvidence(),
+    pediatricEvidence: () => sceneCuePediatricEvidence(),
+    pediatricEquipment: () => sceneCuePediatricEquipment(),
+    humanoidCues: () => sceneCueHumanoidCues(),
+    clinicalPanel: () => sceneCueClinicalPanel(),
+    createReadablePanel: (options) => createReadableVrTextPanel(options),
+    recordRoleDistinctCue: (actorId, cueId, sceneObjectName) => { recordRoleDistinctHumanoidCue(actorId, cueId, sceneObjectName); },
+    recordPediatricEquipmentCue: (equipmentId, cueId, sceneObjectName) => { recordPediatricRespiratoryEquipmentCue(equipmentId, cueId, sceneObjectName); },
+    addPediatricEquipmentCues: (slot, equipmentId) => { addPediatricRespiratoryEquipmentCues(slot, equipmentId); },
+    sourceProvenanceForPath: (assetPath: string) => generatedHumanoidSourceProvenance(assetPath),
+    resolveCastPath: (input) => resolveHumanoidVariantOrCastPath(input),
+    normalizeEquipmentMount: (equipment, slot) => normalizeGltfEquipmentMount(equipment, slot),
+    prepareEnvironmentShell: (environment) => prepareLoadedEnvironmentShell(environment),
+    animationSlots: () => generatedHumanoidAnimationSlots,
+    pushAnimationSlot: (slot) => { generatedHumanoidAnimationSlots.push(slot); },
+    setAnimationSlotByActor: (actorId, slot) => { generatedHumanoidAnimationSlotsByActorId.set(actorId, slot); },
+    setActorSlotByActor: (actorId, slot) => { generatedHumanoidActorSlotsByActorId.set(actorId, slot); },
+    registerTouchRegions: (actorId, humanoid, responses) => { registerClinicalTouchRegions(actorId, humanoid, responses as ClinicalTouchResponseConfig[]); },
+    triggerDialogue: (actorId, text, gazeTarget, explicitEmotion) => { triggerHumanoidDialogue(actorId, text, gazeTarget, explicitEmotion); },
+    dialogueText: () => ({ line: dialogueLine.textContent ?? "", initial: initialDialogueText }),
+    visemeUtterance: () => pedsAsthmaPatientBundleVisemeUtterance(),
+    schedulePedsPlaybackIfReady: () => { schedulePedsActorPlayerRuntimePlaybackIfReady(); },
+    touchResponseClipNames: (actorId) => clinicalTouchResponseClipNamesForActor(actorId),
+    roleClipNames: (actorId) => roleAnimationClipNamesForActor(actorId),
+    gazeProbeClipNames: (animationClips) => gazeProbeAnimationClipNamesFromGltf(animationClips),
+    morphTargetsNeutralized: (humanoid) => { neutralizeGeneratedHumanoidMorphTargets(humanoid); },
+    realGarmentSurfaces: (humanoid, comparator) => applyRealGarmentEvidenceSurfaces(humanoid, comparator),
+    sleeveDeformCue: (assetPath, comparator) => sleeveDeformCueForAssetPath(assetPath, comparator),
+    suppressOverlaysForComparator: (humanoid) => { suppressRuntimeDiagnosticOverlaysForSourceComparator(humanoid); },
+    faceReviewCues: (humanoid) => { addHumanoidSourceComparatorFaceReviewCues(humanoid); },
+    frameCaptureOnNamedActor: (input) => {
+      frameComparatorCaptureOnNamedActorImpl({
+        actorId: input.actorId,
+        humanoid: input.humanoid,
+        modelAssetId: input.modelAssetId,
+        comparator: input.comparator,
+        namedActorId: input.namedActorId,
+        cleanCapture: input.cleanCapture,
+      });
+    },
+    comparatorSubjectActorId: () => comparatorCaptureSubjectActorIdImpl(),
+    recordEdBayCameraPose: () => { recordEdBayVisibleCameraPose(); },
+    resolveEffectiveVerticalOffset: (input) => resolveEffectiveVerticalOffsetMeters(input),
+    resolvePosture: (input) => resolveActorPosture(input),
+    activeEnvironmentId: () => resolveActiveEnvironmentId(),
+    applyPosture: (humanoid, posture) => { applyPosturePose(humanoid, posture as ActorPosture); },
+    applySupine: (humanoid) => { applySupinePose(humanoid); },
+    applyClinicalIdle: (humanoid) => { applyGeneratedHumanoidClinicalIdlePosture(humanoid); },
+    applyRolePosture: (humanoid, actorId) => { applyPackageGeneratedHumanoidRoleSpecificPosture(uiXrRolePostureContext(), humanoid, actorId); },
+    applyRoleWardrobeCue: (humanoid, role) => { addGeneratedHumanoidRoleContinuityWardrobeCue(humanoid, role as "patient" | "clinical" | "family"); },
+    tintSceneMaterials: (root, tintColor, actorId) => { tintGeneratedSceneMaterials(root, tintColor, actorId); },
+    clinicalIdleClipPresent: (animationClips) => hasAuthoredClinicalIdlePoseClip(animationClips),
+    seatedClipPlayable: (clipName, input) => seatedRoleClipIsPlayable(clipName, input),
+    translationBoneNames: (tracks) => animatedTranslationBoneNames(tracks as AnimationClip["tracks"]),
+    plantSeatedPelvis: (humanoid, seatHeight, lift) => plantSeatedPelvisOnSeat(humanoid, seatHeight, lift),
+    seatedChairHeight: () => PATIENT_CHAIR_SEAT_HEIGHT_METERS,
+    findStretcherInScene: (slot) => findProceduralStretcherInSceneOf(slot),
+    applyAndPlantSupineDeck: (humanoid, input) => { applyAndPlantSupineOnDeck(humanoid, input); },
+    stretcherDeckTopWorldY: () => STRETCHER_DECK_TOP_METERS,
+    humanoidDialogueDurationMs: (phonemeCount) => humanoidDialogueDurationMs(phonemeCount),
+    createEmotionState: () => createHumanoidEmotionExpressionState(),
+    affordanceMarker: (cueId, color) => createAffordanceMarker(cueId, color),
+    detailCues: (assetId) => createRuntimeHumanoidDetailCues(assetId),
+    collisionCues: (assetId) => createHumanoidInteractionCollisionCues(assetId),
+    mouthCue: (assetId, color) => createHumanoidSpeechMouthCue(assetId, color),
+    gazeCue: (assetId, color) => createHumanoidEyeGazeCue(assetId, color),
+    eyeFocusCue: (assetId) => createHumanoidEyeFocusCue(assetId),
+    expressionCue: (assetId) => createHumanoidExpressionCue(assetId),
+    recordSceneAsset: (record) => { recordPackageSceneAssetStatus(record as never); },
+    affordanceCueIds: (assetId, cueIds) => packageRuntimeAssetAffordanceCueIds(assetId, cueIds),
+    shouldSuppressEquipmentModel: (assetId, assetPath) => shouldSuppressGeneratedEquipmentModel(assetId, assetPath),
+    shouldShowPrimitiveFallbacks: () => shouldShowPrimitiveAssetFallbacks(),
+    refreshEquipmentMountEvidence: () => { refreshDeclaredEquipmentMountEvidenceFromSceneImpl(); },
+    applyEquipmentTraceVisuals: () => {
+      const evidence = window.__openClinXrEnvironmentStateEvidence;
+      if (evidence) applyRuntimeEquipmentTraceVisuals(evidence);
+    },
+    environmentStatePresent: () => Boolean(window.__openClinXrEnvironmentStateEvidence),
+    rolePostureContext: () => uiXrRolePostureContext(),
+    seedMouthGazeGarmentGeometry: (input) => {
+      const existingMouth = window.__openClinXrMouthGazePoseComparatorEvidence;
+      window.__openClinXrMouthGazePoseComparatorEvidence = {
+        source: "window.__openClinXrMouthGazePoseComparatorEvidence",
+        captureMode: selectedCaptureMode(),
+        comparator: input.comparator as MouthGazePoseComparatorEvidence["comparator"],
+        scenarioId: input.comparator === "ed_anny_real_garment_patient" ? "ed_chest_pain_priority_v2" : "peds_asthma_parent_anxiety_v1",
+        actorId: input.actorId,
+        dialogueText: existingMouth?.dialogueText ?? "",
+        traceTag: "work_of_breathing_assessment",
+        activeViseme: existingMouth?.activeViseme ?? "sil",
+        activeMouthOpenness: existingMouth?.activeMouthOpenness ?? 0,
+        activeEmotionState: existingMouth?.activeEmotionState ?? "neutral",
+        activeExpressionTransitionMs: existingMouth?.activeExpressionTransitionMs ?? 0,
+        activeExpressionWeights: existingMouth?.activeExpressionWeights ?? {
+          mouthOpen: 0, browConcern: 0, cheekTension: 0,
+        },
+        gazeProbePlayback: existingMouth?.gazeProbePlayback ?? null,
+        activeGazeProbeAnimationClipName: existingMouth?.activeGazeProbeAnimationClipName ?? null,
+        morphTargetAppliedTargetCount: existingMouth?.morphTargetAppliedTargetCount ?? 0,
+        morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue_with_emotion_transition",
+        emotionTransitionCuePresent: existingMouth?.emotionTransitionCuePresent ?? false,
+        visemeTimelineComparatorEvidencePresent: existingMouth?.visemeTimelineComparatorEvidencePresent ?? false,
+        activeDialogueTurnRef: existingMouth?.activeDialogueTurnRef,
+        liveSource: existingMouth?.liveSource,
+        garmentGeometry: {
+          name: input.garmentName,
+          visible: input.garmentVisible,
+          source: input.garmentSource,
+          hasVisibleVolume: true,
+          hasSeamFoldHints: true,
+          ...(input.sleeveDeformCue === undefined ? {} : { sleeveDeform: input.sleeveDeformCue }),
+        },
+        notEvidenceFor: [
+          "production phoneme timing",
+          "validated facial animation",
+          "clinical affect scoring",
+          "b_plus_visual_realism_gate",
+          "quest_readiness",
+          "production_asset_readiness",
+          "learner_readiness",
+        ],
+      };
+    },
+    markActorCastShadow: (humanoid) => { markActorCastShadow(humanoid); },
+    clinicalTouchScenario: () => scenarioBank.find((candidate) => candidate.scenarioId === selectedScenarioId()),
+    selectedScenarioId: () => selectedScenarioId(),
+    scenarioForId: (scenarioId) => scenarioBank.find((candidate) => candidate.scenarioId === scenarioId),
+    actorMetadataRoleClipNames: (actorId) =>
+      window.__openClinXrActorPlayerRuntimeMetadataSummary?.actorSummaries.find((actor) => actor.actorId === actorId)
+        ?.roleAnimationClipNames ?? [],
+    registerEquipmentSlot: (assetId, slot) => { runtimeEquipmentSlotsByAssetId.set(assetId, slot); },
   };
 }
 
@@ -2950,7 +3009,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
 
   await applyStationInteriorLightingForEnvironment({ scene, renderer, environmentId: resolveActiveEnvironmentId(), variantId: resolveStationInteriorLightingVariantId(new URLSearchParams(window.location.search).get("stationLighting")), ambientLightName: iwsdkStationSceneObjects.ambientLight, keyLightName: iwsdkStationSceneObjects.keyLight, keyCastShadow: isCaptureShadowPath(selectedCaptureMode()) });
 
-  addReusableExteriorPreEncounterRoom(scene, doorwayTheme);
+  addPackageReusableExteriorPreEncounterRoom(assetLoadingContext(), scene, doorwayTheme, (room) => { reusableExteriorAnteroom = room; });
 
   // #44: station shell from shared environmentId descriptor (not scenarioId doorway tint alone).
   const activeEnvironmentId = resolveActiveEnvironmentId();
@@ -3057,7 +3116,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   }
   if (!hideRoomForCleanCapture) {
     // Room walls/floor: mountStationEnvironmentForRuntime; buildStationEnvironment is parametric fallback.
-    addScenarioSpecificClinicalSetDressing(scene, doorwayTheme);
+    addPackageScenarioSpecificClinicalSetDressing(assetLoadingContext(), scene, doorwayTheme);
   }
 
   if (selectedScenarioRuntimeMismatch) {
@@ -3099,7 +3158,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     environmentShell.userData.openClinXrCaptureDeclutterPolicy = "hidden_for_actor_pose_review_only";
   }
   scene.add(environmentShell);
-  loadGeneratedEnvironmentIntoSceneSlot(environmentShell, {
+  loadPackageGeneratedEnvironmentIntoSceneSlot(assetLoadingContext(), environmentShell, {
     assetPath: resolveEmulatorRuntimeAssetUrl(encounterRuntimeAssetBundle.environment),
     assetId: encounterRuntimeAssetBundle.environment.assetId,
     objectName: runtimeGeneratedSceneObjectName(encounterRuntimeAssetBundle.environment),
@@ -3209,7 +3268,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     if (item.source === "gltf" && item.gltfFileName) {
       const bundleModel = findRuntimeEquipmentAsset(encounterRuntimeAssetBundle, item.equipmentId)?.model;
       const assetId = bundleModel?.assetId ?? item.equipmentId;
-      loadGeneratedEquipmentIntoSceneSlot(slot, {
+      loadPackageGeneratedEquipmentIntoSceneSlot(assetLoadingContext(), slot, {
         assetPath: `/xr-assets/medical-equipment/${item.gltfFileName}`,
         assetId,
         objectName: bundleModel ? runtimeGeneratedSceneObjectName(bundleModel) : item.equipmentId,
@@ -3266,7 +3325,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   if (cleanHumanoidSourceComparatorCapture) {
     // #315 follow-up: only the comparator's named subject renders; the patient is the
     // subject for the _patient comparators but NOT for _parent/_nurse (those name family/clinical).
-    patient.visible = comparatorCaptureSubjectActorIdImpl() === runtimePatientActorId();
+    patient.visible = comparatorPackageCaptureSubjectActorId(assetLoadingContext()) === runtimePatientActorId();
     patient.userData.openClinXrComparatorVisibilityPolicy = patient.visible
       ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
       : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
@@ -3282,7 +3341,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   patient.userData.openClinXrActorPosture = patientPlacement.posture ?? "standing";
   patient.userData.openClinXrActorId = runtimePatientActorId();
   if (runtimePatientActorId()) {
-    loadGeneratedHumanoidIntoActorSlot(patient, {
+    loadPackageGeneratedHumanoidIntoActorSlot(assetLoadingContext(), patient, {
       assetPath: resolveEmulatorRuntimeAssetUrl(patientRuntimeHumanoidAsset),
       assetId: patientRuntimeHumanoidAsset.assetId,
       objectName: runtimeGeneratedSceneObjectName(patientRuntimeHumanoidAsset),
@@ -3308,7 +3367,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   nurse.visible = Boolean(runtimeClinicalTeamActorId()) && !selectedScenarioRuntimeMismatch;
   if (cleanHumanoidSourceComparatorCapture) {
     // #315 follow-up: the nurse comparator's named subject is the clinical actor — show it.
-    nurse.visible = comparatorCaptureSubjectActorIdImpl() === runtimeClinicalTeamActorId();
+    nurse.visible = comparatorPackageCaptureSubjectActorId(assetLoadingContext()) === runtimeClinicalTeamActorId();
     nurse.userData.openClinXrComparatorVisibilityPolicy = nurse.visible
       ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
       : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
@@ -3325,7 +3384,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   nurse.userData.openClinXrActorPosture = nursePlacement.posture ?? "standing";
   nurse.userData.openClinXrActorId = runtimeClinicalTeamActorId();
   if (runtimeClinicalTeamActorId()) {
-    loadGeneratedHumanoidIntoActorSlot(nurse, {
+    loadPackageGeneratedHumanoidIntoActorSlot(assetLoadingContext(), nurse, {
       assetPath: resolveEmulatorRuntimeAssetUrl(nurseRuntimeHumanoidAsset),
       assetId: nurseRuntimeHumanoidAsset.assetId,
       objectName: runtimeGeneratedSceneObjectName(nurseRuntimeHumanoidAsset),
@@ -3351,7 +3410,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   spouse.visible = Boolean(runtimeFamilyActorId()) && !selectedScenarioRuntimeMismatch;
   if (cleanHumanoidSourceComparatorCapture) {
     // #315 follow-up: the parent comparator's named subject is the family actor — show it.
-    spouse.visible = comparatorCaptureSubjectActorIdImpl() === runtimeFamilyActorId();
+    spouse.visible = comparatorPackageCaptureSubjectActorId(assetLoadingContext()) === runtimeFamilyActorId();
     spouse.userData.openClinXrComparatorVisibilityPolicy = spouse.visible
       ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
       : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
@@ -3385,7 +3444,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   }
   scene.add(spouse);
   if (runtimeFamilyActorId()) {
-    loadGeneratedHumanoidIntoActorSlot(spouse, {
+    loadPackageGeneratedHumanoidIntoActorSlot(assetLoadingContext(), spouse, {
       assetPath: resolveEmulatorRuntimeAssetUrl(spouseRuntimeHumanoidAsset),
       assetId: spouseRuntimeHumanoidAsset.assetId,
       objectName: runtimeGeneratedSceneObjectName(spouseRuntimeHumanoidAsset),
@@ -3423,7 +3482,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   }
   scene.add(additional);
   if (runtimeAdditionalActorId()) {
-    loadGeneratedHumanoidIntoActorSlot(additional, {
+    loadPackageGeneratedHumanoidIntoActorSlot(assetLoadingContext(), additional, {
       assetPath: resolveEmulatorRuntimeAssetUrl(additionalRuntimeHumanoidAsset),
       assetId: additionalRuntimeHumanoidAsset.assetId,
       objectName: runtimeGeneratedSceneObjectName(additionalRuntimeHumanoidAsset),
@@ -4034,134 +4093,9 @@ function resolveActiveEnvironmentId(): string {
   return scenario.environment?.environmentId ?? "ed_exam_bay_v1";
 }
 
-function addScenarioSpecificClinicalSetDressing(scene: Scene, doorwayTheme: ScenarioDoorwayVisualTheme): void {
-  if (shouldUseCleanHumanoidSourceComparatorCapture() && !isEdBayVisibleComparatorCapture()) {
-    return;
-  }
-  const sid = encounterRuntimeAssetBundle.scenarioId;
-  // caseDerivedVirtualEnvironment props (peds/ed/ob) from factory; pure three primitives.
-  if (sid !== "ob_headache_preeclampsia_triage_v1" && sid !== "peds_asthma_parent_anxiety_v1" && sid !== "ed_chest_pain_priority_v1") {
-    return;
-  }
-  const linenMaterial = new MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.86 });
-  const accentMaterial = new MeshStandardMaterial({ color: new Color(doorwayTheme.panelAccent), roughness: 0.78 });
-  if (sid === "ob_headache_preeclampsia_triage_v1") {
-    const bedFrame = new Mesh(new BoxGeometry(1.75, 0.16, 0.72), new MeshStandardMaterial({ color: 0xd8dee8, roughness: 0.72 }));
-    bedFrame.name = `${runtimeSceneObjectPrefix()}.ob-triage-recliner-bed-frame`;
-    bedFrame.position.set(-1.62, 0.42, -0.22);
-    bedFrame.userData.openClinXrScenarioSetDressing =
-      "ob_triage_recliner_generated_from_encounter_context";
-    scene.add(bedFrame);
-    const pillow = new Mesh(new BoxGeometry(0.46, 0.1, 0.34), linenMaterial.clone());
-    pillow.name = `${runtimeSceneObjectPrefix()}.ob-triage-pillow`;
-    pillow.position.set(-2.08, 0.62, -0.2);
-    pillow.rotation.z = -0.06;
-    pillow.userData.openClinXrScenarioSetDressing = "ob_headache_reclined_patient_context";
-    scene.add(pillow);
-    const blanket = new Mesh(new BoxGeometry(0.82, 0.055, 0.66), new MeshStandardMaterial({ color: 0xdbeafe, roughness: 0.9 }));
-    blanket.name = `${runtimeSceneObjectPrefix()}.ob-triage-blanket`;
-    blanket.position.set(-1.45, 0.57, -0.18);
-    blanket.userData.openClinXrScenarioSetDressing = "ob_triage_bed_linen_context";
-    scene.add(blanket);
-    const bpCuff = new Mesh(new BoxGeometry(0.2, 0.07, 0.03), new MeshStandardMaterial({ color: 0x111827, roughness: 0.74 }));
-    bpCuff.name = `${runtimeSceneObjectPrefix()}.ob-severe-bp-cuff-on-side-rail`;
-    bpCuff.position.set(-1.62, 0.73, 0.2);
-    bpCuff.rotation.y = -0.12;
-    bpCuff.userData.openClinXrScenarioSetDressing = "severe_blood_pressure_repeat_workflow_cue";
-    scene.add(bpCuff);
-    const urineCup = new Mesh(new CylinderGeometry(0.065, 0.05, 0.12, 18), new MeshStandardMaterial({ color: 0xfef3c7, roughness: 0.66, transparent: true, opacity: 0.78 }));
-    urineCup.name = `${runtimeSceneObjectPrefix()}.ob-urine-protein-cup-cue`;
-    urineCup.position.set(0.18, 0.74, -0.58);
-    urineCup.userData.openClinXrScenarioSetDressing = "preeclampsia_urine_protein_context_cue";
-    scene.add(urineCup);
-    const wallMonitor = new Group();
-    wallMonitor.name = `${runtimeSceneObjectPrefix()}.ob-wall-vitals-monitor-group`;
-    wallMonitor.userData.openClinXrScenarioSetDressing = 'severe_range_bp_vitals_monitor_generated_from_ob_case_definition';
-    const monitorBack = new Mesh(new BoxGeometry(0.48, 0.28, 0.035), new MeshStandardMaterial({ color: 0x1f2937, roughness: 0.68 }));
-    monitorBack.name = `${runtimeSceneObjectPrefix()}.ob-wall-vitals-monitor`;
-    monitorBack.position.set(0.82, 1.42, -0.83);
-    wallMonitor.add(monitorBack);
-    const bpTrace = new Mesh(new BoxGeometry(0.36, 0.035, 0.018), new MeshBasicMaterial({ color: 0x60a5fa }));
-    bpTrace.name = `${runtimeSceneObjectPrefix()}.ob-wall-vitals-severe-bp-trace`;
-    bpTrace.position.set(0.82, 1.45, -0.8);
-    wallMonitor.add(bpTrace);
-    const privacyCurtain = new Mesh(new BoxGeometry(0.035, 1.12, 0.86), new MeshStandardMaterial({ color: 0xe9d5ff, roughness: 0.92, transparent: true, opacity: 0.62 }));
-    privacyCurtain.name = `${runtimeSceneObjectPrefix()}.ob-triage-privacy-curtain-edge`;
-    privacyCurtain.position.set(1.42, 0.92, -0.18);
-    privacyCurtain.userData.openClinXrScenarioSetDressing = 'ob_triage_privacy_boundary_generated_from_encounter_environment';
-    privacyCurtain.visible = false;
-    privacyCurtain.userData.openClinXrObVisualReviewPolicy = "hidden_after_visual_review_showed_edge_artifact";
-    scene.add(privacyCurtain);
-    scene.add(wallMonitor);
-    const escalationFolder = new Mesh(new BoxGeometry(0.44, 0.035, 0.3), accentMaterial);
-    escalationFolder.name = `${runtimeSceneObjectPrefix()}.ob-escalation-plan-folder`;
-    escalationFolder.position.set(0.5, 0.71, -0.56);
-    escalationFolder.rotation.y = 0.1;
-    escalationFolder.userData.openClinXrScenarioSetDressing = "ob_escalation_plan_workflow_cue";
-    scene.add(escalationFolder);
-    return;
-  }
-  // Render caseDerivedVirtualEnvironment room props for peds/ed (desktop-usable).
-  if (sid === "peds_asthma_parent_anxiety_v1") {
-    // props from case: exam_table, oxygen_delivery_system, peak_flow_meter, parent_chair, wall_chart (matches packet.ts caseDerivedVirtualEnvironment + runtime-state scaffold)
-    const tableMat = new MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.7 });
-    const examTable = new Mesh(new BoxGeometry(1.6, 0.82, 0.7), tableMat);
-    examTable.name = `${runtimeSceneObjectPrefix()}.peds-exam-table`;
-    examTable.position.set(-0.8, 0.41, -0.65);
-    examTable.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "exam_table_from_peds_asthma_clinic_exam_room";
-    scene.add(examTable);
-    const o2Tank = new Mesh(new CylinderGeometry(0.12, 0.12, 0.9, 12), new MeshStandardMaterial({ color: 0x1e3a5f, roughness: 0.6 }));
-    o2Tank.name = `${runtimeSceneObjectPrefix()}.peds-oxygen-delivery-system`;
-    o2Tank.position.set(1.1, 0.45, -0.35);
-    o2Tank.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "oxygen_delivery_system_case_spec";
-    scene.add(o2Tank);
-    const peak = new Mesh(new BoxGeometry(0.22, 0.12, 0.18), new MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.5 }));
-    peak.name = `${runtimeSceneObjectPrefix()}.peds-peak-flow-meter`;
-    peak.position.set(0.6, 0.82, -0.9);
-    peak.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "peak_flow_meter_parent_communication_cue";
-    scene.add(peak);
-    const chairSeat = new Mesh(new BoxGeometry(0.48, 0.08, 0.48), new MeshStandardMaterial({ color: 0x334155, roughness: 0.85 }));
-    chairSeat.name = `${runtimeSceneObjectPrefix()}.peds-parent-chair-seat`;
-    chairSeat.position.set(1.6, 0.38, -1.1);
-    scene.add(chairSeat);
-    const chairBack = new Mesh(new BoxGeometry(0.48, 0.55, 0.06), new MeshStandardMaterial({ color: 0x334155, roughness: 0.85 }));
-    chairBack.name = `${runtimeSceneObjectPrefix()}.peds-parent-chair-back`;
-    chairBack.position.set(1.6, 0.68, -1.32);
-    scene.add(chairBack);
-    const chart = new Mesh(new BoxGeometry(0.6, 0.4, 0.02), new MeshStandardMaterial({ color: 0xfefce8, roughness: 0.9 }));
-    chart.name = `${runtimeSceneObjectPrefix()}.peds-wall-chart`;
-    chart.position.set(-2.9, 1.6, -1.55);
-    chart.rotation.y = 1.57;
-    chart.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "wall_chart_clinic_review_cue";
-    scene.add(chart);
-  }
-  if (sid === "ed_chest_pain_priority_v1") {
-    // #97: skip case-derived gurney — procedural stretcher slot is the single visible bed.
-    const monBack = new Mesh(new BoxGeometry(0.55, 0.32, 0.04), new MeshStandardMaterial({ color: 0x0f172a, roughness: 0.6 }));
-    monBack.name = `${runtimeSceneObjectPrefix()}.ed-cardiac-monitor`;
-    monBack.position.set(-2.6, 1.45, -1.4);
-    monBack.rotation.y = 0.8;
-    monBack.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "cardiac_monitor_priority_vitals";
-    scene.add(monBack);
-    const cart = new Mesh(new BoxGeometry(0.55, 0.7, 0.35), new MeshStandardMaterial({ color: 0x1f2937, roughness: 0.55 }));
-    cart.name = `${runtimeSceneObjectPrefix()}.ed-crash-cart`;
-    cart.position.set(2.1, 0.35, -0.4);
-    cart.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "crash_cart_urgent_escalation";
-    scene.add(cart);
-    const ivPole = new Mesh(new CylinderGeometry(0.03, 0.03, 1.4, 6), new MeshStandardMaterial({ color: 0x64748b, roughness: 0.7 }));
-    ivPole.name = `${runtimeSceneObjectPrefix()}.ed-iv-stand`;
-    ivPole.position.set(-1.8, 0.7, -0.95);
-    ivPole.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "iv_stand_fluid_case";
-    scene.add(ivPole);
-    const defib = new Mesh(new BoxGeometry(0.38, 0.28, 0.18), new MeshStandardMaterial({ color: 0xdc2626, roughness: 0.5 }));
-    defib.name = `${runtimeSceneObjectPrefix()}.ed-defibrillator`;
-    defib.position.set(1.7, 0.9, -1.25);
-    defib.rotation.y = -0.4;
-    defib.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "defibrillator_chest_pain_priority";
-    scene.add(defib);
-  }
+function _addScenarioSpecificClinicalSetDressing(scene: Scene, doorwayTheme: ScenarioDoorwayVisualTheme): void {
+  addPackageScenarioSpecificClinicalSetDressing(assetLoadingContext(), scene, doorwayTheme);
 }
-
 function recordDynamicSceneObjectNamingEvidence(scene: Scene): DynamicSceneObjectNamingEvidence {
   return recordPackageDynamicSceneObjectNamingEvidence(sceneCueNamingEvidence(), scene);
 }
@@ -4202,139 +4136,22 @@ function formatTechnicalGapStatus(summary: ManualPerformanceCaptureSummary | nul
   return formatPackageTraceTechnicalGapStatus(summary);
 }
 
-function configureSemanticRolePoseOverlay(mesh: Mesh, cueId: string): void {
-  mesh.userData.openClinXrRolePoseCueId = cueId;
-  mesh.userData.openClinXrRuntimeVisibilityPolicy = "semantic_role_pose_overlay_hidden_unless_affordance_or_debug_capture";
-  if (!shouldShowRuntimeAffordanceMarkers()) {
-    mesh.visible = false;
-  }
+function _configureSemanticRolePoseOverlay(mesh: Mesh, cueId: string): void {
+  configureSemanticRolePoseOverlayPackage(assetLoadingContext(), mesh, cueId);
 }
-
-type HumanoidCueMode = "generated_glb" | "primitive_fallback";
-
-function shouldShowProceduralHumanoidDetailCues(faceCueMode: HumanoidCueMode): boolean {
-  // #368: capture mode is NOT a reason to draw the hand-authored face/role cue
-  // primitives. An actor with real face geometry renders its real face in every
-  // capture mode; only a primitive_fallback body (no face geometry) and the
-  // deliberate affordance/debug marker surface still show them.
-  return faceCueMode === "primitive_fallback" || shouldShowRuntimeAffordanceMarkers();
+function _shouldShowProceduralHumanoidDetailCues(faceCueMode: PackageHumanoidCueMode): boolean {
+  return shouldShowProceduralHumanoidDetailCuesPackage(assetLoadingContext(), faceCueMode);
 }
-
-function addRoleSpecificHumanoidVisuals(
+function _addRoleSpecificHumanoidVisuals(
   humanoid: Group,
   actorId: string,
-  faceCueMode: HumanoidCueMode = "generated_glb",
+  faceCueMode: PackageHumanoidCueMode = "generated_glb",
 ): void {
-  addActorSpecificIdentityVariantCue(humanoid, actorId, faceCueMode);
-  const showProceduralRoleCues = shouldShowProceduralHumanoidDetailCues(faceCueMode);
-  if (!showProceduralRoleCues) {
-    humanoid.userData.openClinXrProceduralRoleCuePolicy =
-      "hidden_for_generated_glb_normal_runtime_to_keep_encounter_view_clean_and_asset_driven";
-    return;
-  }
-  if (actorId === runtimePatientActorId()) {
-    const leftRespiratoryArmCue = new Mesh(new BoxGeometry(0.05, 0.42, 0.045), new MeshStandardMaterial({ color: 0x0e8c92, roughness: 0.72, transparent: true, opacity: 0.86 }));
-    leftRespiratoryArmCue.name = `${runtimeSceneObjectPrefix()}.pediatric-patient-left-arm-hunched-breathing-pose-cue`;
-    leftRespiratoryArmCue.position.set(-0.17, 1.2, 0.345);
-    leftRespiratoryArmCue.rotation.z = -0.68;
-    configureSemanticRolePoseOverlay(leftRespiratoryArmCue, "pediatric_patient_left_arm_hunched_breathing_pose_cue");
-    humanoid.add(leftRespiratoryArmCue);
-    const rightRespiratoryArmCue = new Mesh(new BoxGeometry(0.05, 0.42, 0.045), new MeshStandardMaterial({ color: 0x0e8c92, roughness: 0.72, transparent: true, opacity: 0.86 }));
-    rightRespiratoryArmCue.name = `${runtimeSceneObjectPrefix()}.pediatric-patient-right-arm-hunched-breathing-pose-cue`;
-    rightRespiratoryArmCue.position.set(0.17, 1.2, 0.345);
-    rightRespiratoryArmCue.rotation.z = 0.68;
-    configureSemanticRolePoseOverlay(rightRespiratoryArmCue, "pediatric_patient_right_arm_hunched_breathing_pose_cue");
-    humanoid.add(rightRespiratoryArmCue);
-    const gown = new Mesh(new BoxGeometry(0.24, 0.1, 0.014), new MeshStandardMaterial({ color: 0xcfe5ee, roughness: 0.86, transparent: true, opacity: 0.72 }));
-    gown.name = `${runtimeSceneObjectPrefix()}.patient-hospital-gown-torso`;
-    gown.position.set(0, 1.26, 0.322);
-    humanoid.add(gown);
-    const pediatricHeightBand = new Mesh(new BoxGeometry(0.2, 0.045, 0.012), new MeshStandardMaterial({ color: 0x91d5ff, roughness: 0.74, transparent: true, opacity: 0.66 }));
-    pediatricHeightBand.name = `${runtimeSceneObjectPrefix()}.pediatric-small-stature-band-cue`;
-    pediatricHeightBand.position.set(0, 1.05, 0.33);
-    humanoid.add(pediatricHeightBand);
-    const blanket = new Mesh(new BoxGeometry(0.28, 0.08, 0.016), new MeshStandardMaterial({ color: 0xd8e6ef, roughness: 0.9, transparent: true, opacity: 0.68 }));
-    blanket.name = `${runtimeSceneObjectPrefix()}.patient-bedside-blanket-cue`;
-    blanket.position.set(0, 0.86, 0.326);
-    humanoid.add(blanket);
-    const chestGuard = new Mesh(new BoxGeometry(0.22, 0.05, 0.038), new MeshStandardMaterial({ color: 0xf2d0bd, roughness: 0.72 }));
-    chestGuard.name = `${runtimeSceneObjectPrefix()}.patient-hand-to-chest-distress-cue`;
-    chestGuard.position.set(0.02, 1.29, 0.335);
-    humanoid.add(chestGuard);
-    recordRoleDistinctHumanoidCue(actorId, "patient_hand_to_chest_distress_cue", chestGuard.name);
-    addScenarioSpecificPatientCue(humanoid, actorId);
-    if (isPediatricAsthmaRuntimeScenario()) {
-      const nebulizerMask = new Mesh(new BoxGeometry(0.13, 0.07, 0.018), new MeshStandardMaterial({ color: 0xdce8ef, roughness: 0.52, transparent: true, opacity: 0.78 }));
-      nebulizerMask.name = `${runtimeSceneObjectPrefix()}.pediatric-nebulizer-mask-face-cue`;
-      nebulizerMask.position.set(0, 1.47, 0.344);
-      humanoid.add(nebulizerMask);
-      recordRoleDistinctHumanoidCue(actorId, "pediatric_nebulizer_mask_face_cue", nebulizerMask.name);
-      const cannulaTubing = new Mesh(new CylinderGeometry(0.008, 0.008, 0.42, 8), new MeshStandardMaterial({ color: 0xe5f3ff, roughness: 0.48, transparent: true, opacity: 0.82 }));
-      cannulaTubing.name = `${runtimeSceneObjectPrefix()}.pediatric-oxygen-tubing-work-of-breathing-cue`;
-      cannulaTubing.position.set(-0.15, 1.34, 0.35);
-      cannulaTubing.rotation.z = 0.52;
-      humanoid.add(cannulaTubing);
-      recordRoleDistinctHumanoidCue(actorId, "pediatric_oxygen_tubing_work_of_breathing_cue", cannulaTubing.name);
-    }
-    return;
-  }
-  if (actorId === runtimeClinicalTeamActorId()) {
-    const badge = new Mesh(new BoxGeometry(0.12, 0.08, 0.016), new MeshStandardMaterial({ color: 0xf8f5df, roughness: 0.62 }));
-    badge.name = `${runtimeSceneObjectPrefix()}.nurse-role-badge-cue`;
-    badge.position.set(-0.16, 1.24, 0.31);
-    humanoid.add(badge);
-    const scrubVNeck = new Mesh(new BoxGeometry(0.18, 0.12, 0.014), new MeshStandardMaterial({ color: 0x073f4f, roughness: 0.82, transparent: true, opacity: 0.78 }));
-    scrubVNeck.name = `${runtimeSceneObjectPrefix()}.nurse-scrub-v-neck-role-cue`;
-    scrubVNeck.position.set(0, 1.31, 0.316);
-    scrubVNeck.rotation.z = 0.78;
-    humanoid.add(scrubVNeck);
-    const nurseReachArm = new Mesh(new BoxGeometry(0.05, 0.54, 0.045), new MeshStandardMaterial({ color: 0x0b7b94, roughness: 0.72, transparent: true, opacity: 0.84 }));
-    nurseReachArm.name = `${runtimeSceneObjectPrefix()}.nurse-reaching-to-oxygen-equipment-pose-cue`;
-    nurseReachArm.position.set(-0.22, 1.16, 0.34);
-    nurseReachArm.rotation.z = -0.88;
-    configureSemanticRolePoseOverlay(nurseReachArm, "nurse_reaching_to_oxygen_equipment_pose_cue");
-    humanoid.add(nurseReachArm);
-    const scrubPocket = new Mesh(new BoxGeometry(0.2, 0.12, 0.018), new MeshStandardMaterial({ color: 0x0a4f5a, roughness: 0.8 }));
-    scrubPocket.name = `${runtimeSceneObjectPrefix()}.nurse-scrub-pocket-cue`;
-    scrubPocket.position.set(0.14, 1.08, 0.31);
-    humanoid.add(scrubPocket);
-    const stethoscope = new Mesh(new CylinderGeometry(0.006, 0.006, 0.34, 8), new MeshStandardMaterial({ color: 0x17212b, roughness: 0.58 }));
-    stethoscope.name = `${runtimeSceneObjectPrefix()}.nurse-stethoscope-clinical-role-cue`;
-    stethoscope.position.set(0.02, 1.2, 0.325);
-    stethoscope.rotation.z = 0.42;
-    humanoid.add(stethoscope);
-    recordRoleDistinctHumanoidCue(actorId, "nurse_stethoscope_clinical_role_cue", stethoscope.name);
-    addScenarioSpecificClinicalTeamCue(humanoid, actorId);
-    return;
-  }
-  if (actorId === runtimeFamilyActorId()) {
-    const cardigan = new Mesh(new BoxGeometry(0.18, 0.22, 0.014), new MeshStandardMaterial({ color: 0x9a6a45, roughness: 0.84, transparent: true, opacity: 0.72 }));
-    cardigan.name = `${runtimeSceneObjectPrefix()}.family-civilian-cardigan-cue`;
-    cardigan.position.set(-0.08, 1.16, 0.322);
-    humanoid.add(cardigan);
-    const civilianShoulderBag = new Mesh(new BoxGeometry(0.08, 0.18, 0.03), new MeshStandardMaterial({ color: 0x5b3a24, roughness: 0.88, transparent: true, opacity: 0.8 }));
-    civilianShoulderBag.name = `${runtimeSceneObjectPrefix()}.parent-civilian-shoulder-bag-cue`;
-    civilianShoulderBag.position.set(-0.22, 1.0, 0.33);
-    humanoid.add(civilianShoulderBag);
-    const parentSupportArm = new Mesh(new BoxGeometry(0.052, 0.5, 0.046), new MeshStandardMaterial({ color: 0x93603a, roughness: 0.74, transparent: true, opacity: 0.86 }));
-    parentSupportArm.name = `${runtimeSceneObjectPrefix()}.parent-supportive-hand-to-chest-pose-cue`;
-    parentSupportArm.position.set(0.1, 1.2, 0.34);
-    parentSupportArm.rotation.z = 0.72;
-    configureSemanticRolePoseOverlay(parentSupportArm, "parent_supportive_hand_to_chest_pose_cue");
-    humanoid.add(parentSupportArm);
-    const parentConcernCue = new Mesh(new BoxGeometry(0.1, 0.06, 0.014), new MeshStandardMaterial({ color: 0xf3d6ba, roughness: 0.74, transparent: true, opacity: 0.76 }));
-    parentConcernCue.name = `${runtimeSceneObjectPrefix()}.family-parent-hand-to-chest-anxiety-cue`;
-    parentConcernCue.position.set(0.13, 1.28, 0.335);
-    humanoid.add(parentConcernCue);
-    recordRoleDistinctHumanoidCue(actorId, "family_parent_hand_to_chest_anxiety_cue", parentConcernCue.name);
-    addScenarioSpecificFamilyCue(humanoid, actorId);
-  }
+  addRoleSpecificHumanoidVisualsPackage(assetLoadingContext(), humanoid, actorId, faceCueMode);
 }
-
 function recordRoleDistinctHumanoidCue(actorId: string, cueId: string, sceneObjectName: string): void {
   recordPackageRoleDistinctHumanoidCue(sceneCueRoleCueEvidence(), actorId, cueId, sceneObjectName);
 }
-
 function addScenarioExpectationPanel(scene: Scene, stationContext: ReturnType<typeof stationContextForSelectedScenario>): void {
   if (shouldUseCleanHumanoidSourceComparatorCapture()) {
     return;
@@ -4367,161 +4184,22 @@ function addScenarioExpectationPanel(scene: Scene, stationContext: ReturnType<ty
   }
 }
 
-function addScenarioSpecificPatientCue(humanoid: Group, actorId: string): void {
-  const scenarioId = encounterRuntimeAssetBundle.scenarioId;
-  if (scenarioId === "ob_headache_preeclampsia_triage_v1") {
-    const pregnancyCue = new Mesh(new SphereGeometry(0.16, 24, 16), new MeshStandardMaterial({ color: 0xe5c3a6, roughness: 0.78 }));
-    pregnancyCue.name = `${runtimeSceneObjectPrefix()}.ob-pregnancy-abdomen-silhouette-cue`;
-    pregnancyCue.position.set(0, 1.02, 0.34);
-    pregnancyCue.scale.set(1.15, 0.78, 0.5);
-    humanoid.add(pregnancyCue);
-    recordRoleDistinctHumanoidCue(actorId, "ob_pregnancy_abdomen_silhouette_cue", pregnancyCue.name);
-  } else if (scenarioId === "clinic_abdominal_pain_interpreter_v1") {
-    const rlqCue = new Mesh(new BoxGeometry(0.12, 0.08, 0.018), new MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.74 }));
-    rlqCue.name = `${runtimeSceneObjectPrefix()}.clinic-rlq-abdominal-pain-cue`;
-    rlqCue.position.set(0.09, 1.0, 0.35);
-    humanoid.add(rlqCue);
-    recordRoleDistinctHumanoidCue(actorId, "clinic_rlq_abdominal_pain_cue", rlqCue.name);
-  } else if (scenarioId === "oncology_bad_news_family_v1") {
-    const blanketCue = new Mesh(new BoxGeometry(0.34, 0.12, 0.018), new MeshStandardMaterial({ color: 0xbfd7ea, roughness: 0.9, transparent: true, opacity: 0.86 }));
-    blanketCue.name = `${runtimeSceneObjectPrefix()}.oncology-consult-soft-blanket-cue`;
-    blanketCue.position.set(0, 0.88, 0.33);
-    humanoid.add(blanketCue);
-    recordRoleDistinctHumanoidCue(actorId, "oncology_serious_news_soft_consult_cue", blanketCue.name);
-  } else if (scenarioId === "postop_fever_consult_pressure_v1") {
-    const dressingCue = new Mesh(new BoxGeometry(0.24, 0.1, 0.02), new MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.82 }));
-    dressingCue.name = `${runtimeSceneObjectPrefix()}.postop-abdominal-dressing-cue`;
-    dressingCue.position.set(0, 1.0, 0.35);
-    humanoid.add(dressingCue);
-    recordRoleDistinctHumanoidCue(actorId, "postop_abdominal_dressing_fever_cue", dressingCue.name);
-  }
+function _addScenarioSpecificPatientCue(humanoid: Group, actorId: string): void {
+  addScenarioSpecificPatientCuePackage(assetLoadingContext(), humanoid, actorId);
 }
-
-function addScenarioSpecificClinicalTeamCue(humanoid: Group, actorId: string): void {
-  const scenarioId = encounterRuntimeAssetBundle.scenarioId;
-  if (scenarioId === "ob_headache_preeclampsia_triage_v1") {
-    const bpCuffCue = new Mesh(new BoxGeometry(0.2, 0.08, 0.025), new MeshStandardMaterial({ color: 0x1f2937, roughness: 0.72 }));
-    bpCuffCue.name = `${runtimeSceneObjectPrefix()}.ob-blood-pressure-cuff-workflow-cue`;
-    bpCuffCue.position.set(-0.22, 1.1, 0.34);
-    humanoid.add(bpCuffCue);
-    recordRoleDistinctHumanoidCue(actorId, "ob_bp_repeat_escalation_workflow_cue", bpCuffCue.name);
-  } else if (scenarioId === "postop_fever_consult_pressure_v1") {
-    const scrubCapCue = new Mesh(new BoxGeometry(0.24, 0.07, 0.02), new MeshStandardMaterial({ color: 0x2563eb, roughness: 0.72 }));
-    scrubCapCue.name = `${runtimeSceneObjectPrefix()}.postop-surgery-resident-scrub-cap-cue`;
-    scrubCapCue.position.set(0, 1.56, 0.32);
-    humanoid.add(scrubCapCue);
-    recordRoleDistinctHumanoidCue(actorId, "postop_surgery_resident_pressure_cue", scrubCapCue.name);
-  }
+function _addScenarioSpecificClinicalTeamCue(humanoid: Group, actorId: string): void {
+  addScenarioSpecificClinicalTeamCuePackage(assetLoadingContext(), humanoid, actorId);
 }
-
-function addScenarioSpecificFamilyCue(humanoid: Group, actorId: string): void {
-  const scenarioId = encounterRuntimeAssetBundle.scenarioId;
-  if (scenarioId === "oncology_bad_news_family_v1") {
-    const tissueCue = new Mesh(new BoxGeometry(0.1, 0.06, 0.03), new MeshStandardMaterial({ color: 0xffffff, roughness: 0.62 }));
-    tissueCue.name = `${runtimeSceneObjectPrefix()}.oncology-family-tissue-emotion-cue`;
-    tissueCue.position.set(0.18, 1.2, 0.35);
-    humanoid.add(tissueCue);
-    recordRoleDistinctHumanoidCue(actorId, "oncology_family_emotion_tissue_cue", tissueCue.name);
-  } else if (scenarioId === "clinic_abdominal_pain_interpreter_v1") {
-    const interpreterBoundaryCue = new Mesh(new BoxGeometry(0.22, 0.06, 0.018), new MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.76 }));
-    interpreterBoundaryCue.name = `${runtimeSceneObjectPrefix()}.clinic-family-interpreter-boundary-cue`;
-    interpreterBoundaryCue.position.set(0, 1.32, 0.34);
-    humanoid.add(interpreterBoundaryCue);
-    recordRoleDistinctHumanoidCue(actorId, "clinic_family_interpreter_boundary_cue", interpreterBoundaryCue.name);
-  }
+function _addScenarioSpecificFamilyCue(humanoid: Group, actorId: string): void {
+  addScenarioSpecificFamilyCuePackage(assetLoadingContext(), humanoid, actorId);
 }
-
-function addActorSpecificIdentityVariantCue(
+function _addActorSpecificIdentityVariantCue(
   humanoid: Group,
   actorId: string,
-  faceCueMode: HumanoidCueMode = "generated_glb",
+  faceCueMode: PackageHumanoidCueMode = "generated_glb",
 ): void {
-  const actorRole = runtimeActorRole(actorId) ?? "actor";
-  const actorHash = Array.from(actorId).reduce((hash, char) => hash + char.charCodeAt(0), 0);
-  const hairPalette = [0x2f2118, 0x5c4033, 0x1f2937, 0x7c4a24, 0x111827];
-  const accentPalette = [0x2563eb, 0x0f766e, 0xb45309, 0xbe123c, 0x6d28d9];
-  const skinPalette = [0xf2d2b6, 0xc58f67, 0x8d5b3f, 0xe6b98f, 0x6f432f];
-  const doorwayTheme = scenarioDoorwayVisualTheme();
-  const hairColor = hairPalette[actorHash % hairPalette.length] ?? 0x2f2118;
-  const skinColor = skinPalette[(actorHash + 2) % skinPalette.length] ?? 0xc58f67;
-  const accentColor = actorRole === "patient" ? doorwayTheme.reusedAssetAccentColor : accentPalette[(actorHash + actorRole.length) % accentPalette.length] ?? doorwayTheme.reusedAssetAccentColor;
-  const facialExpressionColor = actorRole === "patient" ? 0xbe123c : actorRole.includes("family") || actorRole.includes("parent") ? 0x92400e : 0x1d4ed8;
-  const showProceduralFaceOverlay = shouldShowProceduralHumanoidDetailCues(faceCueMode);
-  const cueIds = [
-    "actor_specific_hair_face_variant_cue",
-    "actor_specific_clothing_accent_variant_cue",
-    "actor_specific_clothing_layer_silhouette_cue",
-  ];
-  const hairCapName = `${runtimeSceneObjectPrefix()}.${actorId}.actor-specific-hair-cap-variant-cue`;
-  if (showProceduralFaceOverlay) {
-    const hairCap = new Mesh(new SphereGeometry(0.155, 18, 10), new MeshStandardMaterial({ color: hairColor, roughness: 0.86 }));
-    hairCap.name = hairCapName;
-    hairCap.position.set(0, 1.78, 0.19);
-    hairCap.scale.set(0.62, 0.16, 0.34);
-    humanoid.add(hairCap);
-  }
-  if (showProceduralFaceOverlay) {
-    cueIds.push("visible_eye_gaze_anchor_cue", "emotion_mouth_viseme_anchor_cue", "emotion_brow_tension_cue");
-    const faceTonePatch = new Mesh(new SphereGeometry(0.105, 18, 12), new MeshStandardMaterial({ color: skinColor, roughness: 0.78, transparent: true, opacity: 0.88 }));
-    faceTonePatch.name = `${runtimeSceneObjectPrefix()}.${actorId}.actor-specific-face-tone-and-cheek-volume-cue`;
-    faceTonePatch.position.set(0, 1.62, 0.315);
-    faceTonePatch.scale.set(0.82, 0.95, 0.24);
-    humanoid.add(faceTonePatch);
-    const leftEye = new Mesh(new SphereGeometry(0.018, 10, 8), new MeshStandardMaterial({ color: 0x111827, roughness: 0.48 }));
-    leftEye.name = `${runtimeSceneObjectPrefix()}.${actorId}.left-eye-gaze-anchor-cue`;
-    leftEye.position.set(-0.044, 1.642, 0.345);
-    humanoid.add(leftEye);
-    const rightEye = new Mesh(new SphereGeometry(0.018, 10, 8), new MeshStandardMaterial({ color: 0x111827, roughness: 0.48 }));
-    rightEye.name = `${runtimeSceneObjectPrefix()}.${actorId}.right-eye-gaze-anchor-cue`;
-    rightEye.position.set(0.044, 1.642, 0.345);
-    humanoid.add(rightEye);
-    const mouth = new Mesh(new BoxGeometry(0.075, 0.012, 0.01), new MeshStandardMaterial({ color: facialExpressionColor, roughness: 0.62 }));
-    mouth.name = `${runtimeSceneObjectPrefix()}.${actorId}.emotion-mouth-line-viseme-anchor-cue`;
-    mouth.position.set(0, 1.585, 0.35);
-    mouth.rotation.z = actorRole === "patient" ? -0.08 : actorRole.includes("family") || actorRole.includes("parent") ? 0.12 : 0;
-    humanoid.add(mouth);
-    const brow = new Mesh(new BoxGeometry(0.13, 0.012, 0.008), new MeshStandardMaterial({ color: hairColor, roughness: 0.7 }));
-    brow.name = `${runtimeSceneObjectPrefix()}.${actorId}.emotion-brow-tension-cue`;
-    brow.position.set(0, 1.675, 0.346);
-    brow.rotation.z = actorRole === "patient" ? -0.08 : actorRole.includes("family") || actorRole.includes("parent") ? 0.1 : 0.02;
-    humanoid.add(brow);
-    recordRoleDistinctHumanoidCue(actorId, "visible_eye_gaze_anchor_cue", leftEye.name);
-    recordRoleDistinctHumanoidCue(actorId, "visible_eye_gaze_anchor_cue", rightEye.name);
-    recordRoleDistinctHumanoidCue(actorId, "emotion_mouth_viseme_anchor_cue", mouth.name);
-    recordRoleDistinctHumanoidCue(actorId, "emotion_brow_tension_cue", brow.name);
-  }
-  const torsoLayerName = `${runtimeSceneObjectPrefix()}.${actorId}.actor-specific-clothing-layer-silhouette-cue`;
-  const roleAccentName = `${runtimeSceneObjectPrefix()}.${actorId}.actor-specific-role-accent-cue`;
-  if (showProceduralFaceOverlay) {
-    const torsoLayer = new Mesh(new BoxGeometry(0.31, 0.44, 0.018), new MeshStandardMaterial({ color: accentColor, roughness: 0.82, transparent: true, opacity: 0.38 }));
-    torsoLayer.name = torsoLayerName;
-    torsoLayer.position.set(0, 1.14, 0.315);
-    humanoid.add(torsoLayer);
-    const roleAccent = new Mesh(new BoxGeometry(0.2, 0.035, 0.016), new MeshStandardMaterial({ color: accentColor, roughness: 0.7 }));
-    roleAccent.name = roleAccentName;
-    roleAccent.position.set(0, 1.21, 0.34);
-    humanoid.add(roleAccent);
-  }
-  humanoid.userData.openClinXrActorSpecificIdentityVariantCue = {
-    actorId,
-    actorRole,
-    hairColor,
-    skinColor,
-    accentColor,
-    cueIds,
-    faceCueMode,
-    proceduralCueVisibilityPolicy: showProceduralFaceOverlay
-      ? "visible_for_fallback_or_explicit_visual_review_capture"
-      : "metadata_only_for_generated_glb_normal_runtime_to_avoid_reused_proxy_clutter",
-    reusedAssetAccentColor: doorwayTheme.reusedAssetAccentColor,
-    runtimeThemePolicy: "actor_identity_cues_derive_from_encounter_runtime_theme_when_assets_are_reused",
-    notEvidenceFor: "production humanoid asset readiness or validated identity realism",
-  };
-  recordRoleDistinctHumanoidCue(actorId, "actor_specific_hair_face_variant_cue", hairCapName);
-  recordRoleDistinctHumanoidCue(actorId, "actor_specific_clothing_layer_silhouette_cue", torsoLayerName);
-  recordRoleDistinctHumanoidCue(actorId, "actor_specific_clothing_accent_variant_cue", roleAccentName);
+  addPackageActorSpecificIdentityVariantCue(assetLoadingContext(), humanoid, actorId, faceCueMode);
 }
-
 function createClinicalPanel(): ReadableVrTextPanel {
   return createPackageClinicalPanel(sceneCueClinicalPanel());
 }
@@ -4558,16 +4236,6 @@ function createReadableVrTextPanel(options: {
   return createPackageReadableVrTextPanel(sceneCueClinicalPanel(), options);
 }
 
-function _drawWrappedText(
-  context: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number,
-): number {
-  return drawPackageWrappedText(context, text, x, y, maxWidth, lineHeight);
-}
 
 
 function addControllerAffordances(
@@ -4678,9 +4346,6 @@ function updateEnvironmentRealismAnimations(deltaSeconds: number, nowMs: number)
   updatePackageEnvironmentRealismAnimations(sceneCueEnvironmentVisuals(), deltaSeconds, nowMs);
 }
 
-function _runtimeRoomPropObjectPrefix(): string {
-  return `openclinxr.${encounterRuntimeAssetBundle.scenarioId}.room-prop`;
-}
 
 function runtimeSceneObjectPrefix(): string {
   return `openclinxr.${encounterRuntimeAssetBundle.scenarioId}`;
@@ -4864,7 +4529,7 @@ function playOneShotResponseClip(actorId: string, clipName: string): boolean {
   action.setEffectiveWeight(1);
 
   // Pause looping role/idle actions while the one-shot response plays.
-  const responseClipNames = new Set(clinicalTouchResponseClipNamesForActor(actorId));
+  const responseClipNames = new Set(clinicalPackageTouchResponseClipNamesForActor(clipNameContext(), actorId));
   const idleActions: ReturnType<AnimationMixer["clipAction"]>[] = [];
   for (const other of slot.responseClips) {
     if (other.name === clipName || responseClipNames.has(other.name)) continue;
@@ -4946,30 +4611,10 @@ function handleClinicalTouch(
  * #315: frame a comparator capture on the NAMED actor after it loads.
  * Solve lives in capture-comparator.ts; main.ts only resolves the named actor.
  */
-function frameComparatorCaptureOnNamedActor(actorId: string, humanoid: Object3D, modelAssetId: string): void {
-  const comparator = selectedHumanoidSourceComparator();
-  const namedActorId = comparator === "peds_anny_real_garment_parent"
-    ? runtimeFamilyActorId()
-    : comparator === "peds_anny_real_garment_nurse"
-      ? runtimeClinicalTeamActorId()
-      : null;
-  frameComparatorCaptureOnNamedActorImpl({
-    actorId,
-    humanoid,
-    modelAssetId,
-    comparator,
-    namedActorId,
-    cleanCapture: shouldUseCleanHumanoidSourceComparatorCapture(),
-  });
+function _frameComparatorCaptureOnNamedActor(actorId: string, humanoid: Object3D, modelAssetId: string): void {
+  framePackageComparatorCaptureOnNamedActor(assetLoadingContext(), actorId, humanoid as Group, modelAssetId);
 }
-
-/**
- * Tag SEPARATE phenotype real-garment meshes with cyan + sleeveDeform userData.
- * ONLY meshes named openclinxr_real_garment* / real_garment_from_phenotype* (or their
- * :y_up_capture_evidence static clone). NEVER cyan-tag anny_base multi-prim role clothing
- * slots (parent_top/nurse_top/lower/soft_trim) — those produce a giant pants blob while torso stays bare.
- */
-function loadGeneratedHumanoidIntoActorSlot(
+function _loadGeneratedHumanoidIntoActorSlot(
   actorSlot: Group,
   options: {
     assetPath: string;
@@ -4981,373 +4626,8 @@ function loadGeneratedHumanoidIntoActorSlot(
     posture?: ActorPosture | undefined;
   },
 ): void {
-  const primitiveFallbackChildren = [...actorSlot.children];
-  for (const child of primitiveFallbackChildren) {
-    child.visible = false;
-  }
-  const humanoidLoader = new GLTFLoader();
-  humanoidLoader.setMeshoptDecoder(MeshoptDecoder);
-  const actorSpecificAssetPath = runtimeHumanoidVariantAssetPath(options.actorId, options.assetPath);
-  const humanoidSourceProvenance = generatedHumanoidSourceProvenance(actorSpecificAssetPath);
-  recordPackageSceneAssetStatus({
-    assetId: options.assetId,
-    assetPath: actorSpecificAssetPath,
-    sceneObjectName: options.objectName,
-    status: "pending",
-    fallbackActive: false,
-    ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}),
-  });
-  humanoidLoader.load(
-    actorSpecificAssetPath,
-    (gltf) => {
-      const humanoid = gltf.scene;
-      try { assertHumanoidRootUpright(humanoid); } catch (guardError) {
-        // #67: refuse #58-class non-identity armature root before the figure is shown.
-        console.error("[ui-xr] humanoid load refused by upright guard", actorSpecificAssetPath, guardError);
-        recordPackageSceneAssetStatus({ assetId: options.assetId, assetPath: actorSpecificAssetPath, sceneObjectName: options.objectName, status: "failed", fallbackActive: true, ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}) });
-        for (const child of primitiveFallbackChildren) child.visible = true;
-        return;
-      }
-      // #187: compose failures after a successful fetch must not leave a silent pending+primitive slot.
-      try {
-      humanoid.name = options.objectName;
-      // #72 floor-standing zeros ED offsets; #105 elevated+scale re-solves so feet land near floor.
-      const effectiveVerticalOffset = resolveEffectiveVerticalOffsetMeters({
-        slotLocalY: actorSlot.position.y,
-        verticalOffsetMeters: options.verticalOffsetMeters,
-        slotScaleY: actorSlot.scale.y,
-      });
-      humanoid.position.set(0, effectiveVerticalOffset, 0);
-      humanoid.userData.openClinXrEffectiveVerticalOffsetMeters = effectiveVerticalOffset;
-      humanoid.userData.openClinXrRequestedVerticalOffsetMeters = options.verticalOffsetMeters;
-      humanoid.rotation.y = 0;
-      humanoid.scale.set(1, 1, 1);
-      // #83: never default missing slotKind to primary_patient — that seated every telehealth actor.
-      const slotKind =
-        (typeof actorSlot.userData.openClinXrSlotKind === "string" && actorSlot.userData.openClinXrSlotKind.length > 0
-          ? actorSlot.userData.openClinXrSlotKind
-          : undefined)
-        ?? "unknown_slot";
-      const posture = options.posture
-        ?? resolveActorPosture({
-          scenarioId: selectedScenarioId(),
-          environmentId: resolveActiveEnvironmentId(),
-          slotKind,
-        });
-      humanoid.userData.openClinXrActorId = options.actorId;
-      humanoid.userData.openClinXrAssetPath = actorSpecificAssetPath;
-      actorSlot.userData.openClinXrActorPosture = posture;
-      actorSlot.userData.openClinXrActorId = options.actorId;
-      // #219: body-param library figures need flipped upper_arm Z hang (hm08 rest sense ≠ Anny).
-      // Tag before clinical idle so load + frame-loop apply the library hang map.
-      if (/body-param-.*-library\.glb/i.test(actorSpecificAssetPath)) {
-        humanoid.userData.openClinXrHumanoidRail = "library";
-        actorSlot.userData.openClinXrHumanoidRail = "library";
-      }
-      if (posture === "supine") applySupinePose(humanoid);
-      else applyPosturePose(humanoid, posture);
-      neutralizeGeneratedHumanoidMorphTargets(humanoid);
-      const humanoidSourceComparator = selectedHumanoidSourceComparator();
-      const isRealGarmentPrimaryActor =
-        ((humanoidSourceComparator === "peds_anny_real_garment_patient" || humanoidSourceComparator === "ed_anny_real_garment_patient") && options.actorId === runtimePatientActorId())
-        || (humanoidSourceComparator === "peds_anny_real_garment_parent" && (options.actorId === runtimePatientActorId() || options.actorId === runtimeFamilyActorId()))
-        || (humanoidSourceComparator === "peds_anny_real_garment_nurse" && (options.actorId === runtimePatientActorId() || options.actorId === runtimeClinicalTeamActorId()));
-      const cleanSourceComparatorCapture = shouldUseCleanHumanoidSourceComparatorCapture() && humanoidSourceComparator !== null && (
-        options.actorId === runtimePatientActorId()
-        || (humanoidSourceComparator === "peds_anny_real_garment_parent" && options.actorId === runtimeFamilyActorId())
-        || (humanoidSourceComparator === "peds_anny_real_garment_nurse" && options.actorId === runtimeClinicalTeamActorId())
-      );
-      if (cleanSourceComparatorCapture) {
-        actorSlot.traverse((object) => {
-          if (object === actorSlot) return;
-          object.visible = false;
-          object.userData.openClinXrComparatorVisibilityPolicy = "hidden_preload_primitive_and_runtime_scaffolding_for_clean_source_capture";
-        });
-      }
-      if (humanoidSourceComparator === "mpfb_ob_patient" && options.actorId === runtimePatientActorId()) {
-        humanoid.position.y += 0.32;
-        humanoid.scale.set(0.92, 0.92, 0.92);
-        humanoid.userData.openClinXrHumanoidComparatorTransform =
-          "mpfb_ob_patient_source_alignment_for_webxr_visual_comparison_only";
-      }
-      if (humanoidSourceComparator === "charmorph_antonia_patient" && options.actorId === runtimePatientActorId()) {
-        humanoid.position.y += 0.24;
-        humanoid.rotation.y = 0;
-        humanoid.scale.set(1.08, 1.08, 1.08);
-        humanoid.userData.openClinXrHumanoidComparatorTransform =
-          "charmorph_antonia_patient_source_alignment_for_webxr_visual_comparison_only_target_facing";
-      }
-      if ((humanoidSourceComparator === "charmorph_reom_patient" || humanoidSourceComparator === "reom_local_fitted_garment_patient" || humanoidSourceComparator === "reom_local_authored_curved_garment_patient" || humanoidSourceComparator === "reom_shirts01_cc0_patient" || humanoidSourceComparator === "reom_toigo_basic_tucked_tshirt_patient" || humanoidSourceComparator === "reom_namuhekam_polo_patient") && options.actorId === runtimePatientActorId()) {
-        humanoid.position.y += 0.2;
-        humanoid.rotation.y = 0;
-        humanoid.scale.set(1.04, 1.04, 1.04);
-        humanoid.userData.openClinXrHumanoidComparatorTransform =
-          `${humanoidSourceComparator}_source_alignment_for_webxr_visual_comparison_only_target_facing`;
-      }
-      if (
-        (humanoidSourceComparator === "peds_anny_real_garment_patient"
-          || humanoidSourceComparator === "ed_anny_real_garment_patient"
-          || humanoidSourceComparator === "peds_anny_real_garment_parent"
-          || humanoidSourceComparator === "peds_anny_real_garment_nurse")
-        && isRealGarmentPrimaryActor
-      ) {
-        const taggedGarment = applyRealGarmentEvidenceSurfaces(humanoid, humanoidSourceComparator);
-        humanoid.userData.openClinXrRealGarmentTopology = "embedded_from_phenotype_garmentLayers";
-        const promotionByComparator: Record<string, string> = {
-          peds_anny_real_garment_patient: "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_peds_real_garment",
-          peds_anny_real_garment_parent: "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_peds_parent_real_garment",
-          peds_anny_real_garment_nurse: "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_peds_nurse_real_garment",
-          ed_anny_real_garment_patient: "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_ed_gown_geo_reorchestrate",
-        };
-        humanoid.userData.openClinXrPromotionFlow =
-          promotionByComparator[humanoidSourceComparator]
-          ?? "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_ed_gown_geo_reorchestrate";
-        // Seed MouthGaze garmentGeometry on primary load (not gated on patient-speech timing).
-        if (
-          taggedGarment
-          && isRealGarmentSleeveDeformCapture()
-          && options.actorId === runtimePatientActorId()
-        ) {
-          // #314: derive source/cue from the ACTUAL loaded asset (actorSpecificAssetPath)
-          // rather than the comparator — the parent/nurse comparators cast the patient
-          // primary to the child (peds_patient_child.glb), so a comparator-keyed cue
-          // would label the child's exam tshirt with the parent cardigan's provenance.
-          const garmentSource = actorSpecificAssetPath;
-          const sleeveDeformCue = sleeveDeformCueForAssetPath(actorSpecificAssetPath, humanoidSourceComparator);
-          const existingMouth = window.__openClinXrMouthGazePoseComparatorEvidence;
-          window.__openClinXrMouthGazePoseComparatorEvidence = {
-            source: "window.__openClinXrMouthGazePoseComparatorEvidence",
-            captureMode: selectedCaptureMode(),
-            comparator: humanoidSourceComparator as MouthGazePoseComparatorEvidence["comparator"],
-            scenarioId: humanoidSourceComparator === "ed_anny_real_garment_patient" ? "ed_chest_pain_priority_v2" : "peds_asthma_parent_anxiety_v1",
-            actorId: options.actorId,
-            dialogueText: existingMouth?.dialogueText ?? "",
-            traceTag: "work_of_breathing_assessment",
-            activeViseme: existingMouth?.activeViseme ?? "sil",
-            activeMouthOpenness: existingMouth?.activeMouthOpenness ?? 0,
-            activeEmotionState: existingMouth?.activeEmotionState ?? "neutral",
-            activeExpressionTransitionMs: existingMouth?.activeExpressionTransitionMs ?? 0,
-            activeExpressionWeights: existingMouth?.activeExpressionWeights ?? {
-              mouthOpen: 0, browConcern: 0, cheekTension: 0,
-            },
-            gazeProbePlayback: existingMouth?.gazeProbePlayback ?? null,
-            activeGazeProbeAnimationClipName: existingMouth?.activeGazeProbeAnimationClipName ?? null,
-            morphTargetAppliedTargetCount: existingMouth?.morphTargetAppliedTargetCount ?? 0,
-            morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue_with_emotion_transition",
-            emotionTransitionCuePresent: existingMouth?.emotionTransitionCuePresent ?? false,
-            visemeTimelineComparatorEvidencePresent: existingMouth?.visemeTimelineComparatorEvidencePresent ?? false,
-            activeDialogueTurnRef: existingMouth?.activeDialogueTurnRef,
-            liveSource: existingMouth?.liveSource,
-            garmentGeometry: {
-              name: taggedGarment.name || "real_garment_mesh",
-              visible: taggedGarment.visible,
-              source: garmentSource,
-              hasVisibleVolume: true,
-              hasSeamFoldHints: true,
-              sleeveDeform: sleeveDeformCue,
-            },
-            notEvidenceFor: [
-              "production phoneme timing",
-              "validated facial animation",
-              "clinical affect scoring",
-              "b_plus_visual_realism_gate",
-              "quest_readiness",
-              "production_asset_readiness",
-              "learner_readiness",
-            ],
-          };
-        }
-      }
-      if (!cleanSourceComparatorCapture) {
-        tintGeneratedSceneMaterials(humanoid, options.roleTintColor, options.actorId);
-      } else {
-        humanoid.userData.openClinXrSourceComparatorMaterialPolicy =
-          "source_materials_preserved_for_clean_comparator_capture_no_runtime_tint";
-      }
-      humanoid.userData.openClinXrClinicalIdlePoseClipPresent = hasAuthoredClinicalIdlePoseClip(gltf.animations);
-      // #153: skip standing clinical idle / role posture on supine — they overwrite the
-      // recumbent limb map at load (frame loop already guards; load path did not).
-      if (!cleanSourceComparatorCapture && posture !== "supine") {
-        applyGeneratedHumanoidClinicalIdlePosture(humanoid);
-        applyPackageGeneratedHumanoidRoleSpecificPosture(uiXrRolePostureContext(), humanoid, options.actorId);
-      } else if (cleanSourceComparatorCapture) {
-        humanoid.userData.openClinXrSourceComparatorPosturePolicy =
-          "source_pose_preserved_for_clean_comparator_capture_no_runtime_posture_override";
-      } else {
-        humanoid.userData.openClinXrSupineLoadPosturePolicy =
-          "clinical_idle_and_role_posture_skipped_for_supine_recumbent_map";
-      }
-      if (cleanSourceComparatorCapture) {
-        humanoid.userData.openClinXrRoleSpecificVisualsPolicy = "skipped_for_clean_source_comparator_capture";
-        suppressRuntimeDiagnosticOverlaysForSourceComparator(humanoid);
-        humanoid.traverse((object) => {
-          if (object instanceof Mesh) {
-            object.frustumCulled = false;
-            object.userData.openClinXrComparatorCullingPolicy =
-              "frustum_culling_disabled_for_clean_source_comparator_capture_after_skinned_mesh_bounds_hid_body";
-          }
-        });
-      } else {
-        addRoleSpecificHumanoidVisuals(humanoid, options.actorId);
-      }
-      if (shouldShowHumanoidSourceComparatorDebugFaceCues() && (humanoidSourceComparator === "charmorph_antonia_patient" || humanoidSourceComparator === "charmorph_reom_patient") && options.actorId === runtimePatientActorId()) {
-        addHumanoidSourceComparatorFaceReviewCues(humanoid);
-      }
-      if (!cleanSourceComparatorCapture && encounterRuntimeAssetBundle.scenarioId === 'ob_headache_preeclampsia_triage_v1') {
-        const role = (runtimeActorRole(options.actorId) ?? '').toLowerCase();
-        if (role.includes('patient')) addGeneratedHumanoidRoleContinuityWardrobeCue(humanoid, 'patient');
-        else if (role.includes('nurse') || role.includes('clinical') || role.includes('consultant') || role.includes('therapist')) addGeneratedHumanoidRoleContinuityWardrobeCue(humanoid, 'clinical');
-        else if (role.includes('family') || role.includes('spouse') || role.includes('parent')) addGeneratedHumanoidRoleContinuityWardrobeCue(humanoid, 'family');
-      }
-      humanoid.userData.openClinXrAffordances = ["dialogue_target", "clinical_observation_target"];
-      const dialogueTargetMarker = createAffordanceMarker(`${options.objectName}:dialogue_target`, options.roleTintColor);
-      if (isHumanoidMouthGazePoseReviewCaptureMode() || cleanSourceComparatorCapture || isRealGarmentSleeveDeformCapture()) {
-        dialogueTargetMarker.visible = false;
-        dialogueTargetMarker.userData.openClinXrCaptureVisibilityPolicy = "hidden_for_mouth_gaze_pose_realism_review";
-      }
-      humanoid.add(dialogueTargetMarker);
-      if (!cleanSourceComparatorCapture) {
-        humanoid.add(createRuntimeHumanoidDetailCues(options.assetId));
-        humanoid.add(createHumanoidInteractionCollisionCues(options.assetId));
-      }
-      const mouthCue = createHumanoidSpeechMouthCue(options.assetId, options.roleTintColor);
-      humanoid.add(mouthCue);
-      const gazeCue = createHumanoidEyeGazeCue(options.assetId, options.roleTintColor);
-      humanoid.add(gazeCue);
-      const eyeFocusCue = createHumanoidEyeFocusCue(options.assetId);
-      humanoid.add(eyeFocusCue);
-      const expressionCue = createHumanoidExpressionCue(options.assetId);
-      humanoid.add(expressionCue);
-      if (cleanSourceComparatorCapture) {
-        for (const cleanCaptureCue of [mouthCue, gazeCue, eyeFocusCue, expressionCue]) {
-          cleanCaptureCue.visible = false;
-          cleanCaptureCue.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_source_comparator_capture";
-        }
-      }
-      actorSlot.add(humanoid);
-      // #315: after the named actor loads, frame the comparator capture on IT (not the
-      // patient at the origin) via the proven fit-to-bounds solve, and record the target.
-      frameComparatorCaptureOnNamedActor(options.actorId, humanoid, options.assetId);
-      if (isCaptureShadowPath(selectedCaptureMode())) markActorCastShadow(humanoid);
-      // Deterministic ED-bay-visible capture: a debug scene graph readback so the
-      // capture script can verify camera pose without traversing live objects.
-      if (isEdBayVisibleComparatorCapture()) {
-        recordEdBayVisibleCameraPose();
-      }
-      if (isHumanoidMouthGazePoseReviewCaptureMode()) {
-        // #315 follow-up: the review subject is the comparator's NAMED actor — family for
-        // _parent, clinical for _nurse, patient for the patient comparators. This block
-        // previously hard-hid every non-patient slot, which re-hid the named parent/nurse
-        // slots after the slot-visibility change and blanked the frame (7,479-byte PNG).
-        const subjectForReview = comparatorCaptureSubjectActorIdImpl();
-        if (options.actorId !== subjectForReview) {
-          actorSlot.visible = false;
-          actorSlot.userData.openClinXrCaptureVisibilityPolicy = "hide_non_named_subject_actors_for_primary_humanoid_mouth_gaze_pose_review";
-        }
-      }
-      const roleAnimationClipNames = roleAnimationClipNamesForActor(options.actorId);
-      const gazeProbeAnimationClipNames = gazeProbeAnimationClipNamesFromGltf(gltf.animations);
-      const activeRoleAnimationClipName = gltf.animations.find((clip): clip is AnimationClip =>
-        clip instanceof AnimationClip && roleAnimationClipNames.includes(clip.name)
-      )?.name ?? null;
-      const activeGazeProbeAnimationClipName = gltf.animations.find((clip): clip is AnimationClip =>
-        clip instanceof AnimationClip && gazeProbeAnimationClipNames.includes(clip.name)
-      )?.name ?? null;
-      registerGeneratedHumanoidAnimation({
-        assetId: options.assetId,
-        actorId: options.actorId,
-        actorSlot,
-        humanoid,
-        mouthCue,
-        gazeCue,
-        eyeFocusCue,
-        expressionCue,
-        animationClips: gltf.animations,
-        roleAnimationClipNames,
-        gazeProbeAnimationClipNames,
-        playbackEnabled: !cleanSourceComparatorCapture || isRealGarmentSleeveDeformCapture(),
-        fixedSourcePoseSampleSeconds: cleanSourceComparatorCapture && !isRealGarmentSleeveDeformCapture() ? 0.18 : null,
-      });
-      recordPackageSceneAssetStatus({
-        assetId: options.assetId,
-        assetPath: actorSpecificAssetPath,
-        sceneObjectName: options.objectName,
-        status: "loaded",
-        fallbackActive: false,
-        affordanceCueIds: packageRuntimeAssetAffordanceCueIds(options.assetId, [
-          "dialogue_target",
-          "clinical_observation_target",
-          "generated_humanoid_hair_clothing_eye_detail_cue",
-          "phoneme_viseme_dialogue_cue",
-          "dialogue_gaze_target_cue",
-          "dialogue_eye_focus_target_cue",
-          "scenario_emotion_expression_cue",
-          "visible_runtime_mouth_shape_cue",
-          "visible_runtime_eye_focus_cue",
-          "visible_runtime_eyebrow_jaw_cheek_cue",
-          "face_lip_eye_rig_contract_cue",
-          "ragdoll_collision_proxy_cue",
-          "physician_interaction_target_cue",
-          ...(humanoid.userData.openClinXrClinicalIdlePoseClipPresent ? ["authored_clinical_idle_pose_clip_cue"] : []),
-        ]),
-        animationPlayback: cleanSourceComparatorCapture
-          ? "source_comparator_fixed_pose_sampled"
-          : gltf.animations.length > 0
-            ? roleAnimationClipNames.length > 0
-              ? "gltf_role_animation_clip_playing"
-              : "gltf_animation_clips_playing"
-            : "procedural_dialogue_expression_gaze_fallback",
-        roleAnimationClipNames,
-        activeRoleAnimationClipName,
-        gazeProbeAnimationClipNames,
-        activeGazeProbeAnimationClipName,
-        gazeProbePlayback: cleanSourceComparatorCapture ? "not_applicable" : activeGazeProbeAnimationClipName ? "gltf_gaze_probe_clip_playing" : "gaze_probe_clip_missing",
-        ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}),
-      });
-      recordBootPhase("generated_humanoid_asset_loaded");
-      } catch (composeError) {
-        // Loud-and-degrade (#187): keep the session up, restore the primitive, surface the cause.
-        console.error("[ui-xr] humanoid compose failed after GLB load", actorSpecificAssetPath, composeError);
-        for (const child of primitiveFallbackChildren) child.visible = true;
-        recordPackageSceneAssetStatus({
-          assetId: options.assetId,
-          assetPath: actorSpecificAssetPath,
-          sceneObjectName: options.objectName,
-          status: "failed",
-          fallbackActive: true,
-          ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}),
-        });
-        recordBootPhase("generated_humanoid_asset_compose_failed", composeError);
-      }
-    },
-    undefined,
-    (error) => {
-      // #187: loader path was silent vs upright-guard console.error — loud-and-degrade both paths.
-      console.error("[ui-xr] humanoid GLB load failed", actorSpecificAssetPath, error);
-      for (const child of primitiveFallbackChildren) {
-        child.visible = true;
-      }
-      applyPackageGeneratedHumanoidRoleSpecificPosture(uiXrRolePostureContext(), actorSlot, options.actorId);
-      addRoleSpecificHumanoidVisuals(actorSlot, options.actorId, "primitive_fallback");
-      actorSlot.userData.openClinXrGeneratedHumanoidFallbackPolicy =
-        "primitive_actor_restored_when_generated_humanoid_asset_unavailable_to_avoid_empty_encounter_scene";
-      recordPackageSceneAssetStatus({
-        assetId: options.assetId,
-        assetPath: actorSpecificAssetPath,
-        sceneObjectName: options.objectName,
-        status: "failed",
-        fallbackActive: true,
-        ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}),
-        affordanceCueIds: packageRuntimeAssetAffordanceCueIds(options.assetId, [
-          "primitive_actor_restored_after_generated_humanoid_load_failed",
-          "case_definition_driven_role_pose_applied_to_fallback_actor",
-        ]),
-      });
-      recordBootPhase("generated_humanoid_asset_load_failed", error);
-    },
-  );
+  loadPackageGeneratedHumanoidIntoActorSlot(assetLoadingContext(), actorSlot, options);
 }
-
 function shouldUseCleanHumanoidSourceComparatorCapture(): boolean {
   const captureMode = selectedCaptureMode();
   // framing-polish-parent-nurse-garment-ui-xr-v1 (Q5): sleeve-deform / real-garment body-motion capture must declutter
@@ -5365,210 +4645,29 @@ function isEdBayVisibleComparatorCapture(): boolean {
 }
 
 function suppressRuntimeDiagnosticOverlaysForSourceComparator(humanoid: Group): void {
-  // Never hide phenotype real-garment meshes (name includes openclinxr_real_garment / casual_top / scrub).
-  const scaffoldingNamePattern = /comparator|diagnostic|gown|blanket|wrist_band|visible_lip|eye_focus|hair_cap|patient_lap|patient_gown|patient_visible|actor-specific|specific|clothing|accent|pregnancy|abdomen|belly|morph_target|wardrobe|torso|cue/u;
-  const protectGarmentPattern = /openclinxr_real_garment|real_garment_from_phenotype|real_garment_peds|casual_top|scrub_top|cardigan/i;
-  humanoid.traverse((object) => {
-    const name = object.name.toLowerCase();
-    if (protectGarmentPattern.test(object.name) || object.userData?.openClinXrGarmentEvidenceSurface || object.userData?.openClinXrSleeveDeformEvidence) {
-      object.visible = true;
-      return;
-    }
-    if (!scaffoldingNamePattern.test(name)) return;
-    object.visible = false;
-    object.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_source_realism_review_to_avoid_scaffolding_dominating_grade";
-  });
-  humanoid.userData.openClinXrSourceComparatorScaffoldingSuppressed =
-    "source_fitted_mesh_prioritized_over_runtime_or_generator_debug_overlays_for_realism_scoring";
+  suppressPackageRuntimeDiagnosticOverlaysForSourceComparator(humanoid);
 }
-
 function shouldShowHumanoidSourceComparatorDebugFaceCues(): boolean {
   const captureMode = selectedCaptureMode();
   return captureMode.includes("debug-face-cue") || new URLSearchParams(window.location.search).get("humanoidComparatorDebugFaceCues") === "1";
 }
 
 function addHumanoidSourceComparatorFaceReviewCues(humanoid: Group): void {
-  const eyeMaterial = new MeshStandardMaterial({ color: 0x111827, roughness: 0.48 });
-  const lipMaterial = new MeshStandardMaterial({ color: 0x7f1d1d, roughness: 0.56 });
-  for (const z of [-0.36, 0.36]) {
-    const leftEye = new Mesh(new SphereGeometry(0.018, 16, 8), eyeMaterial.clone());
-    leftEye.name = `${runtimeSceneObjectPrefix()}.charmorph-comparator-left-eye-visible-review-cue`;
-    leftEye.position.set(-0.035, 1.58, z);
-    humanoid.add(leftEye);
-    const rightEye = new Mesh(new SphereGeometry(0.018, 16, 8), eyeMaterial.clone());
-    rightEye.name = `${runtimeSceneObjectPrefix()}.charmorph-comparator-right-eye-visible-review-cue`;
-    rightEye.position.set(0.035, 1.58, z);
-    humanoid.add(rightEye);
-    const mouth = new Mesh(new BoxGeometry(0.085, 0.018, 0.012), lipMaterial.clone());
-    mouth.name = `${runtimeSceneObjectPrefix()}.charmorph-comparator-mouth-viseme-visible-review-cue`;
-    mouth.position.set(0, 1.535, z);
-    humanoid.add(mouth);
-  }
-  humanoid.userData.openClinXrHumanoidComparatorFaceReviewCue =
-    "visible_eye_mouth_cues_for_webxr_adversarial_screenshot_review_only";
+  addPackageHumanoidSourceComparatorFaceReviewCues(assetLoadingContext(), humanoid);
 }
-
-function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string): string {
-  const role = (runtimeActorRole(actorId) ?? '').toLowerCase();
-  const scenarioId = encounterRuntimeAssetBundle.scenarioId;
-
-  // #144: OB bake-off comparators only. Default cast must use resolveHumanoidVariantOrCastPath
-  // (same six regenerated humanoids as psych) — do NOT fall back to stale
-  // /xr-assets/humanoids/variants/ob-*-generated-human.glb (pre-#103 torn/nude mesh path).
-  if (scenarioId === 'ob_headache_preeclampsia_triage_v1') {
-    const humanoidSourceComparator = selectedHumanoidSourceComparator();
-    if (humanoidSourceComparator === "mpfb_ob_patient" && actorId === runtimePatientActorId()) {
-      return '/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb';
-    }
-    if (humanoidSourceComparator === "charmorph_antonia_patient" && actorId === runtimePatientActorId()) {
-      return '/xr-assets/humanoids/candidates/charmorph-antonia-ob-patient-candidate.glb';
-    }
-    if (humanoidSourceComparator === "charmorph_reom_patient" && actorId === runtimePatientActorId()) {
-      return '/xr-assets/humanoids/candidates/charmorph-reom-ob-patient-candidate.glb';
-    }
-    if (humanoidSourceComparator === "reom_local_fitted_garment_patient" && actorId === runtimePatientActorId()) {
-      return '/xr-assets/humanoids/candidates/makeclothes-hm08-scrub-shirt-library.glb';
-    }
-    if (humanoidSourceComparator === "reom_local_authored_curved_garment_patient" && actorId === runtimePatientActorId()) {
-      return '/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb';
-    }
-    if (humanoidSourceComparator === "reom_shirts01_cc0_patient" && actorId === runtimePatientActorId()) {
-      return '/xr-assets/humanoids/candidates/reom-shirts01-cc0-elvs-crude-tshirt-candidate.glb';
-    }
-    if (humanoidSourceComparator === "reom_toigo_basic_tucked_tshirt_patient" && actorId === runtimePatientActorId()) {
-      return '/xr-assets/humanoids/candidates/reom-toigo-basic-tucked-tshirt-candidate.glb';
-    }
-    if (humanoidSourceComparator === "reom_namuhekam_polo_patient" && actorId === runtimePatientActorId()) {
-      return '/xr-assets/humanoids/candidates/reom-namuhekam-polo-clearance-candidate.glb';
-    }
-    // No default variant short-circuit — fall through to cast SSOT below.
-  }
-
-  if (scenarioId === 'peds_asthma_parent_anxiety_v1') {
-    const humanoidSourceComparator = selectedHumanoidSourceComparator();
-    if (humanoidSourceComparator === "peds_anny_comfy_masked_skin") {
-      if (actorId === runtimePatientActorId() || role === "patient") {
-        return "/cagematch/anny-comfy-masked-skin/current/peds_patient_child.glb";
-      }
-      if (actorId === runtimeFamilyActorId() || role === "parent" || role === "family") {
-        return "/cagematch/anny-comfy-masked-skin/current/peds_anxious_parent.glb";
-      }
-      if (actorId === runtimeClinicalTeamActorId() || role === "nurse") {
-        return "/cagematch/anny-comfy-masked-skin/current/peds_nurse_kevin.glb";
-      }
-    }
-    if (humanoidSourceComparator === "peds_anny_mpfb2_eye_rig_patient" && (actorId === runtimePatientActorId() || role === "patient")) {
-      return "/cagematch/anny-mpfb2-eye-rig/current/peds_patient_child_mpfb2_eye_rig.glb";
-    }
-    if (humanoidSourceComparator === "peds_anny_school_age_mpfb2_eye_patient" && (actorId === runtimePatientActorId() || role === "patient")) {
-      return "/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb";
-    }
-    if (humanoidSourceComparator === "peds_anny_real_garment_patient" && (actorId === runtimePatientActorId() || role === "patient")) {
-      return "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb";
-    }
-    // ui-xr-parent-nurse-runtime-comparator-v1: parent/nurse real-garment on patient primary (camera center) AND role slot; no re-orchestrate
-    // #314: patient (child) and family/parent are DIFFERENT actors — the patient must
-    // never resolve to the parent GLB. Split the cast: patient → child, family → parent.
-    if (humanoidSourceComparator === "peds_anny_real_garment_parent") {
-      if (actorId === runtimePatientActorId() || role === "patient") {
-        return "/generated-humanoids/peds_patient_child.glb";
-      }
-      if (actorId === runtimeFamilyActorId() || role === "parent" || role === "family") {
-        return "/generated-humanoids/peds_anxious_parent.glb";
-      }
-    }
-    // #314: same split for the nurse comparator — patient → child, clinical team → nurse.
-    if (humanoidSourceComparator === "peds_anny_real_garment_nurse") {
-      if (actorId === runtimePatientActorId() || role === "patient") {
-        return "/generated-humanoids/peds_patient_child.glb";
-      }
-      if (actorId === runtimeClinicalTeamActorId() || role === "nurse") {
-        return "/generated-humanoids/peds_nurse_kevin.glb";
-      }
-    }
-    const pedsHandoff = (encounterRuntimeAssetBundle as LearnerRuntimeAssetBundle & { pedsHumanoidMaterializationHandoff?: PedsHumanoidMaterializationHandoff }).pedsHumanoidMaterializationHandoff;
-    if (pedsHandoff?.assets?.length) {
-      const targetRole = (actorId === runtimePatientActorId() || role === 'patient')
-        ? "patient"
-        : (actorId === runtimeClinicalTeamActorId() || role === 'nurse')
-          ? "nurse"
-          : "anxious_parent";
-      const asset = pedsHandoff.assets.find((a) => a.actorRole === targetRole);
-      const handoffPath = asset?.runtimeAssetPath || asset?.assetPath;
-      // #278: cast SSOT is authoritative for re-cast roles — handoff routes only when it agrees.
-      if (handoffPath && handoffPath === resolveHumanoidVariantOrCastPath({ scenarioId, actorId, role, fallbackPath })) return handoffPath;
-    }
-    // #366: cast SSOT is authoritative for the default (non-comparator, non-handoff) path.
-    // The previous hardcoded fallback returned the Anny child for the patient and hm08 library
-    // bodies for parent/nurse — the exact mis-load #366 measured in the learner view while the
-    // casting table already resolved all three roles to MPFB. Route through the same SSOT the
-    // ED/OB/default branches use instead of a second, stale resolution site.
-    return resolveHumanoidVariantOrCastPath({ scenarioId, actorId, role, fallbackPath });
-  }
-
-  if (scenarioId === 'ed_chest_pain_priority_v1' || scenarioId === 'ed_chest_pain_priority_v2') {
-    const humanoidSourceComparator = selectedHumanoidSourceComparator();
-    const comparatorOverride =
-      humanoidSourceComparator === "ed_anny_real_garment_patient" && (actorId === runtimePatientActorId() || role === "patient")
-        ? "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb"
-        : null;
-    // #85: age-band casting SSOT — adult ED roles resolve to adult cast, never peds_patient_child.
-    return resolveHumanoidVariantOrCastPath({ scenarioId, actorId, role, fallbackPath, comparatorOverridePath: comparatorOverride });
-  }
-
-  // #111: cast SSOT only — no older|elder|geriatric|delirium substring short-circuit.
-  return resolveHumanoidVariantOrCastPath({ scenarioId, actorId, role, fallbackPath });
+function _runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string): string {
+  return runtimePackageHumanoidVariantAssetPath(assetLoadingContext(), actorId, fallbackPath);
 }
-
-function selectedHumanoidSourceComparator(): "mpfb_ob_patient" | "charmorph_antonia_patient" | "charmorph_reom_patient" | "reom_local_fitted_garment_patient" | "reom_local_authored_curved_garment_patient" | "reom_shirts01_cc0_patient" | "reom_toigo_basic_tucked_tshirt_patient" | "reom_namuhekam_polo_patient" | "peds_anny_mpfb2_eye_rig_patient" | "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_comfy_masked_skin" | "peds_anny_real_garment_patient" | "peds_anny_real_garment_parent" | "peds_anny_real_garment_nurse" | "ed_anny_real_garment_patient" | null {
-  const selected = new URLSearchParams(window.location.search).get("humanoidSourceComparator")?.trim();
-  return selected === "mpfb_ob_patient" || selected === "charmorph_antonia_patient" || selected === "charmorph_reom_patient" || selected === "reom_local_fitted_garment_patient" || selected === "reom_local_authored_curved_garment_patient" || selected === "reom_shirts01_cc0_patient" || selected === "reom_toigo_basic_tucked_tshirt_patient" || selected === "reom_namuhekam_polo_patient" || selected === "peds_anny_mpfb2_eye_rig_patient" || selected === "peds_anny_school_age_mpfb2_eye_patient" || selected === "peds_anny_comfy_masked_skin" || selected === "peds_anny_real_garment_patient" || selected === "peds_anny_real_garment_parent" || selected === "peds_anny_real_garment_nurse" || selected === "ed_anny_real_garment_patient" ? selected : null;
+function selectedHumanoidSourceComparator(): ReturnType<typeof selectedPackageHumanoidSourceComparator> {
+  return selectedPackageHumanoidSourceComparator();
 }
-
 function pedsAsthmaPatientBundleVisemeUtterance(): string {
-  const bundleTurn = (encounterRuntimeAssetBundle.sceneManifest.dialogueTurns ?? []).find(
-    (turn) => turn.traceTag === "work_of_breathing_assessment" && turn.actorId === runtimePatientActorId(),
-  );
-  return bundleTurn?.text ?? "Maya Johnson: It is hard to breathe and my chest feels tight.";
+  return pedsPackageAsthmaPatientBundleVisemeUtterance(assetLoadingContext());
 }
-
 function neutralizeGeneratedHumanoidMorphTargets(humanoid: Group): void {
-  let meshCount = 0;
-  let influenceCount = 0;
-  const targetNames = new Set<string>();
-  humanoid.traverse((object) => {
-    if (!(object instanceof Mesh)) {
-      return;
-    }
-    meshCount++;
-    const targetDictionary = object.morphTargetDictionary ?? {};
-    const morphTargetCount = Math.max(
-      object.morphTargetInfluences?.length ?? 0,
-      Object.keys(targetDictionary).length,
-    );
-    if (!object.morphTargetInfluences || object.morphTargetInfluences.length !== morphTargetCount) {
-      object.morphTargetInfluences = Array.from({ length: morphTargetCount }, () => 0);
-    }
-    for (let index = 0; index < object.morphTargetInfluences.length; index++) {
-      object.morphTargetInfluences[index] = 0;
-      influenceCount++;
-    }
-    for (const targetName of Object.keys(targetDictionary)) {
-      targetNames.add(targetName);
-    }
-    object.userData.openClinXrNeutralMorphTargetPolicy =
-      "all_imported_morph_targets_zeroed_until_runtime_speech_expression_sets_controlled_weights";
-  });
-  humanoid.userData.openClinXrNeutralMorphTargetPolicy = {
-    mode: "zero_imported_default_morph_weights_on_load",
-    meshCount,
-    influenceCount,
-    targetNames: [...targetNames].sort(),
-    reason: "generated_anny_mpfb2_candidates_can_export_nonzero_default_viseme_expression_weights_that_hide_the_body_in_clean_review",
-  };
+  neutralizePackageGeneratedHumanoidMorphTargets(humanoid);
 }
-
-function registerGeneratedHumanoidAnimation(input: {
+function _registerGeneratedHumanoidAnimation(input: {
   assetId: string;
   actorId: string;
   actorSlot: Group;
@@ -5583,168 +4682,8 @@ function registerGeneratedHumanoidAnimation(input: {
   playbackEnabled: boolean;
   fixedSourcePoseSampleSeconds: number | null;
 }): void {
-  // #83: seated figures keep a mixer only for non-leg facial/upper clips when role clips exist.
-  // Falling back to ALL glTF clips played standing armature tracks that overwrote the sit every frame
-  // (re-apply helped only when it ran; full-body tracks + missing role names = bind/stand forever).
-  const isSeated =
-    input.humanoid.userData.openClinXrActorPosture === "seated"
-    || input.actorSlot.userData.openClinXrActorPosture === "seated";
-  const isSupine =
-    input.humanoid.userData.openClinXrActorPosture === "supine"
-    || input.actorSlot.userData.openClinXrActorPosture === "supine";
-  // #574: the #574 carve-out — a NAMED seated-rig role clip may play on a seated actor.
-  // The clip was retargeted from a seated source take, so performing it does not fight the
-  // sit (translation channels are constant; legs re-folded per frame by applyPosturePose).
-  const oneShotResponseClipNames = new Set(clinicalTouchResponseClipNamesForActor(input.actorId));
-  const selectedRoleClips = input.animationClips.filter((clip): clip is AnimationClip =>
-    clip instanceof AnimationClip
-    && input.roleAnimationClipNames.includes(clip.name)
-    && !oneShotResponseClipNames.has(clip.name)
-  );
-  const seatedRoleClipPlayable =
-    isSeated && !isSupine
-    && selectedRoleClips.length > 0
-    && selectedRoleClips.every((clip) => seatedRoleClipIsPlayable(
-      clip.name,
-      { translationBoneNames: animatedTranslationBoneNames(clip.tracks) },
-    ));
-  // #150: no mixer for supine — standing tracks undo the recumbent plant.
-  // #83 invariant intact for every other seated actor: no mixer without the carve-out.
-  const mixer = input.playbackEnabled && input.animationClips.length > 0 && (!isSeated || seatedRoleClipPlayable) && !isSupine
-    ? new AnimationMixer(input.humanoid)
-    : undefined;
-  // Response clips are registered on roleAnimationClipNames for discoverability but must not
-  // auto-loop as role idle — they are one-shot via handleClinicalTouch / respondToTouch.
-  const selectedGazeProbeClips = input.animationClips.filter((clip): clip is AnimationClip =>
-    clip instanceof AnimationClip && input.gazeProbeAnimationClipNames.includes(clip.name)
-  );
-  // Never fall back to "play every clip" for seated/supine — neutral armatureAction is standing.
-  const clipsToPlay = selectedRoleClips.length > 0
-    ? [...selectedRoleClips, ...selectedGazeProbeClips]
-    : isSeated || isSupine
-      ? []
-      : input.animationClips.filter((clip): clip is AnimationClip => clip instanceof AnimationClip);
-  const fixedSourcePoseClip = selectedRoleClips[0] ?? input.animationClips.find((clip): clip is AnimationClip => clip instanceof AnimationClip);
-  if (!input.playbackEnabled && fixedSourcePoseClip && input.fixedSourcePoseSampleSeconds !== null) {
-    const fixedPoseMixer = new AnimationMixer(input.humanoid);
-    fixedPoseMixer.clipAction(fixedSourcePoseClip).play();
-    fixedPoseMixer.setTime(input.fixedSourcePoseSampleSeconds);
-    input.humanoid.updateMatrixWorld(true);
-  }
-  if (mixer) {
-    for (const clip of clipsToPlay) {
-      mixer.clipAction(clip)?.play();
-    }
-  }
-  // Seated: procedural sit is authoritative; re-apply once after any fixed-pose sample so legs stay folded.
-  // #87: plant pelvis onto the chair seat (height from descent, not from hip fold past 95°).
-  if (isSeated) {
-    applyPosturePose(input.humanoid, "seated");
-    // Aim flush with seat top; post-loop scale breathing opens gap slightly (still < 0.12).
-    const plant = plantSeatedPelvisOnSeat(input.humanoid, PATIENT_CHAIR_SEAT_HEIGHT_METERS, 0.0);
-    input.humanoid.userData.openClinXrSeatedPlantDeltaY = plant.deltaY;
-    input.humanoid.userData.openClinXrSeatedPlantPelvisBefore = plant.pelvisBefore;
-    input.humanoid.updateMatrixWorld(true);
-  }
-  if (isSupine) {
-    const deckStretcher = findProceduralStretcherInSceneOf(input.actorSlot);
-    applyAndPlantSupineOnDeck(input.humanoid, {
-      deckTopWorldY: STRETCHER_DECK_TOP_METERS,
-      deckCenter: { x: input.actorSlot.position.x, z: input.actorSlot.position.z },
-      ...(deckStretcher ? { stretcher: deckStretcher } : {}),
-    });
-  }
-  const activeRoleAnimationClipName = selectedRoleClips[0]?.name;
-  const activeGazeProbeAnimationClipName = selectedGazeProbeClips[0]?.name;
-  // #574 evidence: the carve-out decision is stamped so captures and tests can read
-  // WHICH seated actor got a mixer and why, instead of re-deriving it from source.
-  input.humanoid.userData.openClinXrSeatedRoleClipCarveout =
-    mixer && isSeated && seatedRoleClipPlayable
-      ? {
-          admitted: true,
-          clipNames: selectedRoleClips.map((clip) => clip.name),
-          policy: "seated_role_clip_policy.seatedRoleClipIsPlayable",
-        }
-      : { admitted: false, clipNames: [] as string[], policy: "seated_role_clip_policy.seatedRoleClipIsPlayable" };
-  const slot = {
-    assetId: input.assetId,
-    actorId: input.actorId,
-    root: input.humanoid,
-    actorSlot: input.actorSlot,
-    baseY: input.humanoid.position.y,
-    baseX: input.humanoid.position.x,
-    baseScaleX: input.humanoid.scale.x,
-    baseScaleY: input.humanoid.scale.y,
-    baseScaleZ: input.humanoid.scale.z,
-    baseRotationY: input.humanoid.rotation.y,
-    baseZ: input.humanoid.position.z,
-    phaseOffsetMs: generatedHumanoidAnimationSlots.length * 480,
-    mouthCue: input.mouthCue,
-    gazeCue: input.gazeCue,
-    eyeFocusCue: input.eyeFocusCue,
-    expressionCue: input.expressionCue,
-    emotionExpression: createHumanoidEmotionExpressionState(),
-    sourceComparatorFreezeEnabled: !input.playbackEnabled && input.fixedSourcePoseSampleSeconds !== null,
-    responseClips: input.animationClips.filter((clip): clip is AnimationClip => clip instanceof AnimationClip),
-    ...(mixer ? { mixer } : {}),
-    ...(activeRoleAnimationClipName ? { activeRoleAnimationClipName } : {}),
-    ...(activeGazeProbeAnimationClipName ? { activeGazeProbeAnimationClipName } : {}),
-  };
-  generatedHumanoidAnimationSlots.push(slot);
-  generatedHumanoidAnimationSlotsByActorId.set(input.actorId, slot);
-  generatedHumanoidActorSlotsByActorId.set(input.actorId, input.actorSlot);
-  // Register case-driven clinical-touch hit regions for this actor, if any.
-  const clinicalTouchScenario =
-    scenarioBank.find((candidate) => candidate.scenarioId === selectedScenarioId()) ?? edChestPainScenario;
-  const clinicalTouchActor = clinicalTouchScenario.actors.find((actor) => actor.actorId === input.actorId);
-  if (clinicalTouchActor?.bodyMechanics?.touchResponses?.length) {
-    registerClinicalTouchRegions(input.actorId, input.humanoid, clinicalTouchActor.bodyMechanics.touchResponses);
-  }
-  input.humanoid.userData.openClinXrAnimationPlayback = !input.playbackEnabled && fixedSourcePoseClip && input.fixedSourcePoseSampleSeconds !== null
-    ? "source_comparator_fixed_pose_sampled"
-    : mixer
-    ? activeRoleAnimationClipName
-      ? "gltf_role_animation_clip_playing"
-      : "gltf_animation_clips_playing"
-    : input.playbackEnabled ? "procedural_idle_breathing_fallback" : "source_comparator_animation_suppressed";
-  input.humanoid.userData.openClinXrRoleAnimationClipNames = input.roleAnimationClipNames;
-  input.humanoid.userData.openClinXrActiveRoleAnimationClipName = activeRoleAnimationClipName ?? null;
-  input.humanoid.userData.openClinXrGazeProbeAnimationClipNames = input.gazeProbeAnimationClipNames;
-  input.humanoid.userData.openClinXrActiveGazeProbeAnimationClipName = activeGazeProbeAnimationClipName ?? null;
-  if (slot.sourceComparatorFreezeEnabled) {
-    input.humanoid.userData.openClinXrSourceComparatorRuntimeFreezePolicy =
-      "runtime_pose_speech_gaze_emotion_updates_disabled_for_clean_source_body_capture";
-  }
-  const comparatorForDialogue = selectedHumanoidSourceComparator();
-  // parent/nurse real-garment primary is patient slot (role GLB centered for capture)
-  if (input.actorId === runtimePatientActorId() && !slot.sourceComparatorFreezeEnabled) {
-    const comparator = comparatorForDialogue;
-    const isRealGarmentOrSchoolOrEd = comparator === "peds_anny_school_age_mpfb2_eye_patient" || comparator === "peds_anny_real_garment_patient" || comparator === "peds_anny_real_garment_parent" || comparator === "peds_anny_real_garment_nurse" || comparator === "ed_anny_real_garment_patient";
-    const dialogueText = isRealGarmentOrSchoolOrEd && comparator !== "ed_anny_real_garment_patient" && input.actorId === runtimePatientActorId()
-      ? pedsAsthmaPatientBundleVisemeUtterance()
-      : dialogueLine.textContent?.trim() || initialDialogueText;
-    window.requestAnimationFrame(() => {
-      triggerHumanoidDialogue(input.actorId, dialogueText, {
-        kind: "learner_camera",
-        actorId: null,
-      }, isRealGarmentOrSchoolOrEd && comparator !== "ed_anny_real_garment_patient" ? "anxious" : undefined);
-      if (isRealGarmentOrSchoolOrEd) {
-        input.humanoid.userData.openClinXrVisemeTimelineComparatorEvidence = {
-          comparator,
-          dialogueText,
-          traceTag: "work_of_breathing_assessment",
-          mappingMode: "deterministic_text_phoneme_viseme_runtime_cue",
-          morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue",
-          notEvidenceFor: "production phoneme timing, validated facial animation, or clinical affect scoring",
-        };
-        // garmentGeometry surface prepared; real-garment (phenotype.garmentLayers) + school-age use embedded clothing regions from real topology
-      }
-    });
-  }
-  schedulePedsActorPlayerRuntimePlaybackIfReady();
-  recordBootPhase(mixer ? "generated_humanoid_animation_clips_started" : "generated_humanoid_procedural_idle_started");
+  registerPackageGeneratedHumanoidAnimation(assetLoadingContext(), input);
 }
-
 function schedulePedsActorPlayerRuntimePlaybackIfReady(): void {
   if (pedsActorPlayerRuntimePlaybackScheduled || !isPediatricAsthmaRuntimeScenario()) {
     return;
@@ -5952,7 +4891,7 @@ function pedsActorPlayerBundleDialogueTurns(): PedsActorPlayerRuntimeTurn[] {
     emotion: resolveLiveActorTurnForTrace(runtimeTurn.traceTag)?.faceEmotion ?? "neutral",
     gazeTargetKind: runtimeTurn.gazeTargetKind,
     gazeTargetActorId: runtimeTurn.gazeTargetActorId,
-    roleAnimationClipName: roleAnimationClipNamesForActor(runtimeTurn.actorId)[0] ?? "",
+    roleAnimationClipName: rolePackageAnimationClipNamesForActor(clipNameContext(), runtimeTurn.actorId)[0] ?? "",
     source: "bundle_dialogue_turn",
   }));
 }
@@ -6065,7 +5004,7 @@ function applyPedsActorPlayerSequenceListenerCues(
   );
 }
 
-function listenerEmotionForSequence(activeTurn: PedsActorPlayerRuntimeTurn): HumanoidExpressionEmotion {
+function _listenerEmotionForSequence(activeTurn: PedsActorPlayerRuntimeTurn): HumanoidExpressionEmotion {
   return listenerPackageEmotionForSequence(activeTurn) as HumanoidExpressionEmotion;
 }
 
@@ -6145,23 +5084,11 @@ function recordPedsActorPlayerRuntimePlaybackEvidence(input: {
 }
 
 function hasAuthoredClinicalIdlePoseClip(animationClips: unknown[]): boolean {
-  return animationClips.some((clip) =>
-    clip instanceof AnimationClip && /clinical|idle|relaxed|conversation|consult/i.test(clip.name)
-  );
+  return hasPackageAuthoredClinicalIdlePoseClip(animationClips);
 }
-
 function gazeProbeAnimationClipNamesFromGltf(animationClips: unknown[]): string[] {
-  return animationClips
-    .filter((clip): clip is AnimationClip => clip instanceof AnimationClip && clip.name.startsWith("openclinxr_mpfb2_eye_look_probe"))
-    .map((clip) => clip.name);
+  return gazePackageProbeAnimationClipNamesFromGltf(animationClips);
 }
-
-/**
- * #574: true when this actor's seated role-clip carve-out admitted clips at register
- * time (userData stamped by registerGeneratedHumanoidAnimation). The frame loop holds
- * the standing clinical-idle arm hang for such actors so the clip's upper-body
- * performance is not overwritten every frame.
- */
 function seatedRoleClipAutoLoopActive(humanoidRoot: Object3D, actorId: string): boolean {
   void actorId;
   const carveout = humanoidRoot.userData.openClinXrSeatedRoleClipCarveout as
@@ -6187,24 +5114,7 @@ function isGeneratedRuntimeDrive(value: unknown): value is GeneratedRuntimeDrive
   return isPackageGeneratedRuntimeDrive(value);
 }
 
-function _pediatricAsthmaActingOverlayForSlot(
-  slot: GeneratedHumanoidAnimationSlot,
-  t: number,
-  isSpeaking: boolean,
-) {
-  return pediatricPackageAsthmaActingOverlayForSlot(humanoidAnimationContext, slot, t, isSpeaking);
-}
 
-function _recordRuntimeHumanoidActingCueEvidence(actorCues: RuntimeHumanoidActingCueEvidence["actorCues"]): void {
-  window.__openClinXrRuntimeHumanoidActingCueEvidence = {
-    source: "window.__openClinXrRuntimeHumanoidActingCueEvidence",
-    scenarioId: encounterRuntimeAssetBundle.scenarioId,
-    actorCount: actorCues.length,
-    activeCueIds: Array.from(new Set(actorCues.flatMap((cue) => cue.cueIds))).sort(),
-    actorCues,
-    notEvidenceFor: ["quest_readiness", "clinical_validity", "scoring_validity", "production_readiness", "animation_quality"],
-  };
-}
 
 function triggerHumanoidDialogueForTrace(tag: string, text: string): void {
   const actorId = localDialogueActorIdForTraceTag(tag);
@@ -6337,44 +5247,10 @@ function humanoidDialogueDurationMs(phonemeCount: number): number {
   return humanoidPackageDialogueDurationMs(phonemeCount, isHumanoidMouthGazePoseReviewCaptureMode());
 }
 
-function _updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: number, camera: PerspectiveCamera): void {
-  updatePackageHumanoidSpeechCue(humanoidAnimationContext, slot, nowMs, camera);
-}
 
 
-function _recordMouthGazePoseComparatorEvidence(
-  slot: GeneratedHumanoidAnimationSlot,
-  speech: HumanoidSpeechPlayback,
-  viseme: string,
-  openness: number,
-  expressionState: HumanoidEmotionExpressionState,
-  nowMs: number,
-): void {
-  recordPackageMouthGazePoseComparatorEvidence(humanoidAnimationContext, slot, speech, viseme, openness, expressionState, nowMs);
-}
 
 
-function _applyHumanoidFaceRigControls(
-  slot: GeneratedHumanoidAnimationSlot,
-  openness: number,
-  viseme: string,
-  speech: HumanoidSpeechPlayback,
-  camera: PerspectiveCamera,
-  eyeMotion: HumanoidEyeMotionMetrics,
-  expressionWeights: HumanoidExpressionWeights,
-): void {
-  applyPackageHumanoidFaceRigControls(
-    slot,
-    openness,
-    viseme,
-    speech,
-    camera,
-    eyeMotion,
-    expressionWeights,
-    (entry, entryCamera) => resolveHumanoidGazeTargetWorld(entry, entryCamera),
-    (entry, entryOpenness, entryViseme, entryWeights) => applyHumanoidMorphTargetCue(entry, entryOpenness, entryViseme, entryWeights),
-  );
-}
 
 function createHumanoidEmotionExpressionState(): HumanoidEmotionExpressionState {
   return createPackageHumanoidEmotionExpressionState({ deterministicClock: isDeterministicCaptureClock() });
@@ -6435,21 +5311,9 @@ function scenarioDialogueEmotionContext(
   };
 }
 
-function _computeHumanoidEyeMotionMetrics(speech: HumanoidSpeechPlayback, nowMs: number): HumanoidEyeMotionMetrics {
-  return computePackageHumanoidEyeMotionMetrics(speech, nowMs);
-}
 
-function _lerp(from: number, to: number, alpha: number): number {
-  return lerpPackageHumanoidAnimation(from, to, alpha);
-}
 
-function _roundHumanoidExpressionWeights(weights: HumanoidExpressionWeights): HumanoidExpressionWeights {
-  return roundPackageHumanoidExpressionWeights(weights);
-}
 
-function _resetHumanoidFaceRigControls(slot: GeneratedHumanoidAnimationSlot): void {
-  resetPackageHumanoidFaceRigControls(slot);
-}
 
 function applyHumanoidMorphTargetCue(
   slot: GeneratedHumanoidAnimationSlot,
@@ -6460,58 +5324,12 @@ function applyHumanoidMorphTargetCue(
   applyPackageHumanoidMorphTargetCue(slot, openness, viseme, expressionWeights, applyNamedSpeechVisemes);
 }
 
-function _offsetRigControl(control: ReturnType<Group["getObjectByName"]>, x: number, y: number, z: number): void {
-  offsetPackageHumanoidRigControl(control, x, y, z);
-}
-
-function _rotateRigControl(control: ReturnType<Group["getObjectByName"]>, x: number, y: number, z: number): void {
-  rotatePackageHumanoidRigControl(control, x, y, z);
-}
-
-function _scaleRigControl(control: ReturnType<Group["getObjectByName"]>, x: number, y: number, z: number): void {
-  scalePackageHumanoidRigControl(control, x, y, z);
-}
-
-function _ensureRigControlBase(control: NonNullable<ReturnType<Group["getObjectByName"]>>): {
-  position: { x: number; y: number; z: number };
-  rotation: { x: number; y: number; z: number };
-  scale: { x: number; y: number; z: number };
-} {
-  const existing = control.userData.openClinXrRigControlBaseTransform;
-  if (
-    existing
-    && typeof existing === "object"
-    && "position" in existing
-    && "rotation" in existing
-    && "scale" in existing
-  ) {
-    return existing as {
-      position: { x: number; y: number; z: number };
-      rotation: { x: number; y: number; z: number };
-      scale: { x: number; y: number; z: number };
-    };
-  }
-  const base = {
-    position: { x: control.position.x, y: control.position.y, z: control.position.z },
-    rotation: { x: control.rotation.x, y: control.rotation.y, z: control.rotation.z },
-    scale: { x: control.scale.x, y: control.scale.y, z: control.scale.z },
-  };
-  control.userData.openClinXrRigControlBaseTransform = base;
-  return base;
-}
-
-function _updateVirtualDeviceActorSpeechPulses(nowMs: number): void {
-  updatePackageVirtualDeviceActorSpeechPulses(humanoidAnimationContext, nowMs);
-}
 
 
-function _updateHumanoidGazeCue(
-  slot: GeneratedHumanoidAnimationSlot,
-  speech: HumanoidSpeechPlayback,
-  camera: PerspectiveCamera,
-): void {
-  updatePackageHumanoidGazeCue(humanoidAnimationContext, slot, speech, camera);
-}
+
+
+
+
 
 
 function orientHumanoidEyeFocusCue(slot: GeneratedHumanoidAnimationSlot, gazeOrigin: Vector3, boundedTarget: Vector3): void {
@@ -6524,105 +5342,15 @@ function orientHumanoidTowardGazeTarget(slot: GeneratedHumanoidAnimationSlot, ta
 }
 
 
-function _normalizeAngle(angle: number): number {
-  return normalizePackageHumanoidAnimationAngle(angle);
-}
 
-function _clampDialogueFacingYaw(value: number): number {
-  return clampPackageDialogueFacingYaw(value);
-}
 
-function resolveHumanoidGazeTargetWorld(speech: HumanoidSpeechPlayback, camera: PerspectiveCamera): Vector3 {
+function _resolveHumanoidGazeTargetWorld(speech: HumanoidSpeechPlayback, camera: PerspectiveCamera): Vector3 {
   return resolvePackageHumanoidGazeTargetWorld(humanoidAnimationContext, speech, camera);
 }
 
 function tintGeneratedSceneMaterials(root: Group, tintColor: number, actorId?: string): void {
-  const tint = new Color(tintColor);
-  root.traverse((object) => {
-    if (!(object instanceof Mesh)) {
-      return;
-    }
-    const surfaceOverride = generatedHumanoidSurfaceMaterialOverride(object, actorId);
-    if (surfaceOverride) {
-      object.material = surfaceOverride;
-      return;
-    }
-    if (Array.isArray(object.material)) {
-      object.material = object.material.map((material) => tintGeneratedMaterial(material, tint));
-      return;
-    }
-    object.material = tintGeneratedMaterial(object.material, tint);
-  });
+  tintPackageGeneratedSceneMaterials(root, tintColor, actorId);
 }
-
-function generatedHumanoidSurfaceMaterialOverride(object: Mesh, actorId?: string): Mesh["material"] | null {
-  const actorKey = actorId ?? "";
-  if (object.name.includes("anny_surface_scrub")) {
-    const color = actorKey.includes("patient_aisha")
-      ? 0x527f94
-      : actorKey.includes("partner_omar")
-        ? 0x6b503d
-        : 0x0b6874;
-    const material = new MeshStandardMaterial({ color, roughness: 0.78, metalness: 0.02 });
-    material.userData.openClinXrMaterialPolicy = "runtime_actor_source_variant_clothing_color_without_overlay_mask";
-    return material;
-  }
-  if (object.name.includes("anny_surface_hair")) {
-    const color = actorKey.includes("ob_nurse") ? 0x24140d : 0x1d130e;
-    const material = new MeshStandardMaterial({ color, roughness: 0.92 });
-    material.userData.openClinXrMaterialPolicy = "runtime_actor_source_variant_hair_color_without_overlay_mask";
-    return material;
-  }
-  return null;
-}
-
-function tintGeneratedMaterial(material: Mesh["material"], tint: Color): Mesh["material"] {
-  if (!(material instanceof MeshStandardMaterial)) {
-    return material;
-  }
-  if (material.name.includes("openclinxr_legacy_blocky_mesh")) {
-    const hiddenLegacy = material.clone();
-    hiddenLegacy.transparent = true;
-    hiddenLegacy.opacity = 0;
-    hiddenLegacy.depthWrite = false;
-    hiddenLegacy.userData.openClinXrMaterialPolicy =
-      "hide_legacy_blocky_review_mesh_in_normal_runtime_so_generated_anny_actor_surface_drives_visual_realism";
-    return hiddenLegacy;
-  }
-  if (material.name.includes("anny_mesh_skin_warm_review")) {
-    const skin = material.clone();
-    skin.color.setHex(0xd3a184);
-    skin.roughness = 0.82;
-    skin.metalness = 0;
-    skin.userData.openClinXrMaterialPolicy = "runtime_warm_skin_tone_for_generated_anny_humanoid";
-    return skin;
-  }
-  if (material.name.includes("anny_mesh_lip_region_review")) {
-    const lips = material.clone();
-    lips.color.setHex(0x9f5f57);
-    lips.roughness = 0.76;
-    lips.metalness = 0;
-    lips.userData.openClinXrMaterialPolicy = "runtime_subtle_lip_region_contrast_for_generated_anny_humanoid";
-    return lips;
-  }
-  if (material.name.includes("anny_mesh_nose_mouth_shadow_review")) {
-    const shadow = material.clone();
-    shadow.color.setHex(0x8f695a);
-    shadow.roughness = 0.88;
-    shadow.metalness = 0;
-    shadow.userData.openClinXrMaterialPolicy = "runtime_subtle_nose_mouth_shadow_for_generated_anny_humanoid";
-    return shadow;
-  }
-  if (material.name.startsWith("anny_") || material.name.includes("review")) {
-    const preserved = material.clone();
-    preserved.userData.openClinXrMaterialPolicy = "preserve_anny_authored_skin_face_clothing_contrast";
-    return preserved;
-  }
-  const cloned = material.clone();
-  cloned.color.lerp(tint, 0.18);
-  return cloned;
-}
-
 function addPediatricRespiratoryEquipmentCues(slot: Group, equipmentId: string): void {
   addPackagePediatricRespiratoryEquipmentCues(
     sceneCuePediatricEquipment(),
@@ -6659,7 +5387,7 @@ function runtimeGeneratedSceneObjectName(asset: EncounterRuntimeAsset): string {
   return asset.assetId.replace(/[^a-z0-9:_-]+/giu, "-");
 }
 
-function loadGeneratedEquipmentIntoSceneSlot(
+function _loadGeneratedEquipmentIntoSceneSlot(
   sceneSlot: Group,
   options: {
     assetPath: string;
@@ -6667,90 +5395,9 @@ function loadGeneratedEquipmentIntoSceneSlot(
     objectName: string;
   },
 ): void {
-  const primitiveFallbackChildren = [...sceneSlot.children];
-  const primitiveFallbackVisible = shouldShowPrimitiveAssetFallbacks();
-  runtimeEquipmentSlotsByAssetId.set(options.assetId, sceneSlot);
-  sceneSlot.userData.openClinXrRuntimeEquipmentAssetId = options.assetId;
-  addPediatricRespiratoryEquipmentCues(sceneSlot, options.assetId);
-  for (const child of primitiveFallbackChildren) {
-    child.visible = primitiveFallbackVisible;
-    if (!primitiveFallbackVisible) {
-      child.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_fallback_debug_capture";
-    }
-  }
-  const equipmentLoader = new GLTFLoader();
-  recordPackageSceneAssetStatus({
-    assetId: options.assetId,
-    assetPath: options.assetPath,
-    sceneObjectName: options.objectName,
-    status: "pending",
-    fallbackActive: primitiveFallbackVisible,
-  });
-  equipmentLoader.load(
-    options.assetPath,
-    (gltf) => {
-      const equipment = gltf.scene;
-      equipment.name = options.objectName;
-      equipment.userData.openClinXrAffordances = ["selectable_equipment_reference", "clinical_workflow_cue"];
-      equipment.add(createAffordanceMarker(`${options.objectName}:equipment_reference`, 0x35d39b));
-      if (shouldSuppressGeneratedEquipmentModel(options.assetId, options.assetPath)) {
-        recordPackageSceneAssetStatus({
-          assetId: options.assetId,
-          assetPath: options.assetPath,
-          sceneObjectName: options.objectName,
-          status: "loaded",
-          fallbackActive: true,
-          affordanceCueIds: packageRuntimeAssetAffordanceCueIds(options.assetId, [
-            "case_definition_equipment_loaded_from_runtime_bundle",
-            "mismatched_placeholder_equipment_glb_suppressed",
-            "semantic_pediatric_equipment_cues_visible",
-          ]),
-          animationPlayback: "not_applicable",
-        });
-        recordBootPhase("generated_equipment_placeholder_suppressed");
-        return;
-      }
-      for (const child of primitiveFallbackChildren) {
-        child.visible = false;
-      }
-      sceneSlot.add(normalizeGltfEquipmentMount(equipment, sceneSlot));
-      sceneSlot.userData.openClinXrEquipmentSource = "gltf";
-      if (window.__openClinXrEnvironmentStateEvidence) {
-        applyRuntimeEquipmentTraceVisuals(window.__openClinXrEnvironmentStateEvidence);
-      }
-      refreshDeclaredEquipmentMountEvidenceFromSceneImpl();
-      recordPackageSceneAssetStatus({
-        assetId: options.assetId,
-        assetPath: options.assetPath,
-        sceneObjectName: options.objectName,
-        status: "loaded",
-        fallbackActive: false,
-        affordanceCueIds: packageRuntimeAssetAffordanceCueIds(options.assetId, [
-          "selectable_equipment_reference",
-          "clinical_workflow_cue",
-        ]),
-        animationPlayback: "not_applicable",
-      });
-      recordBootPhase("generated_equipment_asset_loaded");
-    },
-    undefined,
-    (error) => {
-      for (const child of primitiveFallbackChildren) {
-        child.visible = primitiveFallbackVisible;
-      }
-      recordPackageSceneAssetStatus({
-        assetId: options.assetId,
-        assetPath: options.assetPath,
-        sceneObjectName: options.objectName,
-        status: "failed",
-        fallbackActive: primitiveFallbackVisible,
-      });
-      recordBootPhase("generated_equipment_asset_load_failed", error);
-    },
-  );
+  loadPackageGeneratedEquipmentIntoSceneSlot(assetLoadingContext(), sceneSlot, options);
 }
-
-function loadGeneratedEnvironmentIntoSceneSlot(
+function _loadGeneratedEnvironmentIntoSceneSlot(
   sceneSlot: Group,
   options: {
     assetPath: string;
@@ -6758,49 +5405,7 @@ function loadGeneratedEnvironmentIntoSceneSlot(
     objectName: string;
   },
 ): void {
-  const environmentLoader = new GLTFLoader();
-  recordPackageSceneAssetStatus({
-    assetId: options.assetId,
-    assetPath: options.assetPath,
-    sceneObjectName: options.objectName,
-    status: "pending",
-    fallbackActive: false,
-  });
-  environmentLoader.load(
-    options.assetPath,
-    (gltf) => {
-      const environment = gltf.scene;
-      environment.name = options.objectName;
-      environment.userData.openClinXrAffordances = ["room_boundary_reference", "spatial_orientation_cue"];
-      Object.assign(environment.userData, prepareLoadedEnvironmentShell(environment)); // #97 axis+bed
-      environment.add(createAffordanceMarker(`${options.objectName}:room_boundary`, 0xf4d35e));
-      sceneSlot.add(environment);
-      recordPackageSceneAssetStatus({
-        assetId: options.assetId,
-        assetPath: options.assetPath,
-        sceneObjectName: options.objectName,
-        status: "loaded",
-        fallbackActive: false,
-        affordanceCueIds: packageRuntimeAssetAffordanceCueIds(options.assetId, [
-          "room_boundary_reference",
-          "spatial_orientation_cue",
-        ]),
-        animationPlayback: "not_applicable",
-      });
-      recordBootPhase("generated_environment_asset_loaded");
-    },
-    undefined,
-    (error) => {
-      recordPackageSceneAssetStatus({
-        assetId: options.assetId,
-        assetPath: options.assetPath,
-        sceneObjectName: options.objectName,
-        status: "failed",
-        fallbackActive: false,
-      });
-      recordBootPhase("generated_environment_asset_load_failed", error);
-    },
-  );
+  loadPackageGeneratedEnvironmentIntoSceneSlot(assetLoadingContext(), sceneSlot, options);
 }
 
 const traceFrameAccumulator = createPackageTraceFrameAccumulator();
@@ -6964,13 +5569,7 @@ function updateManualEvidencePanel(): string {
   return updatePackageTraceManualEvidencePanel(manualEvidencePanelContext());
 }
 
-function _formatAppSceneAssetEvidenceStatus(evidence: SceneAssetEvidence | null): string {
-  return formatPackageSceneAssetEvidenceStatus(evidence);
-}
 
-function _formatAppCaseDefinedHumanoidPerformanceContractEvidence(evidence: CaseDefinedHumanoidPerformanceContractEvidence | null): string {
-  return formatPackageCaseDefinedHumanoidPerformanceContractEvidence(evidence);
-}
 
 function formatActorPlayerRuntimeMetadataSummary(
   evidence: ActorPlayerRuntimeMetadataSummary | null,
@@ -6982,33 +5581,12 @@ function formatActorPlayerRuntimeMetadataSummary(
   );
 }
 
-/**
- * Case-driven one-shot response clip names (bodyMechanics.touchResponses.responseClip).
- * Registered alongside role clips for discoverability; played only via handleClinicalTouch.
- */
 function clinicalTouchResponseClipNamesForActor(actorId: string): string[] {
-  const scenario =
-    scenarioBank.find((candidate) => candidate.scenarioId === selectedScenarioId()) ?? edChestPainScenario;
-  const actor = scenario.actors.find((candidate) => candidate.actorId === actorId);
-  const responses = actor?.bodyMechanics?.touchResponses ?? [];
-  return responses.map((response) => response.responseClip).filter((name): name is string => Boolean(name));
+  return clinicalPackageTouchResponseClipNamesForActor(clipNameContext(), actorId);
 }
-
 function roleAnimationClipNamesForActor(actorId: string): string[] {
-  const fromMetadata =
-    window.__openClinXrActorPlayerRuntimeMetadataSummary?.actorSummaries.find((actor) => actor.actorId === actorId)
-      ?.roleAnimationClipNames ?? [];
-  // ED / non-peds paths have no actor-player metadata; keep a stable idle clip so we do not
-  // auto-play every GLB animation (including the guard/withdraw one-shot) as role idle.
-  const base =
-    fromMetadata.length > 0
-      ? fromMetadata
-      : ["openclinxr_clinical_idle_breathing", "openclinxr_conversation_listen_nod"];
-  // Register clinical-touch response clips here (discoverable via roleAnimationClipNamesForActor);
-  // registerGeneratedHumanoidAnimation excludes them from auto-loop playback.
-  return [...new Set([...base, ...clinicalTouchResponseClipNamesForActor(actorId)])];
+  return rolePackageAnimationClipNamesForActor(clipNameContext(), actorId);
 }
-
 function formatLocomotionDiagnosticSummary(
   summary: ManualPerformanceCaptureSummary["locomotionDiagnosticSummary"],
 ): string {
@@ -7122,11 +5700,6 @@ function buildHumanoidSpeechEvidence(
   );
 }
 
-function _buildRuntimeActorRealismLaunchBadge(
-  requirement: NonNullable<HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"]>,
-): NonNullable<HumanoidSpeechEvidence["activeActorRealismLaunchBadge"]> {
-  return buildPackageRuntimeActorRealismLaunchBadge(requirement);
-}
 
 function localDialogueActorIdForTraceTag(tag: string): string | undefined {
   const runtimeTurn = runtimeDialogueTurnForTraceTag(tag);
@@ -7163,17 +5736,7 @@ function localDialogueGazeTargetForTraceTag(tag: string): HumanoidDialogueGazeTa
     : { kind: "learner_camera", actorId: null };
 }
 
-function _visemeOpenness(viseme: string): number {
-  return visemePackageOpenness(viseme);
-}
 
-function _computeAffectRampIntensity(
-  elapsedMs: number,
-  durationMs: number,
-  timeline: { intensity?: unknown; onsetMs?: unknown; transitionMs?: unknown; decayMs?: unknown } | null | undefined,
-): number {
-  return computePackageAffectRampIntensity(elapsedMs, durationMs, timeline);
-}
 
 async function bootStationScene(): Promise<void> {
   await initializeLearnerRuntimeAssetBundle(stationApi);

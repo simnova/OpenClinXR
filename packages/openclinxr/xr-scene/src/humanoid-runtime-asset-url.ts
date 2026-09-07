@@ -101,7 +101,11 @@ export const MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH =
  * MPFB body as the ED patient cast row; the Anny ed_chest_pain_adult_cast.glb still
  * ships as a comparator only. Mirrors actor-casting's ED rows.
  */
-export const ED_ADULT_CAST_RUNTIME_PATH = MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH;
+// NOT exported: asset-registry declares a DIFFERENT constant of the same name (the Anny
+// comparator GLB), and re-exporting this alias from the xr-scene barrel put two meanings
+// of one name on the workspace. This is the file-local alias; the barrel exports
+// MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH, which is the value.
+const ED_ADULT_CAST_RUNTIME_PATH = MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH;
 /** Bare filenames for pool assignment — mirrors actor-casting #403/#476 constants. */
 const MPFB_CLINICAL_NURSE_ADULT_GLB = "mpfb-clinical-nurse-adult.glb";
 const MPFB_CLINICAL_PHYSICIAN_ADULT_GLB = "mpfb-clinical-physician-adult.glb";
