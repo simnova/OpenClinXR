@@ -317,6 +317,8 @@ import {
   stampSuppressedDeclaredEquipmentOntoFixtures,stationContextForScenario, 
   syncRemoteAssembledPhase,} from "@openclinxr/xr-station";
 import { buildStationRoomShell, type StationRoomResult } from "@openclinxr/xr-station-room";
+import { buildStationFixturesAndEquipment, type StationFixturesResult } from "@openclinxr/xr-station-fixtures";
+import type { BuildRoomPropInput } from "@openclinxr/xr-station";
 import {
   applyPedsActorPlayerSequenceListenerCues as applyPackagePedsActorPlayerSequenceListenerCues,
   buildHumanoidSpeechEvidence as buildPackageTraceHumanoidSpeechEvidence,
@@ -3076,109 +3078,63 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   // Store reusable exterior anteroom for scenario panel
   (window as any).__openClinXrReusableExteriorAnteroom = reusableExteriorAnteroom;
 
-  // #140 / #185 — plan equipment BEFORE room props so the XOR exclusive-mount rule
-  // can skip builder-backed roomProps already claimed by the equipment channel.
-  runtimeEquipmentSlotsByAssetId.clear();
-  const equipmentPlan = planStationEquipmentMounts({
-    scenarioId: encounterRuntimeAssetBundle.scenarioId,
-    equipment: encounterRuntimeAssetBundle.equipment,
-    equipmentPlacements: encounterRuntimeAssetBundle.sceneManifest.equipmentPlacements ?? {},
-    fixtureOwnedRoles,
-  });
-  const exclusiveMountedEquipmentIds = new Set(equipmentPlan.map((item) => item.equipmentId));
+  // Build station fixtures and equipment (extracted to @openclinxr/xr-station-fixtures)
+  const fixturesContext = {
+    scenarioId: () => selectedScenarioId(),
+    encounterBundle: () => encounterRuntimeAssetBundle,
+    scenarioTheme: () => scenarioDoorwayVisualTheme(),
+    sceneObjectPrefix: () => runtimeSceneObjectPrefix(),
+    selectedCaptureMode: () => selectedCaptureMode(),
+    hideRoomForCleanCapture: () => hideRoomForCleanCapture,
+    edBayVisibleCapture: () => edBayVisibleCapture,
+    selectedScenarioRuntimeMismatch: () => selectedScenarioRuntimeMismatch,
+    runtimeSceneObjectPrefix: () => runtimeSceneObjectPrefix(),
+    assetLoadingContext: () => assetLoadingContext(),
+    recordBootPhase,
+    iwsdkStationSceneObjects,
+    // Three.js types needed
+    Scene,
+    Group,
+    Mesh,
+    BoxGeometry,
+    MeshStandardMaterial,
+    Color,
+    GLTFLoader,
+    // Room prop functions (from xr-scene-cues / xr-station)
+    shouldRenderRoomProp: (prop: EncounterRuntimeRoomProp) => shouldPackageRenderRoomPropInVisualReview(prop),
+    roomPropColourNumbers: (prop: { colorHex: string; accentColorHex: string }) => roomPropColourNumbers(prop),
+    roomPropSuppressedByFixtureOwnership: (propId: string, owned: ReadonlySet<string>) => roomPropSuppressedByFixtureOwnership(propId, owned),
+    buildRoomPropGroup: (input: BuildRoomPropInput) => buildRoomPropGroup(input),
+    hasVector3: hasVector3,
+    registerReactiveProp: (propId: string, group: Group) => { /* no-op in main */ },
+    createAffordanceMarker: (cueId: string, color: number) => createPackageAffordanceMarker(cueId, color),
+    createActorNameplate: (label: string, accentColor: number) => createPackageActorNameplate(label, accentColor),
+    roomPropObjectPrefix: runtimeSceneObjectPrefix(),
+    // Equipment functions (from xr-station)
+    planStationEquipmentMounts,
+    buildGltfEquipmentPlaceholderSlot,
+    buildDeclaredEquipmentGeometry,
+    findRuntimeEquipmentAsset,
+    loadPackageGeneratedEquipmentIntoSceneSlot,
+    resolveEmulatorRuntimeAssetUrl,
+    runtimeGeneratedSceneObjectName,
+    isDynamicGeneratedEncounterSceneMode,
+    addPediatricRespiratoryEquipmentCues,
+    stampRoomPropAliasesOnEquipmentRoot,
+    stampSuppressedDeclaredEquipmentOntoFixtures,
+    countEquipmentGeometry,
+  };
 
-  for (const prop of createDetailedEdRoomProps(
-    encounterRuntimeAssetBundle.sceneManifest.roomProps,
-    fixtureOwnedRoles,
-    exclusiveMountedEquipmentIds,
-  )) {
-    if (selectedScenarioRuntimeMismatch) {
-      prop.visible = false;
-      prop.userData.openClinXrDynamicScenePolicy = "hidden_because_selected_scenario_specific_3d_bundle_missing";
-    } else if (hideRoomForCleanCapture || actorPoseReviewCapture) {
-      prop.visible = false;
-      prop.userData.openClinXrCaptureDeclutterPolicy = hideRoomForCleanCapture
-        ? "hidden_for_clean_humanoid_source_comparator_capture"
-        : "hidden_for_actor_pose_review_only";
-    } else if (encounterRuntimeAssetBundle.scenarioId === "ob_headache_preeclampsia_triage_v1") {
-      prop.visible = false;
-      prop.userData.openClinXrObVisualReviewPolicy = "hidden_when_ob_specific_set_dressing_supplies_required_context_without_generic_prop_artifacts";
-    }
-    scene.add(prop);
-  }
-
-  // #140 — mount equipment declared by this station's scene manifest / bundle
-  // (parametric multi-mesh for kinds without real GLBs; keep ED bay GLBs).
-  const equipmentEvidenceItems: DeclaredEquipmentMountEvidence["items"] = [];
-  for (const item of equipmentPlan) {
-    const slot =
-      item.source === "gltf"
-        ? buildGltfEquipmentPlaceholderSlot(item.equipmentId)
-        : buildDeclaredEquipmentGeometry(item.equipmentId);
-    if (item.equipmentId === "ecg_cart_equipment" && !isDynamicGeneratedEncounterSceneMode()) {
-      slot.name = iwsdkStationSceneObjects.ecgCart;
-    } else if (item.equipmentId === "iv_stand_equipment" && !isDynamicGeneratedEncounterSceneMode()) {
-      slot.name = iwsdkStationSceneObjects.ivPoleWithPump;
-    } else {
-      slot.name = `${runtimeSceneObjectPrefix()}.generated-equipment-slot.${item.equipmentId}`;
-    }
-    slot.position.set(item.position.x, item.position.y, item.position.z);
-    slot.visible = !selectedScenarioRuntimeMismatch;
-    if (hideRoomForCleanCapture) {
-      slot.visible = false;
-      slot.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
-    }
-    slot.userData.openClinXrRuntimeEquipmentPlacementCueIds = item.interactionCueIds;
-    slot.userData.openClinXrDynamicEncounterEquipmentSlot = "manifest_declared_equipment_mount";
-    slot.userData.openClinXrEquipmentDeclared = item.declared;
-    // #223: roomProp ids that alias to this builder (telehealth-tablet-stand → tablet_visit…)
-    // so declared-equipment inspectors match the prop declaration without dual geometry.
-    stampRoomPropAliasesOnEquipmentRoot(slot, item.equipmentId);
-    slot.add(createActorNameplate(item.label, item.source === "gltf" ? 0x286b54 : 0x2563eb));
-    scene.add(slot);
-    if (item.source === "gltf" && item.gltfFileName) {
-      const bundleModel = findRuntimeEquipmentAsset(encounterRuntimeAssetBundle, item.equipmentId)?.model;
-      const assetId = bundleModel?.assetId ?? item.equipmentId;
-      loadPackageGeneratedEquipmentIntoSceneSlot(assetLoadingContext(), slot, {
-        assetPath: `/xr-assets/medical-equipment/${item.gltfFileName}`,
-        assetId,
-        objectName: bundleModel ? runtimeGeneratedSceneObjectName(bundleModel) : item.equipmentId,
-      });
-    } else {
-      addPediatricRespiratoryEquipmentCues(slot, item.equipmentId);
-    }
-    const counts = countEquipmentGeometry(slot);
-    equipmentEvidenceItems.push({
-      equipmentId: item.equipmentId,
-      source: item.source,
-      triangleCount: counts.triangleCount,
-      meshCount: counts.meshCount,
-    });
-  }
-
-  // #209: stamp fixture-suppressed declared ids (no dual mesh). Helper lives outside main.
-  equipmentEvidenceItems.push(
-    ...stampSuppressedDeclaredEquipmentOntoFixtures({
-      shell: stationEnvironment,
-      plannedEquipmentIds: equipmentPlan.map((item) => item.equipmentId),
-      equipmentPlacements: encounterRuntimeAssetBundle.sceneManifest.equipmentPlacements ?? {},
-      equipment: encounterRuntimeAssetBundle.equipment,
-      roomProps: encounterRuntimeAssetBundle.sceneManifest.roomProps,
-    }),
+  const fixturesResult: StationFixturesResult = await buildStationFixturesAndEquipment(
+    fixturesContext,
+    stationRoomResult,
+    scene,
   );
 
-  window.__openClinXrDeclaredEquipmentMountEvidence = {
-    source: "window.__openClinXrDeclaredEquipmentMountEvidence",
-    scenarioId: encounterRuntimeAssetBundle.scenarioId,
-    items: equipmentEvidenceItems,
-    notEvidenceFor: [
-      "quest_readiness",
-      "clinical_validity",
-      "scoring_validity",
-      "production_readiness",
-      "equipment_asset_readiness",
-    ],
-  };
+  // The package handles room props, equipment mounts, and evidence collection internally
+  // Evidence is written to window.__openClinXrDeclaredEquipmentMountEvidence by the package
+  // We just need to register the equipment slots for later phases
+  const runtimeEquipmentSlotsByAssetId = fixturesResult.runtimeEquipmentSlotsByAssetId;
 
   // #122 — unique slot fill; unfilled slots stay in the graph but are hidden with empty actorId.
   publishPackageRuntimeActorSlotAssignmentEvidence(encounterRuntimeAssetBundle, resolveRuntimeSlotAssignment());

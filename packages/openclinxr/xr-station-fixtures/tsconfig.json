@@ -1,0 +1,53 @@
+{
+  "extends": "@cellix/config-typescript/base",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "noPropertyAccessFromIndexSignature": false,
+    "types": [
+      "node",
+      "vitest"
+    ],
+    "composite": true,
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "dist"
+  ],
+  "references": [
+    {
+      "path": "../asset-registry"
+    },
+    {
+      "path": "../xr-asset-loading"
+    },
+    {
+      "path": "../xr-runtime-state"
+    },
+    {
+      "path": "../xr-scene"
+    },
+    {
+      "path": "../xr-scene-cues"
+    },
+    {
+      "path": "../xr-station"
+    },
+    {
+      "path": "../xr-station-room"
+    }
+  ]
+}
