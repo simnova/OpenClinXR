@@ -6,18 +6,12 @@
  * ratchet globally. Keep this boundary local and preserve fetch init-wins semantics.
  */
 
-export type ApiFetchHeaders = Record<string, string> | string[][];
-
-export type ApiFetchBody = string | ArrayBuffer | ArrayBufferView | null;
-
-export type ApiFetchRequestLike = {
-  url: string;
-  method?: string;
-  headers?: ApiFetchHeaders;
-  body?: ApiFetchBody;
-};
-
-export type ApiFetchInput = string | URL | ApiFetchRequestLike;
+import {
+  isApiFetchRequestLike,
+  type ApiFetchBody,
+  type ApiFetchHeaders,
+  type ApiFetchInput,
+} from "@openclinxr/rest";
 
 export type ApiFetchInit = {
   method?: string;
@@ -35,10 +29,6 @@ export type ResolvedApiFetchCall = {
 export type ApiFetchDispatcher = (call: ResolvedApiFetchCall) => Promise<Response> | Response;
 
 export type ApiFetchTransport = (input: ApiFetchInput, init?: ApiFetchInit) => Promise<Response>;
-
-export function isApiFetchRequestLike(input: ApiFetchInput): input is ApiFetchRequestLike {
-  return typeof input === "object" && input !== null && !(input instanceof URL);
-}
 
 export function resolveApiFetchUrl(input: ApiFetchInput): string {
   if (typeof input === "string") return input;

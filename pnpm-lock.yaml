@@ -185,9 +185,6 @@ importers:
       '@openclinxr/exam-assembly':
         specifier: workspace:*
         version: link:../../packages/openclinxr/exam-assembly
-      '@openclinxr/factory-stations':
-        specifier: workspace:*
-        version: link:../../packages/openclinxr/factory-stations
       '@openclinxr/graphql':
         specifier: workspace:*
         version: link:../../packages/openclinxr/graphql
@@ -1092,6 +1089,9 @@ importers:
       '@openclinxr/exam-assembly':
         specifier: workspace:*
         version: link:../exam-assembly
+      '@openclinxr/factory-stations':
+        specifier: workspace:*
+        version: link:../factory-stations
       '@openclinxr/graphql':
         specifier: workspace:*
         version: link:../graphql

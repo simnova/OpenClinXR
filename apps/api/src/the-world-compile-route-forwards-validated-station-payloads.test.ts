@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createApiApp } from "./index.js";
-import { parseStationPayloads } from "./world-compile-routes.js";
+import { parseStationPayloads } from "@openclinxr/rest";
 
 /**
  * OBSERVABLE: the 10 factory station cards in the faculty UI have no path to the
@@ -31,6 +31,11 @@ import { parseStationPayloads } from "./world-compile-routes.js";
  * (applyStationPayloadToCompileSpec has a production caller for
  * equipment_generate only); live Blender; Quest; clinical validity.
  */
+
+// ## FIXED (cellix-m10-api-validation-separation): 2026-09-06. parseStationPayloads
+// moved to packages/openclinxr/rest/src/station-payload-validation.ts and re-exported
+// from @openclinxr/rest; this test now imports it from there. Diagnosis header
+// above left byte-identical.
 
 const VALID_ROOM_PAYLOAD = {
   environmentId: "ed_exam_bay_v1",

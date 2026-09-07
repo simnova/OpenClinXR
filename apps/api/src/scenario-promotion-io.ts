@@ -19,6 +19,7 @@ import type { Scenario } from "@openclinxr/shared-schemas";
 import { fileURLToPath } from "node:url";
 import { createApiFetchTransport } from "./api-fetch-transport.js";
 import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "@openclinxr/rest";
+import { isRecord, reviewStatesFromRecord } from "@openclinxr/rest";
 import { createApiApp } from "./index.js";
 import { toAdminGraphqlScenario } from "@openclinxr/rest";
 import {
@@ -204,21 +205,8 @@ export async function readAuthoredGateState(
   };
 }
 
-export function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
+export { isRecord, reviewStatesFromRecord };
 
-export function reviewStatesFromRecord(review: unknown): Record<string, string> {
-  if (!isRecord(review)) return {};
-  const read = (role: string): string =>
-    typeof review[role] === "string" ? (review[role] as string) : "";
-  return {
-    clinical: read("clinical"),
-    psychometric: read("psychometric"),
-    legal: read("legal"),
-    simulationQa: read("simulationQa"),
-  };
-}
 
 /**
  * Drive ONE SubmitScenarioReview decision through the real admin GraphQL route.

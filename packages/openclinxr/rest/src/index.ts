@@ -232,6 +232,13 @@ export {
 } from "./admin-scenario-listing.js";
 export type { ApiAppContext } from "./api-app-context.js";
 export { createApiAppContext } from "./api-app-context.js";
+export {
+  type ApiFetchBody,
+  type ApiFetchHeaders,
+  type ApiFetchInput,
+  type ApiFetchRequestLike,
+  isApiFetchRequestLike,
+} from "./api-fetch-request-validation.js";
 export type { ApiApp, ApiLifecycleService, ApiLifecycleServiceInput, ComposedApiApp } from "./api-application.js";
 export { ApiApplication, shutdownApiApp } from "./api-application.js";
 export { registerCoreMiddleware } from "./api-middleware.js";
@@ -271,8 +278,15 @@ export {
   resolveCompileLocksRepoRoot,
   writeFacultyCompileLock,
 } from "./faculty-compile-lock-store.js";
-export type { OpenClinXrApiProtocolPosture, OpenClinXrApiProtocolSupport } from "./protocol-support.js";
+export {
+  type FactoryRunCaseRow,
+  type FactoryRunRollupValue,
+  type FactoryRunStationRow,
+  parseFactoryRunRollup,
+} from "./factory-run-rollup-validation.js";
 export { createOpenClinXrApiProtocolPosture } from "./protocol-support.js";
+export type { OpenClinXrApiProtocolPosture, OpenClinXrApiProtocolSupport } from "./protocol-support.js";
+export { isRecord, reviewStatesFromRecord } from "./promotion-io-validation.js";
 export { registerAdminGraphqlRoutes } from "./routes/admin-graphql-routes.js";
 export { registerAssembledExamDispositionRoutes } from "./routes/assembled-exam-disposition-routes.js";
 export { registerAssembledExamReviewRoutes } from "./routes/assembled-exam-review-routes.js";
@@ -299,6 +313,7 @@ export {
   type ApiRuntimeDurableStore,
   createScenarioRuntimeDurableStoreFromApiPersistence,
 } from "./runtime-durable-store.js";
+export { parseStationPayloads } from "./station-payload-validation.js";
 export {
   AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
   authoredScenarioContentIdentity,

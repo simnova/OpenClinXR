@@ -2,13 +2,9 @@ import { mkdir, readdir, readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { Hono } from "hono";
 import { hasFacultyAccess } from "@openclinxr/auth";
-import {
-  PRODUCTION_STATION_IDS,
-  factoryStationSchemas,
-  type ProductionStationId,
-} from "@openclinxr/factory-stations";
 import type { ApiAppContext } from "@openclinxr/rest";
 import type { ApiAppVariables } from "@openclinxr/rest";
+import { parseStationPayloads } from "@openclinxr/rest";
 import { repoRoot } from "./scenario-promotion-io.js";
 
 /**
@@ -108,32 +104,7 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
   });
 }
 
-export function parseStationPayloads(raw: unknown):
-  | { ok: true; value: Record<string, Record<string, unknown>> | undefined }
-  | { ok: false; reason: string } {
-  if (raw === undefined) {
-    return { ok: true, value: undefined };
-  }
-  if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
-    return { ok: false, reason: "stationPayloads_expected_object" };
-  }
-  const known = new Set<string>(PRODUCTION_STATION_IDS);
-  const value: Record<string, Record<string, unknown>> = {};
-  for (const [stationId, payload] of Object.entries(raw as Record<string, unknown>)) {
-    if (!known.has(stationId)) {
-      return { ok: false, reason: `unknown_station_${stationId}` };
-    }
-    const schema = factoryStationSchemas[stationId as ProductionStationId];
-    const checked = schema["~standard"].validate(payload);
-    if ("issues" in checked) {
-      const first = checked.issues[0];
-      const field = first?.path?.[0] !== undefined ? String(first.path[0]) : (first?.message ?? "unknown_field");
-      return { ok: false, reason: `invalid_station_${stationId}_field_${field}` };
-    }
-    value[stationId] = checked.value;
-  }
-  return { ok: true, value };
-}
+export { parseStationPayloads };
 
 /** Scenario ids are slug-like; refuse anything that could escape a directory. */
 const SCENARIO_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/;

@@ -2,13 +2,14 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createApiApp } from "./index.js";
+import { parseFactoryRunRollup } from "@openclinxr/rest";
 import { repoRoot } from "./scenario-promotion-io.js";
 
 /**
- * Resolved through a NON-STATIC specifier, the same pattern world-compile-routes.ts
- * uses for the tools runner. `pnpm hygiene:knip` fails closed on an unresolved
- * import, static or dynamic, so a planted RED that names the module the fix will
- * create cannot be committed any other way. Today this rejects; that IS the red.
+ * Resolved through a STATIC import now that the validator lives in
+ * packages/openclinxr/rest/src/factory-run-rollup-validation.ts and is re-exported
+ * from @openclinxr/rest. The non-static specifier below remains for the route
+ * constant FACTORY_RUN_ROLLUP_REL, which stays with the route (composition root).
  */
 const ROUTE_SPECIFIER = ["./factory-run-table", "-routes.js"].join("");
 
@@ -59,6 +60,12 @@ async function routeModule(): Promise<{
 // writes the rollup to .openclinxr/evidence/factory-run/multi-case-rollup.json.
 // 7/7 clauses pass; `pnpm hygiene:knip` and `pnpm --filter @openclinxr/api run
 // typecheck` both exit 0. Diagnosis header above left byte-identical.
+
+// ## FIXED (cellix-m10-api-validation-separation): 2026-09-06. parseFactoryRunRollup
+// moved to packages/openclinxr/rest/src/factory-run-rollup-validation.ts and re-exported
+// from @openclinxr/rest; validator clauses (2)-(4) now import it statically, while the
+// route constant still resolves through the non-static specifier. Diagnosis header
+// above left byte-identical.
 
 const ROLLUP_FIXTURE = {
   schemaVersion: "openclinxr.dark-factory-multi-case-rollup.v1",
@@ -116,8 +123,7 @@ describe("the factory run-table route serves the station table", () => {
     expect(FACTORY_RUN_ROLLUP_REL).not.toMatch(/issue-\d+/);
   });
 
-  it("(2) parseFactoryRunRollup returns the per-case station rows", async () => {
-    const { parseFactoryRunRollup } = await routeModule();
+  it("(2) parseFactoryRunRollup returns the per-case station rows", () => {
     const parsed = parseFactoryRunRollup(ROLLUP_FIXTURE);
     expect(parsed).toMatchObject({ ok: true });
     const cases = (parsed as { ok: true; value: { cases: unknown[] } }).value.cases;
@@ -131,14 +137,12 @@ describe("the factory run-table route serves the station table", () => {
     });
   });
 
-  it("(3) parseFactoryRunRollup refuses a document with the wrong schemaVersion", async () => {
-    const { parseFactoryRunRollup } = await routeModule();
+  it("(3) parseFactoryRunRollup refuses a document with the wrong schemaVersion", () => {
     const parsed = parseFactoryRunRollup({ ...ROLLUP_FIXTURE, schemaVersion: "something.else.v1" });
     expect(parsed).toMatchObject({ ok: false });
   });
 
-  it("(4) COUNTERWEIGHT: it refuses a well-versioned document with no cases array", async () => {
-    const { parseFactoryRunRollup } = await routeModule();
+  it("(4) COUNTERWEIGHT: it refuses a well-versioned document with no cases array", () => {
     const parsed = parseFactoryRunRollup({
       schemaVersion: "openclinxr.dark-factory-multi-case-rollup.v1",
       generatedAt: "2026-09-06T00:00:00.000Z",
