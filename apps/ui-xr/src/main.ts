@@ -91,19 +91,25 @@ import {
   shouldSuppressGeneratedEquipmentModel as shouldPackageSuppressGeneratedEquipmentModel,
   shouldUseLearnerRuntimeAssetBundle,
 } from "@openclinxr/xr-capture-evidence";
-import { type ActorTurnPlayback, applyNamedSpeechVisemes, attachBakedCuesToSpeech, 
+import {
+  type ActorDialogueAdaptiveEvidence as PedsAdaptiveDialogueEvidenceFromStore,
+  type ActorDialoguePlaybackEvidence as PedsActorPlayerRuntimePlaybackEvidenceFromStore,
+  type ActorDialogueSequence as PedsActorPlayerRuntimeSequenceEvidenceFromStore,
+  type ActorDialogueTurn as PedsActorPlayerRuntimeTurnFromStore,
+  createActorDialogueStore,
+} from "@openclinxr/xr-actor-dialogue";
+import { type ActorTurnPlayback, applyNamedSpeechVisemes,
   consumeLiveActorTurn,
   formatActiveActorRealismRequirementLines,
-  formatHumanoidSpeechAffectEvidence,initialDialogueTextForScenario, initSpeakFixtureBridge, 
+  formatHumanoidSpeechAffectEvidence, initSpeakFixtureBridge,
   type LiveActorTurnConsumption,
-  liveActorTurnFromPayload,loadBakedMouthCuesForUtterance, phonemesForText, playFrozenActorTurnOnSlot, 
+  liveActorTurnFromPayload,loadBakedMouthCuesForUtterance, playFrozenActorTurnOnSlot,
   registerLiveActorTurn,
-  resolveLiveActorTurnForTrace,visemesForText } from "@openclinxr/xr-dialogue";
+  resolveLiveActorTurnForTrace } from "@openclinxr/xr-dialogue";
 import {
   applyHumanoidMorphTargetCue as applyPackageHumanoidMorphTargetCue,
   buildHumanoidSpeechEvidence as buildPackageHumanoidSpeechEvidence,
   createHumanoidEmotionExpressionState as createPackageHumanoidEmotionExpressionState,
-  humanoidDialogueDurationMs as humanoidPackageDialogueDurationMs,
   isGeneratedRuntimeDrive as isPackageGeneratedRuntimeDrive,
   orientHumanoidEyeFocusCue as orientPackageHumanoidEyeFocusCue,
   orientHumanoidTowardGazeTarget as orientPackageHumanoidTowardGazeTarget,
@@ -318,7 +324,7 @@ import {
   syncRemoteAssembledPhase,} from "@openclinxr/xr-station";
 import { buildStationRoomShell, type StationRoomResult } from "@openclinxr/xr-station-room";
 import {
-  applyPedsActorPlayerSequenceListenerCues as applyPackagePedsActorPlayerSequenceListenerCues,
+  type applyPedsActorPlayerSequenceListenerCues as applyPackagePedsActorPlayerSequenceListenerCues,
   buildHumanoidSpeechEvidence as buildPackageTraceHumanoidSpeechEvidence,
   buildRuntimeReproducibilityEvidence as buildPackageTraceRuntimeReproducibilityEvidence,
   createFrameAccumulator as createPackageTraceFrameAccumulator,
@@ -332,9 +338,8 @@ import {
   formatRuntimeReadinessDecision as formatPackageTraceRuntimeReadinessDecision,
   formatTechnicalGapStatus as formatPackageTraceTechnicalGapStatus,
   formatTraceInteractionEvidenceSummary as formatPackageTraceTraceInteractionEvidenceSummary,
-  listenerEmotionForSequence as listenerPackageEmotionForSequence,
   pedsActorPlayerRuntimeTurns as pedsPackageActorPlayerRuntimeTurns,
-  recordPedsActorPlayerRuntimePlaybackEvidence as recordPackagePedsActorPlayerRuntimePlaybackEvidence,
+  type recordPedsActorPlayerRuntimePlaybackEvidence as recordPackagePedsActorPlayerRuntimePlaybackEvidence,
   recordFrame as recordPackageTraceFrame,
   recordTraceSelectLatency as recordPackageTraceTraceSelectLatency,
   ROOM_ENVIRONMENTAL_REALISM_CUE_IDS as roomPackageEnvironmentalRealismCueIds,
@@ -600,6 +605,8 @@ declare global {
     __openClinXrRoleDistinctHumanoidCueEvidence?: RoleDistinctHumanoidCueEvidence;
      __openClinXrPediatricRespiratoryEquipmentCueEvidence?: PediatricRespiratoryEquipmentCueEvidence;
     __openClinXrDeclaredEquipmentMountEvidence?: DeclaredEquipmentMountEvidence;
+    __openClinXrGltfEnvContainer?: Group;
+    __openClinXrReusableExteriorAnteroom?: Group | null;
       __openClinXrPedsDrive?: GeneratedRuntimeDrive;
       __openClinXrPortalTransitionEvidence?: PackagePortalTransitionEvidence;
    }
@@ -1297,16 +1304,6 @@ function configuredExamRunId(): string {
   return packageConfiguredExamRunId(uiXrQueryDeps());
 }
 
-function initialDialogueTextForSelectedScenario(): string {
-  // Bank is SSOT for who is named (#107). Table extracted so main.ts stays shrink-only.
-  return initialDialogueTextForScenario({
-    scenarioId: selectedScenarioId(),
-    runtimeInitialDialogueText:
-      encounterRuntimeAssetBundle.sceneManifest.stationContext?.initialDialogueText,
-    bundleMismatch: isSelectedScenarioRuntimeBundleMismatch(),
-  });
-}
-
 function stationContextForSelectedScenario() {
   // #115: vitals always resolved via station-context (honest unauthored / legacy numeric).
   // Removed the per-scenario vitals/prose table (main.ts:1433-1533) — pure drift, nothing consumed it.
@@ -1336,88 +1333,11 @@ type HumanoidEmotionExpressionState = PackageHumanoidEmotionExpressionState;
 type HumanoidSpeechPlayback = PackageHumanoidSpeechPlayback;
 type HumanoidDialogueGazeTarget = PackageHumanoidDialogueGazeTarget;
 type HumanoidDialogueEmotionContext = PackageHumanoidDialogueEmotionContext;
-type PedsActorPlayerRuntimeTurn = {
-  actorId: string;
-  turnId: string;
-  cue: string;
-  text: string;
-  emotion: HumanoidExpressionEmotion;
-  gazeTargetKind: "learner_camera" | "actor";
-  gazeTargetActorId: string | null;
-  roleAnimationClipName: string;
-  source: "bundle_dialogue_turn" | "actor_player_sample_fallback";
-};
-type PedsActorPlayerRuntimeSequenceSource = "bundle_dialogue_sequence" | "single_runtime_turn";
-type PedsActorPlayerRuntimeSequenceEvidence = {
-  sequenceId: string;
-  traceTag: string;
-  source: PedsActorPlayerRuntimeSequenceSource;
-  turns: PedsActorPlayerRuntimeTurn[];
-};
+type PedsActorPlayerRuntimeTurn = PedsActorPlayerRuntimeTurnFromStore;
+type PedsActorPlayerRuntimeSequenceEvidence = PedsActorPlayerRuntimeSequenceEvidenceFromStore;
 type MouthGazePoseComparatorEvidence = PackageMouthGazePoseComparatorEvidenceRecord;
-type PedsAdaptiveDialogueEvidence = {
-  source: "window.__openClinXrPedsAdaptiveDialogueEvidence";
-  scenarioId: "peds_asthma_parent_anxiety_v1" | "ed_chest_pain_priority_v1" | "ed_chest_pain_priority_v2";
-  latestRequestedTraceTag: string;
-  latestPolicyTrigger: PedsAdaptiveDialogueBranchResolution["policyTrigger"];
-  latestBranchType: PedsAdaptiveDialogueBranchResolution["branchType"];
-  adaptiveTraceTags: string[];
-  emotionTransition: PedsAdaptiveDialogueBranchResolution["emotionTransition"];
-  mappingMode: PedsAdaptiveDialogueBranchResolution["mappingMode"];
-  reviewSafeMetadata: PedsAdaptiveDialogueBranchResolution["reviewSafeMetadata"];
-  latestSequenceSource: "bundle_dialogue_adaptive_branch";
-  humanoidSourceComparator?: "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_real_garment_patient" | "peds_anny_real_garment_parent" | "peds_anny_real_garment_nurse" | "ed_anny_real_garment_patient";
-  schoolAgePatientAssetPath?: "/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb";
-  realGarmentPatientAssetPath?: "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb";
-  realGarmentParentAssetPath?: "/generated-humanoids/peds_anxious_parent.glb";
-  realGarmentNurseAssetPath?: "/generated-humanoids/peds_nurse_kevin.glb";
-  edRealGarmentPatientAssetPath?: "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb"; // ed-gown-geo-reorchestrate: hospital_gown from pheno.garmentLayers in ed_chest_pain_priority_v2
-  notEvidenceFor: string[];
-};
-type PedsActorPlayerRuntimePlaybackEvidence = {
-  source: "window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence";
-  scenarioId: "peds_asthma_parent_anxiety_v1" | "ed_chest_pain_priority_v1" | "ed_chest_pain_priority_v2";
-  playbackMode: "local_desktop_preview_from_bundle_dialogue_or_actor_player_samples";
-  sourceArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json";
-  scheduled: boolean;
-  actorCount: number;
-  turnCount: number;
-  bundleDialogueTurnCount: number;
-  fallbackTurnCount: number;
-  latestTurnIndex: number;
-  latestActorId: string | null;
-  latestTurnId: string | null;
-  latestCue: string | null;
-  latestEmotion: HumanoidExpressionEmotion | null;
-  latestRoleAnimationClipName: string | null;
-  latestTurnSource: PedsActorPlayerRuntimeTurn["source"] | null;
-  latestTriggerSource: "scheduled_preview" | "trace_action" | null;
-  latestTraceTag: string | null;
-  latestSequenceId: string | null;
-  latestSequenceSource: PedsActorPlayerRuntimeSequenceSource | null;
-  latestSequenceStepIndex: number;
-  latestSequenceTurnCount: number;
-  latestSequenceActorIds: string[];
-  latestListenerActorIds: string[];
-  latestCoupledSignalIds: string[];
-  activeGeneratedActorSlotCount: number;
-  activeHumanoidSpeechEvidenceActorId: string | null;
-  scenePlacementEvidenceAllowed: false;
-  learnerLaunchAllowed: false;
-  questEvidenceRefreshAllowed: false;
-  productionAssetReadinessClaimed: false;
-  clinicalValidityClaimed: false;
-  scoringValidityClaimed: false;
-  claimBoundary: "local_actor_player_runtime_preview_not_readiness";
-  notEvidenceFor: [
-    "scene_placement_readiness",
-    "learner_launch_readiness",
-    "quest_readiness",
-    "production_asset_readiness",
-    "clinical_validity",
-    "scoring_validity",
-  ];
-};
+type PedsAdaptiveDialogueEvidence = PedsAdaptiveDialogueEvidenceFromStore;
+type PedsActorPlayerRuntimePlaybackEvidence = PedsActorPlayerRuntimePlaybackEvidenceFromStore;
 const generatedHumanoidAnimationSlots: GeneratedHumanoidAnimationSlot[] = [];
 const generatedHumanoidAnimationSlotsByActorId = new Map<string, GeneratedHumanoidAnimationSlot>();
 const generatedHumanoidActorSlotsByActorId = new Map<string, Group>();
@@ -1487,9 +1407,143 @@ const humanoidAnimationContext: PackageHumanoidAnimationRuntimeContext = {
     };
   },
 };
-let pedsActorPlayerRuntimePlaybackScheduled = false;
-let pedsActorPlayerRuntimePlaybackLastTraceAtMs = 0;
-let pedsActorPlayerRuntimeSequenceActiveUntilMs = 0;
+const actorDialogueStore = createActorDialogueStore({
+  encounterBundle: () => encounterRuntimeAssetBundle,
+  initialDialogueText: () => initialDialogueText,
+  isPediatricAsthmaRuntimeScenario: () => isPediatricAsthmaRuntimeScenario(),
+  isSelectedScenarioRuntimeBundleMismatch: () => isSelectedScenarioRuntimeBundleMismatch(),
+  selectedScenarioId: () => selectedScenarioId(),
+  selectedHumanoidSourceComparator: () => selectedHumanoidSourceComparator(),
+  runtimePatientActorId: () => runtimePatientActorId(),
+  runtimeClinicalTeamActorId: () => runtimeClinicalTeamActorId(),
+  runtimeFamilyActorId: () => runtimeFamilyActorId(),
+  actorIdForTraceTag: (tag, scenarioId) => actorIdForTraceTag(tag, scenarioId),
+  recordBootPhase: (phase, error) => { recordBootPhase(phase, error); },
+  nowMs: () => performance.now(),
+  scheduleTimeout: (callback, delayMs) => { window.setTimeout(callback, delayMs); },
+  scheduleInterval: (callback, delayMs) => { window.setInterval(callback, delayMs); },
+  setDialogueLineText: (text) => { dialogueLine.textContent = text; },
+  speechEvidence: () => window.__openClinXrHumanoidSpeechEvidence ?? undefined,
+  writeSpeechEvidence: (evidence) => { window.__openClinXrHumanoidSpeechEvidence = evidence; },
+  ensureMissingActorSpeechEvidence: () => {
+    window.__openClinXrHumanoidSpeechEvidence ??= buildHumanoidSpeechEvidence(null, null, null, [], [], null);
+  },
+  writeAdaptiveEvidence: (evidence) => { window.__openClinXrPedsAdaptiveDialogueEvidence = evidence; },
+  fallbackTurns: () => pedsActorPlayerRuntimeTurns(),
+  liveTurnForTrace: (tag) => resolveLiveActorTurnForTrace(tag),
+  liveFaceEmotionForCue: (cue) => resolveLiveActorTurnForTrace(cue)?.faceEmotion,
+  animationSlots: () => generatedHumanoidAnimationSlots,
+  animationSlotForActor: (actorId) => generatedHumanoidAnimationSlotsByActorId.get(actorId),
+  slotHasActor: (actorId) => generatedHumanoidAnimationSlotsByActorId.has(actorId),
+  roleClipNameForActor: (actorId) => rolePackageAnimationClipNamesForActor(clipNameContext(), actorId)[0] ?? "",
+  listenerCueContext: () => pedsActorListenerCuePanelContext(),
+  playbackPanelContext: () => pedsActorPlayerPlaybackPanelContext(),
+  virtualDeviceSpeechByActorId: () => activeVirtualDeviceSpeechByActorId,
+  runtimeEmbodimentForActor: (actorId) => runtimeActorEmbodimentImpl(encounterRuntimeAssetBundle, actorId),
+  reviewCaptureMode: () => isHumanoidMouthGazePoseReviewCaptureMode(),
+  responseClipNames: (actorId) => clinicalPackageTouchResponseClipNamesForActor(clipNameContext(), actorId),
+  playClip: (actorId, clipName) => playOneShotResponseClip(actorId, clipName),
+  playFrozenTurn: (plan, execution, gazeTarget, requirement) =>
+    playLiveFrozenActorTurn(plan, execution, gazeTarget, requirement),
+  startFaceTransition: (actorId, emotion, nowMs) => {
+    const live = generatedHumanoidAnimationSlotsByActorId.get(actorId);
+    if (live) startHumanoidEmotionTransition(live, emotion, nowMs);
+  },
+});
+function initialDialogueTextForSelectedScenario(): string {
+  return actorDialogueStore.initialDialogueTextForSelectedScenario();
+}
+function runtimeDialogueTurnForTraceTag(tag: string) {
+  return actorDialogueStore.runtimeDialogueTurnForTraceTag(tag);
+}
+function schedulePedsActorPlayerRuntimePlaybackIfReady(): void {
+  actorDialogueStore.schedulePedsActorPlayerRuntimePlaybackIfReady();
+}
+function triggerPedsAdaptiveDialogueBranch(
+  branch: PedsAdaptiveDialogueBranchResolution,
+  triggerSource: PedsActorPlayerRuntimePlaybackEvidence["latestTriggerSource"],
+): boolean {
+  return actorDialogueStore.triggerPedsAdaptiveDialogueBranch(branch, triggerSource);
+}
+function triggerPedsActorPlayerRuntimeTurnForTrace(traceTag: string): boolean {
+  return actorDialogueStore.triggerPedsActorPlayerRuntimeTurnForTrace(traceTag);
+}
+function _dedupePedsActorPlayerRuntimeTurns(turns: PedsActorPlayerRuntimeTurn[]): PedsActorPlayerRuntimeTurn[] {
+  return actorDialogueStore.dedupePedsActorPlayerRuntimeTurns(turns);
+}
+function pedsActorPlayerBundleDialogueTurns(): PedsActorPlayerRuntimeTurn[] {
+  return actorDialogueStore.pedsActorPlayerBundleDialogueTurns();
+}
+function normalizePedsActorPlayerEmotion(emotion: string): HumanoidExpressionEmotion {
+  return actorDialogueStore.normalizePedsActorPlayerEmotion(emotion);
+}
+function _playPedsActorPlayerRuntimeTurn(
+  turn: PedsActorPlayerRuntimeTurn,
+  input: {
+    turns: PedsActorPlayerRuntimeTurn[];
+    latestTurnIndex: number;
+    latestTriggerSource: PedsActorPlayerRuntimePlaybackEvidence["latestTriggerSource"];
+    latestTraceTag: string | null;
+    latestSequence: PedsActorPlayerRuntimeSequenceEvidence | null;
+    latestSequenceStepIndex: number;
+  },
+): void {
+  actorDialogueStore.playPedsActorPlayerRuntimeTurn(turn, input);
+}
+function _applyPedsActorPlayerSequenceListenerCues(
+  activeTurn: PedsActorPlayerRuntimeTurn,
+  sequence: PedsActorPlayerRuntimeSequenceEvidence | null,
+  nowMs: number,
+): { actorIds: string[]; coupledSignalIds: string[] } {
+  return actorDialogueStore.applyPedsActorPlayerSequenceListenerCues(activeTurn, sequence, nowMs);
+}
+function _playPedsActorPlayerRuntimeSequence(sequence: PedsActorPlayerRuntimeSequenceEvidence, fallbackTurns: PedsActorPlayerRuntimeTurn[]): void {
+  actorDialogueStore.playPedsActorPlayerRuntimeSequence(sequence, fallbackTurns);
+}
+function _recordPedsActorPlayerRuntimePlaybackEvidence(input: {
+  scheduled: boolean;
+  turns: PedsActorPlayerRuntimeTurn[];
+  latestTurnIndex: number;
+  latestTurn: PedsActorPlayerRuntimeTurn | null;
+  latestTriggerSource: PedsActorPlayerRuntimePlaybackEvidence["latestTriggerSource"];
+  latestTraceTag: string | null;
+  latestSequence: PedsActorPlayerRuntimeSequenceEvidence | null;
+  latestSequenceStepIndex: number;
+  latestListenerActorIds: string[];
+  latestCoupledSignalIds: string[];
+}): void {
+  actorDialogueStore.recordPedsActorPlayerRuntimePlaybackEvidence(input);
+}
+function triggerHumanoidDialogueForTrace(tag: string, text: string): void {
+  actorDialogueStore.triggerHumanoidDialogueForTrace(tag, text);
+}
+function triggerHumanoidDialogue(
+  actorId: string,
+  text: string,
+  gazeTarget: HumanoidDialogueGazeTarget,
+  explicitEmotion?: HumanoidExpressionEmotion,
+  actorRuntimeRealismRequirement?: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"],
+  emotionSource?: HumanoidDialogueEmotionContext["source"],
+): void {
+  actorDialogueStore.triggerHumanoidDialogue(actorId, text, gazeTarget, explicitEmotion, actorRuntimeRealismRequirement, emotionSource);
+}
+function humanoidDialogueDurationMs(phonemeCount: number): number {
+  return actorDialogueStore.humanoidDialogueDurationMs(phonemeCount);
+}
+function _scenarioDialogueEmotionContext(
+  actorId: string,
+  text: string,
+  explicitEmotion?: HumanoidExpressionEmotion,
+  emotionSource?: HumanoidDialogueEmotionContext["source"],
+): HumanoidDialogueEmotionContext {
+  return actorDialogueStore.scenarioDialogueEmotionContext(actorId, text, explicitEmotion, emotionSource);
+}
+function localDialogueActorIdForTraceTag(tag: string): string | undefined {
+  return actorDialogueStore.localDialogueActorIdForTraceTag(tag);
+}
+function localDialogueGazeTargetForTraceTag(tag: string): HumanoidDialogueGazeTarget {
+  return actorDialogueStore.localDialogueGazeTargetForTraceTag(tag);
+}
 const environmentReactiveProps = new Map<string, Group>();
 let lastObservedLocomotionSummary: {
   source: NonNullable<OpenClinXrInputEvidence["activeLocomotionSource"]>;
@@ -2573,10 +2627,6 @@ function dialogueFor(tag: string): string {
   return lines[tag] ?? "System: Trace event recorded.";
 }
 
-function runtimeDialogueTurnForTraceTag(tag: string) {
-  return encounterRuntimeAssetBundle.sceneManifest.dialogueTurns?.find((turn) => turn.traceTag === tag);
-}
-
 async function updateXrStatus(): Promise<void> {
   const navigatorWithXr = navigator as NavigatorWithXr;
   await updatePackageTraceXrStatus(
@@ -2944,7 +2994,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   const hideRoomForCleanCapture = cleanHumanoidSourceComparatorCapture && !edBayVisibleCapture;
   const selectedScenarioRuntimeMismatch = isSelectedScenarioRuntimeBundleMismatch();
   reportRuntimeBundleScenarioMatch();
-  const selectedStationContext = stationContextForSelectedScenario();
+  const _selectedStationContext = stationContextForSelectedScenario();
   const camera = new PerspectiveCamera(faceDetailCapture ? 48 : generatedSceneOverviewCapture ? 60 : actorCloseCapture ? 42 : 52, 1, 0.1, 100);
   // #342b — only the product's own wide default framing is re-derived for a closed generated
   // room. The capture framings below are authored for a specific subject (a face, one actor)
@@ -3059,9 +3109,9 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   const stationEnvironment = stationRoomResult.stationEnvironment;
   const floor = stationRoomResult.floor;
   const gltfEnvContainer = stationRoomResult.gltfEnvContainer;
-  const environmentShell = stationRoomResult.environmentShell;
-  const bed = stationRoomResult.bed;
-  const monitor = stationRoomResult.monitor;
+  const _environmentShell = stationRoomResult.environmentShell;
+  const _bed = stationRoomResult.bed;
+  const _monitor = stationRoomResult.monitor;
   const fixtureOwnedRoles = stationRoomResult.fixtureOwnedRoles;
 
   // Store references for later use (e.g., gltfEnvContainer for glTF loading, reusableExteriorAnteroom for scenario panel)
@@ -3072,9 +3122,9 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     environmentFallbackActive: stationEnvironment.userData.environmentFallbackActive,
   };
   // Store glTF container for later access
-  (window as any).__openClinXrGltfEnvContainer = gltfEnvContainer;
+  window.__openClinXrGltfEnvContainer = gltfEnvContainer;
   // Store reusable exterior anteroom for scenario panel
-  (window as any).__openClinXrReusableExteriorAnteroom = reusableExteriorAnteroom;
+  window.__openClinXrReusableExteriorAnteroom = reusableExteriorAnteroom;
 
   // #140 / #185 — plan equipment BEFORE room props so the XOR exclusive-mount rule
   // can skip builder-backed roomProps already claimed by the equipment channel.
@@ -4555,278 +4605,8 @@ function _registerGeneratedHumanoidAnimation(input: {
 }): void {
   registerPackageGeneratedHumanoidAnimation(assetLoadingContext(), input);
 }
-function schedulePedsActorPlayerRuntimePlaybackIfReady(): void {
-  if (pedsActorPlayerRuntimePlaybackScheduled || !isPediatricAsthmaRuntimeScenario()) {
-    return;
-  }
-  if (generatedHumanoidAnimationSlots.some((slot) => slot.sourceComparatorFreezeEnabled)) {
-    return;
-  }
-  const turns = pedsActorPlayerRuntimeTurns();
-  const requiredActorIds = Array.from(new Set(turns.map((turn) => turn.actorId)));
-  if (!requiredActorIds.every((actorId) => generatedHumanoidAnimationSlotsByActorId.has(actorId))) {
-    recordPedsActorPlayerRuntimePlaybackEvidence({
-      scheduled: false,
-      turns,
-      latestTurnIndex: -1,
-      latestTurn: null,
-      latestTriggerSource: null,
-      latestTraceTag: null,
-      latestSequence: null,
-      latestSequenceStepIndex: -1,
-      latestListenerActorIds: [],
-      latestCoupledSignalIds: [],
-    });
-    return;
-  }
-  pedsActorPlayerRuntimePlaybackScheduled = true;
-  let turnIndex = 0;
-  const playNextTurn = (): void => {
-    const nowMs = performance.now();
-    if (nowMs - pedsActorPlayerRuntimePlaybackLastTraceAtMs < 3800 || nowMs < pedsActorPlayerRuntimeSequenceActiveUntilMs) {
-      return;
-    }
-    const turn = turns[turnIndex % turns.length];
-    if (!turn) return;
-    playPedsActorPlayerRuntimeTurn(turn, {
-      turns,
-      latestTurnIndex: turnIndex % turns.length,
-      latestTriggerSource: "scheduled_preview",
-      latestTraceTag: null,
-      latestSequence: null,
-      latestSequenceStepIndex: -1,
-    });
-    turnIndex += 1;
-  };
-  window.setTimeout(playNextTurn, 850);
-  window.setInterval(playNextTurn, 3200);
-  recordBootPhase("peds_actor_player_runtime_playback_scheduled");
-}
-
-function triggerPedsAdaptiveDialogueBranch(
-  branch: PedsAdaptiveDialogueBranchResolution,
-  triggerSource: PedsActorPlayerRuntimePlaybackEvidence["latestTriggerSource"],
-): boolean {
-  if (!isPediatricAsthmaRuntimeScenario()) {
-    return false;
-  }
-  const bundleTurns = pedsActorPlayerBundleDialogueTurns();
-  const turns = branch.adaptiveTraceTags
-    .map((cue) => bundleTurns.find((turn) => turn.cue === cue))
-    .filter((turn): turn is PedsActorPlayerRuntimeTurn => Boolean(turn));
-  if (turns.length === 0 || turns.some((turn) => !generatedHumanoidAnimationSlotsByActorId.has(turn.actorId))) {
-    return false;
-  }
-  const sequence: PedsActorPlayerRuntimeSequenceEvidence = {
-    sequenceId: `adaptive_branch_${branch.policyTrigger}_${branch.requestedTraceTag}`,
-    traceTag: branch.requestedTraceTag,
-    source: "bundle_dialogue_sequence",
-    turns,
-  };
-  pedsActorPlayerRuntimePlaybackLastTraceAtMs = performance.now();
-  pedsActorPlayerRuntimeSequenceActiveUntilMs = pedsActorPlayerRuntimePlaybackLastTraceAtMs + (turns.length * 1250) + 2600;
-  playPedsActorPlayerRuntimeSequence(sequence, pedsActorPlayerRuntimeTurns());
-  const pedsRealGarmentOrSchoolComparator = ["peds_anny_school_age_mpfb2_eye_patient", "peds_anny_real_garment_patient", "peds_anny_real_garment_parent", "peds_anny_real_garment_nurse", "ed_anny_real_garment_patient"].includes(selectedHumanoidSourceComparator() || "") 
-    ? (selectedHumanoidSourceComparator() as "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_real_garment_patient" | "peds_anny_real_garment_parent" | "peds_anny_real_garment_nurse" | "ed_anny_real_garment_patient")
-    : undefined;
-  window.__openClinXrPedsAdaptiveDialogueEvidence = {
-    source: "window.__openClinXrPedsAdaptiveDialogueEvidence",
-    scenarioId: selectedHumanoidSourceComparator() === "ed_anny_real_garment_patient" ? "ed_chest_pain_priority_v1" : "peds_asthma_parent_anxiety_v1",
-    latestRequestedTraceTag: branch.requestedTraceTag,
-    latestPolicyTrigger: branch.policyTrigger,
-    latestBranchType: branch.branchType,
-    adaptiveTraceTags: branch.adaptiveTraceTags,
-    emotionTransition: branch.emotionTransition,
-    mappingMode: branch.mappingMode,
-    reviewSafeMetadata: branch.reviewSafeMetadata,
-    latestSequenceSource: "bundle_dialogue_adaptive_branch",
-    ...(pedsRealGarmentOrSchoolComparator
-      ? {
-        humanoidSourceComparator: pedsRealGarmentOrSchoolComparator,
-        ...(pedsRealGarmentOrSchoolComparator === "peds_anny_real_garment_patient"
-          ? { realGarmentPatientAssetPath: "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb" }
-          : pedsRealGarmentOrSchoolComparator === "peds_anny_real_garment_parent"
-            ? { realGarmentParentAssetPath: "/generated-humanoids/peds_anxious_parent.glb" }
-            : pedsRealGarmentOrSchoolComparator === "peds_anny_real_garment_nurse"
-              ? { realGarmentNurseAssetPath: "/generated-humanoids/peds_nurse_kevin.glb" }
-              : pedsRealGarmentOrSchoolComparator === "ed_anny_real_garment_patient"
-                ? { edRealGarmentPatientAssetPath: "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb", promotionFlow: "ed_gown_geo_reorchestrate:promotionStatus_from_rigging_report+realGarmentRegionFromPhenotype" }
-                : { schoolAgePatientAssetPath: "/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb" }),
-      }
-      : {}),
-    notEvidenceFor: branch.reviewSafeMetadata.notEvidenceFor,
-  };
-  recordPedsActorPlayerRuntimePlaybackEvidence({
-    scheduled: pedsActorPlayerRuntimePlaybackScheduled,
-    turns: pedsActorPlayerRuntimeTurns(),
-    latestTurnIndex: turns.length - 1,
-    latestTurn: turns[turns.length - 1] ?? null,
-    latestTriggerSource: triggerSource,
-    latestTraceTag: branch.requestedTraceTag,
-    latestSequence: sequence,
-    latestSequenceStepIndex: turns.length - 1,
-    latestListenerActorIds: [],
-    latestCoupledSignalIds: ["bundle_dialogue_adaptive_branch", `policy_${branch.policyTrigger}`],
-  });
-  return true;
-}
-
-function triggerPedsActorPlayerRuntimeTurnForTrace(traceTag: string): boolean {
-  if (!isPediatricAsthmaRuntimeScenario()) {
-    return false;
-  }
-  const turns = pedsActorPlayerRuntimeTurns();
-  const sequence = pedsActorPlayerRuntimeSequenceForTrace(traceTag, turns);
-  if (!sequence || sequence.turns.some((turn) => !generatedHumanoidAnimationSlotsByActorId.has(turn.actorId))) {
-    return false;
-  }
-  pedsActorPlayerRuntimePlaybackLastTraceAtMs = performance.now();
-  pedsActorPlayerRuntimeSequenceActiveUntilMs = pedsActorPlayerRuntimePlaybackLastTraceAtMs + (sequence.turns.length * 1250) + 2600;
-  playPedsActorPlayerRuntimeSequence(sequence, turns);
-  return true;
-}
-
-function pedsActorPlayerTurnForTraceTag(traceTag: string, turns = pedsActorPlayerRuntimeTurns()): PedsActorPlayerRuntimeTurn | undefined {
-  const bundleTurn = pedsActorPlayerTurnFromRuntimeBundleTrace(traceTag);
-  if (bundleTurn) {
-    return bundleTurn;
-  }
-  const traceToTurnId: Record<string, string> = {
-    inhaler_history: "turn_1_inhaler_history",
-    trigger_history: "turn_2_trigger_history",
-    work_of_breathing_assessment: "turn_0_work_of_breathing_assessment",
-    oxygen_request: "turn_3_oxygen_request",
-    parent_communication: "turn_6_parent_communication",
-    family_communication: "turn_6_parent_communication",
-    empathy_statement: "turn_7_empathy_statement",
-    reassessment: "turn_8_reassessment",
-    bronchodilator_plan: "turn_8_reassessment",
-  };
-  const turnId = traceToTurnId[traceTag];
-  return turnId ? turns.find((turn) => turn.turnId === turnId) : turns.find((turn) => turn.cue === traceTag);
-}
-
-function pedsActorPlayerRuntimeSequenceForTrace(
-  traceTag: string,
-  fallbackTurns = pedsActorPlayerRuntimeTurns(),
-): PedsActorPlayerRuntimeSequenceEvidence | undefined {
-  const bundleTurns = pedsActorPlayerBundleDialogueTurns();
-  const bundleSequenceTraceTags: Record<string, string[]> = {
-    oxygen_request: ["oxygen_request", "work_of_breathing_assessment"],
-    bronchodilator_plan: ["bronchodilator_plan", "empathy_statement"],
-    parent_communication: ["parent_communication", "empathy_statement"],
-    family_communication: ["parent_communication", "empathy_statement"],
-    inhaler_history: ["inhaler_history", "trigger_history"],
-    trigger_history: ["trigger_history", "inhaler_history"],
-  };
-  const requestedBundleTurns = (bundleSequenceTraceTags[traceTag] ?? [traceTag])
-    .map((candidateTraceTag) => bundleTurns.find((turn) => turn.cue === candidateTraceTag))
-    .filter((turn): turn is PedsActorPlayerRuntimeTurn => Boolean(turn));
-  const uniqueBundleTurns = dedupePedsActorPlayerRuntimeTurns(requestedBundleTurns);
-  if (uniqueBundleTurns.length > 0) {
-    return {
-      sequenceId: `bundle_sequence_${traceTag}`,
-      traceTag,
-      source: uniqueBundleTurns.length > 1 ? "bundle_dialogue_sequence" : "single_runtime_turn",
-      turns: uniqueBundleTurns,
-    };
-  }
-  const fallbackTurn = pedsActorPlayerTurnForTraceTag(traceTag, fallbackTurns);
-  return fallbackTurn
-    ? {
-      sequenceId: `fallback_sequence_${traceTag}`,
-      traceTag,
-      source: "single_runtime_turn",
-      turns: [fallbackTurn],
-    }
-    : undefined;
-}
-
-function dedupePedsActorPlayerRuntimeTurns(turns: PedsActorPlayerRuntimeTurn[]): PedsActorPlayerRuntimeTurn[] {
-  const seen = new Set<string>();
-  return turns.filter((turn) => {
-    const key = `${turn.actorId}:${turn.turnId}:${turn.cue}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-function pedsActorPlayerBundleDialogueTurns(): PedsActorPlayerRuntimeTurn[] {
-  return (encounterRuntimeAssetBundle.sceneManifest.dialogueTurns ?? []).map((runtimeTurn) => ({
-    actorId: runtimeTurn.actorId,
-    turnId: `bundle_${runtimeTurn.traceTag}`,
-    cue: runtimeTurn.traceTag,
-    text: runtimeTurn.text,
-    // affectTimeline remains bundle provenance only; live FACE is plan.dialogueEmotionTo.
-    emotion: resolveLiveActorTurnForTrace(runtimeTurn.traceTag)?.faceEmotion ?? "neutral",
-    gazeTargetKind: runtimeTurn.gazeTargetKind,
-    gazeTargetActorId: runtimeTurn.gazeTargetActorId,
-    roleAnimationClipName: rolePackageAnimationClipNamesForActor(clipNameContext(), runtimeTurn.actorId)[0] ?? "",
-    source: "bundle_dialogue_turn",
-  }));
-}
-
-function pedsActorPlayerTurnFromRuntimeBundleTrace(traceTag: string): PedsActorPlayerRuntimeTurn | undefined {
-  return pedsActorPlayerBundleDialogueTurns().find((turn) => turn.cue === traceTag);
-}
-
-function normalizePedsActorPlayerEmotion(emotion: string): HumanoidExpressionEmotion {
-  const normalized = emotion.toLowerCase();
-  if (normalized.includes("pain") || normalized.includes("frightened")) return "pain";
-  if (normalized.includes("anxious")) return "anxious";
-  if (normalized.includes("concern")) return "concerned";
-  if (normalized.includes("reassur")) return "reassured";
-  return "neutral";
-}
-
-function playPedsActorPlayerRuntimeTurn(
-  turn: PedsActorPlayerRuntimeTurn,
-  input: {
-    turns: PedsActorPlayerRuntimeTurn[];
-    latestTurnIndex: number;
-    latestTriggerSource: PedsActorPlayerRuntimePlaybackEvidence["latestTriggerSource"];
-    latestTraceTag: string | null;
-    latestSequence: PedsActorPlayerRuntimeSequenceEvidence | null;
-    latestSequenceStepIndex: number;
-  },
-): void {
-  for (const slot of generatedHumanoidAnimationSlots) {
-    if (slot.sourceComparatorFreezeEnabled) {
-      continue;
-    }
-    if (slot.actorId !== turn.actorId) {
-      slot.activeSpeech = undefined;
-      slot.mouthCue.visible = false;
-      slot.gazeCue.visible = false;
-      slot.eyeFocusCue.visible = false;
-      slot.expressionCue.visible = false;
-    }
-  }
-  const activeSlot = generatedHumanoidAnimationSlotsByActorId.get(turn.actorId);
-  if (activeSlot) {
-    delete activeSlot.root.userData.openClinXrSequenceListeningCue;
-  }
-  const nowMs = performance.now();
-  const listenerCue = applyPedsActorPlayerSequenceListenerCues(turn, input.latestSequence, nowMs);
-  const liveTurn = resolveLiveActorTurnForTrace(turn.cue);
-  triggerHumanoidDialogue(turn.actorId, liveTurn?.caption ?? turn.text, {
-    kind: turn.gazeTargetKind,
-    actorId: turn.gazeTargetActorId,
-  }, liveTurn?.faceEmotion ?? turn.emotion, undefined, liveTurn ? "plan.dialogueEmotionTo" : undefined);
-  recordPedsActorPlayerRuntimePlaybackEvidence({
-    scheduled: pedsActorPlayerRuntimePlaybackScheduled,
-    turns: input.turns,
-    latestTurnIndex: input.latestTurnIndex,
-    latestTurn: turn,
-    latestTriggerSource: input.latestTriggerSource,
-    latestTraceTag: input.latestTraceTag,
-    latestSequence: input.latestSequence,
-    latestSequenceStepIndex: input.latestSequenceStepIndex,
-    latestListenerActorIds: listenerCue.actorIds,
-    latestCoupledSignalIds: listenerCue.coupledSignalIds,
-  });
-  dialogueLine.textContent = turn.text;
+function pedsActorPlayerRuntimeTurns(): PedsActorPlayerRuntimeTurn[] {
+  return pedsPackageActorPlayerRuntimeTurns() as PedsActorPlayerRuntimeTurn[];
 }
 
 function pedsActorListenerCuePanelContext(): Parameters<typeof applyPackagePedsActorPlayerSequenceListenerCues>[0] {
@@ -4860,44 +4640,6 @@ function pedsActorListenerCuePanelContext(): Parameters<typeof applyPackagePedsA
   };
 }
 
-function applyPedsActorPlayerSequenceListenerCues(
-  activeTurn: PedsActorPlayerRuntimeTurn,
-  sequence: PedsActorPlayerRuntimeSequenceEvidence | null,
-  nowMs: number,
-): { actorIds: string[]; coupledSignalIds: string[] } {
-  return applyPackagePedsActorPlayerSequenceListenerCues(
-    pedsActorListenerCuePanelContext(),
-    { actorId: activeTurn.actorId, emotion: activeTurn.emotion },
-    sequence
-      ? { sequenceId: sequence.sequenceId, traceTag: sequence.traceTag, turns: sequence.turns.map((turn) => ({ actorId: turn.actorId })) }
-      : null,
-    nowMs,
-  );
-}
-
-function _listenerEmotionForSequence(activeTurn: PedsActorPlayerRuntimeTurn): HumanoidExpressionEmotion {
-  return listenerPackageEmotionForSequence(activeTurn) as HumanoidExpressionEmotion;
-}
-
-function playPedsActorPlayerRuntimeSequence(sequence: PedsActorPlayerRuntimeSequenceEvidence, fallbackTurns: PedsActorPlayerRuntimeTurn[]): void {
-  sequence.turns.forEach((turn, stepIndex) => {
-    window.setTimeout(() => {
-      playPedsActorPlayerRuntimeTurn(turn, {
-        turns: fallbackTurns,
-        latestTurnIndex: fallbackTurns.findIndex((fallbackTurn) => fallbackTurn.turnId === turn.turnId && fallbackTurn.actorId === turn.actorId),
-        latestTriggerSource: "trace_action",
-        latestTraceTag: sequence.traceTag,
-        latestSequence: sequence,
-        latestSequenceStepIndex: stepIndex,
-      });
-    }, stepIndex * 1150);
-  });
-}
-
-function pedsActorPlayerRuntimeTurns(): PedsActorPlayerRuntimeTurn[] {
-  return pedsPackageActorPlayerRuntimeTurns() as PedsActorPlayerRuntimeTurn[];
-}
-
 function pedsActorPlayerPlaybackPanelContext(): Parameters<typeof recordPackagePedsActorPlayerRuntimePlaybackEvidence>[0] {
   return {
     dialogueTurnCount: () => encounterRuntimeAssetBundle.sceneManifest.dialogueTurns?.length ?? 0,
@@ -4910,48 +4652,24 @@ function pedsActorPlayerPlaybackPanelContext(): Parameters<typeof recordPackageP
   };
 }
 
-function recordPedsActorPlayerRuntimePlaybackEvidence(input: {
-  scheduled: boolean;
-  turns: PedsActorPlayerRuntimeTurn[];
-  latestTurnIndex: number;
-  latestTurn: PedsActorPlayerRuntimeTurn | null;
-  latestTriggerSource: PedsActorPlayerRuntimePlaybackEvidence["latestTriggerSource"];
-  latestTraceTag: string | null;
-  latestSequence: PedsActorPlayerRuntimeSequenceEvidence | null;
-  latestSequenceStepIndex: number;
-  latestListenerActorIds: string[];
-  latestCoupledSignalIds: string[];
-}): void {
-  recordPackagePedsActorPlayerRuntimePlaybackEvidence(
-    pedsActorPlayerPlaybackPanelContext(),
-    {
-      scheduled: input.scheduled,
-      turns: input.turns.map((turn) => ({ actorId: turn.actorId })),
-      latestTurnIndex: input.latestTurnIndex,
-      latestTurn: input.latestTurn
-        ? {
-            actorId: input.latestTurn.actorId,
-            turnId: input.latestTurn.turnId,
-            cue: input.latestTurn.cue,
-            emotion: input.latestTurn.emotion,
-            roleAnimationClipName: input.latestTurn.roleAnimationClipName,
-            source: input.latestTurn.source,
-          }
-        : null,
-      latestTriggerSource: input.latestTriggerSource,
-      latestTraceTag: input.latestTraceTag,
-      latestSequence: input.latestSequence
-        ? {
-            sequenceId: input.latestSequence.sequenceId,
-            source: input.latestSequence.source,
-            turns: input.latestSequence.turns.map((turn) => ({ actorId: turn.actorId })),
-          }
-        : null,
-      latestSequenceStepIndex: input.latestSequenceStepIndex,
-      latestListenerActorIds: input.latestListenerActorIds,
-      latestCoupledSignalIds: input.latestCoupledSignalIds,
+function playLiveFrozenActorTurn(
+  plan: LiveActorTurnConsumption["plan"],
+  execution: LiveActorTurnConsumption["execution"],
+  gazeTarget: HumanoidDialogueGazeTarget,
+  req?: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"],
+): ActorTurnPlayback {
+  const slot = generatedHumanoidAnimationSlotsByActorId.get(plan.actorId);
+  return playFrozenActorTurnOnSlot(plan, execution, {
+    nowMs: performance.now(),
+    clipNames: slot?.responseClips?.map((clip) => clip.name) ?? [],
+    getSlot: (id) => generatedHumanoidAnimationSlotsByActorId.get(id),
+    speak: (ctx) => {
+      triggerHumanoidDialogue(ctx.actorId, ctx.spokenText, gazeTarget, ctx.faceEmotion, req, "plan.dialogueEmotionTo");
+      return true;
     },
-  );
+    playClip: playOneShotResponseClip,
+    startFaceTransition: (id, emotion, nowMs) => { const live = generatedHumanoidAnimationSlotsByActorId.get(id); if (live) startHumanoidEmotionTransition(live, emotion, nowMs); },
+  });
 }
 
 function hasAuthoredClinicalIdlePoseClip(animationClips: unknown[]): boolean {
@@ -4987,142 +4705,6 @@ function isGeneratedRuntimeDrive(value: unknown): value is GeneratedRuntimeDrive
 
 
 
-function triggerHumanoidDialogueForTrace(tag: string, text: string): void {
-  const actorId = localDialogueActorIdForTraceTag(tag);
-  const gazeTarget = localDialogueGazeTargetForTraceTag(tag);
-  const runtimeTurn = runtimeDialogueTurnForTraceTag(tag);
-  const liveTurn = resolveLiveActorTurnForTrace(tag);
-  const emotion = liveTurn?.faceEmotion;
-  const caption = liveTurn?.caption ?? text;
-  const actorRuntimeRealismRequirement = runtimeTurn?.caseDefinitionRuntimeSignals?.actorRuntimeRealismRequirement;
-  if (!actorId) {
-    window.__openClinXrHumanoidSpeechEvidence ??= buildHumanoidSpeechEvidence(null, null, null, [], [], null);
-    return;
-  }
-  const emotionSource = liveTurn ? "plan.dialogueEmotionTo" as const : undefined;
-  if (runtimeActorEmbodimentImpl(encounterRuntimeAssetBundle, actorId) === "virtual_device") {
-    const emotionContext = scenarioDialogueEmotionContext(actorId, caption, emotion, emotionSource);
-    window.__openClinXrHumanoidSpeechEvidence = buildHumanoidSpeechEvidence(
-      actorId,
-      `virtual_device:${actorId}`,
-      caption,
-      phonemesForText(caption),
-      [],
-      gazeTarget,
-      emotionContext,
-      actorRuntimeRealismRequirement,
-    );
-    recordBootPhase("virtual_device_dialogue_routed");
-    activeVirtualDeviceSpeechByActorId.set(actorId, {
-      actorId,
-      assetId: `virtual_device:${actorId}`,
-      gazeTargetKind: gazeTarget.kind,
-      gazeTargetActorId: gazeTarget.actorId,
-      text: caption,
-      emotion: emotionContext.emotion,
-      emotionContext,
-      actorRuntimeRealismRequirement,
-      phonemeSequence: phonemesForText(caption),
-      visemeSequence: [],
-      startedAtMs: performance.now(),
-      durationMs: humanoidDialogueDurationMs(phonemesForText(caption).length),
-    });
-    return;
-  }
-  if (liveTurn) { playLiveFrozenActorTurn(liveTurn.plan, liveTurn.execution, gazeTarget, actorRuntimeRealismRequirement); return; }
-  triggerHumanoidDialogue(actorId, caption, gazeTarget, emotion, actorRuntimeRealismRequirement, emotionSource);
-}
-
-function triggerHumanoidDialogue(
-  actorId: string,
-  text: string,
-  gazeTarget: HumanoidDialogueGazeTarget,
-  explicitEmotion?: HumanoidExpressionEmotion,
-  actorRuntimeRealismRequirement?: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"],
-  emotionSource?: HumanoidDialogueEmotionContext["source"],
-): void {
-  const slot = generatedHumanoidAnimationSlotsByActorId.get(actorId);
-  const phonemeSequence = phonemesForText(text);
-  const visemeSequence = visemesForText(text);
-  const emotionContext = scenarioDialogueEmotionContext(actorId, text, explicitEmotion, emotionSource);
-  const emotion = emotionContext.emotion;
-  if (!slot) {
-    window.__openClinXrHumanoidSpeechEvidence = buildHumanoidSpeechEvidence(
-      actorId,
-      null,
-      text,
-      phonemeSequence,
-      visemeSequence,
-      gazeTarget,
-      emotionContext,
-      actorRuntimeRealismRequirement,
-    );
-    return;
-  }
-  slot.activeSpeech = {
-    actorId,
-    assetId: slot.assetId,
-    gazeTargetKind: gazeTarget.kind,
-    gazeTargetActorId: gazeTarget.actorId,
-    text,
-    emotion,
-    emotionContext,
-    actorRuntimeRealismRequirement,
-    phonemeSequence,
-    visemeSequence,
-    startedAtMs: performance.now(),
-    durationMs: humanoidDialogueDurationMs(phonemeSequence.length),
-  };
-  startHumanoidEmotionTransition(slot, emotion, performance.now());
-  attachBakedCuesToSpeech(slot, text, selectedScenarioId());
-  slot.root.userData.openClinXrDialoguePhonemeMapping = {
-    actorId,
-    phonemeSequence,
-    visemeSequence,
-    gazeTargetKind: gazeTarget.kind,
-    gazeTargetActorId: gazeTarget.actorId,
-    mappingMode: "deterministic_text_phoneme_viseme_runtime_cue",
-  };
-  window.__openClinXrHumanoidSpeechEvidence = buildHumanoidSpeechEvidence(
-    actorId,
-    slot.assetId,
-    text,
-    phonemeSequence,
-    visemeSequence,
-    gazeTarget,
-    emotionContext,
-    actorRuntimeRealismRequirement,
-  );
-  recordBootPhase("humanoid_dialogue_phoneme_mapping_started");
-}
-function playLiveFrozenActorTurn(
-  plan: LiveActorTurnConsumption["plan"],
-  execution: LiveActorTurnConsumption["execution"],
-  gazeTarget: HumanoidDialogueGazeTarget,
-  req?: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"],
-): ActorTurnPlayback {
-  const slot = generatedHumanoidAnimationSlotsByActorId.get(plan.actorId);
-  return playFrozenActorTurnOnSlot(plan, execution, {
-    nowMs: performance.now(),
-    clipNames: slot?.responseClips?.map((clip) => clip.name) ?? [],
-    getSlot: (id) => generatedHumanoidAnimationSlotsByActorId.get(id),
-    speak: (ctx) => {
-      triggerHumanoidDialogue(ctx.actorId, ctx.spokenText, gazeTarget, ctx.faceEmotion, req, "plan.dialogueEmotionTo");
-      return true;
-    },
-    playClip: playOneShotResponseClip,
-    startFaceTransition: (id, emotion, nowMs) => { const live = generatedHumanoidAnimationSlotsByActorId.get(id); if (live) startHumanoidEmotionTransition(live, emotion, nowMs); },
-  });
-}
-function humanoidDialogueDurationMs(phonemeCount: number): number {
-  return humanoidPackageDialogueDurationMs(phonemeCount, isHumanoidMouthGazePoseReviewCaptureMode());
-}
-
-
-
-
-
-
 function createHumanoidEmotionExpressionState(): HumanoidEmotionExpressionState {
   return createPackageHumanoidEmotionExpressionState({ deterministicClock: isDeterministicCaptureClock() });
 }
@@ -5147,44 +4729,6 @@ function rememberLiveActorTurnFromPayload(
   registerLiveActorTurn(consumed.plan, consumed.execution, tag);
   return consumed;
 }
-
-function scenarioDialogueEmotionContext(
-  actorId: string,
-  _text: string,
-  explicitEmotion?: HumanoidExpressionEmotion,
-  emotionSource?: HumanoidDialogueEmotionContext["source"],
-): HumanoidDialogueEmotionContext {
-  const scenario = scenarioBank.find((candidate) => candidate.scenarioId === encounterRuntimeAssetBundle.scenarioId)
-    ?? scenarioBank.find((candidate) => candidate.scenarioId === selectedScenarioId())
-    ?? edChestPainScenario;
-  const actor = scenario.actors.find((candidate) => candidate.actorId === actorId);
-  const baselineMood = actor?.communicationProfile?.baselineMood ?? [];
-  if (explicitEmotion) {
-    return {
-      emotion: explicitEmotion,
-      source: emotionSource ?? "runtime_affect_timeline",
-      baselineMood,
-      cueIds: [
-        "plan_dialogue_emotion_to_expression_weights",
-        "scenario_dialogue_emotion_transition_cue",
-        "case_definition_driven_expression_selection",
-      ],
-    };
-  }
-  return {
-    emotion: "neutral",
-    source: "plan_missing",
-    baselineMood,
-    cueIds: [
-      "live_face_requires_actor_turn_plan_dialogue_emotion_to",
-      "scenario_dialogue_emotion_transition_cue",
-    ],
-  };
-}
-
-
-
-
 
 function applyHumanoidMorphTargetCue(
   slot: GeneratedHumanoidAnimationSlot,
@@ -5570,43 +5114,6 @@ function buildHumanoidSpeechEvidence(
     actorRuntimeRealismRequirement,
   );
 }
-
-
-function localDialogueActorIdForTraceTag(tag: string): string | undefined {
-  const runtimeTurn = runtimeDialogueTurnForTraceTag(tag);
-  if (runtimeTurn) return runtimeTurn.actorId;
-  const actorIds: Record<string, string | undefined> = {
-    history_opqrst: runtimePatientActorId(),
-    risk_factor_question: runtimePatientActorId(),
-    associated_symptom_question: runtimePatientActorId(),
-    vitals_review: runtimeClinicalTeamActorId(),
-    ecg_request: runtimeClinicalTeamActorId(),
-    urgent_escalation: runtimeFamilyActorId(),
-    team_communication: runtimeClinicalTeamActorId(),
-    family_communication: runtimeFamilyActorId(),
-    empathy_statement: runtimePatientActorId(),
-  };
-  return actorIds[tag] ?? actorIdForTraceTag(tag, selectedScenarioId());
-}
-
-function localDialogueGazeTargetForTraceTag(tag: string): HumanoidDialogueGazeTarget {
-  const runtimeTurn = runtimeDialogueTurnForTraceTag(tag);
-  if (runtimeTurn) {
-    return {
-      kind: runtimeTurn.gazeTargetKind,
-      actorId: runtimeTurn.gazeTargetActorId,
-    };
-  }
-  const actorTargets: Record<string, string | undefined> = {
-    team_communication: runtimeClinicalTeamActorId(),
-    family_communication: runtimeFamilyActorId(),
-  };
-  const actorTarget = actorTargets[tag];
-  return actorTarget
-    ? { kind: "actor", actorId: actorTarget }
-    : { kind: "learner_camera", actorId: null };
-}
-
 
 
 async function bootStationScene(): Promise<void> {

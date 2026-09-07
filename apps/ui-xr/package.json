@@ -18,6 +18,7 @@
     "@openclinxr/scenario-fixtures": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
     "@openclinxr/xr-asset-loading": "workspace:*",
+    "@openclinxr/xr-actor-dialogue": "workspace:*",
     "@openclinxr/xr-capture-evidence": "workspace:*",
     "@openclinxr/xr-dialogue": "workspace:*",
     "@openclinxr/xr-humanoid-animation": "workspace:*",

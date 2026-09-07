@@ -654,12 +654,16 @@ describe("static browser assets", () => {
       new URL("../../../packages/openclinxr/xr-trace-readiness/src/peds-actor-playback.ts", import.meta.url),
       "utf8",
     );
-    const combinedSource = `${mainSource}\n${animationSource}\n${faceRigSource}\n${traceReadinessSource}`;
+    const actorDialogueSource = readFileSync(
+      new URL("../../../packages/openclinxr/xr-actor-dialogue/src/playback.ts", import.meta.url),
+      "utf8",
+    );
+    const combinedSource = `${mainSource}\n${animationSource}\n${faceRigSource}\n${traceReadinessSource}\n${actorDialogueSource}`;
 
     expect(mainSource).toContain("schedulePedsActorPlayerRuntimePlaybackIfReady");
     expect(mainSource).toContain("triggerPedsActorPlayerRuntimeTurnForTrace");
-    expect(mainSource).toContain("pedsActorPlayerTurnForTraceTag");
-    expect(mainSource).toContain("pedsActorPlayerRuntimeSequenceForTrace");
+    expect(combinedSource).toContain("pedsActorPlayerTurnForTraceTag");
+    expect(combinedSource).toContain("pedsActorPlayerRuntimeSequenceForTrace");
     expect(mainSource).toContain("playPedsActorPlayerRuntimeSequence");
     expect(combinedSource).toContain("bundle_dialogue_sequence");
     expect(combinedSource).toContain("latestSequenceActorIds");
@@ -668,8 +672,8 @@ describe("static browser assets", () => {
     expect(combinedSource).toContain("sequence_listener_expression_residual");
     expect(combinedSource).toContain("latestListenerActorIds");
     expect(combinedSource).toContain("latestCoupledSignalIds");
-    expect(mainSource).toContain("pedsActorPlayerTurnFromRuntimeBundleTrace");
-    expect(mainSource).toContain("pedsActorPlayerBundleDialogueTurns");
+    expect(combinedSource).toContain("pedsActorPlayerTurnFromRuntimeBundleTrace");
+    expect(combinedSource).toContain("pedsActorPlayerBundleDialogueTurns");
     expect(combinedSource).toContain("pedsActorPlayerRuntimeTurns");
     expect(combinedSource).toContain("bundle_dialogue_turn");
     expect(combinedSource).toContain("actor_player_sample_fallback");
@@ -677,13 +681,13 @@ describe("static browser assets", () => {
     expect(combinedSource).toContain("live_blueprint_dialogue_emotion_source");
     expect(combinedSource).toContain("activeDialogueTurnRef");
     expect(combinedSource).toContain("normalizePedsActorPlayerEmotion");
-    expect(mainSource).toContain("triggerHumanoidDialogue(turn.actorId");
-    expect(mainSource).toContain("latestTriggerSource: \"trace_action\"");
-    expect(mainSource).toContain("latestTriggerSource: \"scheduled_preview\"");
-    expect(mainSource).toContain("oxygen_request: \"turn_3_oxygen_request\"");
-    expect(mainSource).toContain("parent_communication: \"turn_6_parent_communication\"");
-    expect(mainSource).toContain("oxygen_request: [\"oxygen_request\", \"work_of_breathing_assessment\"]");
-    expect(mainSource).toContain("parent_communication: [\"parent_communication\", \"empathy_statement\"]");
+    expect(combinedSource).toContain("triggerDialogueTurn");
+    expect(combinedSource).toContain("latestTriggerSource: \"trace_action\"");
+    expect(combinedSource).toContain("latestTriggerSource: \"scheduled_preview\"");
+    expect(combinedSource).toContain("oxygen_request: \"turn_3_oxygen_request\"");
+    expect(combinedSource).toContain("parent_communication: \"turn_6_parent_communication\"");
+    expect(combinedSource).toContain("oxygen_request: [\"oxygen_request\", \"work_of_breathing_assessment\"]");
+    expect(combinedSource).toContain("parent_communication: [\"parent_communication\", \"empathy_statement\"]");
     expect(combinedSource).toContain("roleAnimationClipName: \"openclinxr_role_patient_asthma_breathing_effort\"");
     expect(combinedSource).toContain("roleAnimationClipName: \"openclinxr_role_parent_anxious_fidget_guard\"");
     expect(combinedSource).toContain("roleAnimationClipName: \"openclinxr_role_nurse_clinical_check_reassure\"");
@@ -734,6 +738,10 @@ describe("static browser assets", () => {
     // Strength is unchanged: every string below must still appear verbatim in shipped runtime source.
     const mainSource = RUNTIME_SOURCE;
     const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
+    const actorDialogueSource = readFileSync(
+      new URL("../../../packages/openclinxr/xr-actor-dialogue/src/dialogue-context.ts", import.meta.url),
+      "utf8",
+    );
 
     expect(mainSource).toContain("scene.name = iwsdkStationSceneObjects.stationRoot");
     expect(mainSource).toContain("patient.name = iwsdkStationSceneObjects.patientRobertHayes");
@@ -1042,9 +1050,9 @@ describe("static browser assets", () => {
     expect(speechHudFormattingSource).toContain("actorRequirement.requiredCueIds.length");
     expect(mainSource).toContain("production_lip_sync");
     expect(mainSource).toContain("production_eye_tracking");
-    expect(mainSource).toContain("urgent_escalation: runtimeFamilyActorId()");
-    expect(mainSource).toContain("vitals_review: runtimeClinicalTeamActorId()");
-    expect(mainSource).toContain("history_opqrst: runtimePatientActorId()");
+    expect(actorDialogueSource).toContain("urgent_escalation: deps.runtimeFamilyActorId()");
+    expect(actorDialogueSource).toContain("vitals_review: deps.runtimeClinicalTeamActorId()");
+    expect(actorDialogueSource).toContain("history_opqrst: deps.runtimePatientActorId()");
     expect(runtimeStateSource).toContain('generatedEcgCart: "openclinxr.ed-chest-pain.ecg-cart-12-lead.generated-glb"');
     expect(runtimeStateSource).toContain('generatedIvPoleWithPump: "openclinxr.ed-chest-pain.iv-pole-with-pump.generated-glb"');
     expect(runtimeStateSource).toContain('generatedEnvironmentShell: "openclinxr.ed-chest-pain.environment-shell.generated-glb"');

@@ -99,6 +99,7 @@
         "packages/openclinxr/xr-scene-cues/src/**",
         "packages/openclinxr/xr-trace-readiness/src/**",
         "packages/openclinxr/xr-asset-loading/src/**",
+        "packages/openclinxr/xr-actor-dialogue/src/**",
         "packages/openclinxr/xr-station-room/src/**",
         "packages/openclinxr/ui-route-admin/src/**",
         "apps/ui-admin/src/**"

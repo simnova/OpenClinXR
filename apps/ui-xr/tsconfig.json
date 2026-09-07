@@ -49,6 +49,9 @@
       "path": "../../packages/openclinxr/xr-asset-loading"
     },
     {
+      "path": "../../packages/openclinxr/xr-actor-dialogue"
+    },
+    {
       "path": "../../packages/openclinxr/xr-scene-cues"
     },
     {
