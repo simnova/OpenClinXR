@@ -248,6 +248,48 @@ import {
   resolveHumanoidVariantOrCastPath,
   resolveLocalHumanoidRuntimeAssetUrl,scenariosFromFixtureSequence, sleeveDeformCueForAssetPath 
 } from "@openclinxr/xr-scene";
+import {
+  addPediatricRespiratoryEquipmentCues as addPackagePediatricRespiratoryEquipmentCues,
+  applyCleanEncounterVisualReviewActorFraming as applyPackageCleanEncounterVisualReviewActorFraming,
+  applyEnvironmentStateVisuals as applyPackageEnvironmentStateVisuals,
+  applyRuntimeEquipmentTraceVisuals as applyPackageRuntimeEquipmentTraceVisuals,
+  clinicalPanelLinesForBundle as clinicalPackagePanelLinesForBundle,
+  createActorNameplate as createPackageActorNameplate,
+  createAffordanceMarker as createPackageAffordanceMarker,
+  createClinicalPanel as createPackageClinicalPanel,
+  createDetailedEdRoomProps as createPackageDetailedEdRoomProps,
+  createHumanoidExpressionCue as createPackageHumanoidExpressionCue,
+  createHumanoidEyeFocusCue as createPackageHumanoidEyeFocusCue,
+  createHumanoidEyeGazeCue as createPackageHumanoidEyeGazeCue,
+  createHumanoidInteractionCollisionCues as createPackageHumanoidInteractionCollisionCues,
+  createHumanoidSpeechMouthCue as createPackageHumanoidSpeechMouthCue,
+  createReadableVrTextPanel as createPackageReadableVrTextPanel,
+  createRuntimeHumanoidDetailCues as createPackageRuntimeHumanoidDetailCues,
+  createVirtualDeviceActorAffordance as createPackageVirtualDeviceActorAffordance,
+  type DynamicSceneObjectNamingEvidence,
+  drawWrappedText as drawPackageWrappedText,
+  ensureRuntimeEquipmentTraceMarker as ensurePackageRuntimeEquipmentTraceMarker,
+  type PediatricRespiratoryEquipmentCueEvidence,
+  type ReadableVrTextPanel,
+  type RoleDistinctHumanoidCueEvidence,
+  recordDynamicSceneObjectNamingEvidence as recordPackageDynamicSceneObjectNamingEvidence,
+  recordPediatricRespiratoryEquipmentCue as recordPackagePediatricRespiratoryEquipmentCue,
+  recordRoleDistinctHumanoidCue as recordPackageRoleDistinctHumanoidCue,
+  runtimeEquipmentIdsForTag as runtimePackageEquipmentIdsForTag,
+  type SceneCueActorFramingContext,
+  type SceneCueClinicalPanelContext,
+  type SceneCueEnvironmentVisualContext,
+  type SceneCueHumanoidCueContext,
+  type SceneCueNameplateContext,
+  type SceneCueNamingEvidenceContext,
+  type SceneCuePediatricCueEvidenceContext,
+  type SceneCuePediatricEquipmentContext,
+  type SceneCueRoleCueEvidenceContext,
+  type SceneCueRoomPropContext,
+  type SceneCueTraceVisualContext,
+  type SceneCueVirtualDeviceContext,
+  updateEnvironmentRealismAnimations as updatePackageEnvironmentRealismAnimations,
+} from "@openclinxr/xr-scene-cues";
 import { 
   buildAssembledStationStartSessionInput,
   buildDeclaredEquipmentGeometry,
@@ -270,10 +312,8 @@ import {
   AnimationMixer,
   BoxGeometry,
   BufferGeometry,
-  CanvasTexture,
   Color,
   CylinderGeometry,
-  DoubleSide,
   Group,
   Line,
   LineBasicMaterial,
@@ -284,7 +324,6 @@ import {
   MeshStandardMaterial,
   type Object3D,
   PerspectiveCamera,
-  PlaneGeometry,
   Raycaster,
   Scene,
   SphereGeometry,
@@ -339,46 +378,6 @@ type XrSession = XrSessionLike & {
 
 type RuntimeWebXrSupportEvidence = ManualPerformanceReproducibilityEvidence["webXr"];
 let latestRuntimeInteractionEvidence: RuntimeInteractionEvidence | null = null;
-
-type DynamicSceneObjectNamingEvidence = {
-  source: "window.__openClinXrDynamicSceneObjectNamingEvidence";
-  scenarioId: string;
-  selectedScenarioId: string;
-  selectedScenarioMatchesBundle: boolean;
-  totalNamedObjects: number;
-  scenarioPrefixedObjectCount: number;
-  stableIwsdkLegacyObjectNameCount: number;
-  stableIwsdkLegacyObjectNames: string[];
-  hardcodedEdPrefixLeakCount: number;
-  hardcodedEdPrefixLeakNames: string[];
-  sampleScenarioPrefixedObjectNames: string[];
-  notEvidenceFor: Array<"quest_readiness" | "clinical_validity" | "scoring_validity" | "production_readiness">;
-};
-
-type RoleDistinctHumanoidCueEvidence = {
-  source: "window.__openClinXrRoleDistinctHumanoidCueEvidence";
-  scenarioId: string;
-  cueCount: number;
-  cues: Array<{
-    actorId: string;
-    role: string | null;
-    cueId: string;
-    sceneObjectName: string;
-  }>;
-  notEvidenceFor: Array<"quest_readiness" | "clinical_validity" | "scoring_validity" | "production_readiness" | "animation_quality">;
-};
-
-type PediatricRespiratoryEquipmentCueEvidence = {
-  source: "window.__openClinXrPediatricRespiratoryEquipmentCueEvidence";
-  scenarioId: string;
-  cueCount: number;
-  cues: Array<{
-    equipmentId: string;
-    cueId: string;
-    sceneObjectName: string;
-  }>;
-  notEvidenceFor: Array<"quest_readiness" | "clinical_validity" | "scoring_validity" | "production_readiness" | "equipment_asset_readiness">;
-};
 
 /** #140 — live declared-equipment mount evidence for inspectors / captures. */
 type DeclaredEquipmentMountEvidence = {
@@ -527,11 +526,6 @@ type StationSceneRuntime = {
 };
 
 type ActiveRuntimeAssetBundleSource = LearnerRuntimeUseGateEvidence["activeBundleSource"];
-
-type ReadableVrTextPanel = {
-  mesh: Mesh;
-  update(lines: readonly string[]): void;
-};
 
 declare global {
   interface Window {
@@ -2264,95 +2258,139 @@ function updateEnvironmentStateForTrace(tag: string): EnvironmentStateEvidence {
   return evidence;
 }
 
-function applyRuntimeEquipmentTraceVisuals(evidence: EnvironmentStateEvidence): void {
-  const activeEquipmentIds = new Set(evidence.activePropIds);
-  for (const [assetId, slot] of runtimeEquipmentSlotsByAssetId) {
-    const active = activeEquipmentIds.has(assetId);
-    const marker = ensureRuntimeEquipmentTraceMarker(slot, assetId);
-    marker.visible = active;
-    slot.userData.openClinXrTraceLinkedEquipmentActive = active;
-    slot.userData.openClinXrTraceLinkedActiveTraceTags = active
-      ? evidence.activeTraceTags.filter((tag) => runtimeEquipmentIdsForTraceTag(tag).includes(assetId))
-      : [];
-  }
+function sceneCueScenarioPrefix(): string {
+  return `openclinxr.${encounterRuntimeAssetBundle.scenarioId}`;
 }
 
-function ensureRuntimeEquipmentTraceMarker(slot: Group, assetId: string): Mesh {
-  const markerName = `${runtimeSceneObjectPrefix()}.equipment-trace-active.${assetId}`;
-  const existing = slot.children.find((child): child is Mesh => child instanceof Mesh && child.name === markerName);
-  if (existing) {
-    return existing;
-  }
-  const marker = new Mesh(
-    new BoxGeometry(0.28, 0.035, 0.028),
-    new MeshBasicMaterial({ color: 0xfacc15, transparent: true, opacity: 0.82 }),
-  );
-  marker.name = markerName;
-  marker.position.set(0, 0.72, 0);
-  marker.userData.openClinXrTraceLinkedEquipmentCue =
-    "active_when_case_trace_references_this_runtime_equipment";
-  marker.visible = false;
-  slot.add(marker);
-  return marker;
+const sceneCueTextPanelEvidence = new Map<string, ReadableVrTextPanelEvidence>();
+
+function sceneCueClinicalPanel(): SceneCueClinicalPanelContext {
+  return {
+    clinicalPanelObjectName: iwsdkStationSceneObjects.clinicalPanel,
+    evidenceStore: sceneCueTextPanelEvidence,
+    clinicalPanelLines: clinicalPanelLinesForSelectedStation,
+    buildTextPanelEvidence: buildReadableVrTextPanelEvidence,
+  };
+}
+
+function sceneCueNameplate(): SceneCueNameplateContext {
+  return {
+    scenarioObjectPrefix: sceneCueScenarioPrefix(),
+    shouldShowIdentityLabels: shouldShowInSceneIdentityLabels,
+  };
+}
+
+function sceneCueHumanoidCues(): SceneCueHumanoidCueContext {
+  return {
+    scenarioObjectPrefix: sceneCueScenarioPrefix(),
+    shouldShowAffordanceMarkers: shouldShowRuntimeAffordanceMarkers,
+  };
+}
+
+function sceneCueVirtualDevice(): SceneCueVirtualDeviceContext {
+  return {
+    resolvePlacement: (actorId: string) =>
+      runtimeActorPlacement(actorId, {
+        slotKind: "family_or_observer",
+        position: { x: -2.0, y: 1.05, z: 0.7 },
+        scale: { x: 0.72, y: 0.72, z: 0.72 },
+        verticalOffsetMeters: 0,
+        labelPrefix: "Remote",
+      }),
+    actorNameplateLabel,
+    registerSlot: (id: string, group: Group) => {
+      virtualDeviceActorSlotsByActorId.set(id, group);
+    },
+    buildVirtualDeviceAffordance: buildVirtualDeviceActorAffordance,
+  };
+}
+
+function sceneCueRoomProps(): SceneCueRoomPropContext {
+  return {
+    scenarioObjectPrefix: sceneCueScenarioPrefix(),
+    createAffordanceMarker: (cueId: string, color: number) => createAffordanceMarker(cueId, color),
+    createActorNameplate: (label: string, accentColor: number) => createActorNameplate(label, accentColor),
+    roomPropObjectPrefix: `openclinxr.${encounterRuntimeAssetBundle.scenarioId}.room-prop`,
+    shouldRenderRoomProp: shouldRenderRoomPropInVisualReview,
+    roomPropColourNumbers,
+    roomPropSuppressedByFixtureOwnership,
+    buildRoomPropGroup,
+    hasVector3,
+    registerReactiveProp: (propId: string, group: Group) => {
+      environmentReactiveProps.set(propId, group);
+    },
+  };
+}
+
+function sceneCueTraceVisuals(): SceneCueTraceVisualContext {
+  return {
+    equipmentSlots: runtimeEquipmentSlotsByAssetId,
+    equipmentIdsForTag: runtimeEquipmentIdsForTraceTag,
+    scenarioObjectPrefix: sceneCueScenarioPrefix(),
+  };
+}
+
+function sceneCueEnvironmentVisuals(): SceneCueEnvironmentVisualContext {
+  return { reactiveProps: environmentReactiveProps };
+}
+
+function sceneCueNamingEvidence(): SceneCueNamingEvidenceContext {
+  return {
+    scenarioId: encounterRuntimeAssetBundle.scenarioId,
+    selectedScenarioId: selectedScenarioId(),
+    selectedScenarioMatchesBundle: !isSelectedScenarioRuntimeBundleMismatch(),
+    stableIwsdkObjectNames: iwsdkStationSceneObjectNames,
+    scenarioObjectPrefix: sceneCueScenarioPrefix(),
+  };
+}
+
+function sceneCueRoleCueEvidence(): SceneCueRoleCueEvidenceContext {
+  return {
+    scenarioId: encounterRuntimeAssetBundle.scenarioId,
+    runtimeActorRole,
+  };
+}
+
+function sceneCuePediatricEquipment(): SceneCuePediatricEquipmentContext {
+  return {
+    scenarioObjectPrefix: sceneCueScenarioPrefix(),
+    isPediatricScenario: isPediatricAsthmaRuntimeScenario,
+  };
+}
+
+function sceneCuePediatricEvidence(): SceneCuePediatricCueEvidenceContext {
+  return { scenarioId: encounterRuntimeAssetBundle.scenarioId };
+}
+
+function sceneCueActorFraming(): SceneCueActorFramingContext {
+  return {
+    scenarioId: encounterRuntimeAssetBundle.scenarioId,
+    runtimeActorRole,
+    selectedScenarioId,
+    skipFraming:
+      isHumanoidFaceDetailCaptureMode() || isActorPoseReviewCaptureMode() || isActorCloseRealismCaptureMode(),
+    applyActorFraming: applyEncounterActorFraming,
+    onWardrobeCue: addGeneratedHumanoidRoleContinuityWardrobeCue,
+  };
+}
+
+function applyRuntimeEquipmentTraceVisuals(evidence: EnvironmentStateEvidence): void {
+  applyPackageRuntimeEquipmentTraceVisuals(sceneCueTraceVisuals(), evidence);
+}
+
+function _ensureRuntimeEquipmentTraceMarker(slot: Group, assetId: string): Mesh {
+  return ensurePackageRuntimeEquipmentTraceMarker(sceneCueTraceVisuals(), slot, assetId);
 }
 
 function runtimeEquipmentIdsForTraceTag(tag: string): string[] {
-  const equipmentIds = encounterRuntimeAssetBundle.equipment.map((equipment) => equipment.equipmentId);
-  const includes = (pattern: RegExp) => equipmentIds.filter((equipmentId) => pattern.test(equipmentId));
-  if (/oxygen|spo2|saturation|vitals/i.test(tag)) {
-    return includes(/oxygen|pulse_ox|monitor|wall_port/i);
-  }
-  if (/bronchodilator|nebulizer|inhaler|spacer/i.test(tag)) {
-    return includes(/nebulizer|inhaler|spacer|oxygen/i);
-  }
-  if (/trigger/i.test(tag)) {
-    return includes(/parent_chair|stretcher|bed/i);
-  }
-  if (/urgent|escalation|safety/i.test(tag)) {
-    return includes(/oxygen|pulse_ox|parent_chair|stretcher|bed/i);
-  }
-  if (/work_of_breathing|assessment|exam/i.test(tag)) {
-    return includes(/stretcher|bed|pulse_ox|monitor/i);
-  }
-  if (/parent|family|guardian|empathy|communication/i.test(tag)) {
-    return includes(/parent_chair|stretcher|bed/i);
-  }
-  if (/note|documentation/i.test(tag)) {
-    return includes(/stretcher|bed|parent_chair|pulse_ox|monitor/i);
-  }
-  return [];
+  return runtimePackageEquipmentIdsForTag(
+    encounterRuntimeAssetBundle.equipment.map((equipment) => equipment.equipmentId),
+    tag,
+  );
 }
 
 function applyEnvironmentStateVisuals(evidence: EnvironmentStateEvidence): void {
-  const activeProps = new Set(evidence.activePropIds);
-  for (const [propId, group] of environmentReactiveProps) {
-    const active = activeProps.has(propId);
-    group.userData.openClinXrEnvironmentStateActive = active;
-    group.traverse((object) => {
-      if (object instanceof Mesh && object.material instanceof MeshBasicMaterial) {
-        object.material.opacity = active ? 0.95 : 0.82;
-      }
-      if (object instanceof Mesh && object.material instanceof MeshStandardMaterial) {
-        const material = object.material;
-        const baseColorHex = typeof material.userData.openClinXrBaseColorHex === "number"
-          ? material.userData.openClinXrBaseColorHex
-          : material.color.getHex();
-        material.userData.openClinXrBaseColorHex = baseColorHex;
-        material.color.copy(new Color(baseColorHex)).lerp(new Color(0xfff2a8), active ? 0.32 : 0);
-        material.emissive.setHex(active ? 0x3a2f08 : 0x000000);
-        material.emissiveIntensity = active ? 0.35 : 0;
-        material.needsUpdate = true;
-      }
-    });
-    group.scale.setScalar(active ? 1.08 : 1);
-  }
-  const alarmActive = evidence.alarmCueMode === "visual_only_no_audio";
-  for (const propId of ["ceiling-exam-light", "monitor-waveform-card"]) {
-    const group = environmentReactiveProps.get(propId);
-    if (group) {
-      group.userData.openClinXrVisualAlarmCue = alarmActive ? evidence.alarmState : "quiet";
-    }
-  }
+  applyPackageEnvironmentStateVisuals(sceneCueEnvironmentVisuals(), evidence);
 }
 
 function updateTraceActionHandoffEvidence(): XrTraceActionHandoffEvidence {
@@ -4060,20 +4098,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
 }
 
 function applyCleanEncounterVisualReviewActorFraming(actor: Group, actorId: string): void {
-  // #83: frame from the SELECTED scenario (URL), not the local ED fixture bundle id.
-  // Telehealth patient_chair seating never applied while bundle stayed ed_chest_pain_*.
-  applyEncounterActorFraming({
-    actor,
-    actorId,
-    scenarioId: selectedScenarioId(),
-    role: runtimeActorRole(actorId) ?? String(actor.userData.openClinXrActorRole ?? ""),
-    posture: (actor.userData.openClinXrActorPosture as ActorPosture | undefined) ?? undefined,
-    skipFraming:
-      isHumanoidFaceDetailCaptureMode()
-      || isActorPoseReviewCaptureMode()
-      || isActorCloseRealismCaptureMode(),
-    onWardrobeCue: addGeneratedHumanoidRoleContinuityWardrobeCue,
-  });
+  applyPackageCleanEncounterVisualReviewActorFraming(sceneCueActorFraming(), actor, actorId);
 }
 
 function resolveActiveEnvironmentId(): string {
@@ -4214,34 +4239,7 @@ function addScenarioSpecificClinicalSetDressing(scene: Scene, doorwayTheme: Scen
 }
 
 function recordDynamicSceneObjectNamingEvidence(scene: Scene): DynamicSceneObjectNamingEvidence {
-  const namedObjects: string[] = [];
-  scene.traverse((object) => {
-    if (object.name.trim().length > 0) namedObjects.push(object.name);
-  });
-  const scenarioPrefix = `${runtimeSceneObjectPrefix()}.`;
-  const stableIwsdkObjectNameSet = new Set<string>(iwsdkStationSceneObjectNames);
-  const stableIwsdkLegacyObjectNames = namedObjects.filter((name) => stableIwsdkObjectNameSet.has(name));
-  const stableIwsdkLegacyObjectNameSet = new Set(stableIwsdkLegacyObjectNames);
-  const hardcodedEdPrefixLeakNames = namedObjects.filter((name) =>
-    name.startsWith("openclinxr.ed-chest-pain.") && !stableIwsdkLegacyObjectNameSet.has(name)
-  );
-  const sampleScenarioPrefixedObjectNames = namedObjects.filter((name) => name.startsWith(scenarioPrefix)).slice(0, 40);
-  const evidence: DynamicSceneObjectNamingEvidence = {
-    source: "window.__openClinXrDynamicSceneObjectNamingEvidence",
-    scenarioId: encounterRuntimeAssetBundle.scenarioId,
-    selectedScenarioId: selectedScenarioId(),
-    selectedScenarioMatchesBundle: !isSelectedScenarioRuntimeBundleMismatch(),
-    totalNamedObjects: namedObjects.length,
-    scenarioPrefixedObjectCount: namedObjects.filter((name) => name.startsWith(scenarioPrefix)).length,
-    stableIwsdkLegacyObjectNameCount: stableIwsdkLegacyObjectNames.length,
-    stableIwsdkLegacyObjectNames: stableIwsdkLegacyObjectNames.slice(0, 40),
-    hardcodedEdPrefixLeakCount: hardcodedEdPrefixLeakNames.length,
-    hardcodedEdPrefixLeakNames: hardcodedEdPrefixLeakNames.slice(0, 40),
-    sampleScenarioPrefixedObjectNames,
-    notEvidenceFor: ["quest_readiness", "clinical_validity", "scoring_validity", "production_readiness"],
-  };
-  window.__openClinXrDynamicSceneObjectNamingEvidence = evidence;
-  return evidence;
+  return recordPackageDynamicSceneObjectNamingEvidence(sceneCueNamingEvidence(), scene);
 }
 
 function formatRuntimeLocomotionLine(
@@ -4411,23 +4409,7 @@ function addRoleSpecificHumanoidVisuals(
 }
 
 function recordRoleDistinctHumanoidCue(actorId: string, cueId: string, sceneObjectName: string): void {
-  const existing = window.__openClinXrRoleDistinctHumanoidCueEvidence;
-  const cues = existing?.cues ?? [];
-  if (!cues.some((cue) => cue.actorId === actorId && cue.cueId === cueId && cue.sceneObjectName === sceneObjectName)) {
-    cues.push({
-      actorId,
-      role: runtimeActorRole(actorId) ?? null,
-      cueId,
-      sceneObjectName,
-    });
-  }
-  window.__openClinXrRoleDistinctHumanoidCueEvidence = {
-    source: "window.__openClinXrRoleDistinctHumanoidCueEvidence",
-    scenarioId: encounterRuntimeAssetBundle.scenarioId,
-    cueCount: cues.length,
-    cues,
-    notEvidenceFor: ["quest_readiness", "clinical_validity", "scoring_validity", "production_readiness", "animation_quality"],
-  };
+  recordPackageRoleDistinctHumanoidCue(sceneCueRoleCueEvidence(), actorId, cueId, sceneObjectName);
 }
 
 function addScenarioExpectationPanel(scene: Scene, stationContext: ReturnType<typeof stationContextForSelectedScenario>): void {
@@ -4618,45 +4600,27 @@ function addActorSpecificIdentityVariantCue(
 }
 
 function createClinicalPanel(): ReadableVrTextPanel {
-  const panel = createReadableVrTextPanel({
-    name: iwsdkStationSceneObjects.clinicalPanel,
-    title: "Simulated EHR",
-    lines: clinicalPanelLinesForSelectedStation(),
-    widthMeters: 2.3,
-    heightMeters: 1.15,
-    background: "#fff8e5",
-    accent: "#7d4f28",
-  });
-  panel.mesh.position.set(-1.55, 2.62, -1.42);
-  panel.mesh.rotation.y = 0.34;
-  return panel;
+  return createPackageClinicalPanel(sceneCueClinicalPanel());
 }
 
 function clinicalPanelLinesForSelectedStation(): string[] {
-  return [
-    `Chief concern: ${selectedStationContext.chiefConcern}`,
-    `Vitals/context: ${selectedStationContext.initialVitals}`,
-    `Interruption: ${selectedStationContext.interruption}`,
-    `Scenario: ${selectedStationContext.title}`,
-    `Bundle scenario: ${encounterRuntimeAssetBundle.scenarioId}${isSelectedScenarioRuntimeBundleMismatch() ? ` (selected ${selectedScenarioId()} mismatch hidden)` : " (selected match)"}`,
-    `Station context: ${encounterRuntimeAssetBundle.sceneManifest.stationContext?.title ?? "manifest stationContext missing"}`,
-    `Actor roster: ${encounterRuntimeAssetBundle.actors.map((actor) => `${actor.actorId}:${actor.role}`).join(", ") || "none"}`,
-    `Equipment IDs: ${encounterRuntimeAssetBundle.equipment.map((equipment) => equipment.equipmentId).join(", ") || "none"}`,
-    `Dialogue turns: ${(encounterRuntimeAssetBundle.sceneManifest.dialogueTurns ?? []).map((turn) => `${turn.traceTag}->${turn.actorId}`).join(", ") || "none"}`,
-    `Room props: ${encounterRuntimeAssetBundle.sceneManifest.roomProps.map((prop) => prop.propId).join(", ") || "none"}`,
-  ];
-}
-
-const readableVrTextPanelEvidence = new Map<string, ReadableVrTextPanelEvidence>();
-
-function publishReadableVrTextPanelEvidence(evidence: ReadableVrTextPanelEvidence): void {
-  readableVrTextPanelEvidence.set(evidence.name, evidence);
-  window.__openClinXrTextPanelEvidence = {
-    source: "window.__openClinXrTextPanelEvidence",
-    panelCount: readableVrTextPanelEvidence.size,
-    panels: [...readableVrTextPanelEvidence.values()].sort((left, right) => left.name.localeCompare(right.name)),
-    limitations: ["metadata_only_requires_foreground_headset_confirmation"],
-  };
+  return clinicalPackagePanelLinesForBundle({
+    chiefConcern: selectedStationContext.chiefConcern,
+    initialVitals: selectedStationContext.initialVitals,
+    interruption: selectedStationContext.interruption,
+    title: selectedStationContext.title,
+    bundleScenarioId: encounterRuntimeAssetBundle.scenarioId,
+    selectedScenarioId: selectedScenarioId(),
+    selectedScenarioMatchesBundle: !isSelectedScenarioRuntimeBundleMismatch(),
+    stationContextTitle: encounterRuntimeAssetBundle.sceneManifest.stationContext?.title,
+    actorRoster:
+      encounterRuntimeAssetBundle.actors.map((actor) => `${actor.actorId}:${actor.role}`).join(", ") || "none",
+    equipmentIds:
+      encounterRuntimeAssetBundle.equipment.map((equipment) => equipment.equipmentId).join(", ") || "none",
+    dialogueTurns:
+      (encounterRuntimeAssetBundle.sceneManifest.dialogueTurns ?? []).map((turn) => `${turn.traceTag}->${turn.actorId}`).join(", ") || "none",
+    roomProps: encounterRuntimeAssetBundle.sceneManifest.roomProps.map((prop) => prop.propId).join(", ") || "none",
+  });
 }
 
 function createReadableVrTextPanel(options: {
@@ -4668,50 +4632,10 @@ function createReadableVrTextPanel(options: {
   background: string;
   accent: string;
 }): ReadableVrTextPanel {
-  const panelCanvas = document.createElement("canvas");
-  panelCanvas.width = 1280;
-  panelCanvas.height = 640;
-  const context = panelCanvas.getContext("2d");
-  if (!context) {
-    throw new Error("Unable to create VR text panel canvas context");
-  }
-  const panelContext = context;
-  const texture = new CanvasTexture(panelCanvas);
-  const panel = new Mesh(
-    new PlaneGeometry(options.widthMeters, options.heightMeters),
-    new MeshBasicMaterial({ map: texture, side: DoubleSide }),
-  );
-  panel.name = options.name;
-
-  function update(lines: readonly string[]): void {
-    panelContext.fillStyle = options.background;
-    panelContext.fillRect(0, 0, panelCanvas.width, panelCanvas.height);
-    panelContext.fillStyle = options.accent;
-    panelContext.fillRect(0, 0, 22, panelCanvas.height);
-    panelContext.fillStyle = "#172332";
-    panelContext.font = "700 62px Arial";
-    panelContext.fillText(options.title, 58, 92);
-    panelContext.font = "38px Arial";
-    let y = 162;
-    for (const line of lines) {
-      y = drawWrappedText(panelContext, line, 58, y, panelCanvas.width - 116, 50) + 14;
-    }
-    texture.needsUpdate = true;
-    publishReadableVrTextPanelEvidence(buildReadableVrTextPanelEvidence({
-      name: options.name,
-      title: options.title,
-      lines,
-      canvasPixels: { width: panelCanvas.width, height: panelCanvas.height },
-      worldMeters: { width: options.widthMeters, height: options.heightMeters },
-      updatedAtMs: performance.now(),
-    }));
-  }
-
-  update(options.lines);
-  return { mesh: panel, update };
+  return createPackageReadableVrTextPanel(sceneCueClinicalPanel(), options);
 }
 
-function drawWrappedText(
+function _drawWrappedText(
   context: CanvasRenderingContext2D,
   text: string,
   x: number,
@@ -4719,24 +4643,9 @@ function drawWrappedText(
   maxWidth: number,
   lineHeight: number,
 ): number {
-  const words = text.split(" ");
-  let line = "";
-  let currentY = y;
-  for (const word of words) {
-    const testLine = line ? `${line} ${word}` : word;
-    if (context.measureText(testLine).width > maxWidth && line) {
-      context.fillText(line, x, currentY);
-      line = word;
-      currentY += lineHeight;
-    } else {
-      line = testLine;
-    }
-  }
-  if (line) {
-    context.fillText(line, x, currentY);
-  }
-  return currentY + lineHeight;
+  return drawPackageWrappedText(context, text, x, y, maxWidth, lineHeight);
 }
+
 
 function addControllerAffordances(
   renderer: WebGLRenderer,
@@ -4823,51 +4732,15 @@ function addHandModels(renderer: WebGLRenderer, scene: Scene, input: {
 const actorMesh = (color: number): Group => createPrimitiveActorMesh(color);
 
 function createVirtualDeviceActorAffordance(actorId: string): Group {
-  const placement = runtimeActorPlacement(actorId, {
-    slotKind: "family_or_observer",
-    position: { x: -2.0, y: 1.05, z: 0.7 },
-    scale: { x: 0.72, y: 0.72, z: 0.72 },
-    verticalOffsetMeters: 0,
-    labelPrefix: "Remote",
-  });
-  return buildVirtualDeviceActorAffordance({
-    actorId,
-    placement,
-    createAffordanceMarker,
-    createActorNameplate,
-    actorNameplateLabel,
-    registerSlot: (id, group) => { virtualDeviceActorSlotsByActorId.set(id, group); },
-  });
+  return createPackageVirtualDeviceActorAffordance(
+    sceneCueVirtualDevice(),
+    (cueId: string, color: number) => createAffordanceMarker(cueId, color),
+    (label: string, accentColor: number) => createActorNameplate(label, accentColor),
+  )(actorId);
 }
 
 function createActorNameplate(label: string, accentColor: number): Mesh {
-  const canvasElement = document.createElement("canvas");
-  canvasElement.width = 512;
-  canvasElement.height = 128;
-  const context = canvasElement.getContext("2d");
-  if (!context) {
-    throw new Error("Unable to create actor nameplate canvas context");
-  }
-  context.fillStyle = "rgba(16, 24, 32, 0.86)";
-  context.fillRect(0, 0, canvasElement.width, canvasElement.height);
-  context.fillStyle = `#${accentColor.toString(16).padStart(6, "0")}`;
-  context.fillRect(0, 0, 18, canvasElement.height);
-  context.font = "700 34px Verdana, sans-serif";
-  context.fillStyle = "#fff8e5";
-  context.textBaseline = "middle";
-  context.fillText(label, 38, canvasElement.height / 2);
-  const texture = new CanvasTexture(canvasElement);
-  const nameplate = new Mesh(
-    new PlaneGeometry(0.95, 0.24),
-    new MeshBasicMaterial({ map: texture, transparent: true, side: DoubleSide }),
-  );
-  nameplate.name = `${runtimeSceneObjectPrefix()}.actor-nameplate.${label.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-").replace(/-$/u, "")}`;
-  nameplate.position.set(0, 1.48, 0);
-  if (!shouldShowInSceneIdentityLabels()) {
-    nameplate.visible = false;
-    nameplate.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_identity_debug_capture";
-  }
-  return nameplate;
+  return createPackageActorNameplate(sceneCueNameplate(), label, accentColor);
 }
 
 function createDetailedEdRoomProps(
@@ -4875,91 +4748,14 @@ function createDetailedEdRoomProps(
   fixtureOwnedRoles: readonly string[] = [],
   exclusiveMountedEquipmentIds: ReadonlySet<string> = new Set(),
 ): Group[] {
-  const fallbackPositions = [
-    { x: -2.15, y: 0.65, z: -1.02 },
-    { x: 1.92, y: 0.82, z: -1.05 },
-    { x: -1.55, y: 0.58, z: 0.96 },
-    { x: 1.52, y: 0.58, z: 0.92 },
-  ];
-  const owned = new Set(fixtureOwnedRoles);
-  const out: Group[] = [];
-  for (const [propIndex, prop] of manifestProps.entries()) {
-    if (!shouldRenderRoomPropInVisualReview(prop)) continue;
-    // #186: fixture owns seating/door/board/surface — roomProp is metadata-only for that role.
-    if (roomPropSuppressedByFixtureOwnership(prop.propId, owned)) continue;
-    const { color, accentColor } = roomPropColourNumbers(prop);
-    const built = roomProp(
-      prop.propId,
-      color,
-      accentColor,
-      hasVector3(prop.position)
-        ? prop.position
-        : fallbackPositions[propIndex % fallbackPositions.length] ?? { x: -2.15, y: 0.65, z: -1.02 },
-      hasVector3(prop.scale) ? prop.scale : { x: 0.42, y: 0.42, z: 0.42 },
-      prop.label ?? prop.propId.replaceAll("-", " "),
-      Array.isArray(prop.affordanceCueIds) ? prop.affordanceCueIds : [`${prop.propId}:visual_context`],
-      exclusiveMountedEquipmentIds,
-      typeof prop.semanticRole === "string" ? prop.semanticRole : null,
-    );
-    if (built) out.push(built);
-  }
-  return out;
+  return createPackageDetailedEdRoomProps(sceneCueRoomProps(), manifestProps, fixtureOwnedRoles, exclusiveMountedEquipmentIds);
 }
 
 function updateEnvironmentRealismAnimations(deltaSeconds: number, nowMs: number): void {
-  const evidence = window.__openClinXrEnvironmentStateEvidence;
-  const activeProps = new Set(evidence?.activePropIds ?? []);
-  const pulse = evidence?.environmentMotionCueMode === "deterministic_visual_pulse"
-    ? 0.5 + Math.sin(nowMs / 260) * 0.5
-    : 0;
-  for (const [propId, group] of environmentReactiveProps) {
-    const active = activeProps.has(propId);
-    const baseY = typeof group.userData.openClinXrBaseY === "number" ? group.userData.openClinXrBaseY : group.position.y;
-    group.position.y = baseY + (active ? pulse * 0.018 : 0);
-    group.children.forEach((child) => {
-      if (child.name.includes(".label")) {
-        child.visible = active || propId === "doorway-station-sign" || propId === "patient-handoff-whiteboard";
-      }
-      if (child.name.includes("glb-affordance")) {
-        child.rotation.y += deltaSeconds * (active ? 1.6 : 0.35);
-      }
-    });
-  }
+  updatePackageEnvironmentRealismAnimations(sceneCueEnvironmentVisuals(), deltaSeconds, nowMs);
 }
 
-function roomProp(
-  propId: string,
-  color: number,
-  accentColor: number,
-  position: { x: number; y: number; z: number },
-  scale: { x: number; y: number; z: number },
-  label: string,
-  affordanceCueIds: string[] = [`${propId}:visual_context`],
-  exclusiveMountedEquipmentIds: ReadonlySet<string> = new Set(),
-  semanticRole: string | null = null,
-): Group | null {
-  // #185: builder-backed props use station-equipment-builders (ignore scale); XOR skips duals.
-  // #223: cue/overlay props keep affordance tags without a scaled unit-box body.
-  const group = buildRoomPropGroup({
-    propId,
-    color,
-    accentColor,
-    position,
-    scale,
-    label,
-    affordanceCueIds,
-    semanticRole,
-    namePrefix: runtimeRoomPropObjectPrefix(),
-    exclusiveMountedEquipmentIds,
-    createAffordanceMarker,
-    createActorNameplate,
-    addFallbackDetailVisuals: addDetailedRoomPropVisuals,
-  });
-  if (group) environmentReactiveProps.set(propId, group);
-  return group;
-}
-
-function runtimeRoomPropObjectPrefix(): string {
+function _runtimeRoomPropObjectPrefix(): string {
   return `openclinxr.${encounterRuntimeAssetBundle.scenarioId}.room-prop`;
 }
 
@@ -4967,229 +4763,32 @@ function runtimeSceneObjectPrefix(): string {
   return `openclinxr.${encounterRuntimeAssetBundle.scenarioId}`;
 }
 
-function addDetailedRoomPropVisuals(
-  group: Group,
-  propId: string,
-  label: string,
-  scale: { x: number; y: number; z: number },
-  color: number,
-  accentColor: number,
-): void {
-  const semanticKey = `${propId} ${label}`.toLowerCase();
-  const detailCueIds: string[] = [];
-  const addDetail = (mesh: Mesh, name: string, cueId: string): void => {
-    mesh.name = `${group.name}.${name}`;
-    mesh.userData.openClinXrDetailCueId = cueId;
-    group.add(mesh);
-    detailCueIds.push(cueId);
-  };
-
-  if (semanticKey.includes("tissue") || semanticKey.includes("empathy") || semanticKey.includes("communication")) {
-    addDetail(new Mesh(
-      new BoxGeometry(0.34, 0.08, 0.18),
-      new MeshStandardMaterial({ color: 0xced9e6, roughness: 0.74 }),
-    ), "tissue-box", "manifest_prop_tissue_box_for_empathy_workflow");
-    addDetail(new Mesh(
-      new BoxGeometry(0.16, 0.018, 0.12),
-      new MeshStandardMaterial({ color: 0xf7f8f2, roughness: 0.92 }),
-    ), "raised-tissue", "manifest_prop_visible_tissue_for_emotional_disclosure");
-    group.children.at(-1)?.position.set(0, scale.y + 0.08, 0);
-  } else if (semanticKey.includes("chair") || semanticKey.includes("visitor") || semanticKey.includes("caregiver") || semanticKey.includes("objective")) {
-    const chairMaterial = new MeshStandardMaterial({ color: 0x465766, roughness: 0.82 });
-    const seat = new Mesh(new BoxGeometry(0.42, 0.08, 0.42), chairMaterial);
-    seat.position.set(0, scale.y + 0.02, 0);
-    addDetail(seat, "chair-seat", "manifest_prop_chair_seat_for_family_presence");
-    const back = new Mesh(new BoxGeometry(0.42, 0.48, 0.06), chairMaterial);
-    back.position.set(0, scale.y + 0.27, -0.2);
-    addDetail(back, "chair-back", "manifest_prop_chair_back_for_seated_actor_context");
-    for (const [index, x] of [-0.16, 0.16].entries()) {
-      for (const z of [-0.16, 0.16]) {
-        const leg = new Mesh(new CylinderGeometry(0.018, 0.018, 0.34, 8), chairMaterial);
-        leg.position.set(x, scale.y - 0.15, z);
-        addDetail(leg, `chair-leg-${index}-${z > 0 ? "front" : "back"}`, "manifest_prop_chair_leg_scale_cue");
-      }
-    }
-  } else if (semanticKey.includes("whiteboard") || semanticKey.includes("handoff") || semanticKey.includes("review")) {
-    const board = new Mesh(
-      new BoxGeometry(Math.max(scale.x * 1.8, 0.9), Math.max(scale.y * 1.2, 0.42), 0.025),
-      new MeshStandardMaterial({ color: 0xf4f8f2, roughness: 0.55 }),
-    );
-    board.position.set(0, scale.y + 0.14, -0.03);
-    addDetail(board, "whiteboard-surface", "manifest_prop_whiteboard_clinical_context_surface");
-    const markerRail = new Mesh(new BoxGeometry(0.58, 0.025, 0.035), new MeshStandardMaterial({ color: accentColor, roughness: 0.58 }));
-    markerRail.position.set(0, scale.y - 0.12, 0.015);
-    addDetail(markerRail, "marker-rail", "manifest_prop_whiteboard_marker_rail_readability_cue");
-  } else if (semanticKey.includes("door") || semanticKey.includes("sign") || semanticKey.includes("primary-context")) {
-    const plate = new Mesh(
-      new BoxGeometry(Math.max(scale.x * 1.7, 0.64), Math.max(scale.y * 0.9, 0.24), 0.035),
-      new MeshStandardMaterial({ color: 0xf5ead0, roughness: 0.68 }),
-    );
-    plate.position.set(0, scale.y + 0.08, 0);
-    addDetail(plate, "doorway-sign-plate", "manifest_prop_doorway_sign_station_orientation_cue");
-    const stripe = new Mesh(new BoxGeometry(0.58, 0.028, 0.045), new MeshStandardMaterial({ color: accentColor, roughness: 0.5 }));
-    stripe.position.set(0, scale.y + 0.22, 0.025);
-    addDetail(stripe, "doorway-sign-accent", "manifest_prop_doorway_sign_accent_cue");
-  } else if (semanticKey.includes("supply") || semanticKey.includes("cart") || semanticKey.includes("tray")) {
-    for (let shelfIndex = 0; shelfIndex < 3; shelfIndex += 1) {
-      const shelf = new Mesh(
-        new BoxGeometry(Math.max(scale.x * 1.4, 0.38), 0.035, Math.max(scale.z * 1.4, 0.28)),
-        new MeshStandardMaterial({ color: shelfIndex % 2 === 0 ? color : 0xe4e8e8, roughness: 0.72 }),
-      );
-      shelf.position.set(0, scale.y - 0.14 + shelfIndex * 0.15, 0);
-      addDetail(shelf, `cart-shelf-${shelfIndex}`, "manifest_prop_supply_cart_shelf_workflow_cue");
-    }
-  } else {
-    const accentBand = new Mesh(
-      new BoxGeometry(Math.max(scale.x * 1.08, 0.16), 0.025, Math.max(scale.z * 1.08, 0.08)),
-      new MeshStandardMaterial({ color: accentColor, roughness: 0.62 }),
-    );
-    accentBand.position.set(0, scale.y + 0.035, 0);
-    addDetail(accentBand, "semantic-accent-band", "manifest_prop_semantic_detail_accent_cue");
-  }
-
-  group.userData.openClinXrDynamicRoomPropDetailCueIds = detailCueIds;
-}
-
 function createAffordanceMarker(cueId: string, color: number): Mesh {
-  const marker = new Mesh(
-    new SphereGeometry(0.055, 16, 12),
-    new MeshBasicMaterial({ color, transparent: true, opacity: 0.82 }),
-  );
-  marker.name = `${runtimeSceneObjectPrefix()}.glb-affordance.${cueId.replaceAll(/[^a-z0-9:_-]+/gi, "-")}`;
-  marker.userData.openClinXrAffordanceCueId = cueId;
-  if (!shouldShowRuntimeAffordanceMarkers()) {
-    marker.visible = false;
-    marker.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_affordance_evidence_capture";
-  }
-  return marker;
+  return createPackageAffordanceMarker(sceneCueHumanoidCues(), cueId, color);
 }
 
 function createHumanoidSpeechMouthCue(assetId: string, _color: number): Mesh {
-  const cue = new Mesh(
-    new BoxGeometry(0.13, 0.03, 0.014),
-    new MeshBasicMaterial({ color: 0x7a3434, transparent: true, opacity: 0.58 }),
-  );
-  cue.name = `${runtimeSceneObjectPrefix()}.phoneme-mouth-cue.${assetId.replaceAll(/[^a-z0-9:_-]+/gi, "-")}`;
-  cue.position.set(0, 1.445, 0.306);
-  cue.visible = false;
-  cue.userData.openClinXrAffordances = ["phoneme_viseme_dialogue_cue", "visible_runtime_mouth_shape_cue"];
-  return cue;
+  return createPackageHumanoidSpeechMouthCue(sceneCueHumanoidCues(), assetId, _color);
 }
 
 function createHumanoidEyeGazeCue(assetId: string, color: number): Line {
-  const cue = new Line(
-    new BufferGeometry().setFromPoints([
-      new Vector3(0, 1.57, 0.29),
-      new Vector3(0, 1.57, -0.55),
-    ]),
-    new LineBasicMaterial({ color, transparent: true, opacity: 0.85 }),
-  );
-  cue.name = `${runtimeSceneObjectPrefix()}.eye-gaze-cue.${assetId.replaceAll(/[^a-z0-9:_-]+/gi, "-")}`;
-  cue.visible = false;
-  cue.userData.openClinXrAffordances = ["dialogue_gaze_target_cue"];
-  return cue;
+  return createPackageHumanoidEyeGazeCue(sceneCueHumanoidCues(), assetId, color);
 }
 
 function createHumanoidEyeFocusCue(assetId: string): Group {
-  const group = new Group();
-  group.name = `${runtimeSceneObjectPrefix()}.eye-focus-cue.${assetId.replaceAll(/[^a-z0-9:_-]+/gi, "-")}`;
-  group.position.set(0, 1.57, 0.302);
-  group.visible = false;
-  group.userData.openClinXrAffordances = ["dialogue_eye_focus_target_cue", "visible_runtime_eye_focus_cue"];
-
-  const eyeMaterial = new MeshBasicMaterial({ color: 0xf8fbff, transparent: true, opacity: 0.32 });
-  const pupilMaterial = new MeshBasicMaterial({ color: 0x07121c, transparent: true, opacity: 0.4 });
-  for (const x of [-0.045, 0.045]) {
-    const eye = new Mesh(new SphereGeometry(0.012, 12, 8), eyeMaterial);
-    eye.position.set(x, 0, 0);
-    group.add(eye);
-    const pupil = new Mesh(new SphereGeometry(0.0045, 8, 6), pupilMaterial);
-    pupil.position.set(x, 0, 0.012);
-    group.add(pupil);
-  }
-  return group;
+  return createPackageHumanoidEyeFocusCue(sceneCueHumanoidCues(), assetId);
 }
 
 function createHumanoidExpressionCue(assetId: string): Group {
-  const safeAssetId = assetId.replaceAll(/[^a-z0-9:_-]+/gi, "-");
-  const group = new Group();
-  group.name = `${runtimeSceneObjectPrefix()}.runtime-expression-cue.${safeAssetId}`;
-  group.userData.openClinXrAffordances = [
-    "scenario_emotion_expression_cue",
-    "visible_runtime_eyebrow_jaw_cheek_cue",
-  ];
-
-  const browMaterial = new MeshBasicMaterial({ color: 0x26150d, transparent: true, opacity: 0.28 });
-  for (const [name, x, rotation] of [["left", -0.068, -0.18], ["right", 0.068, 0.18]] as const) {
-    const brow = new Mesh(new BoxGeometry(0.055, 0.006, 0.008), browMaterial);
-    brow.name = `${runtimeSceneObjectPrefix()}.${name}-expressive-brow.${safeAssetId}`;
-    brow.position.set(x, 1.625, 0.303);
-    brow.rotation.z = rotation;
-    group.add(brow);
-  }
-
-  const cheekMaterial = new MeshBasicMaterial({ color: 0xd8a07a, transparent: true, opacity: 0.18 });
-  for (const x of [-0.115, 0.115]) {
-    const cheek = new Mesh(new SphereGeometry(0.022, 10, 6), cheekMaterial);
-    cheek.name = `${runtimeSceneObjectPrefix()}.emotion-cheek.${safeAssetId}`;
-    cheek.position.set(x, 1.49, 0.297);
-    cheek.scale.set(1.35, 0.65, 0.18);
-    group.add(cheek);
-  }
-
-  const jaw = new Mesh(new BoxGeometry(0.095, 0.012, 0.010), new MeshBasicMaterial({ color: 0x7a3434, transparent: true, opacity: 0.24 }));
-  jaw.name = `${runtimeSceneObjectPrefix()}.runtime-jaw-viseme-target.${safeAssetId}`;
-  jaw.position.set(0, 1.405, 0.305);
-  group.add(jaw);
-  return group;
+  return createPackageHumanoidExpressionCue(sceneCueHumanoidCues(), assetId);
 }
 
 function createRuntimeHumanoidDetailCues(assetId: string): Group {
-  const safeAssetId = assetId.replaceAll(/[^a-z0-9:_-]+/gi, "-");
-  const group = new Group();
-  group.name = `${runtimeSceneObjectPrefix()}.generated-humanoid-detail-cues.${safeAssetId}`;
-  group.userData.openClinXrAffordances = [
-    "generated_humanoid_hair_clothing_eye_detail_cue",
-    "generated_humanoid_asset_surface_detail_preferred",
-  ];
-  group.userData.openClinXrRuntimeDetailPolicy = {
-    mode: "asset_surface_features_only_no_runtime_proxy_overlay",
-    reason: "Local real Anny source + Blender procedural candidate GLB carries source topology plus surface hair, clothing, eye, brow, and lip geometry; runtime overlays must not obscure the generated humanoid.",
-    notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
-  };
-  return group;
+  return createPackageRuntimeHumanoidDetailCues(sceneCueHumanoidCues(), assetId);
 }
 
 function createHumanoidInteractionCollisionCues(assetId: string): Group {
-  const safeAssetId = assetId.replaceAll(/[^a-z0-9:_-]+/gi, "-");
-  const group = new Group();
-  group.name = `${runtimeSceneObjectPrefix()}.humanoid-interaction-collision.${safeAssetId}`;
-  group.userData.openClinXrAffordances = [
-    "face_lip_eye_rig_contract_cue",
-    "ragdoll_collision_proxy_cue",
-    "physician_interaction_target_cue",
-  ];
-
-  const collisionProxy = new Mesh(
-    new BoxGeometry(0.56, 1.56, 0.34),
-    new MeshBasicMaterial({ color: 0x58f5c6, transparent: true, opacity: 0.08, wireframe: true }),
-  );
-  collisionProxy.name = `${runtimeSceneObjectPrefix()}.ragdoll-collision-proxy.${safeAssetId}`;
-  collisionProxy.position.set(0, 0.94, 0);
-  collisionProxy.userData.openClinXrRagdollCollisionProxy = "local_interaction_volume_not_physics_claim";
-
-  const interactionTarget = new Mesh(
-    new BoxGeometry(0.46, 0.84, 0.035),
-    new MeshBasicMaterial({ color: 0xf4d35e, transparent: true, opacity: 0.035, wireframe: true }),
-  );
-  interactionTarget.name = `${runtimeSceneObjectPrefix()}.physician-interaction-target.${safeAssetId}`;
-  interactionTarget.position.set(0, 1.08, -0.22);
-  interactionTarget.userData.openClinXrPhysicianInteractionTarget = "local_ray_or_hand_overlap_target";
-
-  group.add(collisionProxy, interactionTarget);
-  group.visible = false;
-  group.userData.openClinXrRuntimeVisibilityPolicy = "hidden_by_default_semantic_collision_contract_only";
-  return group;
+  return createPackageHumanoidInteractionCollisionCues(sceneCueHumanoidCues(), assetId);
 }
 
 // ---------------------------------------------------------------------------
@@ -7185,75 +6784,17 @@ function tintGeneratedMaterial(material: Mesh["material"], tint: Color): Mesh["m
 }
 
 function addPediatricRespiratoryEquipmentCues(slot: Group, equipmentId: string): void {
-  if (!isPediatricAsthmaRuntimeScenario()) return;
-  const key = equipmentId.toLowerCase();
-  const addCue = (mesh: Mesh, cueId: string, localPosition: { x: number; y: number; z: number }, rotationZ = 0): void => {
-    mesh.name = `${runtimeSceneObjectPrefix()}.equipment-cue.${cueId}`;
-    mesh.position.set(localPosition.x, localPosition.y, localPosition.z);
-    mesh.rotation.z = rotationZ;
-    slot.add(mesh);
-    recordPediatricRespiratoryEquipmentCue(equipmentId, cueId, mesh.name);
-  };
-  if (/nebulizer|mask/u.test(key)) {
-    addCue(
-      new Mesh(new BoxGeometry(0.22, 0.12, 0.035), new MeshStandardMaterial({ color: 0xe8f4fb, roughness: 0.5, transparent: true, opacity: 0.82 })),
-      "pediatric_nebulizer_mask_readability_cue",
-      { x: 0, y: 1.02, z: -0.24 },
-    );
-    addCue(
-      new Mesh(new CylinderGeometry(0.01, 0.01, 0.76, 8), new MeshStandardMaterial({ color: 0xd9efff, roughness: 0.46, transparent: true, opacity: 0.82 })),
-      "pediatric_nebulizer_tubing_line_cue",
-      { x: -0.22, y: 0.72, z: -0.16 },
-      0.94,
-    );
-  }
-  if (/oxygen|wall_port/u.test(key)) {
-    addCue(
-      new Mesh(new CylinderGeometry(0.05, 0.05, 0.045, 18), new MeshStandardMaterial({ color: 0x92d3f5, roughness: 0.42 })),
-      "oxygen_wall_port_round_connector_cue",
-      { x: 0.16, y: 1.08, z: -0.18 },
-    );
-    addCue(
-      new Mesh(new CylinderGeometry(0.008, 0.008, 0.9, 8), new MeshStandardMaterial({ color: 0xdaf1ff, roughness: 0.44, transparent: true, opacity: 0.78 })),
-      "oxygen_tubing_clear_line_cue",
-      { x: -0.16, y: 0.72, z: -0.2 },
-      -0.72,
-    );
-  }
-  if (/pulse_ox|oximeter|monitor/u.test(key)) {
-    addCue(
-      new Mesh(new BoxGeometry(0.12, 0.045, 0.08), new MeshStandardMaterial({ color: 0x1f2937, roughness: 0.6 })),
-      "pulse_ox_finger_clip_readability_cue",
-      { x: -0.18, y: 0.82, z: -0.2 },
-    );
-    addCue(
-      new Mesh(new BoxGeometry(0.18, 0.08, 0.02), new MeshBasicMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.72 })),
-      "pulse_ox_spo2_screen_91_cue",
-      { x: 0.06, y: 1.08, z: -0.205 },
-    );
-  }
-  if (/stretcher|bed/u.test(key)) {
-    addCue(
-      new Mesh(new BoxGeometry(0.72, 0.035, 0.03), new MeshStandardMaterial({ color: 0x9fb4c7, roughness: 0.68, transparent: true, opacity: 0.5 })),
-      "low_translucent_pediatric_bed_rail_cue",
-      { x: 0, y: 0.82, z: -0.24 },
-    );
-  }
+  addPackagePediatricRespiratoryEquipmentCues(
+    sceneCuePediatricEquipment(),
+    (childEquipmentId: string, cueId: string, sceneObjectName: string) =>
+      recordPediatricRespiratoryEquipmentCue(childEquipmentId, cueId, sceneObjectName),
+    slot,
+    equipmentId,
+  );
 }
 
 function recordPediatricRespiratoryEquipmentCue(equipmentId: string, cueId: string, sceneObjectName: string): void {
-  const existing = window.__openClinXrPediatricRespiratoryEquipmentCueEvidence;
-  const cues = existing?.cues ?? [];
-  if (!cues.some((cue) => cue.equipmentId === equipmentId && cue.cueId === cueId && cue.sceneObjectName === sceneObjectName)) {
-    cues.push({ equipmentId, cueId, sceneObjectName });
-  }
-  window.__openClinXrPediatricRespiratoryEquipmentCueEvidence = {
-    source: "window.__openClinXrPediatricRespiratoryEquipmentCueEvidence",
-    scenarioId: encounterRuntimeAssetBundle.scenarioId,
-    cueCount: cues.length,
-    cues,
-    notEvidenceFor: ["quest_readiness", "clinical_validity", "scoring_validity", "production_readiness", "equipment_asset_readiness"],
-  };
+  recordPackagePediatricRespiratoryEquipmentCue(sceneCuePediatricEvidence(), equipmentId, cueId, sceneObjectName);
 }
 
 function resolveEmulatorRuntimeAssetUrl(asset: EncounterRuntimeAsset): string {

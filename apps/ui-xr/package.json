@@ -23,6 +23,7 @@
     "@openclinxr/xr-pose": "workspace:*",
     "three": "catalog:",
     "@openclinxr/xr-scene": "workspace:*",
+    "@openclinxr/xr-scene-cues": "workspace:*",
     "@openclinxr/xr-capture-evidence": "workspace:*",
     "@openclinxr/xr-humanoid-animation": "workspace:*",
     "@openclinxr/xr-locomotion": "workspace:*",

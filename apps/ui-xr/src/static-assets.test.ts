@@ -1,8 +1,9 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
+import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
 import { describe, expect, it } from "vitest";
 import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
+
 /**
  * #710: the speech-affect / actor-realism HUD formatting moved out of main.ts (shrink-only
  * freeze) into speech-hud-formatting.ts; the strings below still render through the imported
@@ -245,7 +246,16 @@ describe("static browser assets", () => {
   });
 
   it("renders clinical text and controller affordances inside the immersive scene", () => {
-    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    // Scene-cue panels live in @openclinxr/xr-scene-cues (shrink extract); the fence follows the code.
+    const mainSource = [
+      readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/scene-panels.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/nameplates.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/room-props.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/humanoid-cues.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/trace-visuals.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/cue-evidence.ts", import.meta.url), "utf8"),
+    ].join("\n");
 
     expect(mainSource).toContain("CanvasTexture");
     expect(mainSource).toContain("createReadableVrTextPanel");
@@ -274,7 +284,11 @@ describe("static browser assets", () => {
   });
 
   it("raises and offsets in-scene text panels for clearer desktop visual QA", () => {
-    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    // Clinical panel geometry moved to @openclinxr/xr-scene-cues scene-panels.ts (shrink extract).
+    const mainSource = [
+      readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/scene-panels.ts", import.meta.url), "utf8"),
+    ].join("\n");
 
     expect(mainSource).toContain("clockMesh.position.set(0.9, 3.35, -1.2)");
     expect(mainSource).toContain("panel.mesh.position.set(-1.55, 2.62, -1.42)");
@@ -303,6 +317,12 @@ describe("static browser assets", () => {
       readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/locomotion.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/portal-trail.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/role-posture.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/scene-panels.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/nameplates.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/room-props.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/humanoid-cues.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/trace-visuals.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/cue-evidence.ts", import.meta.url), "utf8"),
     ].join("\n");
     const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
@@ -709,6 +729,12 @@ describe("static browser assets", () => {
       readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/speech-evidence.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/face-rig.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-humanoid-animation/src/gaze-evidence.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/scene-panels.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/nameplates.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/room-props.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/humanoid-cues.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/trace-visuals.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/cue-evidence.ts", import.meta.url), "utf8"),
     ].join("\n");
     const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
@@ -717,6 +743,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("iwsdkStationSceneObjects.ecgCart");
     expect(mainSource).toContain("iwsdkStationSceneObjects.ivPoleWithPump");
     // #140 — slots named by equipmentId; ED bay still uses IWSDK names for ECG/IV GLBs.
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: the ${} is the SUBJECT — this
+    // asserts main.ts contains that template literal, so interpolating here would break it.
     expect(mainSource).toContain("generated-equipment-slot.${item.equipmentId}");
     expect(mainSource).toContain("loadGeneratedEquipmentIntoSceneSlot(slot");
     expect(mainSource).toContain("ecg-cart-12-lead.glb");
@@ -863,7 +891,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("actorNameplateLabel(patientPlacement.labelPrefix, runtimePatientActorId())");
     expect(mainSource).toContain("actorNameplateLabel(nursePlacement.labelPrefix, runtimeClinicalTeamActorId())");
     expect(mainSource).toContain("actorNameplateLabel(spousePlacement.labelPrefix, runtimeFamilyActorId())");
-    expect(mainSource).toContain("runtimeSceneObjectPrefix()}.actor-nameplate");
+    // Nameplate naming lives in @openclinxr/xr-scene-cues nameplates.ts (shrink extract).
+    expect(mainSource).toContain('.actor-nameplate.');
     // #140 — equipment labels come from plan items / equipmentDisplayLabel, not hardcoded ED assets.
     expect(mainSource).toContain("createActorNameplate(item.label");
     expect(mainSource).toContain("__openClinXrDeclaredEquipmentMountEvidence");
@@ -1156,7 +1185,11 @@ describe("static browser assets", () => {
   });
 
   it("normalizes generated runtime placements before applying them to Three.js transforms", () => {
-    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    // Room-prop normalization moved to @openclinxr/xr-scene-cues room-props.ts (shrink extract).
+    const mainSource = [
+      readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/room-props.ts", import.meta.url), "utf8"),
+    ].join("\n");
 
     expect(mainSource).toContain("function hasVector3");
     expect(mainSource).toContain("typeof vector.x === \"number\"");
@@ -1193,7 +1226,11 @@ describe("static browser assets", () => {
   });
 
   it("surfaces selected runtime bundle manifest evidence in the headset clinical panel", () => {
-    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    // Clinical panel lines moved to @openclinxr/xr-scene-cues scene-panels.ts (shrink extract).
+    const mainSource = [
+      readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/scene-panels.ts", import.meta.url), "utf8"),
+    ].join("\n");
     const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
     expect(mainSource).toContain("Bundle scenario:");
@@ -1223,6 +1260,12 @@ describe("static browser assets", () => {
       readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/portal-trail.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/locomotion.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-locomotion/src/role-posture.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/scene-panels.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/nameplates.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/room-props.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/humanoid-cues.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/trace-visuals.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-scene-cues/src/cue-evidence.ts", import.meta.url), "utf8"),
     ].join("\n");
 
     expect(mainSource).toContain("scenarioDoorwayVisualTheme");
@@ -1263,7 +1306,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("room_prop_rendered_from_active_encounter_scene_manifest_not_hardcoded_shared_world");
     expect(mainSource).toContain("case_definition_driven_patient_pose_not_chest_pain_default");
     expect(mainSource).toContain("openClinXrScenarioDerivedPosture");
-    expect(mainSource).toContain("shouldRenderRoomPropInVisualReview(prop)");
+    // Room-prop filter call lives behind the sceneCueRoomProps context (shrink extract).
+    expect(mainSource).toContain("shouldRenderRoomProp");
     expect(mainSource).toContain("primitive_actor_restored_when_generated_humanoid_asset_unavailable_to_avoid_empty_encounter_scene");
     expect(mainSource).toContain("case_definition_driven_role_pose_applied_to_fallback_actor");
     expect(mainSource).toContain("ed_chest_pain_priority_v1");
