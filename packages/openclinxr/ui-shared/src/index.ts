@@ -25,6 +25,9 @@ export {
   clampedScoreFromWorkbenchInput,
   capabilityTagColor,
 } from "./admin-workbench-format.js";
+export { ActorTurnReplayPanel, type ActorTurnReplayPanelProps } from "./actor-turn-replay-panel.js";
+export { EmissionReplayBindPanel, type EmissionReplayBindPanelProps } from "./emission-replay-bind-panel.js";
+export { FacultyDispositionPanel, type FacultyDispositionPanelProps } from "./faculty-disposition-panel.js";
 export type {
   AdminNoReadinessEvidenceClaim,
   AdminRuntimeProviderPlaneReadiness,
