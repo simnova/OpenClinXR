@@ -212,6 +212,9 @@ importers:
       '@openclinxr/voice-gateway':
         specifier: workspace:*
         version: link:../../packages/openclinxr/voice-gateway
+      '@openclinxr/xr-scene':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/xr-scene
       hono:
         specifier: 4.12.33
         version: 4.12.33

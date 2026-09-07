@@ -297,24 +297,16 @@ export type LearnerScenarioResolver = (input: {
 }>;
 
 /**
- * Load the REAL `resolveLearnerExamScenarios` from apps/ui-xr at runtime. The specifier is
- * constructed so apps/ui-xr source never enters this app's static typecheck program, while the
- * resolver itself is the same module the #165/#167 evidence harnesses call statically from tools/.
+ * Load the REAL `resolveLearnerExamScenarios`. It used to live in apps/ui-xr and was reached
+ * through a specifier built from an array so that app's source never entered this app's static
+ * typecheck program. The xr-scene extraction moved the module into a package, and because the
+ * specifier was non-static neither tsgo nor knip noticed — the api suite failed at runtime with
+ * "Cannot find module". A package import is static, so the next move of this module breaks the
+ * build instead of the tests.
  */
 export async function loadLearnerScenarioResolver(): Promise<LearnerScenarioResolver> {
-  // Absolute file URL from THIS module's location — a relative specifier is resolved against the
-  // vite-node runtime (filesystem root under `vitest --root .`), not this module, so it must be
-  // made absolute here.
-  const moduleSpecifier = new URL(
-    ["..", "..", "ui-xr", "src", "learner-exam-scenario-source.js"].join("/"),
-    import.meta.url,
-  );
-  const mod = (await import(/* @vite-ignore */ moduleSpecifier.href)) as Record<string, unknown>;
-  const resolve = mod["resolveLearnerExamScenarios"];
-  if (typeof resolve !== "function") {
-    throw new Error("real resolveLearnerExamScenarios not found in apps/ui-xr source");
-  }
-  return resolve as LearnerScenarioResolver;
+  const { resolveLearnerExamScenarios } = await import("@openclinxr/xr-scene");
+  return resolveLearnerExamScenarios as LearnerScenarioResolver;
 }
 
 export function findBankFixture(scenarioId: string): Scenario {

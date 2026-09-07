@@ -36,6 +36,7 @@
     "@openclinxr/shared-schemas": "workspace:*",
     "@openclinxr/telemetry": "workspace:*",
     "@openclinxr/voice-gateway": "workspace:*",
+    "@openclinxr/xr-scene": "workspace:*",
     "hono": "4.12.33",
     "tsx": "catalog:"
   },

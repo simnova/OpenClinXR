@@ -93,6 +93,33 @@ describe("the factory does not import the apps it feeds", () => {
     expect(padded).toEqual([]);
   });
 
+  it("(7) an app importing a DIFFERENT app is reported; its own files are not", () => {
+    // Added 2026-09-06. apps/api/src/scenario-promotion-io.ts reached apps/ui-xr through a
+    // specifier assembled from an array, so when the xr-scene extraction moved that module
+    // neither tsgo nor knip saw the break and the api suite failed at runtime. The scan now
+    // covers apps/api and apps/ui-admin, and an app's imports of its OWN files are ordinary.
+    const cross = detectFactoryAppImportInversions({
+      freeze: {},
+      sources: [{ file: "apps/api/src/planted.ts", text: 'import { x } from "../../ui-xr/src/thing.js";' }],
+    });
+    expect(cross).toHaveLength(1);
+
+    const intra = detectFactoryAppImportInversions({
+      freeze: {},
+      sources: [{ file: "apps/api/src/planted.ts", text: 'import { x } from "./sibling.js";' }],
+    });
+    expect(intra).toEqual([]);
+
+    const scoped = detectFactoryAppImportInversions({
+      freeze: {},
+      sources: [{ file: "apps/api/src/planted.ts", text: 'import { x } from "@openclinxr/ui-xr";' }],
+    });
+    expect(scoped).toHaveLength(1);
+
+    expect(FACTORY_SCAN_ROOTS).toContain("apps/api");
+    expect(FACTORY_SCAN_ROOTS).toContain("apps/ui-admin");
+  });
+
   it("(6) COUNTERWEIGHT: a scanned file with no app import is not reported", async () => {
     const { detectFactoryAppImportInversions } = await check();
     const found = detectFactoryAppImportInversions({

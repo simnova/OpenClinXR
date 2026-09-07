@@ -33,6 +33,14 @@ export const FACTORY_SCAN_ROOTS: readonly string[] = [
   "packages",
   "tools/openclinxr/dark-factory",
   "tools/openclinxr/factory",
+  // The apps themselves, so one app cannot import another. Added 2026-09-06 after
+  // apps/api/src/scenario-promotion-io.ts was found importing apps/ui-xr through a
+  // specifier assembled from an array: the xr-scene extraction moved that module and
+  // neither tsgo nor knip could see the break, so the api suite failed at runtime.
+  // apps/ui-xr is deliberately absent: it is the app the others feed, and nothing in
+  // this repo has it importing a sibling app.
+  "apps/api",
+  "apps/ui-admin",
 ] as const;
 
 // ── Default brownfield freeze list ───────────────────────────────────────────
@@ -106,13 +114,27 @@ function specifiersIn(text: string): string[] {
   return out;
 }
 
+/** "apps/<name>" for a path inside an app, otherwise undefined. */
+function appRootOf(path: string): string | undefined {
+  const parts = path.split("/");
+  return parts[0] === "apps" && parts[1] !== undefined ? `apps/${parts[1]}` : undefined;
+}
+
 function specifierResolvesIntoApps(file: string, specifier: string): boolean {
   if (specifier.startsWith(".")) {
     const resolved = posix.normalize(posix.join(posix.dirname(file), specifier));
-    return resolved === "apps" || resolved.startsWith("apps/");
+    const target = appRootOf(resolved);
+    if (target === undefined) return false;
+    // An app importing its OWN files is ordinary. Only a reach into a DIFFERENT app is
+    // the inversion: that is what apps/api/src/scenario-promotion-io.ts was doing to
+    // apps/ui-xr, through a specifier assembled from an array so no static check saw it.
+    return target !== appRootOf(file);
   }
-  if (specifier === "apps" || specifier.startsWith("apps/")) return true;
-  return APP_UI_SCOPED_PATTERN.test(specifier);
+  if (specifier === "apps" || specifier.startsWith("apps/")) {
+    const target = appRootOf(posix.normalize(specifier));
+    return target === undefined || target !== appRootOf(file);
+  }
+  return APP_UI_SCOPED_PATTERN.test(specifier) && !specifier.startsWith(`@openclinxr/${(appRootOf(file) ?? "").slice("apps/".length)}`);
 }
 
 // ── Public check functions (pure — no vitest) ────────────────────────────────

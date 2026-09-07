@@ -44,7 +44,7 @@ export const COMPOSITION_ROOT_APP_BUDGETS: readonly CompositionRootAppBudget[] =
   {
     app: "apps/api",
     maxFiles: 11,
-    maxLines: 2541,
+    maxLines: 2533,
     reason:
       "frozen at the 2026-09-06 measurement; ratchet toward CellixJs apps/api (15 files / 686 lines, registers infrastructure services and sets context, nothing else)",
   },
