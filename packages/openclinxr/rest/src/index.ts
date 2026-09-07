@@ -287,7 +287,50 @@ export {
 export { createOpenClinXrApiProtocolPosture } from "./protocol-support.js";
 export type { OpenClinXrApiProtocolPosture, OpenClinXrApiProtocolSupport } from "./protocol-support.js";
 export { isRecord, reviewStatesFromRecord } from "./promotion-io-validation.js";
+export {
+  BLUEPRINT_ID as PROMOTION_BLUEPRINT_ID,
+  IN_PROCESS_ORIGIN as PROMOTION_IN_PROCESS_ORIGIN,
+  REVIEW_GATES as PROMOTION_REVIEW_GATES,
+  createAuthoredMemorySink,
+  createInProcessDispatcher,
+  findBankFixture,
+  readAuthoredGateState,
+  readQueueItem,
+  readReadiness,
+  requestApp,
+  submitReviewDecision,
+} from "./scenario-promotion-io.js";
+export type {
+  ApiFetchCall,
+  ApiFetchDispatcher,
+  AuthoredMemorySink,
+  HonoLikeApp,
+  LearnerScenarioResolver,
+  LearnerScenarioResolverLoader,
+  PromotionHarnessContext,
+  QueueItemRead,
+  ScenarioGateState,
+} from "./scenario-promotion-io.js";
+export type { PromotionPathContext } from "./scenario-promotion-path.js";
+export {
+  CONTROL_SCENARIO_ID,
+  PROMOTED_SCENARIO_ID,
+  inspectScenarioPromotionPath,
+  inspectStageZeroStaysBlocking,
+} from "./scenario-promotion-path.js";
+export type { PromotionHop, PromotionPathRun, StageZeroStuckRun } from "./scenario-promotion-path.js";
+export {
+  PRE_FIX_ARTIFACT_RELATIVE_PATH,
+  measureBankBaseline,
+  writePreFixArtifact,
+} from "./scenario-promotion-baseline.js";
+export type { BankBaseline, BaselineContext, BaselineScenarioRow } from "./scenario-promotion-baseline.js";
 export { registerAdminGraphqlRoutes } from "./routes/admin-graphql-routes.js";
+export { registerFacultyCompileLockRoutes } from "./routes/faculty-compile-lock-routes.js";
+export { registerFactoryRunTableRoutes, FACTORY_RUN_ROLLUP_REL } from "./routes/factory-run-table-routes.js";
+export type { FactoryRunTableContext } from "./routes/factory-run-table-routes.js";
+export { registerWorldCompileRoutes, resolvePriorEvidencePathForScenario } from "./routes/world-compile-routes.js";
+export type { WorldCompileContext } from "./routes/world-compile-routes.js";
 export { registerAssembledExamDispositionRoutes } from "./routes/assembled-exam-disposition-routes.js";
 export { registerAssembledExamReviewRoutes } from "./routes/assembled-exam-review-routes.js";
 export { registerAssembledExamRunRoutes } from "./routes/assembled-exam-run-routes.js";
@@ -301,7 +344,6 @@ export {
 } from "./routes/encounter-bundle-promotion/index.js";
 export { registerEncounterSessionRoutes } from "./routes/encounter-session-routes.js";
 export { registerExamRoutes } from "./routes/exam-routes.js";
-export { registerFacultyCompileLockRoutes } from "./routes/faculty-compile-lock-routes.js";
 export { registerPlatformRoutes } from "./routes/platform-routes.js";
 export { registerReviewRoutes } from "./routes/review-routes.js";
 export { registerRuntimeEvidenceRoutes } from "./routes/runtime-evidence-routes.js";

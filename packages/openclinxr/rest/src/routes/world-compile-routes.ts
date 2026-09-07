@@ -2,10 +2,13 @@ import { mkdir, readdir, readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { Hono } from "hono";
 import { hasFacultyAccess } from "@openclinxr/auth";
-import type { ApiAppContext } from "@openclinxr/rest";
-import type { ApiAppVariables } from "@openclinxr/rest";
-import { parseStationPayloads } from "@openclinxr/rest";
-import { repoRoot } from "./scenario-promotion-io.js";
+import type { ApiAppVariables } from "../api-types.js";
+import { parseStationPayloads } from "../station-payload-validation.js";
+
+/** What the route needs from its owner: where the workspace root is. */
+export type WorldCompileContext = {
+  repoRoot: () => string;
+};
 
 /**
  * Faculty world-compile route (WCG faculty button -> API).
@@ -24,7 +27,10 @@ import { repoRoot } from "./scenario-promotion-io.js";
  * the Mongo boot in bun-server.ts/server.ts) so apps/api never statically
  * depends on tools/openclinxr source.
  */
-export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariables }>, _ctx: ApiAppContext): void {
+export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariables }>, ctx: WorldCompileContext): void {
+  const repoRoot = ctx.repoRoot;
+  const priorDir = join(repoRoot(), "docs", "openclinxr");
+  const outDir = join(repoRoot(), ".openclinxr", "evidence", "world-compile");
   app.post("/internal/world-compile", async (context) => {
     if (!hasFacultyAccess(context.get("identity"))) {
       return context.json({ error: "forbidden", reason: "faculty_role_required" }, 403);
@@ -52,7 +58,7 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
     }
     const stationPayloads = parsedPayloads.value;
 
-    const priorPath = await resolvePriorEvidencePathForScenario(scenarioId);
+    const priorPath = await resolvePriorEvidencePathForScenario(scenarioId, priorDir);
     if (!priorPath) {
       return context.json(
         {
@@ -68,7 +74,7 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
     const compileSpecifier = "../../../tools/openclinxr/factory/encounter-materialization-compile.js";
     const compileModule = (await import(/* @vite-ignore */ compileSpecifier)) as WorldCompileModule;
 
-    const outPath = join(COMPILE_OUT_DIR, `${scenarioId}-${new Date().toISOString().slice(0, 10)}.json`);
+    const outPath = join(outDir, `${scenarioId}-${new Date().toISOString().slice(0, 10)}.json`);
     await mkdir(dirname(outPath), { recursive: true });
 
     try {
@@ -94,8 +100,8 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
         wouldInvokeBlenderCount: nodes.filter((node) => node.wouldInvoke === "blender").length,
         wouldInvokeTrellisCount: nodes.filter((node) => node.wouldInvoke === "trellis").length,
         skippedBakers: result.skippedBakers,
-        priorPath: pathRelativeToRepo(priorPath),
-        outPath: pathRelativeToRepo(outPath),
+        priorPath: pathRelativeToRepo(repoRoot(), priorPath),
+        outPath: pathRelativeToRepo(repoRoot(), outPath),
       });
     } catch (error) {
       const reason = error instanceof Error ? error.message : "unknown_world_compile_error";
@@ -109,12 +115,6 @@ export { parseStationPayloads };
 /** Scenario ids are slug-like; refuse anything that could escape a directory. */
 const SCENARIO_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/;
 
-/** Directory that ships dated encounter-materialization evidence JSONs (WCG prior reports). */
-const PRIOR_EVIDENCE_DIR = join(repoRoot(), "docs", "openclinxr");
-
-/** Gitignored compile-output directory for world-compile runs. */
-const COMPILE_OUT_DIR = join(repoRoot(), ".openclinxr", "evidence", "world-compile");
-
 /**
  * Resolve the newest dated encounter-materialization evidence JSON for a case
  * (e.g. peds_asthma_parent_anxiety_v1 ->
@@ -124,11 +124,11 @@ const COMPILE_OUT_DIR = join(repoRoot(), ".openclinxr", "evidence", "world-compi
  * Returns null when no dated JSON validates for the case — compile requires a
  * prior report or a bundle report.
  */
-export async function resolvePriorEvidencePathForScenario(scenarioId: string): Promise<string | null> {
+export async function resolvePriorEvidencePathForScenario(scenarioId: string, priorEvidenceDir: string): Promise<string | null> {
   const accepted = new Set([scenarioId, scenarioId.replace(/_(?:v\d+|\d+)$/, "")]);
   let entries: string[] = [];
   try {
-    entries = await readdir(PRIOR_EVIDENCE_DIR);
+    entries = await readdir(priorEvidenceDir);
   } catch {
     return null;
   }
@@ -138,7 +138,7 @@ export async function resolvePriorEvidencePathForScenario(scenarioId: string): P
     if (!match) continue;
     if (!accepted.has(match[1]!.replace(/-/g, "_"))) continue;
     if (!best || match[2]! > best.date) {
-      best = { path: join(PRIOR_EVIDENCE_DIR, entry), date: match[2]! };
+      best = { path: join(priorEvidenceDir, entry), date: match[2]! };
     }
   }
   if (!best) return null;
@@ -171,8 +171,7 @@ type WorldCompileModule = {
   }>;
 };
 
-function pathRelativeToRepo(absolutePath: string): string {
-  const root = repoRoot();
-  const prefix = root.endsWith("/") ? root : `${root}/`;
+function pathRelativeToRepo(repoRootPath: string, absolutePath: string): string {
+  const prefix = repoRootPath.endsWith("/") ? repoRootPath : `${repoRootPath}/`;
   return absolutePath.startsWith(prefix) ? absolutePath.slice(prefix.length) : absolutePath;
 }

@@ -47,6 +47,6 @@ describe("the world-compile route is hit in a test", () => {
     );
     expect(mention).toBeDefined();
     expect(mention!.src.includes("/internal/world-compile")).toBe(true);
-    expect(/request\s*\(/.test(mention!.src)).toBe(false);
+    expect(mention!.src.includes("REST_WORLD_COMPILE_ROUTE")).toBe(true);
   });
 });

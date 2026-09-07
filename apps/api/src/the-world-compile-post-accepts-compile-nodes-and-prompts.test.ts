@@ -24,7 +24,11 @@ import { describe, expect, it } from "vitest";
  */
 
 const API_SRC = dirname(fileURLToPath(import.meta.url));
-const ROUTE = readFileSync(join(API_SRC, "world-compile-routes.ts"), "utf8");
+const REST_WORLD_COMPILE_ROUTE = join(
+  API_SRC,
+  "../../../packages/openclinxr/rest/src/routes/world-compile-routes.ts",
+);
+const ROUTE = readFileSync(REST_WORLD_COMPILE_ROUTE, "utf8");
 const CLIENT = readFileSync(join(API_SRC, "../../ui-admin/src/compile-encounter-world.ts"), "utf8");
 
 describe("the world-compile POST accepts compileNodes and infinigenPrompt", () => {

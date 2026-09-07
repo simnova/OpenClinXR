@@ -173,13 +173,13 @@ import { registerRuntimeEvidenceRoutes } from "@openclinxr/rest";
 import { registerAdminGraphqlRoutes } from "@openclinxr/rest";
 import { registerScenarioSceneGenerationRoutes } from "@openclinxr/rest";
 import { registerFacultyCompileLockRoutes } from "@openclinxr/rest";
-import { repoRoot } from "./scenario-promotion-io.js";
+import { createApiAppHarnessBridge } from "./scenario-promotion-bridge.js";
 import { registerAssembledExamReviewRoutes } from "@openclinxr/rest";
 import { registerAssembledExamDispositionRoutes } from "@openclinxr/rest";
 import { registerAssembledExamRunRoutes } from "@openclinxr/rest";
 import { registerEncounterBundlePromotionRoutes } from "@openclinxr/rest";
-import { registerWorldCompileRoutes } from "./world-compile-routes.js";
-import { registerFactoryRunTableRoutes } from "./factory-run-table-routes.js";
+import { registerWorldCompileRoutes } from "@openclinxr/rest";
+import { registerFactoryRunTableRoutes } from "@openclinxr/rest";
 
 
 
@@ -206,6 +206,7 @@ export function createApiApp(
 
 /** Route registration surface — one line per domain (routes still inline here are mid-migration). */
 function registerAllRoutes(app: ApiApp, ctx: ApiAppContext): void {
+  const bridge = createApiAppHarnessBridge();
   const {
     runtime,
     persistence,
@@ -236,13 +237,13 @@ function registerAllRoutes(app: ApiApp, ctx: ApiAppContext): void {
   registerSessionRoutes(app, ctx);
   registerEncounterSessionRoutes(app, ctx);
   registerReviewRoutes(app, ctx);
-  registerFacultyCompileLockRoutes(app, ctx, repoRoot);
+  registerFacultyCompileLockRoutes(app, ctx, bridge.repoRoot);
   registerAssembledExamReviewRoutes(app, ctx);
   registerAssembledExamDispositionRoutes(app, ctx);
   registerAssembledExamRunRoutes(app, ctx);
   registerEncounterBundlePromotionRoutes(app, ctx);
-  registerWorldCompileRoutes(app, ctx);
-  registerFactoryRunTableRoutes(app, ctx);
+  registerWorldCompileRoutes(app, bridge);
+  registerFactoryRunTableRoutes(app, bridge);
 }
 
 

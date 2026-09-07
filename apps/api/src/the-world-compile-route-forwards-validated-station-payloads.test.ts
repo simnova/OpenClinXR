@@ -102,7 +102,7 @@ describe("the world-compile route forwards validated station payloads", () => {
     const { dirname, join } = await import("node:path");
     const { fileURLToPath } = await import("node:url");
     const route = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "world-compile-routes.ts"),
+      join(dirname(fileURLToPath(import.meta.url)), "../../../packages/openclinxr/rest/src/routes/world-compile-routes.ts"),
       "utf8",
     );
     expect(route).toMatch(/stationPayloads\s*\?\s*\{\s*stationPayloads\s*\}\s*:/);

@@ -1,35 +1,32 @@
 /**
- * #166 — in-process harness plumbing (sink, fetch adapter, route readers, resolver loader).
+ * Scenario promotion harness IO (moved from apps/api composition root).
  *
- * Shared by `scenario-promotion-path.ts` (the promotion drive) and
- * `scenario-promotion-baseline.ts` (the pre-fix measurement). Same in-process shape as the
- * #165/#167 evidence harnesses: real `createApiApp()` + `app.request` fetch adapter + the REAL
- * `resolveLearnerExamScenarios`. Zero Vite, zero browser, zero ports.
- *
- * The learner resolver is loaded at runtime via an absolute file URL constructed from this
- * module's location. apps/ui-xr source cannot be a static import inside this app: the composite
- * tsconfig rejects out-of-program files (TS6307) and the app's stricter index-signature settings
- * reject ui-xr's source (TS4111). A RELATIVE dynamic specifier is resolved by vite-node against
- * the filesystem root under `vitest --root .`, so it must be made absolute here.
+ * In-process harness plumbing (sink, fetch adapter, route readers, resolver loader).
+ * The app owns the app instance and the repo root; this package never exports a
+ * mutable value and never holds one at module scope. Callers pass what they own
+ * as the first parameter.
  */
 
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
 import { scenarioBank } from "@openclinxr/scenario-fixtures";
 import type { Scenario } from "@openclinxr/shared-schemas";
-import { fileURLToPath } from "node:url";
-import { createApiFetchTransport } from "./api-fetch-transport.js";
-import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "@openclinxr/rest";
-import { isRecord, reviewStatesFromRecord } from "@openclinxr/rest";
-import { createApiApp } from "./index.js";
-import { toAdminGraphqlScenario } from "@openclinxr/rest";
+import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "./api-types.js";
+import { isRecord, reviewStatesFromRecord } from "./promotion-io-validation.js";
+import { toAdminGraphqlScenario } from "./admin-scenario-listing.js";
 import {
   AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
   authoredScenarioContentIdentity,
-} from "@openclinxr/rest";
+} from "./scenario-review-promotion.js";
 
 export const BLUEPRINT_ID = "step2cs-seed";
 export const IN_PROCESS_ORIGIN = "http://in-process.openclinxr.local";
 export const REVIEW_GATES = ["clinical", "psychometric", "legal", "simulationQa"] as const;
+
+/** What the harness needs from the app: how to build an app and where the repo root is. */
+export type PromotionHarnessContext = {
+  createApp: (persistence?: ApiPersistenceSink) => HonoLikeApp;
+  repoRoot: () => string;
+};
 
 export type ScenarioGateState = {
   scenarioId: string;
@@ -70,42 +67,56 @@ export function createAuthoredMemorySink(): AuthoredMemorySink {
   };
 }
 
+export type HonoRequestFn = (input: string, init?: { method?: string; headers?: unknown; body?: unknown }) => Promise<Response> | Response;
+
 export type HonoLikeApp = {
-  request: (input: string, init?: RequestInit) => Promise<Response> | Response;
+  request: HonoRequestFn;
 };
 
 export function requestApp(
   app: HonoLikeApp,
   path: string,
-  init: RequestInit | undefined,
+  init: { method?: string; headers?: unknown; body?: unknown } | undefined,
   requestedPaths: string[],
 ): Promise<Response> {
   requestedPaths.push(path);
   return Promise.resolve(app.request(path, init));
 }
 
+export type ApiFetchCall = {
+  url: string;
+  method: string;
+  headers?: unknown;
+  body?: unknown;
+};
+
+export type ApiFetchDispatcher = (call: ApiFetchCall) => Promise<Response> | Response;
+
 /**
  * fetch-shaped adapter over Hono `app.request` — records paths for transport proof.
- * No network, no port bind, no browser. Same shape as #165/#167.
- *
- * Input/body typing lives in `api-fetch-transport.ts` so this file does not depend on
- * ambient DOM `RequestInfo` / `BodyInit`.
+ * The caller supplies the fetch transport (apps/api owns `createApiFetchTransport`);
+ * this module supplies the in-process dispatch.
  */
-export function createInProcessFetch(app: HonoLikeApp, requestedPaths: string[]): typeof fetch {
-  return createApiFetchTransport(async (call) => {
+export function createInProcessDispatcher(
+  app: HonoLikeApp,
+  requestedPaths: string[],
+): (call: ApiFetchCall) => Promise<Response> {
+  return async (call) => {
     const parsed = new URL(call.url, IN_PROCESS_ORIGIN);
     const pathWithQuery = `${parsed.pathname}${parsed.search}`;
     requestedPaths.push(pathWithQuery);
 
-    const initPayload: RequestInit = { method: call.method };
+    const initPayload: { method: string; headers?: unknown; body?: unknown } = {
+      method: call.method,
+    };
     if (call.headers !== undefined) {
-      initPayload.headers = call.headers as RequestInit["headers"];
+      initPayload.headers = call.headers;
     }
     if (call.body !== undefined) {
-      initPayload.body = call.body as RequestInit["body"];
+      initPayload.body = call.body;
     }
-    return app.request(pathWithQuery, initPayload);
-  }) as typeof fetch;
+    return Promise.resolve(app.request(pathWithQuery, initPayload));
+  };
 }
 
 export type QueueItemRead = {
@@ -207,7 +218,6 @@ export async function readAuthoredGateState(
 
 export { isRecord, reviewStatesFromRecord };
 
-
 /**
  * Drive ONE SubmitScenarioReview decision through the real admin GraphQL route.
  * Decision is always APPROVED (a test review decision on a scoped memory clone — not a clinical
@@ -284,18 +294,8 @@ export type LearnerScenarioResolver = (input: {
   fallbackReason?: string;
 }>;
 
-/**
- * Load the REAL `resolveLearnerExamScenarios`. It used to live in apps/ui-xr and was reached
- * through a specifier built from an array so that app's source never entered this app's static
- * typecheck program. The xr-scene extraction moved the module into a package, and because the
- * specifier was non-static neither tsgo nor knip noticed — the api suite failed at runtime with
- * "Cannot find module". A package import is static, so the next move of this module breaks the
- * build instead of the tests.
- */
-export async function loadLearnerScenarioResolver(): Promise<LearnerScenarioResolver> {
-  const { resolveLearnerExamScenarios } = await import("@openclinxr/xr-scene");
-  return resolveLearnerExamScenarios as LearnerScenarioResolver;
-}
+/** Resolve the learner scenario resolver. Injected by the caller; the package never imports a consumer. */
+export type LearnerScenarioResolverLoader = () => Promise<LearnerScenarioResolver>;
 
 export function findBankFixture(scenarioId: string): Scenario {
   const fixture = scenarioBank.find((s) => s.scenarioId === scenarioId);
@@ -303,9 +303,4 @@ export function findBankFixture(scenarioId: string): Scenario {
     throw new Error(`bank fixture missing: ${scenarioId}`);
   }
   return fixture;
-}
-
-/** Repo root computed from this module's location (apps/api/src → ../../..). */
-export function repoRoot(): string {
-  return fileURLToPath(new URL("../../..", import.meta.url));
 }

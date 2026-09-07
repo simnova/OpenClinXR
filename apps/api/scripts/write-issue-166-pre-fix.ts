@@ -8,7 +8,20 @@
  * Run: pnpm --filter @openclinxr/api exec tsx scripts/write-issue-166-pre-fix.ts
  */
 
-import { writePreFixArtifact } from "../src/scenario-promotion-baseline.js";
+import { createApiFetchTransport } from "../src/api-fetch-transport.js";
+import { writePreFixArtifact } from "@openclinxr/rest";
+import {
+  createApiAppHarnessBridge,
+  loadLearnerScenarioResolver,
+} from "../src/scenario-promotion-bridge.js";
 
-const artifactPath = await writePreFixArtifact();
+const bridge = createApiAppHarnessBridge();
+const artifactPath = await writePreFixArtifact({
+  ...bridge,
+  loadLearnerScenarioResolver,
+  wrapFetch: (dispatch) =>
+    createApiFetchTransport((call) =>
+      dispatch({ url: call.url, method: call.method, headers: call.headers, body: call.body }),
+    ) as typeof fetch,
+});
 console.log(`pre-fix artifact written: ${artifactPath}`);

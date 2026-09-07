@@ -28,19 +28,32 @@ import { describe, expect, it } from "vitest";
 
 const API_SRC = dirname(fileURLToPath(import.meta.url));
 
+const REST_WORLD_COMPILE_ROUTE = join(
+  API_SRC,
+  "../../../packages/openclinxr/rest/src/routes/world-compile-routes.ts",
+);
+
 function apiTsSources(): string[] {
   return readdirSync(API_SRC)
     .filter((name) => name.endsWith(".ts") && !name.endsWith(".test.ts") && !name.endsWith(".test.tsx"))
-    .map((name) => readFileSync(join(API_SRC, name), "utf8"));
+    .map((name) => readFileSync(join(API_SRC, name), "utf8"))
+    .concat([readFileSync(REST_WORLD_COMPILE_ROUTE, "utf8")]);
 }
 
 describe("the world-compile route invokes compileEncounterMaterialization", () => {
-  it("(1) some non-test apps/api source mentions /internal/world-compile", () => {
-    expect(apiTsSources().some((src) => src.includes("/internal/world-compile"))).toBe(true);
+  it("(1) the registered route handles /internal/world-compile", async () => {
+    const { createApiApp } = await import("./index.js");
+    const app = createApiApp();
+    const response = await app.request("/internal/world-compile", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: "{}",
+    });
+    expect(response.status).not.toBe(404);
   });
 
-  it("(2) some non-test apps/api source mentions compileEncounterMaterialization", () => {
-    expect(apiTsSources().some((src) => src.includes("compileEncounterMaterialization"))).toBe(true);
+  it("(2) the moved route module invokes compileEncounterMaterialization", () => {
+    expect(readFileSync(REST_WORLD_COMPILE_ROUTE, "utf8").includes("compileEncounterMaterialization")).toBe(true);
   });
 
   it("(3) COUNTERWEIGHT: faculty client still POSTs that path", () => {

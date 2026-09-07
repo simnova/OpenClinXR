@@ -1,14 +1,10 @@
 /**
- * #166 — pre-fix baseline measurement + artifact writer.
+ * Scenario promotion baseline (moved from apps/api composition root).
  *
- * Records all 14 shipped scenarios (status / validationStage / four review flags /
- * isActivationEligible) measured through the REAL api routes and the REAL learner resolver
- * (`createApiApp` + in-process fetch + `resolveLearnerExamScenarios`) before any edit, so the
- * before-column is observed rather than reconstructed.
- *
- * `isActivationEligible` for every scenario comes from the readiness route's
- * `activationEligibleScenarioIds` — the REAL gate (`assembly.ts:367-373`) run over the whole pool
- * by `evaluateBlueprintScenarioReadiness`, not a local re-implementation.
+ * Pre-fix baseline measurement + artifact writer through the REAL api routes
+ * and the REAL learner resolver. The app owns the app instance, the fetch
+ * transport, and the repo root; this package receives them through the harness
+ * context and never holds one at module scope.
  */
 
 import { scenarioBank } from "@openclinxr/scenario-fixtures";
@@ -18,16 +14,14 @@ import {
   BLUEPRINT_ID,
   IN_PROCESS_ORIGIN,
   createAuthoredMemorySink,
-  createInProcessFetch,
   isRecord,
-  loadLearnerScenarioResolver,
   readReadiness,
-  repoRoot,
   requestApp,
   reviewStatesFromRecord,
   type HonoLikeApp,
+  type PromotionHarnessContext,
 } from "./scenario-promotion-io.js";
-import { createApiApp } from "./index.js";
+import type { LearnerScenarioResolverLoader } from "./scenario-promotion-io.js";
 
 export const PRE_FIX_ARTIFACT_RELATIVE_PATH = ".openclinxr/evidence/issue-166/pre-fix.json";
 
@@ -60,6 +54,15 @@ export type BankBaseline = {
   scenarios: BaselineScenarioRow[];
   claimScope: string;
   notEvidenceFor: string[];
+};
+
+export type BaselineContext = PromotionHarnessContext & {
+  loadLearnerScenarioResolver: LearnerScenarioResolverLoader;
+  wrapFetch: (
+    dispatch: (
+      call: { url: string; method: string; headers?: unknown; body?: unknown },
+    ) => Promise<Response> | Response,
+  ) => typeof fetch;
 };
 
 async function readQueueBody(
@@ -96,16 +99,21 @@ async function readQueueBody(
  * real API — the readiness route (the REAL `isActivationEligible` over the whole pool), the real
  * station-run-queue, and the REAL learner resolver (each queue record carries `bodySource`).
  */
-export async function measureBankBaseline(): Promise<BankBaseline> {
+export async function measureBankBaseline(ctx: BaselineContext): Promise<BankBaseline> {
   const sink = createAuthoredMemorySink();
-  const app = createApiApp(undefined, sink);
+  const app = ctx.createApp(sink);
   const requestedPaths: string[] = [];
 
   const readiness = await readReadiness(app, requestedPaths);
   const queue = await readQueueBody(app, requestedPaths);
 
-  const resolver = await loadLearnerScenarioResolver();
-  const fetchAdapter = createInProcessFetch(app, requestedPaths);
+  const resolver = await ctx.loadLearnerScenarioResolver();
+  const dispatcher = await import("./scenario-promotion-io.js").then((m) =>
+    m.createInProcessDispatcher(app, requestedPaths),
+  );
+  const fetchAdapter = ctx.wrapFetch((call) =>
+    dispatcher({ url: call.url, method: call.method, headers: call.headers, body: call.body }),
+  );
   const resolution = await resolver({
     baseUrl: IN_PROCESS_ORIGIN,
     blueprintId: BLUEPRINT_ID,
@@ -179,9 +187,9 @@ export async function measureBankBaseline(): Promise<BankBaseline> {
 }
 
 /** Write the pre-fix baseline artifact. Returns the absolute artifact path. */
-export async function writePreFixArtifact(): Promise<string> {
-  const baseline = await measureBankBaseline();
-  const artifactPath = join(repoRoot(), PRE_FIX_ARTIFACT_RELATIVE_PATH);
+export async function writePreFixArtifact(ctx: BaselineContext): Promise<string> {
+  const baseline = await measureBankBaseline(ctx);
+  const artifactPath = join(ctx.repoRoot(), PRE_FIX_ARTIFACT_RELATIVE_PATH);
   await mkdir(dirname(artifactPath), { recursive: true });
   await writeFile(artifactPath, `${JSON.stringify(baseline, null, 2)}\n`, "utf8");
   return artifactPath;

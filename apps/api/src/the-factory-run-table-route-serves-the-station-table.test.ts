@@ -2,8 +2,8 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createApiApp } from "./index.js";
-import { parseFactoryRunRollup } from "@openclinxr/rest";
-import { repoRoot } from "./scenario-promotion-io.js";
+import { FACTORY_RUN_ROLLUP_REL, parseFactoryRunRollup } from "@openclinxr/rest";
+import { repoRoot } from "./scenario-promotion-bridge.js";
 
 /**
  * Resolved through a STATIC import now that the validator lives in
@@ -11,7 +11,7 @@ import { repoRoot } from "./scenario-promotion-io.js";
  * from @openclinxr/rest. The non-static specifier below remains for the route
  * constant FACTORY_RUN_ROLLUP_REL, which stays with the route (composition root).
  */
-const ROUTE_SPECIFIER = ["./factory-run-table", "-routes.js"].join("");
+const ROUTE_SPECIFIER = ["@openclinxr/rest"].join("");
 
 async function routeModule(): Promise<{
   FACTORY_RUN_ROLLUP_REL: string;

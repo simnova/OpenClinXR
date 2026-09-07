@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createApiApp } from "./index.js";
 import { compileLocksPathFor, FACULTY_COMPILE_LOCKS_DIR, readFacultyCompileLocksRecord } from "@openclinxr/rest";
-import { repoRoot } from "./scenario-promotion-io.js";
+import { repoRoot } from "./scenario-promotion-bridge.js";
 
 async function json(response: Response): Promise<unknown> {
   return response.json() as Promise<unknown>;

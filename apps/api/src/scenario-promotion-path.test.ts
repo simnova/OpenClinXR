@@ -2,17 +2,38 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { scenarioBank } from "@openclinxr/scenario-fixtures";
-import { measureBankBaseline, PRE_FIX_ARTIFACT_RELATIVE_PATH } from "./scenario-promotion-baseline.js";
-import {
-  repoRoot,
-} from "./scenario-promotion-io.js";
 import {
   CONTROL_SCENARIO_ID,
   PROMOTED_SCENARIO_ID,
-  REVIEW_GATES,
+  PROMOTION_REVIEW_GATES as REVIEW_GATES,
   inspectScenarioPromotionPath,
   inspectStageZeroStaysBlocking,
-} from "./scenario-promotion-path.js";
+  measureBankBaseline,
+  PRE_FIX_ARTIFACT_RELATIVE_PATH,
+} from "@openclinxr/rest";
+import { createApiFetchTransport } from "./api-fetch-transport.js";
+import {
+  createApiAppHarnessBridge,
+  loadLearnerScenarioResolver,
+  repoRoot,
+} from "./scenario-promotion-bridge.js";
+
+function promotionContext(): Parameters<typeof inspectScenarioPromotionPath>[0] {
+  const bridge = createApiAppHarnessBridge();
+  return {
+    createApp: bridge.createApp,
+    repoRoot: bridge.repoRoot,
+    loadLearnerScenarioResolver,
+    wrapFetch: (dispatch) =>
+      createApiFetchTransport((call) =>
+        dispatch({ url: call.url, method: call.method, headers: call.headers, body: call.body }),
+      ) as typeof fetch,
+  };
+}
+
+function baselineContext(): Parameters<typeof measureBankBaseline>[0] {
+  return promotionContext();
+}
 
 /**
  * PLANTED CONTRACTS (#166) — LANE B. **Prove the promotion path before spending expert time on it.**
@@ -100,7 +121,7 @@ import {
 
 describe("a real bank draft is promoted by real review decisions, per hop (#166)", () => {
   it("four SubmitScenarioReview decisions persist per hop, flip the stage, flip eligibility, and reach the learner as api_authored", async () => {
-    const run = await inspectScenarioPromotionPath();
+    const run = await inspectScenarioPromotionPath(promotionContext());
 
     // --- BEFORE: genuinely unpromoted, and not already authored. -------------------------------
     expect(run.beforeAuthored, "the scenario was already an authored document before any decision")
@@ -187,7 +208,7 @@ describe("a real bank draft is promoted by real review decisions, per hop (#166)
     // The real path always advances the stage with four approvals, so this state cannot be produced
     // through the routes — the planted authored document isolates the GATE itself. It must read
     // governance_blocked, proving the successful promotion's stage flip was required, not optional.
-    const stuck = await inspectStageZeroStaysBlocking();
+    const stuck = await inspectStageZeroStaysBlocking(promotionContext());
 
     expect(stuck.scenarioId).toBe(PROMOTED_SCENARIO_ID);
     expect(stuck.queueStatus, `all-four-approved/stage_0 became ${stuck.queueStatus} — the stage condition is not load-bearing`)
@@ -207,7 +228,7 @@ describe("a real bank draft is promoted by real review decisions, per hop (#166)
 
     // An untouched control draft must still be refused by the same gate, and the exam must still
     // be unstartable.
-    const baseline = await measureBankBaseline();
+    const baseline = await measureBankBaseline(baselineContext());
     const control = baseline.scenarios.find((s) => s.scenarioId === CONTROL_SCENARIO_ID);
     expect(control, `control scenario ${CONTROL_SCENARIO_ID} missing from baseline`).toBeDefined();
     expect(control!.queueStatus, "control draft became activation_ready without review")
@@ -236,7 +257,7 @@ describe("a real bank draft is promoted by real review decisions, per hop (#166)
     expect(artifact.activationEligibleCount).toBe(1);
     expect(artifact.canStartLearnerExam).toBe(false);
 
-    const now = await measureBankBaseline();
+    const now = await measureBankBaseline(baselineContext());
     expect(artifact.scenarios).toEqual(now.scenarios);
   }, 900_000);
 });

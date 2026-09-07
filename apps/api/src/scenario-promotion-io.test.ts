@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { ApiFetchTransport } from "./api-fetch-transport.js";
-import { createInProcessFetch, IN_PROCESS_ORIGIN, type HonoLikeApp } from "./scenario-promotion-io.js";
+import { createInProcessFetch, type HonoLikeApp } from "./scenario-promotion-bridge.js";
+import { PROMOTION_IN_PROCESS_ORIGIN as IN_PROCESS_ORIGIN } from "@openclinxr/rest";
 
-function recordingApp(calls: Array<{ path: string; init?: RequestInit }>): HonoLikeApp {
+function recordingApp(
+  calls: Array<{ path: string; init?: { method?: string; headers?: unknown; body?: unknown } }>,
+): HonoLikeApp {
   return {
     request: (path, init) => {
       calls.push({ path, ...(init === undefined ? {} : { init }) });
@@ -13,7 +16,7 @@ function recordingApp(calls: Array<{ path: string; init?: RequestInit }>): HonoL
 
 describe("scenario-promotion in-process fetch adapter", () => {
   it("records string, URL, and request-like inputs as Hono paths", async () => {
-    const calls: Array<{ path: string; init?: RequestInit }> = [];
+    const calls: Array<{ path: string; init?: { method?: string; headers?: unknown; body?: unknown } }> = [];
     const requestedPaths: string[] = [];
     const fetchLike = createInProcessFetch(recordingApp(calls), requestedPaths) as ApiFetchTransport;
 
@@ -38,7 +41,7 @@ describe("scenario-promotion in-process fetch adapter", () => {
   });
 
   it("preserves JSON and binary request bodies on app.request", async () => {
-    const calls: Array<{ path: string; init?: RequestInit }> = [];
+    const calls: Array<{ path: string; init?: { method?: string; headers?: unknown; body?: unknown } }> = [];
     const requestedPaths: string[] = [];
     const fetchLike = createInProcessFetch(recordingApp(calls), requestedPaths) as ApiFetchTransport;
     const jsonBody = JSON.stringify({ decision: "APPROVED" });

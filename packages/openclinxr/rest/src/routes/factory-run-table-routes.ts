@@ -1,13 +1,16 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { Hono } from "hono";
-import type { ApiAppContext } from "@openclinxr/rest";
-import type { ApiAppVariables } from "@openclinxr/rest";
+import type { ApiAppVariables } from "../api-types.js";
 import {
   parseFactoryRunRollup,
   type FactoryRunRollupValue,
-} from "@openclinxr/rest";
-import { repoRoot } from "./scenario-promotion-io.js";
+} from "../factory-run-rollup-validation.js";
+
+/** What the route needs from its owner: where the workspace root is. */
+export type FactoryRunTableContext = {
+  repoRoot: () => string;
+};
 
 /**
  * Factory run-table route (faculty panel -> API).
@@ -32,11 +35,11 @@ export { parseFactoryRunRollup };
 
 export function registerFactoryRunTableRoutes(
   app: Hono<{ Variables: ApiAppVariables }>,
-  _ctx: ApiAppContext,
+  ctx: FactoryRunTableContext,
 ): void {
   app.get("/internal/factory-run-table", async (context) => {
     try {
-      const absolute = join(repoRoot(), FACTORY_RUN_ROLLUP_REL);
+      const absolute = join(ctx.repoRoot(), FACTORY_RUN_ROLLUP_REL);
       let rawText: string;
       try {
         rawText = await readFile(absolute, "utf8");
