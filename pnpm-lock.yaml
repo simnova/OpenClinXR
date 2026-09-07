@@ -1502,6 +1502,55 @@ importers:
         specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
+  packages/openclinxr/xr-actor-dialogue:
+    dependencies:
+      '@openclinxr/asset-registry':
+        specifier: workspace:*
+        version: link:../asset-registry
+      '@openclinxr/shared-schemas':
+        specifier: workspace:*
+        version: link:../shared-schemas
+      '@openclinxr/xr-capture-evidence':
+        specifier: workspace:*
+        version: link:../xr-capture-evidence
+      '@openclinxr/xr-dialogue':
+        specifier: workspace:*
+        version: link:../xr-dialogue
+      '@openclinxr/xr-humanoid-animation':
+        specifier: workspace:*
+        version: link:../xr-humanoid-animation
+      '@openclinxr/xr-locomotion':
+        specifier: workspace:*
+        version: link:../xr-locomotion
+      '@openclinxr/xr-runtime-state':
+        specifier: workspace:*
+        version: link:../xr-runtime-state
+      '@openclinxr/xr-scene':
+        specifier: workspace:*
+        version: link:../xr-scene
+      '@openclinxr/xr-scene-cues':
+        specifier: workspace:*
+        version: link:../xr-scene-cues
+      three:
+        specifier: 0.184.0
+        version: 0.184.0
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@types/three':
+        specifier: 'catalog:'
+        version: 0.184.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+
   packages/openclinxr/xr-asset-loading:
     dependencies:
       '@openclinxr/asset-registry':

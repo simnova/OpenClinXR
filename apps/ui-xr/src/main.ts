@@ -100,6 +100,10 @@ import { type ActorTurnPlayback, applyNamedSpeechVisemes, attachBakedCuesToSpeec
   registerLiveActorTurn,
   resolveLiveActorTurnForTrace,visemesForText } from "@openclinxr/xr-dialogue";
 import {
+  createXrActorDialogueStore,
+  type XrActorDialogueStore,
+} from "@openclinxr/xr-actor-dialogue";
+import {
   applyHumanoidMorphTargetCue as applyPackageHumanoidMorphTargetCue,
   buildHumanoidSpeechEvidence as buildPackageHumanoidSpeechEvidence,
   createHumanoidEmotionExpressionState as createPackageHumanoidEmotionExpressionState,
@@ -1298,13 +1302,7 @@ function configuredExamRunId(): string {
 }
 
 function initialDialogueTextForSelectedScenario(): string {
-  // Bank is SSOT for who is named (#107). Table extracted so main.ts stays shrink-only.
-  return initialDialogueTextForScenario({
-    scenarioId: selectedScenarioId(),
-    runtimeInitialDialogueText:
-      encounterRuntimeAssetBundle.sceneManifest.stationContext?.initialDialogueText,
-    bundleMismatch: isSelectedScenarioRuntimeBundleMismatch(),
-  });
+  return actorDialogueStore.initialDialogueTextForSelectedScenario();
 }
 
 function stationContextForSelectedScenario() {
@@ -1490,6 +1488,72 @@ const humanoidAnimationContext: PackageHumanoidAnimationRuntimeContext = {
 let pedsActorPlayerRuntimePlaybackScheduled = false;
 let pedsActorPlayerRuntimePlaybackLastTraceAtMs = 0;
 let pedsActorPlayerRuntimeSequenceActiveUntilMs = 0;
+
+// Create the actor dialogue store
+let actorDialogueStore: XrActorDialogueStore;
+
+function createActorDialogueStore(): void {
+  actorDialogueStore = createXrActorDialogueStore({
+    encounterRuntimeAssetBundle: () => encounterRuntimeAssetBundle,
+    initialDialogueText: () => initialDialogueText,
+    selectedScenarioId: () => selectedScenarioId(),
+    generatedHumanoidAnimationSlotsByActorId: () => generatedHumanoidAnimationSlotsByActorId,
+    generatedHumanoidAnimationSlots: () => generatedHumanoidAnimationSlots,
+    generatedHumanoidActorSlotsByActorId: () => generatedHumanoidActorSlotsByActorId,
+    virtualDeviceActorSlotsByActorId: () => virtualDeviceActorSlotsByActorId,
+    activeVirtualDeviceSpeechByActorId: () => activeVirtualDeviceSpeechByActorId,
+    runtimePatientActorId: () => runtimePatientActorId(),
+    runtimeFamilyActorId: () => runtimeFamilyActorId(),
+    runtimeClinicalTeamActorId: () => runtimeClinicalTeamActorId(),
+    humanoidDialogueDurationMs: (phonemeCount: number, isReviewCapture: boolean) => humanoidPackageDialogueDurationMs(phonemeCount, isReviewCapture),
+    isPediatricAsthmaRuntimeScenario: () => isPediatricAsthmaRuntimeScenario(),
+    isHumanoidMouthGazePoseReviewCaptureMode: () => isHumanoidMouthGazePoseReviewCaptureMode(),
+    isDeterministicCaptureClock: () => isDeterministicCaptureClock(),
+    selectedHumanoidSourceComparator: () => selectedHumanoidSourceComparator(),
+    buildHumanoidSpeechEvidence: buildPackageHumanoidSpeechEvidence,
+    recordBootPhase,
+    startHumanoidEmotionTransition: startPackageHumanoidEmotionTransition,
+    attachBakedCuesToSpeech,
+    phonemesForText,
+    visemesForText,
+    orientHumanoidEyeFocusCue: orientPackageHumanoidEyeFocusCue,
+    orientHumanoidTowardGazeTarget: orientPackageHumanoidTowardGazeTarget,
+    updateHumanoidEmotionExpression: updatePackageHumanoidEmotionExpression,
+    applyHumanoidMorphTargetCue: applyPackageHumanoidMorphTargetCue,
+    applyPackagePedsActorPlayerSequenceListenerCues,
+    listenerPackageEmotionForSequence,
+    recordPackagePedsActorPlayerRuntimePlaybackEvidence,
+    initialDialogueTextForScenario,
+    resolveLiveActorTurnForTrace,
+    actorIdForTraceTag,
+    playLiveFrozenActorTurn,
+    playOneShotResponseClip,
+    createHumanoidEmotionExpressionState: createPackageHumanoidEmotionExpressionState,
+    startPackageHumanoidEmotionTransition,
+    updatePackageHumanoidEmotionExpression,
+    scenarioBank: () => scenarioBank,
+    runtimeActorEmbodimentImpl: (bundle, actorId) => runtimeActorEmbodimentImpl(bundle, actorId),
+    pedsActorPlayerRuntimeTurns: () => pedsActorPlayerRuntimeTurns(),
+    pedsActorPlayerBundleDialogueTurns: () => pedsActorPlayerBundleDialogueTurns(),
+    pedsActorPlayerTurnFromRuntimeBundleTrace: (traceTag) => pedsActorPlayerTurnFromRuntimeBundleTrace(traceTag),
+    pedsActorPlayerTurnForTraceTag: (traceTag, fallbackTurns) => pedsActorPlayerTurnForTraceTag(traceTag, fallbackTurns),
+    pedsActorPlayerRuntimeSequenceForTrace: (traceTag, fallbackTurns) => pedsActorPlayerRuntimeSequenceForTrace(traceTag, fallbackTurns),
+    dedupePedsActorPlayerRuntimeTurns: (turns) => dedupePedsActorPlayerRuntimeTurns(turns),
+    playPedsActorPlayerRuntimeTurn: (turn, input) => playPedsActorPlayerRuntimeTurn(turn, input),
+    playPedsActorPlayerRuntimeSequence: (sequence, fallbackTurns) => playPedsActorPlayerRuntimeSequence(sequence, fallbackTurns),
+    pedsActorListenerCuePanelContext: () => pedsActorListenerCuePanelContext(),
+    applyPedsActorPlayerSequenceListenerCues: (activeTurn, sequence, nowMs) => applyPedsActorPlayerSequenceListenerCues(activeTurn, sequence, nowMs),
+    pedsActorPlayerPlaybackPanelContext: () => pedsActorPlayerPlaybackPanelContext(),
+    recordPedsActorPlayerRuntimePlaybackEvidence: (input) => recordPedsActorPlayerRuntimePlaybackEvidence(input),
+    localDialogueActorIdForTraceTag: (tag) => localDialogueActorIdForTraceTag(tag),
+    localDialogueGazeTargetForTraceTag: (tag) => localDialogueGazeTargetForTraceTag(tag),
+    runtimeDialogueTurnForTraceTag: (tag) => runtimeDialogueTurnForTraceTag(tag),
+    scenarioDialogueEmotionContext: (actorId, text, explicitEmotion, emotionSource) => scenarioDialogueEmotionContext(actorId, text, explicitEmotion, emotionSource),
+    triggerHumanoidDialogue: (actorId, text, gazeTarget, explicitEmotion, actorRuntimeRealismRequirement, emotionSource) => triggerHumanoidDialogue(actorId, text, gazeTarget, explicitEmotion, actorRuntimeRealismRequirement, emotionSource),
+    triggerHumanoidDialogueForTrace: (tag, text) => triggerHumanoidDialogueForTrace(tag, text),
+  });
+}
+
 const environmentReactiveProps = new Map<string, Group>();
 let lastObservedLocomotionSummary: {
   source: NonNullable<OpenClinXrInputEvidence["activeLocomotionSource"]>;
@@ -1536,7 +1600,8 @@ let runtimeWebXrSupportEvidence: RuntimeWebXrSupportEvidence = {
   immersiveArSupportCheckedAtMs: null,
   supportError: null,
 };
-let initialDialogueText = initialDialogueTextForSelectedScenario();
+createActorDialogueStore();
+let initialDialogueText = actorDialogueStore.initialDialogueTextForSelectedScenario();
 let selectedStationContext = stationContextForSelectedScenario();
 const examScenarioSequence = configuredExamSequence();
 const examScenarioId = selectedScenarioId();
