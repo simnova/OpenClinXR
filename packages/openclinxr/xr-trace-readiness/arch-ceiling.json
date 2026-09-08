@@ -2,5 +2,7 @@
   "contexts": {
     "FrameRecordingContext": 19
   },
-  "testInternalImports": 4
+  "testInternalImports": 4,
+  "rootEntrypointExports": 58,
+  "starExports": 4
 }

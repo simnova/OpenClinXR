@@ -1,3 +1,5 @@
 {
-  "testInternalImports": 6
+  "testInternalImports": 6,
+  "rootEntrypointExports": 42,
+  "starExports": 7
 }
