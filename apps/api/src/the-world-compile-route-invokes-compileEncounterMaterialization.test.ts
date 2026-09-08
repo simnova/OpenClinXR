@@ -33,7 +33,7 @@ const REST_WORLD_COMPILE_ROUTE = join(
   "../../../packages/openclinxr/rest/src/routes/world-compile-routes.ts",
 );
 
-function apiTsSources(): string[] {
+function _apiTsSources(): string[] {
   return readdirSync(API_SRC)
     .filter((name) => name.endsWith(".ts") && !name.endsWith(".test.ts") && !name.endsWith(".test.tsx"))
     .map((name) => readFileSync(join(API_SRC, name), "utf8"))

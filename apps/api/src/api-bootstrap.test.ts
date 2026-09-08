@@ -6,11 +6,13 @@ import { toAdminGraphqlScenario } from "@openclinxr/rest";
 import {
   createBunRealtimeVoiceGatewayPostureInputFromEnvironment,
   createBunServerConfig,
-  createNodeServerConfig,
   createOpenClinXrApiProtocolPostureFromEnvironment,
-  createOpenClinXrApiStartup,
   readApiBunWebSocketRuntimeVerifiedFromEnvironment,
-} from "./index.js";
+} from "@openclinxr/rest";
+import {
+  createOpenClinXrApiStartup,
+  createNodeServerConfig,
+} from "./api-bootstrap.js";
 import {
   AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
   authoredScenarioContentIdentity,

@@ -1,16 +1,12 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, } from "node:fs";
 import path from "node:path";
 import {
-  buildEncounterDynamicBehaviorCoverageSummary,
-  buildEncounterFactorySummaryContracts,
   buildEncounterRuntimeBundlePublicationMetadata,
   buildEnvironmentGenerationQueue,
   buildEnvironmentGenerationWorkOrderQueue,
-  buildGuardedRuntimeSelectorDisabledDecision,
   buildScenarioSceneGenerationPipelineWorkOrderQueue,
   createEdChestPainLocalLearnerRuntimeAssetBundle,
   createScenarioPlaceholderManifests,
-  ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS,
   evaluateEncounterRuntimeLearnerUseGate,
   InMemoryAssetRegistry,
   MEASURED_STATION_GEOMETRY,
@@ -20,111 +16,60 @@ import { freshMeasuredTriangleCounts } from "@openclinxr/asset-registry/measured
 import {
   type AuthIdentity,
   canReadStationRun,
-  DEFAULT_DEV_AUTH_IDENTITY,
-  DEFAULT_DEV_AUTH_SECRET,
-  hasFacultyAccess,
-  parseBearerAuthorization,
-  resolveSessionLearnerId,
-  verifyAuthToken,
 } from "@openclinxr/auth";
-import {
-  AssetGenerationCapabilityFacade,
-  type AssetGenerationCapabilityId,
-  type AssetGenerationJobPolicyInput,
-  buildOpenClinXrCapabilityRoutingMatrix,
-  evaluateRuntimeProviderReadinessSurface,
-  type RuntimeProfile,
+import type {
+  AssetGenerationCapabilityId,
+  RuntimeProfile,
 } from "@openclinxr/capability-gateway";
 import {
-  assembleExamForm,
-  createDefaultClinicalSkillsBlueprint,
   createExamStationRunQueue,
-  createExamTimingPlan,
   createStep2CsStyleSeedBlueprint,
   type ExamForm,
-  type ExamStationRunQueue,
-  evaluateBlueprintScenarioReadiness,
-  evaluateScenarioVersionDrift,
 } from "@openclinxr/exam-assembly";
 import {
   AdminGraphqlReviewDecision,
   type AdminGraphqlRootValue,
   type AdminGraphqlScenario,
   AdminGraphqlScenarioStatus,
-  adminGraphqlDocuments,
-  createGraphqlCodegenPlan,
-  executeAdminGraphql,
-  openClinXrAdminSchemaSdl,
 } from "@openclinxr/graphql";
-import { matchOpenClinXrRestRoute, routeById } from "@openclinxr/rest";
 import {
-  buildFacultyScoreDraft,
-  buildReviewDecisionDraft,
   FACULTY_SCORE_DRAFT_CLAIM_SCOPE,
   FACULTY_SCORE_DRAFT_NOT_EVIDENCE_FOR,
   type FacultyScoreDraft,
-  type ReviewDecisionDraft,
 } from "@openclinxr/review-workflow";
 import {
   buildDynamicEncounterFactoryPlanningProjection,
-  buildScenarioBankExamSequenceProjection,
-  createLearnerScenarioView,
-  edChestPainScenario,
-  evaluateScenarioBankMaturity,
   scenarioBank,
 } from "@openclinxr/scenario-fixtures";
-import {
-  createDefaultScenarioRuntime,
-  type PublicationTargetUse,
-  type ReviewerEvidence,
-  type RouteRuntimeActorInteractionInput,
-  type ScenarioRuntime,
-  type ScenarioRuntimeActorTurn,
+import type {
+  PublicationTargetUse,
+  ReviewerEvidence,
+  RouteRuntimeActorInteractionInput,
+  ScenarioRuntime,
 } from "@openclinxr/scenario-runtime";
-import { type Scenario, validateScenario } from "@openclinxr/shared-schemas";
+import type { Scenario, } from "@openclinxr/shared-schemas";
 import {
-  createTelemetryRecorder,
   openClinXrSpanNames,
-  type RealTelemetryRecorder,
-  summarizeTelemetrySpans,
   type TelemetryRecorder,
-  type TelemetryRunCounters,
-  type TelemetrySnapshot,
-  type TelemetrySpanRecord,
   telemetryRouteAttributes,
 } from "@openclinxr/telemetry";
-import {
-  createRealtimeVoiceGatewayPosture,
-  type RealtimeVoiceGatewayPostureInput,
-  type RealtimeVoiceProtocolLaneId,
-  selectRealtimeVoiceProtocol,
-} from "@openclinxr/voice-gateway";
 import { listAdminGraphqlScenarios, toAdminGraphqlScenario } from "./admin-scenario-listing.js";
-import { attachMaterializationAttachmentPlanSummary, attachMaterializationEvidenceAttachmentSummary, attachMaterializationInputManifestSummary, attachMaterializationInputReviewDecisionRecord, attachPedsHumanoidMaterializationHandoff, attachRuntimeEvidenceCaptureScaffold, attachRuntimeRealismEvidenceInputDraft, attachRuntimeRealismEvidenceInputReviewDecisionRecord, attachRuntimeVisualEvidenceAttachmentActionPacket, attachRuntimeVisualEvidenceAttachmentRecord, attachRuntimeVisualEvidenceAttachmentSummary, buildMaterializationInputReviewActionPacket, buildMaterializationInputReviewDecisionRecord, buildRuntimeRealismEvidenceAttachmentSummary, buildRuntimeRealismEvidenceInputReviewDecisionRecord, buildRuntimeVisualEvidenceAttachmentActionPacket, buildRuntimeVisualEvidenceAttachmentRecord, isRecord, parseStringArray, readMaterializationAttachmentPlanSummaryForScenario, readMaterializationEvidenceAttachmentSummaryForScenario, readMaterializationInputManifestSummaryForScenario, readRepoGeneratedJsonIfExists, readRuntimeEvidenceCaptureScaffoldForScenario, realtimeVoiceProtocolPreference } from "./api-support.js";
+import { isRecord, parseStringArray, } from "./api-support.js";
 import type {
-  ApiAppOptions,
-  ApiAppVariables,
   ApiAssetReleaseLadderReplayProjection,
-  ApiAuthOptions,
   ApiClinicalEventReviewProjection,
-  ApiFacultyReviewDecisionRecord,
   ApiFacultyScoreDraftRecord,
   ApiHumanReviewActionSummary,
   ApiMaterializationInputReviewDecision,
-  ApiMaterializationInputReviewDecisionRecord,
   ApiPersistenceSink,
-  ApiRuntimeEvidenceCaptureScaffold,
-  ApiRuntimeRealismEvidenceAttachmentSummary,
   ApiRuntimeRealismEvidenceInputReviewDecision,
   ApiRuntimeRealismEvidenceInputReviewDecisionRecord,
   ApiRuntimeVisualEvidenceAttachment,
-  ApiRuntimeVisualEvidenceAttachmentActionPacket,
   ApiRuntimeVisualEvidenceAttachmentRecord,
   ApiRuntimeVisualEvidenceReplayProjection,
   ApiScenarioReviewDecisionRecord,
   ApiScenarioReviewerRole,
   ApiScenarioReviewGateSummary,
-  ApiScenarioSceneGenerationRequestRecord,
   ApiStationRunQueueSnapshot,
   ApiUiXrRuntimeEvidenceConsumerWorkflowSummary,
   RuntimeReviewPacket,

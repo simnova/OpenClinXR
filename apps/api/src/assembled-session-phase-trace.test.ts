@@ -90,10 +90,10 @@ describe("assembled session phase traces", () => {
     ]);
     for (const event of phases) {
       expect(event.stationRunId).toBe(started.stationRunId);
-      expect(event.payload["examRunId"]).toBe(assembledStation.examRunId);
-      expect(event.payload["scenarioId"]).toBe(assembledStation.scenarioId);
-      expect(event.payload["stationOrder"]).toBe(1);
-      expect(event.payload["durableEventRef"]).toBe(
+      expect(event.payload.examRunId).toBe(assembledStation.examRunId);
+      expect(event.payload.scenarioId).toBe(assembledStation.scenarioId);
+      expect(event.payload.stationOrder).toBe(1);
+      expect(event.payload.durableEventRef).toBe(
         `durable://station-runs/${started.stationRunId}/events/${event.sequence}`,
       );
     }
@@ -116,7 +116,7 @@ describe("assembled session phase traces", () => {
     const traces = await app.request(`/sessions/${started.stationRunId}/trace-events`);
     const events = (await json(traces)) as Array<{ eventType: string; payload: Record<string, unknown> }>;
     const startedEvent = events.find((event) => event.eventType === "encounter.started");
-    expect(startedEvent?.payload["examRunId"]).toBeUndefined();
+    expect(startedEvent?.payload.examRunId).toBeUndefined();
 
     const partial = await app.request("/sessions", {
       method: "POST",
@@ -166,6 +166,6 @@ describe("assembled session phase traces", () => {
     const traces = await app.request(`/sessions/${started.stationRunId}/trace-events`);
     const events = (await json(traces)) as Array<{ eventType: string; payload: Record<string, unknown> }>;
     expect(events.some((event) => event.eventType === "encounter.started")).toBe(false);
-    expect(events.some((event) => event.payload["formAtSecond"] === 60)).toBe(false);
+    expect(events.some((event) => event.payload.formAtSecond === 60)).toBe(false);
   });
 });

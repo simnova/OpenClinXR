@@ -10,7 +10,7 @@ import type { ApiAppVariables, ApiRuntimeVisualEvidenceAttachment } from "../api
 
 /** RuntimeEvidence domain routes (composition-root migration). */
 export function registerRuntimeEvidenceRoutes(app: Hono<{ Variables: ApiAppVariables }>, ctx: ApiAppContext): void {
-  const { runtime, persistence, realtimeVoiceGatewayPosture, sceneGenerationRequests, runtimeRealismEvidenceInputReviewDecisions, runtimeVisualEvidenceAttachments, latestMaterializationInputReviewDecisionRecordForScenario, latestMaterializationInputReviewDecisionRecordForPacket } = ctx;
+  const { persistence, realtimeVoiceGatewayPosture, sceneGenerationRequests, runtimeRealismEvidenceInputReviewDecisions, runtimeVisualEvidenceAttachments, latestMaterializationInputReviewDecisionRecordForScenario, latestMaterializationInputReviewDecisionRecordForPacket } = ctx;
 
   app.get(routeById("scenario-bank-dynamic-encounter-factory-planning").path, (context) =>
     context.json({

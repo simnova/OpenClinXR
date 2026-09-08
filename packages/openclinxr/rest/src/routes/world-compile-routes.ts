@@ -136,9 +136,12 @@ export async function resolvePriorEvidencePathForScenario(scenarioId: string, pr
   for (const entry of entries) {
     const match = /^encounter-materialization-evidence-(.+)-(\d{4}-\d{2}-\d{2})\.json$/.exec(entry);
     if (!match) continue;
-    if (!accepted.has(match[1]!.replace(/-/g, "_"))) continue;
-    if (!best || match[2]! > best.date) {
-      best = { path: join(priorEvidenceDir, entry), date: match[2]! };
+    const scenarioKey = match[1]?.replace(/-/g, "_");
+    if (scenarioKey === undefined || !accepted.has(scenarioKey)) continue;
+    const evidenceDate = match[2];
+    if (evidenceDate === undefined) continue;
+    if (!best || evidenceDate > best.date) {
+      best = { path: join(priorEvidenceDir, entry), date: evidenceDate };
     }
   }
   if (!best) return null;

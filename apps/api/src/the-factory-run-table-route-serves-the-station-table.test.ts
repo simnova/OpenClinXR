@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createApiApp } from "./index.js";
-import { FACTORY_RUN_ROLLUP_REL, parseFactoryRunRollup } from "@openclinxr/rest";
+import { parseFactoryRunRollup } from "@openclinxr/rest";
 import { repoRoot } from "./scenario-promotion-bridge.js";
 
 /**

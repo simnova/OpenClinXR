@@ -94,7 +94,7 @@ describe("encounter runtime handoff absence is graceful", () => {
     const response = await app.request("/runtime/selection-review-packet");
     expect(response.status).toBe(200);
     const body = await response.json() as Record<string, unknown>;
-    expect(body["encounterRuntimeHandoff"]).toBeUndefined();
-    expect(body["schemaVersion"]).toBe("openclinxr.encounter-runtime-selection-review-packet.v1");
+    expect(body.encounterRuntimeHandoff).toBeUndefined();
+    expect(body.schemaVersion).toBe("openclinxr.encounter-runtime-selection-review-packet.v1");
   });
 });

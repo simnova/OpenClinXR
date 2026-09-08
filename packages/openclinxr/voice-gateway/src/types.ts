@@ -1,4 +1,4 @@
-import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@cellix/provider-contracts";
+import type { ProviderAuditRecord, ProviderHealth, } from "@cellix/provider-contracts";
 
 export type VoiceCapability = "transcription" | "synthesis" | "viseme_cues" | "emotional_prosody" | "lip_sync_timing";
 
@@ -57,6 +57,17 @@ export type RealtimeVoiceClientControlFrameType =
 
 export type RealtimeVoiceServerEventType =
   (typeof realtimeVoiceProtocol.serverEvents)[keyof typeof realtimeVoiceProtocol.serverEvents];
+
+export function supportedRealtimeVoiceControlTypes(): string[] {
+  return [
+    realtimeVoiceProtocol.clientControlFrames.start,
+    realtimeVoiceProtocol.clientControlFrames.stop,
+    realtimeVoiceProtocol.clientControlFrames.audioMetadata,
+    "start",
+    "commit",
+    "flush",
+  ];
+}
 
 export type RealtimeVoiceGatewayPosture = {
   policy: {

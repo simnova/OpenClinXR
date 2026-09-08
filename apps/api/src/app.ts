@@ -1,133 +1,12 @@
-import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
-import {
-  buildEncounterDynamicBehaviorCoverageSummary,
-  buildEncounterFactorySummaryContracts,
-  buildEncounterRuntimeBundlePublicationMetadata,
-  buildEnvironmentGenerationQueue,
-  buildEnvironmentGenerationWorkOrderQueue,
-  buildGuardedRuntimeSelectorDisabledDecision,
-  buildScenarioSceneGenerationPipelineWorkOrderQueue,
-  createEdChestPainLocalLearnerRuntimeAssetBundle,
-  createScenarioPlaceholderManifests,
-  ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS,
-  evaluateEncounterRuntimeLearnerUseGate,
-  InMemoryAssetRegistry,
-  type RuntimeAssetReviewDecision,
-} from "@openclinxr/asset-registry";
-import {
-  type AuthIdentity,
-  canReadStationRun,
-  DEFAULT_DEV_AUTH_IDENTITY,
-  DEFAULT_DEV_AUTH_SECRET,
-  hasFacultyAccess,
-  parseBearerAuthorization,
-  resolveSessionLearnerId,
-  verifyAuthToken,
-} from "@openclinxr/auth";
-import {
-  AssetGenerationCapabilityFacade,
-  type AssetGenerationCapabilityId,
-  type AssetGenerationJobPolicyInput,
-  buildOpenClinXrCapabilityRoutingMatrix,
-  evaluateRuntimeProviderReadinessSurface,
-  type RuntimeProfile,
-} from "@openclinxr/capability-gateway";
-import {
-  assembleExamForm,
-  createDefaultClinicalSkillsBlueprint,
-  createExamStationRunQueue,
-  createExamTimingPlan,
-  createStep2CsStyleSeedBlueprint,
-  type ExamForm,
-  type ExamStationRunQueue,
-  evaluateBlueprintScenarioReadiness,
-  evaluateScenarioVersionDrift,
-} from "@openclinxr/exam-assembly";
-import {
-  AdminGraphqlReviewDecision,
-  type AdminGraphqlRootValue,
-  type AdminGraphqlScenario,
-  AdminGraphqlScenarioStatus,
-  adminGraphqlDocuments,
-  createGraphqlCodegenPlan,
-  executeAdminGraphql,
-  openClinXrAdminSchemaSdl,
-} from "@openclinxr/graphql";
-import { matchOpenClinXrRestRoute, routeById } from "@openclinxr/rest";
-import {
-  buildFacultyScoreDraft,
-  buildReviewDecisionDraft,
-  FACULTY_SCORE_DRAFT_CLAIM_SCOPE,
-  FACULTY_SCORE_DRAFT_NOT_EVIDENCE_FOR,
-  type FacultyScoreDraft,
-  type ReviewDecisionDraft,
-} from "@openclinxr/review-workflow";
-import {
-  buildDynamicEncounterFactoryPlanningProjection,
-  buildScenarioBankExamSequenceProjection,
-  createLearnerScenarioView,
-  edChestPainScenario,
-  evaluateScenarioBankMaturity,
-  scenarioBank,
-} from "@openclinxr/scenario-fixtures";
+
 import {
   createDefaultScenarioRuntime,
-  type PublicationTargetUse,
-  type ReviewerEvidence,
-  type RouteRuntimeActorInteractionInput,
   type ScenarioRuntime,
-  type ScenarioRuntimeActorTurn,
 } from "@openclinxr/scenario-runtime";
-import { type Scenario, validateScenario } from "@openclinxr/shared-schemas";
-import {
-  createTelemetryRecorder,
-  openClinXrSpanNames,
-  type RealTelemetryRecorder,
-  type TelemetryRecorder,
-  type TelemetryRunCounters,
-  type TelemetrySnapshot,
-  type TelemetrySpanRecord,
-  telemetryRouteAttributes,
-  summarizeTelemetrySpans,
-} from "@openclinxr/telemetry";
-import {
-  createRealtimeVoiceGatewayPosture,
-  type RealtimeVoiceGatewayPostureInput,
-  type RealtimeVoiceProtocolLaneId,
-  selectRealtimeVoiceProtocol,
-} from "@openclinxr/voice-gateway";
-import { Hono } from "hono";
-import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "@openclinxr/rest";
 
 import type {
-  RuntimeTraceEvents,
-  RuntimeReviewPacket,
-  ApiClinicalEventReviewProjection,
-  ApiStationRunQueueSnapshot,
-  ApiScenarioReviewerRole,
-  ApiScenarioReviewDecisionRecord,
-  ApiFacultyScoreDraftRecord,
-  ApiFacultyReviewDecisionRecord,
   ApiPersistenceSink,
-  ApiScenarioSceneGenerationRequestRecord,
-  ApiMaterializationInputReviewDecision,
-  ApiMaterializationInputReviewDecisionRecord,
-  ApiRuntimeRealismEvidenceInputReviewDecision,
-  ApiRuntimeRealismEvidenceInputReviewDecisionRecord,
-  ApiRuntimeVisualEvidenceAttachment,
-  ApiRuntimeVisualEvidenceAttachmentRecord,
-  ApiRuntimeRealismEvidenceAttachmentSummary,
-  ApiRuntimeVisualEvidenceAttachmentActionPacket,
-  ApiRuntimeVisualEvidenceReplayProjection,
-  ApiUiXrRuntimeEvidenceConsumerWorkflowSummary,
-  ApiAssetReleaseLadderReplayProjection,
-  ApiRuntimeEvidenceCaptureScaffold,
-  ApiScenarioReviewGateSummary,
-  ApiHumanReviewActionSummary,
-  ApiAuthOptions,
   ApiAppOptions,
-  ApiAppVariables,
 } from "@openclinxr/rest";
 export type {
   RuntimeTraceEvents,
@@ -207,24 +86,6 @@ export function createApiApp(
 /** Route registration surface — one line per domain (routes still inline here are mid-migration). */
 function registerAllRoutes(app: ApiApp, ctx: ApiAppContext): void {
   const bridge = createApiAppHarnessBridge();
-  const {
-    runtime,
-    persistence,
-    telemetry,
-    assetGenerationFacade,
-    realtimeVoiceGatewayPosture,
-    apiProtocolPosture,
-    sessionOwners,
-    adminScenarioOverrides,
-    sceneGenerationRequests,
-    runtimeRealismEvidenceInputReviewDecisions,
-    runtimeVisualEvidenceAttachments,
-    latestMaterializationInputReviewDecisionRecordForScenario,
-    latestMaterializationInputReviewDecisionRecordForPacket,
-  } = ctx;
-  const { allowDevDefaultIdentity, secret: authSecret, defaultIdentity } = ctx.auth;
-
-
   registerPlatformRoutes(app, ctx);
 
   registerRuntimeEvidenceRoutes(app, ctx);

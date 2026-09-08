@@ -1,16 +1,10 @@
-import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@cellix/provider-contracts";
+import { type ProviderHealth, validateProviderHealth } from "@cellix/provider-contracts";
 import type {
   VoiceCapability,
   RealtimeVoiceProtocolLaneId,
-  RealtimeVoiceProtocolLane,
   RealtimeVoiceProtocolSelection,
-  RealtimeVoiceClientControlFrameType,
-  RealtimeVoiceServerEventType,
   RealtimeVoiceGatewayPosture,
   VoiceSpeechProviderGate,
-  VoiceRequestPolicy,
-  VoiceSafetyStatus,
-  VoiceProvenance,
   SpeechInput,
   SpeechSynthesisRequest,
   TranscriptEvent,

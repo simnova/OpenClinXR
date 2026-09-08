@@ -191,9 +191,6 @@ importers:
       '@openclinxr/rest':
         specifier: workspace:*
         version: link:../../packages/openclinxr/rest
-      '@openclinxr/review-workflow':
-        specifier: workspace:*
-        version: link:../../packages/openclinxr/review-workflow
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../../packages/openclinxr/scenario-fixtures
@@ -648,7 +645,17 @@ importers:
         specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
-  packages/openclinxr/agent-loop:
+  packages/openclinxr-verification/architecture-rules:
+    dependencies:
+      '@openclinxr/capability-gateway':
+        specifier: workspace:*
+        version: link:../../openclinxr/capability-gateway
+      '@openclinxr/domain':
+        specifier: workspace:*
+        version: link:../../openclinxr/domain
+      archunit:
+        specifier: 2.3.0
+        version: 2.3.0
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -663,17 +670,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
-  packages/openclinxr-verification/architecture-rules:
-    dependencies:
-      '@openclinxr/capability-gateway':
-        specifier: workspace:*
-        version: link:../../openclinxr/capability-gateway
-      '@openclinxr/domain':
-        specifier: workspace:*
-        version: link:../../openclinxr/domain
-      archunit:
-        specifier: 2.3.0
-        version: 2.3.0
+  packages/openclinxr/agent-loop:
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*

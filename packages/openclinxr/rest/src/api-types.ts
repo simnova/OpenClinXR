@@ -1,5 +1,5 @@
 import type { buildScenarioSceneGenerationPipelineWorkOrderQueue, createEdChestPainLocalLearnerRuntimeAssetBundle, RuntimeAssetReviewDecision } from "@openclinxr/asset-registry";
-import { type AuthIdentity, DEFAULT_DEV_AUTH_IDENTITY, DEFAULT_DEV_AUTH_SECRET } from "@openclinxr/auth";
+import type { AuthIdentity, } from "@openclinxr/auth";
 import type { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import type { ExamForm, ExamStationRunQueue } from "@openclinxr/exam-assembly";
 import type {
@@ -12,8 +12,103 @@ import type { scenarioBank } from "@openclinxr/scenario-fixtures";
 import type { ScenarioRuntime, ScenarioRuntimeActorTurn } from "@openclinxr/scenario-runtime";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import type { TelemetryRecorder } from "@openclinxr/telemetry";
-import type { RealtimeVoiceGatewayPostureInput } from "@openclinxr/voice-gateway";
-import type { OpenClinXrApiProtocolPosture } from "./protocol-support.js";
+import type { RealtimeVoiceGatewayPostureInput, } from "@openclinxr/voice-gateway";
+import type { OpenClinXrApiProtocolPosture, OpenClinXrApiProtocolSupport } from "./protocol-support.js";
+
+export type AzureFunctionHttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "OPTIONS" | "HEAD";
+
+export type AzureFunctionHttpTrigger = {
+  route: string;
+  methods: AzureFunctionHttpMethod[];
+};
+
+export type AzureFunctionHttpHandlerSpec = {
+  name: string;
+  trigger: AzureFunctionHttpTrigger;
+};
+
+export type StartedOpenClinXrApi = {
+  fetch: (request: Request) => Response | Promise<Response>;
+  handlerSpecs: AzureFunctionHttpHandlerSpec[];
+  infrastructureServiceIds: string[];
+  primaryRuntimeTarget: "bun-hono";
+  localFallbackRuntimeTarget: "node-hono";
+  protocolSupport: OpenClinXrApiProtocolSupport[];
+};
+
+export type NodeServerConfig = {
+  fetch: (request: Request) => Response | Promise<Response>;
+  port: number;
+};
+
+export type BunServerConfig = {
+  runtime: "bun-hono";
+  fetch: (request: Request) => Response | Promise<Response>;
+  port: number;
+  websocketPath: "/voice/realtime/ws";
+  canUpgradeWebSocketRequest: (request: Request) => boolean;
+  websocket: BunRealtimeVoiceWebSocketHandler;
+  protocolSupport: OpenClinXrApiProtocolSupport[];
+};
+
+export type BunRealtimeVoiceWebSocket = {
+  data?: {
+    audioChunks: number;
+    audioBytes: number;
+    proxyMode: "local_echo" | "python_backend_proxy";
+    backendSocket?: BunRealtimeVoiceBackendWebSocket;
+    queuedBackendFrames: Array<string | Uint8Array>;
+  };
+  send(frame: string | Uint8Array): number | undefined | Promise<number | undefined>;
+};
+
+export type BunRealtimeVoiceBackendWebSocket = {
+  readyState?: number;
+  send(frame: string | Uint8Array): number | undefined | Promise<number | undefined>;
+  close(): void;
+  addEventListener(
+    type: "open" | "message" | "close" | "error",
+    listener: (event: { data?: unknown; message?: string; error?: unknown }) => void,
+  ): void;
+};
+
+export type BunRealtimeVoiceBackendWebSocketFactory = (url: string) => BunRealtimeVoiceBackendWebSocket;
+
+export type BunRealtimeVoiceWebSocketHandler = {
+  open(socket: BunRealtimeVoiceWebSocket): void;
+  message(socket: BunRealtimeVoiceWebSocket, message: string | ArrayBuffer | ArrayBufferView): void;
+  close(socket: BunRealtimeVoiceWebSocket): void;
+};
+
+export type BunServerConfigOptions = {
+  port?: number;
+  pythonBackendWebSocketUrl?: string;
+  backendWebSocketFactory?: BunRealtimeVoiceBackendWebSocketFactory;
+};
+
+export type BunRealtimeVoiceGatewayPostureEnvironment = Readonly<{
+  [key: string]: string | undefined;
+  OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL?: string;
+  OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE?: string;
+  OPENCLINXR_PYTHON_VOICE_BACKEND_RUNTIME_EVIDENCE_FILE?: string;
+}>;
+
+export type BunRealtimeVoiceGatewayPostureEnvironmentOptions = {
+  readEvidenceFile?: (filePath: string) => unknown;
+};
+
+export type OpenClinXrApiProtocolPostureEnvironment = Readonly<{
+  [key: string]: string | undefined;
+  OPENCLINXR_API_BUN_WEBSOCKET_RUNTIME_EVIDENCE_FILE?: string;
+  OPENCLINXR_BUN_WEBSOCKET_RUNTIME_EVIDENCE_FILE?: string;
+  VITEST?: string;
+  NODE_ENV?: string;
+}>;
+
+export type OpenClinXrApiProtocolPostureEnvironmentOptions = {
+  readEvidenceFile?: (filePath: string) => unknown;
+  discoverLatestSmokeEvidence?: boolean;
+};
 import type {
   ApiAssembledExamDispositionRecord,
   ApiAssembledExamRunRecord,

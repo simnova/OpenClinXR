@@ -4578,7 +4578,7 @@ describe("OpenClinXR API shell", () => {
     expect(metrics.status).toBe(200);
     const body = await json(metrics) as { runCounters: Record<string, number>; spans: unknown[] };
     // In-memory inject has spans() but no counter surface — counters stay zero.
-    expect(body.runCounters["runsStarted"]).toBe(0);
+    expect(body.runCounters.runsStarted).toBe(0);
 
     await app.request("/health");
     expect(telemetry.spans()).toEqual(

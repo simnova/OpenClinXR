@@ -288,6 +288,29 @@ export { createOpenClinXrApiProtocolPosture } from "./protocol-support.js";
 export type { OpenClinXrApiProtocolPosture, OpenClinXrApiProtocolSupport } from "./protocol-support.js";
 export { isRecord, reviewStatesFromRecord } from "./promotion-io-validation.js";
 export {
+  isPassedApiBunWebSocketRuntimeSmokeEvidence,
+  isProtocolPostureEvidenceDiscoverySuppressed,
+  isRealtimeVoiceWebSocketUpgradeRequest,
+  isSupportedRealtimeVoiceControlType,
+  parseStringArray,
+  parseFiniteNumber,
+} from "./protocol-posture-validation.js";
+export { supportedRealtimeVoiceControlTypes } from "./protocol-posture-readers.js";
+export {
+  readOptionalEvidenceFile,
+  resolveRepoRelativePath,
+  findLatestApiBunWebSocketRuntimeSmokeEvidencePath,
+  resolveApiBunWebSocketRuntimeEvidencePath,
+  readOptionalProtocolPostureEvidenceFile,
+  readApiBunWebSocketRuntimeVerifiedFromEnvironment,
+  createOpenClinXrApiProtocolPostureFromEnvironment,
+  createBunRealtimeVoiceGatewayPostureInputFromEnvironment,
+} from "./protocol-posture-readers.js";
+export {
+  createBunRealtimeVoiceWebSocketHandler,
+  createBunServerConfig,
+} from "./bun-realtime-voice-handler.js";
+export {
   BLUEPRINT_ID as PROMOTION_BLUEPRINT_ID,
   IN_PROCESS_ORIGIN as PROMOTION_IN_PROCESS_ORIGIN,
   REVIEW_GATES as PROMOTION_REVIEW_GATES,

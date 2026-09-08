@@ -265,8 +265,6 @@ function toDomainScenarioStatus(status: AdminGraphqlScenario["status"]): DomainS
       return "approved";
     case AdminGraphqlScenarioStatus.Archived:
       return "retired";
-    case AdminGraphqlScenarioStatus.Draft:
-    case AdminGraphqlScenarioStatus.ReadyForReview:
     default:
       return "draft";
   }

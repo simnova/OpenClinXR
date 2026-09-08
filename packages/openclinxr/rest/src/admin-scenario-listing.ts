@@ -1,12 +1,10 @@
 import {
-  AdminGraphqlReviewDecision,
   type AdminGraphqlScenario,
   AdminGraphqlScenarioStatus,
 } from "@openclinxr/graphql";
 import type {
   ApiPersistenceSink,
   ApiScenarioReviewDecisionRecord,
-  ApiScenarioReviewerRole,
 } from "@openclinxr/rest";
 import { scenarioBank } from "@openclinxr/scenario-fixtures";
 import type { Scenario } from "@openclinxr/shared-schemas";
