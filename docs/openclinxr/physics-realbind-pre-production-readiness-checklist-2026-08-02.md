@@ -77,7 +77,7 @@ The following architecture-rule tests must pass before any production promotion 
 - [x] `@openclinxr/physics-touch-artifacts` package.json contains zero `@dimforge/rapier*` entries
 - [ ] Arena MADR link expectations include 0030 + 0031 for physics package + app READMEs
 
-Enforced by `packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts`.
+Enforced by `packages/openclinxr-verification/architecture-rules/src/workspace-architecture.test.ts`.
 
 ---
 

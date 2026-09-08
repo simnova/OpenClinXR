@@ -16,10 +16,10 @@
   ],
   "references": [
     {
-      "path": "../capability-gateway"
+      "path": "../../openclinxr/capability-gateway"
     },
     {
-      "path": "../domain"
+      "path": "../../openclinxr/domain"
     }
   ]
 }

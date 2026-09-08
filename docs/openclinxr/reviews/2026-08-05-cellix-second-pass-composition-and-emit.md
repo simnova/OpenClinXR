@@ -147,7 +147,7 @@ So the public subpath is not required for today’s type surface.
 
 **No — not given the architecture rule.**
 
-```1013:1018:packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts
+```1013:1018:packages/openclinxr-verification/architecture-rules/src/workspace-architecture.test.ts
   it("keeps UI app GraphQL imports on generated document subpaths instead of the executable server surface", () => {
     const violations = filesWithContentMatching("apps", /@openclinxr\/graphql(?!\/(?:documents|client)\b)/)
       .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath));

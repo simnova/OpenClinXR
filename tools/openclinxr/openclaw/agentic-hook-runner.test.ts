@@ -72,7 +72,7 @@ describe("agentic-hook-runner path-scoped architecture", () => {
 
   it("forces full turbo architecture when architecture-rules or monorepo topology is staged", () => {
     expect(
-      classifyArchitectureInvocation("pre-commit", ["packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts"]),
+      classifyArchitectureInvocation("pre-commit", ["packages/openclinxr-verification/architecture-rules/src/workspace-architecture.test.ts"]),
     ).toBe("full-turbo");
     expect(classifyArchitectureInvocation("pre-commit", ["package.json"])).toBe("full-turbo");
     expect(classifyArchitectureInvocation("pre-commit", ["turbo.json"])).toBe("full-turbo");

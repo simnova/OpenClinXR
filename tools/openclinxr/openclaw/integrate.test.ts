@@ -43,7 +43,7 @@ function repoWithCeilingRaise(): { root: string; base: string; head: string } {
   git(root, ["config", "user.name", "t"]);
 
   // Must be the REAL freeze path — checkRaisedCeiling reads that exact file at base and head.
-  const freezeRel = "packages/openclinxr/architecture-rules/src/checks/file-size-budgets.ts";
+  const freezeRel = "packages/openclinxr-verification/architecture-rules/src/checks/file-size-budgets.ts";
   mkdirSync(join(root, dirname(freezeRel)), { recursive: true });
   const freeze = join(root, freezeRel);
   writeFileSync(freeze, `export const SIZE_FREEZE = {\n  "a/b.ts": { maxLines: 607, reason: "x" },\n};\n`);

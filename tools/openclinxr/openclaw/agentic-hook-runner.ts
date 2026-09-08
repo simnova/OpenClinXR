@@ -64,7 +64,7 @@ export const ARCHITECTURE_RELEVANT_PATH_PATTERNS: RegExp[] = [
  * Editing the rules package or monorepo topology is not safe to short-circuit.
  */
 export const ARCHITECTURE_FORCE_FULL_PATH_PATTERNS: RegExp[] = [
-  /^packages\/openclinxr\/architecture-rules\//u,
+  /^packages\/openclinxr-verification\/architecture-rules\//u,
   /^package\.json$/u,
   /^pnpm-lock\.yaml$/u,
   /^pnpm-workspace\.yaml$/u,

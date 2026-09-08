@@ -88,7 +88,7 @@ Workspace naming should follow the development team's Turborepo convention:
 - Protocol contracts/adapters: `packages/openclinxr/graphql`, `packages/openclinxr/rest`, and additional `packages/openclinxr/...` protocols as needed.
 - Mongoose model layer: `packages/openclinxr/data-sources-mongoose-models`.
 - Local dependency simulators: `apps/mock-<<server-type>>-server`.
-- Architecture enforcement: `packages/openclinxr/architecture-rules` with ArchUnitTS tests that turn naming and dependency-direction decisions into executable checks.
+- Architecture enforcement: `packages/openclinxr-verification/architecture-rules` with ArchUnitTS tests that turn naming and dependency-direction decisions into executable checks.
 - Multi-actor runtime state: `packages/openclinxr/session-state` owns the production-shaped actor/session state contract promoted from the server-side multi-actor spike. The historical `packages/openclinxr/arena/multi-actor-state-spike` remains evidence-only and superseded for production imports.
 
 ## Dependency Posture

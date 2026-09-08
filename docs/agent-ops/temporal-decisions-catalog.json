@@ -97,7 +97,7 @@
       "executeOwnerRole": "xr-systems-architect",
       "workProductHints": [
         "apps/arena/ui-xr-iwsdk-spike/package.json",
-        "packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts",
+        "packages/openclinxr-verification/architecture-rules/src/workspace-architecture.test.ts",
         "docs/openclinxr/iwsdk-codex-mcp-runbook.md"
       ],
       "outcomeCreatesWork": true,

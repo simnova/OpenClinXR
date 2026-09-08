@@ -81,7 +81,7 @@ Each `writeRoots` entry is sole-authored unless listed as SHARED. Disjoint by de
 | Root (glob) | Sole author(s) | Shared rationale |
 |---|---|---|
 | `docs/agent-ops/**` | hrbp | — (COMPOSITION-ROOTS.md covered by composition-roots lock; ownedCovering allows both) |
-| `docs/agent-ops/COMPOSITION-ROOTS.md`, `packages/cellix/**`, `packages/openclinxr/architecture-rules/**` | **architect** | sole-author lock `composition-roots` |
+| `docs/agent-ops/COMPOSITION-ROOTS.md`, `packages/cellix/**`, `packages/openclinxr-verification/architecture-rules/**` | **architect** | sole-author lock `composition-roots` |
 | `packages/openclinxr/config-rolldown/**`, `docs/madr/**` | architect | topology/compose residual |
 | `.grok/agents/**`, `.grok/personas/**`, `.grok/roles/**` | hrbp | generated/pointer files |
 | `agents/coordinator/hrbp/**` | hrbp | — |
@@ -438,7 +438,7 @@ Wave C closes two residuals left after A+B: (1) composition doctrine was soft-on
 | **`architect` role** | Typed OpenClaw role `architect` at `agents/core/architect/` (+ policy `pathScope`, generated `.grok/agents/architect.md`). Mandate: package/composition integrity, composition-root hard law, reject silent full-stack. **Not** XR runtime IC (`xr-systems-architect`); **not** agent roster (`hrbp`). | **hard** policy + dual-stack | **IN FORCE** (roster **15** at Wave C; **16** after archivist) |
 | **Composition hard law** | Features → `packages/openclinxr/*`; apps = composition hosts / shells; tools = factory/pipeline CLIs. Dumping feature logic into apps without app-owner `writeRoots` is a **critical** SoD / composition defect. Hard rules H1–H5 in COMPOSITION-ROOTS.md. | soft roster + **hard** path `touched[]` + sole-author `composition-roots` | **IN FORCE** |
 | **Delivery must be role-mapped** | Product/delivery edits spawn **typed roles** whose `pathScope.writeRoots` cover the paths. Silent bare `general-purpose` catch-all → **major/critical**. Helper: `assertDeliveryRoleMapped(roleId)`. Spawn safeguards + workspace-write COMPOSITION-ROOTS pointer. | soft parent + **hard** assert helper when called | **IN FORCE** |
-| **composition-roots lock** | Owner **architect**: COMPOSITION-ROOTS.md, `packages/cellix/**`, `packages/openclinxr/architecture-rules/**`. `ownedCovering` allows hrbp agent-ops overlap on COMPOSITION-ROOTS only. | **hard** sole-author audit | **IN FORCE** |
+| **composition-roots lock** | Owner **architect**: COMPOSITION-ROOTS.md, `packages/cellix/**`, `packages/openclinxr-verification/architecture-rules/**`. `ownedCovering` allows hrbp agent-ops overlap on COMPOSITION-ROOTS only. | **hard** sole-author audit | **IN FORCE** |
 
 #### Architect vs adjacent roles (SoD)
 

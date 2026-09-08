@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   checkFileSizeBudgets,
   type FileSizeBudgetConfig,
-} from "../../../packages/openclinxr/architecture-rules/src/checks/file-size-budgets.ts";
+} from "../../../packages/openclinxr-verification/architecture-rules/src/checks/file-size-budgets.ts";
 
 /**
  * **The pre-commit size gate reads the WORKING TREE, so one agent's uncommitted edits block every

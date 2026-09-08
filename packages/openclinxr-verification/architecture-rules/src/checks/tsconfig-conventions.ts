@@ -59,6 +59,15 @@ export type TsconfigConventionConfig = {
 
 const SKIP_DIR = /node_modules$|[/\\](dist|generated|public|scratch)[/\\]/;
 
+/** readdirSync with the failure folded into the return, so the caller needs no annotation. */
+function readDirEntries(dir: string) {
+  try {
+    return readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return null;
+  }
+}
+
 function findWorkspaceRoot(): string {
   let dir = dirname(fileURLToPath(import.meta.url));
   for (let i = 0; i < 12; i += 1) {
@@ -84,13 +93,10 @@ function listTsconfigs(root: string): string[] {
   }
 
   while (stack.length > 0) {
-    const dir = stack.pop()!;
-    let entries;
-    try {
-      entries = readdirSync(dir, { withFileTypes: true });
-    } catch {
-      continue;
-    }
+    const dir = stack.pop();
+    if (dir === undefined) break;
+    const entries = readDirEntries(dir);
+    if (entries === null) continue;
     for (const entry of entries) {
       const full = join(dir, entry.name);
       if (entry.isDirectory()) {
