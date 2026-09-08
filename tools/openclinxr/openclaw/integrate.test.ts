@@ -1,9 +1,10 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, chmodSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { integrate, integrationEvents } from "./integrate.js";
+import { acquireIntegrationLock, releaseIntegrationLock } from "./integration-lock.js";
 import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { FACTORY_FIELD_ID } from "./board-cli.js";
 
@@ -398,5 +399,141 @@ describe("issue #448 — the board is the dequeue queue (integrate side)", () =>
     const result = integrate({ repoRoot: root, base, head, slice: "clean-slice", contract: greenContract, ghRunner: runner });
     expect(result.landed).toBe(true);
     expect(calls).toHaveLength(0);
+  });
+});
+
+/**
+ * Integration mutex — the one genuinely serial step in this repo.
+ * Two orchestrators landing at once contend on the index, and an incident on issue #657
+ * records exactly that, plus a `git stash pop` applying another worktree's WIP into main.
+ *
+ * The lock is acquired in integrate.ts before `git merge --no-ff --no-commit` and released
+ * in a finally block on every exit path (success, failure, throw).
+ */
+describe("integration mutex — concurrent integrates refuse and lock is released on failure", () => {
+  const greenContract = { proofsOk: true, proofs: [{ rule: "run:true", passed: true, detail: "ok" }] };
+
+  it("REFUSES a second integrate while the lock is held, naming the holder", () => {
+    const { root, base, head } = repoWithBenignChange();
+
+    // Manually acquire the integration lock to simulate a holder
+    const lockResult = acquireIntegrationLock(root, "manual-holder:test-slice:12345");
+    expect(lockResult.acquired).toBe(true);
+
+    // Now try to integrate — should throw because lock is held
+    let thrownError: Error | undefined;
+    try {
+      integrate({
+        repoRoot: root, base, head, slice: "second-slice", contract: greenContract, dryRun: false
+      });
+    } catch (error) {
+      thrownError = error as Error;
+    }
+
+    // Release the manual lock
+    releaseIntegrationLock(root, lockResult.token!);
+
+    // Must throw, naming the holder
+    expect(thrownError).toBeDefined();
+    expect(thrownError!.message).toContain("REFUSED — another integrator holds the lock");
+    expect(thrownError!.message).toContain("manual-holder");
+  });
+
+  it("RELEASES the lock after a FAILED integrate (pre-commit hook failure at commit)", () => {
+    const { root, base, head } = repoWithBenignChange();
+
+    // Install a failing pre-commit hook
+    const hook = join(root, ".git", "hooks", "pre-commit");
+    writeFileSync(hook, "#!/bin/sh\necho planted-commit-hook-failure >&2\nexit 42\n");
+    chmodSync(hook, 0o755);
+
+    // First integrate throws at commit (lock acquired, then released in finally)
+    let firstError: Error | undefined;
+    try {
+      integrate({ repoRoot: root, base, head, slice: "failed-slice", contract: greenContract, dryRun: false });
+    } catch (error) {
+      firstError = error as Error;
+    }
+    expect(firstError).toBeDefined();
+    expect(firstError!.message).toContain("planted-commit-hook-failure");
+
+    // Lock must be released — second integrate with clean change should succeed
+    const { root: root2, base: base2, head: head2 } = repoWithBenignChange();
+    const secondResult = integrate({
+      repoRoot: root2, base: base2, head: head2, slice: "second-slice", contract: greenContract, dryRun: false
+    });
+    expect(secondResult.landed).toBe(true);
+    expect(secondResult.exitCode).toBe(0);
+    expect(integrationEvents(root2)).toHaveLength(1);
+  });
+
+  it("DOES NOT ACQUIRE lock for merge-kill refusal (happens before lock)", () => {
+    const { root, base, head } = repoWithCeilingRaise();
+
+    // First integrate fails at merge-kill (raised ceiling) - returns result, never acquires lock
+    const firstResult = integrate({
+      repoRoot: root, base, head, slice: "failed-slice", contract: greenContract, dryRun: false
+    });
+    expect(firstResult.landed).toBe(false);
+    expect(firstResult.killReport.killed).toBe(true);
+    expect(firstResult.killReport.findings.some((f) => f.id === "raised-ceiling")).toBe(true);
+
+    // Lock was never acquired, so second integrate should succeed
+    const { root: root2, base: base2, head: head2 } = repoWithBenignChange();
+    const secondResult = integrate({
+      repoRoot: root2, base: base2, head: head2, slice: "second-slice", contract: greenContract, dryRun: false
+    });
+    expect(secondResult.landed).toBe(true);
+    expect(secondResult.exitCode).toBe(0);
+    expect(integrationEvents(root2)).toHaveLength(1);
+  });
+
+  it("DOES NOT ACQUIRE lock for worker-never-spoke refusal (happens before lock)", () => {
+    const { root, base, head } = repoWithBenignChange();
+    const runner = (argv: string[]): string => {
+      const joined = argv.join(" ");
+      if (joined.includes("graphql") && joined.includes("viewer{login}")) {
+        return JSON.stringify({
+          data: {
+            viewer: { login: "gidich" },
+            repository: { issue: { comments: { nodes: [{ author: { login: "gidich" }, body: "orchestrator bookkeeping" }] } } },
+          },
+        });
+      }
+      if (joined.includes("issue view")) return "[{ author: { login: 'gidich' }, body: 'orchestrator bookkeeping' }]";
+      if (joined.includes("api user")) return "gidich";
+      throw new Error("unexpected gh call");
+    };
+
+    // First integrate fails at worker-never-spoke - returns result, never acquires lock
+    // Use slice name with issue- prefix so the check runs
+    const firstResult = integrate({
+      repoRoot: root, base, head, slice: "issue-123", contract: greenContract, ghRunner: runner, dryRun: false
+    });
+    expect(firstResult.landed).toBe(false);
+    expect(firstResult.killReport.findings.some((f) => f.id === "worker-never-spoke")).toBe(true);
+
+    // Lock was never acquired, so second integrate should succeed
+    const { root: root2, base: base2, head: head2 } = repoWithBenignChange();
+    const validRunner = (argv: string[]): string => {
+      const joined = argv.join(" ");
+      if (joined.includes("graphql") && joined.includes("viewer{login}")) {
+        return JSON.stringify({
+          data: {
+            viewer: { login: "gidich" },
+            repository: { issue: { comments: { nodes: [{ author: { login: "gidich" }, body: "Factory: Dispatched" }] } } },
+          },
+        });
+      }
+      if (joined.includes("issue view")) return "[{ author: { login: 'gidich' }, body: 'Factory: Dispatched' }]";
+      if (joined.includes("api user")) return "gidich";
+      throw new Error("unexpected gh call");
+    };
+    const secondResult = integrate({
+      repoRoot: root2, base: base2, head: head2, slice: "issue-456", contract: greenContract, ghRunner: validRunner, dryRun: false
+    });
+    expect(secondResult.landed).toBe(true);
+    expect(secondResult.exitCode).toBe(0);
+    expect(integrationEvents(root2)).toHaveLength(1);
   });
 });
