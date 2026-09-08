@@ -133,7 +133,7 @@ test; re-run 34/34 green). Not caused by this package.
 - Four subpaths have stable dist mappings; `./resolvers` decision is recorded (keep, public).
 - Test typecheck preserved via `tsconfig.vitest.json` (MADR 0033 invariant).
 - Obsolete `rootDir` exemption removed from
-  `packages/openclinxr/architecture-rules/src/checks/tsconfig-conventions.ts`.
+  `packages/openclinxr-verification/architecture-rules/src/checks/tsconfig-conventions.ts`.
 
 **Accepted costs**
 

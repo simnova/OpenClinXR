@@ -5,6 +5,7 @@ packages:
   - "apps/arena/*"
   - "packages/cellix/*"
   - "packages/openclinxr/*"
+  - "packages/openclinxr-verification/*"
   - "packages/openclinxr/arena/*"
 
 engineStrict: true

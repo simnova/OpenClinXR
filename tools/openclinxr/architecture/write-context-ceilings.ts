@@ -5,7 +5,8 @@ import {
   CEILING_FILENAME,
   generateCeilings,
   measureContexts,
-} from "../../../packages/openclinxr/architecture-rules/src/checks/context-field-budgets.ts";
+} from "../../../packages/openclinxr-verification/architecture-rules/src/checks/context-field-budgets.ts";
+import { measureTestImports } from "../../../packages/openclinxr-verification/architecture-rules/src/checks/test-import-surface.ts";
 
 /**
  * Writes one arch-ceiling.json per over-budget package, and DELETES the file from any package
@@ -30,30 +31,40 @@ function repoRoot(): string {
 const root = repoRoot();
 const measurements = measureContexts();
 const ceilings = generateCeilings(measurements);
+const testImports = measureTestImports();
+const internalByPkg = new Map(testImports.map((t) => [t.pkg, t.internal]));
 const packagesRoot = join(root, "packages", "openclinxr");
 
 const written: string[] = [];
 const removed: string[] = [];
 
-for (const pkg of new Set(measurements.map((m) => m.pkg))) {
+const allPackages = new Set([...measurements.map((m) => m.pkg), ...testImports.map((t) => t.pkg)]);
+
+for (const pkg of allPackages) {
   const file = join(packagesRoot, pkg, CEILING_FILENAME);
-  const ceiling = ceilings[pkg];
-  if (ceiling === undefined) {
+  const contexts = ceilings[pkg]?.contexts;
+  const internal = internalByPkg.get(pkg) ?? 0;
+  if (contexts === undefined && internal === 0) {
     if (existsSync(file)) {
       rmSync(file);
       removed.push(`packages/openclinxr/${pkg}/${CEILING_FILENAME}`);
     }
     continue;
   }
-  const sorted = Object.fromEntries(
-    Object.entries(ceiling.contexts).sort(([a], [b]) => a.localeCompare(b)),
-  );
+  const body: { contexts?: Record<string, number>; testInternalImports?: number } = {};
+  if (contexts !== undefined) {
+    body.contexts = Object.fromEntries(
+      Object.entries(contexts).sort(([a], [b]) => a.localeCompare(b)),
+    );
+  }
+  if (internal > 0) body.testInternalImports = internal;
   mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, `${JSON.stringify({ contexts: sorted }, null, 2)}\n`);
+  writeFileSync(file, `${JSON.stringify(body, null, 2)}\n`);
   written.push(`packages/openclinxr/${pkg}/${CEILING_FILENAME}`);
 }
 
 console.log(`context types measured: ${measurements.length}`);
+console.log(`packages with tests measured: ${testImports.length}`);
 console.log(`ceilings written: ${written.length}`);
 for (const f of written.sort()) console.log(`  + ${f}`);
 for (const f of removed.sort()) console.log(`  - ${f}`);

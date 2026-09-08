@@ -71,9 +71,9 @@ const okContract = {
 };
 
 const SIZE_FREEZE_PATH =
-  "packages/openclinxr/architecture-rules/src/checks/file-size-budgets.ts";
+  "packages/openclinxr-verification/architecture-rules/src/checks/file-size-budgets.ts";
 const REF_FREEZE_PATH =
-  "packages/openclinxr/architecture-rules/src/checks/markdown-references.ts";
+  "packages/openclinxr-verification/architecture-rules/src/checks/markdown-references.ts";
 
 function sizeFreezeSource(entries: Record<string, number>): string {
   const body = Object.entries(entries)

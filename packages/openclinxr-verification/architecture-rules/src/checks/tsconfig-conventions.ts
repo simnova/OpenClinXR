@@ -84,8 +84,9 @@ function listTsconfigs(root: string): string[] {
   }
 
   while (stack.length > 0) {
-    const dir = stack.pop()!;
-    let entries;
+    const dir = stack.pop();
+    if (dir === undefined) break;
+    let entries: ReturnType<typeof readdirSync>;
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {

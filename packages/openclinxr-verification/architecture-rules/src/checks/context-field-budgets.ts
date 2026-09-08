@@ -112,7 +112,8 @@ export function measureContexts(): ContextMeasurement[] {
   return out.sort((a, b) => b.fields - a.fields);
 }
 
-export type PackageCeiling = { contexts: Record<string, number> };
+/** arch-ceiling.json is shared with checks/test-import-surface.ts, so contexts is optional. */
+export type PackageCeiling = { contexts?: Record<string, number> };
 
 /** The generated ceiling for one package, or null when it carries none (i.e. it is under budget). */
 export function readPackageCeiling(pkg: string): PackageCeiling | null {
@@ -149,7 +150,7 @@ export function checkContextFieldBudgets(
   const seen = new Set<string>();
   for (const m of measurements) {
     seen.add(`${m.pkg}::${m.type}`);
-    const ceiling = ceilingFor(m.pkg)?.contexts[m.type];
+    const ceiling = ceilingFor(m.pkg)?.contexts?.[m.type];
     if (m.fields <= CONTEXT_FIELD_BUDGET) {
       if (ceiling !== undefined) {
         violations.push({
@@ -186,7 +187,7 @@ export function checkContextFieldBudgets(
   for (const m of measurements) {
     const ceiling = ceilingFor(m.pkg);
     if (ceiling === null) continue;
-    for (const [type, value] of Object.entries(ceiling.contexts)) {
+    for (const [type, value] of Object.entries(ceiling.contexts ?? {})) {
       if (!seen.has(`${m.pkg}::${type}`)) continue;
       const measured = measurements.find((x) => x.pkg === m.pkg && x.type === type)?.fields ?? 0;
       // A context that has fallen to or under the budget is already reported above as carrying

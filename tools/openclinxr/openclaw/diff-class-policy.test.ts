@@ -57,14 +57,14 @@ describe("diff-class-policy", () => {
 
   it("classifies file-size-budgets.ts as freeze-ratchet and ranks it above architecture-rule", () => {
     expect(
-      classifyPath("packages/openclinxr/architecture-rules/src/checks/file-size-budgets.ts"),
+      classifyPath("packages/openclinxr-verification/architecture-rules/src/checks/file-size-budgets.ts"),
     ).toBe("freeze-ratchet");
     expect(
-      classifyPath("packages/openclinxr/architecture-rules/src/checks/markdown-references.ts"),
+      classifyPath("packages/openclinxr-verification/architecture-rules/src/checks/markdown-references.ts"),
     ).toBe("freeze-ratchet");
     // Sibling under architecture-rules is architecture-rule, not freeze-ratchet.
     expect(
-      classifyPath("packages/openclinxr/architecture-rules/src/checks/decision-invariants.ts"),
+      classifyPath("packages/openclinxr-verification/architecture-rules/src/checks/decision-invariants.ts"),
     ).toBe("architecture-rule");
 
     const freezeIdx = DIFF_CLASS_SEVERITY.indexOf("freeze-ratchet");
@@ -76,7 +76,7 @@ describe("diff-class-policy", () => {
 
   it("classifyDiff returns most severe class and the union of required checks", () => {
     const c = classifyDiff([
-      "packages/openclinxr/architecture-rules/src/checks/file-size-budgets.ts",
+      "packages/openclinxr-verification/architecture-rules/src/checks/file-size-budgets.ts",
       "apps/ui-xr/src/main.ts",
       "README.md",
     ]);
@@ -121,8 +121,8 @@ describe("diff-class-policy", () => {
     const scripts = rootPackageScripts();
     // Exercise classes that emit real runners
     const c = classifyDiff([
-      "packages/openclinxr/architecture-rules/src/index.ts",
-      "packages/openclinxr/architecture-rules/src/checks/file-size-budgets.ts",
+      "packages/openclinxr-verification/architecture-rules/src/index.ts",
+      "packages/openclinxr-verification/architecture-rules/src/checks/file-size-budgets.ts",
       "apps/ui-xr/src/main.ts",
       "tools/openclinxr/openclaw/diff-class-policy.ts",
       "docs/openclinxr/guide.md",
@@ -148,7 +148,7 @@ describe("diff-class-policy", () => {
   it("dedupes RequiredCheck ids when two classes demand the same check", () => {
     // freeze-ratchet + docs both require architecture
     const c = classifyDiff([
-      "packages/openclinxr/architecture-rules/src/checks/markdown-references.ts",
+      "packages/openclinxr-verification/architecture-rules/src/checks/markdown-references.ts",
       "docs/openclinxr/guide.md",
     ]);
     const architectureChecks = c.requiredChecks.filter((r) => r.id === "architecture");

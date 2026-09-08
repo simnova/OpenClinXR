@@ -38,7 +38,7 @@
       "path": "./packages/openclinxr/agent-loop"
     },
     {
-      "path": "./packages/openclinxr/architecture-rules"
+      "path": "./packages/openclinxr-verification/architecture-rules"
     },
     {
       "path": "./packages/openclinxr/arena/iwsdk-spike"

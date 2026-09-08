@@ -72,8 +72,8 @@ export const PROTECTED_POLICY_PATHS: readonly string[] = [
 
 /** Ceiling-map files — SIZE_FREEZE / broken-reference maps live here. */
 const FREEZE_RATCHET_PATHS: readonly string[] = [
-  "packages/openclinxr/architecture-rules/src/checks/file-size-budgets.ts",
-  "packages/openclinxr/architecture-rules/src/checks/markdown-references.ts",
+  "packages/openclinxr-verification/architecture-rules/src/checks/file-size-budgets.ts",
+  "packages/openclinxr-verification/architecture-rules/src/checks/markdown-references.ts",
 ] as const;
 
 const FORBIDDEN_CLASSES = new Set<DiffClass>(["protected-policy", "coordination-state"]);
@@ -230,7 +230,7 @@ export function classifyPath(path: string): DiffClass {
   if (isProtectedPolicyPath(p)) return "protected-policy";
   if (isCoordinationStatePath(p)) return "coordination-state";
   if (isFreezeRatchetPath(p)) return "freeze-ratchet";
-  if (isUnder(p, "packages/openclinxr/architecture-rules")) return "architecture-rule";
+  if (isUnder(p, "packages/openclinxr-verification/architecture-rules")) return "architecture-rule";
   if (isUnder(p, ".githooks") || isUnder(p, ".husky")) return "secrets-hooks";
   if (isUnder(p, "tools/openclinxr/openclaw") || isUnder(p, "packages/openclinxr/agent-loop")) {
     return "harness";

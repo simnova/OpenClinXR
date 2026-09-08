@@ -189,7 +189,7 @@ export const rolePathScopes: Record<string, RolePathScope> = {
   architect: {
     writeRoots: [
       "packages/cellix/**",
-      "packages/openclinxr/architecture-rules/**",
+      "packages/openclinxr-verification/architecture-rules/**",
       "packages/openclinxr/config-rolldown/**",
       "docs/agent-ops/COMPOSITION-ROOTS.md",
       "docs/madr/**",

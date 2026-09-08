@@ -34,7 +34,7 @@
 import { execFileSync } from "node:child_process";
 import { classifyDiff } from "./diff-class-policy.js";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, isAbsolute, join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 // ── Public types ─────────────────────────────────────────────────────────────
@@ -203,9 +203,9 @@ export function parseAddedLines(raw: string): AddedLine[] {
 // ── Freeze-map parsers ───────────────────────────────────────────────────────
 
 const SIZE_FREEZE_PATH =
-  "packages/openclinxr/architecture-rules/src/checks/file-size-budgets.ts";
+  "packages/openclinxr-verification/architecture-rules/src/checks/file-size-budgets.ts";
 const REF_FREEZE_PATH =
-  "packages/openclinxr/architecture-rules/src/checks/markdown-references.ts";
+  "packages/openclinxr-verification/architecture-rules/src/checks/markdown-references.ts";
 
 /**
  * Parse SIZE_FREEZE-style entries: `"path": { maxLines: N, ... }`
@@ -215,8 +215,7 @@ export function parseSizeFreezeCeilings(source: string): Map<string, number> {
   const map = new Map<string, number>();
   // Match "path": { ... maxLines: N ... } across short spans
   const re = /"([^"]+)"\s*:\s*\{[^}]*?maxLines\s*:\s*(\d+)/gs;
-  let match: RegExpExecArray | null;
-  while ((match = re.exec(source)) !== null) {
+  for (let match = re.exec(source); match !== null; match = re.exec(source)) {
     const key = match[1];
     const n = Number(match[2]);
     if (key !== undefined && Number.isFinite(n)) map.set(key, n);
@@ -231,8 +230,7 @@ export function parseSizeFreezeCeilings(source: string): Map<string, number> {
 export function parseRefFreezeCeilings(source: string): Map<string, number> {
   const map = new Map<string, number>();
   const re = /"([^"]+)"\s*:\s*(\d+)\s*,/g;
-  let match: RegExpExecArray | null;
-  while ((match = re.exec(source)) !== null) {
+  for (let match = re.exec(source); match !== null; match = re.exec(source)) {
     const key = match[1];
     const n = Number(match[2]);
     if (key !== undefined && Number.isFinite(n)) map.set(key, n);
@@ -496,7 +494,7 @@ function checkEmptyDiffWithPassingProofs(
   changedFiles: number,
   contract: MergeKillInput["contract"],
 ): KillFinding[] {
-  if (!contract || contract.proofsOk !== true) return [];
+  if (contract?.proofsOk !== true) return [];
   if (changedFiles !== 0) return [];
   return [
     {
@@ -623,8 +621,7 @@ function extractPathsFromRunRule(rule: string): string[] {
   // Tokens that look like repo-relative source/test files
   const paths: string[] = [];
   const re = /(?:^|[\s"'`])([A-Za-z0-9_./-]+\.(?:test|spec)\.[A-Za-z0-9]+|[A-Za-z0-9_./-]+\.(?:ts|tsx|js|jsx|mts|cts))(?=[\s"'`]|$)/g;
-  let match: RegExpExecArray | null;
-  while ((match = re.exec(command)) !== null) {
+  for (let match = re.exec(command); match !== null; match = re.exec(command)) {
     const p = match[1];
     if (p && !p.startsWith("-")) paths.push(p);
   }

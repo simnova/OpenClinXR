@@ -73,7 +73,7 @@ import { runMergeKill, type MergeKillReport } from "../openclaw/merge-kill.js";
  * on 2026-08-28; the five green clauses were already passing before and after the criterion landed.
  */
 
-const SIZE_FREEZE_PATH = "packages/openclinxr/architecture-rules/src/checks/file-size-budgets.ts";
+const SIZE_FREEZE_PATH = "packages/openclinxr-verification/architecture-rules/src/checks/file-size-budgets.ts";
 const FROZEN_FILE = "apps/god.ts";
 const UNFROZEN_FILE = "apps/free.ts";
 const CEILING = 10;

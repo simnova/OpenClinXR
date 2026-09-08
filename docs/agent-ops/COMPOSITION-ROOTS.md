@@ -26,7 +26,7 @@ When to residual **`architect`** (not do it as ui-xr / asset / harness IC):
 
 | Trigger | Residual to architect | Keep on domain role |
 |---------|----------------------|---------------------|
-| New package / boundary / ArchUnit rule | Yes — `packages/openclinxr/architecture-rules/**`, cellix configs | Feature body after boundary exists |
+| New package / boundary / ArchUnit rule | Yes — `packages/openclinxr-verification/architecture-rules/**`, cellix configs | Feature body after boundary exists |
 | Feature dump into app host | Architect names extraction path; domain implements in package | Domain owns package feature + thin app wire |
 | Shared TS/vitest seedwork (`packages/cellix/**`) | Yes | Consumers only |
 | Composition doctrine edit (`COMPOSITION-ROOTS.md`) | Yes (lock owner) | Point only |
@@ -58,7 +58,7 @@ OpenClinXR is not classic FE/BE RIF. Map product work to these **domain columns*
 | **Other hosts** | `apps/api`, `apps/arena` | Runtime shells (server / tester host) | `apps/api/**`, `apps/arena/model-vetting-studio/**` (tester app) |
 | **Features** | `packages/openclinxr/*` | Feature packages (domain, runtime, persistence, review, gateways) | `agent-loop`, `domain`, `scenario-runtime`, `trace-ledger`, `data-mongodb`, `voice-gateway`, `exam-assembly` |
 | **Seedwork** | `packages/cellix/*` | Shared TS/vitest monorepo seedwork | `config-typescript`, `config-vitest` |
-| **Architecture gate** | `packages/openclinxr/architecture-rules/**` | ArchUnit-style workspace rules | `workspace-architecture.test.ts` |
+| **Architecture gate** | `packages/openclinxr-verification/architecture-rules/**` | ArchUnit-style workspace rules | `workspace-architecture.test.ts` |
 | **Factory / pipeline CLIs** | `tools/openclinxr/*` | Factory/pipeline command-line tools | `asset-pipeline`, `evidence`, `factory`, `openclaw` |
 
 ## Agent implication
@@ -67,7 +67,7 @@ OpenClinXR is not classic FE/BE RIF. Map product work to these **domain columns*
 - **Do not dump features into apps** unless the role's `writeRoots` explicitly allow the shell path **and** the change is host/boot/wire only. Only app-owning roles (`xr-systems-architect` → `apps/ui-xr/**`+`apps/arena/**`; `asset-pipeline-lead` → `apps/arena/model-vetting-studio/**`) may write into app shells for their domain.
 - Coordinators (chief-coordinator, hrbp, drift-police, skeptics, planners) write coordination/governance docs only — never product features in `apps/**` or domain packages.
 - SoD guard: `assertTouchedWithinWriteRoots()` + `auditHandoffsPathScope()` fail slice verify (`ok: false`) on any `touched` path outside `writeRoots`.
-- Sole-author lock **`composition-roots`** (owner: `architect`): `docs/agent-ops/COMPOSITION-ROOTS.md`, `packages/cellix/**`, `packages/openclinxr/architecture-rules/**`.
+- Sole-author lock **`composition-roots`** (owner: `architect`): `docs/agent-ops/COMPOSITION-ROOTS.md`, `packages/cellix/**`, `packages/openclinxr-verification/architecture-rules/**`.
 - Residual work outside a role's roots → hand off to the owning role or parent; do not widen your own scope.
 - Write-role spawn prompts include a short **COMPOSITION-ROOTS** pointer (Wave C-arch).
 

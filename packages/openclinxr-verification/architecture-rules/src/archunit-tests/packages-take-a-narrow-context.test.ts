@@ -26,19 +26,22 @@ describe("packages take a narrow context", () => {
     expect(violations.map((v) => v.detail), violations.map((v) => v.detail).join("\n")).toEqual([]);
   });
 
-  it("(2) the ceilings on disk equal what the tree measures — run pnpm arch:ceilings", () => {
+  it("(2) the context ceilings on disk equal what the tree measures — run pnpm arch:ceilings", () => {
+    // arch-ceiling.json is shared with checks/test-import-surface.ts, so compare the contexts
+    // field only; a file may legitimately carry testInternalImports and no contexts at all.
     const expected = generateCeilings();
     for (const [pkg, ceiling] of Object.entries(expected)) {
-      expect(readPackageCeiling(pkg), `packages/openclinxr/${pkg}/arch-ceiling.json is missing`).toEqual(
-        ceiling,
-      );
+      expect(
+        readPackageCeiling(pkg)?.contexts,
+        `packages/openclinxr/${pkg}/arch-ceiling.json is missing its contexts`,
+      ).toEqual(ceiling.contexts);
     }
     for (const pkg of new Set(measureContexts().map((m) => m.pkg))) {
       if (expected[pkg] !== undefined) continue;
       expect(
-        readPackageCeiling(pkg),
-        `packages/openclinxr/${pkg} is under budget but still carries a ceiling`,
-      ).toBeNull();
+        readPackageCeiling(pkg)?.contexts,
+        `packages/openclinxr/${pkg} is under budget but still carries a context ceiling`,
+      ).toBeUndefined();
     }
   });
 

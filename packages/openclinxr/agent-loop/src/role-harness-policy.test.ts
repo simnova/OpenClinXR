@@ -104,7 +104,7 @@ describe("role-harness-policy", () => {
     it("hrbp writeScope still mentions agent-ops", () => {
       const hrbp = getRepoRoleHarnessPolicy("hrbp");
       expect(hrbp).toBeDefined();
-      expect(hrbp!.writeScopeNote).toContain("agent-ops");
+      expect(hrbp?.writeScopeNote).toContain("agent-ops");
     });
 
     it("role list length is 18 (includes architect + archivist + hrbp + pmo + imagine-trellis)", () => {
@@ -118,19 +118,19 @@ describe("role-harness-policy", () => {
     it("pmo owns temporal cadence writeRoots and hygiene CLIs", () => {
       const policy = getRepoRoleHarnessPolicy("pmo");
       expect(policy).toBeDefined();
-      expect(policy!.policyTier).toBe("standard_execution");
-      expect(policy!.sandboxMode).toBe("workspace-write");
-      expect(policy!.pathScope.writeRoots).toEqual(
+      expect(policy?.policyTier).toBe("standard_execution");
+      expect(policy?.sandboxMode).toBe("workspace-write");
+      expect(policy?.pathScope.writeRoots).toEqual(
         expect.arrayContaining([
           "docs/agent-ops/DOC-HYGIENE-CADENCE.md",
           ".openclinxr/docs-hygiene/**",
           "agents/coordinator/pmo/**",
         ]),
       );
-      expect(policy!.pathScope.preferredCli).toEqual(
+      expect(policy?.pathScope.preferredCli).toEqual(
         expect.arrayContaining(["pnpm docs:hygiene:run", "pnpm docs:hygiene:session-start"]),
       );
-      expect(policy!.pathScope.forbidden).toEqual(
+      expect(policy?.pathScope.forbidden).toEqual(
         expect.arrayContaining(["apps/**", "packages/**", "docs/agent-ops/PATH-SCOPE.md"]),
       );
       const tools = disallowedToolsForRole("pmo", policy!);
@@ -142,18 +142,18 @@ describe("role-harness-policy", () => {
     it("archivist is fast_bounded read-only warehouse retrieval", () => {
       const policy = getRepoRoleHarnessPolicy("archivist");
       expect(policy).toBeDefined();
-      expect(policy!.policyTier).toBe("fast_bounded");
-      expect(policy!.sandboxMode).toBe("read-only");
-      expect(policy!.pathScope.writeRoots).toEqual(
+      expect(policy?.policyTier).toBe("fast_bounded");
+      expect(policy?.sandboxMode).toBe("read-only");
+      expect(policy?.pathScope.writeRoots).toEqual(
         expect.arrayContaining([".openclinxr/docs-archive/**", "agents/coordinator/archivist/**"]),
       );
-      expect(policy!.pathScope.readRoots).toEqual(
+      expect(policy?.pathScope.readRoots).toEqual(
         expect.arrayContaining(["docs/_archive/**", "docs/agent-ops/DOC-WAREHOUSE.md"]),
       );
-      expect(policy!.pathScope.forbidden).toEqual(
+      expect(policy?.pathScope.forbidden).toEqual(
         expect.arrayContaining(["apps/**", "packages/**", "docs/agent-ops/PATH-SCOPE.md"]),
       );
-      expect(policy!.pathScope.preferredCli).toEqual(
+      expect(policy?.pathScope.preferredCli).toEqual(
         expect.arrayContaining(["pnpm docs:archive status", "rg"]),
       );
       const tools = disallowedToolsForRole("archivist", policy!);
@@ -166,16 +166,16 @@ describe("role-harness-policy", () => {
     it("architect has composition writeRoots and bans image tools", () => {
       const policy = getRepoRoleHarnessPolicy("architect");
       expect(policy).toBeDefined();
-      expect(policy!.policyTier).toBe("standard_execution");
-      expect(policy!.sandboxMode).toBe("workspace-write");
-      expect(policy!.pathScope.writeRoots).toEqual(
+      expect(policy?.policyTier).toBe("standard_execution");
+      expect(policy?.sandboxMode).toBe("workspace-write");
+      expect(policy?.pathScope.writeRoots).toEqual(
         expect.arrayContaining([
           "packages/cellix/**",
-          "packages/openclinxr/architecture-rules/**",
+          "packages/openclinxr-verification/architecture-rules/**",
           "docs/agent-ops/COMPOSITION-ROOTS.md",
         ]),
       );
-      expect(policy!.pathScope.preferredCli).toEqual(
+      expect(policy?.pathScope.preferredCli).toEqual(
         expect.arrayContaining(["pnpm --filter @openclinxr/architecture-rules", "pnpm boundaries"]),
       );
       const tools = disallowedToolsForRole("architect", policy!);
@@ -565,7 +565,7 @@ describe("role-harness-policy", () => {
       const violations = findSoleAuthorLockViolations("architect", [
         "docs/agent-ops/COMPOSITION-ROOTS.md",
         "packages/cellix/config-typescript/package.json",
-        "packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts",
+        "packages/openclinxr-verification/architecture-rules/src/workspace-architecture.test.ts",
       ]);
       expect(violations).toEqual([]);
     });
@@ -600,7 +600,7 @@ describe("role-harness-policy", () => {
       expect(violations.length).toBeGreaterThanOrEqual(1);
       const agentRosterViolation = violations.find((v) => v.lockId === "agent-roster");
       expect(agentRosterViolation).toBeDefined();
-      expect(agentRosterViolation!.ownerRoleId).toBe("hrbp");
+      expect(agentRosterViolation?.ownerRoleId).toBe("hrbp");
     });
 
     it("other role triggers violation for protected blueprint docs", () => {
@@ -610,7 +610,7 @@ describe("role-harness-policy", () => {
       expect(violations.length).toBeGreaterThanOrEqual(1);
       const blueprintViolation = violations.find((v) => v.lockId === "protected-blueprint");
       expect(blueprintViolation).toBeDefined();
-      expect(blueprintViolation!.ownerRoleId).toBe("openclaw-drift-police");
+      expect(blueprintViolation?.ownerRoleId).toBe("openclaw-drift-police");
     });
 
     it("openclaw-drift-police owns protected-blueprint and can touch it", () => {

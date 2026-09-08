@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 /**
  * **The land path is closed: no commit staging `apps/**` can pass pre-commit.** The paid-provider
- * credential scan in `packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts`
+ * credential scan in `packages/openclinxr-verification/architecture-rules/src/workspace-architecture.test.ts`
  * exceeds its own 5,000 ms timeout, so `architecture` fails, so the commit is refused.
  *
  * ## CORRECTED PREMISE — #352 says "times out under contention". IT ALSO FAILS AT REST.
@@ -86,7 +86,7 @@ import { describe, expect, it } from "vitest";
 /**
  * ## FIXED (#352) 2026-08-14
  *
- * The scan moved to `packages/openclinxr/architecture-rules/src/checks/paid-provider-scan.ts`
+ * The scan moved to `packages/openclinxr-verification/architecture-rules/src/checks/paid-provider-scan.ts`
  * (`collectPaidProviderPolicyFiles()`): a single `git ls-files` subprocess (~3,074 tracked files,
  * gitignored excluded by construction) replaces the 55,650-file walk plus ~100 per-file
  * `git check-ignore` spawns, and the result is memoised per process. The suite's
@@ -107,7 +107,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const SUITE = join(
   REPO_ROOT,
-  "packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts",
+  "packages/openclinxr-verification/architecture-rules/src/workspace-architecture.test.ts",
 );
 
 /**
@@ -187,7 +187,7 @@ describe("the paid-provider scan finishes inside its own timeout", () => {
     requireSuite();
     expect(
       scan,
-      "packages/openclinxr/architecture-rules/src/checks/paid-provider-scan.ts exporting collectPaidProviderPolicyFiles",
+      "packages/openclinxr-verification/architecture-rules/src/checks/paid-provider-scan.ts exporting collectPaidProviderPolicyFiles",
     ).not.toBeNull();
     expect(
       Math.round(cold.ms),

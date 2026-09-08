@@ -164,7 +164,8 @@ export function buildScorecard(
 
   const byModel: Scorecard["byModel"] = {};
   for (const outcome of outcomes) {
-    const bucket = (byModel[outcome.model] ??= { dispatched: 0, landed: 0 });
+    byModel[outcome.model] ??= { dispatched: 0, landed: 0 };
+    const bucket = byModel[outcome.model];
     bucket.dispatched += 1;
     if (outcome.landed) bucket.landed += 1;
   }
@@ -232,13 +233,13 @@ export function readDebt(repoRoot: string): Scorecard["debt"] {
   };
   return {
     brokenReferenceCeilings: sum(
-      "packages/openclinxr/architecture-rules/src/checks/markdown-references.ts",
+      "packages/openclinxr-verification/architecture-rules/src/checks/markdown-references.ts",
       /^\s*"[^"]+":\s*(\d+),/gm,
     ),
     // SIZE_FREEZE entries are `{ maxLines: N, reason }`, not bare numbers — a naive
     // `"path": N` regex silently returned 0, which would have read as "no size debt".
     sizeFreezeEntries: sum(
-      "packages/openclinxr/architecture-rules/src/checks/file-size-budgets.ts",
+      "packages/openclinxr-verification/architecture-rules/src/checks/file-size-budgets.ts",
       /maxLines:\s*(\d+)/gm,
     ),
   };

@@ -103,7 +103,7 @@ export const soleAuthorLocks: SoleAuthorLock[] = [
     paths: [
       "docs/agent-ops/COMPOSITION-ROOTS.md",
       "packages/cellix/**",
-      "packages/openclinxr/architecture-rules/**",
+      "packages/openclinxr-verification/architecture-rules/**",
     ],
     ownerRoleId: "architect",
     note: "Architect sole-authors composition doctrine + cellix seedwork + architecture-rules",
@@ -270,7 +270,7 @@ export function pathMatchesAnyGlob(filePath: string, globs: string[]): boolean {
       .replace(/___DOUBLESTAR___/g, ".*");
     // Trailing /** means match everything inside
     if (pattern.endsWith("/[^/]*")) {
-      pattern = pattern.slice(0, -"[^/]*".length) + ".*";
+      pattern = `${pattern.slice(0, -"[^/]*".length)}.*`;
     }
     const re = new RegExp(`^${pattern}$`);
     if (re.test(filePath)) return true;

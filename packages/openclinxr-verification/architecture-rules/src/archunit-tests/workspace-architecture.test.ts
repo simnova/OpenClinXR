@@ -522,12 +522,18 @@ describe("workspace architecture rules", () => {
     expect(readme).toContain("native Opus encode/decode");
   });
 
-  it("keeps project-specific packages under packages/openclinxr", () => {
+  it("keeps project packages in a declared scope, not scattered under packages/", () => {
+    // Three scopes, deliberately. packages/openclinxr-verification/ was added 2026-09-07 for the
+    // verification tier, matching the CellixJs reference's packages/ocom-verification/ and
+    // packages/cellix/archunit-tests. Separating the tier that JUDGES the product from the
+    // product itself is the point: architecture-rules was 161 of the last 400 commits at a
+    // fan-in of 8, so its churn was landing in the same scope as the code it gates.
+    const scopes = ["packages/openclinxr/", "packages/cellix/", "packages/openclinxr-verification/"];
     const violations = sourceFilesUnder("packages").filter(
-      (filePath) => !filePath.startsWith("packages/openclinxr/") && !filePath.startsWith("packages/cellix/"),
+      (filePath) => !scopes.some((scope) => filePath.startsWith(scope)),
     );
 
-    expect(violations).toEqual([]);
+    expect(violations, `packages outside the declared scopes ${scopes.join(", ")}`).toEqual([]);
   });
 
   it("keeps production apps free of capability arena package dependencies", () => {
@@ -748,7 +754,7 @@ describe("workspace architecture rules", () => {
       .filter((manifestPath) => manifestPath.startsWith("packages/openclinxr/"))
       .filter((manifestPath) => /(?:spike|arena|cage|bakeoff)/.test(manifestPath))
       .filter((manifestPath) => !capabilityArenaPackageRoots.some((root) => manifestPath.startsWith(root)))
-      .filter((manifestPath) => !manifestPath.startsWith("packages/openclinxr/architecture-rules/"));
+      .filter((manifestPath) => !manifestPath.startsWith("packages/openclinxr-verification/architecture-rules/"));
 
     expect(arenaPackageManifestPaths.sort()).toEqual([
       "packages/openclinxr/arena/iwsdk-spike/package.json",
@@ -1455,7 +1461,7 @@ describe("workspace architecture rules", () => {
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
     };
-    const catalogVersion = (dep: string, fallback: string) =>
+    const catalogVersion = (_dep: string, fallback: string) =>
       expect.stringMatching(new RegExp(`^(?:${fallback.replace(/\./g, "\\.")}|catalog:)$`));
     expect(manifest.dependencies).toMatchObject({
       "@iwsdk/core": "0.5.3",

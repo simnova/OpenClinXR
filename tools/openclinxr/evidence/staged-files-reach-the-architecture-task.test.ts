@@ -93,7 +93,7 @@ const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../");
 const HOOK_ENV_VAR = "OPENCLINXR_HOOK_STAGED_FILES";
 
 /** Synthetic staged set, mirroring agentic-hook-runner.ts:369 — the hook's real condition. */
-const SYNTHETIC_STAGED = "packages/openclinxr/architecture-rules/src/being-committed.ts";
+const SYNTHETIC_STAGED = "packages/openclinxr-verification/architecture-rules/src/being-committed.ts";
 
 interface TurboDryTask {
   taskId: string;
