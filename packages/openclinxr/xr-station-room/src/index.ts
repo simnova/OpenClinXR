@@ -1,3 +1,14 @@
+export { assembleStationScene } from "./station-scene-assembly.js";
+export type {
+  StationSceneAssembly,
+  StationSceneActorsStage,
+  StationSceneBuiltStage,
+  StationSceneFixturesStage,
+  StationSceneInteractionStage,
+  StationScenePanelsStage,
+  StationSceneRoomStage,
+  StationSceneStage,
+} from "./station-scene-assembly.js";
 /**
  * Station room shell and environment loading — extracted from apps/ui-xr/src/main.ts
  * Lines ~3010-3202: #44 station shell from shared environmentId descriptor,

@@ -1,27 +1,10 @@
 {
-  "extends": "@cellix/config-typescript/vitest",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "composite": true,
-    "tsBuildInfoFile": "./tsconfig.vitest.tsbuildinfo",
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "declarationDir": "./dist",
-    "declarationMap": true,
-    "sourceMap": true,
-    "noPropertyAccessFromIndexSignature": false,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["node", "vitest"],
-    "references": [
-      { "path": "../asset-registry" },
-      { "path": "../shared-schemas" },
-      { "path": "../xr-asset-loading" },
-      { "path": "../xr-runtime-state" },
-      { "path": "../xr-scene" },
-      { "path": "../xr-scene-cues" },
-      { "path": "../xr-capture-evidence" },
-      { "path": "../xr-station" }
-    ]
+    "noEmit": true,
+    "composite": false,
+    "types": ["node", "vitest"]
   },
-  "include": ["src/**/*.ts", "src/**/*.test.ts", "vitest.setup.ts"],
+  "include": ["src/**/*.ts", "vitest.setup.ts"],
   "exclude": ["node_modules", "dist"]
 }
