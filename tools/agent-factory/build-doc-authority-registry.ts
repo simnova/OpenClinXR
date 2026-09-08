@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -193,6 +194,39 @@ const retainedEvidence = new Set([
 const DATED_AGENT_OPS = /docs\/agent-ops\/\d{4}-\d{2}-\d{2}-/u;
 const DATED_SEGMENT = /\/\d{4}-\d{2}-\d{2}-/u;
 
+/**
+ * Paths git IGNORES are not repo documents, and registering them makes the registry unusable
+ * anywhere but the machine that generated it.
+ *
+ * MEASURED 2026-09-07: 90 of the 98 registered `.openclinxr/**` entries were untracked local
+ * evidence — per-slice handoffs, factory reports, tool-runtime notes. They resolve on the
+ * machine that wrote them and nowhere else, so `markdown-references.test.ts` passed in main
+ * and failed in every worker worktree with 59 unresolved references against a ceiling of 0.
+ * That is the second time this exact class broke the architecture proof for worktree-bound
+ * workers; the first was `.claude/worktrees/**`, excluded by path above.
+ *
+ * A file that is new and NOT ignored is still scanned, so the drift gate keeps its teeth on a
+ * doc somebody just wrote and has not registered yet.
+ */
+function ignoredPaths(root: string, candidates: readonly string[]): Set<string> {
+  if (candidates.length === 0) return new Set();
+  try {
+    const out = execFileSync("git", ["check-ignore", "--stdin"], {
+      cwd: root,
+      input: candidates.join("\n"),
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    return new Set(out.split("\n").filter((line) => line.trim() !== ""));
+  } catch (error) {
+    // git check-ignore exits 1 when NOTHING matched, which is a clean result, not a failure.
+    const status = (error as { status?: number }).status;
+    if (status === 1) return new Set();
+    const stdout = (error as { stdout?: string }).stdout ?? "";
+    return new Set(stdout.split("\n").filter((line) => line.trim() !== ""));
+  }
+}
+
 function walk(dir: string, root: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
     if (excluded.has(name)) continue;
@@ -204,6 +238,13 @@ function walk(dir: string, root: string, out: string[] = []): string[] {
     else if (/\.mdx?$/u.test(name)) out.push(rel);
   }
   return out;
+}
+
+/** walk() minus everything git ignores. See ignoredPaths above for why. */
+function walkTrackedMarkdown(root: string): string[] {
+  const all = walk(root, root);
+  const ignored = ignoredPaths(root, all);
+  return all.filter((rel) => !ignored.has(rel));
 }
 
 export type BuildDocAuthorityRegistryOptions = {
@@ -574,7 +615,7 @@ export function buildDocAuthorityRegistry(
   const files =
     options.pathListOverride !== undefined
       ? [...options.pathListOverride].sort()
-      : walk(cwd, cwd).sort();
+      : walkTrackedMarkdown(cwd).sort();
   const entries = files.map(classify);
   const counts = entries.reduce<Record<string, number>>((acc, entry) => {
     acc[entry.authority] = (acc[entry.authority] ?? 0) + 1;

@@ -396,7 +396,9 @@
     "openclaw:supervisor": "tsx tools/openclinxr/openclaw/supervisor-audit-cli.ts",
     "assets:reachability": "vitest run --root . tools/openclinxr/openclaw/every-published-humanoid-is-cast-or-declared.test.ts",
     "factory:rooms:bake": "tsx tools/openclinxr/asset-pipeline/environment/rooms-bake-cli.ts",
-    "factory:rooms:bake:inspect": "tsx tools/openclinxr/asset-pipeline/environment/rooms-bake-cli.ts --inspect"
+    "factory:rooms:bake:inspect": "tsx tools/openclinxr/asset-pipeline/environment/rooms-bake-cli.ts --inspect",
+    "arch:ceilings": "tsx tools/openclinxr/architecture/write-context-ceilings.ts",
+    "arch:parallelism": "tsx tools/openclinxr/architecture/parallelism-report.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
