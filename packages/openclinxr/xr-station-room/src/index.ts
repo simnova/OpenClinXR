@@ -15,9 +15,16 @@ import type {
 // The context and result types are the package's contract with main.ts, which declares its
 // own local variables against them. Re-export them.
 export type { StationRoomContext, StationRoomResult, StationRoomScenarioTheme };
-import type { LearnerRuntimeAssetBundle, EncounterRuntimeAsset } from "@openclinxr/asset-registry/runtime-bundles";
-import type { StationContextView } from "@openclinxr/xr-station";
-import type { Group, Mesh, Scene, Color, WebGLRenderer, PerspectiveCamera, Object3D } from "three";
+export {
+  actorNameplateLabel,
+  runtimeGeneratedSceneObjectName,
+  stageStationActors,
+  type StationActorSlotAssignment,
+  type StationActorSlotKind,
+  type StationActorStagingContext,
+  type StationActorStagingResult,
+} from "./actor-staging.js";
+import type { Group, Mesh, Scene, WebGLRenderer, PerspectiveCamera, Object3D } from "three";
 import type { GLTF } from "three/addons/loaders/GLTFLoader.js";
 
 /**
@@ -37,13 +44,12 @@ export async function buildStationRoomShell(
   ctx: StationRoomContext,
   scene: Scene,
   renderer: WebGLRenderer,
-  camera: PerspectiveCamera,
+  _camera: PerspectiveCamera,
 ): Promise<StationRoomResult> {
   const {
     scenarioId,
     encounterBundle,
     scenarioTheme,
-    sceneObjectPrefix,
     selectedCaptureMode,
     isCaptureShadowPath,
     hideRoomForCleanCapture,
@@ -53,9 +59,7 @@ export async function buildStationRoomShell(
     stationInteriorLightingVariantId,
     runtimeSceneObjectPrefix,
     assetLoadingContext,
-    recordBootPhase,
     iwsdkStationSceneObjects,
-    Scene: SceneCtor,
     Group: GroupCtor,
     Mesh: MeshCtor,
     BoxGeometry,
@@ -95,9 +99,9 @@ export async function buildStationRoomShell(
   });
 
   // Add reusable exterior pre-encounter room (anteroom)
-  let reusableExteriorAnteroom: Group | null = null;
-  addPackageReusableExteriorPreEncounterRoom(assetLoadingContext(), scene, theme as any, (room: Group | null) => {
-    reusableExteriorAnteroom = room;
+  let _reusableExteriorAnteroom: Group | null = null;
+  addPackageReusableExteriorPreEncounterRoom(assetLoadingContext(), scene, theme, (room: Group | null) => {
+    _reusableExteriorAnteroom = room;
   });
 
   // #44: station shell from shared environmentId descriptor (not scenarioId doorway tint alone).
@@ -239,7 +243,7 @@ export async function buildStationRoomShell(
 
   if (!hideRoomForCleanCapture()) {
     // Room walls/floor: mountStationEnvironmentForRuntime; buildStationEnvironment is parametric fallback.
-    addPackageScenarioSpecificClinicalSetDressing(assetLoadingContext(), scene, theme as any);
+    addPackageScenarioSpecificClinicalSetDressing(assetLoadingContext(), scene, theme);
   }
 
   // Scenario mismatch panel

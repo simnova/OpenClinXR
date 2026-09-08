@@ -894,12 +894,17 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("runtimeGeneratedSceneObjectName(nurseRuntimeHumanoidAsset)");
     expect(mainSource).toContain("runtimeGeneratedSceneObjectName(spouseRuntimeHumanoidAsset)");
     expect(mainSource).toContain("sceneObjectName: options.objectName");
-    expect(mainSource).toContain("runtimeActorPlacement(runtimePatientActorId()");
-    expect(mainSource).toContain("runtimeActorPlacement(runtimeClinicalTeamActorId()");
-    expect(mainSource).toContain("runtimeActorPlacement(runtimeFamilyActorId()");
-    expect(mainSource).toContain("actorNameplateLabel(patientPlacement.labelPrefix, runtimePatientActorId())");
-    expect(mainSource).toContain("actorNameplateLabel(nursePlacement.labelPrefix, runtimeClinicalTeamActorId())");
-    expect(mainSource).toContain("actorNameplateLabel(spousePlacement.labelPrefix, runtimeFamilyActorId())");
+    // Actor-slot mounts live in @openclinxr/xr-station-room actor-staging.ts; the fence
+    // follows the code (same posture as the room-prop and loader fences above).
+    expect(mainSource).toContain("stageStationActors(");
+    expect(mainSource).toContain("humanoidAssetForSlot: (slotKind)");
+    expect(mainSource).toContain('actorIdForSlot: (slotKind)');
+    expect(mainSource).toContain("ctx.actorPlacement(patientActorId");
+    expect(mainSource).toContain("ctx.actorPlacement(clinicalActorId");
+    expect(mainSource).toContain("ctx.actorPlacement(familyActorId");
+    expect(mainSource).toContain("actorNameplateLabel(patientPlacement.labelPrefix, patientActorId)");
+    expect(mainSource).toContain("actorNameplateLabel(nursePlacement.labelPrefix, clinicalActorId)");
+    expect(mainSource).toContain("actorNameplateLabel(spousePlacement.labelPrefix, familyActorId)");
     // Nameplate naming lives in @openclinxr/xr-scene-cues nameplates.ts (shrink extract).
     expect(mainSource).toContain('.actor-nameplate.');
     // #140 — equipment labels come from plan items / equipmentDisplayLabel, not hardcoded ED assets.

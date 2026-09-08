@@ -19,6 +19,7 @@
   "dependencies": {
     "@openclinxr/asset-registry": "workspace:*",
     "@openclinxr/xr-asset-loading": "workspace:*",
+    "@openclinxr/xr-capture-evidence": "workspace:*",
     "@openclinxr/xr-runtime-state": "workspace:*",
     "@openclinxr/xr-scene": "workspace:*",
     "@openclinxr/xr-scene-cues": "workspace:*",

@@ -1922,6 +1922,9 @@ importers:
       '@openclinxr/xr-asset-loading':
         specifier: workspace:*
         version: link:../xr-asset-loading
+      '@openclinxr/xr-capture-evidence':
+        specifier: workspace:*
+        version: link:../xr-capture-evidence
       '@openclinxr/xr-runtime-state':
         specifier: workspace:*
         version: link:../xr-runtime-state

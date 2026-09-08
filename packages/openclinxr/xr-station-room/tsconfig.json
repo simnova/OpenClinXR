@@ -35,6 +35,9 @@
       "path": "../xr-asset-loading"
     },
     {
+      "path": "../xr-capture-evidence"
+    },
+    {
       "path": "../xr-runtime-state"
     },
     {

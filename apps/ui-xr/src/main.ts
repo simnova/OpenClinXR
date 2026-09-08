@@ -47,7 +47,6 @@ import {
   hasAuthoredClinicalIdlePoseClip as hasPackageAuthoredClinicalIdlePoseClip,
   loadGeneratedEnvironmentIntoSceneSlot as loadPackageGeneratedEnvironmentIntoSceneSlot,
   loadGeneratedEquipmentIntoSceneSlot as loadPackageGeneratedEquipmentIntoSceneSlot,
-  loadGeneratedHumanoidIntoActorSlot as loadPackageGeneratedHumanoidIntoActorSlot,
   neutralizeGeneratedHumanoidMorphTargets as neutralizePackageGeneratedHumanoidMorphTargets,
   type AssetLoadingContext as PackageAssetLoadingContext,
   type AssetLoadingScenarioTheme as PackageAssetLoadingScenarioTheme,
@@ -75,8 +74,8 @@ import {
   isSceneOnlyVisualReviewCaptureMode as isPackageSceneOnlyVisualReviewCaptureMode,
   roundPerformanceNow as packageRoundPerformanceNow,
   runtimeAssetAffordanceCueIds as packageRuntimeAssetAffordanceCueIds,
-  publishRuntimeActorSlotAssignmentEvidence as publishPackageRuntimeActorSlotAssignmentEvidence,
   recordLearnerRuntimeUseGateEvidence as recordPackageLearnerRuntimeUseGateEvidence,
+  publishRuntimeActorSlotAssignmentEvidence as publishPackageRuntimeActorSlotAssignmentEvidence,
   recordSceneAssetStatus as recordPackageSceneAssetStatus,
   recordXrEntryEvidence as recordPackageXrEntryEvidence,
   refreshDeclaredEquipmentMountEvidenceFromScene as refreshPackageDeclaredEquipmentMountEvidenceFromScene,
@@ -164,7 +163,6 @@ import {
   type ActorPlayerRuntimeMetadataSummary,
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
-  additionalCastPlacementFallback,
   advanceExamFormRunStation,
   applyLearnerExamFlowIntent,
   buildConversationTurnStateEvidence,
@@ -259,7 +257,7 @@ import {
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,applyRealGarmentEvidenceSurfaces, 
   bootLearnerExamFormFromApi,createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance, 
   collectActorWorldBoxes,
-  createLearnerExamFormRunState,createPrimitiveActorMesh, 
+  createLearnerExamFormRunState, 
   deriveInteriorPreviewCamera,
   loadInfinigenEnvironmentIntoStation,mountStationEnvironmentForRuntime, 
   resolveHumanoidVariantOrCastPath,
@@ -322,7 +320,13 @@ import {
   stampRoomPropAliasesOnEquipmentRoot,
   stampSuppressedDeclaredEquipmentOntoFixtures,stationContextForScenario, 
   syncRemoteAssembledPhase,} from "@openclinxr/xr-station";
-import { buildStationRoomShell, type StationRoomResult } from "@openclinxr/xr-station-room";
+import {
+  actorNameplateLabel as packageActorNameplateLabel,
+  buildStationRoomShell,
+  runtimeGeneratedSceneObjectName as packageRuntimeGeneratedSceneObjectName,
+  stageStationActors,
+  type StationRoomResult,
+} from "@openclinxr/xr-station-room";
 import {
   type applyPedsActorPlayerSequenceListenerCues as applyPackagePedsActorPlayerSequenceListenerCues,
   buildHumanoidSpeechEvidence as buildPackageTraceHumanoidSpeechEvidence,
@@ -867,7 +871,7 @@ function comparatorCaptureSubjectActorIdImpl(): string {
   return comparatorPackageCaptureSubjectActorId(assetLoadingContext());
 }
 function actorNameplateLabel(prefix: string, actorId: string): string {
-  return `${prefix}: ${actorId.replace(/_v\d+$/u, "").replaceAll("_", " ")}`;
+  return packageActorNameplateLabel(prefix, actorId);
 }
 
 function hasVector3(value: unknown): value is { x: number; y: number; z: number } {
@@ -3230,196 +3234,39 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     ],
   };
 
-  // #122 — unique slot fill; unfilled slots stay in the graph but are hidden with empty actorId.
-  publishPackageRuntimeActorSlotAssignmentEvidence(encounterRuntimeAssetBundle, resolveRuntimeSlotAssignment());
-  const patientPlacement = runtimeActorPlacement(runtimePatientActorId() || "unfilled_primary_patient", {
-    slotKind: "primary_patient",
-    position: { x: -0.72, y: 1.06, z: -0.12 },
-    scale: { x: 1.1, y: 1.1, z: 1.1 },
-    verticalOffsetMeters: -0.98,
-    labelPrefix: "Patient",
-  });
-  const patient = actorMesh(0x8fb9aa);
-  patient.name = iwsdkStationSceneObjects.patientRobertHayes;
-  patient.position.set(patientPlacement.position.x, patientPlacement.position.y, patientPlacement.position.z);
-  patient.visible = Boolean(runtimePatientActorId()) && !selectedScenarioRuntimeMismatch;
-  if (cleanHumanoidSourceComparatorCapture) {
-    // #315 follow-up: only the comparator's named subject renders; the patient is the
-    // subject for the _patient comparators but NOT for _parent/_nurse (those name family/clinical).
-    patient.visible = comparatorPackageCaptureSubjectActorId(assetLoadingContext()) === runtimePatientActorId();
-    patient.userData.openClinXrComparatorVisibilityPolicy = patient.visible
-      ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
-      : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
-  }
-  patient.scale.set(patientPlacement.scale.x, patientPlacement.scale.y, patientPlacement.scale.z);
-  if (runtimePatientActorId()) applyCleanEncounterVisualReviewActorFraming(patient, runtimePatientActorId());
-  if (runtimePatientActorId()) {
-    patient.add(createActorNameplate(actorNameplateLabel(patientPlacement.labelPrefix, runtimePatientActorId()), 0x286b54));
-  }
-  scene.add(patient);
-  // #83/#136: canonical slot kind on the root BEFORE load (never placement.slotKind — stale family tags collide).
-  patient.userData.openClinXrSlotKind = "primary_patient";
-  patient.userData.openClinXrActorPosture = patientPlacement.posture ?? "standing";
-  patient.userData.openClinXrActorId = runtimePatientActorId();
-  if (runtimePatientActorId()) {
-    loadPackageGeneratedHumanoidIntoActorSlot(assetLoadingContext(), patient, {
-      assetPath: resolveEmulatorRuntimeAssetUrl(patientRuntimeHumanoidAsset),
-      assetId: patientRuntimeHumanoidAsset.assetId,
-      objectName: runtimeGeneratedSceneObjectName(patientRuntimeHumanoidAsset),
-      actorId: runtimePatientActorId(),
-      roleTintColor: 0x8fb9aa,
-      verticalOffsetMeters: patientPlacement.verticalOffsetMeters,
-      posture: patientPlacement.posture ?? "standing",
-    });
-  } else {
-    patient.userData.openClinXrSlotUnfilledReason = "no_unique_patient_humanoid_for_station";
-  }
-
-  const nursePlacement = runtimeActorPlacement(runtimeClinicalTeamActorId() || "unfilled_clinical_team", {
-    slotKind: "clinical_team",
-    position: { x: 1.45, y: 0.95, z: 0.55 },
-    scale: { x: 1, y: 1, z: 1 },
-    verticalOffsetMeters: -0.95,
-    labelPrefix: "Team",
-  });
-  const nurse = actorMesh(0x5a9bd5);
-  nurse.name = iwsdkStationSceneObjects.nurseMariaAlvarez;
-  nurse.position.set(nursePlacement.position.x, nursePlacement.position.y, nursePlacement.position.z);
-  nurse.visible = Boolean(runtimeClinicalTeamActorId()) && !selectedScenarioRuntimeMismatch;
-  if (cleanHumanoidSourceComparatorCapture) {
-    // #315 follow-up: the nurse comparator's named subject is the clinical actor — show it.
-    nurse.visible = comparatorPackageCaptureSubjectActorId(assetLoadingContext()) === runtimeClinicalTeamActorId();
-    nurse.userData.openClinXrComparatorVisibilityPolicy = nurse.visible
-      ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
-      : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
-  } else if (!runtimeClinicalTeamActorId()) {
-    nurse.visible = false;
-  }
-  nurse.scale.set(nursePlacement.scale.x, nursePlacement.scale.y, nursePlacement.scale.z);
-  if (runtimeClinicalTeamActorId()) applyCleanEncounterVisualReviewActorFraming(nurse, runtimeClinicalTeamActorId());
-  if (runtimeClinicalTeamActorId()) {
-    nurse.add(createActorNameplate(actorNameplateLabel(nursePlacement.labelPrefix, runtimeClinicalTeamActorId()), 0x2f65a7));
-  }
-  scene.add(nurse);
-  nurse.userData.openClinXrSlotKind = "clinical_team";
-  nurse.userData.openClinXrActorPosture = nursePlacement.posture ?? "standing";
-  nurse.userData.openClinXrActorId = runtimeClinicalTeamActorId();
-  if (runtimeClinicalTeamActorId()) {
-    loadPackageGeneratedHumanoidIntoActorSlot(assetLoadingContext(), nurse, {
-      assetPath: resolveEmulatorRuntimeAssetUrl(nurseRuntimeHumanoidAsset),
-      assetId: nurseRuntimeHumanoidAsset.assetId,
-      objectName: runtimeGeneratedSceneObjectName(nurseRuntimeHumanoidAsset),
-      actorId: runtimeClinicalTeamActorId(),
-      roleTintColor: 0x5a9bd5,
-      verticalOffsetMeters: nursePlacement.verticalOffsetMeters,
-      posture: nursePlacement.posture ?? "standing",
-    });
-  } else {
-    nurse.userData.openClinXrSlotUnfilledReason = "no_unique_clinical_humanoid_for_station";
-  }
-
-  const spousePlacement = runtimeActorPlacement(runtimeFamilyActorId() || "unfilled_family_or_observer", {
-    slotKind: "family_or_observer",
-    position: { x: -2.0, y: 0.95, z: 0.7 },
-    scale: { x: 1, y: 1, z: 1 },
-    verticalOffsetMeters: -0.95,
-    labelPrefix: "Family",
-  });
-  const spouse = actorMesh(0xd5a75a);
-  spouse.name = iwsdkStationSceneObjects.spouseAnnaHayes;
-  spouse.position.set(spousePlacement.position.x, spousePlacement.position.y, spousePlacement.position.z);
-  spouse.visible = Boolean(runtimeFamilyActorId()) && !selectedScenarioRuntimeMismatch;
-  if (cleanHumanoidSourceComparatorCapture) {
-    // #315 follow-up: the parent comparator's named subject is the family actor — show it.
-    spouse.visible = comparatorPackageCaptureSubjectActorId(assetLoadingContext()) === runtimeFamilyActorId();
-    spouse.userData.openClinXrComparatorVisibilityPolicy = spouse.visible
-      ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
-      : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
-  } else if (!runtimeFamilyActorId()) {
-    spouse.visible = false;
-  }
-  if (isPediatricAsthmaRuntimeScenario() && runtimeFamilyActorId()) {
-    // #591: a SEATED parent stays on her authored family_chair anchor (#574) — moving her
-    // XZ off the chair unseats her (pre-fix live: slot (1.42, 0.04) vs chair (−0.55, −0.75),
-    // feet 0.256 m above the floor). Standing parents keep the three-actor review reframe.
-    if (spousePlacement.posture === "seated") {
-      spouse.rotation.y = -0.26;
-      spouse.userData.openClinXrDynamicScenePolicy =
-        "parent_seated_on_authored_family_chair_anchor_for_visible_three_actor_review";
-    } else {
-      spouse.position.x = Math.max(spouse.position.x, -1.42);
-      spouse.position.z = 0.42;
-      spouse.rotation.y = -0.26;
-      spouse.userData.openClinXrDynamicScenePolicy = "parent_actor_reframed_from_case_defined_parent_chair_zone_for_visible_three_actor_review";
-    }
-  }
-  // #591: stamp slot identity BEFORE framing — the framing's seated guard reads these, and
-  // they were previously written only after applyCleanEncounterVisualReviewActorFraming ran.
-  spouse.userData.openClinXrSlotKind = "family_or_observer";
-  spouse.userData.openClinXrActorPosture = spousePlacement.posture ?? "standing";
-  spouse.userData.openClinXrActorId = runtimeFamilyActorId();
-  spouse.scale.set(spousePlacement.scale.x, spousePlacement.scale.y, spousePlacement.scale.z);
-  if (runtimeFamilyActorId()) applyCleanEncounterVisualReviewActorFraming(spouse, runtimeFamilyActorId());
-  if (runtimeFamilyActorId()) {
-    spouse.add(createActorNameplate(actorNameplateLabel(spousePlacement.labelPrefix, runtimeFamilyActorId()), 0x9b642d));
-  }
-  scene.add(spouse);
-  if (runtimeFamilyActorId()) {
-    loadPackageGeneratedHumanoidIntoActorSlot(assetLoadingContext(), spouse, {
-      assetPath: resolveEmulatorRuntimeAssetUrl(spouseRuntimeHumanoidAsset),
-      assetId: spouseRuntimeHumanoidAsset.assetId,
-      objectName: runtimeGeneratedSceneObjectName(spouseRuntimeHumanoidAsset),
-      actorId: runtimeFamilyActorId(),
-      roleTintColor: 0xd5a75a,
-      verticalOffsetMeters: spousePlacement.verticalOffsetMeters,
-      posture: spousePlacement.posture ?? "standing",
-    });
-  } else {
-    spouse.userData.openClinXrSlotUnfilledReason = "no_unique_family_humanoid_for_station";
-  }
-
-  // #122/#123 fourth slot — placement SSOT (team-adjacent secondary), not doorway hardcode.
-  const additionalPlacement = runtimeActorPlacement(
-    runtimeAdditionalActorId() || "unfilled_additional_cast",
-    additionalCastPlacementFallback(),
+  // #122 — unique slot fill (four mounts live in @openclinxr/xr-station-room actor-staging.ts).
+  const { patient, nurse } = stageStationActors(
+    {
+      encounterBundle: () => encounterRuntimeAssetBundle,
+      slotAssignment: () => resolveRuntimeSlotAssignment(),
+      assetLoadingContext: () => assetLoadingContext(),
+      actorPlacement: (actorId, fallback) => runtimeActorPlacement(actorId, fallback),
+      actorIdForSlot: (slotKind) =>
+        slotKind === "primary_patient"
+          ? runtimePatientActorId()
+          : slotKind === "clinical_team"
+            ? runtimeClinicalTeamActorId()
+            : slotKind === "family_or_observer"
+              ? runtimeFamilyActorId()
+              : runtimeAdditionalActorId(),
+      humanoidAssetForSlot: (slotKind) =>
+        slotKind === "primary_patient"
+          ? patientRuntimeHumanoidAsset
+          : slotKind === "clinical_team"
+            ? nurseRuntimeHumanoidAsset
+            : slotKind === "family_or_observer"
+              ? spouseRuntimeHumanoidAsset
+              : additionalRuntimeHumanoidAsset,
+      resolveAssetUrl: (asset) => resolveEmulatorRuntimeAssetUrl(asset),
+      createActorNameplate: (label, accent) => createActorNameplate(label, accent),
+      applyActorFraming: (actor, actorId) => { applyCleanEncounterVisualReviewActorFraming(actor, actorId); },
+      createVirtualDeviceActorAffordance: (actorId) => createVirtualDeviceActorAffordance(actorId),
+      scenarioRuntimeMismatch: () => selectedScenarioRuntimeMismatch,
+      cleanComparatorCapture: () => cleanHumanoidSourceComparatorCapture,
+      readActorSlotAssignment: () => window.__openClinXrActorSlotAssignment,
+    },
+    scene,
   );
-  const additional = actorMesh(0x7c6bb5);
-  additional.name = "runtime_additional_cast_slot";
-  additional.position.set(additionalPlacement.position.x, additionalPlacement.position.y, additionalPlacement.position.z);
-  additional.visible = Boolean(runtimeAdditionalActorId()) && !selectedScenarioRuntimeMismatch;
-  if (cleanHumanoidSourceComparatorCapture || !runtimeAdditionalActorId()) {
-    additional.visible = false;
-    if (cleanHumanoidSourceComparatorCapture) {
-      additional.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
-    }
-  }
-  additional.scale.set(additionalPlacement.scale.x, additionalPlacement.scale.y, additionalPlacement.scale.z);
-  additional.userData.openClinXrSlotKind = "additional_cast";
-  additional.userData.openClinXrActorPosture = additionalPlacement.posture ?? "standing";
-  additional.userData.openClinXrActorId = runtimeAdditionalActorId();
-  if (runtimeAdditionalActorId()) applyCleanEncounterVisualReviewActorFraming(additional, runtimeAdditionalActorId());
-  if (runtimeAdditionalActorId()) {
-    additional.add(createActorNameplate(actorNameplateLabel(additionalPlacement.labelPrefix, runtimeAdditionalActorId()), 0x5b4a9a));
-  }
-  scene.add(additional);
-  if (runtimeAdditionalActorId()) {
-    loadPackageGeneratedHumanoidIntoActorSlot(assetLoadingContext(), additional, {
-      assetPath: resolveEmulatorRuntimeAssetUrl(additionalRuntimeHumanoidAsset),
-      assetId: additionalRuntimeHumanoidAsset.assetId,
-      objectName: runtimeGeneratedSceneObjectName(additionalRuntimeHumanoidAsset),
-      actorId: runtimeAdditionalActorId(),
-      roleTintColor: 0x7c6bb5,
-      verticalOffsetMeters: additionalPlacement.verticalOffsetMeters,
-      posture: additionalPlacement.posture ?? "standing",
-    });
-  } else {
-    additional.userData.openClinXrSlotUnfilledReason = "no_remaining_unique_humanoid_for_additional_slot";
-  }
-  const slotEvidence = window.__openClinXrActorSlotAssignment;
-  if (slotEvidence) {
-    scene.userData.openClinXrNotStagedActorIds = slotEvidence.notStagedActorIds;
-    scene.userData.openClinXrActorSlotAssignment = slotEvidence;
-  }
 
   for (const virtualActor of encounterRuntimeAssetBundle.actors.filter((actor) => actor.embodiment === "virtual_device")) {
     if (!selectedScenarioRuntimeMismatch && !cleanHumanoidSourceComparatorCapture) {
@@ -4241,8 +4088,6 @@ function addHandModels(renderer: WebGLRenderer, scene: Scene, input: {
 }
 
 
-const actorMesh = (color: number): Group => createPrimitiveActorMesh(color);
-
 function createVirtualDeviceActorAffordance(actorId: string): Group {
   return createPackageVirtualDeviceActorAffordance(
     sceneCueVirtualDevice(),
@@ -4535,20 +4380,6 @@ function handleClinicalTouch(
 function _frameComparatorCaptureOnNamedActor(actorId: string, humanoid: Object3D, modelAssetId: string): void {
   framePackageComparatorCaptureOnNamedActor(assetLoadingContext(), actorId, humanoid as Group, modelAssetId);
 }
-function _loadGeneratedHumanoidIntoActorSlot(
-  actorSlot: Group,
-  options: {
-    assetPath: string;
-    assetId: string;
-    objectName: string;
-    actorId: string;
-    roleTintColor: number;
-    verticalOffsetMeters: number;
-    posture?: ActorPosture | undefined;
-  },
-): void {
-  loadPackageGeneratedHumanoidIntoActorSlot(assetLoadingContext(), actorSlot, options);
-}
 function shouldUseCleanHumanoidSourceComparatorCapture(): boolean {
   const captureMode = selectedCaptureMode();
   // framing-polish-parent-nurse-garment-ui-xr-v1 (Q5): sleeve-deform / real-garment body-motion capture must declutter
@@ -4799,7 +4630,7 @@ function resolveEmulatorRuntimeAssetUrl(asset: EncounterRuntimeAsset): string {
 }
 
 function runtimeGeneratedSceneObjectName(asset: EncounterRuntimeAsset): string {
-  return asset.assetId.replace(/[^a-z0-9:_-]+/giu, "-");
+  return packageRuntimeGeneratedSceneObjectName(asset);
 }
 
 function _loadGeneratedEquipmentIntoSceneSlot(

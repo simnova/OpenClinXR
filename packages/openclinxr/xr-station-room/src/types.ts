@@ -1,3 +1,4 @@
+import type { AssetLoadingScenarioTheme } from "@openclinxr/xr-asset-loading";
 /**
  * Station room shell and environment loading context — extracted from apps/ui-xr/src/main.ts
  * (shrink-only SIZE_FREEZE). The app owns the module state and builds this object;
@@ -7,21 +8,19 @@
 import type {
   LearnerRuntimeAssetBundle,
   EncounterRuntimeAsset,
-  EncounterRuntimeRoomProp,
-  EncounterRuntimeEquipmentAsset,
 } from "@openclinxr/asset-registry/runtime-bundles";
 import type { StationContextView } from "@openclinxr/xr-station";
-import type { Group, Mesh, Scene, Color, WebGLRenderer, PerspectiveCamera, Object3D } from "three";
-import type { GLTF } from "three/addons/loaders/GLTFLoader.js";
+import type { Group, Mesh, Scene, Color, WebGLRenderer, } from "three";
 import type { StationInteriorLightingVariantId, StationInteriorLightingApplyResult } from "@openclinxr/xr-station";
 
-export type StationRoomScenarioTheme = {
-  backgroundColor: number;
-  floorColor: number;
-  panelBackground: string;
-  panelAccent: string;
-  reusedAssetAccentColor: number;
-};
+/**
+ * The doorway theme this package hands straight to @openclinxr/xr-asset-loading. It was
+ * redeclared here field-for-field, and the two call sites in index.ts bridged the gap with
+ * `theme as any` — two declarations of one contract, with a cast holding them together.
+ * Alias the canonical type instead; the casts go away and a field added upstream reaches
+ * this package rather than being silently dropped.
+ */
+export type StationRoomScenarioTheme = AssetLoadingScenarioTheme;
 
 export type StationRoomContext = {
   scenarioId: () => string;
