@@ -170,6 +170,9 @@ export const rolePathScopes: Record<string, RolePathScope> = {
       "packages/openclinxr/exam-assembly/**",
       "tools/openclinxr/**",
       "apps/ui-admin/**",
+      // The product-API lane: no role owned apps/api or rest, so a worker correctly refused it.
+      "apps/api/**",
+      "packages/openclinxr/rest/**",
     ],
     readRoots: [".openclinxr/slices/**/handoffs/**", "packages/openclinxr/**", "apps/api/**", "apps/ui-admin/**"],
     forbidden: [
@@ -238,6 +241,8 @@ export const rolePathScopes: Record<string, RolePathScope> = {
     writeRoots: [
       "tools/openclinxr/asset-pipeline/**",
       "tools/openclinxr/evidence/**",
+      // motion-compiler had no owner; it is the humanoid motion pipeline, so it belongs here.
+      "packages/openclinxr/motion-compiler/**",
     ],
     readRoots: [],
     forbidden: ["apps/api/**", "apps/ui-admin/**"],
@@ -249,7 +254,8 @@ export const rolePathScopes: Record<string, RolePathScope> = {
       "apps/ui-xr/**",
       "apps/arena/**",
       "packages/openclinxr/arena/**",
-      "packages/openclinxr/xr/**",
+      // packages/openclinxr/xr/ has never existed; every package this role makes is xr-<name>.
+      "packages/openclinxr/xr-*/**",
       "tools/openclinxr/evidence/**",
     ],
     readRoots: [],
