@@ -508,6 +508,9 @@ importers:
       '@openclinxr/xr-dialogue':
         specifier: workspace:*
         version: link:../../packages/openclinxr/xr-dialogue
+      '@openclinxr/xr-exam-flow':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/xr-exam-flow
       '@openclinxr/xr-humanoid-animation':
         specifier: workspace:*
         version: link:../../packages/openclinxr/xr-humanoid-animation
@@ -1656,6 +1659,31 @@ importers:
       '@types/three':
         specifier: 'catalog:'
         version: 0.184.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+
+  packages/openclinxr/xr-exam-flow:
+    dependencies:
+      '@openclinxr/xr-runtime-state':
+        specifier: workspace:*
+        version: link:../xr-runtime-state
+      '@openclinxr/xr-runtime-wiring':
+        specifier: workspace:*
+        version: link:../xr-runtime-wiring
+      '@openclinxr/xr-scene':
+        specifier: workspace:*
+        version: link:../xr-scene
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3

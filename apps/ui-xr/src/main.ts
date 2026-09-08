@@ -66,7 +66,6 @@ import {
   formatCaseDefinedHumanoidPerformanceContractEvidence as formatPackageCaseDefinedHumanoidPerformanceContractEvidence,
   formatSceneAssetEvidenceStatus as formatPackageSceneAssetEvidenceStatus,
   formatUnknownError as formatPackageUnknownError,
-  isGeneratedPlaceholderAssetForDifferentScenario as isPackageGeneratedPlaceholderAssetForDifferentScenario,
   isGeneratedPlaceholderSourceForDifferentScenario as isPackageGeneratedPlaceholderSourceForDifferentScenario,
   isHumanoidMouthGazePoseReviewCaptureMode as isPackageHumanoidMouthGazePoseReviewCaptureMode,
   isPhysicsClinicalTouchCapture as isPackagePhysicsClinicalTouchCapture,
@@ -86,7 +85,6 @@ import {
   shouldShowInSceneIdentityLabels as shouldPackageShowInSceneIdentityLabels,
   shouldShowPrimitiveAssetFallbacks as shouldPackageShowPrimitiveAssetFallbacks,
   shouldShowRuntimeAffordanceMarkers as shouldPackageShowRuntimeAffordanceMarkers,
-  shouldSuppressGeneratedEnvironmentShell as shouldPackageSuppressGeneratedEnvironmentShell,
   shouldSuppressGeneratedEquipmentModel as shouldPackageSuppressGeneratedEquipmentModel,
   shouldUseLearnerRuntimeAssetBundle,
 } from "@openclinxr/xr-capture-evidence";
@@ -163,8 +161,6 @@ import {
   type ActorPlayerRuntimeMetadataSummary,
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
-  advanceExamFormRunStation,
-  applyLearnerExamFlowIntent,
   buildConversationTurnStateEvidence,
   buildManualPerformanceCaptureSummary,
   buildManualPerformanceDraft,
@@ -180,24 +176,18 @@ import {
   type ConversationTurnStateEvidence,
   completeTraceAction,
   createInitialRuntimeState,
-  createLearnerCanonicalPhaseTraceStore,
   createRuntimeStateFromBundle,
-  currentExamFormRunStation,
   type EnvironmentStateEvidence,
   type ExamFormRunState,
   type ExamineeLocomotionEvidence,
   ensureAndPublishActorPlacementSsot,
   eventTypeForTraceTag,
-  examFormRunScenarioSequence,
-  formatExamFormRunClock,
   formatManualEvidenceCopyStatus,
   formatStationClock,type GeneratedDriveScalarValue, 
   type HumanoidSpeechEvidence,
   isImmersiveFrameEvidenceActive,
   iwsdkStationSceneObjectNames,
   iwsdkStationSceneObjects,
-  type LearnerCanonicalPhaseTraceStore,
-  type LearnerExamFlowPhase,
   type LearnerRuntimeUseGateEvidence,
   localHandMeshPath,
   type ManualEvidenceCopyDisposition,
@@ -209,8 +199,6 @@ import {
   type ManualPerformanceTraceLatencyEvidence,
   meshHandModelProfile,
   meshHandRepresentationKind,
-  nextExamFormRunStation,
-  persistExamFormRunQueueSnapshot,
   primitiveHandModelProfile,
   primitiveHandRepresentationKind,
   type ReadableVrTextPanelEvidence,
@@ -225,10 +213,8 @@ import {
   remoteActorTurnForTraceTag,
   resolveLocalEnvironmentRuntimeAssetFileName,
   resolveLocalEquipmentRuntimeAssetFileName,
-  restoreLearnerCanonicalPhaseTraceFromJson,
   type SceneAssetEvidence,
   summarizeTraceReadiness,
-  tickExamFormRunClock,
   viewLearnerCanonicalExamPhase,
   type XrExperienceModeEvidence,
   type XrRuntimeReadinessDecision,
@@ -243,25 +229,20 @@ import {
   type ExamStationContext,
   booleanQueryParam as packageBooleanQueryParam,
   buildExamNavigationHref as packageBuildExamNavigationHref,
-  buildExamRunStationOutcome as packageBuildExamRunStationOutcome,
   configuredExamRunId as packageConfiguredExamRunId,
   configuredExamSequence as packageConfiguredExamSequence,
-  findFormStationOutcome as packageFindFormStationOutcome,
   formElapsedSecondForCurrentStation as packageFormElapsedSecondForCurrentStation,
-  mergeExamRunStationOutcome as packageMergeExamRunStationOutcome,
   nextExamScenarioId as packageNextExamScenarioId,
   positiveIntegerQueryParam as packagePositiveIntegerQueryParam,
 } from "@openclinxr/xr-runtime-wiring";
 import {
   addGeneratedHumanoidRoleContinuityWardrobeCue,
-  applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,applyRealGarmentEvidenceSurfaces, 
-  bootLearnerExamFormFromApi,createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance, 
+  applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,applyRealGarmentEvidenceSurfaces,
+  bootLearnerExamFormFromApi,createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance,
   collectActorWorldBoxes,
-  createLearnerExamFormRunState, 
   deriveInteriorPreviewCamera,
-  loadInfinigenEnvironmentIntoStation,mountStationEnvironmentForRuntime, 
   resolveHumanoidVariantOrCastPath,
-  resolveLocalHumanoidRuntimeAssetUrl,scenariosFromFixtureSequence, sleeveDeformCueForAssetPath 
+  resolveLocalHumanoidRuntimeAssetUrl, sleeveDeformCueForAssetPath
 } from "@openclinxr/xr-scene";
 import {
   addPediatricRespiratoryEquipmentCues as addPackagePediatricRespiratoryEquipmentCues,
@@ -311,7 +292,7 @@ import {
   countEquipmentGeometry,
   // Both factories are exported; this file types against the assembled one.
   createAssembledStationApiClient as createStationApiClient,
-  createStationApiPersistenceSink,enableCaptureRendererShadowMap, findProceduralStretcherInSceneOf, isCaptureShadowPath, markActorCastShadow, markFloorReceiveShadow, 
+  createStationApiPersistenceSink, findProceduralStretcherInSceneOf, isCaptureShadowPath, markActorCastShadow,
   normalizeGltfEquipmentMount,PATIENT_CHAIR_SEAT_HEIGHT_METERS, 
   planStationEquipmentMounts,prepareLoadedEnvironmentShell, 
   REAL_EQUIPMENT_GLTF_BY_ID,resolveStationInteriorLightingVariantId, roomPropColourNumbers, 
@@ -320,6 +301,23 @@ import {
   stampRoomPropAliasesOnEquipmentRoot,
   stampSuppressedDeclaredEquipmentOntoFixtures,stationContextForScenario, 
   syncRemoteAssembledPhase,} from "@openclinxr/xr-station";
+import {
+  type ExamFlowRuntimeAccessors,
+  type ExamRunStationOutcome as PackageExamRunStationOutcome,
+  type OpenClinXrExamFlowEvidence as PackageOpenClinXrExamFlowEvidence,
+  type OpenClinXrExamFormRunEvidence as PackageOpenClinXrExamFormRunEvidence,
+  type OpenClinXrExamRunSummaryEvidence as PackageOpenClinXrExamRunSummaryEvidence,
+  advanceFormRunClock as advancePackageFormRunClock,
+  buildExamFlowEvidence as buildPackageExamFlowEvidence,
+  buildExamFormRunEvidence as buildPackageExamFormRunEvidence,
+  buildExamRunSummaryEvidence as buildPackageExamRunSummaryEvidence,
+  createExamFlowStore,
+  createFormRunState as createPackageFormRunState,
+  persistFormRunQueueSnapshot as persistPackageFormRunQueueSnapshot,
+  readExamRunSummaryOutcomes as readPackageExamRunSummaryOutcomes,
+  recordStationOutcome as recordPackageStationOutcome,
+  recordStationOutcomeOnFormRun,
+} from "@openclinxr/xr-exam-flow";
 import {
   actorNameplateLabel as packageActorNameplateLabel,
   buildStationRoomShell,
@@ -478,79 +476,13 @@ type OpenClinXrXrEntryEvidence = {
   lastError: string | null;
 };
 
-type OpenClinXrExamFlowEvidence = {
-  source: "canonical_assembled_exam_phase_trace" | "local_exam_flow_fallback";
-  fallbackActive: boolean;
-  fallbackLabel: string | null;
-  examRunId: string;
-  scenarioId: string;
-  scenarioIndex: number;
-  totalScenarios: number;
-  nextScenarioId: string | null;
-  phase: LearnerExamFlowPhase;
-  examEquivalenceGate: false;
-  encounterDurationSeconds: number;
-  noteDurationSeconds: number;
-  encounterElapsedSeconds: number;
-  noteElapsedSeconds: number;
-  encounterRemainingSeconds: number;
-  noteRemainingSeconds: number;
-  noteTextLength: number;
-  noteSubmitted: boolean;
-  noteTimeoutElapsed: boolean;
-  canAdvanceToNextEncounter: boolean;
-  autoAdvanceOnNoteTimeout: boolean;
-  lastAdvanceReason: string | null;
-  acceleratedByQuery: boolean;
-};
+type OpenClinXrExamFlowEvidence = PackageOpenClinXrExamFlowEvidence;
 
-type ExamRunStationOutcome = {
-  scenarioId: string;
-  scenarioIndex: number;
-  phase: LearnerExamFlowPhase;
-  noteTextLength: number;
-  noteSubmitted: boolean;
-  lastAdvanceReason: string | null;
-  recordedAtIso: string;
-  /** Additive multi-station form fields (optional for backward-compatible localStorage). */
-  stationOrder?: number;
-  slotId?: string;
-  startedAtFormSecond?: number;
-  endedAtFormSecond?: number | null;
-};
+type ExamRunStationOutcome = PackageExamRunStationOutcome;
 
-type OpenClinXrExamRunSummaryEvidence = {
-  source: "local_exam_run_summary";
-  examRunId: string;
-  totalScenarios: number;
-  stationOutcomes: ExamRunStationOutcome[];
-  formElapsedSecond?: number;
-  formRemainingSecond?: number;
-  examFormRunStatus?: ExamFormRunState["status"];
-  examEquivalenceGate?: false;
-  notEvidenceFor?: readonly string[];
-};
+type OpenClinXrExamRunSummaryEvidence = PackageOpenClinXrExamRunSummaryEvidence;
 
-type OpenClinXrExamFormRunEvidence = {
-  source: "exam_assembly_form_run";
-  examRunId: string;
-  examFormId: string;
-  blueprintId: string;
-  status: ExamFormRunState["status"];
-  currentStationOrder: number | null;
-  currentScenarioId: string | null;
-  nextScenarioId: string | null;
-  scenarioSequence: string[];
-  formElapsedSecond: number;
-  formRemainingSecond: number;
-  totalStationTimeSeconds: number;
-  formClockDisplay: ReturnType<typeof formatExamFormRunClock>;
-  stationOutcomeCount: number;
-  canStartLearnerExam: boolean;
-  examEquivalenceGate: false;
-  claimBoundary: ExamFormRunState["claimBoundary"];
-  notEvidenceFor: ExamFormRunState["notEvidenceFor"];
-};
+type OpenClinXrExamFormRunEvidence = PackageOpenClinXrExamFormRunEvidence;
 
 type StationSceneRuntime = {
   startImmersiveSession(): Promise<void>;
@@ -1201,19 +1133,6 @@ function isGeneratedPlaceholderSourceForDifferentScenario(source: string): boole
   );
 }
 
-function isGeneratedPlaceholderAssetForDifferentScenario(asset: EncounterRuntimeAsset): boolean {
-  return isPackageGeneratedPlaceholderAssetForDifferentScenario(
-    asset,
-    encounterRuntimeAssetBundle.scenarioId,
-    isDynamicGeneratedEncounterSceneMode(),
-    isScenarioSpecificRuntimeFixtureForSelectedScenario,
-  );
-}
-
-function shouldSuppressGeneratedEnvironmentShell(asset: EncounterRuntimeAsset): boolean {
-  return shouldPackageSuppressGeneratedEnvironmentShell(asset, isGeneratedPlaceholderAssetForDifferentScenario);
-}
-
 function shouldSuppressGeneratedEquipmentModel(_assetId: string, assetPath: string): boolean {
   // Real library medical-equipment GLBs are shared clinical equipment, never scenario-mismatched placeholders (#140 counterweight; #245 wall clock).
   return shouldPackageSuppressGeneratedEquipmentModel(
@@ -1279,21 +1198,11 @@ function uiXrQueryDeps(): ExamRunQueryDeps {
 }
 
 function uiXrExamStationContext(): ExamStationContext {
-  return {
-    sequence: examNormalizedSequence,
-    scenarioIndex: examScenarioIndex,
-    scenarioId: examScenarioId,
-    examRunId,
-    timing: {
-      encounterSeconds: examEncounterDurationSeconds,
-      noteSeconds: examNoteDurationSeconds,
-      autoAdvanceOnNoteTimeout: examAutoAdvanceOnNoteTimeout,
-    },
-  };
+  return examFlowExamStationContext();
 }
 
 function configuredExamSequence(): string[] {
-  return packageConfiguredExamSequence(uiXrQueryDeps());
+  return examFlowConfiguredExamSequence();
 }
 
 function positiveIntegerQueryParam(name: string, fallback: number): number {
@@ -1305,9 +1214,8 @@ function booleanQueryParam(name: string, fallback: boolean): boolean {
 }
 
 function configuredExamRunId(): string {
-  return packageConfiguredExamRunId(uiXrQueryDeps());
+  return examFlowConfiguredExamRunId();
 }
-
 function stationContextForSelectedScenario() {
   // #115: vitals always resolved via station-context (honest unauthored / legacy numeric).
   // Removed the per-scenario vitals/prose table (main.ts:1433-1533) — pure drift, nothing consumed it.
@@ -1608,26 +1516,88 @@ const examNoteDurationSeconds = positiveIntegerQueryParam("examNoteSeconds", 600
 const examAutoAdvanceOnNoteTimeout = booleanQueryParam("examAutoAdvanceOnNoteTimeout", true);
 const examPhaseTraceStorageKey = `openclinxr.canonicalExamPhaseTrace.${examRunId}.${examScenarioId}`;
 const examStationRunId = `station_run_${examRunId}_${examScenarioId}_${examScenarioIndex + 1}`;
-let examPhaseStore: LearnerCanonicalPhaseTraceStore = restoreLearnerCanonicalPhaseTraceFromJson(
-  createLearnerCanonicalPhaseTraceStore({
+const examNoteStorageKey = `openclinxr.patientNote.${examRunId}.${examScenarioId}`;
+const examRunSummaryStorageKey = `openclinxr.examRunSummary.${examRunId}`;
+let examFormRunState: ExamFormRunState | null = null;
+
+const examFormRunPersistenceSink = stationApi ? createStationApiPersistenceSink(stationApi) : undefined;
+
+const examFlowStore = createExamFlowStore(
+  {
     examRunId,
     stationRunId: examStationRunId,
     scenarioId: examScenarioId,
     stationOrder: examScenarioIndex + 1,
-  }),
-  window.localStorage.getItem(examPhaseTraceStorageKey),
+    encounterSeconds: examEncounterDurationSeconds,
+    noteSeconds: examNoteDurationSeconds,
+    autoAdvanceOnNoteTimeout: examAutoAdvanceOnNoteTimeout,
+  },
+  {
+    getElapsedSecond: (): number => state.elapsedSecond,
+    getFormElapsedSecond: (): number => formElapsedSecondForCurrentStation(),
+    getNoteText: (): string => patientNoteText.value,
+    getFormRunState: (): ExamFormRunState | null => examFormRunState,
+    setFormRunState: (next: ExamFormRunState | null): void => {
+      examFormRunState = next;
+    },
+    getPersistenceSink: () => examFormRunPersistenceSink,
+    getNextScenarioId: (): string | null => nextExamScenarioId(),
+    navigateToScenario: (nextScenarioId: string): void => {
+      navigateToExamScenario(nextScenarioId);
+    },
+    syncRemotePhase: ({ atSecond, noteText, kind }: { atSecond: number; noteText: string; kind: "end_encounter" | "submit_note" | "encounter_timer_elapsed" | "note_timer_elapsed" }): void => {
+      void syncRemoteAssembledPhase({
+        client: stationApi,
+        stationRunId: remoteStationRunId,
+        kind,
+        atSecond,
+        noteText,
+      });
+    },
+    persistPhaseTrace: (store: import("@openclinxr/xr-runtime-state").LearnerCanonicalPhaseTraceStore): void => {
+      window.localStorage.setItem(
+        examPhaseTraceStorageKey,
+        JSON.stringify({ persistedEvents: store.persistedEvents, localEvents: store.localEvents }),
+      );
+    },
+    readPhaseTraceJson: (): string | null => window.localStorage.getItem(examPhaseTraceStorageKey),
+    persistOutcomes: (outcomes: ExamRunStationOutcome[]): void => {
+      window.localStorage.setItem(examRunSummaryStorageKey, JSON.stringify(outcomes));
+    },
+    readOutcomes: (): ExamRunStationOutcome[] => readExamRunSummaryOutcomes(),
+    updateFormEvidence: (): void => {
+      updateExamFormRunEvidence();
+    },
+  } satisfies ExamFlowRuntimeAccessors,
 );
-let examPhaseRefusalReason: string | null = null;
-let examNoteTimeoutHandled = false;
-const examNoteStorageKey = `openclinxr.patientNote.${examRunId}.${examScenarioId}`;
-const examRunSummaryStorageKey = `openclinxr.examRunSummary.${examRunId}`;
 
-let examFormRunState: ExamFormRunState | null = createLearnerExamFormRunState(
+function examFlowExamStationContext(): ExamStationContext {
+  return {
+    sequence: examNormalizedSequence,
+    scenarioIndex: examScenarioIndex,
+    scenarioId: examScenarioId,
+    examRunId,
+    timing: {
+      encounterSeconds: examEncounterDurationSeconds,
+      noteSeconds: examNoteDurationSeconds,
+      autoAdvanceOnNoteTimeout: examAutoAdvanceOnNoteTimeout,
+    },
+  };
+}
+
+function examFlowConfiguredExamSequence(): string[] {
+  return packageConfiguredExamSequence(uiXrQueryDeps());
+}
+
+function examFlowConfiguredExamRunId(): string {
+  return packageConfiguredExamRunId(uiXrQueryDeps());
+}
+
+examFormRunState = createPackageFormRunState({
   examRunId,
-  scenariosFromFixtureSequence(examNormalizedSequence),
-  examScenarioId,
-);
-const examFormRunPersistenceSink = stationApi ? createStationApiPersistenceSink(stationApi) : undefined;
+  scenarioId: examScenarioId,
+  normalizedSequence: examNormalizedSequence,
+});
 updateExamFormRunEvidence();
 
 app.innerHTML = `
@@ -1782,9 +1752,8 @@ void (async () => {
     },
     presentationSink: examFlowCaseSource,
     phaseTrace: {
-      getStore: () => examPhaseStore,
+      getStore: () => examFlowStore.getPhaseStore(),
       setStore: (next) => {
-        examPhaseStore = next;
         window.localStorage.setItem(
           examPhaseTraceStorageKey,
           JSON.stringify({ persistedEvents: next.persistedEvents, localEvents: next.localEvents }),
@@ -1824,7 +1793,6 @@ const copyEvidenceButton = requireElement<HTMLButtonElement>("#copy-evidence-but
 const copyEvidenceStatus = requireElement<HTMLElement>("#copy-evidence-status");
 const manualEvidenceJson = requireElement<HTMLTextAreaElement>("#manual-evidence-json");
 window.__openClinXrExperienceModeEvidence = xrExperienceModeEvidence;
-let evidenceCopyDisposition: ManualEvidenceCopyDisposition = "not_copied";
 patientNoteText.value = window.localStorage.getItem(examNoteStorageKey) ?? "";
 
 patientNoteText.addEventListener("input", () => {
@@ -1833,27 +1801,7 @@ patientNoteText.addEventListener("input", () => {
 });
 
 function applyExamFlowIntent(kind: "end_encounter" | "submit_note" | "encounter_timer_elapsed" | "note_timer_elapsed"): void {
-  const applied = applyLearnerExamFlowIntent(examPhaseStore, {
-    kind,
-    atSecond: state.elapsedSecond,
-    formAtSecond: formElapsedSecondForCurrentStation(),
-    noteTextLength: patientNoteText.value.trim().length,
-    nextScenarioId: nextExamScenarioId(),
-    autoAdvanceOnNoteTimeout: examAutoAdvanceOnNoteTimeout,
-  });
-  examPhaseStore = applied.store;
-  examPhaseRefusalReason = applied.refusalReason;
-  window.localStorage.setItem(examPhaseTraceStorageKey, JSON.stringify({ persistedEvents: examPhaseStore.persistedEvents, localEvents: examPhaseStore.localEvents }));
-  if (applied.admitted && applied.view.noteSubmitted) recordExamRunStationOutcome();
-  updateExamFlowEvidence();
-  void syncRemoteAssembledPhase({
-    client: stationApi,
-    stationRunId: remoteStationRunId,
-    kind,
-    atSecond: formElapsedSecondForCurrentStation(),
-    noteText: patientNoteText.value,
-  });
-  if (applied.navigateToScenarioId) navigateToExamScenario(applied.navigateToScenarioId);
+  examFlowStore.applyIntent(kind);
 }
 
 endEncounterButton.addEventListener("click", () => {
@@ -1869,16 +1817,16 @@ copyEvidenceButton.addEventListener("click", () => {
   if (navigator.clipboard) {
     void navigator.clipboard.writeText(payload)
       .then(() => {
-        evidenceCopyDisposition = "copied";
+        examFlowStore.setCopyDisposition("copied");
         updateManualEvidencePanel();
       })
       .catch(() => {
-        evidenceCopyDisposition = "copy_blocked";
+        examFlowStore.setCopyDisposition("copy_blocked");
         updateManualEvidencePanel();
       });
     return;
   }
-  evidenceCopyDisposition = "clipboard_unavailable";
+  examFlowStore.setCopyDisposition("clipboard_unavailable");
   updateManualEvidencePanel();
 });
 
@@ -1912,141 +1860,89 @@ function formElapsedSecondForCurrentStation(): number {
 }
 
 function updateExamFormRunEvidence(): OpenClinXrExamFormRunEvidence | null {
-  if (!examFormRunState) {
+  const evidence = buildPackageExamFormRunEvidence(examFormRunState);
+  if (!evidence) {
     delete window.__openClinXrExamFormRunEvidence;
     return null;
   }
-  const current = currentExamFormRunStation(examFormRunState);
-  const next = nextExamFormRunStation(examFormRunState);
-  const evidence: OpenClinXrExamFormRunEvidence = {
-    source: "exam_assembly_form_run",
-    examRunId: examFormRunState.examRunId,
-    examFormId: examFormRunState.examFormId,
-    blueprintId: examFormRunState.blueprintId,
-    status: examFormRunState.status,
-    currentStationOrder: current?.stationOrder ?? null,
-    currentScenarioId: current?.scenarioId ?? null,
-    nextScenarioId: next?.scenarioId ?? null,
-    scenarioSequence: examFormRunScenarioSequence(examFormRunState),
-    formElapsedSecond: examFormRunState.clock.formElapsedSecond,
-    formRemainingSecond: examFormRunState.clock.formRemainingSecond,
-    totalStationTimeSeconds: examFormRunState.clock.totalStationTimeSeconds,
-    formClockDisplay: formatExamFormRunClock(examFormRunState),
-    stationOutcomeCount: examFormRunState.stationOutcomes.length,
-    canStartLearnerExam: examFormRunState.queue.canStartLearnerExam,
-    examEquivalenceGate: false,
-    claimBoundary: examFormRunState.claimBoundary,
-    notEvidenceFor: examFormRunState.notEvidenceFor,
-  };
   window.__openClinXrExamFormRunEvidence = evidence;
   return evidence;
 }
 
 function readExamRunSummaryOutcomes(): ExamRunStationOutcome[] {
-  try {
-    const parsed = JSON.parse(window.localStorage.getItem(examRunSummaryStorageKey) ?? "[]") as ExamRunStationOutcome[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  return readPackageExamRunSummaryOutcomes(
+    (key: string) => window.localStorage.getItem(key),
+    examRunSummaryStorageKey,
+  );
 }
 
 function updateExamRunSummaryEvidence(): OpenClinXrExamRunSummaryEvidence {
-  const formClock = examFormRunState ? formatExamFormRunClock(examFormRunState) : null;
-  const evidence: OpenClinXrExamRunSummaryEvidence = {
-    source: "local_exam_run_summary",
+  const evidence = buildPackageExamRunSummaryEvidence({
     examRunId,
     totalScenarios: examNormalizedSequence.length,
-    stationOutcomes: readExamRunSummaryOutcomes(),
-    examEquivalenceGate: false,
-  };
-  if (formClock) {
-    evidence.formElapsedSecond = formClock.formElapsedSecond;
-    evidence.formRemainingSecond = formClock.formRemainingSecond;
-  }
-  if (examFormRunState) {
-    evidence.examFormRunStatus = examFormRunState.status;
-    evidence.notEvidenceFor = examFormRunState.notEvidenceFor;
-  }
+    outcomes: readExamRunSummaryOutcomes(),
+    formRunState: examFormRunState,
+  });
   window.__openClinXrExamRunSummaryEvidence = evidence;
   return evidence;
 }
 
-function recordExamRunStationOutcome(): void {
+function _recordExamRunStationOutcome(): void {
   const formSecond = formElapsedSecondForCurrentStation();
-  if (examFormRunState) {
-    examFormRunState = tickExamFormRunClock(examFormRunState, formSecond);
-    examFormRunState = advanceExamFormRunStation(examFormRunState, {
-      phase: viewLearnerCanonicalExamPhase(examPhaseStore).phase,
-      noteSubmitted: viewLearnerCanonicalExamPhase(examPhaseStore).noteSubmitted,
-      advanceReason: examPhaseRefusalReason ?? viewLearnerCanonicalExamPhase(examPhaseStore).lastAdvanceReason,
-      endedAtFormSecond: formSecond,
-      recordedAtIso: new Date().toISOString(),
+  const formRunState = examFormRunState;
+  if (formRunState) {
+    const phaseView = viewLearnerCanonicalExamPhase(examFlowStore.getPhaseStore());
+    const advanced = recordStationOutcomeOnFormRun(formRunState, {
+      phase: phaseView.phase,
+      noteSubmitted: phaseView.noteSubmitted,
+      advanceReason: examFlowStore.getRefusalReason() ?? phaseView.lastAdvanceReason,
+      formSecond,
     });
-    updateExamFormRunEvidence();
-    if (examFormRunPersistenceSink) {
-      void persistExamFormRunQueueSnapshot(examFormRunState, examFormRunPersistenceSink, {
-        snapshotId: `queue_snapshot_${examRunId}_station_${examScenarioIndex + 1}`,
-        reviewerId: "ui_xr_learner_runtime",
-      }).catch(() => {
-        // Best-effort; local outcomes still recorded.
-      });
+    if (advanced) {
+      examFormRunState = advanced;
+      updateExamFormRunEvidence();
+      if (examFormRunPersistenceSink) {
+        void persistPackageFormRunQueueSnapshot(examFormRunState, examFormRunPersistenceSink, {
+          snapshotId: `queue_snapshot_${examRunId}_station_${examScenarioIndex + 1}`,
+        }).catch(() => {
+          // Best-effort; local outcomes still recorded.
+        });
+      }
     }
   }
 
-  const formOutcome = packageFindFormStationOutcome(examFormRunState, examScenarioIndex, examScenarioId);
   const outcomes = readExamRunSummaryOutcomes();
-  const nextOutcome: ExamRunStationOutcome = packageBuildExamRunStationOutcome(
-    {
-      scenarioId: examScenarioId,
-      scenarioIndex: examScenarioIndex,
-      phase: viewLearnerCanonicalExamPhase(examPhaseStore).phase,
-      noteTextLength: patientNoteText.value.trim().length,
-      noteSubmitted: viewLearnerCanonicalExamPhase(examPhaseStore).noteSubmitted,
-      lastAdvanceReason: examPhaseRefusalReason ?? viewLearnerCanonicalExamPhase(examPhaseStore).lastAdvanceReason,
-      recordedAtIso: new Date().toISOString(),
-      formSecond,
-    },
-    formOutcome,
-  );
-  const withoutCurrent = packageMergeExamRunStationOutcome(outcomes, nextOutcome);
+  const withoutCurrent = recordPackageStationOutcome({
+    scenarioId: examScenarioId,
+    scenarioIndex: examScenarioIndex,
+    formRunState: examFormRunState,
+    phaseView: viewLearnerCanonicalExamPhase(examFlowStore.getPhaseStore()),
+    refusalReason: examFlowStore.getRefusalReason(),
+    noteTextLength: patientNoteText.value.trim().length,
+    formSecond,
+    outcomes,
+  });
   window.localStorage.setItem(examRunSummaryStorageKey, JSON.stringify(withoutCurrent));
   updateExamRunSummaryEvidence();
 }
 
 function updateExamFlowEvidence(): OpenClinXrExamFlowEvidence {
   const nextScenarioId = nextExamScenarioId();
-  const phaseView = viewLearnerCanonicalExamPhase(examPhaseStore);
-  const noteElapsedSeconds = phaseView.noteStartedAtSecond === null ? 0 : Math.max(0, state.elapsedSecond - phaseView.noteStartedAtSecond);
-  const encounterElapsedSeconds = phaseView.encounterEndedAtSecond === null
-    ? state.elapsedSecond
-    : Math.max(0, phaseView.encounterEndedAtSecond);
-  const noteTextLength = patientNoteText.value.trim().length;
-  const evidence: OpenClinXrExamFlowEvidence = {
-    source: phaseView.source,
-    fallbackActive: phaseView.fallbackActive,
-    fallbackLabel: phaseView.fallbackLabel,
+  const phaseView = viewLearnerCanonicalExamPhase(examFlowStore.getPhaseStore());
+  const evidence = buildPackageExamFlowEvidence({
+    phaseView,
     examRunId,
     scenarioId: examScenarioId,
     scenarioIndex: examScenarioIndex,
     totalScenarios: examNormalizedSequence.length,
-    nextScenarioId,
-    phase: phaseView.phase,
-    examEquivalenceGate: false,
-    encounterDurationSeconds: examEncounterDurationSeconds,
-    noteDurationSeconds: examNoteDurationSeconds,
-    encounterElapsedSeconds,
-    noteElapsedSeconds,
-    encounterRemainingSeconds: Math.max(0, examEncounterDurationSeconds - encounterElapsedSeconds),
-    noteRemainingSeconds: Math.max(0, examNoteDurationSeconds - noteElapsedSeconds),
-    noteTextLength,
-    noteSubmitted: phaseView.noteSubmitted,
-    noteTimeoutElapsed: phaseView.phase === "note" && noteElapsedSeconds >= examNoteDurationSeconds,
-    canAdvanceToNextEncounter: phaseView.phase === "note" && noteTextLength > 0,
+    encounterSeconds: examEncounterDurationSeconds,
+    noteSeconds: examNoteDurationSeconds,
     autoAdvanceOnNoteTimeout: examAutoAdvanceOnNoteTimeout,
-    lastAdvanceReason: examPhaseRefusalReason ?? phaseView.lastAdvanceReason,
-    acceleratedByQuery: examEncounterDurationSeconds !== 900 || examNoteDurationSeconds !== 600,
-  };
+    nextScenarioId,
+    refusalReason: examFlowStore.getRefusalReason(),
+    elapsedSecond: state.elapsedSecond,
+    noteTextLength: patientNoteText.value.trim().length,
+  });
   window.__openClinXrExamFlowEvidence = evidence;
   updateExamRunSummaryEvidence();
   examFlowStation.textContent = `${evidence.scenarioIndex + 1}/${evidence.totalScenarios}: ${evidence.scenarioId}`;
@@ -2064,18 +1960,11 @@ function updateExamFlowEvidence(): OpenClinXrExamFlowEvidence {
 }
 
 function advanceExamFlowForElapsedTime(): void {
-  const phaseView = viewLearnerCanonicalExamPhase(examPhaseStore);
-  if (phaseView.phase !== "encounter" || phaseView.encounterEndedAtSecond !== null) return;
-  if (state.elapsedSecond < examEncounterDurationSeconds) return;
-  applyExamFlowIntent("encounter_timer_elapsed");
+  examFlowStore.advanceForElapsedTime();
 }
 
 function advanceExamNoteForElapsedTime(): void {
-  const phaseView = viewLearnerCanonicalExamPhase(examPhaseStore);
-  if (phaseView.phase !== "note" || phaseView.noteStartedAtSecond === null || examNoteTimeoutHandled) return;
-  if (state.elapsedSecond - phaseView.noteStartedAtSecond < examNoteDurationSeconds) return;
-  examNoteTimeoutHandled = true;
-  applyExamFlowIntent("note_timer_elapsed");
+  examFlowStore.advanceNoteForElapsedTime();
 }
 
 function recordTraceSelectLatency(
@@ -2464,12 +2353,6 @@ async function initializeRemoteTraceSession(client: StationApiClient | undefined
       }),
     );
     remoteStationRunId = session.stationRunId;
-    examPhaseStore = createLearnerCanonicalPhaseTraceStore({
-      examRunId,
-      stationRunId: session.stationRunId,
-      scenarioId: examScenarioId,
-      stationOrder: examScenarioIndex + 1,
-    });
     const observedFormAtSecond = formElapsedSecondForCurrentStation();
     await client.startEncounter(session.stationRunId, { atSecond: observedFormAtSecond });
   } catch {
@@ -2762,7 +2645,7 @@ function uiXrPortalTransitionContext(): PortalTransitionContext {
     portalLastTransitionReason,
     reusableExteriorAnteroom,
     scenarioId: encounterRuntimeAssetBundle.scenarioId,
-    examPhase: viewLearnerCanonicalExamPhase(examPhaseStore).phase,
+    examPhase: viewLearnerCanonicalExamPhase(examFlowStore.getPhaseStore()).phase,
     deterministicPreviewStart: parsePortalPreviewStart(window.location.search),
     setPortalEncounterEntered: (value: boolean) => { portalEncounterEntered = value; },
     setPortalEncounterStartedByPortal: (value: boolean) => { portalEncounterStartedByPortal = value; },
@@ -3080,30 +2963,10 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       assetLoadingContext: () => assetLoadingContext(),
       recordBootPhase,
       iwsdkStationSceneObjects,
-      // Three.js types
-      Scene,
-      Group,
-      Mesh,
-      BoxGeometry,
-      MeshStandardMaterial,
-      Color,
-      GLTFLoader,
-      // Functions from other packages
       applyStationInteriorLightingForEnvironment,
-      addPackageReusableExteriorPreEncounterRoom,
-      mountStationEnvironmentForRuntime,
-      loadInfinigenEnvironmentIntoStation,
-      addPackageScenarioSpecificClinicalSetDressing,
-      createReadableVrTextPanel,
       addScenarioExpectationPanel,
-      shouldSuppressGeneratedEnvironmentShell,
-      loadPackageGeneratedEnvironmentIntoSceneSlot,
       resolveEmulatorRuntimeAssetUrl,
-      runtimeGeneratedSceneObjectName,
       isDynamicGeneratedEncounterSceneMode,
-      enableCaptureRendererShadowMap,
-      markFloorReceiveShadow,
-      stationContextForScenario,
     },
     scene,
     renderer,
@@ -4755,7 +4618,7 @@ function manualEvidencePanelContext(): Parameters<typeof updatePackageTraceManua
     },
     frameStats: () => window.__openClinXrFrameStats ?? null,
     draft: () => window.__openClinXrManualPerformanceDraft ?? null,
-    copyDisposition: () => evidenceCopyDisposition,
+    copyDisposition: () => examFlowStore.getCopyDisposition(),
     formatSceneAssetEvidenceStatus: (evidence) => formatPackageSceneAssetEvidenceStatus(evidence as SceneAssetEvidence | null),
     formatHumanoidSpeechAffectEvidence: (evidence) => formatHumanoidSpeechAffectEvidence(evidence),
     formatPerformanceContractEvidence: (evidence) =>
@@ -4874,8 +4737,11 @@ function tick(): void {
   state = { ...state, elapsedSecond: Math.floor((tickNow - start) / 1000) };
   clock.textContent = formatStationClock(state.elapsedSecond);
   if (examFormRunState) {
-    examFormRunState = tickExamFormRunClock(examFormRunState, formElapsedSecondForCurrentStation());
-    updateExamFormRunEvidence();
+    const ticked = advancePackageFormRunClock(examFormRunState, formElapsedSecondForCurrentStation());
+    if (ticked) {
+      examFormRunState = ticked;
+      updateExamFormRunEvidence();
+    }
   }
   advanceExamFlowForElapsedTime();
   advanceExamNoteForElapsedTime();

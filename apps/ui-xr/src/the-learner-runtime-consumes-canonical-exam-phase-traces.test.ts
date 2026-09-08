@@ -265,7 +265,7 @@ describe("learner runtime wires assembled session identity into main.ts", () => 
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     expect(mainSource).toContain("buildAssembledStationStartSessionInput");
     expect(mainSource).toContain("@openclinxr/xr-station");
-    expect(mainSource).toContain("stationRunId: session.stationRunId");
+    expect(mainSource).toContain("remoteStationRunId = session.stationRunId");
     expect(mainSource).toContain("observedFormAtSecond");
     expect(mainSource).toContain("syncRemoteAssembledPhase");
     expect(mainSource).not.toMatch(/startEncounter\([^;]*atSecond:\s*0/);

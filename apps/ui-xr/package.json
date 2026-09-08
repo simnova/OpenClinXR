@@ -21,6 +21,7 @@
     "@openclinxr/xr-actor-dialogue": "workspace:*",
     "@openclinxr/xr-capture-evidence": "workspace:*",
     "@openclinxr/xr-dialogue": "workspace:*",
+    "@openclinxr/xr-exam-flow": "workspace:*",
     "@openclinxr/xr-humanoid-animation": "workspace:*",
     "@openclinxr/xr-locomotion": "workspace:*",
     "@openclinxr/xr-pose": "workspace:*",

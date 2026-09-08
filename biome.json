@@ -103,6 +103,7 @@
         "packages/openclinxr/xr-station-room/src/**",
         "packages/openclinxr/ui-route-admin/src/**",
         "apps/ui-admin/src/**",
+        "apps/ui-xr/src/**",
         "packages/openclinxr-verification/**"
       ],
       "linter": {

@@ -34,6 +34,9 @@
       "path": "../../packages/openclinxr/xr-dialogue"
     },
     {
+      "path": "../../packages/openclinxr/xr-exam-flow"
+    },
+    {
       "path": "../../packages/openclinxr/xr-station"
     },
     {
