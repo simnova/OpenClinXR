@@ -29,7 +29,7 @@ const REST_WORLD_COMPILE_ROUTE = join(
   "../../../packages/openclinxr/rest/src/routes/world-compile-routes.ts",
 );
 const ROUTE = readFileSync(REST_WORLD_COMPILE_ROUTE, "utf8");
-const CLIENT = readFileSync(join(API_SRC, "../../ui-admin/src/compile-encounter-world.ts"), "utf8");
+const CLIENT = readFileSync(join(API_SRC, "../../../packages/openclinxr/ui-route-shared/src/compile-encounter-world.ts"), "utf8");
 
 describe("the world-compile POST accepts compileNodes and infinigenPrompt", () => {
   it("(1) request body type includes compileNodes next to scenarioId", () => {

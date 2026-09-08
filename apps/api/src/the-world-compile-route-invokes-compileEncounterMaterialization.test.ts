@@ -58,7 +58,7 @@ describe("the world-compile route invokes compileEncounterMaterialization", () =
 
   it("(3) COUNTERWEIGHT: faculty client still POSTs that path", () => {
     const client = readFileSync(
-      join(API_SRC, "../../ui-admin/src/compile-encounter-world.ts"),
+      join(API_SRC, "../../../packages/openclinxr/ui-route-shared/src/compile-encounter-world.ts"),
       "utf8",
     );
     expect(client.includes("/internal/world-compile")).toBe(true);
