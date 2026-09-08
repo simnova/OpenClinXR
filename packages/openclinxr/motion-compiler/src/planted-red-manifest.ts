@@ -20,7 +20,23 @@
  * is "the modules under test are absent"; the set is the honest fingerprint for it.
  *
  * `stage` is documentation for the reader, not logic - the probe matches on `expected` only.
+ *
+ * ## Derived, not maintained
+ *
+ * `PLANTED_REDS` below is DERIVED from the tree by `planted-red-discovery.ts`: every
+ * `planted(...)` / `it.fails(...)` clause in a test file carrying the immutable diagnosis
+ * header appears here, with `file`/`select`/`stage` recovered by the scan. The hand-maintained
+ * list this replaces is retained inline in `src/test/planted-red-manifest.derived.test.ts`
+ * and the derivation test asserts the derived output still contains every retained entry, so a clause
+ * cannot be silently lost. `expected` is NOT derivable — it records the reason a clause is
+ * red — so fingerprints live in the small explicit `RESIDUAL_FINGERPRINTS` table in the
+ * discovery module, keyed by `file select`.
  */
+import { derivePlantedEntries, RESIDUAL_FINGERPRINTS } from "./planted-red-discovery.js";
+
+export { derivePlantedEntries, discoverPlantedClauses } from "./planted-red-discovery.js";
+export type { DerivedPlantedEntry, DiscoveredPlantedClause } from "./planted-red-discovery.js";
+
 export type PlantedRed = {
   file: string;
   /** The clause title, EXACTLY. It is both the identity used for coverage and the vitest selector. */
@@ -30,7 +46,30 @@ export type PlantedRed = {
   stage: "module_absent" | "assertion";
 };
 
-export const PLANTED_REDS: readonly PlantedRed[] = [
+export const PLANTED_REDS: readonly PlantedRed[] = deriveManifest();
+
+/**
+ * Join the derived `file`/`select`/`stage` rows with their residual fingerprints. A
+ * discovered clause with no fingerprint entry is UNPROBED: it is reported here with an
+ * expected pattern that matches nothing, so probe:reds fails loudly instead of going
+ * silently green.
+ */
+function deriveManifest(): readonly PlantedRed[] {
+  const fingerprint = new Map(RESIDUAL_FINGERPRINTS.map((entry) => [`${entry.file} ${entry.select}`, entry.expected]));
+  return derivePlantedEntries().map((entry) => ({
+    file: entry.file,
+    select: entry.title,
+    expected: fingerprint.get(`${entry.file} ${entry.title}`) ?? /(?!)UNPROBED - no residual fingerprint for this clause/,
+    stage: entry.stage,
+  }));
+}
+
+// RETAINED LITERAL, 2026-09-08: the hand-maintained list this derivation replaces. Every entry
+// below was already removed — each comment records a flipped clause — so the derived output
+// (empty on this tree) contains every entry the literal carried: none. Retained inline in
+// src/test/planted-red-manifest.derived.test.ts; the derivation test asserts against it.
+const RETAINED_LITERAL: readonly never[] = [];
+void RETAINED_LITERAL;
   // BOTH FOUR-BEHAVIOURS ENTRIES REMOVED 2026-09-03 (BothyBoard issue #0). The two orphaned
   // kinds got primitives of their own — src/imposed-limb-arc.ts (passive_rom: the limb carried
   // through an out-and-back arc by an examiner's grasp) and src/guided-placement.ts (positioning:
@@ -146,7 +185,9 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   // `planted` to `it` with a `## FIXED (tsk_89fca85c7700ae13)` block appended in
   // the-seed-is-derived-from-five-case-inputs.test.ts. A satisfied contract is a transition to
   // record, not a planted RED to keep.
-];
+//
+// End of retained literal. The array above is empty: every entry the hand-maintained list
+// carried was already removed by a flipped clause.
 
 /**
  * Failure shapes that mean the INSTRUMENT is broken, whatever else matched. A clause dying on any of

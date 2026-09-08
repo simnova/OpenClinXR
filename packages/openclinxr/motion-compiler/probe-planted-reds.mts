@@ -34,45 +34,14 @@
  * deliberately, not to discover later.
  */
 import { spawnSync } from "node:child_process";
-import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import ts from "typescript";
-
+import { discoverPlantedClauses } from "./src/planted-red-discovery.js";
 import { INSTRUMENT_FAILURES, PLANTED_REDS } from "./src/planted-red-manifest.js";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const SRC = join(ROOT, "src");
-
-/** Discovered `planted("<title>", ...)` calls, by AST. Never by regex over source. */
-function testFilesUnder(dir: string, prefix = ""): string[] {
-  // RECURSIVE. A top-level-only scan would silently exclude any clause placed in a subdirectory
-  // while the runner kept reporting package-wide coverage — the same shape as the 14-of-26 defect.
-  const out: string[] = [];
-  for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-    if (entry.isDirectory()) out.push(...testFilesUnder(join(dir, entry.name), `${prefix}${entry.name}/`));
-    else if (entry.name.endsWith(".test.ts")) out.push(`${prefix}${entry.name}`);
-  }
-  return out;
-}
-
-function discoverPlantedClauses(): { file: string; title: string }[] {
-  const found: { file: string; title: string }[] = [];
-  for (const file of testFilesUnder(SRC)) {
-    const source = ts.createSourceFile(file, readFileSync(join(SRC, file), "utf8"), ts.ScriptTarget.ESNext, true);
-    const walk = (node: ts.Node): void => {
-      if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === "planted") {
-        const first = node.arguments[0];
-        if (first && ts.isStringLiteralLike(first)) found.push({ file, title: first.text });
-        else found.push({ file, title: "<NON-LITERAL TITLE - the manifest cannot address this clause>" });
-      }
-      ts.forEachChild(node, walk);
-    };
-    walk(source);
-  }
-  return found;
-}
 
 /** vitest treats `-t` as a REGEX; clause titles contain parentheses that would become groups. */
 function asLiteralRegex(title: string): string {
@@ -136,7 +105,7 @@ function probe(entry: (typeof PLANTED_REDS)[number]): Outcome {
 
 // -- coverage first: a probe run over an incomplete manifest measures the manifest --------------
 
-const discovered = discoverPlantedClauses();
+const discovered = discoverPlantedClauses(SRC);
 const key = (file: string, title: string) => `${file} ${title}`;
 const manifestKeys = new Set(PLANTED_REDS.map((e) => key(e.file, e.select)));
 const discoveredKeys = new Set(discovered.map((d) => key(d.file, d.title)));
