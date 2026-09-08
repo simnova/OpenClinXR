@@ -1,0 +1,13 @@
+{
+  "id": "row-27-makehuman-system-asset-eyes-makehumansystemassets-pack-pack-",
+  "section": "Acquired",
+  "rowIndex": 27,
+  "cells": [
+    " MakeHuman system-asset eyes (`makehuman_system_assets` pack, [pack page](https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html), mirror `https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip`, 280,737,770 bytes)",
+    "**CC0 1.0 — verified IN THE ASSET HEADERS themselves, 2026-08-13 (#356), same standard as the hm08 row:** every staged `<colour>.mhmat` (`eyes/materials/`) carries the identical *\"This asset was explicitly released as CC0 in september 2020\"* header with the same copyright holders (Data Collection AB, Joel Palmius, Jonas Hauquier); the pack page licence column also reads CC0. `brown_eye.png` in the pack is **byte-identical** to the shipped hm08 iris (sha256 `4659691c7295ad62…`, 610,817 bytes) — the same asset, re-verified.",
+    "9 iris materials + textures: `blue`, `bluegreen`, `brown`, `brownlight`, `deepblue`, `green`, `grey`, `ice`, `lightblue` — each `<colour>.mhmat` + `<colour>_eye.png` (610,817–701,486 bytes, 1024² RGBA, luminance sd 33.7–40.0 measured); the pack also carries the same `low-poly`/`high-poly` eye meshes as hm08. Staged at `.openclinxr-local/provider-cache/eyes/makehuman-system-assets/` (gitignored cache; the GLB-embedded textures are the shipped bytes)",
+    "2026-08-13",
+    "`materialize_mpfb_humanoid_candidate.py` #356 — the eye material is now case-driven: `automate_blender.eye_iris_colour(actor_role, phenotype)` returns the declared colour id and the materializer consumes that colour's own `.mhmat` via the same generic `make_material_from_mhmat` path (#340). Cast: child/patient → `brown` (byte-identical iris to pre-fix), parent/family → `green`, nurse → `blue`; baseColorFactor stays (1,1,1) — the texture is the whole appearance",
+    "**Keep.** CC0 is the cleanest posture; no attribution obligation. The 6 unused colours stay staged for future casts — no new download or licence re-check needed to extend the palette. "
+  ]
+}

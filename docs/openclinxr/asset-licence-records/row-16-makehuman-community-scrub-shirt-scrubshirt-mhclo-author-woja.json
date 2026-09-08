@@ -1,0 +1,13 @@
+{
+  "id": "row-16-makehuman-community-scrub-shirt-scrubshirt-mhclo-author-woja",
+  "section": "Acquired",
+  "rowIndex": 16,
+  "cells": [
+    " `makehuman-community-scrub-shirt` ([Scrub_Shirt.mhclo](http://www.makehumancommunity.org/sites/default/files/clothes/8124/601141795/Scrub_Shirt.mhclo), author WojackOWL, \"Medical Scrubs Kit\")",
+    "**CC-BY** — attribution: `WojackOWL, Medical Scrubs Kit, CC-BY`",
+    "`Scrub_Shirt.mhclo` + `.obj`, cached under `.openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt/`. Header states `license: CC-BY`. Previously only downloaded ad-hoc at bake time; now tracked so re-bakes need no network",
+    "2026-08-11",
+    "`body_param_stage.py` upper fit (`makeclothes_library_scrub_shirt_*` on the heavy-male library body); factory fallback upper per `garment-selection-by-role.ts`; **2026-08-14 medical wardrobe: consumed by kevin, the ED clinical nurse AND the physician** (`materialize_mpfb_humanoid_candidate.py` `--actor-role nurse --reference peds_nurse_kevin` → `makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh`, `--reference ed_chest_pain_nurse_adult` → `makeclothes_library_scrub_shirt_mpfb_ed_chest_pain_nurse_adult_mesh`, and `--actor-role physician --reference ed_chest_pain_nurse_adult` → `makeclothes_library_scrub_shirt_mpfb_ed_chest_pain_nurse_adult_mesh` on `mpfb-clinical-physician-adult.glb` under the physician's CC0 lab coat; `LONG_SLEEVE_UPPER_BY_REFERENCE[\"peds_nurse_kevin\"]=None` and `[\"ed_chest_pain_nurse_adult\"]=None` so the clinician branch selects this shirt, not `toigo_fisherman_sweater`). Bake-time licence re-read via `read_hair_mhclo_licence` (`# license: CC-BY`).",
+    "**Replace when a CC0 equivalent exists.** CC-BY attribution must survive into shipped builds. "
+  ]
+}

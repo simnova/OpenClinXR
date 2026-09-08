@@ -1,0 +1,10 @@
+{
+  "id": "row-05-mesh2motion-clips",
+  "section": "Licence-uncertainties",
+  "rowIndex": 5,
+  "cells": [
+    " Mesh2Motion clips",
+    "Code MIT, assets **CC0-1.0**; but the repo ships **no LICENSE file**, so the claim rests on README text.",
+    "~150 clips are the salvage from a motion path that turned out to be browser-only. Verify before harvesting. "
+  ]
+}

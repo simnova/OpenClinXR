@@ -1,0 +1,29 @@
+{
+  "id": "prose-10-obj-agpl-correction-post",
+  "section": "Obj-agpl-correction",
+  "kind": "prose-block",
+  "body": [
+    "Both pack pages list every asset with an explicit per-asset licence column, and neither page mentions",
+    "AGPL anywhere. shoes01 is CC0 across all 23 entries; pants01 is CC0 across all 4.",
+    "",
+    "**RULING: the `.mhclo` is the asset descriptor MakeClothes authors, and the pack page is the",
+    "publisher's per-asset record. Where those two agree, a boilerplate line in the `.obj` deferring to a",
+    "dead external-tools page does not override them.** `cortu_cargo_pants` and `culturalibre_male_boots`",
+    "are **CC0 and cleared**, which also clears them for the six cast actors already wearing them.",
+    "",
+    "**WHAT THIS DOES NOT REVERSE.** The `skins01`/`skins02` refusals stand and are a different shape: those",
+    "carry `# This file is licensed AGPLv3` as an explicit per-file statement in the asset's OWN `.mhmat`",
+    "descriptor, not boilerplate in a mesh, and 21 of 23 carry no licence line at all. The rule that",
+    "*unspecified is a refusal* is unchanged. So is the `#497` finding that a page alone cannot clear a",
+    "file — what clears these two is the DESCRIPTOR agreeing with the page, not the page by itself.",
+    "",
+    "**Precedence for future intake, in order:**",
+    "1. the asset's own descriptor (`.mhclo` / `.mhmat`) — the author's declaration",
+    "2. the publisher's per-asset pack page",
+    "3. a mesh-header line — only when it is asset-specific, never when it is template boilerplate",
+    "   deferring to an external-tools document",
+    "",
+    "Silence anywhere still refuses. Two sources disagreeing still refuses unless one is demonstrably",
+    "boilerplate, as here."
+  ]
+}

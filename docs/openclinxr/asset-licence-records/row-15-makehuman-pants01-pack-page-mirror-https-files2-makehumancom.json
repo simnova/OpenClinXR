@@ -1,0 +1,13 @@
+{
+  "id": "row-15-makehuman-pants01-pack-page-mirror-https-files2-makehumancom",
+  "section": "Acquired",
+  "rowIndex": 15,
+  "cells": [
+    " `makehuman-pants01` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/pants01.html), mirror `https://files2.makehumancommunity.org/asset_packs/pants01/pants01_cc0.zip`)",
+    "**CC0 1.0 by the index, USED under the 2026-08-24 operator ruling. CORRECTED 2026-08-24 (#540): this row was a PACK-PAGE reading with no per-header check** — the ledger's own repeated warning, applied to itself. Measured per file: `cargo_pants.mhclo` has **no licence line at all** — and an unspecified `.mhclo` is normally a refusal (#497 class). `cargo_pants.obj:3` declares `# license AGPL3`, the MakeHuman template boilerplate, which is not the grant either way. **This is the case the 2026-08-24 index-override exists for**: index CC0 vs a silent `.mhclo` -> index is more permissive -> **USE**, owner contact pending. **This is an assumption on the index, not a finding in the file.** If the owner confirms AGPL3 is the real grant, every derived asset must be re-baked without it.",
+    "4 lower-body garments — `cortu_cargo_pants`, `cortu_jeans_shorts`, `toigo_wool_pants`, `toigo_harem_pants` — `.mhclo` + `.obj`, author Cortu Johnstone / MargaretToigo. Only cargo pants is cached (`cargo_pants.mhclo` + `cargo_pants.obj`, original pack filename `cortu_cargo_pants.mhclo`, internal name `cargo_pants`)",
+    "2026-08-11",
+    "`body_param_stage.py` lower fit via `ClothesService` (cargo pants on both `body-param-*-library.glb` classes). #310: the missing rebuildable source for the shipped `makeclothes_library_cargo_pants_*` meshes",
+    "**Keep.** CC0 is the cleanest posture; replace only on quality grounds. "
+  ]
+}

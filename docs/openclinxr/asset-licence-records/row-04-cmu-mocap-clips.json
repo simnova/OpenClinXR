@@ -1,0 +1,10 @@
+{
+  "id": "row-04-cmu-mocap-clips",
+  "section": "Licence-uncertainties",
+  "rowIndex": 4,
+  "cells": [
+    " CMU mocap clips",
+    "*\"free for all uses\"*, commercial embedding permitted, but **\"you may not resell this data directly, even in converted form\"**, plus a requested NSF EIA-0196217 acknowledgement.",
+    "Usable, with an attribution obligation and a resale restriction that must survive into any distribution. **2026-08-14 workstream B consumed the already-in-tree diagnostic clip** `tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_07_01_walk.bvh` (cgspeed conversion; `LICENSE-CMU-DIAG.txt`) as the first `motion_bind_stage` input. Not a new acquisition. Build-time retarget only — the derived GLB is a factory artifact, not a resale of the BVH. Acknowledgement: NSF EIA-0196217. "
+  ]
+}

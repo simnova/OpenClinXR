@@ -1,0 +1,11 @@
+{
+  "id": "row-01-hospital-bed-matt-lemoine-sketchfab",
+  "section": "Equipment-candidates",
+  "rowIndex": 1,
+  "cells": [
+    " Hospital Bed (Matt LeMoine) [Sketchfab](https://sketchfab.com/3d-models/hospital-bed-9cd9464990d2456e98b69978447852aa)",
+    "**CC BY 4.0 VERIFIED** (API) · ~3k tris · `isDownloadable=true`",
+    "`hospital_bed_equipment`",
+    "**Priority acquire** with attribution; post-opt if needed (0050). Download needs `SKETCHFAB_API_TOKEN` "
+  ]
+}

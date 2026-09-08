@@ -1,0 +1,14 @@
+{
+  "id": "row-18-makehuman-community-crude-labcoat-female-clothes-page-uuid-b",
+  "section": "Acquired",
+  "rowIndex": 18,
+  "cells": [
+    " `makehuman-community-crude-labcoat-female` ([clothes page](http://www.makehumancommunity.org/clothes/crude_lab_coat_open_female.html), uuid `bd2ee39d-2940-4428-95a6-19b6b59db688`)",
+    "**CC0** — page and `# license CC0` / `# author Joel Palmius` agree.",
+    "2026-08-14 staged: `…/makehuman-community-crude-labcoat-female/` (`crudelabcoatopen.mhclo` + `.obj`; max interpolation basemesh ref 13,351 < 13,380, x_scale refs 5399/11998 < 13,380 → fits the #318 helper-stripped basemesh; declared `crudelabcoatopen.mhmat` not staged, bake keeps the locked white coat colour)",
+    "**Consumed by the physician-adult bake** (`materialize_mpfb_humanoid_candidate.py` `--actor-role physician --reference ed_chest_pain_nurse_adult` → `makeclothes_library_lab_coat_mpfb_ed_chest_pain_nurse_adult_mesh`, THIRD layer over the clinician scrub shirt+pants; only the exact `physician` role wears it — nurse/RT/MA stay in scrubs. Bake-time licence re-read via `read_hair_mhclo_licence` (`# license CC0`)).",
+    "**Keep.** Low-poly “crude” series — quality ceiling, not a licence problem. "
+  ],
+  "expectedCells": 6,
+  "note": "Cell count differs from the section header; stored whole so no licence text is lost. A consumer must render `cells` verbatim, never re-columnise."
+}

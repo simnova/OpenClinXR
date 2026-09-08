@@ -1,0 +1,13 @@
+{
+  "id": "row-24-mpfb2-blender-extension",
+  "section": "Acquired",
+  "rowIndex": 24,
+  "cells": [
+    " MPFB2 (Blender extension)",
+    "AGPL-3 (plugin code) — **tool, not shipped asset**",
+    "Rig, macros, `ClothesService`, base mesh",
+    "pre-existing",
+    "`body_param_stage.py`, `add_mpfb2_eye_rig.py`",
+    "**Keep as a build-time tool.** It is not linked into or shipped with the runtime; the outputs (meshes) are ours. Flagged here because the repo bars copyleft in *shipped* dependencies and someone will ask. "
+  ]
+}

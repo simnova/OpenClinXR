@@ -1,0 +1,14 @@
+{
+  "id": "row-21-makehuman-visemes02-pack-page-mirror-https-files2-makehumanc",
+  "section": "Acquired",
+  "rowIndex": 21,
+  "cells": [
+    " `makehuman-visemes02` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/visemes02.html), mirror `https://files2.makehumancommunity.org/functional/visemes02.zip`)",
+    "**UNSPECIFIED (page) — packager JSON claims CC0 (#430); pack page states no licence. Still an assumption, not a finding.** `packs/visemes02.json` declares `license: CC0` on all 15 entries (author: Mika Suominen) — a **packager claim, not a page grant** (#430), not a licence finding; the pack page itself states no licence, and no CC/GPL/public-domain string in the HTML. Unlike `pants01` and `shoes01` there is **no `_cc0` variant** (both `visemes02_cc0.zip` URLs return 404). Author: Mika Suominen.",
+    "2026-08-11",
+    "15 Meta/ARKit `visemes02` targets (`sil, PP, FF, TH, DD, kk, CH, SS, nn, RR, aa, E, I, O, U`), hm08 topology, real per-vertex deltas (`viseme_aa` 2,548, `viseme_PP` 2,282, `viseme_sil` 0 as rest), 130 KB. Matches MPFB's `VISEMES02_TO_LIPSYNC` (`faceservice.py:122`) name-for-name and the `viseme_*` prefix the runtime already drives.",
+    "**STAGED UNDER AN EXPLICIT OPERATOR ASSUMPTION, 2026-08-11.** The standing rule is *unspecified is a refusal*; the operator directed otherwise — *\"backlog the license chase but assume the best so that we are unblocked and can move forward — we can revisit if we hear otherwise.\"* Recorded as an **assumption, not a finding**: this pack is NOT known to be CC0/CC-BY. Licence clarification is filed as a backlog item. **If clarification comes back restrictive, every asset derived from these targets must be re-baked without them** — that is the revisit trigger, and it is why this row states the assumption rather than a licence. "
+  ],
+  "expectedCells": 6,
+  "note": "Cell count differs from the section header; stored whole so no licence text is lost. A consumer must render `cells` verbatim, never re-columnise."
+}

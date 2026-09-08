@@ -1,0 +1,10 @@
+{
+  "id": "row-07-makehuman-base-mesh",
+  "section": "Licence-uncertainties",
+  "rowIndex": 7,
+  "cells": [
+    " MakeHuman base mesh",
+    "A stale 2016 README in the org's own tree asserts **AGPL** against a 2020 `LICENSE.md` saying **CC0**. No dated relicensing announcement found.",
+    "This is the mesh under every body we generate. The contradiction is upstream, not ours, but it is the single most load-bearing licence in the pipeline. "
+  ]
+}

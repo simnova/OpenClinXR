@@ -1,0 +1,14 @@
+{
+  "id": "row-17-makehuman-community-scrub-pants-clothes-page-uuid-c0c024de-6",
+  "section": "Acquired",
+  "rowIndex": 17,
+  "cells": [
+    " `makehuman-community-scrub-pants` ([clothes page](http://www.makehumancommunity.org/clothes/scrub_pants.html), uuid `c0c024de-6d38-427c-8505-5c3f8485e86b`)",
+    "**CC-BY** — page and `# license: CC-BY` header agree. Attribution: `WojackOWL, Medical Scrubs Kit, CC-BY`. Same kit as the shirt row.",
+    "2026-08-14 staged: `.openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-pants/` (`Scrub_Pants.mhclo` + `.obj` + `.mhmat` + `.thumb`; 1,392 obj verts / 2,704 tris; max basemesh ref 13,351 < 13,380). Declared `ScrubsMain_Pants_BaseColor_Utility - sRGB - Texture.png` is **not staged** — bake skips the texture and keeps the locked scrub colour.",
+    "**Consumed by kevin, the ED clinical nurse AND the physician** (`materialize_mpfb_humanoid_candidate.py` clinician lower slot → `makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh`, `makeclothes_library_scrub_pants_mpfb_ed_chest_pain_nurse_adult_mesh`, and the same `ed_chest_pain_nurse_adult`-reference mesh on `mpfb-clinical-physician-adult.glb`). `x_scale` refs 13868/14308 are helper verts — fit runs BEFORE the #318 helper strip. Patients/family stay on `cortu_cargo_pants`. Bake-time licence re-read via `read_hair_mhclo_licence`.",
+    "**Keep with attribution.** Pair with the shirt. "
+  ],
+  "expectedCells": 6,
+  "note": "Cell count differs from the section header; stored whole so no licence text is lost. A consumer must render `cells` verbatim, never re-columnise."
+}

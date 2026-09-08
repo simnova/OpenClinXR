@@ -1,0 +1,11 @@
+{
+  "id": "row-10-gradd-hospital-room-gradd-co-poly-pizza",
+  "section": "Equipment-candidates",
+  "rowIndex": 10,
+  "cells": [
+    " GRADD Hospital Room (GRADD CO) [poly.pizza](https://poly.pizza/m/9sUalfQ76kn)",
+    "**CC BY 3.0 VERIFIED** (page: \"Creative Commons Attribution\" → cc/3.0) · OBJ/GLTF ward-room scene",
+    "bed alt (ward bed in-scene)",
+    "**UNBLOCKED tick 24 (2026-08-12).** Direct public GLB: `https://static.poly.pizza/d8989cd8-33d1-49a1-8139-31215dbdcf84.glb` — VERIFIED returning `model/gltf-binary`. GLB S3 key is the model's thumbnail UUID (`d8989cd8-…`, read from `/search/hospital` page), NOT the short model id; tick-23 `AccessDenied` was a wrong-key error. No auth needed. Official API (`https://api.poly.pizza/v1.1/model/9sUalfQ76kn` + `x-auth-token`, free key from `poly.pizza/settings/api`) exposes the same `Download` field deterministically. Next: download → extract bed mesh → tick-22 deck-band measurement vs 0.58 m. Attribution: `\"GRADD Hospital Room\" by GRADD CO, https://poly.pizza/m/9sUalfQ76kn. Licence at https://creativecommons.org/licenses/by/3.0/` "
+  ]
+}

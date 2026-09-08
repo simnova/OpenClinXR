@@ -1,0 +1,13 @@
+{
+  "id": "row-10-makehuman-eyelashes01-pack-page-archive-eyelashes01cc0-zip",
+  "section": "Acquired",
+  "rowIndex": 10,
+  "cells": [
+    " `makehuman-eyelashes01` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/eyelashes01.html), archive `eyelashes01_cc0.zip`)",
+    "**CC0 1.0 — VERIFIED 2026-08-21 (#542) in every staged `.mhclo` header** (`# license CC0`, `# author Mindfront`), plus pack page + `_cc0` filename. All 5 declare `basemesh hm08`.",
+    "5 eyelash proxies (`mindfront_eyelashes_01..05`), 3,493,692 B archive; staged at `.openclinxr-local/provider-cache/facial/sources/makehuman-eyelashes01/` + `PROVENANCE.json`",
+    "**Acquired 2026-08-21**",
+    "**Not fitted in #542** — eyelashes retained from hm08 `helper-*-eyelashes-*` groups (selective helper retention) instead of a second pack fit. Pack stays staged for optional future fit.",
+    "**Keep.** CC0; #542 chose hm08-helper retention over pack fit (do not do both). "
+  ]
+}

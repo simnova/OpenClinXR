@@ -1,0 +1,11 @@
+{
+  "id": "row-03-sketchfab-studio-lab-hospital-bed-model-hospital-props-pack-",
+  "section": "Refused",
+  "rowIndex": 3,
+  "cells": [
+    " **Sketchfab — Studio Lab** \"Hospital Bed\" ([model](https://sketchfab.com/3d-models/hospital-bed-32237d8a7ab74dd5aa0177c7384170b4)), \"Hospital Props Pack\" ([model](https://sketchfab.com/3d-models/hospital-props-pack-b85c18b6ca5247d88bce2b5bb1818a1c))",
+    "**REFUSAL — Sketchfab \"Standard\" licence, not Creative Commons.** Verified via API 2026-08-24: `license.label = \"Standard\"`, `isDownloadable: false` on both. The API's requirements text reads permissively (*\"use worldwide, on all types of media, commercially or not\"*) — that is Sketchfab's **store** licence, not a CC grant, and neither file can be downloaded regardless. Operator-supplied 2026-08-24; recorded so the permissive-sounding wording is not re-litigated. "
+  ],
+  "expectedCells": 3,
+  "note": "Cell count differs from the section header; stored whole so no licence text is lost. A consumer must render `cells` verbatim, never re-columnise."
+}

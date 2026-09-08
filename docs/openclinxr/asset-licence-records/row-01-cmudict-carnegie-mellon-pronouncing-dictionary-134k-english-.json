@@ -1,0 +1,10 @@
+{
+  "id": "row-01-cmudict-carnegie-mellon-pronouncing-dictionary-134k-english-",
+  "section": "Cleared-not-acquired",
+  "rowIndex": 1,
+  "cells": [
+    " **CMUdict** (Carnegie Mellon Pronouncing Dictionary, ~134k English words to ARPAbet)",
+    "**BSD 2-clause**, copyright Carnegie Mellon University. Fetched verbatim from `https://raw.githubusercontent.com/cmusphinx/cmudict/master/LICENSE` on 2026-08-13. Permits redistribution and commercial use provided the copyright notice and conditions are retained; **explicitly not copyleft**.",
+    "**CLEARS the bar.** Permissive, non-copyleft, no AGPL contamination. Obligation on use: retain the CMU copyright notice wherever the data is redistributed. "
+  ]
+}

@@ -12,14 +12,14 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 105
-- archive-candidate: 39
+- archive-candidate: 48
 - current-reference: 208
 - decision-record: 44
-- evidence: 36
-- generated-evidence: 12
+- evidence: 67
+- generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
-- temporary: 3
+- temporary: 54
 
 ## Highest-Value Current Navigation
 
@@ -247,11 +247,70 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/factory/equipment-catalog-report.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/handoffs/adult-abdominal-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/aisha-parent-identity-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/asset-index-and-store-plan-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/asset-plans-c-and-d-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/behavioral-health-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/campaign-close-dark-factory-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/decision-388-colour-collision-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/decision-388-v2-second-glb-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/delegator-to-product-owner-2026-08-26.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/direction-mpfb2-throughout-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/door-leaf-scorer-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/ed-stroke-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/equipment-lane-ack-381-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/family-partner-scalp-grade-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/heads-up-patient-gown-is-their-lane-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/heads-up-poke-guard-touches-staff-rebakes-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/inpatient-ward-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/kevin-hair-not-procurement-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/kevin-mhair02-landed-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/kevin-scrubs-pixel-grade-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/medical-clothing-options-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/mpfb-human-realism-peer-from-equipment-lane-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/nurse-adult-scrubs-grade-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/ob-triage-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/oncology-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/parent-midriff-parked-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/pediatric-fever-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/peds-black-frame-grade-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/peds-interior-frame-grade-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/physician-adult-coat-grade-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/primary-care-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/question-388-colour-collision-for-superagent-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/refresh-for-human-realism-peer-2026-08-14-0915.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/reply-2-to-equipment-lane-peer-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/reply-decision-388-collision-moves-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/reply-to-equipment-lane-peer-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/reply-to-four-questions-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/review-dark-factory-multi-case-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/rooms-campaign-closed-for-other-agent-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/stand-down-dark-factory-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/state-for-superagent-planning-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/stepdown-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/stills-provenance-381-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/successor-hem-sawtooth-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
 - `.openclinxr/handoffs/superagent-dark-factory-multi-case-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
 - `.openclinxr/handoffs/superagent-medical-wardrobe-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/superagent-plan-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/superagent-portfolio-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
 - `.openclinxr/handoffs/superagent-rooms-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/superagent-rooms-DOOR-LEAF-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/surgical-ward-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/telehealth-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/the-plan-rooms-and-asset-reuse-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/urgent-care-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/openclaw/superagent-loop-prompt.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/openclaw/task-cost-latest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/plans/equipment-three-lane-factory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/slices/dark-factory-multi-case/STATE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slices/dispatch-chokepoint/EVIDENCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/slices/trellis-escape-hatch/LOOP.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/slices/trellis-escape-hatch/log.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/slices/trellis-imagine-black/PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `CLAUDE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `LICENSE-CLASHES.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -285,6 +344,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/world-compile-graph-brief-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/skills/openclinxr-openclaw-style/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/asset-licence-ledger-rules-header.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-GUIDE-2026-08-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

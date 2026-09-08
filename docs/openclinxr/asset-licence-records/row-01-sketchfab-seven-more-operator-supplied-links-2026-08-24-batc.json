@@ -1,0 +1,11 @@
+{
+  "id": "row-01-sketchfab-seven-more-operator-supplied-links-2026-08-24-batc",
+  "section": "Refused",
+  "rowIndex": 1,
+  "cells": [
+    " **Sketchfab — seven more operator-supplied links, 2026-08-24** (batch 3): [Medical Tray Cart](https://skfb.ly/oQR7y), [Medical Mobile Food Over Bed](https://skfb.ly/p7rQu), [IV Pole Stand](https://skfb.ly/oBFUP), [Medical Tripod](https://skfb.ly/oqnzU), [Mobile nursing cart](https://skfb.ly/P9nM), [Hospital Props](https://skfb.ly/6STTx), [Casual Sport Shoes](https://skfb.ly/pKrYG)",
+    "**REFUSAL — 7 of 7.** Verified via API 2026-08-24: three \"Standard\", three no licence set (`license == {}`), one **\"Editorial\"** (a class not previously seen here — editorial use only, not product). **`isDownloadable: false` on all seven.** Two are also unusable on size regardless of licence: Mobile nursing cart at 660,167 tris, Hospital Props at 55,584. **THE PATTERN IS THE FINDING:** across three batches, **15 operator-supplied links reviewed, 1 clears** (a CC-BY clock, 576 tris). Sketchfab's browse and search surfaces are dominated by store-licensed content; the CC-BY tier is only reliably reachable through the API filter `?license=by&downloadable=true`. Browsing the site is not an efficient way to find usable assets here. "
+  ],
+  "expectedCells": 3,
+  "note": "Cell count differs from the section header; stored whole so no licence text is lost. A consumer must render `cells` verbatim, never re-columnise."
+}

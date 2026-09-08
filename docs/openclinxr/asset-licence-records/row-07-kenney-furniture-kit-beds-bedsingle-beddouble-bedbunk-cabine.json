@@ -1,0 +1,13 @@
+{
+  "id": "row-07-kenney-furniture-kit-beds-bedsingle-beddouble-bedbunk-cabine",
+  "section": "Refused",
+  "rowIndex": 7,
+  "cells": [
+    " Kenney Furniture Kit (beds: bedSingle/bedDouble/bedBunk/cabinetBed) [kenney.nl](https://kenney.nl/assets/furniture-kit)",
+    "**CC0 VERIFIED** (source page text: \"Download this package (140 assets) for free, CC0 licensed!\"; poly.pizza mirror /m/sn8az3odMR states Public Domain CC0). 314-932 tris per bed.",
+    "`hospital_bed_equipment` deck source",
+    "**Token-free deck-bank path** — staged 2026-08-12 at `.openclinxr/staging/equipment/kenney-furniture-kit/` (provenance.json alongside; ledger = durable record). Generic bed deck (no rails/wheels; `side_rails_equipment` is a separate id). **MEASURED tick 20: bedSingle = 1.125 m × deck-top 0.375 m vs runtime spec 2.15 m / 0.58 m → spec-incompatible as-is; NOT a promotion candidate without 1.9× distort.** Prefer GRADD Hospital Room / OGA Small Hospital Bed (CC BY 3.0) for promotion. No attribution required (CC0). "
+  ],
+  "expectedCells": 3,
+  "note": "Cell count differs from the section header; stored whole so no licence text is lost. A consumer must render `cells` verbatim, never re-columnise."
+}

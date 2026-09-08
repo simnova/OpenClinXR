@@ -1,0 +1,13 @@
+{
+  "id": "row-08-cmu-graphics-lab-mocap",
+  "section": "Acquired",
+  "rowIndex": 8,
+  "cells": [
+    " CMU Graphics Lab mocap",
+    "**CONDITIONAL — not CC0/CC-BY.** Free for research and commercial products, but the data **may not be resold even converted**; NSF EIA-0196217 acknowledgement requested.",
+    "`Get Up From Ground Laying on Back` VERIFIED in the search UI — a floor get-up, not a hospital bed",
+    "already used once (walk BVH)",
+    "`motion_bind_stage`",
+    "Usable with restrictions. **Not** a clean CC0 pass; prefer the hm08 CC0 BVH. "
+  ]
+}

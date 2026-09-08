@@ -1,0 +1,10 @@
+{
+  "id": "row-02-haireditor-pack",
+  "section": "Licence-uncertainties",
+  "rowIndex": 2,
+  "cells": [
+    " `haireditor` pack",
+    "The CC0 grant found is **the distributor's, not the author's**. Tomáš Klecer authored `hair.blend`/`fur.blend` as a CS bachelor thesis; a distributor cannot grant CC0 on someone else's work. **One forum question to the author or MPFB maintainers closes this.**",
+    "Blocks the procedural (D2-aligned) hair path. The geo-nodes *engine* is already installed in MPFB 2.0.15; only the two `.blend` templates are missing. "
+  ]
+}

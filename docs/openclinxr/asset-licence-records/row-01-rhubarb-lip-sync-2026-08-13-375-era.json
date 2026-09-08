@@ -1,0 +1,10 @@
+{
+  "id": "row-01-rhubarb-lip-sync-2026-08-13-375-era",
+  "section": "Superseded",
+  "rowIndex": 1,
+  "cells": [
+    " **Rhubarb Lip Sync** (2026-08-13, #375 era)",
+    "\"Not investigated — NOT APPLICABLE to this pipeline. Rhubarb consumes AUDIO and this repo has zero audio assets (measured 2026-08-13); that target presumes an audio pipeline that does not exist.\"",
+    "#578 ran the binary directly. The repo-level fact (no audio assets) was right, but the tool-level claim had never been measured: the `-d` text-only premise is false for a structural reason (recognizers consume a waveform; text only biases recognition), which is now evidence rather than inference. Licence itself clears (MIT). "
+  ]
+}

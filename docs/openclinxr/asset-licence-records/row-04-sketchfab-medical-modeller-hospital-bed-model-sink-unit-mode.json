@@ -1,0 +1,11 @@
+{
+  "id": "row-04-sketchfab-medical-modeller-hospital-bed-model-sink-unit-mode",
+  "section": "Refused",
+  "rowIndex": 4,
+  "cells": [
+    " **Sketchfab — Medical Modeller** \"Hospital Bed\" ([model](https://sketchfab.com/3d-models/hospital-bed-d5417d4d1458406aa9a4a619e7f67fdc)), \"Sink Unit\" ([model](https://sketchfab.com/3d-models/sink-unit-56c72db4084b4b7782465c1ad345b2c4))",
+    "**REFUSAL — no licence declared.** Verified via API 2026-08-24: the `license` key is PRESENT and equals `{}` — the API reports no licence *set*, rather than withholding one — and `isDownloadable: false`. Unspecified is a refusal, not a maybe. Checked explicitly because *\"absent from the response\"* and *\"absent on the model\"* are different claims. "
+  ],
+  "expectedCells": 3,
+  "note": "Cell count differs from the section header; stored whole so no licence text is lost. A consumer must render `cells` verbatim, never re-columnise."
+}

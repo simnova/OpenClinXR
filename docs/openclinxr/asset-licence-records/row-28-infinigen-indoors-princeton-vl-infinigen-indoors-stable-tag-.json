@@ -1,0 +1,13 @@
+{
+  "id": "row-28-infinigen-indoors-princeton-vl-infinigen-indoors-stable-tag-",
+  "section": "Acquired",
+  "rowIndex": 28,
+  "cells": [
+    " Infinigen Indoors (princeton-vl/infinigen, `indoors-stable` tag, `release_v1.14.0`)",
+    "**BSD-3-Clause** (source) — confirmed in the `LICENSE` at the installed checkout (`~/.openclinxr-tools/infinigen/source`); generated geometry is ours",
+    "Procedural indoor floorplan + empty room shells; `clinical_bay.gin` seed 0 → extracted `dining-room_0` shipped as `apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb`",
+    "2026-08-07 (install) / 2026-08-11 (#336 consumer)",
+    "`apps/ui-xr/src/infinigen-station-environment.ts` loader, keyed by `environmentId` (`ed_exam_bay_v1`); baked GLB 2,184,544 bytes, 440 tris, 3 baked textures (Cycles albedo+AO, #345)",
+    "**Keep.** BSD-3-Clause is permissive and the shipped asset is our own generated geometry (coarse-stage shell; baked texture is derived from our geometry, no external textures). Submodules (`infinigen_gpl`, `OcMesher`) are GPL/BSD tools that stay inside the install and are not shipped. Replace only on quality grounds. "
+  ]
+}

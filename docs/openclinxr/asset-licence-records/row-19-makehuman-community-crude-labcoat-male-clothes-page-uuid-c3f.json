@@ -1,0 +1,14 @@
+{
+  "id": "row-19-makehuman-community-crude-labcoat-male-clothes-page-uuid-c3f",
+  "section": "Acquired",
+  "rowIndex": 19,
+  "cells": [
+    " `makehuman-community-crude-labcoat-male` ([clothes page](http://www.makehumancommunity.org/clothes/male_crude_labcoat.html), uuid `c3f44ec6-3aa2-4bad-9eca-e701047bcdd8`)",
+    "**CC0** — page and `# license CC0` / `# author Makuman_edited by elv` agree.",
+    "2026-08-14 staged: `…/makehuman-community-crude-labcoat-male/`",
+    "**Not consumed.** Optional physician overlay so physician ≠ nurse sweater.",
+    "**Keep.** "
+  ],
+  "expectedCells": 6,
+  "note": "Cell count differs from the section header; stored whole so no licence text is lost. A consumer must render `cells` verbatim, never re-columnise."
+}

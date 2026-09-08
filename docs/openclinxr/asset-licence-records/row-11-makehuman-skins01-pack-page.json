@@ -1,0 +1,13 @@
+{
+  "id": "row-11-makehuman-skins01-pack-page",
+  "section": "Acquired",
+  "rowIndex": 11,
+  "cells": [
+    " `makehuman-skins01` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/skins01.html))",
+    "**REFUSED on the header — page says CC0, the FILES do not clear. MEASURED 2026-08-21 (#510) by reading all 23 `.mhmat` headers inside the archive:** **2 × explicit AGPLv3 header** — `blindsaypatten_uniform_skin_texture`, `callharvey3d_midtoned_female` (verbatim `# This file is licensed AGPLv3`, the MakeHuman template header, copyright Data Collection AB / Joel Palmius / Jonas Hauquier) — **copyleft, hard refusal**; **21 × no licence line at all** — unspecified is a refusal (#497 class). `packs/skins01.json` declares `\"license\": \"CC0\"` on all entries — a **packager claim, not a per-asset grant** (#430 visemes02 class). PNG metadata chunks: **0** licence chunks across the pack's PNGs. **Fourth page-CC0 ≠ file mismatch on this site.**",
+    "23 skins, 99.4 MB (archive bytes verified vs Content-Length). Female-dominant. Authors: blindsaypatten, bobby_03, callharvey3d, CutOff3D, darthfurby, flower-angel, Nyloseth, OnlyTheGhosts, saltycowdawg, skalldyrssuppe, spreadcore, MargaretToigo (page shows 23 asset rows, not 25 as previously recorded). Every `.mhmat` declares a `diffuseTexture` that resolves on disk. **Resolution ABSENT from the page. Target base mesh / UV topology ABSENT from the page.**",
+    "**Acquired + MEASURED 2026-08-21 (#510), NOT consumed** — extracted at `.openclinxr-local/provider-cache/skins/sources/skins01/`",
+    "nothing. Skin today is MPFB2's bundled `enhanced_skin` node tree baked to a `baseColorTexture` (row above, CC0, #343)",
+    "**`reject_measured` — do not wire.** `$diffusetexture_filename` stays empty until a skin whose OWN header clears exists. No operator override is named for these uuids (the mhair02 override was uuid-scoped). The `_with_genitals` entries are NOT the reason for refusal (OPERATOR RULING 2026-08-20 permits them) — the headers are. "
+  ]
+}

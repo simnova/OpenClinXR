@@ -1,0 +1,13 @@
+{
+  "id": "row-23-anny-pypi-naver-corp",
+  "section": "Acquired",
+  "rowIndex": 23,
+  "cells": [
+    " `anny` (PyPI, NAVER Corp)",
+    "**Apache-2.0** (code); bundled `data/mpfb2` assets **CC0 1.0**",
+    "Parametric body model, phenotype oracle",
+    "2026-08-11",
+    "Anny rail; `anny.Anthropometry`, `AnnyInverter`",
+    "**Keep.** Note its optional SMPL-X topology is non-commercial download-only and the pipeline deliberately does not call that path. "
+  ]
+}

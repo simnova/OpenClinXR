@@ -69,7 +69,6 @@ row carries a **replacement posture**, not just a licence.
   `culturalibre_male_boots.mhclo` declares `CC-0` and `cargo_pants.mhclo` declares **nothing at all**.
   **Read the `.mhclo` first and judge on it.** Note an `.obj` disagreement in the row so nobody
   re-discovers it, but do not treat it as the grant.
-
 ## Acquired
 
 | source | licence | what | acquired | consumed by | replacement posture |
@@ -103,6 +102,7 @@ row carries a **replacement posture**, not just a licence.
 | MakeHuman system-asset eyes (`makehuman_system_assets` pack, [pack page](https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html), mirror `https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip`, 280,737,770 bytes) | **CC0 1.0 — verified IN THE ASSET HEADERS themselves, 2026-08-13 (#356), same standard as the hm08 row:** every staged `<colour>.mhmat` (`eyes/materials/`) carries the identical *"This asset was explicitly released as CC0 in september 2020"* header with the same copyright holders (Data Collection AB, Joel Palmius, Jonas Hauquier); the pack page licence column also reads CC0. `brown_eye.png` in the pack is **byte-identical** to the shipped hm08 iris (sha256 `4659691c7295ad62…`, 610,817 bytes) — the same asset, re-verified. | 9 iris materials + textures: `blue`, `bluegreen`, `brown`, `brownlight`, `deepblue`, `green`, `grey`, `ice`, `lightblue` — each `<colour>.mhmat` + `<colour>_eye.png` (610,817–701,486 bytes, 1024² RGBA, luminance sd 33.7–40.0 measured); the pack also carries the same `low-poly`/`high-poly` eye meshes as hm08. Staged at `.openclinxr-local/provider-cache/eyes/makehuman-system-assets/` (gitignored cache; the GLB-embedded textures are the shipped bytes) | 2026-08-13 | `materialize_mpfb_humanoid_candidate.py` #356 — the eye material is now case-driven: `automate_blender.eye_iris_colour(actor_role, phenotype)` returns the declared colour id and the materializer consumes that colour's own `.mhmat` via the same generic `make_material_from_mhmat` path (#340). Cast: child/patient → `brown` (byte-identical iris to pre-fix), parent/family → `green`, nurse → `blue`; baseColorFactor stays (1,1,1) — the texture is the whole appearance | **Keep.** CC0 is the cleanest posture; no attribution obligation. The 6 unused colours stay staged for future casts — no new download or licence re-check needed to extend the palette. |
 | Infinigen Indoors (princeton-vl/infinigen, `indoors-stable` tag, `release_v1.14.0`) | **BSD-3-Clause** (source) — confirmed in the `LICENSE` at the installed checkout (`~/.openclinxr-tools/infinigen/source`); generated geometry is ours | Procedural indoor floorplan + empty room shells; `clinical_bay.gin` seed 0 → extracted `dining-room_0` shipped as `apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb` | 2026-08-07 (install) / 2026-08-11 (#336 consumer) | `apps/ui-xr/src/infinigen-station-environment.ts` loader, keyed by `environmentId` (`ed_exam_bay_v1`); baked GLB 2,184,544 bytes, 440 tris, 3 baked textures (Cycles albedo+AO, #345) | **Keep.** BSD-3-Clause is permissive and the shipped asset is our own generated geometry (coarse-stage shell; baked texture is derived from our geometry, no external textures). Submodules (`infinigen_gpl`, `OcMesher`) are GPL/BSD tools that stay inside the install and are not shipped. Replace only on quality grounds. |
 
+
 ## Refused — do not re-litigate without new information
 
 | source | why refused | date |
@@ -117,13 +117,13 @@ row carries a **replacement posture**, not just a licence.
 | Sketchfab Medical Cart (yazzywazzy) [model](https://sketchfab.com/3d-models/medical-cart-d5e03bd688394269be0ad02b8f9aae62) | **CC BY-SA** (ShareAlike not in allowed set). | 2026-08-12 |
 | Sketchfab Patient Monitor (Guardiano) [model](https://sketchfab.com/3d-models/patient-monitor-ce4b4459e9fa4713b56d1385997aac5b) | **CC BY-NC** (non-commercial not allowed). | 2026-08-12 |
 
+
 ### Sketchfab equipment bank promote (2026-08-12)
 
 | Sketchfab Hospital Bed (Matt LeMoine) [model](https://sketchfab.com/3d-models/hospital-bed-9cd9464990d2456e98b69978447852aa) | **CC BY 4.0 VERIFIED** (API at download) | `hospital_bed_equipment` bank GLB | 2026-08-12 | `apps/ui-xr/public/xr-assets/medical-equipment/hospital-bed-sketchfab-ccby.glb` via `REAL_EQUIPMENT_GLTF_BY_ID`; L=2.15 W=0.98 deck≈0.585 m after normalize (bedside stand dropped) | **Keep with attribution.** CC-BY surface: PROVENANCE.md + sidecar. Replace only on quality/Quest budget. |
 | Sketchfab Hospital Stretcher Trolley (UsmanAzhar2256) [model](https://sketchfab.com/3d-models/hospital-stretcher-trolley-edfeb93b201b4c8da2c7a4fb5dea090c) | **CC BY 4.0 VERIFIED** | `stretcher_equipment` bank GLB | 2026-08-12 | `stretcher-sketchfab-ccby.glb` (L=2.0 W=0.72 deck≈0.725) | **Keep with attribution.** |
 | Sketchfab Exam Table (orphic_oasis8) [model](https://sketchfab.com/3d-models/exam-table-459c00d5a0524c67a4ad2fa5c6eacb15) | **CC BY 4.0 VERIFIED** | `exam_table_equipment` bank GLB | 2026-08-12 | `exam-table-sketchfab-ccby.glb` (L=1.9 W=0.70 deck≈0.575) | **Keep with attribution.** |
 | Sketchfab Bed Curtain + Vital Signs Monitor (Ethan Cragun) [model](https://sketchfab.com/3d-models/bed-curtain-and-vital-signs-monitor-295ed50eeaa249e8bbeed7b305d3da71) | **CC BY 4.0 VERIFIED** | `privacy_curtain_equipment` bank GLB | 2026-08-12 | `privacy-curtain-monitor-sketchfab-ccby.glb` (height-fit 2.2 m) | **Keep with attribution.** Composite curtain+monitor; not a second bedside_monitor bank entry. |
-
 
 ## Equipment candidates (NOT acquired — staging only, 2026-08-12)
 
@@ -149,6 +149,7 @@ Full table + poly counts: `docs/openclinxr/equipment-oss-candidates.md`. MADR 00
 
 **Structural note:** no CC0 ward bed / IV pole / crash cart pack found. External equipment path is CC-BY + attribution (same as scrub-shirt), or stay thin_parametric (lane 2).
 
+
 ## Licence uncertainties surfaced 2026-08-11 (researcher; NOT resolved)
 
 | item | uncertainty | why it matters |
@@ -161,12 +162,14 @@ Full table + poly counts: `docs/openclinxr/equipment-oss-candidates.md`. MADR 00
 | Expy-Kit, Mwni | **No LICENSE file**; GPL claim rests on a single header line. | Not acquired. Recorded so it is not mistaken for cleared. |
 | MakeHuman base mesh | A stale 2016 README in the org's own tree asserts **AGPL** against a 2020 `LICENSE.md` saying **CC0**. No dated relicensing announcement found. | This is the mesh under every body we generate. The contradiction is upstream, not ours, but it is the single most load-bearing licence in the pipeline. |
 
+
 ## Cleared but NOT acquired — G2P pronunciation data (2026-08-13, #375)
 
 | resource | licence, verified at source | verdict |
 |---|---|---|
 | **CMUdict** (Carnegie Mellon Pronouncing Dictionary, ~134k English words to ARPAbet) | **BSD 2-clause**, copyright Carnegie Mellon University. Fetched verbatim from `https://raw.githubusercontent.com/cmusphinx/cmudict/master/LICENSE` on 2026-08-13. Permits redistribution and commercial use provided the copyright notice and conditions are retained; **explicitly not copyleft**. | **CLEARS the bar.** Permissive, non-copyleft, no AGPL contamination. Obligation on use: retain the CMU copyright notice wherever the data is redistributed. |
 | **Rhubarb Lip Sync** | **MIT** (core, copyright Daniel Wolf 2015-2016); bundled third-party deps MIT/BSD-family (Boost BSL, CMU Sphinx 2-clause-BSD variant) per the LICENSE.md shipped inside the release. Verified by reading the `LICENSE.md` shipped in the release under `~/.openclinxr-tools/rhubarb/` on 2026-08-22 (#578), not a summary page. | **CLEARS the bar** — permissive, non-copyleft, no network calls at run time (local PocketSphinx + phonetic recognizers; `res/sphinx` ships in the install). Acquired 2026-08-22 (#578): v1.14.0 official macOS release → `~/.openclinxr-tools/rhubarb/` (out-of-repo). **ON PATH since 2026-08-27**: `/opt/homebrew/bin/rhubarb` symlinks the canonical binary, verified functionally through the link (`--version` 1.14.0; phonetic and default PocketSphinx recognizers both read a WAV and emit a `mouthCues` timeline, so `res/sphinx` resolves through the symlink). Before that, `which rhubarb` was empty and the tool read as absent to anyone measuring PATH — which it did to me on 2026-08-27. Supersedes the 2026-08-13 "NOT APPLICABLE — consumes AUDIO" row below in licence scope only; the audio-input finding stands and is recorded in `docs/openclinxr/cagematch/findings/rhubarb-lip-sync-driver.md`: `-d` dialog text is an aid to audio recognition, never a standalone text→viseme path (measured: silent wav + full transcript yields one idle `X` cue; `.txt` input refused outright). |
+
 
 ## Superseded rows
 
@@ -181,6 +184,7 @@ half of that blocker.
 **Method note:** verified by fetching the LICENSE file itself, not a summary page or a package-manager
 badge. §PROTO_CURIOUS_RESEARCHER: unspecified is a refusal, so a second-hand claim would not have
 cleared it.
+
 
 ## Open questions
 
@@ -292,7 +296,6 @@ clip, not the library), the candidate should be chosen from these, not from `Sle
 Licence unchanged: CC0 VERIFIED (`LICENSE-CC0.MD` in the local clone). Rig unchanged: 66-joint
 Mixamo-adjacent, so a **66->137 SOURCE map** is required either way.
 
-
 ## CORRECTION 2026-08-21 — my `Sleeping` mechanism was wrong; the verdict survives on other evidence
 
 Grading the seated clips exposed an error in the `Sleeping` entry above. I wrote that
@@ -354,7 +357,6 @@ NOT TESTED: whether `saveGltf2Bvh` preserves the 66-joint source names the sourc
 whether the BVH round-trip renames or flattens them. That is the first thing to measure if a bind
 comes back with unexpectedly low coverage - the map may be correct and the round-trip lossy.
 
-
 ## CORRECTION 2026-08-25 — `.obj` AGPL3 boilerplate is NOT the asset licence; two refusals reversed
 
 **Operator, 2026-08-25:** *"recall that license files are sometimes off and you need to check the make
@@ -371,7 +373,6 @@ domain advertising itself for sale, so the document the header defers to no long
 also defers to an *external tools* licence — MakeHuman the software — not to the asset.
 
 Three sources measured 2026-08-25, and the two ASSET-SPECIFIC ones agree:
-
 | source | `culturalibre_male_boots` | `cortu_cargo_pants` |
 |---|---|---|
 | pack page, `static.makehumancommunity.org/assets/assetpacks/shoes01.html` / `pants01.html` | **CC0** (author culturalibre) | **CC0** (author Cortu) |

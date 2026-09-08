@@ -1,0 +1,11 @@
+{
+  "id": "row-01-fab-com-listing-833b6c3d-cb22-466a-9324-4ab5c36b0c9a-operato",
+  "section": "Licence-uncertainties",
+  "rowIndex": 1,
+  "cells": [
+    " **fab.com listing `833b6c3d-cb22-466a-9324-4ab5c36b0c9a`** (operator-supplied 2026-08-24)",
+    "**NOT DETERMINED — could not read the listing.** Both the page and Fab's internal `/i/listings/` endpoint return **HTTP 403** behind a Cloudflare challenge, so the asset's identity, price and licence are unknown to me and I am not guessing them. **What can be said at the CLASS level:** Fab is Epic's marketplace and its default terms are the Epic **Standard License** (personal/professional tiers) — a proprietary EULA, not Creative Commons. Fab does host some CC-BY/CC0 items migrated from the Sketchfab store, labelled as such, so a specific listing *can* clear. **The decisive question here is redistribution, not price** (see the delivery-model rule above): this product serves raw `.glb` files from a public directory, and marketplace EULAs commonly permit use while restricting redistribution. **To resolve:** open the listing and read the licence block — if it says CC-BY or CC0, it clears; if it says Epic Standard or similar, it does not, free or paid. "
+  ],
+  "expectedCells": 3,
+  "note": "Cell count differs from the section header; stored whole so no licence text is lost. A consumer must render `cells` verbatim, never re-columnise."
+}

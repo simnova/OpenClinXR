@@ -1,0 +1,13 @@
+{
+  "id": "row-22-makehuman-shoes01-pack-file-shoes01cc0-zip-83-mb-23-shoes-al",
+  "section": "Acquired",
+  "rowIndex": 22,
+  "cells": [
+    " `makehuman-shoes01` (pack file `shoes01_cc0.zip`, 83 MB, 23 shoes, all `basemesh hm08`)",
+    "**CC0 1.0 — CLEARS ON ITS OWN `.mhclo`; NO override invoked. AMENDED 2026-08-24 (#540).** `culturalibre_male_boots.mhclo` declares `# license CC-0`, so this row stands on its own header exactly as #324 recorded it. `male_boots.obj:3` additionally declares `# license AGPL3` — that is the MakeHuman **template boilerplate**, noted here so nobody re-discovers it, and it is **not** the grant. The 2026-08-24 index-override is index-vs-`.mhclo` and does not apply where the `.mhclo` already clears. Original per-`.mhclo` read, unchanged and still correct as far as it went — per each shoe's own `.mhclo` header, read on 2026-08-11 (#324): `# license CC0` on `toigo_flats` (author MRT), `toigo_mj_cloth_shoes` (author MRT), `# license CC-0` on `culturalibre_male_boots` (author culturalibre, original Roachburn). The 23-shoe pack is CC0; the per-header read is the compliance surface the factory requires.",
+    "3 cached shoes with **zero helper-vertex refs** (fit the helper-stripped basemesh, #318): `toigo_flats` (28,808 obj verts), `toigo_mj_cloth_shoes` (556), `culturalibre_male_boots` (15,308). Helper-bearing shoes in the pack (ankle boots, ballet flats, stilettos — 6,252–67,242 refs ≥ 13,380) cannot bake and are not cached",
+    "2026-08-11",
+    "`embed_library_footwear.py` footwear fit via `ClothesService.fit_clothes_to_human` — `toigo_flats` on `body-param-adult_lean_female-library.glb` (family role), `culturalibre_male_boots` on `body-param-adult_heavy_male-library.glb` (male patient actor). #324: replaces the 86-vertex procedural footwear shells (a resolution defect — 1 : 50 shoe-to-foot vert ratio)",
+    "**Keep.** CC0 is the cleanest posture; the excluded helper-bearing shoes stay out until the basemesh-topology blocker (#318) is resolved, not on licence grounds. "
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "prose-9-obj-agpl-correction",
+  "section": "Obj-agpl-correction",
+  "kind": "prose-block",
+  "body": [
+    "**Operator, 2026-08-25:** *\"recall that license files are sometimes off and you need to check the make",
+    "human website for the reference to the more permissive license.\"* Checked, and the hint was right.",
+    "",
+    "`#540` refused `cortu_cargo_pants` and `culturalibre_male_boots` on a single line in their `.obj`:",
+    "",
+    "```",
+    "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+    "```",
+    "",
+    "**That line is stale template boilerplate and its URL is dead.** `makehuman.org` is now a parked",
+    "domain advertising itself for sale, so the document the header defers to no longer exists. The header",
+    "also defers to an *external tools* licence — MakeHuman the software — not to the asset.",
+    "",
+    "Three sources measured 2026-08-25, and the two ASSET-SPECIFIC ones agree:"
+  ]
+}

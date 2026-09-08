@@ -1,0 +1,10 @@
+{
+  "id": "row-03-retargetbvh-diffeomorphic",
+  "section": "Licence-uncertainties",
+  "rowIndex": 3,
+  "cells": [
+    " `retarget_bvh` (Diffeomorphic)",
+    "**GPL-2.0-or-later.** Clear licence, but copyleft.",
+    "**Build-time tooling only**, same posture as MPFB's AGPL — never linked into or shipped with the runtime. Recorded so nobody promotes it to a dependency. "
+  ]
+}

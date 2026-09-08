@@ -185,6 +185,10 @@ function sectionBefore(text: string, marker: string): string {
 
 function isGeneratedOutputPolicyIgnoredPath(file: string): boolean {
   return file.startsWith(".openclinxr/")
+    // Per-asset licence records are SOURCE, not generated output: the ledger Markdown is
+    // rendered FROM them. Registering each one would put every new asset acquisition back
+    // through a shared registry edit, which is the contention the records exist to remove.
+    || file.startsWith("docs/openclinxr/asset-licence-records/")
     || file.includes("/dist/")
     || file.startsWith("docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-")
     || file.startsWith("docs/openclinxr/model-vetting-captures/anny-skin-")

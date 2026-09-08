@@ -1,0 +1,13 @@
+{
+  "id": "row-01-sketchfab-hospital-bed-matt-lemoine-model",
+  "section": "Bank-promote",
+  "rowIndex": 1,
+  "cells": [
+    " Sketchfab Hospital Bed (Matt LeMoine) [model](https://sketchfab.com/3d-models/hospital-bed-9cd9464990d2456e98b69978447852aa)",
+    "**CC BY 4.0 VERIFIED** (API at download)",
+    "`hospital_bed_equipment` bank GLB",
+    "2026-08-12",
+    "`apps/ui-xr/public/xr-assets/medical-equipment/hospital-bed-sketchfab-ccby.glb` via `REAL_EQUIPMENT_GLTF_BY_ID`; L=2.15 W=0.98 deck≈0.585 m after normalize (bedside stand dropped)",
+    "**Keep with attribution.** CC-BY surface: PROVENANCE.md + sidecar. Replace only on quality/Quest budget. "
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "prose-6-correction-sleeping-mechanism",
+  "section": "Correction-sleeping-mechanism",
+  "kind": "prose-block",
+  "body": [
+    "Grading the seated clips exposed an error in the `Sleeping` entry above. I wrote that",
+    "`root q = [-0.707, 0, 0, 0.707]` (a -90 deg X pitch) meant the body was laid flat. **It does not.**",
+    "Measured on `human-base-animations.glb`, the STANDING clip `Idle_A` carries the identical root",
+    "rotation. The -90 deg X pitch is the rig's up-axis convention, present in every clip, and carries no",
+    "pose information at all.",
+    "",
+    "**What survives, and why the verdict is unchanged:** the `Sleeping` claim was \"NOT side-lying\", and its",
+    "evidence was **zero Y/Z rotation anywhere in the root chain** — a side-lying pose needs a ROLL about",
+    "the forward axis. That measurement stands and is independent of the root convention. `Sleeping` is",
+    "still not side-sleep.",
+    "",
+    "**The real evidence that `Sleeping` is horizontal is the PELVIS, not the root:**",
+    "",
+    "    clip             pelvis pitchX     thigh pitchX        calf pitchX",
+    "    Idle_A (stand)      99.1 deg      151.8 / 178.7      21.4 / 14.1",
+    "    Sitting_Idle       104.5 deg       80.0 /  80.2      84.7 / 83.5",
+    "    Sleeping            14.5 deg              --                --",
+    "",
+    "`Sleeping`'s pelvis sits ~85 deg away from both upright poses. That is the discriminator I should have",
+    "used, and the correction is recorded here rather than appended quietly to the original claim."
+  ]
+}

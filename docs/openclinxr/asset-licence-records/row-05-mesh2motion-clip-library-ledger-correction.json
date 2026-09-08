@@ -1,0 +1,14 @@
+{
+  "id": "row-05-mesh2motion-clip-library-ledger-correction",
+  "section": "Acquired",
+  "rowIndex": 5,
+  "cells": [
+    " `mesh2motion` clip library — **LEDGER CORRECTION**",
+    "**CC0 — VERIFIED.** The existing row says *\"repo ships no LICENSE file\"*; that is **STALE**. The local clone at `~/.openclinxr-tools/mesh2motion-app` carries BOTH `LICENSE-MIT.MD` (code) and `LICENSE-CC0.MD` (*\"All 3d models, blend files, rigs, animations / CC0 1.0 Universal\"*).",
+    "87 + 75 human clips. Lying-adjacent: **`Sleeping`, `LayToIdle`, `Rest Pose`** — VERIFIED present. No clip named supine/hospital/bed-rest/Fowler; whether `Sleeping` is back-flat or side-sleep is **NOT graded**.",
+    "already on disk, outside the git tree",
+    "**Second choice behind the hm08-native BVH.** Its rig is a 66-joint Mixamo-adjacent skeleton (`spine_01..03`, `thigh_l`), NOT MakeHuman naming — a 66→138 retarget is required, which the hm08 BVH does not need. **Also correct `PROTO_VERIFY_DELEGATION`**, which still calls Mesh2Motion *\"approved, preferred and unused (#70)\"*: MADR 0036/0052 already declined it as the pipeline **rigger**; only the clip library is salvageable. "
+  ],
+  "expectedCells": 6,
+  "note": "Cell count differs from the section header; stored whole so no licence text is lost. A consumer must render `cells` verbatim, never re-columnise."
+}

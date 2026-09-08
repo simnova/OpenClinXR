@@ -1,0 +1,18 @@
+{
+  "id": "prose-7-graded-seated",
+  "section": "Graded-seated",
+  "kind": "prose-block",
+  "body": [
+    "`Sitting_Idle`: hips flexed 80.0/80.2 deg, knees flexed 84.7/83.5 deg. Against the standing control",
+    "`Idle_A` (thighs 151.8/178.7, calves 21.4/14.1) that is an unambiguous seated posture. **PASS.**",
+    "",
+    "**`Sitting_Idle` and `Sitting_Talking` are BYTE-IDENTICAL at frame 0** — every measured quaternion",
+    "matches to three decimals. Their difference is temporal, not postural. Consequence for the one-clip",
+    "rule: **a frame-0 still cannot choose between them**, so the choice must be made on what the station",
+    "needs (a conversing patient => `Sitting_Talking`) or on a mid-clip sample, not on a first-frame grade.",
+    "",
+    "NOT DETERMINED: whether either clip's motion is clinically plausible over its full duration — I graded",
+    "the entry pose, not the animation. And the 66-joint Mixamo-adjacent rig still requires a 66->137 SOURCE",
+    "map before any of this reaches a learner."
+  ]
+}

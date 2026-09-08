@@ -1,0 +1,13 @@
+{
+  "id": "row-25-mpfb2-bundled-data-textures-mpfbface-jpg-mpfblips-jpg-mpfbea",
+  "section": "Acquired",
+  "rowIndex": 25,
+  "cells": [
+    " MPFB2 bundled data textures (`mpfb_face.jpg`, `mpfb_lips.jpg`, `mpfb_ears.jpg`, `mpfb_eyelids.jpg`, `mpfb_fingernails.jpg`, `mpfb_toenails.jpg`, `mpfb_aureolae.jpg`, `mpfb_inside-mouth.jpg`, `mpfb_crotch.jpg`, `mpfb_genitals.jpg`, `sss.png` — `data/textures/` inside the MPFB2 extension)",
+    "**CC0 1.0 — verified 2026-08-12 (#343) from the upstream repo's own asset grant, not a pack page.** `makehumancommunity/mpfb2` ships a SPLIT licence: code under `LICENSE.CODE.md` (GPL-3.0-or-later, matching `blender_manifest.toml` `SPDX:GPL-3.0-or-later`) and **assets/data under `LICENSE.ASSETS.md` = CC0 1.0 Universal** (\"base mesh, proxies, targets/modifiers, **textures**, clothes, rigs, poses, expressions, JSON mesh data... no attribution, copyright notices, or restrictions\"). The addon manifest's `GPL-3.0-or-later` labels the extension as a whole; the per-asset grant in `LICENSE.ASSETS.md` is the operative licence for the texture bytes and is CC0.",
+    "11 skin/body-part detail textures + `sss.png` (1.4 MB), used by the `enhanced_skin` procedural shader's region nodes",
+    "2026-08-12",
+    "`materialize_mpfb_humanoid_candidate.py` #343 — `MaterialService.create_v2_skin_material` loads the shipped `enhanced_skin` node tree; its region groups reference these bundled textures at build time; a baked skin `baseColorTexture` ships in the GLB (derived asset, CC0 inputs)",
+    "**Keep.** CC0 is the cleanest posture; no attribution obligation. Same split-licence precedent as the `anny` row (code copyleft, bundled `data/mpfb2` assets CC0). "
+  ]
+}

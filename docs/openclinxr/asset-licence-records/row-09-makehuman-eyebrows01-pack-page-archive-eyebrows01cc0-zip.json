@@ -1,0 +1,13 @@
+{
+  "id": "row-09-makehuman-eyebrows01-pack-page-archive-eyebrows01cc0-zip",
+  "section": "Acquired",
+  "rowIndex": 9,
+  "cells": [
+    " `makehuman-eyebrows01` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/eyebrows01.html), archive `eyebrows01_cc0.zip`)",
+    "**CC0 1.0 — VERIFIED 2026-08-21 (#542) in every staged `.mhclo` header** (`# license CC0`, `# author Mindfront (Sweden)`), plus pack page + `_cc0` filename. All 14 headers also declare `basemesh hm08` (ClothesService will not refuse). No uuid override needed.",
+    "14 eyebrow proxies (`mindfront_eyebrows_01..14`), 11,477,790 B archive; staged at `.openclinxr-local/provider-cache/facial/sources/makehuman-eyebrows01/` + `PROVENANCE.json`",
+    "**Acquired 2026-08-21** under operator build order (eyebrows/eyelashes + teeth/tongue for all 11 actors)",
+    "`materialize_mpfb_humanoid_candidate.py` `EYEBROW_STYLE_BY_REFERENCE` → `ClothesService.fit_clothes_to_human` (same rail as fitted hair)",
+    "**Keep.** CC0; replace on quality grounds only. "
+  ]
+}
