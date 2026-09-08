@@ -10,11 +10,13 @@ import type {
   StationRoomContext,
   StationRoomResult,
   StationRoomScenarioTheme,
+  ApplyStationInteriorLightingForEnvironment,
 } from "./types.js";
+import type { EncounterRuntimeAsset } from "@openclinxr/asset-registry/runtime-bundles";
 
 // The context and result types are the package's contract with main.ts, which declares its
 // own local variables against them. Re-export them.
-export type { StationRoomContext, StationRoomResult, StationRoomScenarioTheme };
+export type { StationRoomContext, StationRoomResult, StationRoomScenarioTheme, ApplyStationInteriorLightingForEnvironment };
 export {
   actorNameplateLabel,
   runtimeGeneratedSceneObjectName,
@@ -24,8 +26,21 @@ export {
   type StationActorStagingContext,
   type StationActorStagingResult,
 } from "./actor-staging.js";
-import type { Group, Mesh, Scene, WebGLRenderer, PerspectiveCamera, Object3D } from "three";
+import { Group, Mesh, BoxGeometry, MeshStandardMaterial, Color } from "three";
+import type { Scene, WebGLRenderer, PerspectiveCamera, Object3D } from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { GLTF } from "three/addons/loaders/GLTFLoader.js";
+
+// Direct imports of functions previously passed through context
+import { addReusableExteriorPreEncounterRoom as addPackageReusableExteriorPreEncounterRoom } from "@openclinxr/xr-asset-loading";
+import { addScenarioSpecificClinicalSetDressing as addPackageScenarioSpecificClinicalSetDressing } from "@openclinxr/xr-asset-loading";
+import { loadGeneratedEnvironmentIntoSceneSlot as loadPackageGeneratedEnvironmentIntoSceneSlot } from "@openclinxr/xr-asset-loading";
+import { mountStationEnvironmentForRuntime } from "@openclinxr/xr-scene";
+import { loadInfinigenEnvironmentIntoStation } from "@openclinxr/xr-scene";
+import { createReadableVrTextPanel } from "@openclinxr/xr-scene-cues";
+import { enableCaptureRendererShadowMap, markFloorReceiveShadow, stationContextForScenario } from "@openclinxr/xr-station";
+import { shouldSuppressGeneratedEnvironmentShell as shouldPackageSuppressGeneratedEnvironmentShell } from "@openclinxr/xr-capture-evidence";
+import { runtimeGeneratedSceneObjectName } from "./actor-staging.js";
 
 /**
  * Build the station room shell and load environment assets.
@@ -60,27 +75,10 @@ export async function buildStationRoomShell(
     runtimeSceneObjectPrefix,
     assetLoadingContext,
     iwsdkStationSceneObjects,
-    Group: GroupCtor,
-    Mesh: MeshCtor,
-    BoxGeometry,
-    MeshStandardMaterial,
-    Color: ColorCtor,
-    GLTFLoader,
     applyStationInteriorLightingForEnvironment,
-    addPackageReusableExteriorPreEncounterRoom,
-    mountStationEnvironmentForRuntime,
-    loadInfinigenEnvironmentIntoStation,
-    addPackageScenarioSpecificClinicalSetDressing,
-    createReadableVrTextPanel,
     addScenarioExpectationPanel,
-    shouldSuppressGeneratedEnvironmentShell,
-    loadPackageGeneratedEnvironmentIntoSceneSlot,
     resolveEmulatorRuntimeAssetUrl,
-    runtimeGeneratedSceneObjectName,
     isDynamicGeneratedEncounterSceneMode,
-    enableCaptureRendererShadowMap,
-    markFloorReceiveShadow,
-    stationContextForScenario,
   } = ctx;
 
   const bundle = encounterBundle();
@@ -113,7 +111,7 @@ export async function buildStationRoomShell(
 
   // Floor mesh from environment or fallback procedural box
   const floor = (stationEnvironment.userData.floorMesh as Mesh | undefined)
-    ?? new MeshCtor(
+    ?? new Mesh(
       new BoxGeometry(7, 0.08, 3.45),
       new MeshStandardMaterial({ color: theme.floorColor, roughness: 0.8 }),
     );
@@ -175,7 +173,7 @@ export async function buildStationRoomShell(
   }
 
   // Env glTF container for factory-produced world assets.
-  const gltfEnvContainer = new GroupCtor();
+  const gltfEnvContainer = new Group();
   gltfEnvContainer.name = `${prefix}.case-env-gltf-container`;
   gltfEnvContainer.userData.openClinXrGltfEnvHandoff = floor.userData.caseDerivedVirtualEnvGltfHandoff;
   gltfEnvContainer.userData.producedManifestPath = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedManifestPath;
@@ -214,10 +212,10 @@ export async function buildStationRoomShell(
                   : null;
             if (cue) {
               gltf.scene.traverse((obj: Object3D) => {
-                if (obj instanceof MeshCtor && obj.material) {
+                if (obj instanceof Mesh && obj.material) {
                   const mat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
                   if (mat && mat.emissive !== undefined) {
-                    mat.emissive = new ColorCtor(
+                    mat.emissive = new Color(
                       cue.includes("anx") || cue.includes("urgent") ? 0x1e3a5f : 0x000000,
                     );
                     mat.emissiveIntensity = 0.12;
@@ -251,7 +249,9 @@ export async function buildStationRoomShell(
     // main.ts supplies its own 1-argument wrapper, which passes the REAL clinical panel
     // context. An earlier version of this extraction built a throwaway { evidenceStore:
     // new Map() } here, which would have sent this panel's evidence nowhere.
+    const clinicalPanelCtx = assetLoadingContext().clinicalPanel();
     const mismatchPanel = createReadableVrTextPanel(
+      clinicalPanelCtx,
       {
         name: `${prefix}.scenario-specific-3d-pending-panel`,
         title: `${stationContextForScenario({ scenarioId: bundle.scenarioId, bundleMismatch: true }).title} 3D Pending`,
@@ -276,13 +276,22 @@ export async function buildStationRoomShell(
   }
 
   // Environment shell
-  const environmentShell = new GroupCtor();
+  const environmentShell = new Group();
   environmentShell.name = iwsdkStationSceneObjects.environmentShell;
 
   if (selectedScenarioRuntimeMismatch()) {
     environmentShell.visible = false;
     environmentShell.userData.openClinXrDynamicScenePolicy = "hidden_because_selected_scenario_specific_3d_bundle_missing";
-  } else if (shouldSuppressGeneratedEnvironmentShell(bundle.environment)) {
+  } else if (shouldPackageSuppressGeneratedEnvironmentShell(bundle.environment, (asset: EncounterRuntimeAsset) => {
+      // Inline the placeholder check logic from the app
+      const scenarioSlug = bundle.scenarioId.replaceAll("_", "-");
+      const normalizedSource = `${asset.blob.blobName} ${asset.blob.url ?? ""}`.toLowerCase();
+      if (!normalizedSource.includes(bundle.scenarioId.toLowerCase()) &&
+          !normalizedSource.includes(scenarioSlug.toLowerCase())) {
+        return true;
+      }
+      return false;
+    })) {
     environmentShell.visible = false;
     environmentShell.userData.openClinXrDynamicScenePolicy = "suppressed_mismatched_placeholder_environment_for_case_defined_scene_manifest";
   } else if (hideRoomForCleanCapture()) {
@@ -299,7 +308,7 @@ export async function buildStationRoomShell(
   });
 
   // Bed
-  const bed = new MeshCtor(
+  const bed = new Mesh(
     new BoxGeometry(2.35, 0.24, 0.92),
     new MeshStandardMaterial({ color: 0xd9dde3, roughness: 0.65 }),
   );
@@ -320,7 +329,7 @@ export async function buildStationRoomShell(
   scene.add(bed);
 
   // Monitor
-  const monitor = new MeshCtor(
+  const monitor = new Mesh(
     new BoxGeometry(0.8, 0.55, 0.08),
     new MeshStandardMaterial({ color: 0x203040, emissive: 0x0b3d2e }),
   );
