@@ -385,6 +385,84 @@ card.
 Fix workers are dispatched directly into per-card worktrees instead. Reopening the normal dequeue
 needs either a rebase-and-land of those two cards or a higher `maxInFlight`.
 
+## 2c. Status against the BRIEF, which is not the same as status against the cards
+
+Twelve cards landed. That is not the brief, and conflating the two is the error this section
+exists to prevent: the cards were my decomposition of one part of §7, and a green card table
+says nothing about the six steps it never covered.
+
+Measured against `§7 Prioritized prototype and acceptance`:
+
+| step | state | what is actually true |
+|---|---|---|
+| 0 — specify the starting scene | **partial** | `buildInitialSceneSpec` returns the four outcomes with observed evidence and names a real unwired consumer per required asset. It REPORTS; nothing consumes it, and no required state is enforced before an encounter begins. |
+| 1 — freeze one supine station as a control | **met** | `computeSupineControlFreeze` hashes every asset the station loads and refuses a recorded measurement whose bytes moved, naming the changed path. |
+| 2 — prove authoring reaches the scene | **NOT MET** | The chain is built and unit-proven end to end, and every proof is below the bar the brief sets. It says plainly that "bundle metadata, a primitive proxy, or a direct preview-only overlay is insufficient" and asks for the delta "on the actual loaded humanoid after framing, pose application and subsequent frame updates". No card loads a humanoid. |
+| 3 — stationary clinical staging | **not started** | `headingRadians` exists on the placement type and the frame loop composes rather than assigns, so the two prerequisites are in place. No physician target, no bedside orientation, no clearance, approach-zone or monitor-visibility check exists. |
+| 4 — physician approach | **not started** | — |
+| 5 — variation, replay and failure behaviour | **partial** | Only the byte-freeze half: changed asset geometry invalidates dependent evidence. No variation indices, no impossible-layout case, no corrupt-artifact refusal, no displayed-motion capture. |
+| 6 — compare one legally eligible learned provider | **not started** | Kimodo-SOMA-RP-v1.1 remains a conditional offline lead, unverified here. |
+
+**Step 2 is the brief's own named next milestone**, and it is the honest place to be working.
+
+### The instrument step 2 needs, and why it is an instrument rather than a contract
+
+`tools/openclinxr/evidence/authored-offset-on-the-posed-humanoid.ts` boots ui-xr portless, drives
+the two controls the brief names — the AUTHORED clinic placement and an UNAUTHORED supine station —
+and samples the patient **twice**: once when the runtime reports its assets settled, and again after
+a further 30 frames, because "subsequent frame updates" is a requirement and a placement that is
+correct at settle and gone six frames later has not survived.
+
+It samples two things per station, and the pair is the point:
+
+- the **actor slot Group** world position — the container;
+- the **CPU-skinned mesh world bounds centre** — the figure a learner sees.
+
+The brief names the failure that separates them: *"Writing world coordinates into local bases is not
+a fix."* A slot that moves while its humanoid child compensates in local space satisfies any
+slot-only assertion while the figure stays put, so both are recorded and allowed to disagree in the
+artifact rather than silently agreeing in a boolean.
+
+The skinning math is not new. It was already proven inside `inpatient-supine-staging.ts`, which the
+brief cites as the existing staging instrument [R26], and it is now
+`lib/skinned-world-sampling.ts` — one implementation consumed by both, because two copies of a
+100-line CPU-skinning routine drift and the drift is silent: both keep returning plausible numbers.
+That instrument's own suite is the extraction's proof.
+
+### The evidence tools' page-global alias does not exist at runtime
+
+Building the instrument surfaced a defect in the tooling the brief cites. `browser-dom.d.ts`
+(landed 2026-09-04) declares `browserPageWindow` so tsgo stops complaining about page globals,
+and its own header says *"Runtime behavior is unchanged — types only"*. Nothing defines it in a
+page.
+
+Measured 2026-09-09 against a real chromium page, both forms used in this tree:
+
+| form | result |
+|---|---|
+| evaluate string, `const win = browserPageWindow` | `ReferenceError: browserPageWindow is not defined` |
+| typed `page.waitForFunction(() => browserPageWindow…)` | the same ReferenceError |
+| `typeof browserPageWindow` | `"undefined"`, no throw — which is why a typeof guard hides it |
+
+The identifier appears in **59 files** under `tools/openclinxr/evidence/`. It is confirmed inside
+page callbacks in `inpatient-supine-staging.ts:373` — the instrument the brief cites as [R26] —
+and `declared-equipment-mounted.ts:448,481,552`. **The other 56 are not audited**, and no claim
+is made about them here.
+
+A typechecker made the wrong thing compile: the alias satisfies tsgo and silently makes the
+callback unrunnable, so a tool hangs on its wait or returns its empty-default branch instead of
+failing loudly. `globalThis` is the fix in new code — it typechecks in node and IS the window in
+the page. For existing callbacks, one line makes them run without editing them:
+`await page.addInitScript("globalThis.browserPageWindow = globalThis; globalThis.browserPageDocument = globalThis.document;")`.
+This instrument does that on its own page rather than editing 59 files.
+
+**Any evidence artifact under `.openclinxr/evidence/` that predates 2026-09-04 was produced
+before the alias existed. Artifacts dated after it, from a tool that uses it, deserve a re-run
+before they are trusted.**
+
+**It is deliberately not wired into a gate.** A gate over a measurement nobody has read is how a
+green suite starts meaning nothing, which is the failure this whole effort was called to correct.
+
 ## 3. Acceptance that cannot pass about nothing
 
 The brief's step 2 names an authored clinic placement
