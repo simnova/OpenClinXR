@@ -12,8 +12,12 @@
  * 3. physician included in factory team-role map (same allow-list gap as #122).
  * 4. Hardcoded main.ts fourth position removed — uses runtimeActorPlacement + anchors.
  *
- * Only ADDS missing actorPlacements keys; never overwrites an existing record
- * (protects first-three counterweight positions in the bundle).
+ * ADDS missing actorPlacements keys, and RE-ANCHORS a record whose slotKind disagrees with the
+ * slot assignment (#136 below). The header used to claim it "only ADDS ... never overwrites an
+ * existing record", which was FALSE: the re-anchor at the loop below rewrites position and scale.
+ * The overwrite is deliberate and must stay — suppressing it reintroduces #136 — but it was
+ * invisible, incrementing neither addedActorIds nor any other count, so nothing downstream could
+ * tell a carried-through placement from a rewritten one. rewrittenActorIds now names them.
  */
 
 import type { EncounterRuntimeActorPlacement } from "@openclinxr/asset-registry/runtime-bundles";
@@ -84,11 +88,12 @@ const SLOT_FOR_INDEX: readonly SlotKind[] = [
 export function ensureActorPlacementsForStagedSlots(
   bundle: BundleWithPlacements,
   slots: RuntimeSlotAssignment,
-): { declaredActorIds: string[]; addedActorIds: string[] } {
+): { declaredActorIds: string[]; addedActorIds: string[]; rewrittenActorIds: string[] } {
   const placements: Record<string, EncounterRuntimeActorPlacement> = {
     ...(bundle.sceneManifest.actorPlacements ?? {}),
   };
   const addedActorIds: string[] = [];
+  const rewrittenActorIds: string[] = [];
 
   for (let i = 0; i < SLOT_FOR_INDEX.length; i += 1) {
     const actorId = slots.stagedActorIds[i] ?? "";
@@ -111,16 +116,19 @@ export function ensureActorPlacementsForStagedSlots(
       ...(existing?.labelPrefix ? { labelPrefix: existing.labelPrefix } : {}),
       ...(existing?.posture ? { posture: existing.posture } : {}),
     };
-    if (!existing) addedActorIds.push(actorId);
+    if (existing) rewrittenActorIds.push(actorId);
+    else addedActorIds.push(actorId);
   }
 
   bundle.sceneManifest.actorPlacements = placements;
-  return { declaredActorIds: Object.keys(placements), addedActorIds };
+  return { declaredActorIds: Object.keys(placements), addedActorIds, rewrittenActorIds };
 }
 
 export type ActorPlacementSsotEvidence = {
   declaredActorIds: string[];
   addedActorIds: string[];
+  /** Ids whose position and scale the re-anchor REWROTE. See the header: this was invisible. */
+  rewrittenActorIds: string[];
   actorPlacements: Record<string, EncounterRuntimeActorPlacement>;
 };
 
@@ -134,6 +142,7 @@ export function ensureAndPublishActorPlacementSsot(
     const evidence: ActorPlacementSsotEvidence = {
       declaredActorIds: result.declaredActorIds,
       addedActorIds: result.addedActorIds,
+      rewrittenActorIds: result.rewrittenActorIds,
       actorPlacements: bundle.sceneManifest.actorPlacements ?? {},
     };
     window.__openClinXrActorPlacementSsot = evidence;

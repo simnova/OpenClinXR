@@ -153,7 +153,12 @@ export function updateGeneratedHumanoidAnimations(
       reapplySupineHeadToStoredPillow(slot.root);
     } else {
       slot.root.position.y = slot.baseY + breathing * 0.018;
-      slot.root.position.x = emotionalSway + dialogueWeightShift;
+      // COMPOSE, matching the line above and the scale lines below. This was the only component
+      // that ASSIGNED: slot.baseX is captured at xr-asset-loading/src/humanoid-animation.ts:119
+      // and was never read, so any child-local X the placement chain resolved was erased on the
+      // next frame. Latent until now only because the loader zeroes the humanoid child
+      // (generated-loaders.ts:112), which is exactly the offset this card set makes non-zero.
+      slot.root.position.x = slot.baseX + emotionalSway + dialogueWeightShift;
       slot.root.rotation.x = dialogueLean + pediatricAsthmaOverlay.rotationX;
       slot.root.rotation.z = Math.sin(t * 0.72) * 0.012 + pediatricAsthmaOverlay.rotationZ;
       slot.root.scale.x = slot.baseScaleX + pediatricAsthmaOverlay.scaleXDelta;

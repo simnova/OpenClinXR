@@ -1,4 +1,4 @@
-import type * as THREE from "three";
+import * as THREE from "three";
 import { describe, expect, it, vi } from "vitest";
 import {
   updateGeneratedHumanoidAnimations,
@@ -34,12 +34,14 @@ import {
 //   slot.root.position.x = slot.baseX + emotionalSway + dialogueWeightShift;
 // matching :155's slot.baseY + form.
 describe("The frame loop composes position.x from its base", () => {
-  it.fails("(5) The frame loop composes position.x from slot.baseX", () => {
+  it("(5) The frame loop composes position.x from slot.baseX", () => {
     // animation-loop.ts:156 assigns position.x = emotionalSway + dialogueWeightShift
     // It should compose from slot.baseX like position.y composes from slot.baseY at :155
     // baseX is captured at humanoid-animation.ts:119 and currently unused
     const mockCtx = {
       slots: [] as GeneratedHumanoidAnimationSlot[],
+      activeVirtualDeviceSpeechByActorId: [],
+      runtimeActorRole: () => undefined,
       isPediatricAsthmaRuntimeScenario: () => false,
       runtimePatientActorId: () => "patient-1",
       runtimeFamilyActorId: () => "family-1",
@@ -84,16 +86,16 @@ describe("The frame loop composes position.x from its base", () => {
     const slot: GeneratedHumanoidAnimationSlot = {
       assetId: "test-asset",
       actorId: "patient-1",
-      root: {
-        position: { x: 0.5, y: 1.0, z: -0.2 }, // baseX = 0.5 (NONZERO)
-        rotation: { x: 0, y: 0, z: 0 },
-        scale: { x: 1, y: 1, z: 1 },
-        userData: {
-          openClinXrActorPosture: "standing",
-        },
-        updateMatrixWorld: vi.fn(),
-      } as unknown as THREE.Group,
-      actorSlot: { position: { x: 0, y: 0, z: 0 } } as unknown as THREE.Group,
+      root: (() => {
+        // A REAL THREE.Group, not a literal: updateGeneratedHumanoidAnimations calls
+        // getObjectByName and updateMatrixWorld on it, which a hand-built object does not have.
+        // The framing RED learned the same thing about scale.setScalar.
+        const g = new THREE.Group();
+        g.position.set(0.5, 1.0, -0.2); // baseX = 0.5, NONZERO
+        g.userData.openClinXrActorPosture = "standing";
+        return g;
+      })(),
+      actorSlot: new THREE.Group(),
       baseX: 0.5, // NONZERO baseX - the case loader's zeroing at generated-loaders.ts:112 hides today
       baseY: 1.0,
       baseZ: -0.2,

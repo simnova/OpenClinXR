@@ -5,6 +5,7 @@
   "purpose": "Public interface of @openclinxr/xr-runtime-state.",
   "exports": [
     "ADDITIONAL_CAST_FRAMING_XZ",
+    "ActorPlacementSsotEvidence",
     "ActorPlayerRuntimeMetadataSummary",
     "AdvanceExamFormRunStationInput",
     "CaseDefinedHumanoidPerformanceContractEvidence",
@@ -90,6 +91,7 @@
     "deriveRuntimeTraceActionTags",
     "deriveRuntimeTraceActionTagsFromBundle",
     "deriveScenarioTraceActionTags",
+    "ensureActorPlacementsForStagedSlots",
     "ensureAndPublishActorPlacementSsot",
     "eventTypeForTraceTag",
     "examFormRunNotEvidenceFor",
@@ -147,6 +149,6 @@
   },
   "ceilings": {
     "testInternalImports": 3,
-    "rootEntrypointExports": 123
+    "rootEntrypointExports": 125
   }
 }

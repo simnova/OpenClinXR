@@ -148,3 +148,9 @@ export {
   resolveRemoteActorTurnForTraceTag,
   scenarioActorIdsForScenario,
 } from "./scenario-conversation-surface.js";
+// The placement SSOT repair and its evidence shape are consumed by apps/ui-xr and asserted by
+// xr-scene's framing-guard RED. Neither could reach them: they were defined in
+// runtime-actor-placements.ts and never re-exported, which the entrypoint-import ratchet
+// (architecture-rules/src/checks/entrypoint-imports-resolve.ts) recorded as its second entry.
+export { ensureActorPlacementsForStagedSlots } from "./runtime-actor-placements.js";
+export type { ActorPlacementSsotEvidence } from "./runtime-actor-placements.js";

@@ -130,14 +130,35 @@ export function applyCleanEncounterVisualReviewActorFraming(
   // #574 family_chair resolution). The generic floor-standing frames below unseat her —
   // pre-fix live: seated parent slot (1.42, 0.04) vs chair (−0.55, −0.75), feet 0.256 m
   // above the floor. Only rotation/scale are framed; the chair owns position.
-  if (
-    (actor.userData.openClinXrActorPosture ?? "") === "seated"
-    || (input.posture ?? "") === "seated"
-  ) {
+  // #591 extended: SUPINE has the same property and for the same reason. A supine actor's XZ is
+  // owned by the stretcher deck plant, and the generic floor-standing frames below move her off
+  // it, so an authored plant offset composed upstream is discarded at the last link.
+  //
+  // PINNED HERE ON PURPOSE. This guard stays at this position in the function; hoisting it above
+  // the OB/telehealth branches would skip the telehealth chair plant, which was checked against
+  // the tree rather than assumed.
+  const declaredPosture = (actor.userData.openClinXrActorPosture ?? input.posture ?? "") as string;
+  if (declaredPosture === "seated" || declaredPosture === "supine") {
     actor.rotation.y = -0.26;
     actor.scale.setScalar(0.82);
-    actor.userData.openClinXrEncounterStaging = "seated_actor_keeps_authored_seat_anchor_framed_in_place";
+    actor.userData.openClinXrEncounterStaging =
+      declaredPosture === "supine"
+        ? "supine_actor_keeps_authored_deck_anchor_framed_in_place"
+        : "seated_actor_keeps_authored_seat_anchor_framed_in_place";
     return;
+  }
+
+  // An UNRECOGNISED posture is refused explicitly rather than falling through to the
+  // floor-standing frames below. Silence on an unknown value is how a supine patient was framed
+  // as standing before this guard covered it: the posture is stamped AFTER framing runs
+  // (actor-staging.ts:115 against :122), so an empty string reaches here routinely and must stay
+  // distinguishable from a value nobody recognises.
+  if (declaredPosture !== "" && declaredPosture !== "standing") {
+    throw new Error(
+      `unrecognised posture "${declaredPosture}" — framing refused. A posture outside ` +
+        "standing|seated|supine cannot be framed, and falling through to the floor-standing " +
+        "frames below is how a supine patient was framed as a standing one.",
+    );
   }
 
   if (slotKind === "additional_cast") {

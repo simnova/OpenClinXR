@@ -87,7 +87,7 @@ describe("A staged transform survives slot repair, framing and the frame loop", 
     expect(actor.userData.openClinXrEncounterStaging).toBe("seated_actor_keeps_authored_seat_anchor_framed_in_place");
   });
 
-  it.fails("(2) SUPINE keeps its XZ through framing", () => {
+  it("(2) SUPINE keeps its XZ through framing", () => {
     // Supine should keep XZ like seated does, not fall through to floor-standing default
     const actor = makeActor({ x: -0.72, y: 1.06, z: -0.12 }, {
         openClinXrActorPosture: "supine",
@@ -115,7 +115,7 @@ describe("A staged transform survives slot repair, framing and the frame loop", 
     expect(actor.userData.openClinXrEncounterStaging).toContain("supine");
   });
 
-  it.fails("(3) An UNKNOWN posture is refused explicitly rather than defaulting to floor-standing", () => {
+  it("(3) An UNKNOWN posture is refused explicitly rather than defaulting to floor-standing", () => {
     // Unknown posture should be rejected, not fall through to floor-standing branches
     const actor = makeActor({ x: 0, y: 0, z: 0 }, {
         openClinXrActorPosture: "levitating" as unknown as string, // Unknown posture, deliberately outside the union
@@ -137,7 +137,7 @@ describe("A staged transform survives slot repair, framing and the frame loop", 
     }).toThrow(/unrecognised posture|refused|invalid posture/i);
   });
 
-  it.fails("(4) The slot re-anchor reports itself: a third list beside declaredActorIds and addedActorIds names the ids whose position or scale was rewritten", async () => {
+  it("(4) The slot re-anchor reports itself: a third list beside declaredActorIds and addedActorIds names the ids whose position or scale was rewritten", async () => {
     // ensureActorPlacementsForStagedSlots must return a third list: rewrittenActorIds
     const bundle: Loose = {
       sceneManifest: {
