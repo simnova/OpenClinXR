@@ -6,12 +6,11 @@
  * role-harness-policy.ts calls the builder once after its helpers are defined — safe.
  */
 import { getRolePathScope } from "./role-harness-policy.js";
-import type { RepoRoleHarnessPolicy, RolePathScope } from "./role-harness-policy.js";
+import type { RepoRoleHarnessPolicy } from "./role-harness-policy.js";
 
 // The scope table moved to role-path-scopes.ts (500-line zone budget). Re-exported so every
 // existing importer of rolePathScopes keeps working.
 export { rolePathScopes } from "./role-path-scopes.js";
-import { rolePathScopes } from "./role-path-scopes.js";
 
 /** Harness policy records per role — pathScope resolved via getRolePathScope at call time. */
 export function buildRoleHarnessPolicies(): RepoRoleHarnessPolicy[] {
