@@ -1,5 +1,7 @@
 # Scene-layout implementation plan — verified seams and parallel lanes
 
+> **Closure status correction, 9 September 2026:** this document preserves the implementation history, but its “all seven steps met” statements do not establish complete normal-runtime acceptance. The [staged scene-closure package](scene-closure-2026-09-09/index.md) defines the remaining integration and evidence work. Its tasks are not released for implementation merely by this link.
+
 **2026-09-09 · derived from [the research brief](humanoid-scene-layout-research-brief-2026-09-09.md), verified against `f82e3ed2`**
 
 Four read-only agents checked the brief's source claims against the tree. Every
