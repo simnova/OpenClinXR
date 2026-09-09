@@ -1040,6 +1040,53 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+## Whole-brief coverage, not only §7
+
+§7 is one section. The obligations below were extracted from §§1-6 — every sentence stating
+something a test could pass or fail — and each is listed with where it is met or why it does not
+apply. Extraction was done by `meta/muse-spark-1.3-contributor` for $0.002 and then checked line by
+line against the tree; three of its forty were already met and two were policy statements rather
+than checks.
+
+| § | obligation | where |
+|---|---|---|
+| 2 | align case / admin / compile-node / station payloads before claiming the placement path is connected | §7 step 2, measured on the loaded humanoid |
+| 3 | each requirement records its source activity/rule | `bindInitialSceneContents`, refused without one |
+| 3 | explicit reviewed binding and precedence for equipment strings | same; no substring matching, precedence stated once |
+| 3 | distinguish required-at-start, optional, intentionally absent | `StartStateClass`, absent items kept and never realized |
+| 3 | multiple copies need distinct realized identities | `realizedEquipmentPlacementId`, asserted for three copies |
+| 3 | record unavailable requirements and approved alternatives | `approvedAlternatives` rides with the row, never auto-applied |
+| 3 | return the conflict rather than silently dropping | `conflicts[]` + `resolves: false` |
+| 3 | keep starting poses separate from destination poses | doorway start vs resolved bedside target, measured |
+| 3 | planner must not create a phase, reset the clock, or re-issue START_ENCOUNTER | module-source contract over the spec's imports |
+| 3 | scheduled-event dispatch stays runtime-owned | same contract |
+| 3 | do not pre-complete a learner task | learner-owned `satisfied` blocks promotion |
+| 3 | four outcomes with observed evidence; pending and unknown do not promote | §7 step 0 |
+| 3 | retain resolved defaults and label their provenance | `placementProvenance`, refusals labelled default |
+| 3 | right-handed metre frame; no double GLB scale; nonzero normal fails; malformed offsets block | `composeSupportedActorWorldPosition`, four refusals |
+| 3 | `none` is not a frame for standing | refused, and the refusal is reachable from the runtime |
+| 3 | placement provisional until geometry ready; no silent instance substitution | `supportReadiness`, three states |
+| 3 | hard constraints before ranking; fail unsatisfied explicit intent | `resolveBedsideLayout` intent narrowing |
+| 3 | *break equal scores by stable anchor ID* | **not applicable and recorded**: the resolver is first-fit and computes no scores |
+| 3 | derive variation from stable identities; record seed and output | `deriveLayoutVariationSeed` |
+| 3 | keep hidden case information under existing visibility rules | 28 facts, zero tracked occurrences, gated |
+| 4 | persistent body-heading contract with its parent frame | §7 step 3 |
+| 4 | an executor declares ownership of roots and joints | `openClinXrOwnedBoneChains`, claimed while the walk plays |
+| 4 | keep the physician approach in an actor motion plan/executor | `planBedsideApproach` + `stepBedsideApproach` |
+| 6 | record version/hash and first-party licence source; missing terms block adoption | the licence ledger and its records |
+| 6 | correct the MPFB2 record against the exact installed release | installed 2.0.15 declares GPL-3.0-or-later; eight shipped records corrected and gated |
+
+**Two are policy for an authoring LLM rather than a check on this codebase** and are recorded as
+such: *"an LLM may propose structured relationships or authoring choices, but should not write live
+transforms"*, and *"it must not infer authoritative clinical setup solely from a diagnosis"*. No LLM
+writes a transform in this tree — the placement path is the deterministic resolver measured above —
+so there is nothing here to gate; the constraint binds the authoring adapter when one is built.
+
+**Still not claimed, in the brief's own terms:** clinical correctness of any position or gait, which
+"receives clinician review"; Quest performance, which "receives worn-headset measurement"; §7 step
+3's staging measured on a loaded humanoid the way step 2 is; and the eight shipped humanoids whose
+provenance names a sha256 that does not match their bytes, frozen as debt.
+
 ## Hidden case facts do not reach a tracked artifact, and now cannot
 
 §3: *"Keep hidden case information under existing visibility rules."*
