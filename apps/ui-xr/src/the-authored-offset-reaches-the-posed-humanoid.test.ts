@@ -1,10 +1,14 @@
 import * as THREE from "three";
 import { describe, expect, it } from "vitest";
 import {
+  createEdChestPainRuntimeSceneManifest,
   DEFAULT_PATIENT_CHAIR_POSITION,
   DEFAULT_STRETCHER_POSITION,
 } from "@openclinxr/asset-registry";
-import { applyCleanEncounterVisualReviewActorFraming } from "@openclinxr/xr-scene";
+import {
+  applyCleanEncounterVisualReviewActorFraming,
+  type EncounterActorFramingInput,
+} from "@openclinxr/xr-scene";
 
 // OBSERVABLE: the last link of the placement chain REPLACES the resolved position instead of
 // composing it. apps/ui-xr/src/main.ts:843-848 reads
@@ -129,14 +133,7 @@ describe("the authored offset reaches the posed humanoid", () => {
     }
   });
 
-  it("(5) CONTROL, GREEN ON HEAD AND AFTER: the ED bundle's stored supine patient position IS DEFAULT_STRETCHER_POSITION. That coincidence is the whole reason clause (7) needs a discriminator, and it must still hold after the slice: if it stops holding, the control moved and every 'the unauthored station did not move' claim in the factory and runtime cards is measuring something else.", async () => {
-    const { createEdChestPainRuntimeSceneManifest } = (await import(
-      "@openclinxr/asset-registry"
-    )) as unknown as {
-      createEdChestPainRuntimeSceneManifest: (input?: Record<string, unknown>) => {
-        actorPlacements: Record<string, { position: { x: number; y: number; z: number } }>;
-      };
-    };
+  it("(5) CONTROL, GREEN ON HEAD AND AFTER: the ED bundle's stored supine patient position IS DEFAULT_STRETCHER_POSITION. That coincidence is the whole reason clause (7) needs a discriminator, and it must still hold after the slice: if it stops holding, the control moved and every 'the unauthored station did not move' claim in the factory and runtime cards is measuring something else.", () => {
     const stored = createEdChestPainRuntimeSceneManifest({}).actorPlacements[
       "patient_robert_hayes_v1"
     ];
@@ -183,14 +180,15 @@ describe("the authored offset reaches the posed humanoid", () => {
     actor.position.set(composed.x, composed.y, composed.z);
     actor.userData.openClinXrActorPosture = "supine";
     actor.userData.openClinXrSlotKind = "primary_patient";
-    applyCleanEncounterVisualReviewActorFraming({
+    const framingInput: EncounterActorFramingInput = {
       actor,
       actorId: "patient_robert_hayes_v1",
       scenarioId: "ed_chest_pain_priority_v1",
       role: "patient",
       posture: "supine",
       skipFraming: false,
-    } as Parameters<typeof applyCleanEncounterVisualReviewActorFraming>[0]);
+    };
+    applyCleanEncounterVisualReviewActorFraming(framingInput);
 
     expect(actor.position.x).toBeCloseTo(composed.x, 4);
     expect(actor.position.z).toBeCloseTo(composed.z, 4);

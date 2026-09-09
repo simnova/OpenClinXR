@@ -12,6 +12,7 @@
     "SCENARIO_BANK_PARTIAL_APPROVAL_ERROR",
     "SCENARIO_BANK_STALE_APPROVAL_ERROR",
     "ScenarioBankRevision",
+    "ScheduledEvent",
     "StationPhase",
     "StationRun",
     "approveScenarioBankVersion",
@@ -26,6 +27,7 @@
     "evaluateRequiredTraceTags",
     "findUnsafeClaimLanguage",
     "forkDraftFromImmutableVersion",
+    "getScheduledEventsDue",
     "markScenarioBankReviewReady",
     "safeUserFacingClaimLanguage",
     "scoreUseCopy",
@@ -50,6 +52,6 @@
   },
   "ceilings": {
     "testInternalImports": 4,
-    "rootEntrypointExports": 28
+    "rootEntrypointExports": 30
   }
 }

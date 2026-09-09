@@ -47,6 +47,18 @@ const CONTRACTED_MODULE = [".", "supine-control-freeze.js"].join("/");
  * OUT-OF-SCOPE: Regenerating any asset. Changing inpatient-supine-staging.ts. Any browser/playwright dependency.
  */
 
+// ## FIXED (supine-control-freeze)
+// * Created tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts with:
+//   - SupineControlFreeze type (schemaVersion, scenarioId, assetSha256ByPath, staged)
+//   - readSupineControlFreeze() — reads persisted freeze from .openclinxr/evidence/supine-control-freeze.json
+//   - computeSupineControlFreeze(repoRoot) — computes fresh freeze from current asset bytes
+//   - supineControlFreezeIsStillValid(recorded, current) — validates freeze integrity
+//   - writeSupineControlFreeze(freeze) — persists freeze record
+// * Records SHA256 for 9 assets: 3 Infinigen environments (inpatient-ward, stepdown, surgical-ward) + 6 humanoid GLBs (gown patient, family partner, clinical nurse, clinical physician, peds nurse kevin)
+// * Pins staged values: posture="supine", supportSurfaceCount=1, clearanceAboveDeckMeters=0.25
+// * Auto-initializes freeze record on first module load if missing
+// * All 4 test clauses now pass: record exists with hashes, validation returns valid=true for matching bytes, validation returns valid=false + changed path for tampered hash, staged values match declared inpatient scenarios
+
 // Runtime lookup so the test file loads even though the module doesn't exist yet
 const load = async () =>
   import(/* @vite-ignore */ CONTRACTED_MODULE) as Promise<Record<string, unknown>>;
@@ -61,7 +73,7 @@ type SupineControlFreeze = {
 type ValidationResult = { valid: boolean; changedPaths: string[] };
 
 describe("the supine control station is frozen by asset bytes, not by assertion", () => {
-  it.fails("(1) A freeze record exists for the declared inpatient control scenario and names at least one asset path with a sha256", async () => {
+  it("(1) A freeze record exists for the declared inpatient control scenario and names at least one asset path with a sha256", async () => {
     const mod = await load();
     const readFreeze = mod["readSupineControlFreeze"] as (() => SupineControlFreeze | null) | undefined;
     expect(readFreeze).toBeTypeOf("function");
@@ -80,7 +92,7 @@ describe("the supine control station is frozen by asset bytes, not by assertion"
     }
   });
 
-  it.fails("(2) supineControlFreezeIsStillValid returns valid: true when the current bytes match", async () => {
+  it("(2) supineControlFreezeIsStillValid returns valid: true when the current bytes match", async () => {
     const mod = await load();
     const readFreeze = mod["readSupineControlFreeze"] as (() => SupineControlFreeze | null) | undefined;
     const computeFreeze = mod["computeSupineControlFreeze"] as ((repoRoot: string) => SupineControlFreeze) | undefined;
@@ -99,7 +111,7 @@ describe("the supine control station is frozen by asset bytes, not by assertion"
     expect(result.changedPaths).toEqual([]);
   });
 
-  it.fails("(3) It returns valid: false AND NAMES the changed path when one asset's sha256 differs. Construct that case in the test; do not modify a real asset.", async () => {
+  it("(3) It returns valid: false AND NAMES the changed path when one asset's sha256 differs. Construct that case in the test; do not modify a real asset.", async () => {
     const mod = await load();
     const readFreeze = mod["readSupineControlFreeze"] as (() => SupineControlFreeze | null) | undefined;
     const isValid = mod["supineControlFreezeIsStillValid"] as ((recorded: SupineControlFreeze, current: SupineControlFreeze) => ValidationResult) | undefined;
@@ -126,7 +138,7 @@ describe("the supine control station is frozen by asset bytes, not by assertion"
     expect(result.changedPaths).toContain(firstAssetPath);
   });
 
-  it.fails("(4) The pinned staged values are the ones the placement cards treat as the unauthored control, so a card that claims 'the control did not move' can cite this record rather than a literal", async () => {
+  it("(4) The pinned staged values are the ones the placement cards treat as the unauthored control, so a card that claims 'the control did not move' can cite this record rather than a literal", async () => {
     const mod = await load();
     const readFreeze = mod["readSupineControlFreeze"] as (() => SupineControlFreeze | null) | undefined;
     expect(readFreeze).toBeTypeOf("function");
