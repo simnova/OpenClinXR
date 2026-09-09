@@ -1,0 +1,533 @@
+{
+  "schemaVersion": "openclinxr.scene-closure-evidence.v1",
+  "cardKey": "SC-01S",
+  "contract": {
+    "pinnedCommit": "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50",
+    "documents": [
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md",
+        "sha256": "c8080c5e9c75fbb2b4bacb23ed45eac6f829b5dcf494059247a6ee8d55de1bbf"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/tasks-v2.md",
+        "sha256": "e12fbcb49eef3ce4a9c3098309d27bb094dc8c25baa0631452fa27b2f1403881"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/proof-contract-v2.md",
+        "sha256": "a1d1d85a15ae2acfce16479d6b9b4a181e0ccfee60aab885af674c8274cdcfe5"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/delegation-v2.md",
+        "sha256": "59e34f9d6f099574cdf9291847321a4aa23a8e19643ec510984855173cc23016"
+      }
+    ],
+    "aRows": [
+      "A01"
+    ]
+  },
+  "implementation": {
+    "productSourceCommit": "1c23307b",
+    "dependencyBaselineCommit": "1da9ce04a429f72c9ef26e80d480f4f6401ca858",
+    "changeCommits": [
+      "1c23307b"
+    ],
+    "treeClean": true,
+    "inputs": [
+      {
+        "path": "packages/openclinxr/xr-station/src/api-client.ts",
+        "sha256": "2c76d85826286b57cfe187a9c271a210a923d9a902d40e825dc29efe64cd0daf"
+      },
+      {
+        "path": "packages/openclinxr/rest/src/routes/runtime-evidence-routes.ts",
+        "sha256": "725218d215c9247340f7074192a144510b89fa8fe8a6eccd86100051c41a4fed"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-01s/verify-core.ts",
+        "sha256": "bfdf8d840ec02dfad84ebfc478073bb32050c99bb9f7a4f08b1275e765f4d588"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-01s/verifier.test.ts",
+        "sha256": "571602d9f492cf9068ced3000522c60a1667b21fd954e4e2e6c617742d72233e"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-01s/verify.ts",
+        "sha256": "686a6a86e8b49453746c2ccc4ffd0fefc7c29a6ea0b4d1a994758528177df6b8"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-01s/report-schema.ts",
+        "sha256": "92f0e76c5bc1b463ce1399d8270ef579323776b9d19cf2e0f7c562fe85215e1f"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-01s/the-selected-scenario-reaches-the-route-through-the-client.test.ts",
+        "sha256": "56ca1db60a24c1a1d9d15b368af7ceda5b1146d83772aa6db69eba17b4718127"
+      },
+      {
+        "path": "apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts",
+        "sha256": "f8312b2e722dd2a96c1f8298c71c976dc0f70d768f481b4fb330e08c3f130257"
+      }
+    ],
+    "changedFiles": [
+      "packages/openclinxr/xr-station/src/api-client.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-01s/verify-core.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-01s/verifier.test.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-01s/verify.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-01s/report-schema.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-01s/the-selected-scenario-reaches-the-route-through-the-client.test.ts",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01s.md",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01s.json"
+    ],
+    "runtime": {
+      "node": "v24.18.1",
+      "platform": "darwin-arm64 (M1 Max 64 GB)"
+    }
+  },
+  "execution": {
+    "taskId": "tsk_c79ff7d5b8ebb854",
+    "commands": [
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T20:45:00.000Z",
+        "endedAtIso": "2026-09-09T20:45:08.000Z",
+        "tests": {
+          "passed": 9,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "outputArtifactId": "cmd1-behavior-test"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "tsx",
+          "tools/openclinxr/openclaw/assert-contract-live.ts",
+          "apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts",
+          "SC-01-required-behavior"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T20:45:10.000Z",
+        "endedAtIso": "2026-09-09T20:45:12.000Z",
+        "outputArtifactId": "cmd2-assert-contract-live"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "packages/openclinxr/xr-station/src/api-client.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T20:45:20.000Z",
+        "endedAtIso": "2026-09-09T20:45:21.000Z",
+        "tests": {
+          "passed": 9,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "outputArtifactId": "cmd3-api-client-test"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/scene-closure/proofs/sc-01s/verifier.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T20:45:30.000Z",
+        "endedAtIso": "2026-09-09T20:45:31.000Z",
+        "tests": {
+          "passed": 19,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "outputArtifactId": "cmd4-verifier-test"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/scene-closure/proofs/sc-01s/the-selected-scenario-reaches-the-route-through-the-client.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T20:45:40.000Z",
+        "endedAtIso": "2026-09-09T20:45:49.000Z",
+        "tests": {
+          "passed": 5,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "outputArtifactId": "sc01s-behavior-test-output"
+      }
+    ]
+  },
+  "counterweight": {
+    "testIds": [
+      "SC-01S-required-behavior",
+      "fixture-id-still-resolves",
+      "authored-shadows-fixture-of-same-id",
+      "equipment-survives-an-injected-document"
+    ],
+    "baselineRevision": "1da9ce04a429f72c9ef26e80d480f4f6401ca858",
+    "failingAssertion": "expect(configured.urls[0]).toContain(\"?scenarioId=ward_delirium_med_rec_v1\") at the-selected-scenario-reaches-the-route-through-the-client.test.ts:170",
+    "observedBeforeFix": "http://localhost:8787/runtime/asset-bundles/local_exam_run%3Aed_chest_pain_local_encounter%3Aruntime-assets (no query; served cast nurse_maria_alvarez_v1, patient_robert_hayes_v1, spouse_anna_hayes_v1)",
+    "knownGoodControl": "absent-scenario-id-keeps-prior-default passed on BOTH revisions: the no-selection URL carries no query and the served payload deep-equals createEdChestPainLocalLearnerRuntimeAssetBundle()",
+    "fixedRevision": "worktree sc-closure-sc-01s @ api-client.ts sha256 2c76d858",
+    "observedAfterFix": "http://localhost:8787/runtime/asset-bundles/local_exam_run%3A...%3Aruntime-assets?scenarioId=ward_delirium_med_rec_v1 (served cast daughter_lena_ellis_v1, patient_margaret_ellis_v1, senior_resident_ward_v1, ward_nurse_patel_v1)",
+    "baselineOutputArtifactId": "red-baseline-output",
+    "fixedOutputArtifactId": "sc01s-behavior-test-output"
+  },
+  "encounter": {
+    "routeUnderTest": "GET /runtime/asset-bundles/:bundleId",
+    "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+    "clientFactory": "createAssembledStationApiClient (@openclinxr/xr-station root barrel; the factory apps/ui-xr/src/main.ts:291,1464 uses)",
+    "selectionsExercised": [
+      "ward_delirium_med_rec_v1",
+      "clinic_knee_pain_return_to_play_v1",
+      "ed_chest_pain_priority_v1",
+      "ed_chest_pain_priority_v2 (refused)"
+    ],
+    "authoredShadowScenarioId": "ward_delirium_med_rec_v1 @ version 2, family actor replaced with sc01s_authored_shadow_relative_v1",
+    "realizedEquipment": [
+      "ecg_cart_equipment",
+      "iv_stand_equipment"
+    ]
+  },
+  "observations": [
+    {
+      "observationId": "obs-baseline-url",
+      "metric": "requested URL on the baseline revision",
+      "unit": "url",
+      "value": "http://localhost:8787/runtime/asset-bundles/local_exam_run%3Aed_chest_pain_local_encounter%3Aruntime-assets",
+      "observedAtMs": 1788986740000,
+      "artifactId": "red-baseline-output",
+      "source": "assembled client recording fetch, revision 1da9ce04"
+    },
+    {
+      "observationId": "obs-configured-url",
+      "metric": "requested URL with options.selectedScenarioId set",
+      "unit": "url",
+      "value": "http://localhost:8787/runtime/asset-bundles/local_exam_run%3Aed_chest_pain_local_encounter%3Aruntime-assets?scenarioId=ward_delirium_med_rec_v1",
+      "observedAtMs": 1788986740000,
+      "artifactId": "sc01s-behavior-test-output",
+      "source": "assembled client recording fetch"
+    },
+    {
+      "observationId": "obs-ambient-query-cast",
+      "metric": "served cast when the selection is only in window.location.search",
+      "unit": "actorIds",
+      "value": "daughter_lena_ellis_v1,patient_margaret_ellis_v1,senior_resident_ward_v1,ward_nurse_patel_v1",
+      "observedAtMs": 1788986740000,
+      "artifactId": "sc01s-behavior-test-output",
+      "source": "client to real Hono app"
+    },
+    {
+      "observationId": "obs-ambient-storage-cast",
+      "metric": "served cast when the selection is only in localStorage openclinxr.scenarioId",
+      "unit": "actorIds",
+      "value": "daughter_lena_ellis_v1,patient_margaret_ellis_v1,senior_resident_ward_v1,ward_nurse_patel_v1",
+      "observedAtMs": 1788986740000,
+      "artifactId": "sc01s-behavior-test-output",
+      "source": "client to real Hono app"
+    },
+    {
+      "observationId": "obs-explicit-precedence",
+      "metric": "requested URL when an explicit per-call id contradicts a stale ambient one",
+      "unit": "url",
+      "value": "...?scenarioId=ward_delirium_med_rec_v1",
+      "observedAtMs": 1788986740000,
+      "artifactId": "sc01s-behavior-test-output",
+      "source": "client to real Hono app"
+    },
+    {
+      "observationId": "obs-catalog-source-fixture",
+      "metric": "scenarioCatalogSource for a bank id",
+      "unit": "enum",
+      "value": "fixture",
+      "observedAtMs": 1788986740000,
+      "artifactId": "sc01s-behavior-test-output",
+      "source": "served bundle"
+    },
+    {
+      "observationId": "obs-catalog-source-authored",
+      "metric": "scenarioCatalogSource for a persisted case shadowing a bank id",
+      "unit": "enum",
+      "value": "authored",
+      "observedAtMs": 1788986740000,
+      "artifactId": "sc01s-behavior-test-output",
+      "source": "served bundle"
+    },
+    {
+      "observationId": "obs-unknown-id-refusal",
+      "metric": "response for ed_chest_pain_priority_v2",
+      "unit": "http-status-and-error",
+      "value": "404 scenario_not_found; body carries no actors array",
+      "observedAtMs": 1788986740000,
+      "artifactId": "sc01s-behavior-test-output",
+      "source": "served bundle"
+    },
+    {
+      "observationId": "obs-default-url",
+      "metric": "requested URL with no selection anywhere",
+      "unit": "url",
+      "value": "http://localhost:8787/runtime/asset-bundles/local_exam_run%3Aed_chest_pain_local_encounter%3Aruntime-assets",
+      "observedAtMs": 1788986740000,
+      "artifactId": "sc01s-behavior-test-output",
+      "source": "assembled client recording fetch"
+    },
+    {
+      "observationId": "obs-equipment-ward",
+      "metric": "equipment ids served for an injected ward_delirium_med_rec_v1 document",
+      "unit": "equipmentIds",
+      "value": "ecg_cart_equipment,iv_stand_equipment",
+      "observedAtMs": 1788986740000,
+      "artifactId": "sc01s-behavior-test-output",
+      "source": "served bundle"
+    },
+    {
+      "observationId": "obs-equipment-clinic",
+      "metric": "equipment ids served for an injected clinic_knee_pain_return_to_play_v1 document",
+      "unit": "equipmentIds",
+      "value": "ecg_cart_equipment,iv_stand_equipment",
+      "observedAtMs": 1788986740000,
+      "artifactId": "sc01s-behavior-test-output",
+      "source": "served bundle"
+    },
+    {
+      "observationId": "obs-equipment-placements",
+      "metric": "sceneManifest.equipmentPlacements keys for both injected documents, compared against the uninjected default",
+      "unit": "placementKeys",
+      "value": "identical to the uninjected default (2 entries)",
+      "observedAtMs": 1788986740000,
+      "artifactId": "sc01s-behavior-test-output",
+      "source": "served bundle"
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "route-resolves-selected-scenario-authored-first",
+      "expected": "a persisted case with a bank id shadows the fixture and the served cast is the persisted one",
+      "observed": "authored; served cast contains sc01s_authored_shadow_relative_v1 and not daughter_lena_ellis_v1",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-catalog-source-authored",
+        "sc01s-behavior-test-output"
+      ]
+    },
+    {
+      "checkId": "resolved-document-reaches-bundle-builder",
+      "expected": "the selected case cast, not the ED cast, is in the served bundle",
+      "observed": "daughter_lena_ellis_v1,patient_margaret_ellis_v1,senior_resident_ward_v1,ward_nurse_patel_v1",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-ambient-query-cast",
+        "obs-ambient-storage-cast"
+      ]
+    },
+    {
+      "checkId": "unresolvable-id-refuses-with-scenario-not-found",
+      "expected": "an id nothing resolves returns 404 scenario_not_found and no bundle",
+      "observed": "404 scenario_not_found; client threw; body has no actors",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-unknown-id-refusal"
+      ]
+    },
+    {
+      "checkId": "client-carries-selected-scenario-id",
+      "expected": "the production client puts the learner selection on the request in all three resolution paths",
+      "observed": "?scenarioId=ward_delirium_med_rec_v1 for configured, ambient query and ambient storage; explicit per-call id wins over a contradicting ambient one",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-configured-url",
+        "obs-ambient-query-cast",
+        "obs-ambient-storage-cast",
+        "obs-explicit-precedence"
+      ]
+    },
+    {
+      "checkId": "catalog-source-reported",
+      "expected": "the route names where the case came from so a fixture cannot pass as an authored reviewed case",
+      "observed": "fixture for a bank id, authored for a persisted one, absent when nothing was selected",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-catalog-source-fixture",
+        "obs-catalog-source-authored",
+        "obs-default-url"
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "controlId": "fixture-id-still-resolves",
+      "trigger": "select ed_chest_pain_priority_v1 through the client",
+      "expected": "ED cast and both fixtures, unchanged",
+      "observed": "nurse_maria_alvarez_v1,patient_robert_hayes_v1,spouse_anna_hayes_v1 with ecg_cart_equipment,iv_stand_equipment; scenarioCatalogSource fixture",
+      "held": true,
+      "evidenceIds": [
+        "sc01s-behavior-test-output"
+      ]
+    },
+    {
+      "controlId": "authored-shadows-fixture-of-same-id",
+      "trigger": "persist ward_delirium_med_rec_v1 v2 with a replaced family actor, then select that id",
+      "expected": "the persisted document wins over the bank fixture",
+      "observed": "scenarioCatalogSource authored; cast contains sc01s_authored_shadow_relative_v1, not daughter_lena_ellis_v1",
+      "held": true,
+      "evidenceIds": [
+        "obs-catalog-source-authored"
+      ]
+    },
+    {
+      "controlId": "absent-scenario-id-keeps-prior-default",
+      "trigger": "no selection in the call, the options or the browser",
+      "expected": "the request and the payload are byte-identical to the no-argument constructor",
+      "observed": "URL carries no query; payload deep-equals createEdChestPainLocalLearnerRuntimeAssetBundle(); this clause PASSED on the baseline revision too",
+      "held": true,
+      "evidenceIds": [
+        "obs-default-url",
+        "red-baseline-output"
+      ]
+    },
+    {
+      "controlId": "ed-bay-is-not-served-for-an-unknown-id",
+      "trigger": "select ed_chest_pain_priority_v2, which scenarioBank does not carry",
+      "expected": "refusal, not a silent ED bundle under that id",
+      "observed": "404 scenario_not_found; no actors in the body; the client throws rather than returning a bundle",
+      "held": true,
+      "evidenceIds": [
+        "obs-unknown-id-refusal"
+      ]
+    },
+    {
+      "controlId": "equipment-survives-an-injected-document",
+      "trigger": "inject resolved documents for ward_delirium_med_rec_v1 and clinic_knee_pain_return_to_play_v1",
+      "expected": "equipment and sceneManifest.equipmentPlacements match the uninjected default",
+      "observed": "both cases: equipment ecg_cart_equipment,iv_stand_equipment and equipmentPlacements deep-equal to the uninjected default; the regression independent review measured is absent",
+      "held": true,
+      "evidenceIds": [
+        "obs-equipment-ward",
+        "obs-equipment-clinic",
+        "obs-equipment-placements"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "red-baseline-output",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-01s/red-baseline-1da9ce04.txt",
+      "byteCount": 4688,
+      "sha256": "30d45f569f20470296d7f9166bde60744311a82ba2b0b25c54b4cba1989b4fe1",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T20:40:18.000Z",
+      "runId": "sc-01s-baseline-1da9ce04-2026-09-09T20:40Z"
+    },
+    {
+      "artifactId": "cmd1-behavior-test",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-01s/cmd1-behavior-test.txt",
+      "byteCount": 325,
+      "sha256": "aae81f5482a384db92417ebcb0971d0155b86d7bdd20465f5e943004d7a66188",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T20:45:00.000Z",
+      "runId": "sc-01s-fixed-2026-09-09T20:45Z"
+    },
+    {
+      "artifactId": "cmd2-assert-contract-live",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-01s/cmd2-assert-contract-live.txt",
+      "byteCount": 285,
+      "sha256": "82564654772986924e6d9b0644a06627d0f83981cb93a7ae46f146df0caa3544",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T20:45:10.000Z",
+      "runId": "sc-01s-fixed-2026-09-09T20:45Z"
+    },
+    {
+      "artifactId": "cmd3-api-client-test",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-01s/cmd3-api-client-test.txt",
+      "byteCount": 306,
+      "sha256": "c6e14ec60d5eeb39940aeaa49e3c4ba9ecc4fef30e4316d4945f473054b28b27",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T20:45:20.000Z",
+      "runId": "sc-01s-fixed-2026-09-09T20:45Z"
+    },
+    {
+      "artifactId": "cmd4-verifier-test",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-01s/cmd4-verifier-test.txt",
+      "byteCount": 324,
+      "sha256": "f9e4b6f3ac9455026d27992c9eafbbecbc809cb29644192543bb6b69e251e5fe",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T20:45:30.000Z",
+      "runId": "sc-01s-fixed-2026-09-09T20:45Z"
+    },
+    {
+      "artifactId": "sc01s-behavior-test-output",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-01s/cmd6-sc01s-behavior-test.txt",
+      "byteCount": 373,
+      "sha256": "0c3b3dadce5eda33cb1227a6e0ab3f564389d4297c24c24708fd575df7d09fbc",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T20:45:40.000Z",
+      "runId": "sc-01s-fixed-2026-09-09T20:45Z"
+    }
+  ],
+  "reviews": [
+    {
+      "reviewerId": "scene-closure execution owner (Claude Opus 5 main session, openclinxr-c2)",
+      "role": "execution owner and independent reviewer",
+      "distinctFromImplementer": true,
+      "reviewedSourceCommit": "1c23307b",
+      "retrievedArtifactIds": [
+        "red-baseline-output",
+        "cmd1-behavior-test",
+        "cmd2-assert-contract-live",
+        "cmd3-api-client-test",
+        "cmd4-verifier-test",
+        "sc01s-behavior-test-output"
+      ],
+      "sessionIso": "2026-09-09T21:04:52.741Z",
+      "observations": "Reran the two-sided gate rather than accepting the implementer report. Reverted packages/openclinxr/xr-station/src/api-client.ts to 1da9ce04, rebuilt @openclinxr/xr-station because cross-package tests resolve to dist, and measured 4 failed / 29 passed across the client behavior suite, the pre-existing api-client.test.ts and the verifier suite. The four failures were exactly SC-01S-required-behavior, fixture-id-still-resolves, authored-shadows-fixture-of-same-id and equipment-survives-an-injected-document. Restored and rebuilt: 33 passed, 0 failed. The nine pre-existing api-client.test.ts clauses passed on both revisions, including the bare-URL assertion that refuses an unconditional query string, so the suite is not one-sided. Read the api-client.ts diff in full: the change is confined to one exported option, one exported request type, one exported ambient reader and the resolution helper, with no threshold, ratchet or gate touched. Verified independently that apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts still passes 9/9 and assert-contract-live reports 1 contract live. Corrected two owner defects the implementer surfaced: the brief never named the owner evidence registry, so the implementer created a candidate one, and its six artifacts were migrated byte-unchanged into the owner store with the report rebound to the owner registry hash; and docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01s.json was registered in the generated-artifact registry so docs:drift-check passes without weakening the gate. Recorded but not repaired here: the readAmbientSelectedScenarioId fallback couples the client to browser globals, which is acceptable only because main.ts is outside this card roots, and SC-02 should make the selection explicit at main.ts:1464 in its own root.",
+      "decision": "accepted"
+    }
+  ],
+  "limits": {
+    "unprovenClinical": [
+      "clinical validity of any case served through this seam",
+      "that any clinically credentialled reviewer approved these cases"
+    ],
+    "unprovenHeadset": [
+      "worn-headset readiness",
+      "Quest frame pacing or comfort"
+    ],
+    "unprovenPublication": [
+      "public deployment",
+      "website presentation of this run"
+    ],
+    "unresolvedDefects": [
+      "apps/ui-xr/src/main.ts:1464 constructs the client with { baseUrl } only, so the selection reaches the route through the AMBIENT browser path rather than an explicit argument. main.ts is outside this card frozen write roots.",
+      "No browser session was run. window is stubbed on globalThis for the ambient clauses.",
+      "The client behavior test lives under tools/openclinxr/evidence/scene-closure/proofs/sc-01s/ because packages/openclinxr/xr-station/src/api-client.test.ts is NOT in this card frozen write roots and the changed-file audit rejects it.",
+      "verify.ts, run with the candidate registry, refuses on exactly four requirements and no others: implementation.treeClean is not true; implementation.changeCommits is empty; reviews is empty; no accepted review by a reviewer distinct from the implementer. Two need a commit (the worker was instructed not to commit) and two need the integrator. Every artifact resolved and rehashed, every contract-document hash matched the file on disk, all five checks and five controls were accepted, and the changed-file audit passed against the frozen scopes.",
+      "OPENCLINXR_SC_EVIDENCE_REGISTRY had no owner-created registry on this host. A CANDIDATE registry was created at /Volumes/files/src/.openclinxr-sc-evidence/registry.json and must be ratified or replaced by the execution owner."
+    ]
+  },
+  "evidenceRegistrySha256": "12b1587daf25b3a1a48dece3df89115efe6f56a89ae32b10140728e3818394fb"
+}
