@@ -1040,6 +1040,31 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+## A placement stays provisional until its EXACT support is mounted
+
+§3: *"Keep placement provisional until that geometry is ready; a pending exact support withholds
+promotion while loading, without silently selecting another instance."*
+
+`supportReadiness` rides on the placement result with three states, and `pending` is the brief's own
+word carrying the brief's own rule: it does not promote.
+
+| named instance | mounted set | reads |
+|---|---|---|
+| `ed_stretcher_bed_equipment` | contains it | `mounted` |
+| `ed_stretcher_bed_equipment` | empty | `pending`, naming what it waits for |
+| `ed_stretcher_bed_equipment` | `stretcher_equipment`, `exam_table_equipment` | **`pending`**, and the reason lists what was available and says none was taken |
+
+The third row is the dangerous one. That is when substituting looks harmless, and it puts the
+patient on a bed the case did not name while the placement reads resolved. The refusal is by
+construction: the only question asked of the mounted set is whether it contains the NAMED id.
+
+Clause (8) is the counterweight — a placement naming no support, and a standing actor, read
+`not_required`. Reporting `pending` for everything would satisfy the other clauses and stall the
+scene.
+
+Probed: treating any mounted support as this one fails (7); dropping the unnamed-support guard
+fails (8).
+
 ## A resolved placement now says where it came from, and the standing refusal was unreachable
 
 §3: *"With no intent, retain the existing resolved defaults and label their provenance; do not copy

@@ -22,6 +22,52 @@ type Vector3 = { x: number; y: number; z: number };
 export type PlacementProvenance = "authored_intent" | "resolved_default";
 
 /**
+ * Whether the support this placement depends on is actually mounted yet.
+ *
+ * Brief §3: *"runtime acceptance must check the actual mounted support after loading, footprint
+ * fitting and grounding... Keep placement provisional until that geometry is ready; a pending exact
+ * support withholds promotion while loading, without silently selecting another instance."*
+ *
+ * `pending` is the brief's own word and its own rule: it does not promote. The dangerous branch is
+ * the third one — the named instance is absent while a DIFFERENT instance of the same kind is
+ * mounted, which is exactly when substituting looks harmless and puts the patient on the wrong bed.
+ */
+export type SupportReadiness =
+  | { status: "mounted"; supportInstanceId: string }
+  | { status: "pending"; supportInstanceId: string; reason: string }
+  | { status: "not_required" };
+
+/**
+ * Is the exact support this placement names mounted?
+ *
+ * REFUSES SUBSTITUTION BY CONSTRUCTION: the only question asked of the mounted set is whether it
+ * contains the NAMED id. Other mounted instances are reported in the reason so a reader can see
+ * what was available and that it was not taken.
+ */
+function supportReadinessForPlacement(input: {
+  posture: "standing" | "seated" | "supine";
+  /** The exact instance the placement depends on. Absent means the placement names none. */
+  supportInstanceId?: string | undefined;
+  mountedSupportInstanceIds: readonly string[];
+}): SupportReadiness {
+  if (input.posture === "standing" || !input.supportInstanceId) return { status: "not_required" };
+  const mounted = new Set(input.mountedSupportInstanceIds);
+  if (mounted.has(input.supportInstanceId)) {
+    return { status: "mounted", supportInstanceId: input.supportInstanceId };
+  }
+  const others = input.mountedSupportInstanceIds.filter((id) => id !== input.supportInstanceId);
+  return {
+    status: "pending",
+    supportInstanceId: input.supportInstanceId,
+    reason:
+      `support ${input.supportInstanceId} is not mounted yet, so this ${input.posture} placement stays provisional. `
+      + (others.length > 0
+        ? `${others.length} other support instance(s) ARE mounted (${others.join(", ")}) and none was substituted: a patient on the wrong bed is a worse answer than a placement that is still loading.`
+        : "No other support instance is mounted either."),
+  };
+}
+
+/**
  * #574: world XZ of the family/parent chair fixture for `environmentId`, resolved with
  * the same fraction mapping the environment builder uses (resolveFixtureSlotsForRoom),
  * so a seated family actor lands ON the authored seat instead of the patient-chair
@@ -98,7 +144,16 @@ export function supportedActorPlacementPosition(input: {
   environmentId: string;
   resolvedPosition: Vector3;
   slotKind: string;
-}): { position: Vector3; refusalReason?: string; provenance: PlacementProvenance } {
+  /** The exact support instance this placement depends on, when the case names one. */
+  supportInstanceId?: string | undefined;
+  /** Support instances mounted RIGHT NOW. Absent means the caller did not observe, not that none is. */
+  mountedSupportInstanceIds?: readonly string[] | undefined;
+}): {
+  position: Vector3;
+  refusalReason?: string;
+  provenance: PlacementProvenance;
+  supportReadiness: SupportReadiness;
+} {
   const authoredOffsetMeters = authoredPlantOffsetMeters(input.scenarioId, input.actorId);
   // Standing used to RETURN HERE, before composeSupportedActorWorldPosition ran. That made its
   // "`none` is not a frame" refusal correct and unreachable — the repo's characteristic defect —
@@ -117,13 +172,19 @@ export function supportedActorPlacementPosition(input: {
     ...(authoredOffsetMeters ? { authoredOffsetMeters } : {}),
     resolvedPosition: input.resolvedPosition,
   });
+  const supportReadiness = supportReadinessForPlacement({
+    posture: input.posture,
+    ...(input.supportInstanceId ? { supportInstanceId: input.supportInstanceId } : {}),
+    mountedSupportInstanceIds: input.mountedSupportInstanceIds ?? [],
+  });
   if ("refused" in composed) {
     // A refusal falls back to the anchor, so the label is the DEFAULT: nothing the author asked
     // for was applied, and calling it authored would be the false claim this field exists to stop.
-    return { position: fixtureAnchor, refusalReason: composed.reason, provenance: "resolved_default" };
+    return { position: fixtureAnchor, refusalReason: composed.reason, provenance: "resolved_default", supportReadiness };
   }
   return {
     position: composed,
     provenance: authoredOffsetMeters ? "authored_intent" : "resolved_default",
+    supportReadiness,
   };
 }

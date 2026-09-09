@@ -68,3 +68,69 @@ describe("a resolved placement says where it came from", () => {
     expect(refused.position).toEqual(RESOLVED);
   });
 });
+
+/**
+ * Brief §3: "Keep placement provisional until that geometry is ready; a pending exact support
+ * withholds promotion while loading, without silently selecting another instance."
+ *
+ * The dangerous branch is the third one below: the named instance is absent while a DIFFERENT
+ * instance of the same kind IS mounted. That is when substituting looks harmless, and it puts the
+ * patient on the wrong bed.
+ */
+describe("a placement stays provisional until its exact support is mounted", () => {
+  function readiness(supportInstanceId: string | undefined, mounted: readonly string[]) {
+    return supportedActorPlacementPosition({
+      posture: "supine",
+      actorId: "patient_robert_hayes_v1",
+      slotKind: "primary_patient",
+      scenarioId: "ed_chest_pain_priority_v2",
+      environmentId: "ed_exam_bay_v1",
+      resolvedPosition: RESOLVED,
+      ...(supportInstanceId ? { supportInstanceId } : {}),
+      mountedSupportInstanceIds: mounted,
+    }).supportReadiness;
+  }
+
+  it("(5) the NAMED support mounted reads mounted", () => {
+    expect(readiness("ed_stretcher_bed_equipment", ["ed_stretcher_bed_equipment"])).toEqual({
+      status: "mounted",
+      supportInstanceId: "ed_stretcher_bed_equipment",
+    });
+  });
+
+  it("(6) nothing mounted reads PENDING and names the instance it is waiting for", () => {
+    const result = readiness("ed_stretcher_bed_equipment", []);
+    expect(result.status).toBe("pending");
+    if (result.status !== "pending") return;
+    expect(result.supportInstanceId).toBe("ed_stretcher_bed_equipment");
+    expect(result.reason).toMatch(/No other support instance is mounted/u);
+  });
+
+  it("(7) ANOTHER instance mounted is still PENDING, and the reason says it was not taken", () => {
+    // The substitution branch. A caller that promotes here has put the patient on a bed the case
+    // did not name, and the placement would look resolved.
+    const result = readiness("ed_stretcher_bed_equipment", ["stretcher_equipment", "exam_table_equipment"]);
+    expect(result.status).toBe("pending");
+    if (result.status !== "pending") return;
+    expect(result.supportInstanceId).toBe("ed_stretcher_bed_equipment");
+    expect(result.reason).toContain("stretcher_equipment");
+    expect(result.reason).toMatch(/none was substituted/u);
+  });
+
+  it("(8) COUNTERWEIGHT: a placement that names NO support, and a standing actor, are not_required", () => {
+    // Reporting pending for every placement would satisfy clauses (6) and (7) and stall the scene.
+    expect(readiness(undefined, [])).toEqual({ status: "not_required" });
+    expect(
+      supportedActorPlacementPosition({
+        posture: "standing",
+        actorId: "x",
+        slotKind: "primary_patient",
+        scenarioId: "no_such_scenario",
+        environmentId: "ed_exam_bay_v1",
+        resolvedPosition: RESOLVED,
+        supportInstanceId: "ed_stretcher_bed_equipment",
+        mountedSupportInstanceIds: [],
+      }).supportReadiness,
+    ).toEqual({ status: "not_required" });
+  });
+});
