@@ -6,6 +6,17 @@
 
 import type { SceneAssetEvidence } from "@openclinxr/xr-runtime-state";
 
+/**
+ * A scene asset slot is READY only when it loaded genuinely: the GLB attached and the
+ * primitive fallback was hidden. A suppressed placeholder reports status "loaded" with
+ * fallbackActive true (generated-loaders.ts:447-462) and is NOT ready.
+ */
+export function sceneAssetSlotIsReady(
+  asset: Pick<SceneAssetEvidence["assets"][number], "status" | "fallbackActive">,
+): boolean {
+  return asset.status === "loaded" && asset.fallbackActive === false;
+}
+
 declare global {
   // eslint-disable-next-line no-unused-vars
   interface Window {
@@ -40,6 +51,10 @@ export type DeclaredEquipmentMountEvidence = {
 
 const sceneAssetStatusRecords = new Map<string, SceneAssetEvidence["assets"][number]>();
 
+export function clearSceneAssetStatusRecords(): void {
+  sceneAssetStatusRecords.clear();
+}
+
 export function formatUnknownError(error: unknown): string {
   if (error instanceof Error) {
     return `${error.name}: ${error.message}`;
@@ -55,6 +70,11 @@ export function runtimeAssetAffordanceCueIds(assetId: string, affordances: reado
   return affordances.map((affordance) => `${assetId}:${affordance}`);
 }
 
+function getGlobalWindow(): typeof globalThis & { window?: Window } {
+  // Lazy access so vitest setup can stub window before first call
+  return globalThis;
+}
+
 export function recordSceneAssetStatus(input: SceneAssetEvidence["assets"][number]): SceneAssetEvidence {
   sceneAssetStatusRecords.set(input.assetId, { ...input });
   const assets = [...sceneAssetStatusRecords.values()].sort((left, right) => left.assetId.localeCompare(right.assetId));
@@ -62,7 +82,7 @@ export function recordSceneAssetStatus(input: SceneAssetEvidence["assets"][numbe
     source: "window.__openClinXrSceneAssetEvidence",
     generatedAtMs: roundPerformanceNow(),
     expectedAssetCount: assets.length,
-    loadedCount: assets.filter((asset) => asset.status === "loaded").length,
+    loadedCount: assets.filter((asset) => asset.status === "loaded" && asset.fallbackActive === false).length,
     failedCount: assets.filter((asset) => asset.status === "failed").length,
     pendingCount: assets.filter((asset) => asset.status === "pending").length,
     fallbackActiveCount: assets.filter((asset) => asset.fallbackActive).length,
@@ -92,7 +112,8 @@ export function recordSceneAssetStatus(input: SceneAssetEvidence["assets"][numbe
       "clinical_validity",
     ],
   };
-  window.__openClinXrSceneAssetEvidence = evidence;
+  const win = getGlobalWindow();
+  if (win.window) win.window.__openClinXrSceneAssetEvidence = evidence;
   return evidence;
 }
 
@@ -113,7 +134,8 @@ export function formatSceneAssetEvidenceStatus(evidence: SceneAssetEvidence | nu
 }
 
 export function recordXrEntryEvidence(status: OpenClinXrXrEntryEvidence["lastStatus"], error?: unknown): void {
-  const current = window.__openClinXrXrEntryEvidence ?? {
+  const win = getGlobalWindow();
+  const current = win.window?.__openClinXrXrEntryEvidence ?? {
     sessionMode: "immersive-vr",
     attempts: 0,
     lastStatus: "not_requested",
@@ -123,23 +145,28 @@ export function recordXrEntryEvidence(status: OpenClinXrXrEntryEvidence["lastSta
   };
   const now = Number(performance.now().toFixed(2));
   const requesting = status === "requesting";
-  window.__openClinXrXrEntryEvidence = {
-    sessionMode: "immersive-vr",
-    attempts: current.attempts + (requesting ? 1 : 0),
-    lastStatus: status,
-    lastRequestedAtMs: requesting ? now : current.lastRequestedAtMs,
-    lastUpdatedAtMs: now,
-    lastError: error === undefined ? null : formatUnknownError(error),
-  };
+  if (win.window) {
+    win.window.__openClinXrXrEntryEvidence = {
+      sessionMode: "immersive-vr",
+      attempts: current.attempts + (requesting ? 1 : 0),
+      lastStatus: status,
+      lastRequestedAtMs: requesting ? now : current.lastRequestedAtMs,
+      lastUpdatedAtMs: now,
+      lastError: error === undefined ? null : formatUnknownError(error),
+    };
+  }
 }
 
 export function refreshDeclaredEquipmentMountEvidenceFromScene(
   collectItems: (scene: import("three").Scene) => DeclaredEquipmentMountEvidence["items"],
 ): void {
-  const evidence = window.__openClinXrDeclaredEquipmentMountEvidence;
-  const scene = window.__openClinXrDebugScene;
+  const win = getGlobalWindow();
+  const evidence = win.window?.__openClinXrDeclaredEquipmentMountEvidence;
+  const scene = win.window?.__openClinXrDebugScene;
   if (!evidence || !scene) return;
   const items = collectItems(scene);
   if (items.length === 0) return;
-  window.__openClinXrDeclaredEquipmentMountEvidence = { ...evidence, items };
+  if (win.window) {
+    win.window.__openClinXrDeclaredEquipmentMountEvidence = { ...evidence, items };
+  }
 }

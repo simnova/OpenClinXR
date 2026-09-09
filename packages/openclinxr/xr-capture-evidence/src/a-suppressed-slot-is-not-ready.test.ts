@@ -54,7 +54,7 @@ type Loose = any;
 const modPromise = import("./index.js");
 
 describe("A suppressed placeholder GLB cannot report itself ready", () => {
-  it.fails("(1) A genuine load (status: loaded, fallbackActive: false) satisfies the predicate", async () => {
+  it("(1) A genuine load (status: loaded, fallbackActive: false) satisfies the predicate", async () => {
     const mod = await modPromise;
     const sceneAssetSlotIsReady = (mod as Record<string, unknown>)["sceneAssetSlotIsReady"] as Loose;
     expect(typeof sceneAssetSlotIsReady).toBe("function");
@@ -63,7 +63,7 @@ describe("A suppressed placeholder GLB cannot report itself ready", () => {
     expect(sceneAssetSlotIsReady(genuineAsset)).toBe(true);
   });
 
-  it.fails("(2) A suppressed slot (status: loaded, fallbackActive: true) does NOT satisfy the predicate", async () => {
+  it("(2) A suppressed slot (status: loaded, fallbackActive: true) does NOT satisfy the predicate", async () => {
     const mod = await modPromise;
     const sceneAssetSlotIsReady = (mod as Record<string, unknown>)["sceneAssetSlotIsReady"] as Loose;
     expect(typeof sceneAssetSlotIsReady).toBe("function");
@@ -72,7 +72,7 @@ describe("A suppressed placeholder GLB cannot report itself ready", () => {
     expect(sceneAssetSlotIsReady(suppressedAsset)).toBe(false);
   });
 
-  it.fails("(3) A failed slot (status: failed) does NOT satisfy the predicate", async () => {
+  it("(3) A failed slot (status: failed) does NOT satisfy the predicate", async () => {
     const mod = await modPromise;
     const sceneAssetSlotIsReady = (mod as Record<string, unknown>)["sceneAssetSlotIsReady"] as Loose;
     expect(typeof sceneAssetSlotIsReady).toBe("function");
@@ -81,7 +81,7 @@ describe("A suppressed placeholder GLB cannot report itself ready", () => {
     expect(sceneAssetSlotIsReady(failedAsset)).toBe(false);
   });
 
-  it.fails("(4) For an input containing one suppressed slot, loadedCount no longer counts it, AND fallbackActiveCount for that same input is UNCHANGED from what it reports today", async () => {
+  it("(4) For an input containing one suppressed slot, loadedCount no longer counts it, AND fallbackActiveCount for that same input is UNCHANGED from what it reports today", async () => {
     const mod = await modPromise;
     const recordSceneAssetStatus = (mod as Record<string, unknown>)["recordSceneAssetStatus"] as Loose;
     const formatSceneAssetEvidenceStatus = (mod as Record<string, unknown>)["formatSceneAssetEvidenceStatus"] as Loose;
@@ -118,7 +118,7 @@ describe("A suppressed placeholder GLB cannot report itself ready", () => {
     expect(statusString).toContain("1 fallbacks active");
   });
 
-  it.fails("(5) The three existing status values (pending, loaded, failed) still round-trip", async () => {
+  it("(5) The three existing status values (pending, loaded, failed) still round-trip", async () => {
     const mod = await modPromise;
     const recordSceneAssetStatus = (mod as Record<string, unknown>)["recordSceneAssetStatus"] as Loose;
     const formatSceneAssetEvidenceStatus = (mod as Record<string, unknown>)["formatSceneAssetEvidenceStatus"] as Loose;

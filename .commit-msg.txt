@@ -1,0 +1,1 @@
+fix(readiness): suppress placeholder GLB not counted as loaded; add sceneAssetSlotIsReady predicate; fix loadedCount to exclude fallbackActive slots
