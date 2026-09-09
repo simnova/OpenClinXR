@@ -7,7 +7,7 @@
     "agent-methodology": 105,
     "current-reference": 208,
     "archive-candidate": 88,
-    "evidence": 74,
+    "evidence": 75,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -4131,6 +4131,13 @@
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01s.md",

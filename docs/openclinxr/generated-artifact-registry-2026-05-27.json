@@ -4,13 +4,13 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 137,
+    "keep-evidence": 138,
     "ignore-local-cache": 2112,
     "keep-current": 141,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2434,
-    "total": 2434
+    "entries": 2435,
+    "total": 2435
   },
   "entries": [
     {
@@ -16973,6 +16973,13 @@
       "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
+    },
+    {
+      "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Scene-closure r2 per-card evidence report. Committed and graded by tools/openclinxr/evidence/scene-closure/proofs/sc-01/verify.ts, which resolves every artifact it names through the owner registry. Deleting it removes the only record the card was verified."
     },
     {
       "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01s.json",

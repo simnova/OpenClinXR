@@ -1,0 +1,568 @@
+{
+  "schemaVersion": "openclinxr.scene-closure-evidence.v1",
+  "cardKey": "SC-01",
+  "contract": {
+    "pinnedCommit": "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50",
+    "documents": [
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md",
+        "sha256": "c8080c5e9c75fbb2b4bacb23ed45eac6f829b5dcf494059247a6ee8d55de1bbf"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/tasks-v2.md",
+        "sha256": "e12fbcb49eef3ce4a9c3098309d27bb094dc8c25baa0631452fa27b2f1403881"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/proof-contract-v2.md",
+        "sha256": "a1d1d85a15ae2acfce16479d6b9b4a181e0ccfee60aab885af674c8274cdcfe5"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/delegation-v2.md",
+        "sha256": "59e34f9d6f099574cdf9291847321a4aa23a8e19643ec510984855173cc23016"
+      }
+    ],
+    "aRows": [
+      "A01"
+    ]
+  },
+  "implementation": {
+    "productSourceCommit": "1da9ce04",
+    "dependencyBaselineCommit": "9a7135fc",
+    "changeCommits": [
+      "1da9ce04"
+    ],
+    "treeClean": true,
+    "inputs": [
+      {
+        "path": "tools/openclinxr/factory/scene-closure-case-source.ts",
+        "sha256": "e16e377fcc86d12ddcc546d23cace430f3d64ccb55efdda80f413d2b0f8e42f5"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/actor-casting.ts",
+        "sha256": "04f3abfc69de6284f4b1cc71f873de97f7f43bc98e11d78602a27d184524ebcc"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/case-runtime-equipment.ts",
+        "sha256": "b8c2ba57ef115732ce98bfd802b3a05f38e70b2b3be2a32c4008f22800b6c5e7"
+      },
+      {
+        "path": "apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts",
+        "sha256": "f8312b2e722dd2a96c1f8298c71c976dc0f70d768f481b4fb330e08c3f130257"
+      }
+    ],
+    "changedFiles": [
+      "apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts",
+      "packages/openclinxr/asset-registry/package.json",
+      "packages/openclinxr/asset-registry/src/actor-casting.ts",
+      "packages/openclinxr/asset-registry/src/case-actor-placements.ts",
+      "packages/openclinxr/asset-registry/src/case-runtime-equipment.ts",
+      "packages/openclinxr/asset-registry/src/runtime-bundles.ts",
+      "packages/openclinxr/shared-schemas/src/equipment-binding.ts",
+      "packages/openclinxr/shared-schemas/src/schemas.ts",
+      "tools/openclinxr/dark-factory/multi-case-runner.ts",
+      "tools/openclinxr/factory/scene-closure-case-source.ts",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01.md",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01.json"
+    ],
+    "runtime": {
+      "node": "v24.18.1",
+      "platform": "darwin-arm64"
+    }
+  },
+  "execution": {
+    "taskId": "tsk_d4c4e549f076e0a4",
+    "commands": [
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "apps/api/src/scenario-promotion-path.test.ts",
+          "apps/api/src/encounter-runtime-handoff.test.ts",
+          "packages/openclinxr/asset-registry/src/the-scene-contents-bind-or-refuse.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:09:05.740Z",
+        "endedAtIso": "2026-09-09T21:09:12.442Z",
+        "tests": {
+          "passed": 15,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "outputArtifactId": "cmd1-regression-suites"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/factory/the-placement-node-carries-the-authored-offset.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:09:12.529Z",
+        "endedAtIso": "2026-09-09T21:09:19.023Z",
+        "tests": {
+          "passed": 5,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "outputArtifactId": "cmd2-placement-node"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:08:31.754Z",
+        "endedAtIso": "2026-09-09T21:08:39.244Z",
+        "tests": {
+          "passed": 9,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "outputArtifactId": "fixed-behavior-run"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "tsx",
+          "tools/openclinxr/openclaw/assert-contract-live.ts",
+          "apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts",
+          "SC-01-required-behavior"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:09:19.111Z",
+        "endedAtIso": "2026-09-09T21:09:20.377Z",
+        "outputArtifactId": "cmd4-assert-contract-live"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/scene-closure/proofs/sc-01/verifier.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:09:20.452Z",
+        "endedAtIso": "2026-09-09T21:09:22.729Z",
+        "tests": {
+          "passed": 16,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "outputArtifactId": "cmd5-verifier-test"
+      }
+    ]
+  },
+  "counterweight": {
+    "testIds": [
+      "SC-01-required-behavior",
+      "(3) a reordered asset list leaves the served scene and its binding unchanged",
+      "(6) a stale fixture version cannot override the persisted version",
+      "(7) a misidentified physician is named and refused rather than silently substituted",
+      "(9) the persisted case still casts its own people through the constructor main.ts calls"
+    ],
+    "baselineRevision": "9a7135fc (packages/openclinxr/asset-registry/src/actor-casting.ts only, asset-registry rebuilt)",
+    "failingAssertion": "expect(stagedActorIds(bundle)).toEqual([\"daughter_lena_ellis_v1\",\"patient_margaret_ellis_v1\",\"senior_resident_ward_v1\",\"ward_nurse_patel_v1\"])",
+    "observedBeforeFix": "5 failed / 4 passed; served cast was nurse_maria_alvarez_v1, patient_robert_hayes_v1, spouse_anna_hayes_v1 — the ED bay for a ward case",
+    "knownGoodControl": "clause (8): the no-selection bundle is compared field-for-field against createEdChestPainLocalLearnerRuntimeAssetBundle(), and the pre-existing ward case is unchanged at c8b7ac01",
+    "fixedRevision": "1da9ce04",
+    "observedAfterFix": "9 passed / 0 failed; served cast was daughter_lena_ellis_v1, patient_margaret_ellis_v1, senior_resident_ward_v1, ward_nurse_patel_v1",
+    "baselineOutputArtifactId": "baseline-behavior-run",
+    "fixedOutputArtifactId": "fixed-behavior-run"
+  },
+  "encounter": {
+    "caseId": "scene_closure_supine_bedside_v1",
+    "environmentId": "inpatient_ward_room_v1",
+    "stationId": "scene_closure_supine_bedside_station_v1",
+    "pinnedCast": {
+      "patient": "patient_margaret_ellis_v1",
+      "physician": "senior_resident_ward_v1"
+    },
+    "servedCast": [
+      "daughter_lena_ellis_v1",
+      "patient_margaret_ellis_v1",
+      "senior_resident_ward_v1",
+      "ward_nurse_patel_v1"
+    ],
+    "intentionallyAbsentEquipmentIds": [
+      "12_lead_ecg_machine_equipment",
+      "iv_pole_equipment"
+    ],
+    "optionalEquipmentPhrases": [
+      "EHR laptop"
+    ],
+    "catalogSource": "authored",
+    "authoringPath": "POST /scenarios then the SubmitScenarioReview admin GraphQL mutation, then GET /runtime/asset-bundles/:bundleId?scenarioId="
+  },
+  "observations": [
+    {
+      "observationId": "obs-staged-actors",
+      "metric": "staged actor ids in the served runtime asset bundle for scene_closure_supine_bedside_v1",
+      "unit": "actorId[]",
+      "value": "daughter_lena_ellis_v1,patient_margaret_ellis_v1,senior_resident_ward_v1,ward_nurse_patel_v1",
+      "observedAtMs": 1788988253968,
+      "artifactId": "fixed-behavior-run",
+      "source": "GET /runtime/asset-bundles/:bundleId?scenarioId= through createApiApp"
+    },
+    {
+      "observationId": "obs-baseline-staged-actors",
+      "metric": "staged actor ids with actor-casting.ts reverted to 9a7135fc",
+      "unit": "actorId[]",
+      "value": "nurse_maria_alvarez_v1,patient_robert_hayes_v1,spouse_anna_hayes_v1",
+      "observedAtMs": 1788988253968,
+      "artifactId": "baseline-behavior-run",
+      "source": "same route, asset-registry rebuilt from the reverted source"
+    },
+    {
+      "observationId": "obs-catalog-source",
+      "metric": "bundle.scenarioCatalogSource for the persisted case",
+      "unit": "enum",
+      "value": "authored",
+      "observedAtMs": 1788988253968,
+      "artifactId": "fixed-behavior-run",
+      "source": "served bundle field"
+    },
+    {
+      "observationId": "obs-patient-posture",
+      "metric": "sceneManifest.actorPlacements[patient_margaret_ellis_v1].posture",
+      "unit": "enum",
+      "value": "supine",
+      "observedAtMs": 1788988253968,
+      "artifactId": "fixed-behavior-run",
+      "source": "served bundle scene manifest"
+    },
+    {
+      "observationId": "obs-patient-support",
+      "metric": "authored placement for patient_margaret_ellis_v1",
+      "unit": "supportSurface + plantOffsetMeters",
+      "value": "stretcher @ {x:0.12,y:0,z:-0.08}",
+      "observedAtMs": 1788988253968,
+      "artifactId": "fixed-behavior-run",
+      "source": "authoredCasePlacements over the approved document"
+    },
+    {
+      "observationId": "obs-physician-start",
+      "metric": "authored physician start supportSurface, compared with the computed bedside destination",
+      "unit": "enum + vector inequality",
+      "value": "none, and plantOffsetMeters !== bedside destination position",
+      "observedAtMs": 1788988253968,
+      "artifactId": "fixed-behavior-run",
+      "source": "served bundle scene manifest vs authored placement"
+    },
+    {
+      "observationId": "obs-absent-equipment",
+      "metric": "intentionally absent equipment ids that must not appear in the served scene",
+      "unit": "equipmentId[]",
+      "value": "12_lead_ecg_machine_equipment,iv_pole_equipment",
+      "observedAtMs": 1788988253968,
+      "artifactId": "fixed-behavior-run",
+      "source": "SCENE_CLOSURE_PERSISTED_EQUIPMENT_DECISIONS, checked against the served bundle"
+    },
+    {
+      "observationId": "obs-requirement-sources",
+      "metric": "reviewed equipment phrases carrying an activity or rule source",
+      "unit": "count of phrases",
+      "value": 6,
+      "observedAtMs": 1788988253968,
+      "artifactId": "fixed-behavior-run",
+      "source": "SCENE_CLOSURE_EQUIPMENT_DECISIONS.requirementSources"
+    },
+    {
+      "observationId": "obs-baseline-failures",
+      "metric": "behavior-test clauses that fail with actor-casting.ts reverted",
+      "unit": "clause count",
+      "value": 5,
+      "observedAtMs": 1788988253968,
+      "artifactId": "baseline-behavior-run",
+      "source": "vitest tally read back off the captured artifact"
+    },
+    {
+      "observationId": "obs-fixed-passes",
+      "metric": "behavior-test clauses that pass at the integrated head",
+      "unit": "clause count",
+      "value": 9,
+      "observedAtMs": 1788988253968,
+      "artifactId": "fixed-behavior-run",
+      "source": "vitest tally read back off the captured artifact"
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "persisted-case-reaches-compiled-bundle",
+      "expected": "the route serves the persisted case's own cast, not the ED bay",
+      "observed": "daughter_lena_ellis_v1,patient_margaret_ellis_v1,senior_resident_ward_v1,ward_nurse_patel_v1",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-staged-actors",
+        "fixed-behavior-run"
+      ]
+    },
+    {
+      "checkId": "authored-version-change-reaches-consumer",
+      "expected": "a stale fixture version cannot override the persisted version at the consumer",
+      "observed": "clause (6) passes at head and fails on the reverted baseline",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-baseline-failures",
+        "fixed-behavior-run",
+        "baseline-behavior-run"
+      ]
+    },
+    {
+      "checkId": "actor-identities-preserved",
+      "expected": "patient_margaret_ellis_v1 and senior_resident_ward_v1 keep their identities in the served scene",
+      "observed": "both ids present in the served cast",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-staged-actors",
+        "fixed-behavior-run"
+      ]
+    },
+    {
+      "checkId": "supine-support-and-frame-authored",
+      "expected": "the authored supine support and frame reach the served scene manifest",
+      "observed": "supine on stretcher @ {x:0.12,y:0,z:-0.08}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-patient-posture",
+        "obs-patient-support"
+      ]
+    },
+    {
+      "checkId": "physician-start-differs-from-destination",
+      "expected": "the physician starts away from the bedside so there is a walk to make",
+      "observed": "supportSurface none, start offset not equal to the computed bedside destination",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-physician-start",
+        "fixed-behavior-run"
+      ]
+    },
+    {
+      "checkId": "required-binding-carries-source-rule",
+      "expected": "every reviewed equipment phrase carries the activity or rule it came from",
+      "observed": "6 phrases, each with an activity: rule: or decision: source",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-requirement-sources",
+        "fixed-behavior-run"
+      ]
+    },
+    {
+      "checkId": "absent-equipment-not-injected",
+      "expected": "the deliberately absent ECG and IV are not injected into the served scene",
+      "observed": "clause (4) passes: neither id appears",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-absent-equipment",
+        "fixed-behavior-run"
+      ]
+    },
+    {
+      "checkId": "duplicate-copies-keep-distinct-ids",
+      "expected": "two copies of one equipment id keep distinct realized ids",
+      "observed": "clause (5) passes",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "fixed-behavior-run"
+      ]
+    },
+    {
+      "checkId": "loaded-scene-matches-persisted-case",
+      "expected": "bundle.scenarioId and scenarioCatalogSource agree with the persisted selection",
+      "observed": "scenarioId scene_closure_supine_bedside_v1, catalog source authored",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-catalog-source",
+        "fixed-behavior-run"
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "controlId": "unknown-binding-refuses",
+      "trigger": "a decision naming an id the bundle cannot realize",
+      "expected": "the route refuses and names it rather than defaulting",
+      "observed": "clause (2) passes at head",
+      "held": true,
+      "evidenceIds": [
+        "fixed-behavior-run"
+      ]
+    },
+    {
+      "controlId": "reordered-assets-keep-binding",
+      "trigger": "the same asset list in a different order",
+      "expected": "the served scene and its binding are unchanged",
+      "observed": "clause (3) passes at head and FAILS on the reverted baseline, so it is not order-blind by construction",
+      "held": true,
+      "evidenceIds": [
+        "fixed-behavior-run",
+        "baseline-behavior-run"
+      ]
+    },
+    {
+      "controlId": "absent-ecg-iv-not-inserted",
+      "trigger": "a case that authors ECG and IV as intentionally absent",
+      "expected": "neither is injected into the served scene",
+      "observed": "clause (4) passes; 12_lead_ecg_machine_equipment and iv_pole_equipment absent",
+      "held": true,
+      "evidenceIds": [
+        "obs-absent-equipment",
+        "fixed-behavior-run"
+      ]
+    },
+    {
+      "controlId": "two-copies-do-not-collapse",
+      "trigger": "two copies of one equipment id",
+      "expected": "each keeps a distinct realized id",
+      "observed": "clause (5) passes",
+      "held": true,
+      "evidenceIds": [
+        "fixed-behavior-run"
+      ]
+    },
+    {
+      "controlId": "stale-fixture-cannot-override-persisted",
+      "trigger": "a fixture carrying an older version of the same case",
+      "expected": "the persisted version wins at the consumer",
+      "observed": "clause (6) passes at head and FAILS on the reverted baseline",
+      "held": true,
+      "evidenceIds": [
+        "fixed-behavior-run",
+        "baseline-behavior-run"
+      ]
+    },
+    {
+      "controlId": "misidentified-physician-refused",
+      "trigger": "a physician id the case does not carry",
+      "expected": "named and refused rather than silently substituted",
+      "observed": "clause (7) passes at head and FAILS on the reverted baseline",
+      "held": true,
+      "evidenceIds": [
+        "fixed-behavior-run",
+        "baseline-behavior-run"
+      ]
+    },
+    {
+      "controlId": "original-ward-case-unchanged",
+      "trigger": "the pre-existing ward case, with no injection",
+      "expected": "its served bundle is field-for-field what it was",
+      "observed": "clause (8) compares the no-selection bundle against createEdChestPainLocalLearnerRuntimeAssetBundle() exactly; ward case unchanged at c8b7ac01",
+      "held": true,
+      "evidenceIds": [
+        "fixed-behavior-run",
+        "cmd1-regression-suites"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "fixed-behavior-run",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-01/fixed-behavior-run.txt",
+      "byteCount": 495,
+      "sha256": "e49d2e269bfef6f9dab46e09702a2be0e2495b706012d1385ecffd0ec9c6c3a3",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:08:39.244Z",
+      "runId": "SC-01-owner-20260909T210830Z"
+    },
+    {
+      "artifactId": "baseline-behavior-run",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-01/baseline-behavior-run.txt",
+      "byteCount": 6047,
+      "sha256": "cf7b9fbf35e1f95202b8197a3f060eb744371af7d009d00a5de9f1aa99bdbd25",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:08:49.288Z",
+      "runId": "SC-01-owner-20260909T210830Z"
+    },
+    {
+      "artifactId": "cmd1-regression-suites",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-01/cmd1-regression-suites.txt",
+      "byteCount": 598,
+      "sha256": "e225d877e94e1be96ca917d185f5b4da9eed7e59832f89e503a7f0fb717ec63b",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:09:12.442Z",
+      "runId": "SC-01-owner-20260909T210905Z"
+    },
+    {
+      "artifactId": "cmd2-placement-node",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-01/cmd2-placement-node.txt",
+      "byteCount": 503,
+      "sha256": "4f530a3edbb1ce7ef528726e28c387a5c5f174ad34514d72591f75c868f71bed",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:09:19.023Z",
+      "runId": "SC-01-owner-20260909T210905Z"
+    },
+    {
+      "artifactId": "cmd4-assert-contract-live",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-01/cmd4-assert-contract-live.txt",
+      "byteCount": 465,
+      "sha256": "da2aaa35d34a02b25e24bb5c1985ed1ee5ea1d10b41089a1a9ff3d9775b83701",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:09:20.377Z",
+      "runId": "SC-01-owner-20260909T210905Z"
+    },
+    {
+      "artifactId": "cmd5-verifier-test",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-01/cmd5-verifier-test.txt",
+      "byteCount": 494,
+      "sha256": "7291104311f884188056b5b289697b386fdeced3f9eaee7318b7c71d9fd13ca2",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:09:22.729Z",
+      "runId": "SC-01-owner-20260909T210905Z"
+    }
+  ],
+  "reviews": [
+    {
+      "reviewerId": "scene-closure execution owner (Claude Opus 5 main session, openclinxr-c2)",
+      "role": "execution owner and independent reviewer",
+      "distinctFromImplementer": true,
+      "reviewedSourceCommit": "1da9ce04",
+      "retrievedArtifactIds": [
+        "fixed-behavior-run",
+        "baseline-behavior-run",
+        "cmd1-regression-suites",
+        "cmd2-placement-node",
+        "cmd4-assert-contract-live",
+        "cmd5-verifier-test"
+      ],
+      "sessionIso": "2026-09-09T21:11:22.337Z",
+      "observations": "Rejected this card once before accepting it. The first submission passed every doneWhen and carried three assertions that could not fail: clause (8) filtered its expectation to ids the bundle already held and then asserted containment, clause (3) cast half compared two calls that both ignored their second argument on reverted code, and four clauses exercised bindInitialSceneContents, a planner with no production caller. The repair was to make each counterweight compare something that can differ, and clause (8) now compares the no-selection bundle field-for-field against createEdChestPainLocalLearnerRuntimeAssetBundle(). A second defect surfaced during the repair and was fixed: injecting a document emptied equipment and equipmentPlacements for ward_delirium_med_rec_v1 and clinic_knee_pain_return_to_play_v1, because silence was being read as refusal; the rule was inverted. The recorded RED diagnosis was also wrong and was corrected in three places: it blamed castFromScenarioBank returning an empty array, but the route never reached that code because it called the bundle constructor with no arguments at all. For this report the counterweight was re-measured with a MINIMAL in-scope falsifier rather than the rest route, which this card does not own: reverting only packages/openclinxr/asset-registry/src/actor-casting.ts to 9a7135fc and rebuilding asset-registry produced 5 failed / 4 passed with the ED cast served for a ward case, and restoring produced 9 passed / 0 failed. Both runs are captured as artifacts and their vitest tallies were read back off the captured bytes rather than off the child process return value. Owner reruns at the integrated head: regression suites 15/15, placement node 5/5, behavior test 9/9, assert-contract-live 1 contract live, verifier suite 16/16. Ratchets unmoved: main.ts exactly 4822, runtime-bundles.ts 1621 under its 1638 freeze, schemas.ts 497 under its 500 zone budget, ward case unchanged at c8b7ac01.",
+      "decision": "accepted"
+    }
+  ],
+  "limits": {
+    "unprovenClinical": [
+      "clinical validity of the authored supine position, the bedside setup or the medication-reconciliation activity; the encounter is synthetic and qualified clinical review is pending"
+    ],
+    "unprovenHeadset": [
+      "worn-headset readiness; nothing here ran on a Quest"
+    ],
+    "unprovenPublication": [
+      "public rendering rights for the selected assets, which SC-04 owns and this card does not claim"
+    ],
+    "unresolvedDefects": [
+      "toAdminGraphqlScenario projects equipmentDecisions away, so the review identity hash does not cover them; emotionPolicy has the same pre-existing gap. Recorded, not repaired by this card.",
+      "packages/openclinxr/rest/src/routes/runtime-evidence-routes.ts was changed in 1da9ce04 and is NOT in this card frozen write roots. It is attributed to SC-01S (tsk_c79ff7d5b8ebb854), which owns it and landed at 745f222b, so it is claimed in exactly one place rather than here and there or by neither."
+    ]
+  },
+  "evidenceRegistrySha256": "12b1587daf25b3a1a48dece3df89115efe6f56a89ae32b10140728e3818394fb"
+}
