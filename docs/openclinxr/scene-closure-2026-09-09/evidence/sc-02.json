@@ -1,0 +1,807 @@
+{
+  "schemaVersion": "openclinxr.scene-closure-evidence.v1",
+  "cardKey": "SC-02",
+  "contract": {
+    "pinnedCommit": "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50",
+    "documents": [
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md",
+        "sha256": "c8080c5e9c75fbb2b4bacb23ed45eac6f829b5dcf494059247a6ee8d55de1bbf"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/tasks-v2.md",
+        "sha256": "e12fbcb49eef3ce4a9c3098309d27bb094dc8c25baa0631452fa27b2f1403881"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/proof-contract-v2.md",
+        "sha256": "a1d1d85a15ae2acfce16479d6b9b4a181e0ccfee60aab885af674c8274cdcfe5"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/delegation-v2.md",
+        "sha256": "59e34f9d6f099574cdf9291847321a4aa23a8e19643ec510984855173cc23016"
+      }
+    ],
+    "aRows": [
+      "A02",
+      "A03"
+    ]
+  },
+  "implementation": {
+    "productSourceCommit": "a238c93e",
+    "dependencyBaselineCommit": "1da9ce04a429f72c9ef26e80d480f4f6401ca858",
+    "changeCommits": [
+      "a238c93e"
+    ],
+    "treeClean": true,
+    "inputs": [
+      {
+        "path": "apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts",
+        "sha256": "0534b04f44ae74c967b0ff78bedd59e65ca5454ab925b0f4552a8bca3ea621d9"
+      },
+      {
+        "path": "apps/ui-xr/src/main.ts",
+        "sha256": "ecc879f5658f3114837f6e0edfd6fb90e9e80a5e69f847f2ac0f4f2574d8fa57"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-02.md",
+        "sha256": "a38924a2344390972c00b44cdb752f4bcd1e89f7ba369bf50de8a020d3925bb6"
+      },
+      {
+        "path": "packages/openclinxr/scenario-runtime/src/default-runtime-factory.ts",
+        "sha256": "e1cc57c846271a1c8fa330d136d762b953560ba08a7251f68da19edac450bc4e"
+      },
+      {
+        "path": "packages/openclinxr/scenario-runtime/src/deterministic-dialogue-runtime.test.ts",
+        "sha256": "184743c663ed7c5d9928a7f58e612e9542ddda90ee5d818e3d2286d6c9882690"
+      },
+      {
+        "path": "packages/openclinxr/scenario-runtime/src/encounter-admission-runtime.ts",
+        "sha256": "e07ba5567133e8c5964d71fe2afda315c617d8818815442667fd977edd3b5931"
+      },
+      {
+        "path": "packages/openclinxr/scenario-runtime/src/encounter-admission.ts",
+        "sha256": "86d2cc467385c01cd181f4fe79799bcb6b4cec759232a3447de42dc83fa6ebd6"
+      },
+      {
+        "path": "packages/openclinxr/scenario-runtime/src/initial-scene-spec.ts",
+        "sha256": "f9b1f4924f52d7ce5ac72c31b48ffaf2838664d6f7bb66f9f27cf81e26c44573"
+      },
+      {
+        "path": "packages/openclinxr/scenario-runtime/src/runtime-types.ts",
+        "sha256": "47357908f356506a136f96ab13c9f59978124682c5181e68f1917de2d955e4cd"
+      },
+      {
+        "path": "packages/openclinxr/scenario-runtime/src/scenario-runtime.ts",
+        "sha256": "cfc283d9fede46867f11426f66c15e3208c37cdda925dee058436ced7f9c0b2d"
+      },
+      {
+        "path": "packages/openclinxr/shared-schemas/src/scene-starting-requirement.ts",
+        "sha256": "4876cd68010d5e0866dcdf8b39d8ad2c8971ca3d66ed8adbe10dfe99749ba26b"
+      },
+      {
+        "path": "packages/openclinxr/shared-schemas/src/schemas.ts",
+        "sha256": "00bb1eedf749d5bdeabdac2b4a616cb032cc820ee645b5febbcd0fe68018d273"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-02/build-report.ts",
+        "sha256": "9e8997ef1e75ff9bff0e5b511e110b6ba0264a8f0ec3768da2a2eb67320f3df6"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-02/report-schema.ts",
+        "sha256": "dac8f4bfc4b00d5846192929982a511a8c2e015272ad8781e64600cf9ca599fa"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-02/verifier.test.ts",
+        "sha256": "7ca8db1d6e436d8b67cb372ee8381d2bba05b394ffc2fd33f7a73f50d6cf487d"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-02/verify-core.ts",
+        "sha256": "d4e814129a0a9f449f51a8f4bc9238a64e68f7ca0c13199bd9e3b1884d4ffc31"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-02/verify.ts",
+        "sha256": "5b9f0ccf2d583cba8c143701995952b7bb5105b384c16cbdfcb32a05d3ea6d55"
+      }
+    ],
+    "changedFiles": [
+      "apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts",
+      "apps/ui-xr/src/main.ts",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-02.md",
+      "packages/openclinxr/scenario-runtime/src/default-runtime-factory.ts",
+      "packages/openclinxr/scenario-runtime/src/deterministic-dialogue-runtime.test.ts",
+      "packages/openclinxr/scenario-runtime/src/encounter-admission-runtime.ts",
+      "packages/openclinxr/scenario-runtime/src/encounter-admission.ts",
+      "packages/openclinxr/scenario-runtime/src/initial-scene-spec.ts",
+      "packages/openclinxr/scenario-runtime/src/runtime-types.ts",
+      "packages/openclinxr/scenario-runtime/src/scenario-runtime.ts",
+      "packages/openclinxr/shared-schemas/src/scene-starting-requirement.ts",
+      "packages/openclinxr/shared-schemas/src/schemas.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-02/build-report.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-02/report-schema.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-02/verifier.test.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-02/verify-core.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-02/verify.ts"
+    ],
+    "runtime": {
+      "node": "v24.18.1",
+      "platform": "darwin-arm64"
+    }
+  },
+  "execution": {
+    "taskId": "tsk_96b5bb3346c0d96f",
+    "runId": "sc02-2026-09-09T21-08-33-073Z",
+    "commands": [
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "packages/openclinxr/scenario-runtime/src/the-scene-spec-gates-promotion.test.ts",
+          "packages/openclinxr/scenario-runtime/src/the-planner-stays-inside-its-boundary.test.ts",
+          "packages/openclinxr/scenario-runtime/src/a-scheduled-event-fires-once-at-its-second.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:08:33.139Z",
+        "endedAtIso": "2026-09-09T21:08:38.319Z",
+        "outputArtifactId": "cmd-scenario-runtime-regressions",
+        "tests": {
+          "passed": 16,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "apps/api/src/scenario-promotion-path.test.ts",
+          "apps/api/src/encounter-runtime-handoff.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:08:38.320Z",
+        "endedAtIso": "2026-09-09T21:08:46.476Z",
+        "outputArtifactId": "cmd-api-regressions",
+        "tests": {
+          "passed": 6,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:08:46.478Z",
+        "endedAtIso": "2026-09-09T21:08:53.710Z",
+        "outputArtifactId": "cmd-behavior-test",
+        "tests": {
+          "passed": 13,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "tsx",
+          "tools/openclinxr/openclaw/assert-contract-live.ts",
+          "apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts",
+          "SC-02-required-behavior"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:08:53.711Z",
+        "endedAtIso": "2026-09-09T21:08:55.371Z",
+        "outputArtifactId": "cmd-assert-contract-live"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/scene-closure/proofs/sc-02/verifier.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:08:55.371Z",
+        "endedAtIso": "2026-09-09T21:08:57.480Z",
+        "outputArtifactId": "cmd-verifier-unit-tests",
+        "tests": {
+          "passed": 22,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      }
+    ]
+  },
+  "counterweight": {
+    "testIds": [
+      "SC-02-required-behavior"
+    ],
+    "baselineRevision": "1da9ce04",
+    "baselineRunId": "sc02-red-baseline-1da9ce04",
+    "failingAssertion": "expect(admitted.status).toBe(400) on POST /sessions/:id/start-encounter",
+    "observedBeforeFix": "200 with body phase=encounter",
+    "knownGoodControl": "a case with no declared startingRequirements still admits ordinarily (requirementCount 0), and the three scenario-runtime regression suites stay green",
+    "fixedRevision": "1da9ce04a429f72c9ef26e80d480f4f6401ca858",
+    "observedAfterFix": "400 with body {\"error\":\"station_command_invalid\"} and zero encounter.started trace events",
+    "baselineOutputArtifactId": "red-baseline",
+    "fixedOutputArtifactId": "cmd-behavior-test"
+  },
+  "sourceInspection": {
+    "behaviorTestPath": "apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts",
+    "behaviorTestTitle": "SC-02-required-behavior"
+  },
+  "encounter": {
+    "caseId": "scene_closure_supine_bedside_v1",
+    "caseVersion": 1,
+    "caseRevision": "scene_closure_supine_bedside_v1@1",
+    "requirementRevision": "r1",
+    "requiredInstances": [
+      "vitals_monitor_equipment#1",
+      "stretcher_support#1"
+    ],
+    "learnerOwnedRequirementIds": [
+      "monitor_leads_connected"
+    ],
+    "runtimeOwnedRequirementIds": [
+      "vitals_monitor_powered",
+      "stretcher_support_mounted"
+    ],
+    "dueZeroEventId": "supine_baseline_vitals"
+  },
+  "observations": [
+    {
+      "observationId": "obs-1-required-unknown-blocks-admission",
+      "metric": "POST start-encounter status, no observation recorded",
+      "unit": "httpStatus",
+      "value": 400,
+      "observedAtMs": 1788988133586,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-2-required-unsatisfied-blocks-admission",
+      "metric": "POST start-encounter status, monitor observed unsatisfied",
+      "unit": "httpStatus",
+      "value": 400,
+      "observedAtMs": 1788988133587,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-3-present-asset-with-unsatisfied-requirement-refuses",
+      "metric": "encounter.started trace count with both assets present",
+      "unit": "count",
+      "value": 0,
+      "observedAtMs": 1788988133587,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-4-client-authored-success-refuses",
+      "metric": "recordRequirementObservation refused a client_supplied record",
+      "unit": "boolean",
+      "value": true,
+      "observedAtMs": 1788988133588,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-5-ordinary-satisfied-transition-still-succeeds",
+      "metric": "POST start-encounter status once every predicate is observed",
+      "unit": "httpStatus",
+      "value": 200,
+      "observedAtMs": 1788988133588,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-6-one-transition-with-actual-domain-time",
+      "metric": "encounter.started count and accepted domain second",
+      "unit": "count/second",
+      "value": "{\"encounterStarted\":1,\"acceptedAtDomainSecond\":60}",
+      "observedAtMs": 1788988133588,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-7-observation-bound-to-active-run",
+      "metric": "station run id every accepted observation was bound to",
+      "unit": "identifier",
+      "value": "[\"run_scene_closure_supine_bedside_v1_sc02_learner\"]",
+      "observedAtMs": 1788988133588,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-8-learner-goal-remains-incomplete",
+      "metric": "learner goals still incomplete at acceptance",
+      "unit": "records",
+      "value": "[{\"requirementId\":\"monitor_leads_connected\",\"observed\":false}]",
+      "observedAtMs": 1788988133589,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-9-initial-disconnected-satisfies-initial-predicate",
+      "metric": "observed value of monitor_leads_connected at admission",
+      "unit": "boolean",
+      "value": false,
+      "observedAtMs": 1788988133589,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-10-snapshot-precedes-due-zero-effect",
+      "metric": "accepted snapshot ledger sequence vs first effect ledger sequence",
+      "unit": "sequence",
+      "value": "{\"acceptedAtLedgerSequence\":2,\"firstEffectLedgerSequence\":3}",
+      "observedAtMs": 1788988133589,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-11-scheduled-effect-acknowledged-by-consumer",
+      "metric": "acknowledgment id returned by the effect consumer",
+      "unit": "identifier",
+      "value": "ack_supine_baseline_vitals_1",
+      "observedAtMs": 1788988133589,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-12-duplicate-tick-does-not-duplicate-effect",
+      "metric": "applied effects after two ticks at second 0",
+      "unit": "count",
+      "value": 1,
+      "observedAtMs": 1788988133590,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-13-required-pending-blocks-admission",
+      "metric": "POST start-encounter status, monitor observed pending",
+      "unit": "httpStatus",
+      "value": 400,
+      "observedAtMs": 1788988133592,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-14-direct-api-bypass-refuses",
+      "metric": "POST start-encounter status on a direct API call with an unknown predicate",
+      "unit": "httpStatus",
+      "value": 400,
+      "observedAtMs": 1788988133597,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-15-stale-observation-refuses",
+      "metric": "POST start-encounter status with an observation 1 ms past the freshness window",
+      "unit": "httpStatus",
+      "value": 400,
+      "observedAtMs": 1788988133601,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-16-replayed-session-acknowledgment-refuses",
+      "metric": "runs involved in the replay attempt",
+      "unit": "identifier",
+      "value": "{\"recordedFor\":\"run_scene_closure_supine_bedside_v1_sc02_learner_one\",\"replayedInto\":\"run_scene_closure_supine_bedside_v1_sc02_learner_two\"}",
+      "observedAtMs": 1788988133603,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-17-wrong-run-observation-refuses",
+      "metric": "recordRequirementObservation threw on a foreign run id",
+      "unit": "boolean",
+      "value": true,
+      "observedAtMs": 1788988133603,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-18-post-admission-removal-invalidates-acceptance",
+      "metric": "snapshot status and invalidation reason after the instance was replaced",
+      "unit": "enum",
+      "value": "{\"status\":\"invalidated\",\"reason\":\"observation_instance_replaced\"}",
+      "observedAtMs": 1788988133604,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-19-satisfied-goal-before-start-refuses",
+      "metric": "POST start-encounter status with the learner goal already reached",
+      "unit": "httpStatus",
+      "value": 400,
+      "observedAtMs": 1788988133612,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-20-failed-effect-retries-without-loss",
+      "metric": "attempt numbers and statuses across the failure and the retry",
+      "unit": "records",
+      "value": "{\"firstTick\":[{\"attempt\":1,\"status\":\"failed\"}],\"secondTick\":[{\"attempt\":2,\"status\":\"acknowledged\"}],\"appliedTotal\":1}",
+      "observedAtMs": 1788988133625,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    },
+    {
+      "observationId": "obs-21-reordered-monitor-retains-consumer",
+      "metric": "monitor consumer binding in forward and reversed asset order",
+      "unit": "identifier",
+      "value": "{\"forward\":\"StationRunOptions.doorway\",\"reversed\":\"StationRunOptions.doorway\"}",
+      "observedAtMs": 1788988133628,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts"
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "required-unsatisfied-blocks-admission",
+      "expected": "POST start-encounter status, monitor observed unsatisfied",
+      "observed": 400,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-2-required-unsatisfied-blocks-admission",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "required-pending-blocks-admission",
+      "expected": "POST start-encounter status, monitor observed pending",
+      "observed": 400,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-13-required-pending-blocks-admission",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "required-unknown-blocks-admission",
+      "expected": "POST start-encounter status, no observation recorded",
+      "observed": 400,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-1-required-unknown-blocks-admission",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "observation-bound-to-active-run",
+      "expected": "station run id every accepted observation was bound to",
+      "observed": "[\"run_scene_closure_supine_bedside_v1_sc02_learner\"]",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-7-observation-bound-to-active-run",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "initial-disconnected-satisfies-initial-predicate",
+      "expected": "observed value of monitor_leads_connected at admission",
+      "observed": false,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-9-initial-disconnected-satisfies-initial-predicate",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "learner-goal-remains-incomplete",
+      "expected": "learner goals still incomplete at acceptance",
+      "observed": "[{\"requirementId\":\"monitor_leads_connected\",\"observed\":false}]",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-8-learner-goal-remains-incomplete",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "one-transition-with-actual-domain-time",
+      "expected": "encounter.started count and accepted domain second",
+      "observed": "{\"encounterStarted\":1,\"acceptedAtDomainSecond\":60}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-6-one-transition-with-actual-domain-time",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "snapshot-precedes-due-zero-effect",
+      "expected": "accepted snapshot ledger sequence vs first effect ledger sequence",
+      "observed": "{\"acceptedAtLedgerSequence\":2,\"firstEffectLedgerSequence\":3}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-10-snapshot-precedes-due-zero-effect",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "scheduled-effect-acknowledged-by-consumer",
+      "expected": "acknowledgment id returned by the effect consumer",
+      "observed": "ack_supine_baseline_vitals_1",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-11-scheduled-effect-acknowledged-by-consumer",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "duplicate-tick-does-not-duplicate-effect",
+      "expected": "applied effects after two ticks at second 0",
+      "observed": 1,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-12-duplicate-tick-does-not-duplicate-effect",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "failed-effect-retries-without-loss",
+      "expected": "attempt numbers and statuses across the failure and the retry",
+      "observed": "{\"firstTick\":[{\"attempt\":1,\"status\":\"failed\"}],\"secondTick\":[{\"attempt\":2,\"status\":\"acknowledged\"}],\"appliedTotal\":1}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-20-failed-effect-retries-without-loss",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "post-admission-removal-invalidates-acceptance",
+      "expected": "snapshot status and invalidation reason after the instance was replaced",
+      "observed": "{\"status\":\"invalidated\",\"reason\":\"observation_instance_replaced\"}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-18-post-admission-removal-invalidates-acceptance",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "controlId": "present-asset-with-unsatisfied-requirement-refuses",
+      "trigger": "encounter.started trace count with both assets present",
+      "expected": "the production owner refuses",
+      "observed": "encounter.started trace count with both assets present = 0",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "client-authored-success-refuses",
+      "trigger": "recordRequirementObservation refused a client_supplied record",
+      "expected": "the production owner refuses",
+      "observed": "recordRequirementObservation refused a client_supplied record = true",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "wrong-run-observation-refuses",
+      "trigger": "recordRequirementObservation threw on a foreign run id",
+      "expected": "the production owner refuses",
+      "observed": "recordRequirementObservation threw on a foreign run id = true",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "stale-observation-refuses",
+      "trigger": "POST start-encounter status with an observation 1 ms past the freshness window",
+      "expected": "the production owner refuses",
+      "observed": "POST start-encounter status with an observation 1 ms past the freshness window = 400",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "replayed-session-acknowledgment-refuses",
+      "trigger": "runs involved in the replay attempt",
+      "expected": "the production owner refuses",
+      "observed": "runs involved in the replay attempt = {\"recordedFor\":\"run_scene_closure_supine_bedside_v1_sc02_learner_one\",\"replayedInto\":\"run_scene_closure_supine_bedside_v1_sc02_learner_two\"}",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "reordered-monitor-retains-consumer",
+      "trigger": "monitor consumer binding in forward and reversed asset order",
+      "expected": "the production owner refuses",
+      "observed": "monitor consumer binding in forward and reversed asset order = {\"forward\":\"StationRunOptions.doorway\",\"reversed\":\"StationRunOptions.doorway\"}",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "direct-api-bypass-refuses",
+      "trigger": "POST start-encounter status on a direct API call with an unknown predicate",
+      "expected": "the production owner refuses",
+      "observed": "POST start-encounter status on a direct API call with an unknown predicate = 400",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "satisfied-goal-before-start-refuses",
+      "trigger": "POST start-encounter status with the learner goal already reached",
+      "expected": "the production owner refuses",
+      "observed": "POST start-encounter status with the learner goal already reached = 400",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "ordinary-satisfied-transition-still-succeeds",
+      "trigger": "POST start-encounter status once every predicate is observed",
+      "expected": "the ordinary path still admits",
+      "observed": "POST start-encounter status once every predicate is observed = 200",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "cmd-scenario-runtime-regressions",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-02/cmd-scenario-runtime-regressions.txt",
+      "byteCount": 223,
+      "sha256": "dc570e241d2769dedfc6ead2ca0157b7594e01ecd6970a40bc20a823466cafbc",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:08:38.320Z",
+      "runId": "sc02-2026-09-09T21-08-33-073Z"
+    },
+    {
+      "artifactId": "cmd-api-regressions",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-02/cmd-api-regressions.txt",
+      "byteCount": 222,
+      "sha256": "7624b531d8925b3dec4fca2b30198105fb2357fd58c225222c5701a437040263",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:08:46.477Z",
+      "runId": "sc02-2026-09-09T21-08-33-073Z"
+    },
+    {
+      "artifactId": "cmd-behavior-test",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-02/cmd-behavior-test.txt",
+      "byteCount": 223,
+      "sha256": "9020800996236de3d93c06e46722ad6c713e31cee07bcc90383307e37120c671",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:08:53.711Z",
+      "runId": "sc02-2026-09-09T21-08-33-073Z"
+    },
+    {
+      "artifactId": "cmd-assert-contract-live",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-02/cmd-assert-contract-live.txt",
+      "byteCount": 117,
+      "sha256": "b1fd732dc157e3ab5e05e05e0cdb43852f16dc708f7d9ddc4bf3bb6d110215f8",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:08:55.372Z",
+      "runId": "sc02-2026-09-09T21-08-33-073Z"
+    },
+    {
+      "artifactId": "cmd-verifier-unit-tests",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-02/cmd-verifier-unit-tests.txt",
+      "byteCount": 223,
+      "sha256": "cdff5da8eee44aca183c57cdb0da9f102ec0e84401a7c774aa309b9cda49917d",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:08:57.481Z",
+      "runId": "sc02-2026-09-09T21-08-33-073Z"
+    },
+    {
+      "artifactId": "run-observations",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-02/checks.jsonl",
+      "byteCount": 4394,
+      "sha256": "dc732a0965f13b327d59d129210314612575d54f89b55e61226e329b7c226f4e",
+      "mediaType": "application/x-ndjson",
+      "createdAtIso": "2026-09-09T21:08:53.628Z",
+      "runId": "sc02-2026-09-09T21-08-33-073Z"
+    },
+    {
+      "artifactId": "two-sided-probe",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-02/two-sided-probe.txt",
+      "byteCount": 2739,
+      "sha256": "d9f2076296a4c6430759d0160e906d1fb118a4ec7448b1625be2196bebc6d0a3",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T20:54:49.019Z",
+      "runId": "sc02-2026-09-09T21-08-33-073Z"
+    },
+    {
+      "artifactId": "red-baseline",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-02/red-baseline.txt",
+      "byteCount": 1366,
+      "sha256": "3428213b4260f61ec6766b4626bacd3339c5e56c29a30dd703f6ccbd7559249b",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T20:54:26.609Z",
+      "runId": "sc02-red-baseline-1da9ce04"
+    }
+  ],
+  "reviews": [
+    {
+      "reviewerId": "scene-closure execution owner (Claude Opus 5 main session, openclinxr-c2)",
+      "role": "execution owner and independent reviewer",
+      "distinctFromImplementer": true,
+      "reviewedSourceCommit": "a238c93e",
+      "retrievedArtifactIds": [
+        "cmd-scenario-runtime-regressions",
+        "cmd-api-regressions",
+        "cmd-behavior-test",
+        "cmd-assert-contract-live",
+        "cmd-verifier-unit-tests",
+        "run-observations",
+        "two-sided-probe",
+        "red-baseline"
+      ],
+      "sessionIso": "2026-09-09T21:17:39.719Z",
+      "observations": "Reran the card independently rather than accepting the implementer report. Every doneWhen command was rerun in the integrated main checkout after rebuilding shared-schemas and scenario-runtime, because cross-package tests resolve to dist: scenario-runtime regressions 16/16, api regressions 6/6, the named behavior test 13/13, assert-contract-live 1 contract live, verifier suite 22/22. Ran an own revert probe: reverting packages/openclinxr/scenario-runtime/src/scenario-runtime.ts wholesale to d0ba7944 and rebuilding fails 12 of 13 clauses, restoring passes 13/13. That whole-file revert is blunter than the implementer targeted one because it also removes methods the test calls, which is why its known-good clause fails too; the implementer targeted revert of the admission gate alone reported 10 failed / 3 passed with the known-good intact, and that is the better of the two measurements. Both agree on direction and on which clauses move. Checked for regression across the already-landed cards: SC-01, SC-01S and all fourteen proof suites 240/240, scenario-runtime and shared-schemas 153/153. Ratchets verified unmoved: apps/ui-xr/src/main.ts exactly 4822 lines, shared-schemas/src/schemas.ts 499 under its 500 zone budget, scenario-runtime.ts 805. Corrected one owner defect the implementer surfaced for the third time in this package: the brief never named the owner evidence registry, so the implementer created its own at /Volumes/files/openclinxr-sc-evidence; its artifacts were migrated byte-unchanged into the owner store and this report rebound to the owner registry hash. Registered sc-02.md and sc-02.json in the doc-authority and generated-artifact registries so docs:drift-check passes without the gate being weakened. Recorded and not repaired here: the implementer measured that apps/ui-xr main.ts assignment ORDER is not unit-tested, because apps/ui-xr/src sits at an exact-equality composition-root budget of 10 files and 6069 lines and adding an importable module would have raised it.",
+      "decision": "accepted"
+    }
+  ],
+  "limits": {
+    "unprovenClinical": [
+      "qualified clinical review of the admission predicates and of the synthetic case is PENDING; nothing here establishes clinical validity or exam equivalence"
+    ],
+    "unprovenHeadset": [
+      "no worn-headset run; every observation is a node/vitest process on M1 Max"
+    ],
+    "unprovenPublication": [
+      "no Pages push, no public deployment, no media"
+    ],
+    "unresolvedDefects": []
+  },
+  "evidenceRegistrySha256": "12b1587daf25b3a1a48dece3df89115efe6f56a89ae32b10140728e3818394fb"
+}
