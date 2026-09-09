@@ -260,7 +260,10 @@ describe("XR station API client", () => {
   });
 
   it("attaches Authorization bearer when accessToken is provided", async () => {
-    const headersSeen: Array<HeadersInit | undefined> = [];
+    // Typed from the Headers constructor this test already calls, not from the DOM global
+    // HeadersInit: this package does not pull in the DOM lib, and adding it for one annotation
+    // would widen the package's types for everything else.
+    const headersSeen: Array<ConstructorParameters<typeof Headers>[0]> = [];
     const client = createStationApiClient({
       baseUrl: "http://localhost:8787",
       accessToken: "test-token",
@@ -276,7 +279,10 @@ describe("XR station API client", () => {
   });
 
   it("prefers getAccessToken over static accessToken", async () => {
-    const headersSeen: Array<HeadersInit | undefined> = [];
+    // Typed from the Headers constructor this test already calls, not from the DOM global
+    // HeadersInit: this package does not pull in the DOM lib, and adding it for one annotation
+    // would widen the package's types for everything else.
+    const headersSeen: Array<ConstructorParameters<typeof Headers>[0]> = [];
     const client = createStationApiClient({
       baseUrl: "http://localhost:8787",
       accessToken: "static-token",

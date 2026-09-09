@@ -104,6 +104,7 @@
         "packages/openclinxr/ui-route-admin/src/**",
         "apps/ui-admin/src/**",
         "apps/ui-xr/src/**",
+        "apps/api/src/**",
         "packages/openclinxr-verification/**"
       ],
       "linter": {
