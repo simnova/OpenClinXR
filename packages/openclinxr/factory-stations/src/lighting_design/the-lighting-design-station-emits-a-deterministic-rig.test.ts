@@ -28,8 +28,8 @@ function validInput(overrides: Record<string, unknown> = {}): Record<string, unk
 describe("the lighting_design station emits a deterministic rig", () => {
   it("(1) plan() passes room, cast, mood through and cites the rig baker", () => {
     const planned = planLightingDesign(validInput());
-    expect("issues" in planned).toBe(false);
-    if ("issues" in planned) return;
+    expect(planned.issues !== undefined).toBe(false);
+    if (planned.issues !== undefined) return;
     expect(planned.plan["mode"]).toBe("dry-run");
     expect(planned.plan["stationId"]).toBe("lighting_design");
     expect(planned.plan["mood"]).toBe("ed_exam_bright");
@@ -61,23 +61,23 @@ describe("the lighting_design station emits a deterministic rig", () => {
 
   it("(4) plan() refuses unknown room and unknown mood", () => {
     const badRoom = planLightingDesign(validInput({ environmentId: "icu_penthouse_v9" }));
-    expect("issues" in badRoom).toBe(true);
-    if (!("issues" in badRoom)) return;
+    expect(badRoom.issues !== undefined).toBe(true);
+    if (!(badRoom.issues !== undefined)) return;
     expect(badRoom.issues.map((issue) => issue.message).join("; ")).toMatch(/unknown environmentId/);
     const badMood = planLightingDesign(validInput({ mood: "midnight_horror" }));
-    expect("issues" in badMood).toBe(true);
-    if (!("issues" in badMood)) return;
+    expect(badMood.issues !== undefined).toBe(true);
+    if (!(badMood.issues !== undefined)) return;
     expect(badMood.issues.map((issue) => issue.message).join("; ")).toMatch(/unknown mood/);
   });
 
   it("(5) plan() refuses missing room identity and bad bbox/cast JSON", () => {
     const { environmentId: _drop, ...noRoom } = validInput();
     const missing = planLightingDesign({ ...noRoom });
-    expect("issues" in missing).toBe(true);
+    expect(missing.issues !== undefined).toBe(true);
     const badBbox = planLightingDesign(validInput({ bboxJson: "not-json" }));
-    expect("issues" in badBbox).toBe(true);
+    expect(badBbox.issues !== undefined).toBe(true);
     const badCast = planLightingDesign(validInput({ castJson: JSON.stringify([]) }));
-    expect("issues" in badCast).toBe(true);
+    expect(badCast.issues !== undefined).toBe(true);
   });
 
   it("(6) catalog schema reports lighting_design fields and validates", () => {
@@ -86,7 +86,7 @@ describe("the lighting_design station emits a deterministic rig", () => {
       expect(json.properties, key).toHaveProperty(key);
     }
     const checked = factoryStationSchemas.lighting_design["~standard"].validate(validInput());
-    expect("issues" in checked).toBe(false);
+    expect(checked.issues !== undefined).toBe(false);
   });
 
   it("(7) rig values stay in indoor ranges and the albedo bake consumes --rig-json", () => {

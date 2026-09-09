@@ -248,7 +248,7 @@ export function createOpenClinXrApiStartup(options: OpenClinXrApiStartupOptions 
  export function createNodeServerConfig(startup: StartedOpenClinXrApi = createOpenClinXrApiStartup().startUp(), options: { port?: number } = {}): NodeServerConfig {
    return {
      fetch: startup.fetch,
-     port: options.port ?? Number(process.env.PORT ?? 3000),
+     port: options.port ?? Number(process.env["PORT"] ?? 3000),
    };
  }
 

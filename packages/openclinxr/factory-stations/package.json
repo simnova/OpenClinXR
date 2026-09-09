@@ -21,11 +21,12 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "devDependencies": {
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
+    "@standard-schema/spec": "1.1.0",
     "@types/node": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:",
-    "@cellix/config-vitest": "workspace:*",
-    "@cellix/config-typescript": "workspace:*"
+    "vitest": "catalog:"
   },
   "files": [
     "dist",

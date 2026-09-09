@@ -68,29 +68,9 @@ import {
  * ocom's; runtime behaviour of anything measured here.
  */
 
-async function check(): Promise<{
-  COMPOSITION_ROOT_APP_BUDGETS: typeof COMPOSITION_ROOT_APP_BUDGETS;
-  VALIDATION_SEPARATION_FREEZE: typeof VALIDATION_SEPARATION_FREEZE;
-  KEBAB_CASE_APP_ROOTS: typeof KEBAB_CASE_APP_ROOTS;
-  measureAppSource: typeof measureAppSource;
-  checkAppSourceBudgets: typeof checkAppSourceBudgets;
-  checkValidationSeparation: typeof checkValidationSeparation;
-  checkAppFileNaming: typeof checkAppFileNaming;
-}> {
-  return {
-    COMPOSITION_ROOT_APP_BUDGETS,
-    VALIDATION_SEPARATION_FREEZE,
-    KEBAB_CASE_APP_ROOTS,
-    measureAppSource,
-    checkAppSourceBudgets: checkAppSourceBudgets as typeof checkAppSourceBudgets,
-    checkValidationSeparation: checkValidationSeparation as typeof checkValidationSeparation,
-    checkAppFileNaming: checkAppFileNaming as typeof checkAppFileNaming,
-  };
-}
 
 describe("the apps are composition roots", () => {
   it("(1) the budget list covers exactly the three production apps", async () => {
-    const { COMPOSITION_ROOT_APP_BUDGETS } = await check();
     expect(COMPOSITION_ROOT_APP_BUDGETS.map((b) => b.app).sort()).toEqual([
       "apps/api",
       "apps/ui-admin",
@@ -99,14 +79,12 @@ describe("the apps are composition roots", () => {
   });
 
   it("(2) every app is at or under its frozen budget", async () => {
-    const { checkAppSourceBudgets } = await check();
     expect(checkAppSourceBudgets()).toEqual([]);
   });
 
   it("(3) the budgets are the measured ceiling, so one more line fails", async () => {
     // Not "some large number": the freeze must equal what the tree measures today,
     // or the ratchet has slack and apps keep growing inside it.
-    const { COMPOSITION_ROOT_APP_BUDGETS, measureAppSource, checkAppSourceBudgets } = await check();
     for (const budget of COMPOSITION_ROOT_APP_BUDGETS) {
       const measured = measureAppSource(budget.app);
       expect(budget.maxLines, `${budget.app} maxLines`).toBe(measured.lines);
@@ -117,7 +95,6 @@ describe("the apps are composition roots", () => {
   });
 
   it("(4) COUNTERWEIGHT: the measurement is taken from the tree, not from a literal", async () => {
-    const { measureAppSource } = await check();
     const api = measureAppSource("apps/api");
     const xr = measureAppSource("apps/ui-xr");
     expect(api.files).toBeGreaterThan(0);
@@ -126,7 +103,6 @@ describe("the apps are composition roots", () => {
   });
 
   it("(5) validation separation is frozen and the freeze is not padded", async () => {
-    const { VALIDATION_SEPARATION_FREEZE, checkValidationSeparation } = await check();
     expect(checkValidationSeparation()).toEqual([]);
     const live = new Set(
       checkValidationSeparation({ freeze: {} }).map((violation) => violation.file ?? ""),
@@ -136,12 +112,10 @@ describe("the apps are composition roots", () => {
   });
 
   it("(6) no apps/ module mixes a validator with other exports", async () => {
-    const { checkValidationSeparation } = await check();
     expect(checkValidationSeparation({ freeze: {} })).toEqual([]);
   });
 
   it("(7) COUNTERWEIGHT: a NEW file mixing a validator with other exports is reported", async () => {
-    const { VALIDATION_SEPARATION_FREEZE, checkValidationSeparation } = await check();
     const found = checkValidationSeparation({
       freeze: VALIDATION_SEPARATION_FREEZE,
       sources: [
@@ -159,7 +133,6 @@ describe("the apps are composition roots", () => {
   });
 
   it("(8) COUNTERWEIGHT: a validator-only module is NOT reported", async () => {
-    const { checkValidationSeparation } = await check();
     const found = checkValidationSeparation({
       freeze: {},
       sources: [
@@ -176,14 +149,12 @@ describe("the apps are composition roots", () => {
   });
 
   it("(9) kebab-case now covers ui-xr and arena, at zero violations", async () => {
-    const { KEBAB_CASE_APP_ROOTS, checkAppFileNaming } = await check();
     expect(KEBAB_CASE_APP_ROOTS).toContain("apps/ui-xr/src");
     expect(KEBAB_CASE_APP_ROOTS).toContain("apps/arena");
     expect(checkAppFileNaming()).toEqual([]);
   });
 
   it("(10) COUNTERWEIGHT: a PascalCase source in a covered root is reported", async () => {
-    const { checkAppFileNaming } = await check();
     const found = checkAppFileNaming({
       sources: [{ file: "apps/ui-xr/src/PlantedPascalCase.ts", text: "export const x = 1;" }],
     });
@@ -191,7 +162,6 @@ describe("the apps are composition roots", () => {
   });
 
   it("(11) COUNTERWEIGHT: a test file keeps the name of the source it covers", async () => {
-    const { checkAppFileNaming } = await check();
     const found = checkAppFileNaming({
       sources: [{ file: "apps/ui-xr/src/SomeThing.test.ts", text: "export const x = 1;" }],
     });

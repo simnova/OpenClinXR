@@ -5,10 +5,10 @@ import {
   type StartedOpenClinXrApi,
 } from "./index.js";
 
-const port = Number(process.env.PORT ?? 3000);
+const port = Number(process.env["PORT"] ?? 3000);
 
 async function resolveStartup(): Promise<StartedOpenClinXrApi> {
-  if (process.env.OPENCLINXR_PERSISTENCE !== "mongodb") {
+  if (process.env["OPENCLINXR_PERSISTENCE"] !== "mongodb") {
     return createOpenClinXrApiStartup().startUp();
   }
   // Composition root: load Mongo boot from tools/ via a non-static specifier so apps/api

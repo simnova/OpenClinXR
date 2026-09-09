@@ -25,7 +25,6 @@ installWorldviewQueueTestDom();
  */
 
 const PKG_SRC = join(dirname(fileURLToPath(import.meta.url)), "../../../packages/openclinxr/ui-route-admin/src");
-const SRC = dirname(fileURLToPath(import.meta.url));
 
 describe("the worldview shows LLM proposed vs faculty accepted", () => {
   afterEach(() => {

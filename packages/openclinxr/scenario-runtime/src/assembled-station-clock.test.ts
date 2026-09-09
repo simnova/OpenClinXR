@@ -386,7 +386,12 @@ describe("assembled station clock", () => {
         },
       ],
       breakCheckpoints: [],
+      // A plan with no breaks: the three fields are still required by ExamTimingPlan, and
+      // assembly.ts:212-215 reads all three.
+      breakWindows: [],
+      totalBreakTimeSeconds: 0,
       totalStationTimeSeconds: 1260,
+      totalFormTimeSeconds: 1260,
     };
     const projection = {
       examRunId,

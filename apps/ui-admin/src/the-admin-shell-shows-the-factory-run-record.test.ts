@@ -11,9 +11,6 @@ import { fetchFactoryRunTable } from "@openclinxr/ui-shared/factory-run-table-cl
  * dependency pre-bundling, which made the suite fail only when run in parallel with
  * the rest of the file set. Static import.
  */
-async function client(): Promise<{ fetchFactoryRunTable: typeof fetchFactoryRunTable }> {
-  return { fetchFactoryRunTable };
-}
 
 
 /**
@@ -53,7 +50,6 @@ function jsonResponse(body: unknown, status = 200): Response {
 
 describe("the admin shell shows the factory run record", () => {
   it("(1) fetchFactoryRunTable GETs /internal/factory-run-table", async () => {
-    const { fetchFactoryRunTable } = await client();
     const seen: { url: string; method: string }[] = [];
     await fetchFactoryRunTable({
       baseUrl: "https://api.test",
@@ -68,7 +64,6 @@ describe("the admin shell shows the factory run record", () => {
   });
 
   it("(2) it returns the served cases unchanged", async () => {
-    const { fetchFactoryRunTable } = await client();
     const served = {
       cases: [
         {
@@ -85,7 +80,6 @@ describe("the admin shell shows the factory run record", () => {
   });
 
   it("(3) COUNTERWEIGHT: a failing request yields an empty record, never a throw", async () => {
-    const { fetchFactoryRunTable } = await client();
     const result = await fetchFactoryRunTable({
       baseUrl: "https://api.test",
       fetch: (async () => {
@@ -96,7 +90,6 @@ describe("the admin shell shows the factory run record", () => {
   });
 
   it("(4) COUNTERWEIGHT: a non-JSON or malformed body yields an empty record", async () => {
-    const { fetchFactoryRunTable } = await client();
     const result = await fetchFactoryRunTable({
       baseUrl: "https://api.test",
       fetch: (async () => new Response("not json", { status: 200 })) as typeof fetch,

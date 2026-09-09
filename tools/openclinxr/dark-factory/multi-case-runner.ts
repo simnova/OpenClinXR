@@ -1039,9 +1039,11 @@ export async function resolvePriorEvidencePathForScenario(
   for (const entry of entries) {
     const match = /^encounter-materialization-evidence-(.+)-(\d{4}-\d{2}-\d{2})\.json$/.exec(entry);
     if (!match) continue;
-    if (!accepted.has(match[1]!.replace(/-/g, "_"))) continue;
-    if (!best || match[2]! > best.date) {
-      best = { path: path.join(priorEvidenceDir, entry), date: match[2]! };
+    if (!accepted.has(match[1]?.replace(/-/g, "_"))) continue;
+    const evidenceDate = match[2];
+    if (evidenceDate === undefined) continue;
+    if (!best || evidenceDate > best.date) {
+      best = { path: path.join(priorEvidenceDir, entry), date: evidenceDate };
     }
   }
   if (!best) return null;
@@ -1124,7 +1126,7 @@ export async function runChainWorldCompileBaker(
         record.reason = "trellis node spec has no equipment_generate payload";
       } else {
         const planned = planEquipmentGenerate(payload);
-        if ("issues" in planned) {
+        if (planned.issues !== undefined) {
           throw new Error(planned.issues.map((issue) => issue.message).join("; "));
         }
         record.stationId = "equipment_generate";

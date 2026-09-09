@@ -74,7 +74,7 @@ describe("the factory station schemas validate", () => {
       expect(schema["~standard"].version).toBe(1);
       const ok = schema["~standard"].validate(VALID[id]);
       expect(ok, id).toEqual({ value: VALID[id] });
-      expect("issues" in ok, id).toBe(false);
+      expect(ok.issues, id).toBeUndefined();
       const json = schema.jsonSchema.input({ target: "draft-2020-12" });
       expect(json.type).toBe("object");
       expect(Object.keys(json.properties).length).toBeGreaterThan(0);
@@ -90,8 +90,8 @@ describe("the factory station schemas validate", () => {
   it("(2) invalid input yields issues with message; schema-only fields stay on JSON Schema", () => {
     const equip = factoryStationSchemas.equipment_generate;
     const bad = equip["~standard"].validate({ subjectId: 12 });
-    expect("issues" in bad).toBe(true);
-    if ("issues" in bad) {
+    expect(bad.issues !== undefined).toBe(true);
+    if (bad.issues !== undefined) {
       expect(bad.issues[0]?.message.length).toBeGreaterThan(0);
     }
     const room = factoryStationSchemas.room_generate.jsonSchema.input({ target: "draft-2020-12" });
@@ -102,8 +102,8 @@ describe("the factory station schemas validate", () => {
 
   it("(3) equipment_generate.plan reports 4 views for the Imagine-box pack without GPU", () => {
     const result = planEquipmentGenerate(VALID.equipment_generate);
-    expect("issues" in result).toBe(false);
-    if ("issues" in result) return;
+    expect(result.issues !== undefined).toBe(false);
+    if (result.issues !== undefined) return;
     expect(result.plan["mode"]).toBe("dry-run");
     expect(result.plan["stationId"]).toBe("equipment_generate");
     expect(result.plan["viewCount"]).toBe(4);
@@ -114,7 +114,7 @@ describe("the factory station schemas validate", () => {
 
   it("(4) equipment_generate.plan rejects an invalid payload", () => {
     const result = planEquipmentGenerate({ subjectId: "ecg-cart-imagine-box" });
-    expect("issues" in result).toBe(true);
+    expect(result.issues !== undefined).toBe(true);
   });
 
   it("(5) factory:trellis:bake CLI imports @openclinxr/factory-stations", () => {
@@ -142,14 +142,14 @@ describe("the factory station schemas validate", () => {
     ];
     for (const row of planners) {
       const ok = row.plan(VALID[row.id]);
-      expect("issues" in ok, row.id).toBe(false);
-      if ("issues" in ok) continue;
+      expect(ok.issues, row.id).toBeUndefined();
+      if (ok.issues !== undefined) continue;
       expect(ok.plan.mode, row.id).toBe("dry-run");
       expect(ok.plan.stationId, row.id).toBe(row.id);
       expect(JSON.stringify(ok.plan), row.id).toContain(row.baker);
       const bad = row.plan({ actorId: 12 });
-      expect("issues" in bad, `${row.id} invalid`).toBe(true);
-      if ("issues" in bad) {
+      expect(bad.issues, `${row.id} invalid`).toBeDefined();
+      if (bad.issues !== undefined) {
         expect(bad.issues[0]?.message.length, row.id).toBeGreaterThan(0);
       }
     }

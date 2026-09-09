@@ -31,7 +31,7 @@ export type MotionRetargetRunOptions = {
 /** Unique spawn of motion_bind_stage.py. Tests must call plan(), not run(). */
 export async function runMotionRetarget(input: unknown, options: MotionRetargetRunOptions): Promise<Record<string, unknown>> {
   const planned = planMotionRetarget(input);
-  if ("issues" in planned) {
+  if (planned.issues !== undefined) {
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
   const stageScript = String(planned.plan["stageScript"]);

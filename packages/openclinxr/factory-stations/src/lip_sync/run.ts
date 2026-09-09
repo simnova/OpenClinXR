@@ -43,7 +43,7 @@ function resolveRhubarbBinary(): string {
 /** Unique rhubarb spawn for lip_sync. Tests must call plan(), not run(). */
 export async function runLipSync(input: unknown, options: LipSyncRunOptions): Promise<LipSyncRunResult> {
   const planned = planLipSync(input);
-  if ("issues" in planned) {
+  if (planned.issues !== undefined) {
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
   const { utterance, outDir, wavPath } = options;

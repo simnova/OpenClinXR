@@ -33,7 +33,7 @@ export type BodyParamRunOptions = {
 /** Unique spawn of body_param_stage.py. Tests must call plan(), not run(). */
 export async function runBodyParam(input: unknown, options: BodyParamRunOptions): Promise<Record<string, unknown>> {
   const planned = planBodyParam(input);
-  if ("issues" in planned) {
+  if (planned.issues !== undefined) {
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
   const stageScript = String(planned.plan["stageScript"]);

@@ -31,8 +31,8 @@ describe("the clothing_consume station carries the refit contract", () => {
       displacementMaxM: 0.09,
       refusalReason: null,
     });
-    expect("issues" in planned).toBe(false);
-    if ("issues" in planned) return;
+    expect(planned.issues !== undefined).toBe(false);
+    if (planned.issues !== undefined) return;
     expect(planned.plan["bodyIdentity"]).toBe("macros:weight=0.85");
     expect(planned.plan["bindingTopologyId"]).toBe("hm08");
     expect(planned.plan["refusalReason"]).toBeNull();
@@ -40,8 +40,8 @@ describe("the clothing_consume station carries the refit contract", () => {
 
   it("(2) plan() without refit fields keeps legacy behavior", () => {
     const planned = planClothingConsume({ actorId: "actor_a", mhcloPath: "library/scrub.mhclo" });
-    expect("issues" in planned).toBe(false);
-    if ("issues" in planned) return;
+    expect(planned.issues !== undefined).toBe(false);
+    if (planned.issues !== undefined) return;
     expect(refitContractFrom(planned.value)).toEqual({});
     expect(planned.plan["bakerId"]).toBe("makeclothes_fit_stage");
   });

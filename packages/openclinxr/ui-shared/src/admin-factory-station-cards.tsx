@@ -54,11 +54,16 @@ export function FactoryStationCards({ values, onChange, onAddTrellisModel }: Fac
                 {Object.entries(json.properties).map(([name, prop]) => {
                   const label = `${stationId}.${name}`;
                   const value = current[name] ?? defaultValue(prop.type);
+                  // htmlFor/id, not just aria-label: biome's noLabelWithoutControl cannot see
+                  // an antd component as a form control, and the explicit association is what
+                  // actually lets a screen reader move focus from the label to the input.
+                  const controlId = `factory-station-${label.replace(/[^\w-]/gu, "-")}`;
                   if (prop.type === "boolean") {
                     return (
-                      <label key={name}>
+                      <label key={name} htmlFor={controlId}>
                         {name}
                         <Switch
+                          id={controlId}
                           aria-label={label}
                           checked={Boolean(value)}
                           onChange={(checked) => patch(stationId, current, name, checked)}
@@ -68,9 +73,10 @@ export function FactoryStationCards({ values, onChange, onAddTrellisModel }: Fac
                   }
                   if (prop.type === "number") {
                     return (
-                      <label key={name}>
+                      <label key={name} htmlFor={controlId}>
                         {name}
                         <InputNumber
+                          id={controlId}
                           aria-label={label}
                           value={typeof value === "number" ? value : 0}
                           onChange={(next) => patch(stationId, current, name, next ?? 0)}
@@ -79,9 +85,10 @@ export function FactoryStationCards({ values, onChange, onAddTrellisModel }: Fac
                     );
                   }
                   return (
-                    <label key={name}>
+                    <label key={name} htmlFor={controlId}>
                       {name}
                       <Input
+                        id={controlId}
                         aria-label={label}
                         value={typeof value === "string" ? value : String(value ?? "")}
                         onChange={(event) => patch(stationId, current, name, event.target.value)}
@@ -116,7 +123,8 @@ export function FactoryStationCards({ values, onChange, onAddTrellisModel }: Fac
 
   function apply(stationId: ProductionStationId, next: Record<string, unknown>): void {
     const result = factoryStationSchemas[stationId]["~standard"].validate(next);
-    if ("issues" in result) {
+    // The spec discriminates on a FALSY `issues`, not on the key being present.
+    if (result.issues !== undefined) {
       setErrors((current) => ({ ...current, [stationId]: result.issues.map((issue) => issue.message).join("; ") }));
       return;
     }

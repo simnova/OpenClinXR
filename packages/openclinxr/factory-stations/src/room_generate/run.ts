@@ -40,7 +40,7 @@ export type RoomGenerateRunOptions = {
 /** Unique spawn of room albedo/occlusion bake scripts. Tests must call plan(), not run(). */
 export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOptions): Promise<Record<string, unknown>> {
   const planned = planRoomGenerate(input);
-  if ("issues" in planned) {
+  if (planned.issues !== undefined) {
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
   const albedoScript = String(planned.plan["albedoScript"]);

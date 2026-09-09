@@ -80,7 +80,12 @@ function timingPlan(): ExamTimingPlan {
       },
     ],
     breakCheckpoints: [],
+    // A plan with no breaks: the three fields still have to be present, because
+    // ExamTimingPlan makes them required and assembly.ts:212-215 reads all three.
+    breakWindows: [],
+    totalBreakTimeSeconds: 0,
     totalStationTimeSeconds: 2520,
+    totalFormTimeSeconds: 2520,
   };
 }
 
