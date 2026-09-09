@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { exportedSymbols } from "../../../packages/openclinxr-verification/architecture-rules/src/checks/export-surface-budgets.ts";
@@ -60,6 +60,70 @@ if (stars.length === 0) {
   process.exit(1);
 }
 
+/**
+ * EVERY re-export specifier, star or named.
+ *
+ * The first version collected only the stars and rewrote the file from those alone, SILENTLY
+ * DISCARDING every `export { … } from "./x.js"` block beside them. Measured on xr-station: 32 stars
+ * and 5 named blocks, and the five were lost. Four consumer breaks in apps/ui-xr are what surfaced
+ * it. A named block is narrowed the same way a star is — keep the intersection with what the tree
+ * consumes — so collecting both is both the fix and the simplification.
+ */
+const NAMED_REEXPORT = /^export (?:type )?\{([^}]*)\} from "(\.[^"]+)";?$/gmu;
+
+/**
+ * PUBLISHED NAME -> LOCAL NAME, for every `export { local as published }` in the original.
+ *
+ * The first version emitted the DECLARED name and dropped the alias, silently renaming part of the
+ * public interface. Measured on xr-station, whose index published
+ * `createStationApiClient as createAssembledStationApiClient`; apps/ui-xr imports the alias and
+ * failed to compile. A consumer break is the only reason this was found, which is why it is
+ * recorded here rather than in a comment on the regex.
+ */
+const aliases = new Map<string, string>();
+/**
+ * PUBLISHED NAME -> the specifier the ORIGINAL index published it from.
+ *
+ * Two modules can declare the same name. xr-station has createStationApiClient in BOTH
+ * ./api-client.js and ./station-api-client.js, and the original index published the second one
+ * under the alias createAssembledStationApiClient. Without this map the emitter took whichever
+ * specifier it reached first and SILENTLY SWAPPED THE IMPLEMENTATION behind an unchanged name —
+ * a green typecheck away from shipping the wrong function. apps/ui-xr caught it on a return type.
+ */
+const originModule = new Map<string, string>();
+for (const match of source.matchAll(/^export (?:type )?\{([^}]*)\} from "(\.[^"]+)";?$/gmu)) {
+  for (const part of (match[1] ?? "").split(",")) {
+    const [local, published] = part.trim().replace(/^type\s+/u, "").split(" as ").map((n) => n.trim());
+    if (local === undefined || local === "") continue;
+    const name = published ?? local;
+    if (published !== undefined && published !== "") aliases.set(published, local);
+    originModule.set(name, match[2] ?? "");
+  }
+}
+const specifiers: string[] = [];
+for (const match of stars) {
+  const specifier = match[1] ?? "";
+  if (!specifiers.includes(specifier)) specifiers.push(specifier);
+}
+for (const match of source.matchAll(NAMED_REEXPORT)) {
+  const specifier = match[2] ?? "";
+  if (!specifiers.includes(specifier)) specifiers.push(specifier);
+}
+
+/**
+ * A symbol DECLARED in index.ts itself has no module to re-export it from, so this tool would drop
+ * it. Refuse rather than lose it.
+ */
+const declaredInEntrypoint = [...source.matchAll(/^export (?:declare )?(?:async )?(?:function|const|class|type|interface|enum|let|var)\s+(\w+)/gmu)];
+if (declaredInEntrypoint.length > 0) {
+  console.error(
+    `${pkg}/src/index.ts DECLARES ${declaredInEntrypoint.length} symbol(s) itself `
+    + `(${declaredInEntrypoint.map((m) => m[1]).join(", ")}). This tool only rewrites re-export `
+    + `lines and would drop them. Move them to a module first.`,
+  );
+  process.exit(1);
+}
+
 const prefix = `packages/openclinxr/${pkg}/`;
 const index = identifierIndex(root);
 const published = [...exportedSymbols(entry)];
@@ -69,25 +133,108 @@ const keep = new Set(
   ),
 );
 
+const RE_EXPORT_FROM = /^export (?:type )?(?:\*|\{[^}]*\}) from "(\.[^"]+)";?$/gmu;
+
+/**
+ * Workspace specifier to that package's entrypoint. A package that re-exports another package's
+ * symbols is a smell in its own right, and it is real here: xr-scene republishes measurement
+ * helpers from @openclinxr/xr-pose, xr-pose republishes clip names from @openclinxr/asset-registry.
+ * Classification has to follow, or those symbols cannot be placed at all.
+ */
+const workspaceEntrypoints = new Map<string, string>();
+for (const dir of readdirSync(join(root, "packages", "openclinxr"), { withFileTypes: true })) {
+  if (!dir.isDirectory()) continue;
+  const manifest = join(root, "packages", "openclinxr", dir.name, "package.json");
+  const entrypoint = join(root, "packages", "openclinxr", dir.name, "src", "index.ts");
+  if (!existsSync(manifest) || !existsSync(entrypoint)) continue;
+  const name = (JSON.parse(readFileSync(manifest, "utf8")) as { name?: string }).name;
+  if (name !== undefined) workspaceEntrypoints.set(name, entrypoint);
+}
+
+/**
+ * Is `symbol` a type or a value, as declared SOMEWHERE in this module's re-export chain?
+ *
+ * A per-module scan of local declarations alone cannot place a symbol that arrives through a
+ * nested re-export, and there are many: xr-station had 8, xr-scene 14. The first version of this
+ * tool reported each as UNCLASSIFIED and refused to place it, which is safe and unusable at 42
+ * packages. Following the chain is the same walk `exportedSymbols` already does.
+ */
+function classify(modulePath: string, symbol: string, seen: Set<string> = new Set()): "type" | "value" | null {
+  if (seen.has(modulePath) || !existsSync(modulePath)) return null;
+  seen.add(modulePath);
+  const text = readFileSync(modulePath, "utf8");
+  for (const match of text.matchAll(TYPE_DECLARATION)) if (match[1] === symbol) return "type";
+  for (const match of text.matchAll(VALUE_DECLARATION)) if (match[1] === symbol) return "value";
+  // A BARE `export type { X };` — no `from` — settles the question by itself.
+  for (const match of text.matchAll(/^export type \{([^}]*)\};?$/gmu)) {
+    if ((match[1] ?? "").split(",").some((n) => n.trim() === symbol)) return "type";
+  }
+  // A bare `export { X };` re-exports something this module declared or IMPORTED. Local
+  // declarations were checked above, so follow the import that brought it in.
+  for (const match of text.matchAll(/^export \{([^}]*)\};?$/gmu)) {
+    if (!(match[1] ?? "").split(",").some((n) => n.trim() === symbol)) continue;
+    for (const imported of text.matchAll(/^import(?: type)?\s*\{([^}]*)\}\s*from\s*"(\.[^"]+)";?$/gmu)) {
+      if (!(imported[1] ?? "").split(",").some((n) => n.trim().replace(/^type\s+/u, "") === symbol)) continue;
+      const importedFrom = join(dirname(modulePath), (imported[2] ?? "").replace(/\.js$/u, ".ts"));
+      const found = classify(importedFrom, symbol, seen);
+      if (found !== null) return found;
+    }
+    for (const imported of text.matchAll(/^import(?: type)?\s*\{([^}]*)\}\s*from\s*"(@[^"]+)";?$/gmu)) {
+      if (!(imported[1] ?? "").split(",").some((n) => n.trim().replace(/^type\s+/u, "") === symbol)) continue;
+      const entrypoint = workspaceEntrypoints.get(imported[2] ?? "");
+      if (entrypoint === undefined) continue;
+      const found = classify(entrypoint, symbol, seen);
+      if (found !== null) return found;
+    }
+  }
+  for (const match of text.matchAll(RE_EXPORT_FROM)) {
+    const nested = join(dirname(modulePath), (match[1] ?? "").replace(/\.js$/u, ".ts"));
+    if (!exportedSymbols(nested).has(symbol)) continue;
+    const found = classify(nested, symbol, seen);
+    if (found !== null) return found;
+  }
+  return null;
+}
+
 const blocks: string[] = [];
 const unclassified: string[] = [];
-for (const star of stars) {
-  const specifier = star[1] ?? "";
+// `export *` DEDUPLICATES: a symbol reachable through two specifiers is published once. Named
+// blocks do not, and emitting it twice is TS2300 Duplicate identifier. Measured on xr-station,
+// where station-equipment.js and station-equipment-builders.js both reach six of the same symbols.
+const emittedAlready = new Set<string>();
+for (const specifier of specifiers) {
   const modulePath = join(src, specifier.replace(/\.js$/u, ".ts"));
-  const moduleSource = readFileSync(modulePath, "utf8");
-  const types = new Set([...moduleSource.matchAll(TYPE_DECLARATION)].map((m) => m[1] ?? ""));
-  const values = new Set([...moduleSource.matchAll(VALUE_DECLARATION)].map((m) => m[1] ?? ""));
   const own = [...exportedSymbols(modulePath)].sort();
-  const keptValues = own.filter((s) => keep.has(s) && values.has(s));
-  const keptTypes = own.filter((s) => keep.has(s) && types.has(s));
-  for (const s of own) {
-    if (keep.has(s) && !values.has(s) && !types.has(s)) unclassified.push(`${specifier}: ${s}`);
+  const keptValues: string[] = [];
+  const keptTypes: string[] = [];
+  // `own` holds LOCAL names; `keep` holds PUBLISHED names. Where the original index renamed on
+  // re-export the two differ, and intersecting them directly drops the symbol entirely — which is
+  // how createAssembledStationApiClient vanished from xr-station and broke apps/ui-xr.
+  const publishedName = (local: string): string => {
+    for (const [publishedAs, from] of aliases) if (from === local) return publishedAs;
+    return local;
+  };
+  for (const local of own) {
+    const s = publishedName(local);
+    if (!keep.has(s) || emittedAlready.has(s)) continue;
+    // A name the original index published from a DIFFERENT module is not this module's to emit.
+    const origin = originModule.get(s);
+    if (origin !== undefined && origin !== specifier) continue;
+    const kind = classify(modulePath, local);
+    if (kind !== null) emittedAlready.add(s);
+    if (kind === "value") keptValues.push(s);
+    else if (kind === "type") keptTypes.push(s);
+    else unclassified.push(`${specifier}: ${s}`);
   }
+  const spell = (publishedAs: string): string => {
+    const from = aliases.get(publishedAs);
+    return from === undefined || from === publishedAs ? publishedAs : `${from} as ${publishedAs}`;
+  };
   if (keptValues.length > 0) {
-    blocks.push(`export {\n${keptValues.map((s) => `  ${s},`).join("\n")}\n} from "${specifier}";`);
+    blocks.push(`export {\n${keptValues.map((s) => `  ${spell(s)},`).join("\n")}\n} from "${specifier}";`);
   }
   if (keptTypes.length > 0) {
-    blocks.push(`export type {\n${keptTypes.map((s) => `  ${s},`).join("\n")}\n} from "${specifier}";`);
+    blocks.push(`export type {\n${keptTypes.map((s) => `  ${spell(s)},`).join("\n")}\n} from "${specifier}";`);
   }
 }
 

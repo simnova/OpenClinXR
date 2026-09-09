@@ -1,37 +1,8 @@
 import { Group } from "three";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  applyDeterministicPortalPreviewStart,
-  applyGeneratedHumanoidRoleSpecificPosture,
-  applyLocomotion,
-  applyScenarioDerivedFamilyPosture,
-  buildExamineeLocomotionEvidence,
-  clampLocomotionUnit,
-  createExamineeLocomotionTrail,
-  createKeyboardLocomotion,
-  createXrHandGestureHandState,
-  createXrHandGestureLocomotionState,
-  createXrHandSelectState,
-  formatHandSelectStatus,
-  formatPortalTransitionEvidence,
-  handednessForHand,
-  handSelectEvidence,
-  isLocomotionVectorActive,
-  isTrackedHandVisible,
-  isXrHandPinching,
-  locomotionDeadzone,
-  maybeCompleteTraceActionFromHandSelect,
-  type PortalTransitionContext,
-  parsePortalPreviewStart,
-  type RolePostureContext,
-  recordHandSelectTraceLatency,
-  resetHandGestureHandState,
-  resetHandSelectState,
-  sampleRoomScalePose,
-  updateExamineeLocomotionTrail,
-  updatePortalTransitionEvidence,
-  updateReusableExteriorAnteroomVisibility,
-} from "./index.js";
+import { applyDeterministicPortalPreviewStart, applyGeneratedHumanoidRoleSpecificPosture, applyLocomotion, buildExamineeLocomotionEvidence, createExamineeLocomotionTrail, createKeyboardLocomotion, createXrHandGestureLocomotionState, createXrHandSelectState, formatHandSelectStatus, formatPortalTransitionEvidence, isLocomotionVectorActive, isXrHandPinching, maybeCompleteTraceActionFromHandSelect, type PortalTransitionContext, parsePortalPreviewStart, type RolePostureContext, recordHandSelectTraceLatency, sampleRoomScalePose, updateExamineeLocomotionTrail, updatePortalTransitionEvidence, updateReusableExteriorAnteroomVisibility } from "./index.js";
+import { clampLocomotionUnit, createXrHandGestureHandState, handednessForHand, handSelectEvidence, isTrackedHandVisible, locomotionDeadzone, resetHandGestureHandState, resetHandSelectState } from "./locomotion.js";
+import { applyScenarioDerivedFamilyPosture } from "./role-posture.js";
 
 function portalCtx(overrides: Partial<PortalTransitionContext> = {}): PortalTransitionContext {
   return {

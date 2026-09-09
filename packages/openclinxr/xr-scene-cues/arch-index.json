@@ -2,6 +2,7 @@
   "package": "xr-scene-cues",
   "name": "@openclinxr/xr-scene-cues",
   "entrypoint": "packages/openclinxr/xr-scene-cues/src/index.ts",
+  "purpose": "Public interface of @openclinxr/xr-scene-cues.",
   "exports": [
     "DynamicSceneObjectNamingEvidence",
     "PediatricRespiratoryEquipmentCueEvidence",
@@ -19,7 +20,6 @@
     "SceneCueRoomPropContext",
     "SceneCueTraceVisualContext",
     "SceneCueVirtualDeviceContext",
-    "addDetailedRoomPropVisuals",
     "addPediatricRespiratoryEquipmentCues",
     "applyCleanEncounterVisualReviewActorFraming",
     "applyEnvironmentStateVisuals",
@@ -38,7 +38,6 @@
     "createRuntimeHumanoidDetailCues",
     "createVirtualDeviceActorAffordance",
     "drawWrappedText",
-    "ensureRuntimeEquipmentTraceMarker",
     "publishReadableVrTextPanelEvidence",
     "recordDynamicSceneObjectNamingEvidence",
     "recordPediatricRespiratoryEquipmentCue",
@@ -62,7 +61,6 @@
   },
   "ceilings": {
     "testInternalImports": 6,
-    "rootEntrypointExports": 42,
-    "starExports": 7
+    "rootEntrypointExports": 40
   }
 }

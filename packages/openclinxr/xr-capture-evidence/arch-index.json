@@ -2,11 +2,10 @@
   "package": "xr-capture-evidence",
   "name": "@openclinxr/xr-capture-evidence",
   "entrypoint": "packages/openclinxr/xr-capture-evidence/src/index.ts",
+  "purpose": "Public interface of @openclinxr/xr-capture-evidence.",
   "exports": [
     "DeclaredEquipmentMountEvidence",
     "OpenClinXrXrEntryEvidence",
-    "RuntimeSceneManifestEvidenceInput",
-    "SCENE_ONLY_ESSENTIAL_ROOM_PROP_IDS",
     "buildCaseDefinedHumanoidPerformanceContractEvidence",
     "buildRuntimeSceneManifestEvidence",
     "bundleUsesOnlyApprovedLocalFixtureAssets",
@@ -17,7 +16,6 @@
     "isActorPoseReviewCaptureMode",
     "isDeterministicCaptureClock",
     "isEdBayVisibleCaptureMode",
-    "isGeneratedPlaceholderAssetForDifferentScenario",
     "isGeneratedPlaceholderSourceForDifferentScenario",
     "isGeneratedSceneOverviewCaptureMode",
     "isHumanoidFaceDetailCaptureMode",
@@ -26,7 +24,6 @@
     "isRealGarmentSleeveDeformCapture",
     "isSceneOnlyVisualReviewCaptureMode",
     "publishRuntimeActorSlotAssignmentEvidence",
-    "readSelectedCaptureMode",
     "recordLearnerRuntimeUseGateEvidence",
     "recordSceneAssetStatus",
     "recordXrEntryEvidence",
@@ -38,7 +35,6 @@
     "selectedCaptureMode",
     "shouldRenderRoomPropInVisualReview",
     "shouldShowActorRealismRequirementPanel",
-    "shouldShowActorRealismRequirementPanelForCapture",
     "shouldShowInSceneEvidencePanels",
     "shouldShowInSceneIdentityLabels",
     "shouldShowPrimitiveAssetFallbacks",
@@ -63,7 +59,6 @@
   },
   "ceilings": {
     "testInternalImports": 7,
-    "rootEntrypointExports": 43,
-    "starExports": 8
+    "rootEntrypointExports": 38
   }
 }

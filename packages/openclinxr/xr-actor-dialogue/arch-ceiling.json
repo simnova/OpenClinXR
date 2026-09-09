@@ -2,7 +2,6 @@
   "contexts": {
     "ActorDialogueDeps": 19
   },
-  "testInternalImports": 1,
-  "rootEntrypointExports": 42,
-  "starExports": 9
+  "testInternalImports": 2,
+  "rootEntrypointExports": 33
 }

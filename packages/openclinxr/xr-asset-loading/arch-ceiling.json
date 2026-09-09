@@ -2,7 +2,6 @@
   "contexts": {
     "AssetLoadingContext": 93
   },
-  "testInternalImports": 1,
-  "rootEntrypointExports": 39,
-  "starExports": 8
+  "testInternalImports": 3,
+  "rootEntrypointExports": 30
 }

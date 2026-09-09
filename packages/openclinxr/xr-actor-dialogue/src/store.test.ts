@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import { resolveLiveActorTurnForTrace } from "@openclinxr/xr-dialogue";
 import type { HumanoidSpeechEvidence } from "@openclinxr/xr-runtime-state";
-import { createActorDialogueStore, type ActorDialogueStoreOptions } from "./index.js";
+import { createActorDialogueStore } from "./index.js";
+import type { ActorDialogueStoreOptions } from "./store.js";
 import type { ActorDialogueAdaptiveEvidence, ActorDialogueTurn } from "./types.js";
 
 function stubOptions(overrides: Partial<ActorDialogueStoreOptions> = {}): ActorDialogueStoreOptions {

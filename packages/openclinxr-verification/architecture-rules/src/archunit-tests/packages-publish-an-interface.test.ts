@@ -58,12 +58,18 @@ describe("packages publish an interface", () => {
   });
 
   it("(7) the symbol counter follows export * chains rather than counting lines", () => {
-    // xr-station reaches 214 symbols through 32 walls; a line count would say 32.
-    const byPkg = new Map(measureExportSurface().map((m) => [m.pkg, m]));
-    const station = byPkg.get("xr-station");
-    expect(station?.starExports).toBeGreaterThan(0);
-    expect(station?.exports ?? 0).toBeGreaterThan(station?.starExports ?? 0);
-    expect(readExportCeiling("xr-station")?.rootEntrypointExports).toBe(station?.exports);
+    // This clause named xr-station, which reached 214 symbols through 32 walls. The narrowing
+    // campaign removed every one of its stars on 2026-09-08, so the specimen disappeared and the
+    // clause failed on its own success. It is written against the PROPERTY now, not a specimen:
+    // some package still has stars, and its symbol count exceeds its star count.
+    const measured = measureExportSurface();
+    const walled = measured.filter((m) => m.starExports > 0);
+    expect(walled.length, "no package has an export * wall left; retire this clause").toBeGreaterThan(0);
+    for (const pkg of walled) {
+      expect(pkg.exports, `${pkg.pkg} symbols vs walls`).toBeGreaterThan(pkg.starExports);
+      const ceiling = readExportCeiling(pkg.pkg)?.rootEntrypointExports;
+      if (ceiling !== undefined) expect(ceiling, `${pkg.pkg} ceiling`).toBe(pkg.exports);
+    }
   });
 
   it("(8) a re-exported name is counted once, under its exported alias", () => {

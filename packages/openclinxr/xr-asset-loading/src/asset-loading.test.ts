@@ -1,18 +1,8 @@
 import { BoxGeometry, Color, Group, Mesh, MeshStandardMaterial } from "three";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  addActorSpecificIdentityVariantCue,
-  addRoleSpecificHumanoidVisuals,
-  addScenarioSpecificClinicalTeamCue,
-  addScenarioSpecificFamilyCue,
-  addScenarioSpecificPatientCue,
-  configureSemanticRolePoseOverlay,
-  readSelectedHumanoidSourceComparator,
-  runtimeHumanoidVariantAssetPath,
-  shouldShowProceduralHumanoidDetailCues,
-  tintGeneratedMaterial,
-  tintGeneratedSceneMaterials,
-} from "./index.js";
+import { addActorSpecificIdentityVariantCue, addRoleSpecificHumanoidVisuals, addScenarioSpecificClinicalTeamCue, addScenarioSpecificFamilyCue, addScenarioSpecificPatientCue, configureSemanticRolePoseOverlay, runtimeHumanoidVariantAssetPath, shouldShowProceduralHumanoidDetailCues, tintGeneratedSceneMaterials } from "./index.js";
+import { readSelectedHumanoidSourceComparator } from "./generated-loaders.js";
+import { tintGeneratedMaterial } from "./material-tint.js";
 import type { AssetLoadingContext } from "./types.js";
 
 function stubContext(overrides: Partial<AssetLoadingContext> = {}): AssetLoadingContext {

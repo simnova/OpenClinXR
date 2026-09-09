@@ -2,17 +2,12 @@
   "package": "xr-asset-loading",
   "name": "@openclinxr/xr-asset-loading",
   "entrypoint": "packages/openclinxr/xr-asset-loading/src/index.ts",
+  "purpose": "Public interface of @openclinxr/xr-asset-loading.",
   "exports": [
     "AssetLoadingContext",
-    "AssetLoadingPedsHandoffBundle",
     "AssetLoadingScenarioTheme",
-    "ClipNameContext",
     "HumanoidCueMode",
-    "HumanoidSourceComparator",
     "HumanoidSourceProvenance",
-    "LoadHumanoidOptions",
-    "LoadSceneSlotOptions",
-    "RegisterAnimationInput",
     "addActorSpecificIdentityVariantCue",
     "addHumanoidSourceComparatorFaceReviewCues",
     "addReusableExteriorPreEncounterRoom",
@@ -26,21 +21,18 @@
     "configureSemanticRolePoseOverlay",
     "frameComparatorCaptureOnNamedActor",
     "gazeProbeAnimationClipNamesFromGltf",
-    "generatedHumanoidSurfaceMaterialOverride",
     "hasAuthoredClinicalIdlePoseClip",
     "loadGeneratedEnvironmentIntoSceneSlot",
     "loadGeneratedEquipmentIntoSceneSlot",
     "loadGeneratedHumanoidIntoActorSlot",
     "neutralizeGeneratedHumanoidMorphTargets",
     "pedsAsthmaPatientBundleVisemeUtterance",
-    "readSelectedHumanoidSourceComparator",
     "registerGeneratedHumanoidAnimation",
     "roleAnimationClipNamesForActor",
     "runtimeHumanoidVariantAssetPath",
     "selectedHumanoidSourceComparator",
     "shouldShowProceduralHumanoidDetailCues",
     "suppressRuntimeDiagnosticOverlaysForSourceComparator",
-    "tintGeneratedMaterial",
     "tintGeneratedSceneMaterials"
   ],
   "workspaceDependencies": [
@@ -66,8 +58,7 @@
     "contexts": {
       "AssetLoadingContext": 93
     },
-    "testInternalImports": 1,
-    "rootEntrypointExports": 39,
-    "starExports": 8
+    "testInternalImports": 3,
+    "rootEntrypointExports": 30
   }
 }
