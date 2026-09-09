@@ -11,6 +11,17 @@ import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
 type Vector3 = { x: number; y: number; z: number };
 
 /**
+ * Where a resolved placement came from.
+ *
+ * Brief §3: *"With no intent, retain the existing resolved defaults and label their provenance; do
+ * not copy them back into the case as faculty decisions."* The label is the whole point — a default
+ * and an authored value are indistinguishable once composed, so a reviewer reading the runtime
+ * cannot tell which decisions a clinician actually made without it. This package never writes back
+ * to the case; the scenario bank is read-only here.
+ */
+export type PlacementProvenance = "authored_intent" | "resolved_default";
+
+/**
  * #574: world XZ of the family/parent chair fixture for `environmentId`, resolved with
  * the same fraction mapping the environment builder uses (resolveFixtureSlotsForRoom),
  * so a seated family actor lands ON the authored seat instead of the patient-chair
@@ -87,19 +98,32 @@ export function supportedActorPlacementPosition(input: {
   environmentId: string;
   resolvedPosition: Vector3;
   slotKind: string;
-}): { position: Vector3; refusalReason?: string } {
-  if (input.posture === "standing") return { position: input.resolvedPosition };
-  const fixtureAnchor = input.posture === "seated"
-    ? ((input.slotKind === "family_or_observer"
-        ? familyChairFixtureWorldPosition(input.environmentId)
-        : null) ?? seatedActorWorldPosition({}))
-    : supineActorWorldPosition({});
+}): { position: Vector3; refusalReason?: string; provenance: PlacementProvenance } {
+  const authoredOffsetMeters = authoredPlantOffsetMeters(input.scenarioId, input.actorId);
+  // Standing used to RETURN HERE, before composeSupportedActorWorldPosition ran. That made its
+  // "`none` is not a frame" refusal correct and unreachable — the repo's characteristic defect —
+  // because the only standing caller never asked. The anchor argument is unused for standing; the
+  // resolved position stands whether the compose accepts or refuses.
+  const fixtureAnchor = input.posture === "standing"
+    ? input.resolvedPosition
+    : input.posture === "seated"
+      ? ((input.slotKind === "family_or_observer"
+          ? familyChairFixtureWorldPosition(input.environmentId)
+          : null) ?? seatedActorWorldPosition({}))
+      : supineActorWorldPosition({});
   const composed = composeSupportedActorWorldPosition({
     posture: input.posture,
     fixtureAnchor,
-    authoredOffsetMeters: authoredPlantOffsetMeters(input.scenarioId, input.actorId),
+    ...(authoredOffsetMeters ? { authoredOffsetMeters } : {}),
     resolvedPosition: input.resolvedPosition,
   });
-  if ("refused" in composed) return { position: fixtureAnchor, refusalReason: composed.reason };
-  return { position: composed };
+  if ("refused" in composed) {
+    // A refusal falls back to the anchor, so the label is the DEFAULT: nothing the author asked
+    // for was applied, and calling it authored would be the false claim this field exists to stop.
+    return { position: fixtureAnchor, refusalReason: composed.reason, provenance: "resolved_default" };
+  }
+  return {
+    position: composed,
+    provenance: authoredOffsetMeters ? "authored_intent" : "resolved_default",
+  };
 }

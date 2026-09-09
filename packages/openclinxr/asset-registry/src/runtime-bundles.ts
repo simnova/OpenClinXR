@@ -176,6 +176,8 @@ export type EncounterRuntimeActorPlacement = {
   posture?: "standing" | "seated" | "supine";
   /** Yaw about +Y applied to the OUTER actor slot Group, never the loaded humanoid child (the loader zeroes that child at xr-asset-loading/src/generated-loaders.ts:112). RADIANS, matching every existing heading writer. Absent means no authored facing; 0 is a real heading and is NOT the same as absent. */
   headingRadians?: number;
+  /** Authored intent or resolved default; see PlacementProvenance in xr-runtime-state. Absent means the resolver did not say, which is not the same as a default it did say. */
+  placementProvenance?: "authored_intent" | "resolved_default";
 };
 export type EncounterRuntimeEquipmentPlacement = {
   equipmentId?: string | undefined;

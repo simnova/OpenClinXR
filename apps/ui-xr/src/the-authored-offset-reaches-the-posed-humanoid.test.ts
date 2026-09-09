@@ -141,17 +141,31 @@ describe("the authored offset reaches the posed humanoid", () => {
     expect(stored?.position).toEqual({ ...DEFAULT_STRETCHER_POSITION });
   });
 
-  it("(6) STANDING through the contracted function is still a pass-through", async () => {
+  it("(6) STANDING is a pass-through with no offset, and REFUSES one — `none` is not a frame", async () => {
+    // SUPERSEDED 2026-09-09. This clause asserted that standing WITH an authored offset was a
+    // pass-through — the offset silently dropped. Brief §3 says "For standing, name a floor anchor;
+    // `none` is not itself a frame", so that drop is now a refusal: an author who put a value in
+    // the case saw no movement and nothing said why, which looks like the feature working.
+    //
+    // What the clause was protecting is unchanged and is asserted first: a standing actor is NOT
+    // moved to the chair anchor. Restoring the old assertion means restoring the silent drop; if
+    // that is ever wanted, the frame rule in actor-posture.ts is the thing to change, not this.
     const fn = await compose();
     expect(typeof fn).toBe("function");
     const resolved = { x: 1.95, y: 0.95, z: 0.15 };
-    const out = fn!({
+    expect(fn!({
+      posture: "standing",
+      fixtureAnchor: DEFAULT_PATIENT_CHAIR_POSITION,
+      resolvedPosition: resolved,
+    })).toEqual(resolved);
+    const refused = fn!({
       posture: "standing",
       fixtureAnchor: DEFAULT_PATIENT_CHAIR_POSITION,
       authoredOffsetMeters: CLINIC_PATIENT_OFFSET,
       resolvedPosition: resolved,
-    });
-    expect(out).toEqual(resolved);
+    }) as { refused?: true; reason?: string };
+    expect(refused.refused).toBe(true);
+    expect(refused.reason).toMatch(/not a frame/u);
   });
 
   it("(7) THE UNAUTHORED CONTROL, with a discriminator that can move: no authored offset leaves the supine anchor exactly at DEFAULT_STRETCHER_POSITION, and the discriminator is X because the authored clinic patient offset is x 0.4 while the anchor x is -0.9, so a leak would be visible on X. Z is NOT used here: the anchor z -0.1 and the clinic patient z 0 differ by less than the family offset, and Y is refused outright by clause 4.", async () => {

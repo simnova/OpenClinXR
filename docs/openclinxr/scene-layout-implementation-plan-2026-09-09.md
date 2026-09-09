@@ -1040,6 +1040,36 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+## A resolved placement now says where it came from, and the standing refusal was unreachable
+
+§3: *"With no intent, retain the existing resolved defaults and label their provenance; do not copy
+them back into the case as faculty decisions."*
+
+Once composed, a default and an authored value are the same three numbers. Without a label a
+reviewer reading the runtime cannot tell which placements a clinician actually decided, which is the
+difference between a recorded clinical choice and a fixture that happened to land there.
+`placementProvenance` rides from the resolver through the bundle placement to
+`userData.openClinXrResolvedPlacement`, where a capture reads it.
+
+**A refusal is labelled a DEFAULT, never authored.** On a refusal the anchor stands and nothing the
+author asked for was applied. `authored_intent` is the label a naive implementation writes *because*
+an offset was present, and clause (4) refuses exactly that.
+
+**And the standing refusal landed unreachable.** `supportedActorPlacementPosition` returned early
+for standing, before `composeSupportedActorWorldPosition` ran, so the "`none` is not a frame" rule
+this repo added the same morning had no live caller. The early return is gone; standing now reaches
+the compose and the refusal fires. The pre-existing ui-xr clause that asserted the old pass-through
+is SUPERSEDED in place, keeping what it was protecting — a standing actor is not moved to the chair
+anchor — and recording that restoring the old assertion means restoring the silent drop.
+
+The first draft of the provenance clause named `ed_chest_pain_priority_v2` as the authoring
+scenario. It authors none: `plantOffsetMeters` appears zero times in `ed-chest-pain.ts` and three
+times in `clinic-knee-pain.ts`. The fixture would have exercised the default branch and reported the
+label as broken.
+
+Probed three ways: labelling everything a default fails (2); labelling a refusal authored fails (4);
+restoring the standing short-circuit fails (4).
+
 ## The planner's boundary: three refusals about what it must NOT do
 
 §3's "Output and boundary" carries three prohibitions, and none was implemented.

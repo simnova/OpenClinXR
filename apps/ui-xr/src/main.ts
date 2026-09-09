@@ -846,7 +846,7 @@ function runtimeActorPlacement(
   if (supported.refusalReason) console.warn(`[actor-placement] ${actorId}: ${supported.refusalReason}`);
   return {
     ...fallback, ...placement,
-    position: supported.position,
+    position: supported.position, placementProvenance: supported.provenance,
     scale: hasVector3(placement?.scale) ? placement.scale : fallback.scale,
     verticalOffsetMeters,
     labelPrefix: placement?.labelPrefix ?? fallback.labelPrefix,

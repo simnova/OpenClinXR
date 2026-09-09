@@ -143,6 +143,7 @@
     "@openclinxr/shared-schemas"
   ],
   "tests": [
+    "src/a-resolved-placement-says-where-it-came-from.test.ts",
     "src/generated-drive-scalar.test.ts",
     "src/runtime-actor-slots.test.ts",
     "src/runtime-state.test.ts",

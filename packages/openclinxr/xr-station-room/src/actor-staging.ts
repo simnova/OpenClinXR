@@ -140,6 +140,11 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
     position: { ...patientPlacement.position },
     posture: patientPlacement.posture ?? "standing",
     slotKind: patientPlacement.slotKind,
+    // "retain the existing resolved defaults and label their provenance" (brief §3). Without the
+    // label a default and an authored value are indistinguishable once composed, so a reviewer
+    // reading the runtime cannot tell which placements a clinician actually decided.
+    provenance:
+      (patientPlacement as { placementProvenance?: string }).placementProvenance ?? "resolved_default",
   };
   patient.userData.openClinXrActorId = patientActorId;
   patient.userData.openClinXrBaseHeadingRadians = patient.rotation.y;
