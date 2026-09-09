@@ -1072,7 +1072,7 @@ export function evaluateAssetManifest(manifest: AssetManifest): AssetReadiness {
     provenance?: AssetManifest["provenance"];
     questQaStatus?: AssetQuestQaStatus;
   };
-  const stages = new Set((runtimeManifest.pipelineStages ?? []).map((stage) => stage.stage));
+  const stages = new Set((runtimeManifest.pipelineStages ?? []).map((pipelineStage) => pipelineStage.stage));
   const licenseStatus = runtimeManifest.provenance?.licenseStatus;
 
   if (!licenseStatus) {
@@ -1397,7 +1397,7 @@ export function buildScenarioSceneGenerationPipelineWorkOrder(
     stages,
     actorWorkOrders,
     environmentWorkOrder,
-    requiredOutputEvidence: uniqueAssetReadinessValues(stages.flatMap((stage) => stage.expectedOutputs)),
+    requiredOutputEvidence: uniqueAssetReadinessValues(stages.flatMap((pipelineStage) => pipelineStage.expectedOutputs)),
     prohibitedActions: [
       "do_not_generate_assets_before_admin_scenario_configuration",
       "do_not_bind_assets_to_runtime_without_content_hash_manifest",
@@ -1556,7 +1556,7 @@ export function buildScenarioSceneGenerationPipelineWorkOrderQueue(
   return {
     scenarioCount: scenarios.length,
     workOrderCount: workOrders.length,
-    pendingStageCount: workOrders.reduce((count, workOrder) => count + workOrder.stages.filter((stage) => stage.status === "pending").length, 0),
+    pendingStageCount: workOrders.reduce((count, workOrder) => count + workOrder.stages.filter((pipelineStage) => pipelineStage.status === "pending").length, 0),
     claimBoundary: "scene_generation_pipeline_queue_not_asset_production",
     featuredFactoryPlanningScenarioId: featuredFactoryPlanningWorkOrder?.scenarioId ?? null,
     featuredFactoryPlanningWorkOrderId: featuredFactoryPlanningWorkOrder?.workOrderId ?? null,
@@ -2799,3 +2799,8 @@ function hasProductionLimitingQuestQaStatus(status: AssetQuestQaStatus | undefin
       || normalized.includes("simulation qa only");
   }) ?? false;
 }
+export {
+  findRuntimeActorAsset,
+  findRuntimeEquipmentAsset,
+  findRuntimeEquipmentPlacementByRealizedId,
+} from "./runtime-bundle-lookups.js";

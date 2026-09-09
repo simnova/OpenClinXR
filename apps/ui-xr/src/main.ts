@@ -8,11 +8,10 @@ import {
   createEdChestPainLocalLearnerRuntimeAssetBundle,
   type EncounterRuntimeAsset,
   type EncounterRuntimeRoomProp,
-  findRuntimeActorAsset,
-  findRuntimeEquipmentAsset,
   type LearnerRuntimeAssetBundle,
   resolveRuntimeAssetUrl,
 } from "@openclinxr/asset-registry/runtime-bundles";
+import { findRuntimeActorAsset, findRuntimeEquipmentAsset } from "@openclinxr/asset-registry/runtime-bundle-lookups";
 import {
   arbitrateTurnTaking,
   buildHistoryTakingCoverageSpec,

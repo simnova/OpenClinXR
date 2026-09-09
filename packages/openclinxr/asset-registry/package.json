@@ -12,6 +12,10 @@
       "types": "./dist/runtime-bundles.d.ts",
       "default": "./dist/runtime-bundles.js"
     },
+    "./runtime-bundle-lookups": {
+      "types": "./dist/runtime-bundle-lookups.d.ts",
+      "default": "./dist/runtime-bundle-lookups.js"
+    },
     "./object-store": {
       "types": "./dist/object-store.d.ts",
       "default": "./dist/object-store.js"

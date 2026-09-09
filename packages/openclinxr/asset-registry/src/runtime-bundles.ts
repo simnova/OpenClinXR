@@ -1,4 +1,9 @@
 import {
+  type EquipmentPlacementReport,
+  buildEquipmentPlacementReport,
+  buildRealizedEquipmentPlacements,
+} from "./realized-equipment-placements.js";
+import {
   generatedActorLabel,
   generatedActorPlacement,
   generatedEquipmentPlacement,
@@ -169,6 +174,7 @@ export type EncounterRuntimeActorPlacement = {
   headingRadians?: number;
 };
 export type EncounterRuntimeEquipmentPlacement = {
+  equipmentId?: string | undefined;
   position: { x: number; y: number; z: number };
   label: string;
   interactionCueIds: string[];
@@ -550,6 +556,12 @@ export type BuildEncounterRuntimeAssetBundleInput = {
   expiresAt?: string | null | undefined;
 };
 
+// Only the two TYPES are published: they are the shape of `equipmentPlacements` and
+// `equipmentPlacementReport` on the bundle, so a consumer cannot read those fields without them.
+// The five value helpers that produced them stay internal to this package — republishing a builder
+// nothing outside calls is how an entrypoint ceiling gets spent on surface no one uses.
+export type { EquipmentPlacementReport, RealizedEquipmentPlacementEntry } from "./realized-equipment-placements.js";
+
 const LOCAL_RUNTIME_NOT_EVIDENCE_FOR = [
   "production_asset_readiness",
   "quest_readiness",
@@ -627,7 +639,7 @@ export function registerGeneratedRuntimeAssetReference(
 
 export function buildEncounterRuntimeAssetBundle(
   input: BuildEncounterRuntimeAssetBundleInput,
-): EncounterRuntimeAssetBundle {
+): EncounterRuntimeAssetBundle & { equipmentPlacementReport: EquipmentPlacementReport } {
   const assetStore = resolveRuntimeAssetStoreConfig(input.assetStore);
   const sceneManifest = input.sceneManifest ?? createGeneratedRuntimeSceneManifest({
     scenarioId: input.scenarioId,
@@ -635,6 +647,7 @@ export function buildEncounterRuntimeAssetBundle(
     actors: input.actors,
     equipment: input.equipment ?? [],
   });
+  const equipmentPlacementReport = buildEquipmentPlacementReport(input.equipment ?? []);
   return {
     bundleId: input.bundleId,
     tenantId: input.tenantId,
@@ -677,6 +690,7 @@ export function buildEncounterRuntimeAssetBundle(
       frozenForEncounter: true,
       notEvidenceFor: [...LOCAL_RUNTIME_NOT_EVIDENCE_FOR],
     }),
+    equipmentPlacementReport,
     notEvidenceFor: [...LOCAL_RUNTIME_NOT_EVIDENCE_FOR],
   };
 }
@@ -1414,8 +1428,9 @@ function createGeneratedRuntimeSceneManifest(input: {
           generatedActorPlacement(actor, index, { scenarioId: input.scenarioId }),
         ]),
     ),
-    equipmentPlacements: Object.fromEntries(
-      input.equipment.map((equipment, index) => [equipment.equipmentId, generatedEquipmentPlacement(equipment, index)]),
+    equipmentPlacements: buildRealizedEquipmentPlacements(
+      input.equipment,
+      (equipment, index) => generatedEquipmentPlacement(equipment, index),
     ),
     roomProps: [],
     productionReadinessClaimed: false,
@@ -1619,18 +1634,4 @@ function missingRuntimeStrings(requiredValues: readonly string[], coveredValues:
 
 function defaultRuntimeAssetContainerName(storeKind: RuntimeAssetStoreKind): string {
   return storeKind === "app_public_fixture" ? "ui-xr-public" : "openclinxr-assets";
-}
-
-export function findRuntimeActorAsset(
-  bundle: Pick<EncounterRuntimeAssetBundle, "actors">,
-  actorId: string,
-): EncounterRuntimeActorAsset | undefined {
-  return bundle.actors.find((actor) => actor.actorId === actorId);
-}
-
-export function findRuntimeEquipmentAsset(
-  bundle: Pick<EncounterRuntimeAssetBundle, "equipment">,
-  equipmentId: string,
-): EncounterRuntimeEquipmentAsset | undefined {
-  return bundle.equipment.find((equipment) => equipment.equipmentId === equipmentId);
 }

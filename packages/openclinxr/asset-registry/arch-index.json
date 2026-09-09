@@ -96,6 +96,7 @@
     "EnvironmentSpatialZone",
     "EnvironmentSpatialZoneId",
     "EnvironmentZoneTemplate",
+    "EquipmentPlacementReport",
     "FALLBACK_ENVIRONMENT_SHELL",
     "GeneratedRuntimeAssetWriteResult",
     "GuardedRuntimeSelectorCandidateBundle",
@@ -122,6 +123,7 @@
     "PromoteReviewedFactoryOutputsInput",
     "ROOM_PROP_ACCENT_COLOR_FALLBACK",
     "ROOM_PROP_BODY_COLOR_FALLBACK",
+    "RealizedEquipmentPlacementEntry",
     "RegisterGeneratedRuntimeAssetReferenceInput",
     "ResolveEncounterRuntimeAssetBundleInput",
     "ResolvedEnvironmentShell",
@@ -194,6 +196,7 @@
     "evaluateScenarioOptimizationEvidence",
     "findRuntimeActorAsset",
     "findRuntimeEquipmentAsset",
+    "findRuntimeEquipmentPlacementByRealizedId",
     "immutableEncounterBundleClaimScope",
     "immutableEncounterBundleNotEvidenceFor",
     "isActorPosture",
@@ -250,7 +253,7 @@
   },
   "ceilings": {
     "testInternalImports": 1,
-    "rootEntrypointExports": 223,
+    "rootEntrypointExports": 226,
     "starExports": 8
   }
 }

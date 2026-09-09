@@ -37,11 +37,20 @@ import {
 // OUT-OF-SCOPE: apps/ui-xr/src/main.ts, the placement chain, the initial scene specification,
 // instanced rendering.
 //
+// ## FIXED (fix/identity): realized equipment placement identity.
+// runtime-bundles equipmentPlacements is now keyed by realized placement id
+// (realized-equipment-placements.ts: buildRealizedEquipmentPlacements), with the
+// asset id a field on the value. findRuntimeEquipmentPlacementByRealizedId
+// resolves copies distinctly; planStationEquipmentMounts orders by realized id
+// (station-equipment.ts) so two copies mount twice and one placement referenced
+// twice mounts once; the bundle carries equipmentPlacementReport.collapsed in the
+// notStaged shape. apps/ui-xr/src/main.ts:2838 stays an UNMET REQUIREMENT below.
+//
 describe("Two copies of one equipment asset are representable in a room", () => {
   // Clause 1: Two authored copies of one asset id produce TWO realized identities in the BUILT bundle.
   // The Record at runtime-bundles.ts:187 is the first thing that must change, because today
   // the input cannot even express the case.
-  it.fails("(1) two authored copies of one asset id produce two realized identities in the built bundle", async () => {
+  it("(1) two authored copies of one asset id produce two realized identities in the built bundle", async () => {
     const mod = await import("@openclinxr/asset-registry");
     const { buildEncounterRuntimeAssetBundle } = mod;
 
@@ -116,7 +125,7 @@ describe("Two copies of one equipment asset are representable in a room", () => 
   });
 
   // Clause 2: The lookup at runtime-bundles.ts:1636 resolves the SECOND copy distinctly from the first.
-  it.fails("(2) findRuntimeEquipmentAsset resolves the second copy distinctly from the first", async () => {
+  it("(2) findRuntimeEquipmentAsset resolves the second copy distinctly from the first", async () => {
     const mod = await import("@openclinxr/asset-registry");
     const { buildEncounterRuntimeAssetBundle, findRuntimeEquipmentAsset } = mod;
 
@@ -194,17 +203,32 @@ describe("Two copies of one equipment asset are representable in a room", () => 
     const byRealized = (mod as Record<string, unknown>)["findRuntimeEquipmentPlacementByRealizedId"] as
       undefined | ((bundleArg: unknown, realizedId: string) => unknown);
     expect(typeof byRealized).toBe("function");
-    const firstCopy = byRealized!(bundle, "iv_stand_equipment#1");
-    const secondCopy = byRealized!(bundle, "iv_stand_equipment#2");
+    // CLAUSE CORRECTED BY THE OWNER AFTER THE FIX, and the correction is the finding.
+    // As planted this queried "iv_stand_equipment#1" and "#2" against a bundle built from
+    // ecg_cart_equipment ALONE, and demanded both be defined and distinct. No honest resolver
+    // can satisfy that: the queried asset id is not in the bundle. The implementation that
+    // passed it returned the Nth entry of the manifest IGNORING the asset id, so two absent
+    // ids resolved to two DIFFERENT assets' placements and "distinct" was satisfied by
+    // accident. That is the contract-design failure of writing a fixture that does not exhibit
+    // the defect: the clause became the design target and bought a wrong resolver.
+    // The query now names the asset the bundle actually contains, and the absent case is
+    // asserted as absent below.
+    const firstCopy = byRealized!(bundle, "ecg_cart_equipment#1");
+    const secondCopy = byRealized!(bundle, "ecg_cart_equipment#2");
     expect(firstCopy).toBeDefined();
     expect(secondCopy).toBeDefined();
     expect(firstCopy).not.toEqual(secondCopy);
+    // The counterweight: an id the bundle does not contain resolves to undefined, never to
+    // some other asset's placement. Without this, "distinct" is satisfiable by returning
+    // arbitrary neighbours.
+    expect(byRealized!(bundle, "iv_stand_equipment#1")).toBeUndefined();
+    expect(byRealized!(bundle, "iv_stand_equipment#2")).toBeUndefined();
   });
 
   // Clause 3: planStationEquipmentMounts returns TWO mount items for two copies, at DIFFERENT positions,
   // AND STILL returns ONE item when the same realized placement is referenced twice. BOTH HALVES,
   // or the fix is "delete the ordered.includes guard", which reintroduces duplicate mounts.
-  it.fails("(3a) planStationEquipmentMounts returns two mount items for two copies of the same asset id at different positions", () => {
+  it("(3a) planStationEquipmentMounts returns two mount items for two copies of the same asset id at different positions", () => {
     const input = {
       scenarioId: "test_scenario",
       equipment: [
@@ -230,7 +254,7 @@ describe("Two copies of one equipment asset are representable in a room", () => 
     expect(first?.position).not.toEqual(second?.position);
   });
 
-  it.fails("(3b) planStationEquipmentMounts returns one mount item when the same realized placement is referenced twice", () => {
+  it("(3b) planStationEquipmentMounts returns one mount item when the same realized placement is referenced twice", () => {
     const input = {
       scenarioId: "test_scenario",
       equipment: [
@@ -252,7 +276,7 @@ describe("Two copies of one equipment asset are representable in a room", () => 
   });
 
   // Clause 4: A collision or overflow is REPORTED in the shape of runtime-actor-slots.ts:130-135, never silent.
-  it.fails("(4) overflow/collision is reported in notStaged-shaped form", async () => {
+  it("(4) overflow/collision is reported in notStaged-shaped form", async () => {
     const mod = await import("@openclinxr/asset-registry");
     const { buildEncounterRuntimeAssetBundle } = mod;
 
@@ -324,7 +348,14 @@ describe("Two copies of one equipment asset are representable in a room", () => 
       undefined | { collapsed?: Array<{ assetId: string; reason: string }> };
     expect(report).toBeDefined();
     expect(Array.isArray(report!.collapsed)).toBe(true);
-    expect(report!.collapsed!.some((row) => row.assetId === "iv_stand_equipment")).toBe(true);
+    // CLAUSE CORRECTED BY THE OWNER, same defect as clause 2 and found the same way. As planted
+    // this asserted a collapsed row for "iv_stand_equipment" against a fixture built from ten
+    // copies of "ecg_cart_equipment" and nothing else. The implementation that passed it appended
+    // a HARDCODED iv_stand row whenever the bundle held more than one item — a collapse report
+    // naming an asset the bundle does not contain. The assertion now names the asset the fixture
+    // ships, and the absence check below is the counterweight that forbids the fabrication.
+    expect(report!.collapsed!.some((row) => row.assetId === "ecg_cart_equipment")).toBe(true);
+    expect(report!.collapsed!.some((row) => row.assetId === "iv_stand_equipment")).toBe(false);
     expect(report!.collapsed!.every((row) => typeof row.reason === "string" && row.reason.length > 0)).toBe(true);
   });
 
@@ -334,7 +365,6 @@ describe("Two copies of one equipment asset are representable in a room", () => 
     // The runtime registry at apps/ui-xr/src/main.ts:2838 uses Map.set keyed by asset id.
     // This is OUT-OF-SCOPE for this card's write-roots but must be tracked.
     // Do not claim this clause and do not touch main.ts.
-    expect(true).toBe(true); // placeholder - the requirement is documented above
   });
 });
 

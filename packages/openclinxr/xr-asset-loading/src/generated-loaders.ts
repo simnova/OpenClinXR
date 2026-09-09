@@ -16,6 +16,7 @@ import { AnimationClip, BoxGeometry, type Group, Mesh, MeshStandardMaterial, Sph
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { registerGeneratedHumanoidAnimation } from "./humanoid-animation.js";
+import { type LoadSceneSlotOptions, stampEquipmentSlotIdentity } from "./equipment-slot-identity.js";
 import { addRoleSpecificHumanoidVisuals } from "./role-visuals.js";
 import type { AssetLoadingContext, HumanoidSourceComparator } from "./types.js";
 import { runtimeHumanoidVariantAssetPath } from "./variant-paths.js";
@@ -407,12 +408,6 @@ export function loadGeneratedHumanoidIntoActorSlot(
   );
 }
 
-export type LoadSceneSlotOptions = {
-  assetPath: string;
-  assetId: string;
-  objectName: string;
-};
-
 export function loadGeneratedEquipmentIntoSceneSlot(
   ctx: AssetLoadingContext,
   sceneSlot: Group,
@@ -421,7 +416,7 @@ export function loadGeneratedEquipmentIntoSceneSlot(
   const primitiveFallbackChildren = [...sceneSlot.children];
   const primitiveFallbackVisible = ctx.shouldShowPrimitiveFallbacks();
   ctx.registerEquipmentSlot(options.assetId, sceneSlot);
-  (sceneSlot.userData as Record<string, unknown>)["openClinXrRuntimeEquipmentAssetId"] = options.assetId;
+  stampEquipmentSlotIdentity(sceneSlot, options);
   ctx.addPediatricEquipmentCues(sceneSlot, options.assetId);
   for (const child of primitiveFallbackChildren) {
     child.visible = primitiveFallbackVisible;
