@@ -398,7 +398,7 @@ Measured against `§7 Prioritized prototype and acceptance`:
 | 0 — specify the starting scene | **partial** | `buildInitialSceneSpec` returns the four outcomes with observed evidence and names a real unwired consumer per required asset. It REPORTS; nothing consumes it, and no required state is enforced before an encounter begins. |
 | 1 — freeze one supine station as a control | **met** | `computeSupineControlFreeze` hashes every asset the station loads and refuses a recorded measurement whose bytes moved, naming the changed path. |
 | 2 — prove authoring reaches the scene | **MET 2026-09-09** | Measured on the loaded, posed, skinned humanoid after framing, pose application and 30 further frames, as a control/treatment pair: `measured delta {x: 0.3967, z: -0.0015}` against an authored `{x: 0.4, z: 0}` — err 0.0033 m and 0.0015 m against a 0.02 m tolerance derived from the unauthored control's own drift. The unauthored supine control retains its defaults. |
-| 3 — stationary clinical staging | **staging + bedside target + heading MET** | The physician is staged as a physician, placed at a bedside target computed from the patient's position, facing her, and the heading is CONSUMED at runtime. Equipment/body clearance, the approach zone and monitor visibility are still absent, and the idle/speech check is not done. |
+| 3 — stationary clinical staging | **staging, target, heading, clearance and approach zone MET** | The physician is staged as a physician, stands clear of the MEASURED deck facing the patient, the heading is consumed at runtime, and body clearance plus the approach corridor report violations against measured bounds with known-good and known-bad controls. Monitor visibility and the idle/speech body-direction check remain absent. |
 | 4 — physician approach | **not started** | — |
 | 5 — variation, replay and failure behaviour | **partial** | Only the byte-freeze half: changed asset geometry invalidates dependent evidence. No variation indices, no impossible-layout case, no corrupt-artifact refusal, no displayed-motion capture. |
 | 6 — compare one legally eligible learned provider | **not started** | Kimodo-SOMA-RP-v1.1 remains a conditional offline lead, unverified here. |
@@ -730,6 +730,39 @@ this effort went wrong at the start: equipment and body clearance, the unobstruc
 monitor visibility, and the composed-body-direction check during idle and speech. The patient
 anchor inside `bedsideClinicianPlacement` is also still a constant — a case that moves its patient
 does not yet move the clinician with her.
+
+### Clearance, the approach corridor, and an assumption of mine the test caught
+
+`bedsideClearanceViolations` reports body-clearance and approach-corridor violations against AABBs
+the caller measured off mounted objects. It does not measure them, does not solve, and does not
+move anybody. Monitor visibility is deliberately NOT in it: a line-of-sight check needs the
+monitor's mounted pose and a head height, and inventing either is the fabrication the brief's
+acceptance language guards against.
+
+Thresholds carry their provenance: the 0.3 m standing footprint radius is half a ~0.6 m adult
+shoulder breadth, an external anatomical floor rather than a number fitted to make this station
+pass; the 0.35 m corridor half-width is that body plus a margin.
+
+**Clause (5) caught a defect in my own bedside target.** It asserts that standing beside the
+patient must not report her own support as an obstacle — a check that fired there would be
+discarded rather than believed. It failed, and the cause was an assumption I had written into
+`bedside-target.ts` and never measured: *"every shipped station lays the patient along Z"*.
+
+Measured instead: `xr-station-room/src/index.ts:325` builds the deck as
+`BoxGeometry(2.35, 0.24, 0.92)` at `(-0.42, 0.42, -0.08)`. The patient lies along **X**, so my
+0.75 m offset along X put the clinician inside the deck at her head. The standoff is now taken
+from the support's measured EDGE along its SHORT plan axis, and the physician stands at
+`z = 1.13` against a deck edge of `0.38`.
+
+    senior_resident_ward_v1  additional_cast
+      position {x: -0.9, y: 0.95, z: 1.13}   0.75 m clear of the deck edge
+      headingRadians 3.1415927                facing the patient
+
+The controls are the shipped station's own geometry, not fixtures invented for the test: the deck
+is imported as `ED_STRETCHER_DECK_BOUNDS`, derived from those constructor arguments. The
+known-bad cases are the good one moved — an obstacle on the target, and one across the route —
+and clause (4) is the counterweight: with no approach origin, no corridor violation may be
+invented.
 
 ### The evidence tools' page-global alias does not exist at runtime
 

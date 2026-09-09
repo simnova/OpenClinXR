@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ED_STRETCHER_DECK_BOUNDS,
   bedsideTargetForClinician,
   forwardVectorForHeading,
   headingRadiansToward,
@@ -27,7 +28,7 @@ const PATIENT = { x: -0.9, y: 0, z: -0.1 };
 describe("the bedside heading faces the patient", () => {
   it("(1) the forward vector points AT the patient, from either approach side", () => {
     for (const side of ["patient_left", "patient_right"] as const) {
-      const target = bedsideTargetForClinician({ patientPosition: PATIENT, approachSide: side });
+      const target = bedsideTargetForClinician({ patientPosition: PATIENT, supportBounds: ED_STRETCHER_DECK_BOUNDS, approachSide: side });
       const forward = forwardVectorForHeading(target.headingRadians);
       const toPatient = unit({ x: PATIENT.x - target.position.x, z: PATIENT.z - target.position.z });
       // cos of the angle between them: 1.0 is exactly at the patient.
@@ -39,8 +40,8 @@ describe("the bedside heading faces the patient", () => {
     // The failure this catches is a function that returns one hardcoded yaw — which is what every
     // heading in the scene is today (-0.26 at actor-staging.ts:210,216 and
     // encounter-actor-framing.ts:137). A constant passes clause (1) for exactly one side.
-    const right = bedsideTargetForClinician({ patientPosition: PATIENT, approachSide: "patient_right" });
-    const left = bedsideTargetForClinician({ patientPosition: PATIENT, approachSide: "patient_left" });
+    const right = bedsideTargetForClinician({ patientPosition: PATIENT, supportBounds: ED_STRETCHER_DECK_BOUNDS, approachSide: "patient_right" });
+    const left = bedsideTargetForClinician({ patientPosition: PATIENT, supportBounds: ED_STRETCHER_DECK_BOUNDS, approachSide: "patient_left" });
     const dotOfForwards = dot2(
       forwardVectorForHeading(right.headingRadians),
       forwardVectorForHeading(left.headingRadians),
@@ -49,16 +50,23 @@ describe("the bedside heading faces the patient", () => {
   });
 
   it("(3) the target stands OFF the patient, not on her", () => {
-    const target = bedsideTargetForClinician({ patientPosition: PATIENT });
+    const target = bedsideTargetForClinician({ patientPosition: PATIENT, supportBounds: ED_STRETCHER_DECK_BOUNDS });
     const separation = Math.hypot(
       target.position.x - PATIENT.x,
       target.position.z - PATIENT.z,
     );
-    expect(separation).toBeCloseTo(0.75, 6);
-    // And it moves with the patient rather than sitting at a fixed room coordinate.
+    // Measured, not asserted at the bare standoff: with the deck's bounds supplied the standoff is
+    // taken from the deck EDGE (z = 0.38), so the separation from the patient's centre is larger
+    // by however far she lies from that edge. A test pinned to 0.75 here would be asserting that
+    // the clinician stands on the bed.
+    expect(separation).toBeGreaterThan(0.75);
+    expect(target.position.z).toBeCloseTo(0.38 + 0.75, 6);
+    // And it moves with the patient rather than sitting at a fixed room coordinate. No support
+    // bounds here, so this exercises the FALLBACK: offset along +Z by the bare standoff.
     const moved = bedsideTargetForClinician({ patientPosition: { x: 2.4, y: 0, z: 1.1 } });
-    expect(moved.position.x).not.toBeCloseTo(target.position.x, 3);
-    expect(moved.position.z).toBeCloseTo(1.1, 6);
+    expect(moved.position.x).toBeCloseTo(2.4, 6);
+    expect(moved.position.z).toBeCloseTo(1.1 + 0.75, 6);
+    expect(moved.position.z).not.toBeCloseTo(target.position.z, 3);
   });
 
   it("(4) coincident points return 0 rather than a guessed direction", () => {

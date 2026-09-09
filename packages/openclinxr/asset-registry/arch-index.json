@@ -44,6 +44,7 @@
     "ED_ADULT_CAST_PROVENANCE_PATH",
     "ED_ADULT_CAST_RUNTIME_PATH",
     "ED_CHEST_PAIN_SCENARIO_ID",
+    "ED_STRETCHER_DECK_BOUNDS",
     "ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS",
     "ENCOUNTER_LEARNER_RUNTIME_REQUIRED_GATE_IDS",
     "ENVIRONMENT_SHELL_DESCRIPTORS",
@@ -156,6 +157,7 @@
     "SceneGenerationPipelineStageId",
     "SupportedActorPositionRefusal",
     "assertRuntimeAssetApprovedForWrite",
+    "bedsideClearanceViolations",
     "bedsideTargetForClinician",
     "buildAssetProductionReviewPacket",
     "buildEncounterAssetNeedsReadinessManifest",
@@ -249,6 +251,7 @@
     "src/object-store.test.ts",
     "src/runtime-asset-review.test.ts",
     "src/runtime-bundles.test.ts",
+    "src/the-bedside-clearance-has-controls.test.ts",
     "src/the-bedside-heading-faces-the-patient.test.ts",
     "src/the-declared-equipment-resolves-a-trellis-bake-url.test.ts"
   ],
@@ -260,7 +263,7 @@
   },
   "ceilings": {
     "testInternalImports": 1,
-    "rootEntrypointExports": 231,
+    "rootEntrypointExports": 233,
     "starExports": 8
   }
 }

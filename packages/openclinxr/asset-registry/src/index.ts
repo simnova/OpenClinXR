@@ -2809,4 +2809,10 @@ export {
 // entrypoint, and every-cast-actor-is-staged-or-reported.test.ts enumerates the shipped casts.
 export { unstagedCastActors } from "./cast-actor-ids.js";
 export { listShippedCastScenarioIds } from "./actor-casting.js";
-export { bedsideTargetForClinician, forwardVectorForHeading, headingRadiansToward } from "./bedside-target.js";
+export {
+  ED_STRETCHER_DECK_BOUNDS,
+  bedsideTargetForClinician,
+  forwardVectorForHeading,
+  headingRadiansToward,
+} from "./bedside-target.js";
+export { bedsideClearanceViolations } from "./bedside-clearance.js";

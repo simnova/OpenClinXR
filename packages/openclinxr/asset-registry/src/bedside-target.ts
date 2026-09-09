@@ -50,26 +50,58 @@ export type BedsideTarget = {
   approachSide: "patient_left" | "patient_right";
 };
 
+/** Axis-aligned bounds of the support the patient lies or sits on, in world metres. */
+export type SupportBounds = { min: Vector3; max: Vector3 };
+
 /**
- * A bedside standing target beside `patientPosition`, facing it.
+ * The shipped ED bay's stretcher deck, MEASURED not assumed.
  *
- * `approachSide` picks which side; the standoff is along world X because every shipped station
- * lays the patient along Z, and a side chosen along the patient's own axis would put the clinician
- * at the head or the feet. That assumption is stated rather than hidden: a station that lays a
- * patient along X needs this to take the patient's own heading, and it does not today.
+ * `xr-station-room/src/index.ts:325` builds it as `BoxGeometry(2.35, 0.24, 0.92)` positioned at
+ * `(-0.42, 0.42, -0.08)`. The patient therefore lies along X and the bedside is along ±Z.
+ *
+ * This corrects an assumption I wrote into the first version of this file — "every shipped station
+ * lays the patient along Z" — which was wrong and put the clinician 0.75 m along X, INSIDE the
+ * deck at the patient's head. The clearance test caught it; the assumption had been stated
+ * confidently and never measured.
+ */
+export const ED_STRETCHER_DECK_BOUNDS: SupportBounds = {
+  min: { x: -0.42 - 2.35 / 2, y: 0.42 - 0.24 / 2, z: -0.08 - 0.92 / 2 },
+  max: { x: -0.42 + 2.35 / 2, y: 0.42 + 0.24 / 2, z: -0.08 + 0.92 / 2 },
+};
+
+/**
+ * A bedside standing target beside `patientPosition`, facing it and CLEAR of her support.
+ *
+ * The standoff is measured from the support's EDGE when bounds are supplied, not from the
+ * patient's centre, because a distance from the centre says nothing about whether the clinician
+ * is standing on the bed. The side axis is the support's SHORT plan axis — the patient lies along
+ * the long one, so offsetting along it would put the clinician at her head or feet.
+ *
+ * With no bounds it falls back to offsetting along Z by the bare standoff. That fallback is a
+ * guess about an unmeasured station and is marked as one here rather than presented as a default.
  */
 export function bedsideTargetForClinician(input: {
   patientPosition: Vector3;
+  supportBounds?: SupportBounds | undefined;
   approachSide?: "patient_left" | "patient_right";
   standoffMeters?: number;
 }): BedsideTarget {
   const side = input.approachSide ?? "patient_right";
   const standoff = input.standoffMeters ?? BEDSIDE_STANDOFF_METERS;
-  const position: Vector3 = {
-    x: input.patientPosition.x + (side === "patient_right" ? standoff : -standoff),
-    y: input.patientPosition.y,
-    z: input.patientPosition.z,
-  };
+  const sign = side === "patient_right" ? 1 : -1;
+  const bounds = input.supportBounds;
+
+  let position: Vector3;
+  if (bounds) {
+    const spanX = bounds.max.x - bounds.min.x;
+    const spanZ = bounds.max.z - bounds.min.z;
+    position = spanX >= spanZ
+      ? { x: input.patientPosition.x, y: input.patientPosition.y, z: (sign > 0 ? bounds.max.z : bounds.min.z) + sign * standoff }
+      : { x: (sign > 0 ? bounds.max.x : bounds.min.x) + sign * standoff, y: input.patientPosition.y, z: input.patientPosition.z };
+  } else {
+    position = { x: input.patientPosition.x, y: input.patientPosition.y, z: input.patientPosition.z + sign * standoff };
+  }
+
   return {
     position,
     headingRadians: headingRadiansToward(position, input.patientPosition),
@@ -77,15 +109,11 @@ export function bedsideTargetForClinician(input: {
   };
 }
 
-/**
- * The bedside target expressed as a runtime actor placement for the `additional_cast` slot.
- *
- * The patient anchor is the shipped station's own supine position. It is a CONSTANT here and that
- * is a limit worth naming: a case that moves its patient moves the clinician with it only once the
- * manifest resolves the patient's position first, which it does not do today.
- */
 export function bedsideClinicianPlacement(posture: "standing" | "seated" | "supine") {
-  const target = bedsideTargetForClinician({ patientPosition: { x: -0.9, y: 0, z: -0.1 } });
+  const target = bedsideTargetForClinician({
+    patientPosition: { x: -0.9, y: 0, z: -0.1 },
+    supportBounds: ED_STRETCHER_DECK_BOUNDS,
+  });
   return {
     slotKind: "additional_cast" as const,
     position: { x: target.position.x, y: 0.95, z: target.position.z },
