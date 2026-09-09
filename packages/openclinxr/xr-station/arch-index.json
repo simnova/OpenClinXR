@@ -95,7 +95,8 @@
     "src/capture-shadow-map.test.ts",
     "src/station-environment.test.ts",
     "src/station-equipment.test.ts",
-    "src/station-interior-lighting.test.ts"
+    "src/station-interior-lighting.test.ts",
+    "src/two-copies-of-one-asset-mount-separately.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/xr-station test",

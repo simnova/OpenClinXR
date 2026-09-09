@@ -49,6 +49,7 @@
     "@openclinxr/xr-runtime-state"
   ],
   "tests": [
+    "src/a-suppressed-slot-is-not-ready.test.ts",
     "src/capture-evidence.test.ts"
   ],
   "commands": {

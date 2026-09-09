@@ -60,6 +60,7 @@
     "src/lip_sync/the-lip-sync-station-rhubarb-on-wav-not-say.test.ts",
     "src/the-body-param-stage-is-split-into-modules.test.ts",
     "src/the-factory-station-schemas-validate.test.ts",
+    "src/the-staging-station-takes-a-signed-plant-vector.test.ts",
     "src/the-station-runners-are-reachable-by-station-id.test.ts",
     "src/the-station-schemas-conform-to-standard-schema.test.ts"
   ],

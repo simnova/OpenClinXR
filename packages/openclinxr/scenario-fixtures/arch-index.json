@@ -42,6 +42,7 @@
     "src/clinic-knee-pain.test.ts",
     "src/descriptor-phenotype-lookup.test.ts",
     "src/ed-chest-pain.test.ts",
+    "src/every-authored-equipment-string-is-classified.test.ts",
     "src/pediatric-asthma.test.ts",
     "src/scenario-bank.test.ts",
     "src/the-touch-response-clip-follows-the-region.test.ts"

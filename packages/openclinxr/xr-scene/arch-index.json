@@ -76,7 +76,8 @@
     "src/learner-exam-form-boot.test.ts",
     "src/learner-exam-scenario-source.test.ts",
     "src/learner-phase-trace-source.test.ts",
-    "src/learner-scenario-body-provenance.test.ts"
+    "src/learner-scenario-body-provenance.test.ts",
+    "src/the-framing-guard-keeps-seated-and-supine-anchors.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/xr-scene test",

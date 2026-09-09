@@ -50,6 +50,7 @@
     "@openclinxr/voice-gateway"
   ],
   "tests": [
+    "src/a-scheduled-event-fires-once-at-its-second.test.ts",
     "src/actor-turn-plan-is-frozen-before-render.test.ts",
     "src/api-canonical-phase-session.test.ts",
     "src/assembled-exam-orchestrator.test.ts",
@@ -57,7 +58,8 @@
     "src/deterministic-dialogue-runtime.test.ts",
     "src/exam-run-bridge.test.ts",
     "src/scenario-runtime.test.ts",
-    "src/the-assembled-exam-emits-replayable-phase-transitions.test.ts"
+    "src/the-assembled-exam-emits-replayable-phase-transitions.test.ts",
+    "src/the-scene-spec-reports-an-absent-required-asset.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/scenario-runtime test",
