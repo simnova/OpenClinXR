@@ -29,16 +29,21 @@ every link, with two additions.
 
 Two findings beyond the brief.
 
-**The faculty lock preserves nothing.** `PLACEMENT_OVERRIDE_PATHS` includes
+**The faculty lock is stored and inert.** `PLACEMENT_OVERRIDE_PATHS` includes
 `/plantOffsetMeters` (`encounter-materialization-evidence.ts:634`) and
 `encounter-materialization-faculty-locks.ts:45-46` treats it as lockable. The
-override IS applied: `specAfterOverride`
-(`encounter-materialization-compile.ts:167-176`) copies `node.spec` and upserts
-the pointer, so a lock changes the recipe hash. What it cannot do is preserve an
-authored value, because the emitter never writes the key (`:309-315`) and no
-Placement baker reads the patched spec while the node is `planned_unsplit`.
-Putting the offset on the spec is necessary and not sufficient; a baker has to
-read it. See §5 — this document asserted the wrong mechanism twice.
+override is never applied to a Placement node at all. `specAfterOverride`
+(`encounter-materialization-compile.ts:167-176`) is called only from
+`recipeKeyFor` (`:88-95`), and `:136` reads
+`const skipCapable = node.family === "EquipVariant" || node.family === "Room"`.
+Placement is neither, so it keeps `node.cacheKey` — null from the emitter — and
+the patch is neither hashed nor read. A `/plantOffsetMeters` lock sits on the
+node and does nothing.
+
+Putting the offset on the emitted spec is a precondition for a future
+skip-capable Placement family, not a fix for the lock. See §5: this document
+asserted three different mechanisms for this one behaviour before measuring the
+gate at `:136`, and each wrong one survived a round of review.
 
 **`min={0}` makes the authored data unrepresentable.** `clinic-knee-pain.ts:76`
 authors `x: -0.55`. The admin control cannot express it.
@@ -224,9 +229,9 @@ merges on main without a lease).
 
 ## 2b. The cards
 
-Idle on BothyBoard project OpenClinXR, not planted. Two review rounds replaced
+Idle on BothyBoard project OpenClinXR, NOT PLANTED. Three review rounds replaced
 cards rather than patching them, because the board exposes no body edit. The
-seventeen superseded cards are set `cancelled`; these eleven are live.
+twenty superseded cards are `cancelled`; these eleven are live.
 
 | card | id | wave | lane | step |
 |---|---|---|---|---|
@@ -235,21 +240,22 @@ seventeen superseded cards are set `cancelled`; these eleven are live.
 | readiness pair | `tsk_807db8f354dcf8bb` | 1 | A | instrument |
 | equipment binding | `tsk_cb291bb3a132193d` | 1 | B | room_generate |
 | event dispatcher | `tsk_4d495eb216687476` | 1 | B | dialogue_runtime |
-| factory resolution | `tsk_a998bd15b2ad2316` | 2 | B | staging |
+| factory resolution | `tsk_4056627a15f1e232` | 2 | B | staging |
 | transform survival | `tsk_be070f9e44043858` | 2 | A | staging |
 | equipment identity | `tsk_86aebc46ba791e1a` | 2 | A | equipment_generate |
 | motion ownership | `tsk_cd89494db42a2e6b` | 2 | A | motion_retarget |
-| scene specification | `tsk_f132048e2170fe07` | 2 | B | room_generate |
-| runtime consumption | `tsk_1fc0c05f84a6a344` | 3 | A | staging |
+| scene specification | `tsk_a505eee4db2d9786` | 2 | B | room_generate |
+| runtime consumption | `tsk_7034ca365ec546f6` | 3 | A | staging |
 
-### Every card names a planted RED that fails on HEAD
+### THE SET IS NOT PLANTABLE YET, and the reason is one thing
 
-Round 2's sharpest finding: no `done_when` was a test that could fail today.
-Every "the RED must fail on HEAD" was a worker instruction, and every `run:`
-suite was green. Six cards now name a specific test file the OWNER commits
-FAILING before the card is planted, and that file is the first `run:` line:
+Six cards name a planted RED as their first `run:` line. **None of those six files
+exists.** A `run:` on a missing file prints "No test files found" and exits 1 —
+it fails for the wrong reason, and it encodes no product clause. Planting now
+would send a worker to write the test and the fix in one pass, which is the
+producer grading its own output.
 
-| card | planted RED |
+| card | planted RED, to be committed FAILING before plant |
 |---|---|
 | factory resolution | `tools/openclinxr/factory/the-placement-node-carries-the-authored-offset.test.ts` |
 | transform survival | `packages/openclinxr/xr-scene/src/the-framing-guard-keeps-seated-and-supine-anchors.test.ts` |
@@ -258,35 +264,29 @@ FAILING before the card is planted, and that file is the first `run:` line:
 | scene specification | `packages/openclinxr/scenario-runtime/src/the-scene-spec-reports-an-absent-required-asset.test.ts` |
 | runtime consumption | `apps/ui-xr/src/the-authored-offset-reaches-the-posed-humanoid.test.ts` |
 
-### The sequencing trap round 2 found
+Round 3 checked each clause list against HEAD as if the files existed. Four
+clauses were too weak and are now corrected on the cards:
 
-The survival card's "refuse an unknown posture" fix is correct today and undoes
-itself once the runtime card lands. The keep-XZ guard at
-`encounter-actor-framing.ts:133-141` is SEATED-ONLY. The patient currently
-reaches framing with no posture, so refusing unknown preserves the stretcher
-plant. But when the runtime card stamps `supine` before framing, the seated-only
-guard misses and the patient falls to `position.set(-0.9, 0, 0.08)` at `:155-159`
-— the standing frame.
+- **factory** — asserting only the compile node let a worker put the vector on
+  `spec` and touch the builder with a comment. The RED now asserts
+  `generatedActorPlacement` returns the clinic vectors, not an index-derived
+  position.
+- **runtime** — reading `runtimeActorPlacement`'s return is not the posed
+  humanoid. The RED now samples after framing, pose application and one further
+  frame, with an unauthored discriminator that can actually move.
+- **scene spec** — a reporter that marks everything unsatisfied passed. The RED
+  now also asserts a PRESENT required asset is satisfied.
+- **survival** — the seated clause is green today, which is correct: it is the
+  known-good column. The supine and unknown clauses are the failing ones.
 
-The survival card's RED therefore requires keep-XZ for supine as well as seated.
-The two cards stay separate: merging would put `main.ts` into a card that does
-not need the repo's most contended file.
+Round 3 also confirmed two calls: keeping `encounter-materialization-compile.ts`
+out of the factory card is right, because Placement is not skip-capable and the
+lock waits for a later slice; and the supine keep-XZ extension belongs pinned to
+the existing seated `if` at `encounter-actor-framing.ts:133-141`, since hoisting
+it above `:107` would skip the telehealth chair plant.
 
-### The faculty lock, corrected a third time
-
-`specAfterOverride` (`encounter-materialization-compile.ts:167-176`) is called
-only from `recipeKeyFor` (`:88-95`), and `:136` reads
-`const skipCapable = node.family === "EquipVariant" || node.family === "Room"`.
-Placement is neither, so it keeps `node.cacheKey` — null from the emitter — and
-the override is never hashed at all. A `/plantOffsetMeters` lock is stored on the
-node and does nothing.
-
-`encounter-materialization-compile.ts` is not in the factory card's write roots,
-so that card CANNOT make the lock real and is told not to claim it.
-
-I asserted three different mechanisms for this one behaviour, each wrong, each
-corrected by looking one level deeper than I had. Recorded because the pattern is
-about verification depth, not about this file.
+One missing edge was added: the runtime card takes the `main.ts:2838` equipment
+Map and now depends on the identity card, which mints the realized id it stores.
 
 ## 3. Acceptance that cannot pass about nothing
 
@@ -332,7 +332,8 @@ disjointness, not a measurement of worker throughput on this work.
 Reviewed by grok-4.6 with the repository, the TypeScript LSP and the BothyBoard
 MCP, 2026-09-09. Full record:
 [round 1](scene-layout-consultation-records-2026-09-09/grok-4.6-plan-review-round-1.md)
-and [round 2](scene-layout-consultation-records-2026-09-09/grok-4.6-plan-review-round-2.md).
+[round 2](scene-layout-consultation-records-2026-09-09/grok-4.6-plan-review-round-2.md)
+and [round 3](scene-layout-consultation-records-2026-09-09/grok-4.6-plan-review-round-3.md).
 Every correction below was re-verified against the tree before being written here.
 
 **The faculty lock IS applied. My mechanism was wrong, twice.** Section 1 said the

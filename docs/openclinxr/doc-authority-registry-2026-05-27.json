@@ -7,7 +7,7 @@
     "agent-methodology": 105,
     "current-reference": 208,
     "archive-candidate": 55,
-    "evidence": 70,
+    "evidence": 71,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -3959,6 +3959,13 @@
     },
     {
       "path": "docs/openclinxr/scene-layout-consultation-records-2026-09-09/grok-4.6-plan-review-round-2.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/scene-layout-consultation-records-2026-09-09/grok-4.6-plan-review-round-3.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
