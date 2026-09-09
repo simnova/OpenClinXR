@@ -398,7 +398,7 @@ Measured against `§7 Prioritized prototype and acceptance`:
 | 0 — specify the starting scene | **partial** | `buildInitialSceneSpec` returns the four outcomes with observed evidence and names a real unwired consumer per required asset. It REPORTS; nothing consumes it, and no required state is enforced before an encounter begins. |
 | 1 — freeze one supine station as a control | **met** | `computeSupineControlFreeze` hashes every asset the station loads and refuses a recorded measurement whose bytes moved, naming the changed path. |
 | 2 — prove authoring reaches the scene | **MET 2026-09-09** | Measured on the loaded, posed, skinned humanoid after framing, pose application and 30 further frames, as a control/treatment pair: `measured delta {x: 0.3967, z: -0.0015}` against an authored `{x: 0.4, z: 0}` — err 0.0033 m and 0.0015 m against a 0.02 m tolerance derived from the unauthored control's own drift. The unauthored supine control retains its defaults. |
-| 3 — stationary clinical staging | **all geometric requirements MET** | Staged as a physician, clear of the measured deck, facing the patient, heading consumed at runtime, and clearance / approach corridor / monitor visibility all report violations against measured bounds with known-good and known-bad controls. The composed-body-direction check during idle and speech is the one remaining clause. |
+| 3 — stationary clinical staging | **MET** | Staged as a physician, clear of the measured deck, facing the patient, heading consumed, clearance / approach corridor / monitor visibility reporting against measured bounds with controls, and the idle sway COMPOSES onto the persistent heading within a bounded allowance. What is NOT claimed: none of it is measured on a loaded humanoid the way step 2 is, and clinical correctness of any position remains a clinician's call. |
 | 4 — physician approach | **not started** | — |
 | 5 — variation, replay and failure behaviour | **partial** | Only the byte-freeze half: changed asset geometry invalidates dependent evidence. No variation indices, no impossible-layout case, no corrupt-artifact refusal, no displayed-motion capture. |
 | 6 — compare one legally eligible learned provider | **not started** | Kimodo-SOMA-RP-v1.1 remains a conditional offline lead, unverified here. |
@@ -794,6 +794,34 @@ the regression net.
 Its other three — an omitted `approachFrom` silently skipping the corridor check, a zero-length
 approach doing the same, and a sub-margin gap that clears a static footprint but not a turning
 shoulder — are recorded, unfixed, and real.
+
+### The sway composed, and step 3's last clause
+
+`main.ts:3484-3485` wrote `actor.rotation.y = Math.sin(now / 900) * 0.12`. That ASSIGNS: a heading
+consumed at staging is destroyed on the first frame, so a clinician placed facing the patient faces
+wherever the sine happens to be. It is the same defect the transform card fixed for position, one
+axis over, and it survived because nothing ever measured a heading after a frame.
+
+Both actors now compose onto a persistent base stamped at staging
+(`userData.openClinXrBaseHeadingRadians`, recorded after everything that writes rotation.y there),
+and the amplitude is CLAMPED to the allowance rather than trusted — an amplitude beyond it is a
+caller error, and obeying it silently would let a future edit turn an actor away from the patient
+one frame at a time.
+
+The allowance is 0.2 rad, ~11.5 degrees, derived from the shipped sway amplitudes rather than
+invented: the two in the frame loop are 0.08 and 0.12, and the allowance is their sum, so both
+compose within it and a third exceeding them both would not.
+
+**Clause (2) is the counterweight and it is the old code**: the assigning form must FAIL the same
+check. Without it, clause (1) proves nothing — a check that passes for both the fix and the defect
+is measuring neither. Clause (4) pins the wrap: a base just below +pi and an observed heading just
+above -pi are 0.02 rad apart, not 6.26, and without wrapping every correct scene across that seam
+reports a 359-degree deviation.
+
+**Step 3 is met.** What is not claimed: none of these checks is measured on a loaded humanoid the
+way step 2 is — they are pure functions over measured geometry, and wiring them into the live
+capture is the obvious next slice. Clinical correctness of any position stays a clinician's call,
+which the brief says explicitly and no test here changes.
 
 ### The evidence tools' page-global alias does not exist at runtime
 

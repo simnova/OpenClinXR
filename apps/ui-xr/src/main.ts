@@ -217,6 +217,7 @@ import {
   type XrTraceActionHandoffAction,
   type XrTraceActionHandoffEvidence,
   type XrTraceInteractionEvidenceSummary,
+  composedIdleBodyHeading,
   supportedActorPlacementPosition,
   xrExperienceModeEvidence,
 } from "@openclinxr/xr-runtime-state";
@@ -3481,8 +3482,21 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     const patientActorSupine = patient.userData?.openClinXrActorPosture === "supine"
       || (Array.isArray(patient.children)
         && patient.children.some((c) => c.userData?.openClinXrActorPosture === "supine"));
-    patient.rotation.y = patientActorSupine ? patient.rotation.y : Math.sin(now / 1200) * 0.08;
-    nurse.rotation.y = Math.sin(now / 900) * 0.12;
+    // COMPOSED onto each actor's persistent heading, not assigned over it. These two lines used
+    // to be `rotation.y = Math.sin(...) * amplitude`, which destroyed a consumed heading on the
+    // first frame — the same defect as the position writes, one axis over.
+    const swayBase = (actor: Group): number =>
+      typeof actor.userData.openClinXrBaseHeadingRadians === "number"
+        ? (actor.userData.openClinXrBaseHeadingRadians as number)
+        : 0;
+    if (!patientActorSupine) {
+      patient.rotation.y = composedIdleBodyHeading({
+        baseHeadingRadians: swayBase(patient), nowMs: now, periodMs: 1200, amplitudeRadians: 0.08,
+      });
+    }
+    nurse.rotation.y = composedIdleBodyHeading({
+      baseHeadingRadians: swayBase(nurse), nowMs: now, periodMs: 900, amplitudeRadians: 0.12,
+    });
     renderer.render(scene, camera);
   }
 

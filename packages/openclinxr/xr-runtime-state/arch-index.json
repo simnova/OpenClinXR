@@ -20,6 +20,7 @@
     "GeneratedDriveScalarInput",
     "GeneratedDriveScalarValue",
     "HumanoidSpeechEvidence",
+    "IDLE_BODY_DIRECTION_ALLOWANCE_RADIANS",
     "INFINIGEN_ENVIRONMENT_ASSETS",
     "LEARNER_CANONICAL_PHASE_TYPES",
     "LEARNER_EXAM_PHASE_NOT_EVIDENCE_FOR",
@@ -69,6 +70,7 @@
     "authoredPlantOffsetMeters",
     "authoredSafetyCriticalTraceTagsForScenario",
     "authoredTraceTagsForScenario",
+    "bodyDirectionWithinAllowance",
     "buildConversationTurnStateEvidence",
     "buildIwsdkStationMcpSmokePlan",
     "buildManualPerformanceCaptureSummary",
@@ -83,6 +85,7 @@
     "buildXrTraceActionHandoffEvidence",
     "buildXrTraceInteractionEvidenceSummary",
     "completeTraceAction",
+    "composedIdleBodyHeading",
     "createExamStationRunQueueSnapshot",
     "createInitialRuntimeState",
     "createLearnerCanonicalPhaseTraceStore",
@@ -142,7 +145,8 @@
   "tests": [
     "src/generated-drive-scalar.test.ts",
     "src/runtime-actor-slots.test.ts",
-    "src/runtime-state.test.ts"
+    "src/runtime-state.test.ts",
+    "src/the-sway-composes-onto-the-heading.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/xr-runtime-state test",
@@ -152,6 +156,6 @@
   },
   "ceilings": {
     "testInternalImports": 3,
-    "rootEntrypointExports": 128
+    "rootEntrypointExports": 131
   }
 }

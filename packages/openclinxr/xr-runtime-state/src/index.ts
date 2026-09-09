@@ -160,3 +160,8 @@ export {
   familyChairFixtureWorldPosition,
   supportedActorPlacementPosition,
 } from "./supported-actor-placement.js";
+export {
+  IDLE_BODY_DIRECTION_ALLOWANCE_RADIANS,
+  bodyDirectionWithinAllowance,
+  composedIdleBodyHeading,
+} from "./composed-body-direction.js";

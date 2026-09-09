@@ -142,6 +142,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
     slotKind: patientPlacement.slotKind,
   };
   patient.userData.openClinXrActorId = patientActorId;
+  patient.userData.openClinXrBaseHeadingRadians = patient.rotation.y;
   if (patientActorId) {
     loadGeneratedHumanoidIntoActorSlot(ctx.assetLoadingContext(), patient, {
       assetPath: ctx.resolveAssetUrl(patientRuntimeHumanoidAsset),
@@ -187,6 +188,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   nurse.userData.openClinXrSlotKind = "clinical_team";
   nurse.userData.openClinXrActorPosture = nursePlacement.posture ?? "standing";
   nurse.userData.openClinXrActorId = clinicalActorId;
+  nurse.userData.openClinXrBaseHeadingRadians = nurse.rotation.y;
   if (clinicalActorId) {
     loadGeneratedHumanoidIntoActorSlot(ctx.assetLoadingContext(), nurse, {
       assetPath: ctx.resolveAssetUrl(nurseRuntimeHumanoidAsset),
@@ -299,6 +301,10 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
     additional.rotation.y = additionalPlacement.headingRadians;
     additional.userData.openClinXrConsumedHeadingRadians = additionalPlacement.headingRadians;
   }
+  // The PERSISTENT heading, stamped after everything that writes rotation.y at staging time. The
+  // frame loop composes its idle sway onto this instead of assigning over it; without a recorded
+  // base there is nothing to compose onto and the first frame discards the placement.
+  additional.userData.openClinXrBaseHeadingRadians = additional.rotation.y;
   if (additionalActorId) {
     additional.add(ctx.createActorNameplate(actorNameplateLabel(additionalPlacement.labelPrefix, additionalActorId), 0x5b4a9a));
   }
