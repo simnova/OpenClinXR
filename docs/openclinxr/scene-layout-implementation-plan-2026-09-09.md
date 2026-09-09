@@ -399,7 +399,7 @@ Measured against `§7 Prioritized prototype and acceptance`:
 | 1 — freeze one supine station as a control | **met** | `computeSupineControlFreeze` hashes every asset the station loads and refuses a recorded measurement whose bytes moved, naming the changed path. |
 | 2 — prove authoring reaches the scene | **MET 2026-09-09** | Measured on the loaded, posed, skinned humanoid after framing, pose application and 30 further frames, as a control/treatment pair: `measured delta {x: 0.3967, z: -0.0015}` against an authored `{x: 0.4, z: 0}` — err 0.0033 m and 0.0015 m against a 0.02 m tolerance derived from the unauthored control's own drift. The unauthored supine control retains its defaults. |
 | 3 — stationary clinical staging | **MET** | Staged as a physician, clear of the measured deck, facing the patient, heading consumed, clearance / approach corridor / monitor visibility reporting against measured bounds with controls, and the idle sway COMPOSES onto the persistent heading within a bounded allowance. What is NOT claimed: none of it is measured on a loaded humanoid the way step 2 is, and clinical correctness of any position remains a clinician's call. |
-| 4 — physician approach | **partial** | The bounded path, continuous-path collision and final-pose measurements are met. NO executor, NO foot-sliding measurement, and the patient is untouched — three of step 4's clauses are explicitly not delivered. |
+| 4 — physician approach | **all clauses have an implementation; one reports a FAILING number** | Bounded path, continuous-path collisions, final pose, a goal executor that stops at the target and refuses an unproven plan, and a foot-sliding measurement. The measurement's verdict on this executor is 3.660 m of slide over a 3.660 m walk — the feet ride the root, because no locomotion clip ships. Recorded as the true state, not as a pass. The patient stays statically supine, as step 4 requires. |
 | 5 — variation, replay and failure behaviour | **partial, four of five clauses** | Changed asset geometry invalidates dependent evidence; variation indices are seeded, reproducible and actually explore; an impossible layout is refused with every candidate named; a corrupt or removed artifact is refused with the four cases distinguished. Only displayed-motion capture remains, and it is blocked on the executor. |
 | 6 — compare one legally eligible learned provider | **CLOSED, negative** | `reject_measured`: the code says a 77-joint skeleton, the checkpoint says 30. The manifest filter fails on a measured contradiction, so the baseline is retained. A negative cagematch result closes the item, which is what the brief says. Record: `kimodo-soma-rp-v11-cagematch-2026-09-09.md`. |
 
@@ -962,6 +962,36 @@ the gate to refuse it. A gate reading the boolean would promote it.
 
 That is the "one contract, not two declarations" failure caught before it could bite: the type
 should carry one of the two, and until it does, a test pins which one wins.
+
+### The executor, and a measurement that reports its own failure
+
+`stepBedsideApproach` advances a root along the validated polyline at a walking speed and stops at
+the goal. It is a GOAL executor, not a clip executor, and the difference is the honest part: this
+project ships no locomotion clip — the only approved motion source is Mesh2Motion's seated/talking
+BVH — so there is no clip to play.
+
+It **refuses** a plan carrying path violations. Driving an actor along a route that collides would
+make step 4's collision measurement decorative, so a route that was never proven clear is not
+walked.
+
+**The foot-sliding measurement grades this executor and the verdict is bad:**
+
+    path length 3.660 m | foot slide 3.660 m | contact frames 41 | worst frame 0.110 m
+
+The feet ride the root exactly, because nothing drives the legs. That is recorded as the true state
+of the runtime rather than dressed up: the brief refuses a `clipPlayed` flag as evidence, and a
+measurement that reports 100% sliding is strictly more useful than a green boolean. The same metric
+grades a real clip without changing, and the number drops when one exists.
+
+Two details make the metric legible rather than merely numeric. Slide is SUMMED, not averaged —
+averaging hides a pop inside a long clean stretch, and a pop is what a viewer sees, so the worst
+single frame is reported beside the total. And `contactFrames` travels with the result, because a
+foot that never touches the floor reports zero slide: that is the metric saying it observed
+nothing, and it must not look like a pass. Clause (6) pins that distinction.
+
+**What step 4 still lacks** is not a measurement but the thing being measured: a validated
+locomotion clip driving the legs. Every clause of step 4 now has an implementation and a number;
+one of those numbers says the current implementation is wrong, which is what a measurement is for.
 
 ### The evidence tools' page-global alias does not exist at runtime
 

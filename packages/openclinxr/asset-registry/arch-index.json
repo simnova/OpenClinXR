@@ -203,6 +203,7 @@
     "findRuntimeActorAssetByRole",
     "findRuntimeEquipmentAsset",
     "findRuntimeEquipmentPlacementByRealizedId",
+    "footSlideMeters",
     "forwardVectorForHeading",
     "headingRadiansToward",
     "immutableEncounterBundleClaimScope",
@@ -236,6 +237,7 @@
     "seatedActorWorldPosition",
     "seatedVerticalOffsetForSeatHeight",
     "selectAssetPipelineToolsForLane",
+    "stepBedsideApproach",
     "supineActorWorldPosition",
     "supineVerticalOffsetSeed",
     "toLearnerRuntimeAssetBundle",
@@ -262,6 +264,7 @@
     "src/the-bedside-clearance-has-controls.test.ts",
     "src/the-bedside-heading-faces-the-patient.test.ts",
     "src/the-declared-equipment-resolves-a-trellis-bake-url.test.ts",
+    "src/the-executor-arrives-and-feet-are-measured.test.ts",
     "src/the-layout-varies-and-refuses.test.ts",
     "src/the-monitor-visibility-has-two-failures.test.ts"
   ],
@@ -273,7 +276,7 @@
   },
   "ceilings": {
     "testInternalImports": 1,
-    "rootEntrypointExports": 240,
+    "rootEntrypointExports": 242,
     "starExports": 8
   }
 }

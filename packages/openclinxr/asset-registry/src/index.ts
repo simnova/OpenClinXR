@@ -2819,3 +2819,4 @@ export { bedsideClearanceViolations } from "./bedside-clearance.js";
 export { ED_MONITOR_BOUNDS, monitorVisibilityFrom, screenNormal } from "./monitor-visibility.js";
 export { APPROACH_WAYPOINT_SPACING_METERS, planBedsideApproach } from "./bedside-approach-path.js";
 export { deriveLayoutVariationSeed, resolveBedsideLayout } from "./layout-variation.js";
+export { footSlideMeters, stepBedsideApproach } from "./approach-executor.js";
