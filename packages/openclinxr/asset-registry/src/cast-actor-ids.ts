@@ -28,6 +28,16 @@ export type BundleCastActorIds = {
   patientActorId: string;
   clinicalActorId: string;
   familyActorId: string;
+  /**
+   * The FOURTH slot. `RUNTIME_SLOT_KINDS` has always had `additional_cast`
+   * (xr-runtime-state/src/runtime-actor-slots.ts:19-24) and the staging code has always read it
+   * (actor-staging.ts:267), but the bundle supplied only three actors, so it was never filled.
+   *
+   * A physician takes it first, because a physician is the one role the brief names in step 3 and
+   * the one a case cannot express any other way. Otherwise the first cast actor that no other slot
+   * claimed. Empty when the cast has nothing left over.
+   */
+  additionalActorId: string;
 };
 
 /** The three slots the local encounter bundle stages, resolved from one cast table. */
@@ -36,7 +46,28 @@ export function resolveBundleCastActorIds(cast: readonly ScenarioActorCast[]): B
     patientActorId: castActorIdForRoles(cast, ["patient"], "patient_robert_hayes_v1"),
     clinicalActorId: castActorIdForRoles(cast, ["nurse", "medical_assistant"], "nurse_maria_alvarez_v1"),
     familyActorId: castActorIdForRoles(cast, ["family", "family_member"], "spouse_anna_hayes_v1"),
+    additionalActorId: additionalCastActorId(cast),
   };
+}
+
+/**
+ * Who fills `additional_cast`: the physician if one is cast, otherwise the first actor no other
+ * slot took, otherwise nobody.
+ *
+ * Physician-first is not a tiebreak, it is the brief's requirement. Measured 2026-09-09,
+ * `ward_delirium_med_rec_v1` casts four — patient, family, physician and nurse — and the clinical
+ * slot takes `nurse` by role order, so without this the physician is the one dropped and a learner
+ * meets a ward nurse where the case wrote a senior resident.
+ */
+function additionalCastActorId(cast: readonly ScenarioActorCast[]): string {
+  const taken = new Set([
+    castActorIdForRoles(cast, ["patient"], ""),
+    castActorIdForRoles(cast, ["nurse", "medical_assistant"], ""),
+    castActorIdForRoles(cast, ["family", "family_member"], ""),
+  ]);
+  const physician = cast.find((entry) => entry.role === "physician" && !taken.has(entry.actorId));
+  if (physician) return physician.actorId;
+  return cast.find((entry) => !taken.has(entry.actorId))?.actorId ?? "";
 }
 
 /** A cast actor the local bundle does not stage, and why. */
@@ -60,7 +91,7 @@ export type UnstagedCastActor = { actorId: string; role: string; reason: string 
  * silently.
  */
 export function unstagedCastActors(cast: readonly ScenarioActorCast[]): UnstagedCastActor[] {
-  const staged = new Set(Object.values(resolveBundleCastActorIds(cast)));
+  const staged = new Set(Object.values(resolveBundleCastActorIds(cast)).filter((id) => id !== ""));
   return cast
     .filter((entry) => !staged.has(entry.actorId))
     .map((entry) => ({

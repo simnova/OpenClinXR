@@ -398,7 +398,7 @@ Measured against `§7 Prioritized prototype and acceptance`:
 | 0 — specify the starting scene | **partial** | `buildInitialSceneSpec` returns the four outcomes with observed evidence and names a real unwired consumer per required asset. It REPORTS; nothing consumes it, and no required state is enforced before an encounter begins. |
 | 1 — freeze one supine station as a control | **met** | `computeSupineControlFreeze` hashes every asset the station loads and refuses a recorded measurement whose bytes moved, naming the changed path. |
 | 2 — prove authoring reaches the scene | **MET 2026-09-09** | Measured on the loaded, posed, skinned humanoid after framing, pose application and 30 further frames, as a control/treatment pair: `measured delta {x: 0.3967, z: -0.0015}` against an authored `{x: 0.4, z: 0}` — err 0.0033 m and 0.0015 m against a 0.02 m tolerance derived from the unauthored control's own drift. The unauthored supine control retains its defaults. |
-| 3 — stationary clinical staging | **started** | Its first requirement is met: the omitted physician is REPORTED rather than substituted. Bedside target, orientation, clearance, approach zone and monitor visibility are still absent. |
+| 3 — stationary clinical staging | **first requirement MET** | The physician is STAGED, as a physician, without displacing the nurse. Bedside target, orientation toward the patient, equipment/body clearance, approach zone and monitor visibility are still absent. |
 | 4 — physician approach | **not started** | — |
 | 5 — variation, replay and failure behaviour | **partial** | Only the byte-freeze half: changed asset geometry invalidates dependent evidence. No variation indices, no impossible-layout case, no corrupt-artifact refusal, no displayed-motion capture. |
 | 6 — compare one legally eligible learned provider | **not started** | Kimodo-SOMA-RP-v1.1 remains a conditional offline lead, unverified here. |
@@ -667,6 +667,37 @@ cannot degenerate into a constant that names actors everywhere and means nothing
 
 This does not stage the physician. A fourth humanoid slot is its own slice, and claiming otherwise
 would be the overclaim the brief's own acceptance language guards against.
+
+### The physician is staged, in a slot that existed all along
+
+Reporting the omission was the first half; this is the second. `RUNTIME_SLOT_KINDS` has always
+listed `additional_cast` and `actor-staging.ts:267` has always read it — the bundle simply never
+supplied a fourth actor, so a cast of four lost one.
+
+    ward_delirium_med_rec_v1
+      before   patient, nurse, family_member                    physician dropped
+      after    patient, nurse, family_member, PHYSICIAN         nurse keeps her slot
+    ed_chest_pain_priority_v2
+      before   patient, nurse, family_member                    unchanged
+      after    patient, nurse, family_member                    unchanged
+
+Physician-first is the selection rule, not a tiebreak: the clinical slot takes `nurse` by role
+order, so without it the physician is precisely the actor that gets dropped. Any other leftover
+cast actor fills the slot when no physician is cast, and the slot stays empty when the cast has
+only three.
+
+The actor is staged **as a physician** — `role: "physician"`, added to the published role union
+beside `consultant` and `interpreter`. Relabelling it `other` would satisfy a presence check while
+losing the thing step 3 is about. The test asserts the role and asserts the nurse is still staged,
+because "the physician appears" is also satisfiable by displacing her.
+
+`unstagedCastActors` now returns `[]` for that case, and its counterweight still holds: a report
+that named actors everywhere would pass the presence clauses and mean nothing.
+
+Shrink-only budgets forced a third split of `runtime-bundles.ts` — `bundle-actors.ts` takes the
+actor list, which is the "shape" half of the builder/validate/shape separation that file's freeze
+note asks for. It stands at 1,622 lines against a 1,638 ceiling, down from 1,720 at the start of
+this effort.
 
 ### The evidence tools' page-global alias does not exist at runtime
 

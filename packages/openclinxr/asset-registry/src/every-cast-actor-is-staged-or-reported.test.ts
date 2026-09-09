@@ -30,24 +30,27 @@ describe("every cast actor is staged or reported", () => {
     }
   });
 
-  it("(2) the ward physician is REPORTED, not silently substituted by the nurse", () => {
-    // The one shipped case that casts a physician. It is measured here rather than described:
-    // if this stops holding, either the physician gained a slot (good, update this) or the
-    // report stopped naming it (the silence returning).
+  it("(2) the ward physician is STAGED — it used to be dropped, then reported, now staged", () => {
+    // History, because the assertion inverted twice in one session and the reason matters. The
+    // cast declared four actors and the bundle staged three: the clinical slot took the nurse by
+    // role order and the physician disappeared with no record, so a learner met a ward nurse where
+    // the case wrote a senior resident. It was first made REPORTABLE, then given the fourth slot
+    // RUNTIME_SLOT_KINDS always had.
     const cast = resolveScenarioActorCast("ward_delirium_med_rec_v1");
-    const physician = cast.find((entry) => entry.role === "physician");
-    expect(physician?.actorId).toBe("senior_resident_ward_v1");
+    expect(cast.find((entry) => entry.role === "physician")?.actorId).toBe("senior_resident_ward_v1");
 
     const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
       scenarioId: "ward_delirium_med_rec_v1",
     });
-    expect(bundle.actors.map((actor) => actor.actorId)).not.toContain("senior_resident_ward_v1");
-
-    const unstaged = unstagedCastActors(cast);
-    const row = unstaged.find((entry) => entry.actorId === "senior_resident_ward_v1");
-    expect(row, "the omitted physician must appear in the unstaged report").toBeDefined();
-    expect(row?.role).toBe("physician");
-    expect(row?.reason.length).toBeGreaterThan(0);
+    expect(bundle.actors.map((actor) => actor.actorId)).toContain("senior_resident_ward_v1");
+    // Staged AS a physician, not relabelled. Substituting the role would satisfy a presence check
+    // while losing exactly what the brief asks to preserve.
+    expect(
+      bundle.actors.find((actor) => actor.actorId === "senior_resident_ward_v1")?.role,
+    ).toBe("physician");
+    // And the nurse keeps her own slot: the physician did not displace her.
+    expect(bundle.actors.map((actor) => actor.actorId)).toContain("ward_nurse_patel_v1");
+    expect(unstagedCastActors(cast)).toEqual([]);
   });
 
   it("(3) COUNTERWEIGHT: a fully staged cast reports NOTHING, so the report is not a constant", () => {

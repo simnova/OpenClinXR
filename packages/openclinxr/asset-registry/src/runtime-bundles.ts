@@ -18,6 +18,7 @@ export {
   ED_ADULT_CAST_RUNTIME_PATH, ED_CHEST_PAIN_SCENARIO_ID, PEDS_ASTHMA_SCENARIO_ID,
   provenancePathForRuntimeAsset, resolveRuntimeCastAssetPath, resolveScenarioActorCast } from "./actor-casting.js";
 import { type AuthoredPosture, authoredCasePlacements, postureForSupportSurface } from "./case-actor-placements.js";
+import { buildLocalEncounterActors } from "./bundle-actors.js";
 import { resolveBundleCastActorIds } from "./cast-actor-ids.js";
 import { defaultRuntimeAssetContainerName, missingRuntimeStrings, uniqueRuntimeStrings } from "./runtime-bundle-strings.js";
 
@@ -72,6 +73,7 @@ export type EncounterRuntimeActorAsset = {
     | "family_member"
     | "parent"
     | "consultant"
+    | "physician"
     | "interpreter"
     | "respiratory_therapist"
     | "nurse_observer"
@@ -723,7 +725,14 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
     ];
     return m;
   };
-  const { patientActorId, clinicalActorId, familyActorId } = resolveBundleCastActorIds(castTable);
+  const { patientActorId, clinicalActorId, familyActorId, additionalActorId } = resolveBundleCastActorIds(castTable);
+  // The fourth slot's role comes from the cast, narrowed to the roles the bundle publishes. A cast
+  // role outside that set becomes "other" rather than widening the union for one scenario.
+  const additionalCastRole = castTable.find((entry) => entry.actorId === additionalActorId)?.role;
+  const additionalRole = additionalCastRole === "physician" ? "physician" as const : "other" as const;
+  const additionalModel = additionalActorId
+    ? edModel("ed_chest_pain_adult_cast_additional_glb", "additional_cast_character", "Additional cast adult humanoid GLB", additionalRole, "ed_chest_pain_nurse_adult.glb")
+    : null;
   const patientModel = edModel("ed_chest_pain_adult_cast_glb", "patient_robert_hayes_character", "ED patient adult humanoid GLB (hospital gown)", "patient", "ed_chest_pain_adult_cast.glb");
   const nurseModel = edModel("ed_chest_pain_adult_cast_nurse_glb", "nurse_maria_alvarez_character", "ED nurse adult humanoid GLB (scrubs)", "nurse", "ed_chest_pain_nurse_adult.glb");
   const spouseModel = edModel("ed_chest_pain_adult_cast_spouse_glb", "spouse_anna_hayes_character", "ED spouse adult humanoid GLB (street clothes)", "family", "ed_chest_pain_spouse_adult.glb");
@@ -776,32 +785,10 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
       contentType: "model/gltf-binary",
       assetStore,
     }),
-    actors: [
-      {
-      actorId: patientActorId,
-      embodiment: "humanoid",
-      role: "patient",
-        model: patientModel,
-        animationClips: [],
-        gazeProfile: { defaultTarget: "learner_camera", supportsActorTargets: true },
-      },
-      {
-      actorId: clinicalActorId,
-      embodiment: "humanoid",
-      role: "nurse",
-        model: nurseModel,
-        animationClips: [],
-        gazeProfile: { defaultTarget: "learner_camera", supportsActorTargets: true },
-      },
-      {
-      actorId: familyActorId,
-      embodiment: "humanoid",
-      role: "family_member",
-      model: spouseModel,
-        animationClips: [],
-        gazeProfile: { defaultTarget: "learner_camera", supportsActorTargets: true },
-      },
-    ],
+    actors: buildLocalEncounterActors({
+      patientActorId, clinicalActorId, familyActorId, additionalActorId, additionalRole,
+      patientModel, nurseModel, spouseModel, additionalModel,
+    }),
     equipment: [
       {
         equipmentId: "ecg_cart_equipment",
