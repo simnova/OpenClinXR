@@ -16,9 +16,10 @@ import {
 export {
   ADULT_STATURE_FLOOR_METERS, declareAgeBand, ED_ADULT_CAST_ASSET_PATH, ED_ADULT_CAST_PROVENANCE_PATH,
   ED_ADULT_CAST_RUNTIME_PATH, ED_CHEST_PAIN_SCENARIO_ID, PEDS_ASTHMA_SCENARIO_ID,
-  provenancePathForRuntimeAsset, resolveRuntimeCastAssetPath, resolveScenarioActorCast,
-  type DeclaredAgeBand, type ScenarioActorCast,
-} from "./actor-casting.js";
+  provenancePathForRuntimeAsset, resolveRuntimeCastAssetPath, resolveScenarioActorCast } from "./actor-casting.js";
+import { resolveBundleCastActorIds } from "./cast-actor-ids.js";
+import { defaultRuntimeAssetContainerName, missingRuntimeStrings, uniqueRuntimeStrings } from "./runtime-bundle-strings.js";
+import type { DeclaredAgeBand, ScenarioActorCast } from "./actor-casting.js";
 
 export type RuntimeAssetKind = "humanoid_model" | "environment_model" | "equipment_model" | "animation_clip" | "audio_clip" | "texture" | "ui_schema" | "phoneme_map";
 
@@ -722,6 +723,7 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
     ];
     return m;
   };
+  const { patientActorId, clinicalActorId, familyActorId } = resolveBundleCastActorIds(castTable);
   const patientModel = edModel("ed_chest_pain_adult_cast_glb", "patient_robert_hayes_character", "ED patient adult humanoid GLB (hospital gown)", "patient", "ed_chest_pain_adult_cast.glb");
   const nurseModel = edModel("ed_chest_pain_adult_cast_nurse_glb", "nurse_maria_alvarez_character", "ED nurse adult humanoid GLB (scrubs)", "nurse", "ed_chest_pain_nurse_adult.glb");
   const spouseModel = edModel("ed_chest_pain_adult_cast_spouse_glb", "spouse_anna_hayes_character", "ED spouse adult humanoid GLB (street clothes)", "family", "ed_chest_pain_spouse_adult.glb");
@@ -776,7 +778,7 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
     }),
     actors: [
       {
-      actorId: "patient_robert_hayes_v1",
+      actorId: patientActorId,
       embodiment: "humanoid",
       role: "patient",
         model: patientModel,
@@ -784,7 +786,7 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
         gazeProfile: { defaultTarget: "learner_camera", supportsActorTargets: true },
       },
       {
-      actorId: "nurse_maria_alvarez_v1",
+      actorId: clinicalActorId,
       embodiment: "humanoid",
       role: "nurse",
         model: nurseModel,
@@ -792,7 +794,7 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
         gazeProfile: { defaultTarget: "learner_camera", supportsActorTargets: true },
       },
       {
-      actorId: "spouse_anna_hayes_v1",
+      actorId: familyActorId,
       embodiment: "humanoid",
       role: "family_member",
       model: spouseModel,
@@ -1623,15 +1625,3 @@ function encounterFactoryDryRunEvidenceBoundaries(): EncounterFactoryDryRunSumma
   };
 }
 
-function uniqueRuntimeStrings(values: readonly string[]): string[] {
-  return Array.from(new Set(values));
-}
-
-function missingRuntimeStrings(requiredValues: readonly string[], coveredValues: readonly string[]): string[] {
-  const covered = new Set(coveredValues);
-  return requiredValues.filter((value) => !covered.has(value));
-}
-
-function defaultRuntimeAssetContainerName(storeKind: RuntimeAssetStoreKind): string {
-  return storeKind === "app_public_fixture" ? "ui-xr-public" : "openclinxr-assets";
-}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type AuthoredOffsetRow, classify } from "./authored-offset-on-the-posed-humanoid.js";
+import { type AuthoredOffsetRow, classify } from "../authored-offset-on-the-posed-humanoid.js";
 
 /**
  * The counterweight this file guards was added AFTER the instrument reported `satisfied` about the

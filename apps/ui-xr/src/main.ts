@@ -11,7 +11,11 @@ import {
   type LearnerRuntimeAssetBundle,
   resolveRuntimeAssetUrl,
 } from "@openclinxr/asset-registry/runtime-bundles";
-import { findRuntimeActorAsset, findRuntimeEquipmentAsset } from "@openclinxr/asset-registry/runtime-bundle-lookups";
+import {
+  findRuntimeActorAsset,
+  findRuntimeActorAssetByRole,
+  findRuntimeEquipmentAsset,
+} from "@openclinxr/asset-registry/runtime-bundle-lookups";
 import {
   arbitrateTurnTaking,
   buildHistoryTakingCoverageSpec,
@@ -638,22 +642,28 @@ function recordBootPhase(phase: string, error?: unknown): void {
 }
 
 const runtimeEquipmentSlotsByAssetId = new Map<string, Group>();
-let encounterRuntimeAssetBundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
+// The bundle follows the SELECTED scenario, and the boot bindings resolve by ROLE. Both used to
+// be ED literals, so every other case staged the ED cast while the runtime merely recorded a
+// scenario_mismatch (:705-715) — measured on the loaded humanoid, which made the authored clinic
+// placement unreachable and the brief's §7 step 2 impossible to exercise.
+let encounterRuntimeAssetBundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
+  scenarioId: selectedScenarioId(),
+});
 let patientRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
-  findRuntimeActorAsset(encounterRuntimeAssetBundle, "patient_robert_hayes_v1")?.model,
-  "patient_robert_hayes_v1",
+  findRuntimeActorAssetByRole(encounterRuntimeAssetBundle, ["patient"])?.model,
+  "patient",
 );
 let nurseRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
-  findRuntimeActorAsset(encounterRuntimeAssetBundle, "nurse_maria_alvarez_v1")?.model,
-  "nurse_maria_alvarez_v1",
+  findRuntimeActorAssetByRole(encounterRuntimeAssetBundle, ["nurse", "medical_assistant"])?.model,
+  "clinical_staff",
 );
 let spouseRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
-  findRuntimeActorAsset(encounterRuntimeAssetBundle, "spouse_anna_hayes_v1")?.model,
-  "spouse_anna_hayes_v1",
+  findRuntimeActorAssetByRole(encounterRuntimeAssetBundle, ["family_member", "family"])?.model,
+  "family_member",
 );
 let additionalRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
-  findRuntimeActorAsset(encounterRuntimeAssetBundle, "nurse_maria_alvarez_v1")?.model
-    ?? findRuntimeActorAsset(encounterRuntimeAssetBundle, "patient_robert_hayes_v1")?.model,
+  findRuntimeActorAssetByRole(encounterRuntimeAssetBundle, ["nurse", "medical_assistant"])?.model
+    ?? findRuntimeActorAssetByRole(encounterRuntimeAssetBundle, ["patient"])?.model,
   "additional_cast_actor",
 );
 let cachedRuntimeSlotAssignment: RuntimeSlotAssignment | null = null;

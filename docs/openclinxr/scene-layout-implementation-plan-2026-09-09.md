@@ -461,6 +461,35 @@ The drift figures are the part of run 1 that stands: 0.0081 m and 0.0034 m of sk
 movement across 30 further frames, on a figure the frame loop rewrites every frame. Small, real,
 and now measurable.
 
+### The pinned-bundle blocker is removed, and the next link is now visible
+
+The cast table already resolves per scenario (`resolveScenarioActorCast`, called at
+`runtime-bundles.ts:707`). The builder ignored its actor ids and hardcoded ED literals, and the
+ui-xr boot path bound three more by literal id, so every non-ED case staged the ED cast.
+
+Both now follow the case: `resolveBundleCastActorIds` maps the cast's roles onto the three runtime
+slots (`cast-actor-ids.ts`), and the boot bindings resolve through `findRuntimeActorAssetByRole`.
+Roles come as a LIST because the same slot is cast differently — `nurse` in the ED cast,
+`medical_assistant` in the clinic cast. The ED literals remain as fallbacks, so a cast missing a
+role keeps today's behaviour instead of losing an actor, and the ED path is unchanged:
+
+    ed_chest_pain_priority_v2          -> patient_robert_hayes_v1, nurse_maria_alvarez_v1, spouse_anna_hayes_v1
+    clinic_knee_pain_return_to_play_v1 -> patient_jordan_cole_v1, medical_assistant_rui_park_v1, parent_lena_cole_v1
+
+**Run 3, on the loaded humanoid:** the clinic station stages `patient_jordan_cole_v1` for the first
+time, and its authored offset `{x: 0.4, z: 0}` is now recorded against the right figure.
+
+**The next link is in the same measurement, and it is why step 2 is still not met.** The clinic
+patient sampled at `posture=standing`, x −0.9126 — the ED stretcher default. The clinic case
+authors `supportSurface: "chair"`, and the composition landed by the runtime card only applies to
+seated and supine, so a patient resolved as standing passes straight through it. The scene manifest
+is still `createEdChestPainRuntimeSceneManifest`, pinned like the cast was.
+
+So the chain now reads: cast follows the case (**fixed**) -> scene manifest and posture follow the
+case (**next**) -> composition applies (**landed**) -> the frame loop preserves it (**landed**).
+The instrument reports `unknown` for that row rather than guessing, because it does not resolve the
+fixture anchor a station composes onto and no verdict is possible without it.
+
 ### The evidence tools' page-global alias does not exist at runtime
 
 Building the instrument surfaced a defect in the tooling the brief cites. `browser-dom.d.ts`

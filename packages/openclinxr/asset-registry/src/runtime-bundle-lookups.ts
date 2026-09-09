@@ -56,3 +56,21 @@ export function findRuntimeEquipmentPlacementByRealizedId(
   return bundle.sceneManifest.equipmentPlacements[realizedId]
     ?? (copyNumber === 1 ? bundle.sceneManifest.equipmentPlacements[equipmentId] : undefined);
 }
+
+/**
+ * Resolve one actor by ROLE rather than by a hardcoded id.
+ *
+ * The boot path used to bind `patient_robert_hayes_v1`, `nurse_maria_alvarez_v1` and
+ * `spouse_anna_hayes_v1` by literal id, which throws for any scenario whose cast does not contain
+ * them — every scenario but the ED one. Role is the stable thing across cases: the ED cast fills
+ * the clinical slot with a `nurse` and the clinic cast with a `medical_assistant`, and both are the
+ * same slot to the runtime, which is why this takes a LIST of acceptable roles rather than one.
+ *
+ * Returns undefined when no listed role is cast; the caller decides whether that is fatal.
+ */
+export function findRuntimeActorAssetByRole(
+  bundle: Pick<EncounterRuntimeAssetBundle, "actors">,
+  roles: readonly string[],
+): EncounterRuntimeActorAsset | undefined {
+  return bundle.actors.find((actor) => roles.includes(actor.role));
+}

@@ -2801,6 +2801,7 @@ function hasProductionLimitingQuestQaStatus(status: AssetQuestQaStatus | undefin
 }
 export {
   findRuntimeActorAsset,
+  findRuntimeActorAssetByRole,
   findRuntimeEquipmentAsset,
   findRuntimeEquipmentPlacementByRealizedId,
 } from "./runtime-bundle-lookups.js";
