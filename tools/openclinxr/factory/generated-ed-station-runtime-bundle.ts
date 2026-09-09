@@ -1033,7 +1033,7 @@ function runtimeDialogueTurnsForScenario(
       affectTimeline: affectTimelineForDialogueTurn(preset.scenarioId, turn.traceTag, refinedText),
       caseDefinitionRuntimeSignals: caseDefinitionRuntimeSignalsForDialogueTurn(
         preset.actors.find((actor) => actor.actorId === turn.actorId),
-        scenarioBank.find((scenario) => scenario.scenarioId === preset.scenarioId),
+        scenarioBank.find((candidate) => candidate.scenarioId === preset.scenarioId),
       ),
     };
   });
@@ -1219,6 +1219,7 @@ function refinedDialogueTurnText(
 function runtimeActorPlacementsForScenario(
   preset: ReturnType<typeof scenarioRuntimePreset>,
 ): EncounterRuntimeAssetBundle["sceneManifest"]["actorPlacements"] {
+  const authored = readAuthoredPlacementsForScenario(preset.scenarioId);
   const patient = actorByRole(preset, "patient") ?? preset.actors[0];
   // #123: physician in team allow-list (same gap #122 fixed one layer down).
   const team = actorByRole(preset, "nurse")
@@ -1245,18 +1246,26 @@ function runtimeActorPlacementsForScenario(
   const used = new Set([patient.actorId, team.actorId, ...(family ? [family.actorId] : [])]);
   // Team-adjacent clinical secondary — not doorway (x:0.35 z:1.15). See #123.
   const additional = preset.actors.find((actor) => !used.has(actor.actorId));
+  const withAuthoredOffset = (
+    actorId: string,
+    fallback: EncounterRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string],
+  ): EncounterRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string] => {
+    const offset = authored[actorId];
+    if (!offset) return fallback;
+    return { ...fallback, position: { x: offset.x, y: offset.y, z: offset.z } };
+  };
   const placements: EncounterRuntimeAssetBundle["sceneManifest"]["actorPlacements"] = {
-    [patient.actorId]: { slotKind: "primary_patient", position: { x: -0.72, y: 1.06, z: -0.12 }, scale: { x: 1.1, y: 1.1, z: 1.1 }, verticalOffsetMeters: -0.98, labelPrefix: "Patient" },
-    [team.actorId]: { slotKind: "clinical_team", position: { x: 1.45, y: 0.95, z: 0.55 }, scale: { x: 1, y: 1, z: 1 }, verticalOffsetMeters: -0.95, labelPrefix: team.role === "interpreter" ? "Interpreter" : "Team" },
+    [patient.actorId]: withAuthoredOffset(patient.actorId, { slotKind: "primary_patient", position: { x: -0.72, y: 1.06, z: -0.12 }, scale: { x: 1.1, y: 1.1, z: 1.1 }, verticalOffsetMeters: -0.98, labelPrefix: "Patient" }),
+    [team.actorId]: withAuthoredOffset(team.actorId, { slotKind: "clinical_team", position: { x: 1.45, y: 0.95, z: 0.55 }, scale: { x: 1, y: 1, z: 1 }, verticalOffsetMeters: -0.95, labelPrefix: team.role === "interpreter" ? "Interpreter" : "Team" }),
   };
   if (family && family.actorId !== patient.actorId && family.actorId !== team.actorId) {
-    placements[family.actorId] = {
+    placements[family.actorId] = withAuthoredOffset(family.actorId, {
       slotKind: "family_or_observer",
       position: { x: -2.0, y: 0.95, z: 0.7 },
       scale: { x: 1, y: 1, z: 1 },
       verticalOffsetMeters: -0.95,
       labelPrefix: "Family",
-    };
+    });
   }
   if (additional && additional.actorId !== patient.actorId) {
     const clinicalSecondaryLabel =
@@ -1265,15 +1274,31 @@ function runtimeActorPlacementsForScenario(
         : additional.role === "respiratory_therapist"
           ? "Respiratory"
           : "Cast";
-    placements[additional.actorId] = {
+    placements[additional.actorId] = withAuthoredOffset(additional.actorId, {
       slotKind: "additional_cast",
       position: { x: 1.95, y: 0.95, z: 0.15 },
       scale: { x: 1, y: 1, z: 1 },
       verticalOffsetMeters: -0.95,
       labelPrefix: clinicalSecondaryLabel,
-    };
+    });
   }
   return placements;
+}
+
+/** Authored plant offsets per actor, read from the case fixture. Absent when the case authors none. */
+type CaseAuthoredPlantOffset = { plantOffsetMeters?: { x: number; y: number; z: number } } | null | undefined;
+type CaseActorWithPlantOffset = { actors?: Array<{ actorId: string; placement?: CaseAuthoredPlantOffset }> } | undefined;
+type PlantOffset = { x: number; y: number; z: number };
+function readAuthoredPlacementsForScenario(scenarioId: string): Record<string, PlantOffset> {
+  const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId) as CaseActorWithPlantOffset | undefined;
+  const out: Record<string, PlantOffset> = {};
+  for (const actor of scenario?.actors ?? []) {
+    const offset = actor.placement?.plantOffsetMeters;
+    if (typeof offset !== "object" || offset === null) continue;
+    if (typeof offset.x !== "number" || typeof offset.y !== "number" || typeof offset.z !== "number") continue;
+    out[actor.actorId] = { x: offset.x, y: offset.y, z: offset.z };
+  }
+  return out;
 }
 
 function runtimeEquipmentPlacementsForScenario(

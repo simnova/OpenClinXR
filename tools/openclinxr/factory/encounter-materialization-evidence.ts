@@ -78,6 +78,8 @@ export type CompileGraphNode = {
     environmentId?: string;
     /** Placement nodes: what the case says this actor is on. */
     supportSurface?: string;
+    /** Placement nodes: authored offset in metres from the support's own origin. */
+    plantOffsetMeters?: { x: number; y: number; z: number };
     variantSemanticKey: string;
     sourceBlobName: string;
     /** Faculty equipment_generate payload (TRELLIS). Distinct from fixtureSlot. */
@@ -172,7 +174,7 @@ export type CompileCaseDescriptor = {
      * free of the schema package. supportSurface is stretcher|chair|none, where "none" is an
      * authored standing decision rather than an absent value.
      */
-    placement?: { supportSurface?: string } | null;
+    placement?: { supportSurface?: string; plantOffsetMeters?: { x: number; y: number; z: number } } | null;
   }> | null;
 };
 
@@ -302,6 +304,10 @@ export function emitCompileNodes(
       const nodeId = `placement:${actor.actorId}`;
       const prev = priorById.get(nodeId);
       const supportSurface = actor.placement?.supportSurface ?? "none";
+      const offset = actor.placement?.plantOffsetMeters;
+      const plantOffsetMeters = isRecord(offset) && typeof offset["x"] === "number" && typeof offset["y"] === "number" && typeof offset["z"] === "number"
+        ? { x: offset["x"] as number, y: offset["y"] as number, z: offset["z"] as number }
+        : undefined;
       return {
         nodeId,
         family: "Placement",
@@ -310,6 +316,7 @@ export function emitCompileNodes(
           scenarioId,
           actorId: actor.actorId,
           supportSurface,
+          ...(plantOffsetMeters === undefined ? {} : { plantOffsetMeters }),
           variantSemanticKey: `placement:${supportSurface}`,
           sourceBlobName: `case:${scenarioId ?? "scenario"}`,
         },
