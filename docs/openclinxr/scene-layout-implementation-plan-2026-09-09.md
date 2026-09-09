@@ -1032,6 +1032,47 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+### The physician can walk in the runtime, and the bind stage cannot be trusted to publish it
+
+The bound GLB was measured against the shipped physician before anything was published, and the
+comparison refused the publish:
+
+| mesh | shipped | Blender re-export | delta |
+|---|---:|---:|---:|
+| eyebrows | 8,953 tris, area 6.44e-4 | 7,918, area 5.40e-4 | **-1,035 tris, -16% area** |
+| eyelashes | 395 tris, area 2.62e-5 | 277, area 1.88e-5 | **-118 tris, -28% area** |
+| body, garments, hair, shoes | unchanged | unchanged | 0 |
+
+Neither loss is degenerate-face cleanup: both meshes report **zero** zero-area triangles before and
+after, so real surface is gone. Publishing the re-export would have shipped a physician that lost
+its eyebrows to gain a walk, and every mechanical gate would have stayed green.
+
+**The clip does not need the round trip.** It is animation data addressed to joints that already
+exist in the shipped file. Verified before building anything: the bound rig's **137 animated joints
+are all present** in the shipped rig, **parent chains are identical**, and every channel carries
+absolute local TRS, so a joint's rest transform cannot change the result. Only two rest transforms
+differ at all (`breast.L/R`, 0.085 m) and both are animated, so their rest values are overridden.
+
+`tools/openclinxr/factory/graft-bound-clip.ts` copies the clip by joint NAME and refuses rather than
+dropping a channel it cannot place. Result: 411 channels onto 137 joints, **41,718 triangles before
+and after**, POSITION bytes identical, and the foot-plant instrument reproduces the bound
+measurement exactly on the grafted asset (2.55% / 8.11% toe slide, 54 / 32 contact frames, root
+travel 3.1971 m). `mpfb-clinical-physician-adult.glb` is now published with the walk clip.
+
+### Eight of thirteen shipped humanoids named a sha256 nobody checked
+
+Found while updating the physician's provenance. `outputSha256` and `outputBytes` are recorded in
+every `*.provenance.json`, and **eight of the thirteen** that declare them do not match the asset at
+their own `assetPath` — the physician's claimed 21,798,768 bytes against a file of 11,207,936. A
+provenance chain that cannot say which bytes it describes documents nothing, and nothing was
+checking.
+
+`apps/ui-xr/src/the-shipped-humanoids-hash-to-their-provenance.test.ts` freezes those eight BY NAME
+as debt and fails on any new mismatch. It also fails when a frozen record starts matching, so paying
+one down forces its removal rather than leaving a stale entry that hides the next regression. The
+eight were NOT repaired by rewriting their hashes to whatever is on disk: that would assert the
+current bytes are the intended ones, which nobody has verified, and would erase the finding.
+
 ### Step 4's foot slide, measured on the rig that would ship — and the clip was playing five times too slowly
 
 The two foot-slide numbers on record were about the wrong things: the root-driven executor's ~100%

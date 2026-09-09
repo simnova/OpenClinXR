@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "openclinxr.clip-graft.v1",
+  "generatedAt": "2026-09-09T13:17:01.719Z",
+  "clipName": "openclinxr_retarget_cmu_02_01_walk",
+  "target": {
+    "path": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+    "sha256Before": "a234922c36d164003200a6a16a54d4d95d957f4d617f69d7c5442f27eac06939",
+    "bytesBefore": 11207936
+  },
+  "source": {
+    "path": ".openclinxr/evidence/walk-bind/physician-walk.glb",
+    "sha256": "f22b6f95cc9bc0c860a091d3880d1859c1951df1ac339eb960b3624e3b34dfed",
+    "bytes": 11633760
+  },
+  "output": {
+    "path": ".openclinxr/evidence/walk-bind/physician-grafted.glb",
+    "sha256": "9ba749b2fda775a293772d933ac0d7fdbb1210043fd1c7c06629156eb565c68a",
+    "bytes": 11572416
+  },
+  "graftedChannels": 411,
+  "graftedJoints": 137,
+  "animationsAfter": [
+    "ClinicalIdleConversation",
+    "ClinicalExpressionMicroTransition",
+    "openclinxr_retarget_cmu_02_01_walk"
+  ],
+  "geometryParity": {
+    "primitives": 18,
+    "trianglesBefore": 41718,
+    "trianglesAfter": 41718,
+    "positionBytesIdentical": true
+  }
+}

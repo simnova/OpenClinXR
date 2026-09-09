@@ -4,13 +4,13 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 134,
+    "keep-evidence": 135,
     "ignore-local-cache": 2112,
     "keep-current": 141,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2416,
-    "total": 2416
+    "entries": 2417,
+    "total": 2417
   },
   "entries": [
     {
@@ -16350,6 +16350,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
+    },
+    {
+      "path": "docs/openclinxr/evidence/physician-walk-clip-graft.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Purpose-built evidence directory artifact; retain unless a later evidence compaction policy supersedes it."
     },
     {
       "path": "docs/openclinxr/evidence/bound-clip-foot-plant.json",

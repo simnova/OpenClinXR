@@ -202,6 +202,7 @@
     "asset:gltf:smoke:validate": "tsx tools/openclinxr/evidence/gltf-pipeline-smoke.ts --validate-latest",
     "asset:blender:bake": "tsx tools/openclinxr/evidence/blender-asset-bake-smoke.ts",
     "asset:blender:bake:validate": "tsx tools/openclinxr/evidence/blender-asset-bake-smoke.ts --validate-latest",
+    "asset:motion:graft-clip": "tsx tools/openclinxr/factory/graft-bound-clip.ts",
     "asset:motion:bound-clip-foot-plant": "tsx tools/openclinxr/evidence/foot-plant/bound-clip-foot-plant.ts",
     "asset:bvh-retarget:smoke": "tsx tools/openclinxr/evidence/bvh-retarget-smoke.ts",
     "asset:bvh-retarget:smoke:validate": "tsx tools/openclinxr/evidence/bvh-retarget-smoke.ts --validate-latest",

@@ -2345,6 +2345,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/encounter-runtime-evidence-capture-scaffold-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/encounter-runtime-realism-evidence-input-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/encounter-runtime-selection-review-packet-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/evidence/physician-walk-clip-graft.json` - keep-evidence; keep; Purpose-built evidence directory artifact; retain unless a later evidence compaction policy supersedes it.
 - `docs/openclinxr/evidence/bound-clip-foot-plant.json` - keep-evidence; keep; Purpose-built evidence directory artifact; retain unless a later evidence compaction policy supersedes it.
 - `docs/openclinxr/evidence/iwsdk-mpfb-radial-pulse-interaction-2026-09-04.json` - keep-evidence; keep; Purpose-built evidence directory artifact; retain unless a later evidence compaction policy supersedes it.
 - `docs/openclinxr/evidence-index-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
