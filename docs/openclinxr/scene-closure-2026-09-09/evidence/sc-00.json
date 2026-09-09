@@ -1,0 +1,763 @@
+{
+  "schemaVersion": "openclinxr.scene-closure-evidence.v1",
+  "cardKey": "SC-00",
+  "contract": {
+    "pinnedCommit": "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50",
+    "documents": [
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md",
+        "sha256": "c8080c5e9c75fbb2b4bacb23ed45eac6f829b5dcf494059247a6ee8d55de1bbf"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/tasks-v2.md",
+        "sha256": "e12fbcb49eef3ce4a9c3098309d27bb094dc8c25baa0631452fa27b2f1403881"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/proof-contract-v2.md",
+        "sha256": "a1d1d85a15ae2acfce16479d6b9b4a181e0ccfee60aab885af674c8274cdcfe5"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/delegation-v2.md",
+        "sha256": "59e34f9d6f099574cdf9291847321a4aa23a8e19643ec510984855173cc23016"
+      }
+    ],
+    "aRows": [
+      "A08"
+    ]
+  },
+  "implementation": {
+    "productSourceCommit": "56305f41",
+    "dependencyBaselineCommit": "4009043599dd9cc86cafd6aa3d345d2ece931a96",
+    "changeCommits": [
+      "56305f41"
+    ],
+    "treeClean": true,
+    "inputs": [
+      {
+        "path": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+        "sha256": "4a6d8a78cd2eabd724cfd2570881cf36df25064545941c7f10dbce44ea597d3c"
+      },
+      {
+        "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+        "sha256": "59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/approach-executor.ts",
+        "sha256": "0a12d997cdfafdf95e70eb28221a9f7fb45da279ca23cc411b4dc07106ec3e42"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/bedside-clearance.ts",
+        "sha256": "29d75281bd15786b770f404d618cd07c78b4633f383216a687cc34c30892631f"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/bedside-approach-path.ts",
+        "sha256": "50ea2a62c035bb1a4a1d388129fb49200b7ccd878642a7998ce1c980747f7530"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/bedside-target.ts",
+        "sha256": "b921fb35a4f060ba67a9e6d13d7c80661a9ea1a638dc9bc8634743c660a5e7be"
+      },
+      {
+        "path": "tools/openclinxr/evidence/foot-plant/bound-clip-foot-track.ts",
+        "sha256": "c11f89bd71eb1c92da5a24a84477f47d436a8230e1e45bd845fcaa2506daf620"
+      },
+      {
+        "path": "apps/ui-xr/src/main.ts",
+        "sha256": "ecc879f5658f3114837f6e0edfd6fb90e9e80a5e69f847f2ac0f4f2574d8fa57"
+      }
+    ],
+    "changedFiles": [
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-00/verifier.test.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-00/verify-core.ts",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-00.json",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-00.md",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-00/build-report.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-00/measurement-rubric.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-00/rubric-controls.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-00/selected-asset-measurement.ts",
+      "tools/openclinxr/evidence/scene-closure/the-measurement-rubric-rejects-broken-controls.test.ts"
+    ],
+    "runtime": {
+      "node": "v24.18.1",
+      "platform": "darwin-arm64"
+    }
+  },
+  "execution": {
+    "taskId": "tsk_86cee0308d7f6b2a",
+    "commands": [
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/foot-plant/the-runtime-displays-the-walk.test.ts",
+          "tools/openclinxr/evidence/foot-plant/the-walk-clip-plants-its-feet.test.ts",
+          "tools/openclinxr/evidence/foot-plant/the-bound-walk-plants-its-feet.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T22:06:58Z",
+        "endedAtIso": "2026-09-09T22:06:59Z",
+        "outputArtifactId": "cmd1-foot-plant-regressions",
+        "tests": {
+          "passed": 21,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/scene-closure/the-measurement-rubric-rejects-broken-controls.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T22:06:59Z",
+        "endedAtIso": "2026-09-09T22:07:01Z",
+        "outputArtifactId": "cmd2-named-behavior-test",
+        "tests": {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "tsx",
+          "tools/openclinxr/openclaw/assert-contract-live.ts",
+          "tools/openclinxr/evidence/scene-closure/the-measurement-rubric-rejects-broken-controls.test.ts",
+          "SC-00-required-behavior"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T22:07:01Z",
+        "endedAtIso": "2026-09-09T22:07:02Z",
+        "outputArtifactId": "cmd3-assert-contract-live"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/scene-closure/proofs/sc-00/verifier.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T22:07:02Z",
+        "endedAtIso": "2026-09-09T22:07:03Z",
+        "outputArtifactId": "cmd4-verifier-unit-tests",
+        "tests": {
+          "passed": 21,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      }
+    ]
+  },
+  "counterweight": {
+    "testIds": [
+      "the measurement rubric rejects broken controls > SC-00-required-behavior"
+    ],
+    "baselineRevision": "40090435 (unchanged baseline instruments)",
+    "failingAssertion": "footSlideMeters({foot 0.30 m below the floor}) is expected to differ from footSlideMeters({planted foot}); it is identical, and planBedsideApproach reports pathViolations: [] for a route whose swept body intrudes 0.025 m into a 0.05 m pole",
+    "observedBeforeFix": "baseline: submerged foot -> {slideMeters:0, contactFrames:30, worstFrameSlideMeters:0} (a successful stance); raised floor -> contactFrames 0; thin obstacle -> pathViolations [] and arrivesAtTarget true",
+    "knownGoodControl": "the shipped physician's ClinicalIdleConversation clip, unmodified: 90 frames at a uniform 41.667 ms, both toes 0.00853 m above the floor, 0.000000 m total horizontal travel. It passes on both revisions.",
+    "fixedRevision": "openclinxr.scene-closure-measurement-rubric.v1 (this card's rubric)",
+    "observedAfterFix": "rubric: submerged foot -> floor-penetration violated at 0.30 m; raised floor -> signed-floor-contact satisfied against the named frame; thin obstacle -> swept-collision violated at 0.025 m intrusion",
+    "baselineOutputArtifactId": "red-baseline-40090435",
+    "fixedOutputArtifactId": "rubric-controls"
+  },
+  "encounter": {
+    "scenarioId": "scene_closure_supine_bedside_v1",
+    "selectedPhysicianAsset": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+    "selectedPhysicianSha256": "4a6d8a78cd2eabd724cfd2570881cf36df25064545941c7f10dbce44ea597d3c",
+    "selectedPatientAsset": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+    "selectedPatientSha256": "59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6",
+    "selectedWalkClip": "openclinxr_retarget_walk_formal_cc0",
+    "selectedIdleClip": "ClinicalIdleConversation",
+    "rig": [
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ward_delirium_senior_resident_adult",
+      "makeclothes_library_hair_mhair02_mpfb_ward_delirium_senior_resident_adult_mesh",
+      "makeclothes_library_lab_coat",
+      "makeclothes_library_scrub_pants",
+      "makeclothes_library_scrub_shirt",
+      "mpfb_ward_delirium_senior_resident_adult_body_mesh",
+      "mpfb_ward_delirium_senior_resident_adult_body_mesh.low-poly",
+      "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ward_delirium_senior_resident_adult_mesh",
+      "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ward_delirium_senior_resident_adult_mesh",
+      "openclinxr_hm08_teeth_mpfb_ward_delirium_senior_resident_adult_mesh",
+      "openclinxr_hm08_tongue_mpfb_ward_delirium_senior_resident_adult_mesh"
+    ],
+    "floorFrame": "scene_closure_room_floor_v1",
+    "supportInstance": "ed_stretcher_deck_v1",
+    "note": "SC-00 establishes the rubric these identities are graded under. It does not claim any encounter ran, any placement happened, or any motion was played."
+  },
+  "observations": [
+    {
+      "observationId": "known-good-foot-slide",
+      "metric": "worst-frame and total slide of the shipped idle stance",
+      "unit": "m",
+      "value": "toe1-1.L windows=1 total=0.00000m (allow 0.01570m) worst=0.00000m (allow 0.005m) | toe1-1.R windows=1 total=0.00000m (allow 0.01570m) worst=0.00000m (allow 0.005m)",
+      "observedAtMs": 0,
+      "source": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb#ClinicalIdleConversation, decoded",
+      "artifactId": "rubric-controls"
+    },
+    {
+      "observationId": "shipped-walk-foot-slide-at-executor-advance",
+      "metric": "worst-frame and total slide of the shipped walk at the executor advance",
+      "unit": "m",
+      "value": "toe1-1.L windows=2 total=0.39084m (allow 0.03140m) worst=0.04008m (allow 0.005m) | toe1-1.R windows=3 total=0.33135m (allow 0.04710m) worst=0.10018m (allow 0.005m)",
+      "observedAtMs": 0,
+      "source": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb#openclinxr_retarget_walk_formal_cc0, decoded",
+      "artifactId": "shipped-walk-verdict"
+    },
+    {
+      "observationId": "shipped-walk-limb-integrity",
+      "metric": "largest leg-segment length drift across the shipped walk",
+      "unit": "m",
+      "value": "0.000001",
+      "observedAtMs": 0,
+      "source": "forward kinematics over the shipped MPFB standard rig",
+      "artifactId": "shipped-walk-verdict"
+    },
+    {
+      "observationId": "shipped-walk-floor-penetration",
+      "metric": "deepest toe penetration below the selected floor across the shipped walk",
+      "unit": "m",
+      "value": "0.000984",
+      "observedAtMs": 0,
+      "source": "decoded joint track",
+      "artifactId": "shipped-walk-verdict"
+    },
+    {
+      "observationId": "physician-skinned-geometry",
+      "metric": "skinned bodies and skinned vertex samples in the shipped physician",
+      "unit": "count",
+      "value": "11 bodies / 51548 samples",
+      "observedAtMs": 0,
+      "source": "glTF skin and JOINTS_0 accessors",
+      "artifactId": "shipped-walk-verdict"
+    },
+    {
+      "observationId": "patient-skinned-geometry",
+      "metric": "skinned bodies and skinned vertex samples in the shipped patient",
+      "unit": "count",
+      "value": "10 bodies / 45475 samples",
+      "observedAtMs": 0,
+      "source": "glTF skin and JOINTS_0 accessors",
+      "artifactId": "shipped-walk-verdict"
+    },
+    {
+      "observationId": "baseline-grades-a-submerged-foot-as-stance",
+      "metric": "footSlideMeters on a foot 0.30 m below the floor",
+      "unit": "report",
+      "value": "{slideMeters:0, contactFrames:30, worstFrameSlideMeters:0}, identical to the planted control",
+      "observedAtMs": 0,
+      "source": "packages/openclinxr/asset-registry/src/approach-executor.ts at 40090435",
+      "artifactId": "red-baseline-40090435"
+    },
+    {
+      "observationId": "baseline-loses-contact-on-a-raised-floor",
+      "metric": "footSlideMeters on a foot planted on a floor plane at y = 0.15",
+      "unit": "frames",
+      "value": 0,
+      "observedAtMs": 0,
+      "source": "packages/openclinxr/asset-registry/src/approach-executor.ts at 40090435",
+      "artifactId": "red-baseline-40090435"
+    },
+    {
+      "observationId": "baseline-walks-through-a-thin-obstacle",
+      "metric": "planBedsideApproach pathViolations with a 0.05 m pole in its sampling blind spot",
+      "unit": "violations",
+      "value": 0,
+      "observedAtMs": 0,
+      "source": "packages/openclinxr/asset-registry/src/bedside-approach-path.ts at 40090435",
+      "artifactId": "red-baseline-40090435"
+    },
+    {
+      "observationId": "perceptual-floor-derivation",
+      "metric": "3 px at the capture framing",
+      "unit": "m",
+      "value": 0.005182158753512277,
+      "observedAtMs": 0,
+      "source": "apps/ui-xr/src/main.ts:2860 PerspectiveCamera(52,1,...) with agents/rules/MANDATE_VISIBILITY.md"
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "thresholds-frozen-with-rationale",
+      "expected": "every threshold in the frozen rubric carries a non-empty provenance clause",
+      "observed": "19 thresholds, all sourced, under openclinxr.scene-closure-measurement-rubric.v1",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "checkId": "asset-rig-frame-hashes-recorded",
+      "expected": "the exact bytes, rig and floor frame the rubric was fixed against are recorded",
+      "observed": "physician 4a6d8a78cd2eabd7... (11736568 B), patient 59f590701ad182c4... (18840492 B), rig 11 skinned nodes, floor scene_closure_room_floor_v1 at y=0",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "shipped-walk-verdict",
+        "physician-skinned-geometry"
+      ]
+    },
+    {
+      "checkId": "arrival-error-cap-is-0p05m",
+      "expected": "arrival error cap is exactly the acceptance contract's 0.05 m",
+      "observed": 0.05,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "checkId": "settled-yaw-cap-is-10deg",
+      "expected": "settled yaw cap is exactly the acceptance contract's 10 degrees",
+      "observed": 10,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "checkId": "stopped-observation-is-2s",
+      "expected": "the stopped observation window is exactly the acceptance contract's two seconds",
+      "observed": 2,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "checkId": "signed-contact-height-relative-to-floor",
+      "expected": "contact height is signed against the selected floor frame and penetration is a separate metric",
+      "observed": "the baseline instrument grades a foot 0.30 m under the floor identically to a planted one and reports zero contacts on a floor at y=0.15; the rubric violates floor-penetration on the first and keeps signed-floor-contact satisfied on the second",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "baseline-grades-a-submerged-foot-as-stance",
+        "baseline-loses-contact-on-a-raised-floor",
+        "rubric-controls"
+      ]
+    },
+    {
+      "checkId": "sample-sufficiency-threshold-set",
+      "expected": "minimum contact frames and a dropped-frame gap ratio are both fixed",
+      "observed": "3 frames minimum, gap ratio 2x the median",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "checkId": "independent-reviewer-fixed-thresholds",
+      "expected": "the thresholds were fixed by the A08 reviewer before the motion implementer ran",
+      "observed": "frozen at baseline 4009043599dd9cc86cafd6aa3d345d2ece931a96 where SC-03 and SC-05 have not started; no motion implementation existed for a number to be fitted to",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "checkId": "foot-slide-threshold-independent-of-shipped-clip",
+      "expected": "the foot-slide thresholds derive from the display and from anatomy, not from any clip's measured slide",
+      "observed": "worst frame 0.005 m from 3 px at the capture framing; total 0.0157 m per contact window from 0.26 m foot length x (1 - cos 20 deg). The SHIPPED clip fails both: toe1-1.L windows=2 total=0.39084m (allow 0.03140m) worst=0.04008m (allow 0.005m) | toe1-1.R windows=3 total=0.33135m (allow 0.04710m) worst=0.10018m (allow 0.005m)",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "shipped-walk-foot-slide-at-executor-advance",
+        "perceptual-floor-derivation"
+      ]
+    },
+    {
+      "checkId": "swept-collision-recomputed-below-thinnest-obstacle",
+      "expected": "the route is reswept at a step below the narrowest catalogue obstacle rather than trusting the producer's sampling",
+      "observed": "resweep step 0.04 m against a 0.05 m pole; the baseline planner reports zero violations on the same arrangement",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "baseline-walks-through-a-thin-obstacle",
+        "rubric-controls"
+      ]
+    },
+    {
+      "checkId": "unsupported-floor-geometry-refuses",
+      "expected": "a floor frame that is not the selected flat one is refused, never defaulted",
+      "observed": "a 12 degree frame grades floor-frame-supported as refused, and a refusal is not a pass",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "checkId": "sc07-observes-production-without-injection",
+      "expected": "the observation boundary SC-07 must respect is documented",
+      "observed": "sc-00.md 'How SC-07 observes production without injecting actor behaviour' fixes the read-only telemetry surface, the four forbidden writes and the two facts a capture must carry",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "controlId": "known-good-support-passes",
+      "trigger": "the shipped physician's ClinicalIdleConversation clip, unmodified, on the shipped stretcher deck with a cleared route",
+      "expected": "grades ok against the frozen rubric",
+      "observed": "graded ok against the frozen rubric",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "sliding-foot-fails",
+      "trigger": "the known-good stance with each in-contact frame displaced 12 mm along +X, 2.4x the 5 mm worst-frame allowance",
+      "expected": "foot-slide is violated and the whole grade fails",
+      "observed": "foot-slide graded violated with observed \"toe1-1.L windows=1 total=1.06800m (allow 0.01570m) worst=0.01200m (allow 0.005m) | toe1-1.R windows=1 total=1.06800m (allow 0.01570m) worst=0.01200m (allow 0.005m)\"; whole grade failed [foot-slide]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "single-frame-pop-fails",
+      "trigger": "the known-good stance with one 10 mm step, under the per-window total allowance and over the per-frame one",
+      "expected": "foot-slide is violated and the whole grade fails",
+      "observed": "foot-slide graded violated with observed \"toe1-1.L windows=1 total=0.01000m (allow 0.01570m) worst=0.01000m (allow 0.005m) | toe1-1.R windows=1 total=0.01000m (allow 0.01570m) worst=0.01000m (allow 0.005m)\"; whole grade failed [foot-slide]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "penetrating-foot-fails",
+      "trigger": "the known-good stance lowered 0.30 m below the selected floor plane; the baseline instrument grades this identically to the known-good",
+      "expected": "floor-penetration is violated and the whole grade fails",
+      "observed": "floor-penetration graded violated with observed 0.29147; whole grade failed [floor-penetration]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "missing-contact-windows-fails",
+      "trigger": "the known-good stance raised 0.5 m, so no frame falls inside the contact band",
+      "expected": "signed-floor-contact is violated and the whole grade fails",
+      "observed": "signed-floor-contact graded violated with observed \"toe1-1.L:0 toe1-1.R:0\"; whole grade failed [signed-floor-contact]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "zero-skinned-samples-fails",
+      "trigger": "the known-good with zero skinned bodies and zero skinned vertex samples",
+      "expected": "skinned-body-presence is violated and the whole grade fails",
+      "observed": "skinned-body-presence graded violated with observed \"0 bodies / 0 skinned vertex samples\"; whole grade failed [skinned-body-presence]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "absent-actor-fails",
+      "trigger": "the known-good with no actor id",
+      "expected": "actor-presence is violated and the whole grade fails",
+      "observed": "actor-presence graded violated with observed \"(none)\"; whole grade failed [actor-presence]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "thin-obstacle-between-waypoints-fails",
+      "trigger": "a 0.05 m IV pole placed in the blind spot between two 0.35 m waypoints; the baseline planner reports the route clear",
+      "expected": "swept-collision is violated and the whole grade fails",
+      "observed": "swept-collision graded violated with observed \"the swept body (r=0.3 m) intrudes 0.0250 m into iv_pole_between_waypoint_samples (producer sampled at 0.35 m)\"; whole grade failed [swept-collision]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "wrong-support-frame-fails",
+      "trigger": "the known-good body samples attributed to a different mounted instance, whose plan bounds do not contain them",
+      "expected": "support-frame-identity is violated and the whole grade fails",
+      "observed": "support-frame-identity graded violated with observed \"9 of 9 contact samples lie outside the plan bounds of ed_vitals_cart_v1, so this is not the support the body is on\"; whole grade failed [support-penetration,support-frame-identity]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "clip-flag-without-motion-fails",
+      "trigger": "the measured-still idle track relabelled as the walk clip with clipDeclaredPlayed true",
+      "expected": "clip-motion-observed is violated and the whole grade fails",
+      "observed": "clip-motion-observed graded violated with observed 0; whole grade failed [clip-motion-observed]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "deleting-a-metric-fails-rather-than-evades",
+      "trigger": "the known-good graded, then the foot-slide finding removed from the result",
+      "expected": "removing foot-slide from the grade is refused as a coverage problem",
+      "observed": "the complete grade has 0 coverage problem(s); with foot-slide removed it has 1: missing metric foot-slide",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "unsupported-floor-geometry-refuses",
+      "trigger": "the known-good on a floor frame tilted 12 degrees; this slice supports only its selected flat frame",
+      "expected": "floor-frame-supported is refused and the whole grade fails",
+      "observed": "floor-frame-supported graded refused with observed \"12.0000 deg off +Y (frame ramped_floor_v1)\"; whole grade failed [floor-frame-supported]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "too-few-samples-fails",
+      "trigger": "the known-good truncated to two frames per track, one below the three a second difference needs",
+      "expected": "sample-sufficiency is violated and the whole grade fails",
+      "observed": "sample-sufficiency graded violated with observed \"toe1-1.L:2 toe1-1.R:2\"; whole grade failed [sample-sufficiency,signed-floor-contact]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "nonmonotonic-times-fail",
+      "trigger": "two adjacent sample times swapped on one track",
+      "expected": "timestamp-monotonicity is violated and the whole grade fails",
+      "observed": "timestamp-monotonicity graded violated with observed \"toe1-1.L time does not advance at sample 5 (250 -> 208.3333283662796)\"; whole grade failed [timestamp-monotonicity]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "dropped-frame-gap-fails",
+      "trigger": "five consecutive frames removed from every track, leaving a gap six times the median interval",
+      "expected": "timestamp-monotonicity is violated and the whole grade fails",
+      "observed": "timestamp-monotonicity graded violated with observed \"toe1-1.L has 1 gap(s) at or over 83.333 ms against a 41.667 ms median; toe1-1.R has 1 gap(s) at or over 83.333 ms against a 41.667 ms median\"; whole grade failed [timestamp-monotonicity]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "body-floating-above-support-fails",
+      "trigger": "the supported contact line raised 40 mm above the deck top, 8x the 5 mm separation allowance",
+      "expected": "support-contact is violated and the whole grade fails",
+      "observed": "support-contact graded violated with observed 0.04; whole grade failed [support-contact]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "body-sunk-into-support-fails",
+      "trigger": "the supported contact line lowered 60 mm into the deck, 12x the 5 mm penetration allowance",
+      "expected": "support-penetration is violated and the whole grade fails",
+      "observed": "support-penetration graded violated with observed 0.06; whole grade failed [support-penetration]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "deformed-limb-fails",
+      "trigger": "every leg segment stretched progressively across the clip, far past the 1 mm float-noise allowance",
+      "expected": "limb-integrity is violated and the whole grade fails",
+      "observed": "limb-integrity graded violated with observed 0.039151; whole grade failed [limb-integrity]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "arrival-error-over-cap-fails",
+      "trigger": "arrival error 0.14 m against the acceptance contract's 0.05 m cap",
+      "expected": "arrival-error is violated and the whole grade fails",
+      "observed": "arrival-error graded violated with observed 0.14; whole grade failed [arrival-error]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "settled-yaw-over-cap-fails",
+      "trigger": "settled yaw error 27.5 degrees against the acceptance contract's 10 degree cap",
+      "expected": "settled-heading is violated and the whole grade fails",
+      "observed": "settled-heading graded violated with observed 27.5; whole grade failed [settled-heading]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "root-resumes-travel-fails",
+      "trigger": "31 mm of root travel during the two-second stopped observation",
+      "expected": "stopped-observation is violated and the whole grade fails",
+      "observed": "stopped-observation graded violated with observed \"2.5 s / 0.031 m\"; whole grade failed [stopped-observation]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    },
+    {
+      "controlId": "shipped-walk-formal-fails-foot-slide",
+      "trigger": "the SHIPPED openclinxr_retarget_walk_formal_cc0 clip on the shipped physician GLB, graded at the executor's 1.1 m/s advance. This is not a damaged control: it is the asset SC-04 landed, and it fails.",
+      "expected": "foot-slide is violated and the whole grade fails",
+      "observed": "foot-slide graded violated with observed \"toe1-1.L windows=2 total=0.39084m (allow 0.03140m) worst=0.04008m (allow 0.005m) | toe1-1.R windows=3 total=0.33135m (allow 0.04710m) worst=0.10018m (allow 0.005m)\"; whole grade failed [foot-slide]",
+      "held": true,
+      "evidenceIds": [
+        "rubric-controls"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "cmd1-foot-plant-regressions",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-00/cmd1-foot-plant-regressions.txt",
+      "byteCount": 224,
+      "sha256": "e6008280815212d7df00493190533ed1223c1f70874d8fc4d62778468b9582c5",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T22:06:59.219Z",
+      "runId": "sc-00-2026-09-09"
+    },
+    {
+      "artifactId": "cmd2-named-behavior-test",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-00/cmd2-named-behavior-test.txt",
+      "byteCount": 222,
+      "sha256": "f64bdeaefdc3df964476c36b3fbd5f15b72a81cbdaeb3607e67b94cb4f6f1804",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T22:07:01.599Z",
+      "runId": "sc-00-2026-09-09"
+    },
+    {
+      "artifactId": "cmd3-assert-contract-live",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-00/cmd3-assert-contract-live.txt",
+      "byteCount": 139,
+      "sha256": "44ced45bdb49ff50c0bf16da16f35a204ad3d59944b38e8f167eb7fe6ad7226a",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T22:07:02.157Z",
+      "runId": "sc-00-2026-09-09"
+    },
+    {
+      "artifactId": "cmd4-verifier-unit-tests",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-00/cmd4-verifier-unit-tests.txt",
+      "byteCount": 221,
+      "sha256": "ba8954a20880cc69efa42a96b6b7c1ac929783ff1d98185e88873e0ea960e0a0",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T22:07:03.013Z",
+      "runId": "sc-00-2026-09-09"
+    },
+    {
+      "artifactId": "commands",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-00/commands.json",
+      "byteCount": 1881,
+      "sha256": "c84cbaf42f43ccff8a5a0c7dafb429a59fde096278813f416c31a68bf33e3342",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-09T22:07:03.076Z",
+      "runId": "sc-00-2026-09-09"
+    },
+    {
+      "artifactId": "red-baseline-40090435",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-00/red-baseline-40090435.log",
+      "byteCount": 1710,
+      "sha256": "0431b572b8508b0ce098e9ed696b0934eb591d8181448e85b7f99c61d533a440",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:41:56.906Z",
+      "runId": "sc-00-baseline-40090435"
+    },
+    {
+      "artifactId": "rubric-controls",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-00/rubric-controls.json",
+      "byteCount": 1325586,
+      "sha256": "a71c2d893f665be1984c380a2fce3ece3f17ac711ab9dd23208d80b8c760e3cf",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-09T22:14:26.771Z",
+      "runId": "sc-00-2026-09-09"
+    },
+    {
+      "artifactId": "shipped-walk-verdict",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-00/shipped-walk-verdict.json",
+      "byteCount": 12233,
+      "sha256": "eea7a8fe53e0dec76b4a2ff7f5a7a625244249bbee2840d1e284dfbfd2861306",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-09T22:14:30.231Z",
+      "runId": "sc-00-2026-09-09"
+    },
+    {
+      "artifactId": "two-sided-probe",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-00/two-sided-probe.txt",
+      "byteCount": 1973,
+      "sha256": "d7b1f83aeedd443fc7e14ea2b6791bcec834fcce5057bf6577039927b86816f1",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T22:06:29.554Z",
+      "runId": "sc-00-2026-09-09"
+    }
+  ],
+  "reviews": [
+    {
+      "reviewerId": "scene-closure execution owner (Claude Opus 5 main session, openclinxr-c2)",
+      "role": "execution owner and independent reviewer",
+      "distinctFromImplementer": true,
+      "reviewedSourceCommit": "56305f41",
+      "retrievedArtifactIds": [
+        "cmd1-foot-plant-regressions",
+        "cmd2-named-behavior-test",
+        "cmd3-assert-contract-live",
+        "cmd4-verifier-unit-tests",
+        "commands",
+        "red-baseline-40090435",
+        "rubric-controls",
+        "shipped-walk-verdict",
+        "two-sided-probe"
+      ],
+      "sessionIso": "2026-09-09T22:31:36.161Z",
+      "observations": "Reran every doneWhen in the integrated main checkout: foot-plant regressions 21/21, the named behavior test 1/1, assert-contract-live 1 contract live, verifier suite 21/21, typecheck:relaxed 0 errors, knip clean, biome clean over the cards files. Ran an own probe distinct from the implementer eight-break sweep: setting PERCEPTUAL_FLOOR_METERS to 0.12, a 24x widening of the root constant every perceptual threshold derives from, fails four clauses including SC-00-required-behavior and the stale-rubric corrupt control, so the report is bound to the recorded thresholds and a quiet widening is detected rather than absorbed; restoring passes 22 of 22. ACCEPTED THE CENTRAL FINDING AS A FAILURE OF THE ASSET, NOT OF THE CARD: the shipped openclinxr_retarget_walk_formal_cc0 violates foot-slide at 8.0x and 20.0x worst-frame on the left and right toe and 12.4x on left total, measured on the shipped bytes 4a6d8a78 rather than the pre-graft build sc-04.json graded, and the retired CMU clip would also have failed at 3.6x. The rubric was not widened to admit either. That is the outcome this card was dispatched to make possible and it is recorded in limits.unresolvedDefects; SC-05 inherits a stance-constraint problem rather than a clip-selection one. Verified the implementer own self-correction rather than taking it on report: two of its eight breaks passed on the first run because every control also failed on total slide and because a resweep step change was absorbed by a float accident, and both were closed by adding a single-frame-pop control and by asserting threshold values against their derivations. Also acted on two findings the implementer raised outside its scope: SC-01S behavior test imported the xr-station package by name, resolving to a gitignored dist, and reported no tests rather than failing when that dist was absent, with the root //#test:tools turbo task carrying no build dependency and running first; repaired at 6e68ab1e and probed with dist moved aside. Separately, the gitignored supine-control freeze refused after SC-04 republished the physician GLB; the one changed hash was re-recorded locally, and the freeze auto-initialises when absent, so on a clean clone that test passes trivially against whatever bytes are present.",
+      "decision": "accepted"
+    }
+  ],
+  "limits": {
+    "unprovenClinical": [
+      "No clinical validity claim. The thresholds here are engineering checks on geometry and timing; whether a pose or a gait is clinically appropriate needs qualified review, which has not happened.",
+      "The reach and access figures this rubric leans on (0.3 m footprint, 1.8 m standing height, 0.26 m foot length) are external adult anthropometric floors, not a validated clinical standard for any procedure."
+    ],
+    "unprovenHeadset": [
+      "Every measurement here is offline geometry decoded from shipped bytes. Nothing was worn, rendered on a headset, or frame-paced."
+    ],
+    "unprovenPublication": [
+      "No Pages push and no public claim. The perceptual floor is derived from the capture camera's framing, not from any published capture."
+    ],
+    "unresolvedDefects": [
+      "THE SHIPPED LOCOMOTION CLIP FAILS THIS RUBRIC. openclinxr_retarget_walk_formal_cc0 on the shipped physician violates foot-slide at both the executor's 1.1 m/s advance and the clip's own 0.676 m/s stance-derived advance, by 8.0x and 20.0x on worst-frame slide for the left and right toe. It satisfies the other sixteen metrics. SC-05 owns the repair; the rubric was not widened to admit it.",
+      "The retired CMU 02_01 clip would also have failed: sc-04.json records its worst single-frame slide at 0.0181 m, 3.6x the 0.005 m allowance. No locomotion clip this pipeline has produced meets the plant threshold, so SC-05's remedy is foot-lock IK or an equivalent stance constraint, not a different clip.",
+      "mpfb-peds-parent-aisha.motion-bind.glb carries the same glTF-source orientation defect SC-04 found and fixed in its own bind path. Outside SC-00's scope and recorded so it is not rediscovered.",
+      "Support, route, arrival and settled heading have no shipped producer at this baseline. Their controls supply those sections from real measured dimensions and are labelled instrument controls; they are not evidence that any placement or run occurred.",
+      "implementation.treeClean and implementation.changeCommits do not reflect an integration commit, and reviews is empty, because the delegation protocol has the worker park for review rather than land itself. Re-run build-report.ts after the integration commit and after the reviewer records a decision."
+    ]
+  },
+  "evidenceRegistrySha256": "12b1587daf25b3a1a48dece3df89115efe6f56a89ae32b10140728e3818394fb"
+}
