@@ -11,13 +11,6 @@ import {
  * module exists the import is static — knip fails closed the other way, reporting a module
  * whose only importer is non-static as an unused file.
  */
-async function check(): Promise<{
-  APP_IMPORT_INVERSION_FREEZE: typeof APP_IMPORT_INVERSION_FREEZE;
-  FACTORY_SCAN_ROOTS: typeof FACTORY_SCAN_ROOTS;
-  detectFactoryAppImportInversions: typeof detectFactoryAppImportInversions;
-}> {
-  return { APP_IMPORT_INVERSION_FREEZE, FACTORY_SCAN_ROOTS, detectFactoryAppImportInversions };
-}
 
 /**
  * OBSERVABLE: the production factory imports the learner app it is supposed to feed.
@@ -54,25 +47,21 @@ async function check(): Promise<{
 
 describe("the factory does not import the apps it feeds", () => {
   it("(1) the scan covers the production factory path and excludes evidence harnesses", async () => {
-    const { FACTORY_SCAN_ROOTS } = await check();
     expect(FACTORY_SCAN_ROOTS).toContain("packages");
     expect(FACTORY_SCAN_ROOTS.some((root) => root.includes("dark-factory"))).toBe(true);
     expect(FACTORY_SCAN_ROOTS.some((root) => root.includes("evidence"))).toBe(false);
   });
 
   it("(2) with an empty freeze list the detector reports no inversions", async () => {
-    const { detectFactoryAppImportInversions } = await check();
     const found = detectFactoryAppImportInversions({ freeze: {} });
     expect(found).toEqual([]);
   });
 
   it("(3) with the shipped freeze list the tree is clean", async () => {
-    const { detectFactoryAppImportInversions } = await check();
     expect(detectFactoryAppImportInversions()).toEqual([]);
   });
 
   it("(4) COUNTERWEIGHT: an unfrozen violation in a scanned root is reported", async () => {
-    const { APP_IMPORT_INVERSION_FREEZE, detectFactoryAppImportInversions } = await check();
     const found = detectFactoryAppImportInversions({
       freeze: APP_IMPORT_INVERSION_FREEZE,
       sources: [
@@ -87,7 +76,6 @@ describe("the factory does not import the apps it feeds", () => {
   });
 
   it("(5) COUNTERWEIGHT: the freeze list may not name a path that does not violate", async () => {
-    const { APP_IMPORT_INVERSION_FREEZE, detectFactoryAppImportInversions } = await check();
     const live = new Set(detectFactoryAppImportInversions({ freeze: {} }).map((row) => row.file));
     const padded = Object.keys(APP_IMPORT_INVERSION_FREEZE).filter((path) => !live.has(path));
     expect(padded).toEqual([]);
@@ -121,7 +109,6 @@ describe("the factory does not import the apps it feeds", () => {
   });
 
   it("(6) COUNTERWEIGHT: a scanned file with no app import is not reported", async () => {
-    const { detectFactoryAppImportInversions } = await check();
     const found = detectFactoryAppImportInversions({
       freeze: {},
       sources: [

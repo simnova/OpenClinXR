@@ -133,8 +133,8 @@ describe("OpenClinXR API startup", () => {
     const config = createBunServerConfig(startup, { port: 4322 });
     const sentFrames: unknown[] = [];
     const fakeSocket = {
-      send(frame: string | Uint8Array): number {
-        sentFrames.push(frame);
+      send(sent: string | Uint8Array): number {
+        sentFrames.push(sent);
         return sentFrames.length;
       },
     };
@@ -167,8 +167,8 @@ describe("OpenClinXR API startup", () => {
     const config = createBunServerConfig(startup, { port: 4322 });
     const sentFrames: unknown[] = [];
     const fakeSocket = {
-      send(frame: string | Uint8Array): number {
-        sentFrames.push(frame);
+      send(sent: string | Uint8Array): number {
+        sentFrames.push(sent);
         return sentFrames.length;
       },
     };
@@ -203,8 +203,8 @@ describe("OpenClinXR API startup", () => {
     const config = createBunServerConfig(startup, { port: 4322 });
     const sentFrames: unknown[] = [];
     const fakeSocket = {
-      send(frame: string | Uint8Array): number {
-        sentFrames.push(frame);
+      send(sent: string | Uint8Array): number {
+        sentFrames.push(sent);
         return sentFrames.length;
       },
     };
@@ -235,8 +235,8 @@ describe("OpenClinXR API startup", () => {
     const config = createBunServerConfig(startup, { port: 4322 });
     const sentFrames: unknown[] = [];
     const fakeSocket = {
-      send(frame: string | Uint8Array): number {
-        sentFrames.push(frame);
+      send(sent: string | Uint8Array): number {
+        sentFrames.push(sent);
         return sentFrames.length;
       },
     };
@@ -263,8 +263,8 @@ describe("OpenClinXR API startup", () => {
     });
     const sentFrames: unknown[] = [];
     const clientSocket = {
-      send(frame: string | Uint8Array): number {
-        sentFrames.push(frame);
+      send(sent: string | Uint8Array): number {
+        sentFrames.push(sent);
         return sentFrames.length;
       },
     };

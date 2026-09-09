@@ -52,9 +52,9 @@ const config = createBunServerConfig(startup, {
 });
 const server = bun.serve({
   port: config.port,
-  fetch: (request, server) => {
+  fetch: (request, runningServer) => {
     if (config.canUpgradeWebSocketRequest(request)) {
-      if (server.upgrade(request)) {
+      if (runningServer.upgrade(request)) {
         return undefined;
       }
       return new Response("WebSocket upgrade failed", { status: 400 });
