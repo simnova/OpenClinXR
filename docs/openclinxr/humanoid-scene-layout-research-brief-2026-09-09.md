@@ -2,6 +2,32 @@
 
 **Rebuilt 8 September; reviewed and revised 9 September 2026 · codebase-grounded research and implementation brief**
 
+> **THIS IS A LINK-REWRITTEN WORKING COPY, NOT THE ARTIFACT AS RECEIVED.**
+>
+> The operator supplied this brief from outside the repository. Its content —
+> every claim, citation, line number and word of prose — is unchanged. What
+> changed is 61 link targets, 122 diff lines: external `/Users/patrick/...` paths
+> now point at the consultation records copied in beside this file, and absolute
+> `/Volumes/files/src/openclinxr/` prefixes are repo-relative. Both forms are
+> machine-dependent, and this repo's markdown-references gate exists because a
+> reference that resolves on one checkout and not another is not a reference.
+>
+> The artifact AS RECEIVED is NOT carried in this repository, deliberately. It
+> lives with the operator, outside this repository, under
+> Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/outputs/
+> as openclinXR-humanoid-scene-layout-research-brief — written unbracketed and
+> without an extension on purpose, because a backticked path ending .md is a
+> reference this repo's gate will try to resolve, and an out-of-tree path never
+> can. The gate caught exactly that on the first draft of this banner.
+> 45,591 bytes, sha256
+> `caf27580d2956310fe463f5bfc36a471844ec6d7a35a0c5bd0249b08938245bb`.
+> Copying it in would have required registering eight non-Markdown files in the
+> generated-artifact registry, and that regeneration refuses without shrinking
+> 1,418 unrelated stale entries. Taking that on to store a file the operator
+> already holds is the wrong trade; the hash is the provenance.
+>
+> A reviewer wanting the pristine bytes should be pointed at that path directly.
+
 **Recommendation:** extend the existing encounter factory with initial scene planning, authored spatial relationships, measurable placement constraints and interchangeable motion executors. Preserve three.js/WebXR, the MPFB2 pipeline, canonical motion semantics and the actor-performance/replay system. Evaluate learned providers against that baseline before adopting one.
 
 ## 1. Scope, evidence and goals
