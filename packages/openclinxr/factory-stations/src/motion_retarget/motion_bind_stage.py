@@ -188,6 +188,51 @@ def _scene_mesh_count() -> int:
     return sum(1 for ob in bpy.context.scene.objects if ob.type == "MESH")
 
 
+def _bvh_frame_time_seconds(clip_path: str) -> float | None:
+    """The clip's own `Frame Time:` in seconds, or None if the file does not declare one."""
+    with open(clip_path, "r", encoding="utf-8", errors="replace") as handle:
+        for line in handle:
+            stripped = line.strip()
+            if stripped.startswith("Frame Time:"):
+                try:
+                    return float(stripped.split(":", 1)[1])
+                except ValueError:
+                    return None
+            if stripped.startswith("MOTION"):
+                continue
+    return None
+
+
+def _apply_source_frame_rate(clip_path: str) -> str:
+    """Set the scene frame rate from the BVH, BEFORE the retarget imports it.
+
+    retarget_bvh runs Blender's own BVH importer with use_fps_scale off, so it lays down ONE
+    keyframe per scene frame and never reads the file's Frame Time. Whatever the scene's fps happens
+    to be becomes the clip's playback rate.
+
+    Measured 2026-09-09, before this call existed: cmu_02_01_walk.bvh declares Frame Time .0083333
+    (120 fps) and exported at Blender's default 24 fps, so a 2.87 s walk became 14.33 s and the rig's
+    ground speed dropped from 1.114 m/s to 0.223 m/s. Nothing in the clip was wrong -- it was played
+    five times too slowly, and a consumer measuring foot slide against a root advancing at
+    CLINICIAN_WALK_SPEED_MPS (1.1) would have seen the feet drag four fifths of the distance.
+    """
+    frame_time = _bvh_frame_time_seconds(clip_path)
+    if not frame_time or frame_time <= 0:
+        return f"source_frame_time=absent scene_fps={bpy.context.scene.render.fps} (left at default)"
+    rate = 1.0 / frame_time
+    nearest = round(rate)
+    if abs(rate - nearest) < 1e-3:
+        bpy.context.scene.render.fps = int(nearest)
+        bpy.context.scene.render.fps_base = 1.0
+    else:
+        bpy.context.scene.render.fps = int(nearest)
+        bpy.context.scene.render.fps_base = float(nearest) / rate
+    return (
+        f"source_frame_time={frame_time} source_fps={rate:.4f} "
+        f"scene_fps={bpy.context.scene.render.fps}/{bpy.context.scene.render.fps_base}"
+    )
+
+
 def _export_skinned_actor_clip(out_path: str) -> None:
     """Skinned meshes + armature + bound clip.
 
@@ -257,6 +302,7 @@ def main(argv: list[str]) -> int:
     try:
         _inject_target_map(bpy.context.scene, args.map)
         log_lines.append(f"target_map={TARGET_NAME} from {args.map}")
+        log_lines.append(_apply_source_frame_rate(args.clip))
 
         bpy.ops.object.select_all(action="DESELECT")
         arm.select_set(True)
@@ -339,6 +385,9 @@ def main(argv: list[str]) -> int:
         "addonModule": ADDON_MODULE,
         "outputGlb": args.output,
         "clipName": clip_name,
+        "sourceFrameTimeSeconds": _bvh_frame_time_seconds(args.clip),
+        "sceneFps": bpy.context.scene.render.fps / bpy.context.scene.render.fps_base,
+        "clipFrameCount": max((b["keyframes"] for b in real), default=0),
         "drivenBones": real,
         "drivenBoneCount": len(real),
         "outputMeshCount": mesh_count,

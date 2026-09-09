@@ -1032,6 +1032,58 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+### Step 4's foot slide, measured on the rig that would ship — and the clip was playing five times too slowly
+
+The two foot-slide numbers on record were about the wrong things: the root-driven executor's ~100%
+(no legs animated) and the CMU BVH's toes in the SOURCE skeleton. Retargeting is where a plant is
+normally lost, so the measurement that decides step 4 is on the retargeted MPFB armature.
+
+`tools/openclinxr/evidence/foot-plant/bound-clip-foot-track.ts` walks the glTF node hierarchy and
+composes TRS per frame, so no renderer is involved. `footSlideMeters` is IMPORTED from
+`approach-executor.ts`, not reimplemented, which is what that module claimed would happen once a clip
+existed.
+
+| joint | contact 0.06 m (runtime) | contact 0.10 m | contact 0.15 m |
+|---|---|---|---|
+| toe1-1.L | **2.6%** of root travel, 54 frames | 48.9%, 197 frames | 76.8% |
+| toe1-1.R | **8.1%**, 32 frames | 56.4%, 165 frames | 110.7% |
+| foot.L (ankle) | 0%, **0 frames** | 11.5%, 30 frames | 37.8% |
+| foot.R (ankle) | 0%, **0 frames** | 1.3%, 18 frames | 39.0% |
+| root-driven executor | **100.0%** | — | — |
+
+The toes plant. The ankles never reach the runtime's contact height, which is the same finding the
+BVH measurement made in the source skeleton and it survived the retarget: the contact point is the
+toe.
+
+**Contact height decides the answer, which is why the report carries a sweep.** At 0.10 m the same
+toe measures 48.9% and its worst single frame is 0.308 m. At 120 fps that is 37 m/s for one frame,
+so the loose threshold is counting a swing frame as a plant rather than finding a slip.
+
+**And the bind was exporting at the wrong frame rate.** retarget_bvh runs Blender's BVH importer
+with `use_fps_scale` off, laying down one key per SCENE frame and never reading the file's
+`Frame Time`. The scene sat at Blender's default 24 fps while `cmu_02_01_walk.bvh` declares
+`.0083333` (120 fps), so a 2.87 s walk exported as 14.33 s and the rig's ground speed read
+**0.223 m/s instead of 1.115**.
+
+That number matters because the executor advances a root at `CLINICIAN_WALK_SPEED_MPS = 1.1`. A clip
+five times too slow drags its feet four fifths of the distance however well it plants, so the plant
+measurement above would have been true and useless. `_apply_source_frame_rate()` now sets the scene
+rate from the clip's own `Frame Time` before the retarget imports it, and the re-bake measures
+1.115 m/s — within 1.4% of the executor's constant, which is a coincidence worth recording rather
+than a threshold anyone fitted.
+
+Geometry did not move: every slide fraction is identical before and after, because only the time
+axis changed. That is the control on the fix.
+
+**The GLB is 11.6 MB under `.openclinxr/` and has no land path**, so the deliverable is
+`docs/openclinxr/evidence/bound-clip-foot-plant.json`, which carries the GLB's sha256 and byte
+length. A rebake that changes the bytes without re-running the instrument leaves a report naming a
+file nobody has, which is visible rather than silent.
+
+**What step 4 still lacks:** playing the bound clip through the executor in the LIVE runtime and
+re-measuring on the loaded humanoid. Everything above is measured off the asset, not off the
+displayed scene, and the report says so in `notEvidenceFor`.
+
 ### The walk is BOUND, the legs are driven, and the clip was lying about its own name
 
 The bind ran on the proven path — `blender --background motion_bind_stage.py`, one MPFB actor plus

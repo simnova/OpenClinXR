@@ -1,0 +1,166 @@
+{
+  "schemaVersion": "openclinxr.bound-clip-foot-plant.v1",
+  "generatedAt": "2026-09-09T13:08:54.845Z",
+  "asset": {
+    "glbPath": ".openclinxr/evidence/walk-bind/physician-walk.glb",
+    "sha256": "f22b6f95cc9bc0c860a091d3880d1859c1951df1ac339eb960b3624e3b34dfed",
+    "bytes": 11633760,
+    "clipName": "openclinxr_retarget_cmu_02_01_walk"
+  },
+  "clip": {
+    "frameCount": 345,
+    "durationSeconds": 2.866666555404663,
+    "framesPerSecond": 120.0000046574794,
+    "rootJoint": "root",
+    "rootTravelMeters": 3.197106319843105,
+    "impliedGroundSpeedMetersPerSecond": 1.115269689743109
+  },
+  "executorSpeedMatch": {
+    "executorSpeedMetersPerSecond": 1.1,
+    "clipSpeedMetersPerSecond": 1.115269689743109,
+    "ratio": 1.013881536130099
+  },
+  "joints": [
+    {
+      "joint": "toe1-1.L",
+      "minHeightMeters": 0.015780285390933686,
+      "medianHeightMeters": 0.09322601416237787,
+      "maxHeightMeters": 0.19056083896223883,
+      "contactSweep": [
+        {
+          "contactHeightMeters": 0.06,
+          "isRuntimeThreshold": true,
+          "slideMeters": 0.08165081539642771,
+          "contactFrames": 54,
+          "worstFrameSlideMeters": 0.015647432082416847,
+          "fractionOfRootTravel": 0.02553897406841154
+        },
+        {
+          "contactHeightMeters": 0.1,
+          "isRuntimeThreshold": false,
+          "slideMeters": 1.5634935931551355,
+          "contactFrames": 197,
+          "worstFrameSlideMeters": 0.3082676099748625,
+          "fractionOfRootTravel": 0.4890339690773444
+        },
+        {
+          "contactHeightMeters": 0.15,
+          "isRuntimeThreshold": false,
+          "slideMeters": 2.4553417241887963,
+          "contactFrames": 312,
+          "worstFrameSlideMeters": 0.3082676099748625,
+          "fractionOfRootTravel": 0.767988761884306
+        }
+      ]
+    },
+    {
+      "joint": "toe1-1.R",
+      "minHeightMeters": 0.015780012754866533,
+      "medianHeightMeters": 0.1009804053272773,
+      "maxHeightMeters": 0.19740164826727025,
+      "contactSweep": [
+        {
+          "contactHeightMeters": 0.06,
+          "isRuntimeThreshold": true,
+          "slideMeters": 0.25922605599669213,
+          "contactFrames": 32,
+          "worstFrameSlideMeters": 0.03649771435543321,
+          "fractionOfRootTravel": 0.08108146244239178
+        },
+        {
+          "contactHeightMeters": 0.1,
+          "isRuntimeThreshold": false,
+          "slideMeters": 1.8045230311484897,
+          "contactFrames": 165,
+          "worstFrameSlideMeters": 0.30173404000073895,
+          "fractionOfRootTravel": 0.5644238416309674
+        },
+        {
+          "contactHeightMeters": 0.15,
+          "isRuntimeThreshold": false,
+          "slideMeters": 3.537739741818437,
+          "contactFrames": 304,
+          "worstFrameSlideMeters": 0.30173404000073895,
+          "fractionOfRootTravel": 1.1065442897100926
+        }
+      ]
+    },
+    {
+      "joint": "foot.L",
+      "minHeightMeters": 0.07378309994624888,
+      "medianHeightMeters": 0.1529124644964923,
+      "maxHeightMeters": 0.3262550318161506,
+      "contactSweep": [
+        {
+          "contactHeightMeters": 0.06,
+          "isRuntimeThreshold": true,
+          "slideMeters": 0,
+          "contactFrames": 0,
+          "worstFrameSlideMeters": 0,
+          "fractionOfRootTravel": 0
+        },
+        {
+          "contactHeightMeters": 0.1,
+          "isRuntimeThreshold": false,
+          "slideMeters": 0.36756219836814163,
+          "contactFrames": 30,
+          "worstFrameSlideMeters": 0.2980952558260732,
+          "fractionOfRootTravel": 0.1149671489142655
+        },
+        {
+          "contactHeightMeters": 0.15,
+          "isRuntimeThreshold": false,
+          "slideMeters": 1.20691204158381,
+          "contactFrames": 165,
+          "worstFrameSlideMeters": 0.2980952558260732,
+          "fractionOfRootTravel": 0.37750137807210554
+        }
+      ]
+    },
+    {
+      "joint": "foot.R",
+      "minHeightMeters": 0.0737828728275374,
+      "medianHeightMeters": 0.16208056466326298,
+      "maxHeightMeters": 0.3347975860113201,
+      "contactSweep": [
+        {
+          "contactHeightMeters": 0.06,
+          "isRuntimeThreshold": true,
+          "slideMeters": 0,
+          "contactFrames": 0,
+          "worstFrameSlideMeters": 0,
+          "fractionOfRootTravel": 0
+        },
+        {
+          "contactHeightMeters": 0.1,
+          "isRuntimeThreshold": false,
+          "slideMeters": 0.04005474852675378,
+          "contactFrames": 18,
+          "worstFrameSlideMeters": 0.014635550634689276,
+          "fractionOfRootTravel": 0.012528438068559267
+        },
+        {
+          "contactHeightMeters": 0.15,
+          "isRuntimeThreshold": false,
+          "slideMeters": 1.2462116333994389,
+          "contactFrames": 152,
+          "worstFrameSlideMeters": 0.032412623708696485,
+          "fractionOfRootTravel": 0.38979361607861557
+        }
+      ]
+    }
+  ],
+  "rootDrivenExecutorBaseline": {
+    "slideMeters": 3.6599043703353784,
+    "pathLengthMeters": 3.6599043703353775,
+    "fractionOfPath": 1.0000000000000002
+  },
+  "claimScope": "foot_and_toe_world_tracks_of_one_bound_clip_on_one_mpfb_physician_rig_measured_from_the_glTF_node_hierarchy",
+  "notEvidenceFor": [
+    "what_the_runtime_displays",
+    "visual_walk_quality",
+    "clinical_gait_realism",
+    "quest_readiness",
+    "any_other_clip_or_rig"
+  ]
+}
