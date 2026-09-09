@@ -104,6 +104,13 @@ const NOT_EVIDENCE_FOR = [
 /** How many further frames must pass between the two samples. */
 const FURTHER_FRAME_BUDGET = 30;
 
+/** The patient the CASE declares for this scenario, independent of what the runtime loaded. */
+function declaredPatientActorId(scenarioId: string): string {
+  const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId);
+  const patient = scenario?.actors?.find((actor) => actor.role === "patient");
+  return patient?.actorId ?? "";
+}
+
 function authoredPlacementFor(scenarioId: string, actorId: string): {
   offset: Vec3 | null;
   supportSurface: string | null;
@@ -248,12 +255,33 @@ function subtract(a: Vec3 | null, b: Vec3 | null): Vec3 | null {
   return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
 }
 
-function classify(row: Omit<AuthoredOffsetRow, "outcome" | "evidence">): {
+export function classify(row: Omit<AuthoredOffsetRow, "outcome" | "evidence">): {
   outcome: PlacementOutcome;
   evidence: string;
 } {
   const settled = row.atSettle;
   const later = row.afterFurtherFrames;
+
+  // THE COUNTERWEIGHT, added after the first run reported "satisfied" about the wrong figure.
+  // Navigating to the clinic scenario sampled patient_robert_hayes_v1 — the ED patient — because
+  // apps/ui-xr/src/main.ts:641 binds createEdChestPainLocalLearnerRuntimeAssetBundle() and only
+  // RECORDS a scenario_mismatch rather than materializing the selected case. The lookup for an
+  // authored offset then found none (that actor authors none), took the unauthored-control branch,
+  // and reported green. A measurement that cannot tell which humanoid it measured is worth less
+  // than no measurement, so identity is checked against the CASE before anything else.
+  const declared = declaredPatientActorId(row.scenarioId);
+  if (declared && row.patientActorId && row.patientActorId !== declared) {
+    return {
+      outcome: "unsatisfied",
+      evidence: `identity mismatch: the case declares ${declared} for ${row.scenarioId} but the runtime staged ${row.patientActorId}; the selected scenario did not reach the loaded cast, so no placement claim about this station is possible`,
+    };
+  }
+  if (declared && !row.patientActorId) {
+    return {
+      outcome: "unknown",
+      evidence: `no patient slot was found in the scene for ${row.scenarioId} (the case declares ${declared}), so no adequate observation was made`,
+    };
+  }
   if (settled.skinnedMeshCount === 0 || later.skinnedMeshCount === 0) {
     return {
       outcome: "pending",

@@ -429,6 +429,38 @@ brief cites as the existing staging instrument [R26], and it is now
 100-line CPU-skinning routine drift and the drift is silent: both keep returning plausible numbers.
 That instrument's own suite is the extraction's proof.
 
+### First run: the instrument reported green about the wrong humanoid
+
+Run 1 (`2026-09-09T11:08:48Z`) navigated to both control stations and returned `satisfied` for
+both. It was wrong, and the way it was wrong is the finding.
+
+| scenario | patient the CASE declares | patient the RUNTIME staged | skinned centre |
+|---|---|---|---|
+| `clinic_knee_pain_return_to_play_v1` | `patient_jordan_cole_v1` (seated, chair) | **`patient_robert_hayes_v1`** | x −0.3769 z −0.2902 |
+| `ed_chest_pain_priority_v2` | `patient_robert_hayes_v1` | `patient_robert_hayes_v1` | x −0.4052 z −0.3889 |
+
+Navigating to the clinic scenario staged the **ED** patient. `main.ts:641` binds
+`createEdChestPainLocalLearnerRuntimeAssetBundle()` and the runtime only RECORDS a
+`scenario_mismatch` reason (`main.ts:705-715`) rather than materializing the selected case, so the
+cast stays the ED cast whatever the URL asks for. `selectedScenarioId()` reads the parameter
+(`main.ts:1007-1016`); the bundle does not follow it.
+
+**Consequence for the brief: step 2's AUTHORED half cannot be exercised in the runtime at all
+today.** The only case that authors a plant offset is the clinic scenario, and the runtime will not
+stage its cast. That is upstream of the composition the runtime card landed, and it is a larger
+blocker than anything the twelve cards addressed.
+
+**And the classifier reported `satisfied` anyway**, because it looked up an authored offset for
+`patient_robert_hayes_v1`, found none — that actor authors none — and took the unauthored-control
+branch. A measurement that cannot tell which humanoid it measured is worth less than no
+measurement. The missing counterweight is now the FIRST check in `classify`: the staged actor id is
+compared against the one the case declares, and a mismatch returns `unsatisfied` naming both ids,
+because per the brief an unsupported required state is unsatisfied rather than unknown.
+
+The drift figures are the part of run 1 that stands: 0.0081 m and 0.0034 m of skinned-centre
+movement across 30 further frames, on a figure the frame loop rewrites every frame. Small, real,
+and now measurable.
+
 ### The evidence tools' page-global alias does not exist at runtime
 
 Building the instrument surfaced a defect in the tooling the brief cites. `browser-dom.d.ts`
