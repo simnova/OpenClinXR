@@ -1032,6 +1032,30 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+### The locomotion drive now plays the clip, and it used to slide the root
+
+`animation-loop.ts:187` wrote `slot.root.position.z = slot.baseZ + locomotion * 0.6` whenever the
+drive asked for locomotion. That IS the ~100% foot slide the approach executor's own metric reports
+on itself: nothing animates a leg, so every planted foot travels the whole distance. The runtime's
+only locomotion was a translating root.
+
+When an actor carries a retargeted take, the drive now plays it and the clip CLAIMS the leg chain
+through `openClinXrOwnedBoneChains` — the seam that already exists so a motion executor can stop the
+posture pass rewriting bones every frame. Without that claim `applyIdlePosture` overwrites the legs
+each frame and the walk is invisible; probed, and clause (1) fails.
+
+The clip name reaches the loop as SLOT DATA, not as a re-declared prefix.
+`isDeliberateSelectionOnlyClip` decides it once in `clip-names.ts`, `xr-asset-loading` stamps
+`locomotionClipName` on the slot, and `xr-humanoid-animation` reads it. Neither entrypoint gained an
+export, so both shrink-only ceilings are untouched.
+
+Clause (3) is the counterweight that matters: an actor with NO locomotion clip must still slide,
+exactly as before. Every peds actor the drive moves today is in that state, and without the clause
+this change would have frozen them while clauses (1) and (2) stayed green.
+
+The drive scalar gates PLAYBACK, not speed. The clip's own ground speed is 1.115 m/s measured from
+its root track, and rescaling it would put back the sliding this removes.
+
 ### An external review at $0.0022 found five real defects in the day's diff
 
 `meta/muse-spark-1.3-contributor` on OpenRouter, the whole day's diff as one prompt, 17,954 prompt

@@ -29,6 +29,7 @@ import {
 } from "./face-rig.js";
 import { buildHumanoidSpeechEvidence, resolveHumanoidGazeTargetWorld, updateHumanoidGazeCue, updateVirtualDeviceActorSpeechPulses } from "./gaze-evidence.js";
 import { recordRuntimeHumanoidActingCueEvidence, writeHumanoidSpeechFrameEvidence, writeMouthGazePoseComparatorEvidence } from "./speech-evidence.js";
+import { playLocomotionClip } from "./locomotion-clip-playback.js";
 import type {
   GeneratedHumanoidAnimationSlot,
   HumanoidActingCueRecord,
@@ -36,6 +37,7 @@ import type {
   HumanoidExpressionWeights,
   HumanoidRuntimeDrive,
 } from "./types.js";
+
 
 export function pediatricAsthmaActingOverlayForSlot(
   ctx: HumanoidAnimationRuntimeContext,
@@ -144,7 +146,14 @@ export function updateGeneratedHumanoidAnimations(
     if (drive && !isSupineFrame) {
       const locomotion = generatedDriveScalar(drive.locomotion);
       if (locomotion !== null) {
-        slot.root.position.z = slot.baseZ + locomotion * 0.6;
+        // A retargeted locomotion take, when the actor has one, drives the LEGS. Sliding the root
+        // is what this line did unconditionally, and it is the ~100% foot slide the approach
+        // executor's own metric reports: nothing animates the legs, so every planted foot travels
+        // the whole distance. The clip is played only when the drive asks for locomotion, and only
+        // on an actor that carries one, so an actor without a clip keeps the old behaviour exactly.
+        if (!playLocomotionClip(slot, locomotion)) {
+          slot.root.position.z = slot.baseZ + locomotion * 0.6;
+        }
       }
       const gaze = generatedDriveScalar(drive.gazeAversion ?? drive.gaze);
       if (gaze !== null) applyGazeToHumanoid(slot.root, gaze);

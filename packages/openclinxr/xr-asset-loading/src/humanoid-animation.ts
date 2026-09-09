@@ -115,6 +115,13 @@ export function registerGeneratedHumanoidAnimation(ctx: AssetLoadingContext, inp
           policy: "seated_role_clip_policy.seatedRoleClipIsPlayable",
         }
       : { admitted: false, clipNames: [] as string[], policy: "seated_role_clip_policy.seatedRoleClipIsPlayable" };
+  // The clip the auto-play fallback deliberately excluded. Naming it on the SLOT is what lets a
+  // locomotion consumer select it without either package re-declaring the prefix.
+  const locomotionClip = input.animationClips.find(
+    (clip: unknown): clip is AnimationClip =>
+      clip instanceof AnimationClip && isDeliberateSelectionOnlyClip(clip.name),
+  );
+  humanoidData["openClinXrLocomotionClipName"] = locomotionClip?.name ?? null;
   const slot = {
     assetId: input.assetId,
     actorId: input.actorId,
@@ -135,6 +142,7 @@ export function registerGeneratedHumanoidAnimation(ctx: AssetLoadingContext, inp
     emotionExpression: ctx.createEmotionState(),
     sourceComparatorFreezeEnabled: !input.playbackEnabled && input.fixedSourcePoseSampleSeconds !== null,
     responseClips: input.animationClips.filter((clip: unknown): clip is AnimationClip => clip instanceof AnimationClip),
+    ...(locomotionClip ? { locomotionClipName: locomotionClip.name } : {}),
     ...(mixer ? { mixer } : {}),
     ...(activeRoleAnimationClipName ? { activeRoleAnimationClipName } : {}),
     ...(activeGazeProbeAnimationClipName ? { activeGazeProbeAnimationClipName } : {}),

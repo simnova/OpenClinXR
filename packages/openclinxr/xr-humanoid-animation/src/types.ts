@@ -69,6 +69,11 @@ export type GeneratedHumanoidAnimationSlot = {
   activeSpeech?: HumanoidSpeechPlayback | undefined;
   mixer?: import("three").AnimationMixer | undefined;
   responseClips?: import("three").AnimationClip[] | undefined;
+  /**
+   * A retargeted locomotion take present on this actor, excluded from auto-play. A consumer that
+   * wants the actor to walk names it; nothing plays it by default.
+   */
+  locomotionClipName?: string | undefined;
   activeRoleAnimationClipName?: string | undefined;
   activeGazeProbeAnimationClipName?: string | undefined;
 };
