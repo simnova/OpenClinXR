@@ -993,6 +993,45 @@ nothing, and it must not look like a pass. Clause (6) pins that distinction.
 locomotion clip driving the legs. Every clause of step 4 now has an implementation and a number;
 one of those numbers says the current implementation is wrong, which is what a measurement is for.
 
+### Does a clip fix the sliding? Measured, not assumed
+
+The root-driven executor slides its feet 100% of the distance travelled. The question blocking step
+4 was whether the walk BVH already on disk would fix that. It is answered by measuring the clip
+rather than by adopting it and hoping.
+
+Minimal forward kinematics — offsets, ZYX Euler, root translation — over
+`cmu_02_01_walk.bvh`. Root travel 59.56 units across 344 frames. Planted-toe slide as a fraction of
+that travel:
+
+| contact height | left toe | right toe |
+|---|---|---|
+| 0.4 | 0.4% (32 frames) | 9.1% (15) |
+| 0.6 | 1.4% (70) | 10.1% (41) |
+| 0.8 | 2.1% (80) | 11.5% (91) |
+| 1.0 | 4.2% (149) | 19.4% (145) |
+| 1.2 | 15.3% (230) | 28.3% (188) |
+
+**0.4–11.5% at tight thresholds, against 100% for the root-driven executor.** A sweep rather than
+one threshold, because the answer is threshold-sensitive and picking the single value that flatters
+the clip would be fitting a number to a conclusion. The rise at 1.0 and above is swing frames being
+counted as contact, which is the expected artefact and is why the tight rows carry the claim.
+
+**Two findings that came out of measuring rather than assuming.**
+
+The ANKLE is not the contact point. `LeftFoot` in a CMU rig is the ankle: median height 1.79 units,
+only 27 of 344 frames below 1.0. Measured first, it reads as "the feet barely touch the floor" and
+would have concluded the clip does not plant at all. `LeftToeBase` reaches -0.55.
+
+The clip is ASYMMETRIC — the right toe slides several times the left at every threshold in the
+sweep, so it is a property of the clip, not of the threshold. Recorded because adopting this clip
+means adopting that asymmetry, and a reader comparing a future clip needs the number rather than
+"it looked fine".
+
+Licence: CMU Graphics Lab mocap is CONDITIONAL, not CC0 — free for research and commercial products,
+the data not resellable even converted — and the ledger records it as already used once for a walk
+BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
+measurement.
+
 ### The evidence tools' page-global alias does not exist at runtime
 
 Building the instrument surfaced a defect in the tooling the brief cites. `browser-dom.d.ts`
