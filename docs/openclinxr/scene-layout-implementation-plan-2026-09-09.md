@@ -224,53 +224,69 @@ merges on main without a lease).
 
 ## 2b. The cards
 
-Created Idle on BothyBoard project OpenClinXR, not planted. The first set was
-reviewed in round 1 and REPLACED rather than patched: the board exposes no tool
-to edit an Idle card's body, and each replacement names what it supersedes.
+Idle on BothyBoard project OpenClinXR, not planted. Two review rounds replaced
+cards rather than patching them, because the board exposes no body edit. The
+seventeen superseded cards are set `cancelled`; these eleven are live.
 
-| card | id | supersedes | wave | lane | step |
-|---|---|---|---|---|---|
-| heading field | `tsk_c28354df7d5d3963` | `tsk_71dad3085692b470` | 1 | A | staging |
-| authored vector | `tsk_8b9879a72fb7bfcf` | `tsk_61a405f61ea64f71` | 1 | B | staging |
-| readiness pair | `tsk_807db8f354dcf8bb` | `tsk_3c4e9d81485e7f70` | 1 | A | instrument |
-| equipment binding | `tsk_cb291bb3a132193d` | `tsk_35401f4021b670ba` | 1 | B | room_generate |
-| event dispatcher | `tsk_4d495eb216687476` | `tsk_0123a475c3f8d9e1` | 1 | B | dialogue_runtime |
-| factory resolution | `tsk_d52f5925ae08dba5` | `tsk_ec6bf10b129255c2` | 2 | B | staging |
-| transform survival | `tsk_67f78b22890c5a26` | `tsk_f90bdaad8fde5699` | 2 | A | staging |
-| equipment identity | `tsk_e06a9d49740d77f6` | `tsk_0d28bbd5c3e8d209` | 2 | A | equipment_generate |
-| motion ownership | `tsk_799fd1f8e07dd07b` | `tsk_4ca2eaa621ac1eb5` | 2 | A | motion_retarget |
-| scene specification | `tsk_8795fe7991529358` | `tsk_cad38802047f3c8d` | 2 | B | room_generate |
-| runtime consumption | `tsk_b74fa460c70f63b7` | `tsk_6e7efa907065fe8c` | 3 | A | staging |
+| card | id | wave | lane | step |
+|---|---|---|---|---|
+| heading field | `tsk_c28354df7d5d3963` | 1 | A | staging |
+| authored vector | `tsk_8b9879a72fb7bfcf` | 1 | B | staging |
+| readiness pair | `tsk_807db8f354dcf8bb` | 1 | A | instrument |
+| equipment binding | `tsk_cb291bb3a132193d` | 1 | B | room_generate |
+| event dispatcher | `tsk_4d495eb216687476` | 1 | B | dialogue_runtime |
+| factory resolution | `tsk_a998bd15b2ad2316` | 2 | B | staging |
+| transform survival | `tsk_be070f9e44043858` | 2 | A | staging |
+| equipment identity | `tsk_86aebc46ba791e1a` | 2 | A | equipment_generate |
+| motion ownership | `tsk_cd89494db42a2e6b` | 2 | A | motion_retarget |
+| scene specification | `tsk_f132048e2170fe07` | 2 | B | room_generate |
+| runtime consumption | `tsk_1fc0c05f84a6a344` | 3 | A | staging |
 
-### What round 1 changed in the cards
+### Every card names a planted RED that fails on HEAD
 
-Every card gained the measured evidence in its own body, because a worker
-executes the card and not this document. Beyond that:
+Round 2's sharpest finding: no `done_when` was a test that could fail today.
+Every "the RED must fail on HEAD" was a worker instruction, and every `run:`
+suite was green. Six cards now name a specific test file the OWNER commits
+FAILING before the card is planted, and that file is the first `run:` line:
 
-- **`changed:` targets are files, never directories.** A directory target means
-  "some descendant changed" and is satisfied by an unrelated edit. Where a card
-  must change two things to be true, both are named.
-- **Write roots are named files, not package directories.** That is what
-  separated the authored-vector card from the equipment-binding card, and the
-  event dispatcher from the scene specification.
-- **The event dispatcher is now a dependency of the scene specification.** Both
-  write `scenario-runtime/src`; without the edge the board could dequeue them
-  into the same tree.
-- **The heading card no longer claims to populate the production builder.**
-  `generatedActorPlacement` is in the factory card's write root, so the heading
-  card extends the type and the hardcoded literals, and the field stays optional
-  or every positional constructor breaks.
-- **The authored-vector card holds the fixture that will actually go red** and
-  says plainly that the admin worldview test will not, because line 33 is a
-  regex over the panel's source text that `plantOffsetMeters` already matches.
-- **The factory card owns both halves of the faculty lock**: put the key on the
-  emitted spec AND make a baker read the patched spec, since `specAfterOverride`
-  already injects it.
-- **The survival card states what it cannot fix.** It owns the framing file but
-  not `actor-staging.ts`, so its guard fix is not true for the patient until the
-  runtime card reorders the posture stamp.
-- **The runtime card replaces the unauthored control**, which could not fail
-  because the default bundle position already equals the stretcher default.
+| card | planted RED |
+|---|---|
+| factory resolution | `tools/openclinxr/factory/the-placement-node-carries-the-authored-offset.test.ts` |
+| transform survival | `packages/openclinxr/xr-scene/src/the-framing-guard-keeps-seated-and-supine-anchors.test.ts` |
+| equipment identity | `packages/openclinxr/xr-station/src/two-copies-of-one-asset-mount-separately.test.ts` |
+| motion ownership | `packages/openclinxr/xr-humanoid-animation/src/an-owned-chain-survives-the-posture-pass.test.ts` |
+| scene specification | `packages/openclinxr/scenario-runtime/src/the-scene-spec-reports-an-absent-required-asset.test.ts` |
+| runtime consumption | `apps/ui-xr/src/the-authored-offset-reaches-the-posed-humanoid.test.ts` |
+
+### The sequencing trap round 2 found
+
+The survival card's "refuse an unknown posture" fix is correct today and undoes
+itself once the runtime card lands. The keep-XZ guard at
+`encounter-actor-framing.ts:133-141` is SEATED-ONLY. The patient currently
+reaches framing with no posture, so refusing unknown preserves the stretcher
+plant. But when the runtime card stamps `supine` before framing, the seated-only
+guard misses and the patient falls to `position.set(-0.9, 0, 0.08)` at `:155-159`
+— the standing frame.
+
+The survival card's RED therefore requires keep-XZ for supine as well as seated.
+The two cards stay separate: merging would put `main.ts` into a card that does
+not need the repo's most contended file.
+
+### The faculty lock, corrected a third time
+
+`specAfterOverride` (`encounter-materialization-compile.ts:167-176`) is called
+only from `recipeKeyFor` (`:88-95`), and `:136` reads
+`const skipCapable = node.family === "EquipVariant" || node.family === "Room"`.
+Placement is neither, so it keeps `node.cacheKey` — null from the emitter — and
+the override is never hashed at all. A `/plantOffsetMeters` lock is stored on the
+node and does nothing.
+
+`encounter-materialization-compile.ts` is not in the factory card's write roots,
+so that card CANNOT make the lock real and is told not to claim it.
+
+I asserted three different mechanisms for this one behaviour, each wrong, each
+corrected by looking one level deeper than I had. Recorded because the pattern is
+about verification depth, not about this file.
 
 ## 3. Acceptance that cannot pass about nothing
 
@@ -315,7 +331,8 @@ disjointness, not a measurement of worker throughput on this work.
 
 Reviewed by grok-4.6 with the repository, the TypeScript LSP and the BothyBoard
 MCP, 2026-09-09. Full record:
-[round 1](scene-layout-consultation-records-2026-09-09/grok-4.6-plan-review-round-1.md).
+[round 1](scene-layout-consultation-records-2026-09-09/grok-4.6-plan-review-round-1.md)
+and [round 2](scene-layout-consultation-records-2026-09-09/grok-4.6-plan-review-round-2.md).
 Every correction below was re-verified against the tree before being written here.
 
 **The faculty lock IS applied. My mechanism was wrong, twice.** Section 1 said the
