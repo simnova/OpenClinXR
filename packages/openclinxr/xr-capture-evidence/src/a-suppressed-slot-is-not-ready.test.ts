@@ -54,7 +54,7 @@ type Loose = any;
 const modPromise = import("./index.js");
 
 describe("A suppressed placeholder GLB cannot report itself ready", () => {
-  it.fails("(1) A genuine load (status: loaded, fallbackActive: false) satisfies the predicate", async () => {
+  it("(1) A genuine load (status: loaded, fallbackActive: false) satisfies the predicate", async () => {
     const mod = await modPromise;
     const sceneAssetSlotIsReady = (mod as Record<string, unknown>)["sceneAssetSlotIsReady"] as Loose;
     expect(typeof sceneAssetSlotIsReady).toBe("function");
@@ -63,7 +63,7 @@ describe("A suppressed placeholder GLB cannot report itself ready", () => {
     expect(sceneAssetSlotIsReady(genuineAsset)).toBe(true);
   });
 
-  it.fails("(2) A suppressed slot (status: loaded, fallbackActive: true) does NOT satisfy the predicate", async () => {
+  it("(2) A suppressed slot (status: loaded, fallbackActive: true) does NOT satisfy the predicate", async () => {
     const mod = await modPromise;
     const sceneAssetSlotIsReady = (mod as Record<string, unknown>)["sceneAssetSlotIsReady"] as Loose;
     expect(typeof sceneAssetSlotIsReady).toBe("function");
@@ -72,7 +72,7 @@ describe("A suppressed placeholder GLB cannot report itself ready", () => {
     expect(sceneAssetSlotIsReady(suppressedAsset)).toBe(false);
   });
 
-  it.fails("(3) A failed slot (status: failed) does NOT satisfy the predicate", async () => {
+  it("(3) A failed slot (status: failed) does NOT satisfy the predicate", async () => {
     const mod = await modPromise;
     const sceneAssetSlotIsReady = (mod as Record<string, unknown>)["sceneAssetSlotIsReady"] as Loose;
     expect(typeof sceneAssetSlotIsReady).toBe("function");
@@ -81,7 +81,7 @@ describe("A suppressed placeholder GLB cannot report itself ready", () => {
     expect(sceneAssetSlotIsReady(failedAsset)).toBe(false);
   });
 
-  it.fails("(4) For an input containing one suppressed slot, loadedCount no longer counts it, AND fallbackActiveCount for that same input is UNCHANGED from what it reports today", async () => {
+  it("(4) For an input containing one suppressed slot, loadedCount no longer counts it, AND fallbackActiveCount for that same input is UNCHANGED from what it reports today", async () => {
     const mod = await modPromise;
     const recordSceneAssetStatus = (mod as Record<string, unknown>)["recordSceneAssetStatus"] as Loose;
     const formatSceneAssetEvidenceStatus = (mod as Record<string, unknown>)["formatSceneAssetEvidenceStatus"] as Loose;
@@ -106,19 +106,18 @@ describe("A suppressed placeholder GLB cannot report itself ready", () => {
     };
 
     recordSceneAssetStatus(genuineAsset);
-    recordSceneAssetStatus(suppressedAsset);
+    const evidence = recordSceneAssetStatus(suppressedAsset) as Loose;
 
-    const statusString = formatSceneAssetEvidenceStatus(
-      (globalThis as unknown as { __openClinXrSceneAssetEvidence?: unknown }).__openClinXrSceneAssetEvidence
-    );
-
-    // loadedCount should be 1 (only genuine), not 2
-    expect(statusString).toContain("1/2 generated loaded");
-    // fallbackActiveCount should be 1 (the suppressed one)
-    expect(statusString).toContain("1 fallbacks active");
+    // loadedCount must not count the suppressed slot, and fallbackActiveCount, which was already
+    // truthful, must read the SAME for this input. Assert the NUMBERS, not a rendered string:
+    // formatSceneAssetEvidenceStatus reads a browser global that is undefined in node, so the
+    // first draft compared against "generated assets pending" and tested nothing it named.
+    expect(evidence.expectedAssetCount).toBe(2);
+    expect(evidence.loadedCount, "a suppressed slot is still counted as loaded").toBe(1);
+    expect(evidence.fallbackActiveCount, "the field that was already right was re-derived").toBe(1);
   });
 
-  it.fails("(5) The three existing status values (pending, loaded, failed) still round-trip", async () => {
+  it("(5) The three existing status values (pending, loaded, failed) still round-trip", async () => {
     const mod = await modPromise;
     const recordSceneAssetStatus = (mod as Record<string, unknown>)["recordSceneAssetStatus"] as Loose;
     const formatSceneAssetEvidenceStatus = (mod as Record<string, unknown>)["formatSceneAssetEvidenceStatus"] as Loose;
@@ -149,16 +148,21 @@ describe("A suppressed placeholder GLB cannot report itself ready", () => {
 
     recordSceneAssetStatus(pendingAsset);
     recordSceneAssetStatus(loadedAsset);
-    recordSceneAssetStatus(failedAsset);
+    const evidence = recordSceneAssetStatus(failedAsset) as Loose;
 
-    const statusString = formatSceneAssetEvidenceStatus(
-      (globalThis as unknown as { __openClinXrSceneAssetEvidence?: unknown }).__openClinXrSceneAssetEvidence
+    // The status union does NOT change: renaming "loaded" to "suppressed" would break every
+    // consumer switching on it and move the problem rather than closing it.
+    // recordSceneAssetStatus accumulates into a MODULE-LEVEL map, so this clause scopes itself to
+    // its own three ids rather than asserting whole-evidence totals, which would couple it to
+    // test execution order.
+    const mine = (evidence.assets as Loose[]).filter((a) =>
+      ["pending-test", "loaded-test", "failed-test"].includes(a.assetId as string),
     );
-
-    // All three status values should be reflected in the output
-    expect(statusString).toContain("3 generated loaded"); // expectedAssetCount
-    expect(statusString).toContain("1/3 generated loaded"); // loadedCount (only loaded with fallbackActive:false)
-    expect(statusString).toContain("1 failed");
-    expect(statusString).toContain("1 fallbacks active");
+    expect(mine).toHaveLength(3);
+    expect(mine.filter((a) => a.status === "pending")).toHaveLength(1);
+    expect(mine.filter((a) => a.status === "loaded")).toHaveLength(1);
+    expect(mine.filter((a) => a.status === "failed")).toHaveLength(1);
+    expect(mine.filter((a) => a.fallbackActive === true)).toHaveLength(1);
+    expect(typeof formatSceneAssetEvidenceStatus(evidence)).toBe("string");
   });
 });

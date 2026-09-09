@@ -41,6 +41,8 @@ export {
   refreshDeclaredEquipmentMountEvidenceFromScene,
   roundPerformanceNow,
   runtimeAssetAffordanceCueIds,
+  sceneAssetSlotIsReady,
+  clearSceneAssetStatusRecords,
 } from "./scene-asset-evidence.js";
 export type {
   DeclaredEquipmentMountEvidence,
