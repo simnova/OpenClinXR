@@ -6,6 +6,7 @@
 
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { AnimationClip, AnimationMixer, type Group, type Line, type Mesh } from "three";
+import { isDeliberateSelectionOnlyClip } from "./clip-names.js";
 import type { AssetLoadingContext } from "./types.js";
 
 export type RegisterAnimationInput = {
@@ -67,7 +68,11 @@ export function registerGeneratedHumanoidAnimation(ctx: AssetLoadingContext, inp
     ? [...selectedRoleClips, ...selectedGazeProbeClips]
     : isSeated || isSupine
       ? []
-      : input.animationClips.filter((clip: unknown): clip is AnimationClip => clip instanceof AnimationClip);
+      // The fallback plays EVERY clip, so a locomotion take added to a shipped actor would loop
+      // under an actor nobody selected it for. See isDeliberateSelectionOnlyClip.
+      : input.animationClips.filter((clip: unknown): clip is AnimationClip =>
+          clip instanceof AnimationClip && !isDeliberateSelectionOnlyClip(clip.name),
+        );
   const fixedSourcePoseClip = selectedRoleClips[0] ?? input.animationClips.find((clip: unknown): clip is AnimationClip => clip instanceof AnimationClip);
   if (!input.playbackEnabled && fixedSourcePoseClip && input.fixedSourcePoseSampleSeconds !== null) {
     const fixedPoseMixer = new AnimationMixer(input.humanoid);

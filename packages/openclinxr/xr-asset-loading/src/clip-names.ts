@@ -53,3 +53,26 @@ export function roleAnimationClipNamesForActor(ctx: ClipNameContext, actorId: st
   // registerGeneratedHumanoidAnimation excludes them from auto-loop playback.
   return [...new Set([...base, ...ctx.touchResponseClipNames(actorId)])];
 }
+
+/**
+ * Clip-name prefixes a consumer must SELECT deliberately. Never inherited by a fallback.
+ *
+ * `openclinxr_retarget_` is written by `motion_bind_stage.py` onto every clip retargeted from a
+ * motion-capture source. Those are locomotion takes: they translate the root several metres and
+ * drive the whole leg chain.
+ *
+ * MEASURED 2026-09-09, the day the physician's walk clip was published into
+ * `mpfb-clinical-physician-adult.glb`. `registerGeneratedHumanoidAnimation` falls back to playing
+ * EVERY glTF clip when no role clip name matches, and no role clip name matches this actor: the
+ * defaults are `openclinxr_clinical_idle_breathing` and `openclinxr_conversation_listen_nod`, and
+ * the physician GLB carries `ClinicalIdleConversation`, `ClinicalExpressionMicroTransition` and the
+ * walk. So adding a walk clip to a shipped actor made a physician standing at the bedside loop a
+ * three-metre walk on top of an idle. Adding an asset changed the behaviour of an actor nobody
+ * touched, which is exactly what a fallback that means "everything" does.
+ */
+export const DELIBERATE_SELECTION_CLIP_NAME_PREFIXES = ["openclinxr_retarget_"] as const;
+
+/** True when a clip must be named by a consumer rather than swept up by the auto-play fallback. */
+export function isDeliberateSelectionOnlyClip(clipName: string): boolean {
+  return DELIBERATE_SELECTION_CLIP_NAME_PREFIXES.some((prefix) => clipName.startsWith(prefix));
+}

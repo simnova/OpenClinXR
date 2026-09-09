@@ -1032,6 +1032,23 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+### Publishing the clip made a standing physician walk, and the fallback is why
+
+`registerGeneratedHumanoidAnimation` plays EVERY glTF clip when no role clip name matches. None
+matches this actor: the defaults are `openclinxr_clinical_idle_breathing` and
+`openclinxr_conversation_listen_nod` (`clip-names.ts:50`), while the physician GLB carries
+`ClinicalIdleConversation`, `ClinicalExpressionMicroTransition` and now the walk. So adding an asset
+changed the behaviour of an actor nobody touched: a physician standing at the bedside would loop a
+three-metre walk on top of an idle.
+
+`isDeliberateSelectionOnlyClip` excludes the `openclinxr_retarget_` prefix from that fallback. The
+prefix is what `motion_bind_stage.py` writes on every retargeted capture, so the exclusion covers
+the next bind rather than this one clip. Probed: removing the guard fails all three clauses,
+including the counterweight that the actor's own two clips keep playing.
+
+The walk is now present and inert — a consumer must name it. That is the correct state for step 4,
+where the approach executor is the thing that should select it.
+
 ### The physician can walk in the runtime, and the bind stage cannot be trusted to publish it
 
 The bound GLB was measured against the shipped physician before anything was published, and the

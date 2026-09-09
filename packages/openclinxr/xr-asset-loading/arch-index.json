@@ -46,6 +46,7 @@
     "@openclinxr/xr-scene-cues"
   ],
   "tests": [
+    "src/a-locomotion-clip-does-not-auto-play.test.ts",
     "src/asset-loading.test.ts"
   ],
   "commands": {
