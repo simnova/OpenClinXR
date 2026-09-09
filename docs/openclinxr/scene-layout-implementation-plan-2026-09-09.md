@@ -1032,6 +1032,26 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+### An external review at $0.0022 found five real defects in the day's diff
+
+`meta/muse-spark-1.3-contributor` on OpenRouter, the whole day's diff as one prompt, 17,954 prompt
+tokens and 2,000 completion. Four of six findings were correct and acted on; the free
+nemotron rungs were rate-limited out (`free-models-per-day-high-balance`, resets at the daily
+boundary), so the paid rung did the work for a fifth of a cent.
+
+| finding | verdict | what changed |
+|---|---|---|
+| clauses (4)-(7) read only the landed JSON, so deleting the instrument leaves them green | correct | clause (8) runs `measureBoundClipFootPlant` against a constructed rig with a planted toe and a riding toe |
+| `durationSeconds = last.atMs / 1000` assumes the first key is at zero | correct | uses `last - first`; the fixture now starts at 0.5 s so the old form reads 80 fps and fails |
+| the graft's `if (!sourceSampler) continue` is the silent drop its own header forbids | correct | a samplerless channel now refuses, like an unresolvable joint |
+| the provenance `motionClips` block asserts a frame rate the pipeline never emits | correct | `graft-bound-clip --publish` writes the block from the foot-plant report, so the record cannot disagree with the bytes beside it |
+| clause (6)'s 0.4 / 0.25 thresholds sit just under the observed 0.489 / 0.308 | correct in kind | rewritten against the clip's INPUT: root advance per frame is speed/fps = 0.0093 m, and the loose row's worst frame is 33x that |
+| clause (2) passes vacuously if no mixer is created | not reachable — `animationClips.length > 0` still builds one | `expect(slot.mixer).toBeDefined()` added anyway; the assertion was weaker than it read |
+
+The first run returned `content: null` after spending all 2,000 tokens on reasoning, which is the
+documented Muse behaviour: reasoning cannot be disabled, so `effort: "minimal"` and a larger
+`max_tokens` are required.
+
 ### Publishing the clip made a standing physician walk, and the fallback is why
 
 `registerGeneratedHumanoidAnimation` plays EVERY glTF clip when no role clip name matches. None

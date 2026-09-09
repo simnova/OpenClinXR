@@ -88,6 +88,9 @@ describe("a retargeted locomotion clip does not auto-play on a standing actor", 
 
   it("(2) an actor whose ONLY clip is a locomotion take gets no auto-played action either", () => {
     const slot = registerStandingActor([WALK]);
+    // The mixer must EXIST before the absence means anything: `undefined?.existingAction(...)` is
+    // undefined, so an actor with no mixer at all would satisfy the next line while standing frozen.
+    expect(slot.mixer).toBeDefined();
     expect(slot.mixer?.existingAction(WALK)).toBeFalsy();
   });
 

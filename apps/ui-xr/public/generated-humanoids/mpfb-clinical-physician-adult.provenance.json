@@ -11,7 +11,7 @@
  "usesRealAnnyForwardPass": false,
  "realAnnyWeightsUsed": false,
  "textureMode": "authored_or_baked",
- "animationMode": "procedural_clinical_idle_conversation_posture_fallback_plus_grafted_retargeted_walk",
+ "animationMode": "procedural_clinical_idle_conversation_posture_fallback_plus_grafted_retargeted_clip",
  "optimizationMode": "unoptimized_post_blender_glb",
  "realismGrade": "not_graded",
  "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
@@ -20,14 +20,14 @@
   "annyReference": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj (tracked)",
   "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
   "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-  "derivationNote": "2026-08-14 medical wardrobe: the physician's own MPFB body. Same Anny reference and macro dict as the nurse adult (age=0.6 from the measured head-height fraction; height=0.5827 SOLVED by bake-measure-interpolate to the reference stature 1.76 m). Standard 137-joint rig; #317 face keys (32 targets / 13 mouth); #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris). Wardrobe = the clinician scrub kit PLUS the CC0 crude-labcoat-female as a THIRD layer: WojackOWL CC-BY Scrub_Shirt (9,384 tris) + Scrub_Pants (2,704 tris, fitted BEFORE the #318 strip because x_scale refs 13868/14308 are helper verts) via the clinician ClothesService branch, then `makeclothes_library_lab_coat_mpfb_ed_chest_pain_nurse_adult_mesh` (crudelabcoatopen.mhclo, 2,632 tris, CC0 per its OWN header, max interpolation ref 13,351 < 13,380, open front leaves the scrub shirt visible) fitted ONLY for the exact actor-role physician. toigo_flats footwear, #381 CC0 toigo_blunt_bob fitted hair, #356 blue-brown iris (physician falls to the eye_iris_colour patient/brown default \u2014 NOT the nurse's blue; the co-present ward nurse keeps blue), #377 anatomical 24.0 mm eyes (EYE_DIAMETER_TARGET_MM row added), #343 skin tone medium_warm (0.58,0.44,0.36), #370 tangent-space normal map, #359 scalp placeholder RETIRED BY RULE (fitted hair present). Locked white coat colour 0.92,0.92,0.90 as baseColorFactor (#360 post-export patch; the declared crudelabcoatopen.mhmat is not staged so the slot keeps the flat locked colour). LONG_SLEEVE_UPPER_BY_REFERENCE[ed_chest_pain_nurse_adult]=None. Attribution: WojackOWL, Medical Scrubs Kit, CC-BY (scrubs); crude-labcoat-female CC0. Baked 2026-08-14 via materialize_mpfb_humanoid_candidate.py --actor-role physician --reference ed_chest_pain_nurse_adult; bake-time licence re-read on all three .mhclo headers."
+  "derivationNote": "2026-08-14 medical wardrobe: the physician's own MPFB body. Same Anny reference and macro dict as the nurse adult (age=0.6 from the measured head-height fraction; height=0.5827 SOLVED by bake-measure-interpolate to the reference stature 1.76 m). Standard 137-joint rig; #317 face keys (32 targets / 13 mouth); #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris). Wardrobe = the clinician scrub kit PLUS the CC0 crude-labcoat-female as a THIRD layer: WojackOWL CC-BY Scrub_Shirt (9,384 tris) + Scrub_Pants (2,704 tris, fitted BEFORE the #318 strip because x_scale refs 13868/14308 are helper verts) via the clinician ClothesService branch, then `makeclothes_library_lab_coat_mpfb_ed_chest_pain_nurse_adult_mesh` (crudelabcoatopen.mhclo, 2,632 tris, CC0 per its OWN header, max interpolation ref 13,351 < 13,380, open front leaves the scrub shirt visible) fitted ONLY for the exact actor-role physician. toigo_flats footwear, #381 CC0 toigo_blunt_bob fitted hair, #356 blue-brown iris (physician falls to the eye_iris_colour patient/brown default — NOT the nurse's blue; the co-present ward nurse keeps blue), #377 anatomical 24.0 mm eyes (EYE_DIAMETER_TARGET_MM row added), #343 skin tone medium_warm (0.58,0.44,0.36), #370 tangent-space normal map, #359 scalp placeholder RETIRED BY RULE (fitted hair present). Locked white coat colour 0.92,0.92,0.90 as baseColorFactor (#360 post-export patch; the declared crudelabcoatopen.mhmat is not staged so the slot keeps the flat locked colour). LONG_SLEEVE_UPPER_BY_REFERENCE[ed_chest_pain_nurse_adult]=None. Attribution: WojackOWL, Medical Scrubs Kit, CC-BY (scrubs); crude-labcoat-female CC0. Baked 2026-08-14 via materialize_mpfb_humanoid_candidate.py --actor-role physician --reference ed_chest_pain_nurse_adult; bake-time licence re-read on all three .mhclo headers."
  },
  "licenseChain": {
   "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
   "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
   "sourceRecordClaimsSupported": [
    "MPFB2 2.0.15 from Blender Extensions; MPFB is licensed AGPLv3 with a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json).",
-   "Garments: Scrub_Shirt + Scrub_Pants CC-BY per their own .mhclo headers (WojackOWL, Medical Scrubs Kit \u2014 attribution ledger row); CrudeLabCoatOpen CC0 per its own .mhclo header (# license CC0, author Joel Palmius); toigo_blunt_bob hair CC0; toigo_flats CC0; eye irises CC0 (makehuman system-assets pack)."
+   "Garments: Scrub_Shirt + Scrub_Pants CC-BY per their own .mhclo headers (WojackOWL, Medical Scrubs Kit — attribution ledger row); CrudeLabCoatOpen CC0 per its own .mhclo header (# license CC0, author Joel Palmius); toigo_blunt_bob hair CC0; toigo_flats CC0; eye irises CC0 (makehuman system-assets pack)."
   ],
   "notRun": [
    "licence_text_reenumeration",
@@ -54,13 +54,13 @@
  "sourceNotes": [
   "2026-08-14 medical wardrobe: the physician is no longer a shared clinical-team look-alike on the nurse body. mpfb-clinical-physician-adult.glb is the SAME adult-female Anny reference as the nurse adult (ed_chest_pain_nurse_adult) with the CC0 crude-labcoat-female as a third layer over the scrub shirt+pants. Only the exact actor-role 'physician' wears the coat in the materializer; nurse/RT/MA/consultant stay on mpfb-clinical-nurse-adult.glb (which carries NO coat).",
   "Resolver: MPFB_CLINICAL_PHYSICIAN_ADULT_GLB added to cast-asset-constants.ts and humanoid-runtime-asset-url.ts; both pickAdultGlb copies gain a physician branch BEFORE the nurse-class branch (physician resolves to this file first; nurse-class roles keep the nurse file).",
-  "Eye iris: physician falls through eye_iris_colour to the patient/brown default \u2014 NOT the nurse's blue. This is a deliberate distinctness choice (the ward nurse and senior resident are co-present); it was not specified in the brief.",
-  "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults \u2014 only age + height are driven by reference measurement this slice.",
-  "Exact MADR 0051 \u00a75 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
+  "Eye iris: physician falls through eye_iris_colour to the patient/brown default — NOT the nurse's blue. This is a deliberate distinctness choice (the ward nurse and senior resident are co-present); it was not specified in the brief.",
+  "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
+  "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
   "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris, labcoat).",
   "2026-08-21 #504: coat separated from the under-shirt by 15 mm via cloth_outward_offset (separate_layered_garment.py); only the lab-coat POSITION accessor changed.",
-  "2026-08-21 #502: toigo_flats leopard 'Shoe' baseColorTexture stripped from the footwear material (per-actor swap, gown-patient precedent) and baseColorFactor set to (0.10,0.09,0.08,1.0) \u2014 a clinician in leopard party flats is not clinically plausible. Only the footwear material changed; skin, rig and morph targets untouched.",
-  "2026-08-29 #0 (re-materialization record): this file's derivationNote predates the #598/#740 re-materialization \u2014 the shipped bytes now carry mat_makeclothes_library_footwear_toigo_mj_cloth_shoes with MJ-shoes3 (1,418,657 B), and SHOE_BY_REFERENCE maps no cast role to toigo_flats (measured in the one-garment-one-material re-measurement; the #502 strip entry above described the previous toigo_flats footwear).",
+  "2026-08-21 #502: toigo_flats leopard 'Shoe' baseColorTexture stripped from the footwear material (per-actor swap, gown-patient precedent) and baseColorFactor set to (0.10,0.09,0.08,1.0) — a clinician in leopard party flats is not clinically plausible. Only the footwear material changed; skin, rig and morph targets untouched.",
+  "2026-08-29 #0 (re-materialization record): this file's derivationNote predates the #598/#740 re-materialization — the shipped bytes now carry mat_makeclothes_library_footwear_toigo_mj_cloth_shoes with MJ-shoes3 (1,418,657 B), and SHOE_BY_REFERENCE maps no cast role to toigo_flats (measured in the one-garment-one-material re-measurement; the #502 strip entry above described the previous toigo_flats footwear).",
   "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-clinical-physician-adult.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed)."
  ],
  "claimScope": "physician_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_plus_cc0_lab_coat_over_scrubs",
@@ -72,16 +72,16 @@
   {
    "clipName": "openclinxr_retarget_cmu_02_01_walk",
    "sourceClip": "tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_02_01_walk.bvh",
-   "sourceFrameTimeSeconds": 0.0083333,
-   "framesPerSecond": 120,
    "frameCount": 345,
-   "durationSeconds": 2.8666666,
-   "rootTravelMeters": 3.1971063,
-   "impliedGroundSpeedMetersPerSecond": 1.1152697,
-   "retargetOperator": "mcp.load_and_retarget via bl_ext.user_default.retarget_bvh",
-   "targetMap": "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json",
+   "durationSeconds": 2.866666555404663,
+   "framesPerSecond": 120.0000046574794,
+   "rootJoint": "root",
+   "rootTravelMeters": 3.197106319843105,
+   "impliedGroundSpeedMetersPerSecond": 1.115269689743109,
    "deliveredBy": "tools/openclinxr/factory/graft-bound-clip.ts",
-   "deliveryNote": "GRAFTED, not re-exported. motion_bind_stage.py's Blender round trip loses 1,035 eyebrow triangles (16% of that mesh's surface area) and 118 eyelash triangles (28%); neither loss is degenerate-face cleanup. The graft copies 411 channels onto 137 joints already present here, leaving every POSITION accessor byte-identical (docs/openclinxr/evidence/physician-walk-clip-graft.json).",
+   "deliveryNote": "GRAFTED, not re-exported. motion_bind_stage.py's Blender round trip loses eyebrow and eyelash geometry; the graft copies channels onto joints already present here and leaves every POSITION accessor byte-identical.",
+   "graftedChannels": 411,
+   "graftedJoints": 137,
    "licenceRow": "docs/openclinxr/asset-licence-records/row-08-cmu-graphics-lab-mocap.json",
    "licenceStatus": "CONDITIONAL - not CC0/CC-BY. Free for research and commercial products; the data may not be resold even converted.",
    "footPlantEvidence": "docs/openclinxr/evidence/bound-clip-foot-plant.json",

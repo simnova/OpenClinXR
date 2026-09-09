@@ -47,7 +47,7 @@ const DEFAULT_REPORT = "docs/openclinxr/evidence/bound-clip-foot-plant.json";
 const CONTACT_HEIGHT_SWEEP_METERS = [FOOT_CONTACT_HEIGHT_METERS, 0.1, 0.15] as const;
 
 /** The leg-chain joints the retarget drove, ankle and toe on both sides. */
-const MEASURED_JOINTS = ["toe1-1.L", "toe1-1.R", "foot.L", "foot.R"] as const;
+export const MPFB_MEASURED_JOINTS = ["toe1-1.L", "toe1-1.R", "foot.L", "foot.R"] as const;
 
 export type BoundClipFootPlantReport = {
   schemaVersion: "openclinxr.bound-clip-foot-plant.v1";
@@ -126,9 +126,14 @@ function rootDrivenBaseline(): BoundClipFootPlantReport["rootDrivenExecutorBasel
 export async function measureBoundClipFootPlant(input: {
   glbPath: string;
   clipName: string;
+  /** Override for a fixture rig; the MPFB leg chain otherwise. */
+  joints?: readonly string[];
+  rootJoint?: string;
 }): Promise<BoundClipFootPlantReport> {
+  const rootJoint = input.rootJoint ?? "root";
+  const measuredJoints = input.joints ?? MPFB_MEASURED_JOINTS;
   const bytes = await readFile(input.glbPath);
-  const rootTrack = await boundClipJointTrack({ ...input, boneName: "root" });
+  const rootTrack = await boundClipJointTrack({ ...input, boneName: rootJoint });
   const frames = rootTrack.samples;
   const first = frames[0];
   const last = frames[frames.length - 1];
@@ -137,12 +142,14 @@ export async function measureBoundClipFootPlant(input: {
       `measureBoundClipFootPlant: ${input.clipName} has ${frames.length} frame(s); a track cannot be measured from fewer than two.`,
     );
   }
-  const durationSeconds = last.atMs / 1000;
+  // NOT last.atMs: a clip whose first key is not at zero would report an inflated duration and a
+  // deflated frame rate, and the frame rate is the number that caught the 24 fps export.
+  const durationSeconds = (last.atMs - first.atMs) / 1000;
   const rootTravelMeters = Math.hypot(last.position.x - first.position.x, last.position.z - first.position.z);
   const clipSpeed = durationSeconds === 0 ? 0 : rootTravelMeters / durationSeconds;
 
   const joints: BoundClipFootPlantReport["joints"] = [];
-  for (const joint of MEASURED_JOINTS) {
+  for (const joint of measuredJoints) {
     const track = await boundClipJointTrack({ ...input, boneName: joint });
     const heights = track.samples.map((sample) => sample.position.y);
     joints.push({
@@ -177,7 +184,7 @@ export async function measureBoundClipFootPlant(input: {
       frameCount: frames.length,
       durationSeconds,
       framesPerSecond: (frames.length - 1) / durationSeconds,
-      rootJoint: "root",
+      rootJoint,
       rootTravelMeters,
       impliedGroundSpeedMetersPerSecond: clipSpeed,
     },

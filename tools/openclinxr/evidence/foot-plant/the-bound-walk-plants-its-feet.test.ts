@@ -4,6 +4,7 @@ import path from "node:path";
 import { Accessor, Document, NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import { boundClipJointTrack } from "./bound-clip-foot-track.js";
+import { measureBoundClipFootPlant } from "./bound-clip-foot-plant.js";
 
 /**
  * Two things are proved here and they need different evidence.
@@ -61,6 +62,66 @@ async function twoBoneChainGlb(interpolation: "LINEAR" | "CUBICSPLINE"): Promise
 
   const directory = await mkdtemp(path.join(os.tmpdir(), "openclinxr-fk-"));
   const glbPath = path.join(directory, "chain.glb");
+  await new NodeIO().write(glbPath, document);
+  return glbPath;
+}
+
+
+/**
+ * A rig whose root travels two metres while one toe counter-translates to stay planted and another
+ * rides along. Both extremes in one clip, so the metric has to distinguish them.
+ */
+async function walkingFixtureGlb(): Promise<string> {
+  const document = new Document();
+  const buffer = document.createBuffer();
+  const frames = 121;
+  const seconds = 1;
+  const travel = 2;
+  const times = new Float32Array(frames);
+  const rootTrack = new Float32Array(frames * 3);
+  const plantedTrack = new Float32Array(frames * 3);
+  for (let frame = 0; frame < frames; frame += 1) {
+    const t = frame / (frames - 1);
+    // Deliberately NOT starting at zero: a duration computed as last.atMs rather than
+    // last.atMs - first.atMs would read 1.5 s here and report 80 fps instead of 120.
+    times[frame] = 0.5 + t * seconds;
+    rootTrack[frame * 3 + 1] = 0.9;
+    rootTrack[frame * 3 + 2] = t * travel;
+    // Exactly negates the root's forward motion, so the planted toe's WORLD position never moves.
+    plantedTrack[frame * 3 + 1] = -0.88;
+    plantedTrack[frame * 3 + 2] = -t * travel;
+  }
+  const root = document.createNode("root").setTranslation([0, 0.9, 0]);
+  const planted = document.createNode("toe.planted").setTranslation([0, -0.88, 0]);
+  const riding = document.createNode("toe.riding").setTranslation([0, -0.88, 0]);
+  root.addChild(planted).addChild(riding);
+  document.createScene("Scene").addChild(root);
+
+  const input = document
+    .createAccessor("t")
+    .setType(Accessor.Type.SCALAR)
+    .setArray(times)
+    .setBuffer(buffer);
+  const animation = document.createAnimation("fixture_walk");
+  for (const [node, track] of [
+    [root, rootTrack],
+    [planted, plantedTrack],
+  ] as const) {
+    const sampler = document
+      .createAnimationSampler()
+      .setInput(input)
+      .setOutput(
+        document.createAccessor(`${node.getName()}_t`).setType(Accessor.Type.VEC3).setArray(track).setBuffer(buffer),
+      )
+      .setInterpolation("LINEAR");
+    animation.addSampler(sampler);
+    animation.addChannel(
+      document.createAnimationChannel().setTargetNode(node).setTargetPath("translation").setSampler(sampler),
+    );
+  }
+
+  const directory = await mkdtemp(path.join(os.tmpdir(), "openclinxr-walk-"));
+  const glbPath = path.join(directory, "walking.glb");
   await new NodeIO().write(glbPath, document);
   return glbPath;
 }
@@ -133,18 +194,25 @@ describe("the bound walk plants its feet on the physician rig", () => {
     expect(report.executorSpeedMatch.ratio).toBeLessThan(1.1);
   });
 
-  it("(6) FINDING: contact height decides the answer, so the report carries a sweep and names the runtime's own", async () => {
-    // At 0.10 m the same toes measure roughly half of root travel and their worst single frame
-    // exceeds 0.29 m. At 120 fps that is 35 m/s for one frame, which is a swing frame counted as a
-    // plant rather than a foot that slipped. The runtime threshold is the one that measures
-    // contact; the looser rows are recorded so a future clip is compared on the same terms.
+  it("(6) FINDING: a loose contact height counts SWING frames as contact, measured against the root", async () => {
+    // The bound is derived from the clip's INPUTS, not from a fraction of the number under test.
+    // A foot in contact cannot outrun the root that carries it by much, so one frame of a genuine
+    // plant is at most a small multiple of the root's own per-frame advance:
+    //   root advance per frame = impliedGroundSpeed / framesPerSecond = 1.115 / 120 = 0.0093 m.
+    // At the runtime's 0.06 m the worst toe frame stays inside that. At 0.10 m it is 0.308 m —
+    // 33x the root's per-frame travel, which is a swing frame counted as a plant rather than a
+    // foot that slipped. The sweep is recorded so a future clip is compared on the same terms.
     const report = JSON.parse(await readFile(REPORT_PATH, "utf8"));
+    const rootAdvancePerFrame =
+      report.clip.impliedGroundSpeedMetersPerSecond / report.clip.framesPerSecond;
     const toe = report.joints.find((entry: { joint: string }) => entry.joint === "toe1-1.L");
+    const runtime = toe.contactSweep.find((s: { isRuntimeThreshold: boolean }) => s.isRuntimeThreshold);
     const loose = toe.contactSweep.find(
       (s: { contactHeightMeters: number }) => s.contactHeightMeters === 0.1,
     );
-    expect(loose.fractionOfRootTravel).toBeGreaterThan(0.4);
-    expect(loose.worstFrameSlideMeters).toBeGreaterThan(0.25);
+    expect(runtime.worstFrameSlideMeters).toBeLessThan(rootAdvancePerFrame * 5);
+    expect(loose.worstFrameSlideMeters).toBeGreaterThan(rootAdvancePerFrame * 5);
+    // And exactly one row is the runtime's, so "isRuntimeThreshold" cannot silently match none.
     expect(toe.contactSweep.filter((s: { isRuntimeThreshold: boolean }) => s.isRuntimeThreshold)).toHaveLength(1);
   });
 
@@ -153,5 +221,24 @@ describe("the bound walk plants its feet on the physician rig", () => {
     expect(report.asset.sha256).toMatch(/^[0-9a-f]{64}$/u);
     expect(report.asset.bytes).toBeGreaterThan(1_000_000);
     expect(report.asset.clipName).toBe("openclinxr_retarget_cmu_02_01_walk");
+  });
+
+  it("(8) the INSTRUMENT itself is exercised: a planted toe reads ~0 and a riding toe reads ~100%", async () => {
+    // Clauses (4)-(7) read the landed report, so deleting the instrument would leave them green.
+    // This one runs measureBoundClipFootPlant against a constructed rig with both extremes in it.
+    const report = await measureBoundClipFootPlant({
+      glbPath: await walkingFixtureGlb(),
+      clipName: "fixture_walk",
+      joints: ["toe.planted", "toe.riding"],
+    });
+    expect(report.clip.rootTravelMeters).toBeCloseTo(2, 4);
+    expect(report.clip.framesPerSecond).toBeCloseTo(120, 3);
+    const planted = report.joints.find((row) => row.joint === "toe.planted");
+    const riding = report.joints.find((row) => row.joint === "toe.riding");
+    const plantedRuntime = planted?.contactSweep.find((row) => row.isRuntimeThreshold);
+    const ridingRuntime = riding?.contactSweep.find((row) => row.isRuntimeThreshold);
+    expect(plantedRuntime?.fractionOfRootTravel).toBeLessThan(0.001);
+    expect(plantedRuntime?.contactFrames).toBeGreaterThan(100);
+    expect(ridingRuntime?.fractionOfRootTravel).toBeCloseTo(1, 3);
   });
 });

@@ -114,6 +114,9 @@ describe("shipped humanoids hash to their provenance", () => {
     );
     expect(walk, "the grafted walk clip must be declared in provenance, with its licence").toBeDefined();
     expect(walk.licenceStatus).toMatch(/CONDITIONAL/u);
-    expect(walk.framesPerSecond).toBe(120);
+    // Emitted by graft-bound-clip --publish from the foot-plant report, so it is the measured
+    // rate rather than a hand-typed integer: 120.0000046574794 from the clip's own key times.
+    expect(walk.framesPerSecond).toBeCloseTo(120, 3);
+    expect(walk.deliveredBy).toBe("tools/openclinxr/factory/graft-bound-clip.ts");
   });
 });
