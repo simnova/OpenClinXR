@@ -57,16 +57,16 @@ describe("Authored equipment strings bind to asset ids under a reviewed preceden
 
   beforeAll(async () => {
     const mod = await import("@openclinxr/shared-schemas");
-    classifyScenarioEquipmentBinding = (mod as Record<string, unknown>).classifyScenarioEquipmentBinding as typeof classifyScenarioEquipmentBinding;
-    EQUIPMENT_BINDING_PRECEDENCE = (mod as Record<string, unknown>).EQUIPMENT_BINDING_PRECEDENCE as "assetNeeds" | "equipment";
+    classifyScenarioEquipmentBinding = (mod as Record<string, unknown>)["classifyScenarioEquipmentBinding"] as typeof classifyScenarioEquipmentBinding;
+    EQUIPMENT_BINDING_PRECEDENCE = (mod as Record<string, unknown>)["EQUIPMENT_BINDING_PRECEDENCE"] as "assetNeeds" | "equipment";
   });
 
   it.fails("(1) Fed the ed-chest-pain fixture AS IT STANDS, every entry of scenario.equipment appears in exactly one bucket. Total, no drops.", () => {
     expect(typeof classifyScenarioEquipmentBinding).toBe("function");
 
     const result = classifyScenarioEquipmentBinding({
-      equipment: edChestPainScenario.equipment,
-      assetNeeds: edChestPainScenario.assetNeeds?.map((an) => ({
+      equipment: [...(edChestPainScenario.equipment ?? [])],
+      assetNeeds: (edChestPainScenario.assetNeeds ?? []).map((an) => ({
         assetId: an.assetId,
         assetType: an.assetType,
         licenseStatus: an.licenseStatus,
@@ -97,8 +97,8 @@ describe("Authored equipment strings bind to asset ids under a reviewed preceden
     expect(typeof classifyScenarioEquipmentBinding).toBe("function");
 
     const result = classifyScenarioEquipmentBinding({
-      equipment: edChestPainScenario.equipment,
-      assetNeeds: edChestPainScenario.assetNeeds?.map((an) => ({
+      equipment: [...(edChestPainScenario.equipment ?? [])],
+      assetNeeds: (edChestPainScenario.assetNeeds ?? []).map((an) => ({
         assetId: an.assetId,
         assetType: an.assetType,
         licenseStatus: an.licenseStatus,
@@ -106,7 +106,8 @@ describe("Authored equipment strings bind to asset ids under a reviewed preceden
     });
 
     const ecgBinding = result.find(
-      (r) => r.kind === "bound" && r.equipment === "12-lead ECG machine"
+      (r): r is Extract<typeof r, { kind: "bound" }> =>
+        r.kind === "bound" && r.equipment === "12-lead ECG machine",
     );
     expect(ecgBinding).toBeDefined();
     expect(ecgBinding?.assetId).toBe("12_lead_ecg_machine_equipment");
@@ -118,7 +119,7 @@ describe("Authored equipment strings bind to asset ids under a reviewed preceden
     // Construct a scenario with an equipment string that has no assetNeeds match
     const result = classifyScenarioEquipmentBinding({
       equipment: ["12-lead ECG machine", "non-existent equipment item"],
-      assetNeeds: edChestPainScenario.assetNeeds?.map((an) => ({
+      assetNeeds: (edChestPainScenario.assetNeeds ?? []).map((an) => ({
         assetId: an.assetId,
         assetType: an.assetType,
         licenseStatus: an.licenseStatus,
@@ -126,7 +127,8 @@ describe("Authored equipment strings bind to asset ids under a reviewed preceden
     });
 
     const unbound = result.find(
-      (r) => r.kind === "required-unbound" && r.equipment === "non-existent equipment item"
+      (r): r is Extract<typeof r, { kind: "required-unbound" }> =>
+        r.kind === "required-unbound" && r.equipment === "non-existent equipment item",
     );
     expect(unbound).toBeDefined();
     expect(unbound?.equipment).toBe("non-existent equipment item");

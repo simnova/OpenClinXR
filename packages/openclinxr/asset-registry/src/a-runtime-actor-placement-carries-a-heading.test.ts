@@ -40,10 +40,11 @@ import type { EncounterRuntimeActorPlacement, EncounterRuntimeSceneManifest } fr
 describe("A runtime actor placement can express a heading", () => {
   it.fails("(1) The field is named headingRadians (unit in the symbol), reachable on a placement value obtained from a BUILT manifest, not from a literal the test types inline", async () => {
     const mod = await import("./index.js");
-    const createManifest = (mod as Record<string, unknown>).createEdChestPainRuntimeSceneManifest;
+    const createManifest = (mod as Record<string, unknown>)["createEdChestPainRuntimeSceneManifest"] as
+      undefined | ((input?: Record<string, unknown>) => EncounterRuntimeSceneManifest);
     expect(typeof createManifest).toBe("function");
 
-    const manifest = createManifest() as EncounterRuntimeSceneManifest;
+    const manifest = (createManifest as (input?: Record<string, unknown>) => EncounterRuntimeSceneManifest)();
     const placements = Object.values(manifest.actorPlacements) as EncounterRuntimeActorPlacement[];
 
     // The field must exist on a placement from a built manifest
@@ -53,10 +54,11 @@ describe("A runtime actor placement can express a heading", () => {
 
   it.fails("(2) A manifest built by createEdChestPainRuntimeSceneManifest carries a numeric headingRadians on at least one actor placement", async () => {
     const mod = await import("./index.js");
-    const createManifest = (mod as Record<string, unknown>).createEdChestPainRuntimeSceneManifest;
+    const createManifest = (mod as Record<string, unknown>)["createEdChestPainRuntimeSceneManifest"] as
+      undefined | ((input?: Record<string, unknown>) => EncounterRuntimeSceneManifest);
     expect(typeof createManifest).toBe("function");
 
-    const manifest = createManifest() as EncounterRuntimeSceneManifest;
+    const manifest = (createManifest as (input?: Record<string, unknown>) => EncounterRuntimeSceneManifest)();
     const placements = Object.values(manifest.actorPlacements) as EncounterRuntimeActorPlacement[];
 
     const placementWithHeading = placements.find((p) =>
@@ -67,7 +69,7 @@ describe("A runtime actor placement can express a heading", () => {
 
   it.fails("(3) The field is genuinely optional in practice: the builder emits at least one placement WITH headingRadians and at least one WITHOUT it", async () => {
     const mod = await import("./index.js");
-    const createManifest = (mod as Record<string, unknown>).createEdChestPainRuntimeSceneManifest as
+    const createManifest = (mod as Record<string, unknown>)["createEdChestPainRuntimeSceneManifest"] as
       undefined | ((input: unknown) => EncounterRuntimeSceneManifest);
     expect(typeof createManifest).toBe("function");
     const manifest = (createManifest as (input: unknown) => EncounterRuntimeSceneManifest)({});
@@ -83,7 +85,7 @@ describe("A runtime actor placement can express a heading", () => {
 
   it.fails("(4) Absent is distinguishable from zero: the placement that carries a heading reports a number, and one with no authored facing reports undefined, never 0", async () => {
     const mod = await import("./index.js");
-    const createManifest = (mod as Record<string, unknown>).createEdChestPainRuntimeSceneManifest as
+    const createManifest = (mod as Record<string, unknown>)["createEdChestPainRuntimeSceneManifest"] as
       undefined | ((input: unknown) => EncounterRuntimeSceneManifest);
     expect(typeof createManifest).toBe("function");
     const manifest = (createManifest as (input: unknown) => EncounterRuntimeSceneManifest)({});

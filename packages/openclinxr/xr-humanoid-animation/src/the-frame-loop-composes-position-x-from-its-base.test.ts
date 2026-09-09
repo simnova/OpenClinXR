@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import type * as THREE from "three";
+import { describe, expect, it, vi } from "vitest";
 import {
   updateGeneratedHumanoidAnimations,
   type GeneratedHumanoidAnimationSlot,
@@ -107,7 +108,7 @@ describe("The frame loop composes position.x from its base", () => {
       expressionCue: { visible: false, scale: { set: vi.fn() }, position: { set: vi.fn() } } as unknown as THREE.Group,
       sourceComparatorFreezeEnabled: false,
       responseClips: [],
-      emotionExpression: { weights: { mouthOpen: 0, browConcern: 0, cheekTension: 0 }, targetEmotion: "neutral", currentEmotion: "neutral", transitionStartedAtMs: 0 },
+      emotionExpression: { weights: { mouthOpen: 0, browConcern: 0, cheekTension: 0 }, targetEmotion: "neutral", currentEmotion: "neutral", transitionStartedAtMs: 0, targetWeights: { mouthOpen: 0, browConcern: 0, cheekTension: 0 }, transitionDurationMs: 0 },
     };
 
     mockCtx.slots = [slot];
@@ -122,10 +123,3 @@ describe("The frame loop composes position.x from its base", () => {
   });
 });
 
-// THREE namespace for test type assertions
-declare const THREE: {
-  Group: new () => { position: { x: number; y: number; z: number }; rotation: { x: number; y: number; z: number }; scale: { x: number; y: number; z: number }; userData: Record<string, unknown>; updateMatrixWorld: (force: boolean) => void };
-  Mesh: new () => { visible: boolean; scale: { set: (x: number, y: number, z: number) => void }; userData: Record<string, unknown> };
-  Line: new () => { visible: boolean };
-  PerspectiveCamera: new () => { position: { x: number; y: number; z: number } };
-};

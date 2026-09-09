@@ -7,11 +7,12 @@ import {
 } from "@openclinxr/model-gateway";
 import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter } from "@openclinxr/voice-gateway";
 import { beforeEach, describe, expect, it } from "vitest";
-import {
-  ScenarioRuntime,
-  type ScheduledEvent,
-  type Scenario,
-} from "./index.js";
+import { ScenarioRuntime } from "./index.js";
+// ScheduledEvent and Scenario are NOT re-exported from this package's entrypoint; they are
+// declared upstream. Importing them from their real homes keeps the entrypoint assertion for
+// ScenarioRuntime honest without inventing exports this card did not contract.
+import type { ScheduledEvent } from "@openclinxr/domain";
+import type { Scenario } from "@openclinxr/shared-schemas";
 // getScheduledEventsDue lives in @openclinxr/domain (station-state.ts:104-111), which
 // scenario-runtime already depends on. It is NOT re-exported from this package's index.
 import { createStationRun, getScheduledEventsDue } from "@openclinxr/domain";
@@ -39,7 +40,7 @@ describe("An authored scheduled event reaches a runtime dispatcher", () => {
         openingUtterance: "Hello.",
         communicationProfile: {
           styleFamily: "satir",
-          style: "neutral",
+          style: "congruent",
           intensity: 0.5,
           baselineMood: ["neutral"],
           communicativeness: "Responds normally.",
@@ -106,9 +107,9 @@ describe("An authored scheduled event reaches a runtime dispatcher", () => {
 
   beforeEach(() => {
     // Pin offline defaults
-    delete process.env.OPENROUTER_API_KEY;
-    delete process.env.DEEPSEEK_API_KEY;
-    delete process.env.OPENCLINXR_LOCAL_LLAMA_BASE_URL;
+    delete process.env["OPENROUTER_API_KEY"];
+    delete process.env["DEEPSEEK_API_KEY"];
+    delete process.env["OPENCLINXR_LOCAL_LLAMA_BASE_URL"];
   });
 
   it("(1) does NOT appear at second 29", async () => {
@@ -118,7 +119,9 @@ describe("An authored scheduled event reaches a runtime dispatcher", () => {
 
     // Call the method at second 29 - the event at 30 should NOT be emitted
     const mod = await import("./scenario-runtime.js");
-    const fn = (mod as Record<string, unknown>).ScenarioRuntime?.prototype?.advanceScheduledEvents;
+    const runtimeClass = (mod as Record<string, unknown>)["ScenarioRuntime"] as
+      undefined | { prototype?: Record<string, unknown> };
+    const fn = runtimeClass?.prototype?.["advanceScheduledEvents"];
     expect(typeof fn).toBe("function");
 
     const emitted = runtime.advanceScheduledEvents(session.stationRunId, 29);
@@ -131,7 +134,9 @@ describe("An authored scheduled event reaches a runtime dispatcher", () => {
     runtime.startEncounter(session.stationRunId, { atSecond: 0 });
 
     const mod = await import("./scenario-runtime.js");
-    const fn = (mod as Record<string, unknown>).ScenarioRuntime?.prototype?.advanceScheduledEvents;
+    const runtimeClass = (mod as Record<string, unknown>)["ScenarioRuntime"] as
+      undefined | { prototype?: Record<string, unknown> };
+    const fn = runtimeClass?.prototype?.["advanceScheduledEvents"];
     expect(typeof fn).toBe("function");
 
     const emitted = runtime.advanceScheduledEvents(session.stationRunId, 30);
@@ -146,7 +151,9 @@ describe("An authored scheduled event reaches a runtime dispatcher", () => {
     runtime.startEncounter(session.stationRunId, { atSecond: 0 });
 
     const mod = await import("./scenario-runtime.js");
-    const fn = (mod as Record<string, unknown>).ScenarioRuntime?.prototype?.advanceScheduledEvents;
+    const runtimeClass = (mod as Record<string, unknown>)["ScenarioRuntime"] as
+      undefined | { prototype?: Record<string, unknown> };
+    const fn = runtimeClass?.prototype?.["advanceScheduledEvents"];
     expect(typeof fn).toBe("function");
 
     // First call at 30 emits the event
@@ -164,7 +171,9 @@ describe("An authored scheduled event reaches a runtime dispatcher", () => {
     runtime.startEncounter(session.stationRunId, { atSecond: 0 });
 
     const mod = await import("./scenario-runtime.js");
-    const fn = (mod as Record<string, unknown>).ScenarioRuntime?.prototype?.advanceScheduledEvents;
+    const runtimeClass = (mod as Record<string, unknown>)["ScenarioRuntime"] as
+      undefined | { prototype?: Record<string, unknown> };
+    const fn = runtimeClass?.prototype?.["advanceScheduledEvents"];
     expect(typeof fn).toBe("function");
 
     // First call at second 30

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+// A planted RED reads a dynamically imported module whose shape is exactly what the slice
+// must define. Narrowing it here would encode the answer the card is supposed to produce.
+// biome-ignore lint/suspicious/noExplicitAny: see the two lines above
+type Loose = any;
+
 //
 // OBSERVABLE: A suppressed placeholder GLB reports status "loaded" with fallbackActive true
 // (generated-loaders.ts:447-462) and is incorrectly counted as loaded by loadedCount at
@@ -51,7 +56,7 @@ const modPromise = import("./index.js");
 describe("A suppressed placeholder GLB cannot report itself ready", () => {
   it.fails("(1) A genuine load (status: loaded, fallbackActive: false) satisfies the predicate", async () => {
     const mod = await modPromise;
-    const sceneAssetSlotIsReady = (mod as Record<string, unknown>).sceneAssetSlotIsReady;
+    const sceneAssetSlotIsReady = (mod as Record<string, unknown>)["sceneAssetSlotIsReady"] as Loose;
     expect(typeof sceneAssetSlotIsReady).toBe("function");
 
     const genuineAsset = { status: "loaded" as const, fallbackActive: false };
@@ -60,7 +65,7 @@ describe("A suppressed placeholder GLB cannot report itself ready", () => {
 
   it.fails("(2) A suppressed slot (status: loaded, fallbackActive: true) does NOT satisfy the predicate", async () => {
     const mod = await modPromise;
-    const sceneAssetSlotIsReady = (mod as Record<string, unknown>).sceneAssetSlotIsReady;
+    const sceneAssetSlotIsReady = (mod as Record<string, unknown>)["sceneAssetSlotIsReady"] as Loose;
     expect(typeof sceneAssetSlotIsReady).toBe("function");
 
     const suppressedAsset = { status: "loaded" as const, fallbackActive: true };
@@ -69,7 +74,7 @@ describe("A suppressed placeholder GLB cannot report itself ready", () => {
 
   it.fails("(3) A failed slot (status: failed) does NOT satisfy the predicate", async () => {
     const mod = await modPromise;
-    const sceneAssetSlotIsReady = (mod as Record<string, unknown>).sceneAssetSlotIsReady;
+    const sceneAssetSlotIsReady = (mod as Record<string, unknown>)["sceneAssetSlotIsReady"] as Loose;
     expect(typeof sceneAssetSlotIsReady).toBe("function");
 
     const failedAsset = { status: "failed" as const, fallbackActive: true };
@@ -78,8 +83,8 @@ describe("A suppressed placeholder GLB cannot report itself ready", () => {
 
   it.fails("(4) For an input containing one suppressed slot, loadedCount no longer counts it, AND fallbackActiveCount for that same input is UNCHANGED from what it reports today", async () => {
     const mod = await modPromise;
-    const recordSceneAssetStatus = (mod as Record<string, unknown>).recordSceneAssetStatus;
-    const formatSceneAssetEvidenceStatus = (mod as Record<string, unknown>).formatSceneAssetEvidenceStatus;
+    const recordSceneAssetStatus = (mod as Record<string, unknown>)["recordSceneAssetStatus"] as Loose;
+    const formatSceneAssetEvidenceStatus = (mod as Record<string, unknown>)["formatSceneAssetEvidenceStatus"] as Loose;
     expect(typeof recordSceneAssetStatus).toBe("function");
     expect(typeof formatSceneAssetEvidenceStatus).toBe("function");
 
@@ -115,8 +120,8 @@ describe("A suppressed placeholder GLB cannot report itself ready", () => {
 
   it.fails("(5) The three existing status values (pending, loaded, failed) still round-trip", async () => {
     const mod = await modPromise;
-    const recordSceneAssetStatus = (mod as Record<string, unknown>).recordSceneAssetStatus;
-    const formatSceneAssetEvidenceStatus = (mod as Record<string, unknown>).formatSceneAssetEvidenceStatus;
+    const recordSceneAssetStatus = (mod as Record<string, unknown>)["recordSceneAssetStatus"] as Loose;
+    const formatSceneAssetEvidenceStatus = (mod as Record<string, unknown>)["formatSceneAssetEvidenceStatus"] as Loose;
     expect(typeof recordSceneAssetStatus).toBe("function");
     expect(typeof formatSceneAssetEvidenceStatus).toBe("function");
 

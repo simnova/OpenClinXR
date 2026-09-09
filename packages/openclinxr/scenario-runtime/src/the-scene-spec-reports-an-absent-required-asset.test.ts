@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+// A planted RED reads a dynamically imported module whose shape is exactly what the slice
+// must define. Narrowing it here would encode the answer the card is supposed to produce.
+// biome-ignore lint/suspicious/noExplicitAny: see the two lines above
+type Loose = any;
+
 /**
  * OBSERVABLE: No scene-readiness gate exists. Phases are `doorway | encounter | note | review`
  * (`packages/openclinxr/domain/src/station-state.ts:3`) and `transitionStation`
@@ -51,7 +56,7 @@ import { describe, expect, it } from "vitest";
 describe("One encounter produces a reviewable initial scene specification", () => {
   it.fails("(1) An ABSENT required asset reports outcome \"unsatisfied\" and is NAMED", async () => {
     const mod = await import("@openclinxr/scenario-runtime");
-    const buildInitialSceneSpec = (mod as Record<string, unknown>).buildInitialSceneSpec;
+    const buildInitialSceneSpec = (mod as Record<string, unknown>)["buildInitialSceneSpec"] as Loose;
     expect(typeof buildInitialSceneSpec).toBe("function");
 
     const result = buildInitialSceneSpec({
@@ -62,7 +67,7 @@ describe("One encounter produces a reviewable initial scene specification", () =
       presentAssetIds: ["asset-present"],
     });
 
-    const absentAsset = result.requiredAssets.find((a) => a.assetId === "asset-absent");
+    const absentAsset = result.requiredAssets.find((a: Loose) => a.assetId === "asset-absent");
     expect(absentAsset).toBeDefined();
     expect(absentAsset!.outcome).toBe("unsatisfied");
     expect(absentAsset!.assetId).toBe("asset-absent");
@@ -70,7 +75,7 @@ describe("One encounter produces a reviewable initial scene specification", () =
 
   it.fails("(2) A PRESENT required asset reports outcome \"satisfied\"", async () => {
     const mod = await import("@openclinxr/scenario-runtime");
-    const buildInitialSceneSpec = (mod as Record<string, unknown>).buildInitialSceneSpec;
+    const buildInitialSceneSpec = (mod as Record<string, unknown>)["buildInitialSceneSpec"] as Loose;
     expect(typeof buildInitialSceneSpec).toBe("function");
 
     const result = buildInitialSceneSpec({
@@ -81,7 +86,7 @@ describe("One encounter produces a reviewable initial scene specification", () =
       presentAssetIds: ["asset-present"],
     });
 
-    const presentAsset = result.requiredAssets.find((a) => a.assetId === "asset-present");
+    const presentAsset = result.requiredAssets.find((a: Loose) => a.assetId === "asset-present");
     expect(presentAsset).toBeDefined();
     expect(presentAsset!.outcome).toBe("satisfied");
     expect(presentAsset!.assetId).toBe("asset-present");
@@ -89,7 +94,7 @@ describe("One encounter produces a reviewable initial scene specification", () =
 
   it.fails("(3) schemaVersion is present and asserted", async () => {
     const mod = await import("@openclinxr/scenario-runtime");
-    const buildInitialSceneSpec = (mod as Record<string, unknown>).buildInitialSceneSpec;
+    const buildInitialSceneSpec = (mod as Record<string, unknown>)["buildInitialSceneSpec"] as Loose;
     expect(typeof buildInitialSceneSpec).toBe("function");
 
     const result = buildInitialSceneSpec({
@@ -104,8 +109,8 @@ describe("One encounter produces a reviewable initial scene specification", () =
     const sharedSchemasMod = await import("@openclinxr/shared-schemas");
     const scenarioRuntimeMod = await import("@openclinxr/scenario-runtime");
 
-    const InitialSceneSpec = (sharedSchemasMod as Record<string, unknown>).InitialSceneSpec;
-    const buildInitialSceneSpec = (scenarioRuntimeMod as Record<string, unknown>).buildInitialSceneSpec;
+    const InitialSceneSpec = (sharedSchemasMod as Record<string, unknown>)["InitialSceneSpec"];
+    const buildInitialSceneSpec = (scenarioRuntimeMod as Record<string, unknown>)["buildInitialSceneSpec"];
 
     // Type import check - the type should be available as a named export
     expect(typeof InitialSceneSpec).not.toBe("undefined");
@@ -116,7 +121,7 @@ describe("One encounter produces a reviewable initial scene specification", () =
 
   it.fails("(5) Every requiredAssets[].consumer names one of the two REAL unwired consumers", async () => {
     const mod = await import("@openclinxr/scenario-runtime");
-    const buildInitialSceneSpec = (mod as Record<string, unknown>).buildInitialSceneSpec;
+    const buildInitialSceneSpec = (mod as Record<string, unknown>)["buildInitialSceneSpec"] as Loose;
     expect(typeof buildInitialSceneSpec).toBe("function");
 
     const result = buildInitialSceneSpec({
@@ -145,12 +150,12 @@ describe("One encounter produces a reviewable initial scene specification", () =
     // brief asks for: "still loading" and "never looked" are different facts, and only one of
     // them can become satisfied by waiting. This RED's first draft used a boolean.
     const mod = await import("@openclinxr/scenario-runtime");
-    const outcomes = (mod as Record<string, unknown>).REQUIRED_STATE_OUTCOMES as
+    const outcomes = (mod as Record<string, unknown>)["REQUIRED_STATE_OUTCOMES"] as
       undefined | readonly string[];
     expect(Array.isArray(outcomes)).toBe(true);
     expect([...(outcomes ?? [])].sort()).toEqual(["pending", "satisfied", "unknown", "unsatisfied"]);
 
-    const promotes = (mod as Record<string, unknown>).requiredStateOutcomePromotes as
+    const promotes = (mod as Record<string, unknown>)["requiredStateOutcomePromotes"] as
       undefined | ((outcome: string) => boolean);
     expect(typeof promotes).toBe("function");
     expect(promotes!("satisfied")).toBe(true);
@@ -164,7 +169,7 @@ describe("One encounter produces a reviewable initial scene specification", () =
     // whose evidence merely repeats the outcome word is not evidence, and is the cheapest way
     // to satisfy a field named `evidence`.
     const mod = await import("@openclinxr/scenario-runtime");
-    const buildInitialSceneSpec = (mod as Record<string, unknown>).buildInitialSceneSpec as
+    const buildInitialSceneSpec = (mod as Record<string, unknown>)["buildInitialSceneSpec"] as
       undefined | ((input: unknown) => { requiredAssets: Array<{ outcome: string; evidence: string }> });
     expect(typeof buildInitialSceneSpec).toBe("function");
     const result = buildInitialSceneSpec!({

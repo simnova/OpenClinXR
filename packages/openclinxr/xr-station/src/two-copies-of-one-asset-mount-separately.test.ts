@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { EncounterRuntimeSceneManifest } from "@openclinxr/asset-registry";
 import {
   planStationEquipmentMounts,
 } from "./index.js";
@@ -190,7 +191,7 @@ describe("Two copies of one equipment asset are representable in a room", () => 
     // which does not exist yet: runtime-bundles.ts:1636 is
     //   bundle.equipment.find((e) => e.equipmentId === equipmentId)
     // and returns the first match, so a second copy is unreachable by any argument.
-    const byRealized = (mod as Record<string, unknown>).findRuntimeEquipmentPlacementByRealizedId as
+    const byRealized = (mod as Record<string, unknown>)["findRuntimeEquipmentPlacementByRealizedId"] as
       undefined | ((bundleArg: unknown, realizedId: string) => unknown);
     expect(typeof byRealized).toBe("function");
     const firstCopy = byRealized!(bundle, "iv_stand_equipment#1");
@@ -222,10 +223,11 @@ describe("Two copies of one equipment asset are representable in a room", () => 
     // because ordered.includes(id) is true.
     // After fix, two distinct realized placement ids must produce two mount items.
     expect(mounts.length).toBe(2);
-    expect(mounts[0].equipmentId).toBe("ecg_cart_equipment");
-    expect(mounts[1].equipmentId).toBe("ecg_cart_equipment");
+    const [first, second] = mounts;
+    expect(first?.equipmentId).toBe("ecg_cart_equipment");
+    expect(second?.equipmentId).toBe("ecg_cart_equipment");
     // Positions must be different (from the placement map or fallback)
-    expect(mounts[0].position).not.toEqual(mounts[1].position);
+    expect(first?.position).not.toEqual(second?.position);
   });
 
   it.fails("(3b) planStationEquipmentMounts returns one mount item when the same realized placement is referenced twice", () => {

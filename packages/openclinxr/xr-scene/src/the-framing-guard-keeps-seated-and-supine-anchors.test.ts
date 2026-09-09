@@ -1,7 +1,14 @@
 import * as THREE from "three";
 import { describe, expect, it } from "vitest";
 import { applyCleanEncounterVisualReviewActorFraming, type EncounterActorFramingInput } from "./index.js";
-import { ensureActorPlacementsForStagedSlots, type ActorPlacementSsotEvidence } from "@openclinxr/xr-runtime-state";
+// ensureActorPlacementsForStagedSlots and ActorPlacementSsotEvidence are NOT exported from
+// @openclinxr/xr-runtime-state's entrypoint. That absence is part of clause 4's defect and is the
+// second entry in the entrypoint-import ratchet
+// (architecture-rules/src/checks/entrypoint-imports-resolve.ts). A STATIC import would make main's
+// typecheck red for a defect this card exists to fix, so the symbol is read dynamically: the
+// clause still fails at runtime, for the product reason, and typecheck stays green.
+// biome-ignore lint/suspicious/noExplicitAny: a planted RED reads a module whose shape the slice defines
+type Loose = any;
 
 /**
  * SPLIT NOTE: clause (5), the frame-loop baseX composition, moved to
@@ -111,7 +118,7 @@ describe("A staged transform survives slot repair, framing and the frame loop", 
   it.fails("(3) An UNKNOWN posture is refused explicitly rather than defaulting to floor-standing", () => {
     // Unknown posture should be rejected, not fall through to floor-standing branches
     const actor = makeActor({ x: 0, y: 0, z: 0 }, {
-        openClinXrActorPosture: "levitating", // Unknown posture
+        openClinXrActorPosture: "levitating" as unknown as string, // Unknown posture, deliberately outside the union
         openClinXrSlotKind: "primary_patient",
       });
 
@@ -120,7 +127,7 @@ describe("A staged transform survives slot repair, framing and the frame loop", 
       actorId: "test-actor",
       scenarioId: "generic",
       role: "patient",
-      posture: "levitating",
+      posture: "levitating" as unknown as "standing",
       skipFraming: false,
     };
 
@@ -130,9 +137,9 @@ describe("A staged transform survives slot repair, framing and the frame loop", 
     }).toThrow(/unrecognised posture|refused|invalid posture/i);
   });
 
-  it.fails("(4) The slot re-anchor reports itself: a third list beside declaredActorIds and addedActorIds names the ids whose position or scale was rewritten", () => {
+  it.fails("(4) The slot re-anchor reports itself: a third list beside declaredActorIds and addedActorIds names the ids whose position or scale was rewritten", async () => {
     // ensureActorPlacementsForStagedSlots must return a third list: rewrittenActorIds
-    const bundle: Parameters<typeof ensureActorPlacementsForStagedSlots>[0] = {
+    const bundle: Loose = {
       sceneManifest: {
         actorPlacements: {
           "actor-1": {
@@ -153,7 +160,7 @@ describe("A staged transform survives slot repair, framing and the frame loop", 
       },
     };
 
-    const slots: Parameters<typeof ensureActorPlacementsForStagedSlots>[1] = {
+    const slots: Loose = {
       stagedActorIds: ["actor-1", "actor-2", "actor-3", "actor-4"],
       notStagedActorIds: [],
       patientActorId: "actor-1",
@@ -162,11 +169,14 @@ describe("A staged transform survives slot repair, framing and the frame loop", 
       additionalActorId: "actor-4",
     };
 
+    const rt = (await import("@openclinxr/xr-runtime-state")) as Record<string, unknown>;
+    const ensureActorPlacementsForStagedSlots = rt["ensureActorPlacementsForStagedSlots"] as Loose;
+    expect(typeof ensureActorPlacementsForStagedSlots).toBe("function");
     const result = ensureActorPlacementsForStagedSlots(bundle, slots);
 
     // The result type must include rewrittenActorIds (actors whose position/scale was rewritten from anchor)
     // Currently it only returns { declaredActorIds, addedActorIds }
-    const evidence = result as ActorPlacementSsotEvidence & { rewrittenActorIds?: string[] };
+    const evidence = result as { rewrittenActorIds?: string[] };
 
     // actor-1 has existing placement with same slotKind -> should NOT be rewritten
     // actor-2 has different slotKind (family_or_observer vs clinical_team) -> SHOULD be rewritten

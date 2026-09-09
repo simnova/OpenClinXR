@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { Object3D } from "three";
-import {
-  applyGeneratedHumanoidClinicalIdlePosture,
-  applyHumanoidJointRotationsByAlias,
-} from "@openclinxr/xr-pose";
+import { Object3D } from "three";
+import { applyGeneratedHumanoidClinicalIdlePosture } from "@openclinxr/xr-pose";
+
+// A planted RED reads a dynamically imported module whose shape is exactly what the slice
+// must define. Narrowing it here would encode the answer the card is supposed to produce.
+// biome-ignore lint/suspicious/noExplicitAny: see the two lines above
+type Loose = any;
 
 //
 // OBSERVABLE: The animation loop writes posture to every bone each frame. A motion executor
@@ -76,63 +78,55 @@ function buildTestHumanoid(): Object3D {
 }
 
 describe("an-owned-chain-survives-the-posture-pass", () => {
-  it.fails("(1) ASYMMETRY: owned bone unchanged, neighboring unowned bone still written by posture pass", async () => {
-    // Import the contracted symbols at runtime so the test loads even before they exist
+  it.fails("(1) ASYMMETRY: an OWNED bone is unchanged across the posture pass while a neighbouring UNOWNED bone is still written", async () => {
+    // The contracted symbols are read at runtime so this file loads before they exist.
     const mod = await import("@openclinxr/xr-pose");
-    const OwnedChain = (mod as Record<string, unknown>).OwnedChain;
-    const boneIsOwned = (mod as Record<string, unknown>).boneIsOwned;
-
-    expect(typeof OwnedChain).not.toBe("undefined");
+    const boneIsOwned = (mod as Record<string, unknown>)["boneIsOwned"] as Loose;
     expect(typeof boneIsOwned).toBe("function");
 
-    // Build test humanoid
     const humanoid = buildTestHumanoid();
 
-    // Capture initial rotations
-    const upperArmL = humanoid.getObjectByName("upper_armL")!;
-    const forearmL = humanoid.getObjectByName("forearmL")!;
-    const handL = humanoid.getObjectByName("handL")!;
-
-    const initialUpperArmL = upperArmL.rotation.clone();
-    const initialForearmL = forearmL.rotation.clone();
-    const initialHandL = handL.rotation.clone();
-
-    // Declare ownership of LEFT arm chain only
+    // Ownership is DECLARED. The left arm is owned; the right arm is the unowned neighbour.
     const ownedChains: Array<{ ownerId: string; boneNames: readonly string[] }> = [
       { ownerId: "test_executor_left", boneNames: ["upper_armL", "forearmL", "handL"] as const },
     ];
+    for (const name of ["upper_armL", "forearmL", "handL"]) {
+      expect(boneIsOwned(ownedChains, name)).toBe(true);
+    }
+    for (const name of ["upper_armR", "forearmR", "handR"]) {
+      expect(boneIsOwned(ownedChains, name)).toBe(false);
+    }
 
-    // Apply posture pass — should skip owned bones, write unowned bones
-    // We simulate what animation-loop.ts will do: check boneIsOwned before writing
-    // For now, call the clinical idle posture directly (it writes all bones)
-    applyGeneratedHumanoidClinicalIdlePosture(humanoid);
-
-    // The contracted behavior: owned bones should be UNCHANGED
-    // unowned bones (right arm) SHOULD be written by posture pass
+    const upperArmL = humanoid.getObjectByName("upper_armL")!;
+    const forearmL = humanoid.getObjectByName("forearmL")!;
+    const handL = humanoid.getObjectByName("handL")!;
     const upperArmR = humanoid.getObjectByName("upper_armR")!;
     const forearmR = humanoid.getObjectByName("forearmR")!;
     const handR = humanoid.getObjectByName("handR")!;
 
-    // Right arm (unowned) should have been modified by posture
-    const rightArmWritten = !upperArmR.rotation.equals(upperArmR.rotation.clone()) ||
-      !forearmR.rotation.equals(forearmR.rotation.clone()) ||
-      !handR.rotation.equals(handR.rotation.clone());
+    // Capture BOTH arms BEFORE the pass. The first draft compared the right arm with a clone of
+    // ITSELF taken after the pass — always equal, so the assertion was UNFALSIFIABLE and would
+    // have failed identically after a perfect fix. The two-sided gate cannot see that: a clause
+    // that can never pass still satisfies "fails now" and "the file passes as it.fails".
+    const beforeL = [upperArmL, forearmL, handL].map((b) => b.rotation.clone());
+    const beforeR = [upperArmR, forearmR, handR].map((b) => b.rotation.clone());
 
-    // Left arm (owned) should be unchanged
-    const leftArmUnchanged =
-      upperArmL.rotation.equals(initialUpperArmL) &&
-      forearmL.rotation.equals(initialForearmL) &&
-      handL.rotation.equals(initialHandL);
+    applyGeneratedHumanoidClinicalIdlePosture(humanoid);
 
-    // The test asserts ASYMMETRY: owned unchanged AND unowned written
-    // A carve-out that freezes the whole skeleton passes leftArmUnchanged but FAILS rightArmWritten
-    expect(leftArmUnchanged).toBe(true);
-    expect(rightArmWritten).toBe(true);
+    const ownedUnchanged = [upperArmL, forearmL, handL].every(
+      (bone, i) => bone.rotation.equals(beforeL[i]!),
+    );
+    const unownedWritten = [upperArmR, forearmR, handR].some(
+      (bone, i) => !bone.rotation.equals(beforeR[i]!),
+    );
+
+    expect(ownedUnchanged, "an OWNED bone was overwritten by the posture pass").toBe(true);
+    expect(unownedWritten, "no UNOWNED bone was written; the carve-out froze the whole skeleton").toBe(true);
   });
 
   it.fails("(2) Ownership is DECLARED, not inferred from a name pattern", async () => {
     const mod = await import("@openclinxr/xr-pose");
-    const boneIsOwned = (mod as Record<string, unknown>).boneIsOwned;
+    const boneIsOwned = (mod as Record<string, unknown>)["boneIsOwned"] as Loose;
 
     expect(typeof boneIsOwned).toBe("function");
 
@@ -160,65 +154,40 @@ describe("an-owned-chain-survives-the-posture-pass", () => {
     expect(boneIsOwned([], "upper_armL")).toBe(false);
   });
 
-  it.fails("(3) Carve-out preserves chain integrity / joint state, not effector residual", async () => {
+  it.fails("(3) CHAIN INTEGRITY is the acceptance measure, not effector residual: every bone the executor wrote keeps its value across a posture pass", async () => {
+    // The recorded bake-off returned verdict "other" with a wristR residual of 0.0000 m for a
+    // chain that rendered the right arm ABSENT through a torn shoulder
+    // (tools/openclinxr/evidence/motion-backend-bakeoff/report.json:67). Effector residual is
+    // disqualified here by measurement. This clause asserts JOINT STATE for every bone in the
+    // chain instead, which a torn chain cannot satisfy.
     const mod = await import("@openclinxr/xr-pose");
-    const OwnedChain = (mod as Record<string, unknown>).OwnedChain;
-    const boneIsOwned = (mod as Record<string, unknown>).boneIsOwned;
-
-    expect(typeof OwnedChain).not.toBe("undefined");
+    const boneIsOwned = (mod as Record<string, unknown>)["boneIsOwned"] as Loose;
     expect(typeof boneIsOwned).toBe("function");
 
     const humanoid = buildTestHumanoid();
-
-    // Apply posture to establish baseline
-    applyGeneratedHumanoidClinicalIdlePosture(humanoid);
-
-    // Capture the posture-written joint states (chain integrity)
-    const upperArmL = humanoid.getObjectByName("upper_armL")!;
-    const forearmL = humanoid.getObjectByName("forearmL")!;
-    const handL = humanoid.getObjectByName("handL")!;
-
-    const postureUpperArmL = upperArmL.rotation.clone();
-    const postureForearmL = forearmL.rotation.clone();
-    const postureHandL = handL.rotation.clone();
-
-    // Now declare ownership and simulate executor writing its own pose
     const ownedChains: Array<{ ownerId: string; boneNames: readonly string[] }> = [
       { ownerId: "ik_solver_left", boneNames: ["upper_armL", "forearmL", "handL"] as const },
     ];
+    for (const name of ["upper_armL", "forearmL", "handL"]) {
+      expect(boneIsOwned(ownedChains, name)).toBe(true);
+    }
 
-    // Executor writes its own rotations to the owned chain
-    upperArmL.rotation.set(0.5, 0.1, -0.3);
-    forearmL.rotation.set(-0.2, 0.0, 0.1);
-    handL.rotation.set(0.05, -0.05, 0.02);
+    const chain = ["upper_armL", "forearmL", "handL"].map((n) => humanoid.getObjectByName(n)!);
+    // An executor writes its own pose onto the whole owned chain.
+    chain[0]!.rotation.set(0.5, 0.1, -0.3);
+    chain[1]!.rotation.set(-0.2, 0.0, 0.1);
+    chain[2]!.rotation.set(0.05, -0.05, 0.02);
+    const executorPose = chain.map((b) => b.rotation.clone());
 
-    const executorUpperArmL = upperArmL.rotation.clone();
-    const executorForearmL = forearmL.rotation.clone();
-    const executorHandL = handL.rotation.clone();
-
-    // Run posture pass again — should preserve executor's rotations on owned bones
     applyGeneratedHumanoidClinicalIdlePosture(humanoid);
 
-    // The carve-out must preserve CHAIN INTEGRITY: each bone in the chain keeps executor's values
-    const chainIntegrityPreserved =
-      upperArmL.rotation.equals(executorUpperArmL) &&
-      forearmL.rotation.equals(executorForearmL) &&
-      handL.rotation.equals(executorHandL);
-
-    // The test must NOT use effector residual (e.g. wrist world position) as acceptance
-    // Instead it asserts JOINT STATE (local rotations) or CHAIN INTEGRITY (all bones in chain preserved)
-    expect(chainIntegrityPreserved).toBe(true);
-
-    // Additionally verify that the right arm (unowned) still reflects posture
-    const upperArmR = humanoid.getObjectByName("upper_armR")!;
-    const forearmR = humanoid.getObjectByName("forearmR")!;
-    const handR = humanoid.getObjectByName("handR")!;
-
-    // These should have been written by posture (not equal to executor values)
-    expect(upperArmR.rotation.equals(postureUpperArmL)).toBe(false); // different bone
-    // Just verify they were touched by posture
-    expect(typeof upperArmR.rotation.x).toBe("number");
-    expect(typeof forearmR.rotation.y).toBe("number");
-    expect(typeof handR.rotation.z).toBe("number");
+    // EVERY bone, not just the effector. A carve-out that preserves only the hand leaves a torn
+    // shoulder and still reports a perfect wrist position, which is exactly the bake-off failure.
+    for (const [i, bone] of chain.entries()) {
+      expect(
+        bone.rotation.equals(executorPose[i]!),
+        `owned bone ${["upper_armL", "forearmL", "handL"][i]} was overwritten by the posture pass`,
+      ).toBe(true);
+    }
   });
 });

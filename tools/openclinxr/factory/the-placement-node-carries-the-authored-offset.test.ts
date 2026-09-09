@@ -92,7 +92,7 @@ describe("The factory resolves actor placement from the case, not from the actor
 
     // This import will fail until the function signature is extended with case input
     const mod = await import("../../../packages/openclinxr/asset-registry/src/actor-placement.js");
-    const fn = (mod as Record<string, unknown>).generatedActorPlacement;
+    const fn = (mod as Record<string, unknown>)["generatedActorPlacement"];
     expect(typeof fn).toBe("function");
 
     // When case placements are provided with authored offsets, they must be used
@@ -212,7 +212,7 @@ describe("The factory resolves actor placement from the case, not from the actor
 
   it.fails("(4) headingRadians is populated when the case authors a facing, undefined when absent (never 0)", async () => {
     const mod = await import("../../../packages/openclinxr/asset-registry/src/actor-placement.js");
-    const fn = (mod as Record<string, unknown>).generatedActorPlacement;
+    const fn = (mod as Record<string, unknown>)["generatedActorPlacement"];
     expect(typeof fn).toBe("function");
 
     const patient = makeActor("patient_jordan_cole_v1", "patient");

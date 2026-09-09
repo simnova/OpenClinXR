@@ -374,6 +374,8 @@ function createHarness(input: {
   const traces: TraceEvent[] = [];
   const session: SessionRecord = {
     run,
+    // required since advanceScheduledEvents landed: the session owns what it already emitted
+    emittedScheduledEventIds: new Set<string>(),
     multiActorSession: createMultiActorClinicalSession({ scenario, stationRunId: run.stationRunId }),
     nextSequence: 0,
     actorTurnInProgress: null,
