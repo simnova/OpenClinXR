@@ -19,17 +19,7 @@ import {
   type VoiceProviderAdapter,
 } from "@openclinxr/voice-gateway";
 import { beforeEach, describe, expect, it } from "vitest";
-import {
-  createDefaultScenarioRuntime,
-  createDurableStoreFromPersistenceHooks,
-  createScenarioRuntimeWithPersistenceHooks,
-  type DurableStorePersistenceHooks,
-  resolveScenarioById,
-  type ScenarioCatalogPort,
-  ScenarioRuntime,
-  type ScenarioRuntimeActorTurn,
-  type ScenarioRuntimeDurableStore,
-} from "./index.js";
+import { createDefaultScenarioRuntime, createDurableStoreFromPersistenceHooks, createScenarioRuntimeWithPersistenceHooks, type DurableStorePersistenceHooks, resolveScenarioById, type ScenarioCatalogPort, ScenarioRuntime, type ScenarioRuntimeActorTurn, type ScenarioRuntimeDurableStore } from "./index.js";
 
 describe("scenario runtime", () => {
   beforeEach(() => {
@@ -667,11 +657,11 @@ describe("scenario runtime", () => {
       saveActorTurn(stationRunId, turn) {
         savedTurns.push({ stationRunId, turnId: turn.turnId, actorId: turn.actorId });
       },
-      saveReviewPacket(stationRunId, packet) {
+      saveReviewPacket(stationRunId, reviewPacket) {
         savedPackets.push({
           stationRunId,
-          scenarioId: packet.scenarioId,
-          eventCount: packet.traceQuality.eventCount,
+          scenarioId: reviewPacket.scenarioId,
+          eventCount: reviewPacket.traceQuality.eventCount,
         });
       },
     });
@@ -806,8 +796,8 @@ describe("scenario runtime", () => {
       saveActorTurn(_stationRunId, turn) {
         savedTurns.push(turn);
       },
-      saveReviewPacket(_stationRunId, packet) {
-        savedPackets.push(packet);
+      saveReviewPacket(_stationRunId, reviewPacket) {
+        savedPackets.push(reviewPacket);
       },
     };
     const runtime = createDefaultScenarioRuntime({
@@ -842,8 +832,8 @@ describe("scenario runtime", () => {
       saveActorTurn(_stationRunId, turn) {
         savedTurns.push(turn);
       },
-      saveReviewPacket(_stationRunId, packet) {
-        savedPackets.push(packet);
+      saveReviewPacket(_stationRunId, reviewPacket) {
+        savedPackets.push(reviewPacket);
       },
     });
 
@@ -1637,10 +1627,12 @@ describe("provider adapter selection is a composition-root decision", () => {
     async health() {
       return { providerId: this.id, status: "ready" as const };
     }
-    async *synthesize(): AsyncIterable<never> {
+    // Not generators: a `function*` that never yields is what useYield reports. These stubs only
+    // throw, so an async method returning the same type says exactly that.
+    synthesize(): AsyncIterable<never> {
       throw new Error("not exercised by this test");
     }
-    async *transcribe(): AsyncIterable<never> {
+    transcribe(): AsyncIterable<never> {
       throw new Error("not exercised by this test");
     }
   }

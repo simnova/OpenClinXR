@@ -55,10 +55,6 @@ const src = join(root, "packages", "openclinxr", pkg, "src");
 const entry = join(src, "index.ts");
 const source = readFileSync(entry, "utf8");
 const stars = [...source.matchAll(STAR_EXPORT)];
-if (stars.length === 0) {
-  console.error(`${pkg}/src/index.ts has no \`export *\` wall; nothing for this tool to do.`);
-  process.exit(1);
-}
 
 /**
  * EVERY re-export specifier, star or named.
@@ -108,6 +104,11 @@ for (const match of stars) {
 for (const match of source.matchAll(NAMED_REEXPORT)) {
   const specifier = match[2] ?? "";
   if (!specifiers.includes(specifier)) specifiers.push(specifier);
+}
+
+if (specifiers.length === 0) {
+  console.error(`${pkg}/src/index.ts re-exports nothing; there is nothing for this tool to narrow.`);
+  process.exit(1);
 }
 
 /**
@@ -307,6 +308,30 @@ for (const file of readdirSync(src, { withFileTypes: true })) {
   }
   if (next !== text) writeFileSync(full, next);
 }
+
+/**
+ * CROSS-PACKAGE re-export lines, kept.
+ *
+ * `export type { X } from "@openclinxr/other"` publishes another package's symbol through this
+ * entrypoint. The specifier is not relative, so the module-walking emitter above cannot produce it,
+ * and the first version dropped every such line — scenario-runtime lost PublicationTargetUse and
+ * ReviewerEvidence, and @openclinxr/rest failed to build. They are narrowed the same way: keep the
+ * names something outside this package consumes.
+ */
+const foreign: string[] = [];
+for (const match of source.matchAll(/^export (type )?\{([^}]*)\} from "(@[^"]+)";?$/gmu)) {
+  const isType = match[1] !== undefined;
+  const kept = (match[2] ?? "")
+    .split(",")
+    .map((n) => n.trim())
+    .filter((n) => n !== "")
+    .filter((n) => keep.has(n.replace(/^type\s+/u, "").split(" as ").pop()?.trim() ?? n));
+  if (kept.length === 0) continue;
+  foreign.push(
+    `export ${isType ? "type " : ""}{\n${kept.map((n) => `  ${n},`).join("\n")}\n} from "${match[3]}";`,
+  );
+}
+blocks.push(...foreign);
 
 const header = `/**
  * Public interface of @openclinxr/${pkg}.

@@ -11,12 +11,8 @@ import { edChestPainScenario, pediatricAsthmaScenario } from "@openclinxr/scenar
 import type { ActorTurnExecution, ActorTurnPlan } from "@openclinxr/shared-schemas";
 import { createDefaultVoiceGateway, MockVoiceProviderAdapter } from "@openclinxr/voice-gateway";
 import { beforeEach, describe, expect, it } from "vitest";
-import {
-  ACTOR_TURN_EXECUTED_EVENT_TYPE,
-  ACTOR_TURN_PLANNED_EVENT_TYPE,
-  createDefaultScenarioRuntime,
-  ScenarioRuntime,
-} from "./index.js";
+import { createDefaultScenarioRuntime, ScenarioRuntime } from "./index.js";
+import { ACTOR_TURN_EXECUTED_EVENT_TYPE, ACTOR_TURN_PLANNED_EVENT_TYPE } from "./actor-turn-plan.js";
 
 /**
  * OBSERVABLE: generateActorResponse called the model then applied emotion from
