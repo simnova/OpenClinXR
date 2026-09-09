@@ -1,27 +1,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-  AssetGenerationCapabilityFacade,
-  type AssetGenerationJobRequest,
-  type AssetGenerationWorkerAdapter,
-  buildDefaultHumanoidRemediationLoopInputs,
-  buildEncounterAssetGenerationEvidenceGateRefs,
-  buildEncounterAssetGenerationPlan,
-  buildEncounterAssetGenerationPublicationTargets,
-  buildVisualQaRemediationWorkOrderPlans,
-  type CommandRunner,
-  createDeterministicAssetGenerationAdapter,
-  createEncounterAssetGenerationQueueMessage,
-  decodeAzureStorageQueueMessage,
-  type EncounterAssetGenerationQueueClient,
-  type EncounterExecutableAssetGenerationRequest,
-  type EncounterHumanoidRealismRequirements,
-  encodeAzureStorageQueueMessage,
-  processEncounterAssetGenerationQueueMessage,
-  processNextEncounterAssetGenerationQueueMessage,
-  type AssetGenerationWorkerResult,
-} from "./index.js";
+import { AssetGenerationCapabilityFacade, buildEncounterAssetGenerationPlan, buildEncounterAssetGenerationPublicationTargets, buildVisualQaRemediationWorkOrderPlans, createDeterministicAssetGenerationAdapter, createEncounterAssetGenerationQueueMessage, decodeAzureStorageQueueMessage, type EncounterAssetGenerationQueueClient, type EncounterExecutableAssetGenerationRequest, type EncounterHumanoidRealismRequirements, encodeAzureStorageQueueMessage, processEncounterAssetGenerationQueueMessage, processNextEncounterAssetGenerationQueueMessage } from "./index.js";
+import { type AssetGenerationJobRequest, type AssetGenerationWorkerAdapter, buildDefaultHumanoidRemediationLoopInputs, buildEncounterAssetGenerationEvidenceGateRefs, type CommandRunner, type AssetGenerationWorkerResult } from "./asset-generation-jobs.js";
 
 describe("asset-generation job facade", () => {
   it("creates Azure Storage Queue messages for long-running executable encounter generation", () => {

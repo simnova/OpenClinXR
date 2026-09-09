@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  type AzureStorageQueueClientLike,
-  createAzureStorageEncounterAssetGenerationQueueClient,
-  createEncounterAssetGenerationQueueMessage,
-  encodeAzureStorageQueueMessage,
-  processNextEncounterAssetGenerationQueueMessage,
-} from "./index.js";
+import { createEncounterAssetGenerationQueueMessage, encodeAzureStorageQueueMessage, processNextEncounterAssetGenerationQueueMessage } from "./index.js";
+import { type AzureStorageQueueClientLike, createAzureStorageEncounterAssetGenerationQueueClient } from "./azure-storage-queue-client.js";
 
 describe("Azure Storage Queue encounter asset generation client", () => {
   it("adapts one Azure/Azurite queue message into the encounter worker queue boundary", async () => {

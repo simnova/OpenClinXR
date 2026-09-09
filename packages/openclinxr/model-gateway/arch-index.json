@@ -26,6 +26,7 @@
     "ModelProviderAdapter",
     "ModelRequestPolicy",
     "OpenAiCompatibleModelProviderAdapter",
+    "OpenAiCompatibleProviderOptions",
     "TokenUsage",
     "buildActorCommunicationProfilePromptContext",
     "buildActorResponseProviderPromptInput",
@@ -54,6 +55,6 @@
     "lint": "pnpm --filter @openclinxr/model-gateway lint"
   },
   "ceilings": {
-    "rootEntrypointExports": 33
+    "rootEntrypointExports": 34
   }
 }

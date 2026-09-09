@@ -28,7 +28,19 @@ import { exportedSymbols } from "./export-surface-budgets.js";
  */
 
 const IDENTIFIER = /[A-Za-z_$][A-Za-z0-9_$]*/gu;
-const SCANNED_ROOTS = ["packages/openclinxr", "apps", "tools"] as const;
+// packages/openclinxr-verification was MISSING here until 2026-09-08, and the omission is the
+// expensive kind: the architecture tests are consumers like any other, so every symbol used only
+// by an archunit test read as unreferenced. Measured cost: narrowing capability-gateway dropped
+// evaluateCapabilityRoutingMatrix, and workspace-architecture.test.ts failed with
+// "evaluateCapabilityRoutingMatrix is not a function". packages/cellix is scanned for the same
+// reason.
+const SCANNED_ROOTS = [
+  "packages/openclinxr",
+  "packages/openclinxr-verification",
+  "packages/cellix",
+  "apps",
+  "tools",
+] as const;
 const SKIPPED_DIRECTORIES = new Set(["node_modules", "dist", "public", ".git", "coverage"]);
 
 export type UnusedExportReport = {

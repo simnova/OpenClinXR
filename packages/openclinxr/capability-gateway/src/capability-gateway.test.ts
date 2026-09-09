@@ -1,14 +1,8 @@
 import type { ProviderHealth } from "@cellix/provider-contracts";
 import { describe, expect, it } from "vitest";
-import {
-  buildOpenClinXrCapabilityRoutingMatrix,
-  type CapabilityProviderBinding,
-  evaluateCapabilityRoutingMatrix,
-  evaluateRuntimeProviderReadinessSurface,
-  type RuntimeCapabilityAdapter,
-  RuntimeCapabilityFacade,
-  type RuntimeCapabilityRequest,
-} from "./index.js";
+import { buildOpenClinXrCapabilityRoutingMatrix, evaluateCapabilityRoutingMatrix, evaluateRuntimeProviderReadinessSurface } from "./index.js";
+import { RuntimeCapabilityFacade } from "./facade-and-readiness.js";
+import type { CapabilityProviderBinding, RuntimeCapabilityAdapter, RuntimeCapabilityRequest } from "./types.js";
 
 describe("OpenClinXR runtime capability gateway", () => {
   it("defines provider-swappable bindings for every required capability in every runtime profile", () => {

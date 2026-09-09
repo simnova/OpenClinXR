@@ -9,6 +9,7 @@
     "DialogueFixtureSeed",
     "DynamicEncounterFactoryPlanningProjection",
     "DynamicEncounterFactoryPlanningScenario",
+    "LearnerScenarioView",
     "PEDS_ASTHMA_SCENARIO_ID",
     "PEDS_CREDIBILITY_VETO_ROLES",
     "ScenarioBankExamSequenceBoundary",
@@ -85,7 +86,7 @@
   },
   "ceilings": {
     "testInternalImports": 3,
-    "rootEntrypointExports": 61,
+    "rootEntrypointExports": 62,
     "starExports": 19
   }
 }

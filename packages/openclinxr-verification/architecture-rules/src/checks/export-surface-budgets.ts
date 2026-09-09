@@ -36,7 +36,10 @@ export type ExportMeasurement = { pkg: string; exports: number; starExports: num
 
 const DECLARED_EXPORT =
   /^export (?:declare )?(?:async )?(?:function|const|class|type|interface|enum|let|var)\s+(\w+)/gmu;
-const NAMED_EXPORT_BLOCK = /^export \{([^}]*)\}/gmu;
+// `export type { … }` is a re-export block like any other and publishes exactly as much. The
+// pattern matched only `export {`, so every type-only block was INVISIBLE to this measurement.
+// Measured 2026-09-08 before the fix: 296 symbols across 38 files, entrypoints included.
+const NAMED_EXPORT_BLOCK = /^export (?:type )?\{([^}]*)\}/gmu;
 const STAR_EXPORT = /^export \* from "([^"]+)"/gmu;
 
 function findWorkspaceRoot(): string {

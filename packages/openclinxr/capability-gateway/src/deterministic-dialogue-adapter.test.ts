@@ -7,10 +7,8 @@ import {
   type AuthoredDialogueCatalog,
   type DeterministicDialogueRequestPayload,
 } from "./deterministic-dialogue-adapter.js";
-import {
-  RuntimeCapabilityFacade,
-  buildOpenClinXrCapabilityRoutingMatrix,
-} from "./index.js";
+import { buildOpenClinXrCapabilityRoutingMatrix } from "./index.js";
+import { RuntimeCapabilityFacade } from "./facade-and-readiness.js";
 
 const catalog: AuthoredDialogueCatalog = {
   scenarios: [

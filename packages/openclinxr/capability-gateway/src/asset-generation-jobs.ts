@@ -1,10 +1,6 @@
 import { existsSync } from "node:fs";
-import type {
-  CapabilityTransport,
-  ImplementationLanguage,
-  ProviderKind,
-  RuntimeProfile,
-} from "./index.js";
+import type { RuntimeProfile } from "./index.js";
+import type { CapabilityTransport, ImplementationLanguage, ProviderKind } from "./types.js";
 import {
   createDeterministicAssetGenerationAdapter,
   resolveRepositoryArtifactPath,

@@ -11,6 +11,11 @@
     "AssetKind",
     "AssetLicenseStatus",
     "AssetManifest",
+    "AssetObjectStore",
+    "AssetObjectStoreGetInput",
+    "AssetObjectStoreGetResult",
+    "AssetObjectStorePutInput",
+    "AssetObjectStorePutResult",
     "AssetOptimizationEvidence",
     "AssetPipelineLane",
     "AssetPipelineStage",
@@ -27,6 +32,7 @@
     "AssetTargetRuntime",
     "AssetToolLicensePolicy",
     "AssetToolRuntimePlacement",
+    "AzuriteAssetObjectStoreOptions",
     "BuildEncounterDynamicBehaviorCoverageSummaryInput",
     "BuildEncounterFactoryDryRunSummaryInput",
     "BuildEncounterRuntimeAssetBundleInput",
@@ -241,7 +247,7 @@
   },
   "ceilings": {
     "testInternalImports": 1,
-    "rootEntrypointExports": 215,
+    "rootEntrypointExports": 221,
     "starExports": 8
   }
 }

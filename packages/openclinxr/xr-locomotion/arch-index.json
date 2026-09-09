@@ -3,6 +3,7 @@
   "name": "@openclinxr/xr-locomotion",
   "entrypoint": "packages/openclinxr/xr-locomotion/src/index.ts",
   "exports": [
+    "ExamineeLocomotionEvidence",
     "HAND_GESTURE_DEADZONE_METERS",
     "HAND_GESTURE_DWELL_MS",
     "HAND_GESTURE_TURN_COOLDOWN_MS",
@@ -80,7 +81,7 @@
     "lint": "pnpm --filter @openclinxr/xr-locomotion lint"
   },
   "ceilings": {
-    "rootEntrypointExports": 62,
+    "rootEntrypointExports": 63,
     "starExports": 4
   }
 }

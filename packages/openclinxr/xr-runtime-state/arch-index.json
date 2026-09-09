@@ -7,12 +7,17 @@
     "ActorPlacementRecord",
     "ActorPlacementSsotEvidence",
     "ActorPlayerRuntimeMetadataSummary",
+    "AdvanceExamFormRunStationInput",
     "CLINICAL_ROLE_CLASS",
     "CaseDefinedHumanoidPerformanceContractEvidence",
     "CaseDefinedHumanoidRuntimeHandoffEvidence",
     "ConversationTurnStateEvidence",
     "CreateMultiStationExamRuntimeInput",
     "EnvironmentStateEvidence",
+    "ExamAssemblyPersistenceSink",
+    "ExamFormRunState",
+    "ExamRunStationOutcome",
+    "ExamStationRunQueueSnapshot",
     "ExamineeLocomotionEvidence",
     "FAMILY_ROLE_CLASS",
     "FrameDeltaSummary",
@@ -218,7 +223,7 @@
   },
   "ceilings": {
     "testInternalImports": 3,
-    "rootEntrypointExports": 195,
+    "rootEntrypointExports": 200,
     "starExports": 7
   }
 }

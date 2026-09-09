@@ -3,6 +3,10 @@
   "name": "@openclinxr/physics-touch-artifacts",
   "entrypoint": "packages/openclinxr/physics-touch-artifacts/src/index.ts",
   "exports": [
+    "BakedBoneFrame",
+    "BakedBoneTransformsArtifact",
+    "BakedPhysicsSchemaVersion",
+    "BoneDelta",
     "PHYSICS_TOUCH_ARTIFACTS_GATES",
     "bakedTransformsConsumerAllowed",
     "liveEngineInProductionForbidden"

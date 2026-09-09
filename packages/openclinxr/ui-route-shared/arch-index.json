@@ -3,6 +3,10 @@
   "name": "@openclinxr/ui-route-shared",
   "entrypoint": "packages/openclinxr/ui-route-shared/src/index.ts",
   "exports": [
+    "AdminApolloGraphqlClient",
+    "AdminControlPlaneClient",
+    "AdminControlPlaneClientOptions",
+    "FacultyCompileLockClient",
     "RouteManifest",
     "RouteManifestEntry",
     "buildAdminGraphqlEndpoint",

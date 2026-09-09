@@ -15,8 +15,12 @@
     "ActorDialogueStore",
     "ActorDialogueStoreOptions",
     "ActorDialogueTurn",
+    "PedsActorPlayerRuntimePlaybackEvidence",
+    "PedsActorPlayerRuntimeSequenceEvidence",
+    "PedsActorPlayerRuntimeTurn",
     "PedsAdaptiveDialogueBranchResolution",
     "PedsAdaptiveDialogueBranchType",
+    "PedsAdaptiveDialogueEvidence",
     "applyPedsActorPlayerSequenceListenerCues",
     "createActorDialogueStore",
     "dedupePedsActorPlayerRuntimeTurns",
@@ -64,7 +68,7 @@
       "ActorDialogueDeps": 19
     },
     "testInternalImports": 1,
-    "rootEntrypointExports": 38,
+    "rootEntrypointExports": 42,
     "starExports": 9
   }
 }

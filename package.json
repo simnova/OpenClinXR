@@ -400,7 +400,8 @@
     "arch:ceilings": "tsx tools/openclinxr/architecture/write-context-ceilings.ts",
     "arch:parallelism": "tsx tools/openclinxr/architecture/parallelism-report.ts",
     "arch:index": "tsx tools/openclinxr/architecture/write-package-agent-index.ts",
-    "arch:unused-exports": "tsx tools/openclinxr/architecture/unused-exports-report.ts"
+    "arch:unused-exports": "tsx tools/openclinxr/architecture/unused-exports-report.ts",
+    "arch:narrow-entrypoint": "tsx tools/openclinxr/architecture/narrow-entrypoint.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",

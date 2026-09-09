@@ -6,6 +6,10 @@
     "AdvanceExamFormRunBreakInput",
     "AdvanceExamFormRunStationInput",
     "AssembleExamFormInput",
+    "AssembleExamFormWithPinnedEncounterBundlesInput",
+    "AssembleExamFormWithPinnedEncounterBundlesRefusal",
+    "AssembleExamFormWithPinnedEncounterBundlesResult",
+    "AssembleExamFormWithPinnedEncounterBundlesSuccess",
     "BlueprintScenarioReadiness",
     "CreateExamFormRunInput",
     "CreateExamStationRunQueueSnapshotInput",
@@ -27,6 +31,9 @@
     "ExamFormTimingOptions",
     "ExamRunStationOutcome",
     "ExamRunStationPhase",
+    "ExamStationBundlePinTarget",
+    "ExamStationEncounterBundlePin",
+    "ExamStationEncounterBundlePinNotEvidenceFor",
     "ExamStationRef",
     "ExamStationRunQueue",
     "ExamStationRunQueueItem",
@@ -39,6 +46,12 @@
     "ExamStationTimingWindow",
     "ExamTimingPlan",
     "ExamTimingWindow",
+    "PinExamStationEncounterBundlesInput",
+    "PinExamStationEncounterBundlesRefusal",
+    "PinExamStationEncounterBundlesResult",
+    "PinExamStationEncounterBundlesSuccess",
+    "PromotedEncounterBundleCatalogEntry",
+    "PromotedEncounterBundleRuntimeEligibility",
     "STEP2CS_STATION_COUNT",
     "ScenarioVersionDrift",
     "accountExamFormElapsed",
@@ -96,7 +109,7 @@
   },
   "ceilings": {
     "testInternalImports": 4,
-    "rootEntrypointExports": 75,
+    "rootEntrypointExports": 88,
     "starExports": 6
   }
 }
