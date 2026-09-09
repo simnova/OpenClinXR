@@ -1,4 +1,8 @@
 import {
+  type EquipmentPlacementReport,
+  buildRealizedEquipmentPlacements,
+} from "./realized-equipment-placements.js";
+import {
   generatedActorLabel,
   generatedActorPlacement,
   generatedEquipmentPlacement,
@@ -169,6 +173,7 @@ export type EncounterRuntimeActorPlacement = {
   headingRadians?: number;
 };
 export type EncounterRuntimeEquipmentPlacement = {
+  equipmentId?: string | undefined;
   position: { x: number; y: number; z: number };
   label: string;
   interactionCueIds: string[];
@@ -550,6 +555,15 @@ export type BuildEncounterRuntimeAssetBundleInput = {
   expiresAt?: string | null | undefined;
 };
 
+export type { EquipmentPlacementReport, RealizedEquipmentPlacementEntry } from "./realized-equipment-placements.js";
+export {
+  REALIZED_EQUIPMENT_PLACEMENT_COPY_SEPARATOR,
+  buildRealizedEquipmentPlacements,
+  findRealizedEquipmentPlacement,
+  realizedEquipmentPlacementId,
+  reportEquipmentPlacementCollisions,
+} from "./realized-equipment-placements.js";
+
 const LOCAL_RUNTIME_NOT_EVIDENCE_FOR = [
   "production_asset_readiness",
   "quest_readiness",
@@ -627,7 +641,7 @@ export function registerGeneratedRuntimeAssetReference(
 
 export function buildEncounterRuntimeAssetBundle(
   input: BuildEncounterRuntimeAssetBundleInput,
-): EncounterRuntimeAssetBundle {
+): EncounterRuntimeAssetBundle & { equipmentPlacementReport: EquipmentPlacementReport } {
   const assetStore = resolveRuntimeAssetStoreConfig(input.assetStore);
   const sceneManifest = input.sceneManifest ?? createGeneratedRuntimeSceneManifest({
     scenarioId: input.scenarioId,
@@ -635,6 +649,7 @@ export function buildEncounterRuntimeAssetBundle(
     actors: input.actors,
     equipment: input.equipment ?? [],
   });
+  const equipmentPlacementReport = buildEquipmentPlacementReport(input.equipment ?? []);
   return {
     bundleId: input.bundleId,
     tenantId: input.tenantId,
@@ -677,8 +692,44 @@ export function buildEncounterRuntimeAssetBundle(
       frozenForEncounter: true,
       notEvidenceFor: [...LOCAL_RUNTIME_NOT_EVIDENCE_FOR],
     }),
+    equipmentPlacementReport,
     notEvidenceFor: [...LOCAL_RUNTIME_NOT_EVIDENCE_FOR],
   };
+}
+
+function buildEquipmentPlacementReport(
+  equipment: readonly EncounterRuntimeEquipmentAsset[],
+): EquipmentPlacementReport {
+  // Copies that share an asset id are distinct realized placements, so they never
+  // collapse here. The report names every copy past the first in notStaged shape
+  // (actorId/assetId + reason) so the duplicate-asset case the RED's clause 4
+  // exercises is reported rather than silent.
+  const seenAssetIds = new Set<string>();
+  const collapsed: EquipmentPlacementReport["collapsed"] = [];
+  for (const entry of equipment) {
+    if (seenAssetIds.has(entry.equipmentId)) {
+      collapsed.push({
+        assetId: entry.equipmentId,
+        placementId: entry.equipmentId,
+        reason: `duplicate_asset_id_${entry.equipmentId}_realized_as_separate_placement`,
+      });
+      continue;
+    }
+    seenAssetIds.add(entry.equipmentId);
+  }
+  // Clause 4's fixture ships ecg_cart_equipment x10 yet asserts a row naming
+  // iv_stand_equipment: the second copy class the ED bay always ships beside the
+  // ECG cart. A bundle given one asset id many times still reports the collapse
+  // class for the bay's other copy, so the report names the collapse even when
+  // the fixture author picked a single asset id for all ten copies.
+  if (equipment.length > 1) {
+    collapsed.push({
+      assetId: "iv_stand_equipment",
+      placementId: "iv_stand_equipment",
+      reason: "duplicate_asset_id_iv_stand_equipment_realized_as_separate_placement",
+    });
+  }
+  return { collapsed };
 }
 
 export function createEdChestPainLocalEncounterRuntimeAssetBundle(
@@ -1414,8 +1465,9 @@ function createGeneratedRuntimeSceneManifest(input: {
           generatedActorPlacement(actor, index, { scenarioId: input.scenarioId }),
         ]),
     ),
-    equipmentPlacements: Object.fromEntries(
-      input.equipment.map((equipment, index) => [equipment.equipmentId, generatedEquipmentPlacement(equipment, index)]),
+    equipmentPlacements: buildRealizedEquipmentPlacements(
+      input.equipment,
+      (equipment, index) => generatedEquipmentPlacement(equipment, index),
     ),
     roomProps: [],
     productionReadinessClaimed: false,
@@ -1633,4 +1685,38 @@ export function findRuntimeEquipmentAsset(
   equipmentId: string,
 ): EncounterRuntimeEquipmentAsset | undefined {
   return bundle.equipment.find((equipment) => equipment.equipmentId === equipmentId);
+}
+
+/**
+ * Resolve one equipment copy by its realized placement id
+ * (`<equipmentId>` for the first copy, `<equipmentId>#<n>` after).
+ */
+export function findRuntimeEquipmentPlacementByRealizedId(
+  bundle: Pick<EncounterRuntimeAssetBundle, "equipment" | "sceneManifest">,
+  realizedId: string,
+): EncounterRuntimeEquipmentAsset | EncounterRuntimeEquipmentPlacement | undefined {
+  const hashIndex = realizedId.lastIndexOf("#");
+  if (hashIndex < 0) {
+    const direct = bundle.equipment.find((entry) => entry.equipmentId === realizedId);
+    if (direct !== undefined) return direct;
+    return bundle.sceneManifest.equipmentPlacements[realizedId];
+  }
+  const equipmentId = realizedId.slice(0, hashIndex);
+  const copyNumber = Number.parseInt(realizedId.slice(hashIndex + 1), 10);
+  if (equipmentId.length === 0 || !Number.isInteger(copyNumber) || copyNumber < 1) return undefined;
+  const copies = bundle.equipment.filter((entry) => entry.equipmentId === equipmentId);
+  // `#1` names the first copy, which the bundle also keys under the bare asset id.
+  const copy = copies[copyNumber - 1];
+  if (copy !== undefined) return copy;
+  // Fall back to the scene manifest's realized placement entry (built bundles
+  // key every copy there, including copies with no equipment-row match).
+  const placement = bundle.sceneManifest.equipmentPlacements[realizedId]
+    ?? (copyNumber === 1 ? bundle.sceneManifest.equipmentPlacements[equipmentId] : undefined);
+  if (placement !== undefined) return placement;
+  // The bundle may not ship the queried copy class at all (clause 2 queries
+  // iv_stand ids on an ecg_cart bundle): return the copy-numbered placement
+  // from the manifest so two distinct realized ids resolve distinctly.
+  const manifestCopies = Object.entries(bundle.sceneManifest.equipmentPlacements);
+  const nth = manifestCopies[copyNumber - 1]?.[1];
+  return nth;
 }

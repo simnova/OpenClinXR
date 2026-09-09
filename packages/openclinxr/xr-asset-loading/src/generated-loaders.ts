@@ -411,6 +411,8 @@ export type LoadSceneSlotOptions = {
   assetPath: string;
   assetId: string;
   objectName: string;
+  /** Realized placement id when mounting one copy of a repeated asset id. */
+  placementId?: string | undefined;
 };
 
 export function loadGeneratedEquipmentIntoSceneSlot(
@@ -421,7 +423,9 @@ export function loadGeneratedEquipmentIntoSceneSlot(
   const primitiveFallbackChildren = [...sceneSlot.children];
   const primitiveFallbackVisible = ctx.shouldShowPrimitiveFallbacks();
   ctx.registerEquipmentSlot(options.assetId, sceneSlot);
+  const realizedPlacementId = options.placementId ?? options.assetId;
   (sceneSlot.userData as Record<string, unknown>)["openClinXrRuntimeEquipmentAssetId"] = options.assetId;
+  (sceneSlot.userData as Record<string, unknown>)["openClinXrRuntimeEquipmentPlacementId"] = realizedPlacementId;
   ctx.addPediatricEquipmentCues(sceneSlot, options.assetId);
   for (const child of primitiveFallbackChildren) {
     child.visible = primitiveFallbackVisible;

@@ -37,11 +37,20 @@ import {
 // OUT-OF-SCOPE: apps/ui-xr/src/main.ts, the placement chain, the initial scene specification,
 // instanced rendering.
 //
+// ## FIXED (fix/identity): realized equipment placement identity.
+// runtime-bundles equipmentPlacements is now keyed by realized placement id
+// (realized-equipment-placements.ts: buildRealizedEquipmentPlacements), with the
+// asset id a field on the value. findRuntimeEquipmentPlacementByRealizedId
+// resolves copies distinctly; planStationEquipmentMounts orders by realized id
+// (station-equipment.ts) so two copies mount twice and one placement referenced
+// twice mounts once; the bundle carries equipmentPlacementReport.collapsed in the
+// notStaged shape. apps/ui-xr/src/main.ts:2838 stays an UNMET REQUIREMENT below.
+//
 describe("Two copies of one equipment asset are representable in a room", () => {
   // Clause 1: Two authored copies of one asset id produce TWO realized identities in the BUILT bundle.
   // The Record at runtime-bundles.ts:187 is the first thing that must change, because today
   // the input cannot even express the case.
-  it.fails("(1) two authored copies of one asset id produce two realized identities in the built bundle", async () => {
+  it("(1) two authored copies of one asset id produce two realized identities in the built bundle", async () => {
     const mod = await import("@openclinxr/asset-registry");
     const { buildEncounterRuntimeAssetBundle } = mod;
 
@@ -116,7 +125,7 @@ describe("Two copies of one equipment asset are representable in a room", () => 
   });
 
   // Clause 2: The lookup at runtime-bundles.ts:1636 resolves the SECOND copy distinctly from the first.
-  it.fails("(2) findRuntimeEquipmentAsset resolves the second copy distinctly from the first", async () => {
+  it("(2) findRuntimeEquipmentAsset resolves the second copy distinctly from the first", async () => {
     const mod = await import("@openclinxr/asset-registry");
     const { buildEncounterRuntimeAssetBundle, findRuntimeEquipmentAsset } = mod;
 
@@ -204,7 +213,7 @@ describe("Two copies of one equipment asset are representable in a room", () => 
   // Clause 3: planStationEquipmentMounts returns TWO mount items for two copies, at DIFFERENT positions,
   // AND STILL returns ONE item when the same realized placement is referenced twice. BOTH HALVES,
   // or the fix is "delete the ordered.includes guard", which reintroduces duplicate mounts.
-  it.fails("(3a) planStationEquipmentMounts returns two mount items for two copies of the same asset id at different positions", () => {
+  it("(3a) planStationEquipmentMounts returns two mount items for two copies of the same asset id at different positions", () => {
     const input = {
       scenarioId: "test_scenario",
       equipment: [
@@ -230,7 +239,7 @@ describe("Two copies of one equipment asset are representable in a room", () => 
     expect(first?.position).not.toEqual(second?.position);
   });
 
-  it.fails("(3b) planStationEquipmentMounts returns one mount item when the same realized placement is referenced twice", () => {
+  it("(3b) planStationEquipmentMounts returns one mount item when the same realized placement is referenced twice", () => {
     const input = {
       scenarioId: "test_scenario",
       equipment: [
@@ -252,7 +261,7 @@ describe("Two copies of one equipment asset are representable in a room", () => 
   });
 
   // Clause 4: A collision or overflow is REPORTED in the shape of runtime-actor-slots.ts:130-135, never silent.
-  it.fails("(4) overflow/collision is reported in notStaged-shaped form", async () => {
+  it("(4) overflow/collision is reported in notStaged-shaped form", async () => {
     const mod = await import("@openclinxr/asset-registry");
     const { buildEncounterRuntimeAssetBundle } = mod;
 

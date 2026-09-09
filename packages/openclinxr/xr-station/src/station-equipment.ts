@@ -30,6 +30,19 @@ import {
   stampSupportSurfaceDeckMetadata,
   SUPPORT_SURFACE_DECK_TOP_BY_EQUIPMENT_ID,
 } from "./station-equipment-support-deck.js";
+import { REAL_EQUIPMENT_GLTF_BY_ID, equipmentDisplayLabel } from "./station-equipment-catalog.js";
+import {
+  buildRealizedEquipmentMountItem,
+  copyPlacementKeysInMapOrder,
+  equipmentIdForStationPlacement,
+  orderRealizedEquipmentPlacementIds,
+  resolveRealizedEquipmentAssetId,
+  rowEquipmentAssetIds,
+  type EquipmentMountPlanItem,
+} from "./station-equipment-mount-order.js";
+
+export type { EquipmentMountPlanItem } from "./station-equipment-mount-order.js";
+export { REAL_EQUIPMENT_GLTF_BY_ID, equipmentDisplayLabel } from "./station-equipment-catalog.js";
 
 export type { EquipmentMountSource } from "./station-equipment-builders.js";
 export type { EquipmentFamily } from "./station-equipment-families.js";
@@ -80,27 +93,7 @@ export {
   STRETCHER_EQ_LENGTH_M,
 } from "./station-equipment-support-surfaces.js";
 
-/** Real equipment GLBs under apps/ui-xr/public/xr-assets/medical-equipment/. */
-export const REAL_EQUIPMENT_GLTF_BY_ID: Readonly<Record<string, string>> = {
-  ecg_cart_equipment: "ecg-cart-12-lead.glb",
-  iv_stand_equipment: "iv-pole-with-pump.glb",
-  // #244: TRELLIS-generated wall clock (34,507 tris) — the first equipment subject to
-  // clear the 60k per-asset ceiling; promoted byte-identical from issue-239 evidence.
-  wall_clock_equipment: "wall-clock-analog.glb",
-  // #253: TRELLIS-generated bedside monitor (60,000 tris) — second equipment subject to
-  // clear the 60k per-asset ceiling; promoted byte-identical from issue-250 evidence.
-  bedside_monitor_equipment: "bedside-monitor-generated.glb",
-  // Sketchfab CC BY 4.0 bank (2026-08-12): measure-first normalize → deck/length SSOT.
-  // Provenance sidecars + PROVENANCE.md carry attribution strings (#193).
-  hospital_bed_equipment: "hospital-bed-sketchfab-ccby.glb",
-  stretcher_equipment: "stretcher-sketchfab-ccby.glb",
-  exam_table_equipment: "exam-table-sketchfab-ccby.glb",
-  privacy_curtain_equipment: "privacy-curtain-monitor-sketchfab-ccby.glb",
-  // #646: Kenney Furniture Kit CC0 — promoted via kenney-promote-cli.ts (seat-height
-  // normalize: detected seat 0.24 m -> 0.45 m, scale 1.875 baked into vertices). CC0 needs
-  // no attribution surface. Staging kit untouched; provenance sidecar records both hashes.
-  chairs_equipment: "clinic-chair-kenney-cc0.glb",
-};
+/** Real equipment GLBs — catalog lives in station-equipment-catalog.js. */
 
 export function countEquipmentGeometry(root: Object3D): { meshCount: number; triangleCount: number } {
   let meshCount = 0;
@@ -166,22 +159,13 @@ export function collectDeclaredEquipmentEvidenceFromScene(scene: Object3D): Decl
 }
 
 export type EquipmentPlacement = {
+  equipmentId?: string | undefined;
   position: { x: number; y: number; z: number };
   label: string;
   interactionCueIds: string[];
 };
 
-export type EquipmentMountPlanItem = {
-  equipmentId: string;
-  label: string;
-  position: { x: number; y: number; z: number };
-  interactionCueIds: string[];
-  source: EquipmentMountSource;
-  /** Filename under /xr-assets/medical-equipment/ when source is gltf. */
-  gltfFileName?: string;
-  /** True when this id appears in the shipped placement map or bundle.equipment. */
-  declared: boolean;
-};
+export type { EquipmentMountPlanItem } from "./station-equipment-mount-order.js";
 
 export type PlanStationEquipmentInput = {
   scenarioId: string;
@@ -195,21 +179,8 @@ export type PlanStationEquipmentInput = {
 };
 
 /**
- * Default equipment mounts when a placement map is empty.
- * #169: first slot was (1.6, 0.28) — co-located with clean-encounter family framing
- * (1.42, 0.04), so chairs/exam tables bisected standing observers. Patient-side
- * offset first; doorway/wall mounts after.
- * #183: keep defaults clear of standing plants — clinical (0.64, 0.3), family (1.42, 0.04),
- * additional_cast (1.95, 0.15). Prefer walls / patient-side bay over mid-bay defaults.
+ * Default equipment mounts — positions live in station-equipment-positions.js.
  */
-const DEFAULT_POSITIONS: ReadonlyArray<{ x: number; y: number; z: number }> = [
-  { x: -1.55, y: 0, z: -0.85 },
-  { x: -2.15, y: 0, z: 0.55 },
-  { x: 2.25, y: 0, z: -1.05 },
-  { x: -2.05, y: 0, z: -1.15 },
-  { x: 2.15, y: 0, z: 0.95 },
-  { x: -1.85, y: 0, z: 0.95 },
-];
 
 /** Count of parametric equipment builders — counterweight for real-GLB assembly work (#168). */
 export function parametricEquipmentKindCount(): number {
@@ -231,15 +202,6 @@ export function listDeclaredEquipmentBuilderArms(): string[] {
 
 export function isEdChestPainBayScenario(scenarioId: string): boolean {
   return scenarioId === "ed_chest_pain_priority_v1" || scenarioId === "ed_chest_pain_priority_v2";
-}
-
-export function equipmentDisplayLabel(equipmentId: string): string {
-  return equipmentId
-    .replace(/_equipment$/u, "")
-    .split(/[-_]+/u)
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
 }
 
 /**
@@ -386,29 +348,35 @@ export function normalizeGltfEquipmentMount(
  * Declared ids come from equipmentPlacements keys ∪ bundle.equipment ids.
  * ED bay scenarios always keep the two real GLB assets (counterweight / historical bay)
  * even when the shipped placement map is empty.
+ *
+ * Ordering is by realized placement id (station-equipment-mount-order.js): two
+ * copies of one asset id produce two mount items, while two references to the
+ * same realized placement still produce one.
  */
 export function planStationEquipmentMounts(input: PlanStationEquipmentInput): EquipmentMountPlanItem[] {
+  const placements = input.equipmentPlacements ?? {};
   const declared = new Set<string>();
-  for (const id of Object.keys(input.equipmentPlacements ?? {})) {
-    if (id) declared.add(id);
+  for (const id of Object.keys(placements)) {
+    if (id) declared.add(equipmentIdForStationPlacement(placements, id));
   }
   for (const row of input.equipment) {
     if (row.equipmentId) declared.add(row.equipmentId);
   }
 
-  const ordered: string[] = [];
+  const ordered = orderRealizedEquipmentPlacementIds(input, placements);
+
+  // ED bay counterweight: real ECG cart + IV pole GLBs even when placements are empty.
   const push = (id: string) => {
     if (!id || ordered.includes(id)) return;
     ordered.push(id);
   };
-  for (const id of Object.keys(input.equipmentPlacements ?? {})) push(id);
-  for (const row of input.equipment) push(row.equipmentId);
-
-  // ED bay counterweight: real ECG cart + IV pole GLBs even when placements are empty.
   if (isEdChestPainBayScenario(input.scenarioId)) {
     push("ecg_cart_equipment");
     push("iv_stand_equipment");
   }
+
+  const rowAssetIds = rowEquipmentAssetIds(input.equipment);
+  const copyKeysInMapOrder = copyPlacementKeysInMapOrder(placements, rowAssetIds);
 
   const owned = input.fixtureOwnedRoles
     ? input.fixtureOwnedRoles instanceof Set
@@ -418,52 +386,17 @@ export function planStationEquipmentMounts(input: PlanStationEquipmentInput): Eq
 
   return ordered
     // #186: fixture owns support/seating/architecture — do not dual-mount equipment.
-    .filter((equipmentId) => {
+    .filter((placementId) => {
       if (!owned || owned.size === 0) return true;
+      const assetId = resolveRealizedEquipmentAssetId(placements, rowAssetIds, copyKeysInMapOrder, placementId);
       return !equipmentSuppressedByFixtureOwnership(
-        equipmentId,
+        assetId,
         owned as Set<import("./fixture-role-ownership.js").FixtureRoleClass>,
       );
     })
-    .map((equipmentId, index) => {
-      const placement = input.equipmentPlacements?.[equipmentId];
-      const fallbackPos = DEFAULT_POSITIONS[index % DEFAULT_POSITIONS.length] ?? DEFAULT_POSITIONS[0]!;
-      const gltfFile = REAL_EQUIPMENT_GLTF_BY_ID[equipmentId];
-      let source: EquipmentMountSource;
-      if (gltfFile) {
-        source = "gltf";
-      } else if (PARAMETRIC_KINDS.has(equipmentId)) {
-        source = "parametric";
-      } else {
-        source = "fallback";
-      }
-      // #179: post_op bed is the sole patient support (equipment path). Manifest ships it
-      // at the standing OFFSET (-2.05,-0.75). Runtime supine plant hard-centers on
-      // DEFAULT_STRETCHER_POSITION (-0.9,-0.1) — co-locate the deck under that plant.
-      // Rejected: fixture + equipment (double-bed #133); rejected: editing generated manifests.
-      // #186: when fixture stretcher owns support_surface, this id is filtered above.
-      const plantAlignedBed =
-        equipmentId === "post_op_bed_equipment"
-          ? { x: -0.9, y: 0, z: -0.1 }
-          : null;
-      const position = plantAlignedBed
-        ?? (placement?.position
-          ? { x: placement.position.x, y: placement.position.y, z: placement.position.z }
-          : { ...fallbackPos });
-      return {
-        equipmentId,
-        label: placement?.label ?? equipmentDisplayLabel(equipmentId),
-        position,
-        interactionCueIds: Array.isArray(placement?.interactionCueIds) && placement.interactionCueIds.length > 0
-          ? [...placement.interactionCueIds]
-          : [
-              `${equipmentId}:selectable_equipment_reference`,
-              `${equipmentId}:clinical_workflow_cue`,
-            ],
-        source,
-        ...(gltfFile ? { gltfFileName: gltfFile } : {}),
-        declared: declared.has(equipmentId),
-      };
+    .map((placementId, index) => {
+      const equipmentId = resolveRealizedEquipmentAssetId(placements, rowAssetIds, copyKeysInMapOrder, placementId);
+      return buildRealizedEquipmentMountItem(placements, placementId, equipmentId, index, declared);
     });
 }
 
