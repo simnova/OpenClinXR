@@ -30,6 +30,7 @@ export type {
 export {
   buildInitialSceneSpec,
   REQUIRED_STATE_OUTCOMES,
+  initialSceneSpecPermitsPromotion,
   requiredStateOutcomePromotes,
 } from "./initial-scene-spec.js";
 export {

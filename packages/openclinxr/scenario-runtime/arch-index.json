@@ -34,6 +34,7 @@
     "createDurableStoreFromPersistenceHooks",
     "createScenarioRuntimeWithPersistenceHooks",
     "freezeActorTurnPlan",
+    "initialSceneSpecPermitsPromotion",
     "requiredStateOutcomePromotes",
     "resolveScenarioById",
     "resumeAssembledExam"
@@ -62,6 +63,7 @@
     "src/exam-run-bridge.test.ts",
     "src/scenario-runtime.test.ts",
     "src/the-assembled-exam-emits-replayable-phase-transitions.test.ts",
+    "src/the-scene-spec-gates-promotion.test.ts",
     "src/the-scene-spec-reports-an-absent-required-asset.test.ts"
   ],
   "commands": {
@@ -72,6 +74,6 @@
   },
   "ceilings": {
     "testInternalImports": 17,
-    "rootEntrypointExports": 33
+    "rootEntrypointExports": 34
   }
 }

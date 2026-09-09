@@ -395,7 +395,7 @@ Measured against `§7 Prioritized prototype and acceptance`:
 
 | step | state | what is actually true |
 |---|---|---|
-| 0 — specify the starting scene | **partial** | `buildInitialSceneSpec` returns the four outcomes with observed evidence and names a real unwired consumer per required asset. It REPORTS; nothing consumes it, and no required state is enforced before an encounter begins. |
+| 0 — specify the starting scene | **MET within its own scope** | `buildInitialSceneSpec` returns the four outcomes with observed evidence, and `initialSceneSpecPermitsPromotion` now READS it: only `satisfied` promotes, `pending` and `unknown` are refusals, and every blocker is named with its consumer and evidence. It does not gate a phase, which step 0's own out-of-scope forbids. |
 | 1 — freeze one supine station as a control | **met** | `computeSupineControlFreeze` hashes every asset the station loads and refuses a recorded measurement whose bytes moved, naming the changed path. |
 | 2 — prove authoring reaches the scene | **MET 2026-09-09** | Measured on the loaded, posed, skinned humanoid after framing, pose application and 30 further frames, as a control/treatment pair: `measured delta {x: 0.3967, z: -0.0015}` against an authored `{x: 0.4, z: 0}` — err 0.0033 m and 0.0015 m against a 0.02 m tolerance derived from the unauthored control's own drift. The unauthored supine control retains its defaults. |
 | 3 — stationary clinical staging | **MET** | Staged as a physician, clear of the measured deck, facing the patient, heading consumed, clearance / approach corridor / monitor visibility reporting against measured bounds with controls, and the idle sway COMPOSES onto the persistent heading within a bounded allowance. What is NOT claimed: none of it is measured on a loaded humanoid the way step 2 is, and clinical correctness of any position remains a clinician's call. |
@@ -937,6 +937,31 @@ as `.openclinxr/evidence/supine-control-freeze/supine-control-freeze.json`; the 
 reads `.openclinxr/evidence/supine-control-freeze.json`. Every clause corrupted a file nothing reads
 and returned `ok` — a test passing while measuring an unrelated file on disk. The path now comes
 from the module's own constant.
+
+### Step 0's consumer, and a redundancy the typechecker exposed
+
+`buildInitialSceneSpec` reported and nothing read it — correct and inert, this repo's
+characteristic defect. `initialSceneSpecPermitsPromotion` is the read: only `satisfied` promotes,
+`pending` and `unknown` are refusals rather than soft passes, and every blocker travels with its
+consumer and observed evidence so a refusal does not send the reader hunting for what was waiting
+on what.
+
+**It deliberately does not gate a phase.** Step 0's own out-of-scope forbids "creating a
+scene-readiness phase, changing the phase machine". A promotion decision nobody can read is the
+defect being fixed; a phase gate nobody asked for would be a different one.
+
+`requiredAssetCount` is returned so a caller can tell "everything required is satisfied" from
+"nothing was required". Those are different claims and only one is evidence — clause (4) pins the
+empty spec as promoting VACUOUSLY rather than special-casing it away.
+
+**tsgo exposed a redundancy while I was writing the test.** Each required-asset row carries BOTH
+`satisfied: boolean` and `outcome`, two representations of one fact that can disagree. The brief's
+vocabulary is the four outcomes, so the outcome is authoritative — and clause (5) now constructs
+the disagreement directly, a row marked `satisfied: true` with `outcome: "pending"`, and requires
+the gate to refuse it. A gate reading the boolean would promote it.
+
+That is the "one contract, not two declarations" failure caught before it could bite: the type
+should carry one of the two, and until it does, a test pins which one wins.
 
 ### The evidence tools' page-global alias does not exist at runtime
 
