@@ -188,6 +188,7 @@
     "declareAgeBand",
     "defaultPostureForEnvironmentSlot",
     "deriveEncounterRuntimeBundleAssemblyAuditMetadata",
+    "deriveLayoutVariationSeed",
     "encounterBundleFactoryMemberKinds",
     "encounterRuntimeAssetBundleBlobName",
     "evaluateAssetManifest",
@@ -221,6 +222,7 @@
     "registerGeneratedRuntimeAssetReference",
     "requiredRuntimeAssetReviewerRoles",
     "resolveActorPosture",
+    "resolveBedsideLayout",
     "resolveEnvironmentShellDescriptor",
     "resolveMorphTarget",
     "resolvePoseBone",
@@ -260,6 +262,7 @@
     "src/the-bedside-clearance-has-controls.test.ts",
     "src/the-bedside-heading-faces-the-patient.test.ts",
     "src/the-declared-equipment-resolves-a-trellis-bake-url.test.ts",
+    "src/the-layout-varies-and-refuses.test.ts",
     "src/the-monitor-visibility-has-two-failures.test.ts"
   ],
   "commands": {
@@ -270,7 +273,7 @@
   },
   "ceilings": {
     "testInternalImports": 1,
-    "rootEntrypointExports": 238,
+    "rootEntrypointExports": 240,
     "starExports": 8
   }
 }

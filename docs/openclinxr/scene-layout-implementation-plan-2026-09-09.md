@@ -400,7 +400,7 @@ Measured against `§7 Prioritized prototype and acceptance`:
 | 2 — prove authoring reaches the scene | **MET 2026-09-09** | Measured on the loaded, posed, skinned humanoid after framing, pose application and 30 further frames, as a control/treatment pair: `measured delta {x: 0.3967, z: -0.0015}` against an authored `{x: 0.4, z: 0}` — err 0.0033 m and 0.0015 m against a 0.02 m tolerance derived from the unauthored control's own drift. The unauthored supine control retains its defaults. |
 | 3 — stationary clinical staging | **MET** | Staged as a physician, clear of the measured deck, facing the patient, heading consumed, clearance / approach corridor / monitor visibility reporting against measured bounds with controls, and the idle sway COMPOSES onto the persistent heading within a bounded allowance. What is NOT claimed: none of it is measured on a loaded humanoid the way step 2 is, and clinical correctness of any position remains a clinician's call. |
 | 4 — physician approach | **partial** | The bounded path, continuous-path collision and final-pose measurements are met. NO executor, NO foot-sliding measurement, and the patient is untouched — three of step 4's clauses are explicitly not delivered. |
-| 5 — variation, replay and failure behaviour | **partial** | Only the byte-freeze half: changed asset geometry invalidates dependent evidence. No variation indices, no impossible-layout case, no corrupt-artifact refusal, no displayed-motion capture. |
+| 5 — variation, replay and failure behaviour | **partial, three of five clauses** | Changed asset geometry invalidates dependent evidence (byte freeze); variation indices are seeded, reproducible and actually explore; an impossible layout is refused with every candidate named. Corrupt-artifact refusal and displayed-motion capture remain. |
 | 6 — compare one legally eligible learned provider | **CLOSED, negative** | `reject_measured`: the code says a 77-joint skeleton, the checkpoint says 30. The manifest filter fails on a measured contradiction, so the baseline is retained. A negative cagematch result closes the item, which is what the brief says. Record: `kimodo-soma-rp-v11-cagematch-2026-09-09.md`. |
 
 **Step 2 is the brief's own named next milestone**, and it is the honest place to be working.
@@ -884,6 +884,32 @@ NVIDIA Open Model License respectively. Same name, ready verdict, wrong subject.
 The refusal is on manifest ambiguity, NOT licence — the licence position is materially better than
 the port's. It is fixable upstream, and the record names the three things that would reopen it in
 the order they would have to be settled.
+
+### Step 5's variation and refusal halves
+
+`resolveBedsideLayout` derives its seed from case, asset revision, solver version and a
+non-negative variation index — the PRINCIPLE of the motion seed contract with a layout identity, as
+the brief asks, and not an import of it: asset-registry does not depend on motion-compiler, and one
+seed spanning two identity sets would make one of them wrong.
+
+The refusals are the contract, not polish. `Math.random()` in the index and `new Date().toISOString()`
+in the solver version both throw, because a derivation that accepts whatever it is handed makes
+"deterministic" a claim about inputs nobody passes. That reasoning is the motion contract's and is
+repeated rather than cross-referenced, because the refusal IS the contract.
+
+**Clause (3) is the counterweight to reproducibility.** A resolver that always returns the same
+answer is perfectly reproducible and useless, so eight indices must produce BOTH approach sides.
+Clause (1) alone is satisfied by a constant.
+
+**Clause (4) is the impossible layout.** Walls on both sides, and the resolver refuses with all six
+candidates named and a reason each, rather than downgrading to a position that violates something.
+The seed is still recorded on the refusal: a run that produced nothing stays identifiable. Clause
+(6) checks the ordering the brief demands — hard constraints before ranking, so a blocked nearest
+standoff yields a farther one rather than the blocked one.
+
+**Two of step 5's clauses remain**: refusing a corrupted or removed artifact, and capturing actual
+displayed motion rather than a `clipPlayed` flag. The second needs the executor step 4 does not
+have.
 
 ### The evidence tools' page-global alias does not exist at runtime
 
