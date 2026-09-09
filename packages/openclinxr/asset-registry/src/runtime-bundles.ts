@@ -19,7 +19,6 @@ export {
   provenancePathForRuntimeAsset, resolveRuntimeCastAssetPath, resolveScenarioActorCast } from "./actor-casting.js";
 import { resolveBundleCastActorIds } from "./cast-actor-ids.js";
 import { defaultRuntimeAssetContainerName, missingRuntimeStrings, uniqueRuntimeStrings } from "./runtime-bundle-strings.js";
-import type { DeclaredAgeBand, ScenarioActorCast } from "./actor-casting.js";
 
 export type RuntimeAssetKind = "humanoid_model" | "environment_model" | "equipment_model" | "animation_clip" | "audio_clip" | "texture" | "ui_schema" | "phoneme_map";
 
