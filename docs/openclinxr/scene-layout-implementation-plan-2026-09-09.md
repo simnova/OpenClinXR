@@ -1040,6 +1040,30 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+## The planner's boundary: three refusals about what it must NOT do
+
+§3's "Output and boundary" carries three prohibitions, and none was implemented.
+
+**"If connecting equipment is a learner task, do not pre-complete it."** A learner-owned state
+reported `satisfied` at start now blocks promotion in its own right. The failure is invisible in the
+asset list — clause (1) has a clean asset list and still refuses — because a station that begins
+with the learner's task already done is not the station the case authored.
+
+**"The planner must not create a phase, reset the clock or issue a second `START_ENCOUNTER`"** and
+**"Scheduled-event dispatch ... must remain runtime-owned"**. These are absences, and an absence
+assertion over a report is nearly vacuous: a spec that emitted nothing satisfies it. The clause
+reads the MODULE SOURCE instead — the specification cannot dispatch what it never imports — and
+clause (4) is the counterweight that the module is not empty.
+
+Two instrument errors in the clause itself, both fixed and both worth recording because the same
+mistake produced them twice. A bare `from "…"` regex matched prose inside a comment and reported a
+phantom second import; then a bare substring search for `startEncounter` matched the module's own
+header sentence saying it does NOT gate `startEncounter`. Comments are stripped before the
+forbidden-symbol scan, and the import regex is anchored at a statement.
+
+Probed: dropping the pre-completion filter fails clause (1); adding an `@openclinxr/domain`
+phase import fails clause (3).
+
 ## An authored approach side was being silently substituted
 
 §3, deterministic solving: *"fail unsatisfied explicit intent rather than substituting a different

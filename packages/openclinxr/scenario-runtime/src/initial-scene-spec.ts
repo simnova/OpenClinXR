@@ -87,10 +87,32 @@ export type ScenePromotionDecision = {
   blockedBy: Array<{ assetId: string; outcome: string; consumer: string; evidence: string }>;
   /** Count of required assets considered, so an EMPTY spec is distinguishable from a passing one. */
   requiredAssetCount: number;
+  /**
+   * Required states the encounter must NOT begin with already done, with the reason each is
+   * refused. Empty when nothing was declared learner-owned.
+   */
+  refusedPreCompletions: Array<{ stateId: string; ownedBy: string; reason: string }>;
+};
+
+/**
+ * A required starting state, and WHO completes it.
+ *
+ * Brief §3, first planner slice: *"If connecting equipment is a learner task, do not pre-complete
+ * it."* A learner-owned state is not a scene requirement the planner may satisfy — satisfying it is
+ * the exam. The planner records that the state exists and that it starts incomplete.
+ */
+export type RequiredStartingState = {
+  stateId: string;
+  ownedBy: "runtime" | "learner";
+  /** What the specification asserts about the state at start. */
+  outcome: string;
+  evidence: string;
 };
 
 export function initialSceneSpecPermitsPromotion(
   report: InitialSceneSpecReport,
+  /** Declared starting states beside the asset list. Absent means none were declared. */
+  requiredStates: readonly RequiredStartingState[] = [],
 ): ScenePromotionDecision {
   const blockedBy = report.requiredAssets
     .filter((required) => !requiredStateOutcomePromotes(required.outcome))
@@ -100,12 +122,26 @@ export function initialSceneSpecPermitsPromotion(
       consumer: required.consumer,
       evidence: required.evidence,
     }));
+  // A learner-owned state reported as already satisfied is the planner pre-completing the exam.
+  // It blocks promotion in its own right: a station that starts with the learner's task done is
+  // not the station the case authored, and the failure is invisible in the asset list.
+  const refusedPreCompletions = requiredStates
+    .filter((state) => state.ownedBy === "learner" && requiredStateOutcomePromotes(state.outcome))
+    .map((state) => ({
+      stateId: state.stateId,
+      ownedBy: state.ownedBy,
+      reason:
+        `the specification reports ${state.stateId} as satisfied at start, but it is learner-owned: `
+        + "completing it is the exam, so a starting scene that has already done it removes the task. "
+        + `Observed evidence: ${state.evidence}`,
+    }));
   return {
-    promotes: blockedBy.length === 0,
+    promotes: blockedBy.length === 0 && refusedPreCompletions.length === 0,
     blockedBy,
     // A spec with NO required assets promotes vacuously. The count is returned so a caller can
     // tell "everything required is satisfied" from "nothing was required", which are different
     // claims and only one of them is evidence.
     requiredAssetCount: report.requiredAssets.length,
+    refusedPreCompletions,
   };
 }
