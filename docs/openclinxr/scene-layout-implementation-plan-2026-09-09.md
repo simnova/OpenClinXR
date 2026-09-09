@@ -232,10 +232,10 @@ merges on main without a lease).
 PLANTED on BothyBoard project OpenClinXR. All twelve were planted; the transform card
 carries two REDs.
 
-**Landed on main, 2026-09-09 — ten of twelve.** Each was verified at its own sha with a
-two-sided probe, not from a worker's report: the fix reverted must make the RED fail, and
-restored must make it pass. Two cards remain in flight (equipment identity, scene
-specification).
+**ALL TWELVE LANDED ON MAIN, 2026-09-09.** Each was verified at its own sha with a two-sided
+probe, not from a worker's report: the fix reverted must make the RED fail, and restored must
+make it pass. Every worker branch was checked against its card's declared write roots and its
+immutable header before merging.
 
 | card | id | commit | wave | lane | planted RED |
 |---|---|---|---|---|---|
@@ -249,8 +249,8 @@ specification).
 | motion ownership | `tsk_4ff976a4b0e81bf3` | `f3ae7d79` | 2 | A | `xr-humanoid-animation/src/an-owned-chain-survives-the-posture-pass.test.ts` |
 | runtime consumption | `tsk_ebdeed78d4e75141` | `2f1b4373` | 3 | A | `apps/ui-xr/src/the-authored-offset-reaches-the-posed-humanoid.test.ts` |
 | factory resolution | `tsk_c42ae6e3c6b93620` | `ad2f1539` | 2 | B | `tools/openclinxr/factory/the-placement-node-carries-the-authored-offset.test.ts` |
-| equipment identity | `tsk_7ae68eac956a4163` | in flight | 2 | A | `xr-station/src/two-copies-of-one-asset-mount-separately.test.ts` |
-| scene specification | `tsk_e97804d9ab7be894` | in flight | 2 | B | `scenario-runtime/src/the-scene-spec-reports-an-absent-required-asset.test.ts` |
+| equipment identity | `tsk_7ae68eac956a4163` | `7dddc571` | 2 | A | `xr-station/src/two-copies-of-one-asset-mount-separately.test.ts` |
+| scene specification | `tsk_e97804d9ab7be894` | `f037e585` | 2 | B | `scenario-runtime/src/the-scene-spec-reports-an-absent-required-asset.test.ts` |
 
 ### A cross-package RED measures `dist/`, and the first probe of two cards was vacuous
 
@@ -266,6 +266,25 @@ failed. Reverting `asset-registry/src/actor-posture.ts` left the runtime RED gre
 the same rebuild, after which 7 of 8 failed.
 
 `verify-fix.sh` now rebuilds unconditionally rather than only when `dist/` is absent.
+
+### Two clauses I planted could not be satisfied honestly, and the implementations proved it
+
+Both are in the equipment-identity card, both found by reading what passed rather than by any
+gate, and both are the same defect: **a fixture that does not exhibit what its clause asserts
+turns the clause into the design target, and the cheapest way to satisfy it is a wrong
+implementation.**
+
+| clause | as planted | what passed it |
+|---|---|---|
+| (2) | queried `iv_stand_equipment#1` and `#2` against a bundle built from `ecg_cart_equipment` alone, and demanded both defined and distinct | a resolver returning the Nth manifest entry IGNORING the asset id, so two absent ids resolved to two different assets' placements and "distinct" was satisfied by accident |
+| (4) | asserted a collapsed row for `iv_stand_equipment` against a fixture of ten `ecg_cart_equipment` copies | a HARDCODED `iv_stand` row appended whenever the bundle held more than one item — the collapse-detection surface lying about what collapsed |
+
+Both clauses now name the asset the fixture ships, and each carries a counterweight asserting
+the absent case is absent. The `expect(true).toBe(true)` placeholder in clause (4) is removed.
+
+The two-sided gate cannot catch this class. A clause that is unsatisfiable-but-passable fails
+before the fix and passes after it, exactly like a good clause; only reading the implementation
+that satisfied it reveals which one it was.
 
 ### Ceilings raised for contracted exports, and one tightened
 
