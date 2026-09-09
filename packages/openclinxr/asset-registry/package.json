@@ -51,6 +51,10 @@
     "./layout-variation": {
       "types": "./dist/layout-variation.d.ts",
       "default": "./dist/layout-variation.js"
+    },
+    "./initial-scene-contents": {
+      "types": "./dist/initial-scene-contents.d.ts",
+      "default": "./dist/initial-scene-contents.js"
     }
   },
   "scripts": {

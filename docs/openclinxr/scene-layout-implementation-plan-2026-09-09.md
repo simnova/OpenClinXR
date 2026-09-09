@@ -1040,6 +1040,42 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+## The initial scene planner's binding step, and why a substring match would have been wrong
+
+§3 step 2, verbatim: *"Case `equipment` currently contains descriptive strings while `assetNeeds`
+carries asset IDs; define an explicit reviewed binding and precedence, rather than assuming the
+strings are catalogue keys."*
+
+Measured on `ed_chest_pain_priority_v2`:
+
+    authored:  "12-lead ECG machine" · "bedside monitor" · "stretcher" · "IV pole"
+               · "oxygen nasal cannula" · "wall clock"
+    catalogue: ecg_cart_equipment · bedside_monitor_equipment · stretcher_equipment
+               · ed_stretcher_bed_equipment · iv_pole_equipment
+               · oxygen_nasal_cannula_equipment · wall_clock_equipment
+
+Two of the six phrases do not resemble their catalogue id at all, and **"stretcher" names two ids**.
+A substring matcher binds five of six and silently picks a stretcher, which is the behaviour the
+brief forbids in the same sentence it asks for the binding. `bindInitialSceneContents` has no fuzzy
+matching: a phrase binds through an explicit reviewed alias or not at all.
+
+**Precedence, stated once:** an `assetNeeds` entry naming a catalogue id outranks a reviewed alias,
+because the case author naming the id is a stronger statement of intent than a reviewer's phrase
+map. Clause (3) proves the ambiguity disappears when the case resolves it itself.
+
+Five refusals, each from a sentence of the brief: an ambiguous phrase keeps BOTH candidates rather
+than collapsing; a phrase with no reviewed alias is unbound and conflicts; an intentionally absent
+item stays in the plan bound to nothing and never realized; a requirement with no source activity is
+refused before the catalogue is consulted; and a case that both requires and deletes an item reports
+that rather than choosing. Multiple copies get distinct realized identities through the existing
+`realizedEquipmentPlacementId`, not one id used twice.
+
+Clause (2) is the counterweight: the five unambiguous phrases must still bind, or a binder that
+refuses everything would satisfy clause (1) and be useless.
+
+It lives on the `./initial-scene-contents` subpath. asset-registry's root entrypoint ceiling is
+shrink-only at 240, and an export added for one consumer's convenience is how a barrel grows.
+
 ## §3's authored-intent rules had three requirements with no implementation
 
 The brief's "Authored intent versus resolved placement" is not §7, and three of its sentences were

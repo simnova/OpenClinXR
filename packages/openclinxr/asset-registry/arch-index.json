@@ -265,7 +265,8 @@
     "src/the-declared-equipment-resolves-a-trellis-bake-url.test.ts",
     "src/the-executor-arrives-and-feet-are-measured.test.ts",
     "src/the-layout-varies-and-refuses.test.ts",
-    "src/the-monitor-visibility-has-two-failures.test.ts"
+    "src/the-monitor-visibility-has-two-failures.test.ts",
+    "src/the-scene-contents-bind-or-refuse.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/asset-registry test",
