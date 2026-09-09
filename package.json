@@ -399,7 +399,8 @@
     "factory:rooms:bake:inspect": "tsx tools/openclinxr/asset-pipeline/environment/rooms-bake-cli.ts --inspect",
     "arch:ceilings": "tsx tools/openclinxr/architecture/write-context-ceilings.ts",
     "arch:parallelism": "tsx tools/openclinxr/architecture/parallelism-report.ts",
-    "arch:index": "tsx tools/openclinxr/architecture/write-package-agent-index.ts"
+    "arch:index": "tsx tools/openclinxr/architecture/write-package-agent-index.ts",
+    "arch:unused-exports": "tsx tools/openclinxr/architecture/unused-exports-report.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
