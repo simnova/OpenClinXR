@@ -1,9 +1,9 @@
 {
   "schemaVersion": "openclinxr.dark-factory-multi-case-rollup.v1",
-  "generatedAt": "2026-09-03T06:26:53.640Z",
+  "generatedAt": "2026-09-09T15:14:21.098Z",
   "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
   "measuredInputs": {
-    "tools/openclinxr/dark-factory/multi-case-runner.ts": "6f010a24dbaf85af0b14b2972fcf4f6844463f334af9c4d45de5fbff460c04be",
+    "tools/openclinxr/dark-factory/multi-case-runner.ts": "a7e7982297c643bc852eedc28271b429d444e6eab062f725ab2d2e2a5979be0e",
     "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py": "b7e9a3e07a32ebdb03621fb44953a53ac8d15aac9b4d261828c1ca64b8b20473"
   },
   "stale": false,
@@ -108,7 +108,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T05:21:22.541Z",
+      "generatedAt": "2026-09-09T14:37:09.090Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -240,7 +240,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for adult_abdominal_pain_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for adult_abdominal_pain_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -282,7 +282,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T05:25:59.321Z",
+      "generatedAt": "2026-09-09T14:42:45.093Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -403,7 +403,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for clinic_abdominal_pain_interpreter_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for clinic_abdominal_pain_interpreter_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -445,7 +445,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T05:31:15.916Z",
+      "generatedAt": "2026-09-09T14:51:10.514Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -577,7 +577,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for ed_chest_pain_priority_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for ed_chest_pain_priority_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -619,7 +619,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T05:37:00.748Z",
+      "generatedAt": "2026-09-09T14:55:08.533Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -759,7 +759,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for ed_chest_pain_priority_v2: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for ed_chest_pain_priority_v2: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -801,7 +801,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T05:41:20.467Z",
+      "generatedAt": "2026-09-09T14:56:33.603Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -922,7 +922,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for ed_stroke_alert_handoff_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for ed_stroke_alert_handoff_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -964,7 +964,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T05:45:46.369Z",
+      "generatedAt": "2026-09-09T14:58:11.704Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -1085,7 +1085,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for ob_headache_preeclampsia_triage_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for ob_headache_preeclampsia_triage_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -1127,7 +1127,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T05:50:10.465Z",
+      "generatedAt": "2026-09-09T14:59:46.071Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -1248,7 +1248,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for oncology_bad_news_family_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for oncology_bad_news_family_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -1290,7 +1290,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T05:56:59.078Z",
+      "generatedAt": "2026-09-09T15:03:56.768Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -1422,7 +1422,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for peds_asthma_parent_anxiety_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for peds_asthma_parent_anxiety_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -1492,7 +1492,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T06:01:56.107Z",
+      "generatedAt": "2026-09-09T15:06:24.482Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -1624,7 +1624,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for peds_fever_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for peds_fever_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -1666,7 +1666,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T06:06:18.630Z",
+      "generatedAt": "2026-09-09T15:08:23.780Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -1787,7 +1787,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for postop_fever_consult_pressure_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for postop_fever_consult_pressure_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -1829,7 +1829,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T06:10:06.430Z",
+      "generatedAt": "2026-09-09T15:09:14.833Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -1942,7 +1942,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for primary_care_dyslipidemia_joint_pain_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for primary_care_dyslipidemia_joint_pain_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -1984,7 +1984,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T06:13:50.418Z",
+      "generatedAt": "2026-09-09T15:10:02.015Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -2097,7 +2097,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for psych_suicidal_ideation_safety_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for psych_suicidal_ideation_safety_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -2139,7 +2139,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T06:18:11.571Z",
+      "generatedAt": "2026-09-09T15:11:28.658Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -2260,7 +2260,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for stepdown_sepsis_nurse_escalation_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for stepdown_sepsis_nurse_escalation_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -2302,7 +2302,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T06:21:57.418Z",
+      "generatedAt": "2026-09-09T15:12:14.976Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -2415,7 +2415,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for telehealth_diabetes_health_literacy_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for telehealth_diabetes_health_literacy_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {
@@ -2457,7 +2457,7 @@
         "lip_sync",
         "world_compile"
       ],
-      "generatedAt": "2026-09-03T06:26:53.639Z",
+      "generatedAt": "2026-09-09T15:14:21.097Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
@@ -2586,7 +2586,7 @@
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
           "artifactPaths": [],
           "notes": [
-            "Capture failed for ward_delirium_med_rec_v1: page.waitForFunction: Timeout 180000ms exceeded."
+            "Capture failed for ward_delirium_med_rec_v1: page.waitForFunction: ReferenceError: browserPageWindow is not defined     at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:18)     at predicate (eval at evaluate (:302:30), <anonymous>:7:23)"
           ]
         },
         {

@@ -1040,6 +1040,22 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+## Hidden case facts do not reach a tracked artifact, and now cannot
+
+§3: *"Keep hidden case information under existing visibility rules."*
+
+`hiddenFacts` is what the standardized patient knows and the learner must elicit. The runtime
+already keeps them behind `privateFacts` and out of the persisted actor-turn ledger. The route
+nothing checked is an evidence artifact, a provenance record or a plan document quoting one while
+explaining something else — which is how this very document could have leaked one.
+
+Measured: **28** hidden facts declared across the scenario bank, **zero** occurrences in the tracked
+contents of `docs/` and `apps/ui-xr/public/`. The gate freezes that zero, asserts both populations
+before asserting the absence, and is probed by planting a real fact into this file — which fails it.
+
+Tracked files only, deliberately: a local `.openclinxr/` scratch artifact is not distributed, and
+scanning it would fail on a developer's machine for a file nobody ships.
+
 ## A placement stays provisional until its EXACT support is mounted
 
 §3: *"Keep placement provisional until that geometry is ready; a pending exact support withholds
