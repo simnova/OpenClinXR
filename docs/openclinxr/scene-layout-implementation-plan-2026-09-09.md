@@ -397,7 +397,7 @@ Measured against `§7 Prioritized prototype and acceptance`:
 |---|---|---|
 | 0 — specify the starting scene | **partial** | `buildInitialSceneSpec` returns the four outcomes with observed evidence and names a real unwired consumer per required asset. It REPORTS; nothing consumes it, and no required state is enforced before an encounter begins. |
 | 1 — freeze one supine station as a control | **met** | `computeSupineControlFreeze` hashes every asset the station loads and refuses a recorded measurement whose bytes moved, naming the changed path. |
-| 2 — prove authoring reaches the scene | **NOT MET** | The chain is built and unit-proven end to end, and every proof is below the bar the brief sets. It says plainly that "bundle metadata, a primitive proxy, or a direct preview-only overlay is insufficient" and asks for the delta "on the actual loaded humanoid after framing, pose application and subsequent frame updates". No card loads a humanoid. |
+| 2 — prove authoring reaches the scene | **MET 2026-09-09** | Measured on the loaded, posed, skinned humanoid after framing, pose application and 30 further frames, as a control/treatment pair: `measured delta {x: 0.3967, z: -0.0015}` against an authored `{x: 0.4, z: 0}` — err 0.0033 m and 0.0015 m against a 0.02 m tolerance derived from the unauthored control's own drift. The unauthored supine control retains its defaults. |
 | 3 — stationary clinical staging | **not started** | `headingRadians` exists on the placement type and the frame loop composes rather than assigns, so the two prerequisites are in place. No physician target, no bedside orientation, no clearance, approach-zone or monitor-visibility check exists. |
 | 4 — physician approach | **not started** | — |
 | 5 — variation, replay and failure behaviour | **partial** | Only the byte-freeze half: changed asset geometry invalidates dependent evidence. No variation indices, no impossible-layout case, no corrupt-artifact refusal, no displayed-motion capture. |
@@ -603,6 +603,44 @@ it from a transform — the runtime already publishes actor-placement evidence, 
 can report what `runtimeActorPlacement` actually returned for this actor. That distinguishes "the
 composition was never called" from "it was called and its result was overwritten", which is the
 one question the current evidence cannot settle.
+
+### Step 2 is MET, and the last link was an ORDERING
+
+The in-page probe settled the question the transforms could not. `actor-staging.ts` now stamps the
+resolved placement on the actor, so the instrument reads what the runtime COMPUTED instead of
+inferring it:
+
+    authored pass   resolved {x:  0.0, z: -0.2}  posture seated    (anchor -0.4 + authored 0.4)
+    control pass    resolved {x: -0.4, z: -0.2}  posture seated    (anchor, offset suppressed)
+
+The composition was correct all along and differed by exactly the authored 0.4 m — while both
+passes sampled the humanoid at x -0.9. So it was computed, applied, and then discarded.
+
+**The discard was `encounter-actor-framing.ts:178`**, which sets `actor.position.set(-0.9, 0, 0.08)`
+for any patient — the measured value exactly. The seated/supine guard at `:140` should have
+returned before reaching it, and it reads `userData.openClinXrActorPosture`. That stamp happened
+SEVEN LINES AFTER `applyActorFraming` was called, so the guard read `""` on every run and fell
+through to the floor-standing frames.
+
+The guard's own comment recorded the hazard — *"the posture is stamped AFTER framing runs
+(actor-staging.ts:115 against :122), so an empty string reaches here routinely"* — and the runtime
+card's spec named it as a required change. It never landed. The fix is moving one line above one
+call.
+
+**Run 8, on the loaded humanoid:**
+
+    clinic_knee_pain_return_to_play_v1  SATISFIED  measured delta {x: 0.3967, z: -0.0015}
+                                                   vs authored {x: 0.4, z: 0}
+                                                   err x 0.0033, z 0.0015, tolerance 0.02
+                                                   slot now {x: 0, y: 0, z: -0.2}
+    ed_chest_pain_priority_v2           SATISFIED  unauthored control retains defaults, 0.0046 m drift
+
+The authored offset reaches the posed, skinned humanoid after framing, pose application and 30
+further frames. That is what §7 step 2 asks for.
+
+**What this does not claim.** Nothing about clinical correctness of the position, Quest
+performance, motion quality, or any station beyond these two — the artifact carries those in
+`notEvidenceFor`. Steps 3, 4 and 6 have not started, and step 5 remains partial.
 
 ### The evidence tools' page-global alias does not exist at runtime
 

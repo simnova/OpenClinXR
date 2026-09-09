@@ -33,6 +33,7 @@ import path from "node:path";
 import { type Page, chromium } from "playwright";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 import { SKINNED_WORLD_SAMPLING_SOURCE } from "./lib/skinned-world-sampling.js";
+import { newEvidencePage } from "./lib/evidence-page.js";
 import {
   type PortlessDevServer,
   spawnPortlessDevServer,
@@ -75,6 +76,8 @@ export type PosedHumanoidSample = {
    * measuring" is unanswerable from a bare transform.
    */
   nodePath: string[];
+  /** What the runtime COMPUTED for this actor, read off userData rather than inferred. */
+  resolvedPlacement: { position: Vec3; posture: string; slotKind: string } | null;
 };
 
 export type AuthoredOffsetRow = {
@@ -208,7 +211,7 @@ async function samplePosedPatient(page: Page): Promise<PosedHumanoidSample & { p
     const frames = (win.__openClinXrFrameStats && win.__openClinXrFrameStats.framesObserved) || 0;
     const empty = {
       slotWorld: null, skinnedCentreWorld: null, framesObserved: frames,
-      skinnedMeshCount: 0, posture: "unknown", actorId: "", nodePath: []
+      skinnedMeshCount: 0, posture: "unknown", actorId: "", nodePath: [], resolvedPlacement: null
     };
     if (!scene || typeof scene.traverse !== "function") return empty;
 
@@ -260,6 +263,7 @@ ${SKINNED_WORLD_SAMPLING_SOURCE}
     const e = slot && slot.matrixWorld && slot.matrixWorld.elements;
     return {
       nodePath: nodePath,
+      resolvedPlacement: (slot && slot.userData && slot.userData.openClinXrResolvedPlacement) || null,
       slotWorld: e ? { x: e[12], y: e[13], z: e[14] } : null,
       skinnedCentreWorld: centre,
       framesObserved: frames,
@@ -367,15 +371,10 @@ export async function measureAuthoredOffsetOnPosedHumanoid(input: {
 
     const browser = await chromium.launch({ headless: true });
     try {
-      const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-      // Make the TYPES-ONLY alias real inside this page, because the shared helpers this
-      // instrument imports (waitForStationShell) reference `browserPageWindow` in their
-      // callbacks and throw ReferenceError without it. One line here beats a third inlined
-      // copy of a wait; the root-cause fix belongs to the 59 evidence tools that share the
-      // alias, not to this file.
-      await page.addInitScript(
-        "globalThis.browserPageWindow = globalThis; globalThis.browserPageDocument = globalThis.document;",
-      );
+      // newEvidencePage defines the TYPES-ONLY page-global alias, which the shared helpers this
+      // instrument imports (waitForStationShell) reference in their callbacks and which throws
+      // ReferenceError without it.
+      const page = await newEvidencePage(browser);
       for (const scenarioId of input.scenarioIds) {
         process.stdout.write(`authored-offset: goto ${scenarioId}\n`);
         await page.goto(buildRoomCaptureUrl(baseUrl, scenarioId, ROOM_CAPTURE_MODE), {
