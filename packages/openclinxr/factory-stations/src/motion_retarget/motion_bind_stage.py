@@ -25,7 +25,18 @@ import bpy
 STAGE_ID = "motion_bind_stage"
 ADDON_MODULE = "bl_ext.user_default.retarget_bvh"
 TARGET_NAME = "MPFB2 default_no_toes"
-CLIP_NAME = "openclinxr_retarget_cmu_07_01_walk"
+CLIP_NAME_PREFIX = "openclinxr_retarget_"
+# The clip name used to be the CONSTANT "openclinxr_retarget_cmu_07_01_walk", whatever --clip was.
+# Measured 2026-09-09: binding cmu_02_01_walk.bvh produced a GLB whose clip claimed to be 07_01.
+# That is a provenance defect with teeth, because the capture selector matches on this NAME
+# (candidate-capture.ts:757), so every bound clip was selected as if it were the one clip anyone
+# had verified. The name now derives from the source file's own stem.
+
+
+def _clip_name_for(clip_path: str) -> str:
+    stem = Path(clip_path).stem.lower()
+    safe = "".join(ch if ch.isalnum() or ch == "_" else "_" for ch in stem)
+    return f"{CLIP_NAME_PREFIX}{safe}"
 MIN_DRIVEN_BONES = 8
 MIN_TOTAL_DELTA_RAD = 0.01
 
@@ -267,7 +278,8 @@ def main(argv: list[str]) -> int:
         for b in driven
         if b["keyframes"] > 1 and b["totalRotationDeltaRad"] > MIN_TOTAL_DELTA_RAD
     ]
-    clip_name = _rename_action(arm, CLIP_NAME) or CLIP_NAME
+    desired_clip_name = _clip_name_for(args.clip)
+    clip_name = _rename_action(arm, desired_clip_name) or desired_clip_name
     log_lines.append(f"driven={len(driven)} real={len(real)} action={clip_name}")
 
     if len(real) < MIN_DRIVEN_BONES:

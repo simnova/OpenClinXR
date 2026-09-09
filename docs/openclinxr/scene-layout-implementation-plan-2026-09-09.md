@@ -1032,6 +1032,37 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+### The walk is BOUND, the legs are driven, and the clip was lying about its own name
+
+The bind ran on the proven path — `blender --background motion_bind_stage.py`, one MPFB actor plus
+one BVH, `mcp.load_and_retarget` through the `retarget_bvh` addon. It was not a new pipeline; the
+only reason it had not happened is that nobody had run it with a walk clip.
+
+    verdict ok | 26 bones driven | 345 keyframes each | 11.6 MB GLB
+
+**All eight leg-chain bones are driven**, which is precisely what the root-driven executor lacks:
+
+    upperleg01.L 0.779 rad   upperleg01.R 0.790 rad
+    lowerleg01.L 0.745       lowerleg01.R 0.744
+    foot.L       0.591       foot.R       0.679
+    toe1-1.L     0.515       toe1-1.R     0.628
+
+**And the bind exposed a provenance defect.** `CLIP_NAME` was the CONSTANT
+`openclinxr_retarget_cmu_07_01_walk` regardless of `--clip`, so binding `cmu_02_01_walk.bvh`
+produced a GLB whose clip asserted it was `07_01`. That has teeth: the capture selector matches on
+this NAME (`candidate-capture.ts:757`), so every bound clip was selected as if it were the one clip
+anyone had verified. The name now derives from the source file's stem, and the re-run produces
+`openclinxr_retarget_cmu_02_01_walk`.
+
+That defect was invisible to every test in the tree because nothing had ever bound a SECOND clip —
+a constant is indistinguishable from a correct derivation until the input changes.
+
+**Where this leaves step 4.** The clip is bound to a shipped rig with its legs driven, and the
+clip's own toe-slide is 0.4-11.5% of root travel against the root-driven executor's 100%. What is
+not yet done is playing that bound clip through the executor in the live runtime and re-measuring
+on the loaded humanoid — the step-2-style measurement, which needs the capture harness rather than
+another pure function.
+
 ### The evidence tools' page-global alias does not exist at runtime
 
 Building the instrument surfaced a defect in the tooling the brief cites. `browser-dom.d.ts`
