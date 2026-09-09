@@ -72,6 +72,7 @@ function goodReport(): Record<string, unknown> {
       changeCommits: ["1111111"],
       treeClean: true,
       inputs: [{ path: "tools/openclinxr/factory/scene-closure-case-source.ts", sha256: "eee" }],
+      changedFiles: ["tools/openclinxr/factory/scene-closure-case-source.ts", "apps/api/src/a.ts"],
       runtime: { node: "v24", platform: "darwin-arm64" },
     },
     execution: {
@@ -324,6 +325,24 @@ describe("the SC-01 evidence verifier accepts a complete control and rejects eve
       { path: "docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md", sha256: "not-the-real-hash" },
     ];
     expect(verify(report).ok).toBe(false);
+  });
+
+  it("(13b) a changed file outside every frozen scope is rejected, and an empty list is too", () => {
+    // The argument audit checks what the CLI was TOLD; this checks what the task actually changed.
+    // Only the second catches an edit in a package the card never claimed.
+    const outside = goodReport();
+    (outside["implementation"] as Record<string, unknown>)["changedFiles"] = [
+      "tools/openclinxr/factory/scene-closure-case-source.ts",
+      "packages/openclinxr/rest/src/routes/runtime-evidence-routes.ts",
+    ];
+    const result = verify(outside);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/outside every frozen scope: packages\/openclinxr\/rest/u);
+
+    const empty = goodReport();
+    (empty["implementation"] as Record<string, unknown>)["changedFiles"] = [];
+    expect(verify(empty).ok).toBe(false);
   });
 
   it("(14) the scope audit rejects an omitted, extra or duplicated scope", () => {

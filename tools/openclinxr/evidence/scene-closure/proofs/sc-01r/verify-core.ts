@@ -18,51 +18,31 @@ import {
  * function below is given its filesystem reader as an argument, and the CLI passes the real one.
  */
 
-/** Every check the pinned SC-02 contract requires. A report cannot shrink this set. */
-export const SC02_REQUIRED_CHECK_IDS = [
-  "required-unsatisfied-blocks-admission",
-  "required-pending-blocks-admission",
-  "required-unknown-blocks-admission",
-  "observation-bound-to-active-run",
-  "initial-disconnected-satisfies-initial-predicate",
-  "learner-goal-remains-incomplete",
-  "one-transition-with-actual-domain-time",
-  "snapshot-precedes-due-zero-effect",
-  "scheduled-effect-acknowledged-by-consumer",
-  "duplicate-tick-does-not-duplicate-effect",
-  "failed-effect-retries-without-loss",
-  "post-admission-removal-invalidates-acceptance",
+/** Every check the pinned SC-01R contract requires. A report cannot shrink this set. */
+export const SC01R_REQUIRED_CHECK_IDS = [
+  "route-resolves-selected-scenario-authored-first",
+  "resolved-document-reaches-bundle-builder",
+  "unresolvable-id-refuses-with-scenario-not-found",
+  "catalog-source-reported",
 ] as const;
 
-/** Every negative or known-good control the pinned SC-02 contract requires. */
-export const SC02_REQUIRED_CONTROL_IDS = [
-  "present-asset-with-unsatisfied-requirement-refuses",
-  "client-authored-success-refuses",
-  "wrong-run-observation-refuses",
-  "stale-observation-refuses",
-  "replayed-session-acknowledgment-refuses",
-  "reordered-monitor-retains-consumer",
-  "direct-api-bypass-refuses",
-  "satisfied-goal-before-start-refuses",
-  "ordinary-satisfied-transition-still-succeeds",
+/** Every negative or known-good control the pinned SC-01R contract requires. */
+export const SC01R_REQUIRED_CONTROL_IDS = [
+  "fixture-id-still-resolves",
+  "authored-shadows-fixture-of-same-id",
+  "absent-scenario-id-keeps-prior-default",
+  "ed-bay-is-not-served-for-an-unknown-id",
 ] as const;
 
 /** The card's frozen write roots, in the board's order. The CLI compares --scope against this. */
-export const SC02_FROZEN_SCOPES = [
-  "packages/openclinxr/shared-schemas",
-  "packages/openclinxr/scenario-runtime",
-  "packages/openclinxr/domain",
-  "packages/openclinxr/session-state",
-  "packages/openclinxr/xr-capture-evidence",
-  "packages/openclinxr/xr-asset-loading",
-  "apps/api/src",
-  "apps/ui-xr/src",
-  "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-02.md",
-  "tools/openclinxr/evidence/scene-closure/proofs/sc-02",
-  "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-02.json",
+export const SC01R_FROZEN_SCOPES = [
+  "packages/openclinxr/rest/src/routes/runtime-evidence-routes.ts",
+  "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01r.md",
+  "tools/openclinxr/evidence/scene-closure/proofs/sc-01r",
+  "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01r.json",
 ] as const;
 
-export const SC02_A_ROWS = ["A02", "A03"] as const;
+export const SC01R_A_ROWS = ["A01"] as const;
 
 export type EvidenceRegistry = {
   schemaVersion: string;
@@ -111,7 +91,7 @@ export function sha256Hex(bytes: Buffer | string): string {
  */
 export function auditScopes(
   supplied: readonly string[],
-  frozen: readonly string[] = SC02_FROZEN_SCOPES,
+  frozen: readonly string[] = SC01R_FROZEN_SCOPES,
 ): string[] {
   const problems: string[] = [];
   const normalized = supplied.map((scope) => path.normalize(scope).replace(/\/+$/u, ""));
@@ -196,7 +176,7 @@ export function verifyReport(input: VerifyInput): VerifyResult {
   if (report.schemaVersion !== SCENE_CLOSURE_EVIDENCE_SCHEMA_VERSION) {
     fail(`unsupported schemaVersion ${String(report.schemaVersion)}`);
   }
-  if (report.cardKey !== "SC-02") fail(`wrong cardKey ${String(report.cardKey)}`);
+  if (report.cardKey !== "SC-01R") fail(`wrong cardKey ${String(report.cardKey)}`);
 
   // Contract hashes are recomputed from the documents on disk. A report that carries its own
   // second copy of the expected value proves nothing.
@@ -216,7 +196,7 @@ export function verifyReport(input: VerifyInput): VerifyResult {
       else if (actual !== entry["sha256"]) fail(`contract document ${docPath} hash mismatch`);
     }
     const aRows = Array.isArray(contract["aRows"]) ? contract["aRows"].map(String) : [];
-    for (const row of SC02_A_ROWS) if (!aRows.includes(row)) fail(`contract.aRows omits ${row}`);
+    for (const row of SC01R_A_ROWS) if (!aRows.includes(row)) fail(`contract.aRows omits ${row}`);
   }
 
   if (typeof report.evidenceRegistrySha256 !== "string") fail("missing evidenceRegistrySha256");
@@ -244,7 +224,7 @@ export function verifyReport(input: VerifyInput): VerifyResult {
     } else {
       for (const entry of changedFiles) {
         const changed = path.normalize(String(entry));
-        const inScope = SC02_FROZEN_SCOPES.some((scope) => {
+        const inScope = SC01R_FROZEN_SCOPES.some((scope) => {
           const root = path.normalize(scope).replace(/\/+$/u, "");
           return changed === root || changed.startsWith(`${root}/`);
         });
@@ -354,7 +334,7 @@ export function verifyReport(input: VerifyInput): VerifyResult {
     const checkId = String(check["checkId"]);
     if (seenChecks.has(checkId)) fail(`duplicate checkId ${checkId}`);
     seenChecks.add(checkId);
-    if (!(SC02_REQUIRED_CHECK_IDS as readonly string[]).includes(checkId)) {
+    if (!(SC01R_REQUIRED_CHECK_IDS as readonly string[]).includes(checkId)) {
       fail(`unknown checkId ${checkId}`);
     }
     if (check["outcome"] !== "satisfied") {
@@ -369,7 +349,7 @@ export function verifyReport(input: VerifyInput): VerifyResult {
       if (!known) fail(`check ${checkId} references unknown evidence ${evidenceId}`);
     }
   }
-  for (const required of SC02_REQUIRED_CHECK_IDS) {
+  for (const required of SC01R_REQUIRED_CHECK_IDS) {
     if (!seenChecks.has(required)) fail(`required check ${required} is missing`);
   }
 
@@ -380,7 +360,7 @@ export function verifyReport(input: VerifyInput): VerifyResult {
     const controlId = String(control["controlId"]);
     if (seenControls.has(controlId)) fail(`duplicate controlId ${controlId}`);
     seenControls.add(controlId);
-    if (!(SC02_REQUIRED_CONTROL_IDS as readonly string[]).includes(controlId)) {
+    if (!(SC01R_REQUIRED_CONTROL_IDS as readonly string[]).includes(controlId)) {
       fail(`unknown controlId ${controlId}`);
     }
     if (control["held"] !== true) fail(`control ${controlId} did not hold`);
@@ -388,7 +368,7 @@ export function verifyReport(input: VerifyInput): VerifyResult {
       fail(`control ${controlId} records no observed result`);
     }
   }
-  for (const required of SC02_REQUIRED_CONTROL_IDS) {
+  for (const required of SC01R_REQUIRED_CONTROL_IDS) {
     if (!seenControls.has(required)) fail(`required control ${required} is missing`);
   }
 

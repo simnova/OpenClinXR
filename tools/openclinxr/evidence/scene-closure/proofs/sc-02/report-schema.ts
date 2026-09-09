@@ -73,6 +73,8 @@ export type SceneClosureEvidenceReport = {
     changeCommits: string[];
     treeClean: boolean;
     inputs: Array<{ path: string; sha256: string }>;
+    /** Every file this task changed, audited against the frozen write roots. */
+    changedFiles: string[];
     runtime: { node: string; platform: string };
   };
   execution: {

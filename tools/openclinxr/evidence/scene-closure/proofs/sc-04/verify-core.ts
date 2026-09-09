@@ -230,6 +230,23 @@ export function verifyReport(input: VerifyInput): VerifyResult {
     if (!Array.isArray(implementation["inputs"]) || implementation["inputs"].length === 0) {
       fail("implementation.inputs is empty");
     }
+    // "Audit the actual task-attributed source changes ... against these roots; reject
+    // modifications outside scope." The scope ARGUMENT audit above checks what the CLI was told;
+    // this checks what the task actually changed. Only the second one catches an edit in a package
+    // the card never claimed, which is how a card silently grows its own boundary.
+    const changedFiles = (implementation as Record<string, unknown>)["changedFiles"];
+    if (!Array.isArray(changedFiles) || changedFiles.length === 0) {
+      fail("implementation.changedFiles is empty; the scope audit has nothing to check");
+    } else {
+      for (const entry of changedFiles) {
+        const changed = path.normalize(String(entry));
+        const inScope = SC04_FROZEN_SCOPES.some((scope) => {
+          const root = path.normalize(scope).replace(/\/+$/u, "");
+          return changed === root || changed.startsWith(`${root}/`);
+        });
+        if (!inScope) fail(`changed file outside every frozen scope: ${changed}`);
+      }
+    }
   }
 
   const execution = report.execution;

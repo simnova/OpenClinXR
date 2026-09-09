@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
-  SC07_FROZEN_SCOPES,
-  SC07_REQUIRED_CHECK_IDS,
-  SC07_REQUIRED_CONTROL_IDS,
+  SC01R_FROZEN_SCOPES,
+  SC01R_REQUIRED_CHECK_IDS,
+  SC01R_REQUIRED_CONTROL_IDS,
   auditScopes,
   resolveArtifactPath,
   sha256Hex,
@@ -60,11 +60,11 @@ const CONTRACT_DOCUMENTS = new Map<string, string>([
 function goodReport(): Record<string, unknown> {
   return {
     schemaVersion: SCENE_CLOSURE_EVIDENCE_SCHEMA_VERSION,
-    cardKey: "SC-07",
+    cardKey: "SC-01R",
     contract: {
       pinnedCommit: "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50",
       documents: [...CONTRACT_DOCUMENTS].map(([path, sha256]) => ({ path, sha256 })),
-      aRows: ["A08","A10"],
+      aRows: ["A01"],
     },
     implementation: {
       productSourceCommit: "1111111",
@@ -72,7 +72,7 @@ function goodReport(): Record<string, unknown> {
       changeCommits: ["1111111"],
       treeClean: true,
       inputs: [{ path: "tools/openclinxr/factory/scene-closure-case-source.ts", sha256: "eee" }],
-      changedFiles: ["tools/openclinxr/evidence/scene-closure/proofs/sc-07/a.ts","tools/openclinxr/evidence/scene-closure/the-normal-workflow-walk-is-recorded.test.ts"],
+      changedFiles: ["packages/openclinxr/rest/src/routes/runtime-evidence-routes.ts","tools/openclinxr/evidence/scene-closure/proofs/sc-01r/a.ts"],
       runtime: { node: "v24", platform: "darwin-arm64" },
     },
     execution: {
@@ -88,7 +88,7 @@ function goodReport(): Record<string, unknown> {
       ],
     },
     counterweight: {
-      testIds: ["SC-07-required-behavior"],
+      testIds: ["SC-01R-required-behavior"],
       baselineRevision: "0000000",
       failingAssertion: "loaded bundle scenarioId equals the persisted case id",
       observedBeforeFix: "ed_chest_pain_priority_v1",
@@ -110,14 +110,14 @@ function goodReport(): Record<string, unknown> {
         source: "normal main-UI bundle selection",
       },
     ],
-    checks: SC07_REQUIRED_CHECK_IDS.map((checkId) => ({
+    checks: SC01R_REQUIRED_CHECK_IDS.map((checkId) => ({
       checkId,
       expected: "contract predicate",
       observed: "observed value",
       outcome: "satisfied",
       evidenceIds: ["obs-loaded-scenario"],
     })),
-    controls: SC07_REQUIRED_CONTROL_IDS.map((controlId) => ({
+    controls: SC01R_REQUIRED_CONTROL_IDS.map((controlId) => ({
       controlId,
       trigger: "constructed",
       expected: "refusal",
@@ -129,7 +129,7 @@ function goodReport(): Record<string, unknown> {
       {
         artifactId: "run-observations",
         storeAlias: "sc-evidence",
-        objectKey: "sc-07/observations.jsonl",
+        objectKey: "sc-01r/observations.jsonl",
         byteCount: ARTIFACT_BYTES.byteLength,
         sha256: ARTIFACT_SHA,
         mediaType: "application/x-ndjson",
@@ -139,7 +139,7 @@ function goodReport(): Record<string, unknown> {
       {
         artifactId: "baseline-output",
         storeAlias: "sc-evidence",
-        objectKey: "sc-07/baseline.txt",
+        objectKey: "sc-01r/baseline.txt",
         byteCount: BASELINE_BYTES.byteLength,
         sha256: sha256Hex(BASELINE_BYTES),
         mediaType: "text/plain",
@@ -149,7 +149,7 @@ function goodReport(): Record<string, unknown> {
       {
         artifactId: "fixed-output",
         storeAlias: "sc-evidence",
-        objectKey: "sc-07/fixed.txt",
+        objectKey: "sc-01r/fixed.txt",
         byteCount: FIXED_BYTES.byteLength,
         sha256: sha256Hex(FIXED_BYTES),
         mediaType: "text/plain",
@@ -180,15 +180,15 @@ function goodReport(): Record<string, unknown> {
 }
 
 const OBJECTS = {
-  "/store/sc-07/observations.jsonl": ARTIFACT_BYTES,
-  "/store/sc-07/baseline.txt": BASELINE_BYTES,
-  "/store/sc-07/fixed.txt": FIXED_BYTES,
+  "/store/sc-01r/observations.jsonl": ARTIFACT_BYTES,
+  "/store/sc-01r/baseline.txt": BASELINE_BYTES,
+  "/store/sc-01r/fixed.txt": FIXED_BYTES,
 };
 
 function verify(report: Record<string, unknown>, objects: Record<string, Buffer> = OBJECTS, links: Record<string, string> = {}) {
   return verifyReport({
     report,
-    suppliedScopes: [...SC07_FROZEN_SCOPES],
+    suppliedScopes: [...SC01R_FROZEN_SCOPES],
     registry: REGISTRY,
     registrySha256: REGISTRY_SHA,
     reader: readerFor(objects, links),
@@ -196,7 +196,7 @@ function verify(report: Record<string, unknown>, objects: Record<string, Buffer>
   });
 }
 
-describe("the SC-07 evidence verifier accepts a complete control and rejects everything else", () => {
+describe("the SC-01R evidence verifier accepts a complete control and rejects everything else", () => {
   it("(1) a complete valid report with resolvable artifacts is accepted", () => {
     const result = verify(goodReport());
     expect(result.ok, result.ok ? "" : result.problems.join("\n")).toBe(true);
@@ -215,7 +215,7 @@ describe("the SC-07 evidence verifier accepts a complete control and rejects eve
   it("(3) CHANGED artifact bytes are rejected on the hash, not merely on presence", () => {
     const result = verify(goodReport(), {
       ...OBJECTS,
-      "/store/sc-07/observations.jsonl": Buffer.from("tampered\n"),
+      "/store/sc-01r/observations.jsonl": Buffer.from("tampered\n"),
     });
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -232,7 +232,7 @@ describe("the SC-07 evidence verifier accepts a complete control and rejects eve
   it("(5) a SYMLINK escape out of the alias root is refused even though the key looks clean", () => {
     // The key is relative and inside the root; only the resolved path leaves it. A verifier that
     // checks the key string alone passes this.
-    const links = { "/store/sc-07/observations.jsonl": "/elsewhere/observations.jsonl" };
+    const links = { "/store/sc-01r/observations.jsonl": "/elsewhere/observations.jsonl" };
     const result = verify(goodReport(), OBJECTS, links);
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -308,7 +308,7 @@ describe("the SC-07 evidence verifier accepts a complete control and rejects eve
   it("(12) a swapped evidence registry is visible through its bound hash", () => {
     const result = verifyReport({
       report: goodReport(),
-      suppliedScopes: [...SC07_FROZEN_SCOPES],
+      suppliedScopes: [...SC01R_FROZEN_SCOPES],
       registry: REGISTRY,
       registrySha256: "f".repeat(64),
       reader: readerFor(OBJECTS),
@@ -332,7 +332,7 @@ describe("the SC-07 evidence verifier accepts a complete control and rejects eve
     // Only the second catches an edit in a package the card never claimed.
     const outside = goodReport();
     (outside["implementation"] as Record<string, unknown>)["changedFiles"] = [
-      "tools/openclinxr/evidence/scene-closure/proofs/sc-07/a.ts",
+      "packages/openclinxr/rest/src/routes/runtime-evidence-routes.ts",
       "packages/openclinxr/never-owned-by-any-card/x.ts",
     ];
     const result = verify(outside);
@@ -346,11 +346,11 @@ describe("the SC-07 evidence verifier accepts a complete control and rejects eve
   });
 
   it("(14) the scope audit rejects an omitted, extra or duplicated scope", () => {
-    expect(auditScopes(SC07_FROZEN_SCOPES)).toEqual([]);
-    expect(auditScopes(SC07_FROZEN_SCOPES.slice(1))).toContain(`omitted --scope ${SC07_FROZEN_SCOPES[0]}`);
-    expect(auditScopes([...SC07_FROZEN_SCOPES, "packages/openclinxr/telemetry"]))
+    expect(auditScopes(SC01R_FROZEN_SCOPES)).toEqual([]);
+    expect(auditScopes(SC01R_FROZEN_SCOPES.slice(1))).toContain(`omitted --scope ${SC01R_FROZEN_SCOPES[0]}`);
+    expect(auditScopes([...SC01R_FROZEN_SCOPES, "packages/openclinxr/telemetry"]))
       .toContain("extra --scope packages/openclinxr/telemetry");
-    expect(auditScopes([...SC07_FROZEN_SCOPES, SC07_FROZEN_SCOPES[0]!]).join("\n")).toMatch(/duplicate/u);
+    expect(auditScopes([...SC01R_FROZEN_SCOPES, SC01R_FROZEN_SCOPES[0]!]).join("\n")).toMatch(/duplicate/u);
   });
 
   it("(15) the CLI argv parser refuses an unknown flag, a bare argument and a missing report", () => {
