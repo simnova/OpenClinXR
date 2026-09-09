@@ -229,64 +229,82 @@ merges on main without a lease).
 
 ## 2b. The cards
 
-Idle on BothyBoard project OpenClinXR, NOT PLANTED. Three review rounds replaced
+Idle on BothyBoard project OpenClinXR, NOT PLANTED. Five review rounds replaced
 cards rather than patching them, because the board exposes no body edit. The
-twenty superseded cards are `cancelled`; these eleven are live.
+thirty-four superseded cards are `cancelled`; these eleven are live.
 
-| card | id | wave | lane | step |
-|---|---|---|---|---|
-| heading field | `tsk_c28354df7d5d3963` | 1 | A | staging |
-| authored vector | `tsk_8b9879a72fb7bfcf` | 1 | B | staging |
-| readiness pair | `tsk_807db8f354dcf8bb` | 1 | A | instrument |
-| equipment binding | `tsk_cb291bb3a132193d` | 1 | B | room_generate |
-| event dispatcher | `tsk_4d495eb216687476` | 1 | B | dialogue_runtime |
-| factory resolution | `tsk_4056627a15f1e232` | 2 | B | staging |
-| transform survival | `tsk_be070f9e44043858` | 2 | A | staging |
-| equipment identity | `tsk_86aebc46ba791e1a` | 2 | A | equipment_generate |
-| motion ownership | `tsk_cd89494db42a2e6b` | 2 | A | motion_retarget |
-| scene specification | `tsk_a505eee4db2d9786` | 2 | B | room_generate |
-| runtime consumption | `tsk_7034ca365ec546f6` | 3 | A | staging |
+| card | id | wave | lane | step | planted RED |
+|---|---|---|---|---|---|
+| heading field | `tsk_fb48e37698061c2e` | 1 | A | staging | `asset-registry/src/a-runtime-actor-placement-carries-a-heading.test.ts` |
+| authored vector | `tsk_3bcdfe8112f2d76d` | 1 | B | staging | `factory-stations/src/the-staging-station-takes-a-signed-plant-vector.test.ts` |
+| readiness pair | `tsk_d5310253e20d9e9f` | 1 | A | instrument | `xr-capture-evidence/src/a-suppressed-slot-is-not-ready.test.ts` |
+| equipment binding | `tsk_a108198a9be7a470` | 1 | B | room_generate | `shared-schemas/src/every-authored-equipment-string-is-classified.test.ts` |
+| event dispatcher | `tsk_eb378a5e983c3683` | 1 | B | dialogue_runtime | `scenario-runtime/src/a-scheduled-event-fires-once-at-its-second.test.ts` |
+| factory resolution | `tsk_5c1c34416361aaa7` | 2 | B | staging | `tools/openclinxr/factory/the-placement-node-carries-the-authored-offset.test.ts` |
+| transform survival | `tsk_240a951580475750` | 2 | A | staging | `xr-scene/src/the-framing-guard-keeps-seated-and-supine-anchors.test.ts` |
+| equipment identity | `tsk_cc6fed8ddb3f3c40` | 2 | A | equipment_generate | `xr-station/src/two-copies-of-one-asset-mount-separately.test.ts` |
+| motion ownership | `tsk_8fe99948dac291fc` | 2 | A | motion_retarget | `xr-humanoid-animation/src/an-owned-chain-survives-the-posture-pass.test.ts` |
+| scene specification | `tsk_8058d4eb4d3fa342` | 2 | B | room_generate | `scenario-runtime/src/the-scene-spec-reports-an-absent-required-asset.test.ts` |
+| runtime consumption | `tsk_d3c93e0dee336dfc` | 3 | A | staging | `apps/ui-xr/src/the-authored-offset-reaches-the-posed-humanoid.test.ts` |
+
+### What self-review rounds 1 and 2 changed
+
+**Round 1 acted on a grok round-1 finding that three later rounds left standing.**
+Grok wrote: *"Five cards (S4, S6, S8, S10, S11) also carry the measured evidence
+only in this document and not in the card body, and a worker executes the card."*
+Every card body now carries its own `## measured` table and a numbered
+`## the RED must assert` list. A dispatched worker reads the card, never this
+document.
+
+**Round 1 also made the enforcement shape uniform.** Six cards named a planted
+RED; five named none, so their contracts were package suites that pass on HEAD
+plus a `changed:` any edit satisfies. All eleven now name one, and the RED file
+is in the card's write roots.
+
+**Round 2 corrected a wrong mechanism on the equipment-identity card.** It named
+`station-equipment.ts:390-404` as "an explicit dedupe `Set`". The `Set` at `:391`
+is `declared`, a membership lookup feeding the `declared:` output flag at `:465`.
+The actual collapse is the `push` closure at `:399-402`, which returns early on
+`ordered.includes(id)`. A worker sent to fix a dedupe Set would have changed a
+construct that is not the defect. Two further line corrections came out of the
+same pass: `Object.fromEntries` is at `runtime-bundles.ts:1418`, not `:187`
+(which is the `Record<string, …>` type, itself a distinct collapse site), and the
+`.find` is at `:1636`. The site count went from four to five.
+
+**Round 2 also corrected the faculty-lock citation for the fourth time.**
+`skipCapable` is defined at `encounter-materialization-compile.ts:135` and used
+at `:136`; the card had quoted the definition as `:136`.
+
+**One correction went in the cards' favour.** `station-equipment.ts:428` assigns
+`DEFAULT_POSITIONS[index % DEFAULT_POSITIONS.length]`, so a second copy that
+reaches the ordered list already gets a distinct fallback position. The identity
+card's `not-tested` had overstated that gap.
+
+### Verified mechanically, 2026-09-09
+
+- All eleven pass `briefFromIssue` against the real tree: dispatchable, 4 to 9
+  proofs each.
+- Every `changed:` target names a FILE, not a directory. One
+  (`scenario-runtime/src/initial-scene-spec.ts`) does not exist and is created by
+  its card; `done-when-tree.ts:26-29` states a file absent from the baseline map
+  is evidence the worker created it.
+- All seventeen `pnpm --filter` package names resolve.
+- Every dependency resolves to a live card, and the graph is acyclic.
+- Four write-root overlaps remain by design, and each is dep-ordered:
+  `runtime-bundles.ts` (identity after heading), `animation-loop.ts` (motion
+  after survival), `shared-schemas/src/index.ts` (scene spec after binding),
+  `generated-loaders.ts` (identity after readiness).
 
 ### THE SET IS NOT PLANTABLE YET, and the reason is one thing
 
-Six cards name a planted RED as their first `run:` line. **None of those six files
-exists.** A `run:` on a missing file prints "No test files found" and exits 1 —
-it fails for the wrong reason, and it encodes no product clause. Planting now
-would send a worker to write the test and the fix in one pass, which is the
-producer grading its own output.
+**Eleven cards name a planted RED as a `run:` proof. None of those eleven files
+exists.** Measured directly: `pnpm exec vitest run <missing path>` prints
+`No test files found, exiting with code 1`. It fails for the wrong reason and
+encodes no product clause. Planting now would send a worker to write the test and
+the fix in one pass, which is the producer grading its own output.
 
-| card | planted RED, to be committed FAILING before plant |
-|---|---|
-| factory resolution | `tools/openclinxr/factory/the-placement-node-carries-the-authored-offset.test.ts` |
-| transform survival | `packages/openclinxr/xr-scene/src/the-framing-guard-keeps-seated-and-supine-anchors.test.ts` |
-| equipment identity | `packages/openclinxr/xr-station/src/two-copies-of-one-asset-mount-separately.test.ts` |
-| motion ownership | `packages/openclinxr/xr-humanoid-animation/src/an-owned-chain-survives-the-posture-pass.test.ts` |
-| scene specification | `packages/openclinxr/scenario-runtime/src/the-scene-spec-reports-an-absent-required-asset.test.ts` |
-| runtime consumption | `apps/ui-xr/src/the-authored-offset-reaches-the-posed-humanoid.test.ts` |
-
-Round 3 checked each clause list against HEAD as if the files existed. Four
-clauses were too weak and are now corrected on the cards:
-
-- **factory** — asserting only the compile node let a worker put the vector on
-  `spec` and touch the builder with a comment. The RED now asserts
-  `generatedActorPlacement` returns the clinic vectors, not an index-derived
-  position.
-- **runtime** — reading `runtimeActorPlacement`'s return is not the posed
-  humanoid. The RED now samples after framing, pose application and one further
-  frame, with an unauthored discriminator that can actually move.
-- **scene spec** — a reporter that marks everything unsatisfied passed. The RED
-  now also asserts a PRESENT required asset is satisfied.
-- **survival** — the seated clause is green today, which is correct: it is the
-  known-good column. The supine and unknown clauses are the failing ones.
-
-Round 3 also confirmed two calls: keeping `encounter-materialization-compile.ts`
-out of the factory card is right, because Placement is not skip-capable and the
-lock waits for a later slice; and the supine keep-XZ extension belongs pinned to
-the existing seated `if` at `encounter-actor-framing.ts:133-141`, since hoisting
-it above `:107` would skip the telehealth chair plant.
-
-One missing edge was added: the runtime card takes the `main.ts:2838` equipment
-Map and now depends on the identity card, which mints the realized id it stores.
+Writing those eleven files is test code, and implementation was not authorised,
+so it is the operator's call.
 
 ## 3. Acceptance that cannot pass about nothing
 
