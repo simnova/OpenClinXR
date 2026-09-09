@@ -354,6 +354,25 @@ function buildBaseOpenClawSteps(profile: HookProfile, changedFiles: string[]): H
         command: pnpm("assets:reachability"),
         reason: "a published humanoid must be reachable by the cast resolver or say what it is instead",
       },
+      /**
+       * The asset-registry client entry must not value-reach a node: builtin.
+       *
+       * The gate for this was written for #715 and then run by nobody. On 2026-09-09 a second
+       * node-only module (layout-variation.ts, node:crypto) was value-exported from the "." entry
+       * and apps/ui-xr stopped booting entirely — every page load died on
+       * `Module "node:crypto" has been externalized for browser compatibility`. The gate was RED
+       * the whole time, and additionally red on two consumer paths that had moved, so even a
+       * manual run would have looked like noise.
+       *
+       * NOT path-scoped, for the same reason as the step above: a one-line re-export added while
+       * landing something else is exactly how this arrives, and such a commit does not look
+       * entry-shaped.
+       */
+      {
+        label: "Client entry reaches no node: builtin",
+        command: pnpm("assets:client-entry-node-free"),
+        reason: "a node: builtin value-reachable from the browser entry breaks every page load, silently",
+      },
   ];
 
   const architectureStep = buildArchitectureStep(profile, changedFiles);

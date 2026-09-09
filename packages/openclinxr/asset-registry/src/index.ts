@@ -2818,5 +2818,7 @@ export {
 export { bedsideClearanceViolations } from "./bedside-clearance.js";
 export { ED_MONITOR_BOUNDS, monitorVisibilityFrom, screenNormal } from "./monitor-visibility.js";
 export { APPROACH_WAYPOINT_SPACING_METERS, planBedsideApproach } from "./bedside-approach-path.js";
-export { deriveLayoutVariationSeed, resolveBedsideLayout } from "./layout-variation.js";
+// layout-variation.js is node-only (node:crypto for the seed digest) and must not be
+// value-reachable from the "." client entry — browsers cannot resolve node: builtins.
+// Node consumers import "@openclinxr/asset-registry/layout-variation".
 export { footSlideMeters, stepBedsideApproach } from "./approach-executor.js";

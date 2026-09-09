@@ -38,6 +38,21 @@
  * post-fix graph is recorded in .openclinxr/evidence/issue-715/client-entry-graph.json:
  * 17 modules value-reachable from the "." entry, node-importer list EMPTY (measured
  * 2026-08-27). apps/api keeps freshMeasuredTriangleCounts as a value via the subpath.
+ *
+ * ## IT CAME BACK (2026-09-09)
+ *
+ * `layout-variation.ts` (node:crypto, for the seed digest) was value-exported from the "."
+ * entry in b32f4d19 and apps/ui-xr stopped booting: every page load died on
+ * `Module "node:crypto" has been externalized for browser compatibility`, with no scene,
+ * no boot evidence and no frames. It was found by a runtime instrument timing out, not by
+ * this file — because THIS FILE WAS RED AND NOTHING RAN IT. Clause (1) had been failing;
+ * clauses (3) and (4) were failing on paths that moved (`apps/api/src/api-route-support.ts`
+ * to `packages/openclinxr/rest/`, `apps/ui-xr/src/encounter-actor-framing.ts` into
+ * `xr-station-room`). A gate nobody runs is documentation, and it cost a boot regression.
+ *
+ * FIXED the same way: `./layout-variation` is a node-only subpath, the "." entry drops it,
+ * and its test imports the subpath. The consumer clauses now name the CURRENT consumers,
+ * and this file is wired into the pre-commit profile so it can fail where someone sees it.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -115,7 +130,9 @@ describe("#715 the asset-registry client entry does not value-reach a node: buil
 
   it("(3) COUNTERWEIGHT: freshMeasuredTriangleCounts survives as a VALUE for its node caller", () => {
     // Refuses the cheapest fix — deleting the export, or converting it to `export type`.
-    const consumer = resolve(REPO, "apps/api/src/api-route-support.ts");
+    // The consumer moved from apps/api to packages/openclinxr/rest in the composition-root work;
+    // the header's original path is left as measured and this is where it lives now.
+    const consumer = resolve(REPO, "packages/openclinxr/rest/src/api-route-support.ts");
     const src = readFileSync(consumer, "utf8");
     expect(src).toContain("freshMeasuredTriangleCounts");
     const importBlock = src.slice(0, src.indexOf("freshMeasuredTriangleCounts"));
@@ -130,13 +147,26 @@ describe("#715 the asset-registry client entry does not value-reach a node: buil
 
   it("(4) COUNTERWEIGHT: ui-xr keeps its '.' import rather than the app being cut loose", () => {
     // Refuses "make apps/ui-xr stop importing the registry", which would clear clause (1)
-    // while removing a real consumer relationship.
-    const framing = readFileSync(
-      resolve(REPO, "apps/ui-xr/src/encounter-actor-framing.ts"),
-      "utf8",
-    );
-    expect(framing).toContain("DEFAULT_PATIENT_CHAIR_POSITION");
-    expect(framing).toContain('"@openclinxr/asset-registry"');
+    // while removing a real consumer relationship. encounter-actor-framing.ts moved into
+    // xr-station-room, so the app's own '.' import is read from main.ts instead.
+    const main = readFileSync(resolve(REPO, "apps/ui-xr/src/main.ts"), "utf8");
+    expect(main).toContain('"@openclinxr/asset-registry"');
+    // A type-only import would satisfy the line above while erasing the runtime relationship.
+    const clause = main.slice(0, main.indexOf('from "@openclinxr/asset-registry"'));
+    const lastImport = clause.lastIndexOf("import ");
+    expect(clause.slice(lastImport, lastImport + 12)).not.toContain("type");
+  });
+
+  it("(6) the layout-variation symbols kept a VALUE home, so clause (1) was not cleared by deletion", () => {
+    // The 2026-09-09 recurrence. Removing deriveLayoutVariationSeed altogether would clear
+    // clause (1) and lose the seeded-variation work the brief's step 5 rests on.
+    const pkg = JSON.parse(
+      readFileSync(resolve(REPO, "packages/openclinxr/asset-registry/package.json"), "utf8"),
+    ) as { exports?: Record<string, unknown> };
+    expect(pkg.exports?.["./layout-variation"]).toBeTruthy();
+    const impl = readFileSync(resolve(REGISTRY_SRC, "layout-variation.ts"), "utf8");
+    expect(impl).toMatch(/export function deriveLayoutVariationSeed/u);
+    expect(impl).toMatch(/export function resolveBedsideLayout/u);
   });
 
   it("(5) COUNTERWEIGHT: the '.' entry is not deleted from package.json to pass clause (1)", () => {

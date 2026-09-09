@@ -188,7 +188,6 @@
     "declareAgeBand",
     "defaultPostureForEnvironmentSlot",
     "deriveEncounterRuntimeBundleAssemblyAuditMetadata",
-    "deriveLayoutVariationSeed",
     "encounterBundleFactoryMemberKinds",
     "encounterRuntimeAssetBundleBlobName",
     "evaluateAssetManifest",
@@ -223,7 +222,6 @@
     "registerGeneratedRuntimeAssetReference",
     "requiredRuntimeAssetReviewerRoles",
     "resolveActorPosture",
-    "resolveBedsideLayout",
     "resolveEnvironmentShellDescriptor",
     "resolveMorphTarget",
     "resolvePoseBone",
@@ -276,7 +274,7 @@
   },
   "ceilings": {
     "testInternalImports": 1,
-    "rootEntrypointExports": 242,
+    "rootEntrypointExports": 240,
     "starExports": 8
   }
 }

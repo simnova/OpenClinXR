@@ -37,6 +37,11 @@ describe("agentic-hook-runner path-scoped architecture", () => {
       // shape that let four commits publish an orphaned humanoid: every step was path- or
       // claim-scoped and none consulted the consumer graph.
       "Published humanoids are cast or declared",
+      // ADDED 2026-09-09 and UNCONDITIONAL, for the same reason. A one-line re-export added while
+      // landing something else put node:crypto in the browser entry and apps/ui-xr stopped booting
+      // for a day; the gate that catches it existed and nothing ran it. A commit that does this
+      // does not look entry-shaped, so the step cannot be path-scoped.
+      "Client entry reaches no node: builtin",
       "OpenClaw post-slice record check",
     ]);
   });

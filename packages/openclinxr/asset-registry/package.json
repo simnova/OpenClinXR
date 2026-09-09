@@ -47,6 +47,10 @@
     "./measured-station-geometry-freshness": {
       "types": "./dist/measured-station-geometry-freshness.d.ts",
       "default": "./dist/measured-station-geometry-freshness.js"
+    },
+    "./layout-variation": {
+      "types": "./dist/layout-variation.d.ts",
+      "default": "./dist/layout-variation.js"
     }
   },
   "scripts": {

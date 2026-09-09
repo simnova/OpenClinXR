@@ -1032,6 +1032,55 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+### Step 5 closed: the walk is DISPLAYED on the loaded, posed, skinned physician
+
+    outcome  satisfied      ward_delirium_med_rec_v1      senior_resident_ward_v1
+
+| joint | drive on, span over 60 frames | drive off (control) | ratio |
+|---|---:|---:|---:|
+| toe1-1.L | 1.089 m | 0.0385 m | 28x |
+| toe1-1.R | 1.609 m | 0.0384 m | 42x |
+| foot.L | 1.074 m | 0.0387 m | 28x |
+| foot.R | 1.588 m | 0.0387 m | 41x |
+| lowerleg01.L | 1.192 m | 0.0485 m | 25x |
+| upperleg01.L | 1.322 m | 0.0576 m | 23x |
+| skinned mesh centre | 6.669 m of path | — | — |
+
+The brief refuses a `clipPlayed` flag by name. The flag IS present
+(`playing: true, timeSeconds: 2.48, mode: retargeted_clip_drives_the_leg_chain`) and it decides
+nothing: the outcome comes from measured joint displacement, and clause (1) of the test proves a
+flag set with no motion reads `unsatisfied`.
+
+**The control is not zero and that is the point.** A standing figure breathes and sways ~3.9 cm, so
+the margin is five times the measured control rather than five times nothing.
+
+**Three findings came out of getting this to run.**
+
+**The client entry had a node builtin in it, and apps/ui-xr had stopped booting.** Every page load
+died on `Module "node:crypto" has been externalized for browser compatibility` — no scene, no boot
+evidence, no frames. `layout-variation.ts` (node:crypto, for the seed digest) was value-exported
+from the asset-registry `"."` entry in `b32f4d19`, my own step-5 commit.
+`the-client-entry-does-not-reach-node-builtins.test.ts` catches exactly this and **was red the whole
+time, because nothing ran it** — and additionally red on two consumer paths that had moved, so a
+manual run would have looked like noise. Fixed the same way #715 was: `./layout-variation` is a
+node-only subpath. The gate is now step 5 of the pre-commit profile.
+
+**The runtime spells bone names differently from the GLB.** three's GLTFLoader strips `.` from node
+names, so the asset's `toe1-1.L` is `toe1-1L` in the scene. The first sampler matched the asset
+spelling, found nothing, and reported a physician with no legs. Matching is now on the dot-stripped
+name.
+
+**A fixed sleep produced a false finding.** One run reported "no staged actor carries a locomotion
+clip" while naming the physician in the staged cast — the humanoid arrived a few seconds after the
+station shell resolved. The instrument now waits for the stamp itself, and a timeout there falls
+through to the `unknown` branch rather than throwing.
+
+**The ED station reports `unknown`, correctly.** `ed_chest_pain_priority_v2` casts patient, nurse
+and spouse and no physician, so nothing there carries the clip. Across the bank,
+`ward_delirium_med_rec_v1` is the only scenario whose cast fills the additional slot with a
+physician. Substituting another clinical actor is what brief §7 step 3 forbids, so the report names
+the staged cast and refuses.
+
 ### The locomotion drive now plays the clip, and it used to slide the root
 
 `animation-loop.ts:187` wrote `slot.root.position.z = slot.baseZ + locomotion * 0.6` whenever the

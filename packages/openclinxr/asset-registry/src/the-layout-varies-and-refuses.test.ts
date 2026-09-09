@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { deriveLayoutVariationSeed, resolveBedsideLayout } from "./index.js";
+// The "." entry cannot carry these: layout-variation.ts imports node:crypto, and a browser
+// cannot resolve a node: builtin. They live on the node-only subpath beside
+// measured-station-geometry-freshness, which is the same defect and the same fix.
+import { deriveLayoutVariationSeed, resolveBedsideLayout } from "@openclinxr/asset-registry/layout-variation";
 
 /**
  * Brief §7 step 5: "Exercise multiple variation indices and an impossible layout. Same versioned
