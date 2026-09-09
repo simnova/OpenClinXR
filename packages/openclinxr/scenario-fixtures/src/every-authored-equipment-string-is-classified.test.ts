@@ -61,7 +61,7 @@ describe("Authored equipment strings bind to asset ids under a reviewed preceden
     EQUIPMENT_BINDING_PRECEDENCE = (mod as Record<string, unknown>)["EQUIPMENT_BINDING_PRECEDENCE"] as "assetNeeds" | "equipment";
   });
 
-  it.fails("(1) Fed the ed-chest-pain fixture AS IT STANDS, every entry of scenario.equipment appears in exactly one bucket. Total, no drops.", () => {
+  it("(1) Fed the ed-chest-pain fixture AS IT STANDS, every entry of scenario.equipment appears in exactly one bucket. Total, no drops.", () => {
     expect(typeof classifyScenarioEquipmentBinding).toBe("function");
 
     const result = classifyScenarioEquipmentBinding({
@@ -93,7 +93,7 @@ describe("Authored equipment strings bind to asset ids under a reviewed preceden
     }
   });
 
-  it.fails("(2) '12-lead ECG machine' classifies as bound to 12_lead_ecg_machine_equipment.", () => {
+  it("(2) '12-lead ECG machine' classifies as bound to 12_lead_ecg_machine_equipment.", () => {
     expect(typeof classifyScenarioEquipmentBinding).toBe("function");
 
     const result = classifyScenarioEquipmentBinding({
@@ -113,7 +113,7 @@ describe("Authored equipment strings bind to asset ids under a reviewed preceden
     expect(ecgBinding?.assetId).toBe("12_lead_ecg_machine_equipment");
   });
 
-  it.fails("(3) An equipment string with no matching asset need is reported as required-unbound and NAMED.", () => {
+  it("(3) An equipment string with no matching asset need is reported as required-unbound and NAMED.", () => {
     expect(typeof classifyScenarioEquipmentBinding).toBe("function");
 
     // Construct a scenario with an equipment string that has no assetNeeds match
@@ -134,7 +134,7 @@ describe("Authored equipment strings bind to asset ids under a reviewed preceden
     expect(unbound?.equipment).toBe("non-existent equipment item");
   });
 
-  it.fails("(4) The behaviour on a conflicting input matches EQUIPMENT_BINDING_PRECEDENCE. The constant is read by the test; a doc comment is not testable and drifts.", () => {
+  it("(4) The behaviour on a conflicting input matches EQUIPMENT_BINDING_PRECEDENCE. The constant is read by the test; a doc comment is not testable and drifts.", () => {
     expect(typeof classifyScenarioEquipmentBinding).toBe("function");
     expect(EQUIPMENT_BINDING_PRECEDENCE).toBeDefined();
     expect(["assetNeeds", "equipment"]).toContain(EQUIPMENT_BINDING_PRECEDENCE);

@@ -26,11 +26,13 @@
     "DialogueEmotion",
     "DynamicEncounterFactoryPlanningProjection",
     "DynamicEncounterFactoryProjectionArtifact",
+    "EQUIPMENT_BINDING_PRECEDENCE",
     "EmotionEventKind",
     "EmotionEventKindSchema",
     "EmotionTransitionRule",
     "EmotionTransitionRuleSchema",
     "EnvironmentSchema",
+    "EquipmentBindingClassification",
     "ExamBlueprint",
     "ExamBlueprintTiming",
     "ExamStationSlot",
@@ -62,6 +64,7 @@
     "ValidationResult",
     "VoiceProviderAudit",
     "VoiceProviderAuditSchema",
+    "classifyScenarioEquipmentBinding",
     "validateAssetManifest",
     "validateCaseEmotionPolicy",
     "validateCommunicationProfile",
@@ -94,6 +97,6 @@
   },
   "ceilings": {
     "testInternalImports": 2,
-    "rootEntrypointExports": 71
+    "rootEntrypointExports": 74
   }
 }

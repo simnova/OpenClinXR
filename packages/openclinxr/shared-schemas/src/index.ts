@@ -88,3 +88,5 @@ export type {
   StationJsonSchema,
   StationPropertySchema,
 } from "./factory-stations.js";
+export { classifyScenarioEquipmentBinding, EQUIPMENT_BINDING_PRECEDENCE } from "./equipment-binding.js";
+export type { EquipmentBindingClassification } from "./equipment-binding.js";
