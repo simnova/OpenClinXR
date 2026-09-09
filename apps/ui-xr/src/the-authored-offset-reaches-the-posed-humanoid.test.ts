@@ -80,11 +80,11 @@ async function compose() {
 }
 
 describe("the authored offset reaches the posed humanoid", () => {
-  it.fails("(1) composeSupportedActorWorldPosition is exported from the asset-registry entrypoint", async () => {
+  it("(1) composeSupportedActorWorldPosition is exported from the asset-registry entrypoint", async () => {
     expect(typeof (await compose())).toBe("function");
   });
 
-  it.fails("(2) SEATED composes the authored tangential offset onto the chair anchor rather than replacing it", async () => {
+  it("(2) SEATED composes the authored tangential offset onto the chair anchor rather than replacing it", async () => {
     const fn = await compose();
     expect(typeof fn).toBe("function");
     const out = fn!({
@@ -101,7 +101,7 @@ describe("the authored offset reaches the posed humanoid", () => {
     expect(p.x).not.toBeCloseTo(DEFAULT_PATIENT_CHAIR_POSITION.x, 6);
   });
 
-  it.fails("(3) SUPINE composes onto the stretcher deck anchor rather than replacing it", async () => {
+  it("(3) SUPINE composes onto the stretcher deck anchor rather than replacing it", async () => {
     const fn = await compose();
     expect(typeof fn).toBe("function");
     const out = fn!({
@@ -116,7 +116,7 @@ describe("the authored offset reaches the posed humanoid", () => {
     expect(p.z).toBeCloseTo(DEFAULT_STRETCHER_POSITION.z + CLINIC_PATIENT_OFFSET.z, 6);
   });
 
-  it.fails("(4) a nonzero NORMAL component on a supported posture is REFUSED, not clamped", async () => {
+  it("(4) a nonzero NORMAL component on a supported posture is REFUSED, not clamped", async () => {
     // Brief, Authored intent versus resolved placement: "A nonzero normal offset fails this
     // supported-patient control." Silently zeroing y would let an unbuildable request promote.
     const fn = await compose();
@@ -141,7 +141,7 @@ describe("the authored offset reaches the posed humanoid", () => {
     expect(stored?.position).toEqual({ ...DEFAULT_STRETCHER_POSITION });
   });
 
-  it.fails("(6) STANDING through the contracted function is still a pass-through", async () => {
+  it("(6) STANDING through the contracted function is still a pass-through", async () => {
     const fn = await compose();
     expect(typeof fn).toBe("function");
     const resolved = { x: 1.95, y: 0.95, z: 0.15 };
@@ -154,7 +154,7 @@ describe("the authored offset reaches the posed humanoid", () => {
     expect(out).toEqual(resolved);
   });
 
-  it.fails("(7) THE UNAUTHORED CONTROL, with a discriminator that can move: no authored offset leaves the supine anchor exactly at DEFAULT_STRETCHER_POSITION, and the discriminator is X because the authored clinic patient offset is x 0.4 while the anchor x is -0.9, so a leak would be visible on X. Z is NOT used here: the anchor z -0.1 and the clinic patient z 0 differ by less than the family offset, and Y is refused outright by clause 4.", async () => {
+  it("(7) THE UNAUTHORED CONTROL, with a discriminator that can move: no authored offset leaves the supine anchor exactly at DEFAULT_STRETCHER_POSITION, and the discriminator is X because the authored clinic patient offset is x 0.4 while the anchor x is -0.9, so a leak would be visible on X. Z is NOT used here: the anchor z -0.1 and the clinic patient z 0 differ by less than the family offset, and Y is refused outright by clause 4.", async () => {
     const fn = await compose();
     expect(typeof fn).toBe("function");
     const out = fn!({
@@ -166,7 +166,7 @@ describe("the authored offset reaches the posed humanoid", () => {
     expect(out.x).not.toBeCloseTo(DEFAULT_STRETCHER_POSITION.x + CLINIC_PATIENT_OFFSET.x, 6);
   });
 
-  it.fails("(8) the composed position SURVIVES framing: a supine actor carrying the composed XZ still has it after applyCleanEncounterVisualReviewActorFraming, which is the pass that runs between placement and the frame loop", async () => {
+  it("(8) the composed position SURVIVES framing: a supine actor carrying the composed XZ still has it after applyCleanEncounterVisualReviewActorFraming, which is the pass that runs between placement and the frame loop", async () => {
     const fn = await compose();
     expect(typeof fn).toBe("function");
     const composed = fn!({

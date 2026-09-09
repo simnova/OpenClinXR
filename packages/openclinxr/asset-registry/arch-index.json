@@ -153,6 +153,7 @@
     "SceneGenerationEnvironmentWorkOrder",
     "SceneGenerationPipelineStage",
     "SceneGenerationPipelineStageId",
+    "SupportedActorPositionRefusal",
     "assertRuntimeAssetApprovedForWrite",
     "buildAssetProductionReviewPacket",
     "buildEncounterAssetNeedsReadinessManifest",
@@ -171,6 +172,7 @@
     "buildScenarioSceneGenerationPipelineWorkOrderQueue",
     "buildSpatialZonesForEnvironment",
     "clipBindingForPosture",
+    "composeSupportedActorWorldPosition",
     "createEdChestPainLocalAssetEvidenceFixtureManifests",
     "createEdChestPainLocalEncounterRuntimeAssetBundle",
     "createEdChestPainLocalLearnerRuntimeAssetBundle",
@@ -248,7 +250,7 @@
   },
   "ceilings": {
     "testInternalImports": 1,
-    "rootEntrypointExports": 221,
+    "rootEntrypointExports": 223,
     "starExports": 8
   }
 }

@@ -248,3 +248,56 @@ export const SUPINE_HEIGHT_OWNERSHIP = {
   rationale:
     "Torso-on-deck is not hip-on-chair. seatedVerticalOffsetForSeatHeight (seat−0.03) floats/sinks a recumbent figure. Plant measures live mesh minY vs deck top.",
 } as const;
+
+/** A refusal, returned instead of a position when the authored offset is unbuildable. */
+export type SupportedActorPositionRefusal = { refused: true; reason: string };
+
+/**
+ * Compose an authored plant offset onto a fixture anchor for a SUPPORTED posture.
+ *
+ * WHY THIS EXISTS. apps/ui-xr/src/main.ts read the resolved position and then DISCARDED it for
+ * `seated` and `supine` — precisely the two supportSurface values that are not "none" — putting a
+ * fixture anchor in its place. Every link of the placement chain upstream could be correct and a
+ * learner would still see nothing move. The decision lived in a local function inside a
+ * 4,800-line entry script no test imports, which is also why it belongs in a package: an app is a
+ * composition root and wires rather than decides.
+ *
+ * THE FRAME, from the scene-layout research brief §3 "Authored intent versus resolved placement":
+ * right-handed, world metres, `x`/`z` TANGENT to the selected contact plane and `y` its NORMAL.
+ * `{x: 0.05, y: 0, z: 0}` requests a 5 cm tangential shift. So x and z ADD to the anchor.
+ *
+ * AND THE REFUSAL, verbatim from the same section: "A nonzero normal offset fails this
+ * supported-patient control." A nonzero `y` on a supported posture is REFUSED, not clamped to
+ * zero — silently clamping would let an unbuildable request promote, which the brief forbids in
+ * the same breath: "malformed offsets and violated hard constraints block candidate
+ * acceptance/promotion."
+ *
+ * The offset is already in world metres. Do NOT multiply it by the mounted asset's scale a second
+ * time; the brief names that error too.
+ *
+ * STANDING is a pass-through and is the known-good column: main.ts:848 already returns the
+ * resolved position unchanged for it, and that is the one branch that was never broken.
+ */
+export function composeSupportedActorWorldPosition(input: {
+  posture: "standing" | "seated" | "supine";
+  fixtureAnchor: { x: number; y: number; z: number };
+  authoredOffsetMeters?: { x: number; y: number; z: number } | undefined;
+  resolvedPosition: { x: number; y: number; z: number };
+}): { x: number; y: number; z: number } | SupportedActorPositionRefusal {
+  if (input.posture === "standing") return input.resolvedPosition;
+  const offset = input.authoredOffsetMeters;
+  if (offset === undefined) return { ...input.fixtureAnchor };
+  if (offset.y !== 0) {
+    return {
+      refused: true,
+      reason:
+        `a nonzero normal (y=${offset.y}) offset fails this supported-patient control: y is the ` +
+        "contact-plane NORMAL and a supported actor's height is owned by the plant, not by the author",
+    };
+  }
+  return {
+    x: input.fixtureAnchor.x + offset.x,
+    y: input.fixtureAnchor.y,
+    z: input.fixtureAnchor.z + offset.z,
+  };
+}

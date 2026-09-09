@@ -222,6 +222,7 @@ import {
   type XrTraceActionHandoffAction,
   type XrTraceActionHandoffEvidence,
   type XrTraceInteractionEvidenceSummary,
+  supportedActorPlacementPosition,
   xrExperienceModeEvidence,
 } from "@openclinxr/xr-runtime-state";
 import {
@@ -829,56 +830,26 @@ function runtimeActorPlacement(
   const seated = posture === "seated";
   const supine = posture === "supine";
   // #150: never seatedVerticalOffsetForSeatHeight for supine (hip-on-chair ≠ torso-on-deck).
-  // #574: a seated FAMILY actor plants on the family_chair fixture slot, not the patient
-  // chair anchor — resolve the same fraction-mapped world position the environment builder
-  // used for the chair so she sits ON her authored seat. Unknown env → patient-chair
-  // default (telehealth keeps its existing anchor).
-  const familyChairWorldPosition = seated && slotKind === "family_or_observer"
-    ? familyChairFixtureWorldPosition(resolveActiveEnvironmentId())
-    : null;
   const verticalOffsetMeters = seated
     ? seatedVerticalOffsetForSeatHeight(PATIENT_CHAIR_SEAT_HEIGHT_METERS)
     : supine ? supineVerticalOffsetSeed()
       : (placement?.verticalOffsetMeters ?? fallback.verticalOffsetMeters);
   const position = hasVector3(placement?.position) ? placement.position : fallback.position;
+  const supported = supportedActorPlacementPosition({
+    posture, actorId, slotKind,
+    scenarioId: selectedScenarioId(),
+    environmentId: resolveActiveEnvironmentId(),
+    resolvedPosition: position,
+  });
+  if (supported.refusalReason) console.warn(`[actor-placement] ${actorId}: ${supported.refusalReason}`);
   return {
     ...fallback, ...placement,
-    position: seated
-      ? (familyChairWorldPosition ?? seatedActorWorldPosition({}))
-      : supine ? supineActorWorldPosition({}) : position,
+    position: supported.position,
     scale: hasVector3(placement?.scale) ? placement.scale : fallback.scale,
     verticalOffsetMeters,
     labelPrefix: placement?.labelPrefix ?? fallback.labelPrefix,
     posture,
   };
-}
-
-/**
- * #574: world XZ of the family/parent chair fixture for `environmentId`, resolved with
- * the same fraction mapping the environment builder uses (resolveFixtureSlotsForRoom),
- * so a seated family actor lands ON the authored seat instead of the patient-chair
- * default anchor. Returns null when the environment does not author family seating —
- * callers keep the seatedActorWorldPosition default.
- */
-function familyChairFixtureWorldPosition(environmentId: string): { x: number; y: number; z: number } | null {
-  const resolved = resolveEnvironmentShellDescriptor(environmentId);
-  const familyChair = resolved.descriptor.fixtureSlots.find((slot) => slot.slotId === FAMILY_CHAIR.slotId);
-  if (!familyChair) {
-    return null;
-  }
-  return resolveFixtureSlotPosition(
-    familyChair,
-    {
-      widthMeters: resolved.descriptor.roomWidthMeters,
-      depthMeters: resolved.descriptor.roomDepthMeters,
-      heightMeters: resolved.descriptor.roomHeightMeters,
-    },
-    {
-      widthMeters: resolved.descriptor.roomWidthMeters,
-      depthMeters: resolved.descriptor.roomDepthMeters,
-      heightMeters: resolved.descriptor.roomHeightMeters,
-    },
-  );
 }
 
 function runtimeActorEmbodimentImpl(bundle: LearnerRuntimeAssetBundle, actorId: string): LearnerRuntimeAssetBundle["actors"][number]["embodiment"] | undefined {

@@ -58,9 +58,9 @@ export const COMPOSITION_ROOT_APP_BUDGETS: readonly CompositionRootAppBudget[] =
   {
     app: "apps/ui-xr",
     maxFiles: 10,
-    maxLines: 6083,
+    maxLines: 6054,
     reason:
-      "frozen at the 2026-09-08 measurement; ratchet toward the CellixJs largest app (ui-community, 19 files / 1,506 lines) — behaviour moves to packages",
+      "tightened 6083 -> 6054 on 2026-09-09 when the supported-actor placement composition moved to @openclinxr/xr-runtime-state; ratchet toward the CellixJs largest app (ui-community, 19 files / 1,506 lines) — behaviour moves to packages",
   },
 ] as const;
 

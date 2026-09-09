@@ -66,6 +66,7 @@
     "advanceExamFormRunStation",
     "applyLearnerExamFlowIntent",
     "assignRuntimeActorSlots",
+    "authoredPlantOffsetMeters",
     "authoredSafetyCriticalTraceTagsForScenario",
     "authoredTraceTagsForScenario",
     "buildConversationTurnStateEvidence",
@@ -96,6 +97,7 @@
     "eventTypeForTraceTag",
     "examFormRunNotEvidenceFor",
     "examFormRunScenarioSequence",
+    "familyChairFixtureWorldPosition",
     "formatExamFormRunClock",
     "formatManualEvidenceCopyStatus",
     "formatStationClock",
@@ -126,6 +128,7 @@
     "stationTraceActionTags",
     "stepEmotionStateFromCaseMachine",
     "summarizeTraceReadiness",
+    "supportedActorPlacementPosition",
     "tickExamFormRunClock",
     "viewLearnerCanonicalExamPhase",
     "xrExperienceModeEvidence"
@@ -149,6 +152,6 @@
   },
   "ceilings": {
     "testInternalImports": 3,
-    "rootEntrypointExports": 125
+    "rootEntrypointExports": 128
   }
 }

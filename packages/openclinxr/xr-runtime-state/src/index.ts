@@ -154,3 +154,9 @@ export {
 // (architecture-rules/src/checks/entrypoint-imports-resolve.ts) recorded as its second entry.
 export { ensureActorPlacementsForStagedSlots } from "./runtime-actor-placements.js";
 export type { ActorPlacementSsotEvidence } from "./runtime-actor-placements.js";
+
+export {
+  authoredPlantOffsetMeters,
+  familyChairFixtureWorldPosition,
+  supportedActorPlacementPosition,
+} from "./supported-actor-placement.js";
