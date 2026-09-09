@@ -11,6 +11,7 @@
     "MIXAMO_CLINICAL_IDLE_ARM_HANG",
     "MPFB_CLINICAL_IDLE_ARM_HANG",
     "MPFB_IDLE_FORELARM_BEND_FRACTION",
+    "OwnedChain",
     "PoseRotation",
     "SEATED_CLIP_NAME",
     "STANDING_CLIP_NAME",
@@ -23,6 +24,7 @@
     "applyPosturePose",
     "applySupinePose",
     "applySupinePoseHoldingIncline",
+    "boneIsOwned",
     "collectJointNames",
     "describeRuntimeBundleScenarioMatch",
     "findBonesBySanitisedName",
@@ -64,6 +66,6 @@
     "lint": "pnpm --filter @openclinxr/xr-pose lint"
   },
   "ceilings": {
-    "rootEntrypointExports": 45
+    "rootEntrypointExports": 47
   }
 }

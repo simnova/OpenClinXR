@@ -76,3 +76,8 @@ export {
 export type {
   ApplySupinePoseOptions,
 } from "./supine-pose.js";
+
+// The chain-ownership seam a motion executor declares against. Named, not a star: this file's
+// header says a star republishes a module wholesale.
+export { boneIsOwned } from "./chain-ownership.js";
+export type { OwnedChain } from "./chain-ownership.js";

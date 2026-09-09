@@ -78,7 +78,7 @@ function buildTestHumanoid(): Object3D {
 }
 
 describe("an-owned-chain-survives-the-posture-pass", () => {
-  it.fails("(1) ASYMMETRY: an OWNED bone is unchanged across the posture pass while a neighbouring UNOWNED bone is still written", async () => {
+  it("(1) ASYMMETRY: an OWNED bone is unchanged across the posture pass while a neighbouring UNOWNED bone is still written", async () => {
     // The contracted symbols are read at runtime so this file loads before they exist.
     const mod = await import("@openclinxr/xr-pose");
     const boneIsOwned = (mod as Record<string, unknown>)["boneIsOwned"] as Loose;
@@ -96,6 +96,7 @@ describe("an-owned-chain-survives-the-posture-pass", () => {
     for (const name of ["upper_armR", "forearmR", "handR"]) {
       expect(boneIsOwned(ownedChains, name)).toBe(false);
     }
+    humanoid.userData["openClinXrOwnedBoneChains"] = ownedChains;
 
     const upperArmL = humanoid.getObjectByName("upper_armL")!;
     const forearmL = humanoid.getObjectByName("forearmL")!;
@@ -124,7 +125,7 @@ describe("an-owned-chain-survives-the-posture-pass", () => {
     expect(unownedWritten, "no UNOWNED bone was written; the carve-out froze the whole skeleton").toBe(true);
   });
 
-  it.fails("(2) Ownership is DECLARED, not inferred from a name pattern", async () => {
+  it("(2) Ownership is DECLARED, not inferred from a name pattern", async () => {
     const mod = await import("@openclinxr/xr-pose");
     const boneIsOwned = (mod as Record<string, unknown>)["boneIsOwned"] as Loose;
 
@@ -154,7 +155,7 @@ describe("an-owned-chain-survives-the-posture-pass", () => {
     expect(boneIsOwned([], "upper_armL")).toBe(false);
   });
 
-  it.fails("(3) CHAIN INTEGRITY is the acceptance measure, not effector residual: every bone the executor wrote keeps its value across a posture pass", async () => {
+  it("(3) CHAIN INTEGRITY is the acceptance measure, not effector residual: every bone the executor wrote keeps its value across a posture pass", async () => {
     // The recorded bake-off returned verdict "other" with a wristR residual of 0.0000 m for a
     // chain that rendered the right arm ABSENT through a torn shoulder
     // (tools/openclinxr/evidence/motion-backend-bakeoff/report.json:67). Effector residual is
@@ -171,6 +172,7 @@ describe("an-owned-chain-survives-the-posture-pass", () => {
     for (const name of ["upper_armL", "forearmL", "handL"]) {
       expect(boneIsOwned(ownedChains, name)).toBe(true);
     }
+    humanoid.userData["openClinXrOwnedBoneChains"] = ownedChains;
 
     const chain = ["upper_armL", "forearmL", "handL"].map((n) => humanoid.getObjectByName(n)!);
     // An executor writes its own pose onto the whole owned chain.

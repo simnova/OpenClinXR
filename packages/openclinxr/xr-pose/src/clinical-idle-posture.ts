@@ -23,6 +23,7 @@
 import type { Object3D } from "three";
 import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
 import { isMpfb2Rig } from "./seated-pose-mpfb2.js";
+import { boneIsOwned, type OwnedChain } from "./chain-ownership.js";
 
 export type EulerPartial = { x?: number; y?: number; z?: number; absolute?: boolean };
 
@@ -251,6 +252,17 @@ function applyMpfbForearmIdle(
  */
 export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): void {
   const bonesTouched: string[] = [];
+  // CHAIN OWNERSHIP. A motion executor claims bones by putting its OwnedChain[] on the actor it
+  // drives; this pass then leaves those bones alone and writes every other one. The claim rides on
+  // the actor rather than a parameter because the frame loop calls this with the root alone, and
+  // because ownership is a property of the actor being driven, not of one call.
+  //
+  // The asymmetry is the whole point: a carve-out that stops the pass entirely would keep an owned
+  // bone AND freeze its unowned neighbour, which is indistinguishable from a broken posture pass.
+  const ownedClaims = humanoid.userData["openClinXrOwnedBoneChains"];
+  const ownedChains: readonly OwnedChain[] = Array.isArray(ownedClaims)
+    ? (ownedClaims as OwnedChain[]).filter((chain) => Array.isArray(chain?.boneNames))
+    : [];
   const jointNames = collectJointNames(humanoid);
   // issue-307: the library rail now carries the mixamo_unity rig — the mixamo arm bones
   // swing on local X (calibrated eulers), not local Z like the AABB 23-bone armature.
@@ -283,6 +295,7 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
         return;
       }
     }
+    if (boneIsOwned(ownedChains, object.name)) return; // owned by an executor this frame
     const rotation = resolvedHangMap.get(sanitiseBoneName(object.name))
       ?? resolveIdleRotation(object.name, hangMap);
     if (!rotation) return;

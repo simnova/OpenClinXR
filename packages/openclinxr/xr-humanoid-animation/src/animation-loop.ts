@@ -118,6 +118,12 @@ export function updateGeneratedHumanoidAnimations(
       rootUserData["openClinXrActorPosture"] === "seated"
       || actorSlotUserData["openClinXrActorPosture"] === "seated";
     const seatedClipPerforming = isSeatedFrame && ctx.seatedClipPerforming(slot.root, slot.actorId);
+    // FOURTH carve-out, beside the freeze at :92, the supine/seated userData checks above and
+    // seatedClipPerforming — and it needs NO new context member. A motion executor claims its
+    // chains on the actor (userData.openClinXrOwnedBoneChains) and the posture pass itself skips
+    // exactly those bones, so this call site is unchanged. The first draft added two ctx members
+    // and the context-field budget refused them, correctly: the claim belongs on the actor being
+    // driven, not on the runtime context.
     if (!isSupineFrame && !seatedClipPerforming) {
       ctx.applyIdlePosture(slot.root);
       ctx.applyRolePosture(slot.root, slot.actorId);
