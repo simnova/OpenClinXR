@@ -1,11 +1,11 @@
 # Scene closure preparation package
 
-**Status: prepared for review; no implementation released.** All new BothyBoard cards will remain Idle/backlog. This package changes planning documents only. The code baseline is `bb49e9675cba1f7edfe0f0fd80f798120f5bd46d`.
+**Status: reviewed, committed locally and staged; no implementation released.** All twelve BothyBoard cards were read back as Idle/backlog. This package changes planning documents only. The code baseline is `bb49e9675cba1f7edfe0f0fd80f798120f5bd46d`.
 
 - [Acceptance contract](./acceptance.md): complete encounter, counterexamples, evidence/video, website and release boundaries.
 - [Worker contracts](./tasks.md): eleven cohesive tasks with dependencies, roles, write scopes, existing regression entrypoints and mandatory new production-path evidence.
 
-The board IDs and final review/verification record will be added after the package passes consultation. No task is represented as created until its MCP receipt and read-back exist.
+Actual card IDs and verified dependencies are in the [board manifest](./board-manifest.md). The [review record](./reviews.md) records specialist and Grok consultation and the final document checks. All cards pin the acceptance and worker contracts at local commit `c58c298deaa14c56c13d0fedc5bc4a6fd82713fc`.
 
 ## Why a new package
 

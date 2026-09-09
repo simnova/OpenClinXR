@@ -23,4 +23,12 @@ Final review verdict, document checks and board read-back are recorded in the [p
 
 Grok round 13 ended normally in the same conversation (`grok-4.6-build` backend). It accepted creation as unplanted tasks subject to three concrete residuals: put the parent body in the task document, keep SC-10 a sibling without authority to rewrite SC-04 licence rows, and narrow SC-01 UI changes/SC-04 instrument roots. All were applied before board creation. SC-01 must not change supported placement; SC-04 cannot rewrite the injected-drive capture. The parent contract explicitly requires direct full-run/source/site evidence.
 
-BothyBoard's typed task read-back exposes objective/proofs/scope but may omit raw body. Essential required behavior, counterweights and completion discipline are therefore also stored verbatim in each child's objective field, not left only in an arbitrary body heading. Final read-back checks that complete objective, dependencies, scopes, project and Idle/backlog state.
+BothyBoard's typed task read-back exposes objective/proofs/scope and a canonical body generated from those fields, rather than preserving arbitrary submitted body text. Essential required behavior, counterweights and completion discipline are therefore also stored verbatim in each child's objective field, not left only in an arbitrary body heading. Final read-back checks that complete objective, dependencies, scopes, project and Idle/backlog state.
+
+## Completed preparation checks
+
+All twelve cards were created and read back through authenticated MCP with the direnv token. Full objectives (including required behavior and counterweights), canonical body requirements, scopes, dependencies, project fields and parent links matched. Every card remained Idle/backlog with no session, assignee agent or worktree. The parent has ten children and SC-10 is a sibling.
+
+Document validation passed: Markdown reference suite (9 tests); coordination alignment (23 files); drift check (447 Markdown files, 345 generated artifacts); Pages synchronization and static wiring. The local contract commit also passed all nine standard pre-commit guardrail stages, including 89 architecture tests and the 10-test typecheck error-count ratchet. The ratchet does not mean the repository has a clean full typecheck. These are preparation checks, not proof of the future encounter.
+
+No product code, new acceptance-test implementation, fabricated evidence, worker dispatch or public push was included. An owner-memory pulse produced during consultation was left outside the planning commits.
