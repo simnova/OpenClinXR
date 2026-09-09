@@ -569,6 +569,41 @@ next measurement is cheap and decisive: read `rewrittenActorIds` off the publish
 evidence during the same capture and check whether the clinic patient is in it. That is a
 prediction, not a finding, and it is recorded as one.
 
+### Which node was measured, and the prediction that was wrong
+
+The instrument now records the sampled node and its ancestors, because "which node am I measuring"
+is unanswerable from a bare transform and run 5 produced a transform that matched nothing.
+
+    node: openclinxr.ed-chest-pain.patient-robert-hayes -> openclinxr.ed-chest-pain.station-root
+    slot: {x: -0.9, y: 0, z: 0.08}   — IDENTICAL in the authored and suppressed passes
+
+That is the right node: `actor-staging.ts:103` names it, `:104` sets its position from the runtime
+placement, and `:122-123` stamps its posture and actor id. It is a direct child of the station
+root, so its world transform is its local one.
+
+**The slot-repair prediction was WRONG.** `SLOT_PLACEMENT_ANCHORS.primary_patient` is
+`{x: -0.72, y: 1.06, z: -0.12}` and the measured slot is `{x: -0.9, y: 0, z: 0.08}`, so the
+re-anchor at `runtime-actor-placements.ts:102-114` did not touch this actor. Recorded as wrong
+rather than quietly dropped: it was published as a prediction one commit earlier.
+
+**What the measurement says instead.** x = -0.9 is the manifest's raw position. Had the seated
+branch run, the position would be the seated anchor -0.4 (with no authored offset) or 0.0 (with
+it). Neither appears, so `supportedActorPlacementPosition` took its STANDING pass-through, even
+though the same placement object's posture reads `seated` — that is what stamps
+`userData.openClinXrActorPosture`, and the instrument sampled `posture=seated`.
+
+So one object carries a seated posture and a standing-derived position. Checked directly and NOT
+the explanation: `resolveActorPosture({declared: "seated", …})` returns `seated` for every
+environment tried, and `supportedActorPlacementPosition({posture: "seated", …})` returns
+`{x: 0, y: 0, z: -0.2}` — anchor -0.4 plus the authored 0.4. Both halves behave correctly in
+isolation.
+
+**The next probe, and it is cheap:** read the composed placement in the page rather than inferring
+it from a transform — the runtime already publishes actor-placement evidence, so the same capture
+can report what `runtimeActorPlacement` actually returned for this actor. That distinguishes "the
+composition was never called" from "it was called and its result was overwritten", which is the
+one question the current evidence cannot settle.
+
 ### The evidence tools' page-global alias does not exist at runtime
 
 Building the instrument surfaced a defect in the tooling the brief cites. `browser-dom.d.ts`

@@ -65,6 +65,16 @@ export type PosedHumanoidSample = {
   framesObserved: number;
   /** Every skinned mesh found, for the case where the patient is not the only one. */
   skinnedMeshCount: number;
+  /**
+   * `name` of the node the sampler picked, then its ancestors up to the scene root.
+   *
+   * Added after run 5 measured slotWorld {x:-0.9, z:0.08} in BOTH passes — a value that matches
+   * neither the composed position (x=0), nor the seated anchor (x=-0.4), nor the manifest
+   * placement (z=-0.1), nor the slot-repair anchor ({x:-0.72, y:1.06, z:-0.12}). The sampled node
+   * is therefore probably not the node actor-staging.ts:104 positions, and "which node am I
+   * measuring" is unanswerable from a bare transform.
+   */
+  nodePath: string[];
 };
 
 export type AuthoredOffsetRow = {
@@ -198,7 +208,7 @@ async function samplePosedPatient(page: Page): Promise<PosedHumanoidSample & { p
     const frames = (win.__openClinXrFrameStats && win.__openClinXrFrameStats.framesObserved) || 0;
     const empty = {
       slotWorld: null, skinnedCentreWorld: null, framesObserved: frames,
-      skinnedMeshCount: 0, posture: "unknown", actorId: ""
+      skinnedMeshCount: 0, posture: "unknown", actorId: "", nodePath: []
     };
     if (!scene || typeof scene.traverse !== "function") return empty;
 
@@ -242,8 +252,14 @@ ${SKINNED_WORLD_SAMPLING_SOURCE}
       });
     }
 
+    const nodePath = [];
+    for (let n = slot; n && nodePath.length < 8; n = n.parent) {
+      nodePath.push((n.name || "<unnamed>") + (n.userData && n.userData.openClinXrActorSlotKind ? "[" + n.userData.openClinXrActorSlotKind + "]" : ""));
+    }
+
     const e = slot && slot.matrixWorld && slot.matrixWorld.elements;
     return {
+      nodePath: nodePath,
       slotWorld: e ? { x: e[12], y: e[13], z: e[14] } : null,
       skinnedCentreWorld: centre,
       framesObserved: frames,
