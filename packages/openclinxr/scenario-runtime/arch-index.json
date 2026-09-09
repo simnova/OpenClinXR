@@ -17,6 +17,7 @@
     "HistoryTakingCoverageState",
     "ProviderHealthSnapshot",
     "PublicationTargetUse",
+    "REQUIRED_STATE_OUTCOMES",
     "ReviewerEvidence",
     "RouteRuntimeActorInteractionInput",
     "RuntimeSessionSummary",
@@ -28,10 +29,12 @@
     "ScenarioRuntimeDurableStore",
     "TurnTakingDecision",
     "assembledExamOrchestratorClaimBoundary",
+    "buildInitialSceneSpec",
     "createDefaultScenarioRuntime",
     "createDurableStoreFromPersistenceHooks",
     "createScenarioRuntimeWithPersistenceHooks",
     "freezeActorTurnPlan",
+    "requiredStateOutcomePromotes",
     "resolveScenarioById",
     "resumeAssembledExam"
   ],
@@ -69,6 +72,6 @@
   },
   "ceilings": {
     "testInternalImports": 17,
-    "rootEntrypointExports": 30
+    "rootEntrypointExports": 33
   }
 }

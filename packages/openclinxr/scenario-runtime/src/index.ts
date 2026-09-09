@@ -28,6 +28,11 @@ export type {
   ScenarioCatalogPort,
 } from "./scenario-catalog.js";
 export {
+  buildInitialSceneSpec,
+  REQUIRED_STATE_OUTCOMES,
+  requiredStateOutcomePromotes,
+} from "./initial-scene-spec.js";
+export {
   freezeActorTurnPlan,
 } from "./actor-turn-plan.js";
 export {

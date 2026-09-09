@@ -52,9 +52,20 @@ type Loose = any;
  * below. Never rewrite the diagnosis or the measured anchors. A rejection still
  * flips: the clause asserts the report, not the outcome. Never delete an
  * inverted guard.
+ *
+ * ## FIXED (fix/scene-spec)
+ *
+ * New modules: shared-schemas/src/initial-scene-spec.ts holds the contracted
+ * InitialSceneSpec type, re-exported from shared-schemas/src/index.ts.
+ * scenario-runtime/src/initial-scene-spec.ts holds buildInitialSceneSpec plus
+ * REQUIRED_STATE_OUTCOMES and requiredStateOutcomePromotes, re-exported from
+ * scenario-runtime/src/index.ts. Each required asset reports outcome
+ * satisfied/unsatisfied with observed evidence (presence count phrasing, never
+ * the outcome word) and names one of the two real unwired consumers,
+ * alternating deterministically by need order. Creates no phase.
  */
 describe("One encounter produces a reviewable initial scene specification", () => {
-  it.fails("(1) An ABSENT required asset reports outcome \"unsatisfied\" and is NAMED", async () => {
+  it("(1) An ABSENT required asset reports outcome \"unsatisfied\" and is NAMED", async () => {
     const mod = await import("@openclinxr/scenario-runtime");
     const buildInitialSceneSpec = (mod as Record<string, unknown>)["buildInitialSceneSpec"] as Loose;
     expect(typeof buildInitialSceneSpec).toBe("function");
@@ -73,7 +84,7 @@ describe("One encounter produces a reviewable initial scene specification", () =
     expect(absentAsset!.assetId).toBe("asset-absent");
   });
 
-  it.fails("(2) A PRESENT required asset reports outcome \"satisfied\"", async () => {
+  it("(2) A PRESENT required asset reports outcome \"satisfied\"", async () => {
     const mod = await import("@openclinxr/scenario-runtime");
     const buildInitialSceneSpec = (mod as Record<string, unknown>)["buildInitialSceneSpec"] as Loose;
     expect(typeof buildInitialSceneSpec).toBe("function");
@@ -92,7 +103,7 @@ describe("One encounter produces a reviewable initial scene specification", () =
     expect(presentAsset!.assetId).toBe("asset-present");
   });
 
-  it.fails("(3) schemaVersion is present and asserted", async () => {
+  it("(3) schemaVersion is present and asserted", async () => {
     const mod = await import("@openclinxr/scenario-runtime");
     const buildInitialSceneSpec = (mod as Record<string, unknown>)["buildInitialSceneSpec"] as Loose;
     expect(typeof buildInitialSceneSpec).toBe("function");
@@ -105,7 +116,7 @@ describe("One encounter produces a reviewable initial scene specification", () =
     expect(result.schemaVersion).toBe("openclinxr.initial-scene-spec.v1");
   });
 
-  it.fails("(4) The symbol is importable from BOTH entrypoints: @openclinxr/shared-schemas (the type) and the scenario-runtime package index (the builder)", async () => {
+  it("(4) The symbol is importable from BOTH entrypoints: @openclinxr/shared-schemas (the type) and the scenario-runtime package index (the builder)", async () => {
     const sharedSchemasMod = await import("@openclinxr/shared-schemas");
     const scenarioRuntimeMod = await import("@openclinxr/scenario-runtime");
 
@@ -119,7 +130,7 @@ describe("One encounter produces a reviewable initial scene specification", () =
     expect(typeof buildInitialSceneSpec).toBe("function");
   });
 
-  it.fails("(5) Every requiredAssets[].consumer names one of the two REAL unwired consumers", async () => {
+  it("(5) Every requiredAssets[].consumer names one of the two REAL unwired consumers", async () => {
     const mod = await import("@openclinxr/scenario-runtime");
     const buildInitialSceneSpec = (mod as Record<string, unknown>)["buildInitialSceneSpec"] as Loose;
     expect(typeof buildInitialSceneSpec).toBe("function");
@@ -140,7 +151,7 @@ describe("One encounter produces a reviewable initial scene specification", () =
     }
   });
 
-  it.fails("(6) The outcome vocabulary is FOUR values, and pending and unknown neither satisfy nor promote", async () => {
+  it("(6) The outcome vocabulary is FOUR values, and pending and unknown neither satisfy nor promote", async () => {
     // The brief is explicit (§3, Complementary research): each required starting-state check
     // returns "satisfied, unsatisfied, pending or unknown with observed evidence. Pending means
     // an identified consumer is still loading; unknown means no adequate observation yet.
@@ -164,7 +175,7 @@ describe("One encounter produces a reviewable initial scene specification", () =
     expect(promotes!("unknown")).toBe(false);
   });
 
-  it.fails("(7) Every requiredAssets entry carries observed EVIDENCE, not a restatement of its outcome", async () => {
+  it("(7) Every requiredAssets entry carries observed EVIDENCE, not a restatement of its outcome", async () => {
     // "returning satisfied, unsatisfied, pending or unknown WITH OBSERVED EVIDENCE". An entry
     // whose evidence merely repeats the outcome word is not evidence, and is the cheapest way
     // to satisfy a field named `evidence`.

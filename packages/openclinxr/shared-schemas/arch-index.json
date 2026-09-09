@@ -37,6 +37,7 @@
     "ExamBlueprintTiming",
     "ExamStationSlot",
     "FactoryStationSchema",
+    "InitialSceneSpec",
     "InteractionEmotion",
     "InteractionEmotionSchema",
     "ModelProviderAudit",
@@ -97,6 +98,6 @@
   },
   "ceilings": {
     "testInternalImports": 2,
-    "rootEntrypointExports": 74
+    "rootEntrypointExports": 75
   }
 }
