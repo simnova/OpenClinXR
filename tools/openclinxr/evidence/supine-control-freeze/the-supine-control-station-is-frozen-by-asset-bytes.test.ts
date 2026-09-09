@@ -27,7 +27,7 @@ const CONTRACTED_MODULE = [".", "supine-control-freeze.js"].join("/");
  * inverted guard.
  *
  * CONTRACTED EXPORT (the honest slice adds exactly this):
- * // tools/openclinxr/evidence/supine-control-freeze.ts — NEW FILE
+ * // tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts — NEW FILE
  * export type SupineControlFreeze = {
  *   schemaVersion: "openclinxr.supine-control-freeze.v1";
  *   scenarioId: string;
@@ -43,7 +43,7 @@ const CONTRACTED_MODULE = [".", "supine-control-freeze.js"].join("/");
  *   recorded: SupineControlFreeze, current: SupineControlFreeze,
  * ): { valid: boolean; changedPaths: string[] };
  *
- * IN-SCOPE: tools/openclinxr/evidence/supine-control-freeze.ts
+ * IN-SCOPE: tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts
  * OUT-OF-SCOPE: Regenerating any asset. Changing inpatient-supine-staging.ts. Any browser/playwright dependency.
  */
 
