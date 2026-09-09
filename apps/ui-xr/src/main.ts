@@ -320,6 +320,7 @@ import {
 } from "@openclinxr/xr-exam-flow";
 import {
   actorNameplateLabel as packageActorNameplateLabel,
+  assembleStationScene,
   buildStationRoomShell,
   runtimeGeneratedSceneObjectName as packageRuntimeGeneratedSceneObjectName,
   stageStationActors,
@@ -2945,6 +2946,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   locomotionRig.add(camera);
   setComparatorCaptureCamera(camera);
 
+  // room stage, first statement: the buildStationRoomShell(...) call below.
   // Build station room shell and load environment assets (extracted to @openclinxr/xr-station-room)
   const stationRoomResult: StationRoomResult = await buildStationRoomShell(
     {
@@ -2981,7 +2983,16 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   const _monitor = stationRoomResult.monitor;
   const fixtureOwnedRoles = stationRoomResult.fixtureOwnedRoles;
 
+  // Room stage, last statement: this returns the room value; the staged chain opens here
+  // so an out-of-order or repeated stage is a type error (see station-scene-assembly.ts).
+  const stagedScene = assembleStationScene(scene).room(() => stationRoomResult);
+
+  // fixtures stage, first statement: the '#140 / #185 plan equipment BEFORE room props'
+  // comment and the equipment-plan block below. Fixtures returns the station shell and
+  // the equipment evidence items the window handle carries.
   // Store references for later use (e.g., gltfEnvContainer for glTF loading, reusableExteriorAnteroom for scenario panel)
+  const fixturesAssembly = stagedScene.fixtures(() => {
+  const fixturesShell = stationEnvironment;
   scene.userData.openClinXrStationEnvironment = {
     environmentId: resolveActiveEnvironmentId(),
     floorColor: stationEnvironment.userData.floorColor,
@@ -3074,30 +3085,26 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   }
 
   // #209: stamp fixture-suppressed declared ids (no dual mesh). Helper lives outside main.
+  // fixtures stage, last statement: this stamp plus the equipment evidence block above.
   equipmentEvidenceItems.push(
     ...stampSuppressedDeclaredEquipmentOntoFixtures({
-      shell: stationEnvironment,
+      shell: fixturesShell,
       plannedEquipmentIds: equipmentPlan.map((item) => item.equipmentId),
       equipmentPlacements: encounterRuntimeAssetBundle.sceneManifest.equipmentPlacements ?? {},
       equipment: encounterRuntimeAssetBundle.equipment,
       roomProps: encounterRuntimeAssetBundle.sceneManifest.roomProps,
     }),
   );
-
-  window.__openClinXrDeclaredEquipmentMountEvidence = {
-    source: "window.__openClinXrDeclaredEquipmentMountEvidence",
-    scenarioId: encounterRuntimeAssetBundle.scenarioId,
-    items: equipmentEvidenceItems,
-    notEvidenceFor: [
-      "quest_readiness",
-      "clinical_validity",
-      "scoring_validity",
-      "production_readiness",
-      "equipment_asset_readiness",
-    ],
+  return {
+    stationShellForFixtures: fixturesShell,
+    declaredEquipmentMountEvidenceItems: equipmentEvidenceItems,
   };
+  });
 
+  // fixtures stage, last statement: the #209 stamp plus the equipment evidence block
+  // above. Actors and panels read the fixtures value as a parameter.
   // #122 — unique slot fill (four mounts live in @openclinxr/xr-station-room actor-staging.ts).
+  const actorsAssembly = fixturesAssembly.actors(() => {
   const { patient, nurse } = stageStationActors(
     {
       encounterBundle: () => encounterRuntimeAssetBundle,
@@ -3130,6 +3137,13 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     },
     scene,
   );
+  return { patient, nurse };
+  });
+
+  // actors stage, last statement: the slotEvidence block stays inside stageStationActors
+  // (actor-staging.ts). panels stage, first statement: the virtual_device affordance
+  // loop below.
+  const panelsAssembly = actorsAssembly.panels(() => {
 
   for (const virtualActor of encounterRuntimeAssetBundle.actors.filter((actor) => actor.embodiment === "virtual_device")) {
     if (!selectedScenarioRuntimeMismatch && !cleanHumanoidSourceComparatorCapture) {
@@ -3253,7 +3267,12 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     conversationPanel.mesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
   }
   scene.add(conversationPanel.mesh);
-  let lastPanelSignature = "";
+  return { clinicalPanel, dialoguePanel, actorRealismPanel, inputPanel, conversationPanel };
+  });
+  // interaction stage, first statement: addControllerAffordances below. Last value:
+  // the __openClinXrProjectTouchRegionToScreen test hook at the end of the callback.
+  const interactionAssembly = panelsAssembly.interaction(() => {
+  const interactionSignatureState = { lastPanelSignature: "" };
   addControllerAffordances(renderer, scene, (event) => {
     // XR ray: a controller select that hits a body region is a clinical touch;
     // otherwise fall through to the position-independent trace advance.
@@ -3284,6 +3303,28 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     const rect = renderer.domElement.getBoundingClientRect();
     return { x: rect.left + ((ndc.x + 1) / 2) * rect.width, y: rect.top + ((1 - ndc.y) / 2) * rect.height };
   };
+  return { lastPanelSignature: interactionSignatureState.lastPanelSignature };
+  });
+  // interaction stage, last statement: the __openClinXrProjectTouchRegionToScreen hook.
+  // Everything after interaction STAYS OUTSIDE THE BUILDER: resize, animate,
+  // renderSceneFrame, updateVrPanels, startImmersiveSession and the XR session lifetime
+  // are the composition root's job.
+  const assembledStationScene = interactionAssembly.build();
+  const panelSignatureState = { lastPanelSignature: assembledStationScene.interaction.lastPanelSignature };
+  window.__openClinXrDeclaredEquipmentMountEvidence = {
+    source: "window.__openClinXrDeclaredEquipmentMountEvidence",
+    scenarioId: encounterRuntimeAssetBundle.scenarioId,
+    items: assembledStationScene.fixtures.declaredEquipmentMountEvidenceItems,
+    notEvidenceFor: [
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity",
+      "production_readiness",
+      "equipment_asset_readiness",
+    ],
+  };
+  const { patient, nurse } = assembledStationScene.actors;
+  const { clinicalPanel, dialoguePanel, actorRealismPanel, inputPanel, conversationPanel } = assembledStationScene.panels;
   const keyboardLocomotion = createPackageKeyboardLocomotion();
   let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
   let handModelsInstalled = false;
@@ -3680,10 +3721,10 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       window.__openClinXrConversationTurnStateEvidence?.nextActorId ?? "no-next-actor",
       window.__openClinXrConversationTurnStateEvidence?.lastBargeInOutcome ?? "no-barge-in",
     ].join("|");
-    if (panelSignature === lastPanelSignature) {
+    if (panelSignature === panelSignatureState.lastPanelSignature) {
       return;
     }
-    lastPanelSignature = panelSignature;
+    panelSignatureState.lastPanelSignature = panelSignature;
     clinicalPanel.update(clinicalPanelLinesForSelectedStation());
     dialoguePanel.update([
       dialogueText,
