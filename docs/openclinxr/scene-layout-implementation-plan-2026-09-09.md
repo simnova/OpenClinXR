@@ -229,8 +229,62 @@ merges on main without a lease).
 
 ## 2b. The cards
 
-PLANTED on BothyBoard project OpenClinXR. Ten of twelve cards are `Planted`+`ready`; the
-runtime card waits on its RED and the transform card carries two.
+PLANTED on BothyBoard project OpenClinXR. All twelve were planted; the transform card
+carries two REDs.
+
+**Landed on main, 2026-09-09 — ten of twelve.** Each was verified at its own sha with a
+two-sided probe, not from a worker's report: the fix reverted must make the RED fail, and
+restored must make it pass. Two cards remain in flight (equipment identity, scene
+specification).
+
+| card | id | commit | wave | lane | planted RED |
+|---|---|---|---|---|---|
+| event dispatcher | `tsk_dbb2a9b35361d60b` | `517e1e2e` | 1 | B | `scenario-runtime/src/a-scheduled-event-fires-once-at-its-second.test.ts` |
+| heading field | `tsk_2e5ce1243b155be0` | `5cce921b` | 1 | A | `asset-registry/src/a-runtime-actor-placement-carries-a-heading.test.ts` |
+| readiness pair | `tsk_863df7eccab8d6e9` | `cccf91dc` | 1 | A | `xr-capture-evidence/src/a-suppressed-slot-is-not-ready.test.ts` |
+| supine control freeze | `tsk_f450619f3b195514` | `82e12960` | 1 | A | `tools/openclinxr/evidence/supine-control-freeze/the-supine-control-station-is-frozen-by-asset-bytes.test.ts` |
+| equipment binding | `tsk_407803cded5714f0` | `52e389fb` | 1 | B | `scenario-fixtures/src/every-authored-equipment-string-is-classified.test.ts` |
+| authored vector | `tsk_9da016db6e03034b` | `05d9bb9a` | 1 | B | `factory-stations/src/the-staging-station-takes-a-signed-plant-vector.test.ts` |
+| transform survival | `tsk_c8a183614fc7f514` | `be07e9b3` | 2 | A | `xr-scene/src/the-framing-guard-keeps-seated-and-supine-anchors.test.ts` **and** `xr-humanoid-animation/src/the-frame-loop-composes-position-x-from-its-base.test.ts` |
+| motion ownership | `tsk_4ff976a4b0e81bf3` | `f3ae7d79` | 2 | A | `xr-humanoid-animation/src/an-owned-chain-survives-the-posture-pass.test.ts` |
+| runtime consumption | `tsk_ebdeed78d4e75141` | `2f1b4373` | 3 | A | `apps/ui-xr/src/the-authored-offset-reaches-the-posed-humanoid.test.ts` |
+| factory resolution | `tsk_c42ae6e3c6b93620` | `ad2f1539` | 2 | B | `tools/openclinxr/factory/the-placement-node-carries-the-authored-offset.test.ts` |
+| equipment identity | `tsk_7ae68eac956a4163` | in flight | 2 | A | `xr-station/src/two-copies-of-one-asset-mount-separately.test.ts` |
+| scene specification | `tsk_e97804d9ab7be894` | in flight | 2 | B | `scenario-runtime/src/the-scene-spec-reports-an-absent-required-asset.test.ts` |
+
+### A cross-package RED measures `dist/`, and the first probe of two cards was vacuous
+
+Every workspace package's `exports` map points at `dist/`, so a RED in package A that
+imports `@openclinxr/B` loads B's LAST BUILD. Reverting B's `src/` and re-running A's RED
+therefore changes nothing, and the probe passes in BOTH directions — which looks like a
+robust fix and is no measurement at all.
+
+Measured twice in one hour. Removing the ownership carve-out from
+`xr-pose/src/clinical-idle-posture.ts` left the motion RED at 3/3; with
+`pnpm --filter @openclinxr/xr-pose build` inserted between the edit and the run, 2 of 3
+failed. Reverting `asset-registry/src/actor-posture.ts` left the runtime RED green until
+the same rebuild, after which 7 of 8 failed.
+
+`verify-fix.sh` now rebuilds unconditionally rather than only when `dist/` is absent.
+
+### Ceilings raised for contracted exports, and one tightened
+
+| package | ratchet | before | after | for |
+|---|---|---|---|---|
+| `xr-capture-evidence` | rootEntrypointExports | 38 | 39 | `sceneAssetSlotIsReady` |
+| `domain` | rootEntrypointExports | 28 | 30 | `getScheduledEventsDue` and its type |
+| `shared-schemas` | rootEntrypointExports | 71 | 74 | the equipment binding trio |
+| `xr-pose` | rootEntrypointExports | 45 | 47 | `boneIsOwned`, `OwnedChain` |
+| `asset-registry` | rootEntrypointExports | 221 | 223 | `composeSupportedActorWorldPosition` and its refusal type |
+| `xr-runtime-state` | rootEntrypointExports | 123 | 128 | the placement evidence and the composition seam |
+| `ui-route-admin` | SIZE_FREEZE (panel) | 595 | **575** | tightened, after the authoring row was extracted |
+| `apps/ui-xr` | app maxLines | 6083 | **6046** | tightened, after the composition moved to `xr-runtime-state` |
+
+The context-field budget refused two members the motion card's first draft added to
+`HumanoidAnimationRuntimeContext` (37 > 35) and was right: with ownership claimed on the
+ACTOR, the frame loop needs no new context members and `types.ts` is byte-identical to main.
+
+### The card table as originally planted
 
 | card | id | wave | lane | planted RED |
 |---|---|---|---|---|
