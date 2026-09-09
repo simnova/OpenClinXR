@@ -251,3 +251,100 @@ installed release before future clearance.
 No build, test or runtime capture was run for this plan. Every claim is a static
 read at the cited line. The lane structure is a proposal about write-root
 disjointness, not a measurement of worker throughput on this work.
+
+## 5. Round 1 review — corrections to this document
+
+Reviewed by grok-4.6 with the repository, the TypeScript LSP and the BothyBoard
+MCP, 2026-09-09. Full record:
+[round 1](scene-layout-consultation-records-2026-09-09/grok-4.6-plan-review-round-1.md).
+Every correction below was re-verified against the tree before being written here.
+
+**The faculty lock IS applied. My mechanism was wrong, twice.** Section 1 said the
+`/plantOffsetMeters` pointer "resolves against `node.spec`, which never carries
+that key". I then grepped for an applier, found none, and told the operator that
+"nothing applies an override patch, for any path". Both statements are false.
+`specAfterOverride` at `tools/openclinxr/factory/encounter-materialization-compile.ts:167-176`
+copies `node.spec` and upserts `overridePatch.path` onto it, so a lock on
+`/plantOffsetMeters` does change the recipe hash. My grep missed it because I
+searched for `patch.path` and `applyPatch`, not `node.overridePatch.path`.
+
+The correct statement: the lock is decorative as PRESERVATION OF AUTHORED
+CONTENT, because no Placement baker reads the patched spec while the node is
+`status: "planned_unsplit"`. It is not decorative as an override inject. S4's
+known-good is wrong in the same way and must say that putting the offset on the
+spec is necessary and not sufficient — a baker has to read it.
+
+**Framing runs BEFORE posture is stamped, and the plan does not record it.**
+`actor-staging.ts:115` calls `ctx.applyActorFraming(patient, patientActorId)`
+with two arguments and no posture; `patient.userData.openClinXrActorPosture` is
+set seven lines later at `:122`. The seated guard at
+`xr-scene/src/encounter-actor-framing.ts:133-135` reads
+`actor.userData.openClinXrActorPosture` or `input.posture`, and at framing time
+neither is populated for the patient. So the guard cannot fire, and a supine
+patient is framed as a floor-standing actor by default.
+
+That guard's branch also writes `actor.rotation.y = -0.26` (`:137`), so framing
+is a third heading writer, not only the two spouse lines section 1 names.
+
+The hazard for the lane split: S5 owns `encounter-actor-framing.ts` and S6 owns
+`actor-staging.ts`. A wave-2 fix that makes framing respect posture is true for
+the family actor and false for the patient until wave 3.
+
+**Section 1's framing claim was overstated.** `encounter-actor-framing.ts:69-115`
+are the OB and telehealth branches, not an unconditional override. Seated actors
+keep their XZ at `:133-141`.
+
+**Two citations are wrong.** `ed-chest-pain.ts:41` is `actors: [`; the file
+contains no `placement:` key at all, so the claim that it is an unauthored
+control is true and the line number is not. And S3's card labels
+`xr-capture-evidence/src/scene-manifest-evidence.ts:192-202` a readiness
+predicate; that function is `shouldSuppressGeneratedEquipmentModel`. The
+aggregate that actually lies is `loadedCount` at
+`xr-capture-evidence/src/scene-asset-evidence.ts:65`, which counts suppressed
+slots as loaded while `fallbackActiveCount` at `:68` already exists beside it.
+
+**The unauthored supine control is a no-op on XZ today.** The default ED bundle
+stores `{x:-0.9, y:0, z:-0.1}` (`asset-registry/src/runtime-bundles.ts:1457`),
+which equals `DEFAULT_STRETCHER_POSITION` (`actor-posture.ts:215`). A control
+that cannot move is not evidence that the fix left it alone. It needs a
+discriminator that would change if the offset path leaked into it.
+
+**One listed fixture will not go red.** S2's card names
+`ui-route-admin/src/the-worldview-placement-nodes-author-plant-and-support.test.tsx`
+as encoding the scalar. Line 33 is
+`expect(panel).toMatch(/supportSurface|plantXyz|plantOffset/)` — a regex over the
+panel's source text. `plantOffsetMeters` already matches `plantOffset`, so it is
+green today and stays green whatever S2 does. That is precisely the cheap pass
+S2's counterweight was written to block, and the card advertises it as a guard.
+
+**Three lane collisions, none of them visible in the declared write roots.**
+
+- S2 must edit `shared-schemas/src/the-factory-station-schemas-validate.test.ts`,
+  because `shared-schemas/src/factory-stations.ts:5-8` re-exports the catalog S2
+  changes and S2's own proof runs the shared-schemas suite. That file is inside
+  S7's write root.
+- S9 and S11 both write `scenario-runtime/src`, and S11 depends only on S3 and
+  S7, so the board can dequeue S11 while S9 is in flight. S9 must become a
+  dependency of S11.
+- S1 cannot populate the heading through the production builder:
+  `generatedActorPlacement` lives in `asset-registry/src/actor-placement.ts:24-59`,
+  which is S4's write root. S1 extends the type and the hardcoded literals only,
+  and the heading must stay optional or every constructor in
+  `runtime-actor-placements.ts`, `actor-staging.ts` and
+  `generated-ed-station-runtime-bundle.ts` breaks.
+
+**Every card's `changed:` target is too wide.** Directory targets mean "some
+descendant changed", which a worker satisfies by editing an unrelated file. Each
+must name the fix-bearing file. Five cards (S4, S6, S8, S10, S11) also carry the
+measured evidence only in this document and not in the card body, and a worker
+executes the card.
+
+**Not accepted.** The review could not check the "21 of 42 packages", the
+eight-worker ceiling or the 754 ledger records; those are from yesterday's
+measurements in this session and stand as recorded, unverified by this reviewer.
+
+### Consequence
+
+The chain map survives review. The cards do not. They are being left Idle and
+will be recreated from this document once the review rounds converge, rather
+than patched once per round.
