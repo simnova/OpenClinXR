@@ -29,11 +29,16 @@ every link, with two additions.
 
 Two findings beyond the brief.
 
-**The faculty lock is decorative.** `PLACEMENT_OVERRIDE_PATHS` includes
+**The faculty lock preserves nothing.** `PLACEMENT_OVERRIDE_PATHS` includes
 `/plantOffsetMeters` (`encounter-materialization-evidence.ts:634`) and
 `encounter-materialization-faculty-locks.ts:45-46` treats it as lockable. The
-pointer resolves against `node.spec`, which never carries that key. Faculty can
-lock a field that is not there.
+override IS applied: `specAfterOverride`
+(`encounter-materialization-compile.ts:167-176`) copies `node.spec` and upserts
+the pointer, so a lock changes the recipe hash. What it cannot do is preserve an
+authored value, because the emitter never writes the key (`:309-315`) and no
+Placement baker reads the patched spec while the node is `planned_unsplit`.
+Putting the offset on the spec is necessary and not sufficient; a baker has to
+read it. See §5 — this document asserted the wrong mechanism twice.
 
 **`min={0}` makes the authored data unrepresentable.** `clinic-knee-pain.ts:76`
 authors `x: -0.55`. The admin control cannot express it.
@@ -61,9 +66,20 @@ re-anchors `position` and `scale` from `SLOT_PLACEMENT_ANCHORS` whenever
 The overwrite increments neither `addedActorIds` nor a changed count, so it is
 invisible in `window.__openClinXrActorPlacementSsot`.
 
-`packages/openclinxr/xr-scene/src/encounter-actor-framing.ts:69-115` runs
-`position.set` / `rotation.y` / `scale.setScalar` after the placement is applied
-(called from `actor-staging.ts:115,161,226,266`).
+`packages/openclinxr/xr-scene/src/encounter-actor-framing.ts` runs after the
+placement is applied (called from `actor-staging.ts:115,161,226,266`). The
+`position.set` / `rotation.y` / `scale.setScalar` writes at `:69-115` are the OB
+and telehealth branches, not an unconditional override; seated actors keep their
+XZ at `:133-141`.
+
+The hazard is the ORDER, not the writes. `actor-staging.ts:115` calls
+`applyActorFraming(patient, patientActorId)` with no posture argument, and
+`patient.userData.openClinXrActorPosture` is stamped seven lines later at `:122`.
+The seated guard at `encounter-actor-framing.ts:133-135` reads
+`actor.userData.openClinXrActorPosture` or `input.posture` and finds neither
+populated, so it cannot fire for the patient and a supine patient is framed as a
+floor-standing actor by default. That branch also writes `actor.rotation.y = -0.26`
+(`:137`), which makes framing a third heading writer.
 
 `packages/openclinxr/xr-humanoid-animation/src/animation-loop.ts:156` writes
 `slot.root.position.x = emotionalSway + dialogueWeightShift` where `:155` and
@@ -93,8 +109,10 @@ inside that container.
 `slotKind`, `position`, `scale`, `verticalOffsetMeters`, `labelPrefix`,
 `posture?`. A grep for `heading|yawDegrees|facingDegrees|rotationDegrees` across
 `asset-registry`, `xr-runtime-state`, `shared-schemas` and `tools/openclinxr/factory`
-returns zero. The only headings in the scene are hardcoded:
-`actor-staging.ts:210,216` set `spouse.rotation.y = -0.26`.
+returns zero. Every heading in the scene is hardcoded, in three places:
+`actor-staging.ts:210,216` set `spouse.rotation.y = -0.26`,
+`encounter-actor-framing.ts:137` sets the same constant on any seated actor, and
+`main.ts:3512-3513` assigns a sine sway to the patient and nurse every frame.
 
 ### The initial-scene planner has four hard blockers
 
@@ -161,7 +179,14 @@ Write roots are disjoint within a wave. `apps/ui-xr/src/main.ts` is the measured
 serialization point — 91 excess-writer events over 17 days, consumed by 21 of 42
 packages — so exactly one card may hold it at a time, and it is the last wave.
 
-### Wave 1 — five concurrent, no shared file
+### Wave 1 — four concurrent, one paired
+
+S2 and S7 are NOT disjoint: S2 must edit
+`shared-schemas/src/the-factory-station-schemas-validate.test.ts`, because
+`shared-schemas/src/factory-stations.ts:5-8` re-exports the catalog S2 changes
+and S2's own proof runs the shared-schemas suite. That file sits inside S7's
+write root. Either move the fixture into `factory-stations`, or run the two in
+sequence.
 
 | card | write roots | why first |
 |---|---|---|
@@ -216,17 +241,36 @@ dequeuable and the operator asked that no implementation begin.
 | One encounter produces a reviewable initial scene specification | `tsk_cad38802047f3c8d` | 2 | B | room_generate |
 | The runtime applies the authored offset and a heading to the mounted humanoid | `tsk_6e7efa907065fe8c` | 3 | A | staging |
 
-Dependencies are recorded on the cards: the factory card waits on the authored
+Dependencies recorded on the cards: the factory card waits on the authored
 vector, the survival card and the equipment-identity card wait on the heading
 field, the motion card waits on the survival card, the scene specification waits
 on the readiness predicate and the equipment binding, and the runtime card waits
 on three.
 
+Two dependencies are MISSING from the cards as created and must be added when the
+set is recreated. The scene specification must wait on the event dispatcher —
+both write `scenario-runtime/src`, and without the edge the board can dequeue
+them concurrently. And the heading card cannot populate the production builder:
+`generatedActorPlacement` lives in `asset-registry/src/actor-placement.ts:24-59`,
+inside the factory card's write root, so the heading card extends the type and
+the hardcoded literals only, and the field must stay optional or every
+constructor in `runtime-actor-placements.ts`, `actor-staging.ts` and
+`generated-ed-station-runtime-bundle.ts` breaks.
+
 ## 3. Acceptance that cannot pass about nothing
 
-The brief's step 2 already names the right control pair: an authored clinic
-placement (`clinic-knee-pain.ts:51`) and an unauthored supine station
-(`ed-chest-pain.ts:41`). Three rules from what was measured here:
+The brief's step 2 names an authored clinic placement
+(`clinic-knee-pain.ts:53,76,99` carry the three vectors) and an unauthored supine
+station (`ed-chest-pain.ts` contains no `placement:` key at all — the brief's
+`:41` cite is `actors: [`).
+
+**The unauthored control cannot currently fail.** The default ED bundle stores
+`{x:-0.9, y:0, z:-0.1}` (`asset-registry/src/runtime-bundles.ts:1457`), which
+equals `DEFAULT_STRETCHER_POSITION` (`actor-posture.ts:215`). Asserting it did
+not move is green whatever happens. It needs a discriminator that would change if
+the offset path leaked into it.
+
+Three further rules from what was measured here:
 
 **Do not accept a bundle value as evidence.** The chain's last link overwrites it.
 Acceptance samples the posed, skinned humanoid after framing, pose application
