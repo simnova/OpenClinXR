@@ -1,0 +1,32 @@
+{
+  "package": "auth",
+  "name": "@openclinxr/auth",
+  "entrypoint": "packages/openclinxr/auth/src/index.ts",
+  "exports": [
+    "AUTH_CLAIM_BOUNDARY",
+    "AUTH_NOT_EVIDENCE_FOR",
+    "AuthIdentity",
+    "AuthRole",
+    "DEFAULT_DEV_AUTH_IDENTITY",
+    "DEFAULT_DEV_AUTH_SECRET",
+    "SignTokenInput",
+    "VerifyTokenInput",
+    "VerifyTokenResult",
+    "canReadStationRun",
+    "hasFacultyAccess",
+    "parseBearerAuthorization",
+    "resolveSessionLearnerId",
+    "signAuthToken",
+    "verifyAuthToken"
+  ],
+  "workspaceDependencies": [],
+  "tests": [
+    "src/auth.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/auth test",
+    "typecheck": "pnpm --filter @openclinxr/auth typecheck",
+    "build": "pnpm --filter @openclinxr/auth build",
+    "lint": "pnpm --filter @openclinxr/auth lint"
+  }
+}

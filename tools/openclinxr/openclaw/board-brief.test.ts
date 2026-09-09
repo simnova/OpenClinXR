@@ -139,3 +139,78 @@ describe("factory_step gate (D9 dark factory)", () => {
     if (result.dispatchable) expect(result.proofs).toEqual(["run:pnpm architecture"]);
   });
 });
+
+/**
+ * The generated package index, injected into the brief.
+ *
+ * MEASURED 2026-09-08 across seven Grok worker transcripts for this repo: zero LSP tool calls, and
+ * every localization paid in grep and read_file. So a file a worker must DISCOVER competes with
+ * grep and loses. The index goes where every worker already looks, which is this brief.
+ *
+ * The counterweight clause is the one that matters. The cheapest way to make an injection clause
+ * pass is to emit the block unconditionally, which turns every brief in the repo into a wall of
+ * package facts the slice has nothing to do with.
+ */
+describe("package index injection", () => {
+  const REPO = "/Volumes/files/src/openclinxr";
+  const issue = (body: string) => ({ number: 9001, title: "index injection probe", body });
+  const staging = (extra: string) =>
+    `## factory_step: staging\n${extra}\n\n## done_when\n- run:pnpm --filter @openclinxr/xr-station-room test\n`;
+
+  it("carries the entry for a package the done_when names", () => {
+    const result = briefFromIssue(issue(staging("Touch the station room package.")), REPO);
+    expect(result.dispatchable).toBe(true);
+    if (!result.dispatchable) return;
+    expect(result.prompt).toContain("packages/openclinxr/xr-station-room/arch-index.json");
+    expect(result.prompt).toContain("assembleStationScene");
+    expect(result.prompt).toContain("pnpm --filter @openclinxr/xr-station-room typecheck");
+  });
+
+  it("COUNTERWEIGHT: a slice naming no package carries no index block", () => {
+    const body =
+      "## factory_step: staging\nAdjust the parallelism report's grouping.\n\n## done_when\n"
+      + "- run:pnpm packages:typecheck:agent\n- changed:tools/openclinxr/architecture/parallelism-report.ts\n";
+    const result = briefFromIssue(issue(body), REPO);
+    expect(result.dispatchable).toBe(true);
+    if (!result.dispatchable) return;
+    expect(result.prompt).not.toContain("The packages this slice names");
+  });
+
+  it("resolves a package from a --filter specifier as well as from a directory path", () => {
+    // The two are different strings for the same package, and a done_when uses both shapes.
+    const viaFilter = briefFromIssue(issue(staging("No path here, only the filter below.")), REPO);
+    const viaPath = briefFromIssue(
+      issue(
+        "## factory_step: staging\nEdit packages/openclinxr/xr-station-room/src/index.ts.\n\n"
+        + "## done_when\n- run:pnpm packages:typecheck:agent\n",
+      ),
+      REPO,
+    );
+    expect(viaFilter.dispatchable && viaFilter.prompt).toContain("@openclinxr/xr-station-room —");
+    expect(viaPath.dispatchable && viaPath.prompt).toContain("@openclinxr/xr-station-room —");
+  });
+
+  it("bounds a large export list rather than pasting the file", () => {
+    // ui-route-admin publishes over 200 symbols; its index file is 11 KB. Pasted whole it would
+    // push the ask out of the worker's first read.
+    const result = briefFromIssue(
+      issue(
+        "## factory_step: staging\nEdit packages/openclinxr/ui-route-admin/src/index.ts.\n\n"
+        + "## done_when\n- run:pnpm packages:typecheck:agent\n",
+      ),
+      REPO,
+    );
+    expect(result.dispatchable).toBe(true);
+    if (!result.dispatchable) return;
+    expect(result.prompt).toContain("more in the file)");
+    const line = result.prompt.split("\n").find((l) => l.startsWith("exports ("));
+    expect(line?.split(", ").length).toBe(30);
+  });
+
+  it("omits the block when no tree root is given, rather than reading the orchestrator's cwd", () => {
+    const result = briefFromIssue(issue(staging("No tree root passed.")));
+    expect(result.dispatchable).toBe(true);
+    if (!result.dispatchable) return;
+    expect(result.prompt).not.toContain("The packages this slice names");
+  });
+});

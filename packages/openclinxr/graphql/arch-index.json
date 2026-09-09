@@ -1,0 +1,42 @@
+{
+  "package": "graphql",
+  "name": "@openclinxr/graphql",
+  "entrypoint": "packages/openclinxr/graphql/src/index.ts",
+  "exports": [
+    "AdminGraphqlDocument",
+    "AdminGraphqlExecutionInput",
+    "AdminGraphqlReviewDecision",
+    "AdminGraphqlRootValue",
+    "AdminGraphqlScenario",
+    "AdminGraphqlScenarioStatus",
+    "FACULTY_DISPOSITION_CLAIM_BOUNDARY",
+    "FACULTY_DISPOSITION_NOT_EVIDENCE_FOR",
+    "GraphqlCodegenPlan",
+    "REVIEW_PACKET_ACTOR_TURN_CLAIM_SCOPE",
+    "adminGraphqlDocumentByOperationName",
+    "adminGraphqlDocuments",
+    "adminGraphqlFieldResolver",
+    "buildAdminGraphqlSchema",
+    "createGraphqlCodegenPlan",
+    "executeAdminGraphql",
+    "openClinXrAdminSchemaSdl",
+    "projectAppendFacultyDispositionResult",
+    "projectFacultyDispositionTrail",
+    "projectReviewPacketActorTurnLayers"
+  ],
+  "workspaceDependencies": [],
+  "tests": [
+    "src/admin-graphql.test.ts",
+    "src/the-faculty-disposition-contract-is-append-only.test.ts",
+    "src/the-review-packet-replay-includes-actor-turn-layers.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/graphql test",
+    "typecheck": "pnpm --filter @openclinxr/graphql typecheck",
+    "build": "pnpm --filter @openclinxr/graphql build",
+    "lint": "pnpm --filter @openclinxr/graphql lint"
+  },
+  "ceilings": {
+    "testInternalImports": 3
+  }
+}

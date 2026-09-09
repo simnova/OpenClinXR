@@ -1,0 +1,23 @@
+{
+  "package": "config-rolldown",
+  "name": "@openclinxr/config-rolldown",
+  "entrypoint": "packages/openclinxr/config-rolldown/src/index.ts",
+  "exports": [
+    "OpenClinXrRolldownConfig",
+    "OpenClinXrRolldownConfigOptions",
+    "PrepareOpenClinXrAzureFunctionsDeployOptions",
+    "buildOpenClinXrCjsAliasMap",
+    "createOpenClinXrAzureFunctionsRolldownConfig",
+    "prepareOpenClinXrAzureFunctionsDeploy",
+    "summarizeRolldownAdoption"
+  ],
+  "workspaceDependencies": [],
+  "tests": [
+    "src/openclinxr-rolldown-config.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/config-rolldown test",
+    "typecheck": "pnpm --filter @openclinxr/config-rolldown typecheck",
+    "lint": "pnpm --filter @openclinxr/config-rolldown lint"
+  }
+}

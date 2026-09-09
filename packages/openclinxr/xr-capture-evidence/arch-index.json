@@ -1,0 +1,69 @@
+{
+  "package": "xr-capture-evidence",
+  "name": "@openclinxr/xr-capture-evidence",
+  "entrypoint": "packages/openclinxr/xr-capture-evidence/src/index.ts",
+  "exports": [
+    "DeclaredEquipmentMountEvidence",
+    "OpenClinXrXrEntryEvidence",
+    "RuntimeSceneManifestEvidenceInput",
+    "SCENE_ONLY_ESSENTIAL_ROOM_PROP_IDS",
+    "buildCaseDefinedHumanoidPerformanceContractEvidence",
+    "buildRuntimeSceneManifestEvidence",
+    "bundleUsesOnlyApprovedLocalFixtureAssets",
+    "formatCaseDefinedHumanoidPerformanceContractEvidence",
+    "formatSceneAssetEvidenceStatus",
+    "formatUnknownError",
+    "isActorCloseRealismCaptureMode",
+    "isActorPoseReviewCaptureMode",
+    "isDeterministicCaptureClock",
+    "isEdBayVisibleCaptureMode",
+    "isGeneratedPlaceholderAssetForDifferentScenario",
+    "isGeneratedPlaceholderSourceForDifferentScenario",
+    "isGeneratedSceneOverviewCaptureMode",
+    "isHumanoidFaceDetailCaptureMode",
+    "isHumanoidMouthGazePoseReviewCaptureMode",
+    "isPhysicsClinicalTouchCapture",
+    "isRealGarmentSleeveDeformCapture",
+    "isSceneOnlyVisualReviewCaptureMode",
+    "publishRuntimeActorSlotAssignmentEvidence",
+    "readSelectedCaptureMode",
+    "recordLearnerRuntimeUseGateEvidence",
+    "recordSceneAssetStatus",
+    "recordXrEntryEvidence",
+    "refreshDeclaredEquipmentMountEvidenceFromScene",
+    "resolveRuntimeSlotAssignment",
+    "roundPerformanceNow",
+    "runtimeAssetAffordanceCueIds",
+    "runtimeBundleAssets",
+    "selectedCaptureMode",
+    "shouldRenderRoomPropInVisualReview",
+    "shouldShowActorRealismRequirementPanel",
+    "shouldShowActorRealismRequirementPanelForCapture",
+    "shouldShowInSceneEvidencePanels",
+    "shouldShowInSceneIdentityLabels",
+    "shouldShowPrimitiveAssetFallbacks",
+    "shouldShowRuntimeAffordanceMarkers",
+    "shouldSuppressGeneratedEnvironmentShell",
+    "shouldSuppressGeneratedEquipmentModel",
+    "shouldUseLearnerRuntimeAssetBundle"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/asset-registry",
+    "@openclinxr/scenario-fixtures",
+    "@openclinxr/xr-runtime-state"
+  ],
+  "tests": [
+    "src/capture-evidence.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/xr-capture-evidence test",
+    "typecheck": "pnpm --filter @openclinxr/xr-capture-evidence typecheck",
+    "build": "pnpm --filter @openclinxr/xr-capture-evidence build",
+    "lint": "pnpm --filter @openclinxr/xr-capture-evidence lint"
+  },
+  "ceilings": {
+    "testInternalImports": 7,
+    "rootEntrypointExports": 43,
+    "starExports": 8
+  }
+}

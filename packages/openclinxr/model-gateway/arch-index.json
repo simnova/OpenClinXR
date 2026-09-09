@@ -1,0 +1,59 @@
+{
+  "package": "model-gateway",
+  "name": "@openclinxr/model-gateway",
+  "entrypoint": "packages/openclinxr/model-gateway/src/index.ts",
+  "exports": [
+    "ActorCommunicationProfileContext",
+    "ActorCommunicationPromptContext",
+    "ActorResponseClinicalOrderContext",
+    "ActorResponseClinicalStateContext",
+    "ActorResponseProviderPromptInput",
+    "ActorResponseRequest",
+    "ActorResponseResult",
+    "CreateActorDialogueModelGatewayOptions",
+    "DialogueSeedActorResponseRequestOptions",
+    "DialogueSeedRequestFixture",
+    "DialogueSeedScenarioContext",
+    "GuardrailResult",
+    "LocalModelProviderAdapter",
+    "LocalModelProviderOptions",
+    "LocalModelProviderStubOptions",
+    "MockModelProviderAdapter",
+    "ModelCapability",
+    "ModelGateway",
+    "ModelGatewayOptions",
+    "ModelProvenance",
+    "ModelProviderAdapter",
+    "ModelRequestPolicy",
+    "OpenAiCompatibleModelProviderAdapter",
+    "TokenUsage",
+    "buildActorCommunicationProfilePromptContext",
+    "buildActorResponseProviderPromptInput",
+    "buildActorResponseRequestsForDialogueSeeds",
+    "createActorDialogueModelGateway",
+    "createDefaultModelGateway",
+    "createLlamaCppModelProviderAdapter",
+    "createMlxModelProviderAdapter",
+    "createOllamaModelProviderAdapter",
+    "defaultOfflineActorDialoguePolicy"
+  ],
+  "workspaceDependencies": [
+    "@cellix/provider-contracts"
+  ],
+  "tests": [
+    "src/actor-dialogue-gateway.test.ts",
+    "src/deepseek-actor-thinking-is-disabled.test.ts",
+    "src/model-gateway.test.ts",
+    "src/muse-spark-sends-no-reasoning.test.ts",
+    "src/openai-compatible-adapter.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/model-gateway test",
+    "typecheck": "pnpm --filter @openclinxr/model-gateway typecheck",
+    "build": "pnpm --filter @openclinxr/model-gateway build",
+    "lint": "pnpm --filter @openclinxr/model-gateway lint"
+  },
+  "ceilings": {
+    "rootEntrypointExports": 33
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "package": "xr-exam-flow",
+  "name": "@openclinxr/xr-exam-flow",
+  "entrypoint": "packages/openclinxr/xr-exam-flow/src/index.ts",
+  "exports": [
+    "ExamFlowStoreOptions",
+    "advanceFormRunClock",
+    "buildExamFlowEvidence",
+    "buildExamFormRunEvidence",
+    "buildExamRunSummaryEvidence",
+    "createExamFlowStore",
+    "createFormRunState",
+    "persistFormRunQueueSnapshot",
+    "readExamRunSummaryOutcomes",
+    "recordStationOutcome",
+    "recordStationOutcomeOnFormRun"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/xr-runtime-state",
+    "@openclinxr/xr-runtime-wiring",
+    "@openclinxr/xr-scene"
+  ],
+  "tests": [
+    "src/store.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/xr-exam-flow test",
+    "typecheck": "pnpm --filter @openclinxr/xr-exam-flow typecheck",
+    "build": "pnpm --filter @openclinxr/xr-exam-flow build",
+    "lint": "pnpm --filter @openclinxr/xr-exam-flow lint"
+  }
+}

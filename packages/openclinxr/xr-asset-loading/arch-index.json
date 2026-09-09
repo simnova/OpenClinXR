@@ -1,0 +1,73 @@
+{
+  "package": "xr-asset-loading",
+  "name": "@openclinxr/xr-asset-loading",
+  "entrypoint": "packages/openclinxr/xr-asset-loading/src/index.ts",
+  "exports": [
+    "AssetLoadingContext",
+    "AssetLoadingPedsHandoffBundle",
+    "AssetLoadingScenarioTheme",
+    "ClipNameContext",
+    "HumanoidCueMode",
+    "HumanoidSourceComparator",
+    "HumanoidSourceProvenance",
+    "LoadHumanoidOptions",
+    "LoadSceneSlotOptions",
+    "RegisterAnimationInput",
+    "addActorSpecificIdentityVariantCue",
+    "addHumanoidSourceComparatorFaceReviewCues",
+    "addReusableExteriorPreEncounterRoom",
+    "addRoleSpecificHumanoidVisuals",
+    "addScenarioSpecificClinicalSetDressing",
+    "addScenarioSpecificClinicalTeamCue",
+    "addScenarioSpecificFamilyCue",
+    "addScenarioSpecificPatientCue",
+    "clinicalTouchResponseClipNamesForActor",
+    "comparatorCaptureSubjectActorId",
+    "configureSemanticRolePoseOverlay",
+    "frameComparatorCaptureOnNamedActor",
+    "gazeProbeAnimationClipNamesFromGltf",
+    "generatedHumanoidSurfaceMaterialOverride",
+    "hasAuthoredClinicalIdlePoseClip",
+    "loadGeneratedEnvironmentIntoSceneSlot",
+    "loadGeneratedEquipmentIntoSceneSlot",
+    "loadGeneratedHumanoidIntoActorSlot",
+    "neutralizeGeneratedHumanoidMorphTargets",
+    "pedsAsthmaPatientBundleVisemeUtterance",
+    "readSelectedHumanoidSourceComparator",
+    "registerGeneratedHumanoidAnimation",
+    "roleAnimationClipNamesForActor",
+    "runtimeHumanoidVariantAssetPath",
+    "selectedHumanoidSourceComparator",
+    "shouldShowProceduralHumanoidDetailCues",
+    "suppressRuntimeDiagnosticOverlaysForSourceComparator",
+    "tintGeneratedMaterial",
+    "tintGeneratedSceneMaterials"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/asset-registry",
+    "@openclinxr/shared-schemas",
+    "@openclinxr/xr-capture-evidence",
+    "@openclinxr/xr-humanoid-animation",
+    "@openclinxr/xr-locomotion",
+    "@openclinxr/xr-runtime-state",
+    "@openclinxr/xr-scene",
+    "@openclinxr/xr-scene-cues"
+  ],
+  "tests": [
+    "src/asset-loading.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/xr-asset-loading test",
+    "typecheck": "pnpm --filter @openclinxr/xr-asset-loading typecheck",
+    "build": "pnpm --filter @openclinxr/xr-asset-loading build",
+    "lint": "pnpm --filter @openclinxr/xr-asset-loading lint"
+  },
+  "ceilings": {
+    "contexts": {
+      "AssetLoadingContext": 93
+    },
+    "testInternalImports": 1,
+    "rootEntrypointExports": 39,
+    "starExports": 8
+  }
+}

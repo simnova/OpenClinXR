@@ -1,0 +1,78 @@
+{
+  "package": "xr-humanoid-animation",
+  "name": "@openclinxr/xr-humanoid-animation",
+  "entrypoint": "packages/openclinxr/xr-humanoid-animation/src/index.ts",
+  "exports": [
+    "GeneratedHumanoidAnimationSlot",
+    "HumanoidActingCueRecord",
+    "HumanoidAnimationRuntimeContext",
+    "HumanoidBundleDialogueTurn",
+    "HumanoidDialogueEmotionContext",
+    "HumanoidDialogueGazeTarget",
+    "HumanoidEmotionExpressionState",
+    "HumanoidExpressionEmotion",
+    "HumanoidExpressionWeights",
+    "HumanoidEyeMotionMetrics",
+    "HumanoidRuntimeDrive",
+    "HumanoidSpeechPlayback",
+    "LiveDialogueTurnSummary",
+    "MouthGazePoseComparatorEvidenceRecord",
+    "RuntimeHumanoidActingCueEvidenceRecord",
+    "applyHumanoidFaceRigControls",
+    "applyHumanoidMorphTargetCue",
+    "buildHumanoidSpeechEvidence",
+    "buildRuntimeActorRealismLaunchBadge",
+    "clampDialogueFacingYaw",
+    "computeAffectRampIntensity",
+    "computeHumanoidEyeMotionMetrics",
+    "createHumanoidEmotionExpressionState",
+    "humanoidDialogueDurationMs",
+    "isGeneratedRuntimeDrive",
+    "lerpHumanoidAnimation",
+    "normalizeHumanoidAnimationAngle",
+    "offsetHumanoidRigControl",
+    "orientHumanoidEyeFocusCue",
+    "orientHumanoidTowardGazeTarget",
+    "pediatricAsthmaActingOverlayForSlot",
+    "recordMouthGazePoseComparatorEvidence",
+    "recordRuntimeHumanoidActingCueEvidence",
+    "resetHumanoidFaceRigControls",
+    "resolveHumanoidGazeTargetWorld",
+    "rotateHumanoidRigControl",
+    "roundHumanoidExpressionWeights",
+    "scaleHumanoidRigControl",
+    "startHumanoidEmotionTransition",
+    "updateGeneratedHumanoidAnimations",
+    "updateHumanoidEmotionExpression",
+    "updateHumanoidGazeCue",
+    "updateHumanoidSpeechCue",
+    "updateVirtualDeviceActorSpeechPulses",
+    "visemeOpenness",
+    "writeHumanoidSpeechFrameEvidence",
+    "writeMouthGazePoseComparatorEvidence"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/asset-registry",
+    "@openclinxr/xr-dialogue",
+    "@openclinxr/xr-pose",
+    "@openclinxr/xr-runtime-state",
+    "@openclinxr/xr-scene"
+  ],
+  "tests": [
+    "src/humanoid-animation.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/xr-humanoid-animation test",
+    "typecheck": "pnpm --filter @openclinxr/xr-humanoid-animation typecheck",
+    "build": "pnpm --filter @openclinxr/xr-humanoid-animation build",
+    "lint": "pnpm --filter @openclinxr/xr-humanoid-animation lint"
+  },
+  "ceilings": {
+    "contexts": {
+      "HumanoidAnimationRuntimeContext": 35
+    },
+    "testInternalImports": 3,
+    "rootEntrypointExports": 47,
+    "starExports": 5
+  }
+}

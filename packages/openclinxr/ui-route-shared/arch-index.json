@@ -1,0 +1,34 @@
+{
+  "package": "ui-route-shared",
+  "name": "@openclinxr/ui-route-shared",
+  "entrypoint": "packages/openclinxr/ui-route-shared/src/index.ts",
+  "exports": [
+    "RouteManifest",
+    "RouteManifestEntry",
+    "buildAdminGraphqlEndpoint",
+    "compileEncounterWorld",
+    "createAdminControlPlaneClient",
+    "createRouteManifest",
+    "defaultAdminApiBaseUrl",
+    "findRouteByPath"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/asset-registry",
+    "@openclinxr/exam-assembly",
+    "@openclinxr/graphql",
+    "@openclinxr/rest",
+    "@openclinxr/review-workflow",
+    "@openclinxr/shared-schemas",
+    "@openclinxr/ui-shared"
+  ],
+  "tests": [
+    "src/admin-api-client.test.ts",
+    "src/route-manifest.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/ui-route-shared test",
+    "typecheck": "pnpm --filter @openclinxr/ui-route-shared typecheck",
+    "build": "pnpm --filter @openclinxr/ui-route-shared build",
+    "lint": "pnpm --filter @openclinxr/ui-route-shared lint"
+  }
+}

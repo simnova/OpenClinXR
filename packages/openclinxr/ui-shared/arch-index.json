@@ -1,0 +1,38 @@
+{
+  "package": "ui-shared",
+  "name": "@openclinxr/ui-shared",
+  "entrypoint": "packages/openclinxr/ui-shared/src/index.ts",
+  "exports": [
+    "ActorTurnReplayPanel",
+    "ActorTurnReplayPanelProps",
+    "EmissionReplayBindPanel",
+    "EmissionReplayBindPanelProps",
+    "FacultyDispositionPanel",
+    "FacultyDispositionPanelProps",
+    "adminWorkbenchCapabilityTags",
+    "capabilityTagColor",
+    "clampedScoreFromWorkbenchInput",
+    "countActorCommunicationProfiles",
+    "formatActorCommunicationProfileCoverage",
+    "formatDuration",
+    "formatMinutes",
+    "openClinXrAdminTheme",
+    "pluralizeWorkbenchCount",
+    "uniqueWorkbenchValues"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/factory-stations",
+    "@openclinxr/graphql"
+  ],
+  "tests": [
+    "src/admin-runtime-posture.test.ts",
+    "src/admin-theme.test.ts",
+    "src/admin-workbench-format.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/ui-shared test",
+    "typecheck": "pnpm --filter @openclinxr/ui-shared typecheck",
+    "build": "pnpm --filter @openclinxr/ui-shared build",
+    "lint": "pnpm --filter @openclinxr/ui-shared lint"
+  }
+}

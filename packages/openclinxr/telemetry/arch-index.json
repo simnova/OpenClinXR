@@ -1,0 +1,37 @@
+{
+  "package": "telemetry",
+  "name": "@openclinxr/telemetry",
+  "entrypoint": "packages/openclinxr/telemetry/src/index.ts",
+  "exports": [
+    "InMemoryTelemetryRecorder",
+    "OpenClinXrSpanName",
+    "RealTelemetryRecorder",
+    "SafeTelemetryAttributes",
+    "TelemetryAttributeInput",
+    "TelemetryRecorder",
+    "TelemetryRunCounters",
+    "TelemetrySnapshot",
+    "TelemetrySpanRecord",
+    "TelemetrySpanSummary",
+    "TelemetrySpanSummaryBucket",
+    "TelemetrySummaryLabelName",
+    "createInMemoryTelemetryRecorder",
+    "createNoopTelemetryRecorder",
+    "createTelemetryRecorder",
+    "openClinXrSpanNames",
+    "safeTelemetryAttributes",
+    "summarizeTelemetrySpans",
+    "telemetryAttributeNames",
+    "telemetryRouteAttributes"
+  ],
+  "workspaceDependencies": [],
+  "tests": [
+    "src/telemetry.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/telemetry test",
+    "typecheck": "pnpm --filter @openclinxr/telemetry typecheck",
+    "build": "pnpm --filter @openclinxr/telemetry build",
+    "lint": "pnpm --filter @openclinxr/telemetry lint"
+  }
+}

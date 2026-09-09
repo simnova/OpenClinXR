@@ -1,0 +1,23 @@
+{
+  "package": "physics-touch-artifacts",
+  "name": "@openclinxr/physics-touch-artifacts",
+  "entrypoint": "packages/openclinxr/physics-touch-artifacts/src/index.ts",
+  "exports": [
+    "PHYSICS_TOUCH_ARTIFACTS_GATES",
+    "bakedTransformsConsumerAllowed",
+    "liveEngineInProductionForbidden"
+  ],
+  "workspaceDependencies": [],
+  "tests": [
+    "src/__tests__/gates.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/physics-touch-artifacts test",
+    "typecheck": "pnpm --filter @openclinxr/physics-touch-artifacts typecheck",
+    "build": "pnpm --filter @openclinxr/physics-touch-artifacts build",
+    "lint": "pnpm --filter @openclinxr/physics-touch-artifacts lint"
+  },
+  "ceilings": {
+    "testInternalImports": 1
+  }
+}

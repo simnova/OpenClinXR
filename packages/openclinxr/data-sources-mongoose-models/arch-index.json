@@ -1,0 +1,61 @@
+{
+  "package": "data-sources-mongoose-models",
+  "name": "@openclinxr/data-sources-mongoose-models",
+  "entrypoint": "packages/openclinxr/data-sources-mongoose-models/src/index.ts",
+  "exports": [
+    "EncounterAssetGenerationJobCheckpointRecord",
+    "EncounterAssetGenerationJobEvidenceGateRefRecord",
+    "EncounterAssetGenerationJobMongooseRepository",
+    "EncounterAssetGenerationJobRecord",
+    "EncounterAssetGenerationJobStatus",
+    "LearnerScenarioProjection",
+    "ScenarioBankMongooseRepository",
+    "ScenarioBankRecord",
+    "ScenarioBankRepositoryFilters",
+    "ScenarioReviewDecision",
+    "ScenarioReviewDecisionMongooseRepository",
+    "ScenarioReviewDecisionRecord",
+    "ScenarioReviewDecisionReviewerRole",
+    "ScenarioReviewDecisionValue",
+    "ScenarioReviewUpdate",
+    "ScenarioReviewerRole",
+    "StationRunQueueSnapshotItemRecord",
+    "StationRunQueueSnapshotMongooseRepository",
+    "StationRunQueueSnapshotRecord",
+    "StationRunQueueSnapshotStatus",
+    "createEncounterAssetGenerationJobModel",
+    "createScenarioBankModel",
+    "createScenarioReviewDecisionModel",
+    "createStationRunQueueSnapshotModel",
+    "encounterAssetGenerationJobSchema",
+    "scenarioBankLearnerProjection",
+    "scenarioBankSchema",
+    "scenarioReviewDecisionSchema",
+    "stationRunQueueSnapshotSchema"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/capability-gateway"
+  ],
+  "tests": [
+    "src/encounter-asset-generation-job-model.test.ts",
+    "src/encounter-asset-generation-job-repository.test.ts",
+    "src/mongoose-memory-context.test.ts",
+    "src/scenario-bank-model.test.ts",
+    "src/scenario-bank-repository.test.ts",
+    "src/scenario-review-decision-model.test.ts",
+    "src/scenario-review-decision-repository.test.ts",
+    "src/station-run-queue-snapshot-model.test.ts",
+    "src/station-run-queue-snapshot-repository.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/data-sources-mongoose-models test",
+    "typecheck": "pnpm --filter @openclinxr/data-sources-mongoose-models typecheck",
+    "build": "pnpm --filter @openclinxr/data-sources-mongoose-models build",
+    "lint": "pnpm --filter @openclinxr/data-sources-mongoose-models lint"
+  },
+  "ceilings": {
+    "testInternalImports": 6,
+    "rootEntrypointExports": 29,
+    "starExports": 8
+  }
+}

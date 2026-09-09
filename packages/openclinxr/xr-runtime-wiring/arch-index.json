@@ -1,0 +1,45 @@
+{
+  "package": "xr-runtime-wiring",
+  "name": "@openclinxr/xr-runtime-wiring",
+  "entrypoint": "packages/openclinxr/xr-runtime-wiring/src/index.ts",
+  "exports": [
+    "DEFAULT_EXAM_SCENARIO_SEQUENCE",
+    "ExamNavigationInput",
+    "ExamRunOutcomeInput",
+    "ExamRunQueryDeps",
+    "ExamRunStationOutcomeRecord",
+    "ExamRunTiming",
+    "ExamStationContext",
+    "booleanQueryParam",
+    "buildExamNavigationHref",
+    "buildExamNavigationUrl",
+    "buildExamRunStationOutcome",
+    "configuredExamRunId",
+    "configuredExamSequence",
+    "configuredExamTiming",
+    "findFormStationOutcome",
+    "formElapsedSecondForCurrentStation",
+    "formatStationClock",
+    "mergeExamRunStationOutcome",
+    "nextExamScenarioId",
+    "normalizeExamSequence",
+    "positiveIntegerQueryParam"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/exam-assembly",
+    "@openclinxr/xr-runtime-state"
+  ],
+  "tests": [
+    "src/exam-run-params.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/xr-runtime-wiring test",
+    "typecheck": "pnpm --filter @openclinxr/xr-runtime-wiring typecheck",
+    "build": "pnpm --filter @openclinxr/xr-runtime-wiring build",
+    "lint": "pnpm --filter @openclinxr/xr-runtime-wiring lint"
+  },
+  "ceilings": {
+    "testInternalImports": 2,
+    "starExports": 2
+  }
+}

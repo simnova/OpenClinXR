@@ -363,6 +363,130 @@ function runTokenBases(treeRoot: string, command: string): string[] {
   return resolved.length > 0 ? resolved : [treeRoot];
 }
 
+/** At most this many packages are described in a brief; beyond it the block stops being read. */
+const MAX_INDEXED_PACKAGES_IN_BRIEF = 6;
+/** At most this many export names per package; the file holds the rest. */
+const MAX_EXPORTS_IN_BRIEF = 30;
+
+type PackageAgentIndexFile = {
+  package: string;
+  name: string;
+  entrypoint: string;
+  purpose?: string;
+  exports?: string[];
+  workspaceDependencies?: string[];
+  tests?: string[];
+  commands?: Record<string, string>;
+  ceilings?: Record<string, unknown>;
+};
+
+function readAgentIndex(treeRoot: string, pkg: string): PackageAgentIndexFile | null {
+  try {
+    return JSON.parse(
+      readFileSync(join(treeRoot, "packages", "openclinxr", pkg, "arch-index.json"), "utf8"),
+    ) as PackageAgentIndexFile;
+  } catch {
+    return null;
+  }
+}
+
+function allAgentIndexes(treeRoot: string): PackageAgentIndexFile[] {
+  const dir = join(treeRoot, "packages", "openclinxr");
+  let names: string[];
+  try {
+    names = readdirSync(dir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name);
+  } catch {
+    return [];
+  }
+  return names
+    .map((pkg) => readAgentIndex(treeRoot, pkg))
+    .filter((index): index is PackageAgentIndexFile => index !== null);
+}
+
+/**
+ * Packages this issue is about, in the order a worker will meet them: proof targets first, then
+ * the body. Both a directory path and a workspace specifier count, because a done_when says
+ * `changed:packages/openclinxr/<pkg>/…` and a `run:` says `--filter @openclinxr/<name>`, and the
+ * two are not the same string.
+ */
+export function packagesNamedInIssue(
+  issue: BoardIssue,
+  rules: readonly string[],
+  treeRoot: string,
+): string[] {
+  const indexes = allAgentIndexes(treeRoot);
+  const byName = new Map(indexes.map((index) => [index.name, index.package]));
+  const known = new Set(indexes.map((index) => index.package));
+  const found: string[] = [];
+  const add = (pkg: string | undefined): void => {
+    if (pkg !== undefined && known.has(pkg) && !found.includes(pkg)) found.push(pkg);
+  };
+  for (const text of [...rules, issue.body]) {
+    for (const match of text.matchAll(/packages\/openclinxr\/([a-z0-9-]+)/gu)) add(match[1]);
+    for (const match of text.matchAll(/@openclinxr\/[a-z0-9-]+/gu)) add(byName.get(match[0]));
+  }
+  return found;
+}
+
+/**
+ * The generated per-package index, rendered into the brief.
+ *
+ * MEASURED 2026-09-08 across seven Grok worker transcripts: zero LSP tool calls, and localization
+ * paid entirely in grep and read_file. A file a worker must DISCOVER competes with grep and loses,
+ * so the index goes where every worker already looks — this brief.
+ *
+ * Bounded on purpose. ui-route-admin's index is 11 KB of export names; pasted whole it would push
+ * the ask out of the worker's first read. The file path is given so the full list is one read away.
+ */
+export function packageIndexBriefSection(packages: readonly string[], treeRoot: string): string[] {
+  const shown = packages.slice(0, MAX_INDEXED_PACKAGES_IN_BRIEF);
+  const lines: string[] = [];
+  for (const pkg of shown) {
+    const index = readAgentIndex(treeRoot, pkg);
+    if (index === null) continue;
+    const exports = index.exports ?? [];
+    const listed = exports.slice(0, MAX_EXPORTS_IN_BRIEF).join(", ");
+    const more = exports.length > MAX_EXPORTS_IN_BRIEF
+      ? ` (+${exports.length - MAX_EXPORTS_IN_BRIEF} more in the file)`
+      : "";
+    lines.push(`### ${index.name} — packages/openclinxr/${pkg}/arch-index.json`);
+    if (index.purpose !== undefined) lines.push(index.purpose);
+    lines.push(`entrypoint: ${index.entrypoint}`);
+    lines.push(`exports (${exports.length}): ${listed}${more}`);
+    if ((index.workspaceDependencies ?? []).length > 0) {
+      lines.push(`may import: ${(index.workspaceDependencies ?? []).join(", ")}`);
+    }
+    if ((index.tests ?? []).length > 0) lines.push(`tests: ${(index.tests ?? []).join(", ")}`);
+    for (const [script, command] of Object.entries(index.commands ?? {})) {
+      lines.push(`${script}: ${command}`);
+    }
+    if (index.ceilings !== undefined) {
+      lines.push(
+        `ceilings (SHRINK-ONLY, packages/openclinxr/${pkg}/arch-ceiling.json): `
+        + JSON.stringify(index.ceilings),
+      );
+    }
+    lines.push("");
+  }
+  if (lines.length === 0) return [];
+  const omitted = packages.length - shown.length;
+  return [
+    `## The packages this slice names (generated; \`pnpm arch:index\` rebuilds them)`,
+    ``,
+    `Read this before grepping for an export, a dependency, a test file or a command. It is`,
+    `derived from the tree and gated: an archunit test fails when any of it drifts from the code.`,
+    `A symbol NOT listed under a package's exports is not part of its interface — reach for the`,
+    `entrypoint, not a deep import.`,
+    ``,
+    ...lines,
+    ...(omitted > 0
+      ? [`${omitted} further package(s) named in this issue are not shown; read their arch-index.json.`, ``]
+      : []),
+  ];
+}
+
 export function unprotectedItFailsPlants(
   rules: readonly string[],
   treeRoot: string | undefined,
@@ -579,11 +703,18 @@ export function briefFromIssue(issue: BoardIssue, treeRoot?: string): BriefResul
       // The body verbatim: a worker should see the ask, not my summary of it.
       issue.body.trim(),
       ``,
+      ...(treeRoot === undefined
+        ? []
+        : packageIndexBriefSection(packagesNamedInIssue(issue, rules, treeRoot), treeRoot)),
       `VERIFY (stop at first failure): pnpm packages:typecheck:agent && pnpm architecture, then the`,
       `test task for every package you touched: pnpm exec turbo run test --filter <pkg> --force.`,
       ``,
       `LINT the paths you touched, and fix what it reports:`,
       `  pnpm exec biome lint --no-errors-on-unmatched -- <the src dirs you edited>`,
+      `If you CHANGE A PACKAGE'S EXPORTS, tests, dependencies or ceilings, run \`pnpm arch:index\``,
+      `and commit the regenerated arch-index.json. \`pnpm architecture\` fails on a stale one, and`,
+      `the block above is what the NEXT worker reads instead of grepping.`,
+      ``,
       `SCOPE IT TO YOUR PATHS. Repo-wide \`pnpm hygiene:biome\` is red on 1,664 pre-existing`,
       `diagnostics (measured 2026-09-08) and is not yours to clear. noShadow and noExplicitAny are`,
       `errors: a shadowed binding and an \`any\` bridge are how two discarded slices hid a defect`,

@@ -1,0 +1,40 @@
+{
+  "package": "test-harness",
+  "name": "@openclinxr/test-harness",
+  "entrypoint": "packages/openclinxr/test-harness/src/index.ts",
+  "exports": [
+    "AdversarialProbe",
+    "AdversarialProbeReport",
+    "AdversarialProbeReportOptions",
+    "AdversarialProbeStatus",
+    "DialogueSeedReplayEvidence",
+    "OptionalRuntimeSkip",
+    "SimulationResult",
+    "buildAdversarialProbeReport",
+    "runDialogueSeedReplayEvidence",
+    "runEdChestPainSimulation"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/model-gateway",
+    "@openclinxr/review-workflow",
+    "@openclinxr/scenario-fixtures",
+    "@openclinxr/scenario-runtime",
+    "@openclinxr/shared-schemas",
+    "@openclinxr/telemetry"
+  ],
+  "tests": [
+    "src/adversarial-report.test.ts",
+    "src/benchmark-report.test.ts",
+    "src/station-simulation.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/test-harness test",
+    "typecheck": "pnpm --filter @openclinxr/test-harness typecheck",
+    "build": "pnpm --filter @openclinxr/test-harness build",
+    "lint": "pnpm --filter @openclinxr/test-harness lint"
+  },
+  "ceilings": {
+    "testInternalImports": 4,
+    "starExports": 2
+  }
+}

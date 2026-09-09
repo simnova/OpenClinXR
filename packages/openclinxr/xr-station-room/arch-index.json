@@ -1,0 +1,44 @@
+{
+  "package": "xr-station-room",
+  "name": "@openclinxr/xr-station-room",
+  "entrypoint": "packages/openclinxr/xr-station-room/src/index.ts",
+  "exports": [
+    "StationActorSlotAssignment",
+    "StationActorSlotKind",
+    "StationActorStagingContext",
+    "StationActorStagingResult",
+    "actorNameplateLabel",
+    "assembleStationScene",
+    "buildStationRoomShell",
+    "runtimeGeneratedSceneObjectName",
+    "stageStationActors",
+    "wireStationPointerInteraction"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/asset-registry",
+    "@openclinxr/xr-asset-loading",
+    "@openclinxr/xr-capture-evidence",
+    "@openclinxr/xr-runtime-state",
+    "@openclinxr/xr-scene",
+    "@openclinxr/xr-scene-cues"
+  ],
+  "tests": [
+    "src/actor-staging.test.ts",
+    "src/index.test.ts",
+    "src/station-interaction.test.ts",
+    "src/station-scene-assembly.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/xr-station-room test",
+    "typecheck": "pnpm --filter @openclinxr/xr-station-room typecheck",
+    "build": "pnpm --filter @openclinxr/xr-station-room build",
+    "lint": "pnpm --filter @openclinxr/xr-station-room lint"
+  },
+  "ceilings": {
+    "contexts": {
+      "StationActorStagingContext": 13,
+      "StationRoomContext": 19
+    },
+    "testInternalImports": 2
+  }
+}

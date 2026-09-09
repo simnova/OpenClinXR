@@ -1,0 +1,68 @@
+{
+  "package": "xr-scene-cues",
+  "name": "@openclinxr/xr-scene-cues",
+  "entrypoint": "packages/openclinxr/xr-scene-cues/src/index.ts",
+  "exports": [
+    "DynamicSceneObjectNamingEvidence",
+    "PediatricRespiratoryEquipmentCueEvidence",
+    "ReadableVrTextPanel",
+    "RoleDistinctHumanoidCueEvidence",
+    "SceneCueActorFramingContext",
+    "SceneCueClinicalPanelContext",
+    "SceneCueEnvironmentVisualContext",
+    "SceneCueHumanoidCueContext",
+    "SceneCueNameplateContext",
+    "SceneCueNamingEvidenceContext",
+    "SceneCuePediatricCueEvidenceContext",
+    "SceneCuePediatricEquipmentContext",
+    "SceneCueRoleCueEvidenceContext",
+    "SceneCueRoomPropContext",
+    "SceneCueTraceVisualContext",
+    "SceneCueVirtualDeviceContext",
+    "addDetailedRoomPropVisuals",
+    "addPediatricRespiratoryEquipmentCues",
+    "applyCleanEncounterVisualReviewActorFraming",
+    "applyEnvironmentStateVisuals",
+    "applyRuntimeEquipmentTraceVisuals",
+    "clinicalPanelLinesForBundle",
+    "createActorNameplate",
+    "createAffordanceMarker",
+    "createClinicalPanel",
+    "createDetailedEdRoomProps",
+    "createHumanoidExpressionCue",
+    "createHumanoidEyeFocusCue",
+    "createHumanoidEyeGazeCue",
+    "createHumanoidInteractionCollisionCues",
+    "createHumanoidSpeechMouthCue",
+    "createReadableVrTextPanel",
+    "createRuntimeHumanoidDetailCues",
+    "createVirtualDeviceActorAffordance",
+    "drawWrappedText",
+    "ensureRuntimeEquipmentTraceMarker",
+    "publishReadableVrTextPanelEvidence",
+    "recordDynamicSceneObjectNamingEvidence",
+    "recordPediatricRespiratoryEquipmentCue",
+    "recordRoleDistinctHumanoidCue",
+    "runtimeEquipmentIdsForTag",
+    "updateEnvironmentRealismAnimations"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/asset-registry",
+    "@openclinxr/xr-runtime-state",
+    "@openclinxr/xr-station"
+  ],
+  "tests": [
+    "src/scene-cues.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/xr-scene-cues test",
+    "typecheck": "pnpm --filter @openclinxr/xr-scene-cues typecheck",
+    "build": "pnpm --filter @openclinxr/xr-scene-cues build",
+    "lint": "pnpm --filter @openclinxr/xr-scene-cues lint"
+  },
+  "ceilings": {
+    "testInternalImports": 6,
+    "rootEntrypointExports": 42,
+    "starExports": 7
+  }
+}

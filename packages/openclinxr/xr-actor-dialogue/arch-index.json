@@ -1,0 +1,70 @@
+{
+  "package": "xr-actor-dialogue",
+  "name": "@openclinxr/xr-actor-dialogue",
+  "entrypoint": "packages/openclinxr/xr-actor-dialogue/src/index.ts",
+  "exports": [
+    "ActorDialogueAdaptiveEvidence",
+    "ActorDialogueDeps",
+    "ActorDialogueHumanoidSlot",
+    "ActorDialoguePlaybackDeps",
+    "ActorDialoguePlaybackEvidence",
+    "ActorDialoguePlaybackTriggerSource",
+    "ActorDialogueSequence",
+    "ActorDialogueSequenceSource",
+    "ActorDialogueSpeechDeps",
+    "ActorDialogueStore",
+    "ActorDialogueStoreOptions",
+    "ActorDialogueTurn",
+    "PedsAdaptiveDialogueBranchResolution",
+    "PedsAdaptiveDialogueBranchType",
+    "applyPedsActorPlayerSequenceListenerCues",
+    "createActorDialogueStore",
+    "dedupePedsActorPlayerRuntimeTurns",
+    "humanoidDialogueDurationMs",
+    "initialDialogueTextForSelectedScenario",
+    "localDialogueActorIdForTraceTag",
+    "localDialogueGazeTargetForTraceTag",
+    "normalizePedsActorPlayerEmotion",
+    "pedsActorPlayerBundleDialogueTurns",
+    "pedsActorPlayerRuntimeSequenceForTrace",
+    "pedsActorPlayerTurnForTraceTag",
+    "pedsActorPlayerTurnFromRuntimeBundleTrace",
+    "playLiveFrozenActorTurn",
+    "playPedsActorPlayerRuntimeSequence",
+    "playPedsActorPlayerRuntimeTurn",
+    "recordPedsActorPlayerRuntimePlaybackEvidence",
+    "runtimeDialogueTurnForTraceTag",
+    "scenarioDialogueEmotionContext",
+    "schedulePedsActorPlayerRuntimePlaybackIfReady",
+    "startSlotEmotionTransition",
+    "triggerHumanoidDialogue",
+    "triggerHumanoidDialogueForTrace",
+    "triggerPedsActorPlayerRuntimeTurnForTrace",
+    "triggerPedsAdaptiveDialogueBranch"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/asset-registry",
+    "@openclinxr/scenario-fixtures",
+    "@openclinxr/xr-dialogue",
+    "@openclinxr/xr-humanoid-animation",
+    "@openclinxr/xr-runtime-state",
+    "@openclinxr/xr-trace-readiness"
+  ],
+  "tests": [
+    "src/store.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/xr-actor-dialogue test",
+    "typecheck": "pnpm --filter @openclinxr/xr-actor-dialogue typecheck",
+    "build": "pnpm --filter @openclinxr/xr-actor-dialogue build",
+    "lint": "pnpm --filter @openclinxr/xr-actor-dialogue lint"
+  },
+  "ceilings": {
+    "contexts": {
+      "ActorDialogueDeps": 19
+    },
+    "testInternalImports": 1,
+    "rootEntrypointExports": 38,
+    "starExports": 9
+  }
+}
