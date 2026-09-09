@@ -490,6 +490,44 @@ case (**next**) -> composition applies (**landed**) -> the frame loop preserves 
 The instrument reports `unknown` for that row rather than guessing, because it does not resolve the
 fixture anchor a station composes onto and no verdict is possible without it.
 
+### The posture link, and what the final step-2 verdict still needs
+
+The scene manifest keyed its placements by ED literal actor ids with hardcoded postures, so a
+non-ED case matched no entry, fell back to the ED defaults, and resolved every actor as standing.
+That mattered because the composition applies only to seated and supine: a patient wrongly
+resolved as standing passes straight through it, so the authored offset could not reach the figure
+however correct the composition was.
+
+Placements are now keyed by the case's cast and posture comes from the authored support surface
+(`case-actor-placements.ts`). `chair` seats, `stretcher`/`bed` lay supine, and `none`, unknown or
+absent all stand — unknown deliberately degrades to the pass-through rather than refusing a
+scenario, because the case schema takes free text and the refusal that matters (a nonzero NORMAL
+offset) belongs to `composeSupportedActorWorldPosition` and is not duplicated.
+
+    ed_chest_pain_priority_v2          patient supine   nurse standing   spouse standing   (unchanged)
+    clinic_knee_pain_return_to_play_v1 patient SEATED   MA standing      parent SEATED
+
+**Run 4, live:** `clinic_knee_pain_return_to_play_v1: patient_jordan_cole_v1 posture=seated`. The
+chain now runs end to end — cast follows the case, manifest and posture follow the case, the
+composition applies, the frame loop preserves it.
+
+**The verdict is still `unknown`, and the reason is a real design constraint rather than missing
+plumbing.** The instrument samples the SKINNED CENTRE, which carries the body's own offset from
+its origin. Comparing that centre against `anchor + authoredOffset` would be comparing two
+different quantities and would need a fudge term to agree — the shape of a threshold fitted to
+clear an observation.
+
+The sound comparison is a CONTROL/TREATMENT PAIR: sample the same station twice, once with the
+authored offset and once without, and require the DELTA between the two skinned centres to equal
+the authored offset. The body-origin bias is identical in both samples and subtracts out exactly,
+so no fudge term is needed and nothing is re-derived from the code under test. That needs a way to
+override the authored offset at capture time — a URL parameter or a fixture switch — which is the
+next slice, and it is small.
+
+Until then `unknown` with the reason recorded is the honest verdict, and it is what the brief's own
+outcome vocabulary is for: "unknown means no adequate observation yet", and it does not permit
+promotion.
+
 ### The evidence tools' page-global alias does not exist at runtime
 
 Building the instrument surfaced a defect in the tooling the brief cites. `browser-dom.d.ts`

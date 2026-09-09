@@ -17,6 +17,7 @@ export {
   ADULT_STATURE_FLOOR_METERS, declareAgeBand, ED_ADULT_CAST_ASSET_PATH, ED_ADULT_CAST_PROVENANCE_PATH,
   ED_ADULT_CAST_RUNTIME_PATH, ED_CHEST_PAIN_SCENARIO_ID, PEDS_ASTHMA_SCENARIO_ID,
   provenancePathForRuntimeAsset, resolveRuntimeCastAssetPath, resolveScenarioActorCast } from "./actor-casting.js";
+import { type AuthoredPosture, authoredCasePlacements, postureForSupportSurface } from "./case-actor-placements.js";
 import { resolveBundleCastActorIds } from "./cast-actor-ids.js";
 import { defaultRuntimeAssetContainerName, missingRuntimeStrings, uniqueRuntimeStrings } from "./runtime-bundle-strings.js";
 
@@ -1443,6 +1444,14 @@ export function createEdChestPainRuntimeSceneManifest(input: {
   scenarioId?: string | undefined;
   stationId?: string | undefined;
 } = {}): EncounterRuntimeSceneManifest {
+  // Placements follow the CASE's cast and its authored support surface. They used to be keyed by
+  // ED literal ids with hardcoded postures, so a non-ED case matched no entry and every actor
+  // resolved as standing — which routed the patient past the seated/supine composition entirely.
+  const manifestScenarioId = input.scenarioId ?? "ed_chest_pain_priority_v1";
+  const ids = resolveBundleCastActorIds(resolveScenarioActorCast(manifestScenarioId));
+  const authored = authoredCasePlacements(manifestScenarioId);
+  const posture = (actorId: string, fallback: AuthoredPosture): AuthoredPosture =>
+    authored[actorId] ? postureForSupportSurface(authored[actorId]?.supportSurface) : fallback;
   return {
     schemaVersion: "openclinxr.runtime-scene-manifest.v1",
     manifestId: "ed_chest_pain_runtime_scene_manifest_v1",
@@ -1469,9 +1478,9 @@ export function createEdChestPainRuntimeSceneManifest(input: {
       { traceTag: "patient_note_submitted", actorId: "patient_robert_hayes_v1", text: "System: Patient note saved for faculty review.", gazeTargetKind: "learner_camera", gazeTargetActorId: null, affectTimeline: runtimeDialogueAffectTimeline("neutral", 0.2) },
     ],
     actorPlacements: {
-      patient_robert_hayes_v1: { slotKind: "primary_patient", position: { x: -0.9, y: 0, z: -0.1 }, scale: { x: 1.06, y: 1.06, z: 1.06 }, verticalOffsetMeters: 0, labelPrefix: "Patient", posture: "supine" }, /* #150 supine on stretcher */
-      nurse_maria_alvarez_v1: { slotKind: "clinical_team", position: { x: 1.78, y: 0.95, z: 0.42 }, scale: { x: 0.98, y: 0.98, z: 0.98 }, verticalOffsetMeters: -0.95, labelPrefix: "Team", posture: "standing", headingRadians: -0.26 },
-      spouse_anna_hayes_v1: { slotKind: "family_or_observer", position: { x: -2.05, y: 0.93, z: 0.36 }, scale: { x: 0.94, y: 0.94, z: 0.94 }, verticalOffsetMeters: -0.95, labelPrefix: "Family", posture: "standing" },
+      [ids.patientActorId]: { slotKind: "primary_patient", position: { x: -0.9, y: 0, z: -0.1 }, scale: { x: 1.06, y: 1.06, z: 1.06 }, verticalOffsetMeters: 0, labelPrefix: "Patient", posture: posture(ids.patientActorId, "supine") }, /* #150 supine on stretcher */
+      [ids.clinicalActorId]: { slotKind: "clinical_team", position: { x: 1.78, y: 0.95, z: 0.42 }, scale: { x: 0.98, y: 0.98, z: 0.98 }, verticalOffsetMeters: -0.95, labelPrefix: "Team", posture: posture(ids.clinicalActorId, "standing"), headingRadians: -0.26 },
+      [ids.familyActorId]: { slotKind: "family_or_observer", position: { x: -2.05, y: 0.93, z: 0.36 }, scale: { x: 0.94, y: 0.94, z: 0.94 }, verticalOffsetMeters: -0.95, labelPrefix: "Family", posture: posture(ids.familyActorId, "standing") },
     },
     equipmentPlacements: {
       ecg_cart_equipment: { position: { x: -2.15, y: 0, z: 0.55 }, label: "12-lead ECG", interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue"] },
