@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createScenarioBankModel, ScenarioBankMongooseRepository, type ScenarioBankRecord } from "./index.js";
+import { createScenarioBankModel, type ScenarioBankRecord } from "./scenario-bank-model.js";
+import { ScenarioBankMongooseRepository } from "./scenario-bank-repository.js";
 import { createMongooseMemoryTestContext, type MongooseMemoryTestContext } from "./mongoose-memory-context.js";
 
 function scenario(overrides: Partial<ScenarioBankRecord> = {}): ScenarioBankRecord {

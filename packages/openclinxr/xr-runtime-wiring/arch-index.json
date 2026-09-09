@@ -2,27 +2,20 @@
   "package": "xr-runtime-wiring",
   "name": "@openclinxr/xr-runtime-wiring",
   "entrypoint": "packages/openclinxr/xr-runtime-wiring/src/index.ts",
+  "purpose": "Public interface of @openclinxr/xr-runtime-wiring.",
   "exports": [
-    "DEFAULT_EXAM_SCENARIO_SEQUENCE",
-    "ExamNavigationInput",
-    "ExamRunOutcomeInput",
     "ExamRunQueryDeps",
-    "ExamRunStationOutcomeRecord",
-    "ExamRunTiming",
     "ExamStationContext",
     "booleanQueryParam",
     "buildExamNavigationHref",
-    "buildExamNavigationUrl",
     "buildExamRunStationOutcome",
     "configuredExamRunId",
     "configuredExamSequence",
-    "configuredExamTiming",
     "findFormStationOutcome",
     "formElapsedSecondForCurrentStation",
     "formatStationClock",
     "mergeExamRunStationOutcome",
     "nextExamScenarioId",
-    "normalizeExamSequence",
     "positiveIntegerQueryParam"
   ],
   "workspaceDependencies": [
@@ -39,7 +32,6 @@
     "lint": "pnpm --filter @openclinxr/xr-runtime-wiring lint"
   },
   "ceilings": {
-    "testInternalImports": 2,
-    "starExports": 2
+    "testInternalImports": 2
   }
 }

@@ -1,6 +1,6 @@
 import { Mongoose } from "mongoose";
 import { describe, expect, it } from "vitest";
-import { createScenarioBankModel, scenarioBankLearnerProjection } from "./index.js";
+import { createScenarioBankModel, scenarioBankLearnerProjection } from "./scenario-bank-model.js";
 
 describe("Scenario bank Mongoose model", () => {
   it("validates control-plane scenario records and declares publication indexes", async () => {

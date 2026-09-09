@@ -1,6 +1,6 @@
 import { scenarioDialogueSeedBank } from "@openclinxr/scenario-fixtures";
 import { beforeEach, describe, expect, it } from "vitest";
-import { runEdChestPainSimulation } from "./index.js";
+import { runEdChestPainSimulation } from "./station-simulation.js";
 
 describe("ED chest pain deterministic simulation", () => {
   beforeEach(() => {

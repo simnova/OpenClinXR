@@ -1,5 +1,5 @@
 import { buildMockBenchmarkReport } from "./benchmark-report.js";
-import { runEdChestPainSimulation } from "./index.js";
+import { runEdChestPainSimulation } from "./station-simulation.js";
 
 const started = performance.now();
 const result = await runEdChestPainSimulation();

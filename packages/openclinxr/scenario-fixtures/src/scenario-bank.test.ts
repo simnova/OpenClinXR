@@ -5,36 +5,17 @@ import {
   validateScenario,
 } from "@openclinxr/shared-schemas";
 import { describe, expect, it } from "vitest";
-import {
-  abdominalPainInterpreterScenario,
-  buildDynamicEncounterFactoryPlanningProjection,
-  buildDynamicEncounterFactoryProjectionArtifact,
-  buildScenarioBankExamSequenceProjection,
-  createLearnerScenarioView,
-  edChestPainScenario,
-  edChestPainScenarioV2,
-  edChestPainScenarioV3,
-  evaluateScenarioBankMaturity,
-  obPreeclampsiaDialogueSeeds,
-  obPreeclampsiaScenario,
-  oncologyBadNewsScenario,
-  pediatricAsthmaDialogueSeeds,
-  pediatricAsthmaScenario,
-  postopFeverScenario,
-  primaryCareDyslipidemiaScenario,
-  psychiatricSafetyDialogueSeeds,
-  psychiatricSafetyScenario,
-  scenarioBank,
-  scenarioDialogueSeedBank,
-  stepdownSepsisScenario,
-  strokeAlertDialogueSeeds,
-  strokeAlertScenario,
-  telehealthDiabetesDialogueSeeds,
-  telehealthDiabetesScenario,
-  variantScenarioBank,
-  wardDeliriumDialogueSeeds,
-  wardDeliriumScenario,
-} from "./index.js";
+import { buildDynamicEncounterFactoryPlanningProjection, buildDynamicEncounterFactoryProjectionArtifact, buildScenarioBankExamSequenceProjection, createLearnerScenarioView, edChestPainScenario, edChestPainScenarioV2, edChestPainScenarioV3, evaluateScenarioBankMaturity, pediatricAsthmaDialogueSeeds, pediatricAsthmaScenario, scenarioBank, scenarioDialogueSeedBank, variantScenarioBank } from "./index.js";
+import { abdominalPainInterpreterScenario } from "./abdominal-pain-interpreter.js";
+import { obPreeclampsiaDialogueSeeds, obPreeclampsiaScenario } from "./ob-preeclampsia.js";
+import { oncologyBadNewsScenario } from "./oncology-bad-news.js";
+import { postopFeverScenario } from "./postop-fever.js";
+import { primaryCareDyslipidemiaScenario } from "./primary-care-dyslipidemia.js";
+import { psychiatricSafetyDialogueSeeds, psychiatricSafetyScenario } from "./psychiatric-safety.js";
+import { stepdownSepsisScenario } from "./stepdown-sepsis.js";
+import { strokeAlertDialogueSeeds, strokeAlertScenario } from "./stroke-alert.js";
+import { telehealthDiabetesDialogueSeeds, telehealthDiabetesScenario } from "./telehealth-diabetes.js";
+import { wardDeliriumDialogueSeeds, wardDeliriumScenario } from "./ward-delirium.js";
 
 describe("scenario bank maturity", () => {
   it("contains schema-valid draft breadth without treating drafts as active-form ready", () => {

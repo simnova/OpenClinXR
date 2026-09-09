@@ -1,24 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  validateActorCard,
-  validateAssetManifest,
-  validateCaseEmotionPolicy,
-  validateCommunicationProfile,
-  validateDynamicEncounterFactoryPlanningProjection,
-  validateDynamicEncounterFactoryProjectionArtifact,
-  validateEnvironmentManifest,
-  validateExamBlueprint,
-  validateModelProviderAudit,
-  validatePatientNote,
-  validateProviderAuditRecord,
-  validateProviderHealth,
-  validateReviewPacket,
-  validateScenario,
-  validateSharedAssetLibraryReuse,
-  validateStationRun,
-  validateTraceEvent,
-  validateVoiceProviderAudit,
-} from "./index.js";
+import { validateAssetManifest, validateCaseEmotionPolicy, validateCommunicationProfile, validateDynamicEncounterFactoryProjectionArtifact, validateEnvironmentManifest, validateModelProviderAudit, validatePatientNote, validateProviderAuditRecord, validateProviderHealth, validateReviewPacket, validateScenario, validateTraceEvent, validateVoiceProviderAudit } from "./index.js";
+import { validateActorCard, validateDynamicEncounterFactoryPlanningProjection, validateExamBlueprint, validateSharedAssetLibraryReuse, validateStationRun } from "./validators.js";
 
 describe("OpenClinXR shared schemas", () => {
   it("accepts a reviewed ED chest pain scenario shape", () => {

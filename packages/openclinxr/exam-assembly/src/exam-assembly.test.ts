@@ -1,24 +1,6 @@
 import { edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
-import {
-  advanceExamFormRunStation,
-  assembleExamForm,
-  createDefaultClinicalSkillsBlueprint,
-  createExamFormRun,
-  createExamStationRunQueue,
-  createExamStationRunQueueSnapshot,
-  createExamTimingPlan,
-  createStep2CsStyleSeedBlueprint,
-  currentExamFormRunStation,
-  evaluateBlueprintScenarioReadiness,
-  evaluateScenarioVersionDrift,
-  nextExamFormRunStation,
-  persistExamStationRunQueueSnapshot,
-  startExamFormRun,
-  tickExamFormRunClock,
-  type ExamAssemblyPersistenceSink,
-  type ExamStationRunQueueSnapshot,
-} from "./index.js";
+import { advanceExamFormRunStation, assembleExamForm, createDefaultClinicalSkillsBlueprint, createExamFormRun, createExamStationRunQueue, createExamStationRunQueueSnapshot, createExamTimingPlan, createStep2CsStyleSeedBlueprint, currentExamFormRunStation, evaluateBlueprintScenarioReadiness, evaluateScenarioVersionDrift, nextExamFormRunStation, persistExamStationRunQueueSnapshot, startExamFormRun, tickExamFormRunClock, type ExamAssemblyPersistenceSink, type ExamStationRunQueueSnapshot } from "./index.js";
 
 describe("exam assembly", () => {
   // Single-station pilot: pass a one-scenario list so selection yields exactly one slot.
@@ -408,8 +390,10 @@ describe("exam assembly", () => {
     const queue = createExamStationRunQueue(createDefaultClinicalSkillsBlueprint([edChestPainScenario]), [edChestPainScenario]);
     const saved: ExamStationRunQueueSnapshot[] = [];
     const sink: ExamAssemblyPersistenceSink = {
-      saveStationRunQueueSnapshot: (snapshot) => {
-        saved.push(snapshot);
+      saveStationRunQueueSnapshot: (queueSnapshot) => {
+        // Was `push(snapshot)` while the parameter shadowed an outer `snapshot`, so it pushed the
+        // PARAMETER. Renaming the parameter alone would have silently changed which value is saved.
+        saved.push(queueSnapshot);
       },
     };
 

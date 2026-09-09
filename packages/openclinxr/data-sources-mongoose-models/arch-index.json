@@ -2,36 +2,11 @@
   "package": "data-sources-mongoose-models",
   "name": "@openclinxr/data-sources-mongoose-models",
   "entrypoint": "packages/openclinxr/data-sources-mongoose-models/src/index.ts",
+  "purpose": "Public interface of @openclinxr/data-sources-mongoose-models.",
   "exports": [
-    "EncounterAssetGenerationJobCheckpointRecord",
-    "EncounterAssetGenerationJobEvidenceGateRefRecord",
     "EncounterAssetGenerationJobMongooseRepository",
-    "EncounterAssetGenerationJobRecord",
-    "EncounterAssetGenerationJobStatus",
-    "LearnerScenarioProjection",
-    "ScenarioBankMongooseRepository",
-    "ScenarioBankRecord",
-    "ScenarioBankRepositoryFilters",
-    "ScenarioReviewDecision",
-    "ScenarioReviewDecisionMongooseRepository",
     "ScenarioReviewDecisionRecord",
-    "ScenarioReviewDecisionReviewerRole",
-    "ScenarioReviewDecisionValue",
-    "ScenarioReviewUpdate",
-    "ScenarioReviewerRole",
-    "StationRunQueueSnapshotItemRecord",
-    "StationRunQueueSnapshotMongooseRepository",
-    "StationRunQueueSnapshotRecord",
-    "StationRunQueueSnapshotStatus",
-    "createEncounterAssetGenerationJobModel",
-    "createScenarioBankModel",
-    "createScenarioReviewDecisionModel",
-    "createStationRunQueueSnapshotModel",
-    "encounterAssetGenerationJobSchema",
-    "scenarioBankLearnerProjection",
-    "scenarioBankSchema",
-    "scenarioReviewDecisionSchema",
-    "stationRunQueueSnapshotSchema"
+    "createEncounterAssetGenerationJobModel"
   ],
   "workspaceDependencies": [
     "@openclinxr/capability-gateway"
@@ -54,8 +29,6 @@
     "lint": "pnpm --filter @openclinxr/data-sources-mongoose-models lint"
   },
   "ceilings": {
-    "testInternalImports": 1,
-    "rootEntrypointExports": 29,
-    "starExports": 8
+    "testInternalImports": 3
   }
 }

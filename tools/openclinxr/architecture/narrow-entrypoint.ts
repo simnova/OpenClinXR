@@ -142,13 +142,19 @@ const RE_EXPORT_FROM = /^export (?:type )?(?:\*|\{[^}]*\}) from "(\.[^"]+)";?$/g
  * Classification has to follow, or those symbols cannot be placed at all.
  */
 const workspaceEntrypoints = new Map<string, string>();
-for (const dir of readdirSync(join(root, "packages", "openclinxr"), { withFileTypes: true })) {
-  if (!dir.isDirectory()) continue;
-  const manifest = join(root, "packages", "openclinxr", dir.name, "package.json");
-  const entrypoint = join(root, "packages", "openclinxr", dir.name, "src", "index.ts");
-  if (!existsSync(manifest) || !existsSync(entrypoint)) continue;
-  const name = (JSON.parse(readFileSync(manifest, "utf8")) as { name?: string }).name;
-  if (name !== undefined) workspaceEntrypoints.set(name, entrypoint);
+// packages/cellix too: shared-schemas re-exports five TypeBox schemas from
+// @cellix/provider-contracts, and without the seedwork tier here they cannot be classified.
+for (const tier of ["openclinxr", "cellix"]) {
+  const tierRoot = join(root, "packages", tier);
+  if (!existsSync(tierRoot)) continue;
+  for (const dir of readdirSync(tierRoot, { withFileTypes: true })) {
+    if (!dir.isDirectory()) continue;
+    const manifest = join(tierRoot, dir.name, "package.json");
+    const entrypoint = join(tierRoot, dir.name, "src", "index.ts");
+    if (!existsSync(manifest) || !existsSync(entrypoint)) continue;
+    const name = (JSON.parse(readFileSync(manifest, "utf8")) as { name?: string }).name;
+    if (name !== undefined) workspaceEntrypoints.set(name, entrypoint);
+  }
 }
 
 /**

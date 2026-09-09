@@ -1,26 +1,8 @@
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
-import {
-  buildActorModelContext,
-  createActorInteractionRoutedMessage,
-  createActorInteractionRouteMessage,
-  createMultiActorClinicalSession,
-  createPersistenceSpikeStores,
-  createSessionStateClinicalEventMessage,
-  createSessionStateSnapshotMessage,
-  createSpatialActorTransformMessage,
-  type DurableClinicalEventKind,
-  type DurableClinicalEventRecord,
-  evaluateMultiActorPersistencePhase2Strategy,
-  evaluateSessionStateWebSocketMessageDesign,
-  persistLatestInteractionTurn,
-  projectDurableClinicalEventForReview,
-  recordClinicalAction,
-  rehydrateRealtimeCacheFromDurableState,
-  routeActorInteraction,
-  updateActorSpatialState,
-  writeRealtimeCacheSnapshot,
-} from "./index.js";
+import { buildActorModelContext, createMultiActorClinicalSession, createPersistenceSpikeStores, type DurableClinicalEventRecord, evaluateMultiActorPersistencePhase2Strategy, persistLatestInteractionTurn, projectDurableClinicalEventForReview, recordClinicalAction, rehydrateRealtimeCacheFromDurableState, routeActorInteraction, updateActorSpatialState, writeRealtimeCacheSnapshot } from "./index.js";
+import { createActorInteractionRoutedMessage, createActorInteractionRouteMessage, createSessionStateClinicalEventMessage, createSessionStateSnapshotMessage, createSpatialActorTransformMessage, evaluateSessionStateWebSocketMessageDesign } from "./session-messaging.js";
+import type { DurableClinicalEventKind } from "./types.js";
 
 describe("session state", () => {
   it("creates actor state from scenario actors without claiming realtime sync or clinical validity", () => {
@@ -1016,4 +998,4 @@ function clinicalEvent(input: {
   };
 }
 
-import { summarizeDurableClinicalEventReviewProjections } from "./index.js";
+import { summarizeDurableClinicalEventReviewProjections } from "./internal.js";

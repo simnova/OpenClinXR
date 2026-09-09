@@ -1,6 +1,6 @@
 import { Mongoose } from "mongoose";
 import { describe, expect, it } from "vitest";
-import { createScenarioReviewDecisionModel } from "./index.js";
+import { createScenarioReviewDecisionModel } from "./scenario-review-decision-model.js";
 
 describe("Scenario review decision Mongoose model", () => {
   it("validates review decision audit records and declares reviewer indexes", async () => {

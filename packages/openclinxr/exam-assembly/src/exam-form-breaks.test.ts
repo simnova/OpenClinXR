@@ -1,21 +1,8 @@
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
-import {
-  advanceExamFormRunBreak,
-  advanceExamFormRunStation,
-  createDefaultClinicalSkillsBlueprint,
-  createExamFormRun,
-  createExamTimingPlan,
-  createStep2CsStyleSeedBlueprint,
-  currentExamFormRunPhase,
-  currentExamFormRunStation,
-  nextExamFormRunStation,
-  parseExamFormRunState,
-  resumeExamFormRun,
-  serializeExamFormRunState,
-  startExamFormRun,
-  tickExamFormRunClock,
-} from "./index.js";
+import { advanceExamFormRunStation, createDefaultClinicalSkillsBlueprint, createExamFormRun, createExamTimingPlan, createStep2CsStyleSeedBlueprint, currentExamFormRunStation, nextExamFormRunStation, startExamFormRun, tickExamFormRunClock } from "./index.js";
+import { parseExamFormRunState, serializeExamFormRunState } from "./exam-form-breaks.js";
+import { advanceExamFormRunBreak, currentExamFormRunPhase, resumeExamFormRun } from "./exam-run.js";
 
 /** Step 2 CS-style occupied break: 10 minutes. */
 const STEP2CS_BREAK_SECONDS = 600;

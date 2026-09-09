@@ -5,10 +5,7 @@ import {
   encodeAzureStorageQueueMessage,
   processEncounterAssetGenerationQueueMessage,
 } from "@openclinxr/capability-gateway";
-import {
-  createEncounterAssetGenerationJobModel,
-  EncounterAssetGenerationJobMongooseRepository,
-} from "./index.js";
+import { createEncounterAssetGenerationJobModel, EncounterAssetGenerationJobMongooseRepository } from "./index.js";
 import { createMongooseMemoryTestContext, type MongooseMemoryTestContext } from "./mongoose-memory-context.js";
 
 describe("Encounter asset generation job Mongoose repository", () => {

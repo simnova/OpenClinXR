@@ -1,6 +1,6 @@
 import { Mongoose } from "mongoose";
 import { describe, expect, it } from "vitest";
-import { createStationRunQueueSnapshotModel, type StationRunQueueSnapshotRecord } from "./index.js";
+import { createStationRunQueueSnapshotModel, type StationRunQueueSnapshotRecord } from "./station-run-queue-snapshot-model.js";
 
 describe("Station run queue snapshot Mongoose model", () => {
   it("validates reviewer snapshot records and declares launch-gating indexes", async () => {

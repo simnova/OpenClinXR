@@ -6,15 +6,7 @@ import {
   CLINIC_KNEE_PAIN_SCENARIO_ID,
 } from "./clinic-knee-pain.js";
 import { edChestPainScenario } from "./ed-chest-pain.js";
-import {
-  buildDynamicEncounterFactoryPlanningProjection,
-  buildScenarioBankExamSequenceProjection,
-  createLearnerScenarioView,
-  evaluateScenarioBankMaturity,
-  findScenarioFixtureById,
-  scenarioBank,
-  scenarioDialogueSeedBank,
-} from "./index.js";
+import { buildDynamicEncounterFactoryPlanningProjection, buildScenarioBankExamSequenceProjection, createLearnerScenarioView, evaluateScenarioBankMaturity, findScenarioFixtureById, scenarioBank, scenarioDialogueSeedBank } from "./index.js";
 
 const ED_LEAKAGE = /ed_exam_bay|ed_chest_pain|ecg_request|history_opqrst|patient_robert_hayes|nurse_maria_alvarez|12-lead/i;
 

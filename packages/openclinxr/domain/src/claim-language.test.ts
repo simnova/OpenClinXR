@@ -1,13 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  assertSafeClaimLanguage,
-  buildScenarioGovernanceCopy,
-  findUnsafeClaimLanguage,
-  type ScenarioGovernanceCopy,
-  safeUserFacingClaimLanguage,
-  scoreUseCopy,
-  validationStageCopy,
-} from "./index.js";
+import { buildScenarioGovernanceCopy, findUnsafeClaimLanguage, safeUserFacingClaimLanguage, scoreUseCopy, validationStageCopy } from "./index.js";
+import { assertSafeClaimLanguage, type ScenarioGovernanceCopy } from "./claim-language.js";
 
 describe("safe claim language", () => {
   it("keeps approved user-facing copy free of exam, licensure, diagnosis, and score-use overclaims", () => {

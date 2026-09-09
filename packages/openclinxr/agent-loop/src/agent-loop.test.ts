@@ -1,18 +1,9 @@
 import { describe, expect, it } from "vitest";
-import {
-  type AgentMemoryEntry,
-  buildAgentMemoryIndex,
-  createAgentDispatchPackets,
-  createAgentLoopPlan,
-  defaultAgentLoopRoster,
-  evaluateMaturityDelta,
-  type IterationScorecard,
-  normalizeLegacyScorecard,
-  recommendAgentModelForWorkOrder,
-  recommendBackgroundAgentModel,
-  recommendWorkflowSkillsForWorkOrder,
-  serializeAgentLoopPlan,
-} from "./index.js";
+import { type AgentMemoryEntry, createAgentDispatchPackets, createAgentLoopPlan, normalizeLegacyScorecard, recommendBackgroundAgentModel, serializeAgentLoopPlan } from "./index.js";
+import { recommendAgentModelForWorkOrder, recommendWorkflowSkillsForWorkOrder } from "./model-recommendation.js";
+import { buildAgentMemoryIndex, evaluateMaturityDelta } from "./plan.js";
+import { defaultAgentLoopRoster } from "./roster.js";
+import type { IterationScorecard } from "./types.js";
 
 function scorecard(overrides: Partial<IterationScorecard> = {}): IterationScorecard {
   return {

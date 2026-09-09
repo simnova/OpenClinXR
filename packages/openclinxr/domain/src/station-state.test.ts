@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createStationRun, evaluateRequiredTraceTags, getScheduledEventsDue, transitionStation } from "./index.js";
+import { createStationRun, evaluateRequiredTraceTags, transitionStation } from "./index.js";
+import { getScheduledEventsDue } from "./station-state.js";
 
 describe("station state domain", () => {
   it("moves from doorway to encounter to note to review", () => {

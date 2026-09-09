@@ -1,15 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  collectVoiceStream,
-  createDefaultVoiceGateway,
-  createRealtimeVoiceGatewayPosture,
-  createVibeVoiceProviderAdapter,
-  LocalVoiceProviderAdapter,
-  MockVoiceProviderAdapter,
-  realtimeVoiceProtocol,
-  selectRealtimeVoiceProtocol,
-  type VoiceProviderAdapter,
-} from "./index.js";
+import { collectVoiceStream, createDefaultVoiceGateway, createRealtimeVoiceGatewayPosture, LocalVoiceProviderAdapter, MockVoiceProviderAdapter, realtimeVoiceProtocol, selectRealtimeVoiceProtocol, type VoiceProviderAdapter } from "./index.js";
+import { createVibeVoiceProviderAdapter } from "./adapters.js";
 
 describe("voice gateway", () => {
   it("exports a canonical realtime voice frame taxonomy for gateway, Python, and Godot clients", () => {
