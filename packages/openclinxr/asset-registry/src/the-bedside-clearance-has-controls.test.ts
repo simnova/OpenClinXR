@@ -126,4 +126,25 @@ describe("the bedside clearance has controls", () => {
       `standing 0.75 m from the patient must clear her own deck: ${JSON.stringify(bodyViolations)}`,
     ).toEqual([]);
   });
+
+  it("(6) the body band is measured from the FLOOR, not from whatever y the caller passed", () => {
+    // A review flagged this: taking the band from the probe's own y flattens the check. A runtime
+    // placement position carries y 0.95 (the actor slot's offset), which made the band 0.95-2.75 m
+    // — a stool underfoot vanished and a ceiling fixture came back. Both directions, one clause.
+    const stool = {
+      id: "stool_underfoot",
+      bounds: { min: { x: -0.1, y: 0, z: -0.1 }, max: { x: 0.1, y: 0.45, z: 0.1 } },
+    };
+    const ceiling = {
+      id: "ceiling_fixture",
+      bounds: { min: { x: -0.5, y: 2.4, z: -0.5 }, max: { x: 0.5, y: 2.6, z: 0.5 } },
+    };
+    const atSlotHeight = { x: 0, y: 0.95, z: 0 };
+    expect(
+      bedsideClearanceViolations({ standingPosition: atSlotHeight, obstacles: [stool] }),
+    ).toHaveLength(1);
+    expect(
+      bedsideClearanceViolations({ standingPosition: atSlotHeight, obstacles: [ceiling] }),
+    ).toEqual([]);
+  });
 });

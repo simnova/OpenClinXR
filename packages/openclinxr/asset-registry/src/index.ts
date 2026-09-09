@@ -2817,3 +2817,4 @@ export {
 } from "./bedside-target.js";
 export { bedsideClearanceViolations } from "./bedside-clearance.js";
 export { ED_MONITOR_BOUNDS, monitorVisibilityFrom, screenNormal } from "./monitor-visibility.js";
+export { APPROACH_WAYPOINT_SPACING_METERS, planBedsideApproach } from "./bedside-approach-path.js";

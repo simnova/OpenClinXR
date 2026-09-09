@@ -70,8 +70,9 @@ function circleBoxOverlapXz(
   radius: number,
   bounds: WorldAabb,
   bodyHeight: number,
+  floorY: number,
 ): number {
-  if (!overlapsStandingHeight(bounds, centre.y, bodyHeight)) return 0;
+  if (!overlapsStandingHeight(bounds, floorY, bodyHeight)) return 0;
   const nearestX = Math.min(Math.max(centre.x, bounds.min.x), bounds.max.x);
   const nearestZ = Math.min(Math.max(centre.z, bounds.min.z), bounds.max.z);
   const distance = Math.hypot(centre.x - nearestX, centre.z - nearestZ);
@@ -91,6 +92,16 @@ export function bedsideClearanceViolations(input: {
   approachFrom?: Vector3 | undefined;
   obstacles: readonly MeasuredObstacle[];
   bodyHeightMeters?: number | undefined;
+  /**
+   * Floor height under the clinician, in metres. DEFAULTS TO 0 rather than to the probe point's
+   * own y, which is what it used to use.
+   *
+   * A review (meta/muse-spark-1.3-contributor, 2026-09-09) pointed out that taking the band from
+   * the probe's y flattens the check against whatever height the caller happened to pass. A
+   * placement position carries y 0.95 (the actor slot's own offset), so the body band became
+   * 0.95-2.75 m: a 0.45 m stool underfoot vanished and a ceiling fixture came back.
+   */
+  floorY?: number | undefined;
 }): ClearanceViolation[] {
   const violations: ClearanceViolation[] = [];
 
@@ -100,6 +111,7 @@ export function bedsideClearanceViolations(input: {
       STANDING_FOOTPRINT_RADIUS_METERS,
       obstacle.bounds,
       input.bodyHeightMeters ?? STANDING_BODY_HEIGHT_METERS,
+      input.floorY ?? 0,
     );
     if (overlap > 0) {
       violations.push({
@@ -135,6 +147,7 @@ export function bedsideClearanceViolations(input: {
         APPROACH_CORRIDOR_HALF_WIDTH_METERS,
         obstacle.bounds,
         input.bodyHeightMeters ?? STANDING_BODY_HEIGHT_METERS,
+        input.floorY ?? 0,
       );
       if (overlap > worst) worst = overlap;
     }
