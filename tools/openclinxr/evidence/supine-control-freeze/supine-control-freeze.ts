@@ -199,3 +199,63 @@ if (!existing) {
   const computed = computeSupineControlFreeze(repoRoot());
   writeSupineControlFreeze(computed);
 }
+/**
+ * The consumer-facing read: REFUSE a missing or corrupt artifact rather than returning null.
+ *
+ * Brief §7 step 5: "Corrupt or remove a produced artifact and require the consumer to refuse it."
+ *
+ * `readSupineControlFreeze` returns `null` for a missing file AND for an unparseable one, which are
+ * different situations with the same shape. Worse, `null` is exactly what a caller reads as
+ * "no freeze recorded yet, carry on" — so a corrupted control silently becomes no control, and the
+ * evidence that depended on it keeps being trusted. That is the failure this refusal closes.
+ *
+ * The four outcomes are distinguished because a consumer should act differently on each: `absent`
+ * means produce it, `malformed` and `wrong_schema` mean something damaged it and a re-run cannot be
+ * assumed to fix it, and `ok` means use it.
+ */
+export type FreezeArtifactRead =
+  | { status: "ok"; freeze: SupineControlFreeze }
+  | { status: "absent"; path: string; reason: string }
+  | { status: "malformed"; path: string; reason: string }
+  | { status: "wrong_schema"; path: string; reason: string };
+
+export function requireSupineControlFreeze(): FreezeArtifactRead {
+  const path = freezeRecordPath();
+  if (!existsSync(path)) {
+    return {
+      status: "absent",
+      path,
+      reason: "the supine control freeze has never been produced; a control that does not exist cannot invalidate anything",
+    };
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(path, "utf8"));
+  } catch (error) {
+    return {
+      status: "malformed",
+      path,
+      reason: `the freeze artifact is present but not parseable JSON (${error instanceof Error ? error.message : String(error)}); a damaged control must be refused, not read as an absent one`,
+    };
+  }
+  const candidate = parsed as Partial<SupineControlFreeze>;
+  if (candidate?.schemaVersion !== "openclinxr.supine-control-freeze.v1") {
+    return {
+      status: "wrong_schema",
+      path,
+      reason: `expected schemaVersion "openclinxr.supine-control-freeze.v1", found ${JSON.stringify(candidate?.schemaVersion)}`,
+    };
+  }
+  if (
+    typeof candidate.assetSha256ByPath !== "object"
+    || candidate.assetSha256ByPath === null
+    || Object.keys(candidate.assetSha256ByPath).length === 0
+  ) {
+    return {
+      status: "wrong_schema",
+      path,
+      reason: "the freeze carries no asset hashes; an empty hash map validates every tree and is worth less than no freeze",
+    };
+  }
+  return { status: "ok", freeze: candidate as SupineControlFreeze };
+}
