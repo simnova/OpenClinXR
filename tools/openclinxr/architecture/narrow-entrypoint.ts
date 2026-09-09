@@ -254,11 +254,28 @@ for (const specifier of specifiers) {
  * symbol. Doing this by hand is what turned a one-second transformation into an eight-worker
  * dispatch.
  */
+/** Every source file under src, nested directories included. */
+function sourceFiles(dir: string = src, out: string[] = []): string[] {
+  for (const file of readdirSync(dir, { withFileTypes: true })) {
+    if (file.name === "node_modules" || file.name === "dist") continue;
+    const full = join(dir, file.name);
+    if (file.isDirectory()) {
+      sourceFiles(full, out);
+      continue;
+    }
+    if (/\.tsx?$/u.test(file.name) && !file.name.endsWith(".d.ts")) out.push(full);
+  }
+  return out;
+}
+
 function declaringModule(symbol: string): string | null {
-  for (const file of readdirSync(src, { withFileTypes: true })) {
-    if (!file.isFile() || !file.name.endsWith(".ts") || file.name.includes(".test.")) continue;
+  for (const full of sourceFiles()) {
+    const file = { name: full.slice(src.length + 1), isFile: () => true };
+    // .tsx too: ui-route-admin declares its panels in .tsx files, and skipping them left four
+    // components with nowhere to be repointed to.
+    if (!file.isFile() || !/\.tsx?$/u.test(file.name) || file.name.includes(".test.")) continue;
     if (file.name === "index.ts") continue;
-    if (exportedSymbols(join(src, file.name)).has(symbol)) return `./${file.name.replace(/\.ts$/u, ".js")}`;
+    if (exportedSymbols(full).has(symbol)) return `./${file.name.replace(/\.tsx?$/u, ".js")}`;
   }
   return null;
 }
@@ -266,9 +283,9 @@ function declaringModule(symbol: string): string | null {
 const SELF_BARREL = /import(\s+type)?\s*\{([^}]*)\}\s*from\s*"\.\/index\.js";/gu;
 const repointed: string[] = [];
 const unplaceable: string[] = [];
-for (const file of readdirSync(src, { withFileTypes: true })) {
-  if (!file.isFile() || !/\.tsx?$/u.test(file.name) || file.name === "index.ts") continue;
-  const full = join(src, file.name);
+for (const full of sourceFiles()) {
+  const file = { name: full.slice(src.length + 1) };
+  if (file.name === "index.ts") continue;
   const text = readFileSync(full, "utf8");
   let next = text;
   for (const match of text.matchAll(SELF_BARREL)) {
