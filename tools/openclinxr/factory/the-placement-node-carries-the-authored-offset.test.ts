@@ -41,6 +41,19 @@ type Loose = any;
  *
  * IN-SCOPE: tools/openclinxr/factory/encounter-materialization-evidence.ts, tools/openclinxr/dark-factory/multi-case-runner.ts, tools/openclinxr/factory/generated-ed-station-runtime-bundle.ts, packages/openclinxr/asset-registry/src/actor-placement.ts
  * OUT-OF-SCOPE: encounter-materialization-compile.ts, apps/ui-xr, actor-posture helpers, the admin control, the station schema.
+ *
+ * ## FIXED
+ * generatedActorPlacement gained the contracted case input
+ * ({ scenarioId, casePlacements }) and returns the authored plantOffsetMeters
+ * as the placement position when present, keeping the index-derived position
+ * otherwise; authored headingRadians is set only when numeric, never 0 by
+ * default. emitCompileNodes writes the authored plantOffsetMeters and
+ * supportSurface onto each Placement node spec. runPlacementStage is exported,
+ * reads the case-authored placement per actor, and passes the authored vector
+ * and surface through runStaging and the placements.json artifact instead of
+ * the hardcoded 0/posture pair. runtimeActorPlacementsForScenario overrides
+ * each scenario position with the case-authored offset when the case authors
+ * one; unauthored stations keep their hardcoded defaults.
  */
 
 import type { EncounterRuntimeActorAsset } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
@@ -80,7 +93,7 @@ function makeActor(actorId: string, role: EncounterRuntimeActorAsset["role"]): E
 }
 
 describe("The factory resolves actor placement from the case, not from the actor index", () => {
-  it.fails("(1) generatedActorPlacement returns the three clinic-knee-pain authored vectors for the three actors, not index-derived positions", async () => {
+  it("(1) generatedActorPlacement returns the three clinic-knee-pain authored vectors for the three actors, not index-derived positions", async () => {
     // Authored vectors from clinic-knee-pain.ts:53,76,99
     const patient = makeActor("patient_jordan_cole_v1", "patient");
     const parent = makeActor("parent_lena_cole_v1", "family");
@@ -122,9 +135,9 @@ describe("The factory resolves actor placement from the case, not from the actor
     expect(maPlacement.position).not.toEqual({ x: 0.8, y: 0.95, z: 0.3 });
   });
 
-  it.fails("(2) emitCompileNodes emits Placement nodes with plantOffsetMeters and supportSurface from the case", async () => {
+  it("(2) emitCompileNodes emits Placement nodes with plantOffsetMeters and supportSurface from the case", async () => {
     const { emitCompileNodes } = await import("./encounter-materialization-evidence.js");
-    const { buildEncounterMaterializationEvidenceReport } = await import("./generated-ed-station-runtime-bundle.js");
+    const { buildEncounterMaterializationEvidenceReport } = await import("./encounter-materialization-evidence.js");
 
     // Build a minimal report for clinic-knee-pain
     const bundleReport = await import("./generated-ed-station-runtime-bundle.js").then(m =>
@@ -136,7 +149,91 @@ describe("The factory resolves actor placement from the case, not from the actor
       })
     );
 
-    const report = buildEncounterMaterializationEvidenceReport({ bundleReport });
+    const evidenceBundleReport = {
+      ...bundleReport,
+      actorHumanoidMaterializationContract: {
+        schemaVersion: "openclinxr.actor-humanoid-materialization-contract.v1",
+        scenarioId: clinicKneePainScenarioId,
+        source: "generated_station_runtime_bundle",
+        actorSpecificVariantKeysRequired: true,
+        sharedNeutralMeshReuseDetected: false,
+        sharedNeutralMeshReuseActorIds: [],
+        actorVariants: [
+          {
+            actorId: "patient_jordan_cole_v1",
+            actorRole: "patient",
+            modelAssetId: "patient",
+            variantSemanticKey: `${clinicKneePainScenarioId}:patient_jordan_cole_v1:patient:anny_humanoid_variant`,
+            sourceBlobName: "patient.glb",
+            humanoidVariantProfile: {
+              ageBand: "adult",
+              bodyScale: "adult_standard",
+              hairFaceRequired: true,
+              clothingLayer: "role_specific",
+              faceEyeLipRigRequired: true,
+              idlePoseRequired: true,
+              locomotionRequired: false,
+            },
+            requiredMaterializationCueIds: [
+              "actor_specific_body_profile_required",
+              "actor_specific_clothing_required",
+              "actor_specific_hair_face_required",
+              "actor_specific_rig_preservation_required",
+            ],
+          },
+          {
+            actorId: "parent_lena_cole_v1",
+            actorRole: "family",
+            modelAssetId: "parent",
+            variantSemanticKey: `${clinicKneePainScenarioId}:parent_lena_cole_v1:family:anny_humanoid_variant`,
+            sourceBlobName: "parent.glb",
+            humanoidVariantProfile: {
+              ageBand: "adult",
+              bodyScale: "adult_standard",
+              hairFaceRequired: true,
+              clothingLayer: "role_specific",
+              faceEyeLipRigRequired: true,
+              idlePoseRequired: true,
+              locomotionRequired: false,
+            },
+            requiredMaterializationCueIds: [
+              "actor_specific_body_profile_required",
+              "actor_specific_clothing_required",
+              "actor_specific_hair_face_required",
+              "actor_specific_rig_preservation_required",
+            ],
+          },
+          {
+            actorId: "medical_assistant_rui_park_v1",
+            actorRole: "medical_assistant",
+            modelAssetId: "ma",
+            variantSemanticKey: `${clinicKneePainScenarioId}:medical_assistant_rui_park_v1:medical_assistant:anny_humanoid_variant`,
+            sourceBlobName: "ma.glb",
+            humanoidVariantProfile: {
+              ageBand: "adult",
+              bodyScale: "adult_standard",
+              hairFaceRequired: true,
+              clothingLayer: "role_specific",
+              faceEyeLipRigRequired: true,
+              idlePoseRequired: true,
+              locomotionRequired: false,
+            },
+            requiredMaterializationCueIds: [
+              "actor_specific_body_profile_required",
+              "actor_specific_clothing_required",
+              "actor_specific_hair_face_required",
+              "actor_specific_rig_preservation_required",
+            ],
+          },
+        ],
+        materializationBlockers: [],
+        caveats: [],
+        recommendedNextAction: "preserve actor-specific humanoid variant keys through publication and visual QA",
+        notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "animation_quality"],
+      },
+      equipmentMaterializationContract: bundleReport.equipmentMaterializationContract,
+    };
+    const report = buildEncounterMaterializationEvidenceReport({ bundleReport: evidenceBundleReport });
 
     // Resolve the case descriptor for clinic-knee-pain to get authored placements
     const { findScenarioFixtureById } = await import("../../../packages/openclinxr/scenario-fixtures/src/index.js");
@@ -170,7 +267,7 @@ describe("The factory resolves actor placement from the case, not from the actor
     expect(maPlacement.status).toBe("planned_unsplit");
   });
 
-  it.fails("(3) multi-case-runner staging_placement station passes authored plantOffsetMeters and supportSurface, not hardcoded 0/posture", async () => {
+  it("(3) multi-case-runner staging_placement station passes authored plantOffsetMeters and supportSurface, not hardcoded 0/posture", async () => {
     const { runPlacementStage } = await import("../dark-factory/multi-case-runner.js");
 
     // The staging_placement station currently hardcodes:
@@ -210,7 +307,7 @@ describe("The factory resolves actor placement from the case, not from the actor
     expect(patientRow.placement.supportSurface).not.toBe("stretcher");
   });
 
-  it.fails("(4) headingRadians is populated when the case authors a facing, undefined when absent (never 0)", async () => {
+  it("(4) headingRadians is populated when the case authors a facing, undefined when absent (never 0)", async () => {
     const mod = await import("../../../packages/openclinxr/asset-registry/src/actor-placement.js");
     const fn = (mod as Record<string, unknown>)["generatedActorPlacement"];
     expect(typeof fn).toBe("function");

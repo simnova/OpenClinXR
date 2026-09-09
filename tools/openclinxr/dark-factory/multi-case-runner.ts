@@ -787,7 +787,7 @@ async function runEquipmentStage(caseId: string, stageDir: string): Promise<Stat
 }
 
 /** Station 7: staging / placement (generatedActorPlacement). */
-async function runPlacementStage(caseId: string, stageDir: string): Promise<StationRun> {
+export async function runPlacementStage(caseId: string, stageDir: string): Promise<StationRun> {
   const cast = resolveScenarioActorCast(caseId);
   if (cast.length === 0) {
     return {
@@ -797,14 +797,19 @@ async function runPlacementStage(caseId: string, stageDir: string): Promise<Stat
     };
   }
   await mkdir(stageDir, { recursive: true });
+  const caseAuthored = readAuthoredPlacements(caseId);
   const rows = cast.map((entry, index) => {
     const actor = minimalRuntimeActor(entry.actorId, entry.role, entry.runtimeAssetPath);
-    const placement = generatedActorPlacement(actor, index, { scenarioId: caseId });
+    const authored = caseAuthored[entry.actorId];
+    const placement = generatedActorPlacement(actor, index, {
+      scenarioId: caseId,
+      ...(authored === undefined ? {} : { casePlacements: { [entry.actorId]: authored } }),
+    });
     runStaging(
       {
         actorId: entry.actorId,
-        supportSurface: placement.posture ?? "stretcher",
-        plantOffsetMeters: 0,
+        supportSurface: authored?.supportSurface ?? "stretcher",
+        plantOffsetMeters: authored?.plantOffsetMeters ?? { x: 0, y: 0, z: 0 },
       },
       { placement },
     );
@@ -812,7 +817,10 @@ async function runPlacementStage(caseId: string, stageDir: string): Promise<Stat
       actorId: entry.actorId,
       role: entry.role,
       assetPath: entry.assetPath,
-      placement,
+      placement: {
+        ...placement,
+        ...(authored === undefined ? {} : { plantOffsetMeters: authored.plantOffsetMeters, supportSurface: authored.supportSurface }),
+      },
     };
   });
   const artifactPath = path.join(stageDir, "placements.json");
@@ -829,6 +837,24 @@ async function runPlacementStage(caseId: string, stageDir: string): Promise<Stat
       "GAP note: the live actor-placement-ssot inspector (tools/openclinxr/evidence/actor-placement-ssot.ts) is a dev-server + browser verification surface; the deterministic scene-manifest data layer ran in-process here.",
     ]),
   };
+}
+
+/** Authored placement per actor, read from the case fixture. Absent when the case authors none. */
+type AuthoredPlacementRow = { plantOffsetMeters: { x: number; y: number; z: number }; supportSurface: string };
+type CaseAuthoredPlacement = { supportSurface?: string; plantOffsetMeters?: { x: number; y: number; z: number } } | null | undefined;
+type CaseActorWithPlacement = { actors?: Array<{ actorId: string; placement?: CaseAuthoredPlacement }> } | undefined;
+function readAuthoredPlacements(caseId: string): Record<string, AuthoredPlacementRow> {
+  const scenario = findFixtureById(caseId) as CaseActorWithPlacement | undefined;
+  const out: Record<string, AuthoredPlacementRow> = {};
+  for (const actor of scenario?.actors ?? []) {
+    const supportSurface = actor.placement?.supportSurface;
+    const offset = actor.placement?.plantOffsetMeters;
+    if (typeof supportSurface !== "string" || supportSurface.length === 0) continue;
+    if (typeof offset !== "object" || offset === null) continue;
+    if (typeof offset.x !== "number" || typeof offset.y !== "number" || typeof offset.z !== "number") continue;
+    out[actor.actorId] = { plantOffsetMeters: { x: offset.x, y: offset.y, z: offset.z }, supportSurface };
+  }
+  return out;
 }
 
 /** Station 8: render (captureStationEnvironmentRooms, one shared dev server). */
