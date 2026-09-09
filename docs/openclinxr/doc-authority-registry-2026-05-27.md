@@ -12,7 +12,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 105
-- archive-candidate: 73
+- archive-candidate: 77
 - current-reference: 208
 - decision-record: 44
 - evidence: 73
@@ -353,9 +353,13 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/owner-memory/measurements.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/acceptance.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/board-manifest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/scene-closure-2026-09-09/delegation-v2.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/index.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/scene-closure-2026-09-09/proof-contract-v2.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/scene-closure-2026-09-09/tasks-v2.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/tasks.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-layout-consultation-records-2026-09-09/codex-consultation-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-layout-consultation-records-2026-09-09/grok-4.6-additional-rounds-6-7.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
