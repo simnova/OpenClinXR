@@ -18,6 +18,7 @@ export {
   ED_ADULT_CAST_RUNTIME_PATH, ED_CHEST_PAIN_SCENARIO_ID, PEDS_ASTHMA_SCENARIO_ID,
   provenancePathForRuntimeAsset, resolveRuntimeCastAssetPath, resolveScenarioActorCast } from "./actor-casting.js";
 import { type AuthoredPosture, authoredCasePlacements, postureForSupportSurface } from "./case-actor-placements.js";
+import { bedsideClinicianPlacement } from "./bedside-target.js";
 import { buildLocalEncounterActors } from "./bundle-actors.js";
 import { resolveBundleCastActorIds } from "./cast-actor-ids.js";
 import { defaultRuntimeAssetContainerName, missingRuntimeStrings, uniqueRuntimeStrings } from "./runtime-bundle-strings.js";
@@ -1468,6 +1469,12 @@ export function createEdChestPainRuntimeSceneManifest(input: {
       [ids.patientActorId]: { slotKind: "primary_patient", position: { x: -0.9, y: 0, z: -0.1 }, scale: { x: 1.06, y: 1.06, z: 1.06 }, verticalOffsetMeters: 0, labelPrefix: "Patient", posture: posture(ids.patientActorId, "supine") }, /* #150 supine on stretcher */
       [ids.clinicalActorId]: { slotKind: "clinical_team", position: { x: 1.78, y: 0.95, z: 0.42 }, scale: { x: 0.98, y: 0.98, z: 0.98 }, verticalOffsetMeters: -0.95, labelPrefix: "Team", posture: posture(ids.clinicalActorId, "standing"), headingRadians: -0.26 },
       [ids.familyActorId]: { slotKind: "family_or_observer", position: { x: -2.05, y: 0.93, z: 0.36 }, scale: { x: 0.94, y: 0.94, z: 0.94 }, verticalOffsetMeters: -0.95, labelPrefix: "Family", posture: posture(ids.familyActorId, "standing") },
+      // The fourth slot stands at a BEDSIDE TARGET computed from the patient's own position and
+      // faces her, rather than at a room constant. Every other heading in this scene is a
+      // hardcoded literal; this one moves when the case moves the patient.
+      ...(ids.additionalActorId
+        ? { [ids.additionalActorId]: bedsideClinicianPlacement(posture(ids.additionalActorId, "standing")) }
+        : {}),
     },
     equipmentPlacements: {
       ecg_cart_equipment: { position: { x: -2.15, y: 0, z: 0.55 }, label: "12-lead ECG", interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue"] },

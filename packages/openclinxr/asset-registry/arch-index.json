@@ -156,6 +156,7 @@
     "SceneGenerationPipelineStageId",
     "SupportedActorPositionRefusal",
     "assertRuntimeAssetApprovedForWrite",
+    "bedsideTargetForClinician",
     "buildAssetProductionReviewPacket",
     "buildEncounterAssetNeedsReadinessManifest",
     "buildEncounterDynamicBehaviorCoverageSummary",
@@ -197,6 +198,8 @@
     "findRuntimeActorAssetByRole",
     "findRuntimeEquipmentAsset",
     "findRuntimeEquipmentPlacementByRealizedId",
+    "forwardVectorForHeading",
+    "headingRadiansToward",
     "immutableEncounterBundleClaimScope",
     "immutableEncounterBundleNotEvidenceFor",
     "isActorPosture",
@@ -246,6 +249,7 @@
     "src/object-store.test.ts",
     "src/runtime-asset-review.test.ts",
     "src/runtime-bundles.test.ts",
+    "src/the-bedside-heading-faces-the-patient.test.ts",
     "src/the-declared-equipment-resolves-a-trellis-bake-url.test.ts"
   ],
   "commands": {
@@ -256,7 +260,7 @@
   },
   "ceilings": {
     "testInternalImports": 1,
-    "rootEntrypointExports": 228,
+    "rootEntrypointExports": 231,
     "starExports": 8
   }
 }

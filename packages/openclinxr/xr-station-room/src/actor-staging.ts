@@ -285,6 +285,20 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   additional.userData.openClinXrActorPosture = additionalPlacement.posture ?? "standing";
   additional.userData.openClinXrActorId = additionalActorId;
   if (additionalActorId) ctx.applyActorFraming(additional, additionalActorId);
+  // THE AUTHORED HEADING IS CONSUMED HERE, and it is applied AFTER framing on purpose.
+  //
+  // headingRadians has existed on the placement type since the heading card and NOTHING read it —
+  // authored, then computed from the patient's position, and inert. Brief §7 step 3 asks for it
+  // "consumed", which a field nobody applies is not.
+  //
+  // After framing because framing writes its own yaw for several branches (-0.26 at
+  // encounter-actor-framing.ts:137 and :172-179 for three actor kinds). An authored heading is a
+  // decision about where this actor looks; a framing default is what happens when nobody decided.
+  // The decision wins, and an actor with no authored heading keeps the framing default untouched.
+  if (additionalActorId && typeof additionalPlacement.headingRadians === "number") {
+    additional.rotation.y = additionalPlacement.headingRadians;
+    additional.userData.openClinXrConsumedHeadingRadians = additionalPlacement.headingRadians;
+  }
   if (additionalActorId) {
     additional.add(ctx.createActorNameplate(actorNameplateLabel(additionalPlacement.labelPrefix, additionalActorId), 0x5b4a9a));
   }

@@ -398,7 +398,7 @@ Measured against `§7 Prioritized prototype and acceptance`:
 | 0 — specify the starting scene | **partial** | `buildInitialSceneSpec` returns the four outcomes with observed evidence and names a real unwired consumer per required asset. It REPORTS; nothing consumes it, and no required state is enforced before an encounter begins. |
 | 1 — freeze one supine station as a control | **met** | `computeSupineControlFreeze` hashes every asset the station loads and refuses a recorded measurement whose bytes moved, naming the changed path. |
 | 2 — prove authoring reaches the scene | **MET 2026-09-09** | Measured on the loaded, posed, skinned humanoid after framing, pose application and 30 further frames, as a control/treatment pair: `measured delta {x: 0.3967, z: -0.0015}` against an authored `{x: 0.4, z: 0}` — err 0.0033 m and 0.0015 m against a 0.02 m tolerance derived from the unauthored control's own drift. The unauthored supine control retains its defaults. |
-| 3 — stationary clinical staging | **first requirement MET** | The physician is STAGED, as a physician, without displacing the nurse. Bedside target, orientation toward the patient, equipment/body clearance, approach zone and monitor visibility are still absent. |
+| 3 — stationary clinical staging | **staging + bedside target + heading MET** | The physician is staged as a physician, placed at a bedside target computed from the patient's position, facing her, and the heading is CONSUMED at runtime. Equipment/body clearance, the approach zone and monitor visibility are still absent, and the idle/speech check is not done. |
 | 4 — physician approach | **not started** | — |
 | 5 — variation, replay and failure behaviour | **partial** | Only the byte-freeze half: changed asset geometry invalidates dependent evidence. No variation indices, no impossible-layout case, no corrupt-artifact refusal, no displayed-motion capture. |
 | 6 — compare one legally eligible learned provider | **not started** | Kimodo-SOMA-RP-v1.1 remains a conditional offline lead, unverified here. |
@@ -698,6 +698,38 @@ Shrink-only budgets forced a third split of `runtime-bundles.ts` — `bundle-act
 actor list, which is the "shape" half of the builder/validate/shape separation that file's freeze
 note asks for. It stands at 1,622 lines against a 1,638 ceiling, down from 1,720 at the start of
 this effort.
+
+### The bedside target, the heading, and the field that was inert for three cards
+
+Step 3 asks the physician to stand "at a case-specified bedside target oriented toward the
+patient, with the proposed persistent heading consumed".
+
+`bedsideTargetForClinician` computes the standing position from the PATIENT'S OWN position and the
+yaw that faces her. Every other heading in this scene is a hardcoded literal — `-0.26` appears at
+`actor-staging.ts:210,216` and `encounter-actor-framing.ts:137` for three different actors in three
+different rooms — and a constant cannot face a patient the case moved.
+
+    senior_resident_ward_v1  additional_cast
+      position {x: -0.15, y: 0.95, z: -0.1}     0.75 m to the patient's right
+      headingRadians -1.5707963                 facing her
+
+**The heading is checked by ROTATING THE FORWARD VECTOR**, not by asserting the radian value the
+same `atan2` produced. A test that recomputes the number it is checking passes under any
+convention, including one that faces the clinician at the wall. Clause (2) is the counterweight:
+the two approach sides must produce OPPOSITE headings, which a hardcoded yaw cannot do.
+
+**And `headingRadians` was consumed by nothing.** It has been on the placement type since the
+heading card, was populated by the factory card, and no runtime code ever read it — authored,
+threaded, and inert across three landed cards. `actor-staging.ts` now applies it, AFTER framing,
+because framing writes its own yaw for several branches: an authored heading is a decision about
+where an actor looks, a framing default is what happens when nobody decided, and the decision
+wins. An actor with no authored heading keeps the framing default untouched.
+
+**What is still missing from step 3**, stated because a partial step read as a whole one is how
+this effort went wrong at the start: equipment and body clearance, the unobstructed approach zone,
+monitor visibility, and the composed-body-direction check during idle and speech. The patient
+anchor inside `bedsideClinicianPlacement` is also still a constant — a case that moves its patient
+does not yet move the clinician with her.
 
 ### The evidence tools' page-global alias does not exist at runtime
 
