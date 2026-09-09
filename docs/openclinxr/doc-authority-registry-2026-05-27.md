@@ -12,10 +12,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 105
-- archive-candidate: 48
+- archive-candidate: 54
 - current-reference: 208
 - decision-record: 44
-- evidence: 67
+- evidence: 68
 - generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
@@ -329,6 +329,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/humanoid-motion-ENTRYPOINT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-full-design-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-scene-layout-research-brief-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -338,6 +339,11 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/owner-memory/measurements.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/scene-layout-consultation-records-2026-09-09/codex-consultation-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/scene-layout-consultation-records-2026-09-09/grok-4.6-additional-rounds-6-7.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/scene-layout-consultation-records-2026-09-09/grok-4.6-consultation-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/scene-layout-consultation-records-2026-09-09/grok-4.6-research-rounds-8-11.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/scene-layout-consultation-records-2026-09-09/openclinXR-complementary-scene-research.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/superagent-goal-mpfb-human-realism-2026-08-14.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/third-party-asset-licence-ledger.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/vibevoice-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
