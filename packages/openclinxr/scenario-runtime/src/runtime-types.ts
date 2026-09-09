@@ -210,6 +210,8 @@ export type SessionRecord = {
   emotionPolicy: CaseEmotionPolicy;
   /** Last frozen ActorTurnPlan per actor. Render modalities consume this, never a draft. */
   frozenActorTurnPlans: Map<string, ActorTurnPlan>;
+  /** Set of scheduled event IDs that have already been emitted for this session. */
+  emittedScheduledEventIds: Set<string>;
   assembledStation?: AssembledStationContext;
 };
 

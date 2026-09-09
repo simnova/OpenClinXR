@@ -106,19 +106,17 @@ describe("An authored scheduled event reaches a runtime dispatcher", () => {
 
   beforeEach(() => {
     // Pin offline defaults
-    delete process.env["OPENROUTER_API_KEY"];
-    delete process.env["DEEPSEEK_API_KEY"];
-    delete process.env["OPENCLINXR_LOCAL_LLAMA_BASE_URL"];
+    delete process.env.OPENROUTER_API_KEY;
+    delete process.env.DEEPSEEK_API_KEY;
+    delete process.env.OPENCLINXR_LOCAL_LLAMA_BASE_URL;
   });
 
-  it.fails("(1) does NOT appear at second 29", async () => {
+  it("(1) does NOT appear at second 29", async () => {
     const runtime = buildRuntime(scenarioWithEventAt30);
     const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
     runtime.startEncounter(session.stationRunId, { atSecond: 0 });
 
     // Call the method at second 29 - the event at 30 should NOT be emitted
-    // We need to access advanceScheduledEvents which doesn't exist yet
-    // This test will fail because the method doesn't exist
     const mod = await import("./scenario-runtime.js");
     const fn = (mod as Record<string, unknown>).ScenarioRuntime?.prototype?.advanceScheduledEvents;
     expect(typeof fn).toBe("function");
@@ -127,7 +125,7 @@ describe("An authored scheduled event reaches a runtime dispatcher", () => {
     expect(emitted).toEqual([]);
   });
 
-  it.fails("(2) appears EXACTLY ONCE at second 30", async () => {
+  it("(2) appears EXACTLY ONCE at second 30", async () => {
     const runtime = buildRuntime(scenarioWithEventAt30);
     const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
     runtime.startEncounter(session.stationRunId, { atSecond: 0 });
@@ -142,7 +140,7 @@ describe("An authored scheduled event reaches a runtime dispatcher", () => {
     expect(emitted[0]?.atSecond).toBe(30);
   });
 
-  it.fails("(3) does NOT reappear at second 31", async () => {
+  it("(3) does NOT reappear at second 31", async () => {
     const runtime = buildRuntime(scenarioWithEventAt30);
     const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
     runtime.startEncounter(session.stationRunId, { atSecond: 0 });
@@ -160,7 +158,7 @@ describe("An authored scheduled event reaches a runtime dispatcher", () => {
     expect(second).toEqual([]);
   });
 
-  it.fails("(4) the emitted set is read from the SESSION RECORD, not passed in by the test", async () => {
+  it("(4) the emitted set is read from the SESSION RECORD, not passed in by the test", async () => {
     const runtime = buildRuntime(scenarioWithEventAt30);
     const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
     runtime.startEncounter(session.stationRunId, { atSecond: 0 });
@@ -179,7 +177,7 @@ describe("An authored scheduled event reaches a runtime dispatcher", () => {
   });
 
   // Known-good control: getScheduledEventsDue is sound and tested
-  it.fails("(5) getScheduledEventsDue is reachable from the @openclinxr/domain ENTRYPOINT. MEASURED: domain/src/index.ts:15-19 re-exports only createStationRun, evaluateRequiredTraceTags and transitionStation from station-state.js. The helper this card wires is not exported at all, so no consumer outside the package can call it. Exporting it is part of the slice; domain/src/index.ts is in the write roots for that reason.", () => {
+  it("(5) getScheduledEventsDue is reachable from the @openclinxr/domain ENTRYPOINT. MEASURED: domain/src/index.ts:15-19 re-exports only createStationRun, evaluateRequiredTraceTags and transitionStation from station-state.js. The helper this card wires is not exported at all, so no consumer outside the package can call it. Exporting it is part of the slice; domain/src/index.ts is in the write roots for that reason.", () => {
     const scenario = { eventSchedule: [{ eventId: "test", atSecond: 30, actorId: "a", tag: "t" }] as ScheduledEvent[] };
     const emitted = new Set<string>();
     const due = getScheduledEventsDue(scenario, 30, emitted);

@@ -16,10 +16,12 @@ export {
   createStationRun,
   evaluateRequiredTraceTags,
   transitionStation,
+  getScheduledEventsDue,
 } from "./station-state.js";
 export type {
   StationPhase,
   StationRun,
+  ScheduledEvent,
 } from "./station-state.js";
 export {
   AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,

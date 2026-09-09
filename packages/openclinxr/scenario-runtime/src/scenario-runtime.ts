@@ -13,7 +13,7 @@ import {
   type LearnerBargeInInput,
   type TurnTakingDecision,
 } from "@openclinxr/conversation-policy";
-import { createStationRun, type StationRun, transitionStation } from "@openclinxr/domain";
+import { createStationRun, type StationRun, transitionStation, getScheduledEventsDue, type ScheduledEvent } from "@openclinxr/domain";
 import type { ModelGateway } from "@openclinxr/model-gateway";
 import {
   buildReviewPacket,
@@ -121,6 +121,7 @@ export class ScenarioRuntime {
       emotionEngines,
       emotionPolicy,
       frozenActorTurnPlans: new Map(),
+      emittedScheduledEventIds: new Set<string>(),
     };
     if (assembledStation) {
       sessionRecord.assembledStation = assembledStation;
@@ -602,6 +603,20 @@ export class ScenarioRuntime {
 
   assetReadiness(): ScenarioAssetReadiness {
     return this.options.assetRegistry.evaluateScenarioReadiness(this.options.scenario);
+  }
+
+  /**
+   * Advance scheduled events for a station run up to the given second.
+   * Returns the events that are newly emitted at or before `atSecond` and have not been emitted before.
+   * Events are emitted exactly once per session, tracked in the session record.
+   */
+  advanceScheduledEvents(stationRunId: string, atSecond: number): ScheduledEvent[] {
+    const session = this.requireSession(stationRunId);
+    const due = getScheduledEventsDue(this.options.scenario, atSecond, session.emittedScheduledEventIds);
+    for (const event of due) {
+      session.emittedScheduledEventIds.add(event.eventId);
+    }
+    return due;
   }
 
   scenarioPublicationReadiness(input: ScenarioPublicationReadinessInput): ScenarioPublicationReadiness {
