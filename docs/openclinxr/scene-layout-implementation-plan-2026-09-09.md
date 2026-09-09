@@ -224,38 +224,53 @@ merges on main without a lease).
 
 ## 2b. The cards
 
-Created Idle on BothyBoard project OpenClinXR, not planted. Planting makes a card
-dequeuable and the operator asked that no implementation begin.
+Created Idle on BothyBoard project OpenClinXR, not planted. The first set was
+reviewed in round 1 and REPLACED rather than patched: the board exposes no tool
+to edit an Idle card's body, and each replacement names what it supersedes.
 
-| card | id | wave | lane | step |
-|---|---|---|---|---|
-| A runtime actor placement can express a heading | `tsk_71dad3085692b470` | 1 | A | staging |
-| The authored plant offset stays a vector from admin to the staging station | `tsk_61a405f61ea64f71` | 1 | B | staging |
-| A suppressed placeholder GLB cannot report itself ready | `tsk_3c4e9d81485e7f70` | 1 | A | instrument |
-| Authored equipment strings bind to asset ids under a reviewed precedence | `tsk_35401f4021b670ba` | 1 | B | room_generate |
-| An authored scheduled event reaches a runtime dispatcher | `tsk_0123a475c3f8d9e1` | 1 | B | dialogue_runtime |
-| The factory resolves actor placement from the case, not from the actor index | `tsk_ec6bf10b129255c2` | 2 | B | staging |
-| A staged transform survives slot repair, framing and the frame loop | `tsk_f90bdaad8fde5699` | 2 | A | staging |
-| Two copies of one equipment asset are representable in a room | `tsk_0d28bbd5c3e8d209` | 2 | A | equipment_generate |
-| A motion executor declares which chains it owns and survives the frame loop | `tsk_4ca2eaa621ac1eb5` | 2 | A | motion_retarget |
-| One encounter produces a reviewable initial scene specification | `tsk_cad38802047f3c8d` | 2 | B | room_generate |
-| The runtime applies the authored offset and a heading to the mounted humanoid | `tsk_6e7efa907065fe8c` | 3 | A | staging |
+| card | id | supersedes | wave | lane | step |
+|---|---|---|---|---|---|
+| heading field | `tsk_c28354df7d5d3963` | `tsk_71dad3085692b470` | 1 | A | staging |
+| authored vector | `tsk_8b9879a72fb7bfcf` | `tsk_61a405f61ea64f71` | 1 | B | staging |
+| readiness pair | `tsk_807db8f354dcf8bb` | `tsk_3c4e9d81485e7f70` | 1 | A | instrument |
+| equipment binding | `tsk_cb291bb3a132193d` | `tsk_35401f4021b670ba` | 1 | B | room_generate |
+| event dispatcher | `tsk_4d495eb216687476` | `tsk_0123a475c3f8d9e1` | 1 | B | dialogue_runtime |
+| factory resolution | `tsk_d52f5925ae08dba5` | `tsk_ec6bf10b129255c2` | 2 | B | staging |
+| transform survival | `tsk_67f78b22890c5a26` | `tsk_f90bdaad8fde5699` | 2 | A | staging |
+| equipment identity | `tsk_e06a9d49740d77f6` | `tsk_0d28bbd5c3e8d209` | 2 | A | equipment_generate |
+| motion ownership | `tsk_799fd1f8e07dd07b` | `tsk_4ca2eaa621ac1eb5` | 2 | A | motion_retarget |
+| scene specification | `tsk_8795fe7991529358` | `tsk_cad38802047f3c8d` | 2 | B | room_generate |
+| runtime consumption | `tsk_b74fa460c70f63b7` | `tsk_6e7efa907065fe8c` | 3 | A | staging |
 
-Dependencies recorded on the cards: the factory card waits on the authored
-vector, the survival card and the equipment-identity card wait on the heading
-field, the motion card waits on the survival card, the scene specification waits
-on the readiness predicate and the equipment binding, and the runtime card waits
-on three.
+### What round 1 changed in the cards
 
-Two dependencies are MISSING from the cards as created and must be added when the
-set is recreated. The scene specification must wait on the event dispatcher —
-both write `scenario-runtime/src`, and without the edge the board can dequeue
-them concurrently. And the heading card cannot populate the production builder:
-`generatedActorPlacement` lives in `asset-registry/src/actor-placement.ts:24-59`,
-inside the factory card's write root, so the heading card extends the type and
-the hardcoded literals only, and the field must stay optional or every
-constructor in `runtime-actor-placements.ts`, `actor-staging.ts` and
-`generated-ed-station-runtime-bundle.ts` breaks.
+Every card gained the measured evidence in its own body, because a worker
+executes the card and not this document. Beyond that:
+
+- **`changed:` targets are files, never directories.** A directory target means
+  "some descendant changed" and is satisfied by an unrelated edit. Where a card
+  must change two things to be true, both are named.
+- **Write roots are named files, not package directories.** That is what
+  separated the authored-vector card from the equipment-binding card, and the
+  event dispatcher from the scene specification.
+- **The event dispatcher is now a dependency of the scene specification.** Both
+  write `scenario-runtime/src`; without the edge the board could dequeue them
+  into the same tree.
+- **The heading card no longer claims to populate the production builder.**
+  `generatedActorPlacement` is in the factory card's write root, so the heading
+  card extends the type and the hardcoded literals, and the field stays optional
+  or every positional constructor breaks.
+- **The authored-vector card holds the fixture that will actually go red** and
+  says plainly that the admin worldview test will not, because line 33 is a
+  regex over the panel's source text that `plantOffsetMeters` already matches.
+- **The factory card owns both halves of the faculty lock**: put the key on the
+  emitted spec AND make a baker read the patched spec, since `specAfterOverride`
+  already injects it.
+- **The survival card states what it cannot fix.** It owns the framing file but
+  not `actor-staging.ts`, so its guard fix is not true for the patient until the
+  runtime card reorders the posture stamp.
+- **The runtime card replaces the unauthored control**, which could not fail
+  because the default bundle position already equals the stretcher default.
 
 ## 3. Acceptance that cannot pass about nothing
 
