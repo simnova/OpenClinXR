@@ -101,7 +101,13 @@ type CaseSourceModule = {
 };
 
 async function caseSource(): Promise<CaseSourceModule> {
-  return (await import(/* @vite-ignore */ CASE_SOURCE_SPECIFIER)) as CaseSourceModule;
+  // Resolved against THIS MODULE, not the process cwd. `@vite-ignore` hands the bare relative
+  // string to Node, which resolves it from wherever the runner happened to start — so under
+  // `vitest --root apps/api`, which is what `pnpm --filter @openclinxr/api test` runs, it became
+  // `/tools/openclinxr/factory/scene-closure-case-source.js` and every clause died on
+  // `Cannot find module`. The runtime-computed specifier still keeps `apps/` free of any static
+  // edge into `tools/`; only its base changes.
+  return (await import(/* @vite-ignore */ new URL(CASE_SOURCE_SPECIFIER, import.meta.url).href)) as CaseSourceModule;
 }
 
 /** Catalogue ids the authoring-time planner may bind to. From the case, never invented here. */
