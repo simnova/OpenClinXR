@@ -320,7 +320,9 @@ import {
 } from "@openclinxr/xr-exam-flow";
 import {
   actorNameplateLabel as packageActorNameplateLabel,
+  assembleStationScene,
   buildStationRoomShell,
+  wireStationPointerInteraction,
   runtimeGeneratedSceneObjectName as packageRuntimeGeneratedSceneObjectName,
   stageStationActors,
   type StationRoomResult,
@@ -2981,7 +2983,10 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   const _monitor = stationRoomResult.monitor;
   const fixtureOwnedRoles = stationRoomResult.fixtureOwnedRoles;
 
+  // room stage: an out-of-order or repeated stage is a type error (station-scene-assembly.ts).
+  const stagedScene = assembleStationScene(scene).room(() => stationRoomResult);
   // Store references for later use (e.g., gltfEnvContainer for glTF loading, reusableExteriorAnteroom for scenario panel)
+  const fixturesAssembly = stagedScene.fixtures(() => {
   scene.userData.openClinXrStationEnvironment = {
     environmentId: resolveActiveEnvironmentId(),
     floorColor: stationEnvironment.userData.floorColor,
@@ -3083,21 +3088,11 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       roomProps: encounterRuntimeAssetBundle.sceneManifest.roomProps,
     }),
   );
-
-  window.__openClinXrDeclaredEquipmentMountEvidence = {
-    source: "window.__openClinXrDeclaredEquipmentMountEvidence",
-    scenarioId: encounterRuntimeAssetBundle.scenarioId,
-    items: equipmentEvidenceItems,
-    notEvidenceFor: [
-      "quest_readiness",
-      "clinical_validity",
-      "scoring_validity",
-      "production_readiness",
-      "equipment_asset_readiness",
-    ],
-  };
+  return { declaredEquipmentMountEvidenceItems: equipmentEvidenceItems };
+  });
 
   // #122 — unique slot fill (four mounts live in @openclinxr/xr-station-room actor-staging.ts).
+  const actorsAssembly = fixturesAssembly.actors(() => {
   const { patient, nurse } = stageStationActors(
     {
       encounterBundle: () => encounterRuntimeAssetBundle,
@@ -3130,7 +3125,9 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     },
     scene,
   );
-
+  return { patient, nurse };
+  });
+  const panelsAssembly = actorsAssembly.panels(() => {
   for (const virtualActor of encounterRuntimeAssetBundle.actors.filter((actor) => actor.embodiment === "virtual_device")) {
     if (!selectedScenarioRuntimeMismatch && !cleanHumanoidSourceComparatorCapture) {
       scene.add(createVirtualDeviceActorAffordance(virtualActor.actorId));
@@ -3253,7 +3250,9 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     conversationPanel.mesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
   }
   scene.add(conversationPanel.mesh);
-  let lastPanelSignature = "";
+  return { clinicalPanel, dialoguePanel, actorRealismPanel, inputPanel, conversationPanel };
+  });
+  const interactionAssembly = panelsAssembly.interaction(() => {
   addControllerAffordances(renderer, scene, (event) => {
     // XR ray: a controller select that hits a body region is a clinical touch;
     // otherwise fall through to the position-independent trace advance.
@@ -3263,27 +3262,28 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       classifyXrSelectSource(event),
     );
   });
-  // Desktop pointer ray: pointerdown on the canvas that hits a body region fires a
-  // clinical touch (headless-capturable). A miss does nothing (touch-only input).
-  renderer.domElement.addEventListener("pointerdown", (event) => {
-    const rect = renderer.domElement.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
-    const ndcX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    const ndcY = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
-    tryClinicalTouchFromNdc(camera, ndcX, ndcY, "dom_click_trace_button");
+  // Desktop pointer ray and headless projection hook (@openclinxr/xr-station-room).
+  wireStationPointerInteraction({ renderer, camera, tryClinicalTouchFromNdc, clinicalTouchRegionTargets: () => clinicalTouchRegionTargets });
+  return {};
   });
-  // Test hook: project a touch-region center to a client pixel so the headless
-  // clinical-touch gate can click the real canvas and exercise the real ray path.
-  (window as unknown as {
-    __openClinXrProjectTouchRegionToScreen?: (regionId: string) => { x: number; y: number } | null;
-  }).__openClinXrProjectTouchRegionToScreen = (regionId) => {
-    const mesh = clinicalTouchRegionTargets.find((target) => target.userData.openClinXrTouchRegionId === regionId);
-    if (!mesh) return null;
-    mesh.updateWorldMatrix(true, false);
-    const ndc = new Vector3().setFromMatrixPosition(mesh.matrixWorld).project(camera);
-    const rect = renderer.domElement.getBoundingClientRect();
-    return { x: rect.left + ((ndc.x + 1) / 2) * rect.width, y: rect.top + ((1 - ndc.y) / 2) * rect.height };
+  // Everything after interaction stays OUTSIDE the builder: resize, animate, renderSceneFrame,
+  // updateVrPanels, startImmersiveSession and the XR session lifetime are the root's job.
+  const assembledStationScene = interactionAssembly.build();
+  const panelSignatureState = { lastPanelSignature: "" };
+  window.__openClinXrDeclaredEquipmentMountEvidence = {
+    source: "window.__openClinXrDeclaredEquipmentMountEvidence",
+    scenarioId: encounterRuntimeAssetBundle.scenarioId,
+    items: assembledStationScene.fixtures.declaredEquipmentMountEvidenceItems,
+    notEvidenceFor: [
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity",
+      "production_readiness",
+      "equipment_asset_readiness",
+    ],
   };
+  const { patient, nurse } = assembledStationScene.actors;
+  const { clinicalPanel, dialoguePanel, actorRealismPanel, inputPanel, conversationPanel } = assembledStationScene.panels;
   const keyboardLocomotion = createPackageKeyboardLocomotion();
   let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
   let handModelsInstalled = false;
@@ -3680,10 +3680,10 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       window.__openClinXrConversationTurnStateEvidence?.nextActorId ?? "no-next-actor",
       window.__openClinXrConversationTurnStateEvidence?.lastBargeInOutcome ?? "no-barge-in",
     ].join("|");
-    if (panelSignature === lastPanelSignature) {
+    if (panelSignature === panelSignatureState.lastPanelSignature) {
       return;
     }
-    lastPanelSignature = panelSignature;
+    panelSignatureState.lastPanelSignature = panelSignature;
     clinicalPanel.update(clinicalPanelLinesForSelectedStation());
     dialoguePanel.update([
       dialogueText,
@@ -4317,10 +4317,10 @@ function pedsActorListenerCuePanelContext(): Parameters<typeof applyPackagePedsA
     startEmotionTransition: (slot, emotion, nowMs) =>
       startHumanoidEmotionTransition(slot as unknown as GeneratedHumanoidAnimationSlot, emotion as HumanoidExpressionEmotion, nowMs),
     updateEmotionExpression: (slot, nowMs) => {
-      const state = updateHumanoidEmotionExpression(slot as unknown as GeneratedHumanoidAnimationSlot, nowMs);
+      const emotionState = updateHumanoidEmotionExpression(slot as unknown as GeneratedHumanoidAnimationSlot, nowMs);
       return {
-        targetEmotion: state.targetEmotion as "concerned" | "reassured" | "neutral" | "anxious" | "pain",
-        weights: state.weights,
+        targetEmotion: emotionState.targetEmotion as "concerned" | "reassured" | "neutral" | "anxious" | "pain",
+        weights: emotionState.weights,
       };
     },
     applyMorphTargetCue: (slot, openness, viseme, weights) =>
