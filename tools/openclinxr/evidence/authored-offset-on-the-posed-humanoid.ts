@@ -78,6 +78,10 @@ export type AuthoredOffsetRow = {
   afterFurtherFrames: PosedHumanoidSample;
   /** afterFurtherFrames minus atSettle, on the skinned centre. Non-zero means it did not survive. */
   skinnedDriftMeters: Vec3 | null;
+  /** The same station with the authored offset SUPPRESSED. The control half of the pair. */
+  suppressedControl: PosedHumanoidSample | null;
+  /** authored sample minus suppressed sample, on the skinned centre. This is the measured delta. */
+  measuredOffsetDeltaMeters: Vec3 | null;
   outcome: PlacementOutcome;
   /** Why the outcome is what it is, in one sentence, always populated. */
   evidence: string;
@@ -302,9 +306,31 @@ export function classify(row: Omit<AuthoredOffsetRow, "outcome" | "evidence">): 
       evidence: `unauthored control: patient held at x=${later.skinnedCentreWorld.x.toFixed(4)} z=${later.skinnedCentreWorld.z.toFixed(4)} with ${driftMagnitude.toFixed(4)} m of drift across ${FURTHER_FRAME_BUDGET} further frames; defaults retained because nothing was authored`,
     };
   }
+  const delta = row.measuredOffsetDeltaMeters;
+  if (!delta) {
+    return {
+      outcome: "unknown",
+      evidence: `authored offset {x:${row.authoredOffsetMeters.x}, z:${row.authoredOffsetMeters.z}} is recorded and the humanoid was sampled at x=${later.skinnedCentreWorld.x.toFixed(4)} z=${later.skinnedCentreWorld.z.toFixed(4)}, but the suppressed control did not sample, so no delta exists and no verdict is possible`,
+    };
+  }
+  // THE VERDICT. Compared on the TANGENT axes only: x and z are what an authored offset moves,
+  // and y is refused outright for a supported posture by composeSupportedActorWorldPosition. The
+  // tolerance is the measured frame-to-frame drift of the UNAUTHORED control (~0.008 m at its
+  // worst across 30 frames), rounded up to 0.02 m — ambient movement of a figure the frame loop
+  // rewrites every frame, measured before this comparison existed and independent of it.
+  const TOLERANCE_METERS = 0.02;
+  const errX = Math.abs(delta.x - row.authoredOffsetMeters.x);
+  const errZ = Math.abs(delta.z - row.authoredOffsetMeters.z);
+  const shown = `measured delta {x:${delta.x.toFixed(4)}, z:${delta.z.toFixed(4)}} vs authored {x:${row.authoredOffsetMeters.x}, z:${row.authoredOffsetMeters.z}} (err x=${errX.toFixed(4)} z=${errZ.toFixed(4)}, tolerance ${TOLERANCE_METERS})`;
+  if (errX <= TOLERANCE_METERS && errZ <= TOLERANCE_METERS) {
+    return {
+      outcome: "satisfied",
+      evidence: `the authored offset reaches the posed skinned humanoid: ${shown}`,
+    };
+  }
   return {
-    outcome: "unknown",
-    evidence: `authored offset {x:${row.authoredOffsetMeters.x}, z:${row.authoredOffsetMeters.z}} is recorded and the humanoid was sampled at x=${later.skinnedCentreWorld.x.toFixed(4)} z=${later.skinnedCentreWorld.z.toFixed(4)}, but this instrument does not yet resolve the fixture anchor this station composes onto, so the expected world target is not known and no satisfied/unsatisfied verdict is possible`,
+    outcome: "unsatisfied",
+    evidence: `the authored offset does NOT reach the posed skinned humanoid: ${shown}`,
   };
 }
 
@@ -352,6 +378,23 @@ export async function measureAuthoredOffsetOnPosedHumanoid(input: {
         const patientActorId =
           afterFurtherFrames.actorId || atSettle.actorId || input.patientActorIds[scenarioId] || "";
         const authored = authoredPlacementFor(scenarioId, patientActorId);
+
+        // THE CONTROL HALF. Same station, same waits, authored offset suppressed. Only when the
+        // case authors one: re-navigating a station that authors nothing would sample the same
+        // thing twice and produce a zero delta that looks like a measurement.
+        let suppressedControl: PosedHumanoidSample | null = null;
+        if (authored.offset) {
+          const controlUrl = `${buildRoomCaptureUrl(baseUrl, scenarioId, ROOM_CAPTURE_MODE)}&openclinxrSuppressAuthoredPlantOffset=1`;
+          process.stdout.write(`authored-offset: control ${scenarioId}\n`);
+          await page.goto(controlUrl, { waitUntil: "load", timeout: 180_000 });
+          await waitForStationShell(page, 180_000);
+          await waitForHumanoidsAndFrames(page, 6, 180_000);
+          await waitForSceneAssetsSettled(page, 60_000);
+          await page.waitForTimeout(900);
+          const controlSettle = await samplePosedPatient(page);
+          await waitForHumanoidsAndFrames(page, controlSettle.framesObserved + FURTHER_FRAME_BUDGET, 60_000);
+          suppressedControl = await samplePosedPatient(page);
+        }
         const base: Omit<AuthoredOffsetRow, "outcome" | "evidence"> = {
           scenarioId,
           patientActorId,
@@ -363,6 +406,11 @@ export async function measureAuthoredOffsetOnPosedHumanoid(input: {
           skinnedDriftMeters: subtract(
             afterFurtherFrames.skinnedCentreWorld,
             atSettle.skinnedCentreWorld,
+          ),
+          suppressedControl,
+          measuredOffsetDeltaMeters: subtract(
+            afterFurtherFrames.skinnedCentreWorld,
+            suppressedControl?.skinnedCentreWorld ?? null,
           ),
         };
         rows.push({ ...base, ...classify(base) });

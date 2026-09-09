@@ -34,7 +34,30 @@ export function familyChairFixtureWorldPosition(environmentId: string): Vector3 
 }
 
 /** The authored plant offset for `actorId` in `scenarioId`, or undefined when none is authored. */
+/**
+ * Capture-time suppression of the authored offset, for the CONTROL half of a control/treatment
+ * measurement.
+ *
+ * Brief §7 step 2 wants the authored delta proven on the loaded humanoid. The only quantity an
+ * instrument can sample there is the skinned mesh's world centre, which carries the body's own
+ * offset from its origin — so comparing it against `anchor + authoredOffset` compares two
+ * different things and needs a fudge term to agree. That is a threshold fitted to clear an
+ * observation, which this repo has paid for before.
+ *
+ * The honest comparison is the same station sampled TWICE, with the offset and without it: the
+ * body-origin bias is identical in both and subtracts out exactly, so the delta between the two
+ * skinned centres is the authored offset and nothing else. This flag is the "without".
+ *
+ * Read LAZILY, never at module load. A module-level `window.location.search` read is what made
+ * capture-clock-validation un-importable in node (ad714748); this returns false with no window.
+ */
+export function authoredPlantOffsetSuppressed(): boolean {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).get("openclinxrSuppressAuthoredPlantOffset") === "1";
+}
+
 export function authoredPlantOffsetMeters(scenarioId: string, actorId: string): Vector3 | undefined {
+  if (authoredPlantOffsetSuppressed()) return undefined;
   const offset = scenarioBank
     .find((candidate) => candidate.scenarioId === scenarioId)
     ?.actors?.find((actor) => actor.actorId === actorId)

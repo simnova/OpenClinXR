@@ -528,6 +528,47 @@ Until then `unknown` with the reason recorded is the honest verdict, and it is w
 outcome vocabulary is for: "unknown means no adequate observation yet", and it does not permit
 promotion.
 
+### Step 2 now has a REAL verdict, and it is `unsatisfied`
+
+The control/treatment pair is implemented: `openclinxrSuppressAuthoredPlantOffset=1` makes
+`authoredPlantOffsetMeters` return undefined at capture time, so the same station can be sampled
+with the offset and without it. The body-origin bias in the skinned centre is identical in both
+samples and subtracts out exactly, so the delta between them is the authored offset and nothing
+else — no fitted term, and nothing re-derived from the code under test.
+
+The tolerance is 0.02 m, taken from the UNAUTHORED control's own measured frame-to-frame drift
+(0.0011–0.0081 m across four runs, worst case 0.0081), rounded up. It is ambient movement of a
+figure the frame loop rewrites every frame, measured before this comparison existed.
+
+**Run 5:**
+
+    clinic_knee_pain_return_to_play_v1  unsatisfied  patient_jordan_cole_v1  posture=seated
+      measured delta {x: -0.0080, z: -0.0035} vs authored {x: 0.4, z: 0}
+      err x = 0.4080, z = 0.0035, tolerance 0.02
+    ed_chest_pain_priority_v2           satisfied    patient_robert_hayes_v1 posture=supine
+      unauthored control held, 0.0052 m drift across 30 further frames
+
+**The offset does not move the figure at all.** −0.008 m is drift, not displacement: suppressing a
+0.4 m authored offset changes the humanoid's world position by nothing measurable.
+
+This is the answer step 2 asks for, and it is the first time the question has been answerable. It
+is worth being precise about what changed: the earlier `unknown` verdicts were not this result.
+They meant the instrument could not tell, and telling required the control pass.
+
+### The next link, and the evidence that names it
+
+The composition is reached — posture is seated and `supportedActorPlacementPosition` runs — so the
+break is downstream of it. The strongest candidate is already documented in this repo, by the
+transform card: `runtime-actor-placements.ts:102-114` REWRITES `position` from
+`SLOT_PLACEMENT_ANCHORS` when `slotKind` differs. That card made the rewrite REPORT itself
+(`rewrittenActorIds`) and deliberately kept the behaviour, because suppressing it reintroduces
+#136.
+
+So the composed position is very likely computed correctly and then overwritten by slot repair. The
+next measurement is cheap and decisive: read `rewrittenActorIds` off the published actor-placement
+evidence during the same capture and check whether the clinic patient is in it. That is a
+prediction, not a finding, and it is recorded as one.
+
 ### The evidence tools' page-global alias does not exist at runtime
 
 Building the instrument surfaced a defect in the tooling the brief cites. `browser-dom.d.ts`
