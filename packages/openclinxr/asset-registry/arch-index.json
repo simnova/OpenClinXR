@@ -240,7 +240,7 @@
     "lint": "pnpm --filter @openclinxr/asset-registry lint"
   },
   "ceilings": {
-    "testInternalImports": 2,
+    "testInternalImports": 1,
     "rootEntrypointExports": 215,
     "starExports": 8
   }

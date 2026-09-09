@@ -54,7 +54,7 @@
     "lint": "pnpm --filter @openclinxr/data-sources-mongoose-models lint"
   },
   "ceilings": {
-    "testInternalImports": 6,
+    "testInternalImports": 1,
     "rootEntrypointExports": 29,
     "starExports": 8
   }

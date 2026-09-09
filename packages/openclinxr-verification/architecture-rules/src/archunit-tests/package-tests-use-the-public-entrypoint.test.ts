@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   checkTestImportSurface,
+  entrypointReachableModules,
   measureTestImports,
   publicEntrypoints,
   readTestImportCeiling,
@@ -70,5 +74,72 @@ describe("package tests use the public entrypoint", () => {
     // Seven packages already import only through their entrypoint; that set must not shrink.
     const clean = [...byPkg.values()].filter((n) => n === 0).length;
     expect(clean).toBeGreaterThanOrEqual(7);
+  });
+});
+
+/**
+ * An internal import counts ONLY when the module is reachable from a declared entrypoint.
+ *
+ * FOUND AS A DEADLOCK, 2026-09-08, not chosen as a preference. export-surface-budgets.ts ratchets
+ * entrypoint exports down and this rule ratchets internal test imports down, both shrink-only. A
+ * package whose tests exercise an internal module could satisfy neither: removing the symbol from
+ * the entrypoint broke the test, and repointing the test at the module raised this count. Measured
+ * on capability-gateway (119 exports, testInternalImports ceiling 1) and shared-schemas (107, 1).
+ *
+ * The rule's stated harm is "pins thing.ts AS IF IT WERE PUBLIC". A genuinely private module pins
+ * nothing a consumer can see, so the package stays free to rename or merge it.
+ *
+ * MEASURED BEFORE THE CHANGE: of 234 internal test imports across the tree, 206 target a module
+ * still reachable from an entrypoint and keep counting; 28 stop. Clause (10) freezes that ratio so
+ * a later simplification cannot quietly reduce the rule to nothing.
+ */
+describe("only a reachable module is pinned as if public", () => {
+  const withPackage = (files: Record<string, string>, run: (src: string) => void): void => {
+    const root = mkdtempSync(join(tmpdir(), "test-import-"));
+    try {
+      for (const [rel, body] of Object.entries(files)) {
+        const full = join(root, rel);
+        mkdirSync(join(full, ".."), { recursive: true });
+        writeFileSync(full, body);
+      }
+      run(join(root, "src"));
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  };
+
+  it("(8) a module re-exported from the entrypoint is reachable", () => {
+    withPackage(
+      {
+        "src/index.ts": 'export { thing } from "./thing.js";\n',
+        "src/thing.ts": "export const thing = 1;\n",
+        "src/private.ts": "export const hidden = 2;\n",
+      },
+      (src) => {
+        const reachable = entrypointReachableModules(src, new Set(["./index.js"]));
+        expect([...reachable].some((f) => f.endsWith("thing.ts"))).toBe(true);
+        expect([...reachable].some((f) => f.endsWith("private.ts"))).toBe(false);
+      },
+    );
+  });
+
+  it("(9) COUNTERWEIGHT: an entrypoint that re-exports nothing reaches only itself", () => {
+    // The cheapest way to make clause (8) pass is to stop walking imports, which would make every
+    // module unreachable and reduce the whole rule to zero.
+    withPackage(
+      { "src/index.ts": "export const only = 1;\n", "src/other.ts": "export const other = 2;\n" },
+      (src) => {
+        const reachable = entrypointReachableModules(src, new Set(["./index.js"]));
+        expect(reachable.size).toBe(1);
+      },
+    );
+  });
+
+  it("(10) the live tree still counts the large majority of its internal test imports", () => {
+    // 206 of 234 kept counting when this change was measured. A floor of 150 leaves room for the
+    // campaign to shrink entrypoints (which legitimately lowers this) while failing loudly if the
+    // reachability walk is ever broken into reporting nothing.
+    const total = measureTestImports().reduce((sum, m) => sum + m.internal, 0);
+    expect(total).toBeGreaterThan(150);
   });
 });

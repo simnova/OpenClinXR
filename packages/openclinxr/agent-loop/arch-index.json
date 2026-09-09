@@ -142,7 +142,7 @@
     "lint": "pnpm --filter @openclinxr/agent-loop lint"
   },
   "ceilings": {
-    "testInternalImports": 17,
+    "testInternalImports": 14,
     "rootEntrypointExports": 115,
     "starExports": 4
   }

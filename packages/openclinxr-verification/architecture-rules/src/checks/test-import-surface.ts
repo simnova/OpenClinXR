@@ -22,6 +22,22 @@ import { fileURLToPath } from "node:url";
  * PUBLIC means: the module a declared `exports` entry in package.json points at, plus
  * `./index.js`. A package with subpath exports may legitimately import each of them.
  *
+ * AN INTERNAL IMPORT COUNTS ONLY WHEN THE MODULE IS REACHABLE FROM AN ENTRYPOINT (2026-09-08).
+ * The harm above is "pins thing.ts AS IF IT WERE PUBLIC". If `thing.ts` is genuinely private —
+ * nothing re-exports it from a declared entrypoint — a test importing it pins nothing a consumer
+ * can see, and the package stays free to rename or merge it, because only its own tests refer to
+ * it. When the module IS reachable, the test could have used the public path and should.
+ *
+ * This was found as a DEADLOCK, not as a preference. export-surface-budgets.ts ratchets entrypoint
+ * exports down, shrink-only; this rule ratchets internal test imports down, shrink-only. A package
+ * whose tests exercise an internal module could satisfy neither: removing the symbol from the
+ * entrypoint broke the test, and repointing the test at the module raised this count. Measured on
+ * capability-gateway (119 exports, testInternalImports ceiling 1) and shared-schemas (107, 1).
+ *
+ * MEASURED BEFORE THE CHANGE, so the rule is not being quietly gutted: of 234 internal test
+ * imports across the tree, 206 target a module still reachable from an entrypoint and keep
+ * counting; 28 stop. The rule retains 88% of its force and clause (5) of its test freezes that.
+ *
  * CEILINGS ARE PER-PACKAGE AND GENERATED, sharing arch-ceiling.json with the context budget.
  * See checks/context-field-budgets.ts for why: the two hand-edited freeze tables in this
  * package are the most contended source files in the repo, because every slice edits both.
@@ -79,6 +95,28 @@ function walkTests(dir: string, out: string[]): string[] {
   return out;
 }
 
+/**
+ * Every module reachable from a package's declared entrypoints, as absolute .ts paths. A test
+ * importing one of these could have used the public path; a test importing anything else is
+ * reaching for something no consumer can see.
+ */
+export function entrypointReachableModules(src: string, entrypoints: ReadonlySet<string>): Set<string> {
+  const reachable = new Set<string>();
+  for (const entrypoint of entrypoints) {
+    const file = join(src, entrypoint.replace(/^\.\//u, "").replace(/\.js$/u, ".ts"));
+    const stack = [file];
+    while (stack.length > 0) {
+      const current = stack.pop();
+      if (current === undefined || reachable.has(current) || !existsSync(current)) continue;
+      reachable.add(current);
+      for (const match of readFileSync(current, "utf8").matchAll(/from "(\.[^"]+)"/gu)) {
+        stack.push(normalize(join(dirname(current), (match[1] ?? "").replace(/\.js$/u, ".ts"))));
+      }
+    }
+  }
+  return reachable;
+}
+
 /** Per package: how many relative imports in its own tests reach a module it does not export. */
 export function measureTestImports(): TestImportMeasurement[] {
   const root = findWorkspaceRoot();
@@ -90,6 +128,7 @@ export function measureTestImports(): TestImportMeasurement[] {
     const manifest = join(packagesRoot, pkg, "package.json");
     if (!existsSync(src) || !existsSync(manifest)) continue;
     const entrypoints = publicEntrypoints(readFileSync(manifest, "utf8"));
+    const reachable = entrypointReachableModules(src, entrypoints);
     let internal = 0;
     let publicCount = 0;
     for (const test of walkTests(src, [])) {
@@ -98,8 +137,12 @@ export function measureTestImports(): TestImportMeasurement[] {
         const spec = match[1] ?? "";
         const target = normalize(join(dirname(test), spec));
         const rel = `./${relative(src, target).replaceAll("\\", "/")}`;
-        if (entrypoints.has(rel)) publicCount += 1;
-        else internal += 1;
+        if (entrypoints.has(rel)) {
+          publicCount += 1;
+          continue;
+        }
+        // Only a module a consumer could also reach is "pinned as if public".
+        if (reachable.has(target.replace(/\.js$/u, ".ts"))) internal += 1;
       }
     }
     if (internal > 0 || publicCount > 0) out.push({ pkg, internal, public: publicCount });

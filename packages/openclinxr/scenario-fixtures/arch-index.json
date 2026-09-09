@@ -84,7 +84,7 @@
     "lint": "pnpm --filter @openclinxr/scenario-fixtures lint"
   },
   "ceilings": {
-    "testInternalImports": 5,
+    "testInternalImports": 3,
     "rootEntrypointExports": 61,
     "starExports": 19
   }

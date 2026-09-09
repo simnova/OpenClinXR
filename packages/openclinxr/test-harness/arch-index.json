@@ -34,7 +34,7 @@
     "lint": "pnpm --filter @openclinxr/test-harness lint"
   },
   "ceilings": {
-    "testInternalImports": 4,
+    "testInternalImports": 3,
     "starExports": 2
   }
 }
