@@ -398,7 +398,7 @@ Measured against `§7 Prioritized prototype and acceptance`:
 | 0 — specify the starting scene | **partial** | `buildInitialSceneSpec` returns the four outcomes with observed evidence and names a real unwired consumer per required asset. It REPORTS; nothing consumes it, and no required state is enforced before an encounter begins. |
 | 1 — freeze one supine station as a control | **met** | `computeSupineControlFreeze` hashes every asset the station loads and refuses a recorded measurement whose bytes moved, naming the changed path. |
 | 2 — prove authoring reaches the scene | **MET 2026-09-09** | Measured on the loaded, posed, skinned humanoid after framing, pose application and 30 further frames, as a control/treatment pair: `measured delta {x: 0.3967, z: -0.0015}` against an authored `{x: 0.4, z: 0}` — err 0.0033 m and 0.0015 m against a 0.02 m tolerance derived from the unauthored control's own drift. The unauthored supine control retains its defaults. |
-| 3 — stationary clinical staging | **staging, target, heading, clearance and approach zone MET** | The physician is staged as a physician, stands clear of the MEASURED deck facing the patient, the heading is consumed at runtime, and body clearance plus the approach corridor report violations against measured bounds with known-good and known-bad controls. Monitor visibility and the idle/speech body-direction check remain absent. |
+| 3 — stationary clinical staging | **all geometric requirements MET** | Staged as a physician, clear of the measured deck, facing the patient, heading consumed at runtime, and clearance / approach corridor / monitor visibility all report violations against measured bounds with known-good and known-bad controls. The composed-body-direction check during idle and speech is the one remaining clause. |
 | 4 — physician approach | **not started** | — |
 | 5 — variation, replay and failure behaviour | **partial** | Only the byte-freeze half: changed asset geometry invalidates dependent evidence. No variation indices, no impossible-layout case, no corrupt-artifact refusal, no displayed-motion capture. |
 | 6 — compare one legally eligible learned provider | **not started** | Kimodo-SOMA-RP-v1.1 remains a conditional offline lead, unverified here. |
@@ -763,6 +763,37 @@ is imported as `ED_STRETCHER_DECK_BOUNDS`, derived from those constructor argume
 known-bad cases are the good one moved — an obstacle on the target, and one across the route —
 and clause (4) is the counterweight: with no approach origin, no corridor violation may be
 invented.
+
+### Monitor visibility, and what a cheap adversarial review was worth
+
+`monitorVisibilityFrom` reports two distinct failures, and a check with only the first is the one
+worth being careful about:
+
+1. **Occluded** — something stands between the eye and the screen.
+2. **Behind the screen** — nothing occludes the segment and the screen is invisible anyway. A pure
+   occlusion check calls this VISIBLE, which is how "monitor visibility" becomes a green box.
+
+The screen normal is taken from the box's thinnest axis, signed toward the room centre: the shipped
+monitor is `BoxGeometry(0.8, 0.55, 0.08)` at `(1.7, 1.45, -0.65)`, so it is thin along Z and faces
++Z. A normal taken from the widest axis would point at the ceiling and the wrong-side clause would
+pass for the wrong reason, so clause (4) pins it.
+
+Eye height is 1.55 m — between the commonly cited ~1.51 m female and ~1.63 m male adult standing
+figures, an external anthropometric floor. One ray to the screen's CENTRE is a lower bound on
+visibility: a screen half-blocked by a pole reports visible because its centre is clear. Stated in
+the module rather than implied.
+
+**A `muse-spark-1` review found a real defect.** Asked to name ways `bedsideClearanceViolations`
+could return no violations when a clinician would in fact be blocked, it returned four critiques in
+one call. The actionable one: an XZ-only footprint ignores height in both directions, so a
+ceiling-mounted light at y 2.4 reports a body-clearance violation it has no business reporting —
+and that class of false positive is how a check stops being believed. Both checks are now gated on
+overlap with the standing body's height band (1.8 m, an anthropometric floor), and clause (5) is
+the regression net.
+
+Its other three — an omitted `approachFrom` silently skipping the corridor check, a zero-length
+approach doing the same, and a sub-margin gap that clears a static footprint but not a turning
+shoulder — are recorded, unfixed, and real.
 
 ### The evidence tools' page-global alias does not exist at runtime
 

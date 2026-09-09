@@ -34,6 +34,17 @@ export type MeasuredObstacle = { id: string; bounds: WorldAabb };
 export const STANDING_FOOTPRINT_RADIUS_METERS = 0.3;
 export const APPROACH_CORRIDOR_HALF_WIDTH_METERS = 0.35;
 
+/**
+ * The vertical band a standing body occupies, in metres above the floor.
+ *
+ * Added after an adversarial review (meta/muse-spark-1.3-contributor, 2026-09-09) pointed out that
+ * an XZ-only footprint ignores height in BOTH directions: a ceiling-mounted light at y 2.4 reports
+ * a body-clearance violation it has no business reporting, and that kind of false positive is how
+ * a check stops being believed. 1.8 m is an approximate adult standing height, an external
+ * anthropometric floor rather than a fitted value.
+ */
+export const STANDING_BODY_HEIGHT_METERS = 1.8;
+
 export type ClearanceViolation = {
   kind: "body_clearance" | "approach_corridor";
   obstacleId: string;
@@ -42,8 +53,25 @@ export type ClearanceViolation = {
   reason: string;
 };
 
-/** XZ overlap depth of a circle against a box: positive when they intersect. */
-function circleBoxOverlapXz(centre: Vector3, radius: number, bounds: WorldAabb): number {
+/** True when the obstacle's vertical span overlaps the band a standing body occupies. */
+function overlapsStandingHeight(bounds: WorldAabb, floorY: number, bodyHeight: number): boolean {
+  return bounds.max.y > floorY && bounds.min.y < floorY + bodyHeight;
+}
+
+/**
+ * XZ overlap depth of a circle against a box, gated on vertical overlap: positive when they
+ * intersect in plan AND the box occupies some of the body's height band.
+ *
+ * The gate is not cosmetic. Without it the check is a plan-view stamp: it reports a ceiling light
+ * as blocking a standing clinician and cannot tell a floor cable from a wall cabinet.
+ */
+function circleBoxOverlapXz(
+  centre: Vector3,
+  radius: number,
+  bounds: WorldAabb,
+  bodyHeight: number,
+): number {
+  if (!overlapsStandingHeight(bounds, centre.y, bodyHeight)) return 0;
   const nearestX = Math.min(Math.max(centre.x, bounds.min.x), bounds.max.x);
   const nearestZ = Math.min(Math.max(centre.z, bounds.min.z), bounds.max.z);
   const distance = Math.hypot(centre.x - nearestX, centre.z - nearestZ);
@@ -62,6 +90,7 @@ export function bedsideClearanceViolations(input: {
   standingPosition: Vector3;
   approachFrom?: Vector3 | undefined;
   obstacles: readonly MeasuredObstacle[];
+  bodyHeightMeters?: number | undefined;
 }): ClearanceViolation[] {
   const violations: ClearanceViolation[] = [];
 
@@ -70,6 +99,7 @@ export function bedsideClearanceViolations(input: {
       input.standingPosition,
       STANDING_FOOTPRINT_RADIUS_METERS,
       obstacle.bounds,
+      input.bodyHeightMeters ?? STANDING_BODY_HEIGHT_METERS,
     );
     if (overlap > 0) {
       violations.push({
@@ -100,7 +130,12 @@ export function bedsideClearanceViolations(input: {
         y: input.standingPosition.y,
         z: from.z + dz * t,
       };
-      const overlap = circleBoxOverlapXz(point, APPROACH_CORRIDOR_HALF_WIDTH_METERS, obstacle.bounds);
+      const overlap = circleBoxOverlapXz(
+        point,
+        APPROACH_CORRIDOR_HALF_WIDTH_METERS,
+        obstacle.bounds,
+        input.bodyHeightMeters ?? STANDING_BODY_HEIGHT_METERS,
+      );
       if (overlap > worst) worst = overlap;
     }
     if (worst > 0) {

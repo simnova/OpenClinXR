@@ -2816,3 +2816,4 @@ export {
   headingRadiansToward,
 } from "./bedside-target.js";
 export { bedsideClearanceViolations } from "./bedside-clearance.js";
+export { ED_MONITOR_BOUNDS, monitorVisibilityFrom, screenNormal } from "./monitor-visibility.js";
