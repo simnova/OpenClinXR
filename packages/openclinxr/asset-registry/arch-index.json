@@ -253,6 +253,7 @@
     "src/an-authored-offset-needs-a-frame.test.ts",
     "src/asset-registry.test.ts",
     "src/asset-writer.test.ts",
+    "src/authored-intent-is-not-substituted.test.ts",
     "src/encounter-bundle-promotion.test.ts",
     "src/environment-spatial-zones.test.ts",
     "src/every-cast-actor-is-staged-or-reported.test.ts",

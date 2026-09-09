@@ -1040,6 +1040,29 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+## An authored approach side was being silently substituted
+
+§3, deterministic solving: *"fail unsatisfied explicit intent rather than substituting a different
+target."*
+
+`resolveBedsideLayout` tried BOTH sides and every standoff unconditionally. A case authoring
+"approach from the patient's left" was given the right side whenever the left was blocked, and the
+seed made that look deliberate. Nothing reported it.
+
+Intent now NARROWS the candidate set and never widens it: an authored side with no authored standoff
+still tries every standoff on that side, which is search within the intent rather than around it.
+The seed is unchanged by intent, so a station that authors its side still varies its standoff across
+variation indices.
+
+Clause (2) is the counterweight that matters — the same obstacles must still resolve WITHOUT intent
+by taking the open side, or clause (1) would be measuring a fixture that blocks everything.
+
+**One part of that sentence is recorded as not applicable rather than asserted.** "Break equal
+scores by stable anchor ID" has nothing to break: the resolver is first-fit over a seed-ordered
+candidate list and computes no score at all. Clause (5) states that and re-measures the hard
+constraint on the returned target instead, because an assertion over an absent ranking is green
+about nothing.
+
 ## The initial scene planner's binding step, and why a substring match would have been wrong
 
 §3 step 2, verbatim: *"Case `equipment` currently contains descriptive strings while `assetNeeds`

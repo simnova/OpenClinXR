@@ -107,11 +107,29 @@ const STANDOFF_CANDIDATES_METERS = [0.75, 0.9, 1.05] as const;
  * position that violates something. The brief: "Return a resolved layout or explicit unsatisfied
  * constraints."
  */
+/**
+ * Explicit authored intent for the bedside target.
+ *
+ * Brief §3, deterministic solving: *"fail unsatisfied explicit intent rather than substituting a
+ * different target."* Without this the resolver tried BOTH sides and every standoff, so a case that
+ * authored "approach from the patient's left" would silently be given the right side whenever the
+ * left was blocked — a substitution the author never sees and the seed makes look deliberate.
+ *
+ * Intent NARROWS the candidate set; it never widens it. An authored side with no authored standoff
+ * still tries every standoff on THAT side, which is search within the intent rather than around it.
+ */
+export type BedsideLayoutIntent = {
+  approachSide?: "patient_left" | "patient_right" | undefined;
+  standoffMeters?: number | undefined;
+};
+
 export function resolveBedsideLayout(input: {
   seedInput: LayoutSeedInput;
   patientPosition: Vector3;
   supportBounds?: SupportBounds | undefined;
   obstacles: readonly MeasuredObstacle[];
+  /** Authored intent. Absent means the seed explores; present means it does not. */
+  intent?: BedsideLayoutIntent | undefined;
 }): ResolvedLayout {
   const seed = deriveLayoutVariationSeed(input.seedInput);
   const bounds = input.supportBounds ?? ED_STRETCHER_DECK_BOUNDS;
@@ -119,14 +137,21 @@ export function resolveBedsideLayout(input: {
   // across indices, and never a random choice at call time.
   const sideFirst =
     Number.parseInt(seed.slice(0, 2), 16) % 2 === 0 ? "patient_right" : "patient_left";
-  const sides =
+  const seedOrderedSides =
     sideFirst === "patient_right"
       ? (["patient_right", "patient_left"] as const)
       : (["patient_left", "patient_right"] as const);
+  // Explicit intent replaces the seed's exploration. A failure below then reports the authored
+  // target as unsatisfied instead of handing back the other side.
+  const sides = input.intent?.approachSide ? [input.intent.approachSide] : seedOrderedSides;
+  const standoffs =
+    input.intent?.standoffMeters === undefined
+      ? STANDOFF_CANDIDATES_METERS
+      : [input.intent.standoffMeters];
 
   const unsatisfied: Array<{ approachSide: string; standoffMeters: number; reason: string }> = [];
   for (const approachSide of sides) {
-    for (const standoffMeters of STANDOFF_CANDIDATES_METERS) {
+    for (const standoffMeters of standoffs) {
       const target = bedsideTargetForClinician({
         patientPosition: input.patientPosition,
         supportBounds: bounds,
