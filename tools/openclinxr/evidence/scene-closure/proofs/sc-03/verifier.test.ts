@@ -4,10 +4,14 @@ import { parseArgs } from "./verify.js";
 import {
   auditScopes,
   type EvidenceRegistry,
+  inspectBehaviorTestSource,
   type ObjectReader,
   resolveArtifactPath,
+  SC03_BEHAVIOR_TEST_PATH,
+  SC03_BEHAVIOR_TEST_TITLE,
   SC03_FROZEN_SCOPES,
   SC03_REQUIRED_CHECK_IDS,
+  SC03_REQUIRED_COMMANDS,
   SC03_REQUIRED_CONTROL_IDS,
   sha256Hex,
   verifyReport,
@@ -25,7 +29,9 @@ import {
  * evidence that bytes exist. The contract asks for exactly that test by name.
  */
 
-const ARTIFACT_BYTES = Buffer.from("a recorded normal-workflow observation stream\n");
+const ARTIFACT_BYTES = Buffer.from(
+  `a recorded normal-workflow observation stream\n${SC03_REQUIRED_CHECK_IDS.join("\n")}\n`,
+);
 const ARTIFACT_SHA = sha256Hex(ARTIFACT_BYTES);
 const BASELINE_BYTES = Buffer.from("baseline run output\n");
 const FIXED_BYTES = Buffer.from("fixed run output\n");
@@ -50,6 +56,25 @@ function readerFor(objects: Record<string, Buffer>, links: Record<string, string
   };
 }
 
+/** A synthetic source tree. proof-contract-v2.md allows fixtures HERE and only here. */
+const BEHAVIOR_TEST_SOURCE = [
+  'import { describe, it, expect } from "vitest";',
+  'describe("the mounted support controls the posed patient", () => {',
+  `  it("${SC03_BEHAVIOR_TEST_TITLE}", async () => { expect(1).toBe(1); });`,
+  "});",
+  "",
+].join("\n");
+const CHANGED_SOURCE = "export const x = 1;\n";
+const SOURCE_TREE: Record<string, string> = {
+  [SC03_BEHAVIOR_TEST_PATH]: BEHAVIOR_TEST_SOURCE,
+  "packages/openclinxr/xr-runtime-state/a.ts": CHANGED_SOURCE,
+  "packages/openclinxr/xr-station-room/a.ts": CHANGED_SOURCE,
+};
+
+function sourceReaderFor(tree: Record<string, string>): (path: string) => string | Error {
+  return (repoRelativePath) => tree[repoRelativePath] ?? new Error(`ENOENT ${repoRelativePath}`);
+}
+
 const CONTRACT_DOCUMENTS = new Map<string, string>([
   ["docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md", "aaa"],
   ["docs/openclinxr/scene-closure-2026-09-09/tasks-v2.md", "bbb"],
@@ -64,50 +89,61 @@ function goodReport(): Record<string, unknown> {
     contract: {
       pinnedCommit: "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50",
       documents: [...CONTRACT_DOCUMENTS].map(([path, sha256]) => ({ path, sha256 })),
-      aRows: ["A04","A05"],
+      aRows: ["A04", "A05"],
     },
     implementation: {
       productSourceCommit: "1111111",
       dependencyBaselineCommit: "0000000",
       changeCommits: ["1111111"],
       treeClean: true,
-      inputs: [{ path: "tools/openclinxr/factory/scene-closure-case-source.ts", sha256: "eee" }],
-      changedFiles: ["packages/openclinxr/asset-registry/a.ts","packages/openclinxr/xr-runtime-state/a.ts"],
+      inputs: [
+        { path: SC03_BEHAVIOR_TEST_PATH, sha256: sha256Hex(BEHAVIOR_TEST_SOURCE) },
+        { path: "packages/openclinxr/xr-runtime-state/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+        { path: "packages/openclinxr/xr-station-room/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+      ],
+      changedFiles: [
+        "packages/openclinxr/xr-runtime-state/a.ts",
+        "packages/openclinxr/xr-station-room/a.ts",
+      ],
       runtime: { node: "v24", platform: "darwin-arm64" },
     },
     execution: {
-      taskId: "tsk_d4c4e549f076e0a4",
-      commands: [
-        {
-          argv: ["pnpm", "exec", "vitest", "run", "apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts"],
-          exitCode: 0,
-          startedAtIso: "2026-09-09T18:00:00.000Z",
-          endedAtIso: "2026-09-09T18:00:20.000Z",
-          tests: { passed: 3, failed: 0, skipped: 0, todo: 0 },
-        },
-      ],
+      taskId: "tsk_2d19693a11aed51e",
+      runId: "run-1",
+      commands: SC03_REQUIRED_COMMANDS.map((command) => ({
+        argv: command.split(" "),
+        exitCode: 0,
+        startedAtIso: "2026-09-09T18:00:00.000Z",
+        endedAtIso: "2026-09-09T18:00:20.000Z",
+        tests: { passed: 3, failed: 0, skipped: 0, todo: 0 },
+      })),
     },
     counterweight: {
       testIds: ["SC-03-required-behavior"],
       baselineRevision: "0000000",
-      failingAssertion: "loaded bundle scenarioId equals the persisted case id",
-      observedBeforeFix: "ed_chest_pain_priority_v1",
-      knownGoodControl: "ward_delirium_med_rec_v1 still resolves from the fixture bank",
+      baselineRunId: "run-0",
+      failingAssertion: "the manifest names the exact support the supine placement depends on",
+      observedBeforeFix: "undefined",
+      knownGoodControl: "the standing clinical placement still resolves with no support required",
       fixedRevision: "1111111",
-      observedAfterFix: "scene_closure_supine_bedside_v1",
+      observedAfterFix: "inpatient_ward_room_v1:stretcher",
       baselineOutputArtifactId: "baseline-output",
       fixedOutputArtifactId: "fixed-output",
+    },
+    sourceInspection: {
+      behaviorTestPath: SC03_BEHAVIOR_TEST_PATH,
+      behaviorTestTitle: SC03_BEHAVIOR_TEST_TITLE,
     },
     encounter: { caseId: "scene_closure_supine_bedside_v1", caseVersion: 2 },
     observations: [
       {
         observationId: "obs-loaded-scenario",
-        metric: "loaded bundle scenarioId",
+        metric: "required support instance on the supine placement",
         unit: "identifier",
-        value: "scene_closure_supine_bedside_v1",
+        value: "inpatient_ward_room_v1:stretcher",
         observedAtMs: 1,
         artifactId: "run-observations",
-        source: "normal main-UI bundle selection",
+        source: "stageStationActors over a real station shell",
       },
     ],
     checks: SC03_REQUIRED_CHECK_IDS.map((checkId) => ({
@@ -115,7 +151,7 @@ function goodReport(): Record<string, unknown> {
       expected: "contract predicate",
       observed: "observed value",
       outcome: "satisfied",
-      evidenceIds: ["obs-loaded-scenario"],
+      evidenceIds: ["obs-loaded-scenario", "run-observations"],
     })),
     controls: SC03_REQUIRED_CONTROL_IDS.map((controlId) => ({
       controlId,
@@ -185,7 +221,12 @@ const OBJECTS = {
   "/store/sc-03/fixed.txt": FIXED_BYTES,
 };
 
-function verify(report: Record<string, unknown>, objects: Record<string, Buffer> = OBJECTS, links: Record<string, string> = {}) {
+function verify(
+  report: Record<string, unknown>,
+  objects: Record<string, Buffer> = OBJECTS,
+  links: Record<string, string> = {},
+  tree: Record<string, string> = SOURCE_TREE,
+) {
   return verifyReport({
     report,
     suppliedScopes: [...SC03_FROZEN_SCOPES],
@@ -193,6 +234,7 @@ function verify(report: Record<string, unknown>, objects: Record<string, Buffer>
     registrySha256: REGISTRY_SHA,
     reader: readerFor(objects, links),
     contractDocuments: CONTRACT_DOCUMENTS,
+    sourceReader: sourceReaderFor(tree),
   });
 }
 
@@ -313,6 +355,7 @@ describe("the SC-03 evidence verifier accepts a complete control and rejects eve
       registrySha256: "f".repeat(64),
       reader: readerFor(OBJECTS),
       contractDocuments: CONTRACT_DOCUMENTS,
+      sourceReader: sourceReaderFor(SOURCE_TREE),
     });
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -332,7 +375,7 @@ describe("the SC-03 evidence verifier accepts a complete control and rejects eve
     // Only the second catches an edit in a package the card never claimed.
     const outside = goodReport();
     (outside["implementation"] as Record<string, unknown>)["changedFiles"] = [
-      "packages/openclinxr/asset-registry/a.ts",
+      "packages/openclinxr/shared-schemas/a.ts",
       "packages/openclinxr/never-owned-by-any-card/x.ts",
     ];
     const result = verify(outside);
@@ -351,6 +394,99 @@ describe("the SC-03 evidence verifier accepts a complete control and rejects eve
     expect(auditScopes([...SC03_FROZEN_SCOPES, "packages/openclinxr/telemetry"]))
       .toContain("extra --scope packages/openclinxr/telemetry");
     expect(auditScopes([...SC03_FROZEN_SCOPES, SC03_FROZEN_SCOPES[0]!]).join("\n")).toMatch(/duplicate/u);
+  });
+
+  it("(16) WRONG-RUN control: an artifact carrying neither the execution nor the baseline run id fails", () => {
+    const report = goodReport();
+    (report["artifacts"] as Array<Record<string, unknown>>)[0]!["runId"] = "run-from-another-session";
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/is neither the execution run/u);
+
+    // Known-good half: the BASELINE artifact legitimately carries a different run id and passes,
+    // so this clause is about a foreign run and not about run ids differing at all.
+    expect(verify(goodReport()).ok).toBe(true);
+  });
+
+  it("(17) a frozen completion command that was not recorded exiting zero fails", () => {
+    const missing = goodReport();
+    const commands = (missing["execution"] as Record<string, unknown>)["commands"] as unknown[];
+    commands.pop();
+    expect(verify(missing).ok).toBe(false);
+
+    const nonZero = goodReport();
+    const all = (nonZero["execution"] as Record<string, unknown>)["commands"] as Array<Record<string, unknown>>;
+    all[0]!["exitCode"] = 1;
+    const result = verify(nonZero);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/was not recorded exiting zero/u);
+  });
+
+  it("(18) CORRUPT SOURCE control: an input whose tree bytes no longer match its recorded hash fails", () => {
+    const result = verify(goodReport(), OBJECTS, {}, {
+      ...SOURCE_TREE,
+      "packages/openclinxr/xr-station-room/a.ts": "export const x = 2;\n",
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/sha256 mismatch \(report/u);
+  });
+
+  it("(19) MALFORMED BEHAVIOR TEST control: skipped, marked, or comment-only titles are refused", () => {
+    // assert-contract-live.ts is a source-pattern check on the title; these are the readings it
+    // cannot make, and the proof contract names them.
+    expect(inspectBehaviorTestSource(BEHAVIOR_TEST_SOURCE, SC03_BEHAVIOR_TEST_TITLE)).toEqual([]);
+    for (const bad of [
+      `describe("s", () => { it.skip("${SC03_BEHAVIOR_TEST_TITLE}", () => {}); it("${SC03_BEHAVIOR_TEST_TITLE}", () => {}); });`,
+      `describe.skip("s", () => { it("${SC03_BEHAVIOR_TEST_TITLE}", () => {}); });`,
+      `// it("${SC03_BEHAVIOR_TEST_TITLE}", () => {});`,
+      `/* it("${SC03_BEHAVIOR_TEST_TITLE}", () => {}); */`,
+      `describe("s", () => { it.fails("${SC03_BEHAVIOR_TEST_TITLE}", () => {}); });`,
+    ]) {
+      expect(inspectBehaviorTestSource(bad, SC03_BEHAVIOR_TEST_TITLE).length, bad).toBeGreaterThan(0);
+    }
+    // And through the whole verifier, with the tree holding a skipped test.
+    const tree = {
+      ...SOURCE_TREE,
+      [SC03_BEHAVIOR_TEST_PATH]: `describe.skip("s", () => { it("${SC03_BEHAVIOR_TEST_TITLE}", () => {}); });`,
+    };
+    const report = goodReport();
+    (report["implementation"] as Record<string, unknown>)["inputs"] = [
+      { path: SC03_BEHAVIOR_TEST_PATH, sha256: sha256Hex(tree[SC03_BEHAVIOR_TEST_PATH]!) },
+      { path: "packages/openclinxr/shared-schemas/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+      { path: "packages/openclinxr/scenario-runtime/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+    ];
+    expect(verify(report, OBJECTS, {}, tree).ok).toBe(false);
+  });
+
+  it("(20) a check citing a real, correctly hashed artifact that never mentions it is refused", () => {
+    // The report-authored pass. Every hash resolves and every byte is genuine; the artifact simply
+    // says nothing about this check, so the `satisfied` rests on the report's own word.
+    const bytes = Buffer.from("an observation stream about something else entirely\n");
+    const result = verify(goodReport(), { ...OBJECTS, "/store/sc-03/observations.jsonl": bytes });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    // The hash check fires too; the clause under test is the mention.
+    const report = goodReport();
+    (report["artifacts"] as Array<Record<string, unknown>>)[0]!["sha256"] = sha256Hex(bytes);
+    (report["artifacts"] as Array<Record<string, unknown>>)[0]!["byteCount"] = bytes.byteLength;
+    const mentionOnly = verify(report, { ...OBJECTS, "/store/sc-03/observations.jsonl": bytes });
+    expect(mentionOnly.ok).toBe(false);
+    if (mentionOnly.ok) return;
+    expect(mentionOnly.problems.join("\n")).toMatch(/is not mentioned in the bytes/u);
+  });
+
+  it("(21) a changed file with no hashed input entry fails, so the audit cannot skip the change", () => {
+    const report = goodReport();
+    (report["implementation"] as Record<string, unknown>)["inputs"] = [
+      { path: SC03_BEHAVIOR_TEST_PATH, sha256: sha256Hex(BEHAVIOR_TEST_SOURCE) },
+    ];
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/has no hashed entry in implementation.inputs/u);
   });
 
   it("(15) the CLI argv parser refuses an unknown flag, a bare argument and a missing report", () => {

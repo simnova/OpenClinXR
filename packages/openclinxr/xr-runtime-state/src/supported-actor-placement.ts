@@ -1,3 +1,4 @@
+import type { EncounterRuntimeActorPlacement } from "@openclinxr/asset-registry/runtime-bundles";
 import {
   composeSupportedActorWorldPosition,
   resolveEnvironmentShellDescriptor,
@@ -113,8 +114,31 @@ export function authoredPlantOffsetSuppressed(): boolean {
   return new URLSearchParams(window.location.search).get("openclinxrSuppressAuthoredPlantOffset") === "1";
 }
 
-export function authoredPlantOffsetMeters(scenarioId: string, actorId: string): Vector3 | undefined {
+/**
+ * The authored plant offset for `actorId`, taken from the PERSISTED case first.
+ *
+ * `persisted` is what the runtime scene manifest carries
+ * (`EncounterRuntimeActorPlacement.plantOffsetMeters`), written by the manifest producer from the
+ * case document the API resolved. The `scenarioBank` lookup below is the FALLBACK and is now only
+ * reached for the in-repo fixture cases that live in the bank.
+ *
+ * MEASURED 2026-09-09 on the unchanged tree: `scene_closure_supine_bedside_v1` authors
+ * `plantOffsetMeters {x: 0.12, y: 0, z: -0.08}` for `patient_margaret_ellis_v1`, is not in the
+ * bank, and this function returned `undefined` — so the composition fell back to the bare
+ * stretcher anchor and the persisted intent reached nothing a learner could see. Every authored
+ * case has that property, because "authored" and "in the in-repo bank" are opposites.
+ */
+export function authoredPlantOffsetMeters(
+  scenarioId: string,
+  actorId: string,
+  persisted?: Vector3 | undefined,
+): Vector3 | undefined {
   if (authoredPlantOffsetSuppressed()) return undefined;
+  // A malformed persisted offset is passed THROUGH, not filtered here: refusing a non-finite
+  // component is composeSupportedActorWorldPosition's job and it names the axis. Screening it out
+  // here would turn a refusal into a silent drop, which is the failure mode this card exists to
+  // close.
+  if (persisted) return { x: persisted.x, y: persisted.y, z: persisted.z };
   const offset = scenarioBank
     .find((candidate) => candidate.scenarioId === scenarioId)
     ?.actors?.find((actor) => actor.actorId === actorId)
@@ -148,13 +172,22 @@ export function supportedActorPlacementPosition(input: {
   supportInstanceId?: string | undefined;
   /** Support instances mounted RIGHT NOW. Absent means the caller did not observe, not that none is. */
   mountedSupportInstanceIds?: readonly string[] | undefined;
+  /** The PERSISTED case's authored offset, carried on the manifest record. Beats the bank. */
+  authoredOffsetMeters?: Vector3 | undefined;
+  /** Injected clock, so a recorded observation time is reproducible in a test. */
+  nowMs?: number | undefined;
 }): {
   position: Vector3;
   refusalReason?: string;
   provenance: PlacementProvenance;
   supportReadiness: SupportReadiness;
+  supportAcceptance: NonNullable<EncounterRuntimeActorPlacement["supportAcceptance"]>;
 } {
-  const authoredOffsetMeters = authoredPlantOffsetMeters(input.scenarioId, input.actorId);
+  const authoredOffsetMeters = authoredPlantOffsetMeters(
+    input.scenarioId,
+    input.actorId,
+    input.authoredOffsetMeters,
+  );
   // Standing used to RETURN HERE, before composeSupportedActorWorldPosition ran. That made its
   // "`none` is not a frame" refusal correct and unreachable — the repo's characteristic defect —
   // because the only standing caller never asked. The anchor argument is unused for standing; the
@@ -177,14 +210,87 @@ export function supportedActorPlacementPosition(input: {
     ...(input.supportInstanceId ? { supportInstanceId: input.supportInstanceId } : {}),
     mountedSupportInstanceIds: input.mountedSupportInstanceIds ?? [],
   });
+  const refusalReason = "refused" in composed ? composed.reason : null;
+  const supportAcceptance = acceptanceForPlacement({
+    actorId: input.actorId,
+    readiness: supportReadiness,
+    observedSupportInstanceIds: [...(input.mountedSupportInstanceIds ?? [])],
+    refusalReason,
+    nowMs: input.nowMs ?? Date.now(),
+  });
   if ("refused" in composed) {
     // A refusal falls back to the anchor, so the label is the DEFAULT: nothing the author asked
     // for was applied, and calling it authored would be the false claim this field exists to stop.
-    return { position: fixtureAnchor, refusalReason: composed.reason, provenance: "resolved_default", supportReadiness };
+    return {
+      position: fixtureAnchor,
+      refusalReason: composed.reason,
+      provenance: "resolved_default",
+      supportReadiness,
+      supportAcceptance,
+    };
   }
   return {
-    position: composed,
-    provenance: authoredOffsetMeters ? "authored_intent" : "resolved_default",
+    // A placement whose exact support is NOT mounted must not promote onto that support: composing
+    // a support-relative offset asserts a contact plane that is not in the scene. The resolved
+    // position stands until the mount is observed, which is what `pending` means.
+    position: supportAcceptance.accepted ? composed : input.resolvedPosition,
+    provenance: supportAcceptance.accepted && authoredOffsetMeters ? "authored_intent" : "resolved_default",
     supportReadiness,
+    supportAcceptance,
+  };
+}
+
+/**
+ * Turn an observed readiness and a composition refusal into the runtime's ACCEPTANCE verdict and
+ * the observation record the acceptance owner consumes.
+ *
+ * THE DEFECT THIS REPLACES, measured at `apps/ui-xr/src/main.ts:840` on the unchanged tree: the
+ * live caller supplied neither `supportInstanceId` nor `mountedSupportInstanceIds`, so the
+ * readiness above was `not_required` for every supine patient and its substitution refusal was
+ * unreachable; and the one refusal that WAS reached was written to `console.warn` while the
+ * anchor was returned anyway. `proof-contract-v2.md`: "Warn-and-place is not refusal."
+ *
+ * The observation is deliberately partial. `stationRunId`, `caseRevision` and `requirementRevision`
+ * bind a record to a session and are the session's to supply; a scene consumer that invented them
+ * would be authoring its own admissible evidence, which
+ * `recordRequirementObservation` refuses at intake for exactly that reason.
+ */
+function acceptanceForPlacement(input: {
+  actorId: string;
+  readiness: SupportReadiness;
+  observedSupportInstanceIds: string[];
+  refusalReason: string | null;
+  nowMs: number;
+}): NonNullable<EncounterRuntimeActorPlacement["supportAcceptance"]> {
+  const required = input.readiness.status === "not_required" ? null : input.readiness.supportInstanceId;
+  const mounted = input.readiness.status === "mounted";
+  const accepted = input.refusalReason === null && (required === null || mounted);
+  const outcome = input.refusalReason !== null
+    ? "unsatisfied"
+    : required === null
+      ? "satisfied"
+      : mounted
+        ? "satisfied"
+        : "pending";
+  return {
+    requiredSupportInstanceId: required,
+    observedSupportInstanceIds: input.observedSupportInstanceIds,
+    readiness: input.readiness.status,
+    accepted,
+    refusalReason: input.refusalReason,
+    observation: required === null
+      ? null
+      : {
+          requirementId: `patient_support_mounted:${input.actorId}`,
+          capability: "patient_support_mounted",
+          // The instance the requirement is BOUND to, never whichever one happened to be mounted.
+          // Reporting the mounted one here is how a substitution becomes invisible.
+          instanceId: required,
+          instanceVersion: mounted ? "observed_mounted" : "not_observed",
+          observedValue: mounted && input.refusalReason === null,
+          outcome,
+          observedAtMs: input.nowMs,
+          source: "runtime_consumer_observation",
+        },
   };
 }

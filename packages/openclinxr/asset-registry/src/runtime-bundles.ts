@@ -17,7 +17,8 @@ export {
   ADULT_STATURE_FLOOR_METERS, declareAgeBand, ED_ADULT_CAST_ASSET_PATH, ED_ADULT_CAST_PROVENANCE_PATH,
   ED_ADULT_CAST_RUNTIME_PATH, ED_CHEST_PAIN_SCENARIO_ID, PEDS_ASTHMA_SCENARIO_ID,
   provenancePathForRuntimeAsset, resolveRuntimeCastAssetPath, resolveScenarioActorCast } from "./actor-casting.js";
-import { type AuthoredPosture, type CaseScenarioSource, authoredCasePlacements, postureForSupportSurface } from "./case-actor-placements.js";
+import { type AuthoredPosture, type CaseScenarioSource, authoredCasePlacements, caseScenarioDocument, postureForSupportSurface } from "./case-actor-placements.js";
+import { placementsWithPersistedCaseIntent, type SupportedPlacementAcceptance } from "./case-intent-placements.js";
 import { caseRealGlbEquipmentFixtures, caseRealGlbEquipmentPlacements } from "./case-runtime-equipment.js";
 import { bedsideClinicianPlacement } from "./bedside-target.js";
 import { buildLocalEncounterActors } from "./bundle-actors.js";
@@ -179,6 +180,12 @@ export type EncounterRuntimeActorPlacement = {
   headingRadians?: number;
   /** Authored intent or resolved default; see PlacementProvenance in xr-runtime-state. Absent means the resolver did not say, which is not the same as a default it did say. */
   placementProvenance?: "authored_intent" | "resolved_default";
+  /** The EXACT support instance a supported posture depends on, `<environmentId>:<fixtureSlotId>`. A kind is not an instance; see case-intent-placements.ts. Absent on standing, which rests on the floor frame. */
+  supportInstanceId?: string;
+  /** The case's authored plant offset in world metres, carried on the PERSISTED manifest so the runtime need not ask the scenarioBank about a case it has never seen. See case-intent-placements.ts. */
+  plantOffsetMeters?: { x: number; y: number; z: number };
+  /** The runtime's verdict on this placement's support, and the observation it hands the acceptance owner. Absent means nobody observed, which is not `not_required`. */
+  supportAcceptance?: SupportedPlacementAcceptance;
 };
 export type EncounterRuntimeEquipmentPlacement = {
   equipmentId?: string | undefined;
@@ -193,6 +200,8 @@ export type EncounterRuntimeSceneManifest = {
   source: "generated_scene_pipeline";
   scenarioId: string;
   stationId: string;
+  /** The room the case selected. main.ts used to look the scenario up in the scenarioBank and fall back to the ED bay, so every authored encounter mounted the ED stretcher — the wrong-instance substitution A04 forbids. */
+  environmentId?: string;
   stationContext: EncounterRuntimeStationContext;
   dialogueTurns: EncounterRuntimeDialogueTurn[];
   actorPlacements: Record<string, EncounterRuntimeActorPlacement>;
@@ -1426,6 +1435,8 @@ export function createEdChestPainRuntimeSceneManifest(input: {
   scenarioId?: string | undefined;
   stationId?: string | undefined;
   scenario?: CaseScenarioSource | undefined;
+  /** The room the case selected. Defaults to the ED bay, which is the ED case's own room. */
+  environmentId?: string | undefined;
 } = {}): EncounterRuntimeSceneManifest {
   // Placements follow the CASE's cast and its authored support surface. They used to be keyed by
   // ED literal ids with hardcoded postures, so a non-ED case matched no entry and every actor
@@ -1435,12 +1446,16 @@ export function createEdChestPainRuntimeSceneManifest(input: {
   const authored = authoredCasePlacements(manifestScenarioId, input.scenario);
   const posture = (actorId: string, fallback: AuthoredPosture): AuthoredPosture =>
     authored[actorId] ? postureForSupportSurface(authored[actorId]?.supportSurface) : fallback;
+  // SC-03: the case's own room, support and plant offset ride the manifest (case-intent-placements.ts).
+  // The room resolves through the SAME document lookup the placements use, so an injected case and the bank copy of that case agree; reading `input.scenario` alone made injection carry the room while the bank fallback did not, and SC-01's "injecting a resolved case changes nothing" counterweight caught it.
+  const caseDocument = caseScenarioDocument(manifestScenarioId, input.scenario);
+  const environmentId = input.environmentId ?? caseDocument?.environment?.environmentId ?? caseDocument?.environmentId ?? "ed_exam_bay_v1";
   return {
     schemaVersion: "openclinxr.runtime-scene-manifest.v1",
     manifestId: "ed_chest_pain_runtime_scene_manifest_v1",
     source: "generated_scene_pipeline",
     scenarioId: input.scenarioId ?? "ed_chest_pain_priority_v1",
-    stationId: input.stationId ?? "ed_chest_pain_station_v1",
+    stationId: input.stationId ?? "ed_chest_pain_station_v1", environmentId,
     stationContext: {
       title: "ED Chest Pain",
       subtitle: "Patient, spouse, and nurse in a time-boxed emergency department encounter.",
@@ -1460,7 +1475,7 @@ export function createEdChestPainRuntimeSceneManifest(input: {
       { traceTag: "team_communication", actorId: "nurse_maria_alvarez_v1", text: "Nurse Alvarez: Clear plan. ECG, IV access, and senior physician notified.", gazeTargetKind: "actor", gazeTargetActorId: "nurse_maria_alvarez_v1", affectTimeline: runtimeDialogueAffectTimeline("reassured", 0.32) },
       { traceTag: "patient_note_submitted", actorId: "patient_robert_hayes_v1", text: "System: Patient note saved for faculty review.", gazeTargetKind: "learner_camera", gazeTargetActorId: null, affectTimeline: runtimeDialogueAffectTimeline("neutral", 0.2) },
     ],
-    actorPlacements: {
+    actorPlacements: placementsWithPersistedCaseIntent({
       [ids.patientActorId]: { slotKind: "primary_patient", position: { x: -0.9, y: 0, z: -0.1 }, scale: { x: 1.06, y: 1.06, z: 1.06 }, verticalOffsetMeters: 0, labelPrefix: "Patient", posture: posture(ids.patientActorId, "supine") }, /* #150 supine on stretcher */
       [ids.clinicalActorId]: { slotKind: "clinical_team", position: { x: 1.78, y: 0.95, z: 0.42 }, scale: { x: 0.98, y: 0.98, z: 0.98 }, verticalOffsetMeters: -0.95, labelPrefix: "Team", posture: posture(ids.clinicalActorId, "standing"), headingRadians: -0.26 },
       [ids.familyActorId]: { slotKind: "family_or_observer", position: { x: -2.05, y: 0.93, z: 0.36 }, scale: { x: 0.94, y: 0.94, z: 0.94 }, verticalOffsetMeters: -0.95, labelPrefix: "Family", posture: posture(ids.familyActorId, "standing") },
@@ -1470,7 +1485,7 @@ export function createEdChestPainRuntimeSceneManifest(input: {
       ...(ids.additionalActorId
         ? { [ids.additionalActorId]: bedsideClinicianPlacement(posture(ids.additionalActorId, "standing")) }
         : {}),
-    },
+    }, { environmentId, authored }),
     equipmentPlacements: caseRealGlbEquipmentPlacements(input.scenario),
     roomProps: [
       runtimeRoomProp("oxygen-panel", "O2", "c7d8df", "305a6c", { x: 1.85, y: 1.35, z: -1.46 }, { x: 0.36, y: 0.22, z: 0.04 }, ["equipment_wall"]),

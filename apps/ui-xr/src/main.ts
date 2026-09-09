@@ -817,10 +817,7 @@ function hasVector3(value: unknown): value is { x: number; y: number; z: number 
   return typeof vector.x === "number" && typeof vector.y === "number" && typeof vector.z === "number";
 }
 
-function runtimeActorPlacement(
-  actorId: string,
-  fallback: LearnerRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string],
-): LearnerRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string] {
+function runtimeActorPlacement(actorId: string, fallback: LearnerRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string], mountedSupportInstanceIds: readonly string[] = []): LearnerRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string] {
   const placement = encounterRuntimeAssetBundle.sceneManifest.actorPlacements?.[actorId];
   const slotKind = placement?.slotKind ?? fallback.slotKind;
   const posture = resolveActorPosture({
@@ -838,16 +835,17 @@ function runtimeActorPlacement(
       : (placement?.verticalOffsetMeters ?? fallback.verticalOffsetMeters);
   const position = hasVector3(placement?.position) ? placement.position : fallback.position;
   const supported = supportedActorPlacementPosition({
-    posture, actorId, slotKind,
+    posture, actorId, slotKind, mountedSupportInstanceIds,
     scenarioId: selectedScenarioId(),
     environmentId: resolveActiveEnvironmentId(),
     resolvedPosition: position,
+    ...(placement?.supportInstanceId ? { supportInstanceId: placement.supportInstanceId } : {}), ...(placement?.plantOffsetMeters ? { authoredOffsetMeters: placement.plantOffsetMeters } : {}),
   });
   if (supported.refusalReason) console.warn(`[actor-placement] ${actorId}: ${supported.refusalReason}`);
   return {
     ...fallback, ...placement,
     position: supported.position, placementProvenance: supported.provenance,
-    scale: hasVector3(placement?.scale) ? placement.scale : fallback.scale,
+    scale: hasVector3(placement?.scale) ? placement.scale : fallback.scale, supportAcceptance: supported.supportAcceptance,
     verticalOffsetMeters,
     labelPrefix: placement?.labelPrefix ?? fallback.labelPrefix,
     posture,
@@ -3071,7 +3069,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       encounterBundle: () => encounterRuntimeAssetBundle,
       slotAssignment: () => resolveRuntimeSlotAssignment(),
       assetLoadingContext: () => assetLoadingContext(),
-      actorPlacement: (actorId, fallback) => runtimeActorPlacement(actorId, fallback),
+      actorPlacement: (actorId, fallback, mounted) => runtimeActorPlacement(actorId, fallback, mounted),
       actorIdForSlot: (slotKind) =>
         slotKind === "primary_patient"
           ? runtimePatientActorId()
@@ -3702,6 +3700,8 @@ function applyCleanEncounterVisualReviewActorFraming(actor: Group, actorId: stri
 }
 
 function resolveActiveEnvironmentId(): string {
+  // SC-03: the PERSISTED room wins; the bank below cannot see an authored case, so every authored encounter fell through to the ED bay and mounted the ED bay's stretcher.
+  const persisted = encounterRuntimeAssetBundle.sceneManifest.environmentId; if (persisted) return persisted;
   const scenarioId = selectedScenarioId();
   const scenario =
     scenarioBank.find((candidate) => candidate.scenarioId === scenarioId)

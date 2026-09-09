@@ -36,6 +36,7 @@ import {
 import type { RuntimeSlotAssignment } from "@openclinxr/xr-runtime-state";
 import { createPrimitiveActorMesh } from "@openclinxr/xr-scene";
 import type { Group, Mesh, Scene } from "three";
+import { observeMountedSupportInstances } from "./mounted-support-observation.js";
 
 export type StationActorSlotKind = EncounterRuntimeActorPlacement["slotKind"];
 
@@ -55,7 +56,18 @@ export type StationActorStagingContext = {
   encounterBundle: () => LearnerRuntimeAssetBundle;
   slotAssignment: () => RuntimeSlotAssignment;
   assetLoadingContext: () => AssetLoadingContext;
-  actorPlacement: (actorId: string, fallback: EncounterRuntimeActorPlacement) => EncounterRuntimeActorPlacement;
+  /**
+   * Resolve a placement. `mountedSupportInstanceIds` is what THIS scene actually has mounted,
+   * observed immediately below by `observeMountedSupportInstances`, and it is the argument
+   * `apps/ui-xr/src/main.ts:840` never supplied — which is why every supine readiness read
+   * `not_required` and the substitution refusal was unreachable. It is a third ARGUMENT rather
+   * than a fourteenth context field on purpose: this context sits at a frozen field ceiling of 13.
+   */
+  actorPlacement: (
+    actorId: string,
+    fallback: EncounterRuntimeActorPlacement,
+    mountedSupportInstanceIds: readonly string[],
+  ) => EncounterRuntimeActorPlacement;
   actorIdForSlot: (slotKind: StationActorSlotKind) => string;
   humanoidAssetForSlot: (slotKind: StationActorSlotKind) => EncounterRuntimeAsset;
   resolveAssetUrl: (asset: EncounterRuntimeAsset) => string;
@@ -87,9 +99,62 @@ export function runtimeGeneratedSceneObjectName(asset: EncounterRuntimeAsset): s
  * roots the render loop reads afterwards; family and additional_cast stay
  * reachable through the scene graph.
  */
+/**
+ * Stamp the placement's support verdict on the slot, and gate dependent motion on it.
+ *
+ * `openClinXrDependentMotionAllowed` is the field SC-05's approach and every animation consumer
+ * reads. A placement whose exact support is pending or whose authored frame was refused does not
+ * promote and does not move: acceptance-v2.md requires a change to "stop/refuse approach until the
+ * new state is accepted through the normal owner", and a warning followed by motion is not that.
+ */
+function stampSupportAcceptance(slot: Group, placement: EncounterRuntimeActorPlacement): void {
+  const acceptance = placement.supportAcceptance;
+  if (!acceptance) {
+    // Nobody observed. That is distinct from `not_required`, and it must not read as accepted.
+    slot.userData.openClinXrSupportReadiness = "unobserved";
+    slot.userData.openClinXrPlacementAccepted = false;
+    slot.userData.openClinXrDependentMotionAllowed = false;
+    return;
+  }
+  slot.userData.openClinXrRequiredSupportInstanceId = acceptance.requiredSupportInstanceId;
+  slot.userData.openClinXrObservedSupportInstanceIds = [...acceptance.observedSupportInstanceIds];
+  slot.userData.openClinXrSupportReadiness = acceptance.readiness;
+  slot.userData.openClinXrPlacementAccepted = acceptance.accepted;
+  slot.userData.openClinXrDependentMotionAllowed = acceptance.accepted;
+  slot.userData.openClinXrSupportRequirementObservation = acceptance.observation;
+  if (acceptance.refusalReason) {
+    slot.userData.openClinXrPlacementRefusalReason = acceptance.refusalReason;
+  }
+}
+
+/**
+ * Consume the authored heading, AFTER framing, and record the base the frame loop composes onto.
+ *
+ * `headingRadians` was consumed on `additional_cast` alone. `primary_patient` and `clinical_team`
+ * read it nowhere, so framing's own yaw stood: measured on the shipped ED manifest, which authors
+ * `-0.26` for the clinical slot, the nurse ended at `-0.18`. An authored heading is a decision
+ * about where an actor looks; a framing default is what happens when nobody decided, and the
+ * decision wins. An actor with no authored heading keeps the framing default untouched.
+ */
+function consumeAuthoredHeading(slot: Group, placement: EncounterRuntimeActorPlacement, actorId: string): void {
+  if (actorId && typeof placement.headingRadians === "number") {
+    slot.rotation.y = placement.headingRadians;
+    slot.userData.openClinXrConsumedHeadingRadians = placement.headingRadians;
+  }
+  // The PERSISTENT heading, stamped after everything that writes rotation.y at staging time. The
+  // frame loop composes its idle sway onto this instead of assigning over it.
+  slot.userData.openClinXrBaseHeadingRadians = slot.rotation.y;
+}
+
 export function stageStationActors(ctx: StationActorStagingContext, scene: Scene): StationActorStagingResult {
   // #122 — unique slot fill; unfilled slots stay in the graph but are hidden with empty actorId.
   publishRuntimeActorSlotAssignmentEvidence(ctx.encounterBundle(), ctx.slotAssignment());
+  // THE OBSERVATION, taken from the scene the room stage already built. The staged assembly runs
+  // room -> fixtures -> actors (station-scene-assembly.ts), so every support this encounter mounts
+  // is in the graph by the time an actor asks whether its own is.
+  const mountedSupportInstanceIds = observeMountedSupportInstances(scene).map(
+    (support) => support.supportInstanceId,
+  );
   const patientActorId = ctx.actorIdForSlot("primary_patient");
   const patientRuntimeHumanoidAsset = ctx.humanoidAssetForSlot("primary_patient");
   const patientPlacement = ctx.actorPlacement(patientActorId || "unfilled_primary_patient", {
@@ -98,7 +163,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
     scale: { x: 1.1, y: 1.1, z: 1.1 },
     verticalOffsetMeters: -0.98,
     labelPrefix: "Patient",
-  });
+  }, mountedSupportInstanceIds);
   const patient = createPrimitiveActorMesh(0x8fb9aa);
   patient.name = iwsdkStationSceneObjects.patientRobertHayes;
   patient.position.set(patientPlacement.position.x, patientPlacement.position.y, patientPlacement.position.z);
@@ -147,7 +212,8 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
       (patientPlacement as { placementProvenance?: string }).placementProvenance ?? "resolved_default",
   };
   patient.userData.openClinXrActorId = patientActorId;
-  patient.userData.openClinXrBaseHeadingRadians = patient.rotation.y;
+  stampSupportAcceptance(patient, patientPlacement);
+  consumeAuthoredHeading(patient, patientPlacement, patientActorId);
   if (patientActorId) {
     loadGeneratedHumanoidIntoActorSlot(ctx.assetLoadingContext(), patient, {
       assetPath: ctx.resolveAssetUrl(patientRuntimeHumanoidAsset),
@@ -170,7 +236,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
     scale: { x: 1, y: 1, z: 1 },
     verticalOffsetMeters: -0.95,
     labelPrefix: "Team",
-  });
+  }, mountedSupportInstanceIds);
   const nurse = createPrimitiveActorMesh(0x5a9bd5);
   nurse.name = iwsdkStationSceneObjects.nurseMariaAlvarez;
   nurse.position.set(nursePlacement.position.x, nursePlacement.position.y, nursePlacement.position.z);
@@ -193,7 +259,8 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   nurse.userData.openClinXrSlotKind = "clinical_team";
   nurse.userData.openClinXrActorPosture = nursePlacement.posture ?? "standing";
   nurse.userData.openClinXrActorId = clinicalActorId;
-  nurse.userData.openClinXrBaseHeadingRadians = nurse.rotation.y;
+  stampSupportAcceptance(nurse, nursePlacement);
+  consumeAuthoredHeading(nurse, nursePlacement, clinicalActorId);
   if (clinicalActorId) {
     loadGeneratedHumanoidIntoActorSlot(ctx.assetLoadingContext(), nurse, {
       assetPath: ctx.resolveAssetUrl(nurseRuntimeHumanoidAsset),
@@ -216,7 +283,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
     scale: { x: 1, y: 1, z: 1 },
     verticalOffsetMeters: -0.95,
     labelPrefix: "Family",
-  });
+  }, mountedSupportInstanceIds);
   const spouse = createPrimitiveActorMesh(0xd5a75a);
   spouse.name = iwsdkStationSceneObjects.spouseAnnaHayes;
   spouse.position.set(spousePlacement.position.x, spousePlacement.position.y, spousePlacement.position.z);
@@ -252,6 +319,8 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   spouse.userData.openClinXrActorId = familyActorId;
   spouse.scale.set(spousePlacement.scale.x, spousePlacement.scale.y, spousePlacement.scale.z);
   if (familyActorId) ctx.applyActorFraming(spouse, familyActorId);
+  stampSupportAcceptance(spouse, spousePlacement);
+  consumeAuthoredHeading(spouse, spousePlacement, familyActorId);
   if (familyActorId) {
     spouse.add(ctx.createActorNameplate(actorNameplateLabel(spousePlacement.labelPrefix, familyActorId), 0x9b642d));
   }
@@ -276,6 +345,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   const additionalPlacement = ctx.actorPlacement(
     additionalActorId || "unfilled_additional_cast",
     additionalCastPlacementFallback(),
+    mountedSupportInstanceIds,
   );
   const additional = createPrimitiveActorMesh(0x7c6bb5);
   additional.name = "runtime_additional_cast_slot";
@@ -292,24 +362,11 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   additional.userData.openClinXrActorPosture = additionalPlacement.posture ?? "standing";
   additional.userData.openClinXrActorId = additionalActorId;
   if (additionalActorId) ctx.applyActorFraming(additional, additionalActorId);
-  // THE AUTHORED HEADING IS CONSUMED HERE, and it is applied AFTER framing on purpose.
-  //
-  // headingRadians has existed on the placement type since the heading card and NOTHING read it —
-  // authored, then computed from the patient's position, and inert. Brief §7 step 3 asks for it
-  // "consumed", which a field nobody applies is not.
-  //
-  // After framing because framing writes its own yaw for several branches (-0.26 at
-  // encounter-actor-framing.ts:137 and :172-179 for three actor kinds). An authored heading is a
-  // decision about where this actor looks; a framing default is what happens when nobody decided.
-  // The decision wins, and an actor with no authored heading keeps the framing default untouched.
-  if (additionalActorId && typeof additionalPlacement.headingRadians === "number") {
-    additional.rotation.y = additionalPlacement.headingRadians;
-    additional.userData.openClinXrConsumedHeadingRadians = additionalPlacement.headingRadians;
-  }
-  // The PERSISTENT heading, stamped after everything that writes rotation.y at staging time. The
-  // frame loop composes its idle sway onto this instead of assigning over it; without a recorded
-  // base there is nothing to compose onto and the first frame discards the placement.
-  additional.userData.openClinXrBaseHeadingRadians = additional.rotation.y;
+  // THE AUTHORED HEADING IS CONSUMED HERE, and it is applied AFTER framing on purpose. This slot
+  // was the only one that consumed it; `consumeAuthoredHeading` now serves patient and clinical
+  // too, and the rationale that used to live inline lives on that function.
+  stampSupportAcceptance(additional, additionalPlacement);
+  consumeAuthoredHeading(additional, additionalPlacement, additionalActorId);
   if (additionalActorId) {
     additional.add(ctx.createActorNameplate(actorNameplateLabel(additionalPlacement.labelPrefix, additionalActorId), 0x5b4a9a));
   }
