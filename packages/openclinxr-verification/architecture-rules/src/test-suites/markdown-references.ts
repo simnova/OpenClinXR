@@ -70,6 +70,33 @@ export function describeMarkdownReferenceTests(): void {
       );
     });
 
+    it("does NOT flag a reference INTO a skipped machine-local directory", () => {
+      // MEASURED 2026-09-08, worktree cellix-m32: 59 unresolved references reported against
+      // docs/openclinxr/doc-authority-registry-2026-05-27.md, every one of them pointing at
+      // .openclinxr/factory/** or .openclinxr/handoffs/**. Those paths are gitignored, so they
+      // exist in the main checkout and are ABSENT from every git worktree by design. The gate was
+      // green on main and red in each worker tree, which failed a worker's contract for a reason
+      // no worker could act on.
+      //
+      // SKIPPED_DIRECTORIES already refuses to SCAN those directories, on the stated grounds that
+      // "a rule whose result varies by machine is not a rule". Resolving a reference INTO one with
+      // existsSync re-introduced exactly that dependency from the other side. Same argument, other
+      // half of the check.
+      // The fixture path must NOT exist anywhere, or this clause passes on the machine that
+      // happens to hold the file and fails on every other one — the defect it exists to forbid.
+      withFixture("Report at `.openclinxr/factory/absent-on-every-machine.md` today.", (file) => {
+        expect(unresolvedReferences(file)).toEqual([]);
+      });
+    });
+
+    it("STILL flags a reference into a normal directory that does not exist", () => {
+      // COUNTERWEIGHT to the clause above: the cheapest way to make it pass is to stop resolving
+      // references altogether, which would make the whole gate green about nothing.
+      withFixture("Report at `docs/openclinxr/no-such-report.md` today.", (file) => {
+        expect(unresolvedReferences(file)).toContain("docs/openclinxr/no-such-report.md");
+      });
+    });
+
     it("resolves a reference relative to the referring file, not only the workspace root", () => {
       const dir = mkdtempSync(join(tmpdir(), "md-refs-"));
       writeFileSync(join(dir, "sibling.md"), "target");

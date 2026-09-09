@@ -151,7 +151,13 @@ function markdownFiles(dir: string, acc: string[] = []): string[] {
 function isCheckableReference(reference: string): boolean {
   if (reference.startsWith("http") || reference.startsWith("#")) return false;
   // Template placeholders and globs are patterns, not pointers.
-  return !reference.includes("YYYY") && !reference.includes("<") && !reference.includes("*");
+  if (reference.includes("YYYY") || reference.includes("<") || reference.includes("*")) return false;
+  // A reference INTO a skipped directory is unresolvable-by-machine, for the reason stated on
+  // SKIPPED_DIRECTORIES: those paths are gitignored, so they exist in the main checkout and are
+  // absent from every git worktree. Refusing to SCAN them while still resolving references INTO
+  // them with existsSync reintroduced the machine dependence from the other side, and it failed
+  // every worker contract that ran this gate in a worktree.
+  return !reference.split("/").some((segment) => SKIPPED_DIRECTORIES.has(segment));
 }
 
 /** Count references in one file that do not resolve, relative to the file or the workspace root. */
