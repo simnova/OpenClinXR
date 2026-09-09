@@ -51,7 +51,7 @@ describe("the factory station schemas validate", () => {
       expect(schema["~standard"].version).toBe(1);
       const ok = schema["~standard"].validate(VALID[id]);
       expect(ok, id).toEqual({ value: VALID[id] });
-      expect("issues" in ok, id).toBe(false);
+      expect(ok.issues, id).toBeUndefined();
       const json = schema.jsonSchema.input({ target: "draft-2020-12" });
       expect(json.type).toBe("object");
       expect(Object.keys(json.properties).length).toBeGreaterThan(0);
@@ -67,8 +67,8 @@ describe("the factory station schemas validate", () => {
   it("(2) invalid input yields issues with message; schema-only fields stay on JSON Schema", () => {
     const equip = factoryStationSchemas.equipment_generate;
     const bad = equip["~standard"].validate({ subjectId: 12 });
-    expect("issues" in bad).toBe(true);
-    if ("issues" in bad) {
+    expect(bad.issues).toBeDefined();
+    if (bad.issues !== undefined) {
       expect(bad.issues[0]?.message.length).toBeGreaterThan(0);
     }
     const room = factoryStationSchemas.room_generate.jsonSchema.input({ target: "draft-2020-12" });

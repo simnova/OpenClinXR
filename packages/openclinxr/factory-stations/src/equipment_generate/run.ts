@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { factoryStationSchemas } from "../catalog.js";
-import type { StationPlan, StationPlanResult, StationRunner } from "../runner.js";
+import type { StationPlan, StationRunner } from "../runner.js";
 import {
   findEquipmentSubject,
   repoRoot,
@@ -339,9 +339,9 @@ function sha256File(absPath: string): string | null {
 
 export function planEquipmentGenerate(
   input: unknown,
-): { issues: readonly import("../catalog.js").StandardIssue[] } | { value: Record<string, unknown>; plan: EquipmentGeneratePlan } {
+): import("../catalog.js").StandardFailureResult | { readonly value: Record<string, unknown>; readonly plan: EquipmentGeneratePlan; readonly issues?: undefined } {
   const checked = factoryStationSchemas.equipment_generate["~standard"].validate(input);
-  if ("issues" in checked) return checked;
+  if (checked.issues !== undefined) return checked;
 
   const subjectId = String(checked.value["subjectId"]);
   const packId = String(checked.value["packId"]);
@@ -395,7 +395,7 @@ export type EquipmentGenerateRunOptions = {
  */
 export function runEquipmentGenerate(input: unknown, options: EquipmentGenerateRunOptions = {}): Record<string, unknown> {
   const planned = planEquipmentGenerate(input);
-  if ("issues" in planned) {
+  if (planned.issues !== undefined) {
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
   const plan: EquipmentGeneratePlan = planned.plan;

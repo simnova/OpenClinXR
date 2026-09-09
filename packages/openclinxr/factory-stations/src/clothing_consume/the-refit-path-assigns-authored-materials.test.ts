@@ -38,12 +38,12 @@ describe("the refit path assigns authored materials", () => {
       mhcloPath: "library/cargo.mhclo",
       skinTone: "warm_light",
     });
-    expect("issues" in planned).toBe(false);
-    if ("issues" in planned) return;
+    expect(planned.issues !== undefined).toBe(false);
+    if (planned.issues !== undefined) return;
     expect(planned.plan["skinTone"]).toBe("warm_light");
     const legacy = planClothingConsume({ actorId: "a", mhcloPath: "m" });
-    expect("issues" in legacy).toBe(false);
-    if ("issues" in legacy) return;
+    expect(legacy.issues !== undefined).toBe(false);
+    if (legacy.issues !== undefined) return;
     expect("skinTone" in legacy.plan).toBe(false);
     const runSrc = readFileSync(join(SRC, "run.ts"), "utf8");
     expect(runSrc).toContain("--skin-tone");
@@ -57,7 +57,7 @@ describe("the refit path assigns authored materials", () => {
       mhcloPath: "m",
       skinTone: "warm_light",
     });
-    expect("issues" in checked).toBe(false);
+    expect(checked.issues !== undefined).toBe(false);
   });
 
   it("(3) authored chain resolves: .mhmat with spaces-in-path texture -> authored", () => {

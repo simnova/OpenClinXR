@@ -1,9 +1,8 @@
 import {
   createBunRealtimeVoiceGatewayPostureInputFromEnvironment,
   createBunServerConfig,
-  createOpenClinXrApiStartup,
-  type StartedOpenClinXrApi,
-} from "./index.js";
+} from "@openclinxr/rest";
+import { createOpenClinXrApiStartup, type StartedOpenClinXrApi } from "./index.js";
 
 type BunRuntime = {
   serve: (options: {
@@ -24,7 +23,7 @@ if (!bun) {
 
 async function resolveBunStartup(): Promise<StartedOpenClinXrApi> {
   const realtimeVoiceGatewayPosture = createBunRealtimeVoiceGatewayPostureInputFromEnvironment(process.env);
-  if (process.env.OPENCLINXR_PERSISTENCE !== "mongodb") {
+  if (process.env["OPENCLINXR_PERSISTENCE"] !== "mongodb") {
     return createOpenClinXrApiStartup({ realtimeVoiceGatewayPosture }).startUp();
   }
   // Composition root: load Mongo boot from tools/ via a non-static specifier so apps/api
@@ -45,10 +44,10 @@ async function resolveBunStartup(): Promise<StartedOpenClinXrApi> {
   return startup;
 }
 
-const pythonBackendWebSocketUrl = process.env.OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL;
+const pythonBackendWebSocketUrl = process.env["OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL"];
 const startup = await resolveBunStartup();
 const config = createBunServerConfig(startup, {
-  port: Number(process.env.PORT ?? 3000),
+  port: Number(process.env["PORT"] ?? 3000),
   ...(pythonBackendWebSocketUrl ? { pythonBackendWebSocketUrl } : {}),
 });
 const server = bun.serve({

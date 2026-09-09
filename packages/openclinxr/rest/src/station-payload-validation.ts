@@ -28,7 +28,9 @@ export function parseStationPayloads(raw: unknown):
     }
     const schema = factoryStationSchemas[stationId as ProductionStationId];
     const checked = schema["~standard"].validate(payload);
-    if ("issues" in checked) {
+    // The spec discriminates on a FALSY `issues`, not on the key being present; the success
+    // branch now carries `issues?: undefined`, so `"issues" in checked` no longer narrows.
+    if (checked.issues !== undefined) {
       const first = checked.issues[0];
       const field = first?.path?.[0] !== undefined ? String(first.path[0]) : (first?.message ?? "unknown_field");
       return { ok: false, reason: `invalid_station_${stationId}_field_${field}` };

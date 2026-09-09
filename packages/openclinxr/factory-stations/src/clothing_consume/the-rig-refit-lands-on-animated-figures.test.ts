@@ -50,8 +50,8 @@ function rigPlan() {
 describe("the rig-refit expansion lands garments on animated figures", () => {
   it("(1) plan() routes refit inputs to rig_refit_stage, legacy stays fit-only", () => {
     const planned = rigPlan();
-    expect("issues" in planned).toBe(false);
-    if ("issues" in planned) return;
+    expect(planned.issues !== undefined).toBe(false);
+    if (planned.issues !== undefined) return;
     expect(planned.plan["stageId"]).toBe("rig_refit_stage");
     expect(planned.plan["bakerId"]).toBe("rig_refit_stage");
     expect(planned.plan["stageScriptRel"]).toContain("rig_refit_stage.py");
@@ -61,8 +61,8 @@ describe("the rig-refit expansion lands garments on animated figures", () => {
       clipSourceGlbPath: "clips/idle.glb",
     });
     const legacy = planClothingConsume({ actorId: "a", mhcloPath: "m" });
-    expect("issues" in legacy).toBe(false);
-    if ("issues" in legacy) return;
+    expect(legacy.issues !== undefined).toBe(false);
+    if (legacy.issues !== undefined) return;
     expect(legacy.plan["stageId"]).toBe("makeclothes_fit_stage");
     expect(rigRefitContractFrom(legacy.value)).toEqual({});
   });
@@ -78,7 +78,7 @@ describe("the rig-refit expansion lands garments on animated figures", () => {
       refitGlbPath: "r.glb",
       refitReportPath: "r.json",
     });
-    expect("issues" in checked).toBe(false);
+    expect(checked.issues !== undefined).toBe(false);
   });
 
   it("(3) rig report propagates: refit carried, rigging block has joints/weights/clips", () => {

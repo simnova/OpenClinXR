@@ -21,11 +21,34 @@ export const PRODUCTION_STATION_IDS = [
 
 export type ProductionStationId = (typeof PRODUCTION_STATION_IDS)[number];
 
-export type StandardIssue = { message: string; path?: PropertyKey[] };
+/**
+ * Standard Schema V1 result types, structurally matching the spec
+ * (github.com/standard-schema/standard-schema, packages/spec/src/index.ts) without taking a
+ * runtime dependency on it. @standard-schema/spec is a devDependency here and the conformance
+ * test asserts assignability against the real interface, so drift is caught rather than assumed.
+ *
+ * MEASURED 2026-09-08 against the spec, three gaps this file previously had:
+ *  - the success branch had no `issues?: undefined`, so the spec's documented consumption
+ *    pattern `if (result.issues) { ... } else { result.value }` did NOT typecheck against it;
+ *  - the result was not generic, so a consumer got Record<string, unknown> and no output type;
+ *  - `~standard` carried no `types`, so StandardSchemaV1.InferOutput resolved to nothing.
+ */
+export type StandardIssue = {
+  readonly message: string;
+  readonly path?: ReadonlyArray<PropertyKey | { readonly key: PropertyKey }> | undefined;
+};
 
-export type StandardResult =
-  | { value: Record<string, unknown> }
-  | { issues: readonly StandardIssue[] };
+export type StandardSuccessResult<Output> = {
+  readonly value: Output;
+  /** A falsy `issues` is what the spec defines success as; a consumer branches on it. */
+  readonly issues?: undefined;
+};
+
+export type StandardFailureResult = { readonly issues: ReadonlyArray<StandardIssue> };
+
+export type StandardResult<Output = Record<string, unknown>> =
+  | StandardSuccessResult<Output>
+  | StandardFailureResult;
 
 export type StationPropertySchema = {
   type: "string" | "number" | "boolean";
@@ -40,12 +63,19 @@ export type StationJsonSchema = {
   properties: Record<string, StationPropertySchema>;
 };
 
-export type FactoryStationSchema = {
+export type FactoryStationSchema<Output = Record<string, unknown>> = {
   stationId: ProductionStationId;
-  "~standard": {
-    version: 1;
-    vendor: "openclinxr";
-    validate: (value: unknown) => StandardResult;
+  readonly "~standard": {
+    readonly version: 1;
+    readonly vendor: "openclinxr";
+    /** The spec allows a narrower signature; options are accepted and ignored. */
+    readonly validate: (value: unknown, options?: { readonly libraryOptions?: Record<string, unknown> | undefined }) => StandardResult<Output>;
+    /**
+     * Carries no runtime value — it exists so StandardSchemaV1.InferOutput<typeof schema>
+     * resolves. A station's payload shape is described by jsonSchema.input at runtime, so the
+     * static output type stays the record the validator returns.
+     */
+    readonly types?: { readonly input: unknown; readonly output: Output } | undefined;
   };
   jsonSchema: {
     input: (opts?: { target?: string }) => StationJsonSchema;

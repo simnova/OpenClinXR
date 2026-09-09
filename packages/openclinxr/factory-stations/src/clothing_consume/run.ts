@@ -110,7 +110,7 @@ export async function runClothingConsume(
   options: ClothingConsumeRunOptions,
 ): Promise<Record<string, unknown>> {
   const planned = planClothingConsume(input);
-  if ("issues" in planned) {
+  if (planned.issues !== undefined) {
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
   const stageScript = String(planned.plan["stageScript"]);
@@ -147,8 +147,6 @@ export async function runClothingConsume(
   const bodyIdentity = flagFrom(options.bodyIdentity, "bodyIdentity");
   const bindingTopologyId = flagFrom(options.bindingTopologyId, "bindingTopologyId");
   const bodyDefinition = flagFrom(options.bodyDefinition, "bodyDefinition");
-  const licenseToken = flagFrom(options.licenseToken, "licenseToken");
-  const licenseSource = flagFrom(options.licenseSource, "licenseSource");
   const skinTone = flagFrom(options.skinTone, "skinTone");
   if (garmentSourceHash !== undefined) blenderArgs.push("--garment-source-hash", garmentSourceHash);
   if (bodyIdentity !== undefined) blenderArgs.push("--body-identity", bodyIdentity);
@@ -196,7 +194,7 @@ export async function runRigRefit(
   options: RigRefitRunOptions,
 ): Promise<Record<string, unknown>> {
   const planned = planClothingConsume(input);
-  if ("issues" in planned) {
+  if (planned.issues !== undefined) {
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
   const stageId = String(planned.plan["stageId"]);

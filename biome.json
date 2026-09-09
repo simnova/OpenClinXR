@@ -105,6 +105,8 @@
         "apps/ui-admin/src/**",
         "apps/ui-xr/src/**",
         "apps/api/src/**",
+        "packages/openclinxr/factory-stations/src/**",
+        "tools/openclinxr/**",
         "packages/openclinxr-verification/**"
       ],
       "linter": {

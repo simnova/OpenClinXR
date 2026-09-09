@@ -45,8 +45,8 @@ describe("the clothing_consume station builds per-actor bodies", () => {
       mhcloPath: "library/cargo.mhclo",
       bodyDefinition: BODY_A,
     });
-    expect("issues" in planned).toBe(false);
-    if ("issues" in planned) return;
+    expect(planned.issues !== undefined).toBe(false);
+    if (planned.issues !== undefined) return;
     expect(planned.plan["bodyDefinition"]).toBe(BODY_A);
     expect(refitContractFrom(planned.value)["bodyDefinition"]).toBe(BODY_A);
   });
@@ -54,9 +54,9 @@ describe("the clothing_consume station builds per-actor bodies", () => {
   it("(2) two macro sets route as distinct baker inputs with nontrivial separation", () => {
     const planA = planClothingConsume({ actorId: "a", mhcloPath: "m", bodyDefinition: BODY_A });
     const planB = planClothingConsume({ actorId: "b", mhcloPath: "m", bodyDefinition: BODY_B });
-    expect("issues" in planA).toBe(false);
-    expect("issues" in planB).toBe(false);
-    if ("issues" in planA || "issues" in planB) return;
+    expect(planA.issues !== undefined).toBe(false);
+    expect(planB.issues !== undefined).toBe(false);
+    if (planA.issues !== undefined || planB.issues !== undefined) return;
     expect(planA.plan["bodyDefinition"]).not.toBe(planB.plan["bodyDefinition"]);
     // Weight 0.15 vs 0.85: the same spread the body_param rail measures as
     // 8.76 cm girth displacement at matched stature — nontrivial by construction.
@@ -65,8 +65,8 @@ describe("the clothing_consume station builds per-actor bodies", () => {
 
   it("(3) absent bodyDefinition keeps default-body behavior", () => {
     const planned = planClothingConsume({ actorId: "actor_a", mhcloPath: "library/scrub.mhclo" });
-    expect("issues" in planned).toBe(false);
-    if ("issues" in planned) return;
+    expect(planned.issues !== undefined).toBe(false);
+    if (planned.issues !== undefined) return;
     expect("bodyDefinition" in planned.plan).toBe(false);
     expect(refitContractFrom(planned.value)).toEqual({});
     const fitSrc = readFileSync(join(SRC, "fit_stage.py"), "utf8");
@@ -83,7 +83,7 @@ describe("the clothing_consume station builds per-actor bodies", () => {
       mhcloPath: "m",
       bodyDefinition: BODY_A,
     });
-    expect("issues" in checked).toBe(false);
+    expect(checked.issues !== undefined).toBe(false);
   });
 
   it("(5) fit_stage.py builds the per-actor body and refuses on bad definition or binding", () => {

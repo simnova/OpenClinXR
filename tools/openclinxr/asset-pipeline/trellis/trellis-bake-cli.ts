@@ -21,7 +21,7 @@
  * Header IMMUTABLE — append ## FIXED (#238). Multi-view append 2026-08-10.
  */
 
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { planEquipmentGenerate, runEquipmentGenerate } from "@openclinxr/factory-stations";
@@ -111,7 +111,7 @@ function packViewRels(folder: string): string[] {
  * Resolve existing pack images for a subject (absolute paths, front-first order).
  * Filters out missing files so incomplete packs degrade to single-view.
  */
-function resolveExistingViewPaths(entry: SubjectEntry): string[] {
+function _resolveExistingViewPaths(entry: SubjectEntry): string[] {
   return entry.viewRels
     .map((rel) => resolvePackPath(rel))
     .filter((p) => existsSync(p));
@@ -239,11 +239,6 @@ interface SamplerOverrides {
 }
 
 /** #662 flags the caller actually set (null = leave the pipeline default in place). */
-interface NumericFlags {
-  seed: number | null;
-  decimationTarget: number | null;
-  textureSize: number | null;
-}
 
 interface DryRunPlan {
   subjectId: string;
@@ -476,11 +471,12 @@ function parseArgs(argv: string[]): ParsedArgs {
       let hi: number | null = null;
       if (lo !== null) hi = parseNumericFlag(argv, iRef, `${a} HI`, result.invalid, false);
       if (lo !== null && hi !== null) {
-        const group = SAMPLER_INTERVAL_FLAGS.find((f) => f.flag === a)!.group;
-        result.samplerOverrides[group].guidance_interval = [lo, hi];
+        const group = SAMPLER_INTERVAL_FLAGS.find((f) => f.flag === a)?.group;
+        if (group !== undefined) result.samplerOverrides[group].guidance_interval = [lo, hi];
       }
     } else if (SAMPLER_FLAGS.some((f) => f.flag === a)) {
-      const def = SAMPLER_FLAGS.find((f) => f.flag === a)!;
+      const def = SAMPLER_FLAGS.find((f) => f.flag === a);
+      if (def === undefined) continue;
       const n = parseNumericFlag(argv, iRef, a, result.invalid, def.kind === "int");
       if (n !== null) result.samplerOverrides[def.group][def.knob] = n;
     } else if (a.startsWith("-")) {
@@ -522,7 +518,7 @@ function dryRunPlan(subjectId: string, args: ParsedArgs): string {
     viewCount: 0,
     decimationTarget: args.decimationTarget ?? 1_000_000,
   });
-  if ("issues" in result) {
+  if (result.issues !== undefined) {
     process.stderr.write(`${result.issues.map((issue) => issue.message).join("; ")}. Known: ${KNOWN_SUBJECTS.map((s) => s.subjectId).join(", ")}\n`);
     process.exit(2);
   }
@@ -634,7 +630,7 @@ function validateLatest(): void {
         verdict: raw.verdict,
         reportPath,
       });
-    } catch (err) {
+    } catch (_err) {
       results.push({
         subjectId: entry.subjectId,
         status: "missing_report",

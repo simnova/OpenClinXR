@@ -145,8 +145,8 @@ describe("the equipment station publishes a runtime asset URL", () => {
     expect(freeze.runtimeAssetUrl).toBe("/xr-assets/medical-equipment/wall-clock.glb");
 
     const planned = planEquipmentGenerate(wallClockInput());
-    expect("issues" in planned).toBe(false);
-    if ("issues" in planned) return;
+    expect(planned.issues !== undefined).toBe(false);
+    if (planned.issues !== undefined) return;
     expect(planned.plan["subjectId"]).toBe("wall-clock");
     expect(planned.plan["runtimeAssetUrl"]).toBe("/xr-assets/medical-equipment/wall-clock.glb");
     expect(planned.plan["freezeRecordPath"]).toBe(equipmentFreezeRecordPath("wall-clock", root));
@@ -184,8 +184,8 @@ describe("the equipment station publishes a runtime asset URL", () => {
       viewCount: 0,
       decimationTarget: 1_000_000,
     });
-    expect("issues" in planned).toBe(false);
-    if ("issues" in planned) return;
+    expect(planned.issues !== undefined).toBe(false);
+    if (planned.issues !== undefined) return;
     expect(planned.plan["subjectId"]).toBe("ecg-cart");
     expect(planned.plan["runtimeAssetUrl"]).toBeNull();
     expect(String(planned.plan["freezeRecordPath"])).toMatch(/ecg-cart\.freeze\.json$/);
@@ -241,8 +241,8 @@ describe("the equipment station publishes a runtime asset URL", () => {
     });
     // The freeze exists but nothing was published under the empty public root.
     const planned = planEquipmentGenerate(wallClockInput());
-    expect("issues" in planned).toBe(false);
-    if ("issues" in planned) return;
+    expect(planned.issues !== undefined).toBe(false);
+    if (planned.issues !== undefined) return;
     expect(planned.plan["runtimeAssetUrl"]).toBeNull();
     expect(String(planned.plan["freezeRecordPath"])).toMatch(/wall-clock\.freeze\.json$/);
   });
@@ -310,8 +310,8 @@ describe("the equipment station publishes a runtime asset URL", () => {
     writePublishedFixture("bedside-monitor", pubRoot);
     expect(readEquipmentRuntimeFreeze("wall-clock", { root })).toBeNull();
     const planned = planEquipmentGenerate(wallClockInput());
-    expect("issues" in planned).toBe(false);
-    if ("issues" in planned) return;
+    expect(planned.issues !== undefined).toBe(false);
+    if (planned.issues !== undefined) return;
     expect(planned.plan["runtimeAssetUrl"]).toBeNull();
   });
 

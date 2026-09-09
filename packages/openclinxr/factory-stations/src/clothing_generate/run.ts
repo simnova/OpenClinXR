@@ -16,7 +16,7 @@ export function runClothingGenerate(
   options: { garmentId?: string; garmentLayers?: string[] } = {},
 ): Record<string, unknown> {
   const planned = planClothingGenerate(input);
-  if ("issues" in planned) {
+  if (planned.issues !== undefined) {
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
   return {

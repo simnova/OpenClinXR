@@ -17,7 +17,7 @@ export function runStaging(
   options: { placement?: unknown } = {},
 ): Record<string, unknown> {
   const planned = planStaging(input);
-  if ("issues" in planned) {
+  if (planned.issues !== undefined) {
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
   return {

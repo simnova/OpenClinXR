@@ -2,7 +2,7 @@ import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { factoryStationSchemas } from "../catalog.js";
 import { repoRoot } from "../repo-root.js";
-import { planFromCatalog, type StationPlanResult, type StationRunner } from "../runner.js";
+import type { StationPlanResult, StationRunner } from "../runner.js";
 import { spawnBlenderProcess } from "../spawn-blender.js";
 
 /**
@@ -177,7 +177,7 @@ type ParsedLightingInput = {
 };
 
 /** Catalog-shape validation is done by planFromCatalog; this adds the refusal rules. */
-function parseLightingInput(value: Record<string, unknown>): { issues: string[] } | { parsed: ParsedLightingInput } {
+function parseLightingInput(value: Record<string, unknown>): { issues: string[] } | { parsed: ParsedLightingInput; issues?: undefined } {
   const issues: string[] = [];
   const environmentId = value["environmentId"];
   const roomGlbPath = value["roomGlbPath"];
@@ -219,7 +219,7 @@ function parseLightingInput(value: Record<string, unknown>): { issues: string[] 
  */
 export function designLightingRig(input: Record<string, unknown>): LightingRig {
   const parsed = parseLightingInput(input);
-  if ("issues" in parsed) {
+  if (parsed.issues !== undefined) {
     throw new Error(parsed.issues.join("; "));
   }
   const { room, bbox, cast, mood, seed } = parsed.parsed;
@@ -315,9 +315,9 @@ export function designLightingRig(input: Record<string, unknown>): LightingRig {
 
 export function planLightingDesign(input: unknown): StationPlanResult {
   const checked = factoryStationSchemas.lighting_design["~standard"].validate(input);
-  if ("issues" in checked) return checked;
+  if (checked.issues !== undefined) return checked;
   const parsed = parseLightingInput(checked.value);
-  if ("issues" in parsed) {
+  if (parsed.issues !== undefined) {
     return { issues: parsed.issues.map((message) => ({ message })) };
   }
   const rig = designLightingRig(checked.value);
@@ -362,7 +362,7 @@ export async function runLightingDesign(
   options: LightingDesignRunOptions,
 ): Promise<Record<string, unknown>> {
   const planned = planLightingDesign(input);
-  if ("issues" in planned) {
+  if (planned.issues !== undefined) {
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
   const stageScript = String(planned.plan["stageScript"]);

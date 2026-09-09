@@ -15,7 +15,7 @@ export function planDialogueRuntime(input: unknown): StationPlanResult {
 
 export function runDialogueRuntime(input: unknown): Record<string, unknown> {
   const planned = planDialogueRuntime(input);
-  if ("issues" in planned) {
+  if (planned.issues !== undefined) {
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
   return { ...planned.plan, status: "adapted", bakePathLlm: false };

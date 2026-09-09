@@ -1,11 +1,12 @@
-import { factoryStationSchemas, type ProductionStationId, type StandardIssue, type StandardResult } from "./catalog.js";
+import { factoryStationSchemas, type ProductionStationId, type StandardFailureResult, type StandardResult } from "./catalog.js";
 
 /** Dry-run record. No GPU, no Blender. */
 export type StationPlan = Record<string, unknown> & { mode: "dry-run"; stationId: ProductionStationId };
 
+/** Same discrimination as StandardResult: a falsy `issues` is success. */
 export type StationPlanResult =
-  | { issues: readonly StandardIssue[] }
-  | { value: Record<string, unknown>; plan: StationPlan };
+  | StandardFailureResult
+  | { readonly value: Record<string, unknown>; readonly plan: StationPlan; readonly issues?: undefined };
 
 /**
  * Port every factory_step runner implements. Admin cards call validate.
@@ -25,7 +26,7 @@ export function planFromCatalog(
   fields: (value: Record<string, unknown>) => Record<string, unknown>,
 ): StationPlanResult {
   const checked = factoryStationSchemas[stationId]["~standard"].validate(input);
-  if ("issues" in checked) return checked;
+  if (checked.issues !== undefined) return checked;
   return {
     value: checked.value,
     plan: { mode: "dry-run", stationId, ...fields(checked.value) },
