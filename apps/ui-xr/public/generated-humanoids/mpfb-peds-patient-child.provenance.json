@@ -26,7 +26,7 @@
     "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
     "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
     "sourceRecordClaimsSupported": [
-      "MPFB2 2.0.15 from Blender Extensions; MPFB is licensed AGPLv3 with a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
+      "MPFB2 2.0.15 from Blender Extensions; MPFB declares SPDX:GPL-3.0-or-later for its own code (installed 2.0.15, blender_manifest.toml sha256 b7e1d0732e67cc18955f91b91ff9049b9f0bc868f05eb074e4ea3cf38fa3ddd5; corrected 2026-09-09 from a stale AGPLv3 label) with bundled assets CC0 1.0 per LICENSE.ASSETS.md and a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
     ],
     "notRun": [
       "licence_text_reenumeration",

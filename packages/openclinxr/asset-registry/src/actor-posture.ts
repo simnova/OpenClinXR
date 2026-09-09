@@ -284,9 +284,38 @@ export function composeSupportedActorWorldPosition(input: {
   authoredOffsetMeters?: { x: number; y: number; z: number } | undefined;
   resolvedPosition: { x: number; y: number; z: number };
 }): { x: number; y: number; z: number } | SupportedActorPositionRefusal {
-  if (input.posture === "standing") return input.resolvedPosition;
   const offset = input.authoredOffsetMeters;
+  if (input.posture === "standing") {
+    // "For standing, name a floor anchor; `none` is not itself a frame" (brief §3, authored intent
+    // versus resolved placement). An offset authored against no frame has no interpretation, and
+    // SILENTLY DROPPING it is worse than refusing: the author sees a value in the case and no
+    // movement in the runtime, with nothing saying why. The resolved position stands on a refusal,
+    // so the refusal degrades to the previous behaviour rather than losing the actor.
+    if (offset !== undefined && (offset.x !== 0 || offset.y !== 0 || offset.z !== 0)) {
+      return {
+        refused: true,
+        reason:
+          `a standing actor authored a plant offset (x=${offset.x}, y=${offset.y}, z=${offset.z}) with no named support frame: `
+          + "\"none\" is not a frame, so there is no contact plane whose tangent and normal give the offset a meaning. "
+          + "Name a floor anchor for the standing case, or drop the offset.",
+      };
+    }
+    return input.resolvedPosition;
+  }
   if (offset === undefined) return { ...input.fixtureAnchor };
+  // Malformed offsets block acceptance (brief §3). NaN and Infinity are `typeof "number"`, so a
+  // shape check admits them; NaN propagates through the addition below and lands an actor at a
+  // position no gate reads as wrong, because every comparison against NaN is false.
+  for (const [axis, value] of [["x", offset.x], ["y", offset.y], ["z", offset.z]] as const) {
+    if (!Number.isFinite(value)) {
+      return {
+        refused: true,
+        reason:
+          `a malformed authored offset (${axis}=${String(value)}) cannot be composed: a non-finite component `
+          + "propagates through the anchor addition and produces a position that compares false against every bound.",
+      };
+    }
+  }
   if (offset.y !== 0) {
     return {
       refused: true,

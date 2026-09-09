@@ -4,10 +4,10 @@
   "rowIndex": 24,
   "cells": [
     " MPFB2 (Blender extension)",
-    "AGPL-3 (plugin code) — **tool, not shipped asset**",
+    "**GPL-3.0-or-later (plugin code) \u2014 CORRECTED 2026-09-09 against the INSTALLED release** \u2014 **tool, not shipped asset**",
     "Rig, macros, `ClothesService`, base mesh",
     "pre-existing",
     "`body_param_stage.py`, `add_mpfb2_eye_rig.py`",
-    "**Keep as a build-time tool.** It is not linked into or shipped with the runtime; the outputs (meshes) are ours. Flagged here because the repo bars copyleft in *shipped* dependencies and someone will ask. "
+    "**Keep as a build-time tool.** It is not linked into or shipped with the runtime; the outputs (meshes) are ours. Flagged here because the repo bars copyleft in *shipped* dependencies and someone will ask.\n\n**CORRECTED 2026-09-09 (brief \u00a76).** This cell said **AGPL-3** and the installed release does not. Measured against `~/Library/Application Support/Blender/5.1/extensions/user_default/mpfb`, version **2.0.15**, `blender_manifest.toml` sha256 `b7e1d0732e67cc18955f91b91ff9049b9f0bc868f05eb074e4ea3cf38fa3ddd5`: `license = [\"SPDX:GPL-3.0-or-later\"]`, and that is the only licence the extension declares for itself. Exactly **three** files in the installed tree contain the string `AGPL`, and none of them licenses MPFB: `ui/create_assets/makeclothes/objectproperties/license.json` and its makeskin twin are the **author-selectable OUTPUT licence** for an asset the USER creates (the file's own description: \"will have no practical effect apart from being included in the written MHCLO file\"), and `entities/clothes/mhclo.py` is the writer that emits the author's choice. Matches upstream `LICENSE.CODE.md` (GPL-3.0-or-later) and row 25's split-licence reading; assets/data stay **CC0 1.0** per `LICENSE.ASSETS.md`.\n\n**The wrong label had propagated.** It reached the `licenseChain` of **all eight** shipped humanoid provenance records under `apps/ui-xr/public/generated-humanoids/`, each asserting its build tool is AGPL. All eight are corrected, and `tools/openclinxr/evidence/licence/the-mpfb-record-matches-the-installed-release.test.ts` now fails on any recurrence in either place."
   ]
 }

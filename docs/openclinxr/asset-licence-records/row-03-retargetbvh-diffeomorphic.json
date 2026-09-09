@@ -5,6 +5,6 @@
   "cells": [
     " `retarget_bvh` (Diffeomorphic)",
     "**GPL-2.0-or-later.** Clear licence, but copyleft.",
-    "**Build-time tooling only**, same posture as MPFB's AGPL — never linked into or shipped with the runtime. Recorded so nobody promotes it to a dependency. "
+    "**Build-time tooling only**, same posture as MPFB's GPL-3.0-or-later (corrected 2026-09-09; this aside said AGPL, which the installed 2.0.15 manifest contradicts) — never linked into or shipped with the runtime. Recorded so nobody promotes it to a dependency. "
   ]
 }

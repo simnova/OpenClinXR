@@ -1040,6 +1040,51 @@ the data not resellable even converted — and the ledger records it as already 
 BVH. Usable; the ledger's preference for a CC0 source where one exists is not overridden by this
 measurement.
 
+## §3's authored-intent rules had three requirements with no implementation
+
+The brief's "Authored intent versus resolved placement" is not §7, and three of its sentences were
+unimplemented. Each failed silently.
+
+| brief requirement | what happened before | now |
+|---|---|---|
+| "For standing, name a floor anchor; `none` is not itself a frame." | the standing branch returned the resolved position and DROPPED the offset | refused, naming the missing frame; the resolved position still stands |
+| "malformed offsets ... block candidate acceptance/promotion" | `typeof value === "number"` admits NaN and Infinity | refused per axis, before the normal-offset rule so the reason is not misattributed |
+| "do not multiply metre offsets by GLB scale again" | no scale term, but nothing said so | an exact-equality clause, so any factor introduced later fails |
+
+The standing case is the one worth stating plainly: an author put a value in the case, saw no
+movement in the runtime, and nothing anywhere said why. A silent drop is worse than a refusal
+because it looks like the feature working.
+
+Probed three ways: restoring the silent drop fails clause (1); admitting non-finite values fails
+clause (3); a 1.05 factor on the x term fails clause (4). Clause (2) is the counterweight that
+refusing EVERY standing actor would otherwise satisfy.
+
+## The brief is larger than §7, and §6 named a correction nobody had made
+
+§6, verbatim: *"its extension row says AGPL-3 while its split-license row says GPL-3.0-or-later.
+Correct that record against the exact installed release."*
+
+Measured against the installed extension, `Blender/5.1/extensions/user_default/mpfb`, version
+**2.0.15**, `blender_manifest.toml` sha256 `b7e1d073…`:
+
+    license = ["SPDX:GPL-3.0-or-later"]
+
+That is the only licence MPFB declares for itself. Exactly three files in the installed tree contain
+the string `AGPL` and none of them licenses MPFB: the MakeClothes and MakeSkin **author-selectable
+output licence** dropdowns, whose own description says the choice *"will have no practical effect
+apart from being included in the written MHCLO file"*, and the `.mhclo` writer that emits it.
+
+**The wrong label had propagated into the shipped assets.** It reached the `licenseChain` of **all
+eight** humanoid provenance records under `apps/ui-xr/public/generated-humanoids/` — eight shipped
+assets each asserting their build tool is AGPL. Row 24, the retarget_bvh row's aside, MADR 0052's
+aside, the regenerated ledger and all sixteen provenance files (public and dist) are corrected.
+
+`the-mpfb-record-matches-the-installed-release.test.ts` gates the class rather than the row: clause
+(2) walks every shipped provenance record, clause (3) refuses a fix by deletion (the split-licence
+fact and the CC0 asset grant must survive), and clause (4) re-verifies the installed manifest digest
+where the extension exists. The step is UNCONDITIONAL in pre-commit because the label arrived
+through a generator, so no staged-path shape identifies the commits that can bring it back.
+
 ### Step 5 closed: the walk is DISPLAYED on the loaded, posed, skinned physician
 
     outcome  satisfied      ward_delirium_med_rec_v1      senior_resident_ward_v1

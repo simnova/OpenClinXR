@@ -148,7 +148,7 @@ presentation FIRST and the girth solve runs after.
   so it cannot run headless and was never a viable motion path, only an unused one. Salvage: its ~150
   clips are CC0 and export as GLB. The real path is **`retarget_bvh`** (Diffeomorphic, ex-MakeWalk),
   which is headless-capable (`setSilentMode(True)`) and ships bone maps that match MPFB rigs exactly.
-  **`retarget_bvh` is GPL-2.0-or-later: build-time tooling only**, same posture as MPFB's AGPL, never a
+  **`retarget_bvh` is GPL-2.0-or-later: build-time tooling only**, same posture as MPFB's GPL-3.0-or-later (corrected 2026-09-09 against the installed 2.0.15 manifest; this line said AGPL), never a
   shipped dependency.
 > **P5 FIRST BIND LANDED AND GRADED 2026-08-14 12:3x** (not by the hourly loop — landed on main as
 > `56c7eee5` + `d88ac161`). `retarget_bvh` bound `cmu_07_01_walk.bvh` onto

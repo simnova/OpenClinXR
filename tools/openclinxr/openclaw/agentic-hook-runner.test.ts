@@ -42,6 +42,9 @@ describe("agentic-hook-runner path-scoped architecture", () => {
       // for a day; the gate that catches it existed and nothing ran it. A commit that does this
       // does not look entry-shaped, so the step cannot be path-scoped.
       "Client entry reaches no node: builtin",
+      // ADDED 2026-09-09. The AGPL-vs-GPL label reached eight shipped provenance records through a
+      // generator, so no staged-path shape identifies the commits that can reintroduce it.
+      "Shipped licence records match the installed tool",
       "OpenClaw post-slice record check",
     ]);
   });

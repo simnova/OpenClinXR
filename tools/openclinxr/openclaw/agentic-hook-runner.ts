@@ -373,6 +373,20 @@ function buildBaseOpenClawSteps(profile: HookProfile, changedFiles: string[]): H
         command: pnpm("assets:client-entry-node-free"),
         reason: "a node: builtin value-reachable from the browser entry breaks every page load, silently",
       },
+      /**
+       * A shipped asset's recorded licence must match the tool that built it.
+       *
+       * One ledger row said MPFB2 is AGPL-3; the installed 2.0.15 manifest declares
+       * SPDX:GPL-3.0-or-later. The wrong label had reached the licenceChain of all eight shipped
+       * humanoid provenance records. NOT path-scoped, because it arrived through a generator: a
+       * commit that rebakes an asset stages the provenance, and a commit that regenerates the
+       * ledger stages neither the row nor the assets.
+       */
+      {
+        label: "Shipped licence records match the installed tool",
+        command: pnpm("assets:licence-record-truthful"),
+        reason: "a shipped asset that misstates its build tool's licence is a compliance claim nobody measured",
+      },
   ];
 
   const architectureStep = buildArchitectureStep(profile, changedFiles);
