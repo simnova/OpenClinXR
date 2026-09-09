@@ -55,6 +55,7 @@ import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-reg
 import { generatedActorPlacement } from "../../../packages/openclinxr/asset-registry/src/actor-placement.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
 import { edChestPainScenarioV2 } from "../../../packages/openclinxr/scenario-fixtures/src/ed-chest-pain.js";
+import { SCENE_CLOSURE_CASE_ID, sceneClosureCaseDocument } from "../factory/scene-closure-case-source.js";
 import type { Scenario } from "../../../packages/openclinxr/shared-schemas/src/index.js";
 import { buildStationEnvironment } from "@openclinxr/xr-station";
 import { buildDeclaredEquipmentGeometry } from "@openclinxr/xr-station";
@@ -214,14 +215,30 @@ export type PreFixArtifact = {
 };
 
 /**
- * Fixture lookup over the WHOLE shipped population. `scenarioBank` alone omits
- * `ed_chest_pain_priority_v2` (a separate export that ships as a bundle), which
- * is exactly how a runner looking only at the bank mis-reports v2's room and
+ * Case lookup over the WHOLE shipped population PLUS the factory's authoring inputs.
+ *
+ * `scenarioBank` alone omits `ed_chest_pain_priority_v2` (a separate export that ships as a
+ * bundle), which is exactly how a runner looking only at the bank mis-reports v2's room and
  * equipment as absent.
+ *
+ * It also omits every case that is AUTHORED rather than shipped, and that omission had the same
+ * shape. `scene_closure_supine_bedside_v1` is authoring input under `tools/openclinxr/factory`; a
+ * case the supported producer cannot resolve cannot be compiled by it, so the manifest would have
+ * had no consumer but its own regression test. Resolving it HERE — inside the producer, in `tools`,
+ * where authoring input belongs — is what gives it a compile path.
+ *
+ * This is NOT a runtime fixture lookup and must never become one: nothing under `packages/` or
+ * `apps/` may import the manifest, and the runtime resolves this case through the persisted
+ * `ScenarioCatalogPort` instead. It also does not enlarge `--all`: `enumerateCasePopulation` reads
+ * shipped bundle directories on disk, so the authored case is reachable by `--case <id>` only,
+ * until it ships a generated bundle of its own.
  */
 export function findFixtureById(scenarioId: string): Scenario | undefined {
   if (edChestPainScenarioV2.scenarioId === scenarioId) return edChestPainScenarioV2;
-  return scenarioBank.find((s) => s.scenarioId === scenarioId);
+  const shipped = scenarioBank.find((s) => s.scenarioId === scenarioId);
+  if (shipped) return shipped;
+  if (scenarioId === SCENE_CLOSURE_CASE_ID) return sceneClosureCaseDocument();
+  return undefined;
 }
 
 export type RunCaseChainOptions = {

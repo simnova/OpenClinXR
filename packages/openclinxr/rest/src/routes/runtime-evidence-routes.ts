@@ -1,6 +1,8 @@
 import { buildGuardedRuntimeSelectorDisabledDecision, createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry";
+import { unrealizableEquipmentDecisions } from "@openclinxr/asset-registry/case-runtime-equipment";
 import { routeById } from "@openclinxr/rest";
 import { buildDynamicEncounterFactoryPlanningProjection, scenarioBank } from "@openclinxr/scenario-fixtures";
+import { resolveScenarioById, type ScenarioCatalogPort } from "@openclinxr/scenario-runtime";
 import { createRealtimeVoiceGatewayPosture, selectRealtimeVoiceProtocol } from "@openclinxr/voice-gateway";
 import type { Hono } from "hono";
 import type { ApiAppContext } from "../api-app-context.js";
@@ -268,7 +270,44 @@ export function registerRuntimeEvidenceRoutes(app: Hono<{ Variables: ApiAppVaria
       });
     }
 
-    const fallbackBundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
+    // The learner selects a SCENARIO, not a bundle — `apps/ui-xr/src/main.ts:1018-1026` reads
+    // `?scenarioId=` and hands it to the same constructor called below.
+    //
+    // THIS ROUTE USED TO DISCARD THE SELECTION ENTIRELY: it read no scenario parameter and called
+    // the constructor with NO ARGUMENTS, so a persisted, reviewed case was served the ED bundle,
+    // ED scenarioId and ED cast together. Resolving the selection authored-first through the
+    // EXISTING ScenarioCatalogPort is what fixes that. (A SECOND, separate defect lives in the
+    // constructor: given an id and nothing else it falls back to the ED literals for any case the
+    // in-repo bank does not carry — see actor-casting.ts:294. Passing the resolved DOCUMENT, not
+    // just the id, is what avoids it here.)
+    //
+    // An id nothing resolves REFUSES rather than defaulting to the ED bay.
+    const selectedScenarioId = context.req.query("scenarioId")?.trim();
+    const port: ScenarioCatalogPort = {};
+    if (persistence.getAuthoredScenario) {
+      port.getAuthoredScenario = persistence.getAuthoredScenario.bind(persistence);
+    }
+    const selected = selectedScenarioId ? await resolveScenarioById(selectedScenarioId, port) : undefined;
+    if (selectedScenarioId && !selected) {
+      return context.json({ error: "scenario_not_found", scenarioId: selectedScenarioId, productionCloudCall: false }, 404);
+    }
+
+    // An equipment decision the bundle cannot act on REFUSES here. A case that believes it has
+    // refused an ECG cart, and has actually refused nothing, is the same silence this route exists
+    // to remove — so an unreviewable decision is named rather than served past.
+    const unrealizable = selected ? unrealizableEquipmentDecisions(selected.scenario) : [];
+    if (unrealizable.length > 0) {
+      return context.json({
+        error: "unrealizable_equipment_decision",
+        scenarioId: selected?.scenario.scenarioId,
+        unrealizableEquipmentDecisions: unrealizable,
+        productionCloudCall: false,
+      }, 422);
+    }
+
+    const fallbackBundle = createEdChestPainLocalLearnerRuntimeAssetBundle(
+      selected ? { scenarioId: selected.scenario.scenarioId, scenario: selected.scenario } : {},
+    );
     if (bundleId !== fallbackBundle.bundleId && bundleId !== "ed_chest_pain_local_encounter") {
       return context.json({
         error: "asset_bundle_not_found",
@@ -279,6 +318,7 @@ export function registerRuntimeEvidenceRoutes(app: Hono<{ Variables: ApiAppVaria
     return context.json({
       ...fallbackBundle,
       retrievalMode: "local_fixture_fallback",
+      ...(selected ? { scenarioCatalogSource: selected.catalogSource } : {}),
       productionCloudCall: false,
     });
   });

@@ -17,7 +17,8 @@ export {
   ADULT_STATURE_FLOOR_METERS, declareAgeBand, ED_ADULT_CAST_ASSET_PATH, ED_ADULT_CAST_PROVENANCE_PATH,
   ED_ADULT_CAST_RUNTIME_PATH, ED_CHEST_PAIN_SCENARIO_ID, PEDS_ASTHMA_SCENARIO_ID,
   provenancePathForRuntimeAsset, resolveRuntimeCastAssetPath, resolveScenarioActorCast } from "./actor-casting.js";
-import { type AuthoredPosture, authoredCasePlacements, postureForSupportSurface } from "./case-actor-placements.js";
+import { type AuthoredPosture, type CaseScenarioSource, authoredCasePlacements, postureForSupportSurface } from "./case-actor-placements.js";
+import { caseRealGlbEquipmentFixtures, caseRealGlbEquipmentPlacements } from "./case-runtime-equipment.js";
 import { bedsideClinicianPlacement } from "./bedside-target.js";
 import { buildLocalEncounterActors } from "./bundle-actors.js";
 import { resolveBundleCastActorIds } from "./cast-actor-ids.js";
@@ -525,6 +526,8 @@ export type ResolveEncounterRuntimeAssetBundleInput = {
   assetStoreKind?: RuntimeAssetStoreKind | undefined;
   assetStore?: RuntimeAssetStoreConfig | undefined;
   nowIso?: string | undefined;
+  /** A PERSISTED authored case, already resolved by the caller. Absent = today's bank behaviour. */
+  scenario?: CaseScenarioSource | undefined;
 };
 
 export type RegisterGeneratedRuntimeAssetReferenceInput = {
@@ -710,7 +713,7 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
     containerName: defaultRuntimeAssetContainerName(input.assetStoreKind ?? "app_public_fixture"),
   });
   // #85/#96: role-distinct ED wardrobe (gown/scrubs/street); casting table is blob-path SSOT.
-  const castTable = resolveScenarioActorCast(input.scenarioId ?? "ed_chest_pain_priority_v1");
+  const castTable = resolveScenarioActorCast(input.scenarioId ?? "ed_chest_pain_priority_v1", input.scenario);
   const edModel = (
     assetId: string, scenarioAssetId: string, displayName: string, castRole: string, fallbackGlb: string,
   ): EncounterRuntimeAsset => {
@@ -792,36 +795,25 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
       patientActorId, clinicalActorId, familyActorId, additionalActorId, additionalRole,
       patientModel, nurseModel, spouseModel, additionalModel,
     }),
-    equipment: [
-      {
-        equipmentId: "ecg_cart_equipment",
-        model: localFixtureAsset({
-          assetId: "ecg_cart_12_lead_glb",
-          scenarioAssetId: "ecg_cart_equipment",
-          kind: "equipment_model",
-          displayName: "12-lead ECG cart GLB fixture",
-          blobName: "xr-assets/medical-equipment/ecg-cart-12-lead.glb",
-          contentType: "model/gltf-binary",
-          assetStore,
-        }),
-      },
-      {
-        equipmentId: "iv_stand_equipment",
-        model: localFixtureAsset({
-          assetId: "iv_pole_with_pump_glb",
-          scenarioAssetId: "iv_stand_equipment",
-          kind: "equipment_model",
-          displayName: "IV pole with pump GLB fixture",
-          blobName: "xr-assets/medical-equipment/iv-pole-with-pump.glb",
-          contentType: "model/gltf-binary",
-          assetStore,
-        }),
-      },
-    ],
+    // The ED pair is the default and stays exactly that; a case that authors neither catalogue id
+    // realizes neither. See case-runtime-equipment.ts for the reviewed alias and its precedence.
+    equipment: caseRealGlbEquipmentFixtures(input.scenario).map((fixture) => ({
+      equipmentId: fixture.equipmentId,
+      model: localFixtureAsset({
+        assetId: fixture.assetId,
+        scenarioAssetId: fixture.scenarioAssetId,
+        kind: "equipment_model",
+        displayName: fixture.displayName,
+        blobName: fixture.blobName,
+        contentType: "model/gltf-binary",
+        assetStore,
+      }),
+    })),
     uiSurfaces: [],
     sceneManifest: createEdChestPainRuntimeSceneManifest({
       scenarioId: input.scenarioId ?? "ed_chest_pain_priority_v1",
       stationId: input.stationId ?? "ed_chest_pain_station_v1",
+      scenario: input.scenario,
     }),
     generatedAt,
     expiresAt: null,
@@ -1433,13 +1425,14 @@ function createGeneratedRuntimeSceneManifest(input: {
 export function createEdChestPainRuntimeSceneManifest(input: {
   scenarioId?: string | undefined;
   stationId?: string | undefined;
+  scenario?: CaseScenarioSource | undefined;
 } = {}): EncounterRuntimeSceneManifest {
   // Placements follow the CASE's cast and its authored support surface. They used to be keyed by
   // ED literal ids with hardcoded postures, so a non-ED case matched no entry and every actor
   // resolved as standing — which routed the patient past the seated/supine composition entirely.
   const manifestScenarioId = input.scenarioId ?? "ed_chest_pain_priority_v1";
-  const ids = resolveBundleCastActorIds(resolveScenarioActorCast(manifestScenarioId));
-  const authored = authoredCasePlacements(manifestScenarioId);
+  const ids = resolveBundleCastActorIds(resolveScenarioActorCast(manifestScenarioId, input.scenario));
+  const authored = authoredCasePlacements(manifestScenarioId, input.scenario);
   const posture = (actorId: string, fallback: AuthoredPosture): AuthoredPosture =>
     authored[actorId] ? postureForSupportSurface(authored[actorId]?.supportSurface) : fallback;
   return {
@@ -1478,10 +1471,7 @@ export function createEdChestPainRuntimeSceneManifest(input: {
         ? { [ids.additionalActorId]: bedsideClinicianPlacement(posture(ids.additionalActorId, "standing")) }
         : {}),
     },
-    equipmentPlacements: {
-      ecg_cart_equipment: { position: { x: -2.15, y: 0, z: 0.55 }, label: "12-lead ECG", interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue"] },
-      iv_stand_equipment: { position: { x: -1.85, y: 0, z: 0.95 }, label: "IV pump", interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue"] },
-    },
+    equipmentPlacements: caseRealGlbEquipmentPlacements(input.scenario),
     roomProps: [
       runtimeRoomProp("oxygen-panel", "O2", "c7d8df", "305a6c", { x: 1.85, y: 1.35, z: -1.46 }, { x: 0.36, y: 0.22, z: 0.04 }, ["equipment_wall"]),
       runtimeRoomProp("suction-canister", "Suction", "e7f5f8", "2e7280", { x: 1.34, y: 1.06, z: -1.42 }, { x: 0.12, y: 0.2, z: 0.08 }, ["equipment_wall"]),

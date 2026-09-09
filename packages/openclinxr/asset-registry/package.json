@@ -52,6 +52,14 @@
       "types": "./dist/layout-variation.d.ts",
       "default": "./dist/layout-variation.js"
     },
+    "./case-runtime-equipment": {
+      "types": "./dist/case-runtime-equipment.d.ts",
+      "default": "./dist/case-runtime-equipment.js"
+    },
+    "./case-actor-placements": {
+      "types": "./dist/case-actor-placements.d.ts",
+      "default": "./dist/case-actor-placements.js"
+    },
     "./initial-scene-contents": {
       "types": "./dist/initial-scene-contents.d.ts",
       "default": "./dist/initial-scene-contents.js"

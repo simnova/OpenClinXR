@@ -1,4 +1,6 @@
 import { type Static, Type } from "@sinclair/typebox";
+// Lives in equipment-binding.ts, which exists because this file is at its 500-line zone budget.
+import { SceneEquipmentDecisionsSchema } from "./equipment-binding.js";
 
 export const ReviewGateStateSchema = Type.Union([
   Type.Literal("draft"),
@@ -490,5 +492,6 @@ export const ScenarioSchema = Type.Object({
   equipment: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
   assetNeeds: Type.Optional(Type.Array(AssetNeedSchema)),
   emotionPolicy: Type.Optional(CaseEmotionPolicySchema),
+  equipmentDecisions: Type.Optional(SceneEquipmentDecisionsSchema),
 });
 
