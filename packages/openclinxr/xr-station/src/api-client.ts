@@ -60,7 +60,82 @@ export type StationApiClientOptions = {
   accessToken?: string;
   /** Optional dynamic token provider (preferred when both are set). */
   getAccessToken?: () => string | undefined | Promise<string | undefined>;
+  /**
+   * The scenario the learner selected, for callers that hold it explicitly.
+   *
+   * A resolver rather than a value: the selection can change after the client is constructed
+   * (`apps/ui-xr/src/main.ts:1464` builds the client once, at module scope), so a snapshot taken
+   * at construction would go stale.
+   *
+   * Leaving this unset does NOT mean "no selection". It falls through to
+   * `readAmbientSelectedScenarioId()`, which reads the same browser surfaces
+   * `apps/ui-xr/src/main.ts:1017-1027` reads — which is what lets an UNEDITED `main.ts` carry the
+   * learner's selection to the route.
+   */
+  selectedScenarioId?: () => string | null | undefined;
 };
+
+/** Per-request selection, for a caller that holds the id at the call site. Outranks both defaults. */
+export type LearnerRuntimeAssetBundleRequest = {
+  scenarioId?: string | null | undefined;
+};
+
+/**
+ * The query parameters `apps/ui-xr/src/main.ts:1017-1027` reads the learner's selection from, in
+ * its order. Duplicated as data rather than imported because `apps/**` may not be a dependency of
+ * a package; the correspondence is asserted by this card's behavior test, not by a type.
+ */
+const SELECTED_SCENARIO_QUERY_PARAMS = ["scenarioId", "openclinxrScenarioId"] as const;
+
+/** The storage key `apps/ui-xr/src/main.ts:1015` writes the resolved selection to. */
+const SELECTED_SCENARIO_STORAGE_KEY = "openclinxr.scenarioId";
+
+/**
+ * The learner's selected scenario id as the BROWSER already holds it, or `undefined`.
+ *
+ * WHY THIS EXISTS AND WHY IT IS NOT A DEFAULT. `GET /runtime/asset-bundles/:bundleId` accepts
+ * `?scenarioId=` and resolves it authored-first
+ * (`packages/openclinxr/rest/src/routes/runtime-evidence-routes.ts`), but that parameter had ZERO
+ * production callers: `getLearnerRuntimeAssetBundle` took no scenario argument and
+ * `apps/ui-xr/src/main.ts:924` called it without one, so a persisted, reviewed case was served the
+ * ED bay under its own id. `main.ts` is frozen outside this card's write roots, so the client
+ * reads the selection from the same two places `main.ts` does.
+ *
+ * IT RETURNS `undefined` WHEN NOTHING IS SELECTED, and deliberately does NOT fall back to
+ * `main.ts`'s default scenario constant. An invented default here would put a scenario id on every
+ * request and change the no-selection response, which must stay byte-identical to
+ * `createEdChestPainLocalLearnerRuntimeAssetBundle()` with no arguments.
+ *
+ * Outside a browser every branch is skipped: `location` and `localStorage` are absent under Node,
+ * and a storage read can throw (private mode, blocked site data), so both are guarded.
+ */
+export function readAmbientSelectedScenarioId(): string | undefined {
+  const browser = (globalThis as { window?: unknown }).window as
+    | { location?: { search?: unknown }; localStorage?: { getItem?: (key: string) => string | null } }
+    | undefined;
+  if (!browser) return undefined;
+
+  const search = browser.location?.search;
+  if (typeof search === "string" && search.length > 0) {
+    try {
+      const params = new URLSearchParams(search);
+      for (const name of SELECTED_SCENARIO_QUERY_PARAMS) {
+        const selected = params.get(name)?.trim();
+        if (selected) return selected;
+      }
+    } catch {
+      // A malformed search string is not a selection. Fall through to storage.
+    }
+  }
+
+  try {
+    const stored = browser.localStorage?.getItem?.(SELECTED_SCENARIO_STORAGE_KEY)?.trim();
+    if (stored) return stored;
+  } catch {
+    // Blocked site data is not a selection either.
+  }
+  return undefined;
+}
 
 /** Queue acquisition mode (#57). Not per-station body provenance. */
 export type StationRunQueueScenarioSource = "fixture_offline" | "fixture_fallback" | "api_queue";
@@ -107,7 +182,19 @@ export type StationApiClient = {
     scenarioId: string;
     stationId?: string | null | undefined;
   }): Promise<LearnerRuntimeAssetBundleListResponse["bundles"][number] | null>;
-  getLearnerRuntimeAssetBundle(bundleId: string): Promise<LearnerRuntimeAssetBundle>;
+  /**
+   * Fetch one learner runtime asset bundle, carrying the learner's SELECTED scenario id.
+   *
+   * The id is resolved in this order, first non-empty wins:
+   *   1. `input.scenarioId` — an explicit call site.
+   *   2. `options.selectedScenarioId()` — a client configured with the selection.
+   *   3. `readAmbientSelectedScenarioId()` — the browser surfaces `main.ts` already reads.
+   * With none of the three the request is byte-identical to before this parameter existed.
+   */
+  getLearnerRuntimeAssetBundle(
+    bundleId: string,
+    input?: LearnerRuntimeAssetBundleRequest,
+  ): Promise<LearnerRuntimeAssetBundle>;
   startSession(input: StartSessionRequest): Promise<RuntimeSessionSummary>;
   startEncounter(stationRunId: string, input: StartEncounterRequest): Promise<RuntimeSessionSummary>;
   recordTraceAction(stationRunId: string, input: TraceActionRequest): Promise<unknown>;
@@ -152,8 +239,16 @@ export function createStationApiClient(options: StationApiClientOptions): Statio
           && (input.stationId === undefined || input.stationId === null || bundle.stationId === input.stationId),
       ) ?? null;
     },
-    getLearnerRuntimeAssetBundle: async (bundleId) =>
-      get(fetcher, baseUrl, `/runtime/asset-bundles/${encodeURIComponent(bundleId)}`, await resolveAuthHeaders()),
+    getLearnerRuntimeAssetBundle: async (bundleId, input) => {
+      const scenarioId = resolveSelectedScenarioId(options, input);
+      const query = scenarioId ? `?scenarioId=${encodeURIComponent(scenarioId)}` : "";
+      return get(
+        fetcher,
+        baseUrl,
+        `/runtime/asset-bundles/${encodeURIComponent(bundleId)}${query}`,
+        await resolveAuthHeaders(),
+      );
+    },
     startSession: async (input) => request(fetcher, baseUrl, "/sessions", input, await resolveAuthHeaders()),
     startEncounter: async (stationRunId, input) =>
       request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/start-encounter`, input, await resolveAuthHeaders()),
@@ -185,29 +280,29 @@ export function createStationApiClient(options: StationApiClientOptions): Statio
 export function createStationApiPersistenceSink(client: Pick<StationApiClient, "createStationRunQueueSnapshot">): StationApiPersistenceSink {
   return {
     saveStationRunQueueSnapshot: async (snapshot) => {
-      const request: StationRunQueueSnapshotRequest = {
+      const snapshotRequest: StationRunQueueSnapshotRequest = {
         snapshotId: snapshot.snapshotId,
         createdAt: snapshot.createdAt,
       };
       if (snapshot.reviewerId !== undefined) {
-        request.reviewerId = snapshot.reviewerId;
+        snapshotRequest.reviewerId = snapshot.reviewerId;
       }
       // #57 — forward acquisition markers so review history can show fixture fallback.
       // #88 — forward per-station body provenance (mixed authored + bank residual).
       // API may still ignore unknown fields until the control-plane route is extended (residual).
       if (snapshot.scenarioSource !== undefined) {
-        request.scenarioSource = snapshot.scenarioSource;
+        snapshotRequest.scenarioSource = snapshot.scenarioSource;
       }
       if (snapshot.fallbackActive !== undefined) {
-        request.fallbackActive = snapshot.fallbackActive;
+        snapshotRequest.fallbackActive = snapshot.fallbackActive;
       }
       if (snapshot.fallbackReason !== undefined) {
-        request.fallbackReason = snapshot.fallbackReason;
+        snapshotRequest.fallbackReason = snapshot.fallbackReason;
       }
       if (snapshot.stationBodySources !== undefined) {
-        request.stationBodySources = snapshot.stationBodySources;
+        snapshotRequest.stationBodySources = snapshot.stationBodySources;
       }
-      await client.createStationRunQueueSnapshot(request);
+      await client.createStationRunQueueSnapshot(snapshotRequest);
     },
   };
 }
@@ -254,6 +349,23 @@ async function get<TResponse>(
   }
 
   return response.json() as Promise<TResponse>;
+}
+
+/**
+ * Explicit call site, then configured client, then the browser's own selection.
+ *
+ * Precedence matters: an ambient value survives a page's history and can be stale, so a caller
+ * that names the id at the call site must not be overridden by it.
+ */
+function resolveSelectedScenarioId(
+  options: Pick<StationApiClientOptions, "selectedScenarioId">,
+  input: LearnerRuntimeAssetBundleRequest | undefined,
+): string | undefined {
+  const explicit = input?.scenarioId?.trim();
+  if (explicit) return explicit;
+  const configured = options.selectedScenarioId?.()?.trim();
+  if (configured) return configured;
+  return readAmbientSelectedScenarioId();
 }
 
 async function resolveAuthorizationHeaders(
