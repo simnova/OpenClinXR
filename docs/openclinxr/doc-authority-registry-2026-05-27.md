@@ -12,10 +12,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 105
-- archive-candidate: 55
+- archive-candidate: 69
 - current-reference: 208
 - decision-record: 44
-- evidence: 71
+- evidence: 72
 - generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
@@ -305,6 +305,19 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `.openclinxr/openclaw/superagent-loop-prompt.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/openclaw/task-cost-latest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/plans/equipment-three-lane-factory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scene-layout-reds/RED-AUTHORING-CONTRACT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scene-layout-reds/REPAIR-NOTES.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scene-layout-reds/s1-heading.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scene-layout-reds/s10-scene-spec.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scene-layout-reds/s12-frozen-control.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scene-layout-reds/s2-authored-vector.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scene-layout-reds/s3-readiness.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scene-layout-reds/s4-equipment-binding.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scene-layout-reds/s5-event-dispatcher.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scene-layout-reds/s6-factory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scene-layout-reds/s7-transform.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scene-layout-reds/s8-identity.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scene-layout-reds/s9-motion.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slices/dark-factory-multi-case/STATE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slices/dispatch-chokepoint/EVIDENCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -331,6 +344,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/humanoid-motion-full-design-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-scene-layout-research-brief-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/kimodo-soma-rp-v11-cagematch-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/PULSE-PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

@@ -6,8 +6,8 @@
   "counts": {
     "agent-methodology": 105,
     "current-reference": 208,
-    "archive-candidate": 55,
-    "evidence": 71,
+    "archive-candidate": 69,
+    "evidence": 72,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -1977,6 +1977,104 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
+      "path": ".openclinxr/scene-layout-reds/RED-AUTHORING-CONTRACT.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/scene-layout-reds/REPAIR-NOTES.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/scene-layout-reds/s1-heading.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/scene-layout-reds/s10-scene-spec.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/scene-layout-reds/s11-runtime.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/scene-layout-reds/s12-frozen-control.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/scene-layout-reds/s2-authored-vector.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/scene-layout-reds/s3-readiness.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/scene-layout-reds/s4-equipment-binding.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/scene-layout-reds/s5-event-dispatcher.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/scene-layout-reds/s6-factory.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/scene-layout-reds/s7-transform.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/scene-layout-reds/s8-identity.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/scene-layout-reds/s9-motion.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
       "path": ".openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
@@ -3721,6 +3819,13 @@
     },
     {
       "path": "docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/kimodo-soma-rp-v11-cagematch-2026-09-09.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",

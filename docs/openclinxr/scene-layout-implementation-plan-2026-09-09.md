@@ -401,7 +401,7 @@ Measured against `§7 Prioritized prototype and acceptance`:
 | 3 — stationary clinical staging | **MET** | Staged as a physician, clear of the measured deck, facing the patient, heading consumed, clearance / approach corridor / monitor visibility reporting against measured bounds with controls, and the idle sway COMPOSES onto the persistent heading within a bounded allowance. What is NOT claimed: none of it is measured on a loaded humanoid the way step 2 is, and clinical correctness of any position remains a clinician's call. |
 | 4 — physician approach | **partial** | The bounded path, continuous-path collision and final-pose measurements are met. NO executor, NO foot-sliding measurement, and the patient is untouched — three of step 4's clauses are explicitly not delivered. |
 | 5 — variation, replay and failure behaviour | **partial** | Only the byte-freeze half: changed asset geometry invalidates dependent evidence. No variation indices, no impossible-layout case, no corrupt-artifact refusal, no displayed-motion capture. |
-| 6 — compare one legally eligible learned provider | **not started** | Kimodo-SOMA-RP-v1.1 remains a conditional offline lead, unverified here. |
+| 6 — compare one legally eligible learned provider | **CLOSED, negative** | `reject_measured`: the code says a 77-joint skeleton, the checkpoint says 30. The manifest filter fails on a measured contradiction, so the baseline is retained. A negative cagematch result closes the item, which is what the brief says. Record: `kimodo-soma-rp-v11-cagematch-2026-09-09.md`. |
 
 **Step 2 is the brief's own named next milestone**, and it is the honest place to be working.
 
@@ -857,6 +857,33 @@ explicit floor defaulting to 0, and clause (6) checks both directions at once.
 
 Two of four is a useful hit rate for one cheap call, and the two misses cost a grep each. That is
 the arithmetic that makes the review worth running — not that the reviewer is right.
+
+### Step 6 closes on a measured contradiction, and on nearly the wrong record
+
+The brief flagged one thing as unverified about `Kimodo-SOMA-RP-v1.1`: *"its README describes
+`somaskel77` while the model card describes 30-joint outputs; their exact relationship remains
+unverified."* It is now verified, and it is a contradiction.
+
+| surface | states | licence |
+|---|---|---|
+| `nv-tlabs/kimodo` README | "Model inputs/outputs now use the SOMA **77-joint** skeleton (`somaskel77`)", marked Breaking | Apache-2.0 |
+| `nvidia/Kimodo-SOMA-RP-v1.1` model card | Joint Rotations `num_frames x **30** x 3 x 3` | NVIDIA Open Model License, commercial use ready |
+
+That is disqualifying rather than a detail, because the brief requires the MPFB mapping to be
+pinned and a retargeting map is a per-joint correspondence. A map cannot be written against an
+output that is 30 or 77 joints depending on which document you believe, and one written against the
+wrong count produces a skeleton that loads, plays, and is anatomically wrong — the failure class
+this repo already paid for with head-down humanoids that passed every mechanical gate.
+
+**A near-miss worth recording.** `kimodo-cpp-cagematch-2026-08-23.md` already carries a
+`reject_measured` verdict for "kimodo", and reusing it would have closed step 6 in one grep. It is
+a DIFFERENT artifact: that record examines `localai-org/kimodo.cpp`, an unlicensed community C++
+port, while the brief names NVIDIA's own repository and weights, which carry Apache-2.0 and the
+NVIDIA Open Model License respectively. Same name, ready verdict, wrong subject.
+
+The refusal is on manifest ambiguity, NOT licence — the licence position is materially better than
+the port's. It is fixable upstream, and the record names the three things that would reopen it in
+the order they would have to be settled.
 
 ### The evidence tools' page-global alias does not exist at runtime
 
