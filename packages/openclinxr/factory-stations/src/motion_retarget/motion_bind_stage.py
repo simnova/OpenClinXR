@@ -46,6 +46,29 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     ap.add_argument("--actor", required=True)
     ap.add_argument("--clip", required=True)
     ap.add_argument("--map", required=True)
+    # OPTIONAL, and only for a source rig whose joint names are not already MHX canonical.
+    # retarget_bvh transfers motion by MHX name: the TARGET map tags the actor's bones, and a
+    # SOURCE map renames the incoming rig's bones to the same canonical names. A CMU BVH needs no
+    # source map because its joint names fingerprint against the addon's built-ins; a Mesh2Motion
+    # clip (`thigh_l`, `spine_02`, `clavicle_l`) does, and without one findSourceArmature falls back
+    # to geometry heuristics and binds a fraction of the chain. Absent flag = previous behaviour,
+    # byte for byte.
+    ap.add_argument("--source-map", default=None, dest="source_map")
+    # OPTIONAL global-orientation preset handed to mcp.load_and_retarget.
+    #
+    # MEASURED 2026-09-09. The addon's glTF source path is `saveGltf2Bvh` (load.py:382): it exports
+    # the imported action to a temporary BVH with Blender's own exporter, which writes BLENDER-NATIVE
+    # axes (-Y forward, Z up), and then re-imports that file through `loadBlenderBvhFile`
+    # (load.py:419) using the operator's `@orientation_helper(axis_forward='-Z', axis_up='Y')`
+    # default. Y-up is right for a mocap `.bvh` off disk and WRONG for the addon's own intermediate,
+    # so a glTF-sourced clip arrives rotated +90 degrees about X. Observed on the physician:
+    # `foot.L` left the floor at frame 1 and sat at y 0.72-1.31 m, z -0.84 m, for every frame after
+    # the rest frame, with 50 driven bones and a clean `BVH file(s) retargeted` message. The bind
+    # reported success; the legs pointed backwards and up.
+    #
+    # "Third person, Z up" is ["-Y", "Z"] in the addon's own data/orientation.json — exactly the
+    # axes its exporter just wrote. Absent flag = the operator default = previous behaviour.
+    ap.add_argument("--source-orientation", default=None, dest="source_orientation")
     ap.add_argument("--output", required=True)
     ap.add_argument("--report", required=True)
     return ap.parse_args(argv)
@@ -120,6 +143,29 @@ def _inject_target_map(scn: bpy.types.Scene, map_path: str) -> None:
         BD.targetEnums = list(BD.targetEnums) + [(TARGET_NAME, TARGET_NAME, TARGET_NAME)]
     mcpRna(scn).TargetRig = TARGET_NAME
     mcpRna(scn).TargetTPose = "Default"
+
+
+def _inject_source_map(scn: bpy.types.Scene, source_map_path: str) -> str:
+    """Register a named source map and make it active, so renameBones uses it rather than guessing.
+
+    Mirrors seated_clip_bind_stage.py's `_inject_maps`, including the #585 "None" -> "" sanitation:
+    `nameOrNone` turns a map's literal "None" into Python None, and Blender 5.1 RNA refuses None
+    for a Bone StringProperty before the addon's own skip runs.
+
+    SourceRig stays Automatic on purpose: load_and_retarget's findSourceArmature(auto=True)
+    fingerprints the imported rig against every registered source map by joint name, so a map whose
+    keys are the clip's actual joint names is matched by name rather than by the geometry heuristic.
+    """
+    from bl_ext.user_default.retarget_bvh.bsettings import BD
+    from bl_ext.user_default.retarget_bvh.source import CSourceInfo
+
+    name = os.path.splitext(os.path.basename(source_map_path))[0]
+    info = CSourceInfo(scn, name)
+    info.readFile(source_map_path)
+    info.boneNames = {key: ("" if mhx is None else mhx) for (key, mhx) in info.boneNames.items()}
+    BD.sourceInfos[name] = info
+    BD.activeSrcInfo = info
+    return name
 
 
 def _iter_action_fcurves(action: bpy.types.Action):
@@ -302,13 +348,22 @@ def main(argv: list[str]) -> int:
     try:
         _inject_target_map(bpy.context.scene, args.map)
         log_lines.append(f"target_map={TARGET_NAME} from {args.map}")
+        if args.source_map:
+            if not os.path.isfile(args.source_map):
+                return _reject(args.report, f"missing_input:{args.source_map}", "\n".join(log_lines))
+            source_map_name = _inject_source_map(bpy.context.scene, args.source_map)
+            log_lines.append(f"source_map={source_map_name} from {args.source_map}")
         log_lines.append(_apply_source_frame_rate(args.clip))
 
         bpy.ops.object.select_all(action="DESELECT")
         arm.select_set(True)
         bpy.context.view_layer.objects.active = arm
 
-        bpy.ops.mcp.load_and_retarget(filepath=os.path.abspath(args.clip), useAutoTarget=False)
+        retarget_kwargs = {"filepath": os.path.abspath(args.clip), "useAutoTarget": False}
+        if args.source_orientation:
+            retarget_kwargs["orientation"] = args.source_orientation
+            log_lines.append(f"source_orientation={args.source_orientation}")
+        bpy.ops.mcp.load_and_retarget(**retarget_kwargs)
         err = getErrorMessage() or ""
         log_lines.append(f"load_and_retarget message={err!r}")
     except Exception as exc:  # noqa: BLE001
@@ -381,6 +436,8 @@ def main(argv: list[str]) -> int:
         "sourceClip": args.clip,
         "targetRig": args.actor,
         "targetMap": args.map,
+        "sourceMap": args.source_map,
+        "sourceOrientation": args.source_orientation,
         "operator": "mcp.load_and_retarget",
         "addonModule": ADDON_MODULE,
         "outputGlb": args.output,

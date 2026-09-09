@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 /**
@@ -77,7 +77,12 @@ export function readInstalledMpfbLicence(installedPath: string): InstalledMpfbLi
       `readInstalledMpfbLicence: ${manifestPath} declares no license array. An absent declaration is an unknown licence, not a permissive one.`,
     );
   }
-  const declaredLicenses = [...licenseBlock[1]!.matchAll(/"([^"]+)"/gu)].map((m) => m[1]!);
+  // The refusal above already established the capture group is present. Bound to a const so the
+  // narrowing is checked rather than asserted, and each match is filtered rather than assumed.
+  const licenseList = licenseBlock[1] ?? "";
+  const declaredLicenses = [...licenseList.matchAll(/"([^"]+)"/gu)]
+    .map((match) => match[1])
+    .filter((value): value is string => value !== undefined);
   const version = /^version\s*=\s*"([^"]+)"/mu.exec(manifest)?.[1] ?? null;
 
   const agplMentions: Array<{ file: string; reason: string }> = [];

@@ -6,8 +6,8 @@
     " CMU Graphics Lab mocap",
     "**CONDITIONAL — not CC0/CC-BY.** Free for research and commercial products, but the data **may not be resold even converted**; NSF EIA-0196217 acknowledgement requested.",
     "`Get Up From Ground Laying on Back` VERIFIED in the search UI — a floor get-up, not a hospital bed",
-    "already used once (walk BVH)",
-    "`motion_bind_stage`",
-    "Usable with restrictions. **Not** a clean CC0 pass; prefer the hm08 CC0 BVH. "
+    "already used once (walk BVH); **RETIRED FROM SHIPPED BYTES 2026-09-09 (SC-04)**",
+    "`motion_bind_stage` (build-time retarget only)",
+    "Usable with restrictions, **for build-time work only**. **Not** a clean CC0 pass; prefer the hm08 CC0 BVH. **SC-04 measured the delivery-model consequence and acted on it:** these GLBs sit in Vite's public directory and are fetchable by any browser, so shipping a CMU-derived clip inside one is redistribution of converted data, which these terms refuse. `openclinxr_retarget_cmu_02_01_walk` (411 channels) was removed from `mpfb-clinical-physician-adult.glb` and replaced by the CC0 Mesh2Motion `Walk_Formal` bind. The row is kept rather than deleted so a rebuild that reintroduces a CMU clip is refused by name. "
   ]
 }

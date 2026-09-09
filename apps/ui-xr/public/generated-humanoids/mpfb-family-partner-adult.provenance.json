@@ -54,11 +54,36 @@
   "Family-class body is a different bake from the nurse-class body: different reference (1.66 m vs 1.76 m), different macro height (0.5 vs 0.5827), different wardrobe/iris/hair — two distinct identities.",
   "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris).",
   "Rebaked 2026-08-14 (medical wardrobe): same reference/role, scalp RULE now fires — `scalp_placeholder_retired_for` suppresses the placeholder `openclinxr_mesh_native_scalp_hair_surface` shell wherever a fitted hair mesh exists (e4880c99). Same wardrobe: toigo t-shirt (muted_rose), cortu_cargo_pants (CC0 ledger row; named-uuid GARMENT_PAGE_CC0_OVERRIDE because its `.mhclo` declares CC0 on the author line, not a `# license` line), toigo_mj_cloth_shoes, toigo_curled_under_bob hair. scalpTris=0, hairTris=2852 measured on the exported GLB.",
- "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-family-partner-adult.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed)."
+  "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-family-partner-adult.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed)."
  ],
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-08-14T17:30:00Z",
- "outputSha256": "981e7ac44de74dc4862b99a6e89c88f4b4b9b5b265e83da6d6829fbfdb11eb11",
- "outputBytes": 8618824
+ "outputSha256": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93",
+ "outputBytes": 8411080,
+ "byteLineage": {
+  "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+  "correctedAt": "2026-09-09T20:55:55.787Z",
+  "recordedBefore": {
+   "outputSha256": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93",
+   "outputBytes": 8411080
+  },
+  "preImageRevision": "91b12607^:apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+  "preImageSha256": "14a4167a9b6d6aec9d01f367b91c806d1c8e18568a0ebe36e6405240697e7a0c",
+  "preImageBytes": 8411072,
+  "derivationArgv": [
+   "node",
+   "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
+   "--input",
+   "{pre}",
+   "--output",
+   "{out}",
+   "--report",
+   ".openclinxr/evidence/scene-closure/sc-04/rederive/family-rederive-report.json",
+   "--half-span-m",
+   "0.085"
+  ],
+  "reproduction": "byte-identical to the shipped file",
+  "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte."
+ }
 }

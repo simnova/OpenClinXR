@@ -1,0 +1,167 @@
+{
+ "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+ "derivationMode": "mpfb2_gown_bake_from_viseme_inspect_base",
+ "scenarioId": "scene_closure_supine_bedside_v1",
+ "actorId": "patient_margaret_ellis_v1",
+ "actorRole": "patient",
+ "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+ "generatorMode": "blender_gown_bake_off_mpfb_viseme_inspect_base_then_fleet_wide_stages",
+ "sourceKind": "mpfb2_makehuman_basemesh_hm08_with_standard_rig",
+ "usesRealAnnyForwardPass": false,
+ "realAnnyWeightsUsed": false,
+ "textureMode": "authored_or_baked",
+ "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+ "optimizationMode": "meshopt_decimated_post_blender_glb",
+ "realismGrade": "not_graded",
+ "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
+ "authoredBy": "SC-04. This sidecar did not exist before 2026-09-09; the asset shipped from af1fed4e onwards with no provenance record at all, which is why the SC-04 lineage audit reported provenance-record-absent for the selected patient. Every field below is read off the recorded history of the file, not asserted from memory.",
+ "sourceOriginChain": {
+  "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
+  "materializedFrom": "Blender-only gown bake off the mpfb-viseme-inspect base (bake_mpfb_gown_inspect.py --output-glb mpfb-gown-adult-patient.glb), byte-identical at bake time to the pixel-graded mpfb-gown-inspect subject",
+  "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py and the gown bake script named in af1fed4e",
+  "derivationCommits": [
+   {
+    "commit": "af1fed4e",
+    "did": "#490 L5 — bake cast-eligible gowned MPFB adult patient off the mpfb-viseme-inspect base; declare MPFB_GOWN_ADULT_PATIENT_GLB"
+   },
+   {
+    "commit": "e9ef9e3f",
+    "did": "#542 — CC0 brows/lashes/teeth/tongue across all eleven MPFB actors"
+   },
+   {
+    "commit": "99c56fd5",
+    "did": "#598 — swap toigo_flats for the plain CC0 cloth shoes"
+   },
+   {
+    "commit": "f3bf8d13",
+    "did": "#651 — body height driven by the case declaration"
+   },
+   {
+    "commit": "e0d36c44",
+    "did": "#684 — restore the hospital gown without giving back the #651 height"
+   },
+   {
+    "commit": "e59dc492",
+    "did": "#686 — give the gown bodice its own drape"
+   },
+   {
+    "commit": "0f1d0b9c",
+    "did": "#695 — meshopt decimation wired into the humanoid pipeline"
+   },
+   {
+    "commit": "f82e1cc2",
+    "did": "#683 — fitted CC0 eyelashes01 replace the hm08 helper stubs"
+   },
+   {
+    "commit": "de57fc4d",
+    "did": "#739 — per-asset teeth retreat"
+   },
+   {
+    "commit": "a55067d1",
+    "did": "#740 — re-materialize the fleet with garment textures restored"
+   },
+   {
+    "commit": "404c723a",
+    "did": "#737 — lash-only LOD; restore the gown UVs #714 dropped"
+   },
+   {
+    "commit": "aa64d2ea",
+    "did": "#746 — gown shell clears the body at armpit and sleeve root"
+   },
+   {
+    "commit": "91b12607",
+    "did": "chest-anchor stage across the shipped MPFB fleet; the bytes this record pins"
+   }
+  ],
+  "derivationNote": "The chain is reconstructed from the file's own commit history rather than from a bake log, because no bake log was retained beside the asset. The final step is the only one this record reproduces: see byteLineage."
+ },
+ "licenseChain": {
+  "status": "subcomponent_rights_recorded_per_mesh_with_one_standing_upstream_uncertainty",
+  "subcomponentRecords": [
+   {
+    "mesh": "mpfb_robert_reference_body",
+    "record": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json",
+    "standing": "CONTRADICTED UPSTREAM — a stale 2016 README asserts AGPL against a 2020 LICENSE.md saying CC0, with no dated relicensing announcement. Unresolved, and it is the mesh under every body this project generates. SC-04 records it rather than clearing it."
+   },
+   {
+    "mesh": "makeclothes_library_eyes_low_poly_*",
+    "record": "docs/openclinxr/asset-licence-records/row-27-makehuman-system-asset-eyes-makehumansystemassets-pack-pack-.json",
+    "standing": "CC0 1.0 verified in the asset headers"
+   },
+   {
+    "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_*",
+    "record": "docs/openclinxr/asset-licence-records/row-22-makehuman-shoes01-pack-file-shoes01cc0-zip-83-mb-23-shoes-al.json",
+    "standing": "CC0 1.0 clears on its own .mhclo header"
+   },
+   {
+    "mesh": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_*",
+    "record": "docs/openclinxr/asset-licence-records/row-13-makehuman-hair01-pack-page.json",
+    "standing": "pack is MIXED; the six toigo_* bobs are the CC0 subset and this is one of them"
+   },
+   {
+    "mesh": "makeclothes_library_toigo_t_shirt_*",
+    "record": "docs/openclinxr/asset-licence-records/row-20-makehuman-shirts01-pack-file-shirts01cc0-zip.json",
+    "standing": "pack is MIXED; the toigo entries are CC0, the single AGPL3 entry is skalldyrssuppe_tube_top_funky_colors and is not present here"
+   },
+   {
+    "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_*",
+    "record": "docs/openclinxr/asset-licence-records/row-09-makehuman-eyebrows01-pack-page-archive-eyebrows01cc0-zip.json",
+    "standing": "CC0 1.0 verified in every staged .mhclo header"
+   },
+   {
+    "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_*",
+    "record": "docs/openclinxr/asset-licence-records/row-10-makehuman-eyelashes01-pack-page-archive-eyelashes01cc0-zip.json",
+    "standing": "CC0 1.0 verified in every staged .mhclo header"
+   },
+   {
+    "mesh": "openclinxr_hm08_teeth_*, openclinxr_hm08_tongue_*",
+    "record": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json",
+    "standing": "same hm08 basemesh grant, and the same standing contradiction"
+   },
+   {
+    "mesh": "openclinxr_declared_upper_layers__hospital_gown_mesh, openclinxr_real_garment_peds_upper_v1_mesh",
+    "record": "first-party",
+    "standing": "generated procedurally by this repository's garment stations; no third-party grant is involved"
+   }
+  ],
+  "notReverified": "The subcomponent rows above are cited, not re-read from their source archives by this card. SC-04 verified that each cited record exists and carries the phrase it is cited for; it did not re-download or re-parse the packs."
+ },
+ "notEvidenceFor": [
+  "clinical_realism",
+  "visual_grade",
+  "quest_readiness",
+  "learner_launch_readiness",
+  "legal_sufficiency_of_the_cited_licences"
+ ],
+ "claimScope": "one_generated_gowned_adult_patient_body_with_a_reconstructed_derivation_chain_and_a_reproduced_final_byte_step",
+ "promotionGates": {
+  "castEligible": true,
+  "realismGraded": false,
+  "publicRenderCleared": false,
+  "publicRenderBlockedBy": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json — the hm08 basemesh AGPL/CC0 contradiction is unresolved upstream"
+ },
+ "outputSha256": "59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6",
+ "outputBytes": 18840492,
+ "byteLineage": {
+  "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+  "correctedAt": "2026-09-09T20:55:55.570Z",
+  "recordedBefore": {},
+  "preImageRevision": "91b12607^:apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+  "preImageSha256": "029dbb504c6f655c7a2fc141948ff92dbd86190a306ee75ade8c50c39f8ab43f",
+  "preImageBytes": 18840716,
+  "derivationArgv": [
+   "node",
+   "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
+   "--input",
+   "{pre}",
+   "--output",
+   "{out}",
+   "--report",
+   ".openclinxr/evidence/scene-closure/sc-04/rederive/gown-rederive-report.json",
+   "--half-span-m",
+   "0.085"
+  ],
+  "reproduction": "byte-identical to the shipped file",
+  "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte. This asset had no sidecar at all until SC-04 authored one; the pin below is the first it has ever carried."
+ }
+}

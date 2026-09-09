@@ -64,6 +64,31 @@
  "claimScope": "nurse_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_toigo_blunt_bob_kept",
  "promotionGates": false,
  "generatedAt": "2026-08-14T21:33:00Z",
- "outputSha256": "8c8547ff6153f5d1fedb1b1dcdde5193d2bec6e5e31e617d25213ccfbaf7d409",
- "outputBytes": 21563000
+ "outputSha256": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d",
+ "outputBytes": 11112092,
+ "byteLineage": {
+  "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+  "correctedAt": "2026-09-09T20:55:55.296Z",
+  "recordedBefore": {
+   "outputSha256": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d",
+   "outputBytes": 11112092
+  },
+  "preImageRevision": "3d019031^:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+  "preImageSha256": "2e111a0da68f18f151a623a98e544154e610cdcd916ac106f6d9213d9d8c7089",
+  "preImageBytes": 11112080,
+  "derivationArgv": [
+   "node",
+   "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
+   "--input",
+   "{pre}",
+   "--output",
+   "{out}",
+   "--report",
+   ".openclinxr/evidence/scene-closure/sc-04/rederive/nurse-rederive-report.json",
+   "--half-span-m",
+   "0.085"
+  ],
+  "reproduction": "byte-identical to the shipped file",
+  "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte."
+ }
 }

@@ -4,11 +4,13 @@ import { parseArgs } from "./verify.js";
 import {
   auditScopes,
   type EvidenceRegistry,
+  type IndependentFacts,
   type ObjectReader,
   resolveArtifactPath,
   SC04_FROZEN_SCOPES,
   SC04_REQUIRED_CHECK_IDS,
   SC04_REQUIRED_CONTROL_IDS,
+  SC04_RETIRED_CLIP,
   sha256Hex,
   verifyReport,
 } from "./verify-core.js";
@@ -185,6 +187,31 @@ const OBJECTS = {
   "/store/sc-04/fixed.txt": FIXED_BYTES,
 };
 
+
+/**
+ * The facts the CLI recomputes from the product tree, as a clean control.
+ *
+ * The verifier must refuse when the report disagrees with these, so the fixtures below vary THEM
+ * rather than the report wherever the point is that the report cannot vouch for itself.
+ */
+function goodIndependent(): IndependentFacts {
+  return {
+    lineageFindings: [],
+    selectedAssets: [
+      {
+        assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+        sha256: "a".repeat(64),
+        recordedSha256: "a".repeat(64),
+        retargetedClips: ["openclinxr_retarget_walk_formal_cc0"],
+      },
+    ],
+    publicRenderDecision: "blocked_pending_named_upstream_resolution",
+    publicRenderBlockedRecords: ["docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json"],
+    citedPhrasesPresent: true,
+    clearanceDecisionsSeparated: true,
+  };
+}
+
 function verify(report: Record<string, unknown>, objects: Record<string, Buffer> = OBJECTS, links: Record<string, string> = {}) {
   return verifyReport({
     report,
@@ -193,6 +220,7 @@ function verify(report: Record<string, unknown>, objects: Record<string, Buffer>
     registrySha256: REGISTRY_SHA,
     reader: readerFor(objects, links),
     contractDocuments: CONTRACT_DOCUMENTS,
+    independent: goodIndependent(),
   });
 }
 
@@ -313,6 +341,7 @@ describe("the SC-04 evidence verifier accepts a complete control and rejects eve
       registrySha256: "f".repeat(64),
       reader: readerFor(OBJECTS),
       contractDocuments: CONTRACT_DOCUMENTS,
+      independent: goodIndependent(),
     });
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -361,5 +390,81 @@ describe("the SC-04 evidence verifier accepts a complete control and rejects eve
     expect(parseArgs(["bare"])).toMatchObject({ error: expect.stringContaining("unknown argument") });
     expect(parseArgs(["--report", "x", "--report", "z", "--scope", "y"]))
       .toMatchObject({ error: expect.stringContaining("more than once") });
+  });
+
+  it("(16) COUNTERWEIGHT: a report-authored pass flag cannot outvote the recomputed tree", () => {
+    // Same all-green report; the tree says the recorded hash and the shipped bytes disagree.
+    const facts = goodIndependent();
+    facts.selectedAssets[0]!.recordedSha256 = "b".repeat(64);
+    const result = verifyReport({
+      report: goodReport(),
+      suppliedScopes: [...SC04_FROZEN_SCOPES],
+      registry: REGISTRY,
+      registrySha256: REGISTRY_SHA,
+      reader: readerFor(OBJECTS),
+      contractDocuments: CONTRACT_DOCUMENTS,
+      independent: facts,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/recomputed byte pin mismatch/u);
+    expect(result.problems.join("\n")).toMatch(/selected-hashes-match-actual-bytes/u);
+  });
+
+  it("(17) COUNTERWEIGHT: the retired CMU clip back in the shipped bytes is refused by name", () => {
+    const facts = goodIndependent();
+    facts.selectedAssets[0]!.retargetedClips = [SC04_RETIRED_CLIP];
+    const result = verifyReport({
+      report: goodReport(),
+      suppliedScopes: [...SC04_FROZEN_SCOPES],
+      registry: REGISTRY,
+      registrySha256: REGISTRY_SHA,
+      reader: readerFor(OBJECTS),
+      contractDocuments: CONTRACT_DOCUMENTS,
+      independent: facts,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/still ships openclinxr_retarget_cmu_02_01_walk/u);
+  });
+
+  it("(18) an empty recomputed selection, a missing public-render decision and a broken citation each fail", () => {
+    const cases: Array<[Partial<IndependentFacts>, RegExp]> = [
+      [{ selectedAssets: [] }, /recomputed selection is empty/u],
+      [{ publicRenderDecision: "" }, /no public-render decision/u],
+      [{ publicRenderBlockedRecords: [] }, /names no blocking record/u],
+      [{ citedPhrasesPresent: false }, /cites a phrase its licence record no longer contains/u],
+      [{ clearanceDecisionsSeparated: false }, /not recorded as separable decisions/u],
+      [{ lineageFindings: ["clip-rights-refuse-redistribution: x: y"] }, /recomputed lineage finding/u],
+    ];
+    for (const [override, pattern] of cases) {
+      const result = verifyReport({
+        report: goodReport(),
+        suppliedScopes: [...SC04_FROZEN_SCOPES],
+        registry: REGISTRY,
+        registrySha256: REGISTRY_SHA,
+        reader: readerFor(OBJECTS),
+        contractDocuments: CONTRACT_DOCUMENTS,
+        independent: { ...goodIndependent(), ...override },
+      });
+      expect(result.ok, `${JSON.stringify(override)} must fail`).toBe(false);
+      if (result.ok) continue;
+      expect(result.problems.join("\n")).toMatch(pattern);
+    }
+  });
+
+  it("(19) a recomputation that could not run at all is a failure, never a pass", () => {
+    const result = verifyReport({
+      report: goodReport(),
+      suppliedScopes: [...SC04_FROZEN_SCOPES],
+      registry: REGISTRY,
+      registrySha256: REGISTRY_SHA,
+      reader: readerFor(OBJECTS),
+      contractDocuments: CONTRACT_DOCUMENTS,
+      independent: new Error("cast resolver threw"),
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/independent recomputation failed: cast resolver threw/u);
   });
 });

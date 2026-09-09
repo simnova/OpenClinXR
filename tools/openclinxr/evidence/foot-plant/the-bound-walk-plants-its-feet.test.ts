@@ -3,8 +3,13 @@ import os from "node:os";
 import path from "node:path";
 import { Accessor, Document, NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { boundClipJointTrack } from "./bound-clip-foot-track.js";
+import {
+  composeWithGroundAdvance,
+  groundSpeedFromStance,
+  measureReplacementWalkApproach,
+} from "../licence/the-replacement-walk-preserves-approach-behaviour.js";
 import { measureBoundClipFootPlant } from "./bound-clip-foot-plant.js";
+import { boundClipJointTrack } from "./bound-clip-foot-track.js";
 
 /**
  * Two things are proved here and they need different evidence.
@@ -19,6 +24,15 @@ import { measureBoundClipFootPlant } from "./bound-clip-foot-plant.js";
  */
 
 const REPORT_PATH = path.resolve(process.cwd(), "docs/openclinxr/evidence/bound-clip-foot-plant.json");
+/** SC-04's landed report, which carries the REPLACEMENT clip's measurement beside the CMU control. */
+const SC04_REPORT_PATH = path.resolve(
+  process.cwd(),
+  "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-04.json",
+);
+const PHYSICIAN_GLB = path.resolve(
+  process.cwd(),
+  "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+);
 
 async function twoBoneChainGlb(interpolation: "LINEAR" | "CUBICSPLINE"): Promise<string> {
   const document = new Document();
@@ -240,5 +254,157 @@ describe("the bound walk plants its feet on the physician rig", () => {
     expect(plantedRuntime?.fractionOfRootTravel).toBeLessThan(0.001);
     expect(plantedRuntime?.contactFrames).toBeGreaterThan(100);
     expect(ridingRuntime?.fractionOfRootTravel).toBeCloseTo(1, 3);
+  });
+});
+
+
+/**
+ * An IN-PLACE walk cycle: the root never moves, one toe holds still in the ground frame while the
+ * body advances beneath it, and the other rides along with the body.
+ *
+ * This is the shape every Mesh2Motion locomotion clip has, and the shape `bound-clip-foot-plant.ts`
+ * cannot grade — its denominator is the clip's own root travel, which here is zero.
+ */
+async function inPlaceWalkFixtureGlb(): Promise<string> {
+  const document = new Document();
+  const buffer = document.createBuffer();
+  const frames = 121;
+  const seconds = 1;
+  const groundSpeed = 2; // metres per second the body would advance
+  const times = new Float32Array(frames);
+  const plantedTrack = new Float32Array(frames * 3);
+  const ridingTrack = new Float32Array(frames * 3);
+  for (let frame = 0; frame < frames; frame += 1) {
+    const t = frame / (frames - 1);
+    times[frame] = t * seconds;
+    // The planted toe slides BACKWARD in the body frame at exactly the ground speed, which is what
+    // a foot on the floor does while the body walks over it. Height stays on the floor.
+    plantedTrack[frame * 3 + 1] = -0.88;
+    plantedTrack[frame * 3 + 2] = -t * groundSpeed * seconds;
+    // The riding toe stays put in the body frame: on the floor and moving with the hips, which is
+    // the definition of a skating foot.
+    ridingTrack[frame * 3 + 1] = -0.88;
+  }
+  const root = document.createNode("root").setTranslation([0, 0.9, 0]);
+  const planted = document.createNode("toe.planted").setTranslation([0, -0.88, 0]);
+  const riding = document.createNode("toe.riding").setTranslation([0, -0.88, 0]);
+  root.addChild(planted).addChild(riding);
+  document.createScene("Scene").addChild(root);
+
+  const input = document
+    .createAccessor("t")
+    .setType(Accessor.Type.SCALAR)
+    .setArray(times)
+    .setBuffer(buffer);
+  const animation = document.createAnimation("in_place_walk");
+  for (const [node, track] of [
+    [planted, plantedTrack],
+    [riding, ridingTrack],
+  ] as const) {
+    const sampler = document
+      .createAnimationSampler()
+      .setInput(input)
+      .setOutput(
+        document.createAccessor(`${node.getName()}_t`).setType(Accessor.Type.VEC3).setArray(track).setBuffer(buffer),
+      )
+      .setInterpolation("LINEAR");
+    animation.addSampler(sampler);
+    animation.addChannel(
+      document.createAnimationChannel().setTargetNode(node).setTargetPath("translation").setSampler(sampler),
+    );
+  }
+  const directory = await mkdtemp(path.join(os.tmpdir(), "openclinxr-inplace-"));
+  const glbPath = path.join(directory, "in-place.glb");
+  await new NodeIO().write(glbPath, document);
+  return glbPath;
+}
+
+describe("the CC0 replacement walk is measured, not assumed", () => {
+  it("(9) the in-place instrument reads the ground speed off the stance and separates a plant from a skate", async () => {
+    const report = await measureReplacementWalkApproach({
+      glbPath: await inPlaceWalkFixtureGlb(),
+      clipName: "in_place_walk",
+      joints: ["toe.planted", "toe.riding"],
+      speedReferenceJoint: "toe.planted",
+    });
+    // The clip carries no root motion at all, which is exactly why the other instrument cannot
+    // grade it: its fractionOfRootTravel would divide by zero and report a perfect score.
+    expect(report.clip.rootTravelMeters).toBeCloseTo(0, 6);
+    expect(report.clip.inPlace).toBe(true);
+    // Speed derived from the stance, not supplied: the fixture's foot gives back 2 m in 1 s.
+    expect(report.groundSpeed.groundSpeedMetersPerSecond).toBeCloseTo(2, 3);
+
+    const planted = report.joints.find((row) => row.joint === "toe.planted");
+    const riding = report.joints.find((row) => row.joint === "toe.riding");
+    const plantedRuntime = planted?.contactSweep.find((row) => row.isRuntimeThreshold);
+    const ridingRuntime = riding?.contactSweep.find((row) => row.isRuntimeThreshold);
+    expect(plantedRuntime?.fractionOfAdvance).toBeLessThan(0.001);
+    expect(plantedRuntime?.contactFrames).toBeGreaterThan(100);
+    // The skating foot travels the whole advance while claiming to be on the floor.
+    expect(ridingRuntime?.fractionOfAdvance).toBeCloseTo(1, 3);
+  });
+
+  it("(10) COUNTERWEIGHT: a clip whose feet never reach the floor has no ground speed, and says so", () => {
+    // Zero would be indistinguishable from a body standing still, which is the confusion the whole
+    // composed measurement exists to remove.
+    expect(() =>
+      groundSpeedFromStance([
+        { atMs: 0, position: { x: 0, y: 0.5, z: 0 } },
+        { atMs: 40, position: { x: 0, y: 0.6, z: -0.1 } },
+      ]),
+    ).toThrow(/no stance window/u);
+
+    // And the composition is a pure translation: heights are never touched by the advance.
+    const composed = composeWithGroundAdvance(
+      [
+        { atMs: 0, position: { x: 0, y: 0.02, z: 0 } },
+        { atMs: 1000, position: { x: 0, y: 0.03, z: -1 } },
+      ],
+      { groundSpeedMetersPerSecond: 1, forward: { x: 0, z: 1 }, windows: [], contactHeightMeters: 0.06 },
+    );
+    expect(composed[1]!.position.z).toBeCloseTo(0, 6);
+    expect(composed[1]!.position.y).toBeCloseTo(0.03, 6);
+  });
+
+  it("(11) the landed SC-04 report carries the replacement's plant beside the CMU control, and declares the regression", async () => {
+    const report = JSON.parse(await readFile(SC04_REPORT_PATH, "utf8"));
+    const value = (observationId: string): number => {
+      const row = report.observations.find((entry: { observationId: string }) => entry.observationId === observationId);
+      expect(row, `observation ${observationId}`).toBeDefined();
+      return Number(row.value);
+    };
+    // Both clips measured by the identical procedure, so the comparison is like for like.
+    const replacementLeft = value("walk-formal-toe-left-slide-fraction");
+    const controlLeft = value("cmu-control-toe-left-slide-fraction");
+    const replacementRight = value("walk-formal-toe-right-slide-fraction");
+    const controlRight = value("cmu-control-toe-right-slide-fraction");
+    for (const fraction of [replacementLeft, controlLeft, replacementRight, controlRight]) {
+      expect(fraction).toBeGreaterThan(0);
+      expect(fraction).toBeLessThan(1);
+    }
+    // The contact count travels with the fraction: a zero-contact zero-slide reading is the metric
+    // saying it observed nothing, and must not look like a clean plant.
+    expect(value("walk-formal-toe-left-contact-frames")).toBeGreaterThan(10);
+
+    // THE FINDING, asserted rather than buried: the replacement plants WORSE than the clip it
+    // replaces, and the report says so in its own unresolved defects. If a later slice improves the
+    // clip this clause fails and has to be rewritten deliberately — which is the point.
+    expect(replacementLeft).toBeGreaterThan(controlLeft);
+    expect(replacementRight).toBeGreaterThan(controlRight);
+    const declared = report.limits.unresolvedDefects.join("\n");
+    expect(declared).toMatch(/FOOT-PLANT REGRESSION/u);
+    expect(declared).toMatch(/SPEED MISMATCH/u);
+  });
+
+  it("(12) the retired CMU clip is gone from the shipped physician, so the older report cannot read as current", async () => {
+    const document = await new NodeIO().read(PHYSICIAN_GLB);
+    const clips = document.getRoot().listAnimations().map((animation) => animation.getName());
+    expect(clips).not.toContain("openclinxr_retarget_cmu_02_01_walk");
+    expect(clips).toContain("openclinxr_retarget_walk_formal_cc0");
+
+    // The historical report still names the CMU clip, which is correct — it measured that clip. The
+    // pair of assertions above is what stops it being mistaken for a description of what ships.
+    const historical = JSON.parse(await readFile(REPORT_PATH, "utf8"));
+    expect(historical.asset.clipName).toBe("openclinxr_retarget_cmu_02_01_walk");
   });
 });

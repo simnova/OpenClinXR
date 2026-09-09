@@ -147,6 +147,34 @@ export function resolveArtifactPath(
   return candidate;
 }
 
+/**
+ * Facts the verifier RECOMPUTES for itself, never reads out of the report.
+ *
+ * proof-contract-v2.md: "Never trust a second copy of the expected value supplied by the same
+ * report." Every field here is derived by the CLI from the product tree — the real cast resolver,
+ * the shipped bytes, the licence records on disk — and `verifyReport` refuses when the report's
+ * claim about a required check contradicts it. `verifier.test.ts` supplies fixtures instead, which
+ * is how the contradiction paths get exercised without a tree to break.
+ */
+export type IndependentFacts = {
+  /** Recomputed lineage/rights findings. Nonempty means the product tree does not clear. */
+  lineageFindings: string[];
+  /** The assets the production cast resolver returns for the case, with their real digests. */
+  selectedAssets: Array<{
+    assetPath: string;
+    sha256: string;
+    recordedSha256: string | null;
+    retargetedClips: string[];
+  }>;
+  /** The manifest's public-render decision and the records it names as blocking. */
+  publicRenderDecision: string;
+  publicRenderBlockedRecords: string[];
+  /** Whether every clearance's cited phrase is present in the record it cites, read from disk. */
+  citedPhrasesPresent: boolean;
+  /** Whether adopted / shipped / public-render are recorded as three separable decisions. */
+  clearanceDecisionsSeparated: boolean;
+};
+
 export type VerifyInput = {
   report: unknown;
   suppliedScopes: readonly string[];
@@ -155,7 +183,12 @@ export type VerifyInput = {
   reader: ObjectReader;
   /** Contract documents as they exist on disk, for hash comparison. */
   contractDocuments: Map<string, string>;
+  /** Recomputed from the product tree by the CLI. An Error here is itself a failure. */
+  independent: IndependentFacts | Error;
 };
+
+/** The clip name SC-04 removed. A shipped selected asset carrying it again is a refusal by name. */
+export const SC04_RETIRED_CLIP = "openclinxr_retarget_cmu_02_01_walk";
 
 export type VerifyResult = { ok: true } | { ok: false; problems: string[] };
 
@@ -386,6 +419,55 @@ export function verifyReport(input: VerifyInput): VerifyResult {
   }
   for (const required of SC04_REQUIRED_CONTROL_IDS) {
     if (!seenControls.has(required)) fail(`required control ${required} is missing`);
+  }
+
+  // INDEPENDENT RECOMPUTATION. Each block below decides a required check from the product tree and
+  // refuses when the report says otherwise, so a report cannot satisfy its own requirements.
+  if (input.independent instanceof Error) {
+    fail(`independent recomputation failed: ${input.independent.message}`);
+  } else {
+    const facts = input.independent;
+    if (facts.lineageFindings.length > 0) {
+      for (const finding of facts.lineageFindings) fail(`recomputed lineage finding: ${finding}`);
+    }
+    if (facts.selectedAssets.length === 0) {
+      fail("recomputed selection is empty; the audit would be green about nothing");
+    }
+    for (const asset of facts.selectedAssets) {
+      if (asset.recordedSha256 !== asset.sha256) {
+        fail(`recomputed byte pin mismatch for ${asset.assetPath}: record ${String(asset.recordedSha256)}, disk ${asset.sha256}`);
+      }
+      if (asset.retargetedClips.includes(SC04_RETIRED_CLIP)) {
+        fail(`${asset.assetPath} still ships ${SC04_RETIRED_CLIP}, whose source terms refuse redistribution`);
+      }
+    }
+    if (facts.publicRenderDecision.trim() === "") {
+      fail("no public-render decision is recorded in the case manifest");
+    }
+    if (facts.publicRenderDecision !== "cleared" && facts.publicRenderBlockedRecords.length === 0) {
+      fail("the public-render decision is not cleared and names no blocking record, so a website gate has nothing to read");
+    }
+    if (!facts.citedPhrasesPresent) {
+      fail("a clearance cites a phrase its licence record no longer contains");
+    }
+    if (!facts.clearanceDecisionsSeparated) {
+      fail("adopted, shipped and public-render are not recorded as separable decisions");
+    }
+
+    // A report claiming a check is satisfied while the recomputation disagrees is the case the
+    // proof contract calls "a report-authored pass flag with no observed evidence".
+    const checkOutcome = (checkId: string): unknown =>
+      (Array.isArray(report.checks) ? report.checks : []).find(
+        (entry) => isRecord(entry) && entry["checkId"] === checkId,
+      )?.["outcome"];
+    if (checkOutcome("selected-hashes-match-actual-bytes") === "satisfied"
+      && facts.selectedAssets.some((asset) => asset.recordedSha256 !== asset.sha256)) {
+      fail("report claims selected-hashes-match-actual-bytes but the recomputed digests disagree");
+    }
+    if (checkOutcome("cmu-walk-terms-resolved") === "satisfied"
+      && facts.selectedAssets.some((asset) => asset.retargetedClips.includes(SC04_RETIRED_CLIP))) {
+      fail("report claims cmu-walk-terms-resolved while a selected asset still ships the CMU clip");
+    }
   }
 
   const encounter = report.encounter;

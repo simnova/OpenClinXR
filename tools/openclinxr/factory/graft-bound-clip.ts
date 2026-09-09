@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
-import { NodeIO } from "@gltf-transform/core";
 import type { Accessor, Animation, Document, Node as GltfNode } from "@gltf-transform/core";
+import { NodeIO } from "@gltf-transform/core";
 
 /**
  * Graft one animation clip from a bound GLB into a shipped GLB, by joint NAME.
@@ -33,6 +33,8 @@ export type ClipGraftReport = {
   output: { path: string; sha256: string; bytes: number };
   graftedChannels: number;
   graftedJoints: number;
+  /** Clips deleted from the target before the graft, and why. Empty for an additive graft. */
+  removedClips: Array<{ clipName: string; channels: number; reason: string }>;
   /** Set when --publish moved the output over the target and rewrote its provenance record. */
   published: {
     assetPath: string;
@@ -67,6 +69,18 @@ function meshStats(document: Document): { primitives: number; triangles: number;
     }
   }
   return { primitives, triangles, positionDigest: hash.digest("hex") };
+}
+
+/** A sampler channel with no accessor cannot be grafted; refuse rather than assert it away. */
+function requireAccessor(accessor: Accessor | null, clipName: string, which: string): Accessor {
+  if (!accessor) throw new Error(`${clipName}: a source sampler carries no ${which} accessor.`);
+  return accessor;
+}
+
+/** Same for the channel's target path, which decides what the grafted channel animates. */
+function requireTargetPath<T>(targetPath: T | null, clipName: string): T {
+  if (targetPath === null) throw new Error(`${clipName}: a source channel carries no target path.`);
+  return targetPath;
 }
 
 function copyAccessor(target: Document, source: Accessor, name: string): Accessor {
@@ -111,14 +125,24 @@ function graftAnimation(target: Document, sourceAnimation: Animation, clipName: 
 
   for (const channel of sourceAnimation.listChannels()) {
     // Both refusals above already ran, so neither of these can be missing here.
-    const sourceSampler = channel.getSampler()!;
-    const node = targetNodes.get(channel.getTargetNode()!.getName())!;
+    // Both refusals above already ran, so none of these can be missing. Guarded rather than
+    // asserted: a silent undefined would graft a channel onto the wrong joint, which no later
+    // check inspects.
+    const sourceSampler = channel.getSampler();
+    const sourceNode = channel.getTargetNode();
+    if (!sourceSampler || !sourceNode) {
+      throw new Error(`${clipName}: a source channel carries no sampler or no target node.`);
+    }
+    const node = targetNodes.get(sourceNode.getName());
+    if (!node) {
+      throw new Error(`${clipName}: the target carries no joint named ${sourceNode.getName()}.`);
+    }
     let sampler = samplerCopies.get(sourceSampler);
     if (!sampler) {
       sampler = target
         .createAnimationSampler()
-        .setInput(copyAccessor(target, sourceSampler.getInput()!, `${clipName}_in`))
-        .setOutput(copyAccessor(target, sourceSampler.getOutput()!, `${clipName}_out`))
+        .setInput(copyAccessor(target, requireAccessor(sourceSampler.getInput(), clipName, "input"), `${clipName}_in`))
+        .setOutput(copyAccessor(target, requireAccessor(sourceSampler.getOutput(), clipName, "output"), `${clipName}_out`))
         .setInterpolation(sourceSampler.getInterpolation());
       samplerCopies.set(sourceSampler, sampler);
       animation.addSampler(sampler);
@@ -127,7 +151,7 @@ function graftAnimation(target: Document, sourceAnimation: Animation, clipName: 
       target
         .createAnimationChannel()
         .setTargetNode(node)
-        .setTargetPath(channel.getTargetPath()!)
+        .setTargetPath(requireTargetPath(channel.getTargetPath(), clipName))
         .setSampler(sampler),
     );
     joints.add(node.getName());
@@ -142,6 +166,16 @@ export async function graftBoundClip(input: {
   clipName: string;
   outputPath: string;
   /**
+   * Clips to DELETE from the target before grafting, with the reason recorded beside each.
+   *
+   * A licence replacement is a removal plus an addition, and doing only the addition leaves the
+   * refused clip in the shipped bytes beside its replacement — still downloadable, still
+   * redistributed, and now harder to notice because a cleared clip sits next to it. The removal
+   * REFUSES a name that is not present rather than passing silently, because "already gone" and
+   * "never looked" produce the same empty result.
+   */
+  removeClips?: Array<{ clipName: string; reason: string }>;
+  /**
    * Move the output over the target and rewrite the target's provenance record from THIS run.
    *
    * Without it the provenance entry describing the clip is hand-authored, so it can name a frame
@@ -152,6 +186,12 @@ export async function graftBoundClip(input: {
     provenancePath: string;
     /** A bound-clip foot-plant report, whose clip block is copied into the provenance entry. */
     footPlantReportPath?: string;
+    /**
+     * Where the LANDED copy of that measurement lives, when the report above is a working file
+     * under an ignored path. The numbers still come from the measurement; only the citation
+     * differs, so the record points at something a reader can actually open.
+     */
+    footPlantEvidencePath?: string;
     sourceClipPath: string;
     licenceRecordPath: string;
     licenceStatus: string;
@@ -162,6 +202,24 @@ export async function graftBoundClip(input: {
   const sourceBytes = await readFile(input.sourcePath);
   const target = await io.read(input.targetPath);
   const source = await io.read(input.sourcePath);
+
+  const removedClips: ClipGraftReport["removedClips"] = [];
+  for (const removal of input.removeClips ?? []) {
+    const doomed = target
+      .getRoot()
+      .listAnimations()
+      .find((animation) => animation.getName() === removal.clipName);
+    if (!doomed) {
+      throw new Error(
+        `graftBoundClip: refused — asked to remove ${removal.clipName} from ${input.targetPath}, which does not carry it. Present: ${target.getRoot().listAnimations().map((animation) => animation.getName()).join(", ")}. Treating an absent clip as already-removed would make a licence removal indistinguishable from never having looked.`,
+      );
+    }
+    const channels = doomed.listChannels().length;
+    for (const channel of doomed.listChannels()) channel.dispose();
+    for (const sampler of doomed.listSamplers()) sampler.dispose();
+    doomed.dispose();
+    removedClips.push({ clipName: removal.clipName, channels, reason: removal.reason });
+  }
 
   if (target.getRoot().listAnimations().some((animation) => animation.getName() === input.clipName)) {
     throw new Error(
@@ -218,12 +276,33 @@ export async function graftBoundClip(input: {
       graftedJoints: joints,
       licenceRow: input.publish.licenceRecordPath,
       licenceStatus: input.publish.licenceStatus,
-      ...(input.publish.footPlantReportPath ? { footPlantEvidence: input.publish.footPlantReportPath } : {}),
+      ...(input.publish.footPlantEvidencePath ?? input.publish.footPlantReportPath
+        ? { footPlantEvidence: input.publish.footPlantEvidencePath ?? input.publish.footPlantReportPath }
+        : {}),
       notEvidenceFor: ["clinical_gait_realism", "visual_walk_quality", "quest_readiness", "runtime_playback"],
     };
+    const removedNames = new Set(removedClips.map((removal) => removal.clipName));
     const others = (record.motionClips ?? []).filter(
-      (clip: { clipName?: string }) => clip.clipName !== input.clipName,
+      (clip: { clipName?: string }) =>
+        clip.clipName !== input.clipName && !removedNames.has(String(clip.clipName)),
     );
+    if (removedClips.length > 0) {
+      // The record must not keep describing a clip the bytes no longer carry, and the removal must
+      // not vanish either: a retired entry with its reason is what stops the next rebuild quietly
+      // reinstating it.
+      record.retiredMotionClips = [
+        ...(record.retiredMotionClips ?? []).filter(
+          (clip: { clipName?: string }) => !removedNames.has(String(clip.clipName)),
+        ),
+        ...removedClips.map((removal) => ({
+          clipName: removal.clipName,
+          removedAt: new Date().toISOString(),
+          removedBy: "tools/openclinxr/factory/graft-bound-clip.ts --remove-clip",
+          channels: removal.channels,
+          reason: removal.reason,
+        })),
+      ];
+    }
     record.motionClips = [...others, entry];
     await writeFile(input.publish.provenancePath, `${JSON.stringify(record, null, 1)}\n`, "utf8");
     published = {
@@ -243,6 +322,7 @@ export async function graftBoundClip(input: {
     output: { path: input.outputPath, sha256: sha256(outputBytes), bytes: outputBytes.byteLength },
     graftedChannels: channels,
     graftedJoints: joints,
+    removedClips,
     published,
     animationsAfter: target.getRoot().listAnimations().map((animation) => animation.getName()),
     geometryParity: {
@@ -261,23 +341,38 @@ async function main(): Promise<void> {
     return index >= 0 ? (args[index + 1] ?? fallback) : fallback;
   };
   const targetPath = flagValue("--target", "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb");
+  const removeClipName = flagValue("--remove-clip", "");
+  const removeReason = flagValue(
+    "--remove-reason",
+    "removed by SC-04: its source terms refuse redistribution of the raw data",
+  );
   const report = await graftBoundClip({
     targetPath,
     sourcePath: flagValue("--source", ".openclinxr/evidence/walk-bind/physician-walk.glb"),
     clipName: flagValue("--clip", "openclinxr_retarget_cmu_02_01_walk"),
     outputPath: flagValue("--output", ".openclinxr/evidence/walk-bind/physician-grafted.glb"),
+    ...(removeClipName ? { removeClips: [{ clipName: removeClipName, reason: removeReason }] } : {}),
     ...(args.includes("--publish")
       ? {
           publish: {
             provenancePath: targetPath.replace(/\.glb$/u, ".provenance.json"),
             footPlantReportPath: flagValue("--foot-plant-report", "docs/openclinxr/evidence/bound-clip-foot-plant.json"),
+            footPlantEvidencePath: flagValue(
+              "--foot-plant-evidence",
+              flagValue("--foot-plant-report", "docs/openclinxr/evidence/bound-clip-foot-plant.json"),
+            ),
             sourceClipPath: flagValue(
               "--source-clip",
               "tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_02_01_walk.bvh",
             ),
-            licenceRecordPath: "docs/openclinxr/asset-licence-records/row-08-cmu-graphics-lab-mocap.json",
-            licenceStatus:
+            licenceRecordPath: flagValue(
+              "--licence-record",
+              "docs/openclinxr/asset-licence-records/row-08-cmu-graphics-lab-mocap.json",
+            ),
+            licenceStatus: flagValue(
+              "--licence-status",
               "CONDITIONAL - not CC0/CC-BY. Free for research and commercial products; the data may not be resold even converted.",
+            ),
           },
         }
       : {}),

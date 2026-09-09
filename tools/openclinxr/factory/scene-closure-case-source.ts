@@ -47,7 +47,16 @@
 import type { Scenario } from "../../../packages/openclinxr/shared-schemas/src/index.js";
 
 /** Bump when any pinned selection below changes; dependent SC-04 evidence pins this string. */
-export const SCENE_CLOSURE_CASE_SOURCE_VERSION = "openclinxr.scene-closure-case-source.v1";
+export const SCENE_CLOSURE_CASE_SOURCE_VERSION = "openclinxr.scene-closure-case-source.v2";
+
+/**
+ * The case document version. SC-04 raised it from 1 to 2 on 2026-09-09 because the SELECTED BYTES
+ * changed: the physician's shipped GLB no longer carries `openclinxr_retarget_cmu_02_01_walk` and
+ * now carries `openclinxr_retarget_walk_formal_cc0`, and three provenance sidecars now pin the
+ * bytes that actually ship. Every descendant that was measured against version 1 is invalidated —
+ * see `SCENE_CLOSURE_SELECTED_ASSET_MANIFEST.invalidatedDescendants`.
+ */
+export const SCENE_CLOSURE_CASE_VERSION = 2;
 
 /** The persisted scenario id. Deliberately unlike every fixture id in the bank. */
 export const SCENE_CLOSURE_CASE_ID = "scene_closure_supine_bedside_v1";
@@ -205,7 +214,7 @@ const SCENE_CLOSURE_ACTORS: Scenario["actors"] = [
 export function sceneClosureCaseDocument(): SceneClosureCaseDocument {
   return {
     scenarioId: SCENE_CLOSURE_CASE_ID,
-    version: 1,
+    version: SCENE_CLOSURE_CASE_VERSION,
     title: "Scene Closure — Supine Bedside Ward Assessment",
     status: "draft",
     review: { clinical: "draft", psychometric: "draft", legal: "draft", simulationQa: "draft" },
@@ -307,3 +316,123 @@ export function refuseIfCastDriftsFromSelection(document: SceneClosureCaseDocume
   }
   return refusals;
 }
+
+
+/**
+ * SC-04's selected asset / rig / clip manifest, and the SEPARATE public-render decision.
+ *
+ * The card requires three decisions to be kept apart — adopting a source for build-time use,
+ * shipping it inside redistributed bytes, and rendering it in public media — because collapsing
+ * them is how "we may use this" quietly becomes "we may publish this". They are separate fields
+ * here and the licence audit refuses a source whose recorded decision does not cover the use it is
+ * actually being put to.
+ *
+ * WHAT THIS IS FOR. SC-06 through SC-09 consume it: the capture gate reads `selected` to know which
+ * bytes a run must have loaded, and the website gate reads `publicRender` to know whether a frame
+ * of a given actor may be published. Neither may infer a public-render permission from the fact
+ * that an asset ships.
+ *
+ * PUBLIC RIGHTS ARE A PREREQUISITE, NOT A PUBLICATION. Nothing here authorises a Pages push.
+ */
+export const SCENE_CLOSURE_SELECTED_ASSET_MANIFEST = {
+  manifestVersion: "openclinxr.scene-closure-selected-assets.v1",
+  caseId: SCENE_CLOSURE_CASE_ID,
+  caseVersion: SCENE_CLOSURE_CASE_VERSION,
+  caseSourceVersion: SCENE_CLOSURE_CASE_SOURCE_VERSION,
+  environmentId: SCENE_CLOSURE_ENVIRONMENT_ID,
+  stationId: SCENE_CLOSURE_STATION_ID,
+  /**
+   * Resolved, not listed. These four paths are what `resolveScenarioActorCast` returns for this
+   * document today; the licence audit re-resolves them rather than trusting this copy, so a cast
+   * change that repoints the encounter is caught instead of being papered over here.
+   */
+  selected: [
+    {
+      actorId: SCENE_CLOSURE_PINNED_CAST.patient,
+      role: "patient",
+      assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+      rig: "mpfb2_standard_137_joint",
+      motionClips: [] as string[],
+    },
+    {
+      actorId: SCENE_CLOSURE_PINNED_CAST.physician,
+      role: "physician",
+      assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+      rig: "mpfb2_standard_137_joint",
+      motionClips: ["openclinxr_retarget_walk_formal_cc0"],
+    },
+    {
+      actorId: "ward_nurse_patel_v1",
+      role: "nurse",
+      assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+      rig: "mpfb2_standard_137_joint",
+      motionClips: [] as string[],
+    },
+    {
+      actorId: "daughter_lena_ellis_v1",
+      role: "family",
+      assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+      rig: "mpfb2_standard_137_joint",
+      motionClips: [] as string[],
+    },
+  ],
+  /** No voice or audio asset is selected for this encounter. Recorded so its absence is a decision. */
+  audio: { selected: [] as string[], note: "No voice or audio asset is authored for this encounter." },
+  /**
+   * The public-render decision, which is NOT implied by anything above.
+   *
+   * It is BLOCKED, and by one thing that this card measured rather than assumed: the hm08 base mesh
+   * under every generated body carries an unresolved upstream contradiction — a stale 2016 README in
+   * MakeHuman's own tree asserts AGPL against a 2020 LICENSE.md saying CC0, with no dated
+   * relicensing announcement (row-07). That contradiction predates this card and this card does not
+   * resolve it; what this card does is stop it being invisible, so a later capture or website gate
+   * cannot publish a frame of these actors while believing the question was settled.
+   */
+  publicRender: {
+    decision: "blocked_pending_named_upstream_resolution" as const,
+    clearedSubcomponents: [
+      "Mesh2Motion Walk_Formal clip (CC0 1.0, LICENSE-CC0.MD)",
+      "makehuman eyebrows01 / eyelashes01 (CC0 1.0, verified per .mhclo header)",
+      "makehuman system-asset eyes (CC0 1.0, verified in the asset headers)",
+      "makehuman shoes01 toigo cloth shoes (CC0 1.0, clears on its own .mhclo)",
+      "WojackOWL Scrub_Shirt / Scrub_Pants (CC-BY, attribution required on a licences page)",
+      "makehuman crude labcoat (CC0)",
+      "first-party procedural garments (hospital gown shell, real-garment upper)",
+    ],
+    blockedBy: [
+      {
+        subcomponent: "hm08 MakeHuman base mesh, present in all four selected bodies",
+        record: "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json",
+        why: "A stale 2016 README in the org's own tree asserts AGPL against a 2020 LICENSE.md saying CC0. No dated relicensing announcement found. Unresolved upstream.",
+        unblockedBy: "A dated upstream relicensing statement, or written confirmation from MakeHuman, recorded on row-07.",
+      },
+      {
+        subcomponent: "makehuman-community mhair02, worn by the selected physician",
+        record: "docs/openclinxr/asset-licence-records/row-14-makehuman-community-mhair02-clothes-page-uuid-f81a4e9a-e3d7-.json",
+        why: "The clothes page says CC0; the downloaded .mhclo header says AGPL3. It ships under a named operator override for this uuid only, 2026-08-14, which is an accepted assumption rather than a finding in the file.",
+        unblockedBy: "Author confirmation that the page grant is the real one, or a replacement style whose own header clears.",
+      },
+      {
+        subcomponent: "cortu cargo pants (pants01), worn by the selected family member",
+        record: "docs/openclinxr/asset-licence-records/row-15-makehuman-pants01-pack-page-mirror-https-files2-makehumancom.json",
+        why: "The pack index says CC0 1.0; cargo_pants.mhclo carries no licence line at all and cargo_pants.obj:3 carries the MakeHuman AGPL3 boilerplate. It ships under the 2026-08-24 operator index-override ruling, with owner contact pending — an assumption on the index rather than a finding in the file. Found by the SC-04 audit, which refused the manifest until this block was declared.",
+        unblockedBy: "Owner confirmation of the index grant, or a replacement lower garment whose own .mhclo header clears.",
+      },
+    ],
+    /** Attribution owed if and when a render is published, per the 2026-08-24 operator approval. */
+    attributionRequiredOnPublish: ["WojackOWL, Medical Scrubs Kit, CC-BY"],
+    notEvidenceFor: ["a Pages push", "deployed playback", "clinical validity", "headset readiness"],
+  },
+  /**
+   * What version 1 evidence no longer describes. SC-06 through SC-09 must re-measure rather than
+   * carry these forward: the physician's bytes, its clip set and three sidecars all changed.
+   */
+  invalidatedDescendants: [
+    "SC-00 measurement rubric — calibrated on openclinxr_retarget_cmu_02_01_walk, which no longer ships",
+    "SC-05 approach and arrival evidence — the physician's motion clip changed and its ground speed changed with it",
+    "SC-06 replay and invalidation evidence — the physician GLB sha256 changed from 9ba749b2 to 4a6d8a78",
+    "SC-07 workflow recording — any capture of the physician walking predates the clip replacement",
+    "SC-08 website media — no published frame may derive from a run against the version 1 bytes",
+    "docs/openclinxr/evidence/bound-clip-foot-plant.json and docs/openclinxr/evidence/physician-walk-clip-graft.json — both describe the superseded CMU bake and are OUTSIDE SC-04's write roots, so the integrator must refresh or retire them",
+  ],
+} as const;
