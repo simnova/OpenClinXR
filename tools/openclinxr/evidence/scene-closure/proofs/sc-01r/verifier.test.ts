@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest";
+import { SCENE_CLOSURE_EVIDENCE_SCHEMA_VERSION } from "./report-schema.js";
+import { parseArgs } from "./verify.js";
 import {
+  auditScopes,
+  type EvidenceRegistry,
+  type ObjectReader,
+  resolveArtifactPath,
   SC01R_FROZEN_SCOPES,
   SC01R_REQUIRED_CHECK_IDS,
   SC01R_REQUIRED_CONTROL_IDS,
-  auditScopes,
-  resolveArtifactPath,
   sha256Hex,
   verifyReport,
-  type EvidenceRegistry,
-  type ObjectReader,
 } from "./verify-core.js";
-import { parseArgs } from "./verify.js";
-import { SCENE_CLOSURE_EVIDENCE_SCHEMA_VERSION } from "./report-schema.js";
 
 /**
  * The verifier's rejection matrix.

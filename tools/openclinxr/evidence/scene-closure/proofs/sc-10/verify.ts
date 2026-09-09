@@ -37,7 +37,11 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
   const scopes: string[] = [];
   let report: string | undefined;
   for (let index = 0; index < argv.length; index += 1) {
-    const token = argv[index]!;
+    const token = argv[index];
+    // `noUncheckedIndexedAccess` makes this `string | undefined`. A non-null assertion would
+    // silence the type without checking anything; the loop bound already rules it out, so the
+    // guard is a refusal rather than a cast.
+    if (token === undefined) return { error: `missing argument at position ${index}` };
     if (token === "--report") {
       if (report !== undefined) return { error: "--report supplied more than once" };
       const value = argv[index + 1];
