@@ -64,6 +64,54 @@ export const SC02_FROZEN_SCOPES = [
 
 export const SC02_A_ROWS = ["A02", "A03"] as const;
 
+/** The named behavior test and its required ordinary `it` title, both fixed by the card. */
+export const SC02_BEHAVIOR_TEST_PATH = "apps/api/src/the-observed-scene-gates-entry-and-due-zero-effects.test.ts";
+export const SC02_BEHAVIOR_TEST_TITLE = "SC-02-required-behavior";
+
+/**
+ * The card's frozen `run:` completion commands, argv-joined.
+ *
+ * The report must record each of them EXITING ZERO. Without this a report can pass having run the
+ * verifier suite and nothing else — the shape the proof contract calls out: "an already-green
+ * regression suite or verifier unit tests on synthetic fixtures cannot close a card".
+ */
+export const SC02_REQUIRED_COMMANDS = [
+  "pnpm exec vitest run packages/openclinxr/scenario-runtime/src/the-scene-spec-gates-promotion.test.ts packages/openclinxr/scenario-runtime/src/the-planner-stays-inside-its-boundary.test.ts packages/openclinxr/scenario-runtime/src/a-scheduled-event-fires-once-at-its-second.test.ts",
+  "pnpm exec vitest run apps/api/src/scenario-promotion-path.test.ts apps/api/src/encounter-runtime-handoff.test.ts",
+  `pnpm exec vitest run ${SC02_BEHAVIOR_TEST_PATH}`,
+  `pnpm exec tsx tools/openclinxr/openclaw/assert-contract-live.ts ${SC02_BEHAVIOR_TEST_PATH} ${SC02_BEHAVIOR_TEST_TITLE}`,
+  "pnpm exec vitest run tools/openclinxr/evidence/scene-closure/proofs/sc-02/verifier.test.ts",
+] as const;
+
+/**
+ * Reject a behavior test whose required title is absent, marked, or inside a skipped suite.
+ *
+ * `assert-contract-live.ts` is a source-pattern check on the title alone. proof-contract-v2.md says
+ * so in as many words — "it is a source-pattern check, not proof that the test runs or asserts
+ * useful behavior" — and asks the verifier to "reject a title hidden in a comment, skipped
+ * enclosing suite or empty callback". This is that second reading, recomputed from the tree.
+ */
+export function inspectBehaviorTestSource(source: string, title: string): string[] {
+  const problems: string[] = [];
+  const uncommented = source
+    .replace(/\/\*[\s\S]*?\*\//gu, "")
+    .split("\n")
+    .map((line) => line.replace(/\/\/.*$/u, ""))
+    .join("\n");
+  const ordinary = new RegExp(`(?<![.\\w])it\\s*\\(\\s*["'\`]${title}["'\`]`, "u");
+  if (!ordinary.test(uncommented)) {
+    problems.push(`behavior test does not contain an ordinary it("${title}", ...) outside comments`);
+  }
+  for (const marker of ["it.skip", "it.fails", "it.todo", "it.concurrent.skip"]) {
+    const marked = new RegExp(`${marker.replace(/\./gu, "\\.")}\\s*\\(\\s*["'\`]${title}["'\`]`, "u");
+    if (marked.test(uncommented)) problems.push(`behavior test marks ${title} with ${marker}`);
+  }
+  if (/describe\.(skip|todo)\s*\(/u.test(uncommented)) {
+    problems.push("behavior test has a skipped or todo describe block");
+  }
+  return problems;
+}
+
 export type EvidenceRegistry = {
   schemaVersion: string;
   storageRoot: string;
@@ -159,6 +207,11 @@ export type VerifyInput = {
   reader: ObjectReader;
   /** Contract documents as they exist on disk, for hash comparison. */
   contractDocuments: Map<string, string>;
+  /**
+   * Repo-relative source reader. The CLI passes the real filesystem; the unit suite passes a
+   * synthetic tree so a malformed or skipped behavior test can be exercised without writing one.
+   */
+  sourceReader: (repoRelativePath: string) => string | Error;
 };
 
 export type VerifyResult = { ok: true } | { ok: false; problems: string[] };
@@ -251,13 +304,71 @@ export function verifyReport(input: VerifyInput): VerifyResult {
         if (!inScope) fail(`changed file outside every frozen scope: ${changed}`);
       }
     }
+
+    // Recompute every declared input hash from the SOURCE TREE. A report carrying a second copy of
+    // an expected hash proves nothing; reading the bytes back does. This is also the freshness
+    // check the landing reviewer needs: a consumed input edited after the report was written fails
+    // here rather than being discovered later.
+    const inputs = Array.isArray(implementation["inputs"]) ? implementation["inputs"] : [];
+    const hashedInputPaths = new Set<string>();
+    for (const entry of inputs) {
+      if (!isRecord(entry)) {
+        fail("an implementation.inputs entry is not an object");
+        continue;
+      }
+      const inputPath = String(entry["path"]);
+      hashedInputPaths.add(path.normalize(inputPath));
+      const source = input.sourceReader(inputPath);
+      if (source instanceof Error) {
+        fail(`input ${inputPath}: ${source.message}`);
+        continue;
+      }
+      const digest = sha256Hex(source);
+      if (digest !== entry["sha256"]) {
+        fail(`input ${inputPath}: sha256 mismatch (report ${String(entry["sha256"])}, tree ${digest})`);
+      }
+    }
+    // Every file the task changed must carry a recomputed hash, or the audit above covers a set
+    // that does not include the change under review.
+    for (const entry of Array.isArray(changedFiles) ? changedFiles : []) {
+      const changed = path.normalize(String(entry));
+      if (!hashedInputPaths.has(changed)) fail(`changed file ${changed} has no hashed entry in implementation.inputs`);
+    }
+  }
+
+  // The named behavior test, recomputed from the tree rather than trusted from the report.
+  const sourceInspection = report.sourceInspection;
+  if (!isRecord(sourceInspection)) fail("missing sourceInspection section");
+  else {
+    if (sourceInspection["behaviorTestPath"] !== SC02_BEHAVIOR_TEST_PATH) {
+      fail(`sourceInspection.behaviorTestPath must be ${SC02_BEHAVIOR_TEST_PATH}`);
+    }
+    if (sourceInspection["behaviorTestTitle"] !== SC02_BEHAVIOR_TEST_TITLE) {
+      fail(`sourceInspection.behaviorTestTitle must be ${SC02_BEHAVIOR_TEST_TITLE}`);
+    }
+    const source = input.sourceReader(SC02_BEHAVIOR_TEST_PATH);
+    if (source instanceof Error) fail(`behavior test unreadable: ${source.message}`);
+    else for (const problem of inspectBehaviorTestSource(source, SC02_BEHAVIOR_TEST_TITLE)) fail(problem);
   }
 
   const execution = report.execution;
   if (!isRecord(execution)) fail("missing execution section");
   else {
+    if (typeof execution["runId"] !== "string" || String(execution["runId"]).trim() === "") {
+      fail("execution.runId is missing; artifacts cannot be bound to a run");
+    }
     const commands = Array.isArray(execution["commands"]) ? execution["commands"] : [];
     if (commands.length === 0) fail("execution.commands is empty");
+    // Every frozen completion command must be recorded as having exited zero.
+    const zeroExit = new Set(
+      commands
+        .filter((command) => isRecord(command) && Number(command["exitCode"]) === 0 && Array.isArray(command["argv"]))
+        .map((command) => (command as Record<string, unknown>)["argv"] as string[])
+        .map((argv) => argv.join(" ")),
+    );
+    for (const required of SC02_REQUIRED_COMMANDS) {
+      if (!zeroExit.has(required)) fail(`required completion command was not recorded exiting zero: ${required}`);
+    }
     for (const command of commands) {
       if (!isRecord(command)) continue;
       if (!Array.isArray(command["argv"]) || command["argv"].length === 0) fail("a command has no argv");
@@ -277,6 +388,7 @@ export function verifyReport(input: VerifyInput): VerifyResult {
     for (const field of [
       "testIds",
       "baselineRevision",
+      "baselineRunId",
       "failingAssertion",
       "observedBeforeFix",
       "knownGoodControl",
@@ -301,6 +413,9 @@ export function verifyReport(input: VerifyInput): VerifyResult {
   // Artifacts: resolve every one through the registry and rehash its real bytes.
   const artifacts = Array.isArray(report.artifacts) ? report.artifacts : [];
   const artifactIds = new Set<string>();
+  const artifactText = new Map<string, string>();
+  const executionRunId = isRecord(report.execution) ? String(report.execution["runId"]) : "";
+  const baselineRunId = isRecord(report.counterweight) ? String(report.counterweight["baselineRunId"]) : "";
   if (artifacts.length === 0) fail("artifacts is empty");
   for (const artifact of artifacts) {
     if (!isRecord(artifact)) {
@@ -332,6 +447,13 @@ export function verifyReport(input: VerifyInput): VerifyResult {
     const digest = sha256Hex(bytes);
     if (digest !== artifact["sha256"]) {
       fail(`artifact ${artifactId}: sha256 mismatch (report ${String(artifact["sha256"])}, disk ${digest})`);
+    }
+    artifactText.set(artifactId, bytes.toString("utf8"));
+    // Run identity. An artifact belongs to THIS run or to the named baseline run; anything else is
+    // a wrong-run record, which is the exact substitution "replaying another session" performs.
+    const artifactRunId = String(artifact["runId"]);
+    if (artifactRunId !== executionRunId && artifactRunId !== baselineRunId) {
+      fail(`artifact ${artifactId}: runId ${artifactRunId} is neither the execution run ${executionRunId} nor the baseline run ${baselineRunId}`);
     }
   }
 
@@ -367,6 +489,15 @@ export function verifyReport(input: VerifyInput): VerifyResult {
       const known = artifactIds.has(evidenceId)
         || observations.some((entry) => isRecord(entry) && entry["observationId"] === evidenceId);
       if (!known) fail(`check ${checkId} references unknown evidence ${evidenceId}`);
+    }
+    // "report-authored pass flags without observed evidence" fail. An outcome of `satisfied` has
+    // to be findable IN THE BYTES: at least one cited artifact must actually mention this check.
+    // Without this a report can cite a real, correctly hashed log that says nothing about it.
+    const citedArtifacts = evidenceIds.filter((evidenceId) => artifactText.has(evidenceId));
+    if (citedArtifacts.length === 0) {
+      fail(`check ${checkId} cites no artifact, so its outcome rests on the report's own word`);
+    } else if (!citedArtifacts.some((evidenceId) => artifactText.get(evidenceId)!.includes(checkId))) {
+      fail(`check ${checkId} is not mentioned in the bytes of any artifact it cites`);
     }
   }
   for (const required of SC02_REQUIRED_CHECK_IDS) {

@@ -79,6 +79,8 @@ export type SceneClosureEvidenceReport = {
   };
   execution: {
     taskId: string;
+    /** The run identity every artifact of THIS run must carry. A stray runId is a wrong-run record. */
+    runId: string;
     commands: Array<{
       argv: string[];
       exitCode: number;
@@ -91,6 +93,8 @@ export type SceneClosureEvidenceReport = {
   counterweight: {
     testIds: string[];
     baselineRevision: string;
+    /** The baseline run's identity, which is legitimately NOT execution.runId. */
+    baselineRunId: string;
     failingAssertion: string;
     observedBeforeFix: string;
     knownGoodControl: string;
@@ -98,6 +102,14 @@ export type SceneClosureEvidenceReport = {
     observedAfterFix: string;
     baselineOutputArtifactId: string;
     fixedOutputArtifactId: string;
+  };
+  /**
+   * Source facts the verifier RECOMPUTES from the tree rather than reading out of this report:
+   * the named behavior test's path and required title, and the frozen completion commands.
+   */
+  sourceInspection: {
+    behaviorTestPath: string;
+    behaviorTestTitle: string;
   };
   encounter: Record<string, unknown>;
   observations: EvidenceObservation[];

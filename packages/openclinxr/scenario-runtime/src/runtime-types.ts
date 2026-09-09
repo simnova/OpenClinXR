@@ -9,7 +9,7 @@ import type {
   HistoryTakingCoverageState,
   TurnTakingDecision,
 } from "@openclinxr/conversation-policy";
-import type { StationRun } from "@openclinxr/domain";
+import type { ScheduledEvent, StationRun } from "@openclinxr/domain";
 import type { ActorResponseResult, ModelGateway } from "@openclinxr/model-gateway";
 import type { PublicationTargetUse, ReviewerAttestationVerifier, ReviewerEvidence } from "@openclinxr/review-workflow";
 import type {
@@ -28,6 +28,8 @@ import type {
   Scenario,
   TraceEvent,
 } from "@openclinxr/shared-schemas";
+import type { SceneRequirementObservation } from "./encounter-admission.js";
+import type { EncounterAdmissionSnapshot } from "./encounter-admission-runtime.js";
 import type { InMemoryTraceLedger } from "@cellix/trace-ledger";
 import type { AudioEvent, VoiceGateway } from "@openclinxr/voice-gateway";
 
@@ -212,6 +214,15 @@ export type SessionRecord = {
   frozenActorTurnPlans: Map<string, ActorTurnPlan>;
   /** Set of scheduled event IDs that have already been emitted for this session. */
   emittedScheduledEventIds: Set<string>;
+  /**
+   * Latest consumer observation per required starting predicate, keyed by requirementId.
+   * Owned by the runtime; a client cannot write here (see recordRequirementObservation).
+   */
+  requirementObservations: Map<string, SceneRequirementObservation>;
+  /** Attempt count per scheduled event, so a retry after failure is countable rather than silent. */
+  scheduledEffectAttempts: Map<string, number>;
+  /** Written by startEncounter BEFORE the transition, so it precedes any due-zero effect. */
+  encounterAdmission?: EncounterAdmissionSnapshot;
   assembledStation?: AssembledStationContext;
 };
 
@@ -263,6 +274,32 @@ export type DurableStorePersistenceHooks = {
   saveActorTurn?(stationRunId: string, turn: ScenarioRuntimeActorTurn): void | Promise<void>;
 };
 
+/**
+ * What the actual effect consumer must expose for a scheduled effect to count as APPLIED.
+ *
+ * A thrown error is a failure the runtime retries; a returned acknowledgment id is the only thing
+ * that marks the event emitted. There is no boolean success flag by design — a consumer that
+ * returns `true` without doing anything is the report-authored pass this card removes.
+ */
+export type ScheduledEffectConsumer = {
+  applyEffect(input: {
+    event: ScheduledEvent;
+    stationRunId: string;
+    atSecond: number;
+    attempt: number;
+    acceptedAtDomainSecond: number;
+  }): { acknowledgmentId: string };
+};
+
+/** Admission policy for one runtime. Absent means default freshness and no effect consumer. */
+export type EncounterAdmissionOptions = {
+  /** Maximum age an observation may have when entry is attempted. */
+  observationFreshnessMs?: number;
+  /** Injected clock, so freshness is testable without sleeping. */
+  now?: () => number;
+  scheduledEffectConsumer?: ScheduledEffectConsumer;
+};
+
 export type ScenarioRuntimeOptions = {
   scenario: Scenario;
   ledger: InMemoryTraceLedger;
@@ -276,6 +313,8 @@ export type ScenarioRuntimeOptions = {
    * When omitted, a default local policy is constructed internally.
    */
   conversationPolicy?: ConversationPolicy;
+  /** Starting-predicate admission policy and the effect consumer scheduled events are applied to. */
+  encounterAdmission?: EncounterAdmissionOptions;
 };
 
 export type CreateDefaultScenarioRuntimeOptions = {
@@ -294,4 +333,6 @@ export type CreateDefaultScenarioRuntimeOptions = {
   modelGateway?: ModelGateway;
   /** Same rationale as {@link CreateDefaultScenarioRuntimeOptions.modelGateway}, for voice. */
   voiceGateway?: VoiceGateway;
+  /** Forwarded to {@link ScenarioRuntimeOptions.encounterAdmission}. */
+  encounterAdmission?: EncounterAdmissionOptions;
 };

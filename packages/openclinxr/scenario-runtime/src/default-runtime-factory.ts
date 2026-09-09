@@ -51,6 +51,7 @@ export function createDefaultScenarioRuntime(
       }),
     conversationPolicy: options?.conversationPolicy ?? createDefaultConversationPolicy(),
     ...(options?.durableStore ? { durableStore: options.durableStore } : {}),
+    ...(options?.encounterAdmission ? { encounterAdmission: options.encounterAdmission } : {}),
   });
 }
 

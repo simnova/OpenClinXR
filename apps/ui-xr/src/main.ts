@@ -2327,11 +2327,11 @@ async function initializeRemoteTraceSession(client: StationApiClient | undefined
         examRun: examFormRunState,
       }),
     );
-    remoteStationRunId = session.stationRunId;
     const observedFormAtSecond = formElapsedSecondForCurrentStation();
     await client.startEncounter(session.stationRunId, { atSecond: observedFormAtSecond });
+    remoteStationRunId = session.stationRunId; // ADMISSION FIRST: assigned above this await, a refused encounter kept its run id (SC-02).
   } catch {
-    if (!remoteStationRunId) remoteStationRunId = undefined;
+    remoteStationRunId = undefined; // was `if (!remoteStationRunId) remoteStationRunId = undefined`, a guard that could never fire here.
   }
 }
 
