@@ -12,9 +12,10 @@ export type FactoryStationCardsProps = {
   onAddTrellisModel?: (payload: { modelId: string; subjectId: string; packId: string }) => void;
 };
 
-function defaultValue(type: "string" | "number" | "boolean"): unknown {
+function defaultValue(type: "string" | "number" | "boolean" | "object"): unknown {
   if (type === "number") return 0;
   if (type === "boolean") return false;
+  if (type === "object") return { x: 0, y: 0, z: 0 };
   return "";
 }
 
@@ -81,6 +82,47 @@ export function FactoryStationCards({ values, onChange, onAddTrellisModel }: Fac
                           value={typeof value === "number" ? value : 0}
                           onChange={(next) => patch(stationId, current, name, next ?? 0)}
                         />
+                      </label>
+                    );
+                  }
+                  if (prop.type === "object") {
+                    // vector3: render three InputNumber fields for x, y, z
+                    const vec = value as { x: number; y: number; z: number } | undefined;
+                    return (
+                      <label key={name} htmlFor={controlId}>
+                        {name}
+                        <Space size={4} wrap>
+                          <InputNumber
+                            id={`${controlId}-x`}
+                            aria-label={`${label}.x`}
+                            value={vec?.x ?? 0}
+                            step={0.01}
+                            min={-10}
+                            max={10}
+                            style={{ width: 80 }}
+                            onChange={(next) => patch(stationId, current, name, { ...vec, x: next ?? 0 })}
+                          />
+                          <InputNumber
+                            id={`${controlId}-y`}
+                            aria-label={`${label}.y`}
+                            value={vec?.y ?? 0}
+                            step={0.01}
+                            min={-10}
+                            max={10}
+                            style={{ width: 80 }}
+                            onChange={(next) => patch(stationId, current, name, { ...vec, y: next ?? 0 })}
+                          />
+                          <InputNumber
+                            id={`${controlId}-z`}
+                            aria-label={`${label}.z`}
+                            value={vec?.z ?? 0}
+                            step={0.01}
+                            min={-10}
+                            max={10}
+                            style={{ width: 80 }}
+                            onChange={(next) => patch(stationId, current, name, { ...vec, z: next ?? 0 })}
+                          />
+                        </Space>
                       </label>
                     );
                   }

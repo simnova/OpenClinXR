@@ -2,14 +2,17 @@ import { factoryStationSchemas } from "../catalog.js";
 import { planFromCatalog, type StationPlanResult, type StationRunner } from "../runner.js";
 
 export function planStaging(input: unknown): StationPlanResult {
-  return planFromCatalog("staging", input, (value) => ({
-    actorId: value["actorId"],
-    supportSurface: value["supportSurface"],
-    plantOffsetMeters: value["plantOffsetMeters"],
-    bakerId: "actor_placement",
-    adapter: "generatedActorPlacement",
-    adapterModule: "packages/openclinxr/asset-registry/src/actor-placement.ts",
-  }));
+  return planFromCatalog("staging", input, (value) => {
+    const plantOffsetMeters = value["plantOffsetMeters"] as { x: number; y: number; z: number } | undefined;
+    return {
+      actorId: value["actorId"],
+      supportSurface: value["supportSurface"],
+      plantOffsetMeters: plantOffsetMeters ?? { x: 0, y: 0, z: 0 },
+      bakerId: "actor_placement",
+      adapter: "generatedActorPlacement",
+      adapterModule: "packages/openclinxr/asset-registry/src/actor-placement.ts",
+    };
+  });
 }
 
 export function runStaging(

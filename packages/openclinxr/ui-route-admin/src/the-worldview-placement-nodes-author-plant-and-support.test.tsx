@@ -28,9 +28,21 @@ import { describe, expect, it } from "vitest";
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 describe("the worldview placement nodes author plant and support", () => {
-  it("(1) EnvironmentGenerationQueuePanel authors plant or supportSurface", () => {
+  it("(1) EnvironmentGenerationQueuePanel authors a SIGNED plant VECTOR, not a non-negative scalar", () => {
+    // REPLACED, not supplemented. The previous assertion was
+    //     expect(panel).toMatch(/supportSurface|plantXyz|plantOffset/)
+    // which "plantOffsetMeters" already satisfied, so it was green before this card and would
+    // have stayed green whatever the card did. It advertised a guard it did not provide.
+    //
+    // This file reads the panel's SOURCE; it cannot render the control. So it asserts the two
+    // things a source read can decide and that were both FALSE before the slice: the authored
+    // type is a three-component vector, and the numeric input no longer clamps at zero — the
+    // clamp is what made the authored clinic value x: -0.55 (clinic-knee-pain.ts:76)
+    // unrepresentable. Behavioural refusal of a bare scalar is asserted in
+    // factory-stations/src/the-staging-station-takes-a-signed-plant-vector.test.ts.
     const panel = readFileSync(join(SRC, "environment-generation-queue-panel.tsx"), "utf8");
-    expect(panel).toMatch(/supportSurface|plantXyz|plantOffset/);
+    expect(panel).toMatch(/plantOffsetMeters\?:\s*\{\s*x:\s*number;\s*y:\s*number;\s*z:\s*number\s*\}/u);
+    expect(panel).not.toMatch(/min=\{0\}/u);
   });
 
   it("(2) COUNTERWEIGHT: compile graph canvas remains (read-only today)", () => {

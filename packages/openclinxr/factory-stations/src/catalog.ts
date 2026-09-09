@@ -51,7 +51,7 @@ export type StandardResult<Output = Record<string, unknown>> =
   | StandardFailureResult;
 
 export type StationPropertySchema = {
-  type: "string" | "number" | "boolean";
+  type: "string" | "number" | "boolean" | "object";
   description?: string;
 };
 
@@ -83,7 +83,13 @@ export type FactoryStationSchema<Output = Record<string, unknown>> = {
   };
 };
 
-type FieldDef = { type: "string" | "number" | "boolean"; description?: string; required?: boolean; nullable?: boolean };
+type FieldDef = {
+  type: "string" | "number" | "boolean" | "vector3" | "enum";
+  description?: string;
+  required?: boolean;
+  nullable?: boolean;
+  values?: readonly string[];
+};
 
 function defineStation(stationId: ProductionStationId, fields: Record<string, FieldDef>): FactoryStationSchema {
   const required = Object.entries(fields)
@@ -92,7 +98,8 @@ function defineStation(stationId: ProductionStationId, fields: Record<string, Fi
 
   const properties: Record<string, StationPropertySchema> = {};
   for (const [name, def] of Object.entries(fields)) {
-    properties[name] = { type: def.type, ...(def.description ? { description: def.description } : {}) };
+    const jsonType = def.type === "vector3" ? "object" : def.type === "enum" ? "string" : def.type;
+    properties[name] = { type: jsonType, ...(def.description ? { description: def.description } : {}) };
   }
 
   const toJson = (target = "draft-2020-12"): StationJsonSchema => ({
@@ -117,9 +124,28 @@ function defineStation(stationId: ProductionStationId, fields: Record<string, Fi
     for (const [name, def] of Object.entries(fields)) {
       if (!(name in rec) || rec[name] === undefined) continue;
       if (rec[name] === null && def.nullable === true) continue;
-      const got = typeof rec[name];
-      if (got !== def.type) {
-        issues.push({ message: `${name} expected ${def.type}`, path: [name] });
+
+      if (def.type === "vector3") {
+        const vec = rec[name] as Record<string, unknown> | null;
+        if (vec === null || typeof vec !== "object" || Array.isArray(vec)) {
+          issues.push({ message: `${name} expected vector3 object`, path: [name] });
+        } else {
+          for (const comp of ["x", "y", "z"] as const) {
+            if (!(comp in vec) || typeof vec[comp] !== "number") {
+              issues.push({ message: `${name}.${comp} expected number`, path: [name, comp] });
+            }
+          }
+        }
+      } else if (def.type === "enum") {
+        const val = rec[name];
+        if (typeof val !== "string" || !def.values?.includes(val)) {
+          issues.push({ message: `${name} unknown value`, path: [name] });
+        }
+      } else {
+        const got = typeof rec[name];
+        if (got !== def.type) {
+          issues.push({ message: `${name} expected ${def.type}`, path: [name] });
+        }
       }
     }
     for (const name of Object.keys(rec)) {
@@ -202,8 +228,11 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
   }),
   staging: defineStation("staging", {
     actorId: { type: "string", required: true },
-    supportSurface: { type: "string", required: true },
-    plantOffsetMeters: { type: "number", required: true },
+    // {x,y,z} in metres, SIGNED. Matches ScenarioSchema plantOffsetMeters
+    // (shared-schemas/src/schemas.ts:235-241). A bare number is refused.
+    plantOffsetMeters: { type: "vector3", required: false, description: "signed {x,y,z} offset in metres" },
+    // closed union, matching the case. A POSTURE ("supine") is refused.
+    supportSurface: { type: "enum", values: ["stretcher", "chair", "none"], required: true },
   }),
   dialogue_runtime: defineStation("dialogue_runtime", {
     actorId: { type: "string", required: true },

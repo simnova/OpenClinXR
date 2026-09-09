@@ -6,6 +6,7 @@ import {
   type EnvironmentGenerationWorkOrderQueue,
   type ScenarioSceneGenerationPipelineWorkOrderQueue,
 } from "@openclinxr/asset-registry";
+import { PlacementAuthoringRow } from "./placement-authoring-row.js";
 import { Button, Form, Input, InputNumber, Select, Space, Table, Tag, Typography } from "antd";
 import { FactoryStationCards } from "@openclinxr/ui-shared/admin-factory-station-cards";
 import { lazy, type ReactElement, Suspense, useEffect, useMemo } from "react";
@@ -120,7 +121,7 @@ export type PlacementAuthorRow = {
  */
 export type PlacementAuthorValue = {
   supportSurface?: string;
-  plantOffsetMeters?: number;
+  plantOffsetMeters?: { x: number; y: number; z: number };
 };
 
 function toPlacementSelectOptions(values: readonly string[]): { label: string; value: string }[] {
@@ -182,7 +183,6 @@ export function EnvironmentGenerationQueuePanel({
       return true;
     });
   }, [placementAuthorRows, facultyCompileLockRows]);
-  const placementRowKey = placementRows.map((row) => row.actorId).join("\u0000");
   const [placementForm] = Form.useForm();
 
   useEffect(() => {
@@ -205,11 +205,11 @@ export function EnvironmentGenerationQueuePanel({
     if (needsSync) {
       placementForm.setFieldsValue({ actors: nextActors });
     }
-  }, [placementRowKey, initialPlacementAuthorValues, placementForm]);
+  }, [placementRows, initialPlacementAuthorValues, placementForm]);
 
   const handlePlacementValuesChange = (): void => {
     const values = placementForm.getFieldsValue() as {
-      actors?: Array<{ actorId?: string; placement?: PlacementAuthorValue }>;
+      actors?: Array<{ actorId?: string; placement?: { supportSurface?: string; plantOffsetMeters?: { x?: number; y?: number; z?: number } } }>;
     };
     const actors = values.actors ?? [];
     actors.forEach((entry, index) => {
@@ -225,8 +225,13 @@ export function EnvironmentGenerationQueuePanel({
       if (placement.supportSurface !== undefined) {
         authored.supportSurface = placement.supportSurface;
       }
-      if (placement.plantOffsetMeters !== undefined) {
-        authored.plantOffsetMeters = placement.plantOffsetMeters;
+      const offset = placement.plantOffsetMeters;
+      if (offset !== undefined && (offset.x !== undefined || offset.y !== undefined || offset.z !== undefined)) {
+        authored.plantOffsetMeters = {
+          x: offset.x ?? 0,
+          y: offset.y ?? 0,
+          z: offset.z ?? 0,
+        };
       }
       if (Object.keys(authored).length > 0) {
         onPlacementAuthorChange?.(row.actorId, authored);
@@ -434,37 +439,12 @@ export function EnvironmentGenerationQueuePanel({
                     const row = placementRows[field.name];
                     const subject = row?.displayName ? `${row.displayName} (${row.actorId})` : row?.actorId ?? `actor ${field.name}`;
                     return (
-                      <Space key={field.key} wrap align="end" size={8}>
-                        <Typography.Text strong style={{ minWidth: 240 }}>
-                          {subject}
-                        </Typography.Text>
-                        <Form.Item
-                          name={[field.name, "placement", "supportSurface"]}
-                          label="Support surface"
-                          tooltip="Where this actor is staged (stretcher|chair|none); 'none' is an explicit standing decision. Writes ActorCard.placement.supportSurface — the field the factory Placement compile node and PLACEMENT_OVERRIDE_PATHS consume."
-                        >
-                          <Select
-                            allowClear
-                            options={supportSurfaceSelectOptions}
-                            style={{ minWidth: 160 }}
-                            aria-label={`Support surface for ${subject}`}
-                            placeholder="unset"
-                          />
-                        </Form.Item>
-                        <Form.Item
-                          name={[field.name, "placement", "plantOffsetMeters"]}
-                          label="Plant offset (m)"
-                          tooltip="Floor offset in meters applied to the actor placement (PLACEMENT_OVERRIDE_PATHS /plantOffsetMeters)."
-                        >
-                          <InputNumber
-                            min={0}
-                            step={0.1}
-                            style={{ minWidth: 140 }}
-                            aria-label={`Plant offset for ${subject}`}
-                            placeholder="default"
-                          />
-                        </Form.Item>
-                      </Space>
+                      <PlacementAuthoringRow
+                        key={field.key}
+                        fieldName={field.name}
+                        subject={subject}
+                        supportSurfaceSelectOptions={supportSurfaceSelectOptions}
+                      />
                     );
                   })}
                 </Space>

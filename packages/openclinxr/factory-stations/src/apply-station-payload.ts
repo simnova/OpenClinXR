@@ -16,7 +16,7 @@ export function applyStationPayloadToCompileSpec(
     return {
       ...spec,
       supportSurface: value["supportSurface"] ?? spec["supportSurface"],
-      plantOffsetMeters: value["plantOffsetMeters"] ?? spec["plantOffsetMeters"],
+      plantOffsetMeters: value["plantOffsetMeters"] ?? spec["plantOffsetMeters"] ?? { x: 0, y: 0, z: 0 },
     };
   }
   return { ...spec, stationPayload: { stationId, value } };

@@ -30,7 +30,7 @@ const VALID: Record<ProductionStationId, Record<string, unknown>> = {
     viewCount: 4,
     decimationTarget: 1_000_000,
   },
-  staging: { actorId: "actor_a", supportSurface: "stretcher", plantOffsetMeters: 0.1 },
+  staging: { actorId: "actor_a", supportSurface: "stretcher", plantOffsetMeters: { x: 0.1, y: 0, z: 0 } },
   dialogue_runtime: { actorId: "actor_a", openingUtterance: "hello", policyId: "peds_v1" },
   lighting_design: {
     environmentId: "ed_bay_v1",
