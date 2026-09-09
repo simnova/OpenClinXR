@@ -1,10 +1,21 @@
-import { createAssembledStationApiClient } from "@openclinxr/xr-station";
+// SOURCE BARREL, not the package name. `@openclinxr/xr-station` resolves through
+// `exports["."]` to `dist/index.js`, and `dist/` is gitignored, so on a fresh clone this file did
+// not fail — it failed to RESOLVE, and vitest reported "no tests" for it, which reads as a pass in
+// any invocation that only checks for failures. Measured by moving dist aside. The root
+// `//#test:tools` turbo task carries no `dependsOn`, so nothing builds the package before the
+// tools suite runs, and `pnpm test` runs the tools suite FIRST. This is the same barrel — line 139
+// of that index aliases `createStationApiClient` — and it matches how the other four imports in
+// this file already reach across the tree. Take the alias BY ITS EXPORTED NAME: the barrel maps
+// `createAssembledStationApiClient` to `station-api-client.ts`'s wrapper, not to `api-client.ts`'s
+// base factory, and renaming the base one instead fails as "createStationApiClient is not a function".
+
 import { describe, expect, it } from "vitest";
 import { createApiApp } from "../../../../../../apps/api/src/index.js";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "../../../../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
 import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "../../../../../../packages/openclinxr/rest/src/index.js";
 import { scenarioBank } from "../../../../../../packages/openclinxr/scenario-fixtures/src/index.js";
 import type { Scenario } from "../../../../../../packages/openclinxr/shared-schemas/src/index.js";
+import { createAssembledStationApiClient } from "../../../../../../packages/openclinxr/xr-station/src/index.js";
 
 /**
  * SC-01S — the learner's SELECTED scenario id reaches the API route through the normal client.
