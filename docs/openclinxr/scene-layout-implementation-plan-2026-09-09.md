@@ -398,7 +398,7 @@ Measured against `§7 Prioritized prototype and acceptance`:
 | 0 — specify the starting scene | **partial** | `buildInitialSceneSpec` returns the four outcomes with observed evidence and names a real unwired consumer per required asset. It REPORTS; nothing consumes it, and no required state is enforced before an encounter begins. |
 | 1 — freeze one supine station as a control | **met** | `computeSupineControlFreeze` hashes every asset the station loads and refuses a recorded measurement whose bytes moved, naming the changed path. |
 | 2 — prove authoring reaches the scene | **MET 2026-09-09** | Measured on the loaded, posed, skinned humanoid after framing, pose application and 30 further frames, as a control/treatment pair: `measured delta {x: 0.3967, z: -0.0015}` against an authored `{x: 0.4, z: 0}` — err 0.0033 m and 0.0015 m against a 0.02 m tolerance derived from the unauthored control's own drift. The unauthored supine control retains its defaults. |
-| 3 — stationary clinical staging | **not started** | `headingRadians` exists on the placement type and the frame loop composes rather than assigns, so the two prerequisites are in place. No physician target, no bedside orientation, no clearance, approach-zone or monitor-visibility check exists. |
+| 3 — stationary clinical staging | **started** | Its first requirement is met: the omitted physician is REPORTED rather than substituted. Bedside target, orientation, clearance, approach zone and monitor visibility are still absent. |
 | 4 — physician approach | **not started** | — |
 | 5 — variation, replay and failure behaviour | **partial** | Only the byte-freeze half: changed asset geometry invalidates dependent evidence. No variation indices, no impossible-layout case, no corrupt-artifact refusal, no displayed-motion capture. |
 | 6 — compare one legally eligible learned provider | **not started** | Kimodo-SOMA-RP-v1.1 remains a conditional offline lead, unverified here. |
@@ -641,6 +641,32 @@ further frames. That is what §7 step 2 asks for.
 **What this does not claim.** Nothing about clinical correctness of the position, Quest
 performance, motion quality, or any station beyond these two — the artifact carries those in
 `notEvidenceFor`. Steps 3, 4 and 6 have not started, and step 5 remains partial.
+
+### Step 3's first requirement: the physician is reported, not substituted
+
+The brief is specific: *"Verify that fixed slot assignment stages the intended physician ID; if
+omitted, report that outcome rather than substituting another clinical actor."*
+
+Measured across the shipped scenario bank: exactly one case casts a physician.
+
+    ward_delirium_med_rec_v1
+      cast    patient=patient_margaret_ellis_v1, family=daughter_lena_ellis_v1,
+              physician=senior_resident_ward_v1, nurse=ward_nurse_patel_v1
+      staged  patient, nurse, family_member   — the physician is dropped
+
+Four cast, three staged. The clinical slot takes the nurse and the physician disappears with no
+record, so a learner meets a ward nurse where the case wrote a senior resident. The omission is a
+known limit — the local bundle has three humanoid slots — but the SILENCE is not, and silence is
+the half the brief names.
+
+`unstagedCastActors` now returns every cast actor the bundle does not stage, with its role and a
+reason, and `every-cast-actor-is-staged-or-reported.test.ts` consumes it: clause (1) requires every
+shipped cast actor to be staged or named, clause (2) pins the ward physician specifically, and
+clause (3) is the counterweight — the fully-staged ED cast must report NOTHING, so the report
+cannot degenerate into a constant that names actors everywhere and means nothing.
+
+This does not stage the physician. A fourth humanoid slot is its own slice, and claiming otherwise
+would be the overclaim the brief's own acceptance language guards against.
 
 ### The evidence tools' page-global alias does not exist at runtime
 

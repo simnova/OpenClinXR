@@ -38,3 +38,34 @@ export function resolveBundleCastActorIds(cast: readonly ScenarioActorCast[]): B
     familyActorId: castActorIdForRoles(cast, ["family", "family_member"], "spouse_anna_hayes_v1"),
   };
 }
+
+/** A cast actor the local bundle does not stage, and why. */
+export type UnstagedCastActor = { actorId: string; role: string; reason: string };
+
+/**
+ * Cast actors the local encounter bundle does NOT stage.
+ *
+ * Brief §7 step 3 asks, of the physician specifically: "Verify that fixed slot assignment stages
+ * the intended physician ID; if omitted, report that outcome rather than substituting another
+ * clinical actor." Today it is omitted AND unreported, which is the worse of the two.
+ *
+ * Measured 2026-09-09: `ward_delirium_med_rec_v1` casts four actors — patient, family,
+ * `physician=senior_resident_ward_v1` and `nurse=ward_nurse_patel_v1` — and the bundle stages
+ * three. The clinical slot takes the nurse and the physician disappears with no record. A learner
+ * meets a nurse where the case wrote a senior resident.
+ *
+ * This does not stage them; the local bundle has three humanoid slots and adding a fourth is its
+ * own slice. It makes the omission legible, which is what the brief asks for, and it is consumed
+ * by `every-cast-actor-is-staged-or-reported.test.ts` so an actor cannot start being dropped
+ * silently.
+ */
+export function unstagedCastActors(cast: readonly ScenarioActorCast[]): UnstagedCastActor[] {
+  const staged = new Set(Object.values(resolveBundleCastActorIds(cast)));
+  return cast
+    .filter((entry) => !staged.has(entry.actorId))
+    .map((entry) => ({
+      actorId: entry.actorId,
+      role: entry.role,
+      reason: `role_${entry.role}_has_no_slot_in_the_local_encounter_bundle_which_stages_patient_clinical_family_only`,
+    }));
+}

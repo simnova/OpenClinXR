@@ -2805,3 +2805,7 @@ export {
   findRuntimeEquipmentAsset,
   findRuntimeEquipmentPlacementByRealizedId,
 } from "./runtime-bundle-lookups.js";
+// Published because the architecture gate requires package tests to route through the
+// entrypoint, and every-cast-actor-is-staged-or-reported.test.ts enumerates the shipped casts.
+export { unstagedCastActors } from "./cast-actor-ids.js";
+export { listShippedCastScenarioIds } from "./actor-casting.js";
