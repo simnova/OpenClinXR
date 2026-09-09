@@ -322,6 +322,7 @@ import {
   actorNameplateLabel as packageActorNameplateLabel,
   assembleStationScene,
   buildStationRoomShell,
+  wireStationPointerInteraction,
   runtimeGeneratedSceneObjectName as packageRuntimeGeneratedSceneObjectName,
   stageStationActors,
   type StationRoomResult,
@@ -2946,7 +2947,6 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   locomotionRig.add(camera);
   setComparatorCaptureCamera(camera);
 
-  // room stage, first statement: the buildStationRoomShell(...) call below.
   // Build station room shell and load environment assets (extracted to @openclinxr/xr-station-room)
   const stationRoomResult: StationRoomResult = await buildStationRoomShell(
     {
@@ -2983,16 +2983,10 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   const _monitor = stationRoomResult.monitor;
   const fixtureOwnedRoles = stationRoomResult.fixtureOwnedRoles;
 
-  // Room stage, last statement: this returns the room value; the staged chain opens here
-  // so an out-of-order or repeated stage is a type error (see station-scene-assembly.ts).
+  // room stage: an out-of-order or repeated stage is a type error (station-scene-assembly.ts).
   const stagedScene = assembleStationScene(scene).room(() => stationRoomResult);
-
-  // fixtures stage, first statement: the '#140 / #185 plan equipment BEFORE room props'
-  // comment and the equipment-plan block below. Fixtures returns the station shell and
-  // the equipment evidence items the window handle carries.
   // Store references for later use (e.g., gltfEnvContainer for glTF loading, reusableExteriorAnteroom for scenario panel)
   const fixturesAssembly = stagedScene.fixtures(() => {
-  const fixturesShell = stationEnvironment;
   scene.userData.openClinXrStationEnvironment = {
     environmentId: resolveActiveEnvironmentId(),
     floorColor: stationEnvironment.userData.floorColor,
@@ -3085,24 +3079,18 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   }
 
   // #209: stamp fixture-suppressed declared ids (no dual mesh). Helper lives outside main.
-  // fixtures stage, last statement: this stamp plus the equipment evidence block above.
   equipmentEvidenceItems.push(
     ...stampSuppressedDeclaredEquipmentOntoFixtures({
-      shell: fixturesShell,
+      shell: stationEnvironment,
       plannedEquipmentIds: equipmentPlan.map((item) => item.equipmentId),
       equipmentPlacements: encounterRuntimeAssetBundle.sceneManifest.equipmentPlacements ?? {},
       equipment: encounterRuntimeAssetBundle.equipment,
       roomProps: encounterRuntimeAssetBundle.sceneManifest.roomProps,
     }),
   );
-  return {
-    stationShellForFixtures: fixturesShell,
-    declaredEquipmentMountEvidenceItems: equipmentEvidenceItems,
-  };
+  return { declaredEquipmentMountEvidenceItems: equipmentEvidenceItems };
   });
 
-  // fixtures stage, last statement: the #209 stamp plus the equipment evidence block
-  // above. Actors and panels read the fixtures value as a parameter.
   // #122 — unique slot fill (four mounts live in @openclinxr/xr-station-room actor-staging.ts).
   const actorsAssembly = fixturesAssembly.actors(() => {
   const { patient, nurse } = stageStationActors(
@@ -3139,12 +3127,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   );
   return { patient, nurse };
   });
-
-  // actors stage, last statement: the slotEvidence block stays inside stageStationActors
-  // (actor-staging.ts). panels stage, first statement: the virtual_device affordance
-  // loop below.
   const panelsAssembly = actorsAssembly.panels(() => {
-
   for (const virtualActor of encounterRuntimeAssetBundle.actors.filter((actor) => actor.embodiment === "virtual_device")) {
     if (!selectedScenarioRuntimeMismatch && !cleanHumanoidSourceComparatorCapture) {
       scene.add(createVirtualDeviceActorAffordance(virtualActor.actorId));
@@ -3269,10 +3252,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   scene.add(conversationPanel.mesh);
   return { clinicalPanel, dialoguePanel, actorRealismPanel, inputPanel, conversationPanel };
   });
-  // interaction stage, first statement: addControllerAffordances below. Last value:
-  // the __openClinXrProjectTouchRegionToScreen test hook at the end of the callback.
   const interactionAssembly = panelsAssembly.interaction(() => {
-  const interactionSignatureState = { lastPanelSignature: "" };
   addControllerAffordances(renderer, scene, (event) => {
     // XR ray: a controller select that hits a body region is a clinical touch;
     // otherwise fall through to the position-independent trace advance.
@@ -3282,35 +3262,14 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       classifyXrSelectSource(event),
     );
   });
-  // Desktop pointer ray: pointerdown on the canvas that hits a body region fires a
-  // clinical touch (headless-capturable). A miss does nothing (touch-only input).
-  renderer.domElement.addEventListener("pointerdown", (event) => {
-    const rect = renderer.domElement.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
-    const ndcX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    const ndcY = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
-    tryClinicalTouchFromNdc(camera, ndcX, ndcY, "dom_click_trace_button");
+  // Desktop pointer ray and headless projection hook (@openclinxr/xr-station-room).
+  wireStationPointerInteraction({ renderer, camera, tryClinicalTouchFromNdc, clinicalTouchRegionTargets: () => clinicalTouchRegionTargets });
+  return {};
   });
-  // Test hook: project a touch-region center to a client pixel so the headless
-  // clinical-touch gate can click the real canvas and exercise the real ray path.
-  (window as unknown as {
-    __openClinXrProjectTouchRegionToScreen?: (regionId: string) => { x: number; y: number } | null;
-  }).__openClinXrProjectTouchRegionToScreen = (regionId) => {
-    const mesh = clinicalTouchRegionTargets.find((target) => target.userData.openClinXrTouchRegionId === regionId);
-    if (!mesh) return null;
-    mesh.updateWorldMatrix(true, false);
-    const ndc = new Vector3().setFromMatrixPosition(mesh.matrixWorld).project(camera);
-    const rect = renderer.domElement.getBoundingClientRect();
-    return { x: rect.left + ((ndc.x + 1) / 2) * rect.width, y: rect.top + ((1 - ndc.y) / 2) * rect.height };
-  };
-  return { lastPanelSignature: interactionSignatureState.lastPanelSignature };
-  });
-  // interaction stage, last statement: the __openClinXrProjectTouchRegionToScreen hook.
-  // Everything after interaction STAYS OUTSIDE THE BUILDER: resize, animate,
-  // renderSceneFrame, updateVrPanels, startImmersiveSession and the XR session lifetime
-  // are the composition root's job.
+  // Everything after interaction stays OUTSIDE the builder: resize, animate, renderSceneFrame,
+  // updateVrPanels, startImmersiveSession and the XR session lifetime are the root's job.
   const assembledStationScene = interactionAssembly.build();
-  const panelSignatureState = { lastPanelSignature: assembledStationScene.interaction.lastPanelSignature };
+  const panelSignatureState = { lastPanelSignature: "" };
   window.__openClinXrDeclaredEquipmentMountEvidence = {
     source: "window.__openClinXrDeclaredEquipmentMountEvidence",
     scenarioId: encounterRuntimeAssetBundle.scenarioId,
@@ -4358,10 +4317,10 @@ function pedsActorListenerCuePanelContext(): Parameters<typeof applyPackagePedsA
     startEmotionTransition: (slot, emotion, nowMs) =>
       startHumanoidEmotionTransition(slot as unknown as GeneratedHumanoidAnimationSlot, emotion as HumanoidExpressionEmotion, nowMs),
     updateEmotionExpression: (slot, nowMs) => {
-      const state = updateHumanoidEmotionExpression(slot as unknown as GeneratedHumanoidAnimationSlot, nowMs);
+      const emotionState = updateHumanoidEmotionExpression(slot as unknown as GeneratedHumanoidAnimationSlot, nowMs);
       return {
-        targetEmotion: state.targetEmotion as "concerned" | "reassured" | "neutral" | "anxious" | "pain",
-        weights: state.weights,
+        targetEmotion: emotionState.targetEmotion as "concerned" | "reassured" | "neutral" | "anxious" | "pain",
+        weights: emotionState.weights,
       };
     },
     applyMorphTargetCue: (slot, openness, viseme, weights) =>

@@ -1,4 +1,6 @@
 export { assembleStationScene } from "./station-scene-assembly.js";
+export { wireStationPointerInteraction } from "./station-interaction.js";
+export type { StationClinicalTouchSource, StationPointerInteractionContext } from "./station-interaction.js";
 export type {
   StationSceneAssembly,
   StationSceneActorsStage,
