@@ -5,9 +5,6 @@ import {
   safeRuntimeManifestKey,
 } from "./actor-placement.js";
 import {
-  ED_ADULT_CAST_ASSET_PATH,
-  ED_ADULT_CAST_PROVENANCE_PATH,
-  ED_ADULT_CAST_RUNTIME_PATH,
   resolveScenarioActorCast,
 } from "./actor-casting.js";
 
@@ -168,6 +165,8 @@ export type EncounterRuntimeActorPlacement = {
   labelPrefix: string;
   /** Standing default; telehealth primary_patient is seated (#81). */
   posture?: "standing" | "seated" | "supine";
+  /** Yaw about +Y applied to the OUTER actor slot Group, never the loaded humanoid child (the loader zeroes that child at xr-asset-loading/src/generated-loaders.ts:112). RADIANS, matching every existing heading writer. Absent means no authored facing; 0 is a real heading and is NOT the same as absent. */
+  headingRadians?: number;
 };
 export type EncounterRuntimeEquipmentPlacement = {
   position: { x: number; y: number; z: number };
@@ -1455,7 +1454,7 @@ export function createEdChestPainRuntimeSceneManifest(input: {
     ],
     actorPlacements: {
       patient_robert_hayes_v1: { slotKind: "primary_patient", position: { x: -0.9, y: 0, z: -0.1 }, scale: { x: 1.06, y: 1.06, z: 1.06 }, verticalOffsetMeters: 0, labelPrefix: "Patient", posture: "supine" }, /* #150 supine on stretcher */
-      nurse_maria_alvarez_v1: { slotKind: "clinical_team", position: { x: 1.78, y: 0.95, z: 0.42 }, scale: { x: 0.98, y: 0.98, z: 0.98 }, verticalOffsetMeters: -0.95, labelPrefix: "Team", posture: "standing" },
+      nurse_maria_alvarez_v1: { slotKind: "clinical_team", position: { x: 1.78, y: 0.95, z: 0.42 }, scale: { x: 0.98, y: 0.98, z: 0.98 }, verticalOffsetMeters: -0.95, labelPrefix: "Team", posture: "standing", headingRadians: -0.26 },
       spouse_anna_hayes_v1: { slotKind: "family_or_observer", position: { x: -2.05, y: 0.93, z: 0.36 }, scale: { x: 0.94, y: 0.94, z: 0.94 }, verticalOffsetMeters: -0.95, labelPrefix: "Family", posture: "standing" },
     },
     equipmentPlacements: {

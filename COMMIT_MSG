@@ -1,0 +1,7 @@
+fix(heading): add headingRadians to EncounterRuntimeActorPlacement and populate on nurse placement
+
+- Added `headingRadians?: number` field to `EncounterRuntimeActorPlacement` type in runtime-bundles.ts with JSDoc describing yaw about +Y in radians applied to outer actor slot Group
+- Populated `headingRadians: -0.26` on the nurse_maria_alvarez_v1 actor placement in createEdChestPainRuntimeSceneManifest while leaving patient and spouse without the field to demonstrate optionality
+- Updated test file to import createEdChestPainRuntimeSceneManifest directly from runtime-bundles.js instead of dynamic import with type casting
+- Removed unused imports ED_ADULT_CAST_ASSET_PATH, ED_ADULT_CAST_PROVENANCE_PATH, ED_ADULT_CAST_RUNTIME_PATH from runtime-bundles.ts
+- All four test clauses now pass as plain `it` (no longer `it.fails`)

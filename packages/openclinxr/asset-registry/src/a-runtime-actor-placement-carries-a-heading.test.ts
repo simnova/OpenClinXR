@@ -38,7 +38,7 @@ import type { EncounterRuntimeActorPlacement, EncounterRuntimeSceneManifest } fr
 // OUT-OF-SCOPE: actor-placement.ts, apps/ui-xr, actor-staging.ts, making the field required.
 //
 describe("A runtime actor placement can express a heading", () => {
-  it.fails("(1) The field is named headingRadians (unit in the symbol), reachable on a placement value obtained from a BUILT manifest, not from a literal the test types inline", async () => {
+  it("(1) The field is named headingRadians (unit in the symbol), reachable on a placement value obtained from a BUILT manifest, not from a literal the test types inline", async () => {
     const mod = await import("./index.js");
     const createManifest = (mod as Record<string, unknown>)["createEdChestPainRuntimeSceneManifest"] as
       undefined | ((input?: Record<string, unknown>) => EncounterRuntimeSceneManifest);
@@ -52,7 +52,7 @@ describe("A runtime actor placement can express a heading", () => {
     expect(hasHeadingRadians).toBe(true);
   });
 
-  it.fails("(2) A manifest built by createEdChestPainRuntimeSceneManifest carries a numeric headingRadians on at least one actor placement", async () => {
+  it("(2) A manifest built by createEdChestPainRuntimeSceneManifest carries a numeric headingRadians on at least one actor placement", async () => {
     const mod = await import("./index.js");
     const createManifest = (mod as Record<string, unknown>)["createEdChestPainRuntimeSceneManifest"] as
       undefined | ((input?: Record<string, unknown>) => EncounterRuntimeSceneManifest);
@@ -67,7 +67,7 @@ describe("A runtime actor placement can express a heading", () => {
     expect(placementWithHeading).toBeDefined();
   });
 
-  it.fails("(3) The field is genuinely optional in practice: the builder emits at least one placement WITH headingRadians and at least one WITHOUT it", async () => {
+  it("(3) The field is genuinely optional in practice: the builder emits at least one placement WITH headingRadians and at least one WITHOUT it", async () => {
     const mod = await import("./index.js");
     const createManifest = (mod as Record<string, unknown>)["createEdChestPainRuntimeSceneManifest"] as
       undefined | ((input: unknown) => EncounterRuntimeSceneManifest);
@@ -83,7 +83,7 @@ describe("A runtime actor placement can express a heading", () => {
     expect(placements.some((p) => p.headingRadians === undefined)).toBe(true);
   });
 
-  it.fails("(4) Absent is distinguishable from zero: the placement that carries a heading reports a number, and one with no authored facing reports undefined, never 0", async () => {
+  it("(4) Absent is distinguishable from zero: the placement that carries a heading reports a number, and one with no authored facing reports undefined, never 0", async () => {
     const mod = await import("./index.js");
     const createManifest = (mod as Record<string, unknown>)["createEdChestPainRuntimeSceneManifest"] as
       undefined | ((input: unknown) => EncounterRuntimeSceneManifest);
