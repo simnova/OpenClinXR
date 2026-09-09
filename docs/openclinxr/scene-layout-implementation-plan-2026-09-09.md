@@ -229,82 +229,88 @@ merges on main without a lease).
 
 ## 2b. The cards
 
-Idle on BothyBoard project OpenClinXR, NOT PLANTED. Five review rounds replaced
-cards rather than patching them, because the board exposes no body edit. The
-thirty-four superseded cards are `cancelled`; these eleven are live.
+PLANTED on BothyBoard project OpenClinXR. Ten of twelve cards are `Planted`+`ready`; the
+runtime card waits on its RED and the transform card carries two.
 
-| card | id | wave | lane | step | planted RED |
-|---|---|---|---|---|---|
-| heading field | `tsk_fb48e37698061c2e` | 1 | A | staging | `asset-registry/src/a-runtime-actor-placement-carries-a-heading.test.ts` |
-| authored vector | `tsk_3bcdfe8112f2d76d` | 1 | B | staging | `factory-stations/src/the-staging-station-takes-a-signed-plant-vector.test.ts` |
-| readiness pair | `tsk_d5310253e20d9e9f` | 1 | A | instrument | `xr-capture-evidence/src/a-suppressed-slot-is-not-ready.test.ts` |
-| equipment binding | `tsk_a108198a9be7a470` | 1 | B | room_generate | `shared-schemas/src/every-authored-equipment-string-is-classified.test.ts` |
-| event dispatcher | `tsk_eb378a5e983c3683` | 1 | B | dialogue_runtime | `scenario-runtime/src/a-scheduled-event-fires-once-at-its-second.test.ts` |
-| factory resolution | `tsk_5c1c34416361aaa7` | 2 | B | staging | `tools/openclinxr/factory/the-placement-node-carries-the-authored-offset.test.ts` |
-| transform survival | `tsk_240a951580475750` | 2 | A | staging | `xr-scene/src/the-framing-guard-keeps-seated-and-supine-anchors.test.ts` |
-| equipment identity | `tsk_cc6fed8ddb3f3c40` | 2 | A | equipment_generate | `xr-station/src/two-copies-of-one-asset-mount-separately.test.ts` |
-| motion ownership | `tsk_8fe99948dac291fc` | 2 | A | motion_retarget | `xr-humanoid-animation/src/an-owned-chain-survives-the-posture-pass.test.ts` |
-| scene specification | `tsk_8058d4eb4d3fa342` | 2 | B | room_generate | `scenario-runtime/src/the-scene-spec-reports-an-absent-required-asset.test.ts` |
-| runtime consumption | `tsk_d3c93e0dee336dfc` | 3 | A | staging | `apps/ui-xr/src/the-authored-offset-reaches-the-posed-humanoid.test.ts` |
+| card | id | wave | lane | planted RED |
+|---|---|---|---|---|
+| heading field | `tsk_2e5ce1243b155be0` | 1 | A | `asset-registry/src/a-runtime-actor-placement-carries-a-heading.test.ts` |
+| authored vector | `tsk_9da016db6e03034b` | 1 | B | `factory-stations/src/the-staging-station-takes-a-signed-plant-vector.test.ts` |
+| readiness pair | `tsk_863df7eccab8d6e9` | 1 | A | `xr-capture-evidence/src/a-suppressed-slot-is-not-ready.test.ts` |
+| equipment binding | `tsk_407803cded5714f0` | 1 | B | `scenario-fixtures/src/every-authored-equipment-string-is-classified.test.ts` |
+| event dispatcher | `tsk_dbb2a9b35361d60b` | 1 | B | `scenario-runtime/src/a-scheduled-event-fires-once-at-its-second.test.ts` |
+| supine control freeze | `tsk_04c747d251933519` | 1 | A | `tools/openclinxr/evidence/the-supine-control-station-is-frozen-by-asset-bytes.test.ts` |
+| factory resolution | `tsk_c42ae6e3c6b93620` | 2 | B | `tools/openclinxr/factory/the-placement-node-carries-the-authored-offset.test.ts` |
+| transform survival | `tsk_c8a183614fc7f514` | 2 | A | `xr-scene/src/the-framing-guard-keeps-seated-and-supine-anchors.test.ts` **and** `xr-humanoid-animation/src/the-frame-loop-composes-position-x-from-its-base.test.ts` |
+| equipment identity | `tsk_7ae68eac956a4163` | 2 | A | `xr-station/src/two-copies-of-one-asset-mount-separately.test.ts` |
+| motion ownership | `tsk_4ff976a4b0e81bf3` | 2 | A | `xr-humanoid-animation/src/an-owned-chain-survives-the-posture-pass.test.ts` |
+| scene specification | `tsk_e97804d9ab7be894` | 2 | B | `scenario-runtime/src/the-scene-spec-reports-an-absent-required-asset.test.ts` |
+| runtime consumption | pending its RED | 3 | A | `apps/ui-xr/src/the-authored-offset-reaches-the-posed-humanoid.test.ts` |
 
-### What self-review rounds 1 and 2 changed
+### The plant mechanism: `it.fails` plus `live:`, and why a bare `run:` was not enough
 
-**Round 1 acted on a grok round-1 finding that three later rounds left standing.**
-Grok wrote: *"Five cards (S4, S6, S8, S10, S11) also carry the measured evidence
-only in this document and not in the card body, and a worker executes the card."*
-Every card body now carries its own `## measured` table and a numbered
-`## the RED must assert` list. A dispatched worker reads the card, never this
-document.
+The set was unplantable because every card named a planted RED that did not exist, and because a
+plain failing test would have turned four package suites red for reasons outside the card being
+graded. Four true circular blocks were mapped: the ui-xr suite (blocking readiness, transform,
+identity and motion, while only the last card fixes it), scenario-runtime, shared-schemas, and
+xr-humanoid-animation.
 
-**Round 1 also made the enforcement shape uniform.** Six cards named a planted
-RED; five named none, so their contracts were package suites that pass on HEAD
-plus a `changed:` any edit satisfies. All eleven now name one, and the RED file
-is in the card's write roots.
+The repo's own convention dissolves all four, and 347 files already follow it. A plant written as
+`it.fails(...)` PASSES while the defect stands, so package suites stay green, and ERRORS once the
+defect is fixed, which forces conversion to `it(` in the same change.
 
-**Round 2 corrected a wrong mechanism on the equipment-identity card.** It named
-`station-equipment.ts:390-404` as "an explicit dedupe `Set`". The `Set` at `:391`
-is `declared`, a membership lookup feeding the `declared:` output flag at `:465`.
-The actual collapse is the `push` closure at `:399-402`, which returns early on
-`ordered.includes(id)`. A worker sent to fix a dedupe Set would have changed a
-construct that is not the defect. Two further line corrections came out of the
-same pass: `Object.fromEntries` is at `runtime-bundles.ts:1418`, not `:187`
-(which is the `Record<string, …>` type, itself a distinct collapse site), and the
-`.find` is at `:1636`. The site count went from four to five.
+`board-brief.ts:490-543` enforces the other half. Probed directly on 2026-09-09 with a synthetic
+plant: a card whose `run:` names a file containing `it.fails` is REFUSED unless a `live:<path>` rule
+covers it, because "vitest counts an expected-fail as a PASS, so that run: exits 0 on an UNTOUCHED
+tree". Every card now carries both.
 
-**Round 2 also corrected the faculty-lock citation for the fourth time.**
-`skipCapable` is defined at `encounter-materialization-compile.ts:135` and used
-at `:136`; the card had quoted the definition as `:136`.
+### Every RED passed a two-sided gate before it was committed
 
-**One correction went in the cards' favour.** `station-equipment.ts:428` assigns
-`DEFAULT_POSITIONS[index % DEFAULT_POSITIONS.length]`, so a second copy that
-reaches the ordered list already gets a distinct fallback position. The identity
-card's `not-tested` had overstated that gap.
+`.openclinxr/scene-layout-reds/gate.sh` runs each file twice:
 
-### Verified mechanically, 2026-09-09
+- as written (`it.fails`) it MUST PASS, so the plant does not turn main red;
+- with `.fails` stripped it MUST FAIL, or the clauses assert nothing.
 
-- All eleven pass `briefFromIssue` against the real tree: dispatchable, 4 to 9
-  proofs each.
-- Every `changed:` target names a FILE, not a directory. One
-  (`scenario-runtime/src/initial-scene-spec.ts`) does not exist and is created by
-  its card; `done-when-tree.ts:26-29` states a file absent from the baseline map
-  is evidence the worker created it.
-- All seventeen `pnpm --filter` package names resolve.
-- Every dependency resolves to a live card, and the graph is acyclic.
-- Four write-root overlaps remain by design, and each is dep-ordered:
-  `runtime-bundles.ts` (identity after heading), `animation-loop.ts` (motion
-  after survival), `shared-schemas/src/index.ts` (scene spec after binding),
-  `generated-loaders.ts` (identity after readiness).
+Twelve REDs, thirteen files. What the gate and the lint gate caught, none of which a one-sided
+check would have found:
 
-### THE SET IS NOT PLANTABLE YET, and the reason is one thing
+| defect | where |
+|---|---|
+| tautological clauses that pass before AND after the slice | heading (2 clauses), equipment identity (2 clauses) |
+| a green CONTROL crashing because an actor stub lacked `scale.setScalar` | transform survival |
+| a clause marked `it.fails` that is really a control and must stay green | factory resolution, transform survival |
+| a helper unreachable from its package entrypoint | event dispatcher, `domain/src/index.ts:15-19` |
+| a RED in a package that cannot import what it needs | equipment binding, transform survival |
+| a RED statically importing the module its own slice creates | supine control freeze, caught by knip |
+| a duplicate object key silently dropped by JS, so the fixture tested nothing | equipment identity |
+| `@openclinxr/*` specifiers from `tools/`, where the convention is relative paths | factory resolution |
 
-**Eleven cards name a planted RED as a `run:` proof. None of those eleven files
-exists.** Measured directly: `pnpm exec vitest run <missing path>` prints
-`No test files found, exiting with code 1`. It fails for the wrong reason and
-encodes no product clause. Planting now would send a worker to write the test and
-the fix in one pass, which is the producer grading its own output.
+### Two corrections to this document, from re-reading the brief after the workers launched
 
-Writing those eleven files is test code, and implementation was not authorised,
-so it is the operator's call.
+**The scene-spec outcome vocabulary is four values, not a boolean.** Brief §3: each required
+starting-state check returns "satisfied, unsatisfied, pending or unknown with observed evidence.
+Pending means an identified consumer is still loading; unknown means no adequate observation yet.
+Neither permits required-state promotion." A boolean collapses pending and unknown into false.
+
+**Brief §7 step 1 had no card at all.** "Freeze one existing supine station as a control ... record
+asset hashes." Without it, every "the unauthored control did not move" claim rests on values that
+could drift because an asset changed rather than because the code did. That is now a twelfth card.
+
+### The board's dequeue is jammed, and the cards were routed around it
+
+`tasks.next` returns `{task:null}` for every ready card. The project's `maxInFlight` is 2 and two
+cards unrelated to this work — `tsk_298d0ead7dc551e4` and `tsk_8b737c43e8e9cbc4` — have held both
+slots at `factory=Dispatched, status=review` since 2026-09-04. `tasks.release` refuses both with
+"Task is not on an active lease": the lease expired but the factory state did not follow it.
+
+The first was verified in an isolated worktree at current main, built, with dependencies installed:
+it merges cleanly, `session-state` passes 24 tests, and `exam-assembly` fails 3 with
+`advanceExamFormRunBreak is not a function` — a 90-commit drift, not a broken main, since the same
+suite passes on main without the merge. It was not attested, and the finding is recorded on the
+card.
+
+Fix workers are dispatched directly into per-card worktrees instead. Reopening the normal dequeue
+needs either a rebase-and-land of those two cards or a higher `maxInFlight`.
 
 ## 3. Acceptance that cannot pass about nothing
 
