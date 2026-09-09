@@ -1,17 +1,9 @@
 import {
   type ActorPosture,
   resolveActorPosture,
-  resolveEnvironmentShellDescriptor,
-  seatedActorWorldPosition,
   seatedVerticalOffsetForSeatHeight,
-  supineActorWorldPosition,
   supineVerticalOffsetSeed,
 } from "@openclinxr/asset-registry";
-// #196 pattern: subpath avoids growing the frozen asset-registry barrel (index.ts freeze 2843).
-import {
-  FAMILY_CHAIR,
-  resolveFixtureSlotPosition,
-} from "@openclinxr/asset-registry/environment-zone-templates";
 import {
   createEdChestPainLocalLearnerRuntimeAssetBundle,
   type EncounterRuntimeAsset,
