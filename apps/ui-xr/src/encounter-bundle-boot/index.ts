@@ -1,11 +1,13 @@
 import {
-  evaluateEncounterRuntimeLearnerUseGate,
-  type EncounterRuntimeAsset,
-  type LearnerRuntimeAssetBundle,
-} from "@openclinxr/asset-registry/runtime-bundles";
+  admitFrozenScenePlan,
+  inspectBundleEligibility,
+  inspectPinnedBundleIdentity,
+  type ScenePlanAdmission,
+} from "@openclinxr/asset-registry/encounter-bundle-admission";
+import type { LearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import {
-  materializeLearnerStationFromBundle,
   type LearnerStationMaterialization,
+  materializeLearnerStationFromBundle,
 } from "../learner-station-materialization/index.js";
 
 export const encounterBundleBootNotEvidenceFor = [
@@ -55,6 +57,8 @@ export type EncounterBundleBootEvidence = {
   eligibilityVerified: boolean;
   blockers: string[];
   materialization: LearnerStationMaterialization | null;
+  /** Whether the bundle's frozen scene plan, if it carries one, binds this encounter. */
+  scenePlanAdmission: ScenePlanAdmission;
   claimBoundary: typeof encounterBundleBootClaimBoundary;
   notEvidenceFor: typeof encounterBundleBootNotEvidenceFor;
 };
@@ -252,62 +256,13 @@ async function bootOneStation(
         ? (fetchFailure ?? "offline_fixture_fallback")
         : null,
       materialization: materializeLearnerStationFromBundle(bundle),
+      // THE FROZEN PLAN IS ADMITTED HERE, on the real boot path, before a learner enters. A plan
+      // frozen for another case or station is refused now rather than re-solving its own layout
+      // convincingly later. The geometry half runs in the frame loop, once a room exists.
+      scenePlanAdmission: admitFrozenScenePlan({ bundle }),
     }),
     bundle,
   };
-}
-
-export function inspectPinnedBundleIdentity(
-  bundle: LearnerRuntimeAssetBundle,
-  station: AssembledExamStationSelection,
-  pinnedBundleId: string,
-): string[] {
-  const blockers: string[] = [];
-  if (bundle.identityScope !== "learner_runtime_opaque_bundle") {
-    blockers.push("identity_scope_mismatch");
-  }
-  if (bundle.bundleId !== pinnedBundleId) {
-    blockers.push("pinned_bundle_id_mismatch");
-  }
-  if (bundle.stationId !== station.stationId) {
-    blockers.push("station_id_mismatch");
-  }
-  if (bundle.scenarioId !== station.scenarioId) {
-    blockers.push("scenario_id_mismatch");
-  }
-  return blockers;
-}
-
-export function inspectBundleEligibility(bundle: LearnerRuntimeAssetBundle): string[] {
-  if (bundleUsesOnlyApprovedLocalFixtureAssets(bundle)) {
-    return [];
-  }
-  const gate = evaluateEncounterRuntimeLearnerUseGate(bundle);
-  if (gate.canUseGeneratedBundleForLearnerRuntime) {
-    return [];
-  }
-  return gate.blockers.length > 0 ? [...gate.blockers] : ["learner_runtime_use_blocked"];
-}
-
-function bundleUsesOnlyApprovedLocalFixtureAssets(bundle: LearnerRuntimeAssetBundle): boolean {
-  return runtimeBundleAssets(bundle).every((asset) =>
-    asset.blob.storeKind === "app_public_fixture"
-      && asset.reviewStatus !== "blocked"
-      && (asset.reviewStatus === "fixture_approved_for_local_runtime"
-        || asset.reviewStatus === "approved_for_local_runtime"),
-  );
-}
-
-function runtimeBundleAssets(bundle: LearnerRuntimeAssetBundle): EncounterRuntimeAsset[] {
-  return [
-    bundle.environment,
-    ...bundle.actors.map((actor) => actor.model),
-    ...bundle.actors.flatMap((actor) => actor.animationClips),
-    ...bundle.actors
-      .map((actor) => actor.phonemeMap)
-      .filter((asset): asset is EncounterRuntimeAsset => Boolean(asset)),
-    ...bundle.equipment.map((equipment) => equipment.model),
-  ];
 }
 
 function evidenceFor(
@@ -322,6 +277,7 @@ function evidenceFor(
     fallbackActive?: boolean;
     fallbackReason: string | null;
     materialization?: LearnerStationMaterialization | null;
+    scenePlanAdmission?: ScenePlanAdmission | undefined;
   },
 ): EncounterBundleBootEvidence {
   const fallbackActive = patch.fallbackActive
@@ -341,6 +297,7 @@ function evidenceFor(
     eligibilityVerified: patch.eligibilityVerified === true,
     blockers: [...(patch.blockers ?? [])],
     materialization: patch.materialization ?? null,
+    scenePlanAdmission: patch.scenePlanAdmission ?? { status: "no_plan_carried" },
     claimBoundary: encounterBundleBootClaimBoundary,
     notEvidenceFor: encounterBundleBootNotEvidenceFor,
   };

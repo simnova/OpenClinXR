@@ -57,6 +57,9 @@ PLAN="$ROOT/packages/openclinxr/asset-registry/src/case-owned-scene-plan.ts"
 REPLAY="$ROOT/packages/openclinxr/asset-registry/src/frozen-scene-replay.ts"
 FREEZE="$ROOT/packages/openclinxr/asset-registry/src/scene-plan-freeze.ts"
 SOLVE="$ROOT/packages/openclinxr/asset-registry/src/layout-solve.ts"
+ADMIT="$ROOT/packages/openclinxr/asset-registry/src/encounter-bundle-admission.ts"
+MAIN="$ROOT/apps/ui-xr/src/main.ts"
+BOOT="$ROOT/apps/ui-xr/src/encounter-bundle-boot/index.ts"
 CONTROL="$ROOT/tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts"
 
 revert "instance asset digests are not compared" \
@@ -142,6 +145,60 @@ revert "the control freeze auto-initializes on import" \
   "import pathlib;p=pathlib.Path('$CONTROL');s=p.read_text();s=s.replace('export function produceSupineControlFreeze(input: {','export function produceSupineControlFreeze(input: {\n  // reverted: accept an unattributed production',1);s=s.replace('  if (input.reason.trim() === \"\") {','  if (false) {');s=s.replace('  if (input.observedBy.trim() === \"\") {','  if (false) {');p.write_text(s)" \
   "" "$FREEZE_TESTS" \
   "(6) production refuses an unattributed re-baseline"
+
+revert "the layout reproduction comparison is disabled (the owner's own probe)" \
+  "packages/openclinxr/asset-registry/src/frozen-scene-replay.ts" \
+  "import pathlib;p=pathlib.Path('$REPLAY');s=p.read_text();s=s.replace('  if (layoutProblems.length > 0) {','  if (layoutProblems.length > 99) {');p.write_text(s)" \
+  "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
+  "(l) the reproduction comparison is load-bearing"
+
+revert "the re-solved approach side is not compared with the stored one" \
+  "packages/openclinxr/asset-registry/src/frozen-scene-replay.ts" \
+  "import pathlib;p=pathlib.Path('$REPLAY');s=p.read_text();s=s.replace('  if (resolved.approachSide !== record.resolvedLayout.approachSide) {','  if (false) {');p.write_text(s)" \
+  "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
+  "(l) a stored approach side the re-solve does not produce"
+
+revert "the re-solved target offset is not compared with the tolerance" \
+  "packages/openclinxr/asset-registry/src/frozen-scene-replay.ts" \
+  "import pathlib;p=pathlib.Path('$REPLAY');s=p.read_text();s=s.replace('  if (targetOffsetMeters > LAYOUT_REPRODUCTION_TOLERANCE_METERS) {','  if (false) {');p.write_text(s)" \
+  "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
+  "(l) a stored target moved past the reproduction tolerance"
+
+revert "an unsatisfiable authored intent is not reported as a conflict" \
+  "packages/openclinxr/asset-registry/src/frozen-scene-replay.ts" \
+  "import pathlib;p=pathlib.Path('$REPLAY');s=p.read_text();s=s.replace('      reason: \"unsatisfiable_intent\",','      reason: \"layout_not_reproduced\",');p.write_text(s)" \
+  "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
+  "(l) unsatisfiable_intent"
+
+revert "the shipped frame loop stops calling the reopen" \
+  "apps/ui-xr/src/main.ts" \
+  "import pathlib;p=pathlib.Path('$MAIN');s=p.read_text();s=s.replace('    frozenScenePlanAdmission = admitFrozenScenePlanForObservedScene({','    frozenScenePlanAdmission = ((x) => x)({');p.write_text(s)" \
+  "" "$BEHAVIOR_TEST" \
+  "(m) main.ts calls it in the frame loop"
+
+revert "the boot path stops admitting the carried plan" \
+  "apps/ui-xr/src/encounter-bundle-boot/index.ts" \
+  "import pathlib;p=pathlib.Path('$BOOT');s=p.read_text();s=s.replace('admitFrozenScenePlan({ bundle })','({ status: \"no_plan_carried\" } as ScenePlanAdmission)');p.write_text(s)" \
+  "" "$BEHAVIOR_TEST" \
+  "(m) the boot path admits the carried plan"
+
+revert "the admission stops calling the reopen" \
+  "packages/openclinxr/asset-registry/src/encounter-bundle-admission.ts" \
+  "import pathlib;p=pathlib.Path('$ADMIT');s=p.read_text();s=s.replace('reopenFrozenScene(input.record,','reopenFrozenSceneAliased(input.record,');s='import { reopenFrozenScene as reopenFrozenSceneAliased } from \"./frozen-scene-replay.js\";\n'+s;p.write_text(s)" \
+  "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
+  "(m) the admission calls the reopen"
+
+revert "a repair may predate the acceptance it replaces" \
+  "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts" \
+  "import pathlib;p=pathlib.Path('$EVID');s=p.read_text();s=s.replace('  if (Number.isFinite(acceptedAt) && observedAt < acceptedAt) {','  if (false) {');p.write_text(s)" \
+  "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
+  "(n) a repair must postdate the acceptance"
+
+revert "the freeze stops persisting the clip revision" \
+  "packages/openclinxr/asset-registry/src/scene-plan-freeze.ts" \
+  "import pathlib;p=pathlib.Path('$FREEZE');s=p.read_text();s=s.replace('      clipRevision: input.revisions.clipRevision,','      clipRevision: \"\",');p.write_text(s)" \
+  "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
+  "(a) the A09 count is counted off the record, not typed"
 
 echo
 echo "TWO-SIDED GATE: $BROKE of $TOTAL reverts break a named clause"

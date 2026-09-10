@@ -184,6 +184,7 @@ function main(): void {
   // The consumed inputs this card did NOT change but whose bytes its result depends on.
   for (const consumed of [
     ...REGISTRATION_HYGIENE,
+    "packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts",
     "tools/openclinxr/factory/scene-closure-case-source.ts",
     "packages/openclinxr/asset-registry/src/case-approach-intent.ts",
     "packages/openclinxr/asset-registry/src/bedside-approach-path.ts",
@@ -445,7 +446,17 @@ function main(): void {
         + "(workspace-architecture.test.ts:1271) and an asset-registry edge rewrites pnpm-lock.yaml, "
         + "outside this card's write roots. Clause (k0) of the behavior test compares the two "
         + "declarations' field names read from source, so drift fails rather than passing silently.",
-        "TWO PROTECTED REGISTRIES WERE EDITED, ADDITIVELY, OUTSIDE THIS CARD'S WRITE ROOTS. "
+        "THE ui-xr COMPOSITION-ROOT BUDGET WAS RE-FROZEN DOWNWARD, OUTSIDE THIS CARD'S WRITE ROOTS, "
+      + "and it is listed in changedFiles rather than excluded, so this verifier reports it as a "
+      + "third unmet requirement. packages/openclinxr-verification/architecture-rules/src/checks/"
+      + "composition-root-conventions.ts:59-62, apps/ui-xr maxLines 6069 -> 6039. It is a TIGHTENING, "
+      + "not a weakening: clause (3) of the-apps-are-composition-roots.test.ts requires "
+      + "`budget.maxLines === measured.lines` exactly, so an app that shrinks MUST have its ceiling "
+      + "re-frozen at the new measurement or the gate fails. Moving 53 lines out of the app was what "
+      + "paid for wiring the reopen into the boot path and the frame loop, since apps/ui-xr sat at "
+      + "exactly 10 files / 6,069 lines and could not gain a line. No other budget changed and "
+      + "apps/api is untouched at 7 / 799.",
+      "TWO PROTECTED REGISTRIES WERE EDITED, ADDITIVELY, OUTSIDE THIS CARD'S WRITE ROOTS. "
       + "docs/openclinxr/doc-authority-registry-2026-05-27.json gains one `evidence` entry for "
       + "sc-06.md and docs/openclinxr/generated-artifact-registry-2026-05-27.json gains one "
       + "`keep-evidence` entry for sc-06.json, both copied field-for-field from the sc-05 rows beside "
@@ -455,7 +466,9 @@ function main(): void {
       + "shrink of a protected registry. `pnpm docs:drift-check` fails without the two entries. "
       + "SC-05 registered its own report the same way and disclosed it; this is that precedent, "
       + "stated rather than assumed. They are hashed in `inputs` and excluded from `changedFiles`, "
-      + "as SC-05's report also excluded them.",
+      + "as SC-05's report also excluded them. Round 2 re-encoded both with ensure_ascii off so only "
+      + "the added row and its counter differ: the round-1 diff was 46 lines because a JSON round trip "
+      + "re-escaped every existing em-dash, and it is now 18, all of them the new row or a counter.",
       "`pnpm typecheck` fails on its guardrails leg at this head AND at the unchanged baseline "
         + "27efa3d2, with identical output: 16 tsconfig files relax "
         + "noPropertyAccessFromIndexSignature and one enables skipLibCheck. Pre-existing; this card "

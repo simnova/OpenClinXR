@@ -4,6 +4,7 @@ import {
   seatedVerticalOffsetForSeatHeight,
   supineVerticalOffsetSeed,
 } from "@openclinxr/asset-registry";
+import { admitFrozenScenePlanForObservedScene, type ScenePlanAdmission } from "@openclinxr/asset-registry/encounter-bundle-admission";
 import {
   findRuntimeActorAsset,
   findRuntimeActorAssetByRole,
@@ -138,6 +139,7 @@ import {
   updateGeneratedHumanoidAnimations as updatePackageGeneratedHumanoidAnimations,
   updateHumanoidEmotionExpression as updatePackageHumanoidEmotionExpression,
 } from "@openclinxr/xr-humanoid-animation";
+import { observeMountedApproachGeometry } from "@openclinxr/xr-humanoid-animation/mounted-approach-geometry";
 import { applyStationBedsideStanceLock, createStationBedsideApproachState, updateStationBedsideApproach } from "@openclinxr/xr-humanoid-animation/station-bedside-approach";
 import {
   applyDeterministicPortalPreviewStart as applyPackageDeterministicPortalPreviewStart,
@@ -328,6 +330,7 @@ import {
 import { applyEnvironmentAffectCue } from "@openclinxr/xr-station-room/station-environment-affect-cue";
 
 const caseOwnedBedsideApproach = createStationBedsideApproachState();
+let frozenScenePlanAdmission: ScenePlanAdmission = { status: "no_plan_carried" };
 
 import {
   type applyPedsActorPlayerSequenceListenerCues as applyPackagePedsActorPlayerSequenceListenerCues,
@@ -3446,6 +3449,16 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     // Measured on the unchanged tree at 86dc0300, nothing in apps, packages or tools ever wrote
     // `floor.userData.genDrive` or `floor.userData.pedsRuntimeDrive`, so the only non-null value
     // this frame could take came from `window.__openClinXrPedsDrive` — a recorder global.
+    // Reopen the frozen plan against the room on screen: re-solve from the persisted seed, refuse
+    // when it does not reproduce or the geometry moved. Byte identity stays server-side.
+    frozenScenePlanAdmission = admitFrozenScenePlanForObservedScene({
+      admission: frozenScenePlanAdmission,
+      scene,
+      environmentId: resolveActiveEnvironmentId(),
+      observeGeometry: observeMountedApproachGeometry,
+      patientWorldPosition: generatedHumanoidActorSlotsByActorId.get(runtimePatientActorId())?.position ?? { x: 0, y: 0, z: 0 },
+      start: generatedHumanoidActorSlotsByActorId.get(runtimeAdditionalActorId())?.position ?? { x: 0, y: 0, z: 0 },
+    });
     const approachFrame = updateStationBedsideApproach(
       caseOwnedBedsideApproach,
       {

@@ -95,6 +95,10 @@
     "./accepted-scene-plan-evidence": {
       "types": "./dist/accepted-scene-plan-evidence.d.ts",
       "default": "./dist/accepted-scene-plan-evidence.js"
+    },
+    "./encounter-bundle-admission": {
+      "types": "./dist/encounter-bundle-admission.d.ts",
+      "default": "./dist/encounter-bundle-admission.js"
     }
   },
   "scripts": {

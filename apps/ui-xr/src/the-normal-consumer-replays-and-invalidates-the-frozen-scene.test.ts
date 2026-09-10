@@ -4,10 +4,7 @@ import {
   createEdChestPainRuntimeSceneManifest,
   supineActorWorldPosition,
 } from "@openclinxr/asset-registry";
-import {
-  type DurableAcceptedScenePlanRecord as PinnedRecord,
-  revalidateAcceptedScenePlan,
-} from "@openclinxr/asset-registry/accepted-scene-plan-evidence";
+import { revalidateAcceptedScenePlan } from "@openclinxr/asset-registry/accepted-scene-plan-evidence";
 import type { ObservedApproachGeometry } from "@openclinxr/asset-registry/case-approach-intent";
 import {
   CASE_SCENE_PLAN_AUTHORIZED_VARIATION_INDICES,
@@ -25,7 +22,11 @@ import { observeMountedApproachGeometry } from "@openclinxr/xr-humanoid-animatio
 import { buildStationEnvironment } from "@openclinxr/xr-station";
 import { Scene } from "three";
 import { describe, expect, it } from "vitest";
-import { privateKeysInProjection, projectAcceptedScenePlanForReview } from "../../../packages/openclinxr/review-workflow/src/accepted-scene-plan-review.js";
+import {
+  ACCEPTED_SCENE_PLAN_REVIEW_NOT_EVIDENCE_FOR,
+  privateKeysInProjection,
+  projectAcceptedScenePlanForReview,
+} from "../../../packages/openclinxr/review-workflow/src/accepted-scene-plan-review.js";
 import {
   acceptedScenePlanProblems,
   type DurableAcceptedScenePlanRecord,
@@ -296,6 +297,32 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
     // Support, actor and equipment instances are counted separately, and every actor instance
     // carries the digest and byte count of the file it loads. On the baseline the accepted plan had
     // 0 of these 14 fields; the record is the answer to that measurement.
+    // COUNTED OFF THE RECORD, not typed. The first version emitted the literal 14 into the
+    // observation stream and the verifier compared it against the constant 14, so an implementation
+    // persisting nothing would have passed that gate by emitting the right number. Each entry below
+    // reads the field it names and is counted only when that field is actually populated.
+    const a09Fields: ReadonlyArray<[string, () => boolean]> = [
+      ["caseId", () => record.case.caseId.length > 0],
+      ["caseVersion", () => Number.isInteger(record.case.caseVersion)],
+      ["bundleId", () => record.bundle.bundleId.length > 0],
+      ["instanceIds", () => record.instances.length > 0],
+      ["assetSha256ByPath", () => record.instances.some((i) => (i.assetSha256 ?? "").length === 64)],
+      ["clipRevision", () => record.revisions.clipRevision.length > 0],
+      ["rigRevision", () => record.revisions.rigRevision.length > 0],
+      ["solverRevision", () => record.revisions.solverVersion.length > 0],
+      ["planRevision", () => record.planRevision.length > 0],
+      ["seed", () => /^[0-9a-f]{64}$/u.test(record.variation.seed)],
+      ["variationIndex", () => Number.isInteger(record.variation.variationIndex)],
+      ["acknowledgment", () => record.acknowledgment.acknowledgedPlanRevision.length > 0],
+      ["eventOrder", () => record.eventOrder.length > 0],
+      ["runId", () => record.run.stationRunId.length > 0],
+    ];
+    const a09Present = a09Fields.filter(([, populated]) => populated()).length;
+    for (const [name, populated] of a09Fields) {
+      expect(populated(), `A09 field ${name} is not populated on the frozen record`).toBe(true);
+    }
+    expect(a09Present).toBe(a09Fields.length);
+
     const actorInstances = record.instances.filter((instance) => instance.kind === "actor");
     expect(actorInstances.length).toBe(SELECTED_ASSET_PATHS.length);
     expect(record.instances.some((instance) => instance.kind === "support")).toBe(true);
@@ -451,7 +478,8 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
 
     // MISSING, CORRUPT and CHANGED are three different answers for the same asset. Collapsing them
     // is how a damaged control silently becomes no control.
-    expect(new Set([changedGlb.reason, removedGlb.reason, corruptGlb.reason]).size).toBe(3);
+    const distinctRefusalKinds = new Set([changedGlb.reason, removedGlb.reason, corruptGlb.reason]);
+    expect(distinctRefusalKinds.size).toBe(3);
 
     // The other four bound subjects refuse too: case, bundle, clip and solver.
     const subjects: ReadonlyArray<[string, Record<string, unknown>]> = [
@@ -539,7 +567,37 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
     expect(projection.planRevision).toBe(record.planRevision);
     expect(projection.acknowledgment.bindsThisPlan).toBe(true);
     expect(projection.boundInstances.length).toBe(record.instances.length);
+    // A MARKER CHECK, and it is labelled as one. `privateKeysInProjection` matches key NAMES against
+    // /hidden|private|serverOnly|internal|secret|confidential/i, so a clinical fact under a benign key
+    // name passes it. It is kept because it catches the careless case cheaply; it is not the control.
     expect(privateKeysInProjection(projection)).toEqual([]);
+    // THE STRUCTURAL CONTROL. The projection is built field by field, so the guarantee is that no
+    // free-form value survives at all — which holds whatever a key is called. This asserts the
+    // projection's leaf VALUES are drawn from the record's own identity fields and nothing else, so a
+    // note, a payload or a transcript added to the record cannot ride along under any name.
+    const projectionLeaves: string[] = [];
+    const collectLeaves = (value: unknown): void => {
+      if (Array.isArray(value)) return void value.forEach(collectLeaves);
+      if (typeof value === "object" && value !== null) return void Object.values(value).forEach(collectLeaves);
+      if (typeof value === "string") projectionLeaves.push(value);
+    };
+    collectLeaves(projection);
+    const recordLeaves = new Set<string>();
+    const collectRecordLeaves = (value: unknown): void => {
+      if (Array.isArray(value)) return void value.forEach(collectRecordLeaves);
+      if (typeof value === "object" && value !== null) return void Object.values(value).forEach(collectRecordLeaves);
+      if (typeof value === "string") recordLeaves.add(value);
+    };
+    collectRecordLeaves(record);
+    const projectionOwnVocabulary = new Set<string>([
+      "openclinxr.accepted-scene-plan-review.v1",
+      "versioned_scene_decisions_and_measured_replay",
+      ...ACCEPTED_SCENE_PLAN_REVIEW_NOT_EVIDENCE_FOR,
+    ]);
+    const unexplained = projectionLeaves.filter(
+      (leaf) => !recordLeaves.has(leaf) && !projectionOwnVocabulary.has(leaf),
+    );
+    expect(unexplained, "the projection emitted a string the record does not contain").toEqual([]);
     // No free-form payload survives the projection, so there is nowhere for a hidden fact to sit.
     expect(canonicalJson(projection)).not.toMatch(/hiddenFact|serverOnly|secret/iu);
 
@@ -718,12 +776,154 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
       }).seed,
     ).toBe(record.variation.seed);
 
+    // ── (l) THE REPRODUCTION COMPARISON IS LOAD-BEARING ─────────────────────────────────────────
+    // BLOCKER FOUND IN REVIEW. `frozen-scene-replay.ts`'s `if (layoutProblems.length > 0)` was the
+    // only code refusing a record whose stored layout disagrees with the re-solve, and NOTHING
+    // asserted it. Reproduced independently: changing it to `> 99`, rebuilding @openclinxr/asset-
+    // registry and running this file plus the verifier units gave 2 files, 27 tests, all passing.
+    // The report's own heading, "The reopen re-solves; it does not echo", was true and would have
+    // survived deletion with no gate noticing. Clause (b)'s seed equality proves the seed is
+    // THREADED; only these clauses prove the layout is REPRODUCED.
+    const otherSide = record.resolvedLayout.approachSide === "patient_left" ? "patient_right" : "patient_left";
+    for (const [label, mutated] of [
+      [
+        "a stored approach side the re-solve does not produce",
+        { ...record, resolvedLayout: { ...record.resolvedLayout, approachSide: otherSide as typeof record.resolvedLayout.approachSide } },
+      ],
+      [
+        "a stored standoff the re-solve does not produce",
+        { ...record, resolvedLayout: { ...record.resolvedLayout, standoffMeters: record.resolvedLayout.standoffMeters + 0.15 } },
+      ],
+      [
+        "a stored target moved 1e-6 m, a thousand times the 1e-9 m reproduction tolerance",
+        {
+          ...record,
+          resolvedLayout: {
+            ...record.resolvedLayout,
+            targetPosition: { ...record.resolvedLayout.targetPosition, x: record.resolvedLayout.targetPosition.x + 1e-6 },
+          },
+        },
+      ],
+    ] as ReadonlyArray<[string, DurableAcceptedScenePlanRecord]>) {
+      const refused = reopen(mutated, {
+        evidence: clean,
+        geometry: ward.geometry,
+        patientWorldPosition: ward.patientWorld,
+        start: ward.start,
+      });
+      expect(refused.status, label).toBe("refused");
+      if (refused.status !== "refused") continue;
+      expect(refused.reason, label).toBe("layout_not_reproduced");
+      expect(refused.detail.length, label).toBeGreaterThan(0);
+    }
+
+    // KNOWN-GOOD COLUMN for the tolerance, so it is a boundary and not a rubber stamp: a target moved
+    // 1e-12 m — a thousand times BELOW the tolerance, and still far above double-precision noise at
+    // metre scale — is reproduced rather than refused. Without this the clauses above would also pass
+    // against a comparison that refused everything.
+    const withinTolerance = reopen(
+      {
+        ...record,
+        resolvedLayout: {
+          ...record.resolvedLayout,
+          targetPosition: { ...record.resolvedLayout.targetPosition, x: record.resolvedLayout.targetPosition.x + 1e-12 },
+        },
+      },
+      { evidence: clean, geometry: ward.geometry, patientWorldPosition: ward.patientWorld, start: ward.start },
+    );
+    expect(
+      withinTolerance.status,
+      withinTolerance.status === "reopened" ? "" : withinTolerance.detail,
+    ).toBe("reopened");
+
+    // An authored intent nothing can satisfy reaches the same consumer and reports conflicts.
+    const unsatisfiable = reopen(record, {
+      evidence: clean,
+      geometry: ward.geometry,
+      patientWorldPosition: ward.patientWorld,
+      start: ward.start,
+      intent: { approachSide: "patient_left", standoffMeters: 0 },
+    });
+    expect(unsatisfiable.status).toBe("refused");
+    if (unsatisfiable.status !== "refused") return;
+    expect(unsatisfiable.reason).toBe("unsatisfiable_intent");
+    expect(unsatisfiable.detail).toMatch(/patient_left/u);
+
+    // ── (m) THE SHIPPED RUNTIME REACHES THIS RING ───────────────────────────────────────────────
+    // BLOCKER FOUND IN REVIEW. The first attempt built seven modules that only this test entered:
+    // `main.ts` imported none of them. Each link below is asserted from source, so severing any one
+    // of them fails here. The app-to-package hop is a package specifier rather than a relative path,
+    // so it is asserted by specifier and call site rather than by walking the module graph.
+    const chain: ReadonlyArray<[string, string, RegExp]> = [
+      [
+        "main.ts value-imports the admission subpath",
+        "apps/ui-xr/src/main.ts",
+        /import \{[^}]*admitFrozenScenePlanForObservedScene[^}]*\} from "@openclinxr\/asset-registry\/encounter-bundle-admission"/u,
+      ],
+      [
+        "main.ts calls it in the frame loop",
+        "apps/ui-xr/src/main.ts",
+        /admitFrozenScenePlanForObservedScene\(\{/u,
+      ],
+      [
+        "the boot path value-imports the admission subpath",
+        "apps/ui-xr/src/encounter-bundle-boot/index.ts",
+        /from "@openclinxr\/asset-registry\/encounter-bundle-admission"/u,
+      ],
+      [
+        "the boot path admits the carried plan",
+        "apps/ui-xr/src/encounter-bundle-boot/index.ts",
+        /admitFrozenScenePlan\(\{ bundle \}\)/u,
+      ],
+      [
+        "the admission calls the reopen",
+        "packages/openclinxr/asset-registry/src/encounter-bundle-admission.ts",
+        /reopenFrozenScene\(input\.record,/u,
+      ],
+      [
+        "the reopen calls the case-owned solver consumer",
+        "packages/openclinxr/asset-registry/src/frozen-scene-replay.ts",
+        /resolveCaseOwnedScenePlan\(\{/u,
+      ],
+      [
+        "the case-owned consumer calls the seeded solver",
+        "packages/openclinxr/asset-registry/src/case-owned-scene-plan.ts",
+        /resolveBedsideLayoutFromSeed\(\{/u,
+      ],
+    ];
+    for (const [label, file, pattern] of chain) {
+      // Comments are stripped first: a severed link that survives only inside a comment is severed.
+      const source = readFileSync(file, "utf8")
+        .replace(/\/\*[\s\S]*?\*\//gu, "")
+        .replace(/^\s*\/\/.*$/gmu, "");
+      expect(pattern.test(source), `${label} (${file})`).toBe(true);
+    }
+    // A type-only import would satisfy the specifier clause while erasing the runtime relationship.
+    const mainSource = readFileSync("apps/ui-xr/src/main.ts", "utf8");
+    const admissionImport = mainSource.slice(
+      0,
+      mainSource.indexOf('from "@openclinxr/asset-registry/encounter-bundle-admission"'),
+    );
+    const lastImport = admissionImport.lastIndexOf("import ");
+    expect(admissionImport.slice(lastImport, lastImport + 12)).not.toContain("type");
+
+    // ── (n) A REPAIR MUST POSTDATE THE ACCEPTANCE IT REPLACES ───────────────────────────────────
+    expect(
+      revalidateAcceptedScenePlan(record, {
+        observedBy: "faculty_reviewer_ward_v1",
+        // The plan was accepted at 2026-09-10T00:00:00Z; this looks back a day.
+        observedAtIso: "2026-09-09T00:00:00.000Z",
+        evidence: { ...clean, clipRevision: "openclinxr_retarget_walk_formal_cc0_v2" },
+        planRevision: `${record.planRevision}-backdated`,
+      }).status,
+    ).toBe("refused");
+
     observe([
-      { observationId: "sc06-a09-fields-present", metric: "a09_fields_present_on_record", unit: "count", value: 14, source: "freezeAcceptedScenePlan" },
+      { observationId: "sc06-a09-fields-present", metric: "a09_fields_present_on_record", unit: "count", value: a09Present, source: "counted off the frozen record" },
       { observationId: "sc06-reproduction-offset", metric: "layout_reproduction_offset_meters", unit: "meters", value: reopened.reproduced.targetOffsetMeters, source: "reopenFrozenScene" },
       { observationId: "sc06-variation-resolved", metric: "authorized_indices_that_resolved", unit: "count", value: resolvedIndices.length, source: "freezeAcceptedScenePlan" },
       { observationId: "sc06-variation-refused", metric: "authorized_indices_refused_with_named_conflicts", unit: "count", value: refusedIndices.length, source: "freezeAcceptedScenePlan" },
-      { observationId: "sc06-distinct-refusals", metric: "distinct_evidence_refusal_kinds", unit: "count", value: 3, source: "reopenFrozenScene" },
+      { observationId: "sc06-distinct-refusals", metric: "distinct_evidence_refusal_kinds", unit: "count", value: distinctRefusalKinds.size, source: "reasons returned by reopenFrozenScene" },
       { observationId: "sc06-frozen-plan-revision", metric: "frozen_plan_revision", unit: "digest", value: record.planRevision, source: "scenePlanRevision" },
       { observationId: "sc06-frozen-seed", metric: "frozen_layout_seed", unit: "digest", value: record.variation.seed, source: "deriveLayoutVariationSeed" },
       { observationId: "sc06-geometry-revision", metric: "frozen_geometry_revision", unit: "digest", value: record.revisions.geometryRevision, source: "geometryRevisionDigest" },

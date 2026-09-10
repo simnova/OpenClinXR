@@ -313,6 +313,28 @@ export function revalidateAcceptedScenePlan(
       conflicts: [],
     };
   }
+  // A REPAIR MUST POSTDATE WHAT IT REPAIRS. Without this the three checks above are satisfied by an
+  // observation timestamped before the acceptance it replaces — which is not a fresh observation at
+  // all, it is an older one relabelled, and it is the shape a re-baseline takes when someone reaches
+  // for a record they already had rather than looking again.
+  const acceptedAt = Date.parse(record.run.acceptedAtIso);
+  const observedAt = Date.parse(observation.observedAtIso);
+  if (!Number.isFinite(observedAt)) {
+    return {
+      status: "refused",
+      reason: `the fresh observation's timestamp ${JSON.stringify(observation.observedAtIso)} is not a date`,
+      conflicts: [],
+    };
+  }
+  if (Number.isFinite(acceptedAt) && observedAt < acceptedAt) {
+    return {
+      status: "refused",
+      reason:
+        `the observation is dated ${observation.observedAtIso} and the plan it repairs was accepted at `
+        + `${record.run.acceptedAtIso}. An observation that predates the acceptance is not fresh.`,
+      conflicts: [],
+    };
+  }
   if (observation.planRevision === record.planRevision) {
     return {
       status: "refused",

@@ -8,6 +8,7 @@ import { ACCEPTED_SCENE_PLAN_SCHEMA_VERSION } from "./frozen-scene-replay.js";
 
 type AcceptedScenePlanEvent = DurableAcceptedScenePlanRecord["eventOrder"][number];
 type AcceptedScenePlanInstance = DurableAcceptedScenePlanRecord["instances"][number];
+
 import type { ObservedApproachGeometry } from "./case-approach-intent.js";
 import {
   CASE_SCENE_PLAN_SOLVER_VERSION,
