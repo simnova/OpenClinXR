@@ -1,0 +1,7 @@
+{
+  "worldBackgroundStrength": 0.55,
+  "worldBackgroundColor": [0.82, 0.85, 0.9],
+  "keyEnergy": 160,
+  "fillEnergy": 110,
+  "comment": "Isolated figure grade lighting. World Background is the ambient term; key-only AREA lights fail the public-still two-tone (dark chest, pale thighs)."
+}

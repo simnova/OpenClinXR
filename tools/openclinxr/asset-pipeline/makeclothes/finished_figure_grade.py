@@ -14,12 +14,77 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import bpy
 from mathutils import Vector
+
+GRADE_LIGHTING_PATH = Path(__file__).with_name("grade-lighting.json")
+
+
+def load_grade_lighting() -> Dict[str, Any]:
+    """SSOT for the public isolated-figure bake. World Background is the ambient term."""
+    data = json.loads(GRADE_LIGHTING_PATH.read_text(encoding="utf-8"))
+    strength = float(data["worldBackgroundStrength"])
+    if strength <= 0:
+        raise ValueError("grade-lighting.json worldBackgroundStrength must be > 0")
+    return data
+
+
+def apply_grade_lighting(
+    scene: Any,
+    *,
+    center: Vector,
+    key_z: float,
+    focus_z: float,
+) -> Dict[str, float]:
+    """Key + fill AREA lights plus a world Background ambient term.
+
+    Key-only AREA lights produced the 2026-09-10 public street still's two-tone
+    (dark chest, pale thighs). Background strength must stay > 0.
+    """
+    cfg = load_grade_lighting()
+    strength = float(cfg["worldBackgroundStrength"])
+    color = cfg.get("worldBackgroundColor") or [0.82, 0.85, 0.9]
+    r, g, b = (float(color[0]), float(color[1]), float(color[2]))
+
+    world = scene.world
+    if world is None:
+        world = bpy.data.worlds.new("grade_world")
+        scene.world = world
+    world.use_nodes = True
+    tree = world.node_tree
+    bg = next((n for n in tree.nodes if n.type == "BACKGROUND"), None)
+    if bg is None:
+        bg = tree.nodes.new("ShaderNodeBackground")
+        out = next((n for n in tree.nodes if n.type == "OUTPUT_WORLD"), None)
+        if out is not None:
+            tree.links.new(bg.outputs["Background"], out.inputs["Surface"])
+    bg.inputs["Strength"].default_value = strength
+    bg.inputs["Color"].default_value = (r, g, b, 1.0)
+
+    key_energy = float(cfg["keyEnergy"])
+    fill_energy = float(cfg["fillEnergy"])
+    light_data = bpy.data.lights.new(name="finish_key", type="AREA")
+    light_data.energy = key_energy
+    light = bpy.data.objects.new(name="finish_key", object_data=light_data)
+    scene.collection.objects.link(light)
+    light.location = (center.x + 1.0, -1.4, key_z)
+
+    fill_data = bpy.data.lights.new(name="finish_fill", type="AREA")
+    fill_data.energy = fill_energy
+    fill = bpy.data.objects.new(name="finish_fill", object_data=fill_data)
+    scene.collection.objects.link(fill)
+    fill.location = (center.x - 1.2, 0.5, focus_z + 0.3)
+
+    return {
+        "worldBackgroundStrength": strength,
+        "keyEnergy": key_energy,
+        "fillEnergy": fill_energy,
+    }
 
 
 def parse_args() -> argparse.Namespace:
@@ -33,6 +98,11 @@ def parse_args() -> argparse.Namespace:
         choices=("feet", "full"),
         default="feet",
         help="Camera frame: feet (default, #226 footwear) or full body (#220 lower hem)",
+    )
+    p.add_argument(
+        "--dump-lighting",
+        action="store_true",
+        help="Print applied world/key/fill JSON and exit (no GLB, no PNG)",
     )
     return p.parse_args(args)
 
@@ -78,6 +148,18 @@ def choose_grade_engine() -> str:
 
 def main() -> None:
     args = parse_args()
+    if args.dump_lighting:
+        scene = bpy.context.scene
+        report = apply_grade_lighting(
+            scene, center=Vector((0.0, 0.0, 1.0)), key_z=1.2, focus_z=0.9
+        )
+        world = scene.world
+        bg = next((n for n in world.node_tree.nodes if n.type == "BACKGROUND"), None)
+        live = float(bg.inputs["Strength"].default_value) if bg is not None else 0.0
+        report["liveWorldBackgroundStrength"] = live
+        print(json.dumps(report, indent=2))
+        return
+
     glbs: List[Path] = [Path(g).resolve() for g in args.glb]
     glbs = [g for g in glbs if g.is_file()]
     if not glbs:
@@ -125,17 +207,10 @@ def main() -> None:
     cam.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
     cam_data.lens = lens
 
-    light_data = bpy.data.lights.new(name="finish_key", type="AREA")
-    light_data.energy = 180.0
-    light = bpy.data.objects.new(name="finish_key", object_data=light_data)
-    bpy.context.scene.collection.objects.link(light)
-    light.location = (center.x + 1.0, -1.4, key_z)
-
-    fill_data = bpy.data.lights.new(name="finish_fill", type="AREA")
-    fill_data.energy = 70.0
-    fill = bpy.data.objects.new(name="finish_fill", object_data=fill_data)
-    bpy.context.scene.collection.objects.link(fill)
-    fill.location = (center.x - 1.2, 0.5, focus_z + 0.3)
+    lighting = apply_grade_lighting(
+        bpy.context.scene, center=center, key_z=key_z, focus_z=focus_z
+    )
+    print(f"[blender] grade lighting {json.dumps(lighting)}")
 
     # Ground plane under feet for readability
     bpy.ops.mesh.primitive_plane_add(size=max(4.0, width * 3), location=(center.x, center.y, bmin.z - 0.001))
@@ -157,8 +232,12 @@ def main() -> None:
         scene.eevee.taa_render_samples = 24
     except Exception:
         pass
-    scene.render.resolution_x = 1280
-    scene.render.resolution_y = 720
+    if args.frame == "full":
+        scene.render.resolution_x = 1280
+        scene.render.resolution_y = 1280
+    else:
+        scene.render.resolution_x = 1280
+        scene.render.resolution_y = 720
     scene.render.filepath = str(out)
     scene.render.image_settings.file_format = "PNG"
     try:
