@@ -4,8 +4,8 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "agent-methodology": 109,
-    "current-reference": 211,
+    "agent-methodology": 107,
+    "current-reference": 208,
     "archive-candidate": 89,
     "evidence": 82,
     "temporary": 54,
@@ -172,13 +172,6 @@
     },
     {
       "path": ".agents/skills/openclinxr-slice/templates/slice-record-template.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
-    },
-    {
-      "path": ".agents/skills/operator-prose/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -571,13 +564,6 @@
     },
     {
       "path": ".claude/rules/LEX_AGENTIC.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".claude/rules/MANDATE_PROSE.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -1130,13 +1116,6 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
-      "path": ".cursor/rules/MANDATE_PROSE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
       "path": ".cursor/rules/MANDATE_VISIBILITY.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -1432,13 +1411,6 @@
     },
     {
       "path": ".grok/rules/LEX_AGENTIC.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".grok/rules/MANDATE_PROSE.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -2629,13 +2601,6 @@
     },
     {
       "path": "agents/rules/LEX_AGENTIC.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
-    },
-    {
-      "path": "agents/rules/MANDATE_PROSE.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",

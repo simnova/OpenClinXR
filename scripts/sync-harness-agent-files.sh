@@ -10,7 +10,6 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 CORE_RULES=(
-  MANDATE_PROSE.md
   LEX_AGENTIC.md
   GUARD_BLUEPRINT.md
   GUARD_DRIFT.md

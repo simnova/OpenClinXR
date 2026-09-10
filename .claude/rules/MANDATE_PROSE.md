@@ -1,1 +1,0 @@
-../../agents/rules/MANDATE_PROSE.md

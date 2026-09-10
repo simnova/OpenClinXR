@@ -6,8 +6,26 @@ authority: agent-methodology
 
 Canonical source: `agents/rules/`. Grok loads **core tier only** via `.grok/rules/` (see `scripts/sync-harness-agent-files.sh`). Claude/Cursor receive all rules.
 
+## Layering — baseline first, harness needs on top
+
+Operator direction, 2026-09-10: *"we can have baseline agentic config that applies to all, then
+layer on top of that harness specific needs."*
+
+| tier | where | what belongs there |
+|---|---|---|
+| **baseline** (all harnesses) | `AGENTS.md`, `agents/rules/**`, `.agents/skills/**` | the operating contract, guardrails, Q-gates, delegation protocol — anything true of every agent in this repo |
+| **harness layer** | `CLAUDE.md`, `.grok/**`, `.codex/**`, `.cursor/**`, `.claude/skills/**` | one harness's own voice, tooling, hooks, model routing, capability workarounds |
+
+A rule reaching only one harness is **not** evidence it should be promoted. Check first whether the
+other harnesses already solve that need their own way: prose style is Claude's
+(`CLAUDE.md` + skill `operator-prose`), and Grok's equivalent is
+`.grok/personas/terse-bluf.toml` mirroring `WORKER_TONE_DIRECTIVE`. Promoting Claude's into the
+core tier on 2026-09-10 gave Grok a second, conflicting voice contract; it was reverted the same
+day.
+
+Promote only when the need is genuinely shared **and** no harness already has its own answer.
+
 ## Grok core tier (every session)
-- `MANDATE_PROSE.md` — **remove all mannered prose**; operator-facing voice, points at the `operator-prose` skill
 - `LEX_AGENTIC.md` — authoritative glossary + orchestrator protocol
 - `GUARD_BLUEPRINT.md` — protected files + Q1/Q4/Q5 gate
 - `GUARD_DRIFT.md` — anti-toil + model-work guard

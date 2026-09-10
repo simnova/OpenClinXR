@@ -3,7 +3,6 @@
 Repo-level operating contract for Codex, Grok, Claude, Cursor, and OpenClaw-style agents.
 
 ## BLUF (execute immediately)
-- **Remove all mannered prose.** Say what happened and what it means; nothing else earns space. Applies to every message addressed to the human operator, from every harness. Rule: `agents/rules/MANDATE_PROSE.md`. Countable limits: skill `operator-prose` (`.agents/skills/operator-prose/SKILL.md`) — load it before writing to the operator.
 - **Main session = orchestrator CEO only (HARD)** — `.grok/config.toml` `[agent] name = "orchestrator"`. Never product IC on main. Rule: `agents/rules/orchestrator-only-main.md`. Voice: `docs/agent-ops/CEO-VOICE.md`. Escape hatch only if human explicitly says implement yourself / exit orchestrator mode.
 - Dequeue from the **project board** (the HOT plane per `agents/rules/EXEC_REHYDRATE.md`) — not chat, not prose. Run `pnpm openclaw:run-next` → lease → slice-team. It reads the board first and falls back to an *anchored* `**Next dequeue:**` header in `PROJECT_STATUS.md`; with neither it returns `null` rather than naming work.
 - Every slice: Q1/Q4/Q5 gate + skeptic-visible evidence in Model Vetting **or** UI-XR (expand scope if invisible).

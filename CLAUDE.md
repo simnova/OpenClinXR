@@ -4,26 +4,40 @@
 
 Say what happened and what it means. Nothing else earns space.
 
-## The rule is shared, not mine
+## What mannered means here
 
-The table of mannered patterns and their replacements now lives in
-`agents/rules/MANDATE_PROSE.md`, which every harness loads — it is in the Grok core tier
-(`scripts/sync-harness-agent-files.sh` `CORE_RULES`), symlinked into `.claude/rules/` and
-`.cursor/rules/`, and stated in the `AGENTS.md` BLUF. It was moved there on 2026-09-10
-after `git grep -i mannered` returned two hits, both in this file, which only Claude reads.
-A directive binding one of four harnesses is not a project policy.
+Measured in my own reports, worst offenders first:
 
-The headline stays here because this file is loaded on every Claude turn and the rule is
-the first thing that should be true of a response.
+| pattern | instead |
+|---|---|
+| "and that is the finding", "and the gate is right about me", "and it is informative" | state the finding; drop the appended verdict |
+| "X rather than Y" as a rhetorical frame | say X |
+| a caveat inflated into a paragraph so it sounds principled | one sentence, beside its evidence |
+| narrating the reasoning that led to a measurement | give the measurement |
+| "worth recording", "worth naming", "worth stating" | record it, or cut it |
+| repeating a number in prose that a table already gave | cut the prose |
+| a closing paragraph that re-summarises the report | end on the last fact |
+
+A sentence that would survive being deleted should be deleted.
 
 ## Where the countable limits live
 
-`.agents/skills/operator-prose/SKILL.md`, symlinked as `.claude/skills/operator-prose/SKILL.md`
-— bold spans, em-dashes, banned constructions, section order, the end-of-draft self-check.
-Load it before writing to the operator; it is the enforcement surface and neither this file
-nor `MANDATE_PROSE.md` restates it. `.claude/hooks/skill-preflight.js` names it on every
-UserPromptSubmit, because automatic selection from `description` did not fire for it across
-a whole 713-message session.
+`.claude/skills/operator-prose/SKILL.md` — bold spans, em-dashes, banned constructions,
+section order, the end-of-draft self-check. Load it before writing to the operator; it is
+the enforcement surface and this file does not restate it.
+
+## Why it lives here and not in the shared tier
+
+Operator direction, 2026-09-10: *"this fix is necessary for claude only - so we can have baseline
+agentic config that applies to all, then layer on top of that harness specific needs such as that
+line."*
+
+It was briefly promoted to `agents/rules/MANDATE_PROSE.md` and the Grok core tier on the reasoning
+that a directive binding one of four harnesses is not a project policy. That reasoning was wrong
+about the architecture: the shared tier is the BASELINE, and a harness layers its own needs on top.
+Grok already has its own voice contract (`.grok/personas/terse-bluf.toml` mirroring
+`WORKER_TONE_DIRECTIVE`), so promoting this one imposed a second, conflicting one on it. Do not
+promote it again. The layering contract is stated in `agents/rules/README.md`.
 
 ## This file is not a source of truth
 
