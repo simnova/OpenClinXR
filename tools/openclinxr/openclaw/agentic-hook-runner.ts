@@ -387,6 +387,19 @@ function buildBaseOpenClawSteps(profile: HookProfile, changedFiles: string[]): H
         command: pnpm("assets:licence-record-truthful"),
         reason: "a shipped asset that misstates its build tool's licence is a compliance claim nobody measured",
       },
+      /*
+       * MEASURED 2026-09-10: every shipped humanoid's glTF asset block was exactly
+       * {generator, version} while a CC-BY kit was welded into three of them and served at a public
+       * URL. A website credits page reaches a learner; it does not reach someone who fetches the
+       * .glb. This step re-derives each body's notice from the components actually in the file and
+       * fails when the bytes and the obligation disagree in EITHER direction — a missing credit, or
+       * a credit on a body that owes none.
+       */
+      {
+        label: "Shipped bytes carry the attribution their components oblige",
+        command: pnpm("assets:shipped-notice"),
+        reason: "a CC-BY component in a publicly fetchable mesh whose bytes name no author is an unmet obligation",
+      },
   ];
 
   const architectureStep = buildArchitectureStep(profile, changedFiles);

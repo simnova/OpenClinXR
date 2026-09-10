@@ -398,6 +398,7 @@
     "openclinxr:factory-pulse": "tsx tools/openclinxr/openclaw/factory-pulse.ts",
     "openclaw:supervisor": "tsx tools/openclinxr/openclaw/supervisor-audit-cli.ts",
     "assets:licence-record-truthful": "vitest run --root . tools/openclinxr/evidence/licence/",
+    "assets:shipped-notice": "tsx tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts --check",
     "assets:client-entry-node-free": "vitest run --root . tools/openclinxr/evidence/the-client-entry-does-not-reach-node-builtins.test.ts",
     "assets:reachability": "vitest run --root . tools/openclinxr/openclaw/every-published-humanoid-is-cast-or-declared.test.ts",
     "factory:rooms:bake": "tsx tools/openclinxr/asset-pipeline/environment/rooms-bake-cli.ts",

@@ -133,6 +133,13 @@ export type SubcomponentClearance = {
   rights: SubcomponentRights;
   /** Required, and non-empty, when `rights` is an operator override. Who decided, and when. */
   overrideAuthority?: string;
+  /**
+   * The credit the licence obliges us to carry, verbatim from the asset's own header or its ledger
+   * row. REQUIRED, and non-empty, when `rights` is `cc-by` — a CC-BY component with no attribution
+   * string is an obligation nobody can discharge, and `everyCcByComponentCarriesItsAttribution`
+   * fails on it. Do not invent one: if the source names a preferred credit, that is the string.
+   */
+  attribution?: string;
   redistributable: boolean;
   /** False means a published RENDER of this component needs the block declared in the manifest. */
   publicRenderCleared: boolean;
@@ -217,6 +224,20 @@ export const SUBCOMPONENT_CLEARANCE: readonly SubcomponentClearance[] = [
     publicRenderCleared: true,
   },
   {
+    // FOUND 2026-09-10 by a BOM audit over the mesh names in all 19 shipped GLBs, not by reading the
+    // table. It matched NO entry, so `assessSubcomponent` refused it `subcomponent-rights-unrecorded`
+    // while the boots shipped on two bodies. The table was written for the four scene-closure cast
+    // bodies and quietly did not cover the fleet.
+    meshMatch: "makeclothes_library_footwear_culturalibre_male_boots",
+    component: "culturalibre male boots (shoes01)",
+    licenceRecordPath:
+      "docs/openclinxr/asset-licence-records/row-22-makehuman-shoes01-pack-file-shoes01cc0-zip-83-mb-23-shoes-al.json",
+    requiredRecordPhrases: ["CC0"],
+    rights: "cc0",
+    redistributable: true,
+    publicRenderCleared: true,
+  },
+  {
     meshMatch: "makeclothes_library_hair_toigo",
     component: "toigo bob (hair01 CC0 subset)",
     licenceRecordPath: "docs/openclinxr/asset-licence-records/row-13-makehuman-hair01-pack-page.json",
@@ -274,6 +295,7 @@ export const SUBCOMPONENT_CLEARANCE: readonly SubcomponentClearance[] = [
       "docs/openclinxr/asset-licence-records/row-16-makehuman-community-scrub-shirt-scrubshirt-mhclo-author-woja.json",
     requiredRecordPhrases: ["CC-BY"],
     rights: "cc-by",
+    attribution: "WojackOWL, Medical Scrubs Kit, CC-BY",
     redistributable: true,
     publicRenderCleared: true,
   },
@@ -284,6 +306,7 @@ export const SUBCOMPONENT_CLEARANCE: readonly SubcomponentClearance[] = [
       "docs/openclinxr/asset-licence-records/row-17-makehuman-community-scrub-pants-clothes-page-uuid-c0c024de-6.json",
     requiredRecordPhrases: ["CC-BY"],
     rights: "cc-by",
+    attribution: "WojackOWL, Medical Scrubs Kit, CC-BY",
     redistributable: true,
     publicRenderCleared: true,
   },

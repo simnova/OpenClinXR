@@ -45,6 +45,11 @@ describe("agentic-hook-runner path-scoped architecture", () => {
       // ADDED 2026-09-09. The AGPL-vs-GPL label reached eight shipped provenance records through a
       // generator, so no staged-path shape identifies the commits that can reintroduce it.
       "Shipped licence records match the installed tool",
+      // ADDED 2026-09-10 and UNCONDITIONAL, same reason as the two above. Every shipped humanoid's
+      // glTF asset block was {generator, version} while a CC-BY kit was welded into three of them
+      // and served at a public URL. A commit that welds a new component into a body does not look
+      // licence-shaped, so this step cannot be path-scoped either.
+      "Shipped bytes carry the attribution their components oblige",
       "OpenClaw post-slice record check",
     ]);
   });

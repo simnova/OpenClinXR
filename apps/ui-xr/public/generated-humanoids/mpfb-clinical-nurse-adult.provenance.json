@@ -1,94 +1,96 @@
 {
- "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
- "derivationMode": "mpfb2_macro_from_anny_reference",
- "scenarioId": "ed_chest_pain_priority_v1",
- "actorId": "nurse_maria_alvarez_v1",
- "actorRole": "nurse",
- "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
- "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_manifest.json",
- "generatorMode": "mpfb2_humanservice_create_human_with_macro_dict_from_tracked_anny_reference_v1",
- "sourceKind": "mpfb2_makehuman_basemesh_from_anny_reference",
- "usesRealAnnyForwardPass": false,
- "realAnnyWeightsUsed": false,
- "textureMode": "authored_or_baked",
- "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
- "optimizationMode": "unoptimized_post_blender_glb",
- "realismGrade": "not_graded",
- "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
- "sourceOriginChain": {
-  "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
-  "annyReference": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj (tracked)",
-  "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
-  "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-  "derivationNote": "Issue #403 step 2: the shared Anny nurse mesh (10 cast slots) is replaced by this MPFB2 adult. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5827 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.76 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. Standard 137-joint rig; #317 face keys (32 targets / 13 mouth); #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris). Wardrobe (2026-08-14 medical wardrobe): WojackOWL CC-BY Scrub_Shirt (9,384 tris, locked clinical colour 0.05,0.48,0.52) + Scrub_Pants (2,704 tris, fitted BEFORE the #318 helper strip because x_scale refs 13868/14308 are helper verts) via the clinician ClothesService branch; toigo_flats footwear, #381 CC0 toigo_blunt_bob fitted hair, #356 blue iris (CC0 makehuman system-assets pack), #377 anatomical 24.0 mm eyes, #343 skin tone medium_warm (0.58,0.44,0.36), #370 tangent-space normal map, #359 scalp placeholder RETIRED BY RULE (fitted hair present -> no openclinxr_mesh_native_scalp_hair_surface). No lab coat on this file: it still dresses nurse + RT + MA + (until the physician GLB) physician. LONG_SLEEVE_UPPER_BY_REFERENCE[ed_chest_pain_nurse_adult]=None; the toigo_fisherman_sweater and cortu_cargo_pants are gone on this actor. 2026-08-14 nurse-adult rebake via materialize_mpfb_humanoid_candidate.py --actor-role nurse --reference ed_chest_pain_nurse_adult; bake-time licence re-read on both .mhclo headers (CC-BY); midriff measured +2.6 mm min overlap / 0 of 36 gapped buckets (closed). Attribution: WojackOWL, Medical Scrubs Kit, CC-BY."
- },
- "licenseChain": {
-  "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
-  "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
-  "sourceRecordClaimsSupported": [
-   "MPFB2 2.0.15 from Blender Extensions; MPFB declares SPDX:GPL-3.0-or-later for its own code (installed 2.0.15, blender_manifest.toml sha256 b7e1d0732e67cc18955f91b91ff9049b9f0bc868f05eb074e4ea3cf38fa3ddd5; corrected 2026-09-09 from a stale AGPLv3 label) with bundled assets CC0 1.0 per LICENSE.ASSETS.md and a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
-  ],
-  "notRun": [
-   "licence_text_reenumeration",
-   "makehuman_license_review",
-   "production_asset_readiness"
-  ],
-  "explicitUnknown": [
-   "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a cagematch comparator for evidence only."
-  ]
- },
- "notEvidenceFor": [
-  "b_plus_visual_realism_gate",
-  "production_asset_readiness",
-  "quest_readiness",
-  "learner_readiness",
-  "clinical_validity",
-  "scoring_validity",
-  "scene_placement_readiness",
-  "madr_0051_s5_landmark_match_within_bands",
-  "gown",
-  "physician_coat",
-  "midriff_closed_unless_the_number_says_so"
- ],
- "sourceNotes": [
-  "Issue #403 first adult MPFB2 migration slice: the 19-slot Anny nurse/spouse pair is replaced by two MPFB2 adults generated from the tracked Anny references. The Anny GLBs stay on disk as comparators.",
-  "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
-  "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
-  "Physician/respiratory_therapist/medical_assistant roles share this nurse-class body by design (named clinical-team look-alike) — not a third bake.",
-  "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris).",
-  "2026-08-14 medical wardrobe (nurse-adult): LONG_SLEEVE_UPPER_BY_REFERENCE[ed_chest_pain_nurse_adult]=None so the clinician branch selects WojackOWL CC-BY Scrub_Shirt (9384 tris) + Scrub_Pants (2704 tris, fit BEFORE #318 strip because x_scale refs 13868/14308 are helper verts). Cargo pants and toigo_fisherman_sweater gone on this actor. HAIR_STYLE_BY_REFERENCE kept toigo_blunt_bob (2858 tris). Scalp emit is a RULE (fitted hair present => no openclinxr_mesh_native_scalp_hair_surface). Licence re-read on both mhclo headers (CC-BY). Midriff measured +2.6 mm min overlap / 0 of 36 gapped buckets (closed). Attribution: WojackOWL, Medical Scrubs Kit, CC-BY.",
-  "2026-08-21 #502: toigo_flats leopard 'Shoe' baseColorTexture stripped from the footwear material (per-actor swap, gown-patient precedent) and baseColorFactor set to (0.10,0.09,0.08,1.0) — a nurse in leopard party flats is not clinically plausible. Only the footwear material changed; skin, rig and morph targets untouched.",
-  "2026-08-29 #0 (re-materialization record): this file's derivationNote predates the #598/#740 re-materialization — the shipped bytes now carry mat_makeclothes_library_footwear_toigo_mj_cloth_shoes with MJ-shoes3 (1,418,657 B), and SHOE_BY_REFERENCE maps no cast role to toigo_flats (measured in the one-garment-one-material re-measurement; the #502 strip entry above described the previous toigo_flats footwear).",
-  "2026-09-03 #0 (chest-anchor separation): tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both — one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The ClinicalIdleConversation translation keyframes for both joints were moved with the rest nodes so the clip cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and both animations' rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-clinical-nurse-adult.json. Gate: tools/openclinxr/evidence/the-chest-anchor-joints-are-not-one-point.test.ts (3 passed)."
- ],
- "claimScope": "nurse_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_toigo_blunt_bob_kept",
- "promotionGates": false,
- "generatedAt": "2026-08-14T21:33:00Z",
- "outputSha256": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d",
- "outputBytes": 11112092,
- "byteLineage": {
-  "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-09-09T20:55:55.296Z",
-  "recordedBefore": {
-   "outputSha256": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d",
-   "outputBytes": 11112092
+  "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+  "derivationMode": "mpfb2_macro_from_anny_reference",
+  "scenarioId": "ed_chest_pain_priority_v1",
+  "actorId": "nurse_maria_alvarez_v1",
+  "actorRole": "nurse",
+  "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+  "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_manifest.json",
+  "generatorMode": "mpfb2_humanservice_create_human_with_macro_dict_from_tracked_anny_reference_v1",
+  "sourceKind": "mpfb2_makehuman_basemesh_from_anny_reference",
+  "usesRealAnnyForwardPass": false,
+  "realAnnyWeightsUsed": false,
+  "textureMode": "authored_or_baked",
+  "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+  "optimizationMode": "unoptimized_post_blender_glb",
+  "realismGrade": "not_graded",
+  "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
+  "sourceOriginChain": {
+    "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
+    "annyReference": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj (tracked)",
+    "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
+    "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "derivationNote": "Issue #403 step 2: the shared Anny nurse mesh (10 cast slots) is replaced by this MPFB2 adult. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5827 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.76 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. Standard 137-joint rig; #317 face keys (32 targets / 13 mouth); #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris). Wardrobe (2026-08-14 medical wardrobe): WojackOWL CC-BY Scrub_Shirt (9,384 tris, locked clinical colour 0.05,0.48,0.52) + Scrub_Pants (2,704 tris, fitted BEFORE the #318 helper strip because x_scale refs 13868/14308 are helper verts) via the clinician ClothesService branch; toigo_flats footwear, #381 CC0 toigo_blunt_bob fitted hair, #356 blue iris (CC0 makehuman system-assets pack), #377 anatomical 24.0 mm eyes, #343 skin tone medium_warm (0.58,0.44,0.36), #370 tangent-space normal map, #359 scalp placeholder RETIRED BY RULE (fitted hair present -> no openclinxr_mesh_native_scalp_hair_surface). No lab coat on this file: it still dresses nurse + RT + MA + (until the physician GLB) physician. LONG_SLEEVE_UPPER_BY_REFERENCE[ed_chest_pain_nurse_adult]=None; the toigo_fisherman_sweater and cortu_cargo_pants are gone on this actor. 2026-08-14 nurse-adult rebake via materialize_mpfb_humanoid_candidate.py --actor-role nurse --reference ed_chest_pain_nurse_adult; bake-time licence re-read on both .mhclo headers (CC-BY); midriff measured +2.6 mm min overlap / 0 of 36 gapped buckets (closed). Attribution: WojackOWL, Medical Scrubs Kit, CC-BY."
   },
-  "preImageRevision": "3d019031^:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-  "preImageSha256": "2e111a0da68f18f151a623a98e544154e610cdcd916ac106f6d9213d9d8c7089",
-  "preImageBytes": 11112080,
-  "derivationArgv": [
-   "node",
-   "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
-   "--input",
-   "{pre}",
-   "--output",
-   "{out}",
-   "--report",
-   ".openclinxr/evidence/scene-closure/sc-04/rederive/nurse-rederive-report.json",
-   "--half-span-m",
-   "0.085"
+  "licenseChain": {
+    "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
+    "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+    "sourceRecordClaimsSupported": [
+      "MPFB2 2.0.15 from Blender Extensions; MPFB declares SPDX:GPL-3.0-or-later for its own code (installed 2.0.15, blender_manifest.toml sha256 b7e1d0732e67cc18955f91b91ff9049b9f0bc868f05eb074e4ea3cf38fa3ddd5; corrected 2026-09-09 from a stale AGPLv3 label) with bundled assets CC0 1.0 per LICENSE.ASSETS.md and a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
+    ],
+    "notRun": [
+      "licence_text_reenumeration",
+      "makehuman_license_review",
+      "production_asset_readiness"
+    ],
+    "explicitUnknown": [
+      "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a cagematch comparator for evidence only."
+    ]
+  },
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "scene_placement_readiness",
+    "madr_0051_s5_landmark_match_within_bands",
+    "gown",
+    "physician_coat",
+    "midriff_closed_unless_the_number_says_so"
   ],
-  "reproduction": "byte-identical to the shipped file",
-  "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte."
- }
+  "sourceNotes": [
+    "Issue #403 first adult MPFB2 migration slice: the 19-slot Anny nurse/spouse pair is replaced by two MPFB2 adults generated from the tracked Anny references. The Anny GLBs stay on disk as comparators.",
+    "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
+    "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
+    "Physician/respiratory_therapist/medical_assistant roles share this nurse-class body by design (named clinical-team look-alike) — not a third bake.",
+    "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris).",
+    "2026-08-14 medical wardrobe (nurse-adult): LONG_SLEEVE_UPPER_BY_REFERENCE[ed_chest_pain_nurse_adult]=None so the clinician branch selects WojackOWL CC-BY Scrub_Shirt (9384 tris) + Scrub_Pants (2704 tris, fit BEFORE #318 strip because x_scale refs 13868/14308 are helper verts). Cargo pants and toigo_fisherman_sweater gone on this actor. HAIR_STYLE_BY_REFERENCE kept toigo_blunt_bob (2858 tris). Scalp emit is a RULE (fitted hair present => no openclinxr_mesh_native_scalp_hair_surface). Licence re-read on both mhclo headers (CC-BY). Midriff measured +2.6 mm min overlap / 0 of 36 gapped buckets (closed). Attribution: WojackOWL, Medical Scrubs Kit, CC-BY.",
+    "2026-08-21 #502: toigo_flats leopard 'Shoe' baseColorTexture stripped from the footwear material (per-actor swap, gown-patient precedent) and baseColorFactor set to (0.10,0.09,0.08,1.0) — a nurse in leopard party flats is not clinically plausible. Only the footwear material changed; skin, rig and morph targets untouched.",
+    "2026-08-29 #0 (re-materialization record): this file's derivationNote predates the #598/#740 re-materialization — the shipped bytes now carry mat_makeclothes_library_footwear_toigo_mj_cloth_shoes with MJ-shoes3 (1,418,657 B), and SHOE_BY_REFERENCE maps no cast role to toigo_flats (measured in the one-garment-one-material re-measurement; the #502 strip entry above described the previous toigo_flats footwear).",
+    "2026-09-03 #0 (chest-anchor separation): tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both — one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The ClinicalIdleConversation translation keyframes for both joints were moved with the rest nodes so the clip cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and both animations' rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-clinical-nurse-adult.json. Gate: tools/openclinxr/evidence/the-chest-anchor-joints-are-not-one-point.test.ts (3 passed)."
+  ],
+  "claimScope": "nurse_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_toigo_blunt_bob_kept",
+  "promotionGates": false,
+  "generatedAt": "2026-08-14T21:33:00Z",
+  "outputSha256": "a1d947e86045366afdad8c30c3abdb66f664be8b3d47f2d8f705a2a5de39909d",
+  "outputBytes": 11112244,
+  "byteLineage": {
+    "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+    "correctedAt": "2026-09-09T20:55:55.296Z",
+    "recordedBefore": {
+      "outputSha256": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d",
+      "outputBytes": 11112092
+    },
+    "preImageRevision": "3d019031^:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+    "preImageSha256": "2e111a0da68f18f151a623a98e544154e610cdcd916ac106f6d9213d9d8c7089",
+    "preImageBytes": 11112080,
+    "derivationArgv": [
+      "node",
+      "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
+      "--input",
+      "{pre}",
+      "--output",
+      "{out}",
+      "--report",
+      ".openclinxr/evidence/scene-closure/sc-04/rederive/nurse-rederive-report.json",
+      "--half-span-m",
+      "0.085"
+    ],
+    "reproduction": "byte-identical to the shipped file",
+    "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte."
+  },
+  "licenceNoticeWrittenAt": "2026-09-10T17:27:31.847Z",
+  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here."
 }

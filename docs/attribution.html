@@ -25,24 +25,77 @@
         <h3>Attribution required &mdash; CC-BY</h3>
         <div class="metric-table-wrap">
           <table class="metric-table">
-            <caption>These carry a live attribution obligation and are compiled into shipped assets.</caption>
+            <caption>A live attribution obligation, compiled into shipped bodies and carried in their bytes.</caption>
             <thead><tr><th scope="col">Asset</th><th scope="col">Credit</th><th scope="col">Licence</th><th scope="col">Ships in</th></tr></thead>
             <tbody>
               <tr>
-                <td>Scrub shirt</td>
+                <td>Scrub shirt and scrub pants</td>
                 <td>WojackOWL, <em>Medical Scrubs Kit</em></td>
-                <td>CC-BY</td>
-                <td>clinical nurse, clinical physician, OB patient, peds nurse, peds patient</td>
-              </tr>
-              <tr>
-                <td>Scrub pants</td>
-                <td>WojackOWL, <em>Medical Scrubs Kit</em></td>
-                <td>CC-BY</td>
-                <td>clinical nurse, clinical physician, peds nurse</td>
+                <td><a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></td>
+                <td>clinical nurse, clinical physician, peds nurse Kevin</td>
               </tr>
             </tbody>
           </table>
         </div>
+        <p class="status-copy">
+          <strong>Modifications:</strong> the kit was fitted to each body's mesh through MakeClothes and compiled
+          into a single <code>.glb</code> alongside other components. The shipped files are adaptations, not the
+          original garments.
+        </p>
+        <p class="status-copy">
+          <strong>Corrected 2026-09-10.</strong> An earlier version of this page said the shirt ships in five
+          bodies and the pants in three. Both numbers came from the provenance sidecars, which name the kit for two
+          bodies whose meshes do not contain it. Reading the mesh names inside the shipped <code>.glb</code> files
+          gives three bodies, each carrying both garments. The bytes decide; the sidecar is not a bill of materials.
+        </p>
+        <p class="status-copy">
+          These three files now carry the credit in their own bytes, in the glTF <code>asset.copyright</code> field,
+          so a reader who fetches the mesh URL directly sees the author and licence without visiting this page. The
+          notice is derived from the components present in each file rather than pasted, so a body that owes no
+          attribution carries none.
+        </p>
+
+        <h3 id="mpfb-clinical-physician-adult">Per-body composition</h3>
+        <p class="status-copy">
+          The <code>asset.copyright</code> notice in each shipped mesh points here. Every component welded into
+          these three files, not only the ones owing attribution:
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>What is inside each body that carries a CC-BY component.</caption>
+            <thead><tr><th scope="col">Body</th><th scope="col">Components</th></tr></thead>
+            <tbody>
+              <tr>
+                <td id="mpfb-clinical-nurse-adult"><code>mpfb-clinical-nurse-adult</code></td>
+                <td>hm08 base mesh, teeth and tongue (CC0, operator ruling); MakeHuman system eyes (CC0);
+                    Mindfront eyebrows and eyelashes (CC0); toigo bob hair (CC0); toigo cloth shoes (CC0);
+                    <strong>WojackOWL scrub shirt and pants (CC BY 4.0)</strong>; cortu cargo pants
+                    (index-override, licence question open)</td>
+              </tr>
+              <tr>
+                <td><code>mpfb-clinical-physician-adult</code></td>
+                <td>hm08 base mesh, teeth and tongue (CC0, operator ruling); MakeHuman system eyes (CC0);
+                    Mindfront eyebrows and eyelashes (CC0); mhair02 (uuid override, header contradiction open);
+                    crude lab coat (CC0); toigo cloth shoes (CC0);
+                    <strong>WojackOWL scrub shirt and pants (CC BY 4.0)</strong>; a CC0 Mesh2Motion walk clip</td>
+              </tr>
+              <tr>
+                <td id="mpfb-peds-nurse-kevin"><code>mpfb-peds-nurse-kevin</code></td>
+                <td>hm08 base mesh, teeth and tongue (CC0, operator ruling); MakeHuman system eyes (CC0);
+                    Mindfront eyebrows and eyelashes (CC0); mhair02 (uuid override, header contradiction open);
+                    culturalibre male boots (CC0);
+                    <strong>WojackOWL scrub shirt and pants (CC BY 4.0)</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="status-copy">
+          <strong>Not yet determined.</strong> A bill-of-materials audit over the mesh names in all 19 shipped
+          bodies found components whose licence no authority in this repository establishes: the procedural
+          footwear on the older-rail bodies, and those bodies' generated base meshes. They are recorded as unknown
+          rather than assumed clean. The same audit found no CC BY-SA and no CC BY-NC component anywhere in the
+          shipped set.
+        </p>
 
         <h3>No attribution required &mdash; CC0, credited anyway</h3>
         <div class="metric-table-wrap">
