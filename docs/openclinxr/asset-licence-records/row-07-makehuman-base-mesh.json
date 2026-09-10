@@ -6,5 +6,18 @@
     " MakeHuman base mesh",
     "A stale 2016 README in the org's own tree asserts **AGPL** against a 2020 `LICENSE.md` saying **CC0**. No dated relicensing announcement found.",
     "This is the mesh under every body we generate. The contradiction is upstream, not ours, but it is the single most load-bearing licence in the pipeline. "
-  ]
+  ],
+  "operatorRuling2026_09_10": {
+    "decidedBy": "repository operator (patrick@simnova.com)",
+    "decidedOnIso": "2026-09-10",
+    "question": "A 2016 README in the upstream org tree asserts AGPL; a 2020 LICENSE.md in the same tree asserts CC0. No dated relicensing announcement was found. Which governs?",
+    "ruling": "The 2020 LICENSE.md SUPERSEDES the stale 2016 README. hm08 is CC0.",
+    "reasoning": "The later canonical licence file governs over stale README prose in the same tree.",
+    "scope": "hm08 base mesh, its teeth and its tongue, in every MakeHuman-derived body this project generates. Public RENDER is cleared by this ruling.",
+    "doesNotResolve": [
+      "row-14 mhair02 page-CC0 vs header-AGPL3",
+      "row-15 cortu_cargo_pants index-CC0 vs silent .mhclo"
+    ],
+    "reversibility": "If an upstream owner states the README is the real grant, every derived asset is re-baked without hm08 and this ruling is withdrawn in place."
+  }
 }

@@ -138,18 +138,31 @@ describe("the selected scene assets have cleared byte lineage", () => {
   it("COUNTERWEIGHT: a subcomponent not cleared for public render must be DECLARED, not silently carried", () => {
     // Undeclared: a finding. This is the clause that caught the cargo pants index-override, which
     // was shipping on the selected family member with no entry in the manifest at all.
+    // DERIVED, NOT NAMED. This fixture was pinned to a component twice and went green about nothing
+    // both times, because the operator cleared the component it named — first hm08, then mhair02 on
+    // 2026-09-10. Naming a component makes the clause decay every time the licence position improves.
+    // It now takes whatever is STILL blocked, and refuses to pass silently when nothing is.
+    const stillBlocked = SUBCOMPONENT_CLEARANCE.filter((entry) => !entry.publicRenderCleared);
+    expect(
+      stillBlocked.length,
+      "no subcomponent is blocked for public render, so this counterweight has nothing to exercise. "
+        + "That may be good news, but it must not read as a pass: replace this clause with an inverted "
+        + "guard recording that every selected subcomponent is render-cleared, and say who cleared the last one.",
+    ).toBeGreaterThan(0);
+    const subject = stillBlocked[0]!;
+
     const undeclared = assessSubcomponent({
-      meshName: "mpfb_someone_body",
-      recordText: "AGPL vs CC0, unresolved.",
+      meshName: `${subject.meshMatch}_fixture_mesh`,
+      recordText: subject.requiredRecordPhrases.join(" "),
       declaredPublicRenderBlocks: [],
     });
     expect(undeclared.problems.map((problem) => problem.kind)).toContain("public-render-block-not-declared");
 
     // Declared: no finding. Same component, same unresolved rights — only the declaration differs.
     const declared = assessSubcomponent({
-      meshName: "mpfb_someone_body",
-      recordText: "AGPL vs CC0, unresolved.",
-      declaredPublicRenderBlocks: ["docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json"],
+      meshName: `${subject.meshMatch}_fixture_mesh`,
+      recordText: subject.requiredRecordPhrases.join(" "),
+      declaredPublicRenderBlocks: [subject.licenceRecordPath],
     });
     expect(declared.problems).toEqual([]);
 
@@ -158,7 +171,9 @@ describe("the selected scene assets have cleared byte lineage", () => {
     expect(SCENE_CLOSURE_SELECTED_ASSET_MANIFEST.publicRender.decision).toBe(
       "blocked_pending_named_upstream_resolution",
     );
-    expect(SCENE_CLOSURE_SELECTED_ASSET_MANIFEST.publicRender.blockedBy.length).toBeGreaterThanOrEqual(3);
+    // 3 -> 2 on 2026-09-10: hm08 was RESOLVED, not waived. The guard that matters is the one below —
+    // every remaining block carries a real reason and a real unblock path — not the count itself.
+    expect(SCENE_CLOSURE_SELECTED_ASSET_MANIFEST.publicRender.blockedBy.length).toBe(stillBlocked.length);
     for (const block of SCENE_CLOSURE_SELECTED_ASSET_MANIFEST.publicRender.blockedBy) {
       expect(block.why.length, `${block.subcomponent} reason`).toBeGreaterThan(40);
       expect(block.unblockedBy.length, `${block.subcomponent} unblock path`).toBeGreaterThan(20);

@@ -381,12 +381,18 @@ export const SCENE_CLOSURE_SELECTED_ASSET_MANIFEST = {
   /**
    * The public-render decision, which is NOT implied by anything above.
    *
-   * It is BLOCKED, and by one thing that this card measured rather than assumed: the hm08 base mesh
-   * under every generated body carries an unresolved upstream contradiction — a stale 2016 README in
-   * MakeHuman's own tree asserts AGPL against a 2020 LICENSE.md saying CC0, with no dated
-   * relicensing announcement (row-07). That contradiction predates this card and this card does not
-   * resolve it; what this card does is stop it being invisible, so a later capture or website gate
-   * cannot publish a frame of these actors while believing the question was settled.
+   * STILL BLOCKED, but by ONE component rather than three, and only for one actor.
+   *
+   * Two operator rulings on 2026-09-10 cleared the rest. hm08 — the base mesh under every generated
+   * body, and the load-bearing one — was RESOLVED: the 2020 LICENSE.md supersedes the stale 2016
+   * README, so it is CC0 (row-07). mhair02's 2026-08-14 uuid override was EXTENDED to cover a
+   * published render (row-14); its page-versus-header contradiction is unchanged and is not being
+   * called resolved, only the scope of the accepted assumption changed.
+   *
+   * WHAT REMAINS is the cargo pants on the family member, whose `.mhclo` carries no licence line at
+   * all and which ships on the 2026-08-24 index override with owner contact pending. No ruling has
+   * reached it. So the patient, the physician and the nurse are cleared for a published render and
+   * a frame containing the FAMILY MEMBER is not.
    */
   publicRender: {
     decision: "blocked_pending_named_upstream_resolution" as const,
@@ -398,20 +404,10 @@ export const SCENE_CLOSURE_SELECTED_ASSET_MANIFEST = {
       "WojackOWL Scrub_Shirt / Scrub_Pants (CC-BY, attribution required on a licences page)",
       "makehuman crude labcoat (CC0)",
       "first-party procedural garments (hospital gown shell, real-garment upper)",
+      "hm08 MakeHuman base mesh, teeth and tongue (CC0 — operator ruling 2026-09-10: the 2020 LICENSE.md supersedes the stale 2016 README; row-07 carries the reasoning and the reversal condition)",
+      "makehuman-community mhair02 on the physician (page CC0 vs header AGPL3 — the 2026-08-14 uuid override was EXTENDED to public render by operator ruling 2026-09-10; the header contradiction is unchanged, row-14)",
     ],
     blockedBy: [
-      {
-        subcomponent: "hm08 MakeHuman base mesh, present in all four selected bodies",
-        record: "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json",
-        why: "A stale 2016 README in the org's own tree asserts AGPL against a 2020 LICENSE.md saying CC0. No dated relicensing announcement found. Unresolved upstream.",
-        unblockedBy: "A dated upstream relicensing statement, or written confirmation from MakeHuman, recorded on row-07.",
-      },
-      {
-        subcomponent: "makehuman-community mhair02, worn by the selected physician",
-        record: "docs/openclinxr/asset-licence-records/row-14-makehuman-community-mhair02-clothes-page-uuid-f81a4e9a-e3d7-.json",
-        why: "The clothes page says CC0; the downloaded .mhclo header says AGPL3. It ships under a named operator override for this uuid only, 2026-08-14, which is an accepted assumption rather than a finding in the file.",
-        unblockedBy: "Author confirmation that the page grant is the real one, or a replacement style whose own header clears.",
-      },
       {
         subcomponent: "cortu cargo pants (pants01), worn by the selected family member",
         record: "docs/openclinxr/asset-licence-records/row-15-makehuman-pants01-pack-page-mirror-https-files2-makehumancom.json",

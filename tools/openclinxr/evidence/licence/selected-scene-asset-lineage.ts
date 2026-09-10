@@ -146,13 +146,21 @@ export type SubcomponentClearance = {
  * it bites. The table is keyed on the mesh names actually present in the shipped bytes, so adding a
  * garment to an actor without recording where it came from fails the audit rather than shipping.
  *
- * TWO ENTRIES ARE NOT CLEAN AND ARE NOT PRETENDING TO BE. `row-07`'s hm08 base mesh carries an
- * unresolved upstream AGPL-versus-CC0 contradiction, and `row-14`'s mhair02 ships under a named
- * operator override against its own AGPL3 header. Both keep `redistributable: true` because the
- * project's standing recorded position is what ships today and this card is not authorised to
- * reopen the whole catalogue; both carry `publicRenderCleared: false`, which forces the manifest to
- * declare them and stops a later website gate publishing on the belief that the question was
- * settled. Deleting either row would silence exactly the thing the card asks SC-04 to surface.
+ * ROW-07 WAS RESOLVED BY THE OPERATOR ON 2026-09-10 and is no longer a contradiction. The upstream
+ * tree carries a 2016 README asserting AGPL and a 2020 `LICENSE.md` asserting CC0; the ruling is
+ * that the later canonical LICENSE.md supersedes the stale README, so hm08 is CC0 and its three
+ * entries now carry `publicRenderCleared: true` with the ruling named in `overrideAuthority`.
+ *
+ * ROW-14's mhair02 still ships under its 2026-08-14 uuid-scoped override against its own AGPL3
+ * header, and that override was EXTENDED TO PUBLIC RENDER on 2026-09-10. The header contradiction is
+ * unchanged and is not being called resolved; what changed is the scope of the accepted assumption.
+ *
+ * ONE ENTRY IS STILL NOT CLEAN. `row-15`'s cargo pants ship under the 2026-08-24 index override
+ * against a `.mhclo` carrying no licence line at all. It keeps `redistributable: true` because that
+ * is the project's standing position for what ships, and keeps `publicRenderCleared: false` because
+ * no ruling has reached it. Deleting that row would silence exactly the thing SC-04 exists to
+ * surface, and the counterweight below derives its fixture from whatever is still blocked so it
+ * cannot quietly go green as components clear.
  */
 export const SUBCOMPONENT_CLEARANCE: readonly SubcomponentClearance[] = [
   {
@@ -160,27 +168,33 @@ export const SUBCOMPONENT_CLEARANCE: readonly SubcomponentClearance[] = [
     component: "hm08 MakeHuman base mesh",
     licenceRecordPath: "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json",
     requiredRecordPhrases: ["AGPL", "CC0"],
-    rights: "contradicted_upstream",
+    rights: "operator_override",
+    overrideAuthority:
+      "operator ruling 2026-09-10 (patrick@simnova.com): the 2020 LICENSE.md SUPERSEDES the stale 2016 README. The upstream tree carries both; the later, canonical LICENSE.md governs, so hm08 is CC0 and the README assertion is dead text.",
     redistributable: true,
-    publicRenderCleared: false,
+    publicRenderCleared: true,
   },
   {
     meshMatch: "openclinxr_hm08_teeth",
     component: "hm08 teeth",
     licenceRecordPath: "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json",
     requiredRecordPhrases: ["AGPL", "CC0"],
-    rights: "contradicted_upstream",
+    rights: "operator_override",
+    overrideAuthority:
+      "operator ruling 2026-09-10 (patrick@simnova.com): the 2020 LICENSE.md SUPERSEDES the stale 2016 README. The upstream tree carries both; the later, canonical LICENSE.md governs, so hm08 is CC0 and the README assertion is dead text.",
     redistributable: true,
-    publicRenderCleared: false,
+    publicRenderCleared: true,
   },
   {
     meshMatch: "openclinxr_hm08_tongue",
     component: "hm08 tongue",
     licenceRecordPath: "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json",
     requiredRecordPhrases: ["AGPL", "CC0"],
-    rights: "contradicted_upstream",
+    rights: "operator_override",
+    overrideAuthority:
+      "operator ruling 2026-09-10 (patrick@simnova.com): the 2020 LICENSE.md SUPERSEDES the stale 2016 README. The upstream tree carries both; the later, canonical LICENSE.md governs, so hm08 is CC0 and the README assertion is dead text.",
     redistributable: true,
-    publicRenderCleared: false,
+    publicRenderCleared: true,
   },
   {
     meshMatch: "makeclothes_library_eyes_low_poly",
@@ -218,9 +232,10 @@ export const SUBCOMPONENT_CLEARANCE: readonly SubcomponentClearance[] = [
       "docs/openclinxr/asset-licence-records/row-14-makehuman-community-mhair02-clothes-page-uuid-f81a4e9a-e3d7-.json",
     requiredRecordPhrases: ["operator override this uuid only"],
     rights: "operator_override",
-    overrideAuthority: "Operator, 2026-08-14, this uuid only: the community clothes page grants CC0 while the downloaded .mhclo header says AGPL3.",
+    overrideAuthority:
+      "Operator, 2026-08-14, this uuid only: the community clothes page grants CC0 while the downloaded .mhclo header says AGPL3. EXTENDED TO PUBLIC RENDER by operator ruling 2026-09-10 (patrick@simnova.com): the same override now covers a published render, not shipping alone.",
     redistributable: true,
-    publicRenderCleared: false,
+    publicRenderCleared: true,
   },
   {
     meshMatch: "makeclothes_library_toigo_t_shirt",
