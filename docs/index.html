@@ -319,22 +319,26 @@
         <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
           <img
             class="w-full h-auto object-contain"
-            src="assets/worldview-compile-graph-2026-08-31.png"
-            width="1101"
-            height="641"
+            src="assets/worldview-compile-graph-2026-09.png"
+            width="1400"
+            height="420"
             alt="World compile graph canvas: Add node and Remove node buttons, three columns Body, Wardrobe, and Equipment baker nodes with body_to_clothing and wardrobe_to_equipment edges"
             loading="lazy"
           >
           <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
-            Renderer: Chromium Playwright of live <code>/exam-forms</code> CompileGraphCanvas,
-            1101×641 native (canvas forced to the three-column layout width for this still).
-            Subject: Body → Wardrobe → Equipment baker DAG with Add node / Remove node.
+            Renderer: Chromium Playwright of <code>CompileGraphCanvas</code> via an isolated
+            ui-admin shot page (<code>127.0.0.1:5174/compile-graph-shot.html</code>;
+            live <code>/exam-forms</code> does not render in dev), 1400×420 native,
+            captured 2026-09-10 at HEAD <code>bbf3f84a</code>.
+            Subject: Body → Wardrobe → Equipment baker DAG with Add node / Remove node;
+            edges seeded in <code>buildCompileEdges</code> shape.
           </figcaption>
         </figure>
 
         <p class="status-copy" style="margin-top: 16px;">
-          <strong>claimScope:</strong> local admin UI capture of an authored Scenario + compile DAG at
-          capture commit <code>05120405</code>; current revision identity and runtime-delta behavior
+          <strong>claimScope:</strong> local admin UI capture of an authored Scenario at
+          capture commit <code>05120405</code> plus the compile DAG recaptured 2026-09-10
+          at <code>bbf3f84a</code>; current revision identity and runtime-delta behavior
           are supported by later committed application tests, not by these stills.
           <strong>notEvidenceFor:</strong> Quest readiness, clinical validity, live Blender bake,
           LLM draft quality, or that the parent BothyBoard program card is closed (it is still Idle).
@@ -360,15 +364,16 @@
         <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: auto; max-height: 720px; background: #f5f5f5;">
           <img
             class="w-full h-auto object-contain"
-            src="assets/factory-station-cards-2026-09-01.png"
+            src="assets/factory-station-cards-2026-09.png"
             width="688"
-            height="2597"
+            height="3870"
             alt="Factory station cards: nine production stations as Ant Design cards with schema-derived fields, Add TRELLIS bake model, body_param filled for patient_maya_johnson_v1, equipment_generate filled for ecg-cart-imagine-box viewCount 4"
             loading="lazy"
           >
           <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); position: sticky; bottom: 0; background: #fff;">
             Renderer: Chromium Playwright of isolated <code>FactoryStationCards</code>
-            (Vite 127.0.0.1:5174/factory-station-cards-shot.html), 688×2597 native.
+            (Vite 127.0.0.1:5174/factory-station-cards-shot.html), 688×3870 native,
+            captured 2026-09-10 at HEAD <code>bbf3f84a</code>.
             Subject: all nine production station cards. Scroll the figure for the full stack.
           </figcaption>
         </figure>
