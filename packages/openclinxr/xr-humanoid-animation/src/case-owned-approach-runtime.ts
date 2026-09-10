@@ -9,7 +9,7 @@ import {
   stepBedsideApproachExecution,
   travelYawForClipForward,
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
-import { Box3, type Object3D } from "three";
+import { AnimationMixer, Box3, type Object3D, PropertyBinding, Vector3 as ThreeVector3 } from "three";
 import {
   applyStanceLockedGroundAdvance,
   createStanceLockState,
@@ -48,6 +48,8 @@ export type CaseOwnedBedsideApproach = {
   travelHeadingRadians: number;
   start: Vector3;
   target: Vector3;
+  /** False until a walking frame whose pose the clip has actually written; see the note on the lock. */
+  lockArmed: boolean;
   /** What the floor-band plant did to the physician before the walk, recorded for evidence. */
   floorBandPlant: ReturnType<typeof resolveFloorBandPlantLocalY>;
 };
@@ -84,11 +86,29 @@ export const KNOWN_TOE_BONE_NAMES = [
   { left: "toe.L", right: "toe.R" },
 ] as const;
 
+/**
+ * THE LOADER RENAMES THE BONES, and this is the only place that knows it.
+ *
+ * `GLTFLoader` runs every node name through `PropertyBinding.sanitizeNodeName`, which strips the
+ * characters three.js uses as animation-track path separators — a dot among them. The rig's own
+ * bones are `toe1-1.L` and `toe1-1.R` in the GLB and `toe1-1L` and `toe1-1R` once loaded.
+ *
+ * MEASURED IN A BROWSER, not reasoned about: the first UI-XR capture run of this card refused with
+ * "the physician's skeleton has not loaded yet" for its whole 45-second wait while all four
+ * humanoids had in fact loaded, and the refusal's own diagnostic listed `toe1-1L` and `toe1-1R`
+ * under the slot. Both names are tried, and the sanitised form comes from three's own function
+ * rather than from a transcription of its rule.
+ */
 export function resolveToeBones(root: Object3D): { left: Object3D | null; right: Object3D | null } {
   for (const names of KNOWN_TOE_BONE_NAMES) {
-    const left = root.getObjectByName(names.left) ?? null;
-    const right = root.getObjectByName(names.right) ?? null;
-    if (left !== null && right !== null) return { left, right };
+    for (const [rawLeft, rawRight] of [
+      [names.left, names.right],
+      [PropertyBinding.sanitizeNodeName(names.left), PropertyBinding.sanitizeNodeName(names.right)],
+    ] as const) {
+      const left = root.getObjectByName(rawLeft) ?? null;
+      const right = root.getObjectByName(rawRight) ?? null;
+      if (left !== null && right !== null) return { left, right };
+    }
   }
   return { left: null, right: null };
 }
@@ -255,6 +275,7 @@ export function createCaseOwnedBedsideApproach(input: {
     travelHeadingRadians,
     start: input.intent.start,
     target,
+    lockArmed: false,
     floorBandPlant,
   };
 }
@@ -305,22 +326,15 @@ export function advanceCaseOwnedBedsideApproach(
   }
   approach.actorSlot.updateMatrixWorld(true);
   // THE FIRST WALKING FRAME'S POSE PREDATES THE CLIP, so the lock skips it and takes its anchor on
-  // the next one. `animation-loop.ts` calls `mixer.update(deltaSeconds)` BEFORE it reads the drive,
-  // so on the frame the drive first asks for locomotion the skeleton still holds the idle pose; the
-  // clip's first sample lands one frame later. A lock that anchored on the idle pose would then
+  // the next one. On the frame the drive first asks for locomotion the skeleton still holds the idle
+  // pose; the clip's first sample lands one frame later. A lock that anchored on the idle pose would
   // read the idle-to-walk pose change as foot slide and drag the whole body by it — measured on a
   // 0.5 m-stride probe gait, 0.077 m of lateral error, half the arrival cap, from that one frame.
-  const startedWalkingThisFrame = previousPhase !== "walking" && execution.phase === "walking";
-  if (startedWalkingThisFrame) approach.lock = createStanceLockState();
-  if (execution.drive.locomotion > 0 && !startedWalkingThisFrame) {
-    approach.lock = applyStanceLockedGroundAdvance({
-      actorSlot: approach.actorSlot,
-      leftToe: approach.leftToe,
-      rightToe: approach.rightToe,
-      floorOriginY: approach.floorOriginY,
-      contactBandMeters: approach.contactBandMeters,
-      state: approach.lock,
-    });
+  if (previousPhase !== "walking" && execution.phase === "walking") {
+    approach.lock = createStanceLockState();
+    approach.lockArmed = false;
+  } else if (execution.phase === "walking") {
+    approach.lockArmed = true;
   }
   return {
     locomotion: execution.drive.locomotion,
@@ -352,34 +366,69 @@ export function advanceCaseOwnedBedsideApproach(
  */
 export function sampleLocomotionStanceTrack(
   slot: Pick<GeneratedHumanoidAnimationSlot, "root" | "mixer" | "locomotionClipName" | "responseClips">,
-  input: { toe: Object3D; sampleCount: number },
+  input: { toe: Object3D; sampleCount: number; referenceFrame?: Object3D | undefined },
 ): { samples: Array<{ atMs: number; position: Vector3 }>; cycleSeconds: number } | null {
   const clipName = slot.locomotionClipName;
   const mixer = slot.mixer;
   if (!clipName || !mixer) return null;
   const clip = slot.responseClips?.find((candidate) => candidate.name === clipName);
   if (!clip || clip.duration <= 0) return null;
-  const action = mixer.clipAction(clip);
-  const restoreTime = action.time;
+  // A PRIVATE MIXER, so the calibration measures THIS clip and not a blend. The actor's own mixer
+  // is already running an idle take, and `clipAction` on it produces a pose weighted between the
+  // two: measured in a browser, a stance advance of 0.097 m/s for a clip whose own advance is
+  // 0.676. A second mixer over the same root binds the same bones, so what it writes is a real pose
+  // — the actor's mixer overwrites it on the next frame.
+  void mixer;
+  const calibrationMixer = new AnimationMixer(slot.root);
+  const action = calibrationMixer.clipAction(clip);
   action.reset().play();
   const step = clip.duration / Math.max(2, input.sampleCount);
   const samples: Array<{ atMs: number; position: Vector3 }> = [];
   for (let index = 0; index <= input.sampleCount; index += 1) {
-    mixer.update(index === 0 ? 0 : step);
-    slot.root.updateMatrixWorld(true);
+    calibrationMixer.update(index === 0 ? 0 : step);
+    const reference = input.referenceFrame ?? slot.root;
+    // `updateWorldMatrix(true, true)`: PARENTS as well as children. `updateMatrixWorld` only walks
+    // downward, so a reference whose own parent is stale composes against a stale world matrix and
+    // the samples come out in no frame at all — measured, a 0.5 m stance read as 2.16 m along the
+    // wrong axis, which then pointed the walk 86 degrees off its own route.
+    reference.updateWorldMatrix(true, true);
+    // IN THE REFERENCE FRAME, not root-relative. Subtracting the ROOT's world translation puts the
+    // toe's y about a hip-height below zero on every frame, so a contact test against a 0.06 m band
+    // calls the whole clip one long stance and divides its cyclic displacement by its full duration.
+    // Measured in a browser that way: 0.1137 m/s for a clip whose stance advance is 0.676 m/s. The
+    // actor slot stands ON the floor, so a position in its frame IS a height above the floor.
     const elements = input.toe.matrixWorld.elements;
-    const world = { x: elements[12] ?? 0, y: elements[13] ?? 0, z: elements[14] ?? 0 };
-    const rootElements = slot.root.matrixWorld.elements;
-    samples.push({
-      atMs: index * step * 1000,
-      position: {
-        x: world.x - (rootElements[12] ?? 0),
-        y: world.y - (rootElements[13] ?? 0),
-        z: world.z - (rootElements[14] ?? 0),
-      },
-    });
+    const world = new ThreeVector3(elements[12] ?? 0, elements[13] ?? 0, elements[14] ?? 0);
+    const local = reference.worldToLocal(world);
+    samples.push({ atMs: index * step * 1000, position: { x: local.x, y: local.y, z: local.z } });
   }
   action.stop();
-  action.time = restoreTime;
+  calibrationMixer.stopAllAction();
   return { samples, cycleSeconds: clip.duration };
+}
+
+
+/**
+ * Pin the planted toe. Call this AFTER the pose for this frame has been written, never before.
+ *
+ * THE ORDER IS THE MECHANISM AND IT WAS MEASURED WRONG ONCE. `main.ts` produces the drive before it
+ * runs `updateGeneratedHumanoidAnimations`, because the animation pass consumes that drive — so a
+ * lock folded into the drive step reads the PREVIOUS frame's pose and its correction is always one
+ * frame stale. Measured in a browser at 60 Hz on the shipped clip: `toe1-1.R` slid 0.30796 m in a
+ * single frame and 4.09996 m in total across the walk, which is a lock cancelling nothing. Split
+ * out, it runs after the mixer has posed the skeleton and cancels the same frame's drift.
+ *
+ * It is a no-op until `lockArmed`, which the drive step sets on the second walking frame.
+ */
+export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | null): void {
+  if (approach === null) return;
+  if (approach.execution.drive.locomotion <= 0 || !approach.lockArmed) return;
+  approach.lock = applyStanceLockedGroundAdvance({
+    actorSlot: approach.actorSlot,
+    leftToe: approach.leftToe,
+    rightToe: approach.rightToe,
+    floorOriginY: approach.floorOriginY,
+    contactBandMeters: approach.contactBandMeters,
+    state: approach.lock,
+  });
 }

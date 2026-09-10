@@ -165,7 +165,13 @@ export function ensureAndPublishActorPlacementSsot(
   // `globalThis`, not a bare `window`: this module reaches the tools-relaxed TypeScript program,
   // which has no `dom` lib, and a bare `window` is TS2304 there against a shrink-only ceiling of 0.
   // The publish is unchanged and still a no-op outside a browser.
-  const browser = (globalThis as { window?: Record<string, unknown> }).window;
+  //
+  // THROUGH `unknown` FIRST. A direct cast is TS2352 in any program that DOES have the dom lib —
+  // `Window & typeof globalThis` has no string index signature, so it "does not sufficiently
+  // overlap" with `Record<string, unknown>`. Measured at 7383560c: `pnpm --filter "@openclinxr/*"
+  // build` failed here while `packages:typecheck` passed, because the two use different tsconfigs
+  // and only one of them loads the dom lib.
+  const browser = (globalThis as unknown as { window?: Record<string, unknown> }).window;
   if (browser) {
     const evidence: ActorPlacementSsotEvidence = {
       declaredActorIds: result.declaredActorIds,

@@ -47,6 +47,23 @@ const MEASURED_OBSERVATIONS = [
     JSON.stringify({ checkId: controlId, metric: controlId, unit: "id", value: controlId }),
   ),
   JSON.stringify({ checkId: "arrival-error-within-0p05m", metric: "arrivalErrorMeters", unit: "m", value: 0.0147 }),
+  JSON.stringify({
+    checkId: "browser-run-arrives-and-stops",
+    metric: "browserApproachGrade",
+    unit: "m",
+    value: {
+      driveSource: "case_owned_bedside_approach",
+      recorderGlobalPresent: false,
+      skeletonSampleCount: 330,
+      limbTravelMeters: 2.719,
+      arrivalErrorMeters: 0.0327,
+      settledYawErrorDegrees: 0,
+      authoredTargetHeadingRadians: Math.PI,
+      observedFinalYawRadians: Math.PI,
+      stoppedSeconds: 4.09,
+      stoppedRootTravelMeters: 0,
+    },
+  }),
   JSON.stringify({ checkId: "settled-yaw-within-10deg", metric: "settledYawErrorDegrees", unit: "deg", value: 0 }),
   JSON.stringify({
     checkId: "root-stopped-for-two-seconds",
@@ -647,6 +664,65 @@ describe("the SC-05 evidence verifier accepts a complete control and rejects eve
     expect(result.ok).toBe(false);
     expect(result.problems.join(" ")).toContain("zero skinned bodies were observed");
     expect(result.problems.join(" ")).toContain("zero skinned vertex samples were observed");
+  });
+
+  it("(30b) a browser run driven by a recorder global fails, and so does one that observed nothing", () => {
+    const injected = verifyWithObservations(
+      replacingCheck("browser-run-arrives-and-stops", {
+        driveSource: "window.__openClinXrPedsDrive",
+        recorderGlobalPresent: true,
+        skeletonSampleCount: 330,
+        limbTravelMeters: 2.719,
+        arrivalErrorMeters: 0.0327,
+        settledYawErrorDegrees: 0,
+        authoredTargetHeadingRadians: Math.PI,
+        observedFinalYawRadians: Math.PI,
+        stoppedSeconds: 4.09,
+        stoppedRootTravelMeters: 0,
+      }),
+    );
+    expect(injected.ok).toBe(false);
+    expect(injected.problems.join(" ")).toContain("not the case-owned producer");
+    expect(injected.problems.join(" ")).toContain("a recorder global was present");
+
+    const blind = verifyWithObservations(
+      replacingCheck("browser-run-arrives-and-stops", {
+        driveSource: "case_owned_bedside_approach",
+        recorderGlobalPresent: false,
+        skeletonSampleCount: 0,
+        limbTravelMeters: 0,
+        arrivalErrorMeters: 0.0327,
+        settledYawErrorDegrees: 0,
+        authoredTargetHeadingRadians: Math.PI,
+        observedFinalYawRadians: Math.PI,
+        stoppedSeconds: 4.09,
+        stoppedRootTravelMeters: 0,
+      }),
+    );
+    expect(blind.ok).toBe(false);
+    expect(blind.problems.join(" ")).toContain("fewer than three skeleton samples");
+    expect(blind.problems.join(" ")).toContain("a flag is not motion");
+  });
+
+  it("(30c) a browser run whose final heading is not the AUTHORED one fails inside the yaw tolerance", () => {
+    // Math.PI - 0.08 is 0.08 rad off the authored heading — 4.58 degrees, the exact size of the
+    // heading SC-03 measured being silently dropped, and well inside the 10 degree cap.
+    const result = verifyWithObservations(
+      replacingCheck("browser-run-arrives-and-stops", {
+        driveSource: "case_owned_bedside_approach",
+        recorderGlobalPresent: false,
+        skeletonSampleCount: 330,
+        limbTravelMeters: 2.719,
+        arrivalErrorMeters: 0.0327,
+        settledYawErrorDegrees: 4.58,
+        authoredTargetHeadingRadians: Math.PI,
+        observedFinalYawRadians: Math.PI - 0.08,
+        stoppedSeconds: 4.09,
+        stoppedRootTravelMeters: 0,
+      }),
+    );
+    expect(result.ok).toBe(false);
+    expect(result.problems.join(" ")).toContain("is not the authored");
   });
 
   it("(30) a missing acceptance measurement fails; a number nobody recorded is not a passing one", () => {

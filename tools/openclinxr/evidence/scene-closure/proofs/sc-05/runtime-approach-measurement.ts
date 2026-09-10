@@ -23,6 +23,7 @@ import {
 import type { EncounterRuntimeActorPlacement } from "../../../../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
 import {
   advanceCaseOwnedBedsideApproach,
+  applyCaseOwnedStanceLock,
   type CaseOwnedApproachFrame,
   createCaseOwnedBedsideApproach,
   measureStanceGroundAdvance,
@@ -445,6 +446,10 @@ export function runApproach(input: {
       supportAccepted: override?.supportAccepted ?? true,
     });
     if (frame === null) throw new Error("advanceCaseOwnedBedsideApproach returned null for a live approach");
+    // THE LOCK RUNS AFTER THE POSE, in the order `main.ts` runs it: the drive is produced before
+    // `updateGeneratedHumanoidAnimations` consumes it, so a lock folded into the drive step reads
+    // the previous frame's pose. Measured in a browser that way: 4.09996 m of total slide.
+    applyCaseOwnedStanceLock(approach);
     locomotionActive = frame.locomotion > 0;
     const relocked = frame;
     frames.push(relocked);

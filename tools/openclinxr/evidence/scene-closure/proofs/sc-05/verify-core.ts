@@ -30,6 +30,7 @@ export const SC05_REQUIRED_CHECK_IDS = [
   "root-stopped-for-two-seconds",
   "rubric-applied-to-loaded-skeleton-and-skin",
   "patient-support-preserved-during-approach",
+  "browser-run-arrives-and-stops",
 ] as const;
 
 /** Every negative or known-good control the pinned SC-05 contract requires. */
@@ -257,6 +258,52 @@ export function recomputeAcceptanceLimits(observationStream: string): string[] {
     }
     if (typeof travel !== "number" || travel > SC05_ACCEPTANCE_LIMITS.stoppedRootTravelMaxMeters) {
       problems.push(`root travel ${String(travel)} m during the stopped observation exceeds ${SC05_ACCEPTANCE_LIMITS.stoppedRootTravelMaxMeters} m`);
+    }
+  }
+  const browserRun = byCheckId.get("browser-run-arrives-and-stops");
+  if (!isRecord(browserRun)) problems.push("no browser run was recorded");
+  else {
+    // THE BROWSER HALF, re-applied to its own numbers. `acceptance-v2.md` and this card both refuse
+    // an injected-drive recording and an offline percentage as runtime evidence, so the three
+    // fields below are the ones that say the page — not a node process — did this.
+    if (browserRun["driveSource"] !== "case_owned_bedside_approach") {
+      problems.push(`the browser drive came from ${String(browserRun["driveSource"])}, not the case-owned producer`);
+    }
+    if (browserRun["recorderGlobalPresent"] !== false) {
+      problems.push("a recorder global was present in the browser run");
+    }
+    if (typeof browserRun["skeletonSampleCount"] !== "number" || Number(browserRun["skeletonSampleCount"]) < 3) {
+      problems.push("the browser run carried fewer than three skeleton samples; absence is not a pass");
+    }
+    if (typeof browserRun["limbTravelMeters"] !== "number" || Number(browserRun["limbTravelMeters"]) <= 0.005) {
+      problems.push("the browser run's clip moved no contact joint in the actor's own frame; a flag is not motion");
+    }
+    const browserArrival = browserRun["arrivalErrorMeters"];
+    if (typeof browserArrival !== "number" || browserArrival > SC05_ACCEPTANCE_LIMITS.arrivalErrorMaxMeters) {
+      problems.push(
+        `browser arrival error ${String(browserArrival)} m exceeds the `
+        + `${SC05_ACCEPTANCE_LIMITS.arrivalErrorMaxMeters} m cap`,
+      );
+    }
+    const browserYaw = browserRun["settledYawErrorDegrees"];
+    if (typeof browserYaw !== "number" || browserYaw > SC05_ACCEPTANCE_LIMITS.settledYawErrorMaxDegrees) {
+      problems.push(`browser settled heading error ${String(browserYaw)} deg exceeds the ${SC05_ACCEPTANCE_LIMITS.settledYawErrorMaxDegrees} deg cap`);
+    }
+    // IDENTITY, not only tolerance. SC-03 measured that a silently dropped authored heading is 4.58
+    // degrees against a 10 degree cap, so a run that lost it would still have passed on tolerance.
+    if (browserRun["observedFinalYawRadians"] !== browserRun["authoredTargetHeadingRadians"]) {
+      problems.push(
+        `the browser's final heading ${String(browserRun["observedFinalYawRadians"])} is not the authored `
+        + `${String(browserRun["authoredTargetHeadingRadians"])}`,
+      );
+    }
+    const browserStopped = browserRun["stoppedSeconds"];
+    if (typeof browserStopped !== "number" || browserStopped < SC05_ACCEPTANCE_LIMITS.stoppedObservationMinSeconds) {
+      problems.push(`the browser stopped observation ran ${String(browserStopped)} s`);
+    }
+    const browserTravel = browserRun["stoppedRootTravelMeters"];
+    if (typeof browserTravel !== "number" || browserTravel > SC05_ACCEPTANCE_LIMITS.stoppedRootTravelMaxMeters) {
+      problems.push(`the browser root travelled ${String(browserTravel)} m during the stopped observation`);
     }
   }
   const rubric = byCheckId.get("rubric-applied-to-loaded-skeleton-and-skin");

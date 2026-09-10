@@ -25,6 +25,7 @@ import type { AssetLoadingContext } from "@openclinxr/xr-asset-loading";
 import * as assetLoading from "@openclinxr/xr-asset-loading";
 import {
   advanceCaseOwnedBedsideApproach,
+  applyCaseOwnedStanceLock,
   type CaseOwnedApproachFrame,
   createCaseOwnedBedsideApproach,
   measureStanceGroundAdvance,
@@ -354,6 +355,7 @@ type ApproachRun = {
   stoppedSeconds: number;
   stoppedRootTravelMeters: number;
   clipAdvance: { metersPerSecond: number; forward: { x: number; z: number } };
+  travelHeadingRadians: number;
   invalidationReason: string | null;
   phases: string[];
   settledOn: string | undefined;
@@ -445,7 +447,11 @@ function runApproach(input: {
   const clip = gaitClip();
   const mixer = new AnimationMixer(humanoid);
   const animationSlot = { root: humanoid, mixer, locomotionClipName: clip.name, responseClips: [clip] };
-  const sampled = sampleLocomotionStanceTrack(animationSlot as never, { toe: toeL, sampleCount: 48 });
+  const sampled = sampleLocomotionStanceTrack(animationSlot as never, {
+    toe: toeL,
+    sampleCount: 48,
+    referenceFrame: slot,
+  });
   if (sampled === null) throw new Error("sampleLocomotionStanceTrack found nothing to measure");
   const clipAdvance = measureStanceGroundAdvance(sampled.samples, {
     contactBandMeters: FOOT_CONTACT_HEIGHT_METERS,
@@ -497,6 +503,11 @@ function runApproach(input: {
     });
     if (frame === null) throw new Error("advanceCaseOwnedBedsideApproach returned null for a live approach");
     playLocomotionClip(animationSlot as never, frame.locomotion);
+    // THE LOCK RUNS AFTER THE POSE, exactly as the frame loop orders it: `main.ts` produces the
+    // drive before `updateGeneratedHumanoidAnimations` consumes it, so the pose the lock measures
+    // does not exist until that pass has run. Folded into the drive step it read the previous
+    // frame's pose and cancelled nothing — measured in a browser, 4.09996 m of total slide.
+    applyCaseOwnedStanceLock(approach);
     slot.updateMatrixWorld(true);
     frames.push(frame);
     const elementsL = toeL.matrixWorld.elements;
@@ -537,6 +548,7 @@ function runApproach(input: {
     stoppedSeconds: lastFrame.stoppedSeconds,
     stoppedRootTravelMeters,
     clipAdvance,
+    travelHeadingRadians: approach.travelHeadingRadians,
     invalidationReason: lastFrame.invalidationReason,
     phases: [...new Set(path.map((entry) => entry.phase))],
     settledOn: playback?.settledOn,

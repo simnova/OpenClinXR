@@ -111,8 +111,9 @@ export function familyChairFixtureWorldPosition(environmentId: string): Vector3 
  */
 export function authoredPlantOffsetSuppressed(): boolean {
   // `globalThis`, not a bare `window`: this module is in the tools-relaxed program, which has no
-  // `dom` lib, and a bare `window` is TS2304 there. The guard is unchanged.
-  const browser = (globalThis as { window?: { location?: { search?: string } } }).window;
+  // `dom` lib, and a bare `window` is TS2304 there. The guard is unchanged. Through `unknown`
+  // first, because a direct cast is TS2352 in a program that DOES have the dom lib.
+  const browser = (globalThis as unknown as { window?: { location?: { search?: string } } }).window;
   const search = browser?.location?.search;
   if (typeof search !== "string") return false;
   return new URLSearchParams(search).get("openclinxrSuppressAuthoredPlantOffset") === "1";

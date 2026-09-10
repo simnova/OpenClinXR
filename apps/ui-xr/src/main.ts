@@ -138,7 +138,7 @@ import {
   updateGeneratedHumanoidAnimations as updatePackageGeneratedHumanoidAnimations,
   updateHumanoidEmotionExpression as updatePackageHumanoidEmotionExpression,
 } from "@openclinxr/xr-humanoid-animation";
-import { createStationBedsideApproachState, updateStationBedsideApproach } from "@openclinxr/xr-humanoid-animation/station-bedside-approach";
+import { applyStationBedsideStanceLock, createStationBedsideApproachState, updateStationBedsideApproach } from "@openclinxr/xr-humanoid-animation/station-bedside-approach";
 import {
   applyDeterministicPortalPreviewStart as applyPackageDeterministicPortalPreviewStart,
   applyGeneratedHumanoidRoleSpecificPosture as applyPackageGeneratedHumanoidRoleSpecificPosture,
@@ -3458,9 +3458,9 @@ async function createStationScene(): Promise<StationSceneRuntime> {
         placements: encounterRuntimeAssetBundle.sceneManifest.actorPlacements ?? {},
         runId: remoteStationRunId ?? "local_station_run",
         animationSlot: generatedHumanoidAnimationSlotsByActorId.get(runtimeAdditionalActorId()),
-        supportAccepted:
-          (generatedHumanoidActorSlotsByActorId.get(runtimePatientActorId())?.userData
-            ?.openClinXrPlacementAccepted ?? false) === true,
+        // `!== false`: an ABSENT slot is not a revoked one, and `?? false` collapsed the two. Measured
+        // in a browser: the walk stopped with "support acceptance was lost" when the room GLB landed.
+        supportAccepted: generatedHumanoidActorSlotsByActorId.get(runtimePatientActorId())?.userData?.openClinXrPlacementAccepted !== false,
       },
       { nowMs: now, deltaSeconds },
     );
@@ -3468,6 +3468,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
     const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);
     updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid);
+    applyStationBedsideStanceLock(caseOwnedBedsideApproach); // AFTER the pose: a lock reading last frame's pose cancels nothing.
     applyPhysicsBoneTransforms(now); // capture-gated; extracted module
     updateEnvironmentRealismAnimations(deltaSeconds, now);
     // Per-frame affect modulation of the loaded environment container. The behaviour moved to
@@ -3491,9 +3492,8 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       humanoidSpeechEvidence: window.__openClinXrHumanoidSpeechEvidence ?? null,
     });
     // Standing-idle sway, composed onto each actor's persistent heading. The supine exclusion (a
-    // recumbent root's orientation is owned by the plant hold) and the compose-not-assign rule (an
-    // assignment destroys a consumed heading on the first frame) moved with it to
-    // @openclinxr/xr-runtime-state, unchanged.
+    // recumbent root's orientation is owned by the plant hold) and the compose-not-assign rule moved
+    // with it to @openclinxr/xr-runtime-state, unchanged.
     applyStationIdleSway({ patient, nurse, nowMs: now });
     renderer.render(scene, camera);
   }

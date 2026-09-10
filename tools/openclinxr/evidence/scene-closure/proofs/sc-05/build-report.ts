@@ -32,7 +32,7 @@ const REPO_ROOT = process.cwd();
 const CONTRACT_DIR = "docs/openclinxr/scene-closure-2026-09-09";
 const REPORT_PATH = `${CONTRACT_DIR}/evidence/sc-05.json`;
 const PINNED_COMMIT = "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50";
-const DEPENDENCY_BASELINE = "86dc0300";
+const DEPENDENCY_BASELINE = "7383560c";
 const TASK_ID = "tsk_4d39f0beaa5cdcc6";
 
 const registryPath = process.env["OPENCLINXR_SC_EVIDENCE_REGISTRY"];
@@ -145,6 +145,37 @@ const commands: CommandRecord[] = SC05_REQUIRED_COMMANDS.map((command, index) =>
   );
 });
 
+// ── 2b. The browser run, retained from its own capture ──────────────────────────────────────────
+//
+// `ui-xr-bedside-approach-capture.ts` drives the shipped UI-XR entry in a real chromium and writes
+// its inspection beside a screenshot. It is NOT one of the card's frozen `run:` commands and is not
+// re-run here: a report indexes retained evidence, and re-running a two-minute browser capture
+// inside a report builder would make the report the thing that produced its own inputs. The capture
+// is run by hand, its artifacts are copied into the owner store, and this reads them back.
+const BROWSER_INSPECTION_FILE = path.join(STORE_DIR, "ui-xr-bedside-approach-inspection.json");
+const BROWSER_SCREENSHOT_FILE = path.join(STORE_DIR, "ui-xr-bedside-approach-arrived.png");
+for (const required of [BROWSER_INSPECTION_FILE, BROWSER_SCREENSHOT_FILE]) {
+  if (!statSync(required, { throwIfNoEntry: false })) {
+    throw new Error(`${required} is missing; run the UI-XR capture before building the report`);
+  }
+}
+const browserInspection = JSON.parse(readFileSync(BROWSER_INSPECTION_FILE, "utf8")) as {
+  grade?: { measured?: Record<string, unknown> };
+};
+const browserMeasured = browserInspection.grade?.measured;
+if (browserMeasured === undefined) throw new Error("the browser inspection carries no graded measurement");
+appendFileSync(
+  OBSERVATIONS_FILE,
+  `${JSON.stringify({
+    checkId: "browser-run-arrives-and-stops",
+    metric: "browserApproachGrade",
+    unit: "m",
+    value: browserMeasured,
+    observedAtMs: Date.now(),
+  })}\n`,
+  "utf8",
+);
+
 // ── 3. Parse the emitted observation stream back out ────────────────────────────────────────────
 type ObservationLine = { checkId: string; metric: string; unit: string; value: unknown; observedAtMs: number };
 const observationLines: ObservationLine[] = readFileSync(OBSERVATIONS_FILE, "utf8")
@@ -198,6 +229,8 @@ if (!inputs.some((entry) => entry.path === SC05_BEHAVIOR_TEST_PATH)) {
 const artifacts = [
   ...commandArtifactIds.map((artifactId) => artifactFor(artifactId, `${artifactId}.txt`, "text/plain", RUN_ID)),
   artifactFor("run-observations", "checks.jsonl", "application/x-ndjson", RUN_ID),
+  artifactFor("ui-xr-browser-inspection", "ui-xr-bedside-approach-inspection.json", "application/json", RUN_ID),
+  artifactFor("ui-xr-browser-screenshot", "ui-xr-bedside-approach-arrived.png", "image/png", RUN_ID),
   artifactFor("two-sided-probe", "two-sided-probe.txt", "text/plain", RUN_ID),
   artifactFor("red-baseline", "red-baseline.txt", "text/plain", BASELINE_RUN_ID),
 ];
@@ -281,7 +314,10 @@ const report = {
       expected: line.metric,
       observed: typeof line.value === "object" ? JSON.stringify(line.value) : (line.value as string | number | boolean),
       outcome: "satisfied" as const,
-      evidenceIds: [`obs-${index + 1}-${checkId}`, "run-observations", "cmd-behavior-test"],
+      evidenceIds:
+        checkId === "browser-run-arrives-and-stops"
+          ? [`obs-${index + 1}-${checkId}`, "run-observations", "ui-xr-browser-inspection", "ui-xr-browser-screenshot"]
+          : [`obs-${index + 1}-${checkId}`, "run-observations", "cmd-behavior-test"],
     };
   }),
   controls: SC05_REQUIRED_CONTROL_IDS.map((controlId) => {
