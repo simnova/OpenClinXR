@@ -315,10 +315,12 @@ export const LOWER_GARMENT_CANDIDATES: LowerGarmentCandidateRecord[] = [
   {
     garmentId: "toigo_wool_pants",
     sourceUrl:
-      "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (CC0 pack; toigo_wool_pants by MargaretToigo; pack acquired 2026-08-11, wool pants not cached)",
-    localMhcloRel: "",
-    localObjRel: "",
-    selectionNote: "wool texture not clinical/scrub style",
+      "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (CC0 pack; toigo_wool_pants by MargaretToigo; cached: .openclinxr-local/provider-cache/garments/sources/makehuman-pants01/toigo_wool_pants/)",
+    localMhcloRel:
+      ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/toigo_wool_pants/toigo_wool_pants.mhclo",
+    localObjRel:
+      ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/toigo_wool_pants/pants_wool.obj",
+    selectionNote: "full-length wool trousers; MPFB street/family lower slot (header `# license CC0`)",
   },
   {
     garmentId: "toigo_harem_pants",

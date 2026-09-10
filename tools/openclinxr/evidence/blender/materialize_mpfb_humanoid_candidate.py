@@ -4205,15 +4205,18 @@ def main():
     )
 
     # Lower slot: clinician scrub pants were fitted PRE-STRIP (helper x_scale).
-    # Patients/family cargo pants fit here on the stripped basemesh.
+    # Patients/family wear toigo_wool_pants (pants01 CC0, 1372 obj verts, max ref
+    # 13351) on the stripped basemesh. cortu_cargo_pants (211/196) still exists in
+    # cache and still hits the LOWER GATE cover-shell replacement if selected —
+    # do not delete that gate. Do not point this slot at Scrub_Pants.
     if pants is None:
         _pants_dir = (
             REPO_ROOT
-            / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants"
+            / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/toigo_wool_pants"
         )
-        pants_obj = _pants_dir / "cargo_pants.obj"
-        pants_mhclo = _pants_dir / "cargo_pants.mhclo"
-        _lower_lib_name = "makeclothes_library_cargo_pants"
+        pants_obj = _pants_dir / "pants_wool.obj"
+        pants_mhclo = _pants_dir / "toigo_wool_pants.mhclo"
+        _lower_lib_name = "makeclothes_library_wool_pants"
         if not pants_obj.is_file() or not pants_mhclo.is_file():
             raise RuntimeError(f"lower garment sources missing in provider cache: {_pants_dir}")
 
@@ -4275,11 +4278,11 @@ def main():
     else:
         _lower_kind = "scrub"
         print(f"PANTS_PRESTRIP_REUSE {pants.name} ({_lower_lib_name})")
-    # The raw fit is the sparse 392-triangle trouser (#220: 71% leg coverage, 32 open
-    # edges). The LOWER GATE below (mirrored from body_param_stage) measures it against
-    # the leg band and replaces a `does_not_cover` fit with the body-derived cover
-    # shell — the same replacement that gives the library rail its 8,565-vert lower
-    # garment. The weight transfer + print happen there, on the geometry that SHIPS.
+    # The raw cargo fit is the sparse 392-triangle trouser (#220: 71% leg coverage,
+    # 32 open edges). Street/family now fit toigo_wool_pants (1372 verts, same max-ref
+    # band as the covering scrub pants). The LOWER GATE still measures coverage and
+    # still replaces a `does_not_cover` / sparse-open cargo fit with the body-derived
+    # cover shell. A library name that covers (scrub, wool) ships as the fitted mesh.
 
     # #323: body-part hiding under the fitted garment — wire the PROVEN tool from
     # the sibling rail (D1), do not write a second hider. The MPFB2 rail has NO
@@ -4364,12 +4367,11 @@ def main():
     # same measurement and the same deterministic fallback, no second fitter). The raw
     # cargo-pants fit is the sparse 392-triangle trouser the #220 finding records (71%
     # leg coverage, 32 open edges) — it cannot cover the leg band it claims. A sparse
-    # open fit is replaced by the body-derived cover shell (`build_cover_shell`, covers
-    # by construction), exactly the replacement that gives the hm08 library rail its
-    # 8,565-vert lower garment; a fit that does cover is offset to the shipping standoff
-    # (#322). The shipped lower carries the cargo-pants mesh prefix + material name so
-    # the evidence RED reads it as the lower garment. Runs BEFORE the masks so the hide
-    # masks measure the geometry that SHIPS.
+    # open cargo fit is still replaced by the body-derived cover shell (`build_cover_shell`).
+    # Street/family now fit toigo_wool_pants; when that library name covers it ships as
+    # the fitted mesh (same exception as makeclothes_library_scrub_pants). A fit that
+    # does cover is offset to the shipping standoff (#322). Runs BEFORE the masks so
+    # the hide masks measure the geometry that SHIPS.
     from garment_coverage import (  # noqa: E402
         CLOTH_STANDOFF_M,
         build_cover_shell,
@@ -4402,13 +4404,18 @@ def main():
     )
     # Waist + ankle openings on a real trouser are boundary edges by construction.
     # The cargo 392-tri open shell needed the edges clause; WojackOWL scrub pants
-    # cover at >0.99 raycast with those openings and must ship as the fitted library
-    # mesh, not a body-derived shell wearing the same name.
+    # and toigo_wool_pants cover at high raycast with those openings and must ship
+    # as the fitted library mesh, not a body-derived shell wearing the same name.
+    # Cargo is NOT in this set — do not delete its cover-shell gate.
+    _COVERING_LIBRARY_LOWER = {
+        "makeclothes_library_scrub_pants",
+        "makeclothes_library_wool_pants",
+    }
     _sparse_open_shell = (
         lower_rep["verdict"] == "does_not_cover"
         or (
             lower_rep["garmentBoundaryEdges"] > 0
-            and _lower_lib_name != "makeclothes_library_scrub_pants"
+            and _lower_lib_name not in _COVERING_LIBRARY_LOWER
         )
     )
     if _sparse_open_shell:
@@ -4510,58 +4517,28 @@ def main():
         f"LOWER_GATE {lower_rep} pantsMesh {pants_mesh_name} verts {pants_verts_after} "
         f"tris {pants_tris} weights {pants_weights}"
     )
-    # issue-373: regularize the waistband rim (the cover shell's band-cut zigzag) BEFORE
-    # the masks so the hide masks measure the geometry that ships. The envelope window
-    # is measured per actor from the rim's own inter-teeth structure (the child's front
-    # contour dip must survive — its span floor fails above 8 deg; the adults' sparse
-    # front teeth need a 10 deg bridge to clear their tight 4x-hem ratio).
-    # issue-341 round 19: when the ring's BACK arc is in the visible rim band (aisha's
-    # box-topped tube — measured: back arc at radius 64-90 mm in the rim, 3.0x vs kevin's
-    # 1.24x), `dip_waistband_back` runs the #373 envelope for the front/sides AND dips the
-    # back arc to the ring's own minimum, so the rim becomes the smooth front+side arc and
-    # the back no longer stands proud. kevin's back already dips below the rim band, so the
-    # dip returns False there and the plain #373 envelope runs unchanged.
-    # Child 6 deg keeps the front contour dip the span floor requires. Adults 10 deg
-    # bridges sparse front teeth. Street's remaining defect after band_hi=hem-rim-max
-    # is the inguinal bikini contour, wider than a 10 deg tooth-bridge — 25 deg lets
-    # envelope=max raise those valleys toward hip teeth. Other adults stay at 10
-    # (nurse/gown/family not rebaked this slice).
-    if (args.reference or "") == "peds_patient_child":
-        _waistband_env_window = 6
-    elif (args.reference or "") == "adult_male_street_casual":
-        # 25 deg left the inguinal valleys 28 mm below the teeth (measured this
-        # bake: rim 1.0510..1.0791). 45 deg lets envelope=max see the hip teeth
-        # from the bikini dip; dip_waistband_back still owns the back arc.
-        _waistband_env_window = 45
+    # issue-373/374 rim regularizers are the cover-shell band-cut zigzag fix.
+    # A covering library mesh (wool / scrub) already has ClothesService topology;
+    # snapping its waist/cuff onto a shell envelope collapses unique verts
+    # (measured: 1372 obj -> 941 unique after dip+regularize+tuck) and is the
+    # shell mechanism the operator refused. Cargo still takes this path because
+    # the LOWER GATE replaces it with the shell (`_sparse_open_shell`).
+    if _sparse_open_shell:
+        if (args.reference or "") == "peds_patient_child":
+            _waistband_env_window = 6
+        elif (args.reference or "") == "adult_male_street_casual":
+            _waistband_env_window = 45
+        else:
+            _waistband_env_window = 10
+        if not dip_waistband_back(pants, _waistband_env_window, rim_band_m=0.008):
+            regularize_rim(pants, _waistband_env_window, envelope="max", which="top")
+        _ankle_env_window = 1 if (args.reference or "") == "" else 10
+        _ankle_row3_blend = 0.65 if (args.reference or "") == "" else 0.75
+        regularize_rim(
+            pants, _ankle_env_window, envelope="max", which="bottom", env_source="zone", row3_blend=_ankle_row3_blend
+        )
     else:
-        _waistband_env_window = 10
-    if not dip_waistband_back(pants, _waistband_env_window, rim_band_m=0.008):
-        regularize_rim(pants, _waistband_env_window, envelope="max", which="top")
-    # issue-374: regularize the LOWER rim (the ankle cuffs) the same way. The
-    # #341 clip stays (it is the straight horizontal hem the shoe junction needs);
-    # what ships ragged is the first row ABOVE the cut — the clip's surviving
-    # teeth (HF p95 9.13/10.35 mm against the same shell's regularized waistband
-    # at 1.51/1.63 mm). The row is snapped onto the local MAXIMUM envelope of its
-    # own tops (`env_source="zone"` — the rim is the flat CUT edge only, so the
-    # cut rim itself carries no contour; the first row's tops do), verified
-    # 2026-08-13 on the shipped bytes: the teeth (100.3-114.2 mm) follow the
-    # ankle contour, the valleys (93.5-97.5 mm) are flat — a minimum envelope
-    # collapses the row to a point. The row above blends toward the envelope at
-    # 0.65 for aisha (her default-macro body's ankle rows are ~14.5 mm apart —
-    # the waist-strength 0.75 blend over-pulls them and caps her band span below
-    # the contract floor) and 0.75 for kevin (his reference body's rows are
-    # ~40 mm apart). The envelope window is re-derived per actor from the ankle's
-    # inter-teeth spacing: aisha's finer foot-transition triangulation carries
-    # her teeth at 4-8 deg spacing, so a 1 deg window follows her contour (10 deg
-    # flattens it to ~5 mm and her span floor then fails); kevin's reference body
-    # is sparser and keeps the waist's 10 deg. The band-span gate inside
-    # regularize_rim skips the child, whose trousers stop above the ankle and
-    # whose band is already smooth (span ~2 mm).
-    _ankle_env_window = 1 if (args.reference or "") == "" else 10
-    _ankle_row3_blend = 0.65 if (args.reference or "") == "" else 0.75
-    regularize_rim(
-        pants, _ankle_env_window, envelope="max", which="bottom", env_source="zone", row3_blend=_ankle_row3_blend
-    )
+        print("LOWER_RIM_REGULARIZE skipped — covering library mesh keeps ClothesService topology")
 
     # issue-320 / leftover 1 — push the upper hem down to the SHIPPED waistband. Runs here,
     # not at the cargo fit, because the LOWER GATE (:3401-3519) replaces the sparse 392-tri

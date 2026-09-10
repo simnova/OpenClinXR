@@ -1,0 +1,227 @@
+import { dirname, join, resolve as pathResolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { NodeIO } from "@gltf-transform/core";
+import { describe, expect, it } from "vitest";
+import { isUpperGarmentName } from "./garment-slot.ts";
+import { isPantsName } from "./waistband-ring.ts";
+
+/**
+ * **The street patient's trousers are a body-derived cover shell, not a MakeClothes garment.**
+ * Operator refused the shell. The production LOWER GATE replaces the sparse cargo mhclo fit
+ * with `build_cover_shell` because coverage fails. Card tsk_2a6935fb4eb63f95.
+ *
+ * MEASURED 2026-09-10 on shipped `apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb`:
+ *
+ *   mesh                                      verts   Y min     Y max
+ *   ---------------------------------------   -----   --------  --------
+ *   cargo cover shell (mat_*cargo_pants.001)  8435    0.1138    1.0791
+ *   toigo t-shirt                             5400    1.0283    1.5155
+ *
+ * pants01 CC0 pack (https://static.makehumancommunity.org/assets/assetpacks/pants01.html,
+ * zip pants01_cc0.zip). Only cortu_cargo_pants was extracted. This slice staged the other
+ * full-length pair and read each .mhclo header:
+ *
+ *   garment              obj verts/faces   mhclo max ref   helper >=13380   licence
+ *   -------------------- ---------------   -------------   --------------   --------
+ *   cortu_cargo_pants    211 / 196         13351           0                CC0 (author dash)
+ *   toigo_wool_pants     1372 / 1337       13351           0                `# license CC0`
+ *   toigo_harem_pants    5527 / 5456       17973           5527 (ALL)       `# license CC0`
+ *
+ * Harem is refused: every interpolation ref is a helper vert, so ClothesService cannot
+ * fit it on the #318 stripped 13,380-vert basemesh (same refusal as scrub-pants-pre-strip).
+ * Wool is the chosen covering pair: same max-ref as cargo (fits stripped), ~6.5× denser
+ * than the 196-face see-through cargo, vertex count in the same band as the known-good
+ * WojackOWL scrub pants (1,392 obj verts) that already skip the cover shell.
+ *
+ * Bound: shipped pants primitive verts within 20% of pants_wool.obj (1372) → [1098, 1646].
+ * Cover shell 8435 is 6.1× the obj. Sparse cargo 211 is 0.15×. Both fail. ClothesService
+ * fit deforms in place, so a covering wool fit stays ~1372.
+ *
+ * ## THE CHEAP FIXES THIS REFUSES
+ *
+ *   treatment                                         | (1) verts | (2) shirt ymin | (3) ankle | result
+ *   --------------------------------------------------|-----------|----------------|----------|--------
+ *   a) today (cover shell 8435)                       | **FAIL**  |     pass       |   pass    | REFUSED
+ *   b) ship the 196-face cargo without a covering mhclo | **FAIL** |     pass       |   pass    | REFUSED
+ *   c) keep build_cover_shell on street               | **FAIL**  |     pass       |   pass    | REFUSED
+ *   d) push the shirt                                 |   pass    |   **FAIL**     |   pass    | REFUSED
+ *   e) put scrub pants on the street patient          |   pass?   |     pass       |   pass    | REFUSED (wardrobe)
+ *   f) fit toigo_wool_pants via ClothesService; skip  |   pass    |     pass       |   pass    | ALL PASS
+ *      cover shell when that library name covers      |           |                |          |
+ *
+ * (e) is wardrobe, not a vertex bound: clinician scrub stays on the clinician pre-strip
+ * branch. Street/family lower slot must not point at Scrub_Pants.
+ *
+ * WHICH ARE REDS AND WHICH ARE NETS: (1) is the RED and fails today. (2) and (3) pass
+ * today and are counterweights. Replacing the shell cannot be satisfied by moving the
+ * shirt or by cropping the trousers off the ankle, and cannot be satisfied by shipping
+ * the sparse cargo.
+ *
+ * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED. Do not rewrite
+ * the measured table.
+ *
+ * ## FIXED
+ *
+ * Treatment (production materializer only): patient/family lower slot fits
+ * `toigo_wool_pants` (`pants_wool.obj` 1372/1337, `# license CC0`) via
+ * ClothesService. LOWER GATE still replaces cargo; wool is in the covering-library
+ * skip with scrub (`_COVERING_LIBRARY_LOWER`). Cover-shell rim regularizers do not
+ * run on a covering library mesh.
+ *
+ * glTF splits POSITION on UV/normal seams (same as the shirt: 1391 blender → 5400
+ * GLB). The identity that survives export is triangle count = triangulated obj
+ * (1337 quads → 2674 tris). Cover shell on the pre-fix GLB was 8435 verts / 2844
+ * tris / unique 1482 — 2844 is 6.3% above 2674, so a 5% tris bound refuses the
+ * shell; the original 20% *vert* band cannot pass a textured mhclo.
+ *
+ * Measured on the rematerialized shipped bytes:
+ *
+ *   mesh                         glb verts  unique  tris   Y min     Y max
+ *   --------------------------   ---------  ------  ----   --------  --------
+ *   makeclothes_library_wool_pants    4711     908  2674   0.0687    1.0856
+ *   toigo t-shirt                     5400    1391  2700   1.0283    1.5155
+ *
+ * LOWER_GATE verdict covers (raycast 0.9361). Shirt ymin pin 1.0283. Pants ymin
+ * 0.0687 <= 0.12.
+ *
+ * NOT TESTED:
+ *   - **That the wool fit covers after ClothesService.** The vertex bound is the
+ *     geometry-identity check. Coverage is the LOWER GATE's job at bake time.
+ *   - **Family rebake.** Street only this slice. Patient/family lower slot is wired
+ *     together; family GLB is not rematerialized here.
+ *   - **hm08 / fit_stage.py.** Production path is
+ *     `tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py`.
+ *   - **Pixel grade of the wool trousers.** Parent grades the isolated EEVEE still.
+ */
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = pathResolve(HERE, "../../..");
+const STREET_GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb");
+const STREET_ACTOR = "mpfb-street-adult-male";
+
+/** toigo_wool_pants / pants_wool.obj (pants01 CC0, staged this slice). */
+const CHOSEN_MHCLO_OBJ_VERTS = 1372;
+/** 1337 quads → fan-triangulated tris. Survives glTF POSITION splits. */
+const CHOSEN_MHCLO_TRIS = 2674;
+/** 5% — cover shell 2844 tris is 6.3% above and must fail. */
+const TRIS_TOLERANCE = 0.05;
+const PANTS_TRIS_MIN = Math.round(CHOSEN_MHCLO_TRIS * (1 - TRIS_TOLERANCE));
+const PANTS_TRIS_MAX = Math.round(CHOSEN_MHCLO_TRIS * (1 + TRIS_TOLERANCE));
+/** Cover shell measured on the shipped street GLB 2026-09-10. */
+const COVER_SHELL_VERTS = 8435;
+const COVER_SHELL_TRIS = 2844;
+/** Sparse cargo obj (forbidden as a shipped mesh without a covering mhclo). */
+const CARGO_OBJ_VERTS = 211;
+const CARGO_OBJ_FACES = 196;
+
+/** Operator-measured shirt ymin on the shipped street GLB (metres, Y-up). */
+const SHIRT_YMIN_PIN_M = 1.0283;
+const SHIRT_YMIN_TOLERANCE_M = 0.002;
+/** Pants must still reach the ankle/boot. */
+const PANTS_YMIN_MAX_M = 0.12;
+
+type StreetRow = {
+  actor: string;
+  pantsName: string;
+  shirtName: string;
+  pantsVerts: number;
+  pantsTris: number;
+  pantsYMin: number;
+  pantsYMax: number;
+  shirtYMin: number;
+};
+
+const io = new NodeIO();
+
+async function measureStreet(): Promise<StreetRow> {
+  const doc = await io.read(STREET_GLB);
+  let pantsName = "";
+  let shirtName = "";
+  let pantsVerts = 0;
+  let pantsTris = 0;
+  let pantsYMin = Infinity;
+  let pantsYMax = -Infinity;
+  let shirtYMin = Infinity;
+  for (const mesh of doc.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      const name = prim.getMaterial()?.getName() ?? "";
+      const pants = isPantsName(name);
+      const shirt = isUpperGarmentName(name);
+      if (!pants && !shirt) continue;
+      const pos = prim.getAttribute("POSITION");
+      if (!pos) continue;
+      const v = [0, 0, 0];
+      let lo = Infinity;
+      let hi = -Infinity;
+      for (let i = 0; i < pos.getCount(); i += 1) {
+        pos.getElement(i, v);
+        lo = Math.min(lo, v[1]!);
+        hi = Math.max(hi, v[1]!);
+      }
+      if (pants) {
+        pantsName = name;
+        pantsVerts = pos.getCount();
+        const idx = prim.getIndices();
+        pantsTris = idx ? idx.getCount() / 3 : 0;
+        pantsYMin = lo;
+        pantsYMax = hi;
+      } else {
+        shirtName = name;
+        shirtYMin = Math.min(shirtYMin, lo);
+      }
+    }
+  }
+  return {
+    actor: STREET_ACTOR,
+    pantsName,
+    shirtName,
+    pantsVerts,
+    pantsTris,
+    pantsYMin,
+    pantsYMax,
+    shirtYMin,
+  };
+}
+
+const row = await measureStreet();
+
+describe("the street pants are MakeClothes, not a cover shell", () => {
+  it(
+    `(1) RED: shipped pants tris within 5% of triangulated toigo_wool_pants obj (${CHOSEN_MHCLO_TRIS} → [${PANTS_TRIS_MIN}, ${PANTS_TRIS_MAX}]); cargo ${CARGO_OBJ_VERTS}/${CARGO_OBJ_FACES} vs shell ${COVER_SHELL_VERTS}v/${COVER_SHELL_TRIS}t`,
+    () => {
+      expect(row.pantsName, "street GLB must carry wool pants, not cargo/scrub").toMatch(/wool_pants/i);
+      expect(
+        row.pantsTris,
+        `${row.actor} pants tris ${row.pantsTris} (name=${row.pantsName} glbVerts=${row.pantsVerts} objVerts=${CHOSEN_MHCLO_OBJ_VERTS}) outside ${PANTS_TRIS_MIN}..${PANTS_TRIS_MAX} (5% of wool triangulated obj ${CHOSEN_MHCLO_TRIS}). Cover shell is ${COVER_SHELL_VERTS}v/${COVER_SHELL_TRIS}t; sparse cargo obj is ${CARGO_OBJ_VERTS}/${CARGO_OBJ_FACES}.`,
+      ).toBeGreaterThanOrEqual(PANTS_TRIS_MIN);
+      expect(
+        row.pantsTris,
+        `${row.actor} pants tris ${row.pantsTris} above wool 5% ceiling ${PANTS_TRIS_MAX} — still the ${COVER_SHELL_TRIS}-tri cover shell`,
+      ).toBeLessThanOrEqual(PANTS_TRIS_MAX);
+      expect(
+        row.pantsVerts,
+        `${row.actor} pants glbVerts ${row.pantsVerts} still in the cover-shell band ${COVER_SHELL_VERTS}±20%`,
+      ).toBeLessThan(COVER_SHELL_VERTS * (1 - 0.2));
+      expect(
+        row.pantsVerts,
+        `${row.actor} pants glbVerts ${row.pantsVerts} still the sparse cargo obj ${CARGO_OBJ_VERTS}`,
+      ).toBeGreaterThan(CARGO_OBJ_VERTS * 2);
+    },
+  );
+
+  it("(2) COUNTERWEIGHT: shirt ymin stays within 2 mm of the known-good 1.0283 m (do not push the hem)", () => {
+    expect(row.shirtName, "street GLB must carry an upper garment").toMatch(/t_shirt|shirt/i);
+    expect(
+      Math.abs(row.shirtYMin - SHIRT_YMIN_PIN_M),
+      `${row.actor} shirt ymin ${row.shirtYMin.toFixed(4)} m drifted more than ${SHIRT_YMIN_TOLERANCE_M * 1000} mm from pin ${SHIRT_YMIN_PIN_M}`,
+    ).toBeLessThanOrEqual(SHIRT_YMIN_TOLERANCE_M);
+  });
+
+  it("(3) COUNTERWEIGHT: pants ymin still reaches the ankle (<= 0.12 m)", () => {
+    expect(row.pantsVerts, "pants primitive must exist").toBeGreaterThan(100);
+    expect(
+      row.pantsYMin,
+      `${row.actor} pants ymin ${row.pantsYMin.toFixed(4)} m > ${PANTS_YMIN_MAX_M} — trousers cropped off the ankle`,
+    ).toBeLessThanOrEqual(PANTS_YMIN_MAX_M);
+  });
+});
