@@ -61,6 +61,7 @@ ADMIT="$ROOT/packages/openclinxr/asset-registry/src/encounter-bundle-admission.t
 MAIN="$ROOT/apps/ui-xr/src/main.ts"
 BOOT="$ROOT/apps/ui-xr/src/encounter-bundle-boot/index.ts"
 CONTROL="$ROOT/tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts"
+CORE="$ROOT/tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify-core.ts"
 
 revert "instance asset digests are not compared" \
   "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts" \
@@ -199,6 +200,24 @@ revert "the freeze stops persisting the clip revision" \
   "import pathlib;p=pathlib.Path('$FREEZE');s=p.read_text();s=s.replace('      clipRevision: input.revisions.clipRevision,','      clipRevision: \"\",');p.write_text(s)" \
   "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
   "(a) the A09 count is counted off the record, not typed"
+
+revert "the gate-forced declaration accepts any path (the allowlist is bypassed)" \
+  "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify-core.ts" \
+  "import pathlib;p=pathlib.Path('$CORE');s=p.read_text();s=s.replace('        if (!(SC06_ALLOWED_GATE_FORCED_PATHS as readonly string[]).includes(declaredPath)) {','        if (false) {');p.write_text(s)" \
+  "" "$VERIFIER_TEST" \
+  "verifier (26) an unpinned gate-forced path is refused"
+
+revert "a declared gate-forced edit need not be hashed" \
+  "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify-core.ts" \
+  "import pathlib;p=pathlib.Path('$CORE');s=p.read_text();s=s.replace('        if (!hashedInputs.has(declaredPath)) {','        if (false) {');p.write_text(s)" \
+  "" "$VERIFIER_TEST" \
+  "verifier (27) a declared path must be hashed"
+
+revert "an undeclared out-of-scope change stops failing" \
+  "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify-core.ts" \
+  "import pathlib;p=pathlib.Path('$CORE');s=p.read_text();s=s.replace('        if (!inScope && !declaredPaths.has(changed)) {','        if (false) {');p.write_text(s)" \
+  "" "$VERIFIER_TEST" \
+  "verifier (28) an undeclared out-of-scope change still fails"
 
 echo
 echo "TWO-SIDED GATE: $BROKE of $TOTAL reverts break a named clause"

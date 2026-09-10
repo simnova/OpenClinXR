@@ -57,6 +57,25 @@ export const SC06_FROZEN_SCOPES = [
 
 export const SC06_A_ROWS = ["A09"] as const;
 
+/**
+ * The ONLY paths this card may declare as gate-forced edits outside its frozen write roots.
+ *
+ * OWNER-PINNED, and that is the whole point of the list. `registrationsOutsideWriteRoots` exists
+ * because a standing gate can force a card to touch a file its write roots forbid — a shrinking app
+ * MUST have its composition-root ceiling re-frozen (`the-apps-are-composition-roots.test.ts:90`
+ * asserts exact equality, not a cap), and a new evidence report MUST be registered or
+ * `pnpm docs:drift-check` fails. Without an allowlist that field would be a wildcard: any card could
+ * move any out-of-scope edit out of `changedFiles` by naming it.
+ *
+ * A path not on this list fails as loudly as an undeclared out-of-scope change. Adding to the list is
+ * an owner decision recorded in this file, not something a report can assert about itself.
+ */
+export const SC06_ALLOWED_GATE_FORCED_PATHS = [
+  "packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts",
+  "docs/openclinxr/doc-authority-registry-2026-05-27.json",
+  "docs/openclinxr/generated-artifact-registry-2026-05-27.json",
+] as const;
+
 export const SC06_BEHAVIOR_TEST_PATH =
   "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts";
 export const SC06_BEHAVIOR_TEST_TITLE = "SC-06-required-behavior";
@@ -395,6 +414,38 @@ export function verifyReport(input: VerifyInput): VerifyResult {
     // modifications outside scope." The scope ARGUMENT audit above checks what the CLI was told;
     // this checks what the task actually changed. Only the second one catches an edit in a package
     // the card never claimed, which is how a card silently grows its own boundary.
+    // Gate-forced edits: declared, pinned, hashed, and kept out of `changedFiles`.
+    const declared = (implementation as Record<string, unknown>)["registrationsOutsideWriteRoots"];
+    const declaredPaths = new Set<string>();
+    if (!Array.isArray(declared)) {
+      fail("implementation.registrationsOutsideWriteRoots is missing; declare an empty array if none");
+    } else {
+      for (const entry of declared) {
+        if (!isRecord(entry)) {
+          fail("a registrationsOutsideWriteRoots entry is not an object");
+          continue;
+        }
+        const declaredPath = path.normalize(String(entry["path"]));
+        if (declaredPaths.has(declaredPath)) fail(`duplicate gate-forced declaration ${declaredPath}`);
+        declaredPaths.add(declaredPath);
+        if (!(SC06_ALLOWED_GATE_FORCED_PATHS as readonly string[]).includes(declaredPath)) {
+          fail(
+            `${declaredPath} is declared as a gate-forced edit but is not on this card's owner-pinned `
+            + "allowlist; the field is not a wildcard",
+          );
+        }
+        for (const field of ["forcedBy", "derivation", "reason"]) {
+          const value = entry[field];
+          if (typeof value !== "string" || value.trim() === "") {
+            fail(`gate-forced declaration ${declaredPath} has a blank ${field}`);
+          }
+        }
+        if (!hashedInputs.has(declaredPath)) {
+          fail(`gate-forced declaration ${declaredPath} is not among the hashed implementation.inputs`);
+        }
+      }
+    }
+
     const changedFiles = (implementation as Record<string, unknown>)["changedFiles"];
     if (!Array.isArray(changedFiles) || changedFiles.length === 0) {
       fail("implementation.changedFiles is empty; the scope audit has nothing to check");
@@ -405,7 +456,14 @@ export function verifyReport(input: VerifyInput): VerifyResult {
           const root = path.normalize(scope).replace(/\/+$/u, "");
           return changed === root || changed.startsWith(`${root}/`);
         });
-        if (!inScope) fail(`changed file outside every frozen scope: ${changed}`);
+        if (!inScope && !declaredPaths.has(changed)) {
+          fail(`changed file outside every frozen scope: ${changed}`);
+        }
+        // A declared gate-forced edit must not ALSO sit in changedFiles: the scope audit reports what
+        // the card chose to change, and carrying it in both places would double-count it.
+        if (declaredPaths.has(changed)) {
+          fail(`${changed} is declared as a gate-forced edit and also listed in changedFiles`);
+        }
         // Every changed file must also be one of the REHASHED inputs. Without this the audit could
         // cover a set that excludes the very change under review.
         if (!hashedInputs.has(changed)) {

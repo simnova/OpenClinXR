@@ -64,7 +64,9 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
 `;
 const CASE_SOURCE = "export const SCENE_CLOSURE_CASE_ID = \"scene_closure_supine_bedside_v1\";\n";
 const CHANGED_SOURCE = "export const changed = true;\n";
+const BUDGET_SOURCE = "export const COMPOSITION_ROOT_APP_BUDGETS = [];\n";
 const SOURCE_TREE: Record<string, string> = {
+  "packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts": BUDGET_SOURCE,
   [SC06_BEHAVIOR_TEST_PATH]: BEHAVIOR_TEST_SOURCE,
   "tools/openclinxr/factory/scene-closure-case-source.ts": CASE_SOURCE,
   "packages/openclinxr/asset-registry/a.ts": CHANGED_SOURCE,
@@ -121,8 +123,17 @@ function goodReport(): Record<string, unknown> {
         { path: "tools/openclinxr/factory/scene-closure-case-source.ts", sha256: sha256Hex(CASE_SOURCE) },
         { path: "packages/openclinxr/asset-registry/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
         { path: "packages/openclinxr/scenario-runtime/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+        { path: "packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts", sha256: sha256Hex(BUDGET_SOURCE) },
       ],
       changedFiles: ["packages/openclinxr/asset-registry/a.ts", "packages/openclinxr/scenario-runtime/a.ts"],
+      registrationsOutsideWriteRoots: [
+        {
+          path: "packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts",
+          forcedBy: "the-apps-are-composition-roots.test.ts:90",
+          derivation: "measureAppSource('apps/ui-xr').lines",
+          reason: "exact-equality budget clause; a shrinking app must re-freeze its ceiling",
+        },
+      ],
       runtime: { node: "v24", platform: "darwin-arm64" },
     },
     sourceInspection: {
@@ -550,6 +561,7 @@ describe("the SC-06 evidence verifier accepts a complete control and rejects eve
       { path: "tools/openclinxr/factory/scene-closure-case-source.ts", sha256: sha256Hex(CASE_SOURCE) },
       { path: "packages/openclinxr/asset-registry/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
       { path: "packages/openclinxr/scenario-runtime/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+      { path: "packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts", sha256: sha256Hex(BUDGET_SOURCE) },
       { path: "apps/ui-xr/public/generated-humanoids/body.glb", sha256: sha256Hex(binary) },
     ];
     (report["implementation"] as Record<string, unknown>)["changedFiles"] = [
@@ -572,5 +584,83 @@ describe("the SC-06 evidence verifier accepts a complete control and rejects eve
       },
     });
     expect(result.ok, result.ok ? "" : result.problems.join("\n")).toBe(true);
+  });
+
+  it("(26) the gate-forced declaration is not a wildcard: an unpinned path is refused", () => {
+    // `registrationsOutsideWriteRoots` exists because a standing gate can force an edit a card's
+    // write roots forbid. Without an owner-pinned allowlist it would let any card move any
+    // out-of-scope edit out of `changedFiles` by naming it, which is worse than no field.
+    const report = goodReport();
+    (report["implementation"] as Record<string, unknown>)["registrationsOutsideWriteRoots"] = [
+      {
+        path: "packages/openclinxr/xr-humanoid-animation/src/station-bedside-approach.ts",
+        forcedBy: "invented",
+        derivation: "invented",
+        reason: "invented",
+      },
+    ];
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/not on this card's owner-pinned allowlist/u);
+  });
+
+  it("(27) a declared path must be hashed, must carry its derivation, and must not double-count", () => {
+    // Unhashed: the declaration would pin no bytes.
+    const unhashed = goodReport();
+    (unhashed["implementation"] as Record<string, unknown>)["inputs"] = [
+      { path: "tools/openclinxr/factory/scene-closure-case-source.ts", sha256: sha256Hex(CASE_SOURCE) },
+      { path: "packages/openclinxr/asset-registry/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+      { path: "packages/openclinxr/scenario-runtime/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+    ];
+    expect(verify(unhashed).ok).toBe(false);
+
+    // Blank derivation: a reader cannot recompute the value the gate forced.
+    for (const field of ["forcedBy", "derivation", "reason"]) {
+      const blank = goodReport();
+      const entries = (blank["implementation"] as Record<string, unknown>)[
+        "registrationsOutsideWriteRoots"
+      ] as Array<Record<string, unknown>>;
+      entries[0]![field] = "";
+      const result = verify(blank);
+      expect(result.ok, field).toBe(false);
+      if (result.ok) continue;
+      expect(result.problems.join("\n"), field).toMatch(new RegExp(`blank ${field}`, "u"));
+    }
+
+    // Declared AND in changedFiles: the scope audit would count it twice and read as a scope breach.
+    const doubled = goodReport();
+    (doubled["implementation"] as Record<string, unknown>)["changedFiles"] = [
+      "packages/openclinxr/asset-registry/a.ts",
+      "packages/openclinxr/scenario-runtime/a.ts",
+      "packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts",
+    ];
+    const doubledResult = verify(doubled);
+    expect(doubledResult.ok).toBe(false);
+    if (doubledResult.ok) return;
+    expect(doubledResult.problems.join("\n")).toMatch(/also listed in changedFiles/u);
+  });
+
+  it("(28) an UNDECLARED out-of-scope change still fails, so the field narrows nothing", () => {
+    // The known-good column for clauses (26) and (27): the original scope audit is untouched.
+    const report = goodReport();
+    (report["implementation"] as Record<string, unknown>)["registrationsOutsideWriteRoots"] = [];
+    (report["implementation"] as Record<string, unknown>)["changedFiles"] = [
+      "packages/openclinxr/asset-registry/a.ts",
+      "packages/openclinxr/xr-humanoid-animation/src/elsewhere.ts",
+    ];
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/changed file outside every frozen scope/u);
+  });
+
+  it("(29) a MISSING registrationsOutsideWriteRoots section fails rather than defaulting to empty", () => {
+    const report = goodReport();
+    delete (report["implementation"] as Record<string, unknown>)["registrationsOutsideWriteRoots"];
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/registrationsOutsideWriteRoots is missing/u);
   });
 });

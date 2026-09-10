@@ -75,6 +75,23 @@ export type SceneClosureEvidenceReport = {
     inputs: Array<{ path: string; sha256: string }>;
     /** Every file this task changed, audited against the frozen write roots. */
     changedFiles: string[];
+    /**
+     * Files a STANDING GATE forced this card to edit outside its frozen write roots.
+     *
+     * Not an escape hatch. Each entry is hashed in `inputs` like any other, is excluded from
+     * `changedFiles` so the scope audit reports what the card CHOSE to change, and is checked by the
+     * verifier against an owner-pinned allowlist — a path this card may not declare fails here just
+     * as loudly as an undeclared out-of-scope change fails the scope audit.
+     */
+    registrationsOutsideWriteRoots: Array<{
+      path: string;
+      /** The gate that forced the edit, by file and line. */
+      forcedBy: string;
+      /** How the value was computed, so a reader can recompute it. */
+      derivation: string;
+      /** Why it is not a weakening. */
+      reason: string;
+    }>;
     runtime: { node: string; platform: string };
   };
   /** The behavior test this card's contract names, so the verifier reads the right source. */
