@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { decodePng } from "./decode-png.ts";
 
 /**
  * The public street still (`docs/assets/mpfb-street-adult-clothed-2026-09-10.png`)
@@ -93,5 +94,31 @@ describe("the isolated grade bake has ambient world light", () => {
     };
     expect(parsed.worldBackgroundStrength).toBeGreaterThan(0);
     expect(parsed.liveWorldBackgroundStrength).toBeGreaterThan(0);
+  });
+
+  it("(4) the public street PNG corner luma is world-fill, not key-only black", () => {
+    /**
+     * Measured 2026-09-10: key-only AREA bake corner luma ~20; ambient world bake
+     * corner luma ~166. Floor 80 sits in the empty gap (not fitted to the new still).
+     */
+    const KEY_ONLY_BLACK_LUMA_CEILING = 80;
+    const pngPath = join(REPO_ROOT, "docs/assets/mpfb-street-adult-clothed-2026-09-10.png");
+    const decoded = decodePng(new Uint8Array(readFileSync(pngPath)));
+    expect(decoded, `decodePng failed on ${pngPath}`).toBeTruthy();
+    const { w, lum } = decoded!;
+    let sum = 0;
+    let n = 0;
+    const box = 80;
+    for (let y = 0; y < box; y += 1) {
+      for (let x = 0; x < box; x += 1) {
+        sum += lum[y * w + x]!;
+        n += 1;
+      }
+    }
+    const mean = sum / n;
+    expect(
+      mean,
+      `public still corner luma ${mean.toFixed(1)} looks like the key-only black void (ceiling ${KEY_ONLY_BLACK_LUMA_CEILING})`,
+    ).toBeGreaterThan(KEY_ONLY_BLACK_LUMA_CEILING);
   });
 });
