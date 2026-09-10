@@ -62,6 +62,8 @@ const MEASURED_OBSERVATIONS = [
       observedFinalYawRadians: Math.PI,
       stoppedSeconds: 4.09,
       stoppedRootTravelMeters: 0,
+      footSlideOutcome: "not_gradeable",
+      cadence: { hz: 7.94, medianIntervalMs: 126, maxOverMedian: 4.36, gradeable: false, reason: "too coarse" },
     },
   }),
   JSON.stringify({ checkId: "settled-yaw-within-10deg", metric: "settledYawErrorDegrees", unit: "deg", value: 0 }),
@@ -723,6 +725,51 @@ describe("the SC-05 evidence verifier accepts a complete control and rejects eve
     );
     expect(result.ok).toBe(false);
     expect(result.problems.join(" ")).toContain("is not the authored");
+  });
+
+  it("(30d) a browser foot-slide VERDICT over a stream its own cadence gate refused fails", () => {
+    // The shape this card was returned for: a `violated` computed from a 248 ms median interval,
+    // which SC-00's frozen maxFrameGapRatio of 2 already refuses. A `satisfied` is refused too.
+    for (const outcome of ["violated", "satisfied"]) {
+      const result = verifyWithObservations(
+        replacingCheck("browser-run-arrives-and-stops", {
+          driveSource: "case_owned_bedside_approach",
+          recorderGlobalPresent: false,
+          skeletonSampleCount: 330,
+          limbTravelMeters: 2.719,
+          arrivalErrorMeters: 0.0327,
+          settledYawErrorDegrees: 0,
+          authoredTargetHeadingRadians: Math.PI,
+          observedFinalYawRadians: Math.PI,
+          stoppedSeconds: 4.09,
+          stoppedRootTravelMeters: 0,
+          footSlideOutcome: outcome,
+          cadence: { hz: 4.03, medianIntervalMs: 248, maxOverMedian: 2.21, gradeable: false, reason: "too coarse" },
+        }),
+      );
+      expect(result.ok, `outcome ${outcome} must be refused`).toBe(false);
+      expect(result.problems.join(" ")).toContain("its own cadence gate refused the stream");
+    }
+  });
+
+  it("(30e) a browser grade with no measured cadence fails; an ungated verdict is not a verdict", () => {
+    const result = verifyWithObservations(
+      replacingCheck("browser-run-arrives-and-stops", {
+        driveSource: "case_owned_bedside_approach",
+        recorderGlobalPresent: false,
+        skeletonSampleCount: 330,
+        limbTravelMeters: 2.719,
+        arrivalErrorMeters: 0.0327,
+        settledYawErrorDegrees: 0,
+        authoredTargetHeadingRadians: Math.PI,
+        observedFinalYawRadians: Math.PI,
+        stoppedSeconds: 4.09,
+        stoppedRootTravelMeters: 0,
+        footSlideOutcome: "satisfied",
+      }),
+    );
+    expect(result.ok).toBe(false);
+    expect(result.problems.join(" ")).toContain("records no measured cadence");
   });
 
   it("(30) a missing acceptance measurement fails; a number nobody recorded is not a passing one", () => {

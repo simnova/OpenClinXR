@@ -297,6 +297,31 @@ export function recomputeAcceptanceLimits(observationStream: string): string[] {
         + `${String(browserRun["authoredTargetHeadingRadians"])}`,
       );
     }
+    // THE SUFFICIENCY GATE, RE-APPLIED. A browser grade that reports a foot-slide VERDICT while its
+    // own cadence gate says the stream cannot identify a contact window is the shape this card was
+    // returned for once: the first capture graded `violated` from a 248 ms median interval, and the
+    // rubric's own `maxFrameGapRatio` of 2 already refused that stream. Either outcome computed
+    // from insufficient data is refused here — a `satisfied` would be exactly as wrong.
+    const cadence = browserRun["cadence"];
+    const footSlideOutcome = browserRun["footSlideOutcome"];
+    if (!isRecord(cadence)) problems.push("the browser grade records no measured cadence");
+    else {
+      if (typeof cadence["hz"] !== "number" || !Number.isFinite(Number(cadence["hz"]))) {
+        problems.push("the browser cadence carries no finite sampling rate");
+      }
+      if (cadence["gradeable"] === false && footSlideOutcome !== "not_gradeable") {
+        problems.push(
+          `the browser grade reports foot-slide as ${String(footSlideOutcome)} while its own cadence gate `
+          + `refused the stream: ${String(cadence["reason"])}`,
+        );
+      }
+      if (cadence["gradeable"] === true && footSlideOutcome === "not_gradeable") {
+        problems.push("the browser grade refuses foot-slide while its cadence gate accepted the stream");
+      }
+    }
+    if (footSlideOutcome !== "satisfied" && footSlideOutcome !== "violated" && footSlideOutcome !== "not_gradeable") {
+      problems.push(`the browser grade records an unknown foot-slide outcome ${String(footSlideOutcome)}`);
+    }
     const browserStopped = browserRun["stoppedSeconds"];
     if (typeof browserStopped !== "number" || browserStopped < SC05_ACCEPTANCE_LIMITS.stoppedObservationMinSeconds) {
       problems.push(`the browser stopped observation ran ${String(browserStopped)} s`);

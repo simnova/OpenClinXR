@@ -56,6 +56,12 @@ const PERCEPTUAL_FLOOR_METERS = 0.005;
 const FOOT_ROLL_ALLOWANCE_PER_WINDOW_METERS = 0.0157;
 /** The runtime's own contact band. */
 const FOOT_CONTACT_HEIGHT_METERS = 0.06;
+/**
+ * SC-00's frozen `maxFrameGapRatio`. Quoted rather than restated: "a uniform sampler's interval
+ * varies only by float rounding … Twice the median is the smallest ratio a uniform sampler cannot
+ * reach."
+ */
+const MAX_FRAME_GAP_RATIO = 2;
 
 type Vector3 = { x: number; y: number; z: number };
 
@@ -175,6 +181,114 @@ export function stanceFootSlide(
   return { worstFrameMeters, totalMeters, windows, contactFrames };
 }
 
+
+export type CadenceResult = {
+  sampleCount: number;
+  medianIntervalMs: number;
+  maxIntervalMs: number;
+  minIntervalMs: number;
+  maxOverMedian: number;
+  hz: number;
+  /** Metres a foot covers between two consecutive samples at the median interval. */
+  medianStrideMeters: number;
+  /** The cadence the per-frame allowance needs before a contact window can be identified. */
+  requiredHzForAllowance: number;
+  gradeable: boolean;
+  reason: string | null;
+};
+
+/**
+ * SC-00's own sufficiency gate, applied BEFORE any contact metric runs.
+ *
+ * WHY THIS EXISTS, and it is a correction rather than an addition. The first browser run of this
+ * card graded `foot-slide` as failing and this report blamed "the swing foot inside the 0.06 m
+ * contact band at 60 Hz". The 60 Hz was assumed, never measured. The capture's own 330 samples give
+ * a MEDIAN INTERVAL OF 248 ms — 4.03 Hz — with a max/median ratio of 2.21, and SC-00's frozen
+ * `maxFrameGapRatio` is 2. The stream was already outside the rubric's timestamp gate, and a
+ * contact metric graded it anyway.
+ *
+ * WHY A CONTACT METRIC CANNOT BE COMPUTED AT THAT CADENCE. Foot-slide is a first difference between
+ * two frames the metric believes are both in contact, and a contact window is identified by a toe
+ * being inside a 0.06 m band. At 248 ms a foot travelling 0.658 m/s covers 0.163 m between samples,
+ * so it can enter the band and leave it unobserved: the window identification aliases, and every
+ * quantity derived from it is a number about frames nobody saw. The worst step in that run was
+ * 0.32907 m across a 10 ms interval — 32.9 m/s, which is a discontinuity, not a foot.
+ *
+ * FLOOR PENETRATION IS DIFFERENT AND STAYS GRADED. It needs no contact window: the depth of one
+ * sampled toe below the named floor plane is an instantaneous quantity, true of the frame it was
+ * taken on whatever the interval to the next one.
+ *
+ * A REFUSAL IS AN HONEST RESULT. A verdict computed from insufficient data is not, in either
+ * direction — a `satisfied` here would be exactly as wrong as the `violated` it replaces.
+ */
+export function measureCadence(
+  samples: ReadonlyArray<{ atMs: number }>,
+  input: { groundAdvanceMetersPerSecond: number | null },
+): CadenceResult {
+  const intervals: number[] = [];
+  for (let index = 1; index < samples.length; index += 1) {
+    const previous = samples[index - 1];
+    const current = samples[index];
+    if (previous === undefined || current === undefined) continue;
+    const delta = current.atMs - previous.atMs;
+    if (delta > 0) intervals.push(delta);
+  }
+  const advance = input.groundAdvanceMetersPerSecond ?? 0;
+  if (intervals.length < 2) {
+    return {
+      sampleCount: samples.length,
+      medianIntervalMs: Number.NaN,
+      maxIntervalMs: Number.NaN,
+      minIntervalMs: Number.NaN,
+      maxOverMedian: Number.NaN,
+      hz: Number.NaN,
+      medianStrideMeters: Number.NaN,
+      requiredHzForAllowance: advance > 0 ? advance / PERCEPTUAL_FLOOR_METERS : Number.NaN,
+      gradeable: false,
+      reason: `only ${intervals.length} usable interval(s); a first difference needs at least two`,
+    };
+  }
+  const sorted = [...intervals].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  const medianIntervalMs =
+    sorted.length % 2 === 1
+      ? (sorted[middle] ?? Number.NaN)
+      : ((sorted[middle - 1] ?? Number.NaN) + (sorted[middle] ?? Number.NaN)) / 2;
+  const maxIntervalMs = sorted[sorted.length - 1] ?? Number.NaN;
+  const minIntervalMs = sorted[0] ?? Number.NaN;
+  const maxOverMedian = maxIntervalMs / medianIntervalMs;
+  const medianStrideMeters = (advance * medianIntervalMs) / 1000;
+  const requiredHzForAllowance = advance > 0 ? advance / PERCEPTUAL_FLOOR_METERS : Number.NaN;
+  const reasons: string[] = [];
+  // SC-00's frozen `maxFrameGapRatio`, quoted: "a uniform sampler's interval varies only by float
+  // rounding … Twice the median is the smallest ratio a uniform sampler cannot reach."
+  if (maxOverMedian > MAX_FRAME_GAP_RATIO) {
+    reasons.push(
+      `frame intervals vary by ${maxOverMedian.toFixed(2)}x (max ${maxIntervalMs.toFixed(0)} ms over median `
+      + `${medianIntervalMs.toFixed(0)} ms), over SC-00's frozen maxFrameGapRatio of ${MAX_FRAME_GAP_RATIO}`,
+    );
+  }
+  if (medianStrideMeters > PERCEPTUAL_FLOOR_METERS) {
+    reasons.push(
+      `a foot covers ${medianStrideMeters.toFixed(4)} m between samples at ${(1000 / medianIntervalMs).toFixed(2)} Hz, `
+      + `${(medianStrideMeters / PERCEPTUAL_FLOOR_METERS).toFixed(0)}x the ${PERCEPTUAL_FLOOR_METERS} m per-frame `
+      + `allowance; identifying a contact window needs about ${requiredHzForAllowance.toFixed(0)} Hz`,
+    );
+  }
+  return {
+    sampleCount: samples.length,
+    medianIntervalMs,
+    maxIntervalMs,
+    minIntervalMs,
+    maxOverMedian,
+    hz: 1000 / medianIntervalMs,
+    medianStrideMeters,
+    requiredHzForAllowance,
+    gradeable: reasons.length === 0,
+    reason: reasons.length === 0 ? null : reasons.join("; "),
+  };
+}
+
 /** Shortest absolute yaw difference in degrees. */
 export function yawErrorDegrees(observed: number, intended: number): number {
   const twoPi = Math.PI * 2;
@@ -214,6 +328,9 @@ export type BrowserApproachGrade = {
     monitorVisible: boolean | null;
     clipStanceAdvanceMetersPerSecond: number | null;
     limbTravelMeters: number | null;
+    cadence: CadenceResult | null;
+    /** `not_gradeable` when the cadence cannot identify a contact window; never a silent pass. */
+    footSlideOutcome: "satisfied" | "violated" | "not_gradeable";
   };
 };
 
@@ -258,6 +375,8 @@ export function gradeBrowserApproach(input: {
     monitorVisible: null,
     clipStanceAdvanceMetersPerSecond: null,
     limbTravelMeters: null,
+    cadence: null,
+    footSlideOutcome: "not_gradeable",
   };
   if (input.recorderGlobalPresent) {
     problems.push("window.__openClinXrPedsDrive was present; a recorder global cannot drive an acceptance run");
@@ -332,19 +451,37 @@ export function gradeBrowserApproach(input: {
   const walkRight = footSlideOfWorldTrack(walk.map((sample) => ({ toe: sample.rightToe })), floorOriginY);
   const turnLeft = footSlideOfWorldTrack(settle.map((sample) => ({ toe: sample.leftToe })), floorOriginY);
   const turnRight = footSlideOfWorldTrack(settle.map((sample) => ({ toe: sample.rightToe })), floorOriginY);
-  for (const [name, slide] of [["toe1-1.L", walkLeft], ["toe1-1.R", walkRight]] as const) {
-    if (slide.contactFrames < 3) {
-      problems.push(`${name} was in floor contact for ${slide.contactFrames} walking frames; under three, slide is unmeasurable`);
-      continue;
-    }
-    if (slide.worstFrameMeters > PERCEPTUAL_FLOOR_METERS) {
-      problems.push(`${name} worst walking frame ${slide.worstFrameMeters.toFixed(5)} m exceeds ${PERCEPTUAL_FLOOR_METERS} m`);
-    }
-    if (slide.totalMeters > FOOT_ROLL_ALLOWANCE_PER_WINDOW_METERS * slide.windows) {
-      problems.push(
-        `${name} total walking slide ${slide.totalMeters.toFixed(5)} m exceeds `
-        + `${(FOOT_ROLL_ALLOWANCE_PER_WINDOW_METERS * slide.windows).toFixed(5)} m over ${slide.windows} window(s)`,
-      );
+  // THE SUFFICIENCY GATE RUNS BEFORE THE CONTACT VERDICT, not after it. A cadence that cannot
+  // identify a contact window makes every quantity derived from one unmeasurable, and the honest
+  // answer is a refusal carrying the measured number rather than a verdict in either direction.
+  const cadence = measureCadence(walk, {
+    groundAdvanceMetersPerSecond: evidence.clipStanceAdvanceMetersPerSecond,
+  });
+  let footSlideOutcome: "satisfied" | "violated" | "not_gradeable" = "not_gradeable";
+  if (!cadence.gradeable) {
+    problems.push(
+      `foot-slide is NOT GRADEABLE from this capture: ${String(cadence.reason)}. The measured slide `
+      + `figures are recorded and are not a verdict.`,
+    );
+  } else {
+    footSlideOutcome = "satisfied";
+    for (const [name, slide] of [["toe1-1.L", walkLeft], ["toe1-1.R", walkRight]] as const) {
+      if (slide.contactFrames < 3) {
+        footSlideOutcome = "violated";
+        problems.push(`${name} was in floor contact for ${slide.contactFrames} walking frames; under three, slide is unmeasurable`);
+        continue;
+      }
+      if (slide.worstFrameMeters > PERCEPTUAL_FLOOR_METERS) {
+        footSlideOutcome = "violated";
+        problems.push(`${name} worst walking frame ${slide.worstFrameMeters.toFixed(5)} m exceeds ${PERCEPTUAL_FLOOR_METERS} m`);
+      }
+      if (slide.totalMeters > FOOT_ROLL_ALLOWANCE_PER_WINDOW_METERS * slide.windows) {
+        footSlideOutcome = "violated";
+        problems.push(
+          `${name} total walking slide ${slide.totalMeters.toFixed(5)} m exceeds `
+          + `${(FOOT_ROLL_ALLOWANCE_PER_WINDOW_METERS * slide.windows).toFixed(5)} m over ${slide.windows} window(s)`,
+        );
+      }
     }
   }
   let deepest: number | null = null;
@@ -355,6 +492,9 @@ export function gradeBrowserApproach(input: {
       if (deepest === null || depth > deepest) deepest = depth;
     }
   }
+  // PENETRATION KEEPS ITS VERDICT even when slide does not. It needs no contact window: the depth of
+  // one sampled toe below the named floor plane is instantaneous, true of the frame it was taken on
+  // whatever the interval to the next one.
   if (deepest !== null && deepest > PERCEPTUAL_FLOOR_METERS) {
     problems.push(`a foot reached ${deepest.toFixed(5)} m below the floor frame; a submerged foot is not a stance`);
   }
@@ -423,6 +563,8 @@ export function gradeBrowserApproach(input: {
       monitorVisible: evidence.monitorVisible,
       clipStanceAdvanceMetersPerSecond: evidence.clipStanceAdvanceMetersPerSecond,
       limbTravelMeters,
+      cadence,
+      footSlideOutcome,
     },
   };
 }
@@ -432,13 +574,26 @@ async function sha256Hex(text: string): Promise<string> {
   return createHash("sha256").update(text).digest("hex");
 }
 
-type CliOptions = { outputDir: string; waitMs: number; timeoutMs: number };
+type CliOptions = {
+  outputDir: string;
+  waitMs: number;
+  timeoutMs: number;
+  viewportWidth: number;
+  viewportHeight: number;
+};
 
 function parseArgs(args: readonly string[]): CliOptions {
   const options: CliOptions = {
     outputDir: path.join(".openclinxr/evidence/sc-05-bedside-approach"),
     waitMs: 4000,
     timeoutMs: 240_000,
+    // A SMALL VIEWPORT IS A CADENCE LEVER, not a cosmetic choice. Headless chromium rasterises
+    // through SwiftShader on this machine, so the frame time is dominated by pixels: the first run
+    // of this capture at 1440x900 sampled at a 248 ms median interval, 4.03 Hz. The screenshot is
+    // an illustration here and not a pixel grade — `pixel-grading` work belongs to SC-07 — so the
+    // frame rate is worth more than the resolution.
+    viewportWidth: 480,
+    viewportHeight: 320,
   };
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
@@ -451,6 +606,12 @@ function parseArgs(args: readonly string[]): CliOptions {
       index += 1;
     } else if (arg === "--timeout-ms" && next !== undefined) {
       options.timeoutMs = Number(next);
+      index += 1;
+    } else if (arg === "--viewport-width" && next !== undefined) {
+      options.viewportWidth = Number(next);
+      index += 1;
+    } else if (arg === "--viewport-height" && next !== undefined) {
+      options.viewportHeight = Number(next);
       index += 1;
     } else if (arg !== undefined) {
       throw new Error(`unknown argument ${arg}`);
@@ -470,9 +631,23 @@ export async function captureBedsideApproach(options: CliOptions): Promise<Brows
   const bundleSha256 = await sha256Hex(bundleJson);
 
   const server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr" });
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: true,
+    // Lift the compositor's frame cap. Without these the page is pinned to the display refresh the
+    // headless compositor reports, and the sampling cadence the contact metrics need is a property
+    // of how fast the page can actually draw.
+    args: [
+      "--disable-gpu-vsync",
+      "--disable-frame-rate-limit",
+      "--disable-background-timer-throttling",
+      "--disable-renderer-backgrounding",
+      "--disable-backgrounding-occluded-windows",
+    ],
+  });
   try {
-    const page = await newEvidencePage(browser, { viewport: { width: 1440, height: 900 } });
+    const page = await newEvidencePage(browser, {
+      viewport: { width: options.viewportWidth, height: options.viewportHeight },
+    });
     await page.route(BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
     });
@@ -562,6 +737,12 @@ export async function captureBedsideApproach(options: CliOptions): Promise<Brows
     );
     process.stdout.write(`${inspectionPath}\n`);
     process.stdout.write(`${screenshotPath}\n`);
+    process.stdout.write(
+      `  cadence: ${grade.measured.cadence?.hz.toFixed(2) ?? "?"} Hz median `
+      + `(${grade.measured.cadence?.medianIntervalMs.toFixed(0) ?? "?"} ms), max/median `
+      + `${grade.measured.cadence?.maxOverMedian.toFixed(2) ?? "?"}, foot-slide `
+      + `${grade.measured.footSlideOutcome}\n`,
+    );
     for (const problem of grade.problems) process.stdout.write(`  - ${problem}\n`);
     return grade;
   } finally {

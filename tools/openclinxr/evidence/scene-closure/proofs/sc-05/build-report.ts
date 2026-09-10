@@ -32,7 +32,7 @@ const REPO_ROOT = process.cwd();
 const CONTRACT_DIR = "docs/openclinxr/scene-closure-2026-09-09";
 const REPORT_PATH = `${CONTRACT_DIR}/evidence/sc-05.json`;
 const PINNED_COMMIT = "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50";
-const DEPENDENCY_BASELINE = "7383560c";
+const DEPENDENCY_BASELINE = "34c2fc30";
 const TASK_ID = "tsk_4d39f0beaa5cdcc6";
 
 const registryPath = process.env["OPENCLINXR_SC_EVIDENCE_REGISTRY"];
@@ -345,6 +345,18 @@ const report = {
     unprovenHeadset: ["no worn-headset run; every observation is a node/vitest process on M1 Max"],
     unprovenPublication: ["no Pages push, no public deployment, no media, no rendered frame"],
     unresolvedDefects: [
+      "FOOT-SLIDE IS not_gradeable IN A BROWSER ON THIS MACHINE. The capture samples at a 126 ms median "
+      + "interval (7.94 Hz) with a 4.36 max/median against SC-00's frozen maxFrameGapRatio of 2, and "
+      + "identifying a contact window at a 0.005 m per-frame allowance needs about 132 Hz. A 480x320 "
+      + "viewport and Chromium's frame-cap flags took it from 4.03 Hz to 7.94 and no further; the "
+      + "remaining cost is four skinned humanoids and a compiled room GLB through SwiftShader. An earlier "
+      + "revision of this report graded the browser foot-slide as FAILING from an assumed 60 Hz that was "
+      + "never measured; that verdict was wrong in the same way a passing one would have been, and "
+      + "measureCadence now refuses either. A08 stays OPEN on the browser half, on that number.",
+      "THE BROWSER RUN FAILS floor-penetration at 0.01430 m against 0.005 m. That metric needs no contact "
+      + "window, so the cadence refusal does not reach it and this is a real failure rather than a refusal.",
+      "NO VIDEO. The browser evidence is one PNG at the stopped pose plus 391 frames of measured "
+      + "telemetry; acceptance-v2.md's uninterrupted activation-to-arrival-plus-stop recording is SC-07's.",
       "NO BROWSER MEASUREMENT. The card asks for normal-workflow browser measurements as well as "
       + "production-boundary tests; this card delivers only the second. Every number here is offline "
       + "geometry through the shipped consumers in node. No dev server ran, no frame was rendered and no "
