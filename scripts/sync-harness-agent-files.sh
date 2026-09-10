@@ -10,6 +10,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 CORE_RULES=(
+  MANDATE_PROSE.md
   LEX_AGENTIC.md
   GUARD_BLUEPRINT.md
   GUARD_DRIFT.md
@@ -30,7 +31,11 @@ echo "Syncing agentic files for multi-harness support."
 # Guarded by tools/agent-factory/the-harness-sync-never-deletes-a-tracked-file.test.ts — any new rm
 # target here must be a directory this script also repopulates.
 rm -rf .grok/rules/* .claude/rules/* .cursor/rules/* 2>/dev/null || true
-rm -rf .claude/hooks .cursor/hooks 2>/dev/null || true
+# REMOVED 2026-09-10: this line deleted the TRACKED hook .claude/hooks/skill-preflight.js,
+# which .claude/settings.json wires as UserPromptSubmit and a test imports. Nothing here
+# repopulates .claude/hooks — the script writes .claude/hooks.json and .cursor/hooks.json
+# instead, so the wipe was vestigial in exactly the way the skills wipe above was. The guard
+# test was RED on main when this was found; it is the same defect on a second path.
 
 mkdir -p .grok/skills .claude/skills .cursor/skills .codex/skills
 echo "  Skills: config [skills].paths only (no symlinks)"

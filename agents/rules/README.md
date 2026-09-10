@@ -7,6 +7,7 @@ authority: agent-methodology
 Canonical source: `agents/rules/`. Grok loads **core tier only** via `.grok/rules/` (see `scripts/sync-harness-agent-files.sh`). Claude/Cursor receive all rules.
 
 ## Grok core tier (every session)
+- `MANDATE_PROSE.md` — **remove all mannered prose**; operator-facing voice, points at the `operator-prose` skill
 - `LEX_AGENTIC.md` — authoritative glossary + orchestrator protocol
 - `GUARD_BLUEPRINT.md` — protected files + Q1/Q4/Q5 gate
 - `GUARD_DRIFT.md` — anti-toil + model-work guard

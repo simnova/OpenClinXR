@@ -11,9 +11,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 ## Counts
 
 - agent-memory: 34
-- agent-methodology: 107
+- agent-methodology: 109
 - archive-candidate: 89
-- current-reference: 208
+- current-reference: 211
 - decision-record: 44
 - evidence: 82
 - generated-evidence: 11
@@ -46,6 +46,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.claude/rules/GUARD_BLUEPRINT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/GUARD_DRIFT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/LEX_AGENTIC.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/MANDATE_PROSE.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/MANDATE_VISIBILITY.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/PROTO_BOARD_LOOP.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/PROTO_CURIOUS_RESEARCHER.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
@@ -104,6 +105,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.cursor/rules/GUARD_BLUEPRINT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/GUARD_DRIFT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/LEX_AGENTIC.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/MANDATE_PROSE.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/MANDATE_VISIBILITY.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/PROTO_BOARD_LOOP.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/PROTO_CURIOUS_RESEARCHER.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
@@ -147,6 +149,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.grok/rules/GUARD_BLUEPRINT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/GUARD_DRIFT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/LEX_AGENTIC.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/rules/MANDATE_PROSE.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/MANDATE_VISIBILITY.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/PROTO_SUBAGENT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `AGENTS.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
