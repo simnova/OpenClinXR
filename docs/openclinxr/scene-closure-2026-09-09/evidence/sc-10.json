@@ -1,0 +1,928 @@
+{
+  "schemaVersion": "openclinxr.scene-closure-evidence.v1",
+  "cardKey": "SC-10",
+  "contract": {
+    "pinnedCommit": "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50",
+    "documents": [
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md",
+        "sha256": "c8080c5e9c75fbb2b4bacb23ed45eac6f829b5dcf494059247a6ee8d55de1bbf"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/tasks-v2.md",
+        "sha256": "e12fbcb49eef3ce4a9c3098309d27bb094dc8c25baa0631452fa27b2f1403881"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/proof-contract-v2.md",
+        "sha256": "a1d1d85a15ae2acfce16479d6b9b4a181e0ccfee60aab885af674c8274cdcfe5"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/delegation-v2.md",
+        "sha256": "59e34f9d6f099574cdf9291847321a4aa23a8e19643ec510984855173cc23016"
+      }
+    ],
+    "aRows": [
+      "A13"
+    ]
+  },
+  "implementation": {
+    "productSourceCommit": "30e98cabe007e4eee8d14f0374fe90a48254bef1",
+    "dependencyBaselineCommit": "27efa3d2e0615a2dc7435533724e7378a0371682",
+    "changeCommits": [
+      "fb5222e4fc84ba805c7a1d8a73620cc9a870c053",
+      "0e1f303390f4fe5ec2007d95da4796b3a0cbca09",
+      "50bf791fd74c5a26a42c6e5f4511614e5a014c25",
+      "f9a3efaab52532677bbf7449b121d85a1f14b3cb",
+      "aa13f9c83a844e3422d8e32f9c4ed6d5a6e43115",
+      "30e98cabe007e4eee8d14f0374fe90a48254bef1"
+    ],
+    "treeClean": true,
+    "inputs": [
+      {
+        "path": "tools/openclinxr/evidence/scene-closure-research/candidate-screening.ts",
+        "sha256": "16834c621519c6ad30031fe9f54379946051feae1cd85fc1579853383be08813"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure-research/candidate-source-manifest.ts",
+        "sha256": "4591de3c86596381907247cd2cc25b70314d9a3513e4a56f68358d7829adbe61"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure-research/load-retrieved-sources.ts",
+        "sha256": "8400702cac3956144475196b20b6ef2aca9e50a7a847757a1852709b069162cd"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure-research/retrieve-candidate-sources.ts",
+        "sha256": "c21cb65fff0197d0873b8d54d9231e0c3c13dc8ded9b782447cdc852197a68d8"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure-research/the-research-verdict-matches-the-evidence.test.ts",
+        "sha256": "7410aacf1dedd3019d95d0360af5df3943e3bbf69e08bc8d3bbeb0db1a837bb2"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-10/build-report.ts",
+        "sha256": "937ee6a05960cb879d7a982f5fd3a34a548b1ab1c1c45a6e39aba750d5091179"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-10/verifier.test.ts",
+        "sha256": "7b6ef3d3a4fb5b55be91dab959771efa572288a8e1481f3ef10258a5d42c08d7"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-10/verify-core.ts",
+        "sha256": "6c9dba0ff474962d78f74c35bdaebb4a7a3114bed4733d0adc801fa82a697b42"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-10/verify.ts",
+        "sha256": "5390095d8d8a5edde39acd6c6bd78c4e859421ebc518c1fddd8a2dd314986c47"
+      }
+    ],
+    "changedFiles": [
+      "tools/openclinxr/evidence/scene-closure-research/candidate-screening.ts",
+      "tools/openclinxr/evidence/scene-closure-research/candidate-source-manifest.ts",
+      "tools/openclinxr/evidence/scene-closure-research/load-retrieved-sources.ts",
+      "tools/openclinxr/evidence/scene-closure-research/retrieve-candidate-sources.ts",
+      "tools/openclinxr/evidence/scene-closure-research/the-research-verdict-matches-the-evidence.test.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-10/build-report.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-10/verifier.test.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-10/verify-core.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-10/verify.ts"
+    ],
+    "registrationsOutsideWriteRoots": [
+      {
+        "path": "docs/openclinxr/generated-artifact-registry-2026-05-27.json",
+        "change": "one add-only entry for this card's own report; no entry removed, no rationale reworded",
+        "reason": "docs:drift-check fails closed on an unregistered generated artifact and docs:artifacts refuses to regenerate from an incomplete worktree; same shape as SC-05 at 27efa3d2"
+      },
+      {
+        "path": "docs/openclinxr/doc-authority-registry-2026-05-27.json",
+        "change": "one add-only entry for this card's own report; no entry removed, no rationale reworded",
+        "reason": "docs:drift-check fails closed on an unregistered generated artifact and docs:artifacts refuses to regenerate from an incomplete worktree; same shape as SC-05 at 27efa3d2"
+      }
+    ],
+    "runtime": {
+      "node": "v24.18.1",
+      "platform": "darwin-arm64"
+    }
+  },
+  "execution": {
+    "taskId": "tsk_da8afad1eadf75bf",
+    "commands": [
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/scene-closure-research/the-research-verdict-matches-the-evidence.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-10T03:38:01.000Z",
+        "endedAtIso": "2026-09-10T03:38:02.000Z",
+        "outputArtifactId": "commands-named-behavior-test-txt",
+        "tests": {
+          "passed": 9,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "tsx",
+          "tools/openclinxr/openclaw/assert-contract-live.ts",
+          "tools/openclinxr/evidence/scene-closure-research/the-research-verdict-matches-the-evidence.test.ts",
+          "SC-10-required-behavior"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-10T03:38:02.000Z",
+        "endedAtIso": "2026-09-10T03:38:03.000Z",
+        "outputArtifactId": "commands-assert-contract-live-txt"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/scene-closure/proofs/sc-10/verifier.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-10T03:38:03.000Z",
+        "endedAtIso": "2026-09-10T03:38:03.000Z",
+        "outputArtifactId": "commands-verifier-unit-tests-txt",
+        "tests": {
+          "passed": 26,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      }
+    ]
+  },
+  "counterweight": {
+    "testIds": [
+      "SC-10-required-behavior",
+      "(16) WRONG RUN",
+      "(17) executed without motion inference"
+    ],
+    "baselineRevision": "27efa3d2e0615a2dc7435533724e7378a0371682",
+    "failingAssertion": "verifyReport returns ok for a report whose encounter.verdict is \"executed\" while the retrieved evidence recomputes to \"held\"",
+    "observedBeforeFix": "baseline verifyReport returned {\"ok\":true} — 0 problems",
+    "knownGoodControl": "the same retrieved sources screen to held with 3 cited reasons and a named next unblock, unchanged across both revisions",
+    "fixedRevision": "30e98cabe007e4eee8d14f0374fe90a48254bef1",
+    "observedAfterFix": "verifyReport rejected the identical report bytes with 5 unmet requirements",
+    "baselineOutputArtifactId": "controls-red-baseline-accepts-fabricated-executed-txt",
+    "fixedOutputArtifactId": "controls-green-fix-rejects-fabricated-executed-txt"
+  },
+  "encounter": {
+    "candidate": "nvidia/Kimodo-SOMA (nv-tlabs/kimodo)",
+    "candidateProject": "nv-tlabs/kimodo",
+    "codeRevision": "1aece8c124d73d255ceff5086d983b844c9f4e94",
+    "checkpointRevisions": {
+      "nvidia/Kimodo-SOMA-RP-v1.1": "6c9233af1180b8151e3c4703477104af5dce9dd5",
+      "nvidia/Kimodo-SOMA-SEED-v1.1": "aae3af194322c60d21bc44062b64c3fec912be50"
+    },
+    "verdict": "held",
+    "holdReasons": [
+      "body-and-encoder-terms (blocked): The pinned code requires McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp-supervised for text encoding. That is a PEFT adapter (gated false, licence mit) whose adapter_config.json declares base model meta-llama/Meta-Llama-3-8B-Instruct, which HuggingFace reports as gated \"manual\" under licence \"llama3\". Obtaining it requires an account and acceptance of a licence this repository does not hold. Accepting a new gated term is an owner decision, not this card's.",
+      "training-data-rights (unresolved): Split by variant, and neither variant's data terms are first-party inspectable from here. RP is trained on the \"Proprietary Bones Rigplay Dataset\" whose terms are not published. SEED is trained on the \"Public Bones-SEED Dataset\", but that dataset is gated \"auto\" on HuggingFace under licence \"other\", so its licence text sits behind a gate this repository does not hold. NVIDIA asserts provenance and commercial readiness on the model cards; that assertion was read but not independently verified.",
+      "local-execution (blocked): Motion inference cannot run on this host: the model card's supported operating systems are Linux, Windows, and this host is macOS; no CUDA device is present on Apple M1 Max. The README's CPU offload does not change this — it moves only the text embedding model and still leaves the denoiser needing GPU VRAM."
+    ],
+    "nextUnblock": "Owner decision on two terms, then a CUDA host. (1) Accept, or refuse, the Meta Llama 3 Community License for meta-llama/Meta-Llama-3-8B-Instruct, which the pinned code's text encoder requires; this card may not accept it. (2) Accept the NVIDIA Open Model License, which binds on use. (3) Provide a Linux or Windows host with a CUDA GPU (>=3 GB VRAM with TEXT_ENCODER_DEVICE=cpu, or >=17 GB fully on GPU) under existing authorization. Then screen Kimodo-SOMA-SEED-v1.1 first, since it is the open-training-data variant.",
+    "dimensions": [
+      {
+        "id": "candidate-identity",
+        "outcome": "eligible",
+        "label": "VERIFIED",
+        "finding": "Sources are the NVIDIA nv-tlabs/kimodo project: the README carries the v1.1 variant table and kimodo/skeleton/__init__.py carries the NVIDIA copyright header and exports SOMASkeleton30. This is not nghorbani/soma (a different project under a non-commercial research licence) and not a community port.",
+        "citedSourceIds": [
+          "kimodo-repo-readme",
+          "kimodo-skeleton-exports"
+        ],
+        "quote": "SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved."
+      },
+      {
+        "id": "pinned-revisions",
+        "outcome": "eligible",
+        "label": "VERIFIED",
+        "finding": "The source MANIFEST pins 13 of 18 entries to an immutable 40-hex revision; the remainder are availability indexes carrying a timestamped receipt and are not used to establish terms. This dimension screens the manifest, not the retrieval: whether each object was actually fetched from its pinned URL and still hashes to its receipt is enforced by loadRetrievedSources and surfaces as sourceProblems, which fail the verifier separately.",
+        "citedSourceIds": [
+          "kimodo-repo-readme",
+          "soma-rp-checkpoint-config"
+        ],
+        "quote": ""
+      },
+      {
+        "id": "skeleton-mapping",
+        "outcome": "eligible",
+        "label": "VERIFIED",
+        "finding": "Both checkpoints declare SOMASkeleton30; its 30-joint chain was read from source (root Hips) and matches the model card's num_frames x 30 x 3 x 3 output shape. The mapping is inspected, not inferred from weights.",
+        "citedSourceIds": [
+          "soma-rp-checkpoint-config",
+          "kimodo-skeleton-definitions",
+          "soma-rp-model-card"
+        ],
+        "quote": "_target_: kimodo.skeleton.SOMASkeleton30"
+      },
+      {
+        "id": "documentation-divergence",
+        "outcome": "eligible",
+        "label": "VERIFIED",
+        "finding": "Resolved, and it is NOT an incompatibility. The README's \"somaskel77\" statement describes the library's I/O surface; the model card's 30 describes the checkpoint's native joint count. At the pinned code revision both SOMASkeleton30 and SOMASkeleton77 are exported and SOMASkeleton30.output_to_SOMASkeleton77 expands the 30-joint output to 77 joints by filling the relaxed-hand rest pose and re-running FK. The two documents describe different layers of one pipeline, so neither is stale.",
+        "citedSourceIds": [
+          "kimodo-repo-readme",
+          "soma-rp-model-card",
+          "kimodo-skeleton-definitions",
+          "kimodo-skeleton-exports"
+        ],
+        "quote": "- **[2026-03-19]** **Breaking:** Model inputs/outputs now use the SOMA 77-joint skeleton (`somaskel77`)."
+      },
+      {
+        "id": "body-and-encoder-terms",
+        "outcome": "blocked",
+        "label": "VERIFIED",
+        "finding": "The pinned code requires McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp-supervised for text encoding. That is a PEFT adapter (gated false, licence mit) whose adapter_config.json declares base model meta-llama/Meta-Llama-3-8B-Instruct, which HuggingFace reports as gated \"manual\" under licence \"llama3\". Obtaining it requires an account and acceptance of a licence this repository does not hold. Accepting a new gated term is an owner decision, not this card's.",
+        "citedSourceIds": [
+          "kimodo-text-encoder-readme",
+          "text-encoder-adapter-config",
+          "hf-index-text-encoder-base",
+          "hf-index-text-encoder-adapter"
+        ],
+        "quote": "This is a patched version of the original LLM2Vec codebase so that `McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp-supervised` works with `transformers==5.0.0rc3`."
+      },
+      {
+        "id": "training-data-rights",
+        "outcome": "unresolved",
+        "label": "VERIFIED",
+        "finding": "Split by variant, and neither variant's data terms are first-party inspectable from here. RP is trained on the \"Proprietary Bones Rigplay Dataset\" whose terms are not published. SEED is trained on the \"Public Bones-SEED Dataset\", but that dataset is gated \"auto\" on HuggingFace under licence \"other\", so its licence text sits behind a gate this repository does not hold. NVIDIA asserts provenance and commercial readiness on the model cards; that assertion was read but not independently verified.",
+        "citedSourceIds": [
+          "soma-rp-model-card",
+          "soma-seed-model-card",
+          "hf-index-bones-seed-dataset"
+        ],
+        "quote": "**Name**: Proprietary Bones Rigplay Dataset"
+      },
+      {
+        "id": "output-terms",
+        "outcome": "eligible",
+        "label": "VERIFIED",
+        "finding": "The NVIDIA Open Model License disclaims ownership of outputs and permits commercial use, and is not copyleft. Two residuals are recorded rather than waved through: the grant is revocable under section 2.1 and NVIDIA may update the agreement, and acceptance is by USE rather than by click-through, so running the model would bind this repository to terms it does not currently hold.",
+        "citedSourceIds": [
+          "soma-rp-model-licence"
+        ],
+        "quote": "NVIDIA claims no ownership rights in outputs. You are responsible for outputs and their subsequent uses."
+      },
+      {
+        "id": "local-execution",
+        "outcome": "blocked",
+        "label": "VERIFIED",
+        "finding": "Motion inference cannot run on this host: the model card's supported operating systems are Linux, Windows, and this host is macOS; no CUDA device is present on Apple M1 Max. The README's CPU offload does not change this — it moves only the text embedding model and still leaves the denoiser needing GPU VRAM.",
+        "citedSourceIds": [
+          "soma-rp-model-card",
+          "kimodo-repo-readme"
+        ],
+        "quote": "- **[2026-04-24]** _NEW_: improved multi-prompt generation and better support for small VRAM GPUs via `TEXT_ENCODER_DEVICE=cpu` env var"
+      }
+    ],
+    "comparisonRun": false,
+    "comparisonNote": "No comparison against the SC-06 baseline was run, and none may be reported. SC-06 did not exist at this card's dispatch, and the screening did not reach eligible-and-executable in any case."
+  },
+  "observations": [
+    {
+      "observationId": "obs-retrieved-source-count",
+      "metric": "first-party sources retrieved and hash-verified against their receipts",
+      "unit": "count",
+      "value": 18,
+      "observedAtMs": 0,
+      "artifactId": "sources-retrieval-receipts-json",
+      "source": "retrieve-candidate-sources.ts, re-verified by loadRetrievedSources"
+    },
+    {
+      "observationId": "obs-checkpoint-skeleton-class",
+      "metric": "skeleton class declared by both pinned checkpoint configs",
+      "unit": "identifier",
+      "value": "kimodo.skeleton.SOMASkeleton30",
+      "observedAtMs": 1,
+      "artifactId": "sources-soma-rp-checkpoint-config-yaml",
+      "source": "config.yaml at checkpoint revision 6c9233af / aae3af19"
+    },
+    {
+      "observationId": "obs-inspected-joint-count",
+      "metric": "joints parsed from the SOMASkeleton30 chain in definitions.py",
+      "unit": "count",
+      "value": 30,
+      "observedAtMs": 2,
+      "artifactId": "sources-kimodo-skeleton-definitions-py",
+      "source": "kimodo/skeleton/definitions.py at code revision 1aece8c1"
+    },
+    {
+      "observationId": "obs-readme-io-skeleton",
+      "metric": "skeleton the repo README declares as the library I/O surface",
+      "unit": "identifier",
+      "value": "somaskel77",
+      "observedAtMs": 3,
+      "artifactId": "sources-kimodo-repo-readme-md",
+      "source": "README.md changelog entry dated 2026-03-19"
+    },
+    {
+      "observationId": "obs-text-encoder-base-gate",
+      "metric": "HuggingFace gate field for meta-llama/Meta-Llama-3-8B-Instruct",
+      "unit": "enum",
+      "value": "manual",
+      "observedAtMs": 4,
+      "artifactId": "sources-hf-index-text-encoder-base-json",
+      "source": "huggingface.co/api/models/meta-llama/Meta-Llama-3-8B-Instruct"
+    },
+    {
+      "observationId": "obs-dataset-gate",
+      "metric": "HuggingFace gate field for the BONES-SEED training dataset",
+      "unit": "enum",
+      "value": "auto",
+      "observedAtMs": 5,
+      "artifactId": "sources-hf-index-bones-seed-dataset-json",
+      "source": "huggingface.co/api/datasets/bones-studio/seed"
+    },
+    {
+      "observationId": "obs-host-cuda-device",
+      "metric": "CUDA device present on the execution host",
+      "unit": "boolean",
+      "value": false,
+      "observedAtMs": 6,
+      "source": "measured on Apple M1 Max (darwin/arm64)"
+    },
+    {
+      "observationId": "obs-two-sided-gate",
+      "metric": "clause reverts that break a named test",
+      "unit": "count of 26",
+      "value": 26,
+      "observedAtMs": 7,
+      "artifactId": "controls-two-sided-gate-json",
+      "source": "two-sided-gate.py mutation harness"
+    },
+    {
+      "observationId": "obs-motion-inference-runs",
+      "metric": "motion-inference observations recorded",
+      "unit": "count",
+      "value": 0,
+      "observedAtMs": 8,
+      "source": "no run occurred; sc-10/runs/inference-observations.json does not exist"
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "candidate-identity-pinned",
+      "expected": "sources carry nv-tlabs/kimodo identity markers and every non-index source is pinned to a 40-hex revision",
+      "observed": "eligible; 18 sources hash-verified",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-retrieved-source-count",
+        "sources-kimodo-skeleton-exports-py"
+      ]
+    },
+    {
+      "checkId": "code-checkpoint-body-encoder-data-output-terms-inspected",
+      "expected": "code licence, checkpoint config, body model, text encoder, training data and output terms each read from their own first-party source rather than conflated",
+      "observed": "code Apache-2.0; checkpoints under NVIDIA Open Model License; body model SOMA-X Apache-2.0; text encoder base gated \"manual\" under llama3; RP data proprietary and SEED data gated \"auto\"; outputs disclaimed by NVIDIA",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-text-encoder-base-gate",
+        "obs-dataset-gate",
+        "sources-soma-rp-model-licence-txt",
+        "sources-kimodo-text-encoder-readme-md"
+      ]
+    },
+    {
+      "checkId": "local-execution-feasibility-assessed",
+      "expected": "host measured against the model card's supported OS and microarchitecture; a CPU text-encoder offload does not count as motion inference",
+      "observed": "Apple M1 Max, cudaDevicePresent=false; 0 motion-inference observations recorded",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-host-cuda-device",
+        "obs-motion-inference-runs",
+        "sources-soma-rp-model-card-md"
+      ]
+    },
+    {
+      "checkId": "verdict-matches-inspected-evidence",
+      "expected": "the reported verdict equals the one screenCandidate recomputes from the retrieved bytes",
+      "observed": "held; the baseline verifier accepted a fabricated \"executed\" and the fixed one rejects it",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-two-sided-gate",
+        "controls-red-baseline-accepts-fabricated-executed-txt",
+        "controls-green-fix-rejects-fabricated-executed-txt"
+      ]
+    },
+    {
+      "checkId": "hold-records-precise-reason-and-next-unblock",
+      "expected": "a held verdict carries at least one dimension-cited reason and a named next action",
+      "observed": "3 cited reason(s); nextUnblock 518 chars",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-text-encoder-base-gate",
+        "obs-host-cuda-device",
+        "sources-kimodo-repo-readme-md"
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "controlId": "similarly-named-project-refused",
+      "trigger": "screen bytes from nghorbani/soma, a different project sharing the SOMA name",
+      "expected": "candidate-identity blocked, verdict held",
+      "observed": "blocked on absent identity markers; verdict held",
+      "held": true,
+      "evidenceIds": [
+        "commands-named-behavior-test-txt"
+      ]
+    },
+    {
+      "controlId": "mismatched-revision-refused",
+      "trigger": "revert the manifest's 40-hex pinning requirement",
+      "expected": "manifestRevisionProblems refuses and retrieval does not run",
+      "observed": "pinned-revisions dimension gates the screening; 15 of 17 sources carry a 40-hex revision and the 2 index endpoints carry timestamped receipts and cannot establish terms",
+      "held": true,
+      "evidenceIds": [
+        "sources-retrieval-receipts-json"
+      ]
+    },
+    {
+      "controlId": "inferred-unseen-skeleton-refused",
+      "trigger": "revert the joint-chain-versus-model-card cross-check",
+      "expected": "the clause goes red and the mapping cannot be claimed",
+      "observed": "30 joints parsed from the SOMASkeleton30 class the checkpoint names, cross-checked against the model card's num_frames x 30 x 3 x 3; mutation of the cross-check breaks the named test",
+      "held": true,
+      "evidenceIds": [
+        "obs-inspected-joint-count",
+        "controls-two-sided-gate-json"
+      ]
+    },
+    {
+      "controlId": "unresolved-data-rights-refused",
+      "trigger": "screen the training-data dimension with the dataset gate in place",
+      "expected": "unresolved, not inherited from the model card's own assertion",
+      "observed": "unresolved: RP data proprietary and unpublished, SEED data gated \"auto\"; NVIDIA's provenance claim recorded as read but not independently verified",
+      "held": true,
+      "evidenceIds": [
+        "obs-dataset-gate"
+      ]
+    },
+    {
+      "controlId": "readme-modelcard-mismatch-not-hidden-as-certainty",
+      "trigger": "remove output_to_SOMASkeleton77 from the retrieved definitions source",
+      "expected": "the divergence returns unresolved rather than resolved or incompatible",
+      "observed": "with the conversion present the divergence resolves as a layering difference; with it removed the dimension returns unresolved and no verdict but held may be reported",
+      "held": true,
+      "evidenceIds": [
+        "obs-readme-io-skeleton",
+        "commands-named-behavior-test-txt"
+      ]
+    },
+    {
+      "controlId": "absent-inference-not-labeled-performance",
+      "trigger": "a text-encoder-offload observation, and a report carrying a latency figure",
+      "expected": "neither raises the verdict, and the latency figure is rejected",
+      "observed": "qualifyingInferenceObservations drops the offload; the verifier rejects a latency observation while the motion-inference count is 0",
+      "held": true,
+      "evidenceIds": [
+        "obs-motion-inference-runs",
+        "commands-verifier-unit-tests-txt"
+      ]
+    },
+    {
+      "controlId": "hold-is-not-graded-as-executed-comparison",
+      "trigger": "a complete report claiming executed with a 1.18x quality delta against SC-06",
+      "expected": "rejected, and a non-executed verdict may not name a comparison baseline at all",
+      "observed": "baseline accepted it with 0 problems; the fixed verifier rejects the identical bytes with 5 unmet requirements, and encounter.comparisonRun is false",
+      "held": true,
+      "evidenceIds": [
+        "controls-red-baseline-accepts-fabricated-executed-txt",
+        "controls-green-fix-rejects-fabricated-executed-txt"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "commands-assert-contract-live-txt",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/commands/assert-contract-live.txt",
+      "byteCount": 143,
+      "sha256": "2d2a9e6d5bc045888d946d36e0cf758dcc47c42bf6f2531f89d0ebb48ec2e718",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:38:03.130Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "commands-index-jsonl",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/commands/index.jsonl",
+      "byteCount": 379,
+      "sha256": "d7ba5304968c17d57c0b20ef09a66eac824bcb35050caadd405cb2fa89a71cc7",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:38:03.907Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "commands-named-behavior-test-txt",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/commands/named-behavior-test.txt",
+      "byteCount": 219,
+      "sha256": "c53e2390ec5d3a5b4ec0051690149ed129b52a04b5c95fb8df535c79777e2d04",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:38:02.637Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "commands-verifier-unit-tests-txt",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/commands/verifier-unit-tests.txt",
+      "byteCount": 220,
+      "sha256": "2925bf4f7594cf350fad745364fb04aa0221df43f38dfe8617c68091aebb61ab",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:38:03.856Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "controls-fabricated-executed-report-json",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/controls/fabricated-executed-report.json",
+      "byteCount": 13993,
+      "sha256": "df5cffa7c94295bb13d8788629549cf15ff6bc9157c4cdbd6c566571677f0d8c",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-10T03:28:30.061Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "controls-green-fix-rejects-fabricated-executed-txt",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/controls/green-fix-rejects-fabricated-executed.txt",
+      "byteCount": 754,
+      "sha256": "ba0771193e3f7e07f9be374b86cf5a8d3c0f7889f58d60b238c9f7e83b4e2662",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:19:04.702Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "controls-green-probe-ts",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/controls/green-probe.ts",
+      "byteCount": 4175,
+      "sha256": "ed06aca9af177ad6a9e9e35c5c1d8d5886038daf18506dd7f32a1e3e1a0a2cb4",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:19:04.175Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "controls-red-baseline-accepts-fabricated-executed-txt",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/controls/red-baseline-accepts-fabricated-executed.txt",
+      "byteCount": 578,
+      "sha256": "1cc3d908f6ed6a442a94e51b18656f2d1dc5332e0cf7794155a6804e49f2656a",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:18:57.690Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "controls-red-probe-ts",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/controls/red-probe.ts",
+      "byteCount": 8013,
+      "sha256": "b32b4c94e853a98482f25535fbb8fc409f2f9689ea8f8ea6eb3578aadc511e77",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:18:57.188Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "controls-report-schema-ts",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/controls/report-schema.ts",
+      "byteCount": 3968,
+      "sha256": "92f0e76c5bc1b463ce1399d8270ef579323776b9d19cf2e0f7c562fe85215e1f",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:18:57.158Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "controls-two-sided-gate-json",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/controls/two-sided-gate.json",
+      "byteCount": 3337,
+      "sha256": "7e022eae917c557947e111221653550755a3121d9dbb2b42a1ec78ad45fd36d6",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-10T03:38:01.801Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "controls-two-sided-gate-py",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/controls/two-sided-gate.py",
+      "byteCount": 7219,
+      "sha256": "8d5f9c3be59c60c7dfc1bce87e7d16768ddc3110a6c1bf6997f45b72ced581d2",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:38:01.800Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "controls-verify-core-baseline-ts",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/controls/verify-core.baseline.ts",
+      "byteCount": 17308,
+      "sha256": "72c2fe63dc3a76078fdc227f20f38613da0f05981155b1e639b2a9f08f530b88",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:18:57.147Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "reviews-independent-review-json",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/reviews/independent-review.json",
+      "byteCount": 4542,
+      "sha256": "b9835f6f5082e8af7107b143f4406025df933491c9e120109c4cc1cb69bfbb74",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-10T03:36:58.121Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-hf-index-bones-seed-dataset-json",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/hf-index-bones-seed-dataset.json",
+      "byteCount": 39385,
+      "sha256": "a6dce1eaddc4ffbbf5ed3bd68c139544aa1ec5c41349acbe1e00052cd68f41d1",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-10T03:32:04.923Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-hf-index-soma-rp-json",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/hf-index-soma-rp.json",
+      "byteCount": 1372,
+      "sha256": "d99ccc344e8172328b3ee62e3bc37157abbd539aab15605917510661664344b7",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-10T03:32:04.785Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-hf-index-soma-seed-json",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/hf-index-soma-seed.json",
+      "byteCount": 1300,
+      "sha256": "b96cdb48f6da72362065f2318710449df7dc7cac1e16745ad7b1edba70ba8c15",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-10T03:32:04.827Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-hf-index-text-encoder-adapter-json",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/hf-index-text-encoder-adapter.json",
+      "byteCount": 138604,
+      "sha256": "8e067d480da952387b65764fb8b5c14b8d08f98fac3c10f593152b8f20f1e6c8",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-10T03:32:04.978Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-hf-index-text-encoder-base-json",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/hf-index-text-encoder-base.json",
+      "byteCount": 19380,
+      "sha256": "85b577ea586fe0b55f75422ab27dc9a87edacf9338344f0cf1fd39105c44b790",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-10T03:32:05.014Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-kimodo-code-licence-txt",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/kimodo-code-licence.txt",
+      "byteCount": 11387,
+      "sha256": "d1a7d615ab8eff4de143b1456f46dabf232f54daf0fcf9a70442bb6f637a9e95",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:32:03.092Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-kimodo-pyproject-toml",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/kimodo-pyproject.toml",
+      "byteCount": 1573,
+      "sha256": "52da3177a21ee018ceba229410ff21e61016a03d326fcb8132cbc1349fdfb911",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:32:04.243Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-kimodo-repo-readme-md",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/kimodo-repo-readme.md",
+      "byteCount": 20188,
+      "sha256": "f7d5a98b909941578d71e0da5f4a4ed7f693f95ea926a6437489a4a92a6e8d64",
+      "mediaType": "text/markdown",
+      "createdAtIso": "2026-09-10T03:32:03.020Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-kimodo-skeleton-definitions-py",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/kimodo-skeleton-definitions.py",
+      "byteCount": 13712,
+      "sha256": "fafe12b5f82ca24096241932d9773b1d3d8c080da1197e74c77cfce8ce3a19fc",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:32:03.141Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-kimodo-skeleton-exports-py",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/kimodo-skeleton-exports.py",
+      "byteCount": 735,
+      "sha256": "9494c2b86434054015bf65c906207db192cdbb5836a795adc2265ff38d387662",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:32:04.158Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-kimodo-text-encoder-readme-md",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/kimodo-text-encoder-readme.md",
+      "byteCount": 207,
+      "sha256": "9e13aa22d1fd91b49e443546f3f1d2d936c82728f75de96b0ce7c143e745c559",
+      "mediaType": "text/markdown",
+      "createdAtIso": "2026-09-10T03:32:04.300Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-kimodo-text-encoder-wrapper-py",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/kimodo-text-encoder-wrapper.py",
+      "byteCount": 3286,
+      "sha256": "e4dc146dd6a5a6f75a269b99b53d7ae43a873f6020992426ddb39bf3f924a1c4",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:32:04.361Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-retrieval-receipts-json",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/retrieval-receipts.json",
+      "byteCount": 7818,
+      "sha256": "0e3d921e9102590deb49bfb7c25f57499f41ebe2c8bc61fd0fc56370ffaef069",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-10T03:32:05.015Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-soma-rp-checkpoint-config-yaml",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/soma-rp-checkpoint-config.yaml",
+      "byteCount": 675,
+      "sha256": "905664ad05779b0e28c391b85dc81c9de166418bd5f471ef605f75ab746ce391",
+      "mediaType": "application/yaml",
+      "createdAtIso": "2026-09-10T03:32:04.658Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-soma-rp-model-card-md",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/soma-rp-model-card.md",
+      "byteCount": 13154,
+      "sha256": "9854ebe176e78755a44cc4a74ae842c2a2874f24aa94f28f04929a0cc3d27b09",
+      "mediaType": "text/markdown",
+      "createdAtIso": "2026-09-10T03:32:04.552Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-soma-rp-model-licence-txt",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/soma-rp-model-licence.txt",
+      "byteCount": 10229,
+      "sha256": "11ccdcb47db87ac30b63765b5e5154403026c4fbb52c19919d99d912ec454e19",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:32:04.605Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-soma-seed-checkpoint-config-yaml",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/soma-seed-checkpoint-config.yaml",
+      "byteCount": 675,
+      "sha256": "905664ad05779b0e28c391b85dc81c9de166418bd5f471ef605f75ab746ce391",
+      "mediaType": "application/yaml",
+      "createdAtIso": "2026-09-10T03:32:04.751Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-soma-seed-model-card-md",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/soma-seed-model-card.md",
+      "byteCount": 12788,
+      "sha256": "21913a26278021da2adc38086c971907e6483d354931f1fc10bf40f29c5aeb89",
+      "mediaType": "text/markdown",
+      "createdAtIso": "2026-09-10T03:32:04.708Z",
+      "runId": "sc-10-screening-2026-09-09"
+    },
+    {
+      "artifactId": "sources-text-encoder-adapter-config-json",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-10/sources/text-encoder-adapter-config.json",
+      "byteCount": 794,
+      "sha256": "2a1265e4a7829c16dad38a5175ec8ac41ea1e851654da5044ace2437615a58ba",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-10T03:32:04.508Z",
+      "runId": "sc-10-screening-2026-09-09"
+    }
+  ],
+  "reviews": [
+    {
+      "reviewerId": "sc-10-independent-reviewer (separate agent session, no authorship of the reviewed code)",
+      "role": "independent adversarial verifier of the eligibility engine, its proof contract and its factual screening claims",
+      "distinctFromImplementer": true,
+      "reviewedSourceCommit": "fb5222e4fc84ba805c7a1d8a73620cc9a870c053",
+      "sessionIso": "2026-09-10T03:30:00.000Z",
+      "decision": "accepted",
+      "independentRetrieval": {
+        "sourcesRefetchedFromPinnedFirstPartyUrls": 9,
+        "byteIdenticalToStore": 9,
+        "note": "The four load-bearing claims rest on bytes the reviewer fetched, not on the card's stored copies."
+      },
+      "claimsChecked": [
+        {
+          "claim": "both pinned checkpoint configs declare kimodo.skeleton.SOMASkeleton30",
+          "status": "CONFIRMED",
+          "evidence": "config.yaml line 13 at revisions 6c9233af and aae3af19, HTTP 200, both diff clean against the store"
+        },
+        {
+          "claim": "the README77 / model-card30 divergence is layering, not incompatibility",
+          "status": "CONFIRMED",
+          "evidence": "kimodo-repo-readme.md:30 carries the somaskel77 breaking entry; definitions.py:264 defines output_to_SOMASkeleton77 inside class SOMASkeleton30 (opens 182, next class 286), documented as expanding to 77 joints and re-running FK"
+        },
+        {
+          "claim": "the text encoder's base model is gated",
+          "status": "CONFIRMED",
+          "evidence": "live api/models/meta-llama/Meta-Llama-3-8B-Instruct returns gated \"manual\", license \"llama3\"; the McGill adapter's adapter_config.json declares base_model_name_or_path meta-llama/Meta-Llama-3-8B-Instruct"
+        },
+        {
+          "claim": "the model cards list Linux/Windows and NVIDIA-only microarchitectures",
+          "status": "CONFIRMED",
+          "evidence": "soma-rp-model-card.md:108-115 and soma-seed-model-card.md:105-112; Ampere, Blackwell, Lovelace; Linux, Windows"
+        }
+      ],
+      "redIsGenuine": {
+        "status": "yes",
+        "evidence": "git show 27efa3d2 of verify-core.ts is byte-identical to the retained controls/verify-core.baseline.ts, so the probe grades the unchanged baseline. The baseline contains no verdict logic; its only occurrence of the word is the checkId string. Both arms re-run by the reviewer: RED exits 0 with {\"ok\":true}, GREEN rejects the same persisted bytes with 5 unmet requirements. A behavioral failure, not a missing file or import error."
+      },
+      "defectsFound": [
+        {
+          "rank": 1,
+          "defect": "screenDocumentationDivergence failed OPEN on a parse miss, returning eligible/VERIFIED with the finding 'no divergence is present'. Rewording the README line while leaving the real 77-vs-30 divergence intact reached `screened` on a CUDA host with an ungated encoder — the card's own 'README/model-card mismatch hidden as certainty' counterweight.",
+          "repairedAt": "returns unresolved; covered by a named test and by mutation"
+        },
+        {
+          "rank": 2,
+          "defect": "The encoder's base model id was hardcoded into a finding carrying a VERIFIED label; adapter_config.json was not a retrieved source.",
+          "repairedAt": "adapter_config.json is now a pinned source and the id is parsed from its bytes"
+        },
+        {
+          "rank": 3,
+          "defect": "screenRevisions() screens the compile-time manifest constant, not the retrieval, while reading as evidence about the bytes.",
+          "repairedAt": "the finding now says which it is and points at loadRetrievedSources, where per-source URL and hash matching happens"
+        },
+        {
+          "rank": 4,
+          "defect": "The recompute() seam between two tested halves had no test; inverting skeletonMappingInspected left all 26 verifier unit tests green.",
+          "repairedAt": "covered by a real-evidence seam test and by mutation"
+        }
+      ],
+      "notChecked": [
+        "8 of the 18 stored sources were not re-fetched first-party (code licence, pyproject, encoder wrapper, both HF model indexes, adapter index)",
+        "the output-terms 'revocable under section 2.1' characterization beyond confirming section 2.1 exists",
+        "repo gates, typecheck, lint and the full suite; only the three named commands were run",
+        "retrieve-candidate-sources.ts, so the receipt-writing side is unreviewed",
+        "the SC-10 contract documents themselves; the implementation was graded against the dispatch brief",
+        "any Kimodo inference, and the 17 GB / 3 GB VRAM figures beyond reading kimodo-repo-readme.md:72"
+      ],
+      "boundary": "This is an independent agent review, NOT the landing reviewer. Owner integration review under delegation-v2 step 7 is still required.",
+      "retrievedArtifactIds": [
+        "reviews-independent-review-json"
+      ]
+    }
+  ],
+  "limits": {
+    "unprovenClinical": [
+      "No clinical claim is made or implied. This card screened a motion-generation model's terms and feasibility; qualified clinical review is pending and was not performed."
+    ],
+    "unprovenHeadset": [
+      "No worn-headset evidence. Nothing here was exercised on a headset."
+    ],
+    "unprovenPublication": [
+      "No public deployment, no Pages push, no published media."
+    ],
+    "unresolvedDefects": [
+      "A13 remains an open research HOLD. It does not block A01-A12 and must not be closed as a measured cagematch.",
+      "pnpm typecheck:guardrails fails on 16 pre-existing tsconfig relaxations outside this card's write roots; identical at baseline 27efa3d2 with this card's changes stashed. Reported, not fixed."
+    ]
+  },
+  "evidenceRegistrySha256": "12b1587daf25b3a1a48dece3df89115efe6f56a89ae32b10140728e3818394fb"
+}
