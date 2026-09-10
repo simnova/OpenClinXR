@@ -4205,18 +4205,22 @@ def main():
     )
 
     # Lower slot: clinician scrub pants were fitted PRE-STRIP (helper x_scale).
-    # Patients/family wear toigo_wool_pants (pants01 CC0, 1372 obj verts, max ref
-    # 13351) on the stripped basemesh. cortu_cargo_pants (211/196) still exists in
-    # cache and still hits the LOWER GATE cover-shell replacement if selected —
-    # do not delete that gate. Do not point this slot at Scrub_Pants.
+    # Patients/family wear punkduck classic jeans (pants02 pack page CC-BY, mhclo
+    # header `# license CC-BY 4.0`; male-classic-jeans.obj 2614 verts / 2295 quads,
+    # max ref 13351) on the stripped basemesh. cortu_cargo_pants (211/196) still
+    # exists in cache and still hits the LOWER GATE cover-shell replacement if
+    # selected — do not delete that gate. Do not point this slot at Scrub_Pants.
+    # Wool (toigo_wool_pants, pants01 CC0) is superseded: pale/translucent crotch
+    # even with ambient world light. The slot name keeps a `pants` token so the
+    # isPantsName waistband matcher still finds the lower primitive.
     if pants is None:
         _pants_dir = (
             REPO_ROOT
-            / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/toigo_wool_pants"
+            / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/punkduck_male_classic_jeans"
         )
-        pants_obj = _pants_dir / "pants_wool.obj"
-        pants_mhclo = _pants_dir / "toigo_wool_pants.mhclo"
-        _lower_lib_name = "makeclothes_library_wool_pants"
+        pants_obj = _pants_dir / "male-classic-jeans.obj"
+        pants_mhclo = _pants_dir / "punkduck_male_classic_jeans.mhclo"
+        _lower_lib_name = "makeclothes_library_classic_jeans_pants"
         if not pants_obj.is_file() or not pants_mhclo.is_file():
             raise RuntimeError(f"lower garment sources missing in provider cache: {_pants_dir}")
 
@@ -4246,6 +4250,12 @@ def main():
                 f".mhclo header: {_lower_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
             )
         print(f"LOWER_GARMENT_LICENCE {_lower_lib_name} {_lower_lic_raw!r} matcher={_lower_lic_matcher}")
+        print(
+            "LOWER_GARMENT_ATTRIBUTION makeclothes_library_classic_jeans_pants "
+            "author=Punkduck pack=pants02 "
+            "page=https://static.makehumancommunity.org/assets/assetpacks/pants02.html "
+            "license=CC-BY"
+        )
 
         pants = import_obj(str(pants_obj), _lower_lib_name, force_z=False)
         apply_object_transforms(pants)
@@ -4261,6 +4271,15 @@ def main():
             mesh=pants,
         )
         pants.data.materials.append(_pants_mat)
+        # Wool defect was translucency: force OPAQUE on the jeans material.
+        _pants_mat.blend_method = "OPAQUE"
+        _pants_bsdf = _pants_mat.node_tree.nodes.get("Principled BSDF")
+        if _pants_bsdf is not None:
+            try:
+                _pants_bsdf.inputs["Alpha"].default_value = 1.0
+            except Exception:
+                pass
+        print(f"LOWER_GARMENT_OPAQUE {_lower_lib_name} blend_method=OPAQUE alpha=1.0")
         mhclo_pants = Mhclo()
         mhclo_pants.load(str(pants_mhclo))
         try:
@@ -4282,7 +4301,8 @@ def main():
     # 32 open edges). Street/family now fit toigo_wool_pants (1372 verts, same max-ref
     # band as the covering scrub pants). The LOWER GATE still measures coverage and
     # still replaces a `does_not_cover` / sparse-open cargo fit with the body-derived
-    # cover shell. A library name that covers (scrub, wool) ships as the fitted mesh.
+    # cover shell. A library name that covers (scrub, wool, jeans) ships as
+    # the fitted mesh.
 
     # #323: body-part hiding under the fitted garment — wire the PROVEN tool from
     # the sibling rail (D1), do not write a second hider. The MPFB2 rail has NO
@@ -4406,10 +4426,13 @@ def main():
     # The cargo 392-tri open shell needed the edges clause; WojackOWL scrub pants
     # and toigo_wool_pants cover at high raycast with those openings and must ship
     # as the fitted library mesh, not a body-derived shell wearing the same name.
+    # The punkduck classic jeans join that set (pants02 CC-BY, 2614/2295, max ref
+    # 13351); wool stays listed so a wool rebake still skips the shell.
     # Cargo is NOT in this set — do not delete its cover-shell gate.
     _COVERING_LIBRARY_LOWER = {
         "makeclothes_library_scrub_pants",
         "makeclothes_library_wool_pants",
+        "makeclothes_library_classic_jeans_pants",
     }
     _sparse_open_shell = (
         lower_rep["verdict"] == "does_not_cover"

@@ -84,14 +84,38 @@ import { isPantsName } from "./waistband-ring.ts";
  * LOWER_GATE verdict covers (raycast 0.9361). Shirt ymin pin 1.0283. Pants ymin
  * 0.0687 <= 0.12.
  *
+ * ## FIXED (jeans 2026-09-10)
+ *
+ * Wool failed look-good: pale/translucent crotch even with ambient world light.
+ * Treatment (production materializer only): patient/family lower slot fits
+ * `punkduck_male_classic_jeans` (`male-classic-jeans.obj` 2614/2295, mhclo
+ * `# license CC-BY 4.0`, pack page
+ * https://static.makehumancommunity.org/assets/assetpacks/pants02.html = the
+ * CC-BY grant) via ClothesService. Slot name
+ * `makeclothes_library_classic_jeans_pants` keeps a `pants` token for the
+ * waistband matcher; joins `_COVERING_LIBRARY_LOWER` with scrub+wool (cargo
+ * still hits the cover-shell gate). Material forced OPAQUE (wool's defect was
+ * translucency). Attribution Punkduck/pants02 printed at bake time
+ * (LOWER_GARMENT_ATTRIBUTION).
+ *
+ * Measured on the rematerialized shipped bytes:
+ *
+ *   mesh                              glb verts  tris   Y min     Y max
+ *   --------------------------------  ---------  ----   --------  --------
+ *   makeclothes_library_classic_jeans  7516      4590   0.0597    1.0906
+ *   toigo t-shirt                     5400       2700   1.0283    1.5155
+ *
+ * (glbVerts split higher than wool's 4711: the jeans consume their denim
+ * diffuse texture, so UV seams split POSITION. Tris are the identity.)
+ * LOWER_GATE verdict covers (raycast 0.9785). PANTS_FIT 2614 -> 2614 tris
+ * 4590. Shirt ymin pin 1.0283.
+ *
  * NOT TESTED:
- *   - **That the wool fit covers after ClothesService.** The vertex bound is the
- *     geometry-identity check. Coverage is the LOWER GATE's job at bake time.
  *   - **Family rebake.** Street only this slice. Patient/family lower slot is wired
  *     together; family GLB is not rematerialized here.
  *   - **hm08 / fit_stage.py.** Production path is
  *     `tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py`.
- *   - **Pixel grade of the wool trousers.** Parent grades the isolated EEVEE still.
+ *   - **Pixel grade of the jeans.** Parent grades the isolated EEVEE still.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -99,15 +123,16 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 const STREET_GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb");
 const STREET_ACTOR = "mpfb-street-adult-male";
 
-/** toigo_wool_pants / pants_wool.obj (pants01 CC0, staged this slice). */
-const CHOSEN_MHCLO_OBJ_VERTS = 1372;
-/** 1337 quads → fan-triangulated tris. Survives glTF POSITION splits. */
-const CHOSEN_MHCLO_TRIS = 2674;
-/** 5% — cover shell 2844 tris is 6.3% above and must fail. */
+/** punkduck_male_classic_jeans / male-classic-jeans.obj (pants02 CC-BY, staged this slice). */
+const CHOSEN_MHCLO_OBJ_VERTS = 2614;
+/** 2295 quads → fan-triangulated tris. Survives glTF POSITION splits. */
+const CHOSEN_MHCLO_TRIS = 4590;
+/** 5% — cover shell 2844 tris is 38% below and must fail; sparse cargo 392 far below. */
 const TRIS_TOLERANCE = 0.05;
 const PANTS_TRIS_MIN = Math.round(CHOSEN_MHCLO_TRIS * (1 - TRIS_TOLERANCE));
 const PANTS_TRIS_MAX = Math.round(CHOSEN_MHCLO_TRIS * (1 + TRIS_TOLERANCE));
-/** Cover shell measured on the shipped street GLB 2026-09-10. */
+/** Cover shell measured on the shipped street GLB 2026-09-10. Tris identity only;
+ * the jeans carry a denim texture (wool did not), so glbVerts split higher. */
 const COVER_SHELL_VERTS = 8435;
 const COVER_SHELL_TRIS = 2844;
 /** Sparse cargo obj (forbidden as a shipped mesh without a covering mhclo). */
@@ -187,25 +212,25 @@ const row = await measureStreet();
 
 describe("the street pants are MakeClothes, not a cover shell", () => {
   it(
-    `(1) RED: shipped pants tris within 5% of triangulated toigo_wool_pants obj (${CHOSEN_MHCLO_TRIS} → [${PANTS_TRIS_MIN}, ${PANTS_TRIS_MAX}]); cargo ${CARGO_OBJ_VERTS}/${CARGO_OBJ_FACES} vs shell ${COVER_SHELL_VERTS}v/${COVER_SHELL_TRIS}t`,
+    `(1) RED: shipped pants tris within 5% of triangulated punkduck classic jeans obj (${CHOSEN_MHCLO_TRIS} → [${PANTS_TRIS_MIN}, ${PANTS_TRIS_MAX}]); cargo ${CARGO_OBJ_VERTS}/${CARGO_OBJ_FACES} vs shell ${COVER_SHELL_VERTS}v/${COVER_SHELL_TRIS}t`,
     () => {
-      expect(row.pantsName, "street GLB must carry wool pants, not cargo/scrub").toMatch(/wool_pants/i);
+      expect(row.pantsName, "street GLB must carry classic jeans, not cargo/scrub").toMatch(/classic_jeans/i);
       expect(
         row.pantsTris,
-        `${row.actor} pants tris ${row.pantsTris} (name=${row.pantsName} glbVerts=${row.pantsVerts} objVerts=${CHOSEN_MHCLO_OBJ_VERTS}) outside ${PANTS_TRIS_MIN}..${PANTS_TRIS_MAX} (5% of wool triangulated obj ${CHOSEN_MHCLO_TRIS}). Cover shell is ${COVER_SHELL_VERTS}v/${COVER_SHELL_TRIS}t; sparse cargo obj is ${CARGO_OBJ_VERTS}/${CARGO_OBJ_FACES}.`,
+        `${row.actor} pants tris ${row.pantsTris} (name=${row.pantsName} glbVerts=${row.pantsVerts} objVerts=${CHOSEN_MHCLO_OBJ_VERTS}) outside ${PANTS_TRIS_MIN}..${PANTS_TRIS_MAX} (5% of jeans triangulated obj ${CHOSEN_MHCLO_TRIS}). Cover shell is ${COVER_SHELL_VERTS}v/${COVER_SHELL_TRIS}t; sparse cargo obj is ${CARGO_OBJ_VERTS}/${CARGO_OBJ_FACES}.`,
       ).toBeGreaterThanOrEqual(PANTS_TRIS_MIN);
       expect(
         row.pantsTris,
-        `${row.actor} pants tris ${row.pantsTris} above wool 5% ceiling ${PANTS_TRIS_MAX} — still the ${COVER_SHELL_TRIS}-tri cover shell`,
+        `${row.actor} pants tris ${row.pantsTris} above jeans 5% ceiling ${PANTS_TRIS_MAX} — still the ${COVER_SHELL_TRIS}-tri cover shell`,
       ).toBeLessThanOrEqual(PANTS_TRIS_MAX);
-      expect(
-        row.pantsVerts,
-        `${row.actor} pants glbVerts ${row.pantsVerts} still in the cover-shell band ${COVER_SHELL_VERTS}±20%`,
-      ).toBeLessThan(COVER_SHELL_VERTS * (1 - 0.2));
       expect(
         row.pantsVerts,
         `${row.actor} pants glbVerts ${row.pantsVerts} still the sparse cargo obj ${CARGO_OBJ_VERTS}`,
       ).toBeGreaterThan(CARGO_OBJ_VERTS * 2);
+      expect(
+        row.pantsTris,
+        `${row.actor} pants tris ${row.pantsTris} still the ${COVER_SHELL_TRIS}-tri cover shell`,
+      ).not.toBe(COVER_SHELL_TRIS);
     },
   );
 
