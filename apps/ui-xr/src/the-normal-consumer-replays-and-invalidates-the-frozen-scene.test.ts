@@ -1,3 +1,4 @@
+import { Buffer } from "node:buffer";
 import { appendFileSync, readFileSync } from "node:fs";
 import {
   composeSupportedActorWorldPosition,
@@ -11,7 +12,6 @@ import {
   CASE_SCENE_PLAN_AUTHORIZED_VARIATION_INDICES,
   CASE_SCENE_PLAN_SOLVER_VERSION,
 } from "@openclinxr/asset-registry/case-owned-scene-plan";
-import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-scene-plans";
 import {
   admitFrozenScenePlan,
   admitFrozenScenePlanForObservedScene,
@@ -872,6 +872,9 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
     // These clauses assert RETURNED STATUS, so gutting either body fails here.
     const shippedBundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
       scenarioId: SCENE_CLOSURE_CASE_ID,
+      ...(stationIdForSceneClosureScenario(SCENE_CLOSURE_CASE_ID) === undefined
+        ? {}
+        : { stationId: stationIdForSceneClosureScenario(SCENE_CLOSURE_CASE_ID) as string }),
     });
 
     // (i) The case's frozen plan is FOUND. The build-time freeze committed it; the lookup reaches it.
@@ -880,15 +883,43 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
     expect((carried as { planId?: string }).planId).toBe("scene_closure_supine_bedside_plan_v1");
     expect(CASE_FROZEN_SCENE_PLANS[SCENE_CLOSURE_CASE_ID]?.variation.seed).toMatch(/^[0-9a-f]{64}$/u);
 
-    // (ii) MEASURED, and it is a real limitation rather than a pass: the local fixture producer
-    // stamps `stationId: input.stationId ?? "ed_chest_pain_station_v1"`
-    // (runtime-bundles.ts:761) for EVERY scenario, so the shipped default bundle for this case is
-    // refused as bound to another station. The refusal is correct — that bundle is not this
-    // station's — and it is an executed body, not a no-op.
+    // (ii) THE ORDINARY PATH REACHES admitted. The runtime builds its bundle through the
+    // selected scenario's own station, resolved through the same `stationIdForSceneClosureScenario`
+    // binding `main.ts` uses — not through a bundle the test builds by overriding stationId. The
+    // refusal this clause used to pin was correct for a bundle carrying the wrong station, and that
+    // wrong-station shape is still refused below; what changed is that the ordinary build no longer
+    // produces it.
     const shippedAdmission = admitFrozenScenePlan({ bundle: shippedBundle });
-    expect(shippedAdmission.status).toBe("refused");
-    if (shippedAdmission.status !== "refused") return;
-    expect(shippedAdmission.reason).toBe("plan_bound_to_another_station");
+    expect(
+      shippedAdmission.status,
+      shippedAdmission.status === "refused" ? shippedAdmission.detail : "",
+    ).toBe("admitted");
+    if (shippedAdmission.status !== "admitted") return;
+    expect(shippedAdmission.reproduced).toBeNull();
+
+    // (ii-b) A bundle carrying the WRONG station is still refused, so the check above is not
+    // refusing nothing. The ED default the producer stamps for every other scenario keeps its
+    // refusal; only the scene-closure case's own station admits.
+    // THE RESOLUTION IS BOUND TO TWO INDEPENDENT SOURCES, not to itself: the case source authors
+    // the station and the committed freeze carries it. Changing the table to any other value
+    // breaks this rather than moving both sides together.
+    expect(stationIdForSceneClosureScenario(SCENE_CLOSURE_CASE_ID)).toBe(SCENE_CLOSURE_STATION_ID);
+    expect(stationIdForSceneClosureScenario(SCENE_CLOSURE_CASE_ID)).toBe(record.case.stationId);
+    const wrongStationBundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
+      scenarioId: SCENE_CLOSURE_CASE_ID,
+    });
+    const wrongStationAdmission = admitFrozenScenePlan({ bundle: wrongStationBundle });
+    expect(wrongStationAdmission.status).toBe("refused");
+    if (wrongStationAdmission.status !== "refused") return;
+    expect(wrongStationAdmission.reason).toBe("plan_bound_to_another_station");
+
+    // (ii-c) THE ADMISSION RESULT IS READ: the shipped frame loop steps the live bedside approach
+    // only once the frozen plan is admitted and reproduced. A source read, kept beside the
+    // behavioural clauses because a severed call site reads identically to a behaviour change.
+    const frameLoopSource = readFileSync("apps/ui-xr/src/main.ts", "utf8")
+      .replace(/\/\*[\s\S]*?\*\//gu, "")
+      .replace(/^\s*\/\/.*$/gmu, "");
+    expect(frameLoopSource).toMatch(/frozenScenePlanReproduced \? updateStationBedsideApproach\(/u);
 
     // (iii) A case with no frozen plan answers `no_plan_carried`, which is the honest answer for
     // every encounter that has never been frozen — and is what a GUTTED function returns for all
@@ -950,6 +981,44 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
     expect(staleRoom.status).toBe("refused");
     if (staleRoom.status !== "refused") return;
     expect(staleRoom.reason).toBe("evidence_changed");
+
+    // ── (o) THE COMMITTED RECORD STILL DESCRIBES THE FILES ON DISK ─────────────────────────────
+    // The owner measured this gap: replacing all four asset digests with "f" x 64 and
+    // routeLengthMeters with 99.5 left the behavior test passing 1 of 1, because no clause
+    // compared the committed record with disk. The browser admission cannot rehash an 11 MB GLB
+    // and carries the record's own digests instead; this check runs in node and rehashes bytes,
+    // so a republished asset or a hand-edited record fails here rather than sailing through.
+    const committedRecord = CASE_FROZEN_SCENE_PLANS[SCENE_CLOSURE_CASE_ID];
+    expect(committedRecord, "the committed freeze for this case is absent").toBeTruthy();
+    if (committedRecord === undefined) return;
+    const diskCheck = verifyCommittedScenePlanAgainstDisk({
+      record: committedRecord,
+      caseSourcePath: CASE_SOURCE_PATH,
+      bundleContent: BUNDLE_CONTENT,
+      geometry: ward.geometry,
+      patientWorldPosition: ward.patientWorld,
+      start: ward.start,
+      readBytes: (repoRelativePath: string) => readFileSync(repoRelativePath),
+    });
+    expect(diskCheck.problems, "the committed record drifted from the files on disk").toEqual([]);
+    expect(diskCheck.ok).toBe(true);
+    // AND THE NEGATIVE LEG, which is what makes the check above load-bearing: tampered bytes for
+    // the same paths must fail here. Without this leg a check that always answered ok would pass.
+    // `Buffer.from(bytes.map(() => 7))` keeps the byte COUNT identical so only the digests move.
+    const driftedCheck = verifyCommittedScenePlanAgainstDisk({
+      record: committedRecord,
+      caseSourcePath: CASE_SOURCE_PATH,
+      bundleContent: BUNDLE_CONTENT,
+      geometry: ward.geometry,
+      patientWorldPosition: ward.patientWorld,
+      start: ward.start,
+      readBytes: (repoRelativePath: string) => {
+        const bytes = readFileSync(repoRelativePath);
+        return repoRelativePath.endsWith(".glb") ? Buffer.from(bytes.map(() => 7)) : bytes;
+      },
+    });
+    expect(driftedCheck.ok).toBe(false);
+    expect(driftedCheck.problems.length).toBeGreaterThan(0);
 
     // ── (m) THE LINKS EXIST — A SUPPLEMENT TO (m0), NOT A SUBSTITUTE FOR IT ─────────────────────
     // These are regex matches over source. On their own they certify DEAD CODE: round 2's version of

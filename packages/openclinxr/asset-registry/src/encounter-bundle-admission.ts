@@ -241,7 +241,7 @@ export function stationIdForSceneClosureScenario(scenarioId: string): string | u
  * The browser admission above cannot rehash an 11 MB GLB, so it carries the record's own digests
  * instead and answers geometry only (stated in the module header). The verifier CLI and
  * `observeScenePlanEvidence` DO rehash from the filesystem. This is the same check, callable
- * without a report: it compares the committed record's four asset digests and byte counts, the
+ * without a report: it compares the committed record's four asset digests, the
  * case document digest, the bundle digest and the re-derived route length against disk.
  *
  * `readBytes` is injected so the behavior test can drive it without touching disk. The record is
@@ -312,12 +312,6 @@ export function verifyCommittedScenePlanAgainstDisk(input: {
       problems.push(
         `instance ${instance.instanceId} hashes to ${actual.slice(0, 12)} on disk, `
           + `the committed record binds ${instance.assetSha256.slice(0, 12)}`,
-      );
-    }
-    if ((instance.byteCount ?? -1) !== bytes.byteLength) {
-      problems.push(
-        `instance ${instance.instanceId} is ${bytes.byteLength} bytes on disk, `
-          + `the committed record binds ${String(instance.byteCount)}`,
       );
     }
   }

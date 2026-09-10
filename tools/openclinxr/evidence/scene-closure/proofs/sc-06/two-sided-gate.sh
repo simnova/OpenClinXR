@@ -253,3 +253,32 @@ echo
 echo "TWO-SIDED GATE: $BROKE of $TOTAL reverts break a named clause"
 echo "finished: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 [ "$BROKE" -eq "$TOTAL" ]
+
+revert "the ordinary path build is reverted to the ED default" \
+  "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts" \
+  "import pathlib;p=pathlib.Path('$ROOT/apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts');s=p.read_text();s=s.replace('      ...(stationIdForSceneClosureScenario(SCENE_CLOSURE_CASE_ID) === undefined\n        ? {}\n        : { stationId: stationIdForSceneClosureScenario(SCENE_CLOSURE_CASE_ID) as string }),\n','',1);p.write_text(s)" \
+  "" "$BEHAVIOR_TEST" \
+  "(m0)(ii) the ordinary path reaches admitted"
+
+revert "the admission result stops gating the walk (ii-c)" \
+  "apps/ui-xr/src/main.ts" \
+  "import pathlib;p=pathlib.Path('$MAIN');s=p.read_text();s=s.replace('frozenScenePlanReproduced ? updateStationBedsideApproach','updateStationBedsideApproach');p.write_text(s)" \
+  "" "$BEHAVIOR_TEST" \
+  "(m0)(ii-c) the admission result is read"
+
+revert "the committed record check is gutted (o)" \
+  "packages/openclinxr/asset-registry/src/encounter-bundle-admission.ts" \
+  "import pathlib;p=pathlib.Path('$ADMIT');s=p.read_text();s=s.replace('}): CommittedScenePlanDiskCheck {\\n  const problems: string[] = [];','}): CommittedScenePlanDiskCheck {\\n  return { ok: true, problems: [] };\\n  const problems: string[] = [];',1);p.write_text(s)" \
+  "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
+  "(o) the committed record still describes the files on disk"
+
+revert "the scene-closure station resolution is removed" \
+  "packages/openclinxr/asset-registry/src/encounter-bundle-admission.ts" \
+  "import pathlib;p=pathlib.Path('$ADMIT');s=p.read_text();s=s.replace('  "scene_closure_supine_bedside_v1": "scene_closure_supine_bedside_station_v1",','  "scene_closure_supine_bedside_v1": "ed_chest_pain_station_v1",');p.write_text(s)" \
+  "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
+  "(m0)(ii) the ordinary path reaches admitted"
+
+echo
+echo "TWO-SIDED GATE: $BROKE of $TOTAL reverts break a named clause"
+echo "finished: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+[ "$BROKE" -eq "$TOTAL" ]
