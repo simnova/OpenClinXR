@@ -1,0 +1,690 @@
+{
+  "schemaVersion": "openclinxr.scene-closure-evidence.v1",
+  "cardKey": "SC-06",
+  "contract": {
+    "pinnedCommit": "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50",
+    "documents": [
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md",
+        "sha256": "c8080c5e9c75fbb2b4bacb23ed45eac6f829b5dcf494059247a6ee8d55de1bbf"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/tasks-v2.md",
+        "sha256": "e12fbcb49eef3ce4a9c3098309d27bb094dc8c25baa0631452fa27b2f1403881"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/proof-contract-v2.md",
+        "sha256": "a1d1d85a15ae2acfce16479d6b9b4a181e0ccfee60aab885af674c8274cdcfe5"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/delegation-v2.md",
+        "sha256": "59e34f9d6f099574cdf9291847321a4aa23a8e19643ec510984855173cc23016"
+      }
+    ],
+    "aRows": [
+      "A09"
+    ]
+  },
+  "implementation": {
+    "productSourceCommit": "67505651fbe288fd1db91d03ae2e659b3a831ba1",
+    "dependencyBaselineCommit": "27efa3d2e0615a2dc7435533724e7378a0371682",
+    "changeCommits": [
+      "67505651fbe288fd1db91d03ae2e659b3a831ba1"
+    ],
+    "treeClean": true,
+    "inputs": [
+      {
+        "path": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+        "sha256": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d"
+      },
+      {
+        "path": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+        "sha256": "4a6d8a78cd2eabd724cfd2570881cf36df25064545941c7f10dbce44ea597d3c"
+      },
+      {
+        "path": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+        "sha256": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93"
+      },
+      {
+        "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+        "sha256": "59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6"
+      },
+      {
+        "path": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
+        "sha256": "310af1839da10535f77ef43ad044f99695cf594db441206a1a63a6329a971d2f"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/package.json",
+        "sha256": "7f457d3019c918533ec81cbb1fed864423b2a1121db450fcfdc753b4e46ab844"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts",
+        "sha256": "25acb788275c21c66ae381151775489ae6ce4bdfb6022e5cebea7af9d832db30"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/bedside-approach-path.ts",
+        "sha256": "0294aa99947b51827062283f9e0c60982d537e434d32ee0f0c04e52debdc5f5a"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/bedside-clearance.ts",
+        "sha256": "29d75281bd15786b770f404d618cd07c78b4633f383216a687cc34c30892631f"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/bedside-target.ts",
+        "sha256": "b921fb35a4f060ba67a9e6d13d7c80661a9ea1a638dc9bc8634743c660a5e7be"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/case-approach-intent.ts",
+        "sha256": "6175e5d5e3aee7a289792fea185bd78564daf6275e249f9f9c70bba53ec9ba60"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/case-owned-scene-plan.ts",
+        "sha256": "a84d81125155b5f07e82b6d1d17feefdc2b4915c6afa0c86bba2a6178c99227f"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/frozen-scene-replay.ts",
+        "sha256": "bb5899a9fd8969ab97b77cc5a6e808b261f911842240210d51d16c34b6c4cb6d"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/layout-solve.ts",
+        "sha256": "c98c1a2fa2b5bac7188d7aaa133f507e92714927e15f9d212cc2f82b597263f5"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/layout-variation.ts",
+        "sha256": "e641618210a543b5d274aec6663939c5a667913053979cceb7128dc88240cac8"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/scene-plan-freeze.ts",
+        "sha256": "58208492d3ff4e061e6f190225674cdb042fdfc0d44fa4dfa777021b1b670d24"
+      },
+      {
+        "path": "packages/openclinxr/review-workflow/package.json",
+        "sha256": "b33304dc07714e973ed7406278515e6e6066c0eb7072cc778c6859db4e2caccc"
+      },
+      {
+        "path": "packages/openclinxr/review-workflow/src/accepted-scene-plan-review.ts",
+        "sha256": "f6d93893b2f6f3e6c75bfe84aac4cd58da58f2ff9d079572d64d46e25c58dcb1"
+      },
+      {
+        "path": "packages/openclinxr/session-state/package.json",
+        "sha256": "3d01976548d8fb6ef12366ced99357b7f3980430acf6c397ab41d502dfc1c9f8"
+      },
+      {
+        "path": "packages/openclinxr/session-state/src/accepted-scene-plan.ts",
+        "sha256": "a8d659b1201de01690b85c3a41f8ac7996d8c50c75ad8a104afe23e81af17e01"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/baseline-replay-probe.ts",
+        "sha256": "100b4562a811b73c8b0bda990fd703fdef126ff892178f959ebafe4ba758f811"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/build-report.ts",
+        "sha256": "7efa1ca8ff9df4a458996fbea283b1987e7156f9309956b331a26f387c458fcc"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/report-schema.ts",
+        "sha256": "33fd29ea48f08bf4135dd277b998907cea30565df710b9edfe47226ddeccc24c"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/two-sided-gate.sh",
+        "sha256": "4b13e5c50ec1a6183eb047cbeef9aae6954013b11a72de74a63e86b8946d7c08"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verifier.test.ts",
+        "sha256": "98c11238a0bc64ccff3d848e7e9a945c34d885766a8f94956d49226d41739c96"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify-core.ts",
+        "sha256": "d566f2c29cd2fdc80c01fb7360d36bc24a721872e5948ac619110256fee60150"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify.ts",
+        "sha256": "753cbcfc9e2dc9f8084cca1116ec5a4ce52a0427971c772c07b65058a47a50b6"
+      },
+      {
+        "path": "tools/openclinxr/evidence/supine-control-freeze/a-corrupt-artifact-is-refused.test.ts",
+        "sha256": "a736b3db0588ff6818a2cf3ec2a0cccad98b20cf4f1a076d19ceafd4a655239a"
+      },
+      {
+        "path": "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.record.json",
+        "sha256": "17ed8befcc860629a6a27c338255b0dd54598db8fe31f1fdcc779f05202d7979"
+      },
+      {
+        "path": "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts",
+        "sha256": "19a97a57759f49085a48eeda21e620eed10696447ac4db0958aaac76180ec539"
+      },
+      {
+        "path": "tools/openclinxr/evidence/supine-control-freeze/the-supine-control-station-is-frozen-by-asset-bytes.test.ts",
+        "sha256": "f4ac46a587ca7df10752943b56ccd66e6d21b8abe88ec2e58fb7fe66bfa81a56"
+      },
+      {
+        "path": "tools/openclinxr/factory/scene-closure-case-source.ts",
+        "sha256": "ac7c9e24e6dbf18ac14e9e341fad00e8f94d1bc52525aca6d81d3b0ba04e0543"
+      }
+    ],
+    "changedFiles": [
+      "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
+      "packages/openclinxr/asset-registry/package.json",
+      "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts",
+      "packages/openclinxr/asset-registry/src/case-owned-scene-plan.ts",
+      "packages/openclinxr/asset-registry/src/frozen-scene-replay.ts",
+      "packages/openclinxr/asset-registry/src/layout-solve.ts",
+      "packages/openclinxr/asset-registry/src/layout-variation.ts",
+      "packages/openclinxr/asset-registry/src/scene-plan-freeze.ts",
+      "packages/openclinxr/review-workflow/package.json",
+      "packages/openclinxr/review-workflow/src/accepted-scene-plan-review.ts",
+      "packages/openclinxr/session-state/package.json",
+      "packages/openclinxr/session-state/src/accepted-scene-plan.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-06/baseline-replay-probe.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-06/build-report.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-06/report-schema.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-06/two-sided-gate.sh",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verifier.test.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify-core.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify.ts",
+      "tools/openclinxr/evidence/supine-control-freeze/a-corrupt-artifact-is-refused.test.ts",
+      "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.record.json",
+      "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts",
+      "tools/openclinxr/evidence/supine-control-freeze/the-supine-control-station-is-frozen-by-asset-bytes.test.ts"
+    ],
+    "runtime": {
+      "node": "v24.18.1",
+      "platform": "darwin-arm64"
+    }
+  },
+  "sourceInspection": {
+    "behaviorTestPath": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
+    "behaviorTestTitle": "SC-06-required-behavior"
+  },
+  "execution": {
+    "taskId": "tsk_5bae505424890144",
+    "runId": "sc06-run-2026-09-10",
+    "commands": [
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "packages/openclinxr/asset-registry/src/the-layout-varies-and-refuses.test.ts",
+          "tools/openclinxr/evidence/supine-control-freeze/the-supine-control-station-is-frozen-by-asset-bytes.test.ts",
+          "tools/openclinxr/evidence/supine-control-freeze/a-corrupt-artifact-is-refused.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-10T03:58:31.024Z",
+        "endedAtIso": "2026-09-10T03:58:33.025Z",
+        "tests": {
+          "passed": 18,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "outputArtifactId": "sc06-cmd1-regressions"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/the-client-entry-does-not-reach-node-builtins.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-10T03:58:31.751Z",
+        "endedAtIso": "2026-09-10T03:58:33.751Z",
+        "tests": {
+          "passed": 6,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "outputArtifactId": "sc06-cmd2-client-entry"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-10T03:58:33.823Z",
+        "endedAtIso": "2026-09-10T03:58:35.824Z",
+        "tests": {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "outputArtifactId": "sc06-cmd3-behavior"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "tsx",
+          "tools/openclinxr/openclaw/assert-contract-live.ts",
+          "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
+          "SC-06-required-behavior"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-10T03:58:34.331Z",
+        "endedAtIso": "2026-09-10T03:58:36.332Z",
+        "outputArtifactId": "sc06-cmd4-contract-live"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verifier.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-10T03:58:35.057Z",
+        "endedAtIso": "2026-09-10T03:58:37.058Z",
+        "tests": {
+          "passed": 25,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "outputArtifactId": "sc06-cmd5-verifier-unit"
+      }
+    ]
+  },
+  "counterweight": {
+    "testIds": [
+      "SC-06-required-behavior"
+    ],
+    "baselineRevision": "27efa3d2e0615a2dc7435533724e7378a0371682",
+    "baselineRunId": "sc06-baseline-27efa3d2",
+    "failingAssertion": "a frozen bedside plan must carry the identities it was accepted against, and changed asset bytes must invalidate it",
+    "observedBeforeFix": "0 of 14 A09 fields on the accepted plan; geometryRevisionDigest identical (geom-v1-c45e274d-7) across a real body substitution whose sha256 differ (4a6d8a78… vs bc5b9009…); beginBedsideApproachExecution accepted the stale plan",
+    "knownGoodControl": "the layout/refusal and supine byte-freeze regressions stayed green throughout: 18 passed before and after",
+    "fixedRevision": "HEAD",
+    "observedAfterFix": "14 of 14 A09 fields persisted; reproduction offset 0 m; changed, missing and corrupt evidence produce three distinct refusals",
+    "baselineOutputArtifactId": "sc06-baseline-observations",
+    "fixedOutputArtifactId": "sc06-observations"
+  },
+  "encounter": {
+    "caseId": "scene_closure_supine_bedside_v1",
+    "caseVersion": 2,
+    "caseSourceVersion": "openclinxr.scene-closure-case-source.v2",
+    "stationId": "scene_closure_supine_bedside_station_v1",
+    "environmentId": "inpatient_ward_room_v1",
+    "patientActorId": "patient_margaret_ellis_v1",
+    "physicianActorId": "senior_resident_ward_v1",
+    "supportInstanceId": "inpatient_ward_room_v1:stretcher",
+    "rigRevision": "mpfb2_standard_137_joint",
+    "clipRevision": "openclinxr_retarget_walk_formal_cc0",
+    "solverVersion": "openclinxr.bedside-layout-solver.v1",
+    "rubricVersion": "openclinxr.scene-closure-arrival-rubric.v1",
+    "planRevision": "plan-v1-cfaecd9e861a18454374d0a73cee82c5",
+    "layoutSeed": "62a49d3f625f5154c1fe67f6fdf86f8b345db4ebe539cd218b8aa943186c28ee",
+    "geometryRevision": "geom-v1-c45e274d-7",
+    "variationIndex": 0,
+    "stationRunId": "sc06-run-0001"
+  },
+  "observations": [
+    {
+      "observationId": "sc06-a09-fields-present",
+      "metric": "a09_fields_present_on_record",
+      "unit": "count",
+      "value": 14,
+      "source": "freezeAcceptedScenePlan",
+      "observedAtMs": 1,
+      "artifactId": "sc06-observations"
+    },
+    {
+      "observationId": "sc06-reproduction-offset",
+      "metric": "layout_reproduction_offset_meters",
+      "unit": "meters",
+      "value": 0,
+      "source": "reopenFrozenScene",
+      "observedAtMs": 2,
+      "artifactId": "sc06-observations"
+    },
+    {
+      "observationId": "sc06-variation-resolved",
+      "metric": "authorized_indices_that_resolved",
+      "unit": "count",
+      "value": 6,
+      "source": "freezeAcceptedScenePlan",
+      "observedAtMs": 3,
+      "artifactId": "sc06-observations"
+    },
+    {
+      "observationId": "sc06-variation-refused",
+      "metric": "authorized_indices_refused_with_named_conflicts",
+      "unit": "count",
+      "value": 4,
+      "source": "freezeAcceptedScenePlan",
+      "observedAtMs": 4,
+      "artifactId": "sc06-observations"
+    },
+    {
+      "observationId": "sc06-distinct-refusals",
+      "metric": "distinct_evidence_refusal_kinds",
+      "unit": "count",
+      "value": 3,
+      "source": "reopenFrozenScene",
+      "observedAtMs": 5,
+      "artifactId": "sc06-observations"
+    },
+    {
+      "observationId": "sc06-frozen-plan-revision",
+      "metric": "frozen_plan_revision",
+      "unit": "digest",
+      "value": "plan-v1-cfaecd9e861a18454374d0a73cee82c5",
+      "source": "scenePlanRevision",
+      "observedAtMs": 6,
+      "artifactId": "sc06-observations"
+    },
+    {
+      "observationId": "sc06-frozen-seed",
+      "metric": "frozen_layout_seed",
+      "unit": "digest",
+      "value": "62a49d3f625f5154c1fe67f6fdf86f8b345db4ebe539cd218b8aa943186c28ee",
+      "source": "deriveLayoutVariationSeed",
+      "observedAtMs": 7,
+      "artifactId": "sc06-observations"
+    },
+    {
+      "observationId": "sc06-geometry-revision",
+      "metric": "frozen_geometry_revision",
+      "unit": "digest",
+      "value": "geom-v1-c45e274d-7",
+      "source": "geometryRevisionDigest",
+      "observedAtMs": 8,
+      "artifactId": "sc06-observations"
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "frozen-inputs-reproduce-accepted-result",
+      "expected": "re-solving from the persisted seed lands within 1e-9 m of the frozen target",
+      "observed": 0,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "sc06-reproduction-offset",
+        "sc06-observations"
+      ]
+    },
+    {
+      "checkId": "several-indices-explore-authorized-choices",
+      "expected": "the authorized indices produce more than one outcome",
+      "observed": "6 resolved, 4 refused",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "sc06-variation-resolved",
+        "sc06-variation-refused",
+        "sc06-observations"
+      ]
+    },
+    {
+      "checkId": "impossible-intent-reports-named-conflicts",
+      "expected": "an unsatisfiable authored standoff refuses with every constraint named",
+      "observed": "refused with named conflicts on the authored side",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "sc06-cmd3-behavior",
+        "sc06-observations"
+      ]
+    },
+    {
+      "checkId": "bound-bytes-cover-case-bundle-glb-clip-rig-solver",
+      "expected": "all 14 A09 fields persisted, every actor instance carrying a real sha256",
+      "observed": 14,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "sc06-a09-fields-present",
+        "sc06-observations"
+      ]
+    },
+    {
+      "checkId": "acknowledgment-snapshot-and-event-order-persisted",
+      "expected": "the acknowledgment binds the plan revision and the event order is monotonic",
+      "observed": "plan-v1-cfaecd9e861a18454374d0a73cee82c5",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "sc06-frozen-plan-revision",
+        "sc06-observations"
+      ]
+    },
+    {
+      "checkId": "replay-through-normal-consumer",
+      "expected": "the durable read then the replay reopen the frozen plan",
+      "observed": "geom-v1-c45e274d-7",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "sc06-geometry-revision",
+        "sc06-cmd3-behavior"
+      ]
+    },
+    {
+      "checkId": "browser-entry-reaches-no-server-only-builtin",
+      "expected": "the client entry value-reaches zero node: builtins",
+      "observed": "0 offenders across 17 value-reachable modules",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "sc06-cmd2-client-entry"
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "controlId": "changed-case-refuses-stale-acceptance",
+      "trigger": "the persisted case document's sha256 replaced",
+      "expected": "evidence_changed",
+      "observed": "refused evidence_changed naming case.caseContentSha256",
+      "held": true,
+      "evidenceIds": [
+        "sc06-cmd3-behavior"
+      ]
+    },
+    {
+      "controlId": "corrupt-bundle-refuses",
+      "trigger": "the compiled bundle's sha256 replaced",
+      "expected": "evidence_changed",
+      "observed": "refused evidence_changed naming bundle.bundleSha256",
+      "held": true,
+      "evidenceIds": [
+        "sc06-cmd3-behavior"
+      ]
+    },
+    {
+      "controlId": "removed-glb-refuses",
+      "trigger": "the physician body dropped from the observed digest map",
+      "expected": "evidence_missing",
+      "observed": "refused evidence_missing, distinct from changed and corrupt",
+      "held": true,
+      "evidenceIds": [
+        "sc06-cmd3-behavior",
+        "sc06-distinct-refusals"
+      ]
+    },
+    {
+      "controlId": "changed-clip-refuses",
+      "trigger": "clipRevision moved to _v2",
+      "expected": "evidence_changed",
+      "observed": "refused evidence_changed naming revisions.clipRevision",
+      "held": true,
+      "evidenceIds": [
+        "sc06-cmd3-behavior"
+      ]
+    },
+    {
+      "controlId": "different-solver-revision-refuses",
+      "trigger": "solverVersion moved to v2",
+      "expected": "evidence_changed",
+      "observed": "refused evidence_changed naming revisions.solverVersion",
+      "held": true,
+      "evidenceIds": [
+        "sc06-cmd3-behavior"
+      ]
+    },
+    {
+      "controlId": "missing-and-corrupt-are-distinguished",
+      "trigger": "the same asset absent, then present-and-undecodable",
+      "expected": "two different refusal reasons",
+      "observed": "3 distinct kinds across changed, missing and corrupt",
+      "held": true,
+      "evidenceIds": [
+        "sc06-distinct-refusals",
+        "sc06-observations"
+      ]
+    },
+    {
+      "controlId": "repair-requires-fresh-observation",
+      "trigger": "re-accepting under the invalidated plan's own revision, and unattributed",
+      "expected": "both refused; a named observer with a new revision succeeds",
+      "observed": "refused twice, revalidated once, and the repaired plan reopened",
+      "held": true,
+      "evidenceIds": [
+        "sc06-cmd3-behavior"
+      ]
+    },
+    {
+      "controlId": "no-hidden-facts-in-exported-evidence",
+      "trigger": "the review projection scanned for private key names",
+      "expected": "no hidden, private, serverOnly, internal, secret or confidential key",
+      "observed": "zero private keys in the projection",
+      "held": true,
+      "evidenceIds": [
+        "sc06-cmd3-behavior"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "sc06-baseline-observations",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-06/baseline-observations.jsonl",
+      "byteCount": 2286,
+      "sha256": "f235e1c88b2ee9f034e3d235d2659e3ec59071d2e00f180d8feaac00a7d53878",
+      "mediaType": "application/x-ndjson",
+      "createdAtIso": "2026-09-10T03:11:24.434Z",
+      "runId": "sc06-baseline-27efa3d2"
+    },
+    {
+      "artifactId": "sc06-baseline-supine-freeze-transcript",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-06/baseline-supine-freeze-transcript.txt",
+      "byteCount": 1079,
+      "sha256": "29d080217d8a92d391501d2c337c8258d9b07e125558eb53e04279a9ca6b7a53",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:11:38.355Z",
+      "runId": "sc06-baseline-27efa3d2"
+    },
+    {
+      "artifactId": "sc06-baseline-transcript",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-06/baseline-transcript.txt",
+      "byteCount": 2563,
+      "sha256": "26001b6015b6bfdb3268085d172fc8cf8f3a8fbd5e66150133da30693a28a312",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:11:24.466Z",
+      "runId": "sc06-baseline-27efa3d2"
+    },
+    {
+      "artifactId": "sc06-cmd1-regressions",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-06/cmd1-regressions.txt",
+      "byteCount": 224,
+      "sha256": "5ed961cb1d75a6730671a111b8f1f7f1ccf1a35a92161442e9373025c694197a",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:58:33.025Z",
+      "runId": "sc06-run-2026-09-10"
+    },
+    {
+      "artifactId": "sc06-cmd2-client-entry",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-06/cmd2-client-entry.txt",
+      "byteCount": 219,
+      "sha256": "d39987ae9d2a1f4dc7b239bfeef1e403fac00f10bfc5fea3fd4999f6de810921",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:58:33.751Z",
+      "runId": "sc06-run-2026-09-10"
+    },
+    {
+      "artifactId": "sc06-cmd3-behavior",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-06/cmd3-behavior.txt",
+      "byteCount": 222,
+      "sha256": "8f549564e34d5b5ae0bfdd59c9d8ea61c0421f0febcc05b7f55a61a26c8e1ae9",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:58:35.824Z",
+      "runId": "sc06-run-2026-09-10"
+    },
+    {
+      "artifactId": "sc06-cmd4-contract-live",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-06/cmd4-contract-live.txt",
+      "byteCount": 128,
+      "sha256": "802cbcdf862c2c7a3f85485a1a166588755ce9deb2d8b578b709f5e80e2cb45c",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:58:36.332Z",
+      "runId": "sc06-run-2026-09-10"
+    },
+    {
+      "artifactId": "sc06-cmd5-verifier-unit",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-06/cmd5-verifier-unit.txt",
+      "byteCount": 220,
+      "sha256": "10e22c0dd878f27eb1ab92c1a2ac625e5f648913a868720e1794b1aa680d5a4a",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:58:37.058Z",
+      "runId": "sc06-run-2026-09-10"
+    },
+    {
+      "artifactId": "sc06-observations",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-06/observations.jsonl",
+      "byteCount": 1267,
+      "sha256": "a9a6d065449b27747636c1b26016537cb4bb294712c2f8f901e007889af4dd83",
+      "mediaType": "application/x-ndjson",
+      "createdAtIso": "2026-09-10T04:03:39.202Z",
+      "runId": "sc06-run-2026-09-10"
+    },
+    {
+      "artifactId": "sc06-two-sided-gate",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-06/two-sided-gate.txt",
+      "byteCount": 2083,
+      "sha256": "890285caba960fef8b38fbf67e9e8b5975107c4404ba67b2b2abbc6bc5198f1b",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T03:55:52.179Z",
+      "runId": "sc06-run-2026-09-10"
+    },
+    {
+      "artifactId": "sc06-verifier-cli-probes",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-06/verifier-cli-probes.txt",
+      "byteCount": 1854,
+      "sha256": "df25a07a098ec115f843b170231516cc8f2677abddf0a107d14cbc82185c6c9f",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T04:03:41.814Z",
+      "runId": "sc06-run-2026-09-10"
+    }
+  ],
+  "reviews": [],
+  "limits": {
+    "unprovenClinical": [
+      "Clinical appropriateness of the frozen bedside side, standoff and working position is NOT established. Qualified clinical review is pending and no assertion in this card implies it."
+    ],
+    "unprovenHeadset": [
+      "No worn-headset run was performed. Every measurement here is node-side geometry and byte identity; none is evidence of headset comfort, frame pacing or presence."
+    ],
+    "unprovenPublication": [
+      "No Pages push or public render is authorized by this card. The selected bodies remain publicRender: blocked_pending_named_upstream_resolution per the case source."
+    ],
+    "unresolvedDefects": [
+      "INDEPENDENT REVIEW OUTSTANDING. `reviews` is empty because this worker is the implementer and cannot supply an independent accepted review. The card's verifier requires one, so the direct CLI exits nonzero on this report until a distinct reviewer records theirs. This is the contract working, not a defect in the implementation.",
+      "The durable record type is DECLARED TWICE — authoritatively in packages/openclinxr/session-state/src/accepted-scene-plan.ts and pinned structurally in packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts. Neither package may import the other: session-state's manifest is pinned by exact equality (workspace-architecture.test.ts:1271) and an asset-registry edge rewrites pnpm-lock.yaml, outside this card's write roots. Clause (k0) of the behavior test compares the two declarations' field names read from source, so drift fails rather than passing silently.",
+      "`pnpm typecheck` fails on its guardrails leg at this head AND at the unchanged baseline 27efa3d2, with identical output: 16 tsconfig files relax noPropertyAccessFromIndexSignature and one enables skipLibCheck. Pre-existing; this card changed no tsconfig. The other three typecheck legs pass."
+    ]
+  },
+  "evidenceRegistrySha256": "12b1587daf25b3a1a48dece3df89115efe6f56a89ae32b10140728e3818394fb"
+}
