@@ -655,9 +655,7 @@ const runtimeEquipmentSlotsByAssetId = new Map<string, Group>();
 // be ED literals, so every other case staged the ED cast while the runtime merely recorded a
 // scenario_mismatch (:705-715) — measured on the loaded humanoid, which made the authored clinic
 // placement unreachable and the brief's §7 step 2 impossible to exercise. The station rides the
-// same selection: the producer takes it as a caller parameter with an ED default, and no resolver
-// in the tree maps a scenario to its station, so the selected scenario's own station is resolved
-// here through the case's frozen-plan binding rather than restamping the producer's default.
+// same selection through the case's frozen-plan binding rather than restamping the default.
 const selectedSceneClosureStationId = stationIdForSceneClosureScenario(selectedScenarioId());
 let encounterRuntimeAssetBundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
   scenarioId: selectedScenarioId(),
@@ -3450,14 +3448,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       }
     }
     updateVrPanels(inputEvidence);
-    // THE CASE-OWNED PRODUCER RUNS FIRST, and it is the reason the read below is no longer dead.
-    // Measured on the unchanged tree at 86dc0300, nothing in apps, packages or tools ever wrote
-    // `floor.userData.genDrive` or `floor.userData.pedsRuntimeDrive`, so the only non-null value
-    // this frame could take came from `window.__openClinXrPedsDrive` — a recorder global.
-    // Reopen the frozen plan against the room on screen: re-solve from the persisted seed, refuse
-    // when it does not reproduce or the geometry moved. Byte identity stays server-side. The
-    // admission's result is read on the next line: while the frozen plan is not reproduced, the
-    // live bedside approach below is not stepped, so a refused or stale plan stages no walk.
+    // While the frozen plan is not reproduced the live bedside approach is not stepped.
     frozenScenePlanAdmission = admitFrozenScenePlanForObservedScene({
       admission: frozenScenePlanAdmission, bundle: encounterRuntimeAssetBundle,
       scene,
