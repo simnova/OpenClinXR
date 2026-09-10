@@ -1,6 +1,8 @@
+import { createHash } from "node:crypto";
 import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evidence.js";
 import { geometryRevisionDigest, type ObservedApproachGeometry } from "./case-approach-intent.js";
 import { CASE_FROZEN_SCENE_PLANS } from "./case-frozen-scene-plans.js";
+import { resolveCaseOwnedScenePlan } from "./case-owned-scene-plan.js";
 import {
   type FrozenSceneReopen,
   type FrozenSceneReproduction,
@@ -12,6 +14,7 @@ import {
   evaluateEncounterRuntimeLearnerUseGate,
   type LearnerRuntimeAssetBundle,
 } from "./runtime-bundles.js";
+import { canonicalJson } from "./scene-plan-freeze.js";
 
 /**
  * WHAT THE SHIPPED RUNTIME CALLS to admit — or refuse — a frozen scene plan.
@@ -52,6 +55,11 @@ import {
  * actual-evidence CLI own it — and this side owns geometry, reproduction, rubric, acknowledgment and
  * dialogue identity. That boundary is stated rather than implied because a reader could otherwise
  * take "the runtime reopens the plan" to mean the runtime re-verified the bytes. It did not.
+ *
+ * VERIFIED, NOT VOUCHED. A consumer that claims these bytes match disk is asserting something this
+ * path never measured. Use `verifyCommittedScenePlanAgainstDisk` (below), which rehashes the four
+ * selected GLBs off disk, before claiming the committed record's digests describe the files. The
+ * behavior test drives that check, so a committed record that drifted from its own assets fails.
  *
  * claimScope: admission of one frozen plan against one bundle and, when observed, one room.
  * notEvidenceFor: byte identity of the bound assets in a browser, clinical validity, or that the
@@ -204,6 +212,147 @@ export function admitFrozenScenePlanForObservedRoom(input: {
 }
 
 // ── Bundle inspection, moved here from apps/ui-xr/src/encounter-bundle-boot/index.ts ─────────────
+
+/**
+ * THE SCENE-CLOSURE STATION, and it is DATA rather than a second parameter.
+ *
+ * No resolver in the tree maps a scenario id to its station: scenarios carry no station field,
+ * the producer takes `stationId` as a caller parameter with an ED default, and the case source is
+ * authoring input nothing under packages/ or apps/ may import. This table binds the case whose
+ * frozen plan `CASE_FROZEN_SCENE_PLANS` carries to the bundle the runtime must build, and
+ * `stationIdForSceneClosureScenario` is the resolution the app call site and this card's behavior
+ * test both use — so the ordinary path and the tested path cannot disagree about which station a
+ * scenario stages.
+ *
+ * A scenario with no frozen plan has no entry and resolves to undefined; the caller keeps its own
+ * default, which is the honest answer for every encounter that has never been frozen.
+ */
+export const SCENE_CLOSURE_SCENARIO_STATION_ID: Readonly<Record<string, string>> = Object.freeze({
+  "scene_closure_supine_bedside_v1": "scene_closure_supine_bedside_station_v1",
+});
+
+export function stationIdForSceneClosureScenario(scenarioId: string): string | undefined {
+  return SCENE_CLOSURE_SCENARIO_STATION_ID[scenarioId];
+}
+
+/**
+ * DOES THE COMMITTED RECORD STILL DESCRIBE THE FILES ON DISK. Runs in node: it rehashes bytes.
+ *
+ * The browser admission above cannot rehash an 11 MB GLB, so it carries the record's own digests
+ * instead and answers geometry only (stated in the module header). The verifier CLI and
+ * `observeScenePlanEvidence` DO rehash from the filesystem. This is the same check, callable
+ * without a report: it compares the committed record's four asset digests and byte counts, the
+ * case document digest, the bundle digest and the re-derived route length against disk.
+ *
+ * `readBytes` is injected so the behavior test can drive it without touching disk. The record is
+ * passed in rather than imported, so the clause fails on a drifted record, not a drifted import.
+ */
+export type CommittedScenePlanDiskCheck = {
+  ok: boolean;
+  problems: string[];
+};
+
+/**
+ * Re-derive the route length from the persisted seed against the ward geometry, so the committed
+ * record's `routeLengthMeters` is compared with a re-execution rather than trusted. Returns null
+ * when the seed will not resolve here; the reopen owns that refusal, not this check.
+ */
+function rederiveRouteLengthMeters(input: {
+  record: DurableAcceptedScenePlanRecord;
+  geometry: ObservedApproachGeometry;
+  patientWorldPosition: { x: number; y: number; z: number };
+  start: { x: number; y: number; z: number };
+}): number | null {
+  let resolved: ReturnType<typeof resolveCaseOwnedScenePlan>;
+  try {
+    resolved = resolveCaseOwnedScenePlan({
+      seed: input.record.variation.seed,
+      variationIndex: input.record.variation.variationIndex,
+      patientWorldPosition: input.patientWorldPosition,
+      start: input.start,
+      geometry: input.geometry,
+    });
+  } catch {
+    return null;
+  }
+  if (!resolved.resolved) return null;
+  let total = 0;
+  for (let index = 1; index < resolved.plan.waypoints.length; index += 1) {
+    const from = resolved.plan.waypoints[index - 1]?.position;
+    const to = resolved.plan.waypoints[index]?.position;
+    if (from === undefined || to === undefined) continue;
+    total += Math.hypot(to.x - from.x, to.z - from.z);
+  }
+  return total;
+}
+
+export function verifyCommittedScenePlanAgainstDisk(input: {
+  record: DurableAcceptedScenePlanRecord;
+  caseSourcePath: string;
+  bundleContent: unknown;
+  geometry: ObservedApproachGeometry;
+  patientWorldPosition: { x: number; y: number; z: number };
+  start: { x: number; y: number; z: number };
+  readBytes: (repoRelativePath: string) => Buffer;
+}): CommittedScenePlanDiskCheck {
+  const problems: string[] = [];
+  const sha256Hex = (bytes: Buffer | string): string =>
+    createHash("sha256").update(bytes).digest("hex");
+  for (const instance of input.record.instances) {
+    if (instance.assetPath === undefined || instance.assetSha256 === undefined) continue;
+    let bytes: Buffer;
+    try {
+      bytes = input.readBytes(instance.assetPath);
+    } catch {
+      problems.push(`instance ${instance.instanceId} names ${instance.assetPath}, which cannot be read`);
+      continue;
+    }
+    const actual = sha256Hex(bytes);
+    if (actual !== instance.assetSha256) {
+      problems.push(
+        `instance ${instance.instanceId} hashes to ${actual.slice(0, 12)} on disk, `
+          + `the committed record binds ${instance.assetSha256.slice(0, 12)}`,
+      );
+    }
+    if ((instance.byteCount ?? -1) !== bytes.byteLength) {
+      problems.push(
+        `instance ${instance.instanceId} is ${bytes.byteLength} bytes on disk, `
+          + `the committed record binds ${String(instance.byteCount)}`,
+      );
+    }
+  }
+  try {
+    const actual = sha256Hex(input.readBytes(input.caseSourcePath));
+    if (actual !== input.record.case.caseContentSha256) {
+      problems.push(
+        `case document hashes to ${actual.slice(0, 12)} on disk, `
+          + `the committed record binds ${input.record.case.caseContentSha256.slice(0, 12)}`,
+      );
+    }
+  } catch {
+    problems.push(`case document ${input.caseSourcePath} cannot be read`);
+  }
+  const bundleActual = sha256Hex(canonicalJson(input.bundleContent));
+  if (bundleActual !== input.record.bundle.bundleSha256) {
+    problems.push(
+      `bundle content hashes to ${bundleActual.slice(0, 12)} on disk, `
+        + `the committed record binds ${input.record.bundle.bundleSha256.slice(0, 12)}`,
+    );
+  }
+  const resolved = rederiveRouteLengthMeters({
+    record: input.record,
+    geometry: input.geometry,
+    patientWorldPosition: input.patientWorldPosition,
+    start: input.start,
+  });
+  if (resolved !== null && resolved !== input.record.resolvedLayout.routeLengthMeters) {
+    problems.push(
+      `route length re-derives to ${String(resolved)} m, `
+        + `the committed record binds ${String(input.record.resolvedLayout.routeLengthMeters)} m`,
+    );
+  }
+  return { ok: problems.length === 0, problems };
+}
 
 /** The station fields an identity check needs. Structural so the app keeps owning its own type. */
 export type PinnedStationSelection = {

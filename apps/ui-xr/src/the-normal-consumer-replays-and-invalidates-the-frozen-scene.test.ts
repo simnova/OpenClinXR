@@ -11,10 +11,13 @@ import {
   CASE_SCENE_PLAN_AUTHORIZED_VARIATION_INDICES,
   CASE_SCENE_PLAN_SOLVER_VERSION,
 } from "@openclinxr/asset-registry/case-owned-scene-plan";
+import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-scene-plans";
 import {
   admitFrozenScenePlan,
   admitFrozenScenePlanForObservedScene,
   carriedAcceptedScenePlan,
+  stationIdForSceneClosureScenario,
+  verifyCommittedScenePlanAgainstDisk,
 } from "@openclinxr/asset-registry/encounter-bundle-admission";
 import { reopenFrozenScene } from "@openclinxr/asset-registry/frozen-scene-replay";
 import { resolveBedsideLayoutFromSeed } from "@openclinxr/asset-registry/layout-solve";

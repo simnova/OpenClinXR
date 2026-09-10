@@ -4,7 +4,7 @@ import {
   seatedVerticalOffsetForSeatHeight,
   supineVerticalOffsetSeed,
 } from "@openclinxr/asset-registry";
-import { admitFrozenScenePlanForObservedScene, type ScenePlanAdmission } from "@openclinxr/asset-registry/encounter-bundle-admission";
+import { admitFrozenScenePlanForObservedScene, type ScenePlanAdmission, stationIdForSceneClosureScenario } from "@openclinxr/asset-registry/encounter-bundle-admission";
 import {
   findRuntimeActorAsset,
   findRuntimeActorAssetByRole,
@@ -654,9 +654,14 @@ const runtimeEquipmentSlotsByAssetId = new Map<string, Group>();
 // The bundle follows the SELECTED scenario, and the boot bindings resolve by ROLE. Both used to
 // be ED literals, so every other case staged the ED cast while the runtime merely recorded a
 // scenario_mismatch (:705-715) — measured on the loaded humanoid, which made the authored clinic
-// placement unreachable and the brief's §7 step 2 impossible to exercise.
+// placement unreachable and the brief's §7 step 2 impossible to exercise. The station rides the
+// same selection: the producer takes it as a caller parameter with an ED default, and no resolver
+// in the tree maps a scenario to its station, so the selected scenario's own station is resolved
+// here through the case's frozen-plan binding rather than restamping the producer's default.
+const selectedSceneClosureStationId = stationIdForSceneClosureScenario(selectedScenarioId());
 let encounterRuntimeAssetBundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
   scenarioId: selectedScenarioId(),
+  ...(selectedSceneClosureStationId === undefined ? {} : { stationId: selectedSceneClosureStationId }),
 });
 let patientRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
   findRuntimeActorAssetByRole(encounterRuntimeAssetBundle, ["patient"])?.model,
@@ -3450,7 +3455,9 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     // `floor.userData.genDrive` or `floor.userData.pedsRuntimeDrive`, so the only non-null value
     // this frame could take came from `window.__openClinXrPedsDrive` — a recorder global.
     // Reopen the frozen plan against the room on screen: re-solve from the persisted seed, refuse
-    // when it does not reproduce or the geometry moved. Byte identity stays server-side.
+    // when it does not reproduce or the geometry moved. Byte identity stays server-side. The
+    // admission's result is read on the next line: while the frozen plan is not reproduced, the
+    // live bedside approach below is not stepped, so a refused or stale plan stages no walk.
     frozenScenePlanAdmission = admitFrozenScenePlanForObservedScene({
       admission: frozenScenePlanAdmission, bundle: encounterRuntimeAssetBundle,
       scene,
@@ -3459,7 +3466,9 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       patientWorldPosition: generatedHumanoidActorSlotsByActorId.get(runtimePatientActorId())?.position ?? { x: 0, y: 0, z: 0 },
       start: generatedHumanoidActorSlotsByActorId.get(runtimeAdditionalActorId())?.position ?? { x: 0, y: 0, z: 0 },
     });
-    const approachFrame = updateStationBedsideApproach(
+    const frozenScenePlanReproduced = frozenScenePlanAdmission.status === "admitted"
+      && frozenScenePlanAdmission.reproduced !== null;
+    const approachFrame = frozenScenePlanReproduced ? updateStationBedsideApproach(
       caseOwnedBedsideApproach,
       {
         scene,
@@ -3476,7 +3485,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
         supportAccepted: generatedHumanoidActorSlotsByActorId.get(runtimePatientActorId())?.userData?.openClinXrPlacementAccepted !== false,
       },
       { nowMs: now, deltaSeconds },
-    );
+    ) : null;
     floor.userData.genDrive = approachFrame ? { locomotion: approachFrame.locomotion, driveSource: approachFrame.driveSource } : floor.userData.genDrive;
     const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
     const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);

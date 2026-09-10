@@ -39,9 +39,11 @@ import {
  * runtime imports. Build time IS the server side of a freeze/replay pair.
  *
  * WHAT GOES STALE, and it is the invalidation working rather than a defect. The record binds the
- * sha256 of four shipped humanoid GLBs. Republish one and the runtime's reopen refuses with
- * `evidence_changed`, naming the instance — which is the behaviour this card exists to add. The
- * repair is to re-run this generator, which is a fresh observation by definition because it reads
+ * sha256 of four shipped humanoid GLBs. Republish one and the record goes stale, and the footgun
+ * lands on the EVIDENCE GATE rather than the browser runtime: `verify.ts` rehashes the bytes off
+ * disk and refuses with a digest drift, while the runtime's observed-room admission carries the
+ * record's own digests as its evidence and only answers geometry. The repair is to re-run this
+ * generator, which is a fresh observation by definition because it reads
  * the bytes again.
  *
  * Usage: pnpm exec tsx tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts
@@ -185,8 +187,10 @@ import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evide
  * \`no_plan_carried\` for it. That is the honest answer, not a failure: most encounters have never
  * been frozen. Only the scene-closure case has been.
  *
- * IF A BOUND ASSET IS REPUBLISHED this record goes stale and the runtime's reopen refuses with
- * \`evidence_changed\`, naming the instance. That is the invalidation working. The repair is to run
+ * IF A BOUND ASSET IS REPUBLISHED this record goes stale, and the footgun lands on the EVIDENCE
+ * GATE rather than the browser runtime: \`verify.ts\` rehashes the bytes off disk and refuses with
+ * a digest drift, while the runtime's observed-room admission carries the record's own digests and
+ * answers geometry only. The repair is to run
  * the generator again, which re-reads the bytes and is therefore a fresh observation.
  */
 export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedScenePlanRecord>> =

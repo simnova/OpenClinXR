@@ -19,8 +19,10 @@ import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evide
  * `no_plan_carried` for it. That is the honest answer, not a failure: most encounters have never
  * been frozen. Only the scene-closure case has been.
  *
- * IF A BOUND ASSET IS REPUBLISHED this record goes stale and the runtime's reopen refuses with
- * `evidence_changed`, naming the instance. That is the invalidation working. The repair is to run
+ * IF A BOUND ASSET IS REPUBLISHED this record goes stale, and the footgun lands on the EVIDENCE
+ * GATE rather than the browser runtime: `verify.ts` rehashes the bytes off disk and refuses with
+ * a digest drift, while the runtime's observed-room admission carries the record's own digests and
+ * answers geometry only. The repair is to run
  * the generator again, which re-reads the bytes and is therefore a fresh observation.
  */
 export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedScenePlanRecord>> =
