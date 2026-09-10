@@ -12,10 +12,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 105
-- archive-candidate: 88
+- archive-candidate: 89
 - current-reference: 208
 - decision-record: 44
-- evidence: 79
+- evidence: 82
 - generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
@@ -350,6 +350,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/equipment-factory-15m-loop.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/equipment-factory-loop-log.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/equipment-oss-candidates.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-glb-bake-and-vetting-2026-09-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-ENTRYPOINT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-full-design-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
