@@ -101,6 +101,20 @@ function observationValue(id: string): unknown {
 }
 
 /** Files this task changed, taken from the commit set rather than from a hand-written list. */
+/**
+ * The two reports this card writes.
+ *
+ * They are excluded from `changedFiles`, from `inputs` and from the cleanliness measurement.
+ * proof-contract-v2.md: "Avoid self-referential Git hashes: capture a clean product/tool source
+ * commit first ... add evidence reports in a later commit. Do not demand that a report contain the
+ * hash of the commit that contains itself." A report that hashed itself would be stale the instant
+ * it was written, which is what happened on the first attempt.
+ */
+const SELF_REFERENTIAL = [
+  "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-06.json",
+  "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-06.md",
+];
+
 const REGISTRATION_HYGIENE = [
   "docs/openclinxr/doc-authority-registry-2026-05-27.json",
   "docs/openclinxr/doc-authority-registry-2026-05-27.md",
@@ -119,7 +133,12 @@ const REGISTRATION_HYGIENE = [
 function changedFiles(): string[] {
   return git("diff", "--name-only", `${DEPENDENCY_BASELINE}..HEAD`)
     .split("\n")
-    .filter((line) => line.trim() !== "" && !REGISTRATION_HYGIENE.includes(line.trim()))
+    .filter(
+      (line) =>
+        line.trim() !== ""
+        && !REGISTRATION_HYGIENE.includes(line.trim())
+        && !SELF_REFERENTIAL.includes(line.trim()),
+    )
     .sort();
 }
 
@@ -147,10 +166,16 @@ function main(): void {
   // commit" and "Do not demand that a report contain the hash of the commit that contains itself."
   // So they are excluded from the cleanliness measurement and nothing else is — a dirty product or
   // test file still reports false.
-  const dirty = git("status", "--porcelain")
-    .split("\n")
-    .map((line) => line.slice(3).trim())
-    .filter((file) => file !== "" && file !== REPORT_PATH && file !== `${CONTRACT_DIR}/evidence/sc-06.md`);
+  // NOT `git status --porcelain`. Its lines carry a two-column status prefix, and `git()` trims the
+  // command output, which strips the leading space off the FIRST line only — so a fixed-width slice
+  // mangled exactly one path per run and reported a clean tree as dirty. These two commands return
+  // bare paths and need no column arithmetic.
+  const dirty = [
+    ...git("diff", "--name-only", "HEAD").split("\n"),
+    ...git("ls-files", "--others", "--exclude-standard").split("\n"),
+  ]
+    .map((file) => file.trim())
+    .filter((file) => file !== "" && !SELF_REFERENTIAL.includes(file));
   const treeClean = dirty.length === 0;
   const inputs = changedFiles().map((file) => ({
     path: file,
