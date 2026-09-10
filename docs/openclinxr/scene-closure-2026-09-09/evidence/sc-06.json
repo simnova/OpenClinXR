@@ -26,10 +26,10 @@
     ]
   },
   "implementation": {
-    "productSourceCommit": "ff90f29aecb06e3062ab6ff01e72568fde71d301",
+    "productSourceCommit": "108c65fea6f039700f142e41937a6e42d2113991",
     "dependencyBaselineCommit": "27efa3d2e0615a2dc7435533724e7378a0371682",
     "changeCommits": [
-      "ff90f29aecb06e3062ab6ff01e72568fde71d301"
+      "108c65fea6f039700f142e41937a6e42d2113991"
     ],
     "treeClean": true,
     "inputs": [
@@ -151,7 +151,7 @@
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/build-report.ts",
-        "sha256": "0368f9dee3ced51149988493b080c88574b733ea30da160ff9a4780c6cd26e45"
+        "sha256": "7f092e877029edc0da823ed3ac85a9356b3fc7a5ac4051a1899ecb9993ea3f09"
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/report-schema.ts",
@@ -700,7 +700,7 @@
       "byteCount": 1293,
       "sha256": "9c9333734af72768d183b2aa15338d860bd6cac69bd8510d18a718772ed5736c",
       "mediaType": "application/x-ndjson",
-      "createdAtIso": "2026-09-10T05:02:16.286Z",
+      "createdAtIso": "2026-09-10T05:03:04.220Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
@@ -717,10 +717,10 @@
       "artifactId": "sc06-verifier-cli-probes",
       "storeAlias": "sc-evidence",
       "objectKey": "sc-06/verifier-cli-probes.txt",
-      "byteCount": 2961,
-      "sha256": "59ffc9e142047fa37ccbf94802c7a208245228f686fbafa0f24a9b5755b62238",
+      "byteCount": 2360,
+      "sha256": "32d0943dcf767121242a89f7d2c14ec8e29dd20b6e83633e93bfc7276ae14d23",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T05:02:18.846Z",
+      "createdAtIso": "2026-09-10T05:03:06.783Z",
       "runId": "sc06-run-2026-09-10"
     }
   ],
@@ -740,6 +740,7 @@
       "The durable record type is DECLARED TWICE — authoritatively in packages/openclinxr/session-state/src/accepted-scene-plan.ts and pinned structurally in packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts. Neither package may import the other: session-state's manifest is pinned by exact equality (workspace-architecture.test.ts:1271) and an asset-registry edge rewrites pnpm-lock.yaml, outside this card's write roots. Clause (k0) of the behavior test compares the two declarations' field names read from source, so drift fails rather than passing silently.",
       "THREE FILES WERE EDITED OUTSIDE THIS CARD'S FROZEN WRITE ROOTS, each forced by a standing gate, each declared in implementation.registrationsOutsideWriteRoots with the gate that forced it and how its value was derived, each hashed in implementation.inputs, and each excluded from changedFiles so the scope audit reports what this card CHOSE to change. The verifier checks every declaration against an owner-pinned allowlist (SC06_ALLOWED_GATE_FORCED_PATHS), so the field cannot be used to launder an unrelated edit; verifier clauses 26-29 cover an unpinned path, an unhashed one, a blank derivation, a double-counted one and a missing section. The three are the ui-xr composition-root budget (6069 -> 6039, a tightening the exact-equality clause forces on any app that shrinks) and the two protected registries (one additive row each).",
       "TWO PROTECTED REGISTRIES WERE EDITED, ADDITIVELY, OUTSIDE THIS CARD'S WRITE ROOTS. docs/openclinxr/doc-authority-registry-2026-05-27.json gains one `evidence` entry for sc-06.md and docs/openclinxr/generated-artifact-registry-2026-05-27.json gains one `keep-evidence` entry for sc-06.json, both copied field-for-field from the sc-05 rows beside them. Nothing was removed, renamed or reinterpreted. They were edited by hand because `pnpm docs:authority` REFUSED to regenerate in this worktree: it would have removed 115 paths that are gitignored and therefore absent here but registered in main, which is a shrink of a protected registry. `pnpm docs:drift-check` fails without the two entries. SC-05 registered its own report the same way and disclosed it; this is that precedent, stated rather than assumed. They are hashed in `inputs` and excluded from `changedFiles`, as SC-05's report also excluded them. Round 2 re-encoded both with ensure_ascii off so only the added row and its counter differ: the round-1 diff was 46 lines because a JSON round trip re-escaped every existing em-dash, and it is now 18, all of them the new row or a counter.",
+      "ONE ARTIFACT CANNOT BE HASHED BY THE REPORT IT GRADES: sc06-verifier-cli-probes is a transcript of running this verifier against this report, and the report hashes every store artifact, so the transcript necessarily describes the report as it stood one build earlier. The two differ in exactly one field, that artifact's own byteCount and sha256; every refusal in the transcript is a property of the verifier rather than of that line. Stated in the transcript's own header too, so a reader who opens it alone still sees the boundary.",
       "A STALE ARTIFACT HASH WAS SHIPPED IN THE ROUND-2 REPORT AND THIS CARD'S OWN VERIFIER CAUGHT IT. The report was built before the two-sided gate was re-run, so sc06-two-sided-gate carried round 1's 2083 bytes and digest 890285ca while disk held round 2's 3396 bytes and 7dc92c35. The store write was 00:49:13 and the report commit 00:46:55. Repair: every artifact and input digest is re-derived from disk at build time, so the fix is ordering — the report is now built AFTER the last evidence write, and this run rebuilt it last. Recorded rather than silently rehashed; it is the third time on this package a verifier has caught its own author's post-report edit.",
       "`pnpm typecheck` fails on its guardrails leg at this head AND at the unchanged baseline 27efa3d2, with identical output: 16 tsconfig files relax noPropertyAccessFromIndexSignature and one enables skipLibCheck. Pre-existing; this card changed no tsconfig. The other three typecheck legs pass."
     ]
