@@ -204,11 +204,24 @@ kicks the work off separately.
 
 | card | id | step | covers |
 |---|---|---|---|
-| HB-00 | `tsk_dfed02961d0a11a4` | clothing_consume | resolve every `baseColorFactor` before any bake |
-| HB-01 | `tsk_35e7425a6f351cc8` | body_param | the 158 px float: why `bmin.z` is not the boot sole |
-| HB-02 | `tsk_440e3c189e5d4ba5` | clothing_consume | bake albedo on the TRELLIS resolution ladder |
-| HB-03 | `tsk_bf7639c1566c0ba4` | body_param | decimate and pack through `vr-postopt-ladder.ts` |
-| HB-04 | `tsk_c5e8b6b57463b8ae` | instrument | vet the GLB as an artifact; retire the vacuous gate |
+| HB-00 | `tsk_e06833531ca0e4c2` | clothing_consume | resolve every `baseColorFactor` before any bake |
+| HB-01 | `tsk_8adc4d7903c58058` | body_param | the 158 px float: why `bmin.z` is not the boot sole |
+| HB-02 | `tsk_711b13b07fd6fc1d` | clothing_consume | bake albedo on the TRELLIS resolution ladder |
+| HB-03 | `tsk_40c35f576d608198` | body_param | decimate and pack through `vr-postopt-ladder.ts` |
+| HB-04 | `tsk_f145101c2328788f` | instrument | vet the GLB as an artifact; retire the vacuous gate |
+
+Each carries its `doneWhen` and its dependency edges, so each is plantable as it stands.
+
+**A first cut of these cards was cancelled and recreated.** `tsk_dfed02961d0a11a4`,
+`tsk_35e7425a6f351cc8`, `tsk_440e3c189e5d4ba5`, `tsk_bf7639c1566c0ba4` and `tsk_c5e8b6b57463b8ae`
+were created without `doneWhen`. That field is **create-only** on this board — `tasks.update` accepts
+the call, returns success, and silently leaves `doneWhen: []` — so those cards could never be
+planted. They are cancelled rather than edited. Check create-only constraints before the create call.
+
+**Proof shapes, and why none of them is `changed:`.** HB-00's honest outcome may be "the factor is a
+bug, here is its origin, I changed no asset", and HB-03's may be "nothing survives inside budget".
+A `changed:` rule compels an edit and would forbid both, so every card uses `run:` plus `exists:` on
+its measurement artifact — shapes a report can satisfy.
 
 **HB-00 gates HB-02.** Everything else can be sequenced freely, though HB-04's clauses only go green
 once HB-01 through HB-03 have landed. HB-01 is independent of the bake chain and is the cheapest
