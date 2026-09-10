@@ -415,6 +415,14 @@ function runApproach(input: {
   seconds: number;
   /** Never advance the mixer, so the clip declares itself played over a skeleton that never moves. */
   freezeMixer?: boolean;
+  /**
+   * Amplitude of a RIGID whole-body vertical translation, in metres, applied every frame.
+   *
+   * Zero is what production writes. `animation-loop.ts` composed `position.y` as
+   * `slot.baseY + breathing * 0.018` until this card measured it carrying planted toes through the
+   * floor; control 9 passes 0.018 to prove the penetration assertion in clause (i) can still fail.
+   */
+  rigidBodyBobMeters?: number;
   perturb?: (frameIndex: number) => { geometryRevision?: string; supportAccepted?: boolean } | undefined;
 }): ApproachRun {
   const slot = input.ward.roots.get("additional_cast");
@@ -431,6 +439,8 @@ function runApproach(input: {
     }),
     0,
   );
+  // `slot.baseY` in the frame loop's terms: the height the breathing translation oscillates ABOUT.
+  const humanoidBaseY = humanoid.position.y;
   humanoid.rotation.y = 0;
   humanoid.scale.set(1, 1, 1);
   // Vanishing boxes so the production floor-band plant, which measures a `Box3` over the loaded
@@ -503,6 +513,16 @@ function runApproach(input: {
     });
     if (frame === null) throw new Error("advanceCaseOwnedBedsideApproach returned null for a live approach");
     playLocomotionClip(animationSlot as never, frame.locomotion);
+    // THE FRAME LOOP'S IDLE TERMS, in the loop's own order — after the mixer and the clip, before
+    // the stance lock, because `main.ts` calls the lock after `updateGeneratedHumanoidAnimations`.
+    // `breathing` is `animation-loop.ts:140` verbatim; the scale line is `:180` verbatim and is the
+    // whole of breathing now, expanding the body about the group origin, which the loader puts at
+    // the feet, so the chest rises and the toes stay. `rigidBodyBobMeters` is ZERO for production
+    // and non-zero only in control 9. Until this card the harness applied NEITHER term, which is
+    // why clause (i)'s penetration assertion had never been able to fail.
+    const breathing = Math.sin((nowMs / 1000) * 1.15);
+    humanoid.position.y = humanoidBaseY + breathing * (input.rigidBodyBobMeters ?? 0);
+    humanoid.scale.y = 1 + breathing * 0.012;
     // THE LOCK RUNS AFTER THE POSE, exactly as the frame loop orders it: `main.ts` produces the
     // drive before `updateGeneratedHumanoidAnimations` consumes it, so the pose the lock measures
     // does not exist until that pass has run. Folded into the drive step it read the previous
@@ -733,6 +753,16 @@ describe("the normal encounter physician approaches and stops", () => {
     expect(loaderSource).toContain("humanoid.position.set(0, effectiveVerticalOffset, 0)");
     expect(loaderSource).toContain("humanoid.rotation.y = 0;");
     expect(loaderSource).toContain("humanoid.scale.set(1, 1, 1);");
+    // AND THE FRAME LOOP NO LONGER TRANSLATES A STANDING BODY VERTICALLY. Read from source for the
+    // same reason: the harness reproduces the loop's idle terms, and a loop that reintroduced a
+    // rigid bob would put toes back under the floor while this file kept passing.
+    const frameLoopSource = readFileSync(
+      new URL("../../../packages/openclinxr/xr-humanoid-animation/src/animation-loop.ts", import.meta.url),
+      "utf8",
+    );
+    expect(frameLoopSource).toContain("slot.root.position.y = slot.baseY;");
+    expect(frameLoopSource).not.toContain("slot.root.position.y = slot.baseY + breathing");
+    expect(frameLoopSource).toContain("slot.root.scale.y = slot.baseScaleY + breathing * 0.012");
 
     const walkEnd = run.frames.findIndex((frame) => frame.phase === "settling");
     const stopStart = run.frames.findIndex((frame) => frame.phase === "arrived");
@@ -946,6 +976,40 @@ describe("the normal encounter physician approaches and stops", () => {
     observe("motion-after-stop-fails", "rootTravelMeters", "m", {
       walkRootTravelMeters: walkRootTravel,
       stoppedRootTravelMeters: run.stoppedRootTravelMeters,
+    });
+
+    // ── CONTROL 9: a rigid whole-body bob puts planted toes UNDER the floor ───────────────────
+    // The two-sided half of the penetration assertion in clause (i). That assertion had never been
+    // able to fail: this harness applied none of the frame loop's idle terms, so the defect the
+    // browser measured was absent from the fixture. Re-running the same approach with the removed
+    // +/-18 mm translation restored must drive readings below the plane, or clause (i) is proving
+    // nothing. The amplitude is the one `animation-loop.ts` actually wrote, not a value chosen to
+    // clear the threshold.
+    const bobbedRun = runApproach({ ward, intent, seconds: 14, rigidBodyBobMeters: 0.018 });
+    const bobbedDepths = [
+      ...bobbedRun.trackL.map((sample) => floorOriginY - sample.position.y),
+      ...bobbedRun.trackR.map((sample) => floorOriginY - sample.position.y),
+    ];
+    const bobbedBelow = bobbedDepths.filter((depth) => depth > 0).length;
+    const bobbedDeep = bobbedDepths.filter((depth) => depth > PERCEPTUAL_FLOOR_METERS).length;
+    expect(bobbedBelow, "the removed term drives toes below the floor plane").toBeGreaterThan(0);
+    expect(bobbedDeep, "and deeper than the perceptual floor, which is what the browser saw").toBeGreaterThan(0);
+    expect(Math.max(...bobbedDepths)).toBeGreaterThan(PERCEPTUAL_FLOOR_METERS);
+    // While the production ordering, same route, same clip, same lock, submerges nothing at all.
+    expect(deepest).toBeLessThanOrEqual(0);
+    observe("rigid-body-bob-submerges-planted-toes", "toeReadingsBelowFloor", "count", {
+      removedTermAmplitudeMeters: 0.018,
+      withRemovedTerm: {
+        readings: bobbedDepths.length,
+        belowPlane: bobbedBelow,
+        deeperThanPerceptualFloor: bobbedDeep,
+        deepestMeters: Math.max(...bobbedDepths),
+      },
+      asShipped: {
+        readings: run.trackL.length + run.trackR.length,
+        belowPlane: 0,
+        deepestMeters: deepest,
+      },
     });
   }, 300_000);
 });

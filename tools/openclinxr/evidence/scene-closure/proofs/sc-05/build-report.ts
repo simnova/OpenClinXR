@@ -32,7 +32,7 @@ const REPO_ROOT = process.cwd();
 const CONTRACT_DIR = "docs/openclinxr/scene-closure-2026-09-09";
 const REPORT_PATH = `${CONTRACT_DIR}/evidence/sc-05.json`;
 const PINNED_COMMIT = "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50";
-const DEPENDENCY_BASELINE = "34c2fc30";
+const DEPENDENCY_BASELINE = "682e6709";
 const TASK_ID = "tsk_4d39f0beaa5cdcc6";
 
 const registryPath = process.env["OPENCLINXR_SC_EVIDENCE_REGISTRY"];
