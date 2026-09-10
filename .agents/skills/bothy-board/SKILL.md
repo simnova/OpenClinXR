@@ -94,6 +94,32 @@ Project fields (GitHub-style) are configuration, not protocol. List them, then s
 - same machine → `grok --resume <id>` or `resume_from` on a **finished** child
 - `parkedOn` another box → mailbox.post, do not mint a new session
 
+## Create-only fields — get them right at create
+
+`done_when`, `writeRoots` and `depIds` are **create-only**, and not merely frozen after Planted.
+Measured 2026-09-10 on a `backlog`/`Idle` card: `tasks.update` with a `doneWhen` array **accepted the
+call, returned success, and left `doneWhen: []`** — no error, no warning. Five cards were created
+without proofs, could never be planted, and had to be cancelled and recreated.
+
+- Pass `done_when`, `writeRoots` and `depIds` in the `tasks.create` call.
+- **Read the card back** after create and confirm the field is populated. A success response is not
+  evidence the field was written.
+- A card already created without them is corrected by a NEW card that supersedes it, then cancelling
+  the original. Do not try to edit it.
+
+## Create-only fields — get them right at create
+
+`done_when`, `writeRoots` and `depIds` are **create-only**, and not merely frozen after Planted.
+Measured 2026-09-10 on a `backlog`/`Idle` card: `tasks.update` with a `doneWhen` array **accepted the
+call, returned success, and left `doneWhen: []`** — no error, no warning. Five cards were created
+without proofs, could never be planted, and had to be cancelled and recreated.
+
+- Pass `done_when`, `writeRoots` and `depIds` in the `tasks.create` call.
+- **Read the card back** after create and confirm the field is populated. A success response is not
+  evidence the field was written.
+- A card already created without them is corrected by a NEW card that supersedes it, then cancelling
+  the original. Do not try to edit it.
+
 ## Never
 
 - `tasks.next` on Idle / title-only cards
