@@ -72,10 +72,10 @@ const SOURCE_TREE: Record<string, string> = {
 };
 
 /** Reads the synthetic tree. An unknown path behaves exactly like an unreadable file. */
-function sourceReaderFor(tree: Record<string, string>): (repoRelativePath: string) => string | Error {
+function sourceReaderFor(tree: Record<string, string>): (repoRelativePath: string) => Buffer | Error {
   return (repoRelativePath) => {
     const source = tree[repoRelativePath];
-    return source ?? new Error(`ENOENT ${repoRelativePath}`);
+    return source === undefined ? new Error(`ENOENT ${repoRelativePath}`) : Buffer.from(source, "utf8");
   };
 }
 
@@ -527,5 +527,50 @@ describe("the SC-06 evidence verifier accepts a complete control and rejects eve
     // The known-good column for clause (21). Without it, a recomputation that rejected EVERY stream
     // would make all six of those cases pass while proving nothing.
     expect(recomputeAcceptanceLimits(MEASURED_OBSERVATIONS())).toEqual([]);
+  });
+
+  it("(25) a BINARY input is hashed as bytes, not decoded as text first", () => {
+    // THE DEFECT THIS CARD'S OWN VERIFIER SHIPPED AND ITS OWN CLI CAUGHT. `readSource` returned
+    // `readFileSync(path, "utf8")`, so every one of the four selected humanoid GLBs hashed to a
+    // digest of its UTF-8 REPLACEMENT CHARACTERS rather than of the file. Measured on the physician
+    // body: `4a6d8a78…` from real bytes, `2c483a01…` through the text reader. A verifier that cannot
+    // hash a binary input cannot certify one, and those four bodies are the inputs this card's
+    // invalidation claim rests on.
+    //
+    // The fixture is a byte sequence that is NOT valid UTF-8, so a reader that decodes before hashing
+    // gets a different digest and this clause fails.
+    const binary = Buffer.from([0x67, 0x6c, 0x54, 0x46, 0xff, 0xfe, 0x00, 0x80, 0x81, 0x82]);
+    // The guard on the fixture itself: a UTF-8 round trip must LOSE information, or this clause
+    // would pass under a text reader too. (Character COUNT is not the test — U+FFFD is one character
+    // per bad byte — so compare the re-encoded bytes.)
+    expect(sha256Hex(Buffer.from(binary.toString("utf8"), "utf8"))).not.toBe(sha256Hex(binary));
+
+    const report = goodReport();
+    (report["implementation"] as Record<string, unknown>)["inputs"] = [
+      { path: "tools/openclinxr/factory/scene-closure-case-source.ts", sha256: sha256Hex(CASE_SOURCE) },
+      { path: "packages/openclinxr/asset-registry/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+      { path: "packages/openclinxr/scenario-runtime/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+      { path: "apps/ui-xr/public/generated-humanoids/body.glb", sha256: sha256Hex(binary) },
+    ];
+    (report["implementation"] as Record<string, unknown>)["changedFiles"] = [
+      "packages/openclinxr/asset-registry/a.ts",
+      "packages/openclinxr/scenario-runtime/a.ts",
+    ];
+    const result = verifyReport({
+      report,
+      suppliedScopes: [...SC06_FROZEN_SCOPES],
+      registry: REGISTRY,
+      registrySha256: REGISTRY_SHA,
+      reader: readerFor(OBJECTS),
+      contractDocuments: CONTRACT_DOCUMENTS,
+      sourceReader: (repoRelativePath) => {
+        if (repoRelativePath === "apps/ui-xr/public/generated-humanoids/body.glb") return binary;
+        const source = SOURCE_TREE[repoRelativePath];
+        return source === undefined
+          ? new Error(`ENOENT ${repoRelativePath}`)
+          : Buffer.from(source, "utf8");
+      },
+    });
+    expect(result.ok, result.ok ? "" : result.problems.join("\n")).toBe(true);
   });
 });

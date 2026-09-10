@@ -289,11 +289,14 @@ export type VerifyInput = {
   /** Contract documents as they exist on disk, for hash comparison. */
   contractDocuments: Map<string, string>;
   /**
-   * Reads a tracked file from the TREE. The report's `implementation.inputs` digests are rehashed
-   * through this, so a report cannot certify a source it never touched — and the behavior test's
-   * own source is read through it and inspected rather than trusted.
+   * Reads a tracked file from the TREE, as BYTES. The report's `implementation.inputs` digests are
+   * rehashed through this, so a report cannot certify a source it never touched — and the behavior
+   * test's own source is read through it and inspected rather than trusted.
+   *
+   * Bytes, not text, because the manifest carries binary inputs: decoding a GLB as UTF-8 and hashing
+   * the result produces a digest of the replacement characters, not of the file.
    */
-  sourceReader: (repoRelativePath: string) => string | Error;
+  sourceReader: (repoRelativePath: string) => Buffer | Error;
 };
 
 export type VerifyResult = { ok: true } | { ok: false; problems: string[] };
@@ -424,7 +427,12 @@ export function verifyReport(input: VerifyInput): VerifyResult {
   }
   const behaviorSource = input.sourceReader(SC06_BEHAVIOR_TEST_PATH);
   if (behaviorSource instanceof Error) fail(`behavior test unreadable: ${behaviorSource.message}`);
-  else for (const problem of inspectBehaviorTestSource(behaviorSource, SC06_BEHAVIOR_TEST_TITLE)) fail(problem);
+  else {
+    // The one consumer that wants TEXT decodes here. Everything else compares digests over bytes.
+    for (const problem of inspectBehaviorTestSource(behaviorSource.toString("utf8"), SC06_BEHAVIOR_TEST_TITLE)) {
+      fail(problem);
+    }
+  }
 
   const execution = report.execution;
   if (!isRecord(execution)) fail("missing execution section");

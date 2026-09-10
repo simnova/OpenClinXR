@@ -34,20 +34,28 @@ const EXPECTED_REPORT_PATH = `${CONTRACT_DIR}/evidence/sc-06.json`;
 const REPO_ROOT = process.cwd();
 
 /**
- * Read a tracked source file so the core can rehash it from the TREE.
+ * Read a tracked file so the core can rehash it from the TREE.
+ *
+ * IT RETURNS BYTES, NOT TEXT, and that is a correctness fix rather than a preference. A first version
+ * returned `readFileSync(path, "utf8")`, and every binary input in the manifest — the four selected
+ * humanoid GLBs — hashed to a value that disagreed with the file: decoding 11 MB of glTF as UTF-8
+ * replaces every invalid sequence with U+FFFD, so the digest is of the mangled string. Measured: the
+ * physician body reported `4a6d8a78…` from its real bytes and `2c483a01…` through the text reader.
+ * A verifier that cannot hash a binary input cannot certify one, and the four bodies are exactly the
+ * inputs this card's invalidation claim rests on.
  *
  * The point of passing this in rather than letting the core read: `verifier.test.ts` drives the same
  * clauses against a synthetic tree, and the CLI is the only place a real filesystem appears. It
  * refuses a path that escapes the repo root, because a report naming `../../etc/hosts` would
  * otherwise be hashed and reported as a clean input.
  */
-function readSource(repoRelativePath: string): string | Error {
+function readSource(repoRelativePath: string): Buffer | Error {
   const resolved = path.resolve(REPO_ROOT, repoRelativePath);
   if (resolved !== REPO_ROOT && !resolved.startsWith(`${REPO_ROOT}${path.sep}`)) {
     return new Error(`${repoRelativePath} resolves outside the repository`);
   }
   try {
-    return readFileSync(resolved, "utf8");
+    return readFileSync(resolved);
   } catch (error) {
     return error instanceof Error ? error : new Error(String(error));
   }
