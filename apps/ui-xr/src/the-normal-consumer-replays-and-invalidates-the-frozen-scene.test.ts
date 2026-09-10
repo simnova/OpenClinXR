@@ -1,5 +1,19 @@
 import { Buffer } from "node:buffer";
 import { appendFileSync, readFileSync } from "node:fs";
+import nodePath from "node:path";
+import { fileURLToPath } from "node:url";
+
+/**
+ * Repo-relative reads resolve against THIS MODULE, never against the cwd.
+ *
+ * Measured 2026-09-10: every bare relative path below worked from the repo root and threw ENOENT
+ * under `pnpm --filter` and under turbo, which run with cwd at the package directory — so this
+ * card's own behavior gate was unrunnable in the standard test path and failed the pre-push hook.
+ * SC-01's test carried the identical bug and was fixed the same way at dc2ad3b8.
+ */
+const REPO_ROOT = nodePath.resolve(nodePath.dirname(fileURLToPath(import.meta.url)), "../../..");
+const repoPath = (relative: string): string =>
+  nodePath.isAbsolute(relative) ? relative : nodePath.join(REPO_ROOT, relative);
 import {
   composeSupportedActorWorldPosition,
   createEdChestPainRuntimeSceneManifest,
@@ -187,6 +201,10 @@ function freezeInput(
   overrides: Partial<FreezeScenePlanInput> = {},
 ): FreezeScenePlanInput {
   return {
+    // The freeze reads the case document by REPO-RELATIVE path and defaults to a cwd-relative
+    // reader. Under `pnpm --filter` and turbo the cwd is the package directory, so the default
+    // throws ENOENT on the case source. Resolve it against this module instead.
+    readBytes: (repoRelativePath: string) => readFileSync(repoPath(repoRelativePath)),
     planId: "scene_closure_supine_bedside_plan_v1",
     run: {
       stationRunId: "sc06-run-0001",
@@ -281,6 +299,9 @@ function observeNow(
 ): ReturnType<typeof observeScenePlanEvidence> {
   const record = freezeOrThrow(freezeInput(ward));
   return observeScenePlanEvidence({
+    // Same cwd hazard as freezeInput: the observation retrieves the case document and the four
+    // selected bodies by repo-relative path, and its default reader is cwd-relative.
+    readBytes: (repoRelativePath: string) => readFileSync(repoPath(repoRelativePath)),
     caseSourcePath: CASE_SOURCE_PATH,
     bundleContent: BUNDLE_CONTENT,
     assetPaths: SELECTED_ASSET_PATHS,
@@ -616,26 +637,22 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
     // The reopen path must run in the page. `frozen-scene-replay.ts` is the module this file's
     // clause (b) drove, and its imports are read from source rather than inferred: on 2026-09-09 a
     // node:crypto import reachable from the ui-xr bundle killed every page load.
-    const replaySource = readFileSync(
-      "packages/openclinxr/asset-registry/src/frozen-scene-replay.ts",
+    const replaySource = readFileSync(repoPath("packages/openclinxr/asset-registry/src/frozen-scene-replay.ts"),
       "utf8",
     );
     expect(replaySource).not.toMatch(/from "node:/u);
     expect(replaySource).not.toMatch(/asset-registry\/layout-variation/u);
-    const planSource = readFileSync(
-      "packages/openclinxr/asset-registry/src/case-owned-scene-plan.ts",
+    const planSource = readFileSync(repoPath("packages/openclinxr/asset-registry/src/case-owned-scene-plan.ts"),
       "utf8",
     );
     expect(planSource).not.toMatch(/from "node:/u);
-    const recordSource = readFileSync(
-      "packages/openclinxr/session-state/src/accepted-scene-plan.ts",
+    const recordSource = readFileSync(repoPath("packages/openclinxr/session-state/src/accepted-scene-plan.ts"),
       "utf8",
     );
     expect(recordSource).not.toMatch(/from "node:/u);
     // COUNTERWEIGHT: the server-only half genuinely IS server-only, so the split above is a real
     // division rather than three modules that happen to need nothing.
-    const freezeSource = readFileSync(
-      "packages/openclinxr/asset-registry/src/scene-plan-freeze.ts",
+    const freezeSource = readFileSync(repoPath("packages/openclinxr/asset-registry/src/scene-plan-freeze.ts"),
       "utf8",
     );
     expect(freezeSource).toMatch(/from "node:crypto"/u);
@@ -750,10 +767,10 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
       return fields.sort();
     };
     const durableFields = declaredFields(
-      readFileSync("packages/openclinxr/session-state/src/accepted-scene-plan.ts", "utf8"),
+      readFileSync(repoPath("packages/openclinxr/session-state/src/accepted-scene-plan.ts"), "utf8"),
     );
     const pinnedFields = declaredFields(
-      readFileSync("packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts", "utf8"),
+      readFileSync(repoPath("packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts"), "utf8"),
     );
     expect(durableFields.length).toBeGreaterThanOrEqual(14);
     expect(pinnedFields).toEqual(durableFields);
@@ -916,7 +933,7 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
     // (ii-c) THE ADMISSION RESULT IS READ: the shipped frame loop steps the live bedside approach
     // only once the frozen plan is admitted and reproduced. A source read, kept beside the
     // behavioural clauses because a severed call site reads identically to a behaviour change.
-    const frameLoopSource = readFileSync("apps/ui-xr/src/main.ts", "utf8")
+    const frameLoopSource = readFileSync(repoPath("apps/ui-xr/src/main.ts"), "utf8")
       .replace(/\/\*[\s\S]*?\*\//gu, "")
       .replace(/^\s*\/\/.*$/gmu, "");
     expect(frameLoopSource).toMatch(/frozenScenePlanReproduced \? updateStationBedsideApproach\(/u);
@@ -998,7 +1015,7 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
       geometry: ward.geometry,
       patientWorldPosition: ward.patientWorld,
       start: ward.start,
-      readBytes: (repoRelativePath: string) => readFileSync(repoRelativePath),
+      readBytes: (repoRelativePath: string) => readFileSync(repoPath(repoRelativePath)),
     });
     expect(diskCheck.problems, "the committed record drifted from the files on disk").toEqual([]);
     expect(diskCheck.ok).toBe(true);
@@ -1013,7 +1030,7 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
       patientWorldPosition: ward.patientWorld,
       start: ward.start,
       readBytes: (repoRelativePath: string) => {
-        const bytes = readFileSync(repoRelativePath);
+        const bytes = readFileSync(repoPath(repoRelativePath));
         return repoRelativePath.endsWith(".glb") ? Buffer.from(bytes.map(() => 7)) : bytes;
       },
     });
@@ -1065,13 +1082,13 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
     ];
     for (const [label, file, pattern] of chain) {
       // Comments are stripped first: a severed link that survives only inside a comment is severed.
-      const source = readFileSync(file, "utf8")
+      const source = readFileSync(repoPath(file), "utf8")
         .replace(/\/\*[\s\S]*?\*\//gu, "")
         .replace(/^\s*\/\/.*$/gmu, "");
       expect(pattern.test(source), `${label} (${file})`).toBe(true);
     }
     // A type-only import would satisfy the specifier clause while erasing the runtime relationship.
-    const mainSource = readFileSync("apps/ui-xr/src/main.ts", "utf8");
+    const mainSource = readFileSync(repoPath("apps/ui-xr/src/main.ts"), "utf8");
     const admissionImport = mainSource.slice(
       0,
       mainSource.indexOf('from "@openclinxr/asset-registry/encounter-bundle-admission"'),

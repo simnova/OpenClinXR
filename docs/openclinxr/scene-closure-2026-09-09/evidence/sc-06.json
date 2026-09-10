@@ -26,12 +26,12 @@
     ]
   },
   "implementation": {
-    "productSourceCommit": "ee65b3b32baf868a198b6bb8c267980c01f710ec",
+    "productSourceCommit": "b749da41f11ff539dab4d30e7d499574abbea77b",
     "dependencyBaselineCommit": "27efa3d2e0615a2dc7435533724e7378a0371682",
     "changeCommits": [
-      "ee65b3b32baf868a198b6bb8c267980c01f710ec"
+      "b749da41f11ff539dab4d30e7d499574abbea77b"
     ],
-    "treeClean": true,
+    "treeClean": false,
     "inputs": [
       {
         "path": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
@@ -59,11 +59,11 @@
       },
       {
         "path": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
-        "sha256": "4bc44aa292cf9f5c19877ecba93f64ed8b67318152e654a769355cef42e798ca"
+        "sha256": "3e3eecaa689e54a1123369a944e107a68f49e87bc4490c7292c5cf9904ef2eb5"
       },
       {
         "path": "docs/openclinxr/doc-authority-registry-2026-05-27.json",
-        "sha256": "b08272b0e7b834774983d1c08b50ae1a3567bf6d06afe32b199fc1d14b3e2ec2"
+        "sha256": "38aed52b1ab72b6de8d9a0ab12ba9286c36d11ea2e20987774543e14756e3d2c"
       },
       {
         "path": "docs/openclinxr/doc-authority-registry-2026-05-27.md",
@@ -71,11 +71,23 @@
       },
       {
         "path": "docs/openclinxr/generated-artifact-registry-2026-05-27.json",
-        "sha256": "1d276bd9641f6cf1e079f8ae7cb0efb7102d7497f99c5199672cd0f25436aa0a"
+        "sha256": "b7a034d43ef06e976007b2649e70271c71689ad98c9c37821e5690016e5f4e42"
       },
       {
         "path": "docs/openclinxr/generated-artifact-registry-2026-05-27.md",
         "sha256": "692fab4cf43e3bf5cded7d0e64ac3b72f2d993eb8e679ea3a7cea2207b402fc5"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-05.json",
+        "sha256": "aca0b8c8293f8805b796758380d2221df679c552443791a839847d7d1c86f48a"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-10.json",
+        "sha256": "124195d7a9d0b7fe27f3cb5cfd76d8d6e88fd717aed33bebea949447693781a2"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-10.md",
+        "sha256": "16f16901610e2e874e529f337700b5fcbcb1dd426d1825eec9c9c9a8ad115a2f"
       },
       {
         "path": "packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts",
@@ -150,6 +162,26 @@
         "sha256": "a8d659b1201de01690b85c3a41f8ac7996d8c50c75ad8a104afe23e81af17e01"
       },
       {
+        "path": "tools/openclinxr/evidence/scene-closure-research/candidate-screening.ts",
+        "sha256": "16834c621519c6ad30031fe9f54379946051feae1cd85fc1579853383be08813"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure-research/candidate-source-manifest.ts",
+        "sha256": "4591de3c86596381907247cd2cc25b70314d9a3513e4a56f68358d7829adbe61"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure-research/load-retrieved-sources.ts",
+        "sha256": "8400702cac3956144475196b20b6ef2aca9e50a7a847757a1852709b069162cd"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure-research/retrieve-candidate-sources.ts",
+        "sha256": "c21cb65fff0197d0873b8d54d9231e0c3c13dc8ded9b782447cdc852197a68d8"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure-research/the-research-verdict-matches-the-evidence.test.ts",
+        "sha256": "7410aacf1dedd3019d95d0360af5df3943e3bbf69e08bc8d3bbeb0db1a837bb2"
+      },
+      {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/baseline-replay-probe.ts",
         "sha256": "100b4562a811b73c8b0bda990fd703fdef126ff892178f959ebafe4ba758f811"
       },
@@ -182,6 +214,22 @@
         "sha256": "2bf002d24e89b60e862227bcc52587367e55e28386638b82d5eddacfd137921d"
       },
       {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-10/build-report.ts",
+        "sha256": "937ee6a05960cb879d7a982f5fd3a34a548b1ab1c1c45a6e39aba750d5091179"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-10/verifier.test.ts",
+        "sha256": "7b6ef3d3a4fb5b55be91dab959771efa572288a8e1481f3ef10258a5d42c08d7"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-10/verify-core.ts",
+        "sha256": "6c9dba0ff474962d78f74c35bdaebb4a7a3114bed4733d0adc801fa82a697b42"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-10/verify.ts",
+        "sha256": "5390095d8d8a5edde39acd6c6bd78c4e859421ebc518c1fddd8a2dd314986c47"
+      },
+      {
         "path": "tools/openclinxr/evidence/supine-control-freeze/a-corrupt-artifact-is-refused.test.ts",
         "sha256": "a736b3db0588ff6818a2cf3ec2a0cccad98b20cf4f1a076d19ceafd4a655239a"
       },
@@ -206,6 +254,9 @@
       "apps/ui-xr/src/encounter-bundle-boot/index.ts",
       "apps/ui-xr/src/main.ts",
       "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-05.json",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-10.json",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-10.md",
       "packages/openclinxr/asset-registry/package.json",
       "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts",
       "packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts",
@@ -219,6 +270,11 @@
       "packages/openclinxr/review-workflow/src/accepted-scene-plan-review.ts",
       "packages/openclinxr/session-state/package.json",
       "packages/openclinxr/session-state/src/accepted-scene-plan.ts",
+      "tools/openclinxr/evidence/scene-closure-research/candidate-screening.ts",
+      "tools/openclinxr/evidence/scene-closure-research/candidate-source-manifest.ts",
+      "tools/openclinxr/evidence/scene-closure-research/load-retrieved-sources.ts",
+      "tools/openclinxr/evidence/scene-closure-research/retrieve-candidate-sources.ts",
+      "tools/openclinxr/evidence/scene-closure-research/the-research-verdict-matches-the-evidence.test.ts",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/baseline-replay-probe.ts",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/build-report.ts",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts",
@@ -227,6 +283,10 @@
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verifier.test.ts",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify-core.ts",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-10/build-report.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-10/verifier.test.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-10/verify-core.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-10/verify.ts",
       "tools/openclinxr/evidence/supine-control-freeze/a-corrupt-artifact-is-refused.test.ts",
       "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.record.json",
       "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts",
@@ -777,7 +837,8 @@
       "ROUND 2 SHIPPED TWO PRODUCTION CALL SITES THAT COULD NOT EXECUTE THEIR BODIES, and this card's own clause (m) certified them because it matched source patterns rather than behaviour. Reproduced here before fixing: an unconditional early return in both functions left DW1 18, DW3 1 and DW5 30 all passing. Clause (m0) now asserts returned status and gate rows 27-30 gut both bodies, each alone, and the case lookup.",
       "THE SHIPPED DEFAULT PATH REFUSES, and it is named rather than worked around. createEdChestPainLocalLearnerRuntimeAssetBundle stamps stationId: input.stationId ?? \"ed_chest_pain_station_v1\" (runtime-bundles.ts:761) for every scenario, so the fixture bundle for this case is refused as bound to another station. Correct behaviour, and an executed body rather than a no-op. Reaching `admitted` in a shipped run needs a server-supplied bundle carrying its own plan, or a producer that stamps the case's station; the producer accepts a stationId and its default was NOT changed, because inspectPinnedBundleIdentity compares that field and restamping it would move identity checks for every case for a reason belonging to none of them.",
       "ROUND 2'S SCOPE-AUDIT CLAIM WAS OVERSTATED AND IS CORRECTED. It said an undeclared out-of-scope change still fails; a reviewer appended a comment to an out-of-scope file and got byte-identical output, because changedFiles was report-authored and nothing consulted git. The CLI now measures the tree against a baseline pinned in the verifier's own source, and verifier clauses 30-32 plus gate row 31 cover it.",
-      "`pnpm typecheck` fails on its guardrails leg at this head AND at the unchanged baseline 27efa3d2, with identical output: 16 tsconfig files relax noPropertyAccessFromIndexSignature and one enables skipLibCheck. Pre-existing; this card changed no tsconfig. The other three typecheck legs pass."
+      "`pnpm typecheck` fails on its guardrails leg at this head AND at the unchanged baseline 27efa3d2, with identical output: 16 tsconfig files relax noPropertyAccessFromIndexSignature and one enables skipLibCheck. Pre-existing; this card changed no tsconfig. The other three typecheck legs pass.",
+      "CWD SENSITIVITY, repaired by the owner at integration rather than left open. Every repo-relative readFileSync in this card's behavior test, plus the default readers of freezeAcceptedScenePlan and observeScenePlanEvidence, resolved against the cwd. The test passed from the repo root and threw ENOENT under `pnpm --filter` and turbo, which run with cwd at the package directory, so this gate was unrunnable in the standard test path and failed the pre-push hook. Ten literal reads plus three injected readers now resolve against import.meta.url. SC-01's test carried the identical bug and was fixed the same way at dc2ad3b8."
     ]
   },
   "evidenceRegistrySha256": "12b1587daf25b3a1a48dece3df89115efe6f56a89ae32b10140728e3818394fb"
