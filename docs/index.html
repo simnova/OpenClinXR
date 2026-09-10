@@ -29,11 +29,12 @@
           <a href="#dark-factory">Factory</a>
           <a href="#trellis-hatch">Hatch</a>
           <a href="#supine">Patient</a>
-          <a href="#nude-patients">Patients</a>
+          <a href="#garment-contrast">Patients</a>
           <a href="#garment-class">Wardrobe</a>
           <a href="#see-it">See it</a>
           <a href="#roadmap">Roadmap</a>
           <a href="#evidence-docs">Evidence Docs</a>
+          <a href="attribution.html">Attribution</a>
           <a href="https://github.com/simnova/OpenClinXR" target="_blank" rel="noopener">GitHub</a>
         </div>
       </div>
@@ -171,14 +172,14 @@
 
       <section id="now" class="band band--evidence" aria-labelledby="now-title">
         <div class="section-heading">
-          <p class="eyebrow">Current state · 4 September 2026</p>
+          <p class="eyebrow">Current state · 10 September 2026</p>
           <h2 id="now-title">A reviewed encounter can now become a resumable, replayable run.</h2>
         </div>
         <div class="progress-grid">
           <div class="progress-card">
             <h3>Author and promote</h3>
             <ul>
-              <li><strong>Revision-bound review:</strong> a scenario edit invalidates stale approval; API promotion refuses missing or stale authored-content identity.</li>
+              <li><strong>Revision-bound review:</strong> a scenario edit invalidates stale approval; API promotion refuses missing or stale authored-content identity. <em>Qualified 2026-09-10:</em> that held for authored scenario text and did <em>not</em> hold for the frozen scene &mdash; SC-06 measured the accepted plan carrying 0 of 14 identity fields, with a stale acceptance silently reused. It now refuses; see the measurements below.</li>
               <li><strong>Immutable encounter bundles:</strong> reviewed factory outputs are promoted together, with the room, actors, equipment, and dialogue configuration pinned to the approved revision.</li>
               <li><strong>Faculty-visible delta:</strong> Admin can preview what an authored change will alter at runtime before promotion.</li>
               <li><strong>Scenario bank freeze:</strong> approved revisions and promoted station-bundle pins survive later authoring changes.</li>
@@ -205,7 +206,7 @@
           <div class="progress-card">
             <h3>Evidence and boundaries</h3>
             <ul>
-              <li><strong>Committed proof:</strong> the claims above are backed by runtime and package tests in the repository, including restart-safe learner-to-faculty acceptance.</li>
+              <li><strong>Committed proof:</strong> the claims above are backed by runtime and package tests in the repository, including restart-safe learner-to-faculty acceptance. Nine independently graded evidence reports are now published &mdash; see the section below.</li>
               <li><strong>Visual proof remains bounded:</strong> the screenshots below demonstrate browser-rendered factory, actor, garment, room, and equipment work. They do not prove the entire new lifecycle as one polished user journey.</li>
               <li><strong>No clinical validity, scoring validity, licensure, or exam-equivalence claim.</strong></li>
               <li><strong>No Quest readiness claim:</strong> browser/WebXR and emulation evidence do not substitute for worn-headset validation.</li>
@@ -216,6 +217,70 @@
         <p class="progress-note">
           Source of truth for status is the repo ledger (<code>PROJECT_STATUS.md</code>), not this page.
           Public copy here is a snapshot for humans—updated when the product story actually moves.
+        </p>
+      </section>
+
+      <section id="scene-closure" class="band band--evidence" aria-labelledby="scene-closure-title">
+        <div class="section-heading">
+          <p class="eyebrow">Measured, not asserted &middot; 2026-09-10</p>
+          <h2 id="scene-closure-title">Nine graded reports, and the numbers that did not clear.</h2>
+        </div>
+        <p class="status-copy">
+          Nine cards landed against a frozen acceptance contract. Each carries an evidence report graded by its own
+          verifier against retained artifacts, and each was re-measured by the owner against the tree rather than
+          accepted from its report. Three of nine were rejected at least once; one was rejected three times. The
+          rejections and the failures are published alongside the passes, because a report that only lists passes
+          is not evidence.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The bedside approach, measured in a browser on an M1 Max over 373 skeleton samples.</caption>
+            <thead>
+              <tr><th scope="col">Metric</th><th scope="col">Measured</th><th scope="col">Threshold</th><th scope="col">Outcome</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Arrival error</td><td>0.03597 m</td><td>&le; 0.05 m</td><td>pass</td></tr>
+              <tr><td>Settled heading error</td><td>0.000&deg;</td><td>&le; 10&deg;</td><td>pass</td></tr>
+              <tr><td>Stopped duration</td><td>4.816 s</td><td>&ge; 2 s</td><td>pass</td></tr>
+              <tr><td>Root travel while stopped</td><td>0.000000 m</td><td>0 m</td><td>pass</td></tr>
+              <tr><td>Deepest floor penetration</td><td>0.00179 m</td><td>&le; 0.005 m</td><td>pass</td></tr>
+              <tr><td>Foot slide</td><td>8.00 Hz capture</td><td>~132 Hz needed</td><td><strong>not gradeable</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="status-copy">
+          The last row is the useful one. Identifying a foot-contact window at the rubric's 0.005 m per-frame
+          allowance needs roughly 132 Hz; four skinned humanoids and a compiled room through software rendering
+          gave 8.00 Hz. Rather than grade an aliased stream, the instrument refuses and reports the number. An
+          earlier revision of that report graded it as <em>failing</em> from an assumed 60 Hz that was never
+          measured; that verdict was wrong in the same way a passing one would have been, and is retracted in
+          place in the published report.
+        </p>
+        <p class="status-copy">
+          Other findings worth naming: the shipped locomotion clip <em>fails</em> the frozen rubric, and no clip
+          this pipeline has produced meets the foot-plant threshold. A learned-motion candidate was screened and
+          <strong>held</strong>, not adopted &mdash; its text encoder depends transitively on a gated model licence
+          this project does not hold, and the host has no CUDA device. Twenty-eight open items are declared across
+          the nine reports.
+        </p>
+        <p class="evidence-note">
+          Reports:
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-00.md">SC-00 rubric</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01.md">SC-01</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01s.md">SC-01S</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-02.md">SC-02</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-03.md">SC-03</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-04.md">SC-04 rights</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-05.md">SC-05 approach</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-06.md">SC-06 replay</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-10.md">SC-10 research hold</a>
+        </p>
+        <p class="evidence-note">
+          <strong>notEvidenceFor:</strong> clinical validity, scoring validity, exam equivalence, and worn-headset
+          readiness are not claimed and have no evidence here. Three of twelve acceptance rows &mdash; an
+          uninterrupted workflow recording, a website demonstration, and independent final acceptance &mdash; are
+          unstarted, so this package is <strong>not closed</strong>. No humanoid imagery from these cards is
+          published: their public render rights are blocked pending a named upstream licence resolution.
         </p>
       </section>
 
@@ -483,17 +548,17 @@
         </p>
       </section>
 
-      <section id="nude-patients" class="band band--evidence" aria-labelledby="nude-title">
+      <section id="garment-contrast" class="band band--evidence" aria-labelledby="garment-contrast-title">
         <div class="section-heading">
           <p class="eyebrow">Evidence you can look at</p>
-          <h2 id="nude-title">Five patients were rendering nude. Their clothes were the colour of their skin.</h2>
+          <h2 id="garment-contrast-title">Five patients&rsquo; garments were rendering the same colour as their skin.</h2>
         </div>
         <p class="status-copy">
           Every automated garment check passed on these figures. The clothes were <em>present</em>,
           correctly <em>placed</em>, correctly <em>licensed</em>, and the right <em>class</em>. They
           were also a beige within 21 RGB units of the patient's own skin, which at any viewing
           distance is indistinguishable from bare flesh. A learner walking into five of the fourteen
-          stations met an undressed patient.
+          stations met a patient whose garment was indistinguishable from skin.
         </p>
 
         <p class="status-copy">
@@ -1331,6 +1396,8 @@ Maximize large flat planes for 3D reconstruction.</pre>
         <div class="footer-links">
           <a href="https://github.com/simnova/OpenClinXR" target="_blank" rel="noopener">GitHub</a>
           <a href="#now">Current state</a>
+          <a href="#scene-closure">Measured evidence</a>
+          <a href="attribution.html">Attribution</a>
           <a href="#roadmap">Roadmap</a>
           <a href="https://github.com/simnova/OpenClinXR/issues" target="_blank" rel="noopener">Issues</a>
         </div>

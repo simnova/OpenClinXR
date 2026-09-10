@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Attribution and asset licensing — OpenClinXR</title>
+    <meta name="description" content="Third-party asset attribution for everything OpenClinXR ships, plus the licence questions that are still open." />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="band band--evidence">
+        <div class="section-heading">
+          <p class="eyebrow">Attribution &middot; 2026-09-10</p>
+          <h2>What we ship, who made it, and what is still unresolved.</h2>
+        </div>
+        <p class="status-copy">
+          Every third-party asset compiled into a shipped OpenClinXR humanoid or room is listed here. The
+          authoritative record is the repository's
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/third-party-asset-licence-ledger.md">third-party asset licence ledger</a>,
+          which carries the per-file evidence, the refusals, and the corrections. This page is the human-readable
+          summary of the parts that actually ship, and it states the open questions rather than omitting them.
+        </p>
+
+        <h3>Attribution required &mdash; CC-BY</h3>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>These carry a live attribution obligation and are compiled into shipped assets.</caption>
+            <thead><tr><th scope="col">Asset</th><th scope="col">Credit</th><th scope="col">Licence</th><th scope="col">Ships in</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>Scrub shirt</td>
+                <td>WojackOWL, <em>Medical Scrubs Kit</em></td>
+                <td>CC-BY</td>
+                <td>clinical nurse, clinical physician, OB patient, peds nurse, peds patient</td>
+              </tr>
+              <tr>
+                <td>Scrub pants</td>
+                <td>WojackOWL, <em>Medical Scrubs Kit</em></td>
+                <td>CC-BY</td>
+                <td>clinical nurse, clinical physician, peds nurse</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>No attribution required &mdash; CC0, credited anyway</h3>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Public-domain dedications. Credit is courtesy, not obligation.</caption>
+            <thead><tr><th scope="col">Asset</th><th scope="col">Credit</th><th scope="col">Licence</th><th scope="col">Use</th></tr></thead>
+            <tbody>
+              <tr><td>Blunt bob with bangs (hair)</td><td>MargaretToigo, MakeHuman <code>hair01</code></td><td>CC0 1.0</td><td>six shipped bodies</td></tr>
+              <tr><td>Eyebrows / eyelashes</td><td>Mindfront (Sweden)</td><td>CC0 1.0</td><td>facial detail across the cast</td></tr>
+              <tr><td><code>Walk_Formal</code> locomotion clip</td><td>Mesh2Motion</td><td>CC0 1.0</td><td>the physician's grafted walk</td></tr>
+              <tr><td>MPFB2 / MakeHuman</td><td>Joel Palmius, Jonas Hauquier, Data Collection AB</td><td>tooling</td><td>body generation and rigging</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Shipping under a recorded assumption &mdash; disclosed, not resolved</h3>
+        <p class="status-copy">
+          Three components ship where the source page and the file header disagree about the licence. Each ships
+          under a dated, named ruling recorded in the ledger rather than a silent decision, and each is listed here
+          so the assumption is visible to anyone relying on this work.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Open licence questions on assets that are currently shipped.</caption>
+            <thead><tr><th scope="col">Component</th><th scope="col">The conflict</th><th scope="col">Status</th><th scope="col">Ships in</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>hm08</code> base mesh</td>
+                <td>a 2016 README asserts AGPL against a 2020 <code>LICENSE.md</code> saying CC0, with no dated relicensing announcement</td>
+                <td><strong>unresolved</strong></td>
+                <td>every MakeHuman-derived body</td>
+              </tr>
+              <tr>
+                <td><code>mhair02</code> hair</td>
+                <td>the community page says CC0, the <code>.mhclo</code> header says AGPL3</td>
+                <td>operator override, 2026-08-14, this uuid only</td>
+                <td>peds nurse, street adult male</td>
+              </tr>
+              <tr>
+                <td><code>cortu_cargo_pants</code></td>
+                <td>the pack index says CC0, the <code>.mhclo</code> carries no licence line at all</td>
+                <td>index-override ruling, 2026-08-24</td>
+                <td>clinical nurse, family partner, street adult male</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="status-copy">
+          Because of these, <strong>public render rights for the scene-closure cast are blocked</strong> and no
+          imagery from that work is published. If an upstream owner confirms that a copyleft header is the real
+          grant, every asset derived from it will be re-baked without it.
+        </p>
+
+        <h3>Recorded refusals</h3>
+        <p class="status-copy">
+          The ledger records assets that were acquired, measured, and then <em>refused</em> &mdash; among them two
+          MakeHuman skin packs whose pack pages claim CC0 while individual files carry explicit AGPLv3 headers or no
+          licence line, and Mixamo, whose terms forbid redistributing raw animation files. Unspecified is treated as
+          a refusal. Those refusals are kept in the ledger by name so a later rebuild cannot quietly reintroduce them.
+        </p>
+        <p class="evidence-note">
+          Corrections welcome. If you authored something listed here and the attribution or the licence reading is
+          wrong, please open an issue on
+          <a href="https://github.com/simnova/OpenClinXR">the repository</a> and it will be corrected and re-baked.
+        </p>
+        <p class="evidence-note"><a href="./">&larr; Back to OpenClinXR</a></p>
+      </section>
+    </main>
+  </body>
+</html>

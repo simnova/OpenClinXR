@@ -703,3 +703,40 @@ h3 {
     flex: 0 0 auto;
   }
 }
+
+/* Measured-evidence tables (scene-closure section, attribution page).
+   Wide content scrolls inside its own container so the page body never scrolls sideways. */
+.metric-table-wrap {
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.metric-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  min-width: 34rem;
+}
+.metric-table caption {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--line);
+}
+.metric-table th,
+.metric-table td {
+  text-align: left;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.metric-table thead th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.metric-table tbody tr:last-child td { border-bottom: 0; }
+.metric-table td:nth-child(4) { color: var(--muted); }

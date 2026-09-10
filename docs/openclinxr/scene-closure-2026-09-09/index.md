@@ -1,6 +1,30 @@
 # Scene closure delegation package
 
-**Current revision: 2. Ready for the user to hand to an executing owner; execution is held.** All twelve replacement cards are Idle/backlog. All twelve original SC cards are cancelled with successor IDs. No product code, test implementation, media, worker session or deployment was started during preparation.
+**Current revision: 2. EXECUTED IN PART, 2026-09-10.** The sentence below is what this page said
+during preparation and it is no longer true; it is kept so a reader who saw it knows what changed.
+
+> Ready for the user to hand to an executing owner; execution is held. All twelve replacement cards
+> are Idle/backlog. No product code, test implementation, media, worker session or deployment was
+> started during preparation.
+
+**What has since landed, each attested against the tree rather than accepted from its report:**
+
+| card | A-row | outcome |
+|---|---|---|
+| SC-00 | A08 | the measurement rubric is frozen, and the shipped walk fails it |
+| SC-01 | A01 | a persisted, reviewed case controls the served scene |
+| SC-01S | A01 | the selected scenario reaches the route through the client |
+| SC-02 | A02, A03 | runtime-owned requirements gate entry and due-zero effects |
+| SC-03 | A04, A05 | the exact mounted support controls the posed patient |
+| SC-04 | A06 | selected assets have auditable rights; public RENDER stays blocked |
+| SC-05 | A05, A07, A08 | the case-selected physician walks to the bedside and stops |
+| SC-06 | A09 | the frozen scene plan admits, gates the walk, and refuses drift |
+| SC-10 | A13 | a learned-motion candidate is screened and HELD |
+
+**Still unstarted: A10, A11 and A12** — SC-07's uninterrupted browser recording, SC-08's website
+demonstration and SC-09's independent acceptance. **The parent is NOT closed.** Clinical validity and
+worn-headset readiness are unproved. Twenty-eight open items are declared across the landed reports
+rather than hidden.
 
 - [Board IDs and supersession map](./board-manifest.md)
 - [Acceptance contract](./acceptance-v2.md)
