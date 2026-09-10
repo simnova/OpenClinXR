@@ -107,6 +107,7 @@ const REQUIRED_SOURCE_IDS = [
   "soma-seed-model-card",
   "soma-seed-checkpoint-config",
   "hf-index-text-encoder-base",
+  "text-encoder-adapter-config",
 ] as const;
 
 function text(input: ScreeningInput, sourceId: string): string {
@@ -190,6 +191,23 @@ export function parseRequiredTextEncoder(encoderReadme: string): string | undefi
   return /`([\w-]+\/[\w.-]+)`/u.exec(encoderReadme)?.[1];
 }
 
+/**
+ * The base model a PEFT adapter is built on, read from the adapter's own config.
+ *
+ * An independent review caught this being hardcoded in the finding string while the dimension
+ * carried a VERIFIED label. The chain was true, but "true and asserted" is not what VERIFIED means
+ * on this card — so the adapter config is now a retrieved source and the id comes out of its bytes.
+ */
+export function parseAdapterBaseModel(adapterConfigJson: string): string | undefined {
+  try {
+    const parsed = JSON.parse(adapterConfigJson) as { base_model_name_or_path?: unknown };
+    const base = parsed.base_model_name_or_path;
+    return typeof base === "string" ? base : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /** HuggingFace's own gate field. `false` is open; anything else is a gate. */
 export function parseGateStatus(indexJson: string): { gated: unknown; licence: unknown } {
   try {
@@ -252,8 +270,11 @@ function screenRevisions(): ScreeningDimension {
       id: "pinned-revisions",
       outcome: "eligible",
       finding:
-        `${pinned} of ${CANDIDATE_SOURCES.length} sources are pinned to an immutable 40-hex revision; the `
-        + "remainder are availability indexes carrying a timestamped receipt and are not used to establish terms.",
+        `The source MANIFEST pins ${pinned} of ${CANDIDATE_SOURCES.length} entries to an immutable 40-hex `
+        + "revision; the remainder are availability indexes carrying a timestamped receipt and are not used to "
+        + "establish terms. This dimension screens the manifest, not the retrieval: whether each object was "
+        + "actually fetched from its pinned URL and still hashes to its receipt is enforced by "
+        + "loadRetrievedSources and surfaces as sourceProblems, which fail the verifier separately.",
       label: "VERIFIED",
       citedSourceIds: ["kimodo-repo-readme", "soma-rp-checkpoint-config"],
       quote: "",
@@ -345,10 +366,24 @@ function screenDocumentationDivergence(input: ScreeningInput): ScreeningDimensio
   const checkpointClass = parseCheckpointSkeletonClass(text(input, "soma-rp-checkpoint-config"));
   const cardJoints = parseModelCardOutputJoints(text(input, "soma-rp-model-card"));
   if (claim === undefined || checkpointClass === undefined) {
+    // Fails CLOSED, and this is the one dimension where that was not true.
+    //
+    // It used to return `eligible` here with the finding "no divergence is present in the retrieved
+    // bytes" — an affirmative claim that a parse miss cannot support. An independent review measured
+    // the consequence: reword the README line to "Model inputs and outputs now use the SOMA
+    // 77-joint skeleton (somaskel77)" and the regex stops matching while the real 77-vs-30
+    // divergence is untouched; the dimension reported eligible/VERIFIED and, on a CUDA host with an
+    // ungated encoder, the verdict reached `screened`. That is the card's "README/model-card
+    // mismatch hidden as certainty" counterweight, produced by this card's own code. Not being able
+    // to read the statement is not evidence that there is nothing to read.
     return {
       id: "documentation-divergence",
-      outcome: "eligible",
-      finding: "No README/model-card skeleton divergence is present in the retrieved bytes.",
+      outcome: "unresolved",
+      finding:
+        `Cannot establish agreement: ${claim === undefined ? "the README's I/O skeleton statement did not parse" : ""}`
+        + `${claim === undefined && checkpointClass === undefined ? " and " : ""}`
+        + `${checkpointClass === undefined ? "the checkpoint config declared no skeleton class" : ""}`
+        + ". Absence of a parsed divergence is not evidence that the documents agree.",
       label: "VERIFIED",
       citedSourceIds: ["kimodo-repo-readme", "soma-rp-checkpoint-config"],
       quote: "",
@@ -408,6 +443,7 @@ function screenDocumentationDivergence(input: ScreeningInput): ScreeningDimensio
  */
 function screenBodyAndEncoderTerms(input: ScreeningInput): ScreeningDimension {
   const encoder = parseRequiredTextEncoder(text(input, "kimodo-text-encoder-readme"));
+  const baseModel = parseAdapterBaseModel(text(input, "text-encoder-adapter-config"));
   const base = parseGateStatus(text(input, "hf-index-text-encoder-base"));
   const adapter = parseGateStatus(text(input, "hf-index-text-encoder-adapter"));
   if (encoder === undefined) {
@@ -420,18 +456,35 @@ function screenBodyAndEncoderTerms(input: ScreeningInput): ScreeningDimension {
       quote: "",
     };
   }
+  if (baseModel === undefined) {
+    return {
+      id: "body-and-encoder-terms",
+      outcome: "unresolved",
+      finding:
+        `The encoder ${encoder} is a PEFT adapter, but its adapter_config.json did not declare a base model in `
+        + "the retrieved bytes, so the transitive rights chain cannot be followed.",
+      label: "VERIFIED",
+      citedSourceIds: ["text-encoder-adapter-config"],
+      quote: "",
+    };
+  }
   if (base.gated !== false) {
     return {
       id: "body-and-encoder-terms",
       outcome: "blocked",
       finding:
         `The pinned code requires ${encoder} for text encoding. That is a PEFT adapter (gated `
-        + `${String(adapter.gated)}, licence ${String(adapter.licence)}) loaded over base model `
-        + `meta-llama/Meta-Llama-3-8B-Instruct, which HuggingFace reports as gated "${String(base.gated)}" under `
-        + `licence "${String(base.licence)}". Obtaining it requires an account and acceptance of a licence this `
-        + "repository does not hold. Accepting a new gated term is an owner decision, not this card's.",
+        + `${String(adapter.gated)}, licence ${String(adapter.licence)}) whose adapter_config.json declares base `
+        + `model ${baseModel}, which HuggingFace reports as gated "${String(base.gated)}" under licence `
+        + `"${String(base.licence)}". Obtaining it requires an account and acceptance of a licence this repository `
+        + "does not hold. Accepting a new gated term is an owner decision, not this card's.",
       label: "VERIFIED",
-      citedSourceIds: ["kimodo-text-encoder-readme", "hf-index-text-encoder-base", "hf-index-text-encoder-adapter"],
+      citedSourceIds: [
+        "kimodo-text-encoder-readme",
+        "text-encoder-adapter-config",
+        "hf-index-text-encoder-base",
+        "hf-index-text-encoder-adapter",
+      ],
       quote:
         "This is a patched version of the original LLM2Vec codebase so that "
         + "`McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp-supervised` works with `transformers==5.0.0rc3`.",

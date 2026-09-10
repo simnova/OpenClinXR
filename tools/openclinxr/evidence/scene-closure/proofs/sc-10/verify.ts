@@ -114,7 +114,7 @@ function loadInferenceObservations(storeRoot: string): InferenceObservation[] {
  * host, and runs the research instrument. Nothing the report says reaches it. Any throw becomes an
  * Error and the run fails; there is no path where a recomputation problem is downgraded to a pass.
  */
-function recompute(): IndependentResearchFacts | Error {
+export function recompute(): IndependentResearchFacts | Error {
   try {
     const loaded = loadRetrievedSources(process.env["OPENCLINXR_SC_EVIDENCE_REGISTRY"]);
     const observations = loadInferenceObservations(loaded.storeRoot);

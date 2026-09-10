@@ -105,6 +105,16 @@ export const CANDIDATE_SOURCES: readonly CandidateSource[] = [
     screens: "that the encoder is loaded as a base model plus PEFT adapter, so both need rights",
   },
   {
+    sourceId: "text-encoder-adapter-config",
+    kind: "code-blob",
+    url:
+      "https://huggingface.co/McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp-supervised/resolve/"
+      + "baa8ebf04a1c2500e61288e7dad65e8ae42601a7/adapter_config.json",
+    objectKey: "sc-10/sources/text-encoder-adapter-config.json",
+    mutableIndex: false,
+    screens: "the encoder adapter's declared base model, so the rights chain is parsed and not asserted",
+  },
+  {
     sourceId: "soma-rp-model-card",
     kind: "model-card",
     url: `${RP}/README.md`,

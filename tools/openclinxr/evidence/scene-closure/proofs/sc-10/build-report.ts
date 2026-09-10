@@ -165,7 +165,6 @@ function main(): void {
   const gateBroken = gate.filter((entry) => entry.result === "breaks a named clause").length;
 
   // --- observations: measured values with units, not verdicts ---
-  const jointChain = screening.dimensions.find((entry) => entry.id === "skeleton-mapping");
   const observations = [
     {
       observationId: "obs-retrieved-source-count",
@@ -447,7 +446,20 @@ function main(): void {
       },
     ],
     artifacts,
-    reviews: [] as unknown[],
+    // Read from the store, not authored here. The reviewer is a separate session that did not write
+    // this code; its four findings were repaired before this report was built, and its own
+    // "not checked" list is carried through verbatim rather than summarised away.
+    reviews: [
+      (() => {
+        const record = JSON.parse(
+          readFileSync(path.join(storeRoot, "sc-10/reviews/independent-review.json"), "utf8"),
+        ) as Record<string, unknown>;
+        return {
+          ...record,
+          retrievedArtifactIds: [artifactId("sc-10/reviews/independent-review.json")],
+        };
+      })(),
+    ],
     limits: {
       unprovenClinical: [
         "No clinical claim is made or implied. This card screened a motion-generation model's terms and "

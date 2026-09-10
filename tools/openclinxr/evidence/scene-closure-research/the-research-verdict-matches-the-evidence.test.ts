@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { recompute } from "../scene-closure/proofs/sc-10/verify.js";
 import {
   type InferenceObservation,
+  parseAdapterBaseModel,
   parseCheckpointSkeletonClass,
   parseGateStatus,
   parseModelCardOutputJoints,
@@ -165,6 +167,74 @@ describe("SC-10 A13 research eligibility", () => {
     const result = screenCandidate({ ...input, sources: missing });
     expect(result.verdict).toBe("held");
     expect(result.refusals).toContain("required source soma-rp-model-licence was not retrieved");
+  });
+
+  it("the verifier's recompute() seam maps the screening result without inverting it", () => {
+    // Found by independent review: the mapping from `screenCandidate` onto `IndependentResearchFacts`
+    // sat between two tested halves and was itself untested, so inverting
+    // `skeletonMappingInspected: skeleton?.outcome === "eligible"` left all 26 verifier unit tests
+    // green. This walks the real seam and compares it against a direct screening of the same bytes.
+    const direct = screenCandidate(actualScreeningInput());
+    const facts = recompute();
+    expect(facts).not.toBeInstanceOf(Error);
+    if (facts instanceof Error) return;
+
+    expect(facts.verdict).toBe(direct.verdict);
+    expect(facts.holdReasons).toEqual(direct.holdReasons);
+    expect(facts.nextUnblock).toBe(direct.nextUnblock);
+    expect(facts.sourceProblems).toEqual([]);
+    expect(facts.retrievedSourceIds.length).toBe(direct.dimensions.length > 0 ? facts.retrievedSourceIds.length : 0);
+    expect(facts.retrievedSourceIds.length).toBeGreaterThan(0);
+    expect(facts.dimensionOutcomes).toEqual(
+      direct.dimensions.map((entry) => ({ id: entry.id, outcome: entry.outcome })),
+    );
+    // The two derived booleans are the ones an inversion would hide.
+    const skeleton = direct.dimensions.find((entry) => entry.id === "skeleton-mapping");
+    const divergence = direct.dimensions.find((entry) => entry.id === "documentation-divergence");
+    expect(facts.skeletonMappingInspected).toBe(skeleton?.outcome === "eligible");
+    expect(facts.documentationDivergenceResolution).toBe(
+      divergence?.outcome === "eligible" ? "resolved" : "unresolved",
+    );
+    // No run happened, so the store holds no observations file and the count is a measured zero.
+    expect(facts.qualifyingInferenceObservationCount).toBe(0);
+  });
+
+  it("will not claim the documents agree when the README statement does not parse", () => {
+    // Found by independent review: a parse miss returned `eligible` with the finding "no divergence
+    // is present", which is an affirmative claim a failed regex cannot support. Rewording the README
+    // line while leaving the real 77-vs-30 divergence intact reached `screened` on a CUDA host.
+    const input = actualScreeningInput();
+    const reworded = new Map(input.sources);
+    reworded.set(
+      "kimodo-repo-readme",
+      Buffer.from(
+        (input.sources.get("kimodo-repo-readme")?.toString("utf8") ?? "").replace(
+          "Model inputs/outputs now use the SOMA 77-joint skeleton (`somaskel77`)",
+          "Model inputs and outputs now use the SOMA 77-joint skeleton (somaskel77)",
+        ),
+      ),
+    );
+    const dimension = screenCandidate({ ...input, sources: reworded }).dimensions.find(
+      (entry) => entry.id === "documentation-divergence",
+    );
+    expect(dimension?.outcome).toBe("unresolved");
+    expect(dimension?.finding).toContain("not evidence that the documents agree");
+  });
+
+  it("parses the encoder's base model from the adapter config rather than asserting it", () => {
+    const input = actualScreeningInput();
+    expect(parseAdapterBaseModel(input.sources.get("text-encoder-adapter-config")?.toString("utf8") ?? "")).toBe(
+      "meta-llama/Meta-Llama-3-8B-Instruct",
+    );
+    // Remove the declaration and the dimension must stop naming a base model it cannot see.
+    const blind = new Map(input.sources);
+    blind.set("text-encoder-adapter-config", Buffer.from('{"peft_type":"LORA"}'));
+    const dimension = screenCandidate({ ...input, sources: blind }).dimensions.find(
+      (entry) => entry.id === "body-and-encoder-terms",
+    );
+    expect(dimension?.outcome).toBe("unresolved");
+    expect(dimension?.finding).toContain("did not declare a base model");
+    expect(dimension?.finding).not.toContain("meta-llama/Meta-Llama-3-8B-Instruct");
   });
 
   it("reports unresolved training-data rights rather than inheriting the model card's assertion", () => {
