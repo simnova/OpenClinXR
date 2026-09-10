@@ -9,8 +9,8 @@
     "keep-current": 141,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2440,
-    "total": 2440
+    "entries": 2441,
+    "total": 2441
   },
   "entries": [
     {
@@ -17018,6 +17018,13 @@
     },
     {
       "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-05.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Scene-closure r2 per-card evidence report, graded by its own actual-evidence verifier against the owner registry."
+    },
+    {
+      "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-10.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",

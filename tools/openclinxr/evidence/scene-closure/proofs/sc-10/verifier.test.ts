@@ -4,6 +4,7 @@ import { parseArgs } from "./verify.js";
 import {
   auditScopes,
   type EvidenceRegistry,
+  type IndependentResearchFacts,
   type ObjectReader,
   resolveArtifactPath,
   SC10_FROZEN_SCOPES,
@@ -24,6 +25,18 @@ import {
  * artifacts are gone is worse than none, because every downstream reader treats its exit code as
  * evidence that bytes exist. The contract asks for exactly that test by name.
  */
+
+/** The eight dimensions SC-10's screening engine returns, with the outcomes the good report claims. */
+const INDEPENDENT_DIMENSIONS = [
+  { id: "candidate-identity", outcome: "eligible" },
+  { id: "pinned-revisions", outcome: "eligible" },
+  { id: "skeleton-mapping", outcome: "eligible" },
+  { id: "documentation-divergence", outcome: "eligible" },
+  { id: "body-and-encoder-terms", outcome: "blocked" },
+  { id: "training-data-rights", outcome: "unresolved" },
+  { id: "output-terms", outcome: "eligible" },
+  { id: "local-execution", outcome: "blocked" },
+] as const;
 
 const ARTIFACT_BYTES = Buffer.from("a recorded normal-workflow observation stream\n");
 const ARTIFACT_SHA = sha256Hex(ARTIFACT_BYTES);
@@ -98,7 +111,13 @@ function goodReport(): Record<string, unknown> {
       baselineOutputArtifactId: "baseline-output",
       fixedOutputArtifactId: "fixed-output",
     },
-    encounter: { caseId: "scene_closure_supine_bedside_v1", caseVersion: 2 },
+    encounter: {
+      candidate: "nvidia/Kimodo-SOMA (nv-tlabs/kimodo)",
+      verdict: "held",
+      holdReasons: ["body-and-encoder-terms (blocked): base model is gated"],
+      nextUnblock: "Owner decision on the gated encoder licence, then a CUDA host.",
+      dimensions: INDEPENDENT_DIMENSIONS.map((entry) => ({ ...entry })),
+    },
     observations: [
       {
         observationId: "obs-loaded-scenario",
@@ -185,7 +204,34 @@ const OBJECTS = {
   "/store/sc-10/fixed.txt": FIXED_BYTES,
 };
 
-function verify(report: Record<string, unknown>, objects: Record<string, Buffer> = OBJECTS, links: Record<string, string> = {}) {
+/**
+ * A recomputation that agrees with `goodReport()`.
+ *
+ * In production this comes from `screenCandidate` over bytes pulled from the owner store. Here it
+ * is a fixture, which is the one place the proof contract allows one — and note that every test
+ * below that varies the REPORT holds this constant, so a disagreement between the two is what the
+ * assertion sees.
+ */
+function independentFacts(): IndependentResearchFacts {
+  return {
+    verdict: "held",
+    dimensionOutcomes: INDEPENDENT_DIMENSIONS.map((entry) => ({ id: entry.id, outcome: entry.outcome })),
+    holdReasons: ["body-and-encoder-terms (blocked): base model is gated"],
+    nextUnblock: "Owner decision on the gated encoder licence, then a CUDA host.",
+    qualifyingInferenceObservationCount: 0,
+    sourceProblems: [],
+    retrievedSourceIds: ["soma-rp-model-card", "soma-rp-checkpoint-config", "kimodo-skeleton-definitions"],
+    skeletonMappingInspected: true,
+    documentationDivergenceResolution: "resolved",
+  };
+}
+
+function verify(
+  report: Record<string, unknown>,
+  objects: Record<string, Buffer> = OBJECTS,
+  links: Record<string, string> = {},
+  independent: IndependentResearchFacts | Error = independentFacts(),
+) {
   return verifyReport({
     report,
     suppliedScopes: [...SC10_FROZEN_SCOPES],
@@ -193,6 +239,7 @@ function verify(report: Record<string, unknown>, objects: Record<string, Buffer>
     registrySha256: REGISTRY_SHA,
     reader: readerFor(objects, links),
     contractDocuments: CONTRACT_DOCUMENTS,
+    independent,
   });
 }
 
@@ -351,6 +398,171 @@ describe("the SC-10 evidence verifier accepts a complete control and rejects eve
     expect(auditScopes([...SC10_FROZEN_SCOPES, "packages/openclinxr/telemetry"]))
       .toContain("extra --scope packages/openclinxr/telemetry");
     expect(auditScopes([...SC10_FROZEN_SCOPES, SC10_FROZEN_SCOPES[0]!]).join("\n")).toMatch(/duplicate/u);
+  });
+
+  // ----------------------------------------------------------------- SC-10 verdict controls
+  //
+  // Everything above grades report SHAPE, and the recorded baseline control shows that shape alone
+  // passed a fabricated `executed`. These four groups grade the CLAIM.
+
+  it("(16) WRONG RUN: a verdict the recomputed evidence contradicts is rejected", () => {
+    const report = goodReport();
+    (report["encounter"] as Record<string, unknown>)["verdict"] = "executed";
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toContain('recomputes to "held"');
+  });
+
+  it("(17) `executed` without a motion-inference observation is rejected", () => {
+    const report = goodReport();
+    (report["encounter"] as Record<string, unknown>)["verdict"] = "executed";
+    // The recomputation agrees it is executed, but nothing was actually inferred. A text-encoder
+    // offload and an install probe both leave this counter at zero, which is the point.
+    const result = verify(report, OBJECTS, {}, {
+      ...independentFacts(),
+      verdict: "executed",
+      holdReasons: [],
+      nextUnblock: "",
+      qualifyingInferenceObservationCount: 0,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toContain("zero motion-inference observations");
+  });
+
+  it("(18) a non-executed verdict may not name a comparison baseline", () => {
+    const report = goodReport();
+    (report["encounter"] as Record<string, unknown>)["comparisonBaseline"] = "SC-06";
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toContain("comparison that did not run cannot name a baseline");
+  });
+
+  it("(19) a HOLD with no reason or no next unblock is not a completed assessment", () => {
+    const withoutReasons = goodReport();
+    (withoutReasons["encounter"] as Record<string, unknown>)["holdReasons"] = [];
+    const a = verify(withoutReasons);
+    expect(a.ok).toBe(false);
+    if (!a.ok) expect(a.problems.join("\n")).toContain("holdReasons lists 0 reason(s)");
+
+    const withoutNext = goodReport();
+    (withoutNext["encounter"] as Record<string, unknown>)["nextUnblock"] = "   ";
+    const b = verify(withoutNext);
+    expect(b.ok).toBe(false);
+    if (!b.ok) expect(b.problems.join("\n")).toContain("encounter.nextUnblock is empty");
+
+    // And a recomputation that produced no reason cannot be dressed up by the report either.
+    const c = verify(goodReport(), OBJECTS, {}, { ...independentFacts(), holdReasons: [] });
+    expect(c.ok).toBe(false);
+    if (!c.ok) expect(c.problems.join("\n")).toContain("no hold reason");
+  });
+
+  it("(20) MALFORMED: an absent or failed recomputation refuses instead of throwing", () => {
+    const missing = verifyReport({
+      report: goodReport(),
+      suppliedScopes: [...SC10_FROZEN_SCOPES],
+      registry: REGISTRY,
+      registrySha256: REGISTRY_SHA,
+      reader: readerFor(OBJECTS),
+      contractDocuments: CONTRACT_DOCUMENTS,
+      independent: undefined as unknown as IndependentResearchFacts,
+    });
+    expect(missing.ok).toBe(false);
+    if (!missing.ok) expect(missing.problems.join("\n")).toContain("no independent research recomputation");
+
+    const failed = verify(goodReport(), OBJECTS, {}, new Error("registry unreadable"));
+    expect(failed.ok).toBe(false);
+    if (!failed.ok) expect(failed.problems.join("\n")).toContain("registry unreadable");
+  });
+
+  it("(21) CORRUPT: a source that changed since retrieval invalidates the screening", () => {
+    const result = verify(goodReport(), OBJECTS, {}, {
+      ...independentFacts(),
+      sourceProblems: ["soma-rp-model-card bytes changed since retrieval"],
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toContain("bytes changed since retrieval");
+
+    const empty = verify(goodReport(), OBJECTS, {}, { ...independentFacts(), retrievedSourceIds: [] });
+    expect(empty.ok).toBe(false);
+    if (!empty.ok) expect(empty.problems.join("\n")).toContain("nothing was screened");
+  });
+
+  it("(22) an uninspected skeleton and an unresolved divergence each block a confident verdict", () => {
+    const uninspected = verify(goodReport(), OBJECTS, {}, {
+      ...independentFacts(),
+      skeletonMappingInspected: false,
+    });
+    expect(uninspected.ok).toBe(false);
+    if (!uninspected.ok) expect(uninspected.problems.join("\n")).toContain("was not inspected");
+
+    // Unresolved divergence is compatible with `held` — the honest state — and with nothing else.
+    const stillHeld = verify(goodReport(), OBJECTS, {}, {
+      ...independentFacts(),
+      documentationDivergenceResolution: "unresolved",
+    });
+    expect(stillHeld.ok).toBe(true);
+
+    const screenedReport = goodReport();
+    const encounter = screenedReport["encounter"] as Record<string, unknown>;
+    encounter["verdict"] = "screened";
+    encounter["holdReasons"] = [];
+    encounter["nextUnblock"] = "compare against SC-06";
+    const asserted = verify(screenedReport, OBJECTS, {}, {
+      ...independentFacts(),
+      verdict: "screened",
+      holdReasons: [],
+      documentationDivergenceResolution: "unresolved",
+    });
+    expect(asserted.ok).toBe(false);
+    if (!asserted.ok) expect(asserted.problems.join("\n")).toContain("no verdict other than held");
+  });
+
+  it("(23) a performance number recorded while nothing was inferred is rejected", () => {
+    const report = goodReport();
+    (report["observations"] as unknown[]).push({
+      observationId: "obs-latency",
+      metric: "motion generation latency",
+      unit: "ms",
+      value: 4200,
+      observedAtMs: 2,
+      source: "claimed",
+    });
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toContain("while no motion inference was performed");
+  });
+
+  it("(24) a reported dimension table that disagrees with the recomputed one fails", () => {
+    const report = goodReport();
+    const dimensions = (report["encounter"] as Record<string, unknown>)["dimensions"] as Array<
+      Record<string, unknown>
+    >;
+    const encoder = dimensions.find((entry) => entry["id"] === "body-and-encoder-terms");
+    if (encoder) encoder["outcome"] = "eligible";
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toContain("body-and-encoder-terms is reported eligible");
+  });
+
+  it("(25) a report that simply OMITS a dimension is caught by the count, not by the outcomes", () => {
+    // Found by the two-sided gate: reverting the count check alone broke no test, because every
+    // other assertion here varies an outcome and the per-entry loop only walks entries that are
+    // PRESENT. Dropping the blocking dimension is the cheapest way to make a HOLD look clean, and
+    // until this test existed only the count clause stood between a report and that edit.
+    const report = goodReport();
+    const encounter = report["encounter"] as Record<string, unknown>;
+    const dimensions = encounter["dimensions"] as Array<Record<string, unknown>>;
+    encounter["dimensions"] = dimensions.filter((entry) => entry["id"] !== "body-and-encoder-terms");
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toContain("has 7 entries but 8 were recomputed");
   });
 
   it("(15) the CLI argv parser refuses an unknown flag, a bare argument and a missing report", () => {
