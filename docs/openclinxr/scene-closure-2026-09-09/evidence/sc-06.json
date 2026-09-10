@@ -26,10 +26,10 @@
     ]
   },
   "implementation": {
-    "productSourceCommit": "ef14f559f093f820416a30a5bd8929cbbd766714",
+    "productSourceCommit": "ee65b3b32baf868a198b6bb8c267980c01f710ec",
     "dependencyBaselineCommit": "27efa3d2e0615a2dc7435533724e7378a0371682",
     "changeCommits": [
-      "ef14f559f093f820416a30a5bd8929cbbd766714"
+      "ee65b3b32baf868a198b6bb8c267980c01f710ec"
     ],
     "treeClean": true,
     "inputs": [
@@ -55,11 +55,11 @@
       },
       {
         "path": "apps/ui-xr/src/main.ts",
-        "sha256": "b6e113a220d9a9ae7a4c459b1af01d788a98230277c5e569e543e272f1b3e60b"
+        "sha256": "0442c0c426a3e3d4e915988a33503dc97e775d309d8a1acd0646da25b95331a9"
       },
       {
         "path": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
-        "sha256": "0db6725db6e13dd1ddcba7d8218b0f2fe3f5a9027cda85403542857659867f4d"
+        "sha256": "4bc44aa292cf9f5c19877ecba93f64ed8b67318152e654a769355cef42e798ca"
       },
       {
         "path": "docs/openclinxr/doc-authority-registry-2026-05-27.json",
@@ -79,7 +79,7 @@
       },
       {
         "path": "packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts",
-        "sha256": "5d4f90a469341e3e662c6e8c257534039e4199b7f73643d96976a0604a98bb66"
+        "sha256": "3fbc2e6e8923e2cf2e613acc5ddf0097df9b0653bc44e1f9f9884e5aafbbf081"
       },
       {
         "path": "packages/openclinxr/asset-registry/package.json",
@@ -107,7 +107,7 @@
       },
       {
         "path": "packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts",
-        "sha256": "419ac9d5e7517a4041349ca83d3d1b4868d7b4a0c6cac5b766703654f1b2cf12"
+        "sha256": "06b89cdb1716a80b02433ee739855a27394a2270cf7032013a5f2abca2c3140e"
       },
       {
         "path": "packages/openclinxr/asset-registry/src/case-owned-scene-plan.ts",
@@ -115,7 +115,7 @@
       },
       {
         "path": "packages/openclinxr/asset-registry/src/encounter-bundle-admission.ts",
-        "sha256": "eb160557ec3910684442ee7ba4f9ee80b83bee78e57bcb903bff8a29f1e42672"
+        "sha256": "629d4e9052762c32947597fb57c2260c47d871aee52b4c72d7847d83ddf76f86"
       },
       {
         "path": "packages/openclinxr/asset-registry/src/frozen-scene-replay.ts",
@@ -159,7 +159,7 @@
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts",
-        "sha256": "a414a1efab48068b4ba99907f87e0deb6a74589517ea9bba6d6706ae53a4e7eb"
+        "sha256": "39ca5c31d2f33f929d0c064eb45d021e489cd3cb9ba9b903a8e7e26004fb8bee"
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/report-schema.ts",
@@ -167,7 +167,7 @@
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/two-sided-gate.sh",
-        "sha256": "915135d3ca4066c848e29d818e58af9b9111a1ddcca8a099583331bbbfceed65"
+        "sha256": "855d63fd2245e97a0127980f1d7c3d3846761b8e1442c31822fb2f4584a42248"
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verifier.test.ts",
@@ -237,13 +237,13 @@
         "path": "packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts",
         "forcedBy": "packages/openclinxr-verification/architecture-rules/src/archunit-tests/the-apps-are-composition-roots.test.ts:90",
         "derivation": "apps/ui-xr maxLines 6069 -> 6039 = measureAppSource('apps/ui-xr').lines after 53 lines of bundle inspection moved from encounter-bundle-boot into asset-registry/encounter-bundle-admission. maxFiles unchanged at 10.",
-        "reason": "clause (3) asserts expect(budget.maxLines).toBe(measured.lines) — exact equality, not a cap — so an app that shrinks MUST have its ceiling re-frozen or pnpm architecture fails. A tightening, and the number was computed by the gate rather than chosen."
+        "reason": "clause (3) asserts expect(budget.maxLines).toBe(measured.lines) \u2014 exact equality, not a cap \u2014 so an app that shrinks MUST have its ceiling re-frozen or pnpm architecture fails. A tightening, and the number was computed by the gate rather than chosen."
       },
       {
         "path": "docs/openclinxr/doc-authority-registry-2026-05-27.json",
         "forcedBy": "tools/agent-factory/check-openclaw-drift.ts via pnpm docs:drift-check",
         "derivation": "one `evidence` row for sc-06.md copied field-for-field from the sc-05 row beside it; counts.evidence 80 -> 81. Nothing removed, renamed or reinterpreted.",
-        "reason": "drift-check fails until a new Markdown evidence artifact is registered, and pnpm docs:authority REFUSES to regenerate in this worktree because it would remove 115 gitignored paths that are absent here and registered in main — a shrink of a protected registry. SC-05 registered its own report the same way and disclosed it."
+        "reason": "drift-check fails until a new Markdown evidence artifact is registered, and pnpm docs:authority REFUSES to regenerate in this worktree because it would remove 115 gitignored paths that are absent here and registered in main \u2014 a shrink of a protected registry. SC-05 registered its own report the same way and disclosed it."
       },
       {
         "path": "docs/openclinxr/generated-artifact-registry-2026-05-27.json",
@@ -366,7 +366,7 @@
     "baselineRevision": "27efa3d2e0615a2dc7435533724e7378a0371682",
     "baselineRunId": "sc06-baseline-27efa3d2",
     "failingAssertion": "a frozen bedside plan must carry the identities it was accepted against, and changed asset bytes must invalidate it",
-    "observedBeforeFix": "0 of 14 A09 fields on the accepted plan; geometryRevisionDigest identical (geom-v1-c45e274d-7) across a real body substitution whose sha256 differ (4a6d8a78… vs bc5b9009…); beginBedsideApproachExecution accepted the stale plan",
+    "observedBeforeFix": "0 of 14 A09 fields on the accepted plan; geometryRevisionDigest identical (geom-v1-c45e274d-7) across a real body substitution whose sha256 differ (4a6d8a78\u2026 vs bc5b9009\u2026); beginBedsideApproachExecution accepted the stale plan",
     "knownGoodControl": "the layout/refusal and supine byte-freeze regressions stayed green throughout: 18 passed before and after",
     "fixedRevision": "HEAD",
     "observedAfterFix": "14 of 14 A09 fields persisted; reproduction offset 0 m; changed, missing and corrupt evidence produce three distinct refusals",
@@ -734,7 +734,31 @@
       "runId": "sc06-run-2026-09-10"
     }
   ],
-  "reviews": [],
+  "reviews": [
+    {
+      "reviewerId": "sc-06-independent-reviewer-round-4 (separate agent session, meta/muse-spark-1.3-contributor, no authorship of the reviewed code)",
+      "role": "independent adversarial reviewer of the production wiring, the disk-digest clause and the two-sided gate",
+      "distinctFromImplementer": true,
+      "reviewedSourceCommit": "ee65b3b3",
+      "decision": "accepted",
+      "sessionIso": "2026-09-10T13:58:00.000Z",
+      "summary": "Accepted with defects, all non-blocking. Probed with rebuilds between legs: ungating updateStationBedsideApproach fails clause (ii-c); emptying the station table fails clause (ii) with expected 'refused' to be 'admitted'; replacing the committed record's digests with f*64 and routeLengthMeters with 99.5 fails clause (o) with the committed record drifted from the files on disk. The frame-loop gate can be FALSE in a shipped run (first frame seeds no_plan_carried; stale geometry refuses evidence_changed) and a null approachFrame is handled at main.ts:3480. Ratchets unmoved, registries add-only, all 38 diff paths inside the frozen scopes or the card's allowlist.",
+      "defects": [
+        {
+          "severity": "non-blocking",
+          "finding": "The BOOT-path admission result is still write-only. encounter-bundle-boot/index.ts:262 writes scenePlanAdmission and no production code reads it off the boot evidence; main.ts recomputes the admission itself at :3452. The boot refusal binds no encounter: it is evidence, not enforcement. The card's stated gate is the frame loop, which is honest."
+        },
+        {
+          "severity": "non-blocking",
+          "finding": "Agreement by construction at test :906-907: the clause binds the resolver table to two sources described as independent, but the table is hand-authored to match both."
+        },
+        {
+          "severity": "non-blocking",
+          "finding": "The behavior test is cwd-sensitive: it passes from the repo root and fails with ENOENT under pnpm --filter, because of a readFileSync relative to cwd."
+        }
+      ]
+    }
+  ],
   "limits": {
     "unprovenClinical": [
       "Clinical appropriateness of the frozen bedside side, standoff and working position is NOT established. Qualified clinical review is pending and no assertion in this card implies it."
@@ -747,7 +771,7 @@
     ],
     "unresolvedDefects": [
       "INDEPENDENT REVIEW OUTSTANDING. `reviews` is empty because this worker is the implementer and cannot supply an independent accepted review. The card's verifier requires one, so the direct CLI exits nonzero on this report until a distinct reviewer records theirs. This is the contract working, not a defect in the implementation.",
-      "The durable record type is DECLARED TWICE — authoritatively in packages/openclinxr/session-state/src/accepted-scene-plan.ts and pinned structurally in packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts. Neither package may import the other: session-state's manifest is pinned by exact equality (workspace-architecture.test.ts:1271) and an asset-registry edge rewrites pnpm-lock.yaml, outside this card's write roots. Clause (k0) of the behavior test compares the two declarations' field names read from source, so drift fails rather than passing silently.",
+      "The durable record type is DECLARED TWICE \u2014 authoritatively in packages/openclinxr/session-state/src/accepted-scene-plan.ts and pinned structurally in packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts. Neither package may import the other: session-state's manifest is pinned by exact equality (workspace-architecture.test.ts:1271) and an asset-registry edge rewrites pnpm-lock.yaml, outside this card's write roots. Clause (k0) of the behavior test compares the two declarations' field names read from source, so drift fails rather than passing silently.",
       "THREE FILES WERE EDITED OUTSIDE THIS CARD'S FROZEN WRITE ROOTS, each forced by a standing gate, each declared in implementation.registrationsOutsideWriteRoots with the gate that forced it and how its value was derived, each hashed in implementation.inputs, and each excluded from changedFiles so the scope audit reports what this card CHOSE to change. The verifier checks every declaration against an owner-pinned allowlist (SC06_ALLOWED_GATE_FORCED_PATHS), so the field cannot be used to launder an unrelated edit; verifier clauses 26-29 cover an unpinned path, an unhashed one, a blank derivation, a double-counted one and a missing section. The three are the ui-xr composition-root budget (6069 -> 6039, a tightening the exact-equality clause forces on any app that shrinks) and the two protected registries (one additive row each).",
       "TWO PROTECTED REGISTRIES WERE EDITED, ADDITIVELY, OUTSIDE THIS CARD'S WRITE ROOTS. docs/openclinxr/doc-authority-registry-2026-05-27.json gains one `evidence` entry for sc-06.md and docs/openclinxr/generated-artifact-registry-2026-05-27.json gains one `keep-evidence` entry for sc-06.json, both copied field-for-field from the sc-05 rows beside them. Nothing was removed, renamed or reinterpreted. They were edited by hand because `pnpm docs:authority` REFUSED to regenerate in this worktree: it would have removed 115 paths that are gitignored and therefore absent here but registered in main, which is a shrink of a protected registry. `pnpm docs:drift-check` fails without the two entries. SC-05 registered its own report the same way and disclosed it; this is that precedent, stated rather than assumed. They are hashed in `inputs` and excluded from `changedFiles`, as SC-05's report also excluded them. Round 2 re-encoded both with ensure_ascii off so only the added row and its counter differ: the round-1 diff was 46 lines because a JSON round trip re-escaped every existing em-dash, and it is now 18, all of them the new row or a counter.",
       "ROUND 2 SHIPPED TWO PRODUCTION CALL SITES THAT COULD NOT EXECUTE THEIR BODIES, and this card's own clause (m) certified them because it matched source patterns rather than behaviour. Reproduced here before fixing: an unconditional early return in both functions left DW1 18, DW3 1 and DW5 30 all passing. Clause (m0) now asserts returned status and gate rows 27-30 gut both bodies, each alone, and the case lookup.",
