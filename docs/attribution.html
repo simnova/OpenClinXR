@@ -100,10 +100,25 @@
 
         <h3>Recorded refusals</h3>
         <p class="status-copy">
-          The ledger records assets that were acquired, measured, and then <em>refused</em> &mdash; among them two
-          MakeHuman skin packs whose pack pages claim CC0 while individual files carry explicit AGPLv3 headers or no
-          licence line, and Mixamo, whose terms forbid redistributing raw animation files. Unspecified is treated as
-          a refusal. Those refusals are kept in the ledger by name so a later rebuild cannot quietly reintroduce them.
+          The ledger records assets that were acquired, measured, and then <em>refused</em> &mdash; among them
+          Mixamo, whose terms forbid redistributing raw animation files, and CMU motion capture, which may not be
+          resold even in converted form. Neither is a licence ambiguity: the restriction comes from someone other
+          than the page's publisher, so no page statement overrides it.
+        </p>
+        <h3>When a page and a file disagree</h3>
+        <p class="status-copy">
+          MakeHuman assets frequently carry a pack page claiming CC0 while an individual file says something else.
+          A ruling amended on 2026-09-10 settles which governs, in three shapes. Where the file is <strong>silent</strong>,
+          the page's grant governs &mdash; an omission is not a contradiction. Where the file carries
+          <strong>exporter template boilerplate</strong> a tool wrote rather than the author, the page governs.
+          Where a specific file carries an <strong>explicit copyleft notice</strong>, the page does <em>not</em>
+          govern by default: each such file needs a dated, named per-asset decision. Thirteen files are in that
+          class today and none has one, so all thirteen remain refused.
+        </p>
+        <p class="status-copy">
+          The bake gate that decides what reaches a shipped file is deliberately stricter than this ruling and still
+          refuses an absent licence line. An asset can be cleared by the ruling and still refused at bake time. That
+          is intended: the ruling governs acquisition, the gate governs bytes a browser can fetch.
         </p>
         <p class="evidence-note">
           Corrections welcome. If you authored something listed here and the attribution or the licence reading is
