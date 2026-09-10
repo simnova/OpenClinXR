@@ -26,10 +26,10 @@
     ]
   },
   "implementation": {
-    "productSourceCommit": "108c65fea6f039700f142e41937a6e42d2113991",
+    "productSourceCommit": "ef14f559f093f820416a30a5bd8929cbbd766714",
     "dependencyBaselineCommit": "27efa3d2e0615a2dc7435533724e7378a0371682",
     "changeCommits": [
-      "108c65fea6f039700f142e41937a6e42d2113991"
+      "ef14f559f093f820416a30a5bd8929cbbd766714"
     ],
     "treeClean": true,
     "inputs": [
@@ -55,11 +55,11 @@
       },
       {
         "path": "apps/ui-xr/src/main.ts",
-        "sha256": "779c761037f659ebc4e02def0b5d3abaed261d3dddc3746b0e775312db20bbfc"
+        "sha256": "b6e113a220d9a9ae7a4c459b1af01d788a98230277c5e569e543e272f1b3e60b"
       },
       {
         "path": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
-        "sha256": "56911924154f477a7880e32d580cd9e1777cbb2084423d0b835b0b618e575ae9"
+        "sha256": "0db6725db6e13dd1ddcba7d8218b0f2fe3f5a9027cda85403542857659867f4d"
       },
       {
         "path": "docs/openclinxr/doc-authority-registry-2026-05-27.json",
@@ -83,7 +83,7 @@
       },
       {
         "path": "packages/openclinxr/asset-registry/package.json",
-        "sha256": "7abdcbe90ed32f2de608641f4e7e13a9ee54aae317d129e3eb2e12b89fbf9db1"
+        "sha256": "5939888054b70e8765b3328c57456408bdf4987e75cbb09fad4b5079b872d382"
       },
       {
         "path": "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts",
@@ -106,12 +106,16 @@
         "sha256": "6175e5d5e3aee7a289792fea185bd78564daf6275e249f9f9c70bba53ec9ba60"
       },
       {
+        "path": "packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts",
+        "sha256": "419ac9d5e7517a4041349ca83d3d1b4868d7b4a0c6cac5b766703654f1b2cf12"
+      },
+      {
         "path": "packages/openclinxr/asset-registry/src/case-owned-scene-plan.ts",
         "sha256": "a84d81125155b5f07e82b6d1d17feefdc2b4915c6afa0c86bba2a6178c99227f"
       },
       {
         "path": "packages/openclinxr/asset-registry/src/encounter-bundle-admission.ts",
-        "sha256": "e5a28c5575f265f1eba3516adcfb3efc63fc90b821679869fa94ecb2c383deaf"
+        "sha256": "eb160557ec3910684442ee7ba4f9ee80b83bee78e57bcb903bff8a29f1e42672"
       },
       {
         "path": "packages/openclinxr/asset-registry/src/frozen-scene-replay.ts",
@@ -151,7 +155,11 @@
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/build-report.ts",
-        "sha256": "7f092e877029edc0da823ed3ac85a9356b3fc7a5ac4051a1899ecb9993ea3f09"
+        "sha256": "a73a7e8f2a640077a6e97d3801b28c38b1b23ae71ab556d6f060d3fd1ec2a851"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts",
+        "sha256": "a414a1efab48068b4ba99907f87e0deb6a74589517ea9bba6d6706ae53a4e7eb"
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/report-schema.ts",
@@ -159,19 +167,19 @@
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/two-sided-gate.sh",
-        "sha256": "c3c192354f24ab38c58bcfeae33081df03aa3042d1c562aedbe05901c4e9427e"
+        "sha256": "915135d3ca4066c848e29d818e58af9b9111a1ddcca8a099583331bbbfceed65"
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verifier.test.ts",
-        "sha256": "0a420ab55140375f1ec1868ad8c9f23b27009a6bb7b785294d463696444735c6"
+        "sha256": "943ff036778da06e94811913dedd5498ef43995a686a5f182dfeeb8019105e5a"
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify-core.ts",
-        "sha256": "efb3fa7840040fcd561f266917106d03254767d3ff7ab47f0e103342ee9c9582"
+        "sha256": "862e02ef7a2ae24e99a35b5bc8f79604160d515d245f05178b4882dd1528f0af"
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify.ts",
-        "sha256": "753cbcfc9e2dc9f8084cca1116ec5a4ce52a0427971c772c07b65058a47a50b6"
+        "sha256": "2bf002d24e89b60e862227bcc52587367e55e28386638b82d5eddacfd137921d"
       },
       {
         "path": "tools/openclinxr/evidence/supine-control-freeze/a-corrupt-artifact-is-refused.test.ts",
@@ -200,6 +208,7 @@
       "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
       "packages/openclinxr/asset-registry/package.json",
       "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts",
+      "packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts",
       "packages/openclinxr/asset-registry/src/case-owned-scene-plan.ts",
       "packages/openclinxr/asset-registry/src/encounter-bundle-admission.ts",
       "packages/openclinxr/asset-registry/src/frozen-scene-replay.ts",
@@ -212,6 +221,7 @@
       "packages/openclinxr/session-state/src/accepted-scene-plan.ts",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/baseline-replay-probe.ts",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/build-report.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/report-schema.ts",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/two-sided-gate.sh",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verifier.test.ts",
@@ -266,8 +276,8 @@
           "tools/openclinxr/evidence/supine-control-freeze/a-corrupt-artifact-is-refused.test.ts"
         ],
         "exitCode": 0,
-        "startedAtIso": "2026-09-10T05:01:51.848Z",
-        "endedAtIso": "2026-09-10T05:01:53.848Z",
+        "startedAtIso": "2026-09-10T05:39:13.779Z",
+        "endedAtIso": "2026-09-10T05:39:15.779Z",
         "tests": {
           "passed": 18,
           "failed": 0,
@@ -285,8 +295,8 @@
           "tools/openclinxr/evidence/the-client-entry-does-not-reach-node-builtins.test.ts"
         ],
         "exitCode": 0,
-        "startedAtIso": "2026-09-10T05:01:52.581Z",
-        "endedAtIso": "2026-09-10T05:01:54.581Z",
+        "startedAtIso": "2026-09-10T05:39:14.497Z",
+        "endedAtIso": "2026-09-10T05:39:16.498Z",
         "tests": {
           "passed": 6,
           "failed": 0,
@@ -304,8 +314,8 @@
           "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts"
         ],
         "exitCode": 0,
-        "startedAtIso": "2026-09-10T05:01:54.567Z",
-        "endedAtIso": "2026-09-10T05:01:56.568Z",
+        "startedAtIso": "2026-09-10T05:39:16.498Z",
+        "endedAtIso": "2026-09-10T05:39:18.499Z",
         "tests": {
           "passed": 1,
           "failed": 0,
@@ -324,8 +334,8 @@
           "SC-06-required-behavior"
         ],
         "exitCode": 0,
-        "startedAtIso": "2026-09-10T05:01:55.062Z",
-        "endedAtIso": "2026-09-10T05:01:57.063Z",
+        "startedAtIso": "2026-09-10T05:39:17.005Z",
+        "endedAtIso": "2026-09-10T05:39:19.006Z",
         "outputArtifactId": "sc06-cmd4-contract-live"
       },
       {
@@ -337,8 +347,8 @@
           "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verifier.test.ts"
         ],
         "exitCode": 0,
-        "startedAtIso": "2026-09-10T05:01:55.781Z",
-        "endedAtIso": "2026-09-10T05:01:57.781Z",
+        "startedAtIso": "2026-09-10T05:39:17.724Z",
+        "endedAtIso": "2026-09-10T05:39:19.725Z",
         "tests": {
           "passed": 25,
           "failed": 0,
@@ -648,9 +658,9 @@
       "storeAlias": "sc-evidence",
       "objectKey": "sc-06/cmd1-regressions.txt",
       "byteCount": 224,
-      "sha256": "3ba8a4fd51b13eacde83486df940c954584867f3b93683dbb0eccfe2eeb9f920",
+      "sha256": "17fe61f675225f34d2b71992989f24f464595068c10d1fa249276487d12f5c29",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T05:01:53.848Z",
+      "createdAtIso": "2026-09-10T05:39:15.779Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
@@ -658,9 +668,9 @@
       "storeAlias": "sc-evidence",
       "objectKey": "sc-06/cmd2-client-entry.txt",
       "byteCount": 219,
-      "sha256": "4dd912a371b4c0fdd370148b05480bdd227cf057042b252febafd46ab39782e0",
+      "sha256": "ddaf509b844997396988db667a5484d132543f6ba515aca9f63b0bb81db15f7c",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T05:01:54.581Z",
+      "createdAtIso": "2026-09-10T05:39:16.498Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
@@ -668,9 +678,9 @@
       "storeAlias": "sc-evidence",
       "objectKey": "sc-06/cmd3-behavior.txt",
       "byteCount": 222,
-      "sha256": "2dcfd59e11ed2f577957f64205b0caf1d78ad5a91bb7f5216335acc9eb0cd2d1",
+      "sha256": "d3f6c584b21fec3048fdcb8992d27f73de7e7d688f58fdc57db9f3c2aff05daf",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T05:01:56.568Z",
+      "createdAtIso": "2026-09-10T05:39:18.499Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
@@ -680,7 +690,7 @@
       "byteCount": 128,
       "sha256": "802cbcdf862c2c7a3f85485a1a166588755ce9deb2d8b578b709f5e80e2cb45c",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T05:01:57.063Z",
+      "createdAtIso": "2026-09-10T05:39:19.006Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
@@ -688,9 +698,9 @@
       "storeAlias": "sc-evidence",
       "objectKey": "sc-06/cmd5-verifier-unit.txt",
       "byteCount": 221,
-      "sha256": "44c672f338dce071a0947492aef2a83a92c0b930aa8943dd9033b64471014f58",
+      "sha256": "258a4c94f9352e87e13a7a854a72490e7bbb1b037d0851eb4b671d926b2d8449",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T05:01:57.781Z",
+      "createdAtIso": "2026-09-10T05:39:19.725Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
@@ -700,27 +710,27 @@
       "byteCount": 1293,
       "sha256": "9c9333734af72768d183b2aa15338d860bd6cac69bd8510d18a718772ed5736c",
       "mediaType": "application/x-ndjson",
-      "createdAtIso": "2026-09-10T05:03:04.220Z",
+      "createdAtIso": "2026-09-10T05:39:43.630Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
       "artifactId": "sc06-two-sided-gate",
       "storeAlias": "sc-evidence",
       "objectKey": "sc-06/two-sided-gate.txt",
-      "byteCount": 3864,
-      "sha256": "99e0ef628359a2b20ac4c1abc2d1d4c6a7c8f8044be5a6474bc2f0eb77fceed8",
+      "byteCount": 4592,
+      "sha256": "ca49fd84d80eaf35f37e9b02a983fe23a6abbbac260b5d182a8709c9fd11e19a",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T05:01:53.037Z",
+      "createdAtIso": "2026-09-10T05:39:14.991Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
       "artifactId": "sc06-verifier-cli-probes",
       "storeAlias": "sc-evidence",
       "objectKey": "sc-06/verifier-cli-probes.txt",
-      "byteCount": 2360,
-      "sha256": "32d0943dcf767121242a89f7d2c14ec8e29dd20b6e83633e93bfc7276ae14d23",
+      "byteCount": 2446,
+      "sha256": "26f3eae9970050af93682ca31191cba11e3e15dc5809a7340492c61b63073649",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T05:03:06.783Z",
+      "createdAtIso": "2026-09-10T05:39:46.829Z",
       "runId": "sc06-run-2026-09-10"
     }
   ],
@@ -740,8 +750,9 @@
       "The durable record type is DECLARED TWICE — authoritatively in packages/openclinxr/session-state/src/accepted-scene-plan.ts and pinned structurally in packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts. Neither package may import the other: session-state's manifest is pinned by exact equality (workspace-architecture.test.ts:1271) and an asset-registry edge rewrites pnpm-lock.yaml, outside this card's write roots. Clause (k0) of the behavior test compares the two declarations' field names read from source, so drift fails rather than passing silently.",
       "THREE FILES WERE EDITED OUTSIDE THIS CARD'S FROZEN WRITE ROOTS, each forced by a standing gate, each declared in implementation.registrationsOutsideWriteRoots with the gate that forced it and how its value was derived, each hashed in implementation.inputs, and each excluded from changedFiles so the scope audit reports what this card CHOSE to change. The verifier checks every declaration against an owner-pinned allowlist (SC06_ALLOWED_GATE_FORCED_PATHS), so the field cannot be used to launder an unrelated edit; verifier clauses 26-29 cover an unpinned path, an unhashed one, a blank derivation, a double-counted one and a missing section. The three are the ui-xr composition-root budget (6069 -> 6039, a tightening the exact-equality clause forces on any app that shrinks) and the two protected registries (one additive row each).",
       "TWO PROTECTED REGISTRIES WERE EDITED, ADDITIVELY, OUTSIDE THIS CARD'S WRITE ROOTS. docs/openclinxr/doc-authority-registry-2026-05-27.json gains one `evidence` entry for sc-06.md and docs/openclinxr/generated-artifact-registry-2026-05-27.json gains one `keep-evidence` entry for sc-06.json, both copied field-for-field from the sc-05 rows beside them. Nothing was removed, renamed or reinterpreted. They were edited by hand because `pnpm docs:authority` REFUSED to regenerate in this worktree: it would have removed 115 paths that are gitignored and therefore absent here but registered in main, which is a shrink of a protected registry. `pnpm docs:drift-check` fails without the two entries. SC-05 registered its own report the same way and disclosed it; this is that precedent, stated rather than assumed. They are hashed in `inputs` and excluded from `changedFiles`, as SC-05's report also excluded them. Round 2 re-encoded both with ensure_ascii off so only the added row and its counter differ: the round-1 diff was 46 lines because a JSON round trip re-escaped every existing em-dash, and it is now 18, all of them the new row or a counter.",
-      "ONE ARTIFACT CANNOT BE HASHED BY THE REPORT IT GRADES: sc06-verifier-cli-probes is a transcript of running this verifier against this report, and the report hashes every store artifact, so the transcript necessarily describes the report as it stood one build earlier. The two differ in exactly one field, that artifact's own byteCount and sha256; every refusal in the transcript is a property of the verifier rather than of that line. Stated in the transcript's own header too, so a reader who opens it alone still sees the boundary.",
-      "A STALE ARTIFACT HASH WAS SHIPPED IN THE ROUND-2 REPORT AND THIS CARD'S OWN VERIFIER CAUGHT IT. The report was built before the two-sided gate was re-run, so sc06-two-sided-gate carried round 1's 2083 bytes and digest 890285ca while disk held round 2's 3396 bytes and 7dc92c35. The store write was 00:49:13 and the report commit 00:46:55. Repair: every artifact and input digest is re-derived from disk at build time, so the fix is ordering — the report is now built AFTER the last evidence write, and this run rebuilt it last. Recorded rather than silently rehashed; it is the third time on this package a verifier has caught its own author's post-report edit.",
+      "ROUND 2 SHIPPED TWO PRODUCTION CALL SITES THAT COULD NOT EXECUTE THEIR BODIES, and this card's own clause (m) certified them because it matched source patterns rather than behaviour. Reproduced here before fixing: an unconditional early return in both functions left DW1 18, DW3 1 and DW5 30 all passing. Clause (m0) now asserts returned status and gate rows 27-30 gut both bodies, each alone, and the case lookup.",
+      "THE SHIPPED DEFAULT PATH REFUSES, and it is named rather than worked around. createEdChestPainLocalLearnerRuntimeAssetBundle stamps stationId: input.stationId ?? \"ed_chest_pain_station_v1\" (runtime-bundles.ts:761) for every scenario, so the fixture bundle for this case is refused as bound to another station. Correct behaviour, and an executed body rather than a no-op. Reaching `admitted` in a shipped run needs a server-supplied bundle carrying its own plan, or a producer that stamps the case's station; the producer accepts a stationId and its default was NOT changed, because inspectPinnedBundleIdentity compares that field and restamping it would move identity checks for every case for a reason belonging to none of them.",
+      "ROUND 2'S SCOPE-AUDIT CLAIM WAS OVERSTATED AND IS CORRECTED. It said an undeclared out-of-scope change still fails; a reviewer appended a comment to an out-of-scope file and got byte-identical output, because changedFiles was report-authored and nothing consulted git. The CLI now measures the tree against a baseline pinned in the verifier's own source, and verifier clauses 30-32 plus gate row 31 cover it.",
       "`pnpm typecheck` fails on its guardrails leg at this head AND at the unchanged baseline 27efa3d2, with identical output: 16 tsconfig files relax noPropertyAccessFromIndexSignature and one enables skipLibCheck. Pre-existing; this card changed no tsconfig. The other three typecheck legs pass."
     ]
   },
