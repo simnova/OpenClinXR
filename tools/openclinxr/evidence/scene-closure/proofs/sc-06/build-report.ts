@@ -517,6 +517,12 @@ function main(): void {
       + "as SC-05's report also excluded them. Round 2 re-encoded both with ensure_ascii off so only "
       + "the added row and its counter differ: the round-1 diff was 46 lines because a JSON round trip "
       + "re-escaped every existing em-dash, and it is now 18, all of them the new row or a counter.",
+      "ONE ARTIFACT CANNOT BE HASHED BY THE REPORT IT GRADES: sc06-verifier-cli-probes is a "
+      + "transcript of running this verifier against this report, and the report hashes every store "
+      + "artifact, so the transcript necessarily describes the report as it stood one build earlier. "
+      + "The two differ in exactly one field, that artifact's own byteCount and sha256; every refusal "
+      + "in the transcript is a property of the verifier rather than of that line. Stated in the "
+      + "transcript's own header too, so a reader who opens it alone still sees the boundary.",
       "A STALE ARTIFACT HASH WAS SHIPPED IN THE ROUND-2 REPORT AND THIS CARD'S OWN VERIFIER CAUGHT "
       + "IT. The report was built before the two-sided gate was re-run, so sc06-two-sided-gate carried "
       + "round 1's 2083 bytes and digest 890285ca while disk held round 2's 3396 bytes and 7dc92c35. "

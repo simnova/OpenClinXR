@@ -26,10 +26,10 @@
     ]
   },
   "implementation": {
-    "productSourceCommit": "f9402068f47f02a4497c2772881f6172e8c9f051",
+    "productSourceCommit": "ff90f29aecb06e3062ab6ff01e72568fde71d301",
     "dependencyBaselineCommit": "27efa3d2e0615a2dc7435533724e7378a0371682",
     "changeCommits": [
-      "f9402068f47f02a4497c2772881f6172e8c9f051"
+      "ff90f29aecb06e3062ab6ff01e72568fde71d301"
     ],
     "treeClean": true,
     "inputs": [
@@ -151,23 +151,23 @@
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/build-report.ts",
-        "sha256": "6d93b791569fe50eee68fb0c94fa14d907bf2d71e95668a559d500ac706299b3"
+        "sha256": "0368f9dee3ced51149988493b080c88574b733ea30da160ff9a4780c6cd26e45"
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/report-schema.ts",
-        "sha256": "33fd29ea48f08bf4135dd277b998907cea30565df710b9edfe47226ddeccc24c"
+        "sha256": "3b5a63fdfecc6e7c26a3d47ec0318a44a69e3d76840f2202032c373abb7e090e"
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/two-sided-gate.sh",
-        "sha256": "62643f90c2340b26749a010d51c8718fda1bfa1d598b1d6db86e81a78df5b1f2"
+        "sha256": "c3c192354f24ab38c58bcfeae33081df03aa3042d1c562aedbe05901c4e9427e"
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verifier.test.ts",
-        "sha256": "98c11238a0bc64ccff3d848e7e9a945c34d885766a8f94956d49226d41739c96"
+        "sha256": "0a420ab55140375f1ec1868ad8c9f23b27009a6bb7b785294d463696444735c6"
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify-core.ts",
-        "sha256": "d566f2c29cd2fdc80c01fb7360d36bc24a721872e5948ac619110256fee60150"
+        "sha256": "efb3fa7840040fcd561f266917106d03254767d3ff7ab47f0e103342ee9c9582"
       },
       {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify.ts",
@@ -198,7 +198,6 @@
       "apps/ui-xr/src/encounter-bundle-boot/index.ts",
       "apps/ui-xr/src/main.ts",
       "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
-      "packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts",
       "packages/openclinxr/asset-registry/package.json",
       "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts",
       "packages/openclinxr/asset-registry/src/case-owned-scene-plan.ts",
@@ -222,6 +221,26 @@
       "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.record.json",
       "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts",
       "tools/openclinxr/evidence/supine-control-freeze/the-supine-control-station-is-frozen-by-asset-bytes.test.ts"
+    ],
+    "registrationsOutsideWriteRoots": [
+      {
+        "path": "packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts",
+        "forcedBy": "packages/openclinxr-verification/architecture-rules/src/archunit-tests/the-apps-are-composition-roots.test.ts:90",
+        "derivation": "apps/ui-xr maxLines 6069 -> 6039 = measureAppSource('apps/ui-xr').lines after 53 lines of bundle inspection moved from encounter-bundle-boot into asset-registry/encounter-bundle-admission. maxFiles unchanged at 10.",
+        "reason": "clause (3) asserts expect(budget.maxLines).toBe(measured.lines) — exact equality, not a cap — so an app that shrinks MUST have its ceiling re-frozen or pnpm architecture fails. A tightening, and the number was computed by the gate rather than chosen."
+      },
+      {
+        "path": "docs/openclinxr/doc-authority-registry-2026-05-27.json",
+        "forcedBy": "tools/agent-factory/check-openclaw-drift.ts via pnpm docs:drift-check",
+        "derivation": "one `evidence` row for sc-06.md copied field-for-field from the sc-05 row beside it; counts.evidence 80 -> 81. Nothing removed, renamed or reinterpreted.",
+        "reason": "drift-check fails until a new Markdown evidence artifact is registered, and pnpm docs:authority REFUSES to regenerate in this worktree because it would remove 115 gitignored paths that are absent here and registered in main — a shrink of a protected registry. SC-05 registered its own report the same way and disclosed it."
+      },
+      {
+        "path": "docs/openclinxr/generated-artifact-registry-2026-05-27.json",
+        "forcedBy": "tools/agent-factory/check-openclaw-drift.ts via pnpm docs:drift-check",
+        "derivation": "one `keep-evidence` row for sc-06.json copied from the sc-05 row; counts.keep-evidence 143 -> 144 and entries/total 2440 -> 2441. Re-encoded with ensure_ascii off so only the added row and its counters differ: 18 changed lines against the 46 of round 1.",
+        "reason": "same standing gate as the row above; additive only."
+      }
     ],
     "runtime": {
       "node": "v24.18.1",
@@ -247,8 +266,8 @@
           "tools/openclinxr/evidence/supine-control-freeze/a-corrupt-artifact-is-refused.test.ts"
         ],
         "exitCode": 0,
-        "startedAtIso": "2026-09-10T04:46:21.815Z",
-        "endedAtIso": "2026-09-10T04:46:23.815Z",
+        "startedAtIso": "2026-09-10T05:01:51.848Z",
+        "endedAtIso": "2026-09-10T05:01:53.848Z",
         "tests": {
           "passed": 18,
           "failed": 0,
@@ -266,8 +285,8 @@
           "tools/openclinxr/evidence/the-client-entry-does-not-reach-node-builtins.test.ts"
         ],
         "exitCode": 0,
-        "startedAtIso": "2026-09-10T04:46:22.515Z",
-        "endedAtIso": "2026-09-10T04:46:24.516Z",
+        "startedAtIso": "2026-09-10T05:01:52.581Z",
+        "endedAtIso": "2026-09-10T05:01:54.581Z",
         "tests": {
           "passed": 6,
           "failed": 0,
@@ -285,8 +304,8 @@
           "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts"
         ],
         "exitCode": 0,
-        "startedAtIso": "2026-09-10T04:46:24.516Z",
-        "endedAtIso": "2026-09-10T04:46:26.517Z",
+        "startedAtIso": "2026-09-10T05:01:54.567Z",
+        "endedAtIso": "2026-09-10T05:01:56.568Z",
         "tests": {
           "passed": 1,
           "failed": 0,
@@ -305,8 +324,8 @@
           "SC-06-required-behavior"
         ],
         "exitCode": 0,
-        "startedAtIso": "2026-09-10T04:46:25.005Z",
-        "endedAtIso": "2026-09-10T04:46:27.005Z",
+        "startedAtIso": "2026-09-10T05:01:55.062Z",
+        "endedAtIso": "2026-09-10T05:01:57.063Z",
         "outputArtifactId": "sc06-cmd4-contract-live"
       },
       {
@@ -318,8 +337,8 @@
           "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verifier.test.ts"
         ],
         "exitCode": 0,
-        "startedAtIso": "2026-09-10T04:46:25.700Z",
-        "endedAtIso": "2026-09-10T04:46:27.700Z",
+        "startedAtIso": "2026-09-10T05:01:55.781Z",
+        "endedAtIso": "2026-09-10T05:01:57.781Z",
         "tests": {
           "passed": 25,
           "failed": 0,
@@ -629,9 +648,9 @@
       "storeAlias": "sc-evidence",
       "objectKey": "sc-06/cmd1-regressions.txt",
       "byteCount": 224,
-      "sha256": "3aa80e78cfd416f7ddeb8df851b1e4ec74501aea85749a39ca9124b96bee5e6e",
+      "sha256": "3ba8a4fd51b13eacde83486df940c954584867f3b93683dbb0eccfe2eeb9f920",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T04:46:23.815Z",
+      "createdAtIso": "2026-09-10T05:01:53.848Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
@@ -639,9 +658,9 @@
       "storeAlias": "sc-evidence",
       "objectKey": "sc-06/cmd2-client-entry.txt",
       "byteCount": 219,
-      "sha256": "c99dcc8c79d277ca053005a6e1e424fb6b6862e66dd1337a606599d43ce7bd7c",
+      "sha256": "4dd912a371b4c0fdd370148b05480bdd227cf057042b252febafd46ab39782e0",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T04:46:24.516Z",
+      "createdAtIso": "2026-09-10T05:01:54.581Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
@@ -649,9 +668,9 @@
       "storeAlias": "sc-evidence",
       "objectKey": "sc-06/cmd3-behavior.txt",
       "byteCount": 222,
-      "sha256": "53acabc46551b47e98610a987c946a952d1d06c92ff2e71b7a44ec3998931540",
+      "sha256": "2dcfd59e11ed2f577957f64205b0caf1d78ad5a91bb7f5216335acc9eb0cd2d1",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T04:46:26.517Z",
+      "createdAtIso": "2026-09-10T05:01:56.568Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
@@ -661,17 +680,17 @@
       "byteCount": 128,
       "sha256": "802cbcdf862c2c7a3f85485a1a166588755ce9deb2d8b578b709f5e80e2cb45c",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T04:46:27.005Z",
+      "createdAtIso": "2026-09-10T05:01:57.063Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
       "artifactId": "sc06-cmd5-verifier-unit",
       "storeAlias": "sc-evidence",
       "objectKey": "sc-06/cmd5-verifier-unit.txt",
-      "byteCount": 220,
-      "sha256": "8b9a1985186d708c34750c9b122bc4e2296f70608d8941bf24cca7a5871700cf",
+      "byteCount": 221,
+      "sha256": "44c672f338dce071a0947492aef2a83a92c0b930aa8943dd9033b64471014f58",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T04:46:27.700Z",
+      "createdAtIso": "2026-09-10T05:01:57.781Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
@@ -681,27 +700,27 @@
       "byteCount": 1293,
       "sha256": "9c9333734af72768d183b2aa15338d860bd6cac69bd8510d18a718772ed5736c",
       "mediaType": "application/x-ndjson",
-      "createdAtIso": "2026-09-10T04:46:26.514Z",
+      "createdAtIso": "2026-09-10T05:02:16.286Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
       "artifactId": "sc06-two-sided-gate",
       "storeAlias": "sc-evidence",
       "objectKey": "sc-06/two-sided-gate.txt",
-      "byteCount": 2083,
-      "sha256": "890285caba960fef8b38fbf67e9e8b5975107c4404ba67b2b2abbc6bc5198f1b",
+      "byteCount": 3864,
+      "sha256": "99e0ef628359a2b20ac4c1abc2d1d4c6a7c8f8044be5a6474bc2f0eb77fceed8",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T03:55:52.179Z",
+      "createdAtIso": "2026-09-10T05:01:53.037Z",
       "runId": "sc06-run-2026-09-10"
     },
     {
       "artifactId": "sc06-verifier-cli-probes",
       "storeAlias": "sc-evidence",
       "objectKey": "sc-06/verifier-cli-probes.txt",
-      "byteCount": 1854,
-      "sha256": "df25a07a098ec115f843b170231516cc8f2677abddf0a107d14cbc82185c6c9f",
+      "byteCount": 2961,
+      "sha256": "59ffc9e142047fa37ccbf94802c7a208245228f686fbafa0f24a9b5755b62238",
       "mediaType": "text/plain",
-      "createdAtIso": "2026-09-10T04:03:41.814Z",
+      "createdAtIso": "2026-09-10T05:02:18.846Z",
       "runId": "sc06-run-2026-09-10"
     }
   ],
@@ -719,8 +738,9 @@
     "unresolvedDefects": [
       "INDEPENDENT REVIEW OUTSTANDING. `reviews` is empty because this worker is the implementer and cannot supply an independent accepted review. The card's verifier requires one, so the direct CLI exits nonzero on this report until a distinct reviewer records theirs. This is the contract working, not a defect in the implementation.",
       "The durable record type is DECLARED TWICE — authoritatively in packages/openclinxr/session-state/src/accepted-scene-plan.ts and pinned structurally in packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts. Neither package may import the other: session-state's manifest is pinned by exact equality (workspace-architecture.test.ts:1271) and an asset-registry edge rewrites pnpm-lock.yaml, outside this card's write roots. Clause (k0) of the behavior test compares the two declarations' field names read from source, so drift fails rather than passing silently.",
-      "THE ui-xr COMPOSITION-ROOT BUDGET WAS RE-FROZEN DOWNWARD, OUTSIDE THIS CARD'S WRITE ROOTS, and it is listed in changedFiles rather than excluded, so this verifier reports it as a third unmet requirement. packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts:59-62, apps/ui-xr maxLines 6069 -> 6039. It is a TIGHTENING, not a weakening: clause (3) of the-apps-are-composition-roots.test.ts requires `budget.maxLines === measured.lines` exactly, so an app that shrinks MUST have its ceiling re-frozen at the new measurement or the gate fails. Moving 53 lines out of the app was what paid for wiring the reopen into the boot path and the frame loop, since apps/ui-xr sat at exactly 10 files / 6,069 lines and could not gain a line. No other budget changed and apps/api is untouched at 7 / 799.",
+      "THREE FILES WERE EDITED OUTSIDE THIS CARD'S FROZEN WRITE ROOTS, each forced by a standing gate, each declared in implementation.registrationsOutsideWriteRoots with the gate that forced it and how its value was derived, each hashed in implementation.inputs, and each excluded from changedFiles so the scope audit reports what this card CHOSE to change. The verifier checks every declaration against an owner-pinned allowlist (SC06_ALLOWED_GATE_FORCED_PATHS), so the field cannot be used to launder an unrelated edit; verifier clauses 26-29 cover an unpinned path, an unhashed one, a blank derivation, a double-counted one and a missing section. The three are the ui-xr composition-root budget (6069 -> 6039, a tightening the exact-equality clause forces on any app that shrinks) and the two protected registries (one additive row each).",
       "TWO PROTECTED REGISTRIES WERE EDITED, ADDITIVELY, OUTSIDE THIS CARD'S WRITE ROOTS. docs/openclinxr/doc-authority-registry-2026-05-27.json gains one `evidence` entry for sc-06.md and docs/openclinxr/generated-artifact-registry-2026-05-27.json gains one `keep-evidence` entry for sc-06.json, both copied field-for-field from the sc-05 rows beside them. Nothing was removed, renamed or reinterpreted. They were edited by hand because `pnpm docs:authority` REFUSED to regenerate in this worktree: it would have removed 115 paths that are gitignored and therefore absent here but registered in main, which is a shrink of a protected registry. `pnpm docs:drift-check` fails without the two entries. SC-05 registered its own report the same way and disclosed it; this is that precedent, stated rather than assumed. They are hashed in `inputs` and excluded from `changedFiles`, as SC-05's report also excluded them. Round 2 re-encoded both with ensure_ascii off so only the added row and its counter differ: the round-1 diff was 46 lines because a JSON round trip re-escaped every existing em-dash, and it is now 18, all of them the new row or a counter.",
+      "A STALE ARTIFACT HASH WAS SHIPPED IN THE ROUND-2 REPORT AND THIS CARD'S OWN VERIFIER CAUGHT IT. The report was built before the two-sided gate was re-run, so sc06-two-sided-gate carried round 1's 2083 bytes and digest 890285ca while disk held round 2's 3396 bytes and 7dc92c35. The store write was 00:49:13 and the report commit 00:46:55. Repair: every artifact and input digest is re-derived from disk at build time, so the fix is ordering — the report is now built AFTER the last evidence write, and this run rebuilt it last. Recorded rather than silently rehashed; it is the third time on this package a verifier has caught its own author's post-report edit.",
       "`pnpm typecheck` fails on its guardrails leg at this head AND at the unchanged baseline 27efa3d2, with identical output: 16 tsconfig files relax noPropertyAccessFromIndexSignature and one enables skipLibCheck. Pre-existing; this card changed no tsconfig. The other three typecheck legs pass."
     ]
   },
