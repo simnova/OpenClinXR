@@ -34,6 +34,7 @@ import {
   collectVoiceStream,
   type VoiceGateway,
 } from "@openclinxr/voice-gateway";
+import { admitEncounterOrThrow, advanceScheduledEffects, applyScheduledEffects, createEncounterAdmissionHost, type EncounterAdmissionHost, type EncounterAdmissionSnapshot, recordRequirementObservation, type SceneRequirementObservation, type ScheduledEffectResult } from "./encounter-admission-runtime.js";
 import { resolveCaseEmotionPolicy } from "./emotion-policy.js";
 import {
   actorInteractionRoutePayload,
@@ -122,6 +123,8 @@ export class ScenarioRuntime {
       emotionPolicy,
       frozenActorTurnPlans: new Map(),
       emittedScheduledEventIds: new Set<string>(),
+      requirementObservations: new Map(),
+      scheduledEffectAttempts: new Map(),
     };
     if (assembledStation) {
       sessionRecord.assembledStation = assembledStation;
@@ -138,6 +141,7 @@ export class ScenarioRuntime {
   startEncounter(stationRunId: string, input: StartEncounterInput): RuntimeSessionSummary {
     const session = this.requireSession(stationRunId);
     const domainAtSecond = this.assembledDomainAtSecond(session, input.atSecond, session.assembledStation?.formTiming.encounter, "encounter.started");
+    admitEncounterOrThrow(this.admissionHost(), session, domainAtSecond);
     session.run = transitionStation(session.run, { type: "START_ENCOUNTER", atSecond: domainAtSecond });
     if (session.assembledStation) {
       this.appendAssembledPhase(session, "encounter.started", "encounter", input.atSecond, session.assembledStation.formTiming.encounter);
@@ -605,18 +609,22 @@ export class ScenarioRuntime {
     return this.options.assetRegistry.evaluateScenarioReadiness(this.options.scenario);
   }
 
-  /**
-   * Advance scheduled events for a station run up to the given second.
-   * Returns the events that are newly emitted at or before `atSecond` and have not been emitted before.
-   * Events are emitted exactly once per session, tracked in the session record.
-   */
+  /** Events newly due at or before `atSecond`, applied at the effect consumer when one is wired. */
   advanceScheduledEvents(stationRunId: string, atSecond: number): ScheduledEvent[] {
-    const session = this.requireSession(stationRunId);
-    const due = getScheduledEventsDue(this.options.scenario, atSecond, session.emittedScheduledEventIds);
-    for (const event of due) {
-      session.emittedScheduledEventIds.add(event.eventId);
-    }
-    return due;
+    return advanceScheduledEffects(this.admissionHost(), this.requireSession(stationRunId), atSecond);
+  }
+  recordRequirementObservation(stationRunId: string, observation: SceneRequirementObservation): SceneRequirementObservation {
+    return recordRequirementObservation(this.admissionHost(), this.requireSession(stationRunId), observation);
+  }
+  encounterAdmissionSnapshot(stationRunId: string): EncounterAdmissionSnapshot | undefined {
+    return this.requireSession(stationRunId).encounterAdmission;
+  }
+  /** Apply scheduled effects due at `atSecond` at the actual consumer, with retry and stop signal. */
+  applyScheduledEffects(stationRunId: string, atSecond: number): ScheduledEffectResult {
+    return applyScheduledEffects(this.admissionHost(), this.requireSession(stationRunId), atSecond);
+  }
+  private admissionHost(): EncounterAdmissionHost {
+    return createEncounterAdmissionHost(this.options.scenario, this.options.encounterAdmission, this.appendTrace.bind(this));
   }
 
   scenarioPublicationReadiness(input: ScenarioPublicationReadinessInput): ScenarioPublicationReadiness {

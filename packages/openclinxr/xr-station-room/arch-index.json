@@ -24,6 +24,7 @@
     "actorNameplateLabel",
     "assembleStationScene",
     "buildStationRoomShell",
+    "observeMountedSupportInstances",
     "runtimeGeneratedSceneObjectName",
     "stageStationActors",
     "wireStationPointerInteraction"

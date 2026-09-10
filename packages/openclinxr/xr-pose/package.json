@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./actor-floor-composition": {
+      "types": "./dist/actor-floor-composition.d.ts",
+      "default": "./dist/actor-floor-composition.js"
     }
   },
   "scripts": {

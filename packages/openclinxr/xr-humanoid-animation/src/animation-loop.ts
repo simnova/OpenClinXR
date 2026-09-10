@@ -1,8 +1,6 @@
-import type { PerspectiveCamera } from "three";
-import { generatedDriveScalar } from "@openclinxr/xr-runtime-state";
 import {
-  applyGeneratedScalarVisemeToRoot,
   applyGazeToHumanoid,
+  applyGeneratedScalarVisemeToRoot,
   applyNamedSpeechVisemes,
   expressionWeightsForEmotion,
   phonemesForText,
@@ -14,7 +12,9 @@ import {
   holdSupinePlantFrame,
   reapplySupineHeadToStoredPillow,
 } from "@openclinxr/xr-pose";
+import { generatedDriveScalar } from "@openclinxr/xr-runtime-state";
 import { applyRealGarmentEvidenceSurfaces, sleeveDeformCueForAssetPath } from "@openclinxr/xr-scene";
+import type { PerspectiveCamera } from "three";
 import {
   applyHumanoidFaceRigControls,
   applyHumanoidMorphTargetCue,
@@ -28,8 +28,8 @@ import {
   visemeOpenness,
 } from "./face-rig.js";
 import { buildHumanoidSpeechEvidence, resolveHumanoidGazeTargetWorld, updateHumanoidGazeCue, updateVirtualDeviceActorSpeechPulses } from "./gaze-evidence.js";
-import { recordRuntimeHumanoidActingCueEvidence, writeHumanoidSpeechFrameEvidence, writeMouthGazePoseComparatorEvidence } from "./speech-evidence.js";
 import { playLocomotionClip } from "./locomotion-clip-playback.js";
+import { writeHumanoidSpeechFrameEvidence, writeMouthGazePoseComparatorEvidence } from "./speech-evidence.js";
 import type {
   GeneratedHumanoidAnimationSlot,
   HumanoidActingCueRecord,
@@ -167,7 +167,20 @@ export function updateGeneratedHumanoidAnimations(
       }, breathing);
       reapplySupineHeadToStoredPillow(slot.root);
     } else {
-      slot.root.position.y = slot.baseY + breathing * 0.018;
+      // BREATHING DOES NOT TRANSLATE A STANDING BODY'S FEET. This was
+      // `slot.baseY + breathing * 0.018`, a rigid +/-18 mm translation of the whole actor written to
+      // every standing slot every frame with nothing holding its feet down. A browser run measured
+      // 238 of 782 toe readings below the named floor plane, 150 deeper than the 0.005 m perceptual
+      // floor; the trace is one sinusoid, 0.0340 m peak-to-peak at 5.4 s, and `sin(t * 1.15)` has a
+      // 5.464 s period. The floor plane was not at fault (origin -8.9e-10; the toes oscillated about
+      // it). REMOVING IT LIFTS NOTHING: `sin` has zero mean, so the composed height is `slot.baseY`
+      // either way — what goes is an oscillation whose lower half has no floor under it. Breathing
+      // keeps the `scale.y` term below, which expands the body about the group origin at the feet,
+      // so the chest rises and the toes stay. Measured: 412 of 1440 sub-floor readings with the bob,
+      // 0 without. The assignment stays because the supine branch also writes `position.y` and a
+      // posture change would otherwise keep the other branch's height.
+      // Full derivation: docs/openclinxr/scene-closure-2026-09-09/evidence/sc-05.md, "The browser run".
+      slot.root.position.y = slot.baseY;
       // COMPOSE, matching the line above and the scale lines below. This was the only component
       // that ASSIGNED: slot.baseX is captured at xr-asset-loading/src/humanoid-animation.ts:119
       // and was never read, so any child-local X the placement chain resolved was erased on the

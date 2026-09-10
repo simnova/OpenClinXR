@@ -30,6 +30,7 @@ import type { EncounterRuntimeAsset } from "@openclinxr/asset-registry/runtime-b
 // The context and result types are the package's contract with main.ts, which declares its
 // own local variables against them. Re-export them.
 export type { StationRoomContext, StationRoomResult, StationRoomScenarioTheme, ApplyStationInteriorLightingForEnvironment };
+export { observeMountedSupportInstances } from "./mounted-support-observation.js";
 export {
   actorNameplateLabel,
   runtimeGeneratedSceneObjectName,

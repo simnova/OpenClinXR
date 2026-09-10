@@ -28,24 +28,45 @@ export function requiredStateOutcomePromotes(outcome: string): boolean {
  */
 type InitialSceneSpecReport = SharedInitialSceneSpec;
 
+/**
+ * Which real consumer a required asset is checked against.
+ *
+ * DERIVED FROM THE ASSET IDENTITY, never from its position in the list. The first version of this
+ * function used `index % 2`, so swapping two entries in `assetNeeds` moved the monitor from
+ * `spatialState.objectTransforms` to `StationRunOptions.doorway` — a consumer binding that changes
+ * when nothing about the scene changed. acceptance-v2.md: "never alternate labels by index".
+ *
+ * A caller that has an ACTUAL observed binding passes it in `consumerBindings` and this is not
+ * consulted. This is the fallback for a spec built before any consumer has reported, and it is
+ * stable rather than correct: it guarantees the same asset always lands on the same consumer.
+ */
+function stableConsumerFor(assetId: string): "spatialState.objectTransforms" | "StationRunOptions.doorway" {
+  let accumulator = 0;
+  for (let index = 0; index < assetId.length; index += 1) accumulator = (accumulator * 31 + assetId.charCodeAt(index)) >>> 0;
+  return accumulator % 2 === 0 ? "spatialState.objectTransforms" : "StationRunOptions.doorway";
+}
+
 export function buildInitialSceneSpec(input: {
   scenario: { scenarioId: string; assetNeeds?: Array<{ assetId: string }> };
   presentAssetIds: readonly string[];
+  /** Observed consumer bindings, when a consumer has actually reported which one holds the asset. */
+  consumerBindings?: ReadonlyArray<{
+    assetId: string;
+    consumer: "spatialState.objectTransforms" | "StationRunOptions.doorway";
+  }>;
 }): InitialSceneSpecReport {
   const present = new Set(input.presentAssetIds);
+  const observedConsumers = new Map((input.consumerBindings ?? []).map((entry) => [entry.assetId, entry.consumer]));
   const needs = input.scenario.assetNeeds ?? [];
   const report: InitialSceneSpecReport = {
     schemaVersion: "openclinxr.initial-scene-spec.v1",
     scenarioId: input.scenario.scenarioId,
-    requiredAssets: needs.map((need, index) => {
+    requiredAssets: needs.map((need) => {
       const isPresent = present.has(need.assetId);
       return {
         assetId: need.assetId,
         satisfied: isPresent,
-        consumer:
-          index % 2 === 0
-            ? ("spatialState.objectTransforms" as const)
-            : ("StationRunOptions.doorway" as const),
+        consumer: observedConsumers.get(need.assetId) ?? stableConsumerFor(need.assetId),
         outcome: (isPresent ? "satisfied" : "unsatisfied") as
           | "satisfied"
           | "unsatisfied"
@@ -92,6 +113,16 @@ export type ScenePromotionDecision = {
    * refused. Empty when nothing was declared learner-owned.
    */
   refusedPreCompletions: Array<{ stateId: string; ownedBy: string; reason: string }>;
+  /**
+   * Runtime-owned required starting states that are NOT satisfied, with the reason each refuses.
+   *
+   * THE HOLE THIS CLOSES. The first version of this function read `requiredStates` only to catch a
+   * learner-owned state that was already complete. A runtime-owned state reported `unsatisfied`,
+   * `pending` or `unknown` — the monitor that never powered on — passed straight through, because
+   * nothing filtered on it. `requiredStateOutcomePromotes` already said only `satisfied` promotes;
+   * this is the caller that finally applies it to the states as well as the assets.
+   */
+  refusedRuntimeStates: Array<{ stateId: string; ownedBy: string; outcome: string; reason: string }>;
 };
 
 /**
@@ -135,13 +166,24 @@ export function initialSceneSpecPermitsPromotion(
         + "completing it is the exam, so a starting scene that has already done it removes the task. "
         + `Observed evidence: ${state.evidence}`,
     }));
+  const refusedRuntimeStates = requiredStates
+    .filter((state) => state.ownedBy === "runtime" && !requiredStateOutcomePromotes(state.outcome))
+    .map((state) => ({
+      stateId: state.stateId,
+      ownedBy: state.ownedBy,
+      outcome: state.outcome,
+      reason:
+        `${state.stateId} is runtime-owned and reported ${state.outcome} at start; only satisfied permits `
+        + `promotion, so the encounter must not begin. Observed evidence: ${state.evidence}`,
+    }));
   return {
-    promotes: blockedBy.length === 0 && refusedPreCompletions.length === 0,
+    promotes: blockedBy.length === 0 && refusedPreCompletions.length === 0 && refusedRuntimeStates.length === 0,
     blockedBy,
     // A spec with NO required assets promotes vacuously. The count is returned so a caller can
     // tell "everything required is satisfied" from "nothing was required", which are different
     // claims and only one of them is evidence.
     requiredAssetCount: report.requiredAssets.length,
     refusedPreCompletions,
+    refusedRuntimeStates,
   };
 }

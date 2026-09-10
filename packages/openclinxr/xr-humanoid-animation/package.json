@@ -7,6 +7,26 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./stance-lock": {
+      "types": "./dist/stance-lock.d.ts",
+      "default": "./dist/stance-lock.js"
+    },
+    "./case-owned-approach-runtime": {
+      "types": "./dist/case-owned-approach-runtime.d.ts",
+      "default": "./dist/case-owned-approach-runtime.js"
+    },
+    "./mounted-approach-geometry": {
+      "types": "./dist/mounted-approach-geometry.d.ts",
+      "default": "./dist/mounted-approach-geometry.js"
+    },
+    "./station-bedside-approach": {
+      "types": "./dist/station-bedside-approach.d.ts",
+      "default": "./dist/station-bedside-approach.js"
+    },
+    "./locomotion-clip-playback": {
+      "types": "./dist/locomotion-clip-playback.d.ts",
+      "default": "./dist/locomotion-clip-playback.js"
     }
   },
   "scripts": {

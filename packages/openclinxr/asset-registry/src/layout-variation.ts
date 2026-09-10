@@ -1,12 +1,11 @@
 import { createHash } from "node:crypto";
-import { type MeasuredObstacle, bedsideClearanceViolations } from "./bedside-clearance.js";
+import type { MeasuredObstacle } from "./bedside-clearance.js";
+import type { SupportBounds, Vector3 } from "./bedside-target.js";
 import {
-  type BedsideTarget,
-  ED_STRETCHER_DECK_BOUNDS,
-  type SupportBounds,
-  type Vector3,
-  bedsideTargetForClinician,
-} from "./bedside-target.js";
+  type BedsideLayoutIntent,
+  type ResolvedLayout,
+  resolveBedsideLayoutFromSeed,
+} from "./layout-solve.js";
 
 /**
  * Deterministic LAYOUT variation, and an explicit refusal when no variation fits.
@@ -78,51 +77,23 @@ export function deriveLayoutVariationSeed(input: LayoutSeedInput): string {
     .digest("hex");
 }
 
-export type ResolvedLayout =
-  | {
-      resolved: true;
-      seed: string;
-      target: BedsideTarget;
-      approachSide: "patient_left" | "patient_right";
-      standoffMeters: number;
-    }
-  | {
-      resolved: false;
-      seed: string;
-      /** Every candidate tried, and why each failed. Never empty on a refusal. */
-      unsatisfied: Array<{ approachSide: string; standoffMeters: number; reason: string }>;
-    };
-
-/** Standoffs the resolver will try, nearest first. */
-const STANDOFF_CANDIDATES_METERS = [0.75, 0.9, 1.05] as const;
+/**
+ * Re-exported from the browser-safe half so node callers keep one import site.
+ *
+ * The TYPES and the candidate search live in `layout-solve.ts`, which imports no `node:` builtin.
+ * Only the SEED DERIVATION stays here, because it hashes. See that module's header for why the
+ * split is the replay contract rather than a packaging convenience.
+ */
+export type { BedsideLayoutIntent, ResolvedLayout } from "./layout-solve.js";
+export { STANDOFF_CANDIDATES_METERS } from "./layout-solve.js";
 
 /**
- * Resolve a bedside layout for one variation index, or REFUSE with the constraints that failed.
+ * Derive this variation's seed, then resolve the layout against measured geometry.
  *
- * Candidate order comes from the seed, so two variation indices explore the sides in different
- * orders while each stays reproducible. Hard constraints are applied BEFORE ranking: a candidate
- * with any clearance violation is never returned, whatever its rank.
- *
- * On failure it returns every candidate it tried with its reason, rather than falling back to a
- * position that violates something. The brief: "Return a resolved layout or explicit unsatisfied
- * constraints."
+ * This is the NODE entry point: it hashes. A browser reopening a frozen encounter calls
+ * `resolveBedsideLayoutFromSeed` with the seed this function recorded, which is the same search
+ * over the same candidates with no `node:crypto` in its graph.
  */
-/**
- * Explicit authored intent for the bedside target.
- *
- * Brief §3, deterministic solving: *"fail unsatisfied explicit intent rather than substituting a
- * different target."* Without this the resolver tried BOTH sides and every standoff, so a case that
- * authored "approach from the patient's left" would silently be given the right side whenever the
- * left was blocked — a substitution the author never sees and the seed makes look deliberate.
- *
- * Intent NARROWS the candidate set; it never widens it. An authored side with no authored standoff
- * still tries every standoff on THAT side, which is search within the intent rather than around it.
- */
-export type BedsideLayoutIntent = {
-  approachSide?: "patient_left" | "patient_right" | undefined;
-  standoffMeters?: number | undefined;
-};
-
 export function resolveBedsideLayout(input: {
   seedInput: LayoutSeedInput;
   patientPosition: Vector3;
@@ -131,46 +102,11 @@ export function resolveBedsideLayout(input: {
   /** Authored intent. Absent means the seed explores; present means it does not. */
   intent?: BedsideLayoutIntent | undefined;
 }): ResolvedLayout {
-  const seed = deriveLayoutVariationSeed(input.seedInput);
-  const bounds = input.supportBounds ?? ED_STRETCHER_DECK_BOUNDS;
-  // One byte of the digest picks which side is tried first. Stable for a given seed, different
-  // across indices, and never a random choice at call time.
-  const sideFirst =
-    Number.parseInt(seed.slice(0, 2), 16) % 2 === 0 ? "patient_right" : "patient_left";
-  const seedOrderedSides =
-    sideFirst === "patient_right"
-      ? (["patient_right", "patient_left"] as const)
-      : (["patient_left", "patient_right"] as const);
-  // Explicit intent replaces the seed's exploration. A failure below then reports the authored
-  // target as unsatisfied instead of handing back the other side.
-  const sides = input.intent?.approachSide ? [input.intent.approachSide] : seedOrderedSides;
-  const standoffs =
-    input.intent?.standoffMeters === undefined
-      ? STANDOFF_CANDIDATES_METERS
-      : [input.intent.standoffMeters];
-
-  const unsatisfied: Array<{ approachSide: string; standoffMeters: number; reason: string }> = [];
-  for (const approachSide of sides) {
-    for (const standoffMeters of standoffs) {
-      const target = bedsideTargetForClinician({
-        patientPosition: input.patientPosition,
-        supportBounds: bounds,
-        approachSide,
-        standoffMeters,
-      });
-      const violations = bedsideClearanceViolations({
-        standingPosition: target.position,
-        obstacles: input.obstacles,
-      });
-      if (violations.length === 0) {
-        return { resolved: true, seed, target, approachSide, standoffMeters };
-      }
-      unsatisfied.push({
-        approachSide,
-        standoffMeters,
-        reason: violations.map((violation) => violation.reason).join("; "),
-      });
-    }
-  }
-  return { resolved: false, seed, unsatisfied };
+  return resolveBedsideLayoutFromSeed({
+    seed: deriveLayoutVariationSeed(input.seedInput),
+    patientPosition: input.patientPosition,
+    ...(input.supportBounds === undefined ? {} : { supportBounds: input.supportBounds }),
+    obstacles: input.obstacles,
+    ...(input.intent === undefined ? {} : { intent: input.intent }),
+  });
 }

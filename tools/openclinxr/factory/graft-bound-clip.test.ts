@@ -133,4 +133,45 @@ describe("grafting a clip into a shipped rig", () => {
       }),
     ).rejects.toThrow(/has no clip named/u);
   });
+
+  it("(6) a licence replacement REMOVES the refused clip as well as adding its replacement", async () => {
+    // Adding without removing leaves the refused clip in the shipped bytes beside its replacement:
+    // still downloadable, still redistributed, and harder to notice for sitting next to a cleared
+    // one. The removal reports the channel count it deleted so the swap is auditable.
+    const targetPath = await writeGlb(rigDocument(["hip", "knee"], "openclinxr_retarget_refused"), "target.glb");
+    const sourcePath = await writeGlb(rigDocument(["hip", "knee"], CLIP), "source.glb");
+    const outputPath = path.join(path.dirname(targetPath), "out.glb");
+    const report = await graftBoundClip({
+      targetPath,
+      sourcePath,
+      clipName: CLIP,
+      outputPath,
+      removeClips: [{ clipName: "openclinxr_retarget_refused", reason: "its source terms refuse redistribution" }],
+    });
+    expect(report.animationsAfter).toEqual([CLIP]);
+    expect(report.removedClips).toEqual([
+      { clipName: "openclinxr_retarget_refused", channels: 2, reason: "its source terms refuse redistribution" },
+    ]);
+    // Read it back rather than trusting the report: the refused clip is gone from the bytes.
+    const written = await new NodeIO().read(outputPath);
+    expect(written.getRoot().listAnimations().map((entry) => entry.getName())).toEqual([CLIP]);
+    // And the removal did not cost geometry.
+    expect(report.geometryParity.positionBytesIdentical).toBe(true);
+  });
+
+  it("(7) COUNTERWEIGHT: removing a clip the target does not carry REFUSES rather than passing quietly", async () => {
+    // "Already gone" and "never looked" produce the same empty result, and a licence removal that
+    // cannot tell them apart is not evidence of anything.
+    const targetPath = await writeGlb(rigDocument(["hip", "knee"], null), "target.glb");
+    const sourcePath = await writeGlb(rigDocument(["hip", "knee"], CLIP), "source.glb");
+    await expect(
+      graftBoundClip({
+        targetPath,
+        sourcePath,
+        clipName: CLIP,
+        outputPath: path.join(path.dirname(targetPath), "out.glb"),
+        removeClips: [{ clipName: "openclinxr_retarget_never_here", reason: "fixture" }],
+      }),
+    ).rejects.toThrow(/does not carry it/u);
+  });
 });

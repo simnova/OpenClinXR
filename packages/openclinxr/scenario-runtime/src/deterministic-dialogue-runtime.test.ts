@@ -376,6 +376,10 @@ function createHarness(input: {
     run,
     // required since advanceScheduledEvents landed: the session owns what it already emitted
     emittedScheduledEventIds: new Set<string>(),
+    // required since SC-02 landed: the session also owns the observations admission was taken on
+    // and the per-event attempt counts a retry increments.
+    requirementObservations: new Map(),
+    scheduledEffectAttempts: new Map(),
     multiActorSession: createMultiActorClinicalSession({ scenario, stationRunId: run.stationRunId }),
     nextSequence: 0,
     actorTurnInProgress: null,

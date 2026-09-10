@@ -14,6 +14,8 @@
  */
 
 import { scenarioBank } from "@openclinxr/scenario-fixtures";
+import { type CaseScenarioSource, caseScenarioDocument } from "./case-actor-placements.js";
+export type { CaseScenarioSource } from "./case-actor-placements.js";
 
 export type DeclaredAgeBand = "adult" | "child" | "infant" | "unknown";
 
@@ -134,8 +136,8 @@ export function patientWardrobeClassForEnvironment(
 }
 
 /** Read environmentId from a bank scenario (nested under environment). */
-export function environmentIdForScenario(scenarioId: string): string {
-  const scenario = scenarioBank.find((s) => s.scenarioId === scenarioId) as
+export function environmentIdForScenario(scenarioId: string, injected?: CaseScenarioSource | undefined): string {
+  const scenario = caseScenarioDocument(scenarioId, injected) as
     | { environment?: { environmentId?: string }; environmentId?: string }
     | undefined;
   if (!scenario) return "";
@@ -291,14 +293,14 @@ function pickAdultGlb(
   return MPFB_GOWN_ADULT_PATIENT_GLB;
 }
 
-function castFromScenarioBank(scenarioId: string): ScenarioActorCast[] {
-  const scenario = scenarioBank.find((s) => s.scenarioId === scenarioId);
+function castFromScenarioBank(scenarioId: string, injected?: CaseScenarioSource | undefined): ScenarioActorCast[] {
+  const scenario = caseScenarioDocument(scenarioId, injected);
   if (!scenario) return [];
 
-  const humanoids = scenario.actors.filter(isHumanoidCastActor);
+  const humanoids = (scenario.actors ?? []).filter(isHumanoidCastActor);
   const used = new Set<string>();
   const out: ScenarioActorCast[] = [];
-  const envId = environmentIdForScenario(scenarioId);
+  const envId = environmentIdForScenario(scenarioId, injected);
   const patientWardrobe = patientWardrobeClassForEnvironment(envId);
 
   // Child patients first so they claim the single child mesh before adults fill the pool.
@@ -338,8 +340,15 @@ function castFromScenarioBank(scenarioId: string): ScenarioActorCast[] {
  * Resolve the cast for a known scenario. Explicit tables for the two generation
  * stations (#85/#96); all other bank scenarios get pool assignment (#102).
  * No silent "nearest humanoid" that could hand a pediatric patient to an adult slot.
+ *
+ * `scenario` lets a caller that has already resolved a PERSISTED authored case hand the document
+ * in, so a case the in-repo bank does not carry casts its own people instead of falling through to
+ * the ED literals. PRECEDENCE, stated once: the explicit generation-station tables below still win
+ * by scenario id, so injecting a document for the ED or peds stations changes nothing — those
+ * stations pin promoted assets and a persisted edit must not silently repoint them. Every other id
+ * reads the injected document when one is supplied and the bank when one is not.
  */
-export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[] {
+export function resolveScenarioActorCast(scenarioId: string, scenario?: CaseScenarioSource | undefined): ScenarioActorCast[] {
   if (scenarioId === ED_CHEST_PAIN_SCENARIO_ID || scenarioId === "ed_chest_pain_priority_v2") {
     // All three ED roles are adults with role-distinct wardrobe (#96):
     // patient = gowned MPFB body (#491 L6); nurse = MPFB scrubs; spouse = female street clothes.
@@ -424,7 +433,7 @@ export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[
     ];
   }
 
-  return castFromScenarioBank(scenarioId);
+  return castFromScenarioBank(scenarioId, scenario);
 }
 
 /**

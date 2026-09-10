@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -30,14 +30,31 @@ const HUMANOIDS_DIR = new URL("../public/generated-humanoids/", import.meta.url)
 /** Records whose outputSha256 did not match on 2026-09-09. This list may only SHRINK. */
 const PROVENANCE_HASH_MISMATCH_FREEZE = [
   "adult_male_street_casual.provenance.json",
-  "mpfb-clinical-nurse-adult.provenance.json",
-  "mpfb-family-partner-adult.provenance.json",
   "mpfb-ob-patient-aisha.provenance.json",
   "mpfb-peds-nurse-kevin.provenance.json",
   "mpfb-peds-parent-aisha.provenance.json",
   "mpfb-peds-patient-child.provenance.json",
   "mpfb-street-adult-male.provenance.json",
 ] as const;
+
+/**
+ * PAID DOWN by SC-04 (tsk_a98feb5c7cc73250), 2026-09-09, and removed from the freeze above rather
+ * than left as stale entries:
+ *
+ *   mpfb-clinical-nurse-adult.provenance.json    bc5b9009…, 11,112,092 B
+ *   mpfb-family-partner-adult.provenance.json    8f7ad8ac…,  8,411,080 B
+ *
+ * Neither hash was taken off disk to make a mismatch go away, which is what the header above
+ * forbids. `separate_chest_anchor_joints.mjs` rewrote twelve shipped rigs at 91b12607 and 3d019031
+ * and recorded no output hash; SC-04 re-ran that same tool with `--half-span-m 0.085` on each
+ * commit's parent and reproduced the shipped bytes exactly, so the recorded digest is a derivation
+ * rather than an observation. `correct-sidecar-byte-lineage.ts` throws and writes nothing when the
+ * re-derivation does not reproduce the file.
+ *
+ * mpfb-gown-adult-patient.provenance.json is NEW in the same change — that asset had never had a
+ * record at all — and it enters OUTSIDE the freeze, so clause (1) holds it to its bytes from the
+ * start.
+ */
 
 type ProvenanceRow = {
   file: string;
@@ -101,22 +118,43 @@ describe("shipped humanoids hash to their provenance", () => {
     expect(present.size).toBeGreaterThan(PROVENANCE_HASH_MISMATCH_FREEZE.length);
   });
 
-  it("(4) the physician carries the grafted walk clip and hashes to its record", () => {
+  it("(4) the physician carries the CC0 walk clip, and the CMU clip it replaced is RETIRED", () => {
     // The asset this freeze was written while republishing. It is OUTSIDE the freeze, so clause (1)
     // already guards its hash; this clause pins the reason it was republished.
+    //
+    // SC-04 (tsk_a98feb5c7cc73250) replaced the clip. CMU Graphics Lab mocap is CONDITIONAL under
+    // ledger row-08 and may not be resold even in converted form, and these GLBs are served from
+    // Vite's public directory and are downloadable, so shipping the derived clip is redistribution
+    // of converted data. The replacement is Mesh2Motion's Walk_Formal, CC0 1.0 VERIFIED from that
+    // clone's own LICENSE-CC0.MD.
     const row = provenanceRows().find((entry) => entry.file === "mpfb-clinical-physician-adult.provenance.json");
     expect(row?.matches).toBe(true);
     const record = JSON.parse(
       readFileSync(new URL("mpfb-clinical-physician-adult.provenance.json", HUMANOIDS_DIR), "utf8"),
     );
+
     const walk = record.motionClips?.find(
-      (clip: { clipName: string }) => clip.clipName === "openclinxr_retarget_cmu_02_01_walk",
+      (clip: { clipName: string }) => clip.clipName === "openclinxr_retarget_walk_formal_cc0",
     );
     expect(walk, "the grafted walk clip must be declared in provenance, with its licence").toBeDefined();
-    expect(walk.licenceStatus).toMatch(/CONDITIONAL/u);
-    // Emitted by graft-bound-clip --publish from the foot-plant report, so it is the measured
-    // rate rather than a hand-typed integer: 120.0000046574794 from the clip's own key times.
-    expect(walk.framesPerSecond).toBeCloseTo(120, 3);
+    expect(walk.licenceStatus).toMatch(/CC0 1\.0/u);
+    // Emitted by graft-bound-clip --publish from the clip's own key times, so it is the measured
+    // rate rather than a hand-typed integer: 23.999999441751633 for the 24 fps Mesh2Motion library.
+    expect(walk.framesPerSecond).toBeCloseTo(24, 3);
     expect(walk.deliveredBy).toBe("tools/openclinxr/factory/graft-bound-clip.ts");
+
+    // THE COUNTERWEIGHT, and the half that makes this clause more than a rename. Declaring the CC0
+    // clip proves nothing if the CONDITIONAL one still ships beside it: the licence problem is the
+    // CMU bytes being downloadable, not the absence of a replacement.
+    const clipNames = (record.motionClips ?? []).map((clip: { clipName: string }) => clip.clipName);
+    expect(clipNames).not.toContain("openclinxr_retarget_cmu_02_01_walk");
+    const retired = record.retiredMotionClips?.find(
+      (clip: { clipName: string }) => clip.clipName === "openclinxr_retarget_cmu_02_01_walk",
+    );
+    expect(
+      retired,
+      "a removed clip is recorded with its reason, so the next reader does not re-add it",
+    ).toBeDefined();
+    expect(retired.reason).toMatch(/CONDITIONAL/u);
   });
 });

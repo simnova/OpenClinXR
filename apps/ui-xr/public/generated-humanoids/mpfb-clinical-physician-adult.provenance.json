@@ -66,31 +66,40 @@
  "claimScope": "physician_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_plus_cc0_lab_coat_over_scrubs",
  "promotionGates": false,
  "generatedAt": "2026-08-14T17:56:00Z",
- "outputSha256": "9ba749b2fda775a293772d933ac0d7fdbb1210043fd1c7c06629156eb565c68a",
- "outputBytes": 11572416,
+ "outputSha256": "4a6d8a78cd2eabd724cfd2570881cf36df25064545941c7f10dbce44ea597d3c",
+ "outputBytes": 11736568,
  "motionClips": [
   {
-   "clipName": "openclinxr_retarget_cmu_02_01_walk",
-   "sourceClip": "tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_02_01_walk.bvh",
-   "frameCount": 345,
-   "durationSeconds": 2.866666555404663,
-   "framesPerSecond": 120.0000046574794,
+   "clipName": "openclinxr_retarget_walk_formal_cc0",
+   "sourceClip": "~/.openclinxr-tools/mesh2motion-app/static/animations/human-base-animations.glb#Walk_Formal",
+   "frameCount": 42,
+   "durationSeconds": 1.7083333730697632,
+   "framesPerSecond": 23.999999441751633,
    "rootJoint": "root",
-   "rootTravelMeters": 3.197106319843105,
-   "impliedGroundSpeedMetersPerSecond": 1.115269689743109,
+   "rootTravelMeters": 0,
+   "inPlace": true,
    "deliveredBy": "tools/openclinxr/factory/graft-bound-clip.ts",
    "deliveryNote": "GRAFTED, not re-exported. motion_bind_stage.py's Blender round trip loses eyebrow and eyelash geometry; the graft copies channels onto joints already present here and leaves every POSITION accessor byte-identical.",
    "graftedChannels": 411,
    "graftedJoints": 137,
-   "licenceRow": "docs/openclinxr/asset-licence-records/row-08-cmu-graphics-lab-mocap.json",
-   "licenceStatus": "CONDITIONAL - not CC0/CC-BY. Free for research and commercial products; the data may not be resold even converted.",
-   "footPlantEvidence": "docs/openclinxr/evidence/bound-clip-foot-plant.json",
+   "licenceRow": "docs/openclinxr/asset-licence-records/row-05-mesh2motion-clip-library-ledger-correction.json",
+   "licenceStatus": "CC0 1.0 - VERIFIED in LICENSE-CC0.MD of the mesh2motion-app clone, which dedicates all 3d models, blend files, rigs and animations. The CarnegieMellonAnimations subtree of the same clone is EXCLUDED and is not the source of this clip.",
+   "footPlantEvidence": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-04.json",
    "notEvidenceFor": [
     "clinical_gait_realism",
     "visual_walk_quality",
     "quest_readiness",
     "runtime_playback"
    ]
+  }
+ ],
+ "retiredMotionClips": [
+  {
+   "clipName": "openclinxr_retarget_cmu_02_01_walk",
+   "removedAt": "2026-09-09T20:54:13.847Z",
+   "removedBy": "tools/openclinxr/factory/graft-bound-clip.ts --remove-clip",
+   "channels": 411,
+   "reason": "SC-04: CMU Graphics Lab mocap is CONDITIONAL (row-08) and may not be resold even in converted form; these GLBs are served from Vite's public directory and are downloadable, so shipping the derived clip is redistribution of converted data. Replaced by the CC0 Mesh2Motion Walk_Formal bind."
   }
  ]
 }

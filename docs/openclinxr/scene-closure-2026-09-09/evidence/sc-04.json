@@ -1,0 +1,779 @@
+{
+  "schemaVersion": "openclinxr.scene-closure-evidence.v1",
+  "cardKey": "SC-04",
+  "contract": {
+    "pinnedCommit": "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50",
+    "documents": [
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md",
+        "sha256": "c8080c5e9c75fbb2b4bacb23ed45eac6f829b5dcf494059247a6ee8d55de1bbf"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/tasks-v2.md",
+        "sha256": "e12fbcb49eef3ce4a9c3098309d27bb094dc8c25baa0631452fa27b2f1403881"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/proof-contract-v2.md",
+        "sha256": "a1d1d85a15ae2acfce16479d6b9b4a181e0ccfee60aab885af674c8274cdcfe5"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/delegation-v2.md",
+        "sha256": "59e34f9d6f099574cdf9291847321a4aa23a8e19643ec510984855173cc23016"
+      }
+    ],
+    "aRows": [
+      "A06"
+    ]
+  },
+  "implementation": {
+    "productSourceCommit": "6e36be72",
+    "dependencyBaselineCommit": "1da9ce04a429f72c9ef26e80d480f4f6401ca858",
+    "changeCommits": [
+      "6e36be72"
+    ],
+    "treeClean": true,
+    "inputs": [
+      {
+        "path": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+        "sha256": "4a6d8a78cd2eabd724cfd2570881cf36df25064545941c7f10dbce44ea597d3c"
+      },
+      {
+        "path": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+        "sha256": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d"
+      },
+      {
+        "path": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+        "sha256": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93"
+      },
+      {
+        "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+        "sha256": "59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6"
+      },
+      {
+        "path": "docs/openclinxr/third-party-asset-licence-ledger.md",
+        "sha256": "ec4c245e6f4e9cd19b6435e1b63a0d63cd33c5457d2069e7d6a162727b7b66d0"
+      },
+      {
+        "path": "tools/openclinxr/factory/scene-closure-case-source.ts",
+        "sha256": "ac7c9e24e6dbf18ac14e9e341fad00e8f94d1bc52525aca6d81d3b0ba04e0543"
+      }
+    ],
+    "changedFiles": [
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.provenance.json",
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.provenance.json",
+      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.provenance.json",
+      "docs/openclinxr/asset-licence-records/row-05-mesh2motion-clip-library-ledger-correction.json",
+      "docs/openclinxr/asset-licence-records/row-08-cmu-graphics-lab-mocap.json",
+      "docs/openclinxr/third-party-asset-licence-ledger.md",
+      "packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_stage.py",
+      "tools/openclinxr/evidence/foot-plant/the-bound-walk-plants-its-feet.test.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-04/verifier.test.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-04/verify-core.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-04/verify.ts",
+      "tools/openclinxr/factory/graft-bound-clip.test.ts",
+      "tools/openclinxr/factory/graft-bound-clip.ts",
+      "tools/openclinxr/factory/scene-closure-case-source.ts",
+      "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.provenance.json",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-04.json",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-04.md",
+      "packages/openclinxr/factory-stations/src/motion_retarget/extract-library-clip.ts",
+      "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts",
+      "tools/openclinxr/evidence/licence/selected-scene-asset-lineage.ts",
+      "tools/openclinxr/evidence/licence/the-replacement-walk-preserves-approach-behaviour.ts",
+      "tools/openclinxr/evidence/licence/the-selected-scene-assets-have-cleared-byte-lineage.test.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-04/build-report.ts"
+    ],
+    "runtime": {
+      "node": "v24.18.1",
+      "platform": "darwin-arm64"
+    }
+  },
+  "execution": {
+    "taskId": "tsk_a98feb5c7cc73250",
+    "commands": [
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/licence/the-mpfb-record-matches-the-installed-release.test.ts",
+          "tools/openclinxr/factory/graft-bound-clip.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:11:28Z",
+        "endedAtIso": "2026-09-09T21:11:30Z",
+        "outputArtifactId": "logs-mpfb-and-graft",
+        "tests": {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/foot-plant/the-bound-walk-plants-its-feet.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:11:30Z",
+        "endedAtIso": "2026-09-09T21:11:32Z",
+        "outputArtifactId": "logs-bound-walk",
+        "tests": {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/licence/the-selected-scene-assets-have-cleared-byte-lineage.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:11:32Z",
+        "endedAtIso": "2026-09-09T21:11:34Z",
+        "outputArtifactId": "logs-named-behaviour",
+        "tests": {
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "tsx",
+          "tools/openclinxr/openclaw/assert-contract-live.ts",
+          "tools/openclinxr/evidence/licence/the-selected-scene-assets-have-cleared-byte-lineage.test.ts",
+          "SC-04-required-behavior"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:11:34Z",
+        "endedAtIso": "2026-09-09T21:11:35Z",
+        "outputArtifactId": "logs-assert-contract-live"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/scene-closure/proofs/sc-04/verifier.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T21:11:35Z",
+        "endedAtIso": "2026-09-09T21:11:38Z",
+        "outputArtifactId": "logs-verifier-unit",
+        "tests": {
+          "passed": 20,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      }
+    ]
+  },
+  "counterweight": {
+    "testIds": [
+      "the selected scene assets have cleared byte lineage > SC-04-required-behavior"
+    ],
+    "baselineRevision": "1da9ce04 (unchanged product tree; no asset, ledger or case-source edit had been made)",
+    "failingAssertion": "expect(entry.recordedSha256).toBe(entry.sha256) — and, in the same run, six lineage findings across all four selected actors",
+    "observedBeforeFix": "6 findings: daughter_lena_ellis_v1 hash 981e7ac4 recorded vs 8f7ad8ac on disk and 8618824 vs 8411080 bytes; patient_margaret_ellis_v1 provenance-record-absent; senior_resident_ward_v1 clip-rights-refuse-redistribution on openclinxr_retarget_cmu_02_01_walk; ward_nurse_patel_v1 hash 8c8547ff vs bc5b9009 and 21563000 vs 11112092 bytes",
+    "knownGoodControl": "the physician's own sidecar MATCHED its bytes at baseline and was not rewritten; the six counterweight clauses passed in the same RED run",
+    "fixedRevision": "worktree sc-closure-sc-04, uncommitted",
+    "observedAfterFix": "0 findings across the same four selected actors; 10 of 10 tests pass",
+    "baselineOutputArtifactId": "named-behaviour-red",
+    "fixedOutputArtifactId": "lineage-audit-baseline"
+  },
+  "encounter": {
+    "caseId": "scene_closure_supine_bedside_v1",
+    "caseVersion": 2,
+    "caseSourceVersion": "openclinxr.scene-closure-case-source.v2",
+    "environmentId": "inpatient_ward_room_v1",
+    "selected": [
+      {
+        "actorId": "daughter_lena_ellis_v1",
+        "role": "family",
+        "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+        "sha256": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93",
+        "bytes": 8411080,
+        "clips": [
+          "ClinicalIdleConversation",
+          "ClinicalExpressionMicroTransition"
+        ]
+      },
+      {
+        "actorId": "patient_margaret_ellis_v1",
+        "role": "patient",
+        "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+        "sha256": "59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6",
+        "bytes": 18840492,
+        "clips": [
+          "ClinicalIdleConversation",
+          "ClinicalExpressionMicroTransition"
+        ]
+      },
+      {
+        "actorId": "senior_resident_ward_v1",
+        "role": "physician",
+        "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+        "sha256": "4a6d8a78cd2eabd724cfd2570881cf36df25064545941c7f10dbce44ea597d3c",
+        "bytes": 11736568,
+        "clips": [
+          "ClinicalIdleConversation",
+          "ClinicalExpressionMicroTransition",
+          "openclinxr_retarget_walk_formal_cc0"
+        ]
+      },
+      {
+        "actorId": "ward_nurse_patel_v1",
+        "role": "nurse",
+        "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+        "sha256": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d",
+        "bytes": 11112092,
+        "clips": [
+          "ClinicalIdleConversation",
+          "ClinicalExpressionMicroTransition"
+        ]
+      }
+    ],
+    "retiredClip": "openclinxr_retarget_cmu_02_01_walk",
+    "replacementClip": "openclinxr_retarget_walk_formal_cc0",
+    "publicRender": {
+      "decision": "blocked_pending_named_upstream_resolution",
+      "clearedSubcomponents": [
+        "Mesh2Motion Walk_Formal clip (CC0 1.0, LICENSE-CC0.MD)",
+        "makehuman eyebrows01 / eyelashes01 (CC0 1.0, verified per .mhclo header)",
+        "makehuman system-asset eyes (CC0 1.0, verified in the asset headers)",
+        "makehuman shoes01 toigo cloth shoes (CC0 1.0, clears on its own .mhclo)",
+        "WojackOWL Scrub_Shirt / Scrub_Pants (CC-BY, attribution required on a licences page)",
+        "makehuman crude labcoat (CC0)",
+        "first-party procedural garments (hospital gown shell, real-garment upper)"
+      ],
+      "blockedBy": [
+        {
+          "subcomponent": "hm08 MakeHuman base mesh, present in all four selected bodies",
+          "record": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json",
+          "why": "A stale 2016 README in the org's own tree asserts AGPL against a 2020 LICENSE.md saying CC0. No dated relicensing announcement found. Unresolved upstream.",
+          "unblockedBy": "A dated upstream relicensing statement, or written confirmation from MakeHuman, recorded on row-07."
+        },
+        {
+          "subcomponent": "makehuman-community mhair02, worn by the selected physician",
+          "record": "docs/openclinxr/asset-licence-records/row-14-makehuman-community-mhair02-clothes-page-uuid-f81a4e9a-e3d7-.json",
+          "why": "The clothes page says CC0; the downloaded .mhclo header says AGPL3. It ships under a named operator override for this uuid only, 2026-08-14, which is an accepted assumption rather than a finding in the file.",
+          "unblockedBy": "Author confirmation that the page grant is the real one, or a replacement style whose own header clears."
+        },
+        {
+          "subcomponent": "cortu cargo pants (pants01), worn by the selected family member",
+          "record": "docs/openclinxr/asset-licence-records/row-15-makehuman-pants01-pack-page-mirror-https-files2-makehumancom.json",
+          "why": "The pack index says CC0 1.0; cargo_pants.mhclo carries no licence line at all and cargo_pants.obj:3 carries the MakeHuman AGPL3 boilerplate. It ships under the 2026-08-24 operator index-override ruling, with owner contact pending — an assumption on the index rather than a finding in the file. Found by the SC-04 audit, which refused the manifest until this block was declared.",
+          "unblockedBy": "Owner confirmation of the index grant, or a replacement lower garment whose own .mhclo header clears."
+        }
+      ],
+      "attributionRequiredOnPublish": [
+        "WojackOWL, Medical Scrubs Kit, CC-BY"
+      ],
+      "notEvidenceFor": [
+        "a Pages push",
+        "deployed playback",
+        "clinical validity",
+        "headset readiness"
+      ]
+    },
+    "invalidatedDescendants": [
+      "SC-00 measurement rubric — calibrated on openclinxr_retarget_cmu_02_01_walk, which no longer ships",
+      "SC-05 approach and arrival evidence — the physician's motion clip changed and its ground speed changed with it",
+      "SC-06 replay and invalidation evidence — the physician GLB sha256 changed from 9ba749b2 to 4a6d8a78",
+      "SC-07 workflow recording — any capture of the physician walking predates the clip replacement",
+      "SC-08 website media — no published frame may derive from a run against the version 1 bytes",
+      "docs/openclinxr/evidence/bound-clip-foot-plant.json and docs/openclinxr/evidence/physician-walk-clip-graft.json — both describe the superseded CMU bake and are OUTSIDE SC-04's write roots, so the integrator must refresh or retire them"
+    ]
+  },
+  "observations": [
+    {
+      "observationId": "walk-formal-toe-left-slide-fraction",
+      "metric": "toe1-1.L horizontal slide while in contact, as a fraction of the ground the body covers over the clip",
+      "unit": "dimensionless",
+      "value": 0.24867002002862063,
+      "observedAtMs": 0,
+      "artifactId": "walk-formal-approach",
+      "source": "tools/openclinxr/evidence/licence/the-replacement-walk-preserves-approach-behaviour.ts"
+    },
+    {
+      "observationId": "walk-formal-toe-right-slide-fraction",
+      "metric": "toe1-1.R horizontal slide while in contact, as a fraction of the ground covered",
+      "unit": "dimensionless",
+      "value": 0.27035229203991945,
+      "observedAtMs": 0,
+      "artifactId": "walk-formal-approach",
+      "source": "tools/openclinxr/evidence/licence/the-replacement-walk-preserves-approach-behaviour.ts"
+    },
+    {
+      "observationId": "walk-formal-toe-left-contact-frames",
+      "metric": "toe1-1.L frames below the runtime contact height",
+      "unit": "frames",
+      "value": 18,
+      "observedAtMs": 0,
+      "artifactId": "walk-formal-approach",
+      "source": "tools/openclinxr/evidence/licence/the-replacement-walk-preserves-approach-behaviour.ts"
+    },
+    {
+      "observationId": "cmu-control-toe-left-slide-fraction",
+      "metric": "toe1-1.L slide fraction of the RETIRED CMU clip, measured by the identical procedure",
+      "unit": "dimensionless",
+      "value": 0.029653497663595606,
+      "observedAtMs": 0,
+      "artifactId": "walk-cmu-approach-control",
+      "source": "tools/openclinxr/evidence/licence/the-replacement-walk-preserves-approach-behaviour.ts"
+    },
+    {
+      "observationId": "cmu-control-toe-right-slide-fraction",
+      "metric": "toe1-1.R slide fraction of the RETIRED CMU clip",
+      "unit": "dimensionless",
+      "value": 0.08157732330252415,
+      "observedAtMs": 0,
+      "artifactId": "walk-cmu-approach-control",
+      "source": "tools/openclinxr/evidence/licence/the-replacement-walk-preserves-approach-behaviour.ts"
+    },
+    {
+      "observationId": "walk-formal-stance-ground-speed",
+      "metric": "ground speed derived from the clip's own stance phases",
+      "unit": "m/s",
+      "value": 0.6767578570572718,
+      "observedAtMs": 0,
+      "artifactId": "walk-formal-approach",
+      "source": "groundSpeedFromStance"
+    },
+    {
+      "observationId": "walk-formal-executor-speed-ratio",
+      "metric": "clip stance ground speed divided by CLINICIAN_WALK_SPEED_MPS",
+      "unit": "dimensionless",
+      "value": 0.6152344155066106,
+      "observedAtMs": 0,
+      "artifactId": "walk-formal-approach",
+      "source": "approach-executor.CLINICIAN_WALK_SPEED_MPS"
+    },
+    {
+      "observationId": "walk-plain-alternative-toe-left-slide-fraction",
+      "metric": "toe1-1.L slide fraction of the CC0 `Walk` clip, the alternative not chosen",
+      "unit": "dimensionless",
+      "value": 0.5400962359415065,
+      "observedAtMs": 0,
+      "artifactId": "walk-plain-approach-alternative",
+      "source": "tools/openclinxr/evidence/licence/the-replacement-walk-preserves-approach-behaviour.ts"
+    },
+    {
+      "observationId": "graft-triangles-before",
+      "metric": "physician triangle count before the graft",
+      "unit": "triangles",
+      "value": 41718,
+      "observedAtMs": 0,
+      "artifactId": "physician-walk-formal-graft",
+      "source": "tools/openclinxr/factory/graft-bound-clip.ts"
+    },
+    {
+      "observationId": "graft-triangles-after",
+      "metric": "physician triangle count after the graft",
+      "unit": "triangles",
+      "value": 41718,
+      "observedAtMs": 0,
+      "artifactId": "physician-walk-formal-graft",
+      "source": "tools/openclinxr/factory/graft-bound-clip.ts"
+    },
+    {
+      "observationId": "graft-position-bytes-identical",
+      "metric": "every POSITION accessor byte-identical across the graft",
+      "unit": "boolean",
+      "value": true,
+      "observedAtMs": 0,
+      "artifactId": "physician-walk-formal-graft",
+      "source": "tools/openclinxr/factory/graft-bound-clip.ts"
+    },
+    {
+      "observationId": "bind-driven-bone-count",
+      "metric": "bones the retarget actually drove on the 137-joint MPFB rig",
+      "unit": "bones",
+      "value": 50,
+      "observedAtMs": 0,
+      "artifactId": "physician-walk-formal-motion-bind-report",
+      "source": "packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_stage.py"
+    },
+    {
+      "observationId": "source-library-clip-count",
+      "metric": "clips in the Mesh2Motion human library the extraction read",
+      "unit": "clips",
+      "value": 87,
+      "observedAtMs": 0,
+      "artifactId": "walk-formal-cc0-extraction",
+      "source": "packages/openclinxr/factory-stations/src/motion_retarget/extract-library-clip.ts"
+    },
+    {
+      "observationId": "selected-asset-count",
+      "metric": "assets the production cast resolver selects for the case",
+      "unit": "assets",
+      "value": 4,
+      "observedAtMs": 0,
+      "source": "packages/openclinxr/asset-registry/src/actor-casting.ts resolveScenarioActorCast"
+    },
+    {
+      "observationId": "lineage-findings-after-fix",
+      "metric": "unresolved lineage or rights findings across the selected set",
+      "unit": "findings",
+      "value": 0,
+      "observedAtMs": 0,
+      "source": "tools/openclinxr/evidence/licence/selected-scene-asset-lineage.ts"
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "selected-assets-enumerated",
+      "expected": "resolveScenarioActorCast returns the four case actors and each resolves to a shipped GLB",
+      "observed": "daughter_lena_ellis_v1=mpfb-family-partner-adult.glb, patient_margaret_ellis_v1=mpfb-gown-adult-patient.glb, senior_resident_ward_v1=mpfb-clinical-physician-adult.glb, ward_nurse_patel_v1=mpfb-clinical-nurse-adult.glb",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "selected-asset-count"
+      ]
+    },
+    {
+      "checkId": "derivation-chain-resolves",
+      "expected": "every selected sidecar's byte pin is either produced by the tool that wrote the bytes or reproduced from a named pre-image",
+      "observed": "nurse, family-partner and gown-patient reproduced byte-identically by re-running separate_chest_anchor_joints.mjs on their pre-images; physician pinned by graft-bound-clip.ts from the bytes it produced",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "nurse-rederive-report",
+        "family-rederive-report",
+        "gown-rederive-report"
+      ]
+    },
+    {
+      "checkId": "adopted-shipped-public-decisions-separated",
+      "expected": "adoptedForBuild, shippedInRedistributedBytes and renderedInPublicMedia are recorded separately and differ for at least one source",
+      "observed": "tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_: adopted=true shipped=false public=false | ~/.openclinxr-tools/mesh2motion-app/static/animations/: adopted=true shipped=true public=true",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "selected-asset-count"
+      ]
+    },
+    {
+      "checkId": "first-party-terms-linked",
+      "expected": "every clearance cites a licence record that exists and contains the phrase cited",
+      "observed": "2 clip clearances and the subcomponent table all resolve to records carrying their cited phrases",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "lineage-findings-after-fix"
+      ]
+    },
+    {
+      "checkId": "cmu-walk-terms-resolved",
+      "expected": "no selected shipped asset carries a CMU-derived clip; the replacement is CC0 and preserves walking",
+      "observed": "physician ships ClinicalIdleConversation, ClinicalExpressionMicroTransition, openclinxr_retarget_walk_formal_cc0",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "physician-walk-formal-graft",
+        "bind-driven-bone-count"
+      ]
+    },
+    {
+      "checkId": "selected-hashes-match-actual-bytes",
+      "expected": "each selected sidecar's outputSha256 equals the sha256 of the shipped file",
+      "observed": "mpfb-family-partner-adult.glb=8f7ad8acda01, mpfb-gown-adult-patient.glb=59f590701ad1, mpfb-clinical-physician-adult.glb=4a6d8a78cd2e, mpfb-clinical-nurse-adult.glb=bc5b9009af57",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "lineage-findings-after-fix"
+      ]
+    },
+    {
+      "checkId": "retarget-preserves-limb-integrity",
+      "expected": "the graft changes no geometry: identical triangle count and byte-identical POSITION accessors",
+      "observed": "41718 -> 41718 triangles, positionBytesIdentical=true",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "graft-triangles-before",
+        "graft-triangles-after",
+        "graft-position-bytes-identical"
+      ]
+    },
+    {
+      "checkId": "public-render-decision-recorded",
+      "expected": "the case manifest records an explicit public-render decision with named blocking records",
+      "observed": "blocked_pending_named_upstream_resolution; blocked by docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json, docs/openclinxr/asset-licence-records/row-14-makehuman-community-mhair02-clothes-page-uuid-f81a4e9a-e3d7-.json, docs/openclinxr/asset-licence-records/row-15-makehuman-pants01-pack-page-mirror-https-files2-makehumancom.json",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "selected-asset-count"
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "controlId": "stale-hash-refuses",
+      "trigger": "correct-sidecar-byte-lineage.ts is asked to pin bytes its named derivation does not reproduce",
+      "expected": "throws and writes nothing",
+      "observed": "the tool compares the re-derived digest with the shipped file before writing; the three corrections it made all reproduced byte-identically, and a non-reproducing case throws rather than rewriting the hash",
+      "held": true,
+      "evidenceIds": [
+        "nurse-rederive-report"
+      ]
+    },
+    {
+      "controlId": "unknown-subcomponent-rights-refuse",
+      "trigger": "a mesh inside a shipped body matches no subcomponent clearance entry",
+      "expected": "subcomponent-rights-unrecorded finding",
+      "observed": "assessSubcomponent returns exactly that finding for an unrecorded mesh; exercised in the named test and live across 42 meshes in the four selected bodies",
+      "held": true,
+      "evidenceIds": [
+        "lineage-findings-after-fix"
+      ]
+    },
+    {
+      "controlId": "substituted-clip-refuses",
+      "trigger": "a clip whose source path matches no clearance prefix",
+      "expected": "no verdict and a clip-source-not-covered-by-any-clearance finding",
+      "observed": "assessClipSource returns verdict null with that single finding for a Mixamo path, so another demo's clearance does not transfer",
+      "held": true,
+      "evidenceIds": [
+        "named-behaviour-red"
+      ]
+    },
+    {
+      "controlId": "rewritten-only-provenance-refuses",
+      "trigger": "a licence record edited to read permissively while dropping the phrase its clearance cites",
+      "expected": "licence-record-text-does-not-match-citation",
+      "observed": "assessClipSource returns that finding for the text \"CC0, obviously. Trust me.\"",
+      "held": true,
+      "evidenceIds": [
+        "named-behaviour-red"
+      ]
+    },
+    {
+      "controlId": "cleared-unchanged-asset-passes",
+      "trigger": "a clip from a covered source whose record carries its cited phrases",
+      "expected": "no findings and verdict clears",
+      "observed": "assessClipSource returns zero problems; and the two selected assets that needed no byte change were not rewritten to pass",
+      "held": true,
+      "evidenceIds": [
+        "lineage-findings-after-fix"
+      ]
+    },
+    {
+      "controlId": "mit-repo-grants-no-blanket-clearance",
+      "trigger": "a clip taken from mesh2motion-app/static/animations/CarnegieMellonAnimations/91_48.fbx under the repository's own CC0 dedication",
+      "expected": "clip-source-inside-excluded-subtree, naming the excluded directory",
+      "observed": "refused by name; the same record clears human-base-animations.glb#Walk_Formal, so the exclusion and not a blanket refusal is doing the work. The directory's own readme.txt points at rancidmilk.itch.io, so it is not the repository's work to dedicate",
+      "held": true,
+      "evidenceIds": [
+        "walk-formal-cc0-extraction"
+      ]
+    },
+    {
+      "controlId": "commercial-permission-is-not-permissive-label",
+      "trigger": "the CMU record text, which reads both \"free for research and commercial products\" and \"may not be resold even converted\"",
+      "expected": "refuses",
+      "observed": "classifyRedistributionRights checks refusal patterns first and returns refuses; the CMU row is kept in the clearance table so a rebuild reintroducing the clip is refused by name rather than by absence",
+      "held": true,
+      "evidenceIds": [
+        "named-behaviour-red"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "commands",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/commands.json",
+      "byteCount": 1997,
+      "sha256": "71dca2fdbabdeabb2ad641f44430d747687b771fa391a012dcfe1b7d3bbf65d8",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-09T21:11:38.446Z",
+      "runId": "sc-04-2026-09-09"
+    },
+    {
+      "artifactId": "family-rederive-report",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/family-rederive-report.json",
+      "byteCount": 1248,
+      "sha256": "61b2a34c8b12891d98b547203a739fc880cfa01421cac09f0c3d0b4e594153e6",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-09T21:00:08.124Z",
+      "runId": "sc-04-2026-09-09"
+    },
+    {
+      "artifactId": "gown-rederive-report",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/gown-rederive-report.json",
+      "byteCount": 1302,
+      "sha256": "1b5df0ad3c09bc396c6b223e096c95e350a66c18758944fddba64e3f22b2b96d",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-09T21:00:08.131Z",
+      "runId": "sc-04-2026-09-09"
+    },
+    {
+      "artifactId": "lineage-audit-baseline",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/lineage-audit-baseline.log",
+      "byteCount": 1720,
+      "sha256": "943c09a521402534a3f21bc17bd30a81b686ea5f0ba9e0157991f2d56e29f32c",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:00:08.106Z",
+      "runId": "sc-04-2026-09-09"
+    },
+    {
+      "artifactId": "named-behaviour-red",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/named-behaviour-red.log",
+      "byteCount": 1559,
+      "sha256": "2c838f943d290cfe7a70454c20aa3851747a25c05fea4a90f7fd224276866183",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T21:00:08.102Z",
+      "runId": "sc-04-2026-09-09"
+    },
+    {
+      "artifactId": "nurse-rederive-report",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/nurse-rederive-report.json",
+      "byteCount": 1248,
+      "sha256": "60792769a4a4c6f4fd8a0af603851354ba2202d7aaf94f6a5e8b2dacd2c0672d",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-09T21:00:08.113Z",
+      "runId": "sc-04-2026-09-09"
+    },
+    {
+      "artifactId": "physician-walk-formal-graft",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/physician-walk-formal-graft.json",
+      "byteCount": 1878,
+      "sha256": "7511808649269cefffb140bcf43c9c4c08a4be2b6b5d0083fccb15ae7618f3c5",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-09T21:00:08.071Z",
+      "runId": "sc-04-2026-09-09"
+    },
+    {
+      "artifactId": "physician-walk-formal",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/physician-walk-formal.glb",
+      "byteCount": 11651084,
+      "sha256": "659ff9ecf2ccd20fecf2162314b6a086740c22ae1f7378b79bd85d38ed74ed6e",
+      "mediaType": "model/gltf-binary",
+      "createdAtIso": "2026-09-09T21:00:08.026Z",
+      "runId": "sc-04-2026-09-09"
+    },
+    {
+      "artifactId": "physician-walk-formal-motion-bind-report",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/physician-walk-formal.motion-bind-report.json",
+      "byteCount": 7732,
+      "sha256": "d17444ca341d17c29cbfe32b4c94dfcae48c411aad4c71e8a2f6cd211336883e",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-09T21:00:08.065Z",
+      "runId": "sc-04-2026-09-09"
+    },
+    {
+      "artifactId": "walk-cmu-approach-control",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/walk-cmu-approach-control.json",
+      "byteCount": 6036,
+      "sha256": "c79b6bdfd66e99abe4671cf22f3a4aa12b417201c8624b4d2165ae10167ca421",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-09T21:00:08.086Z",
+      "runId": "sc-04-2026-09-09"
+    },
+    {
+      "artifactId": "walk-formal-approach",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/walk-formal-approach.json",
+      "byteCount": 5626,
+      "sha256": "ca3d2b8950ca290e984510db4a1421408c369cd1d031c64ef752b687b86e6a07",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-09T21:00:08.079Z",
+      "runId": "sc-04-2026-09-09"
+    },
+    {
+      "artifactId": "walk-formal-cc0-extraction",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/walk-formal-cc0-extraction.json",
+      "byteCount": 2752,
+      "sha256": "2e7fb040e1c24ddb9f2b4a2d3df6195f8fb747b0dc0d915487158e8d6d38abf3",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-09T21:00:08.053Z",
+      "runId": "sc-04-2026-09-09"
+    },
+    {
+      "artifactId": "walk-formal-cc0",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/walk-formal-cc0.glb",
+      "byteCount": 3459892,
+      "sha256": "341957bdd74fa853300203208331c1686241d6bb5c6ea85ea6b4d054055f42ba",
+      "mediaType": "model/gltf-binary",
+      "createdAtIso": "2026-09-09T21:00:08.046Z",
+      "runId": "sc-04-2026-09-09"
+    },
+    {
+      "artifactId": "walk-plain-approach-alternative",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-04/walk-plain-approach-alternative.json",
+      "byteCount": 5617,
+      "sha256": "78621a0b44cfd65f4e55222fe23b0d7260b70240e1df71f9ef00c8a0243e55d7",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-09T21:00:08.092Z",
+      "runId": "sc-04-2026-09-09"
+    }
+  ],
+  "reviews": [
+    {
+      "reviewerId": "scene-closure execution owner (Claude Opus 5 main session, openclinxr-c2)",
+      "role": "execution owner and independent reviewer",
+      "distinctFromImplementer": true,
+      "reviewedSourceCommit": "6e36be72",
+      "retrievedArtifactIds": [
+        "commands",
+        "family-rederive-report",
+        "gown-rederive-report",
+        "lineage-audit-baseline",
+        "named-behaviour-red",
+        "nurse-rederive-report",
+        "physician-walk-formal-graft",
+        "physician-walk-formal",
+        "physician-walk-formal-motion-bind-report",
+        "walk-cmu-approach-control",
+        "walk-formal-approach",
+        "walk-formal-cc0-extraction",
+        "walk-formal-cc0",
+        "walk-plain-approach-alternative"
+      ],
+      "sessionIso": "2026-09-09T21:29:58.174Z",
+      "observations": "Reran every doneWhen command in the integrated main checkout rather than accepting the implementer report: mpfb record plus graft 11/11, bound-walk foot plant 12/12, the named behavior test 10/10, assert-contract-live 1 contract live, verifier suite 20/20, and this card own suites 69/69. Broad regression across every landed card in the package 299/299, typecheck:relaxed 0 errors, knip clean. Ran an own destructive probe of the integration edit rather than only the implementer two-sided probe: re-adding openclinxr_retarget_cmu_02_01_walk to the physician provenance record fails clause (4) of apps/ui-xr/src/the-shipped-humanoids-hash-to-their-provenance.test.ts and nothing else, so the CMU-absence half of that clause is a real gate and not decoration. Accepted the licence resolution on its evidence: CMU is CONDITIONAL under ledger rows 04 and 08 and these GLBs are downloadable from Vite public directory, so the derived clip is redistribution of converted data; the replacement is CC0 VERIFIED from the clone own LICENSE-CC0.MD with the CarnegieMellonAnimations subtree excluded by name. Accepted the foot-plant regression as recorded rather than softened: Walk_Formal slides about 3x the CMU clip and the existing under-0.2 threshold was not weakened, the regression is asserted as a fact and declared in limits.unresolvedDefects. Made three owner repairs the gates caught, all in this card own new files, and none of them weakened a gate: a TS2305 on a type imported from a package root where it is not re-exported, fixed at the declaring module rather than by adding a root export that would have moved an exact-equality rootEntrypointExports ceiling; sixteen noNonNullAssertion and two noShadow findings, each replaced with a guard that throws after biome own --unsafe autofix was measured to change behaviour for the worse in five places; and an unused-file failure on extract-library-clip.ts, which had landed with no importer at all. That last one is the correct-but-inert class and was closed by giving the tool a caller and a gate rather than by declaring it an entry point. Corrected the same owner defect for the third time in this package: the brief never named the owner evidence registry, so the implementer created its own at /Volumes/files/src/.openclinxr-sc-evidence; its artifacts were migrated byte-unchanged into the owner store and this report rebound to the owner registry hash.",
+      "decision": "accepted"
+    }
+  ],
+  "limits": {
+    "unprovenClinical": [
+      "No clinical validity claim. The gait of the replacement clip has had no qualified review."
+    ],
+    "unprovenHeadset": [
+      "No worn-headset evidence. Every measurement here is offline geometry."
+    ],
+    "unprovenPublication": [
+      "Public render is BLOCKED, not cleared. Three named subcomponents block it and none is resolved by this card."
+    ],
+    "unresolvedDefects": [
+      "FOOT-PLANT REGRESSION, measured not assumed: the CC0 Walk_Formal replacement plants its feet materially worse than the CMU clip it replaces. Measured by the identical procedure on the same rig, toe1-1.L slides 0.2487 of the ground covered (18 contact frames) against the CMU clip's 0.0297 (54 frames), and toe1-1.R 0.2704 against 0.0816. The licence question forced the replacement; the plant did not improve with it, and SC-00's rubric and SC-05's arrival evidence must be calibrated against these numbers rather than the retired clip's.",
+      "SPEED MISMATCH: the replacement's stance-derived ground speed is 0.676 m/s against CLINICIAN_WALK_SPEED_MPS of 1.1, a ratio of 0.615. The runtime must either time-scale the clip by about 1.63 or lower the executor's constant; SC-05 owns that decision.",
+      "PRE-EXISTING, OUT OF SCOPE, FOUND HERE: the shipped seated CC0 clip on mpfb-peds-parent-aisha.motion-bind.glb was bound without the source-orientation correction and its legs sit at 0.49 m with the foot 0.47 m behind the knee. Same root cause as the first Walk_Formal bind. Not this card's asset; recorded so it is not rediscovered.",
+      "PRE-EXISTING, OUT OF SCOPE: docs/openclinxr/evidence/bound-clip-foot-plant.json and docs/openclinxr/evidence/physician-walk-clip-graft.json still describe the retired CMU bake and name bytes that no longer ship. Both are outside SC-04's write roots.",
+      "The subcomponent clearance table cites licence records; it does not re-read the source archives those records were written from."
+    ]
+  },
+  "evidenceRegistrySha256": "12b1587daf25b3a1a48dece3df89115efe6f56a89ae32b10140728e3818394fb"
+}

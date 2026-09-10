@@ -1,0 +1,755 @@
+{
+  "schemaVersion": "openclinxr.scene-closure-evidence.v1",
+  "cardKey": "SC-03",
+  "contract": {
+    "pinnedCommit": "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50",
+    "documents": [
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md",
+        "sha256": "c8080c5e9c75fbb2b4bacb23ed45eac6f829b5dcf494059247a6ee8d55de1bbf"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/tasks-v2.md",
+        "sha256": "e12fbcb49eef3ce4a9c3098309d27bb094dc8c25baa0631452fa27b2f1403881"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/proof-contract-v2.md",
+        "sha256": "a1d1d85a15ae2acfce16479d6b9b4a181e0ccfee60aab885af674c8274cdcfe5"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/delegation-v2.md",
+        "sha256": "59e34f9d6f099574cdf9291847321a4aa23a8e19643ec510984855173cc23016"
+      }
+    ],
+    "aRows": [
+      "A04",
+      "A05"
+    ]
+  },
+  "implementation": {
+    "productSourceCommit": "92e1746b",
+    "dependencyBaselineCommit": "dc2ad3b828e0600cc5d5dcb36bda7d565bf0c931",
+    "changeCommits": [
+      "92e1746b"
+    ],
+    "treeClean": true,
+    "inputs": [
+      {
+        "path": "apps/ui-xr/src/main.ts",
+        "sha256": "cebc866ae9be146980f4bf04aa4c83b6ccf01ffadb72248fbb63713756f48dff"
+      },
+      {
+        "path": "apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts",
+        "sha256": "a5493db0c8fe80cfd1f8361592a7e47f096b2706e4a8e193ae1949970d3a0bcc"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-03.md",
+        "sha256": "f6ba75ab1d03ac3da33002cdf7ca108cd115ceecc2e0e22e90f152ca6a9fbe77"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/case-intent-placements.ts",
+        "sha256": "38faededd34d7b7223a8f52ff02d053b2b7959d5b96ba4e3ed41f8f6ad87e184"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/runtime-bundles.ts",
+        "sha256": "659d7475a558c0d28f3662321da6d53210e9de7792a7023f0d38cc4d7b63c6ef"
+      },
+      {
+        "path": "packages/openclinxr/xr-runtime-state/src/runtime-actor-placements.ts",
+        "sha256": "615704432814329a65d4ef362d1b44b2dc33212a3ff5a67755162920d7e3e24a"
+      },
+      {
+        "path": "packages/openclinxr/xr-runtime-state/src/supported-actor-placement.ts",
+        "sha256": "03ac43b9885a11068506b5708720bc4d0bb7647dbb78d0578f6292c48212236b"
+      },
+      {
+        "path": "packages/openclinxr/xr-station-room/arch-index.json",
+        "sha256": "0f321868a2beb82f51baadca9935e06ffae33fb2c8a851db317de94c8a282871"
+      },
+      {
+        "path": "packages/openclinxr/xr-station-room/src/actor-staging.ts",
+        "sha256": "7a1fa512557215c37dd0f682baa05e0062dd8406c8038e4640bf008e9a09af61"
+      },
+      {
+        "path": "packages/openclinxr/xr-station-room/src/index.ts",
+        "sha256": "e3822a7ee4e3377c3a068028d472168d7c03697f415fc50aedf648e0b3fdfdd1"
+      },
+      {
+        "path": "packages/openclinxr/xr-station-room/src/mounted-support-observation.ts",
+        "sha256": "5147b4119f50c06f261a73873eadbd6c9300644ad971d7501f516edc00bd8d99"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-03/build-report.ts",
+        "sha256": "3ef68d45911ba5024efd6dbaa0361f7fcd31a8fff97f94281ca1237184757b8a"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-03/report-schema.ts",
+        "sha256": "dac8f4bfc4b00d5846192929982a511a8c2e015272ad8781e64600cf9ca599fa"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-03/verifier.test.ts",
+        "sha256": "08361d122057a48c906d6c9effb2f61a1adc42f980fb69f20ecf5dce0bc8a548"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-03/verify-core.ts",
+        "sha256": "3eee7ecc45ee0d37be8470e44b42ac0ba9ff7ea0c5ca80dcb5869e0dfa90284f"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-03/verify.ts",
+        "sha256": "83a23821a11ff081053639ef5b9fdd392c7a95d984abaa077ec32bca6f9a9e80"
+      }
+    ],
+    "changedFiles": [
+      "apps/ui-xr/src/main.ts",
+      "apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-03.md",
+      "packages/openclinxr/asset-registry/src/case-intent-placements.ts",
+      "packages/openclinxr/asset-registry/src/runtime-bundles.ts",
+      "packages/openclinxr/xr-runtime-state/src/runtime-actor-placements.ts",
+      "packages/openclinxr/xr-runtime-state/src/supported-actor-placement.ts",
+      "packages/openclinxr/xr-station-room/arch-index.json",
+      "packages/openclinxr/xr-station-room/src/actor-staging.ts",
+      "packages/openclinxr/xr-station-room/src/index.ts",
+      "packages/openclinxr/xr-station-room/src/mounted-support-observation.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-03/build-report.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-03/report-schema.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-03/verifier.test.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-03/verify-core.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-03/verify.ts"
+    ],
+    "runtime": {
+      "node": "v24.18.1",
+      "platform": "darwin-arm64"
+    }
+  },
+  "execution": {
+    "taskId": "tsk_2d19693a11aed51e",
+    "runId": "sc03-2026-09-09T23-32-23-947Z",
+    "commands": [
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "packages/openclinxr/asset-registry/src/an-authored-offset-needs-a-frame.test.ts",
+          "packages/openclinxr/asset-registry/src/authored-intent-is-not-substituted.test.ts",
+          "packages/openclinxr/xr-runtime-state/src/a-resolved-placement-says-where-it-came-from.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T23:32:23.948Z",
+        "endedAtIso": "2026-09-09T23:32:25.225Z",
+        "outputArtifactId": "cmd-placement-regressions",
+        "tests": {
+          "passed": 19,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts",
+          "apps/ui-xr/src/the-composition-call-site-is-live.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T23:32:25.226Z",
+        "endedAtIso": "2026-09-09T23:32:26.507Z",
+        "outputArtifactId": "cmd-composition-call-site",
+        "tests": {
+          "passed": 6,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T23:32:26.508Z",
+        "endedAtIso": "2026-09-09T23:32:28.148Z",
+        "outputArtifactId": "cmd-behavior-test",
+        "tests": {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "tsx",
+          "tools/openclinxr/openclaw/assert-contract-live.ts",
+          "apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts",
+          "SC-03-required-behavior"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T23:32:28.149Z",
+        "endedAtIso": "2026-09-09T23:32:28.642Z",
+        "outputArtifactId": "cmd-assert-contract-live"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/scene-closure/proofs/sc-03/verifier.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-09T23:32:28.643Z",
+        "endedAtIso": "2026-09-09T23:32:29.399Z",
+        "outputArtifactId": "cmd-verifier-unit-tests",
+        "tests": {
+          "passed": 22,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      }
+    ]
+  },
+  "counterweight": {
+    "testIds": [
+      "SC-03-required-behavior"
+    ],
+    "baselineRevision": "dc2ad3b8",
+    "baselineRunId": "sc03-red-remove-the-fix-dc2ad3b8",
+    "failingAssertion": "patient_margaret_ellis_v1 required support survives slot repair: expected undefined to be 'inpatient_ward_room_v1:stretcher' (BREAK 1 of the remove-the-fix probe; the other seven named clauses are in the two-sided-probe artifact)",
+    "observedBeforeFix": "undefined — the slot repair carried verticalOffsetMeters/labelPrefix/posture and dropped headingRadians, placementProvenance, plantOffsetMeters and supportInstanceId",
+    "knownGoodControl": "the standing clinical placement still requires no support and is accepted with requiredSupportInstanceId=null; the ED bundle's unauthored supine patient does not move under the same offset-suppression treatment (delta 0.000000000 m)",
+    "fixedRevision": "dc2ad3b828e0600cc5d5dcb36bda7d565bf0c931",
+    "observedAfterFix": "inpatient_ward_room_v1:stretcher",
+    "baselineOutputArtifactId": "red-baseline",
+    "fixedOutputArtifactId": "cmd-behavior-test"
+  },
+  "sourceInspection": {
+    "behaviorTestPath": "apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts",
+    "behaviorTestTitle": "SC-03-required-behavior"
+  },
+  "encounter": {
+    "caseId": "scene_closure_supine_bedside_v1",
+    "caseVersion": 2,
+    "caseSourceVersion": "openclinxr.scene-closure-case-source.v2",
+    "environmentId": "inpatient_ward_room_v1",
+    "stationId": "scene_closure_supine_bedside_station_v1",
+    "patientActorId": "patient_margaret_ellis_v1",
+    "physicianActorId": "senior_resident_ward_v1",
+    "requiredSupportInstanceId": "inpatient_ward_room_v1:stretcher",
+    "sameKindDecoyInstanceId": "ed_exam_bay_v1:stretcher",
+    "authoredPlantOffsetMeters": {
+      "x": 0.12,
+      "y": 0,
+      "z": -0.08
+    },
+    "patientBodyAssetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+    "unauthoredControlCaseId": "ed_chest_pain_priority_v1"
+  },
+  "observations": [
+    {
+      "observationId": "obs-1-caller-supplies-support-id-and-readiness",
+      "metric": "supportInstanceId + readiness reaching the acceptance verdict for the supine patient",
+      "unit": "identifier/status",
+      "value": "inpatient_ward_room_v1:stretcher|mounted",
+      "observedAtMs": 1788996748088,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-2-delayed-mount-stays-pending",
+      "metric": "readiness with the exact support not yet mounted",
+      "unit": "status",
+      "value": "pending",
+      "observedAtMs": 1788996748089,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-3-slow-support-stays-pending",
+      "metric": "acceptance with the exact support not yet mounted",
+      "unit": "boolean",
+      "value": false,
+      "observedAtMs": 1788996748089,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-4-wrong-instance-cannot-substitute",
+      "metric": "instance the observation is bound to while a same-kind instance is mounted",
+      "unit": "identifier",
+      "value": "inpatient_ward_room_v1:stretcher",
+      "observedAtMs": 1788996748089,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-5-same-kind-wrong-support-refuses",
+      "metric": "acceptance while only a same-kind ED bed is mounted",
+      "unit": "boolean",
+      "value": false,
+      "observedAtMs": 1788996748089,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-6-invalid-normal-offset-refuses-acceptance",
+      "metric": "acceptance for an authored y=0.14 normal offset",
+      "unit": "boolean",
+      "value": false,
+      "observedAtMs": 1788996748089,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-7-invalid-normal-offset-refuses",
+      "metric": "refusal reason for an authored y=0.14 normal offset",
+      "unit": "text",
+      "value": "a nonzero normal (y=0.14) offset fails this supported-patient control: y is the contact-plane NORMAL and a supported actor's height is owned by the plant, not by the author",
+      "observedAtMs": 1788996748089,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-8-heading-survives-slot-repair",
+      "metric": "clinical headingRadians after a slot-kind re-anchor",
+      "unit": "radians",
+      "value": -0.26,
+      "observedAtMs": 1788996748090,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-9-slot-kind-repair-preserves-heading",
+      "metric": "supportInstanceId + heading surviving the re-anchor on all three slots",
+      "unit": "identifier",
+      "value": "inpatient_ward_room_v1:stretcher|3.141592653589793",
+      "observedAtMs": 1788996748090,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-10-persisted-case-intent-beats-fixture-fallback",
+      "metric": "authored plantOffsetMeters on the persisted manifest placement",
+      "unit": "metres",
+      "value": "{\"x\":0.12,\"y\":0,\"z\":-0.08}",
+      "observedAtMs": 1788996748095,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-11-authored-offset-measured-on-posed-skinned-patient",
+      "metric": "world delta of the posed skinned patient centre between authored and suppressed stagings",
+      "unit": "metres",
+      "value": "x=0.120000 z=-0.080000 skinnedBodies=10 skinnedVertexSamples=45475",
+      "observedAtMs": 1788996748100,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-12-offset-composed-in-orthonormal-frame-no-double-scale",
+      "metric": "authored x applied once in world metres, not multiplied by the slot scale",
+      "unit": "metres",
+      "value": "delta=0.120000 slotScale=0.8200",
+      "observedAtMs": 1788996748100,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-13-unauthored-supine-control-unchanged",
+      "metric": "world delta of the UNAUTHORED ED patient under the same suppression treatment, and its separation from the authored case",
+      "unit": "metres",
+      "value": "delta=0.000000000 separation=0.120000",
+      "observedAtMs": 1788996748104,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-14-missing-physician-reported-not-substituted",
+      "metric": "reason recorded on the empty additional_cast slot, and the set of actorIds staged without him",
+      "unit": "text",
+      "value": "no_remaining_unique_humanoid_for_additional_slot|patient_margaret_ellis_v1,ward_nurse_patel_v1,daughter_lena_ellis_v1,",
+      "observedAtMs": 1788996748107,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-15-mount-replacement-invalidates-observation",
+      "metric": "readiness and dependent-motion gate after the required bed is replaced by a same-kind ED bed",
+      "unit": "status/boolean",
+      "value": "pending|false",
+      "observedAtMs": 1788996748111,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-16-post-acceptance-replacement-invalidates",
+      "metric": "placement acceptance before and after the replacement",
+      "unit": "boolean",
+      "value": "before=true after=false",
+      "observedAtMs": 1788996748111,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-17-malformed-frame-refuses",
+      "metric": "refusal for a malformed authored offset {\"x\":null,\"y\":0,\"z\":0}",
+      "unit": "text",
+      "value": "a malformed authored offset (x=NaN) cannot be composed: a non-finite component propagates through the anchor addition and produces a position that compares false against every bound.",
+      "observedAtMs": 1788996748112,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-18-malformed-frame-refuses",
+      "metric": "refusal for a malformed authored offset {\"x\":0.1,\"y\":0,\"z\":null}",
+      "unit": "text",
+      "value": "a malformed authored offset (z=Infinity) cannot be composed: a non-finite component propagates through the anchor addition and produces a position that compares false against every bound.",
+      "observedAtMs": 1788996748112,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    },
+    {
+      "observationId": "obs-19-changed-glb-scale-refuses",
+      "metric": "scale applied to a loaded child once, against the doubled value a second multiplication would produce; the loader forces the child to identity scale",
+      "unit": "ratio",
+      "value": "applied=0.820000 slot=0.820000 doubled=0.672400",
+      "observedAtMs": 1788996748117,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts"
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "caller-supplies-support-id-and-readiness",
+      "expected": "supportInstanceId + readiness reaching the acceptance verdict for the supine patient",
+      "observed": "inpatient_ward_room_v1:stretcher|mounted",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-1-caller-supplies-support-id-and-readiness",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "delayed-mount-stays-pending",
+      "expected": "readiness with the exact support not yet mounted",
+      "observed": "pending",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-2-delayed-mount-stays-pending",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "wrong-instance-cannot-substitute",
+      "expected": "instance the observation is bound to while a same-kind instance is mounted",
+      "observed": "inpatient_ward_room_v1:stretcher",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-4-wrong-instance-cannot-substitute",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "invalid-normal-offset-refuses-acceptance",
+      "expected": "acceptance for an authored y=0.14 normal offset",
+      "observed": false,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-6-invalid-normal-offset-refuses-acceptance",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "offset-composed-in-orthonormal-frame-no-double-scale",
+      "expected": "authored x applied once in world metres, not multiplied by the slot scale",
+      "observed": "delta=0.120000 slotScale=0.8200",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-12-offset-composed-in-orthonormal-frame-no-double-scale",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "authored-offset-measured-on-posed-skinned-patient",
+      "expected": "world delta of the posed skinned patient centre between authored and suppressed stagings",
+      "observed": "x=0.120000 z=-0.080000 skinnedBodies=10 skinnedVertexSamples=45475",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-11-authored-offset-measured-on-posed-skinned-patient",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "heading-survives-slot-repair",
+      "expected": "clinical headingRadians after a slot-kind re-anchor",
+      "observed": -0.26,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-8-heading-survives-slot-repair",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "persisted-case-intent-beats-fixture-fallback",
+      "expected": "authored plantOffsetMeters on the persisted manifest placement",
+      "observed": "{\"x\":0.12,\"y\":0,\"z\":-0.08}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-10-persisted-case-intent-beats-fixture-fallback",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "missing-physician-reported-not-substituted",
+      "expected": "reason recorded on the empty additional_cast slot, and the set of actorIds staged without him",
+      "observed": "no_remaining_unique_humanoid_for_additional_slot|patient_margaret_ellis_v1,ward_nurse_patel_v1,daughter_lena_ellis_v1,",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-14-missing-physician-reported-not-substituted",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "mount-replacement-invalidates-observation",
+      "expected": "readiness and dependent-motion gate after the required bed is replaced by a same-kind ED bed",
+      "observed": "pending|false",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-15-mount-replacement-invalidates-observation",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "controlId": "slow-support-stays-pending",
+      "trigger": "acceptance with the exact support not yet mounted",
+      "expected": "the production owner refuses",
+      "observed": "acceptance with the exact support not yet mounted = false",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "same-kind-wrong-support-refuses",
+      "trigger": "acceptance while only a same-kind ED bed is mounted",
+      "expected": "the production owner refuses",
+      "observed": "acceptance while only a same-kind ED bed is mounted = false",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "post-acceptance-replacement-invalidates",
+      "trigger": "placement acceptance before and after the replacement",
+      "expected": "the production owner refuses",
+      "observed": "placement acceptance before and after the replacement = before=true after=false",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "invalid-normal-offset-refuses",
+      "trigger": "refusal reason for an authored y=0.14 normal offset",
+      "expected": "the production owner refuses",
+      "observed": "refusal reason for an authored y=0.14 normal offset = a nonzero normal (y=0.14) offset fails this supported-patient control: y is the contact-plane NORMAL and a supported actor's height is owned by the plant, not by the author",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "malformed-frame-refuses",
+      "trigger": "refusal for a malformed authored offset {\"x\":0.1,\"y\":0,\"z\":null}",
+      "expected": "the production owner refuses",
+      "observed": "refusal for a malformed authored offset {\"x\":0.1,\"y\":0,\"z\":null} = a malformed authored offset (z=Infinity) cannot be composed: a non-finite component propagates through the anchor addition and produces a position that compares false against every bound.",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "changed-glb-scale-refuses",
+      "trigger": "scale applied to a loaded child once, against the doubled value a second multiplication would produce; the loader forces the child to identity scale",
+      "expected": "the production owner refuses",
+      "observed": "scale applied to a loaded child once, against the doubled value a second multiplication would produce; the loader forces the child to identity scale = applied=0.820000 slot=0.820000 doubled=0.672400",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "slot-kind-repair-preserves-heading",
+      "trigger": "supportInstanceId + heading surviving the re-anchor on all three slots",
+      "expected": "the production owner refuses",
+      "observed": "supportInstanceId + heading surviving the re-anchor on all three slots = inpatient_ward_room_v1:stretcher|3.141592653589793",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "unauthored-supine-control-unchanged",
+      "trigger": "world delta of the UNAUTHORED ED patient under the same suppression treatment, and its separation from the authored case",
+      "expected": "the production owner refuses",
+      "observed": "world delta of the UNAUTHORED ED patient under the same suppression treatment, and its separation from the authored case = delta=0.000000000 separation=0.120000",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "cmd-placement-regressions",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-03/cmd-placement-regressions.txt",
+      "byteCount": 223,
+      "sha256": "c73000d4c6b6b665e1a8b227c4c63ffc527db9c733ce08333a5e2e6c74fc2411",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T23:32:25.226Z",
+      "runId": "sc03-2026-09-09T23-32-23-947Z"
+    },
+    {
+      "artifactId": "cmd-composition-call-site",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-03/cmd-composition-call-site.txt",
+      "byteCount": 220,
+      "sha256": "80bc1f816c5ccdc8b16fbd0ad5f426a7388cae8e29abbcf0581aa2c9f6a4636a",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T23:32:26.508Z",
+      "runId": "sc03-2026-09-09T23-32-23-947Z"
+    },
+    {
+      "artifactId": "cmd-behavior-test",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-03/cmd-behavior-test.txt",
+      "byteCount": 221,
+      "sha256": "03612506c4fa1704dd54915b17b739a427736ba4f1e4bc01fef3a7b557586d59",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T23:32:28.149Z",
+      "runId": "sc03-2026-09-09T23-32-23-947Z"
+    },
+    {
+      "artifactId": "cmd-assert-contract-live",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-03/cmd-assert-contract-live.txt",
+      "byteCount": 114,
+      "sha256": "3fd3ee7850c68e53de1af27a305953bbcb2c3d7b6507b719bcd9a2a6d7c0db19",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T23:32:28.643Z",
+      "runId": "sc03-2026-09-09T23-32-23-947Z"
+    },
+    {
+      "artifactId": "cmd-verifier-unit-tests",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-03/cmd-verifier-unit-tests.txt",
+      "byteCount": 220,
+      "sha256": "e023a05d2785a50801f5efa63a26fbfd3409b376de2d98b94574b18a7e48c8af",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T23:32:29.399Z",
+      "runId": "sc03-2026-09-09T23-32-23-947Z"
+    },
+    {
+      "artifactId": "run-observations",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-03/checks.jsonl",
+      "byteCount": 4701,
+      "sha256": "d1fba133d374de5a8d2655edf76807eb6ab6f571f326ddf4d7b012e058d8e71c",
+      "mediaType": "application/x-ndjson",
+      "createdAtIso": "2026-09-09T23:32:28.118Z",
+      "runId": "sc03-2026-09-09T23-32-23-947Z"
+    },
+    {
+      "artifactId": "two-sided-probe",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-03/two-sided-probe.txt",
+      "byteCount": 2649,
+      "sha256": "c3d6a0fe2c873bf7a67bd201a39182fe0cf1ef88eb3507a726ce6c85df96e9e6",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T23:20:40.770Z",
+      "runId": "sc03-2026-09-09T23-32-23-947Z"
+    },
+    {
+      "artifactId": "red-baseline",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-03/red-baseline.txt",
+      "byteCount": 3512,
+      "sha256": "4a3cfcb38716ff7c1c32a319f471cee9b935c582e9fbb242fd9fbc54c411eab9",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T23:21:12.800Z",
+      "runId": "sc03-red-remove-the-fix-dc2ad3b8"
+    }
+  ],
+  "reviews": [
+    {
+      "reviewerId": "scene-closure execution owner (Claude Opus 5 main session, openclinxr-c2)",
+      "role": "execution owner and independent reviewer",
+      "distinctFromImplementer": true,
+      "reviewedSourceCommit": "92e1746b",
+      "retrievedArtifactIds": [
+        "cmd-placement-regressions",
+        "cmd-composition-call-site",
+        "cmd-behavior-test",
+        "cmd-assert-contract-live",
+        "cmd-verifier-unit-tests",
+        "run-observations",
+        "two-sided-probe",
+        "red-baseline"
+      ],
+      "sessionIso": "2026-09-09T23:38:12.714Z",
+      "observations": "Reran every doneWhen in the integrated main checkout after a full turbo build, because cross-package tests resolve to dist: asset-registry and xr-runtime-state regressions 19/19, sway and composition call site 6/6, the named behavior test 4/4, assert-contract-live 1 contract live, verifier suite 22/22. Ran an own revert probe independent of the implementer eight-change sweep: reverting only packages/openclinxr/xr-runtime-state/src/supported-actor-placement.ts to dc2ad3b8 and rebuilding fails all four behavior clauses including SC-03-required-behavior, the post-acceptance replacement counterweight, the malformed-frame and GLB-scale counterweight, and the standing known-good; restoring passes 4 of 4. ACCEPTED THE IMPLEMENTER OWN DISCLOSURE RATHER THAN LETTING IT PASS QUIETLY: it implemented before running the test the first time, so its RED was measured by removing the fix rather than at the untouched baseline. The behavior test names supportAcceptance and a third actorPlacement argument, neither of which exists at dc2ad3b8, so a direct baseline run cannot compile and proof-contract-v2 sanctions the substitution; the ordering was still wrong and the report says so, which is the behaviour the contract asks for. The per-change transcript names a distinct failing clause for each of the eight reverts, so the substitution is decisive rather than a single undifferentiated red. The finding that matters most for the rest of the package is that the heading defect sits INSIDE SC-00 yaw tolerance: authored -0.26 against framing default -0.18 is 4.58 degrees against a 10 degree cap, so a run that silently dropped the authored heading would have passed settled-heading with 5.4 degrees to spare, and only a direct identity assertion catches that class. Verified no regression: 433 tests across every landed card in this package, 241 across the three touched packages, 86 in xr-runtime-state after my own repair. Ratchets verified unmoved: apps/ui-xr/src exactly 10 files and 6069 lines, main.ts exactly 4822, runtime-bundles.ts 1636 under its 1638 freeze, asset-registry exactly 240 root exports, typecheck 0 on both configs, knip clean, architecture 16 files green. Made one owner repair: runtime-actor-placements.ts carried a non-null assertion into the staged file, replaced with a guard that continues rather than asserts, because an undefined slot kind would silently anchor an actor under no slot and the placement record would carry that forward as if authored. Accepted the acceptance-observation transport gap as NAMED AND NOT BUILT rather than as a silent omission: the record is shaped as SC-02 SceneRequirementObservation minus the three session-owned fields and there is no route to send it, which SC-05 inherits.",
+      "decision": "accepted"
+    }
+  ],
+  "limits": {
+    "unprovenClinical": [
+      "qualified clinical review of the authored bedside placement and of the synthetic case is PENDING; nothing here establishes clinical validity, exam equivalence or that 0.12 m along the deck is a clinically correct position for this patient"
+    ],
+    "unprovenHeadset": [
+      "no worn-headset run; every observation is a node/vitest process on M1 Max"
+    ],
+    "unprovenPublication": [
+      "no Pages push, no public deployment, no media, no rendered frame"
+    ],
+    "unresolvedDefects": [
+      "NO TRANSPORT: the acceptance observation this card produces is shaped as SC-02's SceneRequirementObservation but there is no route to send it. packages/openclinxr/rest carries no requirement-observation endpoint and StationApiClient no method, and both are outside this card's frozen write roots. The runtime-side placement acceptance is complete and gates dependent motion locally; binding it to a stationRunId at the API admission owner is unbuilt.",
+      "NOT MEASURED IN A BROWSER: every measurement is offline geometry through the production consumers in node. No capture, no rendered pixels, no running dev server. SC-07 owns that.",
+      "The posed body is decoded skinned geometry composed through the real slot and loader transform contract, not a three.js GLTFLoader load: GLTFLoader's texture path reaches `self`, which node does not have. The transform contract is reproduced from generated-loaders.ts:105-113 rather than executed."
+    ]
+  },
+  "evidenceRegistrySha256": "12b1587daf25b3a1a48dece3df89115efe6f56a89ae32b10140728e3818394fb"
+}

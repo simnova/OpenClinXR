@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "openclinxr.supine-control-freeze.v1",
+  "scenarioId": "ward_delirium_med_rec_v1",
+  "assetSha256ByPath": {
+    "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": "5b121c5e777849f5f95138ffa4058f69f4da45280be4da55ebb01f8acae27e8e",
+    "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "f89a16c89429788e649a89dc0b665dbae7d26c36d6b26f3736a2c8281db9a503",
+    "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "cd74e84ef558f9a3c428f8da7b7458fb2e0621448125e7ce1a6c136a9b247b1e",
+    "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6",
+    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93",
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d",
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "4a6d8a78cd2eabd724cfd2570881cf36df25064545941c7f10dbce44ea597d3c",
+    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "e89eb5da2ae070ffa55940aed59ab388ada1adf6d464cdd8fb3df9bca3693183"
+  },
+  "staged": {
+    "posture": "supine",
+    "supportSurfaceCount": 1,
+    "clearanceAboveDeckMeters": 0.25
+  },
+  "producedFrom": {
+    "observedBy": "SC-06 implementer (scene-closure r2)",
+    "observedAtIso": "2026-09-10T03:22:31.409Z",
+    "reason": "First production of the control under SC-06's explicit-act rule. The previous record lived at the gitignored .openclinxr/evidence/supine-control-freeze.json and was written by a module-import side effect whenever it was absent, so on every clean clone the byte-freeze gate compared today's bytes against today's bytes (measured on baseline 27efa3d2: record absent, 4 passed, record re-created). This record is tracked, so the comparison is against bytes a clone actually carries.",
+    "byteCountByPath": {
+      "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 5678864,
+      "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 3573420,
+      "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": 4062632,
+      "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 18840492,
+      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 8411080,
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 11112092,
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 11736568,
+      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 16756184
+    }
+  }
+}

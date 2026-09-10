@@ -98,13 +98,28 @@ export function ensureActorPlacementsForStagedSlots(
   for (let i = 0; i < SLOT_FOR_INDEX.length; i += 1) {
     const actorId = slots.stagedActorIds[i] ?? "";
     if (!actorId.trim()) continue;
-    const slotKind = SLOT_FOR_INDEX[i]!;
+    const slotKind = SLOT_FOR_INDEX[i];
+    // The loop is bounded by SLOT_FOR_INDEX.length, so this cannot be missing. Guarded rather
+    // than asserted: an undefined slot kind would silently anchor an actor under no slot at
+    // all, which the placement record would then carry forward as if it were authored.
+    if (slotKind === undefined) continue;
     const anchor = SLOT_PLACEMENT_ANCHORS[slotKind];
     const existing = placements[actorId];
     // #136: shipped factory JSON sometimes tags a second clinical actor as family_or_observer
     // while assignRuntimeActorSlots places them in additional_cast. Correct the slotKind and
     // re-anchor so main.ts does not mount them under a colliding kind or wrong station position.
     if (existing && existing.slotKind === slotKind) continue;
+    // WHAT THE RE-ANCHOR MAY AND MAY NOT DISCARD.
+    //
+    // Position and scale are the POINT of the repair: a record tagged with the wrong slotKind sits
+    // at the wrong station anchor, and #136 is that collision. Everything the CASE decided is a
+    // different kind of value and must survive, because a repair that silently drops authored
+    // intent is indistinguishable from a case that never authored it.
+    //
+    // Measured on the unchanged tree: this carried `verticalOffsetMeters`, `labelPrefix` and
+    // `posture`, and dropped `headingRadians`, `placementProvenance`, `plantOffsetMeters` and
+    // `supportInstanceId`. The clinical slot's authored -0.26 heading survived the repair as
+    // `undefined`, so an actor whose facing a clinician chose was framed by a default instead.
     placements[actorId] = {
       ...anchor,
       slotKind,
@@ -115,6 +130,15 @@ export function ensureActorPlacementsForStagedSlots(
         : {}),
       ...(existing?.labelPrefix ? { labelPrefix: existing.labelPrefix } : {}),
       ...(existing?.posture ? { posture: existing.posture } : {}),
+      // 0 is a real heading and is not the same as absent, so test the TYPE rather than truthiness.
+      ...(typeof existing?.headingRadians === "number"
+        ? { headingRadians: existing.headingRadians }
+        : {}),
+      ...(existing?.placementProvenance ? { placementProvenance: existing.placementProvenance } : {}),
+      ...(existing?.plantOffsetMeters
+        ? { plantOffsetMeters: { ...existing.plantOffsetMeters } }
+        : {}),
+      ...(existing?.supportInstanceId ? { supportInstanceId: existing.supportInstanceId } : {}),
     };
     if (existing) rewrittenActorIds.push(actorId);
     else addedActorIds.push(actorId);
@@ -138,14 +162,24 @@ export function ensureAndPublishActorPlacementSsot(
   slots: RuntimeSlotAssignment,
 ): void {
   const result = ensureActorPlacementsForStagedSlots(bundle, slots);
-  if (typeof window !== "undefined") {
+  // `globalThis`, not a bare `window`: this module reaches the tools-relaxed TypeScript program,
+  // which has no `dom` lib, and a bare `window` is TS2304 there against a shrink-only ceiling of 0.
+  // The publish is unchanged and still a no-op outside a browser.
+  //
+  // THROUGH `unknown` FIRST. A direct cast is TS2352 in any program that DOES have the dom lib —
+  // `Window & typeof globalThis` has no string index signature, so it "does not sufficiently
+  // overlap" with `Record<string, unknown>`. Measured at 7383560c: `pnpm --filter "@openclinxr/*"
+  // build` failed here while `packages:typecheck` passed, because the two use different tsconfigs
+  // and only one of them loads the dom lib.
+  const browser = (globalThis as unknown as { window?: Record<string, unknown> }).window;
+  if (browser) {
     const evidence: ActorPlacementSsotEvidence = {
       declaredActorIds: result.declaredActorIds,
       addedActorIds: result.addedActorIds,
       rewrittenActorIds: result.rewrittenActorIds,
       actorPlacements: bundle.sceneManifest.actorPlacements ?? {},
     };
-    window.__openClinXrActorPlacementSsot = evidence;
+    browser["__openClinXrActorPlacementSsot"] = evidence;
   }
 }
 

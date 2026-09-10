@@ -12,10 +12,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 105
-- archive-candidate: 77
+- archive-candidate: 88
 - current-reference: 208
 - decision-record: 44
-- evidence: 73
+- evidence: 79
 - generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
@@ -318,6 +318,17 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `.openclinxr/scene-layout-reds/s7-transform.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/scene-layout-reds/s8-identity.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/scene-layout-reds/s9-motion.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scratch/SC-00-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scratch/SC-02-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scratch/SC-03-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scratch/SC-04-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scratch/SC-05-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scratch/SC-06-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scratch/SC-07-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scratch/SC-08-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scratch/SC-09-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scratch/SC-10-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/scratch/sc01-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slices/dark-factory-multi-case/STATE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slices/dispatch-chokepoint/EVIDENCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
