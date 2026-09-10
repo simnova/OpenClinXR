@@ -248,7 +248,7 @@ function main(): void {
     {
       observationId: "obs-two-sided-gate",
       metric: "clause reverts that break a named test",
-      unit: "count of 23",
+      unit: `count of ${gate.length}`,
       value: gateBroken,
       observedAtMs: 7,
       artifactId: artifactId("sc-10/controls/two-sided-gate.json"),
@@ -506,7 +506,7 @@ function main(): void {
   writeFileSync(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
   process.stdout.write(
     `sc-10.json: verdict ${screening.verdict}, ${artifacts.length} artifacts, ${observations.length} observations, `
-    + `${commands.length} commands, ${gateBroken}/23 gate\n`,
+    + `${commands.length} commands, ${gateBroken}/${gate.length} gate\n`,
   );
   if (existsSync(REPORT_PATH) && report.implementation.changedFiles.includes(REPORT_PATH)) {
     throw new Error("sc-10.json must not list itself in its own changedFiles");
