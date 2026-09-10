@@ -550,6 +550,21 @@ describe("the SC-10 evidence verifier accepts a complete control and rejects eve
     expect(result.problems.join("\n")).toContain("body-and-encoder-terms is reported eligible");
   });
 
+  it("(25) a report that simply OMITS a dimension is caught by the count, not by the outcomes", () => {
+    // Found by the two-sided gate: reverting the count check alone broke no test, because every
+    // other assertion here varies an outcome and the per-entry loop only walks entries that are
+    // PRESENT. Dropping the blocking dimension is the cheapest way to make a HOLD look clean, and
+    // until this test existed only the count clause stood between a report and that edit.
+    const report = goodReport();
+    const encounter = report["encounter"] as Record<string, unknown>;
+    const dimensions = encounter["dimensions"] as Array<Record<string, unknown>>;
+    encounter["dimensions"] = dimensions.filter((entry) => entry["id"] !== "body-and-encoder-terms");
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toContain("has 7 entries but 8 were recomputed");
+  });
+
   it("(15) the CLI argv parser refuses an unknown flag, a bare argument and a missing report", () => {
     expect(parseArgs(["--report", "x", "--scope", "y"])).toEqual({ report: "x", scopes: ["y"] });
     expect(parseArgs(["--scope", "y"])).toEqual({ error: "--report is required" });
