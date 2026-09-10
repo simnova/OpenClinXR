@@ -75,6 +75,34 @@
     "./approach-executor": {
       "types": "./dist/approach-executor.d.ts",
       "default": "./dist/approach-executor.js"
+    },
+    "./layout-solve": {
+      "types": "./dist/layout-solve.d.ts",
+      "default": "./dist/layout-solve.js"
+    },
+    "./case-owned-scene-plan": {
+      "types": "./dist/case-owned-scene-plan.d.ts",
+      "default": "./dist/case-owned-scene-plan.js"
+    },
+    "./frozen-scene-replay": {
+      "types": "./dist/frozen-scene-replay.d.ts",
+      "default": "./dist/frozen-scene-replay.js"
+    },
+    "./scene-plan-freeze": {
+      "types": "./dist/scene-plan-freeze.d.ts",
+      "default": "./dist/scene-plan-freeze.js"
+    },
+    "./accepted-scene-plan-evidence": {
+      "types": "./dist/accepted-scene-plan-evidence.d.ts",
+      "default": "./dist/accepted-scene-plan-evidence.js"
+    },
+    "./encounter-bundle-admission": {
+      "types": "./dist/encounter-bundle-admission.d.ts",
+      "default": "./dist/encounter-bundle-admission.js"
+    },
+    "./case-frozen-scene-plans": {
+      "types": "./dist/case-frozen-scene-plans.d.ts",
+      "default": "./dist/case-frozen-scene-plans.js"
     }
   },
   "scripts": {

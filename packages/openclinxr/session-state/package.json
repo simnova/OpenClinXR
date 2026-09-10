@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./accepted-scene-plan": {
+      "types": "./dist/accepted-scene-plan.d.ts",
+      "default": "./dist/accepted-scene-plan.js"
     }
   },
   "scripts": {

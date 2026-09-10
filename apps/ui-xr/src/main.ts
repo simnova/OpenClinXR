@@ -4,6 +4,7 @@ import {
   seatedVerticalOffsetForSeatHeight,
   supineVerticalOffsetSeed,
 } from "@openclinxr/asset-registry";
+import { admitFrozenScenePlanForObservedScene, type ScenePlanAdmission, stationIdForSceneClosureScenario } from "@openclinxr/asset-registry/encounter-bundle-admission";
 import {
   findRuntimeActorAsset,
   findRuntimeActorAssetByRole,
@@ -138,6 +139,7 @@ import {
   updateGeneratedHumanoidAnimations as updatePackageGeneratedHumanoidAnimations,
   updateHumanoidEmotionExpression as updatePackageHumanoidEmotionExpression,
 } from "@openclinxr/xr-humanoid-animation";
+import { observeMountedApproachGeometry } from "@openclinxr/xr-humanoid-animation/mounted-approach-geometry";
 import { applyStationBedsideStanceLock, createStationBedsideApproachState, updateStationBedsideApproach } from "@openclinxr/xr-humanoid-animation/station-bedside-approach";
 import {
   applyDeterministicPortalPreviewStart as applyPackageDeterministicPortalPreviewStart,
@@ -328,6 +330,7 @@ import {
 import { applyEnvironmentAffectCue } from "@openclinxr/xr-station-room/station-environment-affect-cue";
 
 const caseOwnedBedsideApproach = createStationBedsideApproachState();
+let frozenScenePlanAdmission: ScenePlanAdmission = { status: "no_plan_carried" };
 
 import {
   type applyPedsActorPlayerSequenceListenerCues as applyPackagePedsActorPlayerSequenceListenerCues,
@@ -651,9 +654,12 @@ const runtimeEquipmentSlotsByAssetId = new Map<string, Group>();
 // The bundle follows the SELECTED scenario, and the boot bindings resolve by ROLE. Both used to
 // be ED literals, so every other case staged the ED cast while the runtime merely recorded a
 // scenario_mismatch (:705-715) — measured on the loaded humanoid, which made the authored clinic
-// placement unreachable and the brief's §7 step 2 impossible to exercise.
+// placement unreachable and the brief's §7 step 2 impossible to exercise. The station rides the
+// same selection through the case's frozen-plan binding rather than restamping the default.
+const selectedSceneClosureStationId = stationIdForSceneClosureScenario(selectedScenarioId());
 let encounterRuntimeAssetBundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
   scenarioId: selectedScenarioId(),
+  ...(selectedSceneClosureStationId === undefined ? {} : { stationId: selectedSceneClosureStationId }),
 });
 let patientRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
   findRuntimeActorAssetByRole(encounterRuntimeAssetBundle, ["patient"])?.model,
@@ -3442,11 +3448,18 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       }
     }
     updateVrPanels(inputEvidence);
-    // THE CASE-OWNED PRODUCER RUNS FIRST, and it is the reason the read below is no longer dead.
-    // Measured on the unchanged tree at 86dc0300, nothing in apps, packages or tools ever wrote
-    // `floor.userData.genDrive` or `floor.userData.pedsRuntimeDrive`, so the only non-null value
-    // this frame could take came from `window.__openClinXrPedsDrive` — a recorder global.
-    const approachFrame = updateStationBedsideApproach(
+    // While the frozen plan is not reproduced the live bedside approach is not stepped.
+    frozenScenePlanAdmission = admitFrozenScenePlanForObservedScene({
+      admission: frozenScenePlanAdmission, bundle: encounterRuntimeAssetBundle,
+      scene,
+      environmentId: resolveActiveEnvironmentId(),
+      observeGeometry: observeMountedApproachGeometry,
+      patientWorldPosition: generatedHumanoidActorSlotsByActorId.get(runtimePatientActorId())?.position ?? { x: 0, y: 0, z: 0 },
+      start: generatedHumanoidActorSlotsByActorId.get(runtimeAdditionalActorId())?.position ?? { x: 0, y: 0, z: 0 },
+    });
+    const frozenScenePlanReproduced = frozenScenePlanAdmission.status === "admitted"
+      && frozenScenePlanAdmission.reproduced !== null;
+    const approachFrame = frozenScenePlanReproduced ? updateStationBedsideApproach(
       caseOwnedBedsideApproach,
       {
         scene,
@@ -3463,7 +3476,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
         supportAccepted: generatedHumanoidActorSlotsByActorId.get(runtimePatientActorId())?.userData?.openClinXrPlacementAccepted !== false,
       },
       { nowMs: now, deltaSeconds },
-    );
+    ) : null;
     floor.userData.genDrive = approachFrame ? { locomotion: approachFrame.locomotion, driveSource: approachFrame.driveSource } : floor.userData.genDrive;
     const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
     const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);

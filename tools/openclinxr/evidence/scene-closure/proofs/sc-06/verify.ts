@@ -1,8 +1,10 @@
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
   type EvidenceRegistry,
   nodeObjectReader,
+  SC06_DEPENDENCY_BASELINE,
   sha256Hex,
   verifyReport,
 } from "./verify-core.js";
@@ -29,6 +31,37 @@ const CONTRACT_DOCUMENTS = [
 
 /** The only report location this card may grade. A path outside it is a refusal. */
 const EXPECTED_REPORT_PATH = `${CONTRACT_DIR}/evidence/sc-06.json`;
+
+/** The tree this run grades. Every repo-relative path below resolves against it. */
+const REPO_ROOT = process.cwd();
+
+/**
+ * Read a tracked file so the core can rehash it from the TREE.
+ *
+ * IT RETURNS BYTES, NOT TEXT, and that is a correctness fix rather than a preference. A first version
+ * returned `readFileSync(path, "utf8")`, and every binary input in the manifest — the four selected
+ * humanoid GLBs — hashed to a value that disagreed with the file: decoding 11 MB of glTF as UTF-8
+ * replaces every invalid sequence with U+FFFD, so the digest is of the mangled string. Measured: the
+ * physician body reported `4a6d8a78…` from its real bytes and `2c483a01…` through the text reader.
+ * A verifier that cannot hash a binary input cannot certify one, and the four bodies are exactly the
+ * inputs this card's invalidation claim rests on.
+ *
+ * The point of passing this in rather than letting the core read: `verifier.test.ts` drives the same
+ * clauses against a synthetic tree, and the CLI is the only place a real filesystem appears. It
+ * refuses a path that escapes the repo root, because a report naming `../../etc/hosts` would
+ * otherwise be hashed and reported as a clean input.
+ */
+function readSource(repoRelativePath: string): Buffer | Error {
+  const resolved = path.resolve(REPO_ROOT, repoRelativePath);
+  if (resolved !== REPO_ROOT && !resolved.startsWith(`${REPO_ROOT}${path.sep}`)) {
+    return new Error(`${repoRelativePath} resolves outside the repository`);
+  }
+  try {
+    return readFileSync(resolved);
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
+}
 
 export type ParsedArgs = { report: string; scopes: string[] } | { error: string };
 
@@ -85,7 +118,43 @@ function registryDigest(): string | Error {
   }
 }
 
+/**
+ * Every path the TREE says changed: committed since the pinned baseline, plus anything uncommitted.
+ *
+ * This is the half the scope audit was missing. Without it `changedFiles` was an array the report
+ * supplied and nothing compared it with the repository — a reviewer appended a comment to an
+ * out-of-scope file and the CLI produced byte-identical output.
+ *
+ * The baseline is `SC06_DEPENDENCY_BASELINE` from the verifier's own source, not the report's, so a
+ * report cannot pick a baseline that hides its own changes.
+ */
+function treeChangedFiles(): string[] | Error {
+  try {
+    const git = (...args: string[]): string[] =>
+      execFileSync("git", args, { cwd: REPO_ROOT, encoding: "utf8" })
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line !== "");
+    return [
+      ...new Set([
+        ...git("diff", "--name-only", `${SC06_DEPENDENCY_BASELINE}..HEAD`),
+        ...git("diff", "--name-only", "HEAD"),
+        ...git("ls-files", "--others", "--exclude-standard"),
+      ]),
+    ];
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
+}
+
 function main(): void {
+  // The scope audit, the input rehash and the contract hashes are all repo-relative. Run from
+  // anywhere else they would silently grade a different tree, or nothing at all.
+  if (!existsSync(path.join(REPO_ROOT, "pnpm-workspace.yaml"))) {
+    process.stderr.write(`sc-06 verify: cwd ${REPO_ROOT} is not the workspace root\n`);
+    process.exitCode = 2;
+    return;
+  }
   const parsed = parseArgs(process.argv.slice(2));
   if ("error" in parsed) {
     process.stderr.write(`sc-06 verify: ${parsed.error}\n`);
@@ -127,6 +196,8 @@ function main(): void {
     registrySha256: registryDigest(),
     reader: nodeObjectReader,
     contractDocuments,
+    sourceReader: readSource,
+    treeChangedFiles: treeChangedFiles(),
   });
 
   if (result.ok) {
