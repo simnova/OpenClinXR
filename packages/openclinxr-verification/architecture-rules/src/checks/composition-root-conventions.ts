@@ -58,7 +58,7 @@ export const COMPOSITION_ROOT_APP_BUDGETS: readonly CompositionRootAppBudget[] =
   {
     app: "apps/ui-xr",
     maxFiles: 10,
-    maxLines: 6048,
+    maxLines: 6039,
     reason:
       "6083 -> 6045 by extractions, then 6055 when the boot path gained role-based cast binding on 2026-09-09 when the supported-actor placement composition moved to @openclinxr/xr-runtime-state; 6069 -> 6039 on 2026-09-10 when SC-06 moved the four bundle-inspection helpers (inspectPinnedBundleIdentity, inspectBundleEligibility and their two private helpers, 53 lines of pure inspection over an asset-registry type) out of encounter-bundle-boot into @openclinxr/asset-registry/encounter-bundle-admission, and spent part of the freed lines wiring the frozen-scene reopen into the boot path and the frame loop; 6039 -> 6048 on 2026-09-10 when SC-06 round 4 made the frame-loop admission load-bearing (the live bedside approach is stepped only once the frozen plan is admitted and reproduced) and passed the selected scenario's own station id to the bundle producer through the case's frozen-plan binding; ratchet toward the CellixJs largest app (ui-community, 19 files / 1,506 lines) — behaviour moves to packages",
   },
