@@ -275,17 +275,56 @@ export type SupportedActorPositionRefusal = { refused: true; reason: string };
  * The offset is already in world metres. Do NOT multiply it by the mounted asset's scale a second
  * time; the brief names that error too.
  *
- * STANDING is a pass-through and is the known-good column: main.ts:848 already returns the
- * resolved position unchanged for it, and that is the one branch that was never broken.
+ * STANDING was a pass-through and stays one when nobody names a frame. `floorFrame` is the "name a
+ * floor anchor" half of the same sentence, which had no caller until SC-05: a standing actor whose
+ * case authors a start position DOES have a frame — the room's floor — and composing against it is
+ * what turns an authored doorway into a place the physician can be seen leaving from. With no named
+ * frame the refusal below is unchanged, so the known-good column still holds.
  */
 export function composeSupportedActorWorldPosition(input: {
   posture: "standing" | "seated" | "supine";
   fixtureAnchor: { x: number; y: number; z: number };
   authoredOffsetMeters?: { x: number; y: number; z: number } | undefined;
   resolvedPosition: { x: number; y: number; z: number };
+  /**
+   * The named floor frame a STANDING offset is authored against, observed off the live room.
+   *
+   * `originXz` is the room origin projected onto the floor plane and `originY` is the plane. x/z
+   * are tangent to it and y is its NORMAL, exactly as for a support: a nonzero y is refused rather
+   * than clamped. Height stays with the slot, which owns the actor's vertical offset.
+   */
+  floorFrame?: { frameId: string; originY: number; originXz: { x: number; z: number } } | undefined;
 }): { x: number; y: number; z: number } | SupportedActorPositionRefusal {
   const offset = input.authoredOffsetMeters;
   if (input.posture === "standing") {
+    const floorFrame = input.floorFrame;
+    if (floorFrame !== undefined && offset !== undefined) {
+      for (const [axis, value] of [["x", offset.x], ["y", offset.y], ["z", offset.z]] as const) {
+        if (!Number.isFinite(value)) {
+          return {
+            refused: true,
+            reason:
+              `a malformed authored offset (${axis}=${String(value)}) cannot be composed against floor frame `
+              + `${floorFrame.frameId}: a non-finite component propagates through the anchor addition and `
+              + "produces a position that compares false against every bound.",
+          };
+        }
+      }
+      if (offset.y !== 0) {
+        return {
+          refused: true,
+          reason:
+            `a nonzero normal (y=${offset.y}) offset fails the standing floor-frame control: y is the normal `
+            + `of floor frame ${floorFrame.frameId} and a standing actor's height is owned by its slot, not `
+            + "by the author",
+        };
+      }
+      return {
+        x: floorFrame.originXz.x + offset.x,
+        y: input.resolvedPosition.y,
+        z: floorFrame.originXz.z + offset.z,
+      };
+    }
     // "For standing, name a floor anchor; `none` is not itself a frame" (brief §3, authored intent
     // versus resolved placement). An offset authored against no frame has no interpretation, and
     // SILENTLY DROPPING it is worse than refusing: the author sees a value in the case and no

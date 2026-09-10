@@ -1,4 +1,3 @@
-import type { EncounterRuntimeActorPlacement } from "@openclinxr/asset-registry/runtime-bundles";
 import {
   composeSupportedActorWorldPosition,
   resolveEnvironmentShellDescriptor,
@@ -7,6 +6,7 @@ import {
 } from "@openclinxr/asset-registry";
 // #196 pattern: subpath avoids growing the frozen asset-registry barrel.
 import { FAMILY_CHAIR, resolveFixtureSlotPosition } from "@openclinxr/asset-registry/environment-zone-templates";
+import type { EncounterRuntimeActorPlacement } from "@openclinxr/asset-registry/runtime-bundles";
 import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
 
 type Vector3 = { x: number; y: number; z: number };
@@ -110,8 +110,12 @@ export function familyChairFixtureWorldPosition(environmentId: string): Vector3 
  * capture-clock-validation un-importable in node (ad714748); this returns false with no window.
  */
 export function authoredPlantOffsetSuppressed(): boolean {
-  if (typeof window === "undefined") return false;
-  return new URLSearchParams(window.location.search).get("openclinxrSuppressAuthoredPlantOffset") === "1";
+  // `globalThis`, not a bare `window`: this module is in the tools-relaxed program, which has no
+  // `dom` lib, and a bare `window` is TS2304 there. The guard is unchanged.
+  const browser = (globalThis as { window?: { location?: { search?: string } } }).window;
+  const search = browser?.location?.search;
+  if (typeof search !== "string") return false;
+  return new URLSearchParams(search).get("openclinxrSuppressAuthoredPlantOffset") === "1";
 }
 
 /**
@@ -174,6 +178,17 @@ export function supportedActorPlacementPosition(input: {
   mountedSupportInstanceIds?: readonly string[] | undefined;
   /** The PERSISTED case's authored offset, carried on the manifest record. Beats the bank. */
   authoredOffsetMeters?: Vector3 | undefined;
+  /**
+   * The named floor frame a STANDING offset is authored against, observed off the live room.
+   *
+   * Without it a standing actor's authored offset is refused as `"none" is not a frame`, which is
+   * correct when nobody named one. Measured on the unchanged tree at 86dc0300: the ward case authors
+   * the physician's start at `{x: -1.95, y: 0, z: 1.72}`, this caller supplied no frame, the
+   * composition refused, and the refusal made `supportAcceptance.accepted` false — so the physician's
+   * placement was NOT accepted and `openClinXrDependentMotionAllowed` was false. An actor who may not
+   * move cannot walk to a bedside.
+   */
+  floorFrame?: { frameId: string; originY: number; originXz: { x: number; z: number } } | undefined;
   /** Injected clock, so a recorded observation time is reproducible in a test. */
   nowMs?: number | undefined;
 }): {
@@ -203,6 +218,7 @@ export function supportedActorPlacementPosition(input: {
     posture: input.posture,
     fixtureAnchor,
     ...(authoredOffsetMeters ? { authoredOffsetMeters } : {}),
+    ...(input.floorFrame ? { floorFrame: input.floorFrame } : {}),
     resolvedPosition: input.resolvedPosition,
   });
   const supportReadiness = supportReadinessForPlacement({

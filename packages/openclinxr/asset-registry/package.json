@@ -8,6 +8,10 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./case-approach-intent": {
+      "types": "./dist/case-approach-intent.d.ts",
+      "default": "./dist/case-approach-intent.js"
+    },
     "./runtime-bundles": {
       "types": "./dist/runtime-bundles.d.ts",
       "default": "./dist/runtime-bundles.js"
@@ -63,6 +67,14 @@
     "./initial-scene-contents": {
       "types": "./dist/initial-scene-contents.d.ts",
       "default": "./dist/initial-scene-contents.js"
+    },
+    "./bedside-approach-path": {
+      "types": "./dist/bedside-approach-path.d.ts",
+      "default": "./dist/bedside-approach-path.js"
+    },
+    "./approach-executor": {
+      "types": "./dist/approach-executor.d.ts",
+      "default": "./dist/approach-executor.js"
     }
   },
   "scripts": {

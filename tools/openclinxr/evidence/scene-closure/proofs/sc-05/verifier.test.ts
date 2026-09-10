@@ -1,13 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { SCENE_CLOSURE_EVIDENCE_SCHEMA_VERSION } from "./report-schema.js";
+import { measureShippedApproach } from "./runtime-approach-measurement.js";
 import { parseArgs } from "./verify.js";
 import {
   auditScopes,
   type EvidenceRegistry,
+  inspectBehaviorTestSource,
   type ObjectReader,
   resolveArtifactPath,
+  SC05_BEHAVIOR_TEST_PATH,
+  SC05_BEHAVIOR_TEST_TITLE,
   SC05_FROZEN_SCOPES,
   SC05_REQUIRED_CHECK_IDS,
+  SC05_REQUIRED_COMMANDS,
   SC05_REQUIRED_CONTROL_IDS,
   sha256Hex,
   verifyReport,
@@ -25,7 +30,43 @@ import {
  * evidence that bytes exist. The contract asks for exactly that test by name.
  */
 
-const ARTIFACT_BYTES = Buffer.from("a recorded normal-workflow observation stream\n");
+/**
+ * A synthetic observation stream that names every required check AND carries numbers the frozen
+ * acceptance limits accept. The verifier re-applies those limits to these bytes, so a fixture that
+ * only listed the ids would be refused here exactly as a real report would.
+ */
+const MEASURED_OBSERVATIONS = [
+  ...SC05_REQUIRED_CHECK_IDS.filter(
+    (checkId) =>
+      checkId !== "arrival-error-within-0p05m"
+      && checkId !== "settled-yaw-within-10deg"
+      && checkId !== "root-stopped-for-two-seconds"
+      && checkId !== "rubric-applied-to-loaded-skeleton-and-skin",
+  ).map((checkId) => JSON.stringify({ checkId, metric: checkId, unit: "id", value: checkId })),
+  ...SC05_REQUIRED_CONTROL_IDS.map((controlId) =>
+    JSON.stringify({ checkId: controlId, metric: controlId, unit: "id", value: controlId }),
+  ),
+  JSON.stringify({ checkId: "arrival-error-within-0p05m", metric: "arrivalErrorMeters", unit: "m", value: 0.0147 }),
+  JSON.stringify({ checkId: "settled-yaw-within-10deg", metric: "settledYawErrorDegrees", unit: "deg", value: 0 }),
+  JSON.stringify({
+    checkId: "root-stopped-for-two-seconds",
+    metric: "stoppedRootTravelMeters",
+    unit: "m",
+    value: { stoppedSeconds: 7.18, stoppedRootTravelMeters: 0 },
+  }),
+  JSON.stringify({
+    checkId: "rubric-applied-to-loaded-skeleton-and-skin",
+    metric: "rubricGrades",
+    unit: "metric",
+    value: {
+      rubricVersion: "openclinxr.scene-closure-measurement-rubric.v1",
+      walkFailedMetrics: ["support-contact", "support-penetration"],
+      skinnedBodyCount: 11,
+      skinnedVertexSampleCount: 51548,
+    },
+  }),
+].join("\n");
+const ARTIFACT_BYTES = Buffer.from(`${MEASURED_OBSERVATIONS}\n`);
 const ARTIFACT_SHA = sha256Hex(ARTIFACT_BYTES);
 const BASELINE_BYTES = Buffer.from("baseline run output\n");
 const FIXED_BYTES = Buffer.from("fixed run output\n");
@@ -50,6 +91,25 @@ function readerFor(objects: Record<string, Buffer>, links: Record<string, string
   };
 }
 
+/** A synthetic source tree. proof-contract-v2.md allows fixtures HERE and only here. */
+const BEHAVIOR_TEST_SOURCE = [
+  'import { describe, it, expect } from "vitest";',
+  'describe("the normal encounter physician approaches and stops", () => {',
+  `  it("${SC05_BEHAVIOR_TEST_TITLE}", async () => { expect(1).toBe(1); });`,
+  "});",
+  "",
+].join("\n");
+const CHANGED_SOURCE = "export const x = 1;\n";
+const SOURCE_TREE: Record<string, string> = {
+  [SC05_BEHAVIOR_TEST_PATH]: BEHAVIOR_TEST_SOURCE,
+  "packages/openclinxr/xr-runtime-state/a.ts": CHANGED_SOURCE,
+  "packages/openclinxr/xr-station-room/a.ts": CHANGED_SOURCE,
+};
+
+function sourceReaderFor(tree: Record<string, string>): (path: string) => string | Error {
+  return (repoRelativePath) => tree[repoRelativePath] ?? new Error(`ENOENT ${repoRelativePath}`);
+}
+
 const CONTRACT_DOCUMENTS = new Map<string, string>([
   ["docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md", "aaa"],
   ["docs/openclinxr/scene-closure-2026-09-09/tasks-v2.md", "bbb"],
@@ -64,50 +124,61 @@ function goodReport(): Record<string, unknown> {
     contract: {
       pinnedCommit: "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50",
       documents: [...CONTRACT_DOCUMENTS].map(([path, sha256]) => ({ path, sha256 })),
-      aRows: ["A05","A07","A08"],
+      aRows: ["A05", "A07", "A08"],
     },
     implementation: {
       productSourceCommit: "1111111",
       dependencyBaselineCommit: "0000000",
       changeCommits: ["1111111"],
       treeClean: true,
-      inputs: [{ path: "tools/openclinxr/factory/scene-closure-case-source.ts", sha256: "eee" }],
-      changedFiles: ["packages/openclinxr/asset-registry/a.ts","packages/openclinxr/xr-runtime-state/a.ts"],
+      inputs: [
+        { path: SC05_BEHAVIOR_TEST_PATH, sha256: sha256Hex(BEHAVIOR_TEST_SOURCE) },
+        { path: "packages/openclinxr/xr-runtime-state/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+        { path: "packages/openclinxr/xr-station-room/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+      ],
+      changedFiles: [
+        "packages/openclinxr/xr-runtime-state/a.ts",
+        "packages/openclinxr/xr-station-room/a.ts",
+      ],
       runtime: { node: "v24", platform: "darwin-arm64" },
     },
     execution: {
-      taskId: "tsk_d4c4e549f076e0a4",
-      commands: [
-        {
-          argv: ["pnpm", "exec", "vitest", "run", "apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts"],
-          exitCode: 0,
-          startedAtIso: "2026-09-09T18:00:00.000Z",
-          endedAtIso: "2026-09-09T18:00:20.000Z",
-          tests: { passed: 3, failed: 0, skipped: 0, todo: 0 },
-        },
-      ],
+      taskId: "tsk_4d39f0beaa5cdcc6",
+      runId: "run-1",
+      commands: SC05_REQUIRED_COMMANDS.map((command) => ({
+        argv: command.split(" "),
+        exitCode: 0,
+        startedAtIso: "2026-09-09T18:00:00.000Z",
+        endedAtIso: "2026-09-09T18:00:20.000Z",
+        tests: { passed: 3, failed: 0, skipped: 0, todo: 0 },
+      })),
     },
     counterweight: {
       testIds: ["SC-05-required-behavior"],
       baselineRevision: "0000000",
-      failingAssertion: "loaded bundle scenarioId equals the persisted case id",
-      observedBeforeFix: "ed_chest_pain_priority_v1",
-      knownGoodControl: "ward_delirium_med_rec_v1 still resolves from the fixture bank",
+      baselineRunId: "run-0",
+      failingAssertion: "the manifest names the exact support the supine placement depends on",
+      observedBeforeFix: "undefined",
+      knownGoodControl: "the standing clinical placement still resolves with no support required",
       fixedRevision: "1111111",
-      observedAfterFix: "scene_closure_supine_bedside_v1",
+      observedAfterFix: "inpatient_ward_room_v1:stretcher",
       baselineOutputArtifactId: "baseline-output",
       fixedOutputArtifactId: "fixed-output",
+    },
+    sourceInspection: {
+      behaviorTestPath: SC05_BEHAVIOR_TEST_PATH,
+      behaviorTestTitle: SC05_BEHAVIOR_TEST_TITLE,
     },
     encounter: { caseId: "scene_closure_supine_bedside_v1", caseVersion: 2 },
     observations: [
       {
         observationId: "obs-loaded-scenario",
-        metric: "loaded bundle scenarioId",
+        metric: "required support instance on the supine placement",
         unit: "identifier",
-        value: "scene_closure_supine_bedside_v1",
+        value: "inpatient_ward_room_v1:stretcher",
         observedAtMs: 1,
         artifactId: "run-observations",
-        source: "normal main-UI bundle selection",
+        source: "stageStationActors over a real station shell",
       },
     ],
     checks: SC05_REQUIRED_CHECK_IDS.map((checkId) => ({
@@ -115,7 +186,7 @@ function goodReport(): Record<string, unknown> {
       expected: "contract predicate",
       observed: "observed value",
       outcome: "satisfied",
-      evidenceIds: ["obs-loaded-scenario"],
+      evidenceIds: ["obs-loaded-scenario", "run-observations"],
     })),
     controls: SC05_REQUIRED_CONTROL_IDS.map((controlId) => ({
       controlId,
@@ -185,7 +256,12 @@ const OBJECTS = {
   "/store/sc-05/fixed.txt": FIXED_BYTES,
 };
 
-function verify(report: Record<string, unknown>, objects: Record<string, Buffer> = OBJECTS, links: Record<string, string> = {}) {
+function verify(
+  report: Record<string, unknown>,
+  objects: Record<string, Buffer> = OBJECTS,
+  links: Record<string, string> = {},
+  tree: Record<string, string> = SOURCE_TREE,
+) {
   return verifyReport({
     report,
     suppliedScopes: [...SC05_FROZEN_SCOPES],
@@ -193,6 +269,7 @@ function verify(report: Record<string, unknown>, objects: Record<string, Buffer>
     registrySha256: REGISTRY_SHA,
     reader: readerFor(objects, links),
     contractDocuments: CONTRACT_DOCUMENTS,
+    sourceReader: sourceReaderFor(tree),
   });
 }
 
@@ -313,6 +390,7 @@ describe("the SC-05 evidence verifier accepts a complete control and rejects eve
       registrySha256: "f".repeat(64),
       reader: readerFor(OBJECTS),
       contractDocuments: CONTRACT_DOCUMENTS,
+      sourceReader: sourceReaderFor(SOURCE_TREE),
     });
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -332,7 +410,7 @@ describe("the SC-05 evidence verifier accepts a complete control and rejects eve
     // Only the second catches an edit in a package the card never claimed.
     const outside = goodReport();
     (outside["implementation"] as Record<string, unknown>)["changedFiles"] = [
-      "packages/openclinxr/asset-registry/a.ts",
+      "packages/openclinxr/shared-schemas/a.ts",
       "packages/openclinxr/never-owned-by-any-card/x.ts",
     ];
     const result = verify(outside);
@@ -353,6 +431,99 @@ describe("the SC-05 evidence verifier accepts a complete control and rejects eve
     expect(auditScopes([...SC05_FROZEN_SCOPES, SC05_FROZEN_SCOPES[0]!]).join("\n")).toMatch(/duplicate/u);
   });
 
+  it("(16) WRONG-RUN control: an artifact carrying neither the execution nor the baseline run id fails", () => {
+    const report = goodReport();
+    (report["artifacts"] as Array<Record<string, unknown>>)[0]!["runId"] = "run-from-another-session";
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/is neither the execution run/u);
+
+    // Known-good half: the BASELINE artifact legitimately carries a different run id and passes,
+    // so this clause is about a foreign run and not about run ids differing at all.
+    expect(verify(goodReport()).ok).toBe(true);
+  });
+
+  it("(17) a frozen completion command that was not recorded exiting zero fails", () => {
+    const missing = goodReport();
+    const commands = (missing["execution"] as Record<string, unknown>)["commands"] as unknown[];
+    commands.pop();
+    expect(verify(missing).ok).toBe(false);
+
+    const nonZero = goodReport();
+    const all = (nonZero["execution"] as Record<string, unknown>)["commands"] as Array<Record<string, unknown>>;
+    all[0]!["exitCode"] = 1;
+    const result = verify(nonZero);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/was not recorded exiting zero/u);
+  });
+
+  it("(18) CORRUPT SOURCE control: an input whose tree bytes no longer match its recorded hash fails", () => {
+    const result = verify(goodReport(), OBJECTS, {}, {
+      ...SOURCE_TREE,
+      "packages/openclinxr/xr-station-room/a.ts": "export const x = 2;\n",
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/sha256 mismatch \(report/u);
+  });
+
+  it("(19) MALFORMED BEHAVIOR TEST control: skipped, marked, or comment-only titles are refused", () => {
+    // assert-contract-live.ts is a source-pattern check on the title; these are the readings it
+    // cannot make, and the proof contract names them.
+    expect(inspectBehaviorTestSource(BEHAVIOR_TEST_SOURCE, SC05_BEHAVIOR_TEST_TITLE)).toEqual([]);
+    for (const bad of [
+      `describe("s", () => { it.skip("${SC05_BEHAVIOR_TEST_TITLE}", () => {}); it("${SC05_BEHAVIOR_TEST_TITLE}", () => {}); });`,
+      `describe.skip("s", () => { it("${SC05_BEHAVIOR_TEST_TITLE}", () => {}); });`,
+      `// it("${SC05_BEHAVIOR_TEST_TITLE}", () => {});`,
+      `/* it("${SC05_BEHAVIOR_TEST_TITLE}", () => {}); */`,
+      `describe("s", () => { it.fails("${SC05_BEHAVIOR_TEST_TITLE}", () => {}); });`,
+    ]) {
+      expect(inspectBehaviorTestSource(bad, SC05_BEHAVIOR_TEST_TITLE).length, bad).toBeGreaterThan(0);
+    }
+    // And through the whole verifier, with the tree holding a skipped test.
+    const tree = {
+      ...SOURCE_TREE,
+      [SC05_BEHAVIOR_TEST_PATH]: `describe.skip("s", () => { it("${SC05_BEHAVIOR_TEST_TITLE}", () => {}); });`,
+    };
+    const report = goodReport();
+    (report["implementation"] as Record<string, unknown>)["inputs"] = [
+      { path: SC05_BEHAVIOR_TEST_PATH, sha256: sha256Hex(tree[SC05_BEHAVIOR_TEST_PATH]!) },
+      { path: "packages/openclinxr/shared-schemas/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+      { path: "packages/openclinxr/scenario-runtime/a.ts", sha256: sha256Hex(CHANGED_SOURCE) },
+    ];
+    expect(verify(report, OBJECTS, {}, tree).ok).toBe(false);
+  });
+
+  it("(20) a check citing a real, correctly hashed artifact that never mentions it is refused", () => {
+    // The report-authored pass. Every hash resolves and every byte is genuine; the artifact simply
+    // says nothing about this check, so the `satisfied` rests on the report's own word.
+    const bytes = Buffer.from("an observation stream about something else entirely\n");
+    const result = verify(goodReport(), { ...OBJECTS, "/store/sc-05/observations.jsonl": bytes });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    // The hash check fires too; the clause under test is the mention.
+    const report = goodReport();
+    (report["artifacts"] as Array<Record<string, unknown>>)[0]!["sha256"] = sha256Hex(bytes);
+    (report["artifacts"] as Array<Record<string, unknown>>)[0]!["byteCount"] = bytes.byteLength;
+    const mentionOnly = verify(report, { ...OBJECTS, "/store/sc-05/observations.jsonl": bytes });
+    expect(mentionOnly.ok).toBe(false);
+    if (mentionOnly.ok) return;
+    expect(mentionOnly.problems.join("\n")).toMatch(/is not mentioned in the bytes/u);
+  });
+
+  it("(21) a changed file with no hashed input entry fails, so the audit cannot skip the change", () => {
+    const report = goodReport();
+    (report["implementation"] as Record<string, unknown>)["inputs"] = [
+      { path: SC05_BEHAVIOR_TEST_PATH, sha256: sha256Hex(BEHAVIOR_TEST_SOURCE) },
+    ];
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/has no hashed entry in implementation.inputs/u);
+  });
+
   it("(15) the CLI argv parser refuses an unknown flag, a bare argument and a missing report", () => {
     expect(parseArgs(["--report", "x", "--scope", "y"])).toEqual({ report: "x", scopes: ["y"] });
     expect(parseArgs(["--scope", "y"])).toEqual({ error: "--report is required" });
@@ -362,4 +533,168 @@ describe("the SC-05 evidence verifier accepts a complete control and rejects eve
     expect(parseArgs(["--report", "x", "--report", "z", "--scope", "y"]))
       .toMatchObject({ error: expect.stringContaining("more than once") });
   });
+
+  // ── The three acceptance limits, and the frozen rubric grade, re-applied to the BYTES ──────────
+  //
+  // proof-contract-v2.md: "Never trust a second copy of the expected value supplied by the same
+  // report." Every clause below hands the verifier a report whose `checks` all say `satisfied` and
+  // whose observation stream says otherwise, and the observation stream wins.
+
+  function withObservations(lines: readonly string[]): Record<string, unknown> {
+    const bytes = Buffer.from(`${lines.join("\n")}\n`);
+    const report = goodReport();
+    const artifacts = report["artifacts"] as Array<Record<string, unknown>>;
+    for (const artifact of artifacts) {
+      if (artifact["artifactId"] === "run-observations") {
+        artifact["sha256"] = sha256Hex(bytes);
+        artifact["byteCount"] = bytes.byteLength;
+      }
+    }
+    return report;
+  }
+
+  function verifyWithObservations(lines: readonly string[]): ReturnType<typeof verify> {
+    const bytes = Buffer.from(`${lines.join("\n")}\n`);
+    return verify(withObservations(lines), {
+      "/store/sc-05/observations.jsonl": bytes,
+      "/store/sc-05/baseline.txt": BASELINE_BYTES,
+      "/store/sc-05/fixed.txt": FIXED_BYTES,
+    });
+  }
+
+  const MEASURED_LINES = MEASURED_OBSERVATIONS.split("\n");
+
+  function replacingCheck(checkId: string, value: unknown): string[] {
+    return MEASURED_LINES.map((line) => {
+      const parsed = JSON.parse(line) as { checkId: string; metric: string; unit: string };
+      return parsed.checkId === checkId ? JSON.stringify({ ...parsed, value }) : line;
+    });
+  }
+
+  it("(23) an arrival error over the 0.05 m cap fails even though every check says satisfied", () => {
+    const result = verifyWithObservations(replacingCheck("arrival-error-within-0p05m", 0.31));
+    expect(result.ok).toBe(false);
+    expect(result.problems.join(" ")).toContain("arrival error 0.31 m exceeds the 0.05 m cap");
+  });
+
+  it("(24) a settled heading over the 10 degree cap fails", () => {
+    const result = verifyWithObservations(replacingCheck("settled-yaw-within-10deg", 41.2));
+    expect(result.ok).toBe(false);
+    expect(result.problems.join(" ")).toContain("41.2 deg exceeds the 10 deg cap");
+  });
+
+  it("(25) a stopped observation shorter than two seconds fails, and so does resumed root travel", () => {
+    const short = verifyWithObservations(
+      replacingCheck("root-stopped-for-two-seconds", { stoppedSeconds: 1.4, stoppedRootTravelMeters: 0 }),
+    );
+    expect(short.ok).toBe(false);
+    expect(short.problems.join(" ")).toContain("under the 2 s minimum");
+    const moved = verifyWithObservations(
+      replacingCheck("root-stopped-for-two-seconds", { stoppedSeconds: 3, stoppedRootTravelMeters: 0.02 }),
+    );
+    expect(moved.ok).toBe(false);
+    expect(moved.problems.join(" ")).toContain("root travel 0.02 m during the stopped observation");
+  });
+
+  it("(26) a grade naming a different rubric version fails", () => {
+    const result = verifyWithObservations(
+      replacingCheck("rubric-applied-to-loaded-skeleton-and-skin", {
+        rubricVersion: "openclinxr.scene-closure-measurement-rubric.v2",
+        walkFailedMetrics: ["support-contact", "support-penetration"],
+        skinnedBodyCount: 11,
+        skinnedVertexSampleCount: 51548,
+      }),
+    );
+    expect(result.ok).toBe(false);
+    expect(result.problems.join(" ")).toContain("not the frozen SC-00 version");
+  });
+
+  it("(27) EVASION: a shrinking walk-failure list is refused, not read as a cleaner sheet", () => {
+    const result = verifyWithObservations(
+      replacingCheck("rubric-applied-to-loaded-skeleton-and-skin", {
+        rubricVersion: "openclinxr.scene-closure-measurement-rubric.v1",
+        walkFailedMetrics: [],
+        skinnedBodyCount: 11,
+        skinnedVertexSampleCount: 51548,
+      }),
+    );
+    expect(result.ok).toBe(false);
+    expect(result.problems.join(" ")).toContain("a shrinking failure list is a coverage change, not a pass");
+  });
+
+  it("(28) any OTHER metric failing the walk interval fails", () => {
+    const result = verifyWithObservations(
+      replacingCheck("rubric-applied-to-loaded-skeleton-and-skin", {
+        rubricVersion: "openclinxr.scene-closure-measurement-rubric.v1",
+        walkFailedMetrics: ["support-contact", "support-penetration", "foot-slide"],
+        skinnedBodyCount: 11,
+        skinnedVertexSampleCount: 51548,
+      }),
+    );
+    expect(result.ok).toBe(false);
+    expect(result.problems.join(" ")).toContain("the walk interval failed foot-slide");
+  });
+
+  it("(29) zero skinned bodies or zero vertex samples fail; absence is not a pass", () => {
+    const result = verifyWithObservations(
+      replacingCheck("rubric-applied-to-loaded-skeleton-and-skin", {
+        rubricVersion: "openclinxr.scene-closure-measurement-rubric.v1",
+        walkFailedMetrics: ["support-contact", "support-penetration"],
+        skinnedBodyCount: 0,
+        skinnedVertexSampleCount: 0,
+      }),
+    );
+    expect(result.ok).toBe(false);
+    expect(result.problems.join(" ")).toContain("zero skinned bodies were observed");
+    expect(result.problems.join(" ")).toContain("zero skinned vertex samples were observed");
+  });
+
+  it("(30) a missing acceptance measurement fails; a number nobody recorded is not a passing one", () => {
+    const result = verifyWithObservations(
+      MEASURED_LINES.filter((line) => !line.includes("arrival-error-within-0p05m")),
+    );
+    expect(result.ok).toBe(false);
+    expect(result.problems.join(" ")).toContain("no numeric arrival-error observation was recorded");
+  });
+
+
+  // ── THE ACTUAL RUN, on the shipped bytes, graded by SC-00's frozen rubric ──────────────────────
+  //
+  // Everything above is synthetic and is allowed to be: proof-contract-v2.md permits fixtures in
+  // this suite and nowhere else. This clause is the opposite kind and is here because of a boundary,
+  // not a preference. The card fixes the behaviour test inside `apps/ui-xr/src`, and
+  // `workspace-architecture.test.ts` forbids app source from importing `tools/openclinxr/evidence/`,
+  // which is where the frozen rubric and its GLB decoders live. So the SHIPPED clip is driven
+  // through the same production runtime HERE, where the rubric may be imported, and the app test
+  // drives the same runtime over a clip whose stride is known.
+
+  it("(31) THE SHIPPED CLIP: the walk interval passes the frozen rubric and the terminal turn does not", async () => {
+    const { grades } = await measureShippedApproach();
+    // The walk. SC-00 measured this clip at 8.0x and 20.0x over the plant threshold at the advance
+    // the executor applies; under the stance lock the walk interval is exactly zero on both feet.
+    expect(grades.walkFootSlide.outcome).toBe("satisfied");
+    expect(grades.walk.failedMetrics.slice().sort()).toEqual(["support-contact", "support-penetration"]);
+    // The two that remain are the PATIENT's: they grade a body resting on a support, and this
+    // measurement is of a standing physician whose floor contact `signed-floor-contact` and
+    // `floor-penetration` do grade. Asserting the exact set rather than filtering it is deliberate.
+    expect(grades.stop.failedMetrics.slice().sort()).toEqual(["support-contact", "support-penetration"]);
+    // The terminal turn FAILS, and it is asserted as failing rather than excluded. There is no
+    // turn-in-place take in the shipped clip set, so a planted toe drags while the body rotates.
+    expect(grades.settleTurnFootSlide.outcome).toBe("violated");
+    // And the whole-run grade carries that failure, so the interval split cannot be read as a way
+    // of hiding it.
+    expect(grades.wholeRun.failedMetrics).toContain("foot-slide");
+    // The acceptance-contract limits, on the shipped clip's own run.
+    expect(grades.arrivalErrorMeters).toBeLessThanOrEqual(0.05);
+    expect(grades.settledYawErrorDegrees).toBeLessThanOrEqual(10);
+    expect(grades.stoppedSeconds).toBeGreaterThanOrEqual(2);
+    expect(grades.stoppedRootTravelMeters).toBeLessThanOrEqual(0.005);
+    // Zero skinned bodies or zero samples would be the measurement observing nothing.
+    expect(grades.skinnedBodyCount).toBeGreaterThan(0);
+    expect(grades.skinnedVertexSampleCount).toBeGreaterThan(0);
+    // The clip's own advance is MEASURED, not the executor's shipped 1.1 m/s constant.
+    expect(grades.clipStanceAdvanceMetersPerSecond).toBeGreaterThan(0);
+    expect(grades.clipStanceAdvanceMetersPerSecond).toBeLessThan(1.1);
+  }, 300_000);
+
 });

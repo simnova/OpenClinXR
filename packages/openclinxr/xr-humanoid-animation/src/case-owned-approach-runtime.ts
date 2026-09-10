@@ -1,0 +1,385 @@
+import type {
+  ObservedApproachGeometry,
+  ResolvedBedsideApproach,
+} from "@openclinxr/asset-registry/case-approach-intent";
+import { resolveFloorBandPlantLocalY } from "@openclinxr/xr-pose/actor-floor-composition";
+import {
+  type BedsideApproachExecution,
+  beginBedsideApproachExecution,
+  stepBedsideApproachExecution,
+  travelYawForClipForward,
+} from "@openclinxr/xr-runtime-state/bedside-approach-execution";
+import { Box3, type Object3D } from "three";
+import {
+  applyStanceLockedGroundAdvance,
+  createStanceLockState,
+  type StanceLockState,
+} from "./stance-lock.js";
+import type { GeneratedHumanoidAnimationSlot } from "./types.js";
+
+/**
+ * The case-owned approach, driving the actor slot and producing the drive the frame loop reads.
+ *
+ * THIS IS THE PRODUCER THAT DID NOT EXIST. `apps/ui-xr/src/main.ts` reads
+ * `floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive` every frame and, measured on the
+ * unchanged tree at 86dc0300, NOTHING in `apps`, `packages` or `tools` ever wrote either. The only
+ * non-null value the read could take came from `window.__openClinXrPedsDrive`, a recorder global
+ * this card's contract forbids as the driver of an acceptance run. `driveSource` is carried on
+ * every frame's output so an instrument can tell this producer from that global rather than
+ * inferring it.
+ *
+ * claimScope: one physician, one route, one room, driven in node or in a browser frame loop.
+ * notEvidenceFor: gait realism, clinical appropriateness, worn-headset behaviour, or pixels.
+ */
+
+type Vector3 = { x: number; y: number; z: number };
+
+export type CaseOwnedBedsideApproach = {
+  intent: ResolvedBedsideApproach;
+  execution: BedsideApproachExecution;
+  lock: StanceLockState;
+  actorSlot: Object3D;
+  leftToe: Object3D | null;
+  rightToe: Object3D | null;
+  floorOriginY: number;
+  contactBandMeters: number;
+  walkSpeedMetersPerSecond: number;
+  settleTurnRateRadiansPerSecond: number;
+  travelHeadingRadians: number;
+  start: Vector3;
+  target: Vector3;
+  /** What the floor-band plant did to the physician before the walk, recorded for evidence. */
+  floorBandPlant: ReturnType<typeof resolveFloorBandPlantLocalY>;
+};
+
+export type CaseOwnedBedsideApproachRefusal = { refused: true; reason: string };
+
+/** The drive this producer hands the frame loop, plus what it did to get there. */
+export type CaseOwnedApproachFrame = {
+  locomotion: number;
+  driveSource: "case_owned_bedside_approach";
+  phase: BedsideApproachExecution["phase"];
+  positionXz: { x: number; z: number };
+  headingRadians: number;
+  stanceFoot: StanceLockState["stanceFoot"];
+  stanceCorrectionMeters: { x: number; z: number };
+  toeHeightMeters: { left: number; right: number };
+  doubleSupport: boolean;
+  travelledMeters: number;
+  stoppedSeconds: number;
+  invalidationReason: string | null;
+};
+
+/**
+ * Toe bones on this rig, resolved by EXACT name from the conventions the shipped rigs use.
+ *
+ * A pattern match is refused for the same reason `chain-ownership.ts` refuses one: `toe_ik_target`
+ * would match `toe` and the lock would pin a control object instead of a foot. A rig that carries
+ * none of these names returns nulls, the lock then does nothing, and `stanceFoot: null` says so —
+ * which is a legible refusal rather than a silent pin on the wrong body part.
+ */
+export const KNOWN_TOE_BONE_NAMES = [
+  { left: "toe1-1.L", right: "toe1-1.R" },
+  { left: "mixamorig:LeftToeBase", right: "mixamorig:RightToeBase" },
+  { left: "toe.L", right: "toe.R" },
+] as const;
+
+export function resolveToeBones(root: Object3D): { left: Object3D | null; right: Object3D | null } {
+  for (const names of KNOWN_TOE_BONE_NAMES) {
+    const left = root.getObjectByName(names.left) ?? null;
+    const right = root.getObjectByName(names.right) ?? null;
+    if (left !== null && right !== null) return { left, right };
+  }
+  return { left: null, right: null };
+}
+
+/**
+ * The clip's OWN ground speed and travel direction, measured from a sampled stance window.
+ *
+ * WHY MEASURED AND NOT CONFIGURED. The executor's shipped `CLINICIAN_WALK_SPEED_MPS` is 1.1 m/s and
+ * `sc-04.json` measured this clip walking at 0.676 m/s — a 1.63x mismatch that the stance lock
+ * would have to absorb every frame. `sc-04.md` handed the decision here in as many words: "SC-05
+ * owns the speed decision: time-scale the clip by about 1.63, or lower the executor's constant."
+ * The advance is lowered to what the clip actually does, so the lock corrects a residual rather
+ * than a systematic error.
+ *
+ * The direction is a FINDING, not a formality. The shipped physician rig faces +Z — its toes sit
+ * 0.126 m in +Z of the ankle in the rest frame and its left foot sits at +X — while this clip's
+ * stance windows advance the body along body -Z. The bound take travels 180 degrees from the rig's
+ * own facing. Reading the direction off the clip is what keeps the plant correct on an asset whose
+ * bind is wrong.
+ */
+export function measureStanceGroundAdvance(
+  samples: ReadonlyArray<{ atMs: number; position: Vector3 }>,
+  input: { contactBandMeters: number; floorOriginY: number },
+): { metersPerSecond: number; forward: { x: number; z: number }; windowFrames: number } {
+  const inContact = samples.map(
+    (sample) => sample.position.y - input.floorOriginY <= input.contactBandMeters,
+  );
+  let best = { start: -1, end: -1, length: 0 };
+  let index = 0;
+  while (index < inContact.length) {
+    if (inContact[index] !== true) {
+      index += 1;
+      continue;
+    }
+    let end = index;
+    while (end + 1 < inContact.length && inContact[end + 1] === true) end += 1;
+    if (end - index + 1 > best.length) best = { start: index, end, length: end - index + 1 };
+    index = end + 1;
+  }
+  const first = samples[best.start];
+  const last = samples[best.end];
+  if (first === undefined || last === undefined || best.length < 2) {
+    return { metersPerSecond: 0, forward: { x: 0, z: -1 }, windowFrames: best.length };
+  }
+  const dx = first.position.x - last.position.x;
+  const dz = first.position.z - last.position.z;
+  const distance = Math.hypot(dx, dz);
+  const seconds = (last.atMs - first.atMs) / 1000;
+  if (distance === 0 || seconds === 0) {
+    return { metersPerSecond: 0, forward: { x: 0, z: -1 }, windowFrames: best.length };
+  }
+  return {
+    metersPerSecond: distance / seconds,
+    forward: { x: dx / distance, z: dz / distance },
+    windowFrames: best.length,
+  };
+}
+
+/** Shortest absolute angle between two yaws, in radians. */
+function absoluteYawDelta(from: number, to: number): number {
+  const twoPi = Math.PI * 2;
+  return Math.abs((((to - from + Math.PI) % twoPi) + twoPi) % twoPi - Math.PI);
+}
+
+export function createCaseOwnedBedsideApproach(input: {
+  intent: ResolvedBedsideApproach;
+  geometry: ObservedApproachGeometry;
+  observedGeometryRevision: string;
+  runId: string;
+  actorSlot: Object3D;
+  humanoidRoot: Object3D;
+  contactBandMeters: number;
+  /** The clip's own measured advance, from `measureStanceGroundAdvance`. */
+  clipAdvance: { metersPerSecond: number; forward: { x: number; z: number } };
+  /** One full cycle of the clip, in seconds. The terminal turn completes in exactly one. */
+  clipCycleSeconds: number;
+  routeHeadingRadians: number;
+}): CaseOwnedBedsideApproach | CaseOwnedBedsideApproachRefusal {
+  const floorFrame = input.geometry.floorFrame;
+  if (floorFrame === null) {
+    return { refused: true, reason: "no floor frame was observed, so a signed contact height has no datum" };
+  }
+  if (input.clipAdvance.metersPerSecond <= 0) {
+    return {
+      refused: true,
+      reason:
+        "the locomotion clip has no measurable stance window, so its ground advance is unknown. Walking at "
+        + "a configured constant instead would be the fabricated input this measurement exists to refuse.",
+    };
+  }
+  const travelHeadingRadians = travelYawForClipForward(
+    input.routeHeadingRadians,
+    input.clipAdvance.forward,
+  );
+  const target: Vector3 = {
+    x: input.intent.target.position.x,
+    y: input.intent.start.y,
+    z: input.intent.target.position.z,
+  };
+  const execution = beginBedsideApproachExecution({
+    runId: input.runId,
+    physicianActorId: input.intent.physicianActorId,
+    plan: input.intent.plan,
+    planGeometryRevision: input.intent.geometryRevision,
+    observedGeometryRevision: input.observedGeometryRevision,
+    start: input.intent.start,
+    travelHeadingRadians,
+  });
+  if ("refused" in execution) return execution;
+  const toes = resolveToeBones(input.humanoidRoot);
+  // PLANT THE FEET BEFORE WALKING, through the shipped function that had no caller.
+  //
+  // `resolveFloorBandPlantLocalY` (xr-pose/actor-floor-composition.ts:114) is written, tested and
+  // called by NOTHING in `apps` or `packages` — measured on the unchanged tree at 86dc0300. It is
+  // wired here because a walk whose feet are outside the floor band has no stance to lock and no
+  // contact window to grade.
+  //
+  // MEASURED ON THIS ACTOR IT IS A NO-OP, and that is recorded rather than dressed up: the framing
+  // pass puts a standing slot at y = 0 and `resolveEffectiveVerticalOffsetMeters` then returns 0 for
+  // the physician's -0.95 authored offset, so his soles are already in the band and the plant
+  // reports `planted: false`. An earlier draft of this comment claimed it corrected a 0.192 m float;
+  // that float was an artefact of a harness that used the RAW offset instead of the loader's
+  // resolved one, and the claim was wrong. What the wire buys is the actor for whom it is not a
+  // no-op, and a `planted` flag that says which case this run was.
+  input.actorSlot.updateMatrixWorld(true);
+  const lowestMeshWorldY = new Box3().setFromObject(input.humanoidRoot).min.y;
+  // A `Box3` over an object that carries no geometry is EMPTY, and its `min.y` is +Infinity. Feeding
+  // that to the plant produces `-Infinity` and every downstream transform becomes NaN — measured,
+  // and it is the difference between "the actor has not loaded yet" and "the actor is at negative
+  // infinity". An unmeasurable extent means no plant, said out loud rather than applied blindly.
+  const floorBandPlant = Number.isFinite(lowestMeshWorldY)
+    ? resolveFloorBandPlantLocalY({
+        humanoidLocalY: input.humanoidRoot.position.y,
+        lowestMeshWorldY,
+        parentWorldScaleY: input.actorSlot.scale.y,
+        floorTopY: floorFrame.originY,
+      })
+    : {
+        localY: input.humanoidRoot.position.y,
+        planted: false,
+        previousLowestMeshWorldY: lowestMeshWorldY,
+        targetLowestMeshWorldY: lowestMeshWorldY,
+      };
+  input.humanoidRoot.position.y = floorBandPlant.localY;
+  // X AND Z ONLY. The slot's Y is owned by the framing pass, which puts a standing actor on the
+  // floor at y = 0; writing the placement's own 0.95 back over it lifts the physician off the floor
+  // and every contact metric then observes nothing.
+  input.actorSlot.position.x = input.intent.start.x;
+  input.actorSlot.position.z = input.intent.start.z;
+  input.actorSlot.rotation.y = travelHeadingRadians;
+  return {
+    intent: input.intent,
+    execution,
+    lock: createStanceLockState(),
+    actorSlot: input.actorSlot,
+    leftToe: toes.left,
+    rightToe: toes.right,
+    floorOriginY: floorFrame.originY,
+    contactBandMeters: input.contactBandMeters,
+    walkSpeedMetersPerSecond: input.clipAdvance.metersPerSecond,
+    settleTurnRateRadiansPerSecond:
+      absoluteYawDelta(travelHeadingRadians, input.intent.target.headingRadians)
+      / Math.max(input.clipCycleSeconds, Number.EPSILON),
+    travelHeadingRadians,
+    start: input.intent.start,
+    target,
+    floorBandPlant,
+  };
+}
+
+/**
+ * One frame: step the executor, move the slot, then let the stance lock pin the planted toe.
+ *
+ * ORDER MATTERS AND IS THE WHOLE MECHANISM. The executor prescribes an advance from where the body
+ * actually is; the slot is moved there; the pose for this frame is already applied by the mixer;
+ * then the lock measures the planted toe and translates the slot back so the toe did not move. What
+ * survives is a body that advanced by exactly what the foot allowed.
+ *
+ * The lock runs ONLY while the drive asks for locomotion. Once the walk ends there is no stance to
+ * derive an advance from, and a lock that kept running would drag the body wherever the frozen pose
+ * drifted.
+ */
+export function advanceCaseOwnedBedsideApproach(
+  approach: CaseOwnedBedsideApproach | null,
+  input: {
+    nowMs: number;
+    deltaSeconds: number;
+    observedGeometryRevision: string;
+    supportAccepted: boolean;
+  },
+): CaseOwnedApproachFrame | null {
+  if (approach === null) return null;
+  const previousPhase = approach.execution.phase;
+  const execution = stepBedsideApproachExecution({
+    execution: approach.execution,
+    plan: approach.intent.plan,
+    start: approach.start,
+    target: approach.target,
+    targetHeadingRadians: approach.intent.target.headingRadians,
+    travelHeadingRadians: approach.travelHeadingRadians,
+    observedGeometryRevision: input.observedGeometryRevision,
+    supportAccepted: input.supportAccepted,
+    observedPositionXz: { x: approach.actorSlot.position.x, z: approach.actorSlot.position.z },
+    nowMs: input.nowMs,
+    deltaSeconds: input.deltaSeconds,
+    walkSpeedMetersPerSecond: approach.walkSpeedMetersPerSecond,
+    settleTurnRateRadiansPerSecond: approach.settleTurnRateRadiansPerSecond,
+  });
+  approach.execution = execution;
+  if (execution.phase !== "invalidated") {
+    approach.actorSlot.position.x = execution.prescribedPositionXz.x;
+    approach.actorSlot.position.z = execution.prescribedPositionXz.z;
+    approach.actorSlot.rotation.y = execution.headingRadians;
+  }
+  approach.actorSlot.updateMatrixWorld(true);
+  // THE FIRST WALKING FRAME'S POSE PREDATES THE CLIP, so the lock skips it and takes its anchor on
+  // the next one. `animation-loop.ts` calls `mixer.update(deltaSeconds)` BEFORE it reads the drive,
+  // so on the frame the drive first asks for locomotion the skeleton still holds the idle pose; the
+  // clip's first sample lands one frame later. A lock that anchored on the idle pose would then
+  // read the idle-to-walk pose change as foot slide and drag the whole body by it — measured on a
+  // 0.5 m-stride probe gait, 0.077 m of lateral error, half the arrival cap, from that one frame.
+  const startedWalkingThisFrame = previousPhase !== "walking" && execution.phase === "walking";
+  if (startedWalkingThisFrame) approach.lock = createStanceLockState();
+  if (execution.drive.locomotion > 0 && !startedWalkingThisFrame) {
+    approach.lock = applyStanceLockedGroundAdvance({
+      actorSlot: approach.actorSlot,
+      leftToe: approach.leftToe,
+      rightToe: approach.rightToe,
+      floorOriginY: approach.floorOriginY,
+      contactBandMeters: approach.contactBandMeters,
+      state: approach.lock,
+    });
+  }
+  return {
+    locomotion: execution.drive.locomotion,
+    driveSource: execution.driveSource,
+    phase: execution.phase,
+    positionXz: { x: approach.actorSlot.position.x, z: approach.actorSlot.position.z },
+    headingRadians: approach.actorSlot.rotation.y,
+    stanceFoot: approach.lock.stanceFoot,
+    stanceCorrectionMeters: approach.lock.correctionMeters,
+    toeHeightMeters: approach.lock.toeHeightMeters,
+    doubleSupport: approach.lock.doubleSupport,
+    travelledMeters: execution.travelledMeters,
+    stoppedSeconds: execution.stoppedSeconds,
+    invalidationReason: execution.invalidationReason,
+  };
+}
+
+/**
+ * Sample the locomotion clip's own stance track by stepping this actor's mixer.
+ *
+ * WHY IT STEPS THE REAL MIXER. The clip's ground advance is a property of the ANIMATED skeleton,
+ * not of the clip's raw channels: a retargeted take carries rotations, and the toe's displacement
+ * only exists once forward kinematics has run. Reading it off the running rig is the same
+ * measurement SC-00 made offline by decoding the GLB, taken through the consumer instead.
+ *
+ * The mixer's time is restored before returning, so this is an observation and not a side effect.
+ * Returns null when the actor has no locomotion clip or no mixer, which is a legible "nothing to
+ * measure" rather than a fabricated speed.
+ */
+export function sampleLocomotionStanceTrack(
+  slot: Pick<GeneratedHumanoidAnimationSlot, "root" | "mixer" | "locomotionClipName" | "responseClips">,
+  input: { toe: Object3D; sampleCount: number },
+): { samples: Array<{ atMs: number; position: Vector3 }>; cycleSeconds: number } | null {
+  const clipName = slot.locomotionClipName;
+  const mixer = slot.mixer;
+  if (!clipName || !mixer) return null;
+  const clip = slot.responseClips?.find((candidate) => candidate.name === clipName);
+  if (!clip || clip.duration <= 0) return null;
+  const action = mixer.clipAction(clip);
+  const restoreTime = action.time;
+  action.reset().play();
+  const step = clip.duration / Math.max(2, input.sampleCount);
+  const samples: Array<{ atMs: number; position: Vector3 }> = [];
+  for (let index = 0; index <= input.sampleCount; index += 1) {
+    mixer.update(index === 0 ? 0 : step);
+    slot.root.updateMatrixWorld(true);
+    const elements = input.toe.matrixWorld.elements;
+    const world = { x: elements[12] ?? 0, y: elements[13] ?? 0, z: elements[14] ?? 0 };
+    const rootElements = slot.root.matrixWorld.elements;
+    samples.push({
+      atMs: index * step * 1000,
+      position: {
+        x: world.x - (rootElements[12] ?? 0),
+        y: world.y - (rootElements[13] ?? 0),
+        z: world.z - (rootElements[14] ?? 0),
+      },
+    });
+  }
+  action.stop();
+  action.time = restoreTime;
+  return { samples, cycleSeconds: clip.duration };
+}

@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./station-environment-affect-cue": {
+      "types": "./dist/station-environment-affect-cue.d.ts",
+      "default": "./dist/station-environment-affect-cue.js"
     }
   },
   "scripts": {

@@ -5,17 +5,17 @@ import {
   supineVerticalOffsetSeed,
 } from "@openclinxr/asset-registry";
 import {
+  findRuntimeActorAsset,
+  findRuntimeActorAssetByRole,
+  findRuntimeEquipmentAsset,
+} from "@openclinxr/asset-registry/runtime-bundle-lookups";
+import {
   createEdChestPainLocalLearnerRuntimeAssetBundle,
   type EncounterRuntimeAsset,
   type EncounterRuntimeRoomProp,
   type LearnerRuntimeAssetBundle,
   resolveRuntimeAssetUrl,
 } from "@openclinxr/asset-registry/runtime-bundles";
-import {
-  findRuntimeActorAsset,
-  findRuntimeActorAssetByRole,
-  findRuntimeEquipmentAsset,
-} from "@openclinxr/asset-registry/runtime-bundle-lookups";
 import {
   arbitrateTurnTaking,
   buildHistoryTakingCoverageSpec,
@@ -25,6 +25,13 @@ import {
 } from "@openclinxr/conversation-policy";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import { responseClipForBodyRegion, scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
+import {
+  createActorDialogueStore,
+  type ActorDialoguePlaybackEvidence as PedsActorPlayerRuntimePlaybackEvidenceFromStore,
+  type ActorDialogueSequence as PedsActorPlayerRuntimeSequenceEvidenceFromStore,
+  type ActorDialogueTurn as PedsActorPlayerRuntimeTurnFromStore,
+  type ActorDialogueAdaptiveEvidence as PedsAdaptiveDialogueEvidenceFromStore,
+} from "@openclinxr/xr-actor-dialogue";
 import {
   addActorSpecificIdentityVariantCue as addPackageActorSpecificIdentityVariantCue,
   addHumanoidSourceComparatorFaceReviewCues as addPackageHumanoidSourceComparatorFaceReviewCues,
@@ -68,8 +75,8 @@ import {
   isSceneOnlyVisualReviewCaptureMode as isPackageSceneOnlyVisualReviewCaptureMode,
   roundPerformanceNow as packageRoundPerformanceNow,
   runtimeAssetAffordanceCueIds as packageRuntimeAssetAffordanceCueIds,
-  recordLearnerRuntimeUseGateEvidence as recordPackageLearnerRuntimeUseGateEvidence,
   publishRuntimeActorSlotAssignmentEvidence as publishPackageRuntimeActorSlotAssignmentEvidence,
+  recordLearnerRuntimeUseGateEvidence as recordPackageLearnerRuntimeUseGateEvidence,
   recordSceneAssetStatus as recordPackageSceneAssetStatus,
   recordXrEntryEvidence as recordPackageXrEntryEvidence,
   refreshDeclaredEquipmentMountEvidenceFromScene as refreshPackageDeclaredEquipmentMountEvidenceFromScene,
@@ -83,13 +90,6 @@ import {
   shouldSuppressGeneratedEquipmentModel as shouldPackageSuppressGeneratedEquipmentModel,
   shouldUseLearnerRuntimeAssetBundle,
 } from "@openclinxr/xr-capture-evidence";
-import {
-  type ActorDialogueAdaptiveEvidence as PedsAdaptiveDialogueEvidenceFromStore,
-  type ActorDialoguePlaybackEvidence as PedsActorPlayerRuntimePlaybackEvidenceFromStore,
-  type ActorDialogueSequence as PedsActorPlayerRuntimeSequenceEvidenceFromStore,
-  type ActorDialogueTurn as PedsActorPlayerRuntimeTurnFromStore,
-  createActorDialogueStore,
-} from "@openclinxr/xr-actor-dialogue";
 import { type ActorTurnPlayback, applyNamedSpeechVisemes,
   consumeLiveActorTurn,
   formatActiveActorRealismRequirementLines,
@@ -98,6 +98,23 @@ import { type ActorTurnPlayback, applyNamedSpeechVisemes,
   liveActorTurnFromPayload,loadBakedMouthCuesForUtterance, playFrozenActorTurnOnSlot,
   registerLiveActorTurn,
   resolveLiveActorTurnForTrace } from "@openclinxr/xr-dialogue";
+import {
+  advanceFormRunClock as advancePackageFormRunClock,
+  buildExamFlowEvidence as buildPackageExamFlowEvidence,
+  buildExamFormRunEvidence as buildPackageExamFormRunEvidence,
+  buildExamRunSummaryEvidence as buildPackageExamRunSummaryEvidence,
+  createExamFlowStore,
+  createFormRunState as createPackageFormRunState,
+  type ExamFlowRuntimeAccessors,
+  type ExamRunStationOutcome as PackageExamRunStationOutcome,
+  type OpenClinXrExamFlowEvidence as PackageOpenClinXrExamFlowEvidence,
+  type OpenClinXrExamFormRunEvidence as PackageOpenClinXrExamFormRunEvidence,
+  type OpenClinXrExamRunSummaryEvidence as PackageOpenClinXrExamRunSummaryEvidence,
+  persistFormRunQueueSnapshot as persistPackageFormRunQueueSnapshot,
+  readExamRunSummaryOutcomes as readPackageExamRunSummaryOutcomes,
+  recordStationOutcome as recordPackageStationOutcome,
+  recordStationOutcomeOnFormRun,
+} from "@openclinxr/xr-exam-flow";
 import {
   applyHumanoidMorphTargetCue as applyPackageHumanoidMorphTargetCue,
   buildHumanoidSpeechEvidence as buildPackageHumanoidSpeechEvidence,
@@ -121,6 +138,7 @@ import {
   updateGeneratedHumanoidAnimations as updatePackageGeneratedHumanoidAnimations,
   updateHumanoidEmotionExpression as updatePackageHumanoidEmotionExpression,
 } from "@openclinxr/xr-humanoid-animation";
+import { createStationBedsideApproachState, updateStationBedsideApproach } from "@openclinxr/xr-humanoid-animation/station-bedside-approach";
 import {
   applyDeterministicPortalPreviewStart as applyPackageDeterministicPortalPreviewStart,
   applyGeneratedHumanoidRoleSpecificPosture as applyPackageGeneratedHumanoidRoleSpecificPosture,
@@ -210,6 +228,7 @@ import {
   resolveLocalEquipmentRuntimeAssetFileName,
   type SceneAssetEvidence,
   summarizeTraceReadiness,
+  supportedActorPlacementPosition,
   viewLearnerCanonicalExamPhase,
   type XrExperienceModeEvidence,
   type XrRuntimeReadinessDecision,
@@ -217,10 +236,9 @@ import {
   type XrTraceActionHandoffAction,
   type XrTraceActionHandoffEvidence,
   type XrTraceInteractionEvidenceSummary,
-  composedIdleBodyHeading,
-  supportedActorPlacementPosition,
   xrExperienceModeEvidence,
 } from "@openclinxr/xr-runtime-state";
+import { applyStationIdleSway } from "@openclinxr/xr-runtime-state/composed-body-direction";
 import {
   type ExamRunQueryDeps,
   type ExamStationContext,
@@ -299,31 +317,18 @@ import {
   stampSuppressedDeclaredEquipmentOntoFixtures,stationContextForScenario, 
   syncRemoteAssembledPhase,} from "@openclinxr/xr-station";
 import {
-  type ExamFlowRuntimeAccessors,
-  type ExamRunStationOutcome as PackageExamRunStationOutcome,
-  type OpenClinXrExamFlowEvidence as PackageOpenClinXrExamFlowEvidence,
-  type OpenClinXrExamFormRunEvidence as PackageOpenClinXrExamFormRunEvidence,
-  type OpenClinXrExamRunSummaryEvidence as PackageOpenClinXrExamRunSummaryEvidence,
-  advanceFormRunClock as advancePackageFormRunClock,
-  buildExamFlowEvidence as buildPackageExamFlowEvidence,
-  buildExamFormRunEvidence as buildPackageExamFormRunEvidence,
-  buildExamRunSummaryEvidence as buildPackageExamRunSummaryEvidence,
-  createExamFlowStore,
-  createFormRunState as createPackageFormRunState,
-  persistFormRunQueueSnapshot as persistPackageFormRunQueueSnapshot,
-  readExamRunSummaryOutcomes as readPackageExamRunSummaryOutcomes,
-  recordStationOutcome as recordPackageStationOutcome,
-  recordStationOutcomeOnFormRun,
-} from "@openclinxr/xr-exam-flow";
-import {
-  actorNameplateLabel as packageActorNameplateLabel,
   assembleStationScene,
   buildStationRoomShell,
-  wireStationPointerInteraction,
+  actorNameplateLabel as packageActorNameplateLabel,
   runtimeGeneratedSceneObjectName as packageRuntimeGeneratedSceneObjectName,
-  stageStationActors,
   type StationRoomResult,
+  stageStationActors,
+  wireStationPointerInteraction,
 } from "@openclinxr/xr-station-room";
+import { applyEnvironmentAffectCue } from "@openclinxr/xr-station-room/station-environment-affect-cue";
+
+const caseOwnedBedsideApproach = createStationBedsideApproachState();
+
 import {
   type applyPedsActorPlayerSequenceListenerCues as applyPackagePedsActorPlayerSequenceListenerCues,
   buildHumanoidSpeechEvidence as buildPackageTraceHumanoidSpeechEvidence,
@@ -3437,28 +3442,39 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       }
     }
     updateVrPanels(inputEvidence);
-    // Wire gen drive from scaffold/replay metadata to live humanoid update; fallback keeps prior procedural motion.
+    // THE CASE-OWNED PRODUCER RUNS FIRST, and it is the reason the read below is no longer dead.
+    // Measured on the unchanged tree at 86dc0300, nothing in apps, packages or tools ever wrote
+    // `floor.userData.genDrive` or `floor.userData.pedsRuntimeDrive`, so the only non-null value
+    // this frame could take came from `window.__openClinXrPedsDrive` — a recorder global.
+    const approachFrame = updateStationBedsideApproach(
+      caseOwnedBedsideApproach,
+      {
+        scene,
+        physicianSlot: generatedHumanoidActorSlotsByActorId.get(runtimeAdditionalActorId()) ?? null,
+        physicianActorId: runtimeAdditionalActorId(),
+        firstClinicalSlotActorId: runtimeClinicalTeamActorId(),
+        firstClinicalSlotRole: runtimeActorRole(runtimeClinicalTeamActorId()) ?? "",
+        patientActorId: runtimePatientActorId(),
+        placements: encounterRuntimeAssetBundle.sceneManifest.actorPlacements ?? {},
+        runId: remoteStationRunId ?? "local_station_run",
+        animationSlot: generatedHumanoidAnimationSlotsByActorId.get(runtimeAdditionalActorId()),
+        supportAccepted:
+          (generatedHumanoidActorSlotsByActorId.get(runtimePatientActorId())?.userData
+            ?.openClinXrPlacementAccepted ?? false) === true,
+      },
+      { nowMs: now, deltaSeconds },
+    );
+    floor.userData.genDrive = approachFrame ? { locomotion: approachFrame.locomotion, driveSource: approachFrame.driveSource } : floor.userData.genDrive;
     const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
     const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);
     updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid);
     applyPhysicsBoneTransforms(now); // capture-gated; extracted module
     updateEnvironmentRealismAnimations(deltaSeconds, now);
-    // Deeper visual cue from drive in per-frame for live transitions on env world in launched player (richer integration of caseDerived env + gen drive/emotion). Uses deeperVisualCue from handoff (set at load from pedsRuntimeDrive/scaffold) and current emotion cues. Modulates emissive/scale on gltfEnvContainer/children for affect (e.g. anxious/urgent). Called every frame in renderSceneFrame (and fallback). Makes the virtual env world react dynamically in the full WebXR/desktop experience when running the app. (Previously only at load; now live per drive.)
-    if (typeof gltfEnvContainer !== 'undefined' && gltfEnvContainer) {
-      const cueData = gltfEnvContainer.userData.deeperVisualCueApplied || (typeof floor !== 'undefined' && floor ? floor.userData.caseDerivedVirtualEnvGltfHandoff?.deeperVisualCueApplied : null) || { cue: 'neutral', intensity: 0.1, richerCuesApplied: false };
-      const baseIntensity = cueData.intensity || 0.1;
-      const isAffect = cueData.cue && (cueData.cue.includes('anx') || cueData.cue.includes('fright') || cueData.cue.includes('urgent') || cueData.cue.includes('parent'));
-      const targetIntensity = isAffect ? Math.min(baseIntensity * 1.8, 0.35) : baseIntensity * 0.6;
-      gltfEnvContainer.traverse((obj) => {
-        if (obj instanceof Mesh && !Array.isArray(obj.material) && typeof obj.material.emissiveIntensity === 'number') {
-          obj.material.emissiveIntensity = targetIntensity;
-        }
-        if (obj.scale && isAffect) {
-          const s = 1 + Math.sin(now / 800) * 0.015;
-          obj.scale.setScalar(s);
-        }
-      });
-    }
+    // Per-frame affect modulation of the loaded environment container. The behaviour moved to
+    // @openclinxr/xr-station-room station-environment-affect-cue.ts unchanged — its thresholds, its
+    // cue-name matching and its 800 ms breathing scale are byte-for-byte what ran here — because a
+    // composition root composes and boots rather than deciding.
+    applyEnvironmentAffectCue({ container: gltfEnvContainer, floorUserData: floor?.userData ?? null, nowMs: now });
     const captureSummary = recordFrame(now, {
       qualitySource,
       isPresenting: isImmersiveFrameEvidenceActive({
@@ -3474,27 +3490,11 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       captureSummary,
       humanoidSpeechEvidence: window.__openClinXrHumanoidSpeechEvidence ?? null,
     });
-    // Standing-idle sway only. A supine root's orientation is owned by the plant hold
-    // (applySupinePoseHoldingIncline + stored hinge quat); a per-frame yaw here re-derives the
-    // actor quaternion away from the stored tip and lifts the head off the pillow (#181).
-    const patientActorSupine = patient.userData?.openClinXrActorPosture === "supine"
-      || (Array.isArray(patient.children)
-        && patient.children.some((c) => c.userData?.openClinXrActorPosture === "supine"));
-    // COMPOSED onto each actor's persistent heading, not assigned over it. These two lines used
-    // to be `rotation.y = Math.sin(...) * amplitude`, which destroyed a consumed heading on the
-    // first frame — the same defect as the position writes, one axis over.
-    const swayBase = (actor: Group): number =>
-      typeof actor.userData.openClinXrBaseHeadingRadians === "number"
-        ? (actor.userData.openClinXrBaseHeadingRadians as number)
-        : 0;
-    if (!patientActorSupine) {
-      patient.rotation.y = composedIdleBodyHeading({
-        baseHeadingRadians: swayBase(patient), nowMs: now, periodMs: 1200, amplitudeRadians: 0.08,
-      });
-    }
-    nurse.rotation.y = composedIdleBodyHeading({
-      baseHeadingRadians: swayBase(nurse), nowMs: now, periodMs: 900, amplitudeRadians: 0.12,
-    });
+    // Standing-idle sway, composed onto each actor's persistent heading. The supine exclusion (a
+    // recumbent root's orientation is owned by the plant hold) and the compose-not-assign rule (an
+    // assignment destroys a consumed heading on the first frame) moved with it to
+    // @openclinxr/xr-runtime-state, unchanged.
+    applyStationIdleSway({ patient, nurse, nowMs: now });
     renderer.render(scene, camera);
   }
 

@@ -162,14 +162,18 @@ export function ensureAndPublishActorPlacementSsot(
   slots: RuntimeSlotAssignment,
 ): void {
   const result = ensureActorPlacementsForStagedSlots(bundle, slots);
-  if (typeof window !== "undefined") {
+  // `globalThis`, not a bare `window`: this module reaches the tools-relaxed TypeScript program,
+  // which has no `dom` lib, and a bare `window` is TS2304 there against a shrink-only ceiling of 0.
+  // The publish is unchanged and still a no-op outside a browser.
+  const browser = (globalThis as { window?: Record<string, unknown> }).window;
+  if (browser) {
     const evidence: ActorPlacementSsotEvidence = {
       declaredActorIds: result.declaredActorIds,
       addedActorIds: result.addedActorIds,
       rewrittenActorIds: result.rewrittenActorIds,
       actorPlacements: bundle.sceneManifest.actorPlacements ?? {},
     };
-    window.__openClinXrActorPlacementSsot = evidence;
+    browser["__openClinXrActorPlacementSsot"] = evidence;
   }
 }
 

@@ -61,6 +61,54 @@ export const SC05_FROZEN_SCOPES = [
 
 export const SC05_A_ROWS = ["A05", "A07", "A08"] as const;
 
+/** The named behavior test and its required ordinary `it` title, both fixed by the card. */
+export const SC05_BEHAVIOR_TEST_PATH = "apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts";
+export const SC05_BEHAVIOR_TEST_TITLE = "SC-05-required-behavior";
+
+/**
+ * The card's frozen `run:` completion commands, argv-joined.
+ *
+ * The report must record each of them EXITING ZERO. Without this a report can pass having run the
+ * verifier suite and nothing else — the shape the proof contract calls out: "an already-green
+ * regression suite or verifier unit tests on synthetic fixtures cannot close a card".
+ */
+export const SC05_REQUIRED_COMMANDS = [
+  "pnpm exec vitest run packages/openclinxr/asset-registry/src/the-approach-path-stops-at-the-target.test.ts packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts",
+  "pnpm exec vitest run packages/openclinxr/xr-humanoid-animation/src/the-locomotion-drive-plays-a-clip.test.ts packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts",
+  `pnpm exec vitest run ${SC05_BEHAVIOR_TEST_PATH}`,
+  `pnpm exec tsx tools/openclinxr/openclaw/assert-contract-live.ts ${SC05_BEHAVIOR_TEST_PATH} ${SC05_BEHAVIOR_TEST_TITLE}`,
+  "pnpm exec vitest run tools/openclinxr/evidence/scene-closure/proofs/sc-05/verifier.test.ts",
+] as const;
+
+/**
+ * Reject a behavior test whose required title is absent, marked, or inside a skipped suite.
+ *
+ * `assert-contract-live.ts` is a source-pattern check on the title alone. proof-contract-v2.md says
+ * so in as many words — "it is a source-pattern check, not proof that the test runs or asserts
+ * useful behavior" — and asks the verifier to "reject a title hidden in a comment, skipped
+ * enclosing suite or empty callback". This is that second reading, recomputed from the tree.
+ */
+export function inspectBehaviorTestSource(source: string, title: string): string[] {
+  const problems: string[] = [];
+  const uncommented = source
+    .replace(/\/\*[\s\S]*?\*\//gu, "")
+    .split("\n")
+    .map((line) => line.replace(/\/\/.*$/u, ""))
+    .join("\n");
+  const ordinary = new RegExp(`(?<![.\\w])it\\s*\\(\\s*["'\`]${title}["'\`]`, "u");
+  if (!ordinary.test(uncommented)) {
+    problems.push(`behavior test does not contain an ordinary it("${title}", ...) outside comments`);
+  }
+  for (const marker of ["it.skip", "it.fails", "it.todo", "it.concurrent.skip"]) {
+    const marked = new RegExp(`${marker.replace(/\./gu, "\\.")}\\s*\\(\\s*["'\`]${title}["'\`]`, "u");
+    if (marked.test(uncommented)) problems.push(`behavior test marks ${title} with ${marker}`);
+  }
+  if (/describe\.(skip|todo)\s*\(/u.test(uncommented)) {
+    problems.push("behavior test has a skipped or todo describe block");
+  }
+  return problems;
+}
+
 export type EvidenceRegistry = {
   schemaVersion: string;
   storageRoot: string;
@@ -148,6 +196,99 @@ export function resolveArtifactPath(
   return candidate;
 }
 
+
+/**
+ * The three engineering limits `acceptance-v2.md` fixes for the bounded demo, quoted rather than
+ * restated: "horizontal arrival error at most 0.05 m; settled body-heading error at most 10 degrees;
+ * no resumed root travel during a two-second stopped observation." `stoppedRootTravelMaxMeters` is
+ * SC-00's, derived from the capture camera's perceptual floor and not from any run.
+ *
+ * They are RECOMPUTED here from the observation bytes rather than read off the report's own check
+ * outcomes: `proof-contract-v2.md` says "Never trust a second copy of the expected value supplied by
+ * the same report." A report claiming `satisfied` beside an observation of 0.31 m is refused.
+ */
+export const SC05_ACCEPTANCE_LIMITS = {
+  arrivalErrorMaxMeters: 0.05,
+  settledYawErrorMaxDegrees: 10,
+  stoppedObservationMinSeconds: 2,
+  stoppedRootTravelMaxMeters: 0.005,
+} as const;
+
+/** One line of the behaviour test's read-only observation stream. */
+type ObservationLine = { checkId?: unknown; value?: unknown };
+
+/**
+ * Re-apply the acceptance limits and the frozen rubric's coverage to the run's own measured numbers.
+ *
+ * Returns the problems found. An observation stream carrying no line for a required measurement is a
+ * problem too: a missing number is not a passing one.
+ */
+export function recomputeAcceptanceLimits(observationStream: string): string[] {
+  const problems: string[] = [];
+  const byCheckId = new Map<string, unknown>();
+  for (const line of observationStream.split("\n")) {
+    if (line.trim() === "") continue;
+    let parsed: ObservationLine;
+    try {
+      parsed = JSON.parse(line) as ObservationLine;
+    } catch {
+      problems.push("the observation stream carries a line that is not JSON");
+      continue;
+    }
+    if (typeof parsed.checkId === "string") byCheckId.set(parsed.checkId, parsed.value);
+  }
+  const arrival = byCheckId.get("arrival-error-within-0p05m");
+  if (typeof arrival !== "number") problems.push("no numeric arrival-error observation was recorded");
+  else if (arrival > SC05_ACCEPTANCE_LIMITS.arrivalErrorMaxMeters) {
+    problems.push(`arrival error ${arrival} m exceeds the ${SC05_ACCEPTANCE_LIMITS.arrivalErrorMaxMeters} m cap`);
+  }
+  const yaw = byCheckId.get("settled-yaw-within-10deg");
+  if (typeof yaw !== "number") problems.push("no numeric settled-heading observation was recorded");
+  else if (yaw > SC05_ACCEPTANCE_LIMITS.settledYawErrorMaxDegrees) {
+    problems.push(`settled heading error ${yaw} deg exceeds the ${SC05_ACCEPTANCE_LIMITS.settledYawErrorMaxDegrees} deg cap`);
+  }
+  const stopped = byCheckId.get("root-stopped-for-two-seconds");
+  if (!isRecord(stopped)) problems.push("no stopped-observation record was recorded");
+  else {
+    const seconds = stopped["stoppedSeconds"];
+    const travel = stopped["stoppedRootTravelMeters"];
+    if (typeof seconds !== "number" || seconds < SC05_ACCEPTANCE_LIMITS.stoppedObservationMinSeconds) {
+      problems.push(`the stopped observation ran ${String(seconds)} s, under the ${SC05_ACCEPTANCE_LIMITS.stoppedObservationMinSeconds} s minimum`);
+    }
+    if (typeof travel !== "number" || travel > SC05_ACCEPTANCE_LIMITS.stoppedRootTravelMaxMeters) {
+      problems.push(`root travel ${String(travel)} m during the stopped observation exceeds ${SC05_ACCEPTANCE_LIMITS.stoppedRootTravelMaxMeters} m`);
+    }
+  }
+  const rubric = byCheckId.get("rubric-applied-to-loaded-skeleton-and-skin");
+  if (!isRecord(rubric)) problems.push("no rubric grade was recorded");
+  else {
+    if (rubric["rubricVersion"] !== "openclinxr.scene-closure-measurement-rubric.v1") {
+      problems.push(`the grade names rubric ${String(rubric["rubricVersion"])}, not the frozen SC-00 version`);
+    }
+    const walkFailed = Array.isArray(rubric["walkFailedMetrics"]) ? rubric["walkFailedMetrics"].map(String) : null;
+    if (walkFailed === null) problems.push("the rubric grade records no walk-interval failed metric list");
+    else {
+      // The walk interval may leave EXACTLY the two support metrics unsatisfied: they grade a body
+      // resting on a support, and this measurement is of a standing physician. Any other metric
+      // failing, and either of these two silently disappearing, is a different result.
+      const unexpected = walkFailed.filter((metric) => metric !== "support-contact" && metric !== "support-penetration");
+      if (unexpected.length > 0) problems.push(`the walk interval failed ${unexpected.join(", ")}`);
+      for (const expected of ["support-contact", "support-penetration"]) {
+        if (!walkFailed.includes(expected)) {
+          problems.push(`the walk grade no longer reports ${expected}; a shrinking failure list is a coverage change, not a pass`);
+        }
+      }
+    }
+    if (typeof rubric["skinnedBodyCount"] !== "number" || Number(rubric["skinnedBodyCount"]) < 1) {
+      problems.push("zero skinned bodies were observed");
+    }
+    if (typeof rubric["skinnedVertexSampleCount"] !== "number" || Number(rubric["skinnedVertexSampleCount"]) < 1) {
+      problems.push("zero skinned vertex samples were observed");
+    }
+  }
+  return problems;
+}
+
 export type VerifyInput = {
   report: unknown;
   suppliedScopes: readonly string[];
@@ -156,6 +297,11 @@ export type VerifyInput = {
   reader: ObjectReader;
   /** Contract documents as they exist on disk, for hash comparison. */
   contractDocuments: Map<string, string>;
+  /**
+   * Repo-relative source reader. The CLI passes the real filesystem; the unit suite passes a
+   * synthetic tree so a malformed or skipped behavior test can be exercised without writing one.
+   */
+  sourceReader: (repoRelativePath: string) => string | Error;
 };
 
 export type VerifyResult = { ok: true } | { ok: false; problems: string[] };
@@ -248,13 +394,71 @@ export function verifyReport(input: VerifyInput): VerifyResult {
         if (!inScope) fail(`changed file outside every frozen scope: ${changed}`);
       }
     }
+
+    // Recompute every declared input hash from the SOURCE TREE. A report carrying a second copy of
+    // an expected hash proves nothing; reading the bytes back does. This is also the freshness
+    // check the landing reviewer needs: a consumed input edited after the report was written fails
+    // here rather than being discovered later.
+    const inputs = Array.isArray(implementation["inputs"]) ? implementation["inputs"] : [];
+    const hashedInputPaths = new Set<string>();
+    for (const entry of inputs) {
+      if (!isRecord(entry)) {
+        fail("an implementation.inputs entry is not an object");
+        continue;
+      }
+      const inputPath = String(entry["path"]);
+      hashedInputPaths.add(path.normalize(inputPath));
+      const source = input.sourceReader(inputPath);
+      if (source instanceof Error) {
+        fail(`input ${inputPath}: ${source.message}`);
+        continue;
+      }
+      const digest = sha256Hex(source);
+      if (digest !== entry["sha256"]) {
+        fail(`input ${inputPath}: sha256 mismatch (report ${String(entry["sha256"])}, tree ${digest})`);
+      }
+    }
+    // Every file the task changed must carry a recomputed hash, or the audit above covers a set
+    // that does not include the change under review.
+    for (const entry of Array.isArray(changedFiles) ? changedFiles : []) {
+      const changed = path.normalize(String(entry));
+      if (!hashedInputPaths.has(changed)) fail(`changed file ${changed} has no hashed entry in implementation.inputs`);
+    }
+  }
+
+  // The named behavior test, recomputed from the tree rather than trusted from the report.
+  const sourceInspection = report.sourceInspection;
+  if (!isRecord(sourceInspection)) fail("missing sourceInspection section");
+  else {
+    if (sourceInspection["behaviorTestPath"] !== SC05_BEHAVIOR_TEST_PATH) {
+      fail(`sourceInspection.behaviorTestPath must be ${SC05_BEHAVIOR_TEST_PATH}`);
+    }
+    if (sourceInspection["behaviorTestTitle"] !== SC05_BEHAVIOR_TEST_TITLE) {
+      fail(`sourceInspection.behaviorTestTitle must be ${SC05_BEHAVIOR_TEST_TITLE}`);
+    }
+    const source = input.sourceReader(SC05_BEHAVIOR_TEST_PATH);
+    if (source instanceof Error) fail(`behavior test unreadable: ${source.message}`);
+    else for (const problem of inspectBehaviorTestSource(source, SC05_BEHAVIOR_TEST_TITLE)) fail(problem);
   }
 
   const execution = report.execution;
   if (!isRecord(execution)) fail("missing execution section");
   else {
+    if (typeof execution["runId"] !== "string" || String(execution["runId"]).trim() === "") {
+      fail("execution.runId is missing; artifacts cannot be bound to a run");
+    }
     const commands = Array.isArray(execution["commands"]) ? execution["commands"] : [];
     if (commands.length === 0) fail("execution.commands is empty");
+    // Every frozen completion command must be recorded as having exited zero.
+    const zeroExit = new Set(
+      commands
+        .filter((command) => isRecord(command) && Number(command["exitCode"]) === 0 && Array.isArray(command["argv"]))
+        .map((command) => (command as Record<string, unknown>)["argv"] as string[])
+        .map((argv) => argv.join(" ")),
+    );
+    for (const required of SC05_REQUIRED_COMMANDS) {
+      if (!zeroExit.has(required)) fail(`required completion command was not recorded exiting zero: ${required}`);
+    }
     for (const command of commands) {
       if (!isRecord(command)) continue;
       if (!Array.isArray(command["argv"]) || command["argv"].length === 0) fail("a command has no argv");
@@ -274,6 +478,7 @@ export function verifyReport(input: VerifyInput): VerifyResult {
     for (const field of [
       "testIds",
       "baselineRevision",
+      "baselineRunId",
       "failingAssertion",
       "observedBeforeFix",
       "knownGoodControl",
@@ -298,6 +503,9 @@ export function verifyReport(input: VerifyInput): VerifyResult {
   // Artifacts: resolve every one through the registry and rehash its real bytes.
   const artifacts = Array.isArray(report.artifacts) ? report.artifacts : [];
   const artifactIds = new Set<string>();
+  const artifactText = new Map<string, string>();
+  const executionRunId = isRecord(report.execution) ? String(report.execution["runId"]) : "";
+  const baselineRunId = isRecord(report.counterweight) ? String(report.counterweight["baselineRunId"]) : "";
   if (artifacts.length === 0) fail("artifacts is empty");
   for (const artifact of artifacts) {
     if (!isRecord(artifact)) {
@@ -329,6 +537,13 @@ export function verifyReport(input: VerifyInput): VerifyResult {
     const digest = sha256Hex(bytes);
     if (digest !== artifact["sha256"]) {
       fail(`artifact ${artifactId}: sha256 mismatch (report ${String(artifact["sha256"])}, disk ${digest})`);
+    }
+    artifactText.set(artifactId, bytes.toString("utf8"));
+    // Run identity. An artifact belongs to THIS run or to the named baseline run; anything else is
+    // a wrong-run record, which is the exact substitution "replaying another session" performs.
+    const artifactRunId = String(artifact["runId"]);
+    if (artifactRunId !== executionRunId && artifactRunId !== baselineRunId) {
+      fail(`artifact ${artifactId}: runId ${artifactRunId} is neither the execution run ${executionRunId} nor the baseline run ${baselineRunId}`);
     }
   }
 
@@ -365,9 +580,29 @@ export function verifyReport(input: VerifyInput): VerifyResult {
         || observations.some((entry) => isRecord(entry) && entry["observationId"] === evidenceId);
       if (!known) fail(`check ${checkId} references unknown evidence ${evidenceId}`);
     }
+    // "report-authored pass flags without observed evidence" fail. An outcome of `satisfied` has
+    // to be findable IN THE BYTES: at least one cited artifact must actually mention this check.
+    // Without this a report can cite a real, correctly hashed log that says nothing about it.
+    const citedArtifacts = evidenceIds.filter((evidenceId) => artifactText.has(evidenceId));
+    if (citedArtifacts.length === 0) {
+      fail(`check ${checkId} cites no artifact, so its outcome rests on the report's own word`);
+    } else if (!citedArtifacts.some((evidenceId) => (artifactText.get(evidenceId) ?? "").includes(checkId))) {
+      fail(`check ${checkId} is not mentioned in the bytes of any artifact it cites`);
+    }
   }
   for (const required of SC05_REQUIRED_CHECK_IDS) {
     if (!seenChecks.has(required)) fail(`required check ${required} is missing`);
+  }
+
+  // THE THREE ACCEPTANCE LIMITS, AND THE RUBRIC GRADE, RE-APPLIED TO THE BYTES. Everything above
+  // checks that the report is internally coherent and that its artifacts resolve; this reads the
+  // numbers the run actually measured and compares them against the contract itself.
+  const observationStreams = [...artifactText.entries()].filter(([artifactId]) => artifactId.includes("observations"));
+  if (observationStreams.length === 0) {
+    fail("no observation stream artifact was resolved, so the measured numbers cannot be re-applied");
+  }
+  for (const [artifactId, text] of observationStreams) {
+    for (const problem of recomputeAcceptanceLimits(text)) fail(`${artifactId}: ${problem}`);
   }
 
   const controls = Array.isArray(report.controls) ? report.controls : [];

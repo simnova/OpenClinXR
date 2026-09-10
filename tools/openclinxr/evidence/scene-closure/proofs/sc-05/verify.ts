@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
   type EvidenceRegistry,
@@ -19,6 +19,9 @@ import {
  * fabricates an artifact. Every failure below exits nonzero; nothing is caught and downgraded.
  */
 
+/** The repo root, asserted rather than assumed: a wrong cwd would silently read nothing. */
+const REPO_ROOT = process.cwd();
+
 const CONTRACT_DIR = "docs/openclinxr/scene-closure-2026-09-09";
 const CONTRACT_DOCUMENTS = [
   `${CONTRACT_DIR}/acceptance-v2.md`,
@@ -38,9 +41,9 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
   let report: string | undefined;
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
-    // `noUncheckedIndexedAccess` makes this `string | undefined`. A non-null assertion would
-    // silence the type without checking anything; the loop bound already rules it out, so the
-    // guard is a refusal rather than a cast.
+    // `noUncheckedIndexedAccess` makes this `string | undefined`, and `lint/style/noNonNullAssertion`
+    // refuses the assertion that would silence it. The loop bound already rules undefined out, so
+    // this guard is a refusal rather than a cast.
     if (token === undefined) return { error: `missing argument at position ${index}` };
     if (token === "--report") {
       if (report !== undefined) return { error: "--report supplied more than once" };
@@ -85,7 +88,24 @@ function registryDigest(): string | Error {
   }
 }
 
+/** Real filesystem source reader, rooted at the workspace. No fallback, no fixture. */
+function readSource(repoRelativePath: string): string | Error {
+  if (path.isAbsolute(repoRelativePath)) return new Error(`source path ${repoRelativePath} must be repo-relative`);
+  const resolved = path.resolve(REPO_ROOT, repoRelativePath);
+  if (!resolved.startsWith(`${REPO_ROOT}${path.sep}`)) return new Error(`source path ${repoRelativePath} escapes the repo`);
+  try {
+    return readFileSync(resolved, "utf8");
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
+}
+
 function main(): void {
+  if (!existsSync(path.join(REPO_ROOT, "pnpm-workspace.yaml"))) {
+    process.stderr.write(`sc-05 verify: cwd ${REPO_ROOT} is not the workspace root\n`);
+    process.exitCode = 2;
+    return;
+  }
   const parsed = parseArgs(process.argv.slice(2));
   if ("error" in parsed) {
     process.stderr.write(`sc-05 verify: ${parsed.error}\n`);
@@ -127,6 +147,7 @@ function main(): void {
     registrySha256: registryDigest(),
     reader: nodeObjectReader,
     contractDocuments,
+    sourceReader: readSource,
   });
 
   if (result.ok) {

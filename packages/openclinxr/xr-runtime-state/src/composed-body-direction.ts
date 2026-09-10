@@ -63,3 +63,51 @@ export function bodyDirectionWithinAllowance(input: {
   );
   return { within: deviation <= allowance + 1e-9, deviationRadians: deviation };
 }
+
+/**
+ * The two staged actors' idle sway, composed onto their persistent headings.
+ *
+ * MOVED OUT OF `apps/ui-xr/src/main.ts` UNCHANGED, for the reason
+ * `composition-root-conventions.ts` states: "an app module may only compose, boot, and expose what a
+ * package built." The two exclusions below are the ones that were already there and both are
+ * load-bearing.
+ *
+ * A SUPINE ACTOR IS SKIPPED. A recumbent root's orientation is owned by the plant hold
+ * (`applySupinePoseHoldingIncline` plus the stored hinge quaternion); a per-frame yaw re-derives the
+ * actor quaternion away from the stored tip and lifts the head off the pillow.
+ *
+ * THE SWAY IS COMPOSED, NEVER ASSIGNED. These used to be `rotation.y = Math.sin(...) * amplitude`,
+ * which destroyed a consumed heading on the first frame — the same defect as the position writes,
+ * one axis over. The base is `openClinXrBaseHeadingRadians`, stamped at staging after everything
+ * else that writes rotation.y.
+ */
+export function applyStationIdleSway(input: {
+  patient: { rotation: { y: number }; userData: Record<string, unknown>; children?: unknown[] };
+  nurse: { rotation: { y: number }; userData: Record<string, unknown> };
+  nowMs: number;
+}): void {
+  const children = Array.isArray(input.patient.children) ? input.patient.children : [];
+  const posture = (userData: Record<string, unknown> | undefined): unknown =>
+    userData === undefined ? undefined : Reflect.get(userData, "openClinXrActorPosture");
+  const supine =
+    posture(input.patient.userData) === "supine"
+    || children.some((child) => posture((child as { userData?: Record<string, unknown> }).userData) === "supine");
+  const base = (userData: Record<string, unknown>): number => {
+    const heading = Reflect.get(userData, "openClinXrBaseHeadingRadians");
+    return typeof heading === "number" ? heading : 0;
+  };
+  if (!supine) {
+    input.patient.rotation.y = composedIdleBodyHeading({
+      baseHeadingRadians: base(input.patient.userData),
+      nowMs: input.nowMs,
+      periodMs: 1200,
+      amplitudeRadians: 0.08,
+    });
+  }
+  input.nurse.rotation.y = composedIdleBodyHeading({
+    baseHeadingRadians: base(input.nurse.userData),
+    nowMs: input.nowMs,
+    periodMs: 900,
+    amplitudeRadians: 0.12,
+  });
+}

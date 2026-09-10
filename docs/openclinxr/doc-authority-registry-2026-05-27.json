@@ -7,7 +7,7 @@
     "agent-methodology": 105,
     "current-reference": 208,
     "archive-candidate": 88,
-    "evidence": 79,
+    "evidence": 80,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -4169,6 +4169,13 @@
     },
     {
       "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-04.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-05.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",

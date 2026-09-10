@@ -1,9 +1,10 @@
+import { boneIsOwned, type OwnedChain } from "@openclinxr/xr-pose";
 import * as THREE from "three";
 import { describe, expect, it, vi } from "vitest";
 import {
-  updateGeneratedHumanoidAnimations,
   type GeneratedHumanoidAnimationSlot,
   type HumanoidAnimationRuntimeContext,
+  updateGeneratedHumanoidAnimations,
 } from "./index.js";
 
 /**
@@ -75,6 +76,13 @@ function standingSlot(overrides: Partial<GeneratedHumanoidAnimationSlot> = {}): 
   const root = new THREE.Group();
   root.position.set(0, 1, -0.2);
   root.userData["openClinXrActorPosture"] = "standing";
+  // A rig with real bone NAMES, because the chain claim now resolves categories against the bones
+  // this actor actually carries rather than storing the categories themselves.
+  for (const bone of ["upperleg01.L", "lowerleg01.L", "foot.L", "toe1-1.L", "upperarm01.L"]) {
+    const node = new THREE.Object3D();
+    node.name = bone;
+    root.add(node);
+  }
   return {
     assetId: "mpfb-clinical-physician-adult",
     actorId: "senior_resident_ward_v1",
@@ -133,24 +141,53 @@ describe("the locomotion drive plays a retargeted clip instead of sliding the ro
     expect(playback.clipName).toBe(WALK.name);
     expect(playback.playing).toBe(true);
     expect(slot.mixer?.existingAction(WALK)?.isRunning()).toBe(true);
-    // The chains must be claimed, or applyIdlePosture rewrites the legs and the walk is invisible.
-    expect(slot.root.userData["openClinXrOwnedBoneChains"]).toContain("foot");
+    // THE CLAIM MUST BE READABLE BY ITS OWN READER. It used to be a `string[]` of chain categories
+    // while `clinical-idle-posture.ts:263-265` filters for `{ownerId, boneNames}` objects, so the
+    // owned set was always empty and the skip never fired — a correct-and-inert seam. Asserting
+    // through `boneIsOwned` rather than on the stored shape is what makes that class fail here.
+    const claimed = slot.root.userData["openClinXrOwnedBoneChains"] as OwnedChain[];
+    expect(Array.isArray(claimed)).toBe(true);
+    expect(boneIsOwned(claimed, "foot.L")).toBe(true);
+    expect(boneIsOwned(claimed, "toe1-1.L")).toBe(true);
+    // And the unowned neighbour keeps moving: an arm bone is NOT captured by the leg claim.
+    expect(boneIsOwned(claimed, "upperarm01.L")).toBe(false);
     // And the root must NOT have been slid: that is the behaviour this replaces.
     expect(slot.root.position.z).toBeCloseTo(slot.baseZ, 6);
   });
 
   it("(2) a zero drive STOPS the clip and releases the chain, so the actor is not left mid-stride", () => {
+    // A bone the clip actually drives, so "settled on the rest frame" is a POSE assertion rather
+    // than a flag assertion. y goes 0.4 -> 0.9 over the clip; the rest frame is 0.4.
+    const REST_Y = 0.4;
+    const restBone = new THREE.Object3D();
+    restBone.name = "foot.L";
+    const mixerRoot = new THREE.Group();
+    mixerRoot.add(restBone);
+    const settleClip = new THREE.AnimationClip("openclinxr_retarget_settle_probe", 1, [
+      new THREE.VectorKeyframeTrack("foot.L.position", [0, 1], [0, REST_Y, 0, 0, 0.9, 0]),
+    ]);
     const slot = standingSlot({
-      locomotionClipName: WALK.name,
-      responseClips: [WALK],
-      mixer: new THREE.AnimationMixer(new THREE.Group()),
+      locomotionClipName: settleClip.name,
+      responseClips: [settleClip],
+      mixer: new THREE.AnimationMixer(mixerRoot),
     });
     runFrame(slot, 1);
+    slot.mixer?.update(0.5);
+    expect(restBone.position.y).toBeGreaterThan(REST_Y + 0.1);
     runFrame(slot, 0);
-    const playback = slot.root.userData["openClinXrLocomotionClipPlayback"] as { playing: boolean };
+    const playback = slot.root.userData["openClinXrLocomotionClipPlayback"] as {
+      playing: boolean;
+      settledOn?: string;
+    };
     expect(playback.playing).toBe(false);
-    expect(slot.mixer?.existingAction(WALK)?.isRunning()).toBe(false);
+    expect(slot.mixer?.existingAction(settleClip)?.isRunning()).toBe(false);
     expect(slot.root.userData["openClinXrOwnedBoneChains"]).toEqual([]);
+    // AND THE POSE IS THE CLIP'S REST FRAME, not wherever the stride stopped. `action.stop()` alone
+    // deactivates the action and leaves the bones holding the last mid-stride values: measured on
+    // the shipped take, the physician stood on one leg with `toe1-1.L` 0.252 m above the floor for
+    // the whole stopped observation and `signed-floor-contact` recorded zero frames on that foot.
+    expect(playback.settledOn).toBe("clip_rest_frame");
+    expect(restBone.position.y).toBeCloseTo(REST_Y, 6);
   });
 
   it("(3) COUNTERWEIGHT: an actor with NO locomotion clip still slides, exactly as before", () => {
