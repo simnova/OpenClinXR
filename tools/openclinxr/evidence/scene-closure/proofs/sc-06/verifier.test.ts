@@ -116,7 +116,7 @@ function goodReport(): Record<string, unknown> {
     },
     implementation: {
       productSourceCommit: "1111111",
-      dependencyBaselineCommit: "0000000",
+      dependencyBaselineCommit: "27efa3d2e0615a2dc7435533724e7378a0371682",
       changeCommits: ["1111111"],
       treeClean: true,
       inputs: [
@@ -242,11 +242,19 @@ const OBJECTS = {
   "/store/sc-06/fixed.txt": FIXED_BYTES,
 };
 
+/** What git would report. The default is exactly what the good report accounts for. */
+const TREE_CHANGED = [
+  "packages/openclinxr/asset-registry/a.ts",
+  "packages/openclinxr/scenario-runtime/a.ts",
+  "packages/openclinxr-verification/architecture-rules/src/checks/composition-root-conventions.ts",
+];
+
 function verify(
   report: Record<string, unknown>,
   objects: Record<string, Buffer> = OBJECTS,
   links: Record<string, string> = {},
   tree: Record<string, string> = SOURCE_TREE,
+  treeChanged: readonly string[] | Error = TREE_CHANGED,
 ) {
   return verifyReport({
     report,
@@ -256,6 +264,7 @@ function verify(
     reader: readerFor(objects, links),
     contractDocuments: CONTRACT_DOCUMENTS,
     sourceReader: sourceReaderFor(tree),
+    treeChangedFiles: treeChanged,
   });
 }
 
@@ -377,6 +386,7 @@ describe("the SC-06 evidence verifier accepts a complete control and rejects eve
       reader: readerFor(OBJECTS),
       contractDocuments: CONTRACT_DOCUMENTS,
       sourceReader: sourceReaderFor(SOURCE_TREE),
+      treeChangedFiles: TREE_CHANGED,
     });
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -582,6 +592,7 @@ describe("the SC-06 evidence verifier accepts a complete control and rejects eve
           ? new Error(`ENOENT ${repoRelativePath}`)
           : Buffer.from(source, "utf8");
       },
+      treeChangedFiles: TREE_CHANGED,
     });
     expect(result.ok, result.ok ? "" : result.problems.join("\n")).toBe(true);
   });
@@ -662,5 +673,47 @@ describe("the SC-06 evidence verifier accepts a complete control and rejects eve
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.problems.join("\n")).toMatch(/registrationsOutsideWriteRoots is missing/u);
+  });
+
+  it("(30) THE TREE IS THE AUTHORITY: a change the report never volunteers is refused", () => {
+    // THE ROUND-3 FINDING. `changedFiles` was a report-authored array and `treeClean` a
+    // report-authored boolean, and nothing compared either with the repository — a reviewer appended
+    // a comment to an out-of-scope file and this CLI produced byte-identical output. The scope audit
+    // only ever caught a file the report VOLUNTEERED, which is not an audit.
+    const result = verify(goodReport(), OBJECTS, {}, SOURCE_TREE, [
+      ...TREE_CHANGED,
+      "packages/openclinxr/xr-station/src/api-client.ts",
+    ]);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/the tree shows .*api-client\.ts changed/u);
+  });
+
+  it("(31) the two self-referential reports are exempt, and an unmeasurable tree fails", () => {
+    // The reports cannot be hashed by the report that contains them, so the tree naturally shows them
+    // changed. That is the one exemption, and it is a fixed list rather than a pattern.
+    const withReports = verify(goodReport(), OBJECTS, {}, SOURCE_TREE, [
+      ...TREE_CHANGED,
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-06.json",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-06.md",
+    ]);
+    expect(withReports.ok, withReports.ok ? "" : withReports.problems.join("\n")).toBe(true);
+
+    // A tree that cannot be measured is a refusal, not a pass: git failing must not read as "clean".
+    const unmeasurable = verify(goodReport(), OBJECTS, {}, SOURCE_TREE, new Error("git exploded"));
+    expect(unmeasurable.ok).toBe(false);
+    if (unmeasurable.ok) return;
+    expect(unmeasurable.problems.join("\n")).toMatch(/working tree could not be measured/u);
+  });
+
+  it("(32) a report that picks its own dependency baseline is refused", () => {
+    // The baseline is pinned in the verifier's source. A report free to choose it could name its own
+    // HEAD and show an empty change set.
+    const report = goodReport();
+    (report["implementation"] as Record<string, unknown>)["dependencyBaselineCommit"] = "deadbeef";
+    const result = verify(report);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.problems.join("\n")).toMatch(/not this card's pinned baseline/u);
   });
 });

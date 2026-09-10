@@ -217,7 +217,37 @@ revert "an undeclared out-of-scope change stops failing" \
   "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify-core.ts" \
   "import pathlib;p=pathlib.Path('$CORE');s=p.read_text();s=s.replace('        if (!inScope && !declaredPaths.has(changed)) {','        if (false) {');p.write_text(s)" \
   "" "$VERIFIER_TEST" \
-  "verifier (28) an undeclared out-of-scope change still fails"
+  "verifier (28) an out-of-scope path LISTED in changedFiles still fails"
+
+revert "BOTH production entry points are gutted (the reviewer's acceptance probe)" \
+  "packages/openclinxr/asset-registry/src/encounter-bundle-admission.ts" \
+  "import pathlib;p=pathlib.Path('$ADMIT');s=p.read_text();s=s.replace('}): ScenePlanAdmission {\n  const candidate = carriedAcceptedScenePlan(input.bundle);','}): ScenePlanAdmission {\n  return { status: \"no_plan_carried\" };\n  const candidate = carriedAcceptedScenePlan(input.bundle);');s=s.replace('}): ScenePlanAdmission {\n  // FIRST FRAME: consult the bundle.','}): ScenePlanAdmission {\n  return input.admission;\n  // FIRST FRAME: consult the bundle.');p.write_text(s)" \
+  "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
+  "(m0) the production entry points execute their bodies"
+
+revert "the BOOT entry point is gutted" \
+  "packages/openclinxr/asset-registry/src/encounter-bundle-admission.ts" \
+  "import pathlib;p=pathlib.Path('$ADMIT');s=p.read_text();s=s.replace('}): ScenePlanAdmission {\n  const candidate = carriedAcceptedScenePlan(input.bundle);','}): ScenePlanAdmission {\n  return { status: \"no_plan_carried\" };\n  const candidate = carriedAcceptedScenePlan(input.bundle);');p.write_text(s)" \
+  "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
+  "(m0)(ii) the shipped bundle is refused as bound to another station"
+
+revert "the FRAME entry point is gutted" \
+  "packages/openclinxr/asset-registry/src/encounter-bundle-admission.ts" \
+  "import pathlib;p=pathlib.Path('$ADMIT');s=p.read_text();s=s.replace('}): ScenePlanAdmission {\n  // FIRST FRAME: consult the bundle.','}): ScenePlanAdmission {\n  return input.admission;\n  // FIRST FRAME: consult the bundle.');p.write_text(s)" \
+  "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
+  "(m0)(iv) the frame entry point re-solves"
+
+revert "the case lookup finds no frozen plan, so no bundle can carry one" \
+  "packages/openclinxr/asset-registry/src/encounter-bundle-admission.ts" \
+  "import pathlib;p=pathlib.Path('$ADMIT');s=p.read_text();s=s.replace('  return CASE_FROZEN_SCENE_PLANS[bundle.scenarioId];','  return undefined;');p.write_text(s)" \
+  "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
+  "(m0)(i) the case's frozen plan is found"
+
+revert "the scope audit stops reading the tree" \
+  "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify-core.ts" \
+  "import pathlib;p=pathlib.Path('$CORE');s=p.read_text();s=s.replace('        if (declaredPaths.has(touched)) continue;','        if (declaredPaths.has(touched)) continue;\n        continue;');p.write_text(s)" \
+  "" "$VERIFIER_TEST" \
+  "verifier (30) the tree is the authority"
 
 echo
 echo "TWO-SIDED GATE: $BROKE of $TOTAL reverts break a named clause"

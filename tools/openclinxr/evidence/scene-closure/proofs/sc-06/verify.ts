@@ -1,8 +1,10 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
   type EvidenceRegistry,
   nodeObjectReader,
+  SC06_DEPENDENCY_BASELINE,
   sha256Hex,
   verifyReport,
 } from "./verify-core.js";
@@ -116,6 +118,35 @@ function registryDigest(): string | Error {
   }
 }
 
+/**
+ * Every path the TREE says changed: committed since the pinned baseline, plus anything uncommitted.
+ *
+ * This is the half the scope audit was missing. Without it `changedFiles` was an array the report
+ * supplied and nothing compared it with the repository — a reviewer appended a comment to an
+ * out-of-scope file and the CLI produced byte-identical output.
+ *
+ * The baseline is `SC06_DEPENDENCY_BASELINE` from the verifier's own source, not the report's, so a
+ * report cannot pick a baseline that hides its own changes.
+ */
+function treeChangedFiles(): string[] | Error {
+  try {
+    const git = (...args: string[]): string[] =>
+      execFileSync("git", args, { cwd: REPO_ROOT, encoding: "utf8" })
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line !== "");
+    return [
+      ...new Set([
+        ...git("diff", "--name-only", `${SC06_DEPENDENCY_BASELINE}..HEAD`),
+        ...git("diff", "--name-only", "HEAD"),
+        ...git("ls-files", "--others", "--exclude-standard"),
+      ]),
+    ];
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
+}
+
 function main(): void {
   // The scope audit, the input rehash and the contract hashes are all repo-relative. Run from
   // anywhere else they would silently grade a different tree, or nothing at all.
@@ -166,6 +197,7 @@ function main(): void {
     reader: nodeObjectReader,
     contractDocuments,
     sourceReader: readSource,
+    treeChangedFiles: treeChangedFiles(),
   });
 
   if (result.ok) {

@@ -58,6 +58,18 @@ export const SC06_FROZEN_SCOPES = [
 export const SC06_A_ROWS = ["A09"] as const;
 
 /**
+ * The dependency baseline this card's change set is measured against, PINNED HERE rather than read
+ * from the report, so a report cannot choose a baseline that hides its own changes.
+ */
+export const SC06_DEPENDENCY_BASELINE = "27efa3d2e0615a2dc7435533724e7378a0371682";
+
+/** The two reports this card writes. Neither can be hashed by the report that contains it. */
+export const SC06_SELF_REFERENTIAL_REPORTS = [
+  "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-06.json",
+  "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-06.md",
+] as const;
+
+/**
  * The ONLY paths this card may declare as gate-forced edits outside its frozen write roots.
  *
  * OWNER-PINNED, and that is the whole point of the list. `registrationsOutsideWriteRoots` exists
@@ -316,6 +328,16 @@ export type VerifyInput = {
    * the result produces a digest of the replacement characters, not of the file.
    */
   sourceReader: (repoRelativePath: string) => Buffer | Error;
+  /**
+   * Every path the TREE says this card touched, measured with git by the CLI.
+   *
+   * WITHOUT THIS THE SCOPE AUDIT WAS REPORT-AUTHORED and said so to nobody. `changedFiles` is an
+   * array the report supplies and `treeClean` a boolean it asserts; neither was ever compared with
+   * the repository. Measured by a reviewer: appending a comment to
+   * `packages/openclinxr/xr-station/src/api-client.ts`, an out-of-scope file, and re-running the CLI
+   * produced byte-identical output. The audit only ever caught a file the report VOLUNTEERED.
+   */
+  treeChangedFiles: readonly string[] | Error;
 };
 
 export type VerifyResult = { ok: true } | { ok: false; problems: string[] };
@@ -385,6 +407,12 @@ export function verifyReport(input: VerifyInput): VerifyResult {
   if (!isRecord(implementation)) fail("missing implementation section");
   else {
     if (implementation["treeClean"] !== true) fail("implementation.treeClean is not true");
+    if (implementation["dependencyBaselineCommit"] !== SC06_DEPENDENCY_BASELINE) {
+      fail(
+        `implementation.dependencyBaselineCommit is ${String(implementation["dependencyBaselineCommit"])}, `
+        + `not this card's pinned baseline ${SC06_DEPENDENCY_BASELINE}`,
+      );
+    }
     if (!Array.isArray(implementation["changeCommits"]) || implementation["changeCommits"].length === 0) {
       fail("implementation.changeCommits is empty");
     }
@@ -443,6 +471,31 @@ export function verifyReport(input: VerifyInput): VerifyResult {
         if (!hashedInputs.has(declaredPath)) {
           fail(`gate-forced declaration ${declaredPath} is not among the hashed implementation.inputs`);
         }
+      }
+    }
+
+    // THE TREE IS THE AUTHORITY, not the report's array. Anything git says this card touched must be
+    // accounted for: declared in `changedFiles`, declared as a gate-forced edit, or one of the two
+    // reports that cannot hash themselves. An unaccounted path fails whether or not the report
+    // mentions it, which is what makes this an audit rather than a restatement.
+    const claimedChanged = new Set(
+      (Array.isArray((implementation as Record<string, unknown>)["changedFiles"])
+        ? ((implementation as Record<string, unknown>)["changedFiles"] as unknown[])
+        : []
+      ).map((entry) => path.normalize(String(entry))),
+    );
+    if (input.treeChangedFiles instanceof Error) {
+      fail(`the working tree could not be measured: ${input.treeChangedFiles.message}`);
+    } else {
+      const selfReferential = new Set<string>(SC06_SELF_REFERENTIAL_REPORTS);
+      for (const touched of input.treeChangedFiles.map((entry) => path.normalize(entry))) {
+        if (selfReferential.has(touched)) continue;
+        if (claimedChanged.has(touched)) continue;
+        if (declaredPaths.has(touched)) continue;
+        fail(
+          `the tree shows ${touched} changed since ${SC06_DEPENDENCY_BASELINE.slice(0, 8)} and the `
+          + "report neither lists it in changedFiles nor declares it as a gate-forced edit",
+        );
       }
     }
 

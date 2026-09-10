@@ -99,6 +99,10 @@
     "./encounter-bundle-admission": {
       "types": "./dist/encounter-bundle-admission.d.ts",
       "default": "./dist/encounter-bundle-admission.js"
+    },
+    "./case-frozen-scene-plans": {
+      "types": "./dist/case-frozen-scene-plans.d.ts",
+      "default": "./dist/case-frozen-scene-plans.js"
     }
   },
   "scripts": {

@@ -6,12 +6,19 @@ import {
 } from "@openclinxr/asset-registry";
 import { revalidateAcceptedScenePlan } from "@openclinxr/asset-registry/accepted-scene-plan-evidence";
 import type { ObservedApproachGeometry } from "@openclinxr/asset-registry/case-approach-intent";
+import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-scene-plans";
 import {
   CASE_SCENE_PLAN_AUTHORIZED_VARIATION_INDICES,
   CASE_SCENE_PLAN_SOLVER_VERSION,
 } from "@openclinxr/asset-registry/case-owned-scene-plan";
+import {
+  admitFrozenScenePlan,
+  admitFrozenScenePlanForObservedScene,
+  carriedAcceptedScenePlan,
+} from "@openclinxr/asset-registry/encounter-bundle-admission";
 import { reopenFrozenScene } from "@openclinxr/asset-registry/frozen-scene-replay";
 import { resolveBedsideLayoutFromSeed } from "@openclinxr/asset-registry/layout-solve";
+import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import {
   canonicalJson,
   type FreezeScenePlanInput,
@@ -113,6 +120,7 @@ function observe(entries: ReadonlyArray<Record<string, unknown>>): void {
 
 /** The whole normal boot path for this case, in one room, with every decision taken by production code. */
 function stageWard(): {
+  scene: Scene;
   geometry: ObservedApproachGeometry;
   patientWorld: { x: number; y: number; z: number };
   start: { x: number; y: number; z: number };
@@ -151,7 +159,7 @@ function stageWard(): {
   if ("refused" in patientWorld || "refused" in start) {
     throw new Error("the ward staging refused to compose a patient or physician position");
   }
-  return { geometry, patientWorld, start };
+  return { scene, geometry, patientWorld, start };
 }
 
 /** The compiled bundle this encounter binds. Real selected assets, resolved from the case source. */
@@ -849,11 +857,103 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
     expect(unsatisfiable.reason).toBe("unsatisfiable_intent");
     expect(unsatisfiable.detail).toMatch(/patient_left/u);
 
-    // ── (m) THE SHIPPED RUNTIME REACHES THIS RING ───────────────────────────────────────────────
-    // BLOCKER FOUND IN REVIEW. The first attempt built seven modules that only this test entered:
-    // `main.ts` imported none of them. Each link below is asserted from source, so severing any one
-    // of them fails here. The app-to-package hop is a package specifier rather than a relative path,
-    // so it is asserted by specifier and call site rather than by walking the module graph.
+    // ── (m0) THE PRODUCTION ENTRY POINTS EXECUTE THEIR BODIES ───────────────────────────────────
+    // ROUND-2 BLOCKER, and the sharpest lesson on this card. Round 2 added two production call
+    // sites and clause (m) below certified them with regex matches over source. Both were dead:
+    // `admitFrozenScenePlan` read `bundle.acceptedScenePlan`, a field NO producer in the repo ever
+    // wrote, and `admitFrozenScenePlanForObservedScene` returned its input unchanged unless already
+    // admitted, while the runtime initialised that input to `no_plan_carried`. The reviewer's probe
+    // was decisive: an unconditional early return in both functions left every gate green, because a
+    // source-pattern clause certifies dead code by construction.
+    //
+    // These clauses assert RETURNED STATUS, so gutting either body fails here.
+    const shippedBundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
+      scenarioId: SCENE_CLOSURE_CASE_ID,
+    });
+
+    // (i) The case's frozen plan is FOUND. The build-time freeze committed it; the lookup reaches it.
+    const carried = carriedAcceptedScenePlan(shippedBundle);
+    expect(carried, "the case lookup returned nothing, so no bundle can carry a plan").toBeTruthy();
+    expect((carried as { planId?: string }).planId).toBe("scene_closure_supine_bedside_plan_v1");
+    expect(CASE_FROZEN_SCENE_PLANS[SCENE_CLOSURE_CASE_ID]?.variation.seed).toMatch(/^[0-9a-f]{64}$/u);
+
+    // (ii) MEASURED, and it is a real limitation rather than a pass: the local fixture producer
+    // stamps `stationId: input.stationId ?? "ed_chest_pain_station_v1"`
+    // (runtime-bundles.ts:761) for EVERY scenario, so the shipped default bundle for this case is
+    // refused as bound to another station. The refusal is correct — that bundle is not this
+    // station's — and it is an executed body, not a no-op.
+    const shippedAdmission = admitFrozenScenePlan({ bundle: shippedBundle });
+    expect(shippedAdmission.status).toBe("refused");
+    if (shippedAdmission.status !== "refused") return;
+    expect(shippedAdmission.reason).toBe("plan_bound_to_another_station");
+
+    // (iii) A case with no frozen plan answers `no_plan_carried`, which is the honest answer for
+    // every encounter that has never been frozen — and is what a GUTTED function returns for all
+    // three of these, which is why (ii) and (iv) are the clauses that catch it.
+    expect(
+      admitFrozenScenePlan({
+        bundle: createEdChestPainLocalLearnerRuntimeAssetBundle({ scenarioId: "ed_chest_pain_priority_v2" }),
+      }).status,
+    ).toBe("no_plan_carried");
+
+    // (iv) A BUNDLE THAT CARRIES A PLAN IS ADMITTED, and the frame entry point then re-solves it
+    // against a real scene. This is the reviewer's acceptance test: drive both functions with a
+    // carrying bundle and assert the returned status.
+    const carryingBundle = { ...shippedBundle, stationId: record.case.stationId, acceptedScenePlan: record };
+    const bootAdmission = admitFrozenScenePlan({ bundle: carryingBundle });
+    expect(
+      bootAdmission.status,
+      bootAdmission.status === "refused" ? bootAdmission.detail : "",
+    ).toBe("admitted");
+    if (bootAdmission.status !== "admitted") return;
+    expect(bootAdmission.reproduced).toBeNull();
+
+    // The frame entry point, driven exactly as `main.ts:3454` drives it — starting from the same
+    // `no_plan_carried` seed the runtime holds, so this covers the first-frame admission too.
+    const framed = admitFrozenScenePlanForObservedScene({
+      admission: { status: "no_plan_carried" },
+      bundle: carryingBundle,
+      scene: ward.scene,
+      environmentId: SCENE_CLOSURE_ENVIRONMENT_ID,
+      observeGeometry: observeMountedApproachGeometry,
+      patientWorldPosition: ward.patientWorld,
+      start: ward.start,
+    });
+    expect(framed.status, framed.status === "refused" ? framed.detail : "").toBe("admitted");
+    if (framed.status !== "admitted") return;
+    // THE FIELD THAT PROVES THE BODY RAN. A gutted frame function returns its input, whose
+    // `reproduced` is null; only an executed re-solve fills it.
+    expect(framed.reproduced, "the frame entry point returned without re-solving").not.toBeNull();
+    expect(framed.reproduced?.seed).toBe(record.variation.seed);
+    expect(framed.reproduced?.targetOffsetMeters ?? 1).toBeLessThanOrEqual(1e-9);
+
+    // (v) And it still REFUSES through the same entry point when the room disagrees, so the frame
+    // call is not merely returning admitted for anything handed to it.
+    const staleRoom = admitFrozenScenePlanForObservedScene({
+      admission: { status: "no_plan_carried" },
+      bundle: {
+        ...carryingBundle,
+        acceptedScenePlan: {
+          ...record,
+          revisions: { ...record.revisions, geometryRevision: "geom-v1-deadbeef-7" },
+        },
+      },
+      scene: ward.scene,
+      environmentId: SCENE_CLOSURE_ENVIRONMENT_ID,
+      observeGeometry: observeMountedApproachGeometry,
+      patientWorldPosition: ward.patientWorld,
+      start: ward.start,
+    });
+    expect(staleRoom.status).toBe("refused");
+    if (staleRoom.status !== "refused") return;
+    expect(staleRoom.reason).toBe("evidence_changed");
+
+    // ── (m) THE LINKS EXIST — A SUPPLEMENT TO (m0), NOT A SUBSTITUTE FOR IT ─────────────────────
+    // These are regex matches over source. On their own they certify DEAD CODE: round 2's version of
+    // this clause stayed green while both production bodies were replaced with early returns, because
+    // every string it looks for survived. (m0) above asserts returned status and is the clause that
+    // catches that; this one catches a severed import or a renamed call site, which (m0) cannot
+    // distinguish from a behaviour change. Keep both, and do not read this one as evidence of effect.
     const chain: ReadonlyArray<[string, string, RegExp]> = [
       [
         "main.ts value-imports the admission subpath",

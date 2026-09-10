@@ -3452,7 +3452,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     // Reopen the frozen plan against the room on screen: re-solve from the persisted seed, refuse
     // when it does not reproduce or the geometry moved. Byte identity stays server-side.
     frozenScenePlanAdmission = admitFrozenScenePlanForObservedScene({
-      admission: frozenScenePlanAdmission,
+      admission: frozenScenePlanAdmission, bundle: encounterRuntimeAssetBundle,
       scene,
       environmentId: resolveActiveEnvironmentId(),
       observeGeometry: observeMountedApproachGeometry,
