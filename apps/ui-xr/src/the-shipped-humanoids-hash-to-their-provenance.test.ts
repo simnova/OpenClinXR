@@ -31,10 +31,8 @@ const HUMANOIDS_DIR = new URL("../public/generated-humanoids/", import.meta.url)
 const PROVENANCE_HASH_MISMATCH_FREEZE = [
   "adult_male_street_casual.provenance.json",
   "mpfb-ob-patient-aisha.provenance.json",
-  "mpfb-peds-nurse-kevin.provenance.json",
   "mpfb-peds-parent-aisha.provenance.json",
   "mpfb-peds-patient-child.provenance.json",
-  "mpfb-street-adult-male.provenance.json",
 ] as const;
 
 /**
@@ -43,6 +41,8 @@ const PROVENANCE_HASH_MISMATCH_FREEZE = [
  *
  *   mpfb-clinical-nurse-adult.provenance.json    bc5b9009…, 11,112,092 B
  *   mpfb-family-partner-adult.provenance.json    8f7ad8ac…,  8,411,080 B
+ *   mpfb-street-adult-male.provenance.json       77840828…, 14,086,368 B  (waistband rebake 2026-09-10)
+ *   mpfb-peds-nurse-kevin.provenance.json        already hashed; freeze hid a green cell
  *
  * Neither hash was taken off disk to make a mismatch go away, which is what the header above
  * forbids. `separate_chest_anchor_joints.mjs` rewrote twelve shipped rigs at 91b12607 and 3d019031
