@@ -20,6 +20,12 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[4]
 _MAKECLOTHES_DIR = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
 if str(_MAKECLOTHES_DIR) not in sys.path:
     sys.path.insert(0, str(_MAKECLOTHES_DIR))
+# Factory-stations split the baker: helpers live in sibling modules, not in the
+# stage entrypoint. Import those modules directly (D1) — the makeclothes
+# body_param_stage.py file is now a shim that loads the entrypoint only.
+_BODY_PARAM_DIR = REPO_ROOT / "packages/openclinxr/factory-stations/src/body_param"
+if str(_BODY_PARAM_DIR) not in sys.path:
+    sys.path.insert(0, str(_BODY_PARAM_DIR))
 from garment_coverage import _orient_outward, _ray_tri_hits  # noqa: E402
 
 # #333: footwear mapped by reference id. All three are the CC0/CC-0 zero-helper-ref
@@ -317,7 +323,7 @@ def _case_gender_macro_for_reference(reference_id):
         String variants mapping to the SAME macro ("adult_female" vs
         "adult_female_parent") are not a disagreement and bake.
     """
-    from body_param_stage import _gender_presentation_to_macro  # noqa: E402
+    from phenotype_macros import _gender_presentation_to_macro  # noqa: E402
 
     numeric = phenotype_numeric_block(reference_id)
     if "gender_presentation" not in numeric:
@@ -2274,6 +2280,71 @@ def _outer_facing_front_tris(garment_verts, garment_faces) -> np.ndarray:
     return tris[oriented_normals[:, 1] < 0.0]
 
 
+def upper_hem_rim_max_z(garment) -> float:
+    """Highest world-Z of the upper garment's bottom rim (hem TEETH, not AABB min).
+
+    The LOWER GATE used `world_bounds(garment)["min"][2]` as `build_cover_shell`
+    band_hi. That is the hem VALLEYS. Faces are selected by centroid, so triangles
+    whose centroids sit between those valleys and the hem teeth are excluded and
+    the cargo shell's top follows the inguinal bikini cut (street, measured
+    2026-09-10: pants rim span 27.2 mm on the 3% instrument vs shirt hem 13.4 mm;
+    hip skin shows). band_hi = this value includes those triangles.
+
+    The rim is the same 3% bottom band `ringHighFrequency(..., "bottom")` uses on
+    the exported GLB; stage frame is Z-up. Floor the window at 20 mm so a short
+    shirt still captures the operator-measured 19.1 mm hem-tooth span.
+    """
+    mw = garment.matrix_world
+    zs = [(mw @ v.co).z for v in garment.data.vertices]
+    z_lo = min(zs)
+    z_hi = max(zs)
+    window = max((z_hi - z_lo) * 0.03, 0.020)
+    rim = [z for z in zs if z <= z_lo + window]
+    return max(rim) if rim else z_lo
+
+
+def pin_upper_hem_ymin(garment, target_ymin: float, *, height_axis: int = 2) -> dict:
+    """Tapered hem pin to a known-good ymin (street shirt column).
+
+    `fit_upper_hem_to_waistband` derives the terminus from the pants waist. After
+    raising the cover-shell band_hi that terminus sits ABOVE the fitted hem, so
+    the function is a no-op and the shirt AABB min stays at the unpushed 1.0435 m
+    (15 mm above the shipped 1.0283 m pin). This uses the same rim-band taper
+    (`WAIST_RIM_FRACTION=0.12`) with the pin as terminus: vertices at the hem min
+    take the full delta, the shift dies at the top of the band so the shirt body
+    stays welded. Does not reshape the hem onto the pants (the forbidden treatment).
+    """
+    from garment_ops import WAIST_RIM_FRACTION  # noqa: E402
+
+    gv = np.array([tuple(vc.co) for vc in garment.data.vertices], dtype=float)
+    h = gv[:, height_axis]
+    g_lo, g_hi = float(h.min()), float(h.max())
+    delta = float(target_ymin) - g_lo
+    if abs(delta) <= 1e-6:
+        return {"enabled": True, "pushedVertexCount": 0, "deltaMeters": 0.0, "note": "already at pin"}
+    band_hi = g_lo + (g_hi - g_lo) * WAIST_RIM_FRACTION
+    sel = h <= band_hi
+    if not sel.any():
+        return {"enabled": True, "pushedVertexCount": 0, "note": "no hem rim band"}
+    span = max(band_hi - g_lo, 1e-9)
+    taper = np.clip((band_hi - h[sel]) / span, 0.0, 1.0)
+    idx = np.where(sel)[0]
+    moved = 0
+    for k, t in enumerate(taper):
+        push = delta * float(t)
+        if abs(push) > 1e-6:
+            garment.data.vertices[int(idx[k])].co[height_axis] = float(h[sel][k] + push)
+            moved += 1
+    bpy.context.view_layer.update()
+    return {
+        "enabled": True,
+        "pushedVertexCount": moved,
+        "deltaMeters": round(delta, 5),
+        "targetYmin": target_ymin,
+        "note": "hem band pinned to known-good ymin; shirt body above the band untouched",
+    }
+
+
 def regularize_rim(pants, env_window_deg, envelope="max", which="top", env_source="rim", row3_blend=0.5, row3_mode="blend"):
     """issue-373/374 — the cover shell's band-cut rims are zigzags, not garment edges.
 
@@ -3016,7 +3087,7 @@ def main():
     if not args.reference:
         _numeric = phenotype_numeric_block(args.eye_colour_reference)
         if _numeric:
-            from body_param_stage import derive_macro_dict_from_authored_phenotype  # noqa: E402
+            from phenotype_macros import derive_macro_dict_from_authored_phenotype  # noqa: E402
 
             macro, _macro_derivation = derive_macro_dict_from_authored_phenotype(_numeric)
             macro["height"] = 0.5  # solved below against the DECLARED stature, #329 discipline
@@ -3173,7 +3244,7 @@ def main():
     _makeclothes_dir_scalp = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
     if str(_makeclothes_dir_scalp) not in sys.path:
         sys.path.insert(0, str(_makeclothes_dir_scalp))
-    from body_param_stage import scalp_placeholder_retired_for  # noqa: E402
+    from garment_ops import scalp_placeholder_retired_for  # noqa: E402
 
     _shipped_figure_id = (
         "mpfb-ob-patient-aisha"
@@ -3217,7 +3288,7 @@ def main():
     _makeclothes_dir = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
     if str(_makeclothes_dir) not in _sys2.path:
         _sys2.path.insert(0, str(_makeclothes_dir))
-    from body_param_stage import load_mpfb_face_shape_keys  # noqa: E402
+    from mpfb_body import load_mpfb_face_shape_keys  # noqa: E402
 
     face_status = load_mpfb_face_shape_keys(human)
     print(f"FACE_TARGETS {face_status}")
@@ -3853,7 +3924,7 @@ def main():
         _stage_dir_pants = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
         if str(_stage_dir_pants) not in _sys_pants_pre.path:
             _sys_pants_pre.path.insert(0, str(_stage_dir_pants))
-        from body_param_stage import import_obj, apply_object_transforms  # noqa: E402
+        from mesh_io import import_obj, apply_object_transforms  # noqa: E402
         from automate_blender import garment_shell_color as _gsc_pre  # noqa: E402
         from bl_ext.user_default.mpfb.entities.clothes.mhclo import Mhclo as _MhcloPre  # noqa: E402
         from bl_ext.user_default.mpfb.services.clothesservice import ClothesService as _ClothesPre  # noqa: E402
@@ -4000,7 +4071,8 @@ def main():
     _stage_dir = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
     if str(_stage_dir) not in _sys3.path:
         _sys3.path.insert(0, str(_stage_dir))
-    from body_param_stage import import_obj, apply_object_transforms, transfer_weights_body_to_garment, world_bounds, fit_upper_hem_to_waistband  # noqa: E402
+    from mesh_io import import_obj, apply_object_transforms, world_bounds  # noqa: E402
+    from garment_ops import transfer_weights_body_to_garment, fit_upper_hem_to_waistband  # noqa: E402
 
     # #180: the palette function from the Anny rail, imported lazily the same way the
     # scalp-hair region is (above, :1606-1608). Consumed as-is — the locked gown/scrub
@@ -4247,13 +4319,13 @@ def main():
     )
     if str(_stage_dir2) not in _sys4.path:
         _sys4.path.insert(0, str(_stage_dir2))
-    from body_param_stage import (  # noqa: E402
+    from garment_ops import (  # noqa: E402
         apply_body_hide_material_region,
         clip_hide_mask_below_joint,
         clip_hide_mask_to_garment_footprint,
         scope_hide_mask_away_from_hands,
-        world_bounds,
     )
+    from mesh_io import world_bounds  # noqa: E402
     from garment_coverage import (  # noqa: E402
         HIDE_EPSILON_M,
         _orient_outward,
@@ -4305,9 +4377,17 @@ def main():
         cloth_outward_offset,
         coverage_report,
     )
-    from body_param_stage import _LIMB_BONE_RE, _bone_dominant_vertex_indices  # noqa: E402
+    from garment_ops import _LIMB_BONE_RE, _bone_dominant_vertex_indices  # noqa: E402
 
-    hem_z = float(gb["min"][2])  # upper garment hem (Z-up stage frame)
+    # band_hi is the shirt hem TEETH (rim max), not the AABB min (hem valleys).
+    # Using min Z cut the cover shell through the inguinal crease and regularize_rim
+    # envelope=max at ~10 deg preserved that bikini contour. Do not re-call
+    # fit_upper_hem_to_waistband to close the gap — that moves the shirt.
+    hem_z = upper_hem_rim_max_z(garment)
+    print(
+        f"COVER_SHELL_BAND_HI hemRimMax {hem_z:.4f} shirtAabbMin {float(gb['min'][2]):.4f} "
+        f"deltaMm {(hem_z - float(gb['min'][2])) * 1000:.1f}"
+    )
     ankle_z = float(world_bounds(human)["min"][2]) + 0.10  # bare feet begin below
     pants_v, pants_f = _triangulate_numpy(pants)
     lower_rep = coverage_report(
@@ -4379,6 +4459,10 @@ def main():
         )
         bpy.data.objects.remove(pants, do_unlink=True)
         pants = shell_obj
+        # The sparse mhclo consumed cargo_pants.mhmat before this replacement.
+        # The shell ships a flat role colour; #372 must not demand a texture on
+        # geometry that never exported (provenance: recorded skip on the cover shell).
+        CONSUMED_GARMENT_TEXTURES.discard(f"mat_{_lower_lib_name}")
         # issue-341 round 6 — the cover shell's bottom edge follows the body's
         # triangulation at the ankle-foot junction, not a garment hem. Measured on
         # aisha round-5c: the front hem zigs ~8 cm between the lateral ankle
@@ -4437,7 +4521,20 @@ def main():
     # back arc to the ring's own minimum, so the rim becomes the smooth front+side arc and
     # the back no longer stands proud. kevin's back already dips below the rim band, so the
     # dip returns False there and the plain #373 envelope runs unchanged.
-    _waistband_env_window = 6 if (args.reference or "") == "peds_patient_child" else 10
+    # Child 6 deg keeps the front contour dip the span floor requires. Adults 10 deg
+    # bridges sparse front teeth. Street's remaining defect after band_hi=hem-rim-max
+    # is the inguinal bikini contour, wider than a 10 deg tooth-bridge — 25 deg lets
+    # envelope=max raise those valleys toward hip teeth. Other adults stay at 10
+    # (nurse/gown/family not rebaked this slice).
+    if (args.reference or "") == "peds_patient_child":
+        _waistband_env_window = 6
+    elif (args.reference or "") == "adult_male_street_casual":
+        # 25 deg left the inguinal valleys 28 mm below the teeth (measured this
+        # bake: rim 1.0510..1.0791). 45 deg lets envelope=max see the hip teeth
+        # from the bikini dip; dip_waistband_back still owns the back arc.
+        _waistband_env_window = 45
+    else:
+        _waistband_env_window = 10
     if not dip_waistband_back(pants, _waistband_env_window, rim_band_m=0.008):
         regularize_rim(pants, _waistband_env_window, envelope="max", which="top")
     # issue-374: regularize the LOWER rim (the ankle cuffs) the same way. The
@@ -4475,7 +4572,19 @@ def main():
     # (measured closed: kevin 0/36 gapped, min +2.64 mm) and a garment that already meets is
     # a no-op inside the function anyway.
     if pants is not None and garment is not None and _lower_kind != "scrub":
-        print("WAIST_MEET_UPPER", fit_upper_hem_to_waistband(garment, pants))
+        # Street: the shirt is the known-good column (ymin 1.0283). Raising the
+        # cover-shell band_hi makes this function push the hem down onto the new
+        # waist (measured this bake: 40 verts, 43.3 mm). That is forbidden.
+        if (args.reference or "") == "adult_male_street_casual":
+            # Do not fit_upper_hem_to_waistband: the raised pants waist would pull
+            # the hem UP (this bake: fitted AABB min 1.0435 vs known-good 1.0283).
+            # Pin the hem BAND only, same taper as garment_ops.fit_upper_hem_to_waistband,
+            # terminus = the shipped known-good ymin. Shape of the hem is preserved;
+            # the shirt body above the band does not move.
+            print("WAIST_MEET_UPPER skipped — pinning shirt hem ymin to known-good 1.0283")
+            print("SHIRT_YMIN_PIN", pin_upper_hem_ymin(garment, 1.0283))
+        else:
+            print("WAIST_MEET_UPPER", fit_upper_hem_to_waistband(garment, pants))
 
     # 2026-08-14 medical wardrobe — the physician's white lab coat as a THIRD layer
     # over the clinician scrub shirt + scrub pants. The coat is the CC0

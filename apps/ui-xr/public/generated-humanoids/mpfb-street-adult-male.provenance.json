@@ -58,11 +58,12 @@
   "The manifest's output.obj_path names peds_nurse_kevin.anny_base.obj — a copy defect in the reference manifest; the tracked adult_male_street_casual.anny_base.obj (1.76 m, head-height fraction 0.100) drove the bake, and the manifest's input_params (actor_id patient_luis_martinez_v1, skin_tone warm_medium, fabricPalette olive_knit_and_cream_casual) were consumed as-is.",
   "Baked 2026-08-19 in the issue-441 worktree with the provider caches staged locally (garments incl. .mhmat + declared textures, hair mhair02, iris makehuman-system-assets, visemes02).",
   "Out-of-scope wrongness seen and not fixed: the figure's fit quality (poke-through, waistband gap, hem sawtooth #401) was not re-graded for this new body; the orchestrator grades an isolated lit front still.",
- "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-street-adult-male.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed)."
+ "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-street-adult-male.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed).",
+ "2026-09-10 street cargo waistband: LOWER GATE build_cover_shell band_hi is shirt hem rim MAX not AABB min; street regularize_rim window 45 deg; shirt hem band pinned to known-good ymin 1.0283 (fit_upper_hem_to_waistband not re-called). Pants rim span 22.0 mm <= 24.1. Chest-anchor stage re-applied after rematerialize. Parent grades a fresh glb-grade front_lit."
  ],
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
- "generatedAt": "2026-08-19T08:41:00Z",
- "outputSha256": "2a67433e3070f061c9a58268167f9b736bbd9ad4eefcc7a34a8f8d0da1ffa14f",
- "outputBytes": 12360872
+ "generatedAt": "2026-09-10T19:45:00Z",
+ "outputSha256": "7784082881a03baae006b290b2a5720264958a1c090717bc1c22eadb6488aa50",
+ "outputBytes": 14086368
 }
