@@ -555,74 +555,60 @@
 
       <section id="garment-contrast" class="band band--evidence" aria-labelledby="garment-contrast-title">
         <div class="section-heading">
-          <p class="eyebrow">Evidence you can look at</p>
-          <h2 id="garment-contrast-title">Five patients&rsquo; garments were rendering the same colour as their skin.</h2>
+          <p class="eyebrow">Evidence you can look at · 2026-08-28</p>
+          <h2 id="garment-contrast-title">Roles now wear distinct fitted garments, not one beige palette.</h2>
         </div>
         <p class="status-copy">
-          Every automated garment check passed on these figures. The clothes were <em>present</em>,
-          correctly <em>placed</em>, correctly <em>licensed</em>, and the right <em>class</em>. They
-          were also a beige within 21 RGB units of the patient's own skin, which at any viewing
-          distance is indistinguishable from bare flesh. A learner walking into five of the fourteen
-          stations met a patient whose garment was indistinguishable from skin.
+          Shipped MPFB bodies carry MakeClothes library garments fitted onto the standard rig:
+          teal scrubs on the nurse, a cyan exam gown on the adult patient, sage street clothes
+          and boots on the walk-in, muted rose on the family partner. Contrast against skin is
+          visible at a glance. These are isolated grade captures of the tracked GLBs under
+          <code>apps/ui-xr/public/generated-humanoids/</code>, not the 2026-08-21 sage t-shirt
+          pair that documented a palette bug.
         </p>
 
-        <p class="status-copy">
-          The measurement that found it is a same-garment control. Two actors wear the identical
-          library trousers and t-shirt; only the tint differs:
-        </p>
-
-        <div style="overflow-x: auto; margin-top: 12px;">
-          <table style="border-collapse: collapse; font-size: 0.85rem; min-width: 460px;">
-            <thead><tr style="border-bottom: 1px solid var(--line);">
-              <th style="text-align:left; padding: 6px 14px 6px 0;">actor</th>
-              <th style="text-align:right; padding: 6px 14px;">garment</th>
-              <th style="text-align:right; padding: 6px 14px;">own skin</th>
-              <th style="text-align:right; padding: 6px 0;">distance</th>
-            </tr></thead>
-            <tbody style="font-variant-numeric: tabular-nums;">
-              <tr><td style="padding: 5px 14px 5px 0;">street-casual patient <em>(4 stations)</em></td><td style="text-align:right; padding: 5px 14px;">184,173,140</td><td style="text-align:right; padding: 5px 14px;">198,172,156</td><td style="text-align:right; padding: 5px 0;"><strong>21.0</strong></td></tr>
-              <tr><td style="padding: 5px 14px 5px 0;">OB triage patient</td><td style="text-align:right; padding: 5px 14px;">184,173,140</td><td style="text-align:right; padding: 5px 14px;">201,177,163</td><td style="text-align:right; padding: 5px 0;"><strong>28.7</strong></td></tr>
-              <tr><td style="padding: 5px 14px 5px 0;">family partner — <em>same two garments</em></td><td style="text-align:right; padding: 5px 14px;">107,92,102</td><td style="text-align:right; padding: 5px 14px;">215,191,176</td><td style="text-align:right; padding: 5px 0;">163.9</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 20px;">
-          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
-            <img src="assets/ob-patient-clothed-2026-08-21.png" alt="Isolated render of the OB triage patient in a sage-green t-shirt and trousers, clearly distinct from her skin tone, standing on a grid floor." class="w-full h-auto object-contain" loading="lazy">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 20px;">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/mpfb-clinical-nurse-clothed-2026-08-28.png" alt="Isolated lit grade of the MPFB clinical nurse in teal V-neck scrubs, trousers, and shoes." class="w-full h-auto object-contain" loading="lazy">
             <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
-              OB triage patient after the fix · 28.7 → 151.9
+              Nurse · <code>mpfb-clinical-nurse-adult.glb</code> · scrubs
             </figcaption>
           </figure>
-          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
-            <img src="assets/street-patient-clothed-2026-08-21.png" alt="Isolated render of the street-casual adult male patient in a sage-green t-shirt and trousers with brown boots, clothing clearly distinct from skin." class="w-full h-auto object-contain" loading="lazy">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/mpfb-gown-patient-clothed-2026-08-25.png" alt="Isolated lit grade of the MPFB adult patient in a cyan knee-length exam gown and shoes." class="w-full h-auto object-contain" loading="lazy">
             <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
-              Street-casual patient, worn by four stations · 21.0 → 152
+              Patient · <code>mpfb-gown-adult-patient.glb</code> · exam gown
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/mpfb-street-adult-clothed-2026-08-25.png" alt="Isolated lit grade of the MPFB street-casual adult male in a sage t-shirt, cropped trousers, and brown boots." class="w-full h-auto object-contain" loading="lazy">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Street patient · <code>mpfb-street-adult-male.glb</code>
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/mpfb-family-partner-clothed-2026-08-28.png" alt="Isolated lit grade of the MPFB family partner in a rose t-shirt, trousers, and shoes." class="w-full h-auto object-contain" loading="lazy">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Family · <code>mpfb-family-partner-adult.glb</code>
             </figcaption>
           </figure>
         </div>
 
         <p class="status-copy" style="margin-top: 16px;">
-          The cause was one line: a palette entry named <code>closed_casual</code>, commented
-          <em>“cream under-layer”</em>, holding <code>(0.72, 0.68, 0.55)</code> — which is
-          <code>184,173,140</code> exactly. It was written for a garment worn <em>under</em>
-          something else and then became the whole outfit for every patient who wears no cardigan.
+          Renderer: <code>model-vetting-glb-grade-capture</code> front_lit, native resolution,
+          2026-08-25 and 2026-08-28. Garments are fitted via MakeClothes
+          <code>ClothesService.fit_clothes_to_human</code> onto the MPFB basemesh, not a shared
+          beige palette. A 2026-08-21 incident (cream <code>closed_casual</code> tint 21 RGB
+          units from skin) is closed; those two stills are retired from this section.
         </p>
 
         <p class="status-copy">
-          <strong>The standing lesson gains an axis.</strong> This project already had a rule from an
-          earlier failure: <em>presence, placement and provenance are three questions, and none of
-          them is class.</em> Contrast is a fifth, and no gate we had asked it. A garment can be
-          there, fitted, licensed, and the correct kind of clothing — and still leave the figure
-          reading as naked.
-        </p>
-
-        <p class="status-copy">
-          <strong>Not fixed, and visible in both images:</strong> the trousers end mid-calf with a
-          ragged hem, there is a step where the shirt meets the waistband, and both faces render as a
-          pale mask against the neck. All three are open and tracked. The OB patient is also
-          specified as <em>34 weeks pregnant</em> and the figure is not — the case text says it and
-          nothing in the humanoid pipeline reads it.
+          <strong>Still visible and not claimed as production cloth:</strong> a waistband gap
+          where shirt and trousers do not meet, poke-through at the chest on some shirts, and
+          hems that read as a shell rather than a tailored garment. Isolated harness, not a
+          station. <strong>claimScope:</strong> role-distinct fitted clothing on shipped MPFB
+          GLBs. <strong>notEvidenceFor:</strong> production cloth, Quest readiness, pregnancy
+          morphology, clinical validity, or exam equivalence.
         </p>
       </section>
 
