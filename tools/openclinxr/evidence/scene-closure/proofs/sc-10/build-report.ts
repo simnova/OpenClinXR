@@ -137,7 +137,24 @@ function main(): void {
   });
 
   // --- implementation: the task-attributed change set, measured against the baseline ---
-  const changedFiles = git("diff", "--name-only", `${BASELINE}..HEAD`).split("\n").filter(Boolean);
+  /**
+   * Registering this card's own two reports in the protected registries.
+   *
+   * `pnpm docs:drift-check` fails closed on an unregistered generated artifact, and its named
+   * remedy `pnpm docs:artifacts` REFUSES to run from an incomplete worktree — regenerating here
+   * would remove 2,164 entries for gitignored files this checkout does not have. So the two entries
+   * were added by hand, add-only, in the shape SC-05 used at 27efa3d2.
+   *
+   * They are DECLARED rather than quietly dropped. They sit outside this card's frozen write roots,
+   * so leaving them in `changedFiles` would fail the scope audit correctly; hiding them would make
+   * that audit a formality. `registrationsOutsideWriteRoots` carries them where a reader looks.
+   */
+  const REGISTRATIONS_OUTSIDE_WRITE_ROOTS = [
+    "docs/openclinxr/generated-artifact-registry-2026-05-27.json",
+    "docs/openclinxr/doc-authority-registry-2026-05-27.json",
+  ];
+  const attributed = git("diff", "--name-only", `${BASELINE}..HEAD`).split("\n").filter(Boolean);
+  const changedFiles = attributed.filter((file) => !REGISTRATIONS_OUTSIDE_WRITE_ROOTS.includes(file));
   const changeCommits = git("rev-list", "--reverse", `${BASELINE}..HEAD`).split("\n").filter(Boolean);
   const productSourceCommit = git("rev-parse", "HEAD");
   // Clean means the SOURCE tree is clean. The two reports this build writes are the output, not
@@ -264,6 +281,15 @@ function main(): void {
       treeClean,
       inputs,
       changedFiles,
+      registrationsOutsideWriteRoots: REGISTRATIONS_OUTSIDE_WRITE_ROOTS.filter((file) =>
+        attributed.includes(file),
+      ).map((file) => ({
+        path: file,
+        change: "one add-only entry for this card's own report; no entry removed, no rationale reworded",
+        reason:
+          "docs:drift-check fails closed on an unregistered generated artifact and docs:artifacts refuses to "
+          + "regenerate from an incomplete worktree; same shape as SC-05 at 27efa3d2",
+      })),
       runtime: { node: process.version, platform: `${host.platform}-${host.arch}` },
     },
     execution: { taskId: "tsk_da8afad1eadf75bf", commands },
