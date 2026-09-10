@@ -1,7 +1,16 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
+  type InferenceObservation,
+  screenCandidate,
+} from "../../../scene-closure-research/candidate-screening.js";
+import {
+  loadRetrievedSources,
+  measureHostFacts,
+} from "../../../scene-closure-research/load-retrieved-sources.js";
+import {
   type EvidenceRegistry,
+  type IndependentResearchFacts,
   nodeObjectReader,
   sha256Hex,
   verifyReport,
@@ -85,6 +94,56 @@ function registryDigest(): string | Error {
   }
 }
 
+/**
+ * Motion-inference observations, read from the OWNER STORE rather than from the report.
+ *
+ * Absence is the honest zero. If no run happened there is no file, and the verifier then refuses
+ * any `executed` verdict and any latency/memory claim. A report cannot add observations here.
+ */
+function loadInferenceObservations(storeRoot: string): InferenceObservation[] {
+  const observationPath = path.join(storeRoot, "sc-10/runs/inference-observations.json");
+  if (!existsSync(observationPath)) return [];
+  return JSON.parse(readFileSync(observationPath, "utf8")) as InferenceObservation[];
+}
+
+/**
+ * Recompute SC-10's verdict from the actual retrieved first-party bytes.
+ *
+ * This is the half of the CLI that cannot live in the unit-tested core: it resolves the stored
+ * sources through the owner registry, re-hashes each against its retrieval receipt, measures this
+ * host, and runs the research instrument. Nothing the report says reaches it. Any throw becomes an
+ * Error and the run fails; there is no path where a recomputation problem is downgraded to a pass.
+ */
+function recompute(): IndependentResearchFacts | Error {
+  try {
+    const loaded = loadRetrievedSources(process.env["OPENCLINXR_SC_EVIDENCE_REGISTRY"]);
+    const observations = loadInferenceObservations(loaded.storeRoot);
+    const screening = screenCandidate({
+      sources: loaded.sources,
+      host: measureHostFacts(),
+      observations,
+    });
+    const divergence = screening.dimensions.find((entry) => entry.id === "documentation-divergence");
+    const skeleton = screening.dimensions.find((entry) => entry.id === "skeleton-mapping");
+    return {
+      verdict: screening.verdict,
+      dimensionOutcomes: screening.dimensions.map((entry) => ({ id: entry.id, outcome: entry.outcome })),
+      holdReasons: screening.holdReasons,
+      nextUnblock: screening.nextUnblock,
+      qualifyingInferenceObservationCount: observations.filter(
+        (observation) => observation.kind === "motion-inference",
+      ).length,
+      sourceProblems: loaded.problems,
+      retrievedSourceIds: [...loaded.sources.keys()],
+      skeletonMappingInspected: skeleton?.outcome === "eligible",
+      documentationDivergenceResolution:
+        divergence === undefined ? "absent" : divergence.outcome === "eligible" ? "resolved" : "unresolved",
+    };
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
+}
+
 function main(): void {
   const parsed = parseArgs(process.argv.slice(2));
   if ("error" in parsed) {
@@ -127,6 +186,7 @@ function main(): void {
     registrySha256: registryDigest(),
     reader: nodeObjectReader,
     contractDocuments,
+    independent: recompute(),
   });
 
   if (result.ok) {

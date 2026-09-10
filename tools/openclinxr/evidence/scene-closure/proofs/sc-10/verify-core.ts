@@ -135,6 +135,33 @@ export function resolveArtifactPath(
   return candidate;
 }
 
+/**
+ * SC-10's verdict, recomputed from the retrieved first-party bytes by the research instrument.
+ *
+ * The report cannot supply this and cannot influence it. `verify.ts` builds it by loading the
+ * stored sources through the owner registry, hashing each against its retrieval receipt, measuring
+ * the host, and running `screenCandidate`. That is the whole point of the section: proof-contract-v2
+ * forbids "report-authored pass flags without observed evidence", and until this existed the
+ * verifier had no way to tell a screened HOLD from an asserted one.
+ */
+export type IndependentResearchFacts = {
+  verdict: "screened" | "executed" | "held";
+  dimensionOutcomes: Array<{ id: string; outcome: string }>;
+  holdReasons: string[];
+  nextUnblock: string;
+  /**
+   * Motion-inference observations only. A CPU text-encoder offload does not count towards this,
+   * which is the card's "absent inference labeled performance" counterweight.
+   */
+  qualifyingInferenceObservationCount: number;
+  /** Non-empty when a retrieved source is missing, unhashable or changed since retrieval. */
+  sourceProblems: string[];
+  retrievedSourceIds: string[];
+  /** True only when the joint chain was parsed from the class the checkpoint config names. */
+  skeletonMappingInspected: boolean;
+  documentationDivergenceResolution: "resolved" | "unresolved" | "absent";
+};
+
 export type VerifyInput = {
   report: unknown;
   suppliedScopes: readonly string[];
@@ -143,6 +170,8 @@ export type VerifyInput = {
   reader: ObjectReader;
   /** Contract documents as they exist on disk, for hash comparison. */
   contractDocuments: Map<string, string>;
+  /** Recomputed from actual retrieved evidence. An Error here fails the run; it never downgrades. */
+  independent: IndependentResearchFacts | Error;
 };
 
 export type VerifyResult = { ok: true } | { ok: false; problems: string[] };
@@ -386,6 +415,125 @@ export function verifyReport(input: VerifyInput): VerifyResult {
   }
 
   if (!isRecord(report.limits)) fail("missing limits section");
+
+  // ---- The report's verdict is checked against evidence, not accepted from the report ----
+  //
+  // Everything above this line grades the report's SHAPE. A report can satisfy all of it while
+  // claiming an outcome its own cited evidence contradicts, which is exactly what the recorded
+  // baseline control did: a fabricated `executed` with real artifact hashes passed clean.
+  // A caller that omits the section entirely is refused rather than crashed. Measured while
+  // building this card: the frozen baseline control calls `verifyReport` with the old argument
+  // shape, and reading `.sourceProblems` off `undefined` threw a TypeError — a verifier that
+  // throws has no exit code a gate can read, so it is indistinguishable from a broken run.
+  if (input.independent === undefined || input.independent === null) {
+    fail("no independent research recomputation was supplied; a report cannot be graded against itself");
+    return { ok: false, problems };
+  }
+  if (input.independent instanceof Error) {
+    fail(`independent research recomputation failed: ${input.independent.message}`);
+    return { ok: false, problems };
+  }
+  const independent = input.independent;
+
+  for (const problem of independent.sourceProblems) {
+    fail(`retrieved source problem: ${problem}`);
+  }
+  if (independent.retrievedSourceIds.length === 0) {
+    fail("no first-party sources were retrieved, so nothing was screened");
+  }
+
+  const encounterRecord = isRecord(encounter) ? encounter : {};
+  const claimedVerdict = encounterRecord["verdict"];
+  if (typeof claimedVerdict !== "string") {
+    fail("encounter.verdict is missing; a research card must state screened, executed or held");
+  } else if (claimedVerdict !== independent.verdict) {
+    fail(
+      `encounter.verdict is "${claimedVerdict}" but the retrieved evidence recomputes to `
+      + `"${independent.verdict}"`,
+    );
+  }
+
+  // `executed` is the expensive claim, so it carries the expensive requirement.
+  if (claimedVerdict === "executed" && independent.qualifyingInferenceObservationCount === 0) {
+    fail(
+      "encounter.verdict is \"executed\" but zero motion-inference observations were recorded; a text-encoder "
+      + "offload or install probe is not motion inference",
+    );
+  }
+  if (claimedVerdict !== "executed" && isRecord(encounter) && encounter["comparisonBaseline"] !== undefined) {
+    fail(
+      `encounter.comparisonBaseline is set to ${String(encounter["comparisonBaseline"])} on a `
+      + `"${String(claimedVerdict)}" verdict; a comparison that did not run cannot name a baseline`,
+    );
+  }
+
+  // A HOLD is a legitimate outcome and therefore needs its own floor, or it becomes the cheapest
+  // way to close the card. Each reason must cite an inspected dimension, and a next action is
+  // mandatory.
+  if (claimedVerdict === "held") {
+    if (independent.holdReasons.length === 0) {
+      fail("verdict is held but the recomputed screening produced no hold reason");
+    }
+    if (independent.nextUnblock.trim() === "") {
+      fail("verdict is held but the recomputed screening named no next unblock");
+    }
+    const reasons = Array.isArray(encounterRecord["holdReasons"]) ? encounterRecord["holdReasons"] : [];
+    if (reasons.length !== independent.holdReasons.length) {
+      fail(
+        `encounter.holdReasons lists ${reasons.length} reason(s) but the recomputed screening found `
+        + `${independent.holdReasons.length}`,
+      );
+    }
+    const nextUnblock = encounterRecord["nextUnblock"];
+    if (typeof nextUnblock !== "string" || nextUnblock.trim() === "") {
+      fail("verdict is held but encounter.nextUnblock is empty");
+    }
+  }
+
+  // Counterweight: "inferred unseen skeleton" and "README/model-card mismatch hidden as certainty".
+  if (!independent.skeletonMappingInspected) {
+    fail("the skeleton mapping was not inspected from the class the checkpoint config names");
+  }
+  if (independent.documentationDivergenceResolution === "unresolved" && claimedVerdict !== "held") {
+    fail(
+      "the README/model-card skeleton divergence is unresolved, so no verdict other than held may be "
+      + "reported as certainty",
+    );
+  }
+
+  // The report's own dimension table must match the recomputed one, entry for entry.
+  const reportedDimensions = Array.isArray(encounterRecord["dimensions"]) ? encounterRecord["dimensions"] : [];
+  const recomputed = new Map(independent.dimensionOutcomes.map((entry) => [entry.id, entry.outcome]));
+  if (reportedDimensions.length !== recomputed.size) {
+    fail(`encounter.dimensions has ${reportedDimensions.length} entries but ${recomputed.size} were recomputed`);
+  }
+  for (const entry of reportedDimensions) {
+    if (!isRecord(entry)) {
+      fail("an encounter.dimensions entry is not an object");
+      continue;
+    }
+    const id = String(entry["id"]);
+    const actual = recomputed.get(id);
+    if (actual === undefined) fail(`encounter.dimensions names unknown dimension ${id}`);
+    else if (actual !== entry["outcome"]) {
+      fail(`dimension ${id} is reported ${String(entry["outcome"])} but recomputes to ${actual}`);
+    }
+  }
+
+  // An observation that claims a performance number while nothing was inferred is the card's
+  // "absent inference labeled performance" failure stated as data.
+  if (independent.qualifyingInferenceObservationCount === 0) {
+    for (const observation of observations) {
+      if (!isRecord(observation)) continue;
+      const metric = String(observation["metric"]).toLowerCase();
+      if (/latency|throughput|fps|memory|quality delta|inference time/u.test(metric)) {
+        fail(
+          `observation ${String(observation["observationId"])} reports "${String(observation["metric"])}" `
+          + "while no motion inference was performed",
+        );
+      }
+    }
+  }
 
   return problems.length === 0 ? { ok: true } : { ok: false, problems };
 }
