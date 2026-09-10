@@ -1,0 +1,886 @@
+{
+  "schemaVersion": "openclinxr.scene-closure-evidence.v1",
+  "cardKey": "SC-05",
+  "contract": {
+    "pinnedCommit": "c3f3f3007dc95f85aa6f4dd710c8da5205d03f50",
+    "documents": [
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md",
+        "sha256": "c8080c5e9c75fbb2b4bacb23ed45eac6f829b5dcf494059247a6ee8d55de1bbf"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/tasks-v2.md",
+        "sha256": "e12fbcb49eef3ce4a9c3098309d27bb094dc8c25baa0631452fa27b2f1403881"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/proof-contract-v2.md",
+        "sha256": "a1d1d85a15ae2acfce16479d6b9b4a181e0ccfee60aab885af674c8274cdcfe5"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/delegation-v2.md",
+        "sha256": "59e34f9d6f099574cdf9291847321a4aa23a8e19643ec510984855173cc23016"
+      }
+    ],
+    "aRows": [
+      "A05",
+      "A07",
+      "A08"
+    ]
+  },
+  "implementation": {
+    "productSourceCommit": "0e2bbecd",
+    "dependencyBaselineCommit": "682e6709740f912c89601b07f4b656ef908ff216",
+    "changeCommits": [
+      "7383560c",
+      "34c2fc30",
+      "682e6709",
+      "0e2bbecd"
+    ],
+    "treeClean": true,
+    "inputs": [
+      {
+        "path": "apps/ui-xr/src/main.ts",
+        "sha256": "64f2bf06dfa8a858705ec00ed3475c102663167b275e816c942af941332fb70e"
+      },
+      {
+        "path": "apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts",
+        "sha256": "f43f0ac5b22f7faa665d909124ded6cd13a14395b07d48e37bac8dc04f2fb6cd"
+      },
+      {
+        "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-05.md",
+        "sha256": "3dd04ca73ccd79917fe6c7a2d40e34a4e9890e3830988cca9377e01ae154ed59"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/package.json",
+        "sha256": "3c1b9c2c038165948a1f2b3f1bfb2b0a6554e81176ae9f765448094cfa620a9f"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/actor-posture.ts",
+        "sha256": "b65dd2f57a75a6602a9665bfae4d23bbcd4c21acc86da8ee61b380be81046f9a"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/bedside-approach-path.ts",
+        "sha256": "0294aa99947b51827062283f9e0c60982d537e434d32ee0f0c04e52debdc5f5a"
+      },
+      {
+        "path": "packages/openclinxr/asset-registry/src/case-approach-intent.ts",
+        "sha256": "6175e5d5e3aee7a289792fea185bd78564daf6275e249f9f9c70bba53ec9ba60"
+      },
+      {
+        "path": "packages/openclinxr/xr-humanoid-animation/package.json",
+        "sha256": "0361e8fdcdfac3989da7da0da64b010cb3706c377a0116fde83e201b854211b4"
+      },
+      {
+        "path": "packages/openclinxr/xr-humanoid-animation/src/animation-loop.ts",
+        "sha256": "7f0441b421a127234c7590f75730f56d83b30ed95364a2fcd83f36dced01d2e2"
+      },
+      {
+        "path": "packages/openclinxr/xr-humanoid-animation/src/case-owned-approach-runtime.ts",
+        "sha256": "a97939248e3223536c8c120196af9cedab57d36d830ce86acff16debd2ed42ba"
+      },
+      {
+        "path": "packages/openclinxr/xr-humanoid-animation/src/locomotion-clip-playback.ts",
+        "sha256": "7f8933a10d1d95aac2e2373a13d8ae188ea1f189de7ebaee063097eb29ed4520"
+      },
+      {
+        "path": "packages/openclinxr/xr-humanoid-animation/src/mounted-approach-geometry.ts",
+        "sha256": "84dc1ca53b53c4c3d7f8baa76ad1d83bac4a9599e4dbcd870abb8f619e9f5713"
+      },
+      {
+        "path": "packages/openclinxr/xr-humanoid-animation/src/stance-lock.ts",
+        "sha256": "415cd6dc3af6e240431819b99491e9ebbb7222316c5b83073290eb3ac5d0f892"
+      },
+      {
+        "path": "packages/openclinxr/xr-humanoid-animation/src/station-bedside-approach.ts",
+        "sha256": "4111297447fdf22fc02f7dadf8309cc3e2af4ac1e318057b72ffc7d3a6944659"
+      },
+      {
+        "path": "packages/openclinxr/xr-humanoid-animation/src/the-locomotion-drive-plays-a-clip.test.ts",
+        "sha256": "b11176839300635a7bc54a10c446a48913b9b44c2c5b8326f7419c1300cd48f1"
+      },
+      {
+        "path": "packages/openclinxr/xr-pose/package.json",
+        "sha256": "c9ceeef4c4f9ca9cca1d0803bfd5b2f60bfad8428f94e350b973787863a62f25"
+      },
+      {
+        "path": "packages/openclinxr/xr-runtime-state/package.json",
+        "sha256": "3a0cdcd5db5d98fea4016cb0d6521ec7bea33461604ee34733c57c99592c2baf"
+      },
+      {
+        "path": "packages/openclinxr/xr-runtime-state/src/bedside-approach-execution.ts",
+        "sha256": "cd1aa93a062efb0a9f1e9c582d8c9d12e9867776e43a359606b05ad0df99b3f8"
+      },
+      {
+        "path": "packages/openclinxr/xr-runtime-state/src/composed-body-direction.ts",
+        "sha256": "58726a5774c2e6c0396add90d202c62eb838ff6c01636cc74038e3917e5f203f"
+      },
+      {
+        "path": "packages/openclinxr/xr-runtime-state/src/runtime-actor-placements.ts",
+        "sha256": "449af6c03625441180bc8df86fe1e78cf46f0097adf558956170fe164d0ef0ba"
+      },
+      {
+        "path": "packages/openclinxr/xr-runtime-state/src/supported-actor-placement.ts",
+        "sha256": "d5351f0ae17a140f6f854d8cf329e4a9db21f6a0f62c7359fda0398587f9cead"
+      },
+      {
+        "path": "packages/openclinxr/xr-station-room/package.json",
+        "sha256": "0d607cfd7232b993e5c2fbd7b40ad3c0c95c4bc66bb65fde7e36477aa566c305"
+      },
+      {
+        "path": "packages/openclinxr/xr-station-room/src/station-environment-affect-cue.ts",
+        "sha256": "7826b1b50ab9b53de07c5a4842b2bfbbe484df340ebce40b65d3caeda44dc3ee"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-05/build-report.ts",
+        "sha256": "e7237a24ecfa4d01acda4324a44e422a59205e4da2220da4505055f2b1b038be"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-05/report-schema.ts",
+        "sha256": "dac8f4bfc4b00d5846192929982a511a8c2e015272ad8781e64600cf9ca599fa"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-05/runtime-approach-measurement.ts",
+        "sha256": "cd4d7252d0180b85375bcef6e40c9b3b12ba010e49e72c70215f6d73a352ad3d"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.ts",
+        "sha256": "cfeed26bf806d462db70bafdb1736cf8ba557ce25496562e1ae7480b8d14cb20"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-05/verifier.test.ts",
+        "sha256": "923e1c1f60ef31fb50fa6aa1f29743c4f1db1f9faf22abb129e402648326abe4"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-05/verify-core.ts",
+        "sha256": "3c6d31bfdd8727f1bf405ad3e6a0af3af17e4c3b32ccc011efdcfc7727756c86"
+      },
+      {
+        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-05/verify.ts",
+        "sha256": "d31941919ff67d31c6d4bd78b2370555f05fb4ad39a259e8ce138a19ff17cb97"
+      }
+    ],
+    "changedFiles": [
+      "apps/ui-xr/src/main.ts",
+      "apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts",
+      "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-05.md",
+      "packages/openclinxr/asset-registry/package.json",
+      "packages/openclinxr/asset-registry/src/actor-posture.ts",
+      "packages/openclinxr/asset-registry/src/bedside-approach-path.ts",
+      "packages/openclinxr/asset-registry/src/case-approach-intent.ts",
+      "packages/openclinxr/xr-humanoid-animation/package.json",
+      "packages/openclinxr/xr-humanoid-animation/src/animation-loop.ts",
+      "packages/openclinxr/xr-humanoid-animation/src/case-owned-approach-runtime.ts",
+      "packages/openclinxr/xr-humanoid-animation/src/locomotion-clip-playback.ts",
+      "packages/openclinxr/xr-humanoid-animation/src/mounted-approach-geometry.ts",
+      "packages/openclinxr/xr-humanoid-animation/src/stance-lock.ts",
+      "packages/openclinxr/xr-humanoid-animation/src/station-bedside-approach.ts",
+      "packages/openclinxr/xr-humanoid-animation/src/the-locomotion-drive-plays-a-clip.test.ts",
+      "packages/openclinxr/xr-pose/package.json",
+      "packages/openclinxr/xr-runtime-state/package.json",
+      "packages/openclinxr/xr-runtime-state/src/bedside-approach-execution.ts",
+      "packages/openclinxr/xr-runtime-state/src/composed-body-direction.ts",
+      "packages/openclinxr/xr-runtime-state/src/runtime-actor-placements.ts",
+      "packages/openclinxr/xr-runtime-state/src/supported-actor-placement.ts",
+      "packages/openclinxr/xr-station-room/package.json",
+      "packages/openclinxr/xr-station-room/src/station-environment-affect-cue.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-05/build-report.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-05/report-schema.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-05/runtime-approach-measurement.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-05/verifier.test.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-05/verify-core.ts",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-05/verify.ts"
+    ],
+    "runtime": {
+      "node": "v24.18.1",
+      "platform": "darwin-arm64"
+    }
+  },
+  "execution": {
+    "taskId": "tsk_4d39f0beaa5cdcc6",
+    "runId": "sc05-2026-09-10T02-48-15-162Z",
+    "commands": [
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "packages/openclinxr/asset-registry/src/the-approach-path-stops-at-the-target.test.ts",
+          "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-10T02:48:15.163Z",
+        "endedAtIso": "2026-09-10T02:48:16.993Z",
+        "outputArtifactId": "cmd-approach-executor-regressions",
+        "tests": {
+          "passed": 12,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "packages/openclinxr/xr-humanoid-animation/src/the-locomotion-drive-plays-a-clip.test.ts",
+          "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-10T02:48:16.993Z",
+        "endedAtIso": "2026-09-10T02:48:18.512Z",
+        "outputArtifactId": "cmd-locomotion-and-sway-regressions",
+        "tests": {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-10T02:48:18.512Z",
+        "endedAtIso": "2026-09-10T02:48:20.089Z",
+        "outputArtifactId": "cmd-behavior-test",
+        "tests": {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "tsx",
+          "tools/openclinxr/openclaw/assert-contract-live.ts",
+          "apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts",
+          "SC-05-required-behavior"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-10T02:48:20.090Z",
+        "endedAtIso": "2026-09-10T02:48:20.577Z",
+        "outputArtifactId": "cmd-assert-contract-live"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tools/openclinxr/evidence/scene-closure/proofs/sc-05/verifier.test.ts"
+        ],
+        "exitCode": 0,
+        "startedAtIso": "2026-09-10T02:48:20.578Z",
+        "endedAtIso": "2026-09-10T02:48:22.458Z",
+        "outputArtifactId": "cmd-verifier-unit-tests",
+        "tests": {
+          "passed": 35,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      }
+    ]
+  },
+  "counterweight": {
+    "testIds": [
+      "SC-05-required-behavior"
+    ],
+    "baselineRevision": "682e6709",
+    "baselineRunId": "sc05-red-baseline-86dc0300",
+    "failingAssertion": "the physician starts away from the bedside, so there is a route to walk: expected 0 to be greater than 1 (clause 1 of five, measured at the untouched baseline; the other four and the twelve per-change reverts are in the red-baseline and two-sided-probe artifacts)",
+    "observedBeforeFix": "0.000 m between the runtime-resolved physician start and the bedside destination — bedsideClinicianPlacement delivers him at the arrived pose, and the case's authored doorway start is refused by composeSupportedActorWorldPosition as '\"none\" is not a frame'",
+    "knownGoodControl": "the shipped approach planner, executor, clearance and monitor-visibility checks are unchanged and their own suites stay green (20 tests); an actor with no locomotion clip keeps the old root-slide behaviour exactly, asserted by clause (3) of the locomotion regression",
+    "fixedRevision": "682e6709740f912c89601b07f4b656ef908ff216",
+    "observedAfterFix": "1.306 m route walked with the stance foot pinned: foot-slide 0.00000 m on both toes over the walk interval, arrival error 0.0147 m against a 0.05 m cap, settled heading 0.000 deg, root travel 0 m through the stopped observation",
+    "baselineOutputArtifactId": "red-baseline",
+    "fixedOutputArtifactId": "cmd-behavior-test"
+  },
+  "sourceInspection": {
+    "behaviorTestPath": "apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts",
+    "behaviorTestTitle": "SC-05-required-behavior"
+  },
+  "encounter": {
+    "caseId": "scene_closure_supine_bedside_v1",
+    "caseVersion": 2,
+    "caseSourceVersion": "openclinxr.scene-closure-case-source.v2",
+    "environmentId": "inpatient_ward_room_v1",
+    "stationId": "scene_closure_supine_bedside_station_v1",
+    "patientActorId": "patient_margaret_ellis_v1",
+    "physicianActorId": "senior_resident_ward_v1",
+    "requiredSupportInstanceId": "inpatient_ward_room_v1:stretcher",
+    "floorFrameId": "inpatient_ward_room_v1:floor",
+    "authoredPhysicianStartOffsetMeters": {
+      "x": -1.95,
+      "y": 0,
+      "z": 1.72
+    },
+    "physicianBodyAssetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+    "locomotionClipName": "openclinxr_retarget_walk_formal_cc0",
+    "rubricVersion": "openclinxr.scene-closure-measurement-rubric.v1"
+  },
+  "observations": [
+    {
+      "observationId": "obs-1-normal-encounter-selects-explicit-physician",
+      "metric": "startToTargetMeters",
+      "unit": "m",
+      "value": "{\"physicianActorId\":\"senior_resident_ward_v1\",\"start\":{\"x\":-1.95,\"y\":0.95,\"z\":1.72},\"target\":{\"x\":-0.78,\"y\":0,\"z\":1.1399999995529653},\"startToTargetMeters\":1.3058713568030198}",
+      "observedAtMs": 1789008500032,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-2-no-recorder-globals-or-direct-executor-call",
+      "metric": "driveSourcesObserved",
+      "unit": "id",
+      "value": "{\"driveSources\":[\"case_owned_bedside_approach\"],\"recorderGlobalPresent\":false,\"mainCallSiteLive\":true}",
+      "observedAtMs": 1789008500040,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-3-case-authorized-side-and-standoff-resolved",
+      "metric": "targetFromObservedGeometry",
+      "unit": "m",
+      "value": "{\"approachSide\":\"patient_right\",\"standoffMeters\":0.75,\"deckEdgeZ\":0.3899999995529652,\"target\":{\"x\":-0.78,\"y\":0,\"z\":1.1399999995529653},\"monitorVisibility\":{\"visible\":true},\"observedObstacleIds\":[\"inpatient_ward_room_v1:stretcher\",\"inpatient_ward_room_v1:overbed_surface\",\"inpatient_ward_room_v1:door_leaf\",\"inpatient_ward_room_v1:wall_board\"]}",
+      "observedAtMs": 1789008500041,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-4-swept-occupancy-includes-between-waypoint-obstacle",
+      "metric": "sweptFindsWhatSamplingMisses",
+      "unit": "count",
+      "value": "{\"sampledWaypointViolations\":[],\"sweptRefusalCode\":\"route_blocked\",\"poleLateralMeters\":0.3}",
+      "observedAtMs": 1789008500041,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-5-plan-bound-to-observed-geometry-and-run",
+      "metric": "geometryRevision",
+      "unit": "digest",
+      "value": "{\"accepted\":\"geom-v1-c45e274d-7\",\"afterObstacleAdded\":\"geom-v1-adee3e1a-8\",\"runId\":\"sc05-behavior-run\"}",
+      "observedAtMs": 1789008500041,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-6-arrival-error-within-0p05m",
+      "metric": "arrivalErrorMeters",
+      "unit": "m",
+      "value": 0.008093629467019737,
+      "observedAtMs": 1789008500042,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-7-settled-yaw-within-10deg",
+      "metric": "settledYawErrorDegrees",
+      "unit": "deg",
+      "value": 0,
+      "observedAtMs": 1789008500042,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-8-root-stopped-for-two-seconds",
+      "metric": "stoppedRootTravelMeters",
+      "unit": "m",
+      "value": "{\"stoppedSeconds\":8.98333333333336,\"stoppedRootTravelMeters\":0}",
+      "observedAtMs": 1789008500042,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-9-rubric-applied-to-loaded-skeleton-and-skin",
+      "metric": "rubricGrades",
+      "unit": "metric",
+      "value": "{\"rubricVersion\":\"openclinxr.scene-closure-measurement-rubric.v1\",\"walkFailedMetrics\":[\"support-contact\",\"support-penetration\"],\"skinnedBodyCount\":1,\"skinnedVertexSampleCount\":1440,\"probeGait\":{\"walkFootSlideL\":{\"worstFrameMeters\":0.0019444426466469775,\"totalMeters\":0.0019444426466483098,\"windows\":2,\"contactFrames\":73},\"walkFootSlideR\":{\"worstFrameMeters\":0.001944465250884354,\"totalMeters\":0.003888890632905326,\"windows\":2,\"contactFrames\":38},\"stopFootSlideL\":{\"worstFrameMeters\":0,\"totalMeters\":0,\"windows\":1,\"contactFrames\":540},\"stopFootSlideR\":{\"worstFrameMeters\":0,\"totalMeters\":0,\"windows\":1,\"contactFrames\":540},\"deepestPenetrationMeters\":-0.008496801055930234,\"clipStanceAdvanceMetersPerSecond\":0.833333300219646,\"clipForwardBody\":{\"x\":0,\"z\":1},\"settledOn\":\"clip_rest_frame\"}}",
+      "observedAtMs": 1789008500043,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-10-patient-support-preserved-during-approach",
+      "metric": "patientSlotAfterApproach",
+      "unit": "m",
+      "value": "{\"supportReadiness\":\"mounted\",\"accepted\":true,\"requiredSupportInstanceId\":\"inpatient_ward_room_v1:stretcher\",\"position\":{\"x\":-0.78,\"z\":-0.18}}",
+      "observedAtMs": 1789008500043,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-11-missing-physician-refuses",
+      "metric": "refusalCode",
+      "unit": "id",
+      "value": "physician_not_cast",
+      "observedAtMs": 1789008500043,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-12-nurse-in-first-clinical-slot-refuses",
+      "metric": "refusalCode",
+      "unit": "id",
+      "value": "non_physician_in_first_clinical_slot",
+      "observedAtMs": 1789008500043,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-13-blocked-authored-side-refuses",
+      "metric": "refusalCode",
+      "unit": "id",
+      "value": "{\"code\":\"authored_side_blocked\",\"authoredSide\":\"patient_right\"}",
+      "observedAtMs": 1789008500043,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-14-thin-obstacle-refuses",
+      "metric": "refusalCode",
+      "unit": "id",
+      "value": "{\"code\":\"route_blocked\",\"obstacleId\":\"iv_pole_between_waypoints\"}",
+      "observedAtMs": 1789008500043,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-15-stale-plan-revision-refuses",
+      "metric": "refusalMessage",
+      "unit": "text",
+      "value": "createCaseOwnedBedsideApproach refused: refused a stale plan: it was accepted against geometry geom-v1-forged00-7 and the scene now shows geom-v1-c45e274d-7. A cleared route is a claim about the room it was computed against, and this is not that room.",
+      "observedAtMs": 1789008500047,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-16-support-removed-mid-walk-stops",
+      "metric": "invalidationReason",
+      "unit": "text",
+      "value": "the patient's support acceptance was lost during travel, so the placement this approach depends on is no longer accepted through the normal owner",
+      "observedAtMs": 1789008500051,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-17-clip-flag-without-limb-motion-fails",
+      "metric": "limbTravelMeters",
+      "unit": "m",
+      "value": "{\"declaredPlayed\":true,\"measuredLimbTravelMeters\":0}",
+      "observedAtMs": 1789008500055,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-18-motion-after-stop-fails",
+      "metric": "rootTravelMeters",
+      "unit": "m",
+      "value": "{\"walkRootTravelMeters\":1.2858332843154439,\"stoppedRootTravelMeters\":0}",
+      "observedAtMs": 1789008500056,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-19-rigid-body-bob-submerges-planted-toes",
+      "metric": "toeReadingsBelowFloor",
+      "unit": "count",
+      "value": "{\"removedTermAmplitudeMeters\":0.018,\"withRemovedTerm\":{\"readings\":1680,\"belowPlane\":412,\"deeperThanPerceptualFloor\":212,\"deepestMeters\":0.006983146177242383},\"asShipped\":{\"readings\":1440,\"belowPlane\":0,\"deepestMeters\":-0.008496801055930234}}",
+      "observedAtMs": 1789008500059,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-20-rubric-applied-to-loaded-skeleton-and-skin",
+      "metric": "rubricGrades",
+      "unit": "metric",
+      "value": "{\"rubricVersion\":\"openclinxr.scene-closure-measurement-rubric.v1\",\"walkFailedMetrics\":[\"support-contact\",\"support-penetration\"],\"walkFootSlide\":{\"outcome\":\"satisfied\",\"observed\":\"toe1-1.L windows=4 total=0.00000m (allow 0.06280m) worst=0.00000m (allow 0.005m) | toe1-1.R windows=4 total=0.00000m (allow 0.06280m) worst=0.00000m (allow 0.005m)\"},\"settleTurnFootSlide\":{\"outcome\":\"violated\",\"observed\":\"toe1-1.L windows=1 total=0.17512m (allow 0.01570m) worst=0.00177m (allow 0.005m) | toe1-1.R windows=1 total=0.21127m (allow 0.01570m) worst=0.03615m (allow 0.005m)\"},\"stopFailedMetrics\":[\"support-contact\",\"support-penetration\"],\"wholeRunFailedMetrics\":[\"foot-slide\",\"support-contact\",\"support-penetration\"],\"skinnedBodyCount\":11,\"skinnedVertexSampleCount\":51548,\"clipStanceAdvanceMetersPerSecond\":0.6763963897122778,\"clipForwardBody\":{\"x\":-0.012233288832419883,\"z\":-0.999925170522446}}",
+      "observedAtMs": 1789008502426,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    },
+    {
+      "observationId": "obs-21-browser-run-arrives-and-stops",
+      "metric": "browserApproachGrade",
+      "unit": "m",
+      "value": "{\"driveSource\":\"case_owned_bedside_approach\",\"recorderGlobalPresent\":false,\"phase\":\"arrived\",\"physicianActorId\":\"senior_resident_ward_v1\",\"toeBonesResolved\":true,\"skeletonSampleCount\":373,\"frameCount\":373,\"walkFrames\":150,\"settleFrames\":58,\"stoppedFrames\":165,\"arrivalErrorMeters\":0.03596660670665258,\"settledYawErrorDegrees\":0,\"authoredTargetHeadingRadians\":3.141592653589793,\"observedFinalYawRadians\":3.141592653589793,\"stoppedSeconds\":4.815999997472777,\"stoppedRootTravelMeters\":0,\"walkFootSlideLeft\":{\"worstFrameMeters\":0.07583693889466533,\"totalMeters\":1.1216141905046042,\"windows\":3,\"contactFrames\":140},\"walkFootSlideRight\":{\"worstFrameMeters\":0.3119807693531878,\"totalMeters\":3.235344681053981,\"windows\":5,\"contactFrames\":136},\"settleTurnFootSlideLeft\":{\"worstFrameMeters\":0.009053208655476099,\"totalMeters\":0.33497739993169345,\"windows\":1,\"contactFrames\":58},\"settleTurnFootSlideRight\":{\"worstFrameMeters\":0.00901312725348183,\"totalMeters\":0.33412589361511363,\"windows\":1,\"contactFrames\":58},\"stanceOnlySlideLeft\":{\"worstFrameMeters\":0.005725503660216573,\"totalMeters\":0.006535710276169676,\"windows\":3,\"contactFrames\":92},\"stanceOnlySlideRight\":{\"worstFrameMeters\":0.026677767269084454,\"totalMeters\":0.03616564334804567,\"windows\":2,\"contactFrames\":57},\"deepestFloorPenetrationMeters\":0.0017901983661417972,\"observedObstacleIds\":[\"inpatient_ward_room_v1:stretcher\",\"inpatient_ward_room_v1:overbed_surface\",\"inpatient_ward_room_v1:door_leaf\",\"inpatient_ward_room_v1:wall_board\"],\"monitorVisible\":true,\"clipStanceAdvanceMetersPerSecond\":0.6576111710186641,\"limbTravelMeters\":3.2231837127228946,\"cadence\":{\"sampleCount\":150,\"medianIntervalMs\":125,\"maxIntervalMs\":353,\"minIntervalMs\":9,\"maxOverMedian\":2.824,\"hz\":8,\"medianStrideMeters\":0.08220139637733301,\"requiredHzForAllowance\":131.5222342037328,\"gradeable\":false,\"reason\":\"frame intervals vary by 2.82x (max 353 ms over median 125 ms), over SC-00's frozen maxFrameGapRatio of 2; a foot covers 0.0822 m between samples at 8.00 Hz, 16x the 0.005 m per-frame allowance; identifying a contact window needs about 132 Hz\"},\"footSlideOutcome\":\"not_gradeable\"}",
+      "observedAtMs": 1789008502459,
+      "artifactId": "run-observations",
+      "source": "read-only instrument inside apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts"
+    }
+  ],
+  "checks": [
+    {
+      "checkId": "normal-encounter-selects-explicit-physician",
+      "expected": "startToTargetMeters",
+      "observed": "{\"physicianActorId\":\"senior_resident_ward_v1\",\"start\":{\"x\":-1.95,\"y\":0.95,\"z\":1.72},\"target\":{\"x\":-0.78,\"y\":0,\"z\":1.1399999995529653},\"startToTargetMeters\":1.3058713568030198}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-1-normal-encounter-selects-explicit-physician",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "no-recorder-globals-or-direct-executor-call",
+      "expected": "driveSourcesObserved",
+      "observed": "{\"driveSources\":[\"case_owned_bedside_approach\"],\"recorderGlobalPresent\":false,\"mainCallSiteLive\":true}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-2-no-recorder-globals-or-direct-executor-call",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "case-authorized-side-and-standoff-resolved",
+      "expected": "targetFromObservedGeometry",
+      "observed": "{\"approachSide\":\"patient_right\",\"standoffMeters\":0.75,\"deckEdgeZ\":0.3899999995529652,\"target\":{\"x\":-0.78,\"y\":0,\"z\":1.1399999995529653},\"monitorVisibility\":{\"visible\":true},\"observedObstacleIds\":[\"inpatient_ward_room_v1:stretcher\",\"inpatient_ward_room_v1:overbed_surface\",\"inpatient_ward_room_v1:door_leaf\",\"inpatient_ward_room_v1:wall_board\"]}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-3-case-authorized-side-and-standoff-resolved",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "swept-occupancy-includes-between-waypoint-obstacle",
+      "expected": "sweptFindsWhatSamplingMisses",
+      "observed": "{\"sampledWaypointViolations\":[],\"sweptRefusalCode\":\"route_blocked\",\"poleLateralMeters\":0.3}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-4-swept-occupancy-includes-between-waypoint-obstacle",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "plan-bound-to-observed-geometry-and-run",
+      "expected": "geometryRevision",
+      "observed": "{\"accepted\":\"geom-v1-c45e274d-7\",\"afterObstacleAdded\":\"geom-v1-adee3e1a-8\",\"runId\":\"sc05-behavior-run\"}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-5-plan-bound-to-observed-geometry-and-run",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "arrival-error-within-0p05m",
+      "expected": "arrivalErrorMeters",
+      "observed": 0.008093629467019737,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-6-arrival-error-within-0p05m",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "settled-yaw-within-10deg",
+      "expected": "settledYawErrorDegrees",
+      "observed": 0,
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-7-settled-yaw-within-10deg",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "root-stopped-for-two-seconds",
+      "expected": "stoppedRootTravelMeters",
+      "observed": "{\"stoppedSeconds\":8.98333333333336,\"stoppedRootTravelMeters\":0}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-8-root-stopped-for-two-seconds",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "rubric-applied-to-loaded-skeleton-and-skin",
+      "expected": "rubricGrades",
+      "observed": "{\"rubricVersion\":\"openclinxr.scene-closure-measurement-rubric.v1\",\"walkFailedMetrics\":[\"support-contact\",\"support-penetration\"],\"walkFootSlide\":{\"outcome\":\"satisfied\",\"observed\":\"toe1-1.L windows=4 total=0.00000m (allow 0.06280m) worst=0.00000m (allow 0.005m) | toe1-1.R windows=4 total=0.00000m (allow 0.06280m) worst=0.00000m (allow 0.005m)\"},\"settleTurnFootSlide\":{\"outcome\":\"violated\",\"observed\":\"toe1-1.L windows=1 total=0.17512m (allow 0.01570m) worst=0.00177m (allow 0.005m) | toe1-1.R windows=1 total=0.21127m (allow 0.01570m) worst=0.03615m (allow 0.005m)\"},\"stopFailedMetrics\":[\"support-contact\",\"support-penetration\"],\"wholeRunFailedMetrics\":[\"foot-slide\",\"support-contact\",\"support-penetration\"],\"skinnedBodyCount\":11,\"skinnedVertexSampleCount\":51548,\"clipStanceAdvanceMetersPerSecond\":0.6763963897122778,\"clipForwardBody\":{\"x\":-0.012233288832419883,\"z\":-0.999925170522446}}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-20-rubric-applied-to-loaded-skeleton-and-skin",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "patient-support-preserved-during-approach",
+      "expected": "patientSlotAfterApproach",
+      "observed": "{\"supportReadiness\":\"mounted\",\"accepted\":true,\"requiredSupportInstanceId\":\"inpatient_ward_room_v1:stretcher\",\"position\":{\"x\":-0.78,\"z\":-0.18}}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-10-patient-support-preserved-during-approach",
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "checkId": "browser-run-arrives-and-stops",
+      "expected": "browserApproachGrade",
+      "observed": "{\"driveSource\":\"case_owned_bedside_approach\",\"recorderGlobalPresent\":false,\"phase\":\"arrived\",\"physicianActorId\":\"senior_resident_ward_v1\",\"toeBonesResolved\":true,\"skeletonSampleCount\":373,\"frameCount\":373,\"walkFrames\":150,\"settleFrames\":58,\"stoppedFrames\":165,\"arrivalErrorMeters\":0.03596660670665258,\"settledYawErrorDegrees\":0,\"authoredTargetHeadingRadians\":3.141592653589793,\"observedFinalYawRadians\":3.141592653589793,\"stoppedSeconds\":4.815999997472777,\"stoppedRootTravelMeters\":0,\"walkFootSlideLeft\":{\"worstFrameMeters\":0.07583693889466533,\"totalMeters\":1.1216141905046042,\"windows\":3,\"contactFrames\":140},\"walkFootSlideRight\":{\"worstFrameMeters\":0.3119807693531878,\"totalMeters\":3.235344681053981,\"windows\":5,\"contactFrames\":136},\"settleTurnFootSlideLeft\":{\"worstFrameMeters\":0.009053208655476099,\"totalMeters\":0.33497739993169345,\"windows\":1,\"contactFrames\":58},\"settleTurnFootSlideRight\":{\"worstFrameMeters\":0.00901312725348183,\"totalMeters\":0.33412589361511363,\"windows\":1,\"contactFrames\":58},\"stanceOnlySlideLeft\":{\"worstFrameMeters\":0.005725503660216573,\"totalMeters\":0.006535710276169676,\"windows\":3,\"contactFrames\":92},\"stanceOnlySlideRight\":{\"worstFrameMeters\":0.026677767269084454,\"totalMeters\":0.03616564334804567,\"windows\":2,\"contactFrames\":57},\"deepestFloorPenetrationMeters\":0.0017901983661417972,\"observedObstacleIds\":[\"inpatient_ward_room_v1:stretcher\",\"inpatient_ward_room_v1:overbed_surface\",\"inpatient_ward_room_v1:door_leaf\",\"inpatient_ward_room_v1:wall_board\"],\"monitorVisible\":true,\"clipStanceAdvanceMetersPerSecond\":0.6576111710186641,\"limbTravelMeters\":3.2231837127228946,\"cadence\":{\"sampleCount\":150,\"medianIntervalMs\":125,\"maxIntervalMs\":353,\"minIntervalMs\":9,\"maxOverMedian\":2.824,\"hz\":8,\"medianStrideMeters\":0.08220139637733301,\"requiredHzForAllowance\":131.5222342037328,\"gradeable\":false,\"reason\":\"frame intervals vary by 2.82x (max 353 ms over median 125 ms), over SC-00's frozen maxFrameGapRatio of 2; a foot covers 0.0822 m between samples at 8.00 Hz, 16x the 0.005 m per-frame allowance; identifying a contact window needs about 132 Hz\"},\"footSlideOutcome\":\"not_gradeable\"}",
+      "outcome": "satisfied",
+      "evidenceIds": [
+        "obs-21-browser-run-arrives-and-stops",
+        "run-observations",
+        "ui-xr-browser-inspection",
+        "ui-xr-browser-screenshot"
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "controlId": "missing-physician-refuses",
+      "trigger": "refusalCode",
+      "expected": "the production owner refuses",
+      "observed": "refusalCode = physician_not_cast",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "nurse-in-first-clinical-slot-refuses",
+      "trigger": "refusalCode",
+      "expected": "the production owner refuses",
+      "observed": "refusalCode = non_physician_in_first_clinical_slot",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "blocked-authored-side-refuses",
+      "trigger": "refusalCode",
+      "expected": "the production owner refuses",
+      "observed": "refusalCode = {\"code\":\"authored_side_blocked\",\"authoredSide\":\"patient_right\"}",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "thin-obstacle-refuses",
+      "trigger": "refusalCode",
+      "expected": "the production owner refuses",
+      "observed": "refusalCode = {\"code\":\"route_blocked\",\"obstacleId\":\"iv_pole_between_waypoints\"}",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "stale-plan-revision-refuses",
+      "trigger": "refusalMessage",
+      "expected": "the production owner refuses",
+      "observed": "refusalMessage = createCaseOwnedBedsideApproach refused: refused a stale plan: it was accepted against geometry geom-v1-forged00-7 and the scene now shows geom-v1-c45e274d-7. A cleared route is a claim about the room it was computed against, and this is not that room.",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "support-removed-mid-walk-stops",
+      "trigger": "invalidationReason",
+      "expected": "the production owner refuses",
+      "observed": "invalidationReason = the patient's support acceptance was lost during travel, so the placement this approach depends on is no longer accepted through the normal owner",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "clip-flag-without-limb-motion-fails",
+      "trigger": "limbTravelMeters",
+      "expected": "the production owner refuses",
+      "observed": "limbTravelMeters = {\"declaredPlayed\":true,\"measuredLimbTravelMeters\":0}",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    },
+    {
+      "controlId": "motion-after-stop-fails",
+      "trigger": "rootTravelMeters",
+      "expected": "the production owner refuses",
+      "observed": "rootTravelMeters = {\"walkRootTravelMeters\":1.2858332843154439,\"stoppedRootTravelMeters\":0}",
+      "held": true,
+      "evidenceIds": [
+        "run-observations",
+        "cmd-behavior-test"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "cmd-approach-executor-regressions",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-05/cmd-approach-executor-regressions.txt",
+      "byteCount": 222,
+      "sha256": "704e0e5a53e9940b2ff67941491bc271d8cabdb022cdd2cb8d5f3f235bd4f7ab",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T02:48:16.994Z",
+      "runId": "sc05-2026-09-10T02-48-15-162Z"
+    },
+    {
+      "artifactId": "cmd-locomotion-and-sway-regressions",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-05/cmd-locomotion-and-sway-regressions.txt",
+      "byteCount": 220,
+      "sha256": "d123812868837043849025a50ab03c2f8a5d438d9f5b035a51ef30e6c679fb86",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T02:48:18.513Z",
+      "runId": "sc05-2026-09-10T02-48-15-162Z"
+    },
+    {
+      "artifactId": "cmd-behavior-test",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-05/cmd-behavior-test.txt",
+      "byteCount": 221,
+      "sha256": "d4fa54f2c914ddc6cef76c6b4c68f724480157d472d134313c4af20319614278",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T02:48:20.090Z",
+      "runId": "sc05-2026-09-10T02-48-15-162Z"
+    },
+    {
+      "artifactId": "cmd-assert-contract-live",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-05/cmd-assert-contract-live.txt",
+      "byteCount": 119,
+      "sha256": "bc0a8660680134e9c32774d046617f5c0aadc94ffa1ba307621e4a49f28a277c",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T02:48:20.578Z",
+      "runId": "sc05-2026-09-10T02-48-15-162Z"
+    },
+    {
+      "artifactId": "cmd-verifier-unit-tests",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-05/cmd-verifier-unit-tests.txt",
+      "byteCount": 224,
+      "sha256": "974d34cafe662c5bf90b96eeef9955659b103647a05a99fb2eacf225e631a5b8",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T02:48:22.459Z",
+      "runId": "sc05-2026-09-10T02-48-15-162Z"
+    },
+    {
+      "artifactId": "run-observations",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-05/checks.jsonl",
+      "byteCount": 8486,
+      "sha256": "89c808d452a56ecdcd22e3a5d1ce4bb4fbaf376876451c2dcbe84c551217ff43",
+      "mediaType": "application/x-ndjson",
+      "createdAtIso": "2026-09-10T02:48:22.459Z",
+      "runId": "sc05-2026-09-10T02-48-15-162Z"
+    },
+    {
+      "artifactId": "ui-xr-browser-inspection",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-05/ui-xr-bedside-approach-inspection.json",
+      "byteCount": 217152,
+      "sha256": "fae38bc1c79440ae85fc50a4430320428fee2f6607f34f833fd08817533b8101",
+      "mediaType": "application/json",
+      "createdAtIso": "2026-09-10T02:41:38.925Z",
+      "runId": "sc05-2026-09-10T02-48-15-162Z"
+    },
+    {
+      "artifactId": "ui-xr-browser-screenshot",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-05/ui-xr-bedside-approach-arrived.png",
+      "byteCount": 61206,
+      "sha256": "7a4c658a0ed40a19dde52ae9958d4e4f61322535bc30e9ff5eea7e7286e4322c",
+      "mediaType": "image/png",
+      "createdAtIso": "2026-09-10T02:41:38.928Z",
+      "runId": "sc05-2026-09-10T02-48-15-162Z"
+    },
+    {
+      "artifactId": "two-sided-probe",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-05/two-sided-probe.txt",
+      "byteCount": 9806,
+      "sha256": "aae1a273dc60246b93b5f3a282c9c65f321ae50f360199f1f66ea3f5ecace082",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-10T02:42:04.786Z",
+      "runId": "sc05-2026-09-10T02-48-15-162Z"
+    },
+    {
+      "artifactId": "red-baseline",
+      "storeAlias": "sc-evidence",
+      "objectKey": "sc-05/red-baseline.txt",
+      "byteCount": 5635,
+      "sha256": "98b4db91a081f6386956bfb514e4d6419b6befd4b5207a3e1372ee35c7ba4b29",
+      "mediaType": "text/plain",
+      "createdAtIso": "2026-09-09T23:54:47.386Z",
+      "runId": "sc05-red-baseline-86dc0300"
+    }
+  ],
+  "reviews": [
+    {
+      "reviewerId": "scene-closure execution owner (Claude Opus 5 main session, openclinxr-c2)",
+      "role": "execution owner and independent reviewer",
+      "distinctFromImplementer": true,
+      "reviewedSourceCommit": "0e2bbecd",
+      "retrievedArtifactIds": [
+        "cmd-approach-executor-regressions",
+        "cmd-locomotion-and-sway-regressions",
+        "cmd-behavior-test",
+        "cmd-assert-contract-live",
+        "cmd-verifier-unit-tests",
+        "run-observations",
+        "ui-xr-browser-inspection",
+        "ui-xr-browser-screenshot",
+        "two-sided-probe",
+        "red-baseline"
+      ],
+      "sessionIso": "2026-09-10T02:53:57.856Z",
+      "observations": "REJECTED THIS CARD TWICE BEFORE ACCEPTING IT, both times on a measurement I took myself rather than on the implementer report. First rejection: the card delivered production-boundary tests and no browser measurement, which clause 5 requires as well; recorded as failed treatment production-boundary-tests-without-browser-measurement. Second rejection: the browser capture reported foot-slide FAILING and attributed it to the swing foot inside the 0.06 m contact band at 60 Hz. Measured from that capture own 330 samples, the median frame interval is 248 ms, so it samples at 4.03 Hz and not 60. At that cadence a 0.658 m/s foot covers 0.163 m between samples, 33x the 0.005 m allowance, and the worst recorded step is 0.32907 m over a 10 ms interval, 32.9 m/s, which is a discontinuity and not a foot. Restricting to frames where both samples sit within 0.015 m of the floor still left 0.19541 m on the right toe with 91 percent of it on frames longer than 25 ms, so tightening the band rescues nothing. SC-00 own maxFrameGapRatio of 2 already refused that stream at 2.21 and the grader never asked it, which is a metric grading data its own sufficiency gate would reject. The implementer reproduced every number, retracted the diagnosis in place rather than deleting it, and built the gate: measureCadence runs before any contact verdict and a failing stream yields not_gradeable carrying its numbers, with verify.ts refusing a report that records either outcome over a stream its cadence gate rejects. Raising the cadence reached 7.94 Hz against about 132 Hz needed, so foot-slide closes not_gradeable in browser on a stated measured limit. THIRD ROUND, and the one that mattered most: I measured the penetration DISTRIBUTION rather than the reported headline and found 238 of 782 toe readings below the floor plane, 150 deeper than the allowance, and 137 of them in the ARRIVED phase, so the physician stood at the bedside with his toes about 14 mm underground for the whole settled period. The implementer traced it to one term, animation-loop.ts standing branch writing slot.baseY plus breathing times 0.018, a rigid translation of the whole actor with nothing holding its feet, identified by an arrived-phase sinusoid of 0.0340 m peak to peak at 5.4 s against the 5.464 s period of sin(t times 1.15). Removing it lifts nothing because sin has zero mean, and breathing survives in the scale term whose group origin is at the feet. It also built and WITHDREW two stance-lock treatments with measurements rather than arguing them, and found that the clause asserting floor penetration could never have failed because the harness applied none of the loop idle terms; control 9 now passes the removed 0.018 m back in. Owner re-measure of the final capture, independently: 13 of 746 toe readings below the plane, 0 deeper than the allowance, all 13 inside the walk, deepest 0.00179 m against 0.01430 m before. Reran every doneWhen at the integrated head: 12, 8 and 1 tests, assert-contract-live 1 contract live, verifier suite 35, and 622 across every touched package and landed card; typecheck 0 on both configs, architecture 8 of 8, knip clean. Two owner repairs: three package barrel imports narrowed to declaring modules after they took typecheck:relaxed from 0 to 19, and one pre-existing unused import dropped from animation-loop.ts, linted for the first time because the file was finally staged. The changed-file audit lists all 30 files the card touched across its four commits rather than only the last round; docs/openclinxr/doc-authority-registry-2026-05-27.json is the one file in the diff that is NOT the card, being my own registration of sc-05.md in a protected registry. ACCEPTED WITH TWO DECLARED OPEN ITEMS, neither hidden and neither admitted by moving a threshold: foot-slide is not gradeable in browser at 7.94 Hz against 132 Hz needed, and the terminal settle turn fails foot-slide offline because no turn-in-place take exists in the cleared clip set.",
+      "decision": "accepted"
+    }
+  ],
+  "limits": {
+    "unprovenClinical": [
+      "qualified clinical review of the bedside side, the 0.75 m standoff, the working position and the gait is PENDING. Nothing here establishes clinical validity, exam equivalence, or that a physician should approach this patient from this side at this distance. The anthropometric figures the clearance and monitor checks lean on (0.3 m footprint, 1.8 m standing height, 1.55 m eye height) are external adult floors, not a validated standard for any procedure."
+    ],
+    "unprovenHeadset": [
+      "no worn-headset run; every observation is a node/vitest process on M1 Max"
+    ],
+    "unprovenPublication": [
+      "no Pages push, no public deployment, no media, no rendered frame"
+    ],
+    "unresolvedDefects": [
+      "FOOT-SLIDE IS not_gradeable IN A BROWSER ON THIS MACHINE. The capture samples at a 126 ms median interval (7.94 Hz) with a 4.36 max/median against SC-00's frozen maxFrameGapRatio of 2, and identifying a contact window at a 0.005 m per-frame allowance needs about 132 Hz. A 480x320 viewport and Chromium's frame-cap flags took it from 4.03 Hz to 7.94 and no further; the remaining cost is four skinned humanoids and a compiled room GLB through SwiftShader. An earlier revision of this report graded the browser foot-slide as FAILING from an assumed 60 Hz that was never measured; that verdict was wrong in the same way a passing one would have been, and measureCadence now refuses either. A08 stays OPEN on the browser half, on that number.",
+      "THE BROWSER RUN FAILS floor-penetration at 0.01430 m against 0.005 m. That metric needs no contact window, so the cadence refusal does not reach it and this is a real failure rather than a refusal.",
+      "NO VIDEO. The browser evidence is one PNG at the stopped pose plus 391 frames of measured telemetry; acceptance-v2.md's uninterrupted activation-to-arrival-plus-stop recording is SC-07's.",
+      "NO BROWSER MEASUREMENT. The card asks for normal-workflow browser measurements as well as production-boundary tests; this card delivers only the second. Every number here is offline geometry through the shipped consumers in node. No dev server ran, no frame was rendered and no capture was taken. A05/A07/A08 stay OPEN on that half and SC-07 owns the run.",
+      "THE BOUND WALK CLIP TRAVELS BACKWARDS. Measured on the shipped physician: the rig faces +Z (its toes sit 0.126 m in +Z of the ankle at rest and its left foot at +X) while every stance window of openclinxr_retarget_walk_formal_cc0 advances the body along body -Z. The runtime compensates by aligning the slot to the clip's MEASURED travel direction, which makes the foot plant correct and leaves the physician's face pointing back down the route while he walks. The fix is a rebind of the asset, which is outside this card's write roots.",
+      "THE TERMINAL TURN DRAGS A PLANTED FOOT. There is no turn-in-place take in the shipped clip set, so the settle rotates the actor with a foot on the floor. Graded separately, that interval's foot-slide TOTAL is over its per-window allowance; its worst single frame is inside the 0.005 m cap, so it is a slow drag rather than a visible pop. The walk and stopped intervals both pass. The whole-run grade therefore fails foot-slide, and that is reported rather than split away.",
+      "THE ACCEPTANCE OBSERVATION STILL HAS NO TRANSPORT. SC-03 recorded it and it is unchanged: the runtime's support acceptance gates this approach locally, and packages/openclinxr/rest still carries no requirement-observation endpoint. Both are outside this card's frozen write roots.",
+      "THE SKELETON IS DECODED, NOT GLTFLoader-LOADED. three's GLTFLoader reaches `self` and cannot parse these bytes in node, so the joint tracks come from SC-00's decoder and are attached through the loader's own child-transform contract, which is read from generated-loaders.ts and asserted."
+    ]
+  },
+  "evidenceRegistrySha256": "12b1587daf25b3a1a48dece3df89115efe6f56a89ae32b10140728e3818394fb"
+}
