@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
   type EvidenceRegistry,
@@ -29,6 +29,29 @@ const CONTRACT_DOCUMENTS = [
 
 /** The only report location this card may grade. A path outside it is a refusal. */
 const EXPECTED_REPORT_PATH = `${CONTRACT_DIR}/evidence/sc-06.json`;
+
+/** The tree this run grades. Every repo-relative path below resolves against it. */
+const REPO_ROOT = process.cwd();
+
+/**
+ * Read a tracked source file so the core can rehash it from the TREE.
+ *
+ * The point of passing this in rather than letting the core read: `verifier.test.ts` drives the same
+ * clauses against a synthetic tree, and the CLI is the only place a real filesystem appears. It
+ * refuses a path that escapes the repo root, because a report naming `../../etc/hosts` would
+ * otherwise be hashed and reported as a clean input.
+ */
+function readSource(repoRelativePath: string): string | Error {
+  const resolved = path.resolve(REPO_ROOT, repoRelativePath);
+  if (resolved !== REPO_ROOT && !resolved.startsWith(`${REPO_ROOT}${path.sep}`)) {
+    return new Error(`${repoRelativePath} resolves outside the repository`);
+  }
+  try {
+    return readFileSync(resolved, "utf8");
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
+}
 
 export type ParsedArgs = { report: string; scopes: string[] } | { error: string };
 
@@ -86,6 +109,13 @@ function registryDigest(): string | Error {
 }
 
 function main(): void {
+  // The scope audit, the input rehash and the contract hashes are all repo-relative. Run from
+  // anywhere else they would silently grade a different tree, or nothing at all.
+  if (!existsSync(path.join(REPO_ROOT, "pnpm-workspace.yaml"))) {
+    process.stderr.write(`sc-06 verify: cwd ${REPO_ROOT} is not the workspace root\n`);
+    process.exitCode = 2;
+    return;
+  }
   const parsed = parseArgs(process.argv.slice(2));
   if ("error" in parsed) {
     process.stderr.write(`sc-06 verify: ${parsed.error}\n`);
@@ -127,6 +157,7 @@ function main(): void {
     registrySha256: registryDigest(),
     reader: nodeObjectReader,
     contractDocuments,
+    sourceReader: readSource,
   });
 
   if (result.ok) {

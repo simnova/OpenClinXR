@@ -10,24 +10,66 @@
  * - readSupineControlFreeze()
  * - computeSupineControlFreeze(repoRoot)
  * - supineControlFreezeIsStillValid(recorded, current)
+ *
+ * ## FIXED (SC-06) — the control was green by construction on every clean clone
+ *
+ * MEASURED on baseline 27efa3d2, in a fresh worktree: the record was ABSENT, the gate reported
+ * `Test Files 1 passed / Tests 4 passed`, and the record appeared on disk at the same second.
+ * `git check-ignore -v` names `.gitignore:9:.openclinxr/` as the reason it was absent, so that was
+ * the state of every clean checkout — and this module's own last two lines wrote today's bytes at
+ * MODULE IMPORT whenever it found none. Clause (2) therefore compared today's bytes against
+ * today's bytes and could not fail.
+ *
+ * The invalidation direction did work: it fired for real at HEAD 40090435 when SC-04 republished
+ * `mpfb-clinical-physician-adult.glb`. That red was cleared by REGENERATING the record, which is
+ * what SC-06's required_behavior 3 forbids — "Repair requires fresh observation/revalidation, not
+ * overwriting sidecars."
+ *
+ * THREE CHANGES, and each closes one half of that:
+ *  1. THE IMPORT SIDE EFFECT IS GONE. Producing a control is now an explicit call.
+ *  2. THE RECORD IS TRACKED, at `supine-control-freeze.record.json` beside this file. A clean clone
+ *     now carries the control it is being compared against, so the comparison is real. The
+ *     gitignored `.openclinxr/` path is NOT read as a fallback: a fallback would restore "repair by
+ *     deleting one untracked file" under a different name.
+ *  3. PRODUCTION REQUIRES A FRESH OBSERVATION. `produceSupineControlFreeze` demands an observer and
+ *     a timestamp and stamps them into `producedFrom`, so re-baselining after an invalidation is a
+ *     recorded act with someone's name on it rather than an anonymous overwrite. It also REFUSES to
+ *     record an empty digest, which would have compared equal to every future tree that also could
+ *     not read the file.
  */
 
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { resolve, join, dirname } from "node:path";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 
 /** Repo root resolved from this file's location (tools/openclinxr/evidence/supine-control-freeze/). */
 function repoRoot(): string {
-  // __dirname is tools/openclinxr/evidence/supine-control-freeze
-  // Go up 4 levels: tools -> openclinxr -> evidence -> supine-control-freeze -> repo root (openclinxr-fix-frozen-control)
-  return resolve(__dirname, "../../../../");
+  // import.meta.dirname is tools/openclinxr/evidence/supine-control-freeze; four levels up is the
+  // workspace root. `__dirname` stood here and is undefined in ES module scope, so the module threw
+  // `ReferenceError: __dirname is not defined` under tsx while working under Vitest's CJS interop —
+  // a module that only loads in one of the two runners this repo uses. `import.meta.dirname` is what
+  // the sibling gates already use (see the-client-entry-does-not-reach-node-builtins.test.ts).
+  return resolve(import.meta.dirname, "../../../../");
 }
 
-/** Path to the persisted freeze record (repo-relative). */
-const FREEZE_RECORD_REL = ".openclinxr/evidence/supine-control-freeze.json";
+/**
+ * Path to the persisted freeze record (repo-relative), and it is TRACKED.
+ *
+ * The previous location, `.openclinxr/evidence/supine-control-freeze.json`, is covered by
+ * `.gitignore:9`, which is why every clean clone had no control and the gate compared today's bytes
+ * against themselves. A freeze record that is not in the repository is not a freeze.
+ */
+export const FREEZE_RECORD_REL =
+  "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.record.json";
 
-/** Absolute path to the freeze record. */
-function freezeRecordPath(root: string = repoRoot()): string {
+/**
+ * Absolute path to the freeze record.
+ *
+ * Exported because `a-corrupt-artifact-is-refused.test.ts` records, in its own comment, that a first
+ * draft GUESSED this path, corrupted a file nothing reads, and watched every clause return `ok`. A
+ * test that has to guess where its subject lives is one edit away from measuring nothing.
+ */
+export function freezeRecordPath(root: string = repoRoot()): string {
   return join(root, FREEZE_RECORD_REL);
 }
 
@@ -75,6 +117,25 @@ export type SupineControlFreeze = {
     supportSurfaceCount: 1;
     clearanceAboveDeckMeters: number;
   };
+  /**
+   * Who produced this control, and when they looked.
+   *
+   * Optional on the TYPE so `requireSupineControlFreeze` keeps its four-outcome read contract for
+   * any v1 record; REQUIRED by `supineControlFreezeProvenanceProblems`, which the gate calls. The
+   * split matters: a record with no provenance is not malformed, it is unattributed, and those are
+   * different failures with different repairs.
+   */
+  producedFrom?: SupineControlObservation | undefined;
+};
+
+/** A fresh observation of the control assets. The thing a repair cannot fake by editing a sidecar. */
+export type SupineControlObservation = {
+  observedBy: string;
+  observedAtIso: string;
+  /** Why this control was produced or re-produced. A re-baseline must say what invalidated it. */
+  reason: string;
+  /** Byte counts seen at production time, so the digests are not the only witness. */
+  byteCountByPath: Record<string, number>;
 };
 
 /** Validation result for freeze integrity check. */
@@ -94,9 +155,22 @@ function computeAssetHashes(root: string): Record<string, string> {
     if (existsSync(absPath)) {
       out[relPath] = sha256File(absPath);
     } else {
-      // Missing asset — record as empty to trigger validation failure
+      // Missing asset — record as empty so `supineControlFreezeIsStillValid` reports it against a
+      // recorded real digest. `produceSupineControlFreeze` refuses to PERSIST one of these: an empty
+      // digest on both sides compares equal, so a control produced while an asset was missing would
+      // keep validating every tree in which it is still missing.
       out[relPath] = "";
     }
+  }
+  return out;
+}
+
+/** Byte count per control asset, or -1 where the file is absent. */
+function computeAssetByteCounts(root: string): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const relPath of CONTROL_ASSET_PATHS) {
+    const absPath = join(root, relPath);
+    out[relPath] = existsSync(absPath) ? statSync(absPath).size : -1;
   }
   return out;
 }
@@ -193,12 +267,11 @@ export function supineControlFreezeIsStillValid(
   };
 }
 
-// Initialize freeze record on first import if missing
-const existing = readSupineControlFreeze();
-if (!existing) {
-  const computed = computeSupineControlFreeze(repoRoot());
-  writeSupineControlFreeze(computed);
-}
+// NO AUTO-INITIALIZATION. The two lines that used to stand here read the record and, finding none,
+// wrote today's bytes — so on a tree with no control the byte-freeze gate compared today's bytes
+// against today's bytes and reported four passes. Measured on baseline 27efa3d2; see the ## FIXED
+// block in this file's header. Producing a control is `produceSupineControlFreeze`, and it needs a
+// fresh observation with a name on it.
 /**
  * The consumer-facing read: REFUSE a missing or corrupt artifact rather than returning null.
  *
@@ -212,6 +285,13 @@ if (!existing) {
  * The four outcomes are distinguished because a consumer should act differently on each: `absent`
  * means produce it, `malformed` and `wrong_schema` mean something damaged it and a re-run cannot be
  * assumed to fix it, and `ok` means use it.
+ *
+ * `recordPath` overrides the default location and exists for ONE reason: the record became tracked
+ * and therefore SHARED under SC-06, and `a-corrupt-artifact-is-refused.test.ts` corrupts its subject
+ * on disk for real. With both test files reading one artifact, that corruption raced the byte-freeze
+ * gate running beside it — measured, 1 failure in 3 runs of the directory, passing every time either
+ * file ran alone. The refusal test now damages a file it owns; the default path stays the consumer's
+ * and one clause there still asserts the reader resolves it.
  */
 export type FreezeArtifactRead =
   | { status: "ok"; freeze: SupineControlFreeze }
@@ -219,8 +299,8 @@ export type FreezeArtifactRead =
   | { status: "malformed"; path: string; reason: string }
   | { status: "wrong_schema"; path: string; reason: string };
 
-export function requireSupineControlFreeze(): FreezeArtifactRead {
-  const path = freezeRecordPath();
+export function requireSupineControlFreeze(recordPath?: string): FreezeArtifactRead {
+  const path = recordPath ?? freezeRecordPath();
   if (!existsSync(path)) {
     return {
       status: "absent",
@@ -258,4 +338,118 @@ export function requireSupineControlFreeze(): FreezeArtifactRead {
     };
   }
   return { status: "ok", freeze: candidate as SupineControlFreeze };
+}
+
+/**
+ * Every provenance problem with a freeze record. Empty means it was produced by a named observer.
+ *
+ * `requireSupineControlFreeze` answers "is this artifact readable"; this answers "did anyone
+ * actually look". They are separate because the repairs differ: a malformed record needs
+ * re-producing, an unattributed one needs someone to take responsibility for the observation.
+ */
+export function supineControlFreezeProvenanceProblems(freeze: SupineControlFreeze): string[] {
+  const problems: string[] = [];
+  const produced = freeze.producedFrom;
+  if (produced === undefined) {
+    return [
+      "the freeze carries no producedFrom block, so nobody is recorded as having observed these bytes; "
+      + "an unattributed control cannot distinguish a fresh observation from a sidecar overwrite",
+    ];
+  }
+  if (typeof produced.observedBy !== "string" || produced.observedBy.trim() === "") {
+    problems.push("producedFrom.observedBy is blank");
+  }
+  if (typeof produced.observedAtIso !== "string" || produced.observedAtIso.trim() === "") {
+    problems.push("producedFrom.observedAtIso is blank");
+  }
+  if (typeof produced.reason !== "string" || produced.reason.trim() === "") {
+    problems.push("producedFrom.reason is blank; a re-baseline must say what invalidated the old one");
+  }
+  const counts = produced.byteCountByPath;
+  if (typeof counts !== "object" || counts === null || Object.keys(counts).length === 0) {
+    problems.push("producedFrom.byteCountByPath is empty");
+  } else {
+    for (const path of Object.keys(freeze.assetSha256ByPath)) {
+      const count = counts[path];
+      if (typeof count !== "number" || !Number.isFinite(count) || count <= 0) {
+        problems.push(`producedFrom.byteCountByPath has no positive byte count for ${path}`);
+      }
+    }
+  }
+  return problems;
+}
+
+export type SupineControlProduction =
+  | { produced: true; freeze: SupineControlFreeze }
+  | { produced: false; reason: string };
+
+/**
+ * Produce (or re-produce) the control freeze FROM A FRESH OBSERVATION, or refuse.
+ *
+ * This is the only sanctioned way a control comes into existence. It refuses three things, and each
+ * one is a way the "production" would have been an overwrite in disguise:
+ *
+ *  - no observer or no timestamp: nobody is accountable for having looked;
+ *  - no reason: a re-baseline that does not say what invalidated the previous control is
+ *    indistinguishable from one taken to make a red go away, which is what happened at HEAD
+ *    40090435 and is what required_behavior 3 forbids;
+ *  - an asset that could not be read: recording an empty digest would make the control compare equal
+ *    to every future tree in which that asset is also unreadable.
+ *
+ * It does NOT write. The caller decides where the record goes, so a producer cannot quietly replace
+ * a record it was only asked to compute — the separation the deleted import side effect did not have.
+ */
+export function produceSupineControlFreeze(input: {
+  observedBy: string;
+  observedAtIso: string;
+  reason: string;
+  repoRootPath?: string;
+}): SupineControlProduction {
+  if (input.observedBy.trim() === "") {
+    return { produced: false, reason: "a control freeze must name the observer who produced it" };
+  }
+  if (input.observedAtIso.trim() === "") {
+    return { produced: false, reason: "a control freeze must record when the observation was taken" };
+  }
+  if (input.reason.trim() === "") {
+    return {
+      produced: false,
+      reason:
+        "a control freeze must record WHY it was produced; a re-baseline with no stated cause cannot be "
+        + "told apart from one taken to clear a red",
+    };
+  }
+  const root = input.repoRootPath ?? repoRoot();
+  const assetSha256ByPath = computeAssetHashes(root);
+  const unreadable = Object.entries(assetSha256ByPath)
+    .filter(([, digest]) => digest === "")
+    .map(([path]) => path);
+  if (unreadable.length > 0) {
+    return {
+      produced: false,
+      reason:
+        `these control assets could not be read: ${unreadable.join(", ")}. Recording an empty digest for `
+        + "them would make the control compare equal to every tree that also cannot read them.",
+    };
+  }
+  const byteCountByPath = computeAssetByteCounts(root);
+  return {
+    produced: true,
+    freeze: {
+      schemaVersion: "openclinxr.supine-control-freeze.v1",
+      scenarioId: CONTROL_SCENARIO_ID,
+      assetSha256ByPath,
+      staged: {
+        posture: STAGED_VALUES.posture,
+        supportSurfaceCount: STAGED_VALUES.supportSurfaceCount,
+        clearanceAboveDeckMeters: STAGED_VALUES.clearanceAboveDeckMeters,
+      },
+      producedFrom: {
+        observedBy: input.observedBy,
+        observedAtIso: input.observedAtIso,
+        reason: input.reason,
+        byteCountByPath,
+      },
+    },
+  };
 }

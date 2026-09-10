@@ -77,8 +77,15 @@ export type SceneClosureEvidenceReport = {
     changedFiles: string[];
     runtime: { node: string; platform: string };
   };
+  /** The behavior test this card's contract names, so the verifier reads the right source. */
+  sourceInspection: {
+    behaviorTestPath: string;
+    behaviorTestTitle: string;
+  };
   execution: {
     taskId: string;
+    /** Binds every artifact to a run. An artifact from neither this run nor the baseline fails. */
+    runId: string;
     commands: Array<{
       argv: string[];
       exitCode: number;
@@ -98,6 +105,8 @@ export type SceneClosureEvidenceReport = {
     observedAfterFix: string;
     baselineOutputArtifactId: string;
     fixedOutputArtifactId: string;
+    /** The run the baseline artifacts belong to, distinct from `execution.runId`. */
+    baselineRunId: string;
   };
   encounter: Record<string, unknown>;
   observations: EvidenceObservation[];

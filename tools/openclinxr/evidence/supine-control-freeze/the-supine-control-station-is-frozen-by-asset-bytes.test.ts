@@ -1,4 +1,9 @@
 import { describe, expect, it } from "vitest";
+import {
+  produceSupineControlFreeze,
+  requireSupineControlFreeze,
+  supineControlFreezeProvenanceProblems,
+} from "./supine-control-freeze.js";
 
 // Built at runtime so a static analyser cannot resolve it: the module is what the
 // slice CREATES, and knip fails closed on an unresolved static import.
@@ -58,6 +63,20 @@ const CONTRACTED_MODULE = [".", "supine-control-freeze.js"].join("/");
 // * Pins staged values: posture="supine", supportSurfaceCount=1, clearanceAboveDeckMeters=0.25
 // * Auto-initializes freeze record on first module load if missing
 // * All 4 test clauses now pass: record exists with hashes, validation returns valid=true for matching bytes, validation returns valid=false + changed path for tampered hash, staged values match declared inpatient scenarios
+
+// ## FIXED AGAIN (SC-06) — clause (2) was comparing today's bytes against today's bytes
+//
+// MEASURED on baseline 27efa3d2 in a fresh worktree: the record was ABSENT (`git check-ignore -v`
+// names `.gitignore:9:.openclinxr/`), this file reported `Tests 4 passed`, and the record appeared
+// on disk at the same second — written by supine-control-freeze.ts's own module-import side effect.
+// So on every clean clone clause (2)'s `recorded` and `current` were both computed from the tree in
+// front of it, and the clause could not fail. The bullet above, "Auto-initializes freeze record on
+// first module load if missing", describes that defect as a feature.
+//
+// The record is now TRACKED at supine-control-freeze.record.json, the import side effect is gone,
+// and clauses (5) and (6) below close the two halves the original four could not see: an ABSENT
+// control must be refused rather than produced, and a control must name the observer who produced
+// it so that re-baselining after an invalidation is a recorded act rather than a sidecar overwrite.
 
 // Runtime lookup so the test file loads even though the module doesn't exist yet
 const load = async () =>
@@ -159,5 +178,54 @@ describe("the supine control station is frozen by asset bytes, not by assertion"
       "postop_fever_consult_pressure_v1",
     ];
     expect(declaredInpatient).toContain(freeze!.scenarioId);
+  });
+
+  it("(5) An ABSENT control is REFUSED, not produced: the gate reads through requireSupineControlFreeze", () => {
+    // THE CLAUSE THE ORIGINAL FOUR COULD NOT HAVE. `readSupineControlFreeze` returns null for a
+    // missing record AND for a damaged one, and null is what a caller reads as "none yet, carry on".
+    // The gate now goes through the four-outcome read, so the tracked control has to actually be
+    // there — which on the baseline it never was.
+    const read = requireSupineControlFreeze();
+    expect(read.status, read.status === "ok" ? "" : `refused: ${read.reason}`).toBe("ok");
+    if (read.status !== "ok") return;
+    expect(Object.keys(read.freeze.assetSha256ByPath).length).toBeGreaterThan(0);
+    // Every digest is a real hash. An empty string here would compare equal to every future tree in
+    // which the same asset is also unreadable, which is a freeze that validates its own blindness.
+    for (const [path, digest] of Object.entries(read.freeze.assetSha256ByPath)) {
+      expect(digest, `${path} has no digest`).toMatch(/^[a-f0-9]{64}$/u);
+    }
+  });
+
+  it("(6) The control names the observer who produced it, and production REFUSES an unattributed re-baseline", () => {
+    const read = requireSupineControlFreeze();
+    expect(read.status).toBe("ok");
+    if (read.status !== "ok") return;
+    expect(supineControlFreezeProvenanceProblems(read.freeze)).toEqual([]);
+    expect(read.freeze.producedFrom?.reason.length ?? 0).toBeGreaterThan(0);
+
+    // COUNTERWEIGHT, and it is the whole point of required_behavior 3: the cheapest "repair" for an
+    // invalidated control is to regenerate it and say nothing. Each of these is that repair with one
+    // piece of the accountability missing, and each is refused.
+    for (const missing of [
+      { observedBy: "", observedAtIso: "2026-09-10T00:00:00Z", reason: "SC-04 republished the physician" },
+      { observedBy: "someone", observedAtIso: "", reason: "SC-04 republished the physician" },
+      { observedBy: "someone", observedAtIso: "2026-09-10T00:00:00Z", reason: "" },
+    ]) {
+      const result = produceSupineControlFreeze(missing);
+      expect(result.produced, JSON.stringify(missing)).toBe(false);
+    }
+
+    // KNOWN-GOOD COLUMN: a fully attributed production still succeeds, so the refusals above are not
+    // refusing everything.
+    const good = produceSupineControlFreeze({
+      observedBy: "the-supine-control-station-is-frozen-by-asset-bytes.test.ts",
+      observedAtIso: new Date().toISOString(),
+      reason: "known-good control for clause (6); not written to disk",
+    });
+    expect(good.produced, good.produced ? "" : good.reason).toBe(true);
+    if (!good.produced) return;
+    expect(supineControlFreezeProvenanceProblems(good.freeze)).toEqual([]);
+    // And it agrees with the tracked record about the bytes, which is the freeze still holding.
+    expect(good.freeze.assetSha256ByPath).toEqual(read.freeze.assetSha256ByPath);
   });
 });

@@ -57,6 +57,142 @@ export const SC06_FROZEN_SCOPES = [
 
 export const SC06_A_ROWS = ["A09"] as const;
 
+export const SC06_BEHAVIOR_TEST_PATH =
+  "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts";
+export const SC06_BEHAVIOR_TEST_TITLE = "SC-06-required-behavior";
+
+/**
+ * The frozen acceptance rubric this card REUSES from SC-05, quoted in proof-contract-v2.md's SC-05
+ * row: arrival at most 0.05 m, settled heading at most 10 degrees, stopped for two seconds, and
+ * SC-05's own 0.005 m stopped-travel figure. SC-06 does not set its own numbers, because "the same
+ * versioned result replays" is a claim about the rubric that accepted it.
+ *
+ * The reproduction tolerance is 1e-9 m and its provenance is in
+ * `scenario-runtime/src/frozen-scene-replay.ts`: re-solving is a re-EXECUTION of a pure function on
+ * persisted inputs, so the only correct difference is IEEE-754 noise, about 2.2e-16 m at metre
+ * scale. It is not a fraction of the observed offset, which would pass by construction.
+ */
+export const SC06_ACCEPTANCE_LIMITS = {
+  arrivalErrorMaxMeters: 0.05,
+  settledHeadingErrorMaxDegrees: 10,
+  stoppedObservationMinSeconds: 2,
+  stoppedRootTravelMaxMeters: 0.005,
+  layoutReproductionMaxMeters: 1e-9,
+  /** A09 requires all fourteen. The baseline measured 0 of 14 on the accepted plan. */
+  requiredA09FieldCount: 14,
+} as const;
+
+/**
+ * Named behavior-test clauses this report's observations must actually carry values for.
+ *
+ * A report can claim a check is satisfied; it cannot claim a number it never recorded. Each id below
+ * is looked up in `observations` and its VALUE is re-graded against the limits above.
+ */
+export const SC06_REQUIRED_OBSERVATION_IDS = [
+  "sc06-a09-fields-present",
+  "sc06-reproduction-offset",
+  "sc06-variation-resolved",
+  "sc06-variation-refused",
+  "sc06-distinct-refusals",
+  "sc06-frozen-plan-revision",
+  "sc06-frozen-seed",
+  "sc06-geometry-revision",
+] as const;
+
+/**
+ * Inspect the behavior test's SOURCE for an ordinary, non-skipped `it` with the required title.
+ *
+ * `assert-contract-live.ts` is a source-pattern check and the proof contract says so explicitly:
+ * "it is a source-pattern check, not proof that the test runs or asserts useful behavior. Pair it
+ * with the actual Vitest run, inspect real result counts and test source, and reject a title hidden
+ * in a comment, skipped enclosing suite or empty callback."
+ *
+ * Comments are stripped FIRST, so a title mentioned in a header block cannot satisfy it.
+ */
+export function inspectBehaviorTestSource(source: string, title: string): string[] {
+  const problems: string[] = [];
+  const stripped = source.replace(/\/\*[\s\S]*?\*\//gu, "").replace(/^\s*\/\/.*$/gmu, "");
+  const ordinary = new RegExp(`(?<![.\\w])it\\(\\s*["'\`]${title}["'\`]`, "u");
+  if (!ordinary.test(stripped)) {
+    problems.push(`no ordinary it("${title}") outside comments in the behavior test`);
+  }
+  for (const modifier of ["it.skip", "it.fails", "it.todo", "it.concurrent.skip"]) {
+    if (stripped.includes(`${modifier}("${title}"`) || stripped.includes(`${modifier}('${title}'`)) {
+      problems.push(`the required title is declared as ${modifier}`);
+    }
+  }
+  if (/describe\.(?:skip|todo)\(/u.test(stripped)) {
+    problems.push("the behavior test contains a skipped or todo describe block");
+  }
+  // An empty callback satisfies the pattern above and asserts nothing.
+  const body = stripped.slice(stripped.indexOf(title));
+  if (!/expect\(/u.test(body)) {
+    problems.push("the required test body contains no expect() call");
+  }
+  return problems;
+}
+
+/**
+ * Re-grade the report's own recorded observation VALUES against the frozen limits.
+ *
+ * proof-contract-v2.md: "Never trust a second copy of the expected value supplied by the same
+ * report." A report whose `checks` all say `satisfied` while its observation stream records a 0.31 m
+ * arrival fails here, which is the whole point of separating checks from observations.
+ */
+export function recomputeAcceptanceLimits(
+  observations: ReadonlyArray<Record<string, unknown>>,
+): string[] {
+  const problems: string[] = [];
+  const byId = new Map<string, unknown>();
+  for (const entry of observations) byId.set(String(entry["observationId"]), entry["value"]);
+
+  for (const required of SC06_REQUIRED_OBSERVATION_IDS) {
+    if (!byId.has(required)) problems.push(`observations omit required id ${required}`);
+  }
+
+  const a09 = Number(byId.get("sc06-a09-fields-present"));
+  if (!Number.isFinite(a09) || a09 < SC06_ACCEPTANCE_LIMITS.requiredA09FieldCount) {
+    problems.push(
+      `a09_fields_present_on_record is ${String(byId.get("sc06-a09-fields-present"))}, under the `
+        + `${SC06_ACCEPTANCE_LIMITS.requiredA09FieldCount} A09 requires`,
+    );
+  }
+  const offset = Number(byId.get("sc06-reproduction-offset"));
+  if (!Number.isFinite(offset) || offset > SC06_ACCEPTANCE_LIMITS.layoutReproductionMaxMeters) {
+    problems.push(
+      `layout_reproduction_offset_meters is ${String(byId.get("sc06-reproduction-offset"))}, over the `
+        + `${SC06_ACCEPTANCE_LIMITS.layoutReproductionMaxMeters} m tolerance`,
+    );
+  }
+  const resolvedCount = Number(byId.get("sc06-variation-resolved"));
+  const refusedCount = Number(byId.get("sc06-variation-refused"));
+  if (!Number.isFinite(resolvedCount) || resolvedCount < 1) {
+    problems.push("no authorized variation index resolved, so nothing was frozen to replay");
+  }
+  if (!Number.isFinite(refusedCount) || refusedCount < 1) {
+    problems.push(
+      "no authorized variation index refused, so the index never reached a different decision and "
+        + "\"several permitted indices explore authorized choices\" is unproven",
+    );
+  }
+  const distinct = Number(byId.get("sc06-distinct-refusals"));
+  if (distinct !== 3) {
+    problems.push(
+      `distinct_evidence_refusal_kinds is ${String(byId.get("sc06-distinct-refusals"))}; missing, corrupt `
+        + "and changed must be three different answers",
+    );
+  }
+  for (const digestId of ["sc06-frozen-plan-revision", "sc06-frozen-seed", "sc06-geometry-revision"]) {
+    const value = String(byId.get(digestId) ?? "");
+    if (value.trim() === "") problems.push(`${digestId} records no value`);
+  }
+  const seed = String(byId.get("sc06-frozen-seed") ?? "");
+  if (!/^[0-9a-f]{64}$/u.test(seed)) {
+    problems.push(`frozen_layout_seed ${seed} is not a 64-hex digest, so it was not derived`);
+  }
+  return problems;
+}
+
 export type EvidenceRegistry = {
   schemaVersion: string;
   storageRoot: string;
@@ -152,6 +288,12 @@ export type VerifyInput = {
   reader: ObjectReader;
   /** Contract documents as they exist on disk, for hash comparison. */
   contractDocuments: Map<string, string>;
+  /**
+   * Reads a tracked file from the TREE. The report's `implementation.inputs` digests are rehashed
+   * through this, so a report cannot certify a source it never touched — and the behavior test's
+   * own source is read through it and inspected rather than trusted.
+   */
+  sourceReader: (repoRelativePath: string) => string | Error;
 };
 
 export type VerifyResult = { ok: true } | { ok: false; problems: string[] };
@@ -224,8 +366,27 @@ export function verifyReport(input: VerifyInput): VerifyResult {
     if (!Array.isArray(implementation["changeCommits"]) || implementation["changeCommits"].length === 0) {
       fail("implementation.changeCommits is empty");
     }
-    if (!Array.isArray(implementation["inputs"]) || implementation["inputs"].length === 0) {
-      fail("implementation.inputs is empty");
+    const inputs = Array.isArray(implementation["inputs"]) ? implementation["inputs"] : [];
+    if (inputs.length === 0) fail("implementation.inputs is empty");
+    const hashedInputs = new Set<string>();
+    for (const entry of inputs) {
+      if (!isRecord(entry)) {
+        fail("an implementation.inputs entry is not an object");
+        continue;
+      }
+      const inputPath = String(entry["path"]);
+      hashedInputs.add(path.normalize(inputPath));
+      // REHASHED FROM THE TREE. A report carrying its own second copy of the digest proves nothing;
+      // this is the clause that makes `implementation.inputs` an audit rather than a claim.
+      const source = input.sourceReader(inputPath);
+      if (source instanceof Error) {
+        fail(`input ${inputPath}: ${source.message}`);
+        continue;
+      }
+      const digest = sha256Hex(source);
+      if (digest !== entry["sha256"]) {
+        fail(`input ${inputPath}: sha256 mismatch (report ${String(entry["sha256"])}, tree ${digest})`);
+      }
     }
     // "Audit the actual task-attributed source changes ... against these roots; reject
     // modifications outside scope." The scope ARGUMENT audit above checks what the CLI was told;
@@ -242,9 +403,28 @@ export function verifyReport(input: VerifyInput): VerifyResult {
           return changed === root || changed.startsWith(`${root}/`);
         });
         if (!inScope) fail(`changed file outside every frozen scope: ${changed}`);
+        // Every changed file must also be one of the REHASHED inputs. Without this the audit could
+        // cover a set that excludes the very change under review.
+        if (!hashedInputs.has(changed)) {
+          fail(`changed file ${changed} is not among the hashed implementation.inputs`);
+        }
       }
     }
   }
+
+  const sourceInspection = report.sourceInspection;
+  if (!isRecord(sourceInspection)) fail("missing sourceInspection section");
+  else {
+    if (sourceInspection["behaviorTestPath"] !== SC06_BEHAVIOR_TEST_PATH) {
+      fail(`sourceInspection.behaviorTestPath is ${String(sourceInspection["behaviorTestPath"])}`);
+    }
+    if (sourceInspection["behaviorTestTitle"] !== SC06_BEHAVIOR_TEST_TITLE) {
+      fail(`sourceInspection.behaviorTestTitle is ${String(sourceInspection["behaviorTestTitle"])}`);
+    }
+  }
+  const behaviorSource = input.sourceReader(SC06_BEHAVIOR_TEST_PATH);
+  if (behaviorSource instanceof Error) fail(`behavior test unreadable: ${behaviorSource.message}`);
+  else for (const problem of inspectBehaviorTestSource(behaviorSource, SC06_BEHAVIOR_TEST_TITLE)) fail(problem);
 
   const execution = report.execution;
   if (!isRecord(execution)) fail("missing execution section");
@@ -254,6 +434,9 @@ export function verifyReport(input: VerifyInput): VerifyResult {
     for (const command of commands) {
       if (!isRecord(command)) continue;
       if (!Array.isArray(command["argv"]) || command["argv"].length === 0) fail("a command has no argv");
+      if (Number(command["exitCode"]) !== 0) {
+        fail(`a recorded command did not exit zero: ${JSON.stringify(command["argv"])}`);
+      }
       const tests = command["tests"];
       if (isRecord(tests)) {
         if (Number(tests["passed"]) === 0) fail(`a recorded test run passed zero tests: ${JSON.stringify(command["argv"])}`);
@@ -277,6 +460,7 @@ export function verifyReport(input: VerifyInput): VerifyResult {
       "observedAfterFix",
       "baselineOutputArtifactId",
       "fixedOutputArtifactId",
+      "baselineRunId",
     ]) {
       const value = (counterweight as Record<string, unknown>)[field];
       if (value === undefined || value === null || (typeof value === "string" && value.trim() === "")) {
@@ -328,8 +512,28 @@ export function verifyReport(input: VerifyInput): VerifyResult {
     }
   }
 
+  const executionRunId = isRecord(execution) ? String(execution["runId"] ?? "") : "";
+  const baselineRunId = isRecord(counterweight) ? String(counterweight["baselineRunId"] ?? "") : "";
+  if (executionRunId.trim() === "") fail("execution.runId is missing; artifacts cannot be bound to a run");
+  for (const artifact of artifacts) {
+    if (!isRecord(artifact)) continue;
+    const runId = String(artifact["runId"]);
+    if (runId !== executionRunId && runId !== baselineRunId) {
+      fail(
+        `artifact ${String(artifact["artifactId"])}: runId ${runId} is neither the execution run `
+        + `${executionRunId} nor the baseline run ${baselineRunId}`,
+      );
+    }
+  }
+
   const observations = Array.isArray(report.observations) ? report.observations : [];
   if (observations.length === 0) fail("observations is empty");
+  // THE SUFFICIENCY GATE. Re-grade the recorded VALUES, not the report's verdicts about them.
+  for (const problem of recomputeAcceptanceLimits(
+    observations.filter(isRecord) as ReadonlyArray<Record<string, unknown>>,
+  )) {
+    fail(problem);
+  }
   for (const observation of observations) {
     if (!isRecord(observation)) continue;
     const artifactId = observation["artifactId"];
