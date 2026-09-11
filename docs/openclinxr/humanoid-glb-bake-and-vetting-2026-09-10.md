@@ -30,6 +30,8 @@ second pipeline.
 Denim through that factor renders teal; a pale tee renders sage. Both garments carry the **identical**
 factor, which is the signature of a default applied by a station rather than a wardrobe decision.
 
+> **Corrected 2026-09-11 by HB-00 (landed 3c2f2fbf).** The inference above was wrong. `[0.34, 0.44, 0.34]` is a deliberate palette entry, `"closed_casual"` at `tools/openclinxr/asset-pipeline/anny/automate_blender.py:1764`, commented as the muted olive-green the street and OB patients wear, selected by the case `fabricPalette` token and written through `GARMENT_FACTOR_PATCH`. The identical factor on two garments is one palette row applied to two garment kinds. The bake may proceed on it; whether olive on a pale tee is the wanted look is a wardrobe question. The street jeans no longer carry a factor (e59925fc). Full table: `docs/openclinxr/humanoid-basecolorfactor-audit-2026-09-10.json`.
+
 **This is why the bake cannot go first.** A bake folds `baseColorFactor x baseColorTexture` into one
 texture. Baking before those factors are justified writes the tint in permanently and no later
 lighting change recovers it. An earlier draft of this analysis blamed the lamps for the cast; that was
@@ -208,7 +210,7 @@ kicks the work off separately.
 | HB-01 | `tsk_8adc4d7903c58058` | body_param | the 158 px float: why `bmin.z` is not the boot sole |
 | HB-02 | `tsk_711b13b07fd6fc1d` | clothing_consume | bake albedo on the TRELLIS resolution ladder |
 | HB-03 | `tsk_40c35f576d608198` | body_param | decimate and pack through `vr-postopt-ladder.ts` |
-| HB-04 | `tsk_f145101c2328788f` | instrument | vet the GLB as an artifact; retire the vacuous gate |
+| HB-04 | `tsk_0fdd54b19735ac74` | instrument | vet the GLB as an artifact; retire the vacuous gate (v2: test moved under `tools/openclinxr/evidence/humanoid-vetting/`; v1 `tsk_f145101c2328788f` cancelled) |
 
 Each carries its `doneWhen` and its dependency edges, so each is plantable as it stands.
 
