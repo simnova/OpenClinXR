@@ -1,0 +1,251 @@
+{
+  "id": "psr-01e",
+  "taskId": "PSR-01E",
+  "sourceRevision": "40b6a874bde71b77bc8642c0b3edec3626ac8b1e",
+  "planCommit": "1c493f12cd9ff5084e763c7e46f7ac4a5d57635c",
+  "planSha256": "01cb5139557293ace715e65bae576b359afe0e0e06c201f18e1af3d8bab0341d",
+  "rawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "groupHash": "7e8b0ae8c2ea0bfc39e7f8a0a622a350d6be58ac52fba2b47fade6a1ba224664",
+  "packages": [
+    "packages/openclinxr/agent-loop",
+    "packages/openclinxr/arena/iwsdk-spike",
+    "packages/openclinxr/arena/model-vetting",
+    "packages/openclinxr/arena/multi-actor-state-spike",
+    "packages/openclinxr/arena/physics-touch-contract",
+    "packages/openclinxr/capability-gateway",
+    "packages/openclinxr/data-sources-mongoose-models",
+    "packages/openclinxr/domain",
+    "packages/openclinxr/exam-assembly",
+    "packages/openclinxr/factory-stations",
+    "packages/openclinxr/review-workflow",
+    "packages/openclinxr/scenario-fixtures",
+    "packages/openclinxr/scenario-runtime",
+    "packages/openclinxr/session-state",
+    "packages/openclinxr/shared-schemas",
+    "packages/openclinxr/ui-route-shared",
+    "packages/openclinxr/ui-shared",
+    "packages/openclinxr/voice-gateway",
+    "packages/openclinxr/xr-actor-dialogue",
+    "packages/openclinxr/xr-asset-loading",
+    "packages/openclinxr/xr-capture-evidence",
+    "packages/openclinxr/xr-dialogue",
+    "packages/openclinxr/xr-exam-flow",
+    "packages/openclinxr/xr-humanoid-animation",
+    "packages/openclinxr/xr-locomotion",
+    "packages/openclinxr/xr-pose",
+    "packages/openclinxr/xr-runtime-state",
+    "packages/openclinxr/xr-runtime-wiring",
+    "packages/openclinxr/xr-scene",
+    "packages/openclinxr/xr-scene-cues",
+    "packages/openclinxr/xr-station",
+    "packages/openclinxr/xr-station-room",
+    "packages/openclinxr/xr-trace-readiness"
+  ],
+  "counts": {
+    "packages/openclinxr/agent-loop": {
+      "keep": 0,
+      "remove": 62,
+      "migrate": 0
+    },
+    "packages/openclinxr/arena/iwsdk-spike": {
+      "keep": 2,
+      "remove": 99,
+      "migrate": 0
+    },
+    "packages/openclinxr/arena/model-vetting": {
+      "keep": 24,
+      "remove": 56,
+      "migrate": 0
+    },
+    "packages/openclinxr/arena/multi-actor-state-spike": {
+      "keep": 0,
+      "remove": 44,
+      "migrate": 0
+    },
+    "packages/openclinxr/arena/physics-touch-contract": {
+      "keep": 1,
+      "remove": 107,
+      "migrate": 0
+    },
+    "packages/openclinxr/capability-gateway": {
+      "keep": 24,
+      "remove": 23,
+      "migrate": 0
+    },
+    "packages/openclinxr/data-sources-mongoose-models": {
+      "keep": 0,
+      "remove": 3,
+      "migrate": 0
+    },
+    "packages/openclinxr/domain": {
+      "keep": 26,
+      "remove": 10,
+      "migrate": 4
+    },
+    "packages/openclinxr/exam-assembly": {
+      "keep": 34,
+      "remove": 6,
+      "migrate": 0
+    },
+    "packages/openclinxr/factory-stations": {
+      "keep": 31,
+      "remove": 18,
+      "migrate": 6
+    },
+    "packages/openclinxr/review-workflow": {
+      "keep": 31,
+      "remove": 11,
+      "migrate": 0
+    },
+    "packages/openclinxr/scenario-fixtures": {
+      "keep": 27,
+      "remove": 15,
+      "migrate": 10
+    },
+    "packages/openclinxr/scenario-runtime": {
+      "keep": 20,
+      "remove": 14,
+      "migrate": 0
+    },
+    "packages/openclinxr/session-state": {
+      "keep": 25,
+      "remove": 38,
+      "migrate": 0
+    },
+    "packages/openclinxr/shared-schemas": {
+      "keep": 53,
+      "remove": 22,
+      "migrate": 0
+    },
+    "packages/openclinxr/ui-route-shared": {
+      "keep": 12,
+      "remove": 187,
+      "migrate": 11
+    },
+    "packages/openclinxr/ui-shared": {
+      "keep": 45,
+      "remove": 43,
+      "migrate": 14
+    },
+    "packages/openclinxr/voice-gateway": {
+      "keep": 15,
+      "remove": 2,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-actor-dialogue": {
+      "keep": 29,
+      "remove": 4,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-asset-loading": {
+      "keep": 29,
+      "remove": 1,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-capture-evidence": {
+      "keep": 36,
+      "remove": 3,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-dialogue": {
+      "keep": 47,
+      "remove": 15,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-exam-flow": {
+      "keep": 15,
+      "remove": 3,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-humanoid-animation": {
+      "keep": 33,
+      "remove": 26,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-locomotion": {
+      "keep": 24,
+      "remove": 8,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-pose": {
+      "keep": 34,
+      "remove": 25,
+      "migrate": 1
+    },
+    "packages/openclinxr/xr-runtime-state": {
+      "keep": 121,
+      "remove": 23,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-runtime-wiring": {
+      "keep": 13,
+      "remove": 0,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-scene-cues": {
+      "keep": 38,
+      "remove": 2,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-scene": {
+      "keep": 38,
+      "remove": 17,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-station-room": {
+      "keep": 11,
+      "remove": 15,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-station": {
+      "keep": 70,
+      "remove": 10,
+      "migrate": 0
+    },
+    "packages/openclinxr/xr-trace-readiness": {
+      "keep": 27,
+      "remove": 0,
+      "migrate": 0
+    }
+  },
+  "projectedRootExports": {
+    "packages/openclinxr/agent-loop": 0,
+    "packages/openclinxr/arena/iwsdk-spike": 2,
+    "packages/openclinxr/arena/model-vetting": 24,
+    "packages/openclinxr/arena/multi-actor-state-spike": 0,
+    "packages/openclinxr/arena/physics-touch-contract": 1,
+    "packages/openclinxr/capability-gateway": 24,
+    "packages/openclinxr/data-sources-mongoose-models": 0,
+    "packages/openclinxr/domain": 21,
+    "packages/openclinxr/exam-assembly": 34,
+    "packages/openclinxr/factory-stations": 28,
+    "packages/openclinxr/review-workflow": 31,
+    "packages/openclinxr/scenario-fixtures": 16,
+    "packages/openclinxr/scenario-runtime": 20,
+    "packages/openclinxr/session-state": 25,
+    "packages/openclinxr/shared-schemas": 53,
+    "packages/openclinxr/ui-route-shared": 7,
+    "packages/openclinxr/ui-shared": 12,
+    "packages/openclinxr/voice-gateway": 15,
+    "packages/openclinxr/xr-actor-dialogue": 29,
+    "packages/openclinxr/xr-asset-loading": 29,
+    "packages/openclinxr/xr-capture-evidence": 36,
+    "packages/openclinxr/xr-dialogue": 47,
+    "packages/openclinxr/xr-exam-flow": 15,
+    "packages/openclinxr/xr-humanoid-animation": 22,
+    "packages/openclinxr/xr-locomotion": 24,
+    "packages/openclinxr/xr-pose": 32,
+    "packages/openclinxr/xr-runtime-state": 116,
+    "packages/openclinxr/xr-runtime-wiring": 13,
+    "packages/openclinxr/xr-scene": 38,
+    "packages/openclinxr/xr-scene-cues": 38,
+    "packages/openclinxr/xr-station": 70,
+    "packages/openclinxr/xr-station-room": 10,
+    "packages/openclinxr/xr-trace-readiness": 27
+  },
+  "projectedRootTotalInGroup": 859,
+  "planTargets": {
+    "perRootMax": 50,
+    "programRootMax": 1000
+  }
+}
