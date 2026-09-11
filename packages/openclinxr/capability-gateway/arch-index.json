@@ -45,7 +45,8 @@
     "src/asset-generation-jobs.test.ts",
     "src/azure-storage-queue-client.test.ts",
     "src/capability-gateway.test.ts",
-    "src/deterministic-dialogue-adapter.test.ts"
+    "src/deterministic-dialogue-adapter.test.ts",
+    "src/the-animation-generation-job-publishes-the-motion-glb.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/capability-gateway test",

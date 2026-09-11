@@ -13,6 +13,7 @@
   "tests": [
     "src/an-action-binds-to-an-authored-source.test.ts",
     "src/test/planted-red-manifest.derived.test.ts",
+    "src/the-bake-produces-a-glb-the-runtime-loads.test.ts",
     "src/the-canonical-compile-entry-orchestrates-primitives.test.ts",
     "src/the-compiler-surface-carries-region-and-effector.test.ts",
     "src/the-contact-constraint-holds-across-its-window.test.ts",
