@@ -98,7 +98,7 @@ async function withRollupFixture<T>(body: () => T | Promise<T>): Promise<T> {
   mkdirSync(dirname(absolute), { recursive: true });
   writeFileSync(absolute, JSON.stringify(ROLLUP_FIXTURE), "utf8");
   try {
-    return body();
+    return await body();
   } finally {
     rmSync(absolute, { force: true });
   }
@@ -168,6 +168,15 @@ describe("the factory run-table route serves the station table", () => {
       "utf8",
     );
     expect(runner).toContain("factory-run");
+  });
+
+  // Case (8) failed on the unawaited helper: the finally block removed the
+  // fixture before the async body finished, so existsSync was false.
+  it("(8) the rollup fixture outlives an async body", async () => {
+    await withRollupFixture(async () => {
+      await new Promise((r) => setTimeout(r, 25));
+      expect(existsSync(join(repoRoot(), FACTORY_RUN_ROLLUP_REL))).toBe(true);
+    });
   });
 });
 
