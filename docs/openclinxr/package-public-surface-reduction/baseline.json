@@ -1,27 +1,27 @@
 {
-  "hash": "8c446bc498a1305aa763871d93207f47dabe25896c6cc08dae9035439200d8d7",
+  "hash": "6580727cf497e1d049679428208a7838ae903203a022fb8e0f97010b1d4a015c",
   "revision": "working-tree",
   "totals": {
     "roots": 46,
     "entrypoints": 114,
-    "rootSymbols": 1243,
-    "occurrences": 1484,
-    "uniqueSymbols": 1456,
-    "duplicateNames": 28
+    "rootSymbols": 1220,
+    "occurrences": 1461,
+    "uniqueSymbols": 1441,
+    "duplicateNames": 20
   },
-  "inventoryHash": "2d3259b27fb82adcd0fbec933637f7b45c3911f8e48dc2018ce68d0999bba95a",
+  "inventoryHash": "fac3eb2ad99c927632ed4bb1b069aa020f83f79ed2b2c4e7b2a3d7d0f1a6e202",
   "manifestHashes": {
     "packages/openclinxr/agent-loop": "a70b272d9266c0156b2dc4f61c958815d16ff83f8a4fc8536fafd37ec3ee1a14",
     "packages/openclinxr/arena/iwsdk-spike": "5c11ac3c6cb447631c8888a788cd86da4a0af5c8d5e0986cec3e013a8e47cd71",
     "packages/openclinxr/arena/model-vetting": "6b3824e6bf8fd4f9ed96bd4f71b029899e1d9b020f355084679cc2c822235b07",
     "packages/openclinxr/arena/multi-actor-state-spike": "9b268ce02f8e50a98f2cd5c77c93928a8123541404fc072d03eb15b33efb0f3f",
     "packages/openclinxr/arena/physics-touch-contract": "8255ff9a8b0d4c9f82e95b439a0901632880ec56341d0af2224cdd8eb9d83759",
-    "packages/openclinxr/asset-registry": "737e37d9f86fa5c47562f90a977a6bff165a7904831c651bfb7e498d3e4d350b",
+    "packages/openclinxr/asset-registry": "64dc1b3c65c198d1b2e6ab9faec4c36e2fa37bffcdad569ba7091bf365ccb925",
     "packages/openclinxr/auth": "309f70a3295c47d144f5cb9c08989855db83ce086235aeed29e15840868a6b10",
     "packages/openclinxr/capability-gateway": "fa22e6652fd478eba459eace529ea22e75afe95d3a44d8aea15ef3736697d352",
     "packages/openclinxr/config-rolldown": "9b47dcf6702c954e96f282f3b417aa64e35bbc3b6dcad1ff864c325c0cace5fc",
     "packages/openclinxr/conversation-policy": "33be7a6d9330511e5f4273bb472a2edae6dbeec3d829a011a30c6de00531a292",
-    "packages/openclinxr/data-mongodb": "2f7652e0aa9b7eddd17ad0ca79d9e618e361eb0059d62947b87f7cef0631fd13",
+    "packages/openclinxr/data-mongodb": "88375f43a117b67a48f7c776a0997998c1ea70ed7f6b486cbc0f25f21b86d4d5",
     "packages/openclinxr/data-sources-mongoose-models": "f96f2cf2a16ce2e4e06714efdfe9787d8205747b5f578c01d8d4d064d453c534",
     "packages/openclinxr/domain": "6f0fb6b3f4dbf63d376e342275a023c14f6901e4882c2c7bfddd4db601a3f862",
     "packages/openclinxr/exam-assembly": "c178ce725eb77f333f0ba0a7d4b312b03f9921475167b6d60f2fa9dc733ea616",
@@ -35,7 +35,7 @@
     "packages/openclinxr/scenario-fixtures": "d56fbd50b5221fcb995772c19ba3f622eea49b385d9b56634da76c2644cb79ea",
     "packages/openclinxr/scenario-runtime": "557ecf0516d4959da342749e358269996c6b88a245812d5e3fc218b8ae73b716",
     "packages/openclinxr/session-state": "10a64ee5bcee5c00521be1884d0e7b4b6e6ccfda1373fbabdb94e499671be7b6",
-    "packages/openclinxr/shared-schemas": "ce13880573a799849a3925d3183c00757dbc5e8c858231568ee47e61e3ef2e04",
+    "packages/openclinxr/shared-schemas": "6c4fc76d7d3d414ff9173fa366fe7c2c81ff30a3a7ab1a1426465320dfbbeffa",
     "packages/openclinxr/telemetry": "59f577434a594fe5a6c6d936380df37907ef7ebe2cb53713bb5b0ebbcdbada5d",
     "packages/openclinxr/test-harness": "a4a0685fc043206ae178941e02b32f101e8f5ed14d030efa550fbc9b1d60f963",
     "packages/openclinxr/ui-route-admin": "d580c368fa89cc591a415522d819b21db591b2f01b664979fb1ec9beecfaed5a",
@@ -69,8 +69,8 @@
       "computed": 49
     },
     "@openclinxr/asset-registry": {
-      "static": 167,
-      "computed": 117,
+      "static": 169,
+      "computed": 118,
       "dynamic": 10
     },
     "@openclinxr/review-workflow": {
@@ -339,10 +339,10 @@
     },
     {
       "packageDir": "packages/openclinxr/asset-registry",
-      "rootSymbols": 58,
-      "occurrences": 161,
+      "rootSymbols": 50,
+      "occurrences": 153,
       "uniqueSymbols": 153,
-      "duplicateNames": 8,
+      "duplicateNames": 0,
       "entrypoints": [
         {
           "specifier": ".",
@@ -536,7 +536,7 @@
       "entrypoints": [
         {
           "specifier": ".",
-          "wildcardDeclarations": 2,
+          "wildcardDeclarations": 0,
           "typeWildcardDeclarations": 0
         }
       ]
@@ -780,9 +780,9 @@
     },
     {
       "packageDir": "packages/openclinxr/shared-schemas",
-      "rootSymbols": 56,
-      "occurrences": 56,
-      "uniqueSymbols": 56,
+      "rootSymbols": 41,
+      "occurrences": 41,
+      "uniqueSymbols": 41,
       "duplicateNames": 0,
       "entrypoints": [
         {
