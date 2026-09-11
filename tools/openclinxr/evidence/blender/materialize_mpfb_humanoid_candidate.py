@@ -4755,6 +4755,7 @@ def main():
     # which the glTF export maps to +Z — the same +Z the occlusion gate shoots
     # from).
     from garment_coverage import _ray_tri_hits as _ray_tri_hits_341  # noqa: E402
+    from garment_coverage import grade_front_camera_origin as _grade_front_camera_origin_341  # noqa: E402
     from garment_coverage import render_hole_columns as _render_hole_columns_341  # noqa: E402
 
     _VIEW_Y = np.array([0.0, -1.0, 0.0])
@@ -4941,6 +4942,7 @@ def main():
     _rt_front_tris = _outer_facing_front_tris(garment_verts, garment_faces)
     _rt_hidden_idx = np.where(hide_mask)[0]
     _rt_unhidden = 0
+    _hb07_added = 0
     if len(_rt_hidden_idx):
         _rt_tris = body_verts[body_faces[_rt_hidden_idx]]
         _rt_samples = _area_sample_points(_rt_tris)  # (F,7,3)
@@ -4973,28 +4975,48 @@ def main():
         )
         _rt_unhide = _rt_hole.any(axis=1) & ~_rt_centroid_poke
         _rt_skipped_poke = int((_rt_hole.any(axis=1) & _rt_centroid_poke).sum())
-        # HB-07 — the see-through-hole guard, run LAST inside round 7 so no earlier
-        # exemption can re-open it. A hidden face whose centroid column has no
-        # garment in front AND no garment behind the bare skin it shows (the
-        # shared render_hole_columns predicate: front miss + behind miss against
-        # ANY garment surface within the 0.5 m scene reach) renders as the capture
-        # background, not as skin — measured 2026-09-11 on the child: 323 clean
-        # hidden-first skin-behind columns (186 collar, 137 sleeve, gaps 8-92 mm)
-        # that the any-of-7 rule above un-hides. Keep exactly those faces hidden;
-        # the centroid-poke and sawtooth exemptions above are preserved for every
-        # face that is not a render hole.
+        # HB-07 — camera-ray hole shrink, run LAST inside round 7. Attempt 1 kept
+        # axis-aligned (depth_axis=1) holes hidden; the attempt-2 probe measured
+        # those parallel rays 4.8° off the isolated-grade camera at the collar,
+        # so the behind-test hit the shirt back panel and the capture camera ray
+        # hit only MASK faces (no garment, no visible skin). Shrink the mask:
+        # un-hide any still-hidden face whose *camera* ray has no garment in
+        # front and no garment behind (render_hole_columns + grade_front_camera_origin).
+        # Faces under the shirt have garment in front along the camera ray and
+        # stay hidden. Sawtooth faces with garment behind along the camera ray
+        # stay on the any-of-7 path above.
+        _aabb_pts = [body_verts, garment_verts]
+        for _ob in bpy.data.objects:
+            if _ob.type != "MESH" or _ob == human or not getattr(_ob.data, "vertices", None):
+                continue
+            try:
+                _mw = np.array(_ob.matrix_world, dtype=float)
+                _lv = np.array([tuple(v.co) + (1.0,) for v in _ob.data.vertices], dtype=float)
+                if len(_lv):
+                    _aabb_pts.append((_lv @ _mw.T)[:, :3])
+            except Exception:
+                continue
+        _cam_origin = _grade_front_camera_origin_341(
+            np.concatenate(_aabb_pts, axis=0),
+            height_axis=2, depth_axis=1,
+        )
+        print(
+            "HOLE_GUARD_CAMERA origin "
+            f"{_cam_origin[0]:.4f} {_cam_origin[1]:.4f} {_cam_origin[2]:.4f}"
+        )
         _hb07_hole = _render_hole_columns_341(
             body_verts, body_faces, _rt_hidden_idx,
             garment_verts, garment_faces,
             height_axis=2, depth_axis=1, max_t=0.5,
+            camera_origin=_cam_origin,
         )
-        _hb07_kept = int((_rt_unhide & _hb07_hole).sum())
-        _rt_unhide = _rt_unhide & ~_hb07_hole
+        _hb07_added = int((_hb07_hole & ~_rt_unhide).sum())
+        _rt_unhide = _rt_unhide | _hb07_hole
         _rt_unhidden = int(_rt_unhide.sum())
         hide_mask[_rt_hidden_idx[_rt_unhide]] = False
     print(f"RENDER_TRUTH_UNHIDE upper faces {_rt_unhidden}")
     print(f"RENDER_TRUTH_UNHIDE_SKIP_POKE {_rt_skipped_poke if len(_rt_hidden_idx) else 0}")
-    print(f"HOLE_GUARD_KEPT upper faces {_hb07_kept if len(_rt_hidden_idx) else 0}")
+    print(f"HOLE_GUARD_UNHIDE camera-hole faces {_hb07_added if len(_rt_hidden_idx) else 0}")
     # #364 — report the hide-mask boundary smoothness in the bake log, using the same
     # instrument the evidence contract uses (bottom 3% of the mask by height, ordered by
     # angle about the body axis, adjacent-height deltas, p95 in mm). The planted RED is

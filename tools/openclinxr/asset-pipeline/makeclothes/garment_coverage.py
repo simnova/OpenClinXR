@@ -511,6 +511,61 @@ def _region_signed_clearance_samples(
     return clearance, fidx, face_verts, sample_normals
 
 
+def grade_front_camera_origin(
+    points,
+    *,
+    height_axis: int = 2,
+    depth_axis: int = 1,
+) -> np.ndarray:
+    """Blender-space camera origin matching model-vetting front framing.
+
+    candidate-capture.ts uses PerspectiveCamera(35°) and
+    candidate-capture-geometry.ts frameCameraForBounds: radius = max(size, 0.5),
+    distance = radius * 2.35, eyeHeight = max(0.12 * height, 0.25), camera at
+    (center.x, center.y + eyeHeight, center.z + distance) in Y-up +Z-forward
+    three.js / glTF. Blender create_human is Z-up −Y-forward; the exporter maps
+    (bx, by, bz) → glTF (bx, bz, −by). Invert that mapping after framing.
+
+    HB-07 attempt-2 probe: axis-aligned depth_axis=1 rays sit 4.8° off the
+    capture camera at the child's collar, enough that the parallel behind-test
+    hits the shirt back panel while the camera ray hits only MASK faces.
+    """
+    p = _as_np(points)
+    if len(p) == 0:
+        origin = np.zeros(3)
+        origin[depth_axis] = -1.0
+        return origin
+    # capture Y-up +Z-forward from Blender Z-up −Y-forward
+    cap = np.empty_like(p)
+    lateral = 0 if 0 not in (height_axis, depth_axis) else (1 if height_axis != 1 and depth_axis != 1 else 2)
+    cap[:, 0] = p[:, lateral]
+    cap[:, 1] = p[:, height_axis]
+    cap[:, 2] = -p[:, depth_axis]
+    mn = cap.min(axis=0)
+    mx = cap.max(axis=0)
+    size = mx - mn
+    # candidate-capture.ts scales height to 2.2 m BEFORE framing; the 0.25 m
+    # eyeHeight floor is applied in that scaled space (child 1.27 m hits the
+    # floor unscaled and would put the camera 10 cm too high).
+    scale = 2.2 / max(float(size[1]), 0.001)
+    size_s = size * scale
+    center_s = ((mn + mx) * 0.5) * scale
+    # feet-on-ground: capture min.y = 0 ⇒ center.y = size.y/2 after translate
+    center_s = np.array([0.0, float(size_s[1]) * 0.5, 0.0])
+    radius = float(max(size_s[0], size_s[1], size_s[2], 0.5))
+    distance = radius * 2.35
+    eye_height = max(float(size_s[1]) * 0.12, 0.25)
+    cam_s = np.array([center_s[0], center_s[1] + eye_height, center_s[2] + distance])
+    # invert feet-on-ground + scale: capture = export * scale + (-center.xz, -min.y, …)
+    trans = np.array([-((mn[0] + mx[0]) * 0.5) * scale, -mn[1] * scale, -((mn[2] + mx[2]) * 0.5) * scale])
+    cam_cap = (cam_s - trans) / scale
+    origin = np.zeros(3)
+    origin[lateral] = cam_cap[0]
+    origin[height_axis] = cam_cap[1]
+    origin[depth_axis] = -cam_cap[2]
+    return origin
+
+
 def render_hole_columns(
     body_verts,
     body_faces,
@@ -521,6 +576,7 @@ def render_hole_columns(
     height_axis: int = 1,
     depth_axis: int = 2,
     max_t: float = 0.5,
+    camera_origin=None,
 ) -> np.ndarray:
     """HB-07 — viewer-ray render holes behind hidden body faces.
 
@@ -532,6 +588,11 @@ def render_hole_columns(
     p50 75 mm — the round-7 refinement un-hides these because its behind test
     casts against the OUTER-facing garment subset only, and an open collar/hem
     ring has no outer-facing cloth behind its own discarded ring).
+
+    When camera_origin is set (Blender-space, from grade_front_camera_origin),
+    each centroid shoots toward that camera and opposite — the isolated-grade
+    front rays — instead of a parallel depth_axis column. Attempt 2 probe:
+    parallel depth_axis=1 is 4.8° off those rays at the child collar.
 
     Returns a boolean per region face: True = the centroid column is a render
     hole (hidden-first, visible-behind is skin, no garment surface behind the
@@ -551,20 +612,27 @@ def render_hole_columns(
     body_tris = v[f]
     cents = body_tris[fidx].mean(axis=1)
     n = len(fidx)
-    view = np.zeros(3)
-    view[depth_axis] = -1.0
-    back = np.zeros(3)
-    back[depth_axis] = 1.0
+    cam = None if camera_origin is None else np.asarray(camera_origin, dtype=float).reshape(3)
     hole = np.zeros(n, dtype=bool)
     for block in range(0, n, 256):
         bl = cents[block : block + 256]
         nb = len(bl)
-        origins = bl + view * 1e-4
-        dirs = np.tile(view, (nb, 1))
+        if cam is not None:
+            dirs = cam[None, :] - bl
+            nrm = np.linalg.norm(dirs, axis=1, keepdims=True) + 1e-12
+            dirs = dirs / nrm
+            back_dirs = -dirs
+        else:
+            view = np.zeros(3)
+            view[depth_axis] = -1.0
+            back = np.zeros(3)
+            back[depth_axis] = 1.0
+            dirs = np.tile(view, (nb, 1))
+            back_dirs = np.tile(back, (nb, 1))
+        origins = bl + dirs * 1e-4
         front = _ray_tri_hits(origins, dirs, garment_tris, max_t)
         covered = np.isfinite(front)
-        back_origins = bl + back * 1e-4
-        back_dirs = np.tile(back, (nb, 1))
+        back_origins = bl + back_dirs * 1e-4
         behind = _ray_tri_hits(back_origins, back_dirs, garment_tris, max_t)
         hole[block : block + nb] = ~covered & ~np.isfinite(behind)
     return hole
