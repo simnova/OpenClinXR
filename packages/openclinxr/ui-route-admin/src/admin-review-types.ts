@@ -1,5 +1,5 @@
-import type { EncounterDynamicBehaviorCoverageSummary, EncounterFactoryDryRunSummary, EncounterFactoryInputPlanningSummary } from "@openclinxr/asset-registry/runtime-bundles";
 import type { EnvironmentGenerationQueue, EnvironmentGenerationWorkOrderQueue, ScenarioAssetReadiness, ScenarioSceneGenerationPipelineWorkOrderQueue } from "@openclinxr/asset-registry";
+import type { EncounterDynamicBehaviorCoverageSummary, EncounterFactoryDryRunSummary, EncounterFactoryInputPlanningSummary } from "@openclinxr/asset-registry/runtime-bundles";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import type {
   ReviewPacketReplayQuery,
@@ -13,14 +13,14 @@ import type {
   SubmitScenarioReviewMutation,
   SubmitScenarioReviewMutationVariables,
 } from "@openclinxr/graphql/client";
-import type { AdminAssembledExamReplayProjection } from "@openclinxr/ui-shared/assembled-exam-replay-timeline";
+import type { AssembledExamReviewPacket } from "@openclinxr/review-workflow";
 import type {
   AdminNoReadinessEvidenceClaim,
   AdminRealtimeVoicePosture,
   AdminRuntimeProtocolPosture,
   AdminRuntimeProviderReadiness,
 } from "@openclinxr/ui-shared/admin-runtime-posture";
-import type { AssembledExamReviewPacket } from "@openclinxr/review-workflow";
+import type { AdminAssembledExamReplayProjection } from "@openclinxr/ui-shared/assembled-exam-replay-timeline";
 import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
 
 export type AdminControlPlaneClient = {
@@ -64,22 +64,27 @@ export type AdminControlPlaneClient = {
   listAuthoredScenarios(): Promise<unknown>;
   getAuthoredScenario(scenarioId: string): Promise<unknown>;
   previewFacultyEncounterBundlePromotion(
-    input: import("@openclinxr/ui-route-admin/encounter-bundle-promotion").FacultyEncounterBundlePromotionSelection,
+    input: import("./encounter-bundle-promotion/faculty-encounter-bundle-promotion.js").FacultyEncounterBundlePromotionSelection,
   ): Promise<{
     canPromote: boolean;
     blockers: string[];
     attestations: string[];
   }>;
   promoteFacultyEncounterBundle(
-    input: import("@openclinxr/ui-route-admin/encounter-bundle-promotion").FacultyEncounterBundlePromotionSelection,
+    input: import("./encounter-bundle-promotion/faculty-encounter-bundle-promotion.js").FacultyEncounterBundlePromotionSelection,
   ): Promise<{
     promoted: boolean;
-    learnerLaunchIdentity: import("@openclinxr/ui-route-admin/encounter-bundle-promotion").FacultyLearnerLaunchIdentity | null;
+    learnerLaunchIdentity: import("./encounter-bundle-promotion/faculty-encounter-bundle-promotion.js").FacultyLearnerLaunchIdentity | null;
     blockers?: string[];
   }>;
 } & FacultyCompileLockClient;
 
 export type {
+  AdminAssembledExamReplayProjection,
+  AdminNoReadinessEvidenceClaim,
+  AdminRealtimeVoicePosture,
+  AdminRuntimeProtocolPosture,
+  AdminRuntimeProviderReadiness,
   BlueprintScenarioReadiness,
   EncounterDynamicBehaviorCoverageSummary,
   EncounterFactoryDryRunSummary,
@@ -92,14 +97,6 @@ export type {
   ScenarioAssetReadiness,
   ScenarioSceneGenerationPipelineWorkOrderQueue,
   ScenarioStatus,
-};
-
-export type { AdminAssembledExamReplayProjection };
-export type {
-  AdminNoReadinessEvidenceClaim,
-  AdminRealtimeVoicePosture,
-  AdminRuntimeProtocolPosture,
-  AdminRuntimeProviderReadiness,
 };
 
 export type CreateScenarioSceneGenerationRequestResult = {

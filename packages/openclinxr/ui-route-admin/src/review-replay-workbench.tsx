@@ -1,23 +1,20 @@
-import { createContext, useContext, type ReactElement, useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
-import { Alert, Button, Input, Space, Spin, Tag, Typography } from "antd";
-import type { AdminControlPlaneClient, AdminReviewPacketReplay } from "./admin-review-types.js";
 import { buildFacultyReviewPath } from "@openclinxr/review-workflow";
 import {
   ActorTurnReplayPanel,
   EmissionReplayBindPanel,
   FacultyDispositionPanel,
 } from "@openclinxr/ui-shared";
-import {
-  FacultyAdjudicationWorkspace,
-  FacultyReviewDecisionPanel,
-  fetchAssembledExamReviewPacket,
-  ReviewReplayReadinessSummaryPanel,
-  ReviewReplaySafetyPanel,
-} from "./index.js";
-import { clampedScoreFromInput } from "./validators.js";
+import { Alert, Button, Input, Space, Spin, Tag, Typography } from "antd";
+import { createContext, type ReactElement, useContext, useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
+import type { AdminControlPlaneClient, AdminReviewPacketReplay } from "./admin-review-types.js";
+import { FacultyAdjudicationWorkspace, fetchAssembledExamReviewPacket } from "./faculty-adjudication-workspace.js";
+import { FacultyReviewDecisionPanel } from "./faculty-review-decision-panel.js";
 import { pluralize, uniqueValues } from "./formatters.js";
+import { ReviewReplayReadinessSummaryPanel } from "./review-replay-readiness-summary-panel.js";
+import { ReviewReplaySafetyPanel } from "./review-replay-safety-panel.js";
 import { ReadinessMetric } from "./status-view-model.js";
+import { clampedScoreFromInput } from "./validators.js";
 
 export type ReviewReplayWorkbenchState =
   | { status: "idle" }

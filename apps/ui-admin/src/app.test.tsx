@@ -1,10 +1,10 @@
 import "@testing-library/jest-dom/vitest";
 import { findUnsafeClaimLanguage } from "@openclinxr/domain/claim-language";
+import type { FacultyCompileLockClient } from "@openclinxr/ui-route-admin/faculty-compile-lock-types";
+import type { AdminControlPlaneClient } from "@openclinxr/ui-route-shared";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { AdminApp } from "./app.js";
-import type { AdminControlPlaneClient } from "@openclinxr/ui-route-shared";
-import type { FacultyCompileLockClient } from "@openclinxr/ui-route-admin";
 
 describe("AdminApp", () => {
   beforeAll(() => {
