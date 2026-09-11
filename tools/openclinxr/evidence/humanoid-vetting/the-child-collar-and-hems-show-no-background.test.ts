@@ -115,6 +115,27 @@ import { decodePng } from "../decode-png.ts";
  *
  * NOT TESTED: other nine bodies; waistband/crotch; Blender-space millimetre
  * match of this Node camera to the in-page WebGL camera.
+ *
+ * Treatment (attempt 3, not promoted): cargo pin reproduced the LOWER GATE
+ * cover shell (PANTS_FIT 392 → shell 2,726 tris vs shipped 2,628). Sleeve
+ * edgeloop_fill capped 2 rims (facesAdded 2, t-shirt 2,700 → 2,720).
+ * Screen-space unhide + camera-hole unhide 2 faces each. Full chain
+ * materialize → bake-humanoid-albedo.ts → separate_chest_anchor_joints.mjs
+ * (decimation skipped, chosenRungId=raw). Triangle count 77,442
+ * (delta +118 = +20 shirt caps + 98 shell vs shipped 77,324). Fresh capture
+ * `.openclinxr/evidence/glb-grade-capture/2026-09-11T21-37-55Z`:
+ *
+ * | site | bg after treatment |
+ * |---|---:|
+ * | neckline-square-L | 67 |
+ * | neckline-square-R | 99 |
+ * | sleeve-hem-rectangle-L | 382 |
+ * | sleeve-hem-rectangle-R | 292 |
+ * | control C | 0 |
+ *
+ * Sleeves unchanged from HB-06. Neckline matches attempt 2. Not all four
+ * sites 0 — it.fails stays. Live GLB restored to origin/main
+ * (sha 2742c258… / 11,348,244 B).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
