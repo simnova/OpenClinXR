@@ -407,7 +407,9 @@
     "arch:parallelism": "tsx tools/openclinxr/architecture/parallelism-report.ts",
     "arch:index": "tsx tools/openclinxr/architecture/write-package-agent-index.ts",
     "arch:unused-exports": "tsx tools/openclinxr/architecture/unused-exports-report.ts",
-    "arch:narrow-entrypoint": "tsx tools/openclinxr/architecture/narrow-entrypoint.ts"
+    "arch:narrow-entrypoint": "tsx tools/openclinxr/architecture/narrow-entrypoint.ts",
+    "arch:public-surface:verify": "tsx tools/openclinxr/architecture/public-surface/verify.ts",
+    "arch:public-surface:acceptance": "tsx tools/openclinxr/architecture/public-surface/acceptance.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",

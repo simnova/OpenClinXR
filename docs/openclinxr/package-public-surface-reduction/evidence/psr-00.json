@@ -1,0 +1,18 @@
+{
+  "revision": "working-tree",
+  "hash": "4782814823d220bd418df1108d558627ae45b6aeaf51a12e23e733e0116e0c5e",
+  "totals": {
+    "roots": 46,
+    "entrypoints": 137,
+    "rootSymbols": 2533,
+    "occurrences": 3588,
+    "uniqueSymbols": 3020,
+    "duplicateNames": 550
+  },
+  "inventory": {
+    "ok": false,
+    "detail": "raw inventory docs/openclinxr/package-public-surface-reduction/raw-inventory.json is absent (PSR-01A has not generated it)"
+  },
+  "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility.",
+  "notTested": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility."
+}
