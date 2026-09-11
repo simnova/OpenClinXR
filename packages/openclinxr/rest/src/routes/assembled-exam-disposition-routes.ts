@@ -15,6 +15,7 @@ import {
   assembledExamPacketDigest,
   createScenarioRuntimeDurableStoreFromApiPersistence,
 } from "../runtime-durable-store.js";
+import { registerFeedbackReleaseRoutes } from "./feedback-release/index.js";
 
 /** Faculty disposition trail — decisions sit beside, not inside, the evidence packet. */
 export const ASSEMBLED_EXAM_DISPOSITION_PATH = "/exam-runs/:examRunId/assembled-review-disposition";
@@ -135,6 +136,9 @@ export function registerAssembledExamDispositionRoutes(
       notEvidenceFor: assembledExamDispositionNotEvidenceFor,
       scoringValidityClaimed: false,
       examEquivalenceGate: false,
+      ...(stored?.feedbackReleases && stored.feedbackReleases.length > 0
+        ? { feedbackReleases: stored.feedbackReleases }
+        : {}),
     };
 
     try {
@@ -151,6 +155,8 @@ export function registerAssembledExamDispositionRoutes(
       throw error;
     }
   });
+
+  registerFeedbackReleaseRoutes(app, ctx);
 }
 
 type ParsedCommand = {
