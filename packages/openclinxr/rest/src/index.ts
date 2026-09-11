@@ -294,7 +294,7 @@ export {
 } from "./routes/encounter-bundle-promotion/index.js";
 export { registerEncounterSessionRoutes } from "./routes/encounter-session-routes.js";
 export { registerExamRoutes } from "./routes/exam-routes.js";
-export { registerFactoryRunTableRoutes } from "./routes/factory-run-table-routes.js";
+export { FACTORY_RUN_ROLLUP_REL, registerFactoryRunTableRoutes } from "./routes/factory-run-table-routes.js";
 export { registerFacultyCompileLockRoutes } from "./routes/faculty-compile-lock-routes.js";
 export { registerPlatformRoutes } from "./routes/platform-routes.js";
 export { registerReviewRoutes } from "./routes/review-routes.js";

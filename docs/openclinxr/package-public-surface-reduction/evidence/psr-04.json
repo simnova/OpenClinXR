@@ -1,0 +1,687 @@
+{
+  "id": "psr-04",
+  "taskId": "tsk_1b5c868161a95aba",
+  "sourceRevision": "fe74d6a6db762b3293d3a72e228dfde1c6c7d725",
+  "baseRevision": "cc3da7f3",
+  "planCommit": "1c493f12cd9ff5084e763c7e46f7ac4a5d57635c",
+  "planSha256": "01cb5139557293ace715e65bae576b359afe0e0e06c201f18e1af3d8bab0341d",
+  "rawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "groupHash": "21f46d05a61ca2639359ddbf9b80cbebf4c6e5e0932e15603fd7ee71ec593e3f",
+  "measuredBefore": {
+    "roots": 46,
+    "entrypoints": 137,
+    "rootSymbols": 2322,
+    "occurrences": 3345,
+    "uniqueSymbols": 2780,
+    "duplicateNames": 547
+  },
+  "measuredAfter": {
+    "roots": 46,
+    "entrypoints": 137,
+    "rootSymbols": 2223,
+    "occurrences": 3246,
+    "uniqueSymbols": 2681,
+    "duplicateNames": 547
+  },
+  "verifyBefore": "46 roots, 137 entrypoints, 2322 root symbols, 3345 occurrences, 2780 unique, 547 duplicated names (surface bd6307b0c20f); FAIL: group psr-04 not applied: extra: packages/openclinxr/rest. publishes unapproved ApiAssembledStationContext; extra: packages/openclinxr/rest. publishes unapproved ApiAssembledStationFormWindow; extra: packages/openclinxr/rest. publishes unapproved ApiFetchCall; extra: packages/openclinxr/rest. publishes unapproved ApiFetchDispatcher; extra: packages/openclinxr/rest. publishes unapproved ApiFetchRequestLike",
+  "verifyAfter": "46 roots, 137 entrypoints, 2223 root symbols, 3246 occurrences, 2681 unique, 547 duplicated names (surface 7f994e47ff0b); ok: group psr-04 applied: 99 removed, 0 migrated; ok baseline ratchet: surface matches the checked-in baseline (no growth)",
+  "countsPerPackage": {
+    "packages/openclinxr/rest keep": 94,
+    "packages/openclinxr/rest remove": 99,
+    "packages/openclinxr/rest migrate": 0
+  },
+  "removedCount": 99,
+  "removed": [
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ApiAssembledStationContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ApiAssembledStationFormWindow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ApiFetchCall",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ApiFetchDispatcher",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ApiFetchRequestLike",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ApiLifecycleService",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ApiLifecycleServiceInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ApiStartSessionRequest",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "AuthoredMemorySink",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "AzureFunctionHttpHandlerSpec",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "AzureFunctionHttpMethod",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "AzureFunctionHttpTrigger",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "BankBaseline",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "BaselineContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "BaselineScenarioRow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "bindScenarioReviewDecisionToAuthoredIdentity",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "buildAssetReleaseLadderReplayProjection",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "buildExamAssemblyScenarioPool",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "BunRealtimeVoiceBackendWebSocket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "BunRealtimeVoiceBackendWebSocketFactory",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "BunRealtimeVoiceGatewayPostureEnvironment",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "BunRealtimeVoiceGatewayPostureEnvironmentOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "BunRealtimeVoiceWebSocket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "BunRealtimeVoiceWebSocketHandler",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "BunServerConfig",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "BunServerConfigOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "coerceAuthoredScenarioWrite",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ComposedApiApp",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "createAdminGraphqlRoot",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "createApiAppContext",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "createAuthoredMemorySink",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "createBunRealtimeVoiceWebSocketHandler",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "createDefaultRealtimeVoiceGatewayPostureInput",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "createSeedBankAssetReadiness",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "createSeedBankSceneGenerationPipelineQueue",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "createSeedStationRunQueueSnapshot",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "FactoryRunCaseRow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "FactoryRunRollupValue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "FactoryRunStationRow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "FactoryRunTableContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "FACULTY_COMPILE_LOCK_CLAIM_BOUNDARY",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "FACULTY_COMPILE_LOCK_NOT_EVIDENCE_FOR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "FACULTY_COMPILE_LOCK_OVERRIDE_PATHS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "FacultyCompileLockFile",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "FacultyCompileLockFileLock",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "findBankFixture",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "findLatestApiBunWebSocketRuntimeSmokeEvidencePath",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "findSeedBankAssetReadiness",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "isPassedApiBunWebSocketRuntimeSmokeEvidence",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "isProtocolPostureEvidenceDiscoverySuppressed",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "isRealtimeVoiceWebSocketUpgradeRequest",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "isRecord",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "isSupportedRealtimeVoiceControlType",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "LearnerScenarioResolverLoader",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "listAdminGraphqlScenarios",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "neutralizeClientAssertedApprovedGates",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "NodeServerConfig",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "OpenClinXrApiProtocolPostureEnvironment",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "OpenClinXrApiProtocolPostureEnvironmentOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "OpenClinXrRestMethod",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "OpenClinXrRestRoute",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "OpenClinXrRestRouteId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "OpenClinXrRestRouteMatch",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "OpenClinXrRestSurface",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "parseFiniteNumber",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "parseStringArray",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "persistAuthoredScenarioReviewPromotion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "PROMOTION_BLUEPRINT_ID",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "PromotionHarnessContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "PromotionHop",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "PromotionPathContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "PromotionPathRun",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "QueueItemRead",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "readAuthoredGateState",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "readOptionalEvidenceFile",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "readOptionalProtocolPostureEvidenceFile",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "readQueueItem",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "readReadiness",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "recordApiRouteSpan",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "registerCoreMiddleware",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "requestApp",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "resolveApiBunWebSocketRuntimeEvidencePath",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "resolveCompileLocksRepoRoot",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "resolvePriorEvidencePathForScenario",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "resolveRepoRelativePath",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "resolveSessionRuntime",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "reviewStatesFromRecord",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ScenarioGateState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "shutdownApiApp",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "StageZeroStuckRun",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "StartedOpenClinXrApi",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "submitReviewDecision",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "summarizeClinicalEventReviewProjections",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "summarizeReviewReplayReadiness",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "supportedRealtimeVoiceControlTypes",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "telemetrySnapshotFromRecorder",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "uniqueStrings",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "WorldCompileContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "writeFacultyCompileLock",
+      "kind": "runtime"
+    }
+  ],
+  "migrated": [],
+  "migratedCount": 0,
+  "consumerFilesMoved": [
+    {
+      "file": "apps/api/src/the-factory-run-table-route-serves-the-station-table.test.ts",
+      "from": "computed import([\"@openclinxr/rest\"].join(\"\")) of FACTORY_RUN_ROLLUP_REL and parseFactoryRunRollup",
+      "to": "static import of both from the @openclinxr/rest root (FACTORY_RUN_ROLLUP_REL kept at land, approval psr-01d amended)"
+    }
+  ],
+  "retainedExceptions": [
+    {
+      "symbol": "matchOpenClinXrRestRoute",
+      "owner": "packages/openclinxr/rest/src/rest-routes.test.ts",
+      "reason": "approval amendment cc3da7f3: rest own tests consume this name through ./index.js"
+    },
+    {
+      "symbol": "openClinXrRestRouteIds",
+      "owner": "packages/openclinxr/rest/src/rest-routes.test.ts",
+      "reason": "approval amendment cc3da7f3: rest own tests consume this name through ./index.js"
+    },
+    {
+      "symbol": "openClinXrRestRoutes",
+      "owner": "packages/openclinxr/rest/src/rest-routes.test.ts",
+      "reason": "approval amendment cc3da7f3: rest own tests consume this name through ./index.js"
+    }
+  ],
+  "commands": {
+    "pnpm arch:public-surface:verify -- --require-applied psr-04": "pass after apply; exit 1 before apply",
+    "pnpm --filter @openclinxr/rest test": "pass: 9 files, 53 tests",
+    "pnpm --filter @openclinxr/api test": "pass: 20 files, 192 tests",
+    "pnpm --filter @openclinxr/ui-route-shared test": "pass: 2 files, 10 tests",
+    "pnpm packages:typecheck:agent": "pass: 100 successful",
+    "pnpm typecheck:relaxed": "pass",
+    "pnpm hygiene:knip": "pass",
+    "git diff --check": "pass"
+  },
+  "ceilings": {
+    "packages/openclinxr/rest/arch-ceiling.json": {
+      "before": {
+        "contexts": {
+          "ApiAppContext": 20
+        },
+        "testInternalImports": 23,
+        "rootEntrypointExports": 151
+      },
+      "after": {
+        "contexts": {
+          "ApiAppContext": 20
+        },
+        "testInternalImports": 23,
+        "rootEntrypointExports": 94
+      }
+    }
+  },
+  "claim": "PSR-04 applies PSR-01D rest subset as amended at cc3da7f3 and at land: 99 rest root exports removed, 0 migrated, 94 names remain published (93 approved keeps plus FACTORY_RUN_ROLLUP_REL, whose apps/api test consumer the review scan missed); implementations kept; --require-applied psr-04 exits 0.",
+  "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility. The surface-meter pin for rest (surface-meter.test.ts) was updated at land from 193 to 94, re-derived with ts.TypeChecker.getExportsOfModule.",
+  "notTested": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility."
+}

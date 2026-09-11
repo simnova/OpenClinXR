@@ -2,9 +2,6 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { runVerify } from "../../checks/public-surface/runner.js";
-import type { RunnerIo } from "../../checks/public-surface/runner.js";
-import { declaredEntrypoints, discoverScopePackages, measureSurface, resolveEntrypointSource } from "../../checks/public-surface/resolve.js";
 import { discoverConsumers } from "../../checks/public-surface/consumers.js";
 import {
   groupHash,
@@ -13,6 +10,9 @@ import {
   requireInventory,
   requireReviewedGroup,
 } from "../../checks/public-surface/gates.js";
+import { declaredEntrypoints, discoverScopePackages, measureSurface, resolveEntrypointSource } from "../../checks/public-surface/resolve.js";
+import type { RunnerIo } from "../../checks/public-surface/runner.js";
+import { runVerify } from "../../checks/public-surface/runner.js";
 
 /**
  * The PSR-00 compiler-resolved meter proves it can fail: fixture clauses cover every
@@ -118,7 +118,10 @@ describe("compiler-resolved surface meter", () => {
   it("(2) rest and ui-route-admin match compiler exports", () => {
     const report = measureSurface();
     const byDir = new Map(report.packages.map((pkg) => [pkg.packageDir, pkg]));
-    expect(byDir.get("packages/openclinxr/rest")?.rootSymbols).toBe(193);
+    // 193 before PSR-04; 94 after it applied approval psr-01d (93 keep + FACTORY_RUN_ROLLUP_REL kept at land).
+    // Re-derived independently with ts.TypeChecker.getExportsOfModule on rest/src/index.ts, which also
+    // returns the untouched ui-route-admin pin (277), so the method agrees with this calibration.
+    expect(byDir.get("packages/openclinxr/rest")?.rootSymbols).toBe(94);
     expect(byDir.get("packages/openclinxr/ui-route-admin")?.rootSymbols).toBe(277);
   });
 

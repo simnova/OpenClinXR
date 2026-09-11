@@ -1,8 +1,7 @@
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { parseFactoryRunRollup } from "@openclinxr/rest";
+import { FACTORY_RUN_ROLLUP_REL, parseFactoryRunRollup } from "@openclinxr/rest";
 import { describe, expect, it } from "vitest";
-import { FACTORY_RUN_ROLLUP_REL } from "../../../packages/openclinxr/rest/src/routes/factory-run-table-routes.js";
 import { createApiApp } from "./index.js";
 import { repoRoot } from "./scenario-promotion-bridge.js";
 
@@ -53,9 +52,10 @@ import { repoRoot } from "./scenario-promotion-bridge.js";
 // route constant still resolves through the non-static specifier. Diagnosis header
 // above left byte-identical.
 
-// ## FIXED (psr-04): 2026-09-11. FACTORY_RUN_ROLLUP_REL is a route-local constant (approval
-// remove). The test now imports it from the route module; parseFactoryRunRollup stays on
-// the rest root. Diagnosis header above left byte-identical.
+// ## FIXED (psr-04): 2026-09-11. Both FACTORY_RUN_ROLLUP_REL and parseFactoryRunRollup are
+// imported statically from the @openclinxr/rest root; the string-joined specifier is gone, so
+// the public-surface consumer scan now sees this test (approval psr-01d amended to keep the
+// constant). Diagnosis header above left byte-identical.
 
 const ROLLUP_FIXTURE = {
   schemaVersion: "openclinxr.dark-factory-multi-case-rollup.v1",

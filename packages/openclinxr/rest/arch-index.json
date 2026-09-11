@@ -40,6 +40,7 @@
     "ApiStationRunQueueSnapshot",
     "ApiUiXrRuntimeEvidenceConsumerWorkflowSummary",
     "CONTROL_SCENARIO_ID",
+    "FACTORY_RUN_ROLLUP_REL",
     "FACULTY_COMPILE_LOCKS_DIR",
     "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH",
     "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH",
@@ -133,6 +134,6 @@
       "ApiAppContext": 20
     },
     "testInternalImports": 23,
-    "rootEntrypointExports": 93
+    "rootEntrypointExports": 94
   }
 }

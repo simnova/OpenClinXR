@@ -6261,10 +6261,10 @@
       "entrypoint": ".",
       "symbol": "FACTORY_RUN_ROLLUP_REL",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/rest",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "apps/api/src/the-factory-run-table-route-serves-the-station-table.test.ts",
+      "rationale": "Amended at PSR-04 land (orchestrator, 2026-09-11): the apps/api test consumes it through the package name. On origin/main it loaded @openclinxr/rest through a string-joined specifier, [\"@openclinxr/rest\"].join(\"\"), which the review's consumer scan could not see, so the row was marked remove. Un-publishing it made the worker reach into packages/openclinxr/rest/src by relative path.",
+      "evidence": "apps/api/src/the-factory-run-table-route-serves-the-station-table.test.ts:10 and :96-111 (origin/main cc3da7f3, ROUTE_SPECIFIER)"
     },
     {
       "package": "packages/openclinxr/rest",
