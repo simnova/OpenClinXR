@@ -1,0 +1,3352 @@
+{
+  "id": "psr-06",
+  "taskId": "tsk_ab265f7f3ac7bed1",
+  "sourceRevision": "cdf9bb84",
+  "baseRevision": "3663acdd1ab0f140c3c25d8e99d8900fb92034d4",
+  "planCommit": "1c493f12cd9ff5084e763c7e46f7ac4a5d57635c",
+  "planSha256": "01cb5139557293ace715e65bae576b359afe0e0e06c201f18e1af3d8bab0341d",
+  "rawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "groupHash": "21f46d05a61ca2639359ddbf9b80cbebf4c6e5e0932e15603fd7ee71ec593e3f",
+  "measuredBefore": {
+    "roots": 46,
+    "entrypoints": 137,
+    "rootSymbols": 2041,
+    "occurrences": 2869,
+    "uniqueSymbols": 2439,
+    "duplicateNames": 415,
+    "note": "origin/main after PSR-05 land (psr-05.json measuredAfter); card known-good at plan commit was 2533/3588/3020/550"
+  },
+  "measuredAfter": {
+    "roots": 46,
+    "entrypoints": 114,
+    "rootSymbols": 1776,
+    "occurrences": 2324,
+    "uniqueSymbols": 2153,
+    "duplicateNames": 163
+  },
+  "verifyBefore": "On 3663acdd (pre-apply) --require-applied psr-06 fails: 46 roots, 137 entrypoints, 2041 root symbols, 2869 occurrences, 2439 unique, 415 duplicated names (surface c5327ea69039); FAIL: group psr-06 not applied: extra: packages/openclinxr/ui-route-admin. publishes unapproved ADMIN_ASSEMBLED_EXAM_REVIEW_PACKET_PATH (and four more extras in the first five). Card known-good: 46 roots, 137 entrypoints, 2533 root symbols, 3588 occurrences, 3020 unique, 550 duplicated names.",
+  "verifyAfter": "46 roots, 114 entrypoints, 1694 root symbols, 2208 occurrences, 2040 unique, 160 duplicated names (surface 85a9bae22e88); ok: group psr-06 applied: 543 removed, 2 migrated; ok baseline ratchet: surface matches the checked-in baseline (no growth)",
+  "countsPerPackage": {
+    "packages/openclinxr/ui-route-admin keep": 26,
+    "packages/openclinxr/ui-route-admin remove": 545,
+    "packages/openclinxr/ui-route-admin migrate": 2
+  },
+  "removedCount": 545,
+  "removed": [
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "actorFormFromDraft",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ActorPhenotypeFields",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ActorPhenotypeFieldsProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "actorRoleOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ActorTouchResponseFields",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ActorTouchResponseFieldsProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ADMIN_ASSEMBLED_EXAM_REVIEW_PACKET_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminAssembledExamReplayProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminAssembledExamReviewPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminAssetReleaseLadderReplayProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminCaseDefinedHumanoidPerformanceContract",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminCaseDefinedHumanoidRuntimeHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminControlPlaneClient",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminDynamicEncounterFactoryPlanningProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminFacultyCompileLockRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminFacultyReviewDecisionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminFacultyScoreDraft",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminFacultyScoreDraftRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminNoReadinessEvidenceClaim",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminPedsHumanoidMaterializationHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminRealtimeVoicePosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminReviewPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminReviewPacketReplay",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminReviewReplayEvidenceHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminReviewReplayGeneratedBundlePosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminReviewReplayProviderDisabledRemediation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminReviewReplayReadinessSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminReviewReplayRuntimeEvidenceGateRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminRuntimeProtocolPosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminRuntimeProviderReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminRuntimeSelectionReviewPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminRuntimeVisualEvidenceReplayProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminScenario",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminScenarioBankExamSequenceProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminScenarioBankMaturityReport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminScenarioDetail",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminScenarioPublicationReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminScenarioReviewDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminScenarioReviewResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminStationRunQueueSnapshot",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "annotateProposedVsAccepted",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "assembledExamReviewPacketPath",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AssetNeedsPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "assetTypeOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "authoredContentIdentity",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AuthoredDialogueSeedDraft",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AUTHORING_PREVIEW_NOT_EVIDENCE_FOR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AuthoringPreviewChange",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AuthoringPreviewResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "BlueprintScenarioReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "buildCompileEdges",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "buildFacultyCompileLockColumns",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "buildFacultyCompileLockRows",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "CaseAuthoringApiClient",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "caseAuthoringClaimBoundary",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "CaseAuthoringWorkbenchProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "clampedScoreFromInput",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "collectFacultyEncounterBundleAttestations",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "collectFacultyEncounterBundleSelectionBlockers",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "collectTouchResponseTraceTags",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "complianceRegionOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "countActorCommunicationProfiles",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "createActorDraft",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "createAssetNeedDraft",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "createEmptyScenarioDraft",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "CreateLocalReviewReplaySeedInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "CreateLocalReviewReplaySeedResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "CreateScenarioSceneGenerationRequestInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "CreateScenarioSceneGenerationRequestResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "CreateStationRunQueueSnapshotInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "createTouchResponseDraft",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "defaultFacultyEncounterBundlePromotionSelection",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "DialogueCatalogPreviewOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "DialogueFetchLike",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "DialogueSeedAuthoringPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "DialogueSeedPublicationGate",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EmotionPolicyPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "emptyWorldviewCompileGraph",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EncounterBundlePromotionPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EncounterBundlePromotionPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EncounterDynamicBehaviorCoverageSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EncounterEnvironmentPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EncounterEnvironmentPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EncounterFactoryDryRunSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EncounterFactoryInputPlanningSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EncounterMaterializationAttachmentPlanSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EncounterMaterializationEvidenceAttachmentSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EncounterMaterializationInputManifestSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EncounterMaterializationInputReviewActionPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EncounterMaterializationInputReviewDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EncounterMaterializationInputReviewDecisionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EnvironmentGenerationQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EnvironmentGenerationQueuePanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EnvironmentGenerationQueuePanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EnvironmentGenerationWorkOrderQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EquipmentPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "evaluateScenarioPromotion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EvidenceCompileEdges",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "EvidenceCompileNode",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ExamBlueprint",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ExamStationRunQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ExamTimingPlan",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "exportScenarioJson",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "extractScenario",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "extractScenarioList",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FACULTY_COMPILE_OVERRIDE_PATHS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FACULTY_ENCOUNTER_BUNDLE_FACTORY_KINDS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyAdjudicationWorkspace",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyAdjudicationWorkspaceProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "facultyCompileLockAllowsCompile",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "facultyCompileLockIdentityMoved",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyCompileLockRow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyCompileOverridePath",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyEncounterBundleMemberSelection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyEncounterBundlePromotionClient",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyEncounterBundlePromotionHost",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyEncounterBundlePromotionHostProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyEncounterBundlePromotionSelection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyLearnerLaunchIdentity",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyReviewDecisionPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyReviewDecisionPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "fetchAssembledExamReviewPacket",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "findFacultyCompileLockContext",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "formatActorCommunicationProfileCoverage",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "formatDuration",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "formatMinutes",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "formatScenarioGovernanceNotice",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "formatStationQueueBlocker",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FrozenActorTurnPlanPreview",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "GetReviewPacketReplayInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "GetScenarioDetailInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "GetScenarioPublicationReadinessInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "habitusOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "HumanReviewActionSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "interactionEmotionOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "isRecord",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "learnerLaunchHref",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ListScenarioReviewDecisionsInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ListScenariosInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "LiveAuthoringPreview",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "mergeFacultyCompileLockRows",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "mergeFormValuesIntoScenario",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "mergeWorldviewCompileEdges",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "mergeWorldviewLockRows",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "parseScenarioJson",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ParseScenarioResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "PersistFacultyCompileLockInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "PersistFacultyScoreDraftInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "PlacementAuthorRow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "PlacementAuthorValue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "pluralize",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "previewAuthoredDialogueCatalog",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "previewAuthoringRevision",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "PromotionDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ProposedVsAcceptedList",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "QueueReviewSnapshotHistory",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "QueueReviewSnapshotHistoryProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ReadinessMetric",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "reduceWorldviewAddActor",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "reduceWorldviewAddNode",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "reduceWorldviewAddTrellisModel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "reduceWorldviewApplyStation",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "reduceWorldviewBindEquipment",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "reduceWorldviewRemoveNode",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "resolveFacultyCompileLockEvidence",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "reviewGateColor",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ReviewReplayReadinessSummaryPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ReviewReplayReadinessSummaryPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ReviewReplaySafetyPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ReviewReplaySafetyPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "RuntimeEvidenceCaptureScaffold",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "RuntimeRealismEvidenceInputReviewDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "RuntimeRealismEvidenceInputReviewDecisionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "RuntimeSelectionReviewPacketPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "RuntimeSelectionReviewPacketPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "RuntimeVisualEvidenceAttachment",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "RuntimeVisualEvidenceAttachmentActionPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "RuntimeVisualEvidenceAttachmentRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "RuntimeVisualEvidenceAttachmentSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SaveFacultyReviewDecisionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SaveFacultyScoreDraftInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SCENARIO_REVIEW_RATIONALE_IS_CALLER_SUPPLIED",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SCENARIO_REVIEW_RECORDABLE_DIMENSIONS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SCENARIO_REVIEW_UNMADE_DECISION_DISPLAY",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioActorFormValue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioAssetNeed",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioAssetReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioAuthoringPreviewPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioAuthoringWorkspace",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioAuthoringWorkspaceProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioBankMaturityPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioBankMaturityPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioDraft",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioFormValues",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioReviewApprovalBoundary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioReviewDimension",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "scenarioReviewGateEntries",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioReviewGatePanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioReviewGatePanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioReviewGateSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioSceneGenerationPipelineWorkOrderQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioSceneGenerationRequestPublicationReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioSceneGenerationRequestQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "ScenarioStatus",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "scenarioStatusColor",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "scenarioStatusOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "scenarioToFormValues",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "sceneGenerationRequestProjectionArtifactStatusColor",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "sceneGenerationRequestProjectionArtifactStatusLabel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "sceneGenerationRequestReviewStatusColor",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SeedExamReadinessBoundaryPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SeedExamReadinessBoundaryPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SeedWorldviewCompileGraph",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SeedWorldviewQueue",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SeedWorldviewQueueProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "STALE_REVIEW_IDENTITY_REFUSAL",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "STALE_VALIDATION_REFUSAL",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "structuredCloneScenario",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SubmitRuntimeRealismEvidenceInputReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SubmitRuntimeVisualEvidenceAttachmentInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SubmitScenarioReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SubmitScenarioSceneGenerationMaterializationInputReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SubmitScenarioSceneGenerationRequestReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeAssetReleaseLadderReplayProjection",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeDynamicBehaviorCoverage",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeEncounterFactoryDryRun",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeEncounterFactoryInputPlanning",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeEvidenceGateRefs",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeHumanoidMetadataBlockers",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeHumanoidRealismProfiles",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeHumanReviewActions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeMaterializationEvidenceAttachments",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeMaterializationInputManifest",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeMaterializationInputReviewActions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeMaterializationInputReviewDecisionRecord",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizePedsGeneratedPlayerAndEmotion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizePublicationMetadata",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeRuntimeBundleAssemblyAudit",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeRuntimeBundleGateRefs",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeRuntimeEvidenceCaptureScaffold",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeRuntimeRealismEvidenceInputReviewDecisionRecord",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeRuntimeVisualEvidenceAttachmentActions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeRuntimeVisualEvidenceAttachmentRecord",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeRuntimeVisualEvidenceAttachmentSummary",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeScenarioReviewGate",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "supportSurfaceOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "toInteractionEmotion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "touchResponseKindOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "uniqueValues",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "useFacultyCompileLocks",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "useReviewReplayWorkbenchContext",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "useScenarioBankWorkbenchContext",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "useScenarioDetailWorkbenchContext",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "useSeedBlueprintWorkbenchContext",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "useWorldviewCompileGraph",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "validateAuthoredDialoguePreviewResponse",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "validateScenarioDraft",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "WorldviewActorDraft",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "WorldviewCompileGraphState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "WorldviewEquipmentBind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "WorldviewTrellisModel",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./actor-phenotype-fields",
+      "symbol": "ActorPhenotypeFields",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./actor-phenotype-fields",
+      "symbol": "ActorPhenotypeFieldsProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./actor-touch-response-fields",
+      "symbol": "ActorTouchResponseFields",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./actor-touch-response-fields",
+      "symbol": "ActorTouchResponseFieldsProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminAssembledExamReplayProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminAssetReleaseLadderReplayProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminCaseDefinedHumanoidPerformanceContract",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminCaseDefinedHumanoidRuntimeHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminControlPlaneClient",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminDynamicEncounterFactoryPlanningProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminFacultyReviewDecisionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminFacultyScoreDraft",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminFacultyScoreDraftRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminNoReadinessEvidenceClaim",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminPedsHumanoidMaterializationHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminRealtimeVoicePosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminReviewPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminReviewPacketReplay",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminReviewReplayEvidenceHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminReviewReplayGeneratedBundlePosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminReviewReplayProviderDisabledRemediation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminReviewReplayReadinessSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminReviewReplayRuntimeEvidenceGateRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminRuntimeProtocolPosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminRuntimeProviderReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminRuntimeSelectionReviewPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminRuntimeVisualEvidenceReplayProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminScenario",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminScenarioBankExamSequenceProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminScenarioBankMaturityReport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminScenarioDetail",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminScenarioPublicationReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminScenarioReviewDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminScenarioReviewResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminStationRunQueueSnapshot",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "BlueprintScenarioReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "CreateLocalReviewReplaySeedInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "CreateLocalReviewReplaySeedResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "CreateScenarioSceneGenerationRequestInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "CreateScenarioSceneGenerationRequestResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "CreateStationRunQueueSnapshotInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "EncounterDynamicBehaviorCoverageSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "EncounterFactoryDryRunSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "EncounterFactoryInputPlanningSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "EncounterMaterializationAttachmentPlanSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "EncounterMaterializationEvidenceAttachmentSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "EncounterMaterializationInputManifestSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "EncounterMaterializationInputReviewActionPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "EncounterMaterializationInputReviewDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "EncounterMaterializationInputReviewDecisionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "EnvironmentGenerationQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "EnvironmentGenerationWorkOrderQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "ExamBlueprint",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "ExamStationRunQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "ExamTimingPlan",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "GetReviewPacketReplayInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "GetScenarioDetailInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "GetScenarioPublicationReadinessInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "HumanReviewActionSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "ListScenarioReviewDecisionsInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "ListScenariosInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "PersistFacultyScoreDraftInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "RuntimeEvidenceCaptureScaffold",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "RuntimeRealismEvidenceInputReviewDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "RuntimeRealismEvidenceInputReviewDecisionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "RuntimeVisualEvidenceAttachment",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "RuntimeVisualEvidenceAttachmentActionPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "RuntimeVisualEvidenceAttachmentRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "RuntimeVisualEvidenceAttachmentSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "SaveFacultyReviewDecisionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "SaveFacultyScoreDraftInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "ScenarioAssetReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "ScenarioReviewApprovalBoundary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "ScenarioReviewGateSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "ScenarioSceneGenerationPipelineWorkOrderQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "ScenarioSceneGenerationRequestPublicationReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "ScenarioSceneGenerationRequestQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "ScenarioStatus",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "SubmitRuntimeRealismEvidenceInputReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "SubmitRuntimeVisualEvidenceAttachmentInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "SubmitScenarioReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "SubmitScenarioSceneGenerationMaterializationInputReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "SubmitScenarioSceneGenerationRequestReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./asset-needs-panel",
+      "symbol": "AssetNeedsPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-io",
+      "symbol": "actorFormFromDraft",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-io",
+      "symbol": "extractScenario",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-io",
+      "symbol": "extractScenarioList",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-io",
+      "symbol": "isRecord",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-io",
+      "symbol": "structuredCloneScenario",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "actorRoleOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "assetTypeOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "caseAuthoringClaimBoundary",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "collectTouchResponseTraceTags",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "complianceRegionOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "createActorDraft",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "createAssetNeedDraft",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "createEmptyScenarioDraft",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "createTouchResponseDraft",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "exportScenarioJson",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "habitusOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "interactionEmotionOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "mergeFormValuesIntoScenario",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "parseScenarioJson",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "ParseScenarioResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "ScenarioActorFormValue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "ScenarioAssetNeed",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "ScenarioDraft",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "ScenarioFormValues",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "scenarioStatusOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "scenarioToFormValues",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "supportSurfaceOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "toInteractionEmotion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "touchResponseKindOptions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-model",
+      "symbol": "validateScenarioDraft",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-workbench",
+      "symbol": "CaseAuthoringApiClient",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-workbench",
+      "symbol": "CaseAuthoringWorkbench",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./case-authoring-workbench",
+      "symbol": "CaseAuthoringWorkbenchProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "ACTOR_TURN_PLAN_CLAIM_SCOPE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "AUTHORED_LOCAL_FIXTURE_PROVIDER_ID",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "AuthoredDialogueSeedDraft",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DIALOGUE_SEED_AUTHORING_CLAIM_BOUNDARY",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DIALOGUE_SEED_AUTHORING_PREVIEW_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueCatalogPreviewOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueEmotion",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueFetchLike",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueSafetyExpectation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueSeedActor",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueSeedAuthoringPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueSeedAuthoringPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueSeedAuthoringPreviewFailure",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueSeedAuthoringPreviewRequest",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueSeedAuthoringPreviewResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueSeedAuthoringPreviewSuccess",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueSeedCatalogPreviewFn",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueSeedDisclosurePolicy",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueSeedFailure",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueSeedFailureCode",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "DialogueSeedPublicationGate",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "FrozenActorTurnPlanPreview",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "previewAuthoredDialogueCatalog",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "publicationGateFromPreviewResults",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "REQUIRED_NOT_EVIDENCE_FOR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "validateAuthoredDialoguePreviewResponse",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./emotion-policy-panel",
+      "symbol": "EmotionPolicyPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "collectFacultyEncounterBundleAttestations",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "collectFacultyEncounterBundleSelectionBlockers",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "defaultFacultyEncounterBundlePromotionSelection",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "EncounterBundlePromotionPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "EncounterBundlePromotionPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "FACULTY_ENCOUNTER_BUNDLE_FACTORY_KINDS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "FacultyEncounterBundleMemberSelection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "FacultyEncounterBundlePromotionClient",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "FacultyEncounterBundlePromotionHost",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "FacultyEncounterBundlePromotionHostProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "FacultyEncounterBundlePromotionSelection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "FacultyLearnerLaunchIdentity",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-bundle-promotion",
+      "symbol": "learnerLaunchHref",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-environment-panel",
+      "symbol": "EncounterEnvironmentPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./encounter-environment-panel",
+      "symbol": "EncounterEnvironmentPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-generation-queue-panel",
+      "symbol": "EnvironmentGenerationQueuePanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-generation-queue-panel",
+      "symbol": "FACULTY_COMPILE_OVERRIDE_PATHS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-generation-queue-panel",
+      "symbol": "FacultyCompileLockRow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-generation-queue-panel",
+      "symbol": "FacultyCompileOverridePath",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-generation-queue-panel",
+      "symbol": "PlacementAuthorRow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-generation-queue-panel",
+      "symbol": "PlacementAuthorValue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeAssetReleaseLadderReplayProjection",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeDynamicBehaviorCoverage",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeEncounterFactoryDryRun",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeEncounterFactoryInputPlanning",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeEvidenceGateRefs",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeHumanoidMetadataBlockers",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeHumanoidRealismProfiles",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeHumanReviewActions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeMaterializationEvidenceAttachments",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeMaterializationInputManifest",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeMaterializationInputReviewActions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeMaterializationInputReviewDecisionRecord",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizePedsGeneratedPlayerAndEmotion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizePublicationMetadata",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeRuntimeBundleAssemblyAudit",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeRuntimeBundleGateRefs",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeRuntimeEvidenceCaptureScaffold",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeRuntimeRealismEvidenceInputReviewDecisionRecord",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeRuntimeVisualEvidenceAttachmentActions",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeRuntimeVisualEvidenceAttachmentRecord",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeRuntimeVisualEvidenceAttachmentSummary",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./environment-queue-readiness-summaries",
+      "symbol": "summarizeScenarioReviewGate",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./equipment-panel",
+      "symbol": "EquipmentPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "actorTurnDurableRef",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "ADMIN_ASSEMBLED_EXAM_REVIEW_PACKET_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "AdminAssembledExamReviewPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "AdminFacultyAdjudicationDispositionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "assembledExamReplayProjectionFromReviewPacket",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "assembledExamReviewPacketPath",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "assembledExamStationReplaySliceFromPacketStation",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "FACULTY_ADJUDICATION_CLAIM_BOUNDARY",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "FACULTY_ADJUDICATION_DISPOSITION_CLAIM_BOUNDARY",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "FACULTY_ADJUDICATION_DISPOSITIONS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "FacultyAdjudicationDisposition",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "FacultyAdjudicationWorkspace",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "FacultyAdjudicationWorkspaceProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "fetchAssembledExamReviewPacket",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "parseAssembledExamReviewPacket",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "patientNoteDurableRef",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock",
+      "symbol": "buildCompileEdges",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock",
+      "symbol": "buildFacultyCompileLockColumns",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock",
+      "symbol": "buildFacultyCompileLockRows",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock",
+      "symbol": "EvidenceCompileEdges",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock",
+      "symbol": "EvidenceCompileNode",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock",
+      "symbol": "FACULTY_COMPILE_OVERRIDE_PATHS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock",
+      "symbol": "FacultyCompileOverridePath",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock",
+      "symbol": "findFacultyCompileLockContext",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock",
+      "symbol": "ProposedVsAcceptedList",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock",
+      "symbol": "resolveFacultyCompileLockEvidence",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock",
+      "symbol": "useFacultyCompileLocks",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock-types",
+      "symbol": "AdminFacultyCompileLockRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock-types",
+      "symbol": "FacultyCompileLockClient",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-compile-lock-types",
+      "symbol": "PersistFacultyCompileLockInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-review-decision-panel",
+      "symbol": "FacultyReviewDecisionPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-review-decision-panel",
+      "symbol": "FacultyReviewDecisionPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./queue-review-snapshot-history",
+      "symbol": "QueueReviewSnapshotHistory",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./queue-review-snapshot-history",
+      "symbol": "QueueReviewSnapshotHistoryProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./review-replay-readiness-summary-panel",
+      "symbol": "ReviewReplayReadinessSummaryPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./review-replay-safety-panel",
+      "symbol": "ReviewReplaySafetyPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./review-replay-safety-panel",
+      "symbol": "ReviewReplaySafetyPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./runtime-selection-review-packet-panel",
+      "symbol": "RuntimeSelectionReviewPacketPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./runtime-selection-review-packet-panel",
+      "symbol": "RuntimeSelectionReviewPacketPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-authoring-preview",
+      "symbol": "authoredContentIdentity",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-authoring-preview",
+      "symbol": "AUTHORING_PREVIEW_NOT_EVIDENCE_FOR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-authoring-preview",
+      "symbol": "AuthoringPreviewChange",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-authoring-preview",
+      "symbol": "AuthoringPreviewResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-authoring-preview",
+      "symbol": "evaluateScenarioPromotion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-authoring-preview",
+      "symbol": "previewAuthoringRevision",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-authoring-preview",
+      "symbol": "PromotionDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-authoring-preview",
+      "symbol": "STALE_REVIEW_IDENTITY_REFUSAL",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-authoring-preview",
+      "symbol": "STALE_VALIDATION_REFUSAL",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-authoring-workspace",
+      "symbol": "actorsFromScenario",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-authoring-workspace",
+      "symbol": "ScenarioAuthoringWorkspace",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-authoring-workspace",
+      "symbol": "ScenarioAuthoringWorkspaceProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-bank-maturity-panel",
+      "symbol": "formatMinutes",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-bank-maturity-panel",
+      "symbol": "formatStationQueueBlocker",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-bank-maturity-panel",
+      "symbol": "reviewGateColor",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-bank-maturity-panel",
+      "symbol": "ScenarioBankMaturityPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-bank-maturity-panel",
+      "symbol": "ScenarioBankMaturityPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-bank-maturity-panel",
+      "symbol": "scenarioReviewGateEntries",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-bank-maturity-panel",
+      "symbol": "scenarioStatusColor",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-review-gate-constants",
+      "symbol": "SCENARIO_REVIEW_RATIONALE_IS_CALLER_SUPPLIED",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-review-gate-constants",
+      "symbol": "SCENARIO_REVIEW_RECORDABLE_DIMENSIONS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-review-gate-constants",
+      "symbol": "SCENARIO_REVIEW_UNMADE_DECISION_DISPLAY",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-review-gate-constants",
+      "symbol": "ScenarioReviewDimension",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-review-gate-panel",
+      "symbol": "AUTHORED_CONTENT_IDENTITY_OMITTED_NESTED_KEYS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-review-gate-panel",
+      "symbol": "AUTHORED_CONTENT_IDENTITY_OMITTED_ROOT_KEYS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-review-gate-panel",
+      "symbol": "authoredContentIdentityFromEvidenceRefs",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-review-gate-panel",
+      "symbol": "SCENARIO_REVIEW_RATIONALE_IS_CALLER_SUPPLIED",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-review-gate-panel",
+      "symbol": "SCENARIO_REVIEW_UNMADE_DECISION_DISPLAY",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-review-gate-panel",
+      "symbol": "ScenarioReviewDimension",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-review-gate-panel",
+      "symbol": "ScenarioReviewGatePanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-exam-readiness-boundary-panel",
+      "symbol": "SeedExamReadinessBoundaryPanel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-exam-readiness-boundary-panel",
+      "symbol": "SeedExamReadinessBoundaryPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "annotateProposedVsAccepted",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "emptyWorldviewCompileGraph",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "mergeWorldviewCompileEdges",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "mergeWorldviewLockRows",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "reduceWorldviewAddActor",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "reduceWorldviewAddNode",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "reduceWorldviewAddTrellisModel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "reduceWorldviewApplyStation",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "reduceWorldviewBindEquipment",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "reduceWorldviewRemoveNode",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "SeedWorldviewCompileGraph",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "SeedWorldviewQueueProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "useWorldviewCompileGraph",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "WorldviewActorDraft",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "WorldviewCompileGraphState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "WorldviewEquipmentBind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./seed-worldview-queue",
+      "symbol": "WorldviewTrellisModel",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./status-view-model",
+      "symbol": "ReadinessMetric",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./status-view-model",
+      "symbol": "sceneGenerationRequestProjectionArtifactStatusColor",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./status-view-model",
+      "symbol": "sceneGenerationRequestProjectionArtifactStatusLabel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./status-view-model",
+      "symbol": "sceneGenerationRequestReviewStatusColor",
+      "kind": "runtime"
+    }
+  ],
+  "migratedCount": 2,
+  "migrated": [
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "CaseAuthoringWorkbench",
+      "kind": "runtime",
+      "route": "./case-authoring-workbench"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyCompileLockClient",
+      "kind": "type",
+      "route": "./faculty-compile-lock-types"
+    }
+  ],
+  "retainedExceptions": [
+    {
+      "symbol": "CaseAuthoringWorkbench",
+      "entrypoint": "./case-authoring-workbench",
+      "reason": "root migrate destination; apps/ui-admin/src/app.tsx consumes it. Subpath row is remove, so require-applied reports extra until the approval is amended to keep."
+    },
+    {
+      "symbol": "FacultyCompileLockClient",
+      "entrypoint": "./faculty-compile-lock-types",
+      "reason": "root migrate destination; apps/ui-admin/src/app.tsx and app.test.tsx consume it. Subpath row is remove, so require-applied reports extra until the approval is amended to keep."
+    }
+  ],
+  "consumerFilesMoved": [
+    "apps/ui-admin/src/app.tsx",
+    "apps/ui-admin/src/app.test.tsx"
+  ],
+  "removedKindSplit": {
+    "runtime": 268,
+    "type": 277
+  },
+  "migratedKindSplit": {
+    "runtime": 1,
+    "type": 1
+  },
+  "claim": "PSR-06 un-publishes ui-route-admin to the PSR-01D keep set (12 root names) plus keep-only barrels on 7 remaining subpaths. File-shaped all-remove subpaths dropped from package.json. Implementations kept. apps/ui-admin non-test source stayed 137 lines. --require-applied psr-06 still exits 1 on the two migrate-destination extras.",
+  "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility. surface-meter.test.ts pins 137 entrypoints and ui-route-admin rootSymbols 277; measured 114 and 12. packages:typecheck:agent and packages:build:affected deferred to land.",
+  "notTested": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility.",
+  "orchestratorAmendmentAtLand": "Approval psr-01d amended on main (91429f54): the two migrate destinations ./case-authoring-workbench CaseAuthoringWorkbench and ./faculty-compile-lock-types FacultyCompileLockClient are keep. --require-applied psr-06 now exits 0 (543 removed, 2 migrated). surface-meter.test.ts pins updated: entrypoints 137 -> 114 (counted from the 46 scoped package.json exports maps) and ui-route-admin rootSymbols 277 -> 12 (ts.TypeChecker.getExportsOfModule)."
+}
