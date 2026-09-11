@@ -2,14 +2,15 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runAcceptance } from "../../../../packages/openclinxr-verification/architecture-rules/src/checks/public-surface/runner.js";
+import { acceptanceSelfTest } from "../../../../packages/openclinxr-verification/architecture-rules/src/checks/public-surface/acceptance-criteria.js";
 import { selfTest } from "../../../../packages/openclinxr-verification/architecture-rules/src/checks/public-surface/gates.js";
 import { workspaceRoot } from "../../../../packages/openclinxr-verification/architecture-rules/src/checks/public-surface/resolve.js";
 
 /**
- * `pnpm arch:public-surface:acceptance` — independent closure check (PSR-00 install).
- * Thin wrapper: measurement and report shaping live in runner.ts. `--self-test` proves
- * the gates fail closed, including a present-but-unapplied approval group in a temp
- * fixture workspace. Writes only with an explicit --report / --report-out flag.
+ * `pnpm arch:public-surface:acceptance` — independent closure check (PSR-00B).
+ * Thin wrapper: criteria 3/4/5/6/12 live in acceptance-criteria.ts via runner.ts.
+ * `--self-test` proves gates and acceptance fail closed (absent, unapplied, empty,
+ * leftover wildcards). Writes only with an explicit --report / --report-out flag.
  */
 function repoRoot(): string {
   try {
@@ -32,7 +33,7 @@ const root = repoRoot();
 const args = process.argv.slice(2);
 
 if (args.includes("--self-test")) {
-  const results = selfTest(root);
+  const results = [...selfTest(root), ...acceptanceSelfTest()];
   let failed = 0;
   for (const result of results) {
     console.log(`${result.ok ? "ok(fails-closed)" : "UNEXPECTED-OK"}: ${result.detail}`);
@@ -42,7 +43,7 @@ if (args.includes("--self-test")) {
     console.error("acceptance self-test FAILED: a gate passed on real or fixture input it must refuse");
     process.exit(1);
   }
-  console.log("acceptance self-test passed: gates fail closed on absent and unapplied inputs");
+  console.log("acceptance self-test passed: gates fail closed on absent, unapplied, empty, wildcard, and unreviewed C6 exceptions");
   process.exit(0);
 }
 

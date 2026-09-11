@@ -22,6 +22,17 @@ export const PSR_07_PACKAGES: readonly string[] = [
   "packages/openclinxr/xr-humanoid-animation",
 ];
 
+/** Apply-card ids PSR-02..PSR-08. Program acceptance uses REVIEW_GROUPS; cards use these. */
+export const APPLY_CARD_IDS: readonly string[] = [
+  "psr-02",
+  "psr-03",
+  "psr-04",
+  "psr-05",
+  "psr-06",
+  "psr-07",
+  "psr-08",
+];
+
 const APPLY_TARGETS: Record<string, { group: string; packages: readonly string[] }> = {
   "psr-02": {
     group: "psr-01b",
