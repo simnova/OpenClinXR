@@ -169,6 +169,15 @@ describe("the factory run-table route serves the station table", () => {
     );
     expect(runner).toContain("factory-run");
   });
+
+  // Case (8) failed on the unawaited helper: the finally block removed the
+  // fixture before the async body finished, so existsSync was false.
+  it("(8) the rollup fixture outlives an async body", async () => {
+    await withRollupFixture(async () => {
+      await new Promise((r) => setTimeout(r, 25));
+      expect(existsSync(join(repoRoot(), FACTORY_RUN_ROLLUP_REL))).toBe(true);
+    });
+  });
 });
 
 // NOT TESTED: that the served numbers describe the CURRENT tree (the rollup carries its own
