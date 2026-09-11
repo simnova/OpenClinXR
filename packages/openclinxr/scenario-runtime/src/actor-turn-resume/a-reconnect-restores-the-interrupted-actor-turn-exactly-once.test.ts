@@ -199,4 +199,32 @@ describe("a reconnect restores the interrupted actor turn exactly once", () => {
       }),
     ).toThrow(/duplicated station identity/);
   });
+
+  it("restores a plain disconnect with no barge-in outcome and no cancelled modalities", () => {
+    const { bargeIn, ...turn } = interruptedTurn();
+    void bargeIn;
+    const decision = resumeAssembledExam({
+      form: form(),
+      timingPlan: timingPlan(),
+      projection: projection(),
+      interruptedActorTurns: [turn],
+    });
+
+    expect(decision.restoredActorTurn?.clockMs).toBe(120000);
+    expect(decision.restoredActorTurn?.bargeInOutcome).toBeNull();
+    expect(decision.restoredActorTurn?.interruptionId).toBeNull();
+    expect(decision.restoredActorTurn?.cancelledModalities).toEqual([]);
+  });
+
+  it("dedupes already-emitted durable event refs preserving first-seen order", () => {
+    const ref = `durable://station-runs/${stationA}/events/7`;
+    const decision = resumeAssembledExam({
+      form: form(),
+      timingPlan: timingPlan(),
+      projection: projection(),
+      interruptedActorTurns: [{ ...interruptedTurn(), emittedDurableEventRefs: [ref, ref] }],
+    });
+
+    expect(decision.restoredActorTurn?.alreadyEmittedDurableEventRefs).toEqual([ref]);
+  });
 });

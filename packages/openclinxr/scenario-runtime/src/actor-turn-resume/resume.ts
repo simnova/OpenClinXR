@@ -38,11 +38,23 @@ export type RestoredActorTurn = {
   clockMs: number;
   turnId: string | null;
   planId: string | null;
-  bargeInOutcome: BargeInOutcome;
-  interruptionId: string;
+  bargeInOutcome: BargeInOutcome | null;
+  interruptionId: string | null;
   cancelledModalities: readonly string[];
   alreadyEmittedDurableEventRefs: readonly string[];
 };
+
+function dedupeRefs(refs: readonly string[] | undefined): readonly string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const ref of refs ?? []) {
+    if (!seen.has(ref)) {
+      seen.add(ref);
+      out.push(ref);
+    }
+  }
+  return Object.freeze(out);
+}
 
 function requireNonblank(value: string, fieldName: string): string {
   if (value.trim().length === 0) {
@@ -115,14 +127,29 @@ export function restoreInterruptedActorTurn(
     ...(current.planId !== undefined ? { planId: current.planId } : {}),
   };
   const bargeIn = current.bargeIn;
+  const alreadyEmittedDurableEventRefs = dedupeRefs(current.emittedDurableEventRefs);
+  if (bargeIn === undefined) {
+    return Object.freeze({
+      actorId: current.actorId,
+      conversationTurn: current.conversationTurn,
+      startedAtSecond: current.startedAtSecond,
+      clockMs: current.startedAtSecond * 1000,
+      turnId: current.turnId ?? null,
+      planId: current.planId ?? null,
+      bargeInOutcome: null,
+      interruptionId: null,
+      cancelledModalities: Object.freeze([]),
+      alreadyEmittedDurableEventRefs,
+    });
+  }
   const policy = createDefaultConversationPolicy();
   const resolution = policy.resolveLearnerBargeIn(inProgress, {
-    atSecond: bargeIn?.atSecond ?? current.startedAtSecond,
+    atSecond: bargeIn.atSecond,
     stationRunId: current.stationRunId,
-    ...(bargeIn?.atMs !== undefined ? { atMs: bargeIn.atMs } : {}),
-    ...(bargeIn?.interruptionId !== undefined ? { interruptionId: bargeIn.interruptionId } : {}),
+    ...(bargeIn.atMs !== undefined ? { atMs: bargeIn.atMs } : {}),
+    ...(bargeIn.interruptionId !== undefined ? { interruptionId: bargeIn.interruptionId } : {}),
     ...(current.turnId !== undefined ? { turnId: current.turnId } : {}),
-    ...(bargeIn?.learnerUtterance !== undefined ? { learnerUtterance: bargeIn.learnerUtterance } : {}),
+    ...(bargeIn.learnerUtterance !== undefined ? { learnerUtterance: bargeIn.learnerUtterance } : {}),
   });
 
   return Object.freeze({
@@ -135,6 +162,6 @@ export function restoreInterruptedActorTurn(
     bargeInOutcome: resolution.outcome,
     interruptionId: resolution.interruptionId,
     cancelledModalities: Object.freeze([...(resolution.cancellationDirective?.cancelModalities ?? [])]),
-    alreadyEmittedDurableEventRefs: Object.freeze([...(current.emittedDurableEventRefs ?? [])]),
+    alreadyEmittedDurableEventRefs,
   });
 }
