@@ -51,6 +51,10 @@ export type AssembledExamStationEvidenceInput = {
   stationRunId: string;
   scenarioId: string;
   stationOrder: number;
+  encounterBundle?: {
+    bundleId: string;
+    contentIdentity: string;
+  };
   requiredTraceTags: readonly string[];
   timeCriticalTraceTagThresholds?: Readonly<Record<string, number>>;
   traceEvents: readonly AssembledExamReviewTraceInput[];
@@ -66,6 +70,12 @@ export type BuildAssembledExamReviewPacketInput = {
   examRunId: string;
   learnerId?: string;
   stations: readonly AssembledExamStationEvidenceInput[];
+  encounterBundlePins?: readonly {
+    stationOrder: number;
+    scenarioId: string;
+    bundleId: string;
+    contentIdentity: string;
+  }[];
 };
 
 export type AssembledExamAuthoredScenarioIdentity = {
@@ -105,6 +115,15 @@ export type AssembledExamStationReviewSlice = {
   omissions: readonly string[];
   patientNoteSubmitted: boolean;
   phaseTransitions: readonly AssembledExamPhaseTransitionRecord[];
+  encounterBundle: {
+    pinnedBundleId: string | null;
+    pinnedContentIdentity: string | null;
+    runtimeBundleId: string | null;
+    runtimeContentIdentity: string | null;
+    bound: boolean;
+    mismatch: "missing_runtime_bundle" | "substituted_bundle" | "cross_station_bundle" | null;
+    omissions: readonly string[];
+  };
   reviewPacket: ReviewPacketWithEmotionTimeline;
 };
 
@@ -134,10 +153,12 @@ export function buildAssembledExamReviewPacket(
   rejectMalformedPhaseTransitions(input);
   rejectDuplicateSequences(input);
   rejectOutOfOrderTraceEvents(input);
+  rejectSubstitutedOrMissingEncounterBundles(input);
+  const bundlePins = indexEncounterBundlePins(input);
 
   const stations = [...input.stations]
     .sort((left, right) => left.stationOrder - right.stationOrder)
-    .map((station) => projectStationSlice(input.examRunId, station));
+    .map((station) => projectStationSlice(input.examRunId, station, bundlePins));
 
   const examTimeline = stations.flatMap((station) =>
     examTimelineForStation(station),
@@ -159,6 +180,7 @@ export function buildAssembledExamReviewPacket(
 function projectStationSlice(
   examRunId: string,
   station: AssembledExamStationEvidenceInput,
+  bundlePins: ReadonlyMap<number, { bundleId: string; contentIdentity: string; scenarioId: string }>,
 ): AssembledExamStationReviewSlice {
   const packetInput: BuildReviewPacketInput = {
     stationRunId: station.stationRunId,
@@ -180,7 +202,8 @@ function projectStationSlice(
     .sort((left, right) => left.sequence - right.sequence);
   const advanceReason = station.advanceReason?.trim() ? station.advanceReason : null;
   const blockers = [...(station.blockers ?? [])];
-  const omissions = stationOmissions(station, reviewPacket, phaseTransitions, advanceReason);
+  const encounterBundle = bindStationEncounterBundle(station, bundlePins);
+  const omissions = stationOmissions(station, reviewPacket, phaseTransitions, advanceReason, encounterBundle);
 
   return {
     identity: {
@@ -194,6 +217,7 @@ function projectStationSlice(
     omissions,
     patientNoteSubmitted: Boolean(reviewPacket.patientNote) || hasNoteSubmitted(station),
     phaseTransitions,
+    encounterBundle,
     reviewPacket,
   };
 }
@@ -230,6 +254,7 @@ function stationOmissions(
   reviewPacket: ReviewPacketWithEmotionTimeline,
   phaseTransitions: readonly AssembledExamPhaseTransitionRecord[],
   advanceReason: string | null,
+  encounterBundle: AssembledExamStationReviewSlice["encounterBundle"],
 ): string[] {
   const presentTypes = new Set(phaseTransitions.map((event) => event.eventType));
   const omissions: string[] = [];
@@ -258,7 +283,142 @@ function stationOmissions(
   if (station.traceEvents.some((event) => hasActorTurnPayload(event)) && plannedKeys.size === 0) {
     omissions.push("missing_actor_turn_provenance");
   }
+  for (const omission of encounterBundle.omissions) {
+    omissions.push(omission);
+  }
   return uniquePreserve(omissions);
+}
+
+type EncounterBundlePin = {
+  bundleId: string;
+  contentIdentity: string;
+  scenarioId: string;
+};
+
+function indexEncounterBundlePins(
+  input: BuildAssembledExamReviewPacketInput,
+): ReadonlyMap<number, EncounterBundlePin> {
+  const pins = input.encounterBundlePins ?? [];
+  const byStationOrder = new Map<number, EncounterBundlePin>();
+  for (const pin of pins) {
+    if (!isPositiveInteger(pin.stationOrder) || byStationOrder.has(pin.stationOrder)) {
+      fail("requires positive unique integer stationOrder");
+    }
+    if (pin.bundleId.trim().length === 0 || pin.contentIdentity.trim().length === 0) {
+      fail("rejects substituted or missing encounter bundle");
+    }
+    byStationOrder.set(pin.stationOrder, {
+      bundleId: pin.bundleId,
+      contentIdentity: pin.contentIdentity,
+      scenarioId: pin.scenarioId,
+    });
+  }
+  return byStationOrder;
+}
+
+function bindStationEncounterBundle(
+  station: AssembledExamStationEvidenceInput,
+  bundlePins: ReadonlyMap<number, EncounterBundlePin>,
+): AssembledExamStationReviewSlice["encounterBundle"] {
+  const pinned = bundlePins.get(station.stationOrder);
+  const runtimeBundleId = station.encounterBundle?.bundleId ?? null;
+  const runtimeContentIdentity = station.encounterBundle?.contentIdentity ?? null;
+  if (bundlePins.size === 0) {
+    return {
+      pinnedBundleId: null,
+      pinnedContentIdentity: null,
+      runtimeBundleId,
+      runtimeContentIdentity,
+      bound: runtimeBundleId !== null && runtimeContentIdentity !== null,
+      mismatch: null,
+      omissions: [],
+    };
+  }
+  const pinnedBundleId = pinned?.bundleId ?? null;
+  const pinnedContentIdentity = pinned?.contentIdentity ?? null;
+  if (!pinned) {
+    return {
+      pinnedBundleId,
+      pinnedContentIdentity,
+      runtimeBundleId,
+      runtimeContentIdentity,
+      bound: false,
+      mismatch: "missing_runtime_bundle",
+      omissions: ["missing_encounter_bundle_pin"],
+    };
+  }
+  if (!runtimeBundleId || !runtimeContentIdentity) {
+    return {
+      pinnedBundleId,
+      pinnedContentIdentity,
+      runtimeBundleId,
+      runtimeContentIdentity,
+      bound: false,
+      mismatch: "missing_runtime_bundle",
+      omissions: ["missing_encounter_bundle_evidence"],
+    };
+  }
+  if (pinned.scenarioId !== station.scenarioId) {
+    return {
+      pinnedBundleId,
+      pinnedContentIdentity,
+      runtimeBundleId,
+      runtimeContentIdentity,
+      bound: false,
+      mismatch: "cross_station_bundle",
+      omissions: ["cross_station_encounter_bundle"],
+    };
+  }
+  const otherPinBundleIds = new Set<string>();
+  for (const [order, pin] of bundlePins) {
+    if (order !== station.stationOrder) {
+      otherPinBundleIds.add(pin.bundleId);
+    }
+  }
+  if (otherPinBundleIds.has(runtimeBundleId) && runtimeBundleId !== pinnedBundleId) {
+    return {
+      pinnedBundleId,
+      pinnedContentIdentity,
+      runtimeBundleId,
+      runtimeContentIdentity,
+      bound: false,
+      mismatch: "cross_station_bundle",
+      omissions: ["cross_station_encounter_bundle"],
+    };
+  }
+  if (runtimeBundleId !== pinnedBundleId || runtimeContentIdentity !== pinnedContentIdentity) {
+    return {
+      pinnedBundleId,
+      pinnedContentIdentity,
+      runtimeBundleId,
+      runtimeContentIdentity,
+      bound: false,
+      mismatch: "substituted_bundle",
+      omissions: ["substituted_encounter_bundle"],
+    };
+  }
+  return {
+    pinnedBundleId,
+    pinnedContentIdentity,
+    runtimeBundleId,
+    runtimeContentIdentity,
+    bound: true,
+    mismatch: null,
+    omissions: [],
+  };
+}
+
+function rejectSubstitutedOrMissingEncounterBundles(input: BuildAssembledExamReviewPacketInput): void {
+  const bundlePins = indexEncounterBundlePins(input);
+  if (bundlePins.size > 0 && bundlePins.size !== input.stations.length) {
+    fail("rejects substituted or missing encounter bundle");
+  }
+  for (const station of input.stations) {
+    const binding = bindStationEncounterBundle(station, bundlePins);
+    if (bundlePins.size > 0 && !binding.bound) {
+      fail("rejects substituted or missing encounter bundle");
+    }
+  }
 }
 
 function rejectInvalidStationOrders(input: BuildAssembledExamReviewPacketInput): void {
