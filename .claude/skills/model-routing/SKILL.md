@@ -1,6 +1,6 @@
 ---
 name: model-routing
-description: "The operator's model ladders for worker agents and the superagent, with the fallback rule and the probe. Load BEFORE passing `model:` to dispatch(), before spawning any worker or subagent, before opening or resuming a superagent consult, and whenever a dispatch dies on a provider error. LADDER 2026-09-10: DeepSeek HOLD (402). Default worker is muse-spark-1 (contributor, vision OK). Fallback nemotron-lightning is free, less capable, text-only. grok-4.6 is escalate. ox-alpha 404-retired."
+description: "The operator's model ladders for worker agents and the superagent, with the fallback rule and the probe. Load BEFORE passing `model:` to dispatch(), before spawning any worker or subagent, before opening or resuming a superagent consult, and whenever a dispatch dies on a provider error. LADDER 2026-09-10: DeepSeek HOLD (402). Default worker is muse-spark-1 (contributor, vision OK). Fallback nemotron-ultra is free, text-only. grok-4.6 is escalate. ox-alpha 404-retired."
 when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 bytes, empty response, no_visible_content, stalled, unresponsive, step down a rung, dispatch a worker, pass a model, which model, spawn subagent, resume superagent, ox-alpha, deepseek, muse-spark, nemotron, grok-4.6, provider died, 402, model fell back, escalate model, worker model policy"
 ---
 
@@ -11,13 +11,13 @@ when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 byte
 > | rung | alias | when |
 > |---|---|---|
 > | **default** | `muse-spark-1` → `meta/muse-spark-1.3-contributor` | workers, scouts, plan, execute, vision (image OK) |
-> | **fallback** | `nemotron-lightning` | free, less capable, **text-only**. Needs `modelDowngradeReason` on write roles |
+> | **fallback** | `nemotron-ultra` | free, **text-only**. Needs `modelDowngradeReason` on write roles |
 > | **escalate** | `grok-4.6` | measured Muse failure / UNABLE |
 > | **HOLD** | all `deepseek-*` | 402 Insufficient Balance. Do not dispatch |
 >
 > Enforced in `GROK_WORKER_MODEL` / `GROK_WORKER_FALLBACK_MODEL`, `MODEL_RANK`,
 > `.grok/config.toml` `[subagents.models]`, and **USER** `~/.grok/config.toml` (live spawn bind).
-> Omit `model:` and policy fills `muse-spark-1`. Passing `nemotron-lightning` on a write role
+> Omit `model:` and policy fills `muse-spark-1`. Passing `nemotron-ultra` on a write role
 > without `modelDowngradeReason` throws.
 >
 > Historical DeepSeek-primary / ox-primary ladders below are WITHDRAWN for routing. Keep them

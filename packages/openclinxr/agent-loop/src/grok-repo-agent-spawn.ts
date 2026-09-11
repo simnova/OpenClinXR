@@ -439,7 +439,7 @@ export function buildGrokRepoAgentSpawnRegistry(input: {
       passed: agents
         .filter((a) => a.multimodal)
         .every((a) => a.model === GROK_WORKER_MODEL),
-      note: "Multimodal-reasoning must resolve to muse-spark-1 (vision OK). Never nemotron-lightning (text-only) or DeepSeek (HOLD 402). grok-4.6 is escalate only.",
+      note: "Multimodal-reasoning must resolve to muse-spark-1 (vision OK). Never nemotron (text-only) or DeepSeek (HOLD 402). grok-4.6 is escalate only.",
     },
   ];
 

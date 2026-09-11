@@ -55,7 +55,7 @@ general-purpose = true  # execution specialists (asset/xr/impl) after scoping
 
 [subagents.models]
 # Operator 2026-09-10: DeepSeek HOLD (402). Muse Spark contributor is the worker default
-# (image OK). Nemotron-lightning is the free, less-capable text fallback.
+# (image OK). Nemotron-ultra is the free text fallback.
 # USER ~/.grok/config.toml binds live children — keep it in sync with this block.
 explore = "muse-spark-1"
 plan = "muse-spark-1"

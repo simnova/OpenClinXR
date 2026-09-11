@@ -138,17 +138,17 @@ describe("dispatch-worker argv", () => {
     expect(buildArgv({ prompt: "x", model: "grok-4.5" })).toContain("grok-4.5");
   });
 
-  it("ranks nemotron-lightning below muse: a write role naming it needs modelDowngradeReason", () => {
+  it("ranks nemotron-ultra below muse: a write role naming it needs modelDowngradeReason", () => {
     expect(() =>
-      buildArgv({ prompt: "x", role: TEST_ROLE, model: "nemotron-lightning" }),
+      buildArgv({ prompt: "x", role: TEST_ROLE, model: "nemotron-ultra" }),
     ).toThrow(/DOWNGRADE with no modelDowngradeReason/);
     const argv = buildArgv({
       prompt: "x",
       role: TEST_ROLE,
-      model: "nemotron-lightning",
+      model: "nemotron-ultra",
       modelDowngradeReason: "free text-only fallback, less capable",
     });
-    expect(argv[argv.indexOf("--model") + 1]).toBe("nemotron-lightning");
+    expect(argv[argv.indexOf("--model") + 1]).toBe("nemotron-ultra");
   });
 
   it("treats muse-spark-1.3-contributor as in-policy with muse-spark-1 (same rank)", () => {

@@ -734,12 +734,13 @@ const DEFAULT_PROMPT_FILE_DIR = join(homedir(), ".grok", "dispatch-prompts");
  * already maps tier -> grok model; this is the ONE resolver, called from all five sites.
  *
  * A downgrade is a RANK, not "the default is wrong". Operator 2026-09-10: DeepSeek HOLD (402).
- * Grok policy default is muse-spark-1 (rank 1). Nemotron-lightning is free, less capable, rank 0
+ * Grok policy default is muse-spark-1 (rank 1). Nemotron-ultra is free, less capable, rank 0
  * — a write role naming it needs modelDowngradeReason. DeepSeek flash stays rank 0 so an explicit
  * HOLD-rung pass still trips the guard. Roleless path defaults to GROK_WORKER_MODEL.
  */
 const MODEL_RANK = new Map<string, number>([
   [GROK_WORKER_FALLBACK_MODEL, 0],
+  ["nemotron-lightning", 0],
   ["deepseek-v4-flash", 0],
   [GROK_WORKER_MODEL, 1],
   ["muse-spark-1.3-contributor", 1],

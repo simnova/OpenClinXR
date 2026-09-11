@@ -85,7 +85,7 @@ import { buildArgv } from "./dispatch-worker.js";
  *   - The Claude per-prompt directive (a separate, prose surface).
  *
  * ## FIXED (DeepSeek HOLD 2026-09-10)
- * Operator put DeepSeek on hold. Grok policy default is muse-spark-1; nemotron-lightning is
+ * Operator put DeepSeek on hold. Grok policy default is muse-spark-1; nemotron-ultra is
  * the free less-capable fallback (rank 0). Assertions (1)(5)(6) now pin muse-spark-1.
  * (2)(4) still use explicit deepseek-v4-flash as the ranked-0 downgrade probe.
  * Diagnosis tables above are immutable.
@@ -101,7 +101,7 @@ const WRITE_ROLE = "xr-systems-architect";
 /** fast_bounded -> muse-spark-1. Muse here is IN POLICY. */
 const SCOUT_ROLE = "openclaw-drift-police";
 const WORKER = "muse-spark-1";
-const FALLBACK = "nemotron-lightning";
+const FALLBACK = "nemotron-ultra";
 const FLASH = "deepseek-v4-flash";
 
 const modelOf = (argv: string[]): string | undefined => argv[argv.indexOf("--model") + 1];

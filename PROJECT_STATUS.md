@@ -20,7 +20,7 @@ parseable_sections: 6
 - DeepSeek (`deepseek-v4-flash` / `-pro` / vision-exp) HOLD: 402 Insufficient Balance. Do not dispatch.
 
 **LANDED this wake**
-- Agent routing: Grok workers / explore / plan / general-purpose → `muse-spark-1` (contributor, vision OK). Fallback `nemotron-lightning` (free, less capable, text-only; write roles need `modelDowngradeReason`). User `~/.grok/config.toml` `[subagents.models]` binds live children.
+- Agent routing: Grok workers / explore / plan / general-purpose → `muse-spark-1` (contributor, vision OK). Fallback `nemotron-ultra` (free, text-only; write roles need `modelDowngradeReason`). User `~/.grok/config.toml` `[subagents.models]` binds live children.
 
 **NEXT this wake:** dequeue with Muse default. Escalate `grok-4.6` only on measured Muse failure.
 
@@ -28,7 +28,7 @@ NOT TESTED: live DeepSeek recovery probe (HOLD until operator lifts it).
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**
-- Subagents / workers / wakes: `muse-spark-1` (default, vision OK) → `nemotron-lightning` (free text-only fallback) → `grok-4.6` (escalate).
+- Subagents / workers / wakes: `muse-spark-1` (default, vision OK) → `nemotron-ultra` (free text-only fallback) → `grok-4.6` (escalate).
 - DeepSeek is **HOLD** (402). Do not spawn `deepseek-v4-flash` / `-pro` / `-vision-exp`.
 - `ox-alpha` is **retired** (404). Do not spawn it.
 - USER `~/.grok/config.toml` `[subagents.models]` is the live spawn bind (project config does not merge that section).

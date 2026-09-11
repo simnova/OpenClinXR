@@ -99,7 +99,7 @@ export const GROK_TIER_LADDER: GrokTierSpec[] = [
   },
   {
     tierId: "tier1_deepseek_flash_scout",
-    label: "Muse Spark scout (DeepSeek HOLD; nemotron-lightning is free text-only fallback)",
+    label: "Muse Spark scout (DeepSeek HOLD; nemotron-ultra is free text fallback)",
     model: GROK_WORKER_MODEL,
     grokSubagentType: "explore",
     preferredSurface: "grok_native_spawn_subagent",

@@ -43,7 +43,7 @@ describe("grok tier routing", () => {
     const bad = validateGrokHarnessTierConfig(`[subagents.models]\nexplore = "grok-build"\n`);
     expect(bad.ok).toBe(false);
     const fallbackExplore = validateGrokHarnessTierConfig(`[subagents.models]
-explore = "nemotron-lightning"
+explore = "nemotron-ultra"
 plan = "muse-spark-1"
 # grok-tier-routing
 `);

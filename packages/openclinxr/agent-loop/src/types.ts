@@ -191,6 +191,7 @@ export type BackgroundAgentModelName =
   | "gpt-5.4"
   | "gpt-5.5"
   | "muse-spark-1"
+  | "nemotron-ultra"
   | "nemotron-lightning"
   | "deepseek-v4-flash"
   | "deepseek-v4-pro"

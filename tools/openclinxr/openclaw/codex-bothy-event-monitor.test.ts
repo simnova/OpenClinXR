@@ -460,7 +460,7 @@ describe("codex-bothy-event-monitor", () => {
     expect(prompt).toContain("bothy-board skill");
     expect(prompt).toContain("at most 3");
     expect(prompt).toContain("muse-spark-1");
-    expect(prompt).toContain("nemotron-lightning");
+    expect(prompt).toContain("nemotron-ultra");
     expect(prompt).toContain("DeepSeek HOLD");
     expect(prompt).toContain("Owner-only operations are create, plant, cancel");
     expect(prompt).toContain("Independently verify");

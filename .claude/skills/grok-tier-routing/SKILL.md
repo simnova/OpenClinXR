@@ -37,7 +37,7 @@ See: `agentic-eval/docs/CONFIDENCE.md`, `docs/findings/{personas,agent-defs,hook
 | Tier | Model | Surface | Role |
 | --- | --- | --- | --- |
 | 0 | none (local) | `local_repo_agent_consult` | Zero-cost charter/memory consult |
-| 1 | `muse-spark-1` (fallback `nemotron-lightning`) | `spawn_subagent` **explore** (read-only) | Scout / coordinator consult. DeepSeek HOLD 2026-09-10 |
+| 1 | `muse-spark-1` (fallback `nemotron-ultra`) | `spawn_subagent` **explore** (read-only) | Scout / coordinator consult. DeepSeek HOLD 2026-09-10 |
 | 2 | `muse-spark-1` | `spawn_subagent` **plan** (read-only) | Bounded analysis / sequencing |
 | 3 | `muse-spark-1` | `spawn_subagent` **general-purpose** (read-write) | Disjoint bounded execution |
 | 4 | `grok-composer-*` | Composer main thread | Integration, lease, state files |

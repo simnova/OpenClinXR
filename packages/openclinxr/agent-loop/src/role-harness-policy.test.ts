@@ -27,7 +27,7 @@ import {
 describe("role-harness-policy", () => {
   it("holds DeepSeek and defaults Grok workers to muse-spark-1 with nemotron fallback", () => {
     expect(GROK_WORKER_MODEL).toBe("muse-spark-1");
-    expect(GROK_WORKER_FALLBACK_MODEL).toBe("nemotron-lightning");
+    expect(GROK_WORKER_FALLBACK_MODEL).toBe("nemotron-ultra");
   });
 
   it("maps active repo roles to differentiated tiers and sandboxes", () => {

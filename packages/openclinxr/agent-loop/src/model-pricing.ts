@@ -57,14 +57,24 @@ export const MODEL_PRICE_ROWS: readonly ModelPriceRow[] = [
     note: "Grok worker default alias muse-spark-1 (DeepSeek HOLD 2026-09-10). Contributor data-use: prompts/outputs may train Meta models — synthetic SP only.",
   },
   {
+    id: "nemotron-ultra",
+    match: ["nemotron-ultra", "nemotron", "nvidia/nemotron-3-ultra-550b-a55b:free"],
+    inputPer1M: 0,
+    outputPer1M: 0,
+    blendedPer1M: 0,
+    asOf: "2026-09-10",
+    source: "https://openrouter.ai/nvidia/nemotron-3-ultra-550b-a55b:free",
+    note: "Free text fallback (Grok GROK_WORKER_FALLBACK_MODEL). Stronger than Lightning. Not vision. Write roles need modelDowngradeReason.",
+  },
+  {
     id: "nemotron-lightning",
-    match: ["nemotron-lightning", "nemotron", "nvidia/nemotron-3.5-lightning:free"],
+    match: ["nemotron-lightning", "nvidia/nemotron-3.5-lightning:free"],
     inputPer1M: 0,
     outputPer1M: 0,
     blendedPer1M: 0,
     asOf: "2026-09-10",
     source: "https://openrouter.ai/nvidia/nemotron-3.5-lightning:free",
-    note: "Free, less capable, text-only. Grok worker fallback. Not write-role default; not vision.",
+    note: "Free, weaker than Ultra, text-only. Optional scout. Not write-role default; not vision.",
   },
   // --- DeepSeek 4 (HOLD 2026-09-10; chat/reasoner aliases deprecated 2026-07-24) ---
   {

@@ -30,7 +30,7 @@ export type HarnessModelSpec = {
 };
 
 export const GROK_WORKER_MODEL = "muse-spark-1";
-export const GROK_WORKER_FALLBACK_MODEL = "nemotron-lightning";
+export const GROK_WORKER_FALLBACK_MODEL = "nemotron-ultra";
 
 export type RolePathScope = {
   /** Globs relative to repo root — agent may EDIT these */

@@ -226,7 +226,7 @@ export function buildWakePrompt(
     "Poll addressed mailbox task IDs first and operate fail-closed. Treat sync as a non-mutating hint only: it currently ignores projectId, so filter tasks strictly to OpenClinXR projectId prj_9b390b99b443a964 and never infer absence from sync. Call tasks.next only when actually dequeuing work.",
     "Board authority: you may post mailbox replies and update worker review/blocked/release/treatments status. Owner-only operations are create, plant, cancel, grade, fields, concurrency, and tasks.proofs.set; do not perform those without explicit owner scope.",
     `Fan out at most ${maxFanout} independent, non-overlapping, valid Planted cards after checking immutable bodies, write roots, RED/TREE contracts, and acquiring the repository lease.`,
-    "Dispatch implementation workers to muse-spark-1 (DeepSeek HOLD). Use nemotron-lightning only as a free text-only fallback with modelDowngradeReason. Muse Spark has vision — do not route image work to nemotron. Luna is the Codex-native coordinator/triage fallback.",
+    "Dispatch implementation workers to muse-spark-1 (DeepSeek HOLD). Use nemotron-ultra only as a free text fallback with modelDowngradeReason. Muse Spark has vision — do not route image work to nemotron. Luna is the Codex-native coordinator/triage fallback.",
     "Independently verify each diff and proof before any owner-authorized tasks.proofs.set. Do not write canonical no-op state.",
     "Never use a Stop-hook continuation loop or codex exec resume.",
     `Sign any BothyBoard posts with ${selfMarker}.`,
