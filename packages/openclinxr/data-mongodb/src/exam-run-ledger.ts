@@ -73,8 +73,7 @@ type LedgerStore = { load(examRunId: string): Promise<LedgerDoc | null>; save(do
 
 const EPOCH_MS = Date.parse("2026-05-03T15:38:58.000Z");
 const PHASE_RANK = new Map<string, number>(ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES.map((eventType, index) => [eventType, index]));
-const durableRef = (stationRunId: string, sequence: number) =>
-  `durable://station-runs/${stationRunId}/events/${sequence}`;
+const durableRef = (stationRunId: string, sequence: number) => `durable://station-runs/${stationRunId}/events/${sequence}`;
 const cloneJson = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 const fp = (...parts: Array<string | number | boolean>) => parts.join("\0");
 
@@ -236,6 +235,9 @@ function applyPhaseEvent(doc: LedgerDoc, input: CanonicalPhaseEventAdmission) {
   if (existing) {
     if (eventFp(existing) !== eventFp(event)) throw stale(`sequence ${event.sequence} already admitted for stationRunId ${event.stationRunId}`);
     return { doc, event: existing, unchanged: true };
+  }
+  if (doc.stations.every((binding) => doc.phaseEvents.some((row) => row.stationRunId === binding.stationRunId && row.eventType === "station.advanced"))) {
+    throw new Error("exam run is finalized");
   }
   const prior = doc.phaseEvents.filter((row) => row.stationRunId === event.stationRunId)
     .sort((left, right) => (PHASE_RANK.get(left.eventType) ?? -1) - (PHASE_RANK.get(right.eventType) ?? -1));
