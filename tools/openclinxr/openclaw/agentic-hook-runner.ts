@@ -1,4 +1,6 @@
 import { execFileSync, spawnSync } from "node:child_process";
+import { mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
@@ -309,6 +311,134 @@ export function buildArchitectureStep(profile: HookProfile, changedFiles: string
   };
 }
 
+/**
+ * Caps a path-scoped architecture vitest at one worker so N parallel pre-commits
+ * do not each fan out across every core and blow the 30 s archConfig testTimeout.
+ * Known-good: the same suites pass in `pnpm architecture` (213/213) at rest.
+ */
+export const PATH_SCOPED_ARCHITECTURE_LOAD_FLAGS = ["--maxWorkers=1", "--no-file-parallelism"] as const;
+
+export const PATH_SCOPED_ARCHITECTURE_LOCK_NAME = "openclinxr-path-scoped-architecture.lock";
+
+export function isPathScopedArchitectureStep(step: HookStep): boolean {
+  return step.label.includes("path-scoped") && step.command.includes("vitest");
+}
+
+export function architectureScanSpawnCommand(step: HookStep): string[] {
+  if (!isPathScopedArchitectureStep(step)) {
+    return step.command;
+  }
+  const runAt = step.command.indexOf("run");
+  if (runAt === -1) {
+    return step.command;
+  }
+  return [...step.command.slice(0, runAt + 1), ...PATH_SCOPED_ARCHITECTURE_LOAD_FLAGS, ...step.command.slice(runAt + 1)];
+}
+
+type HookEnv = Record<string, string | undefined>;
+
+function errorCode(error: unknown): string | undefined {
+  if (typeof error !== "object" || error === null || !("code" in error)) {
+    return undefined;
+  }
+  const code = (error as { code: unknown }).code;
+  return typeof code === "string" ? code : undefined;
+}
+
+export function withArchitectureScanLoadEnv(step: HookStep, env: HookEnv): HookEnv {
+  if (!isPathScopedArchitectureStep(step)) {
+    return env;
+  }
+  return {
+    ...env,
+    VITEST_MAX_FORKS: "1",
+    VITEST_MAX_THREADS: "1",
+    VITEST_MIN_FORKS: "1",
+    VITEST_MIN_THREADS: "1",
+  };
+}
+
+function gitCommonDir(cwd: string): string {
+  return execFileSync("git", ["rev-parse", "--git-common-dir"], {
+    cwd,
+    encoding: "utf8",
+    env: gitEnvWithoutInheritedRepoVars(),
+  }).trim();
+}
+
+export function architectureHookLockPath(cwd: string = process.cwd()): string {
+  return join(gitCommonDir(cwd), PATH_SCOPED_ARCHITECTURE_LOCK_NAME);
+}
+
+function sleepSync(ms: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function processExists(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return errorCode(error) === "EPERM";
+  }
+}
+
+function architectureLockHolderAlive(lockPath: string): boolean {
+  try {
+    const firstLine = readFileSync(join(lockPath, "holder"), "utf8").split(/\r?\n/u)[0] ?? "";
+    const pid = Number.parseInt(firstLine, 10);
+    if (!Number.isFinite(pid) || pid <= 0) {
+      return false;
+    }
+    return processExists(pid);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Serializes path-scoped architecture scans across worktrees that share a git dir.
+ * mkdir is the atomic gate; a dead holder is stolen so a killed hook cannot wedge commits.
+ */
+export function withPathScopedArchitectureLock(fn: () => void, cwd: string = process.cwd()): void {
+  const lockPath = architectureHookLockPath(cwd);
+  for (;;) {
+    try {
+      mkdirSync(lockPath);
+      writeFileSync(join(lockPath, "holder"), `${process.pid}\n${Date.now()}\n`);
+      break;
+    } catch (error) {
+      if (errorCode(error) !== "EEXIST") {
+        throw error;
+      }
+      if (!architectureLockHolderAlive(lockPath)) {
+        try {
+          rmSync(lockPath, { recursive: true, force: true });
+        } catch {
+          // successor won the steal
+        }
+        continue;
+      }
+      try {
+        const ageMs = Date.now() - statSync(lockPath).mtimeMs;
+        if (ageMs > 10 * 60 * 1000) {
+          rmSync(lockPath, { recursive: true, force: true });
+          continue;
+        }
+      } catch {
+        continue;
+      }
+      console.log(`waiting for path-scoped architecture lock at ${lockPath}`);
+      sleepSync(250);
+    }
+  }
+  try {
+    fn();
+  } finally {
+    rmSync(lockPath, { recursive: true, force: true });
+  }
+}
+
 function pnpm(script: string): string[] {
   return ["pnpm", script];
 }
@@ -588,11 +718,12 @@ export function assertRepoUnchanged(before: string, after: string): void {
 
 function runStep(step: HookStep, index: number, total: number, profile: HookProfile): HookRunResult {
   const startedAt = performance.now();
+  const spawnCommand = architectureScanSpawnCommand(step);
   console.log(`\n[${index}/${total}] ${step.label}`);
   console.log(`reason: ${step.reason}`);
-  console.log(`cmd: ${formatCommand(step.command)}`);
+  console.log(`cmd: ${formatCommand(spawnCommand)}`);
 
-  const [command, ...args] = step.command;
+  const [command, ...args] = spawnCommand;
   if (!command) {
     throw new Error(`Hook step '${step.label}' has no command.`);
   }
@@ -604,15 +735,26 @@ function runStep(step: HookStep, index: number, total: number, profile: HookProf
   // to what THIS commit changes instead of the whole working tree. Pre-push and
   // strict keep the full-tree sweep: their architecture step is turbo `pnpm
   // architecture` and no staged-set scoping applies (#361).
-  const env = { ...process.env };
+  let env = { ...process.env };
   if (profile === "pre-commit" && step.label.startsWith("Architecture fitness rules")) {
     const staged = stagedFilesForPreCommit();
     if (staged.length > 0) {
       env.OPENCLINXR_HOOK_STAGED_FILES = staged.join("\n");
     }
   }
+  env = withArchitectureScanLoadEnv(step, env);
 
-  const result = spawnSync(command, args, { stdio: "inherit", env });
+  let result: ReturnType<typeof spawnSync> | undefined;
+  if (isPathScopedArchitectureStep(step)) {
+    withPathScopedArchitectureLock(() => {
+      result = spawnSync(command, args, { stdio: "inherit", env });
+    });
+  } else {
+    result = spawnSync(command, args, { stdio: "inherit", env });
+  }
+  if (result === undefined) {
+    throw new Error(`Hook step '${step.label}' released the architecture lock without spawning.`);
+  }
   const elapsedMs = performance.now() - startedAt;
   if (gitStateBefore !== null) {
     try {
