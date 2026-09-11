@@ -1,17 +1,7 @@
-import { buildSchema, type ExecutionResult, type GraphQLSchema, graphql } from "graphql";
-import { adminGraphqlFieldResolver, openClinXrAdminSchemaSdl } from "./schema.js";
+import { type ExecutionResult, graphql } from "graphql";
+import { adminGraphqlFieldResolver, buildAdminGraphqlSchema } from "./schema.js";
 
-export { type AdminGraphqlDocument, adminGraphqlDocumentByOperationName, adminGraphqlDocuments } from "./documents.js";
-export {
-  adminGraphqlFieldResolver,
-  FACULTY_DISPOSITION_CLAIM_BOUNDARY,
-  FACULTY_DISPOSITION_NOT_EVIDENCE_FOR,
-  openClinXrAdminSchemaSdl,
-  projectAppendFacultyDispositionResult,
-  projectFacultyDispositionTrail,
-  projectReviewPacketActorTurnLayers,
-  REVIEW_PACKET_ACTOR_TURN_CLAIM_SCOPE,
-} from "./schema.js";
+export { buildAdminGraphqlSchema, openClinXrAdminSchemaSdl } from "./schema.js";
 
 import type {
   AssetReadiness,
@@ -45,7 +35,7 @@ export {
 
 export type AdminGraphqlScenario = Scenario;
 
-export type GraphqlCodegenPlan = {
+type GraphqlCodegenPlan = {
   tool: "graphql-code-generator";
   configPath: string;
   schema: string;
@@ -58,7 +48,7 @@ export type GraphqlCodegenPlan = {
   guardrails: string[];
 };
 
-export type AdminGraphqlExecutionInput = {
+type AdminGraphqlExecutionInput = {
   query: string;
   variables?: Record<string, unknown>;
   operationName?: string;
@@ -108,10 +98,6 @@ export type AdminGraphqlRootValue = {
     args: MutationAppendAssembledExamFacultyDispositionArgs,
   ) => Promise<Record<string, unknown>> | Record<string, unknown>;
 };
-
-export function buildAdminGraphqlSchema(): GraphQLSchema {
-  return buildSchema(openClinXrAdminSchemaSdl);
-}
 
 export function executeAdminGraphql(input: AdminGraphqlExecutionInput, rootValue: AdminGraphqlRootValue): Promise<ExecutionResult> {
   return graphql({

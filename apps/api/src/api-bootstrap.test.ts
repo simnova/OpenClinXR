@@ -1,23 +1,19 @@
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
-import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
+import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
 import { createActorDialogueModelGateway } from "@openclinxr/model-gateway";
-import { pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
-import { describe, expect, it } from "vitest";
-import { toAdminGraphqlScenario } from "@openclinxr/rest";
-import {
+import { 
+  AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
+  authoredScenarioContentIdentity,
   createBunRealtimeVoiceGatewayPostureInputFromEnvironment,
   createBunServerConfig,
   createOpenClinXrApiProtocolPostureFromEnvironment,
-  readApiBunWebSocketRuntimeVerifiedFromEnvironment,
-} from "@openclinxr/rest";
+  readApiBunWebSocketRuntimeVerifiedFromEnvironment,toAdminGraphqlScenario, } from "@openclinxr/rest";
+import { pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
+import { describe, expect, it } from "vitest";
 import {
-  createOpenClinXrApiStartup,
   createNodeServerConfig,
+  createOpenClinXrApiStartup,
 } from "./api-bootstrap.js";
-import {
-  AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
-  authoredScenarioContentIdentity,
-} from "@openclinxr/rest";
 
 function startupReviewIdentity(): string {
   const graphqlScenario = toAdminGraphqlScenario(pediatricAsthmaScenario);

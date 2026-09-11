@@ -5,7 +5,7 @@ import {
 } from "@openclinxr/asset-registry";
 import { MPFB_GOWN_ADULT_PATIENT_GLB, PEDS_CHILD_GLB, PEDS_PARENT_GLB } from "@openclinxr/asset-registry/cast-asset-constants";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
-import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
+import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
 import { createActorDialogueModelGateway } from "@openclinxr/model-gateway";
 import { edChestPainScenario, pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
 import {

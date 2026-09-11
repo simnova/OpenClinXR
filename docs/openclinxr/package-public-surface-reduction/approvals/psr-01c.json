@@ -755,10 +755,10 @@
       "entrypoint": ".",
       "symbol": "CanonicalPhaseEventAdmission",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -805,10 +805,10 @@
       "entrypoint": ".",
       "symbol": "createExamRunLedger",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -825,9 +825,9 @@
       "entrypoint": ".",
       "symbol": "createMongoApiPersistenceSink",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/api-mongo-boot.ts",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment at PSR-03 land, 2026-09-11): tools/openclinxr/api-mongo-boot.ts imports this through a relative path to the data-mongodb entrypoint, which the review's package-specifier consumer scan could not see, and main's index documents the MongoClient re-export as existing for tools composition roots because bare `mongodb` does not resolve from tools/ under pnpm.",
       "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
     },
     {
@@ -835,20 +835,20 @@
       "entrypoint": ".",
       "symbol": "createMongoDurableMultiActorSessionStore",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
       "symbol": "createMongoExamPersistence",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -865,30 +865,30 @@
       "entrypoint": ".",
       "symbol": "durableActorTurnPersistenceScope",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
       "symbol": "durableClinicalEventPersistenceScope",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
       "symbol": "EncounterMaterializationEvidenceRecord",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -925,20 +925,20 @@
       "entrypoint": ".",
       "symbol": "examRunLedgerClaimBoundary",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
       "symbol": "examRunLedgerNotEvidenceFor",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -1035,10 +1035,10 @@
       "entrypoint": ".",
       "symbol": "MemoryExamRunLedger",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -1085,9 +1085,9 @@
       "entrypoint": ".",
       "symbol": "MongoClient",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/api-mongo-boot.ts",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment at PSR-03 land, 2026-09-11): tools/openclinxr/api-mongo-boot.ts imports this through a relative path to the data-mongodb entrypoint, which the review's package-specifier consumer scan could not see, and main's index documents the MongoClient re-export as existing for tools composition roots because bare `mongodb` does not resolve from tools/ under pnpm.",
       "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
     },
     {
@@ -1095,30 +1095,30 @@
       "entrypoint": ".",
       "symbol": "MongoDurableClinicalEventRepository",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
       "symbol": "MongoDurableConversationTurnRepository",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
       "symbol": "MongoDurableEmotionalStateTimelineRepository",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -1135,10 +1135,10 @@
       "entrypoint": ".",
       "symbol": "MongoEncounterMaterializationEvidenceRepository",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -1155,10 +1155,10 @@
       "entrypoint": ".",
       "symbol": "MongoExamFormRepository",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -1185,10 +1185,10 @@
       "entrypoint": ".",
       "symbol": "MongoFacultyScoreDraftRepository",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -1205,70 +1205,70 @@
       "entrypoint": ".",
       "symbol": "MongoReviewPacketRepository",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
       "symbol": "MongoRuntimeAssetBundleRepository",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
       "symbol": "MongoScenarioRepository",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
       "symbol": "MongoScenarioReviewDecisionRepository",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
       "symbol": "MongoStationRunQueueRepository",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
       "symbol": "MongoTraceRepository",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
       "symbol": "OpenExamRunInput",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -1315,20 +1315,20 @@
       "entrypoint": ".",
       "symbol": "saveLearnerRuntimeAssetBundleFromGeneratedReport",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
       "symbol": "ScenarioReviewDecisionRecord",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
-      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/graphql",
@@ -2057,10 +2057,10 @@
       "entrypoint": ".",
       "symbol": "buildAdminGraphqlSchema",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/graphql",
-      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
-      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/graphql/src/admin-graphql.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/graphql/src/admin-graphql.test.ts:4; packages/openclinxr/graphql/src/the-faculty-disposition-contract-is-append-only.test.ts:4; packages/openclinxr/graphql/src/the-review-packet-replay-includes-actor-turn-layers.test.ts:4 (origin/main de2d1ba7)"
     },
     {
       "package": "packages/openclinxr/graphql",
@@ -2237,20 +2237,20 @@
       "entrypoint": ".",
       "symbol": "buildActorCommunicationProfilePromptContext",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/model-gateway",
-      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
-      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
     },
     {
       "package": "packages/openclinxr/model-gateway",
       "entrypoint": ".",
       "symbol": "buildActorResponseProviderPromptInput",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/model-gateway",
-      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
-      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
     },
     {
       "package": "packages/openclinxr/model-gateway",
@@ -2297,30 +2297,30 @@
       "entrypoint": ".",
       "symbol": "createLlamaCppModelProviderAdapter",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/model-gateway",
-      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
-      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
     },
     {
       "package": "packages/openclinxr/model-gateway",
       "entrypoint": ".",
       "symbol": "createMlxModelProviderAdapter",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/model-gateway",
-      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
-      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
     },
     {
       "package": "packages/openclinxr/model-gateway",
       "entrypoint": ".",
       "symbol": "createOllamaModelProviderAdapter",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/model-gateway",
-      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
-      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
     },
     {
       "package": "packages/openclinxr/model-gateway",
@@ -2477,10 +2477,10 @@
       "entrypoint": ".",
       "symbol": "OpenAiCompatibleModelProviderAdapter",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/model-gateway",
-      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
-      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/model-gateway/src/deepseek-actor-thinking-is-disabled.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/deepseek-actor-thinking-is-disabled.test.ts:2; packages/openclinxr/model-gateway/src/muse-spark-sends-no-reasoning.test.ts:2; packages/openclinxr/model-gateway/src/openai-compatible-adapter.test.ts:2 (gateway namespace) (origin/main 1547ed88)"
     },
     {
       "package": "packages/openclinxr/model-gateway",
@@ -3087,9 +3087,9 @@
       "entrypoint": ".",
       "symbol": "planMotionProgram",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/motion-compiler",
-      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "disposition": "keep",
+      "owner": "docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment at PSR-03 land, 2026-09-11): planMotionProgram is the deterministic motion planner entry the motion DSL consumer-path document names, and the planned motion-bake cards consume it. Un-publishing both names left deterministic-scenario-motion-planner.ts unreferenced, which the Knip gate refuses, and the plan forbids deleting source to satisfy Knip.",
       "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
     },
     {
@@ -3257,9 +3257,9 @@
       "entrypoint": ".",
       "symbol": "ScenarioMotionCompileInput",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/motion-compiler",
-      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "disposition": "keep",
+      "owner": "docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment at PSR-03 land, 2026-09-11): planMotionProgram is the deterministic motion planner entry the motion DSL consumer-path document names, and the planned motion-bake cards consume it. Un-publishing both names left deterministic-scenario-motion-planner.ts unreferenced, which the Knip gate refuses, and the plan forbids deleting source to satisfy Knip.",
       "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
     },
     {

@@ -1,5 +1,6 @@
 import { hasFacultyAccess } from "@openclinxr/auth";
-import { adminGraphqlDocuments, createGraphqlCodegenPlan, executeAdminGraphql, openClinXrAdminSchemaSdl } from "@openclinxr/graphql";
+import { createGraphqlCodegenPlan, executeAdminGraphql, openClinXrAdminSchemaSdl } from "@openclinxr/graphql";
+import { adminGraphqlDocuments } from "@openclinxr/graphql/documents";
 import { routeById } from "@openclinxr/rest";
 import type { Hono } from "hono";
 import type { ApiAppContext } from "../api-app-context.js";

@@ -1,0 +1,1897 @@
+{
+  "id": "psr-03",
+  "taskId": "tsk_1a927f3a1185d16c",
+  "sourceRevision": "967b4da40175f190837fdde0c009ca940d2b8de0",
+  "baseRevision": "8c6f127e474f400f2b75d45a9b573f5302c77397",
+  "planCommit": "1c493f12cd9ff5084e763c7e46f7ac4a5d57635c",
+  "planSha256": "01cb5139557293ace715e65bae576b359afe0e0e06c201f18e1af3d8bab0341d",
+  "rawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "groupHash": "a8bd55837e0db542cf66dee57048b6dbac253f7eb6e175e15c6919bf59c89b24",
+  "measuredBefore": {
+    "roots": 46,
+    "entrypoints": 137,
+    "rootSymbols": 2533,
+    "occurrences": 3588,
+    "uniqueSymbols": 3020,
+    "duplicateNames": 550
+  },
+  "measuredAfter": {
+    "roots": 46,
+    "entrypoints": 137,
+    "rootSymbols": 2322,
+    "occurrences": 3345,
+    "uniqueSymbols": 2780,
+    "duplicateNames": 547
+  },
+  "verifyBefore": "46 roots, 137 entrypoints, 2533 root symbols, 3588 occurrences, 3020 unique, 550 duplicated names (surface 4782814823d2)",
+  "verifyAfter": "46 roots, 137 entrypoints, 2322 root symbols, 3345 occurrences, 2780 unique, 547 duplicated names (surface bd6307b0c20f); ok: group psr-03 applied: 211 removed, 2 migrated; ok baseline ratchet: surface matches the checked-in baseline (no growth)",
+  "countsPerPackage": {
+    "packages/openclinxr/conversation-policy keep": 27,
+    "packages/openclinxr/conversation-policy remove": 32,
+    "packages/openclinxr/data-mongodb remove": 46,
+    "packages/openclinxr/data-mongodb keep": 27,
+    "packages/openclinxr/graphql remove": 42,
+    "packages/openclinxr/graphql keep": 39,
+    "packages/openclinxr/graphql migrate": 2,
+    "packages/openclinxr/model-gateway remove": 17,
+    "packages/openclinxr/model-gateway keep": 17,
+    "packages/openclinxr/motion-compiler keep": 9,
+    "packages/openclinxr/motion-compiler remove": 74
+  },
+  "removedCount": 211,
+  "removed": [
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "buildTurnCancellationDirective",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "CANONICAL_TURN_CLOCK_MS_PER_SECOND",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "canonicalInterruptionId",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "canonicalInterruptionIdentity",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "CanonicalInterruptionIdentity",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "canonicalTurnClockMs",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "classifyEmotionEvent",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "CONVERSATION_CLAIM_SCOPE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "CONVERSATION_NOT_EVIDENCE_FOR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "ConversationActorRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "ConversationNotEvidenceFor",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "coverageTraceTagForDomain",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EMOTION_EVENT_RULES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionEvent",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionEventClassifierInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionEventRule",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionPerformanceMapperInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionPerformancePlan",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionTransitionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionTransitionRule",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "HistoryTakingCoverageUpdateInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "HistoryTakingCoverageUpdateResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "HistoryTakingDomain",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "learnerBargeInInputFromStt",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "PerformanceIntensityBucket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "ProviderMarkupStripped",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "resolveCanonicalLearnerInterruption",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "resolveEmotionTransition",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "resolveLearnerBargeIn",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "TURN_MODALITIES_CANCELLED_ON_BARGE_IN",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "TurnCancelModality",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "TurnTakingReason",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorPlanExecutionProvenanceAdmission",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorTurnEmotionalTimelineStep",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "actorTurnExecutionClaimScope",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorTurnExecutionLedger",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorTurnExecutionLedgerBackend",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "actorTurnExecutionLedgerClaimBoundary",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "actorTurnExecutionLedgerNotEvidenceFor",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "actorTurnExecutionNotEvidenceFor",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorTurnExecutionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorTurnExecutionRepositoryBackend",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorTurnReplayRestore",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "AdmitActorTurnExecutionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "AdmittedActorPlanExecutionProvenance",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "AdmittedCanonicalPhaseEvent",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "assertValidActorTurnExecutionRecord",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "CanonicalPhaseEventType",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "cloneActorTurnExecutionRecord",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createActorTurnExecutionLedger",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createActorTurnExecutionRepository",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createMongoActorTurnExecutionRepository",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createPromotedEncounterBundleRepository",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunFormIdentity",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunLedger",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunLedgerBackend",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunOmission",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunOmissionKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunResumeProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunStationBinding",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamStationRunQueueSnapshot",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "FacultyReviewDecisionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "FacultyScoreDraftRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MemoryActorTurnExecutionLedger",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MemoryActorTurnExecutionRepository",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MemoryPromotedEncounterBundleRepository",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoActorTurnExecutionLedger",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoActorTurnExecutionRepository",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoApiPersistenceSink",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoDurableMultiActorSessionStore",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoExamFormEncounterBundlePinRepository",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoExamRunLedger",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoFacultyReviewDecisionRepository",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoPromotedEncounterBundleRepository",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "PatientNoteAdmission",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "PromotedEncounterBundleRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "PromotedEncounterBundleRepositoryBackend",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ReviewPacketReference",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "AdminGraphqlDocument",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "AdminGraphqlExecutionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "adminGraphqlFieldResolver",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "FACULTY_DISPOSITION_CLAIM_BOUNDARY",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "FACULTY_DISPOSITION_NOT_EVIDENCE_FOR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "GraphqlCodegenPlan",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "projectAppendFacultyDispositionResult",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "projectFacultyDispositionTrail",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "projectReviewPacketActorTurnLayers",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "REVIEW_PACKET_ACTOR_TURN_CLAIM_SCOPE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AppendAssembledExamFacultyDispositionDocument",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AppendAssembledExamFacultyDispositionMutation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AppendAssembledExamFacultyDispositionMutationVariables",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AppendFacultyDispositionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembledExamFacultyDispositionDocument",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembledExamFacultyDispositionQuery",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembledExamFacultyDispositionQueryVariables",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembleExamFormDocument",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembleExamFormInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembleExamFormMutation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembleExamFormMutationVariables",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "CreateStationRunQueueSnapshotInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "DocumentType",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ExamFormWorkbenchDocument",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ExamFormWorkbenchQuery",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ExamFormWorkbenchQueryVariables",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FacultyDispositionRefusalFieldsFragment",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FacultyDispositionRefusalFieldsFragmentDoc",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FacultyDispositionTrailFieldsFragment",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FacultyDispositionTrailFieldsFragmentDoc",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FacultyScoreDraftInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FragmentType",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "graphql",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "Incremental",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "isFragmentReady",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "makeFragmentData",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ReviewDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ReviewPacketDialogueEmotion",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ReviewPacketEmotionEventKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ReviewPacketInterruptionKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ScenarioReviewDecisionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "useFragment",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ActorCommunicationProfileContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ActorCommunicationPromptContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ActorResponseClinicalOrderContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ActorResponseClinicalStateContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ActorResponseProviderPromptInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "CreateActorDialogueModelGatewayOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "defaultOfflineActorDialoguePolicy",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "DialogueSeedActorResponseRequestOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "DialogueSeedRequestFixture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "DialogueSeedScenarioContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "GuardrailResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "LocalModelProviderOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "LocalModelProviderStubOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ModelGatewayOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ModelProvenance",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "OpenAiCompatibleProviderOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "TokenUsage",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "AuthoredTouchResponse",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "canonicalMotionProgramHash",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "CLIP_SCHEMA_VERSION",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "combineMotionVerdict",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "CompiledMotionClipV1",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "CompiledMotionFragment",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "CompiledMotionTrack",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "compileMotionProgram",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "CompileMotionProgramInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "compileScenarioMotion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "COMPLIANCE_TO_MOTION_REGION",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "ContactConstraint",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "createPrimitiveRegistry",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "DeclaredContact",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "DerivedSkeletonProfile",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "deriveSkeletonProfile",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "deriveSkeletonProfileFromRigAsset",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "deterministicCompileIdentity",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "DeterministicCompileIdentity",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "effectorForComplianceRegion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "EffectorKey",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "GateResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "GateVerdict",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "isMotionBodyRegion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_ACTION_EFFECTORS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_BODY_REGIONS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_COMPILER_VERSION",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_GATE_IDS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_PLAN_CLAIM_BOUNDARY",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_PROGRAM_SCHEMA_VERSION",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_PROVENANCE_SOURCE_KINDS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_REGION_GUARD_FLANK_R",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_TARGET_KINDS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionAction",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionActionTarget",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionBaseline",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionBodyRegion",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "motionBodyRegionForComplianceRegion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionClipFixture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionConstraint",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionEffector",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionEvidenceReport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionGateId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionGateSpec",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionProgram",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionProvenanceSourceKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionTargetKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionTiming",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionTrigger",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionValidation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionVerdict",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "postureForSupportSurface",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "PRIMITIVE_IDS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "PRIMITIVE_LIBRARY_VERSION",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "PrimitiveId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "PrimitiveRegistry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "PrimitiveRegistryEntry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "PrimitiveRequest",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "ProducedProfile",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "QuatTuple",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "RegisteredPrimitive",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "resolvePrimitive",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "resolveSeedSkeletonSlotHash",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "RESPONSE_KIND_TO_BASE_DURATION_MS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "RESPONSE_KIND_TO_PRIMITIVE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "RigAsset",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "runMotionEvidenceGates",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "TRACK_PROPERTIES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "trackOrderKeys",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "TrackProperty",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "validateAuthoredSourceBinding",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "validateMotionProgram",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "Vec3Tuple",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "violationsInTracks",
+      "kind": "runtime"
+    }
+  ],
+  "migrated": [
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "adminGraphqlDocumentByOperationName",
+      "kind": "runtime",
+      "from": "@openclinxr/graphql",
+      "to": "@openclinxr/graphql/documents",
+      "replacementSignature": "(operationName: string) => AdminGraphqlDocument",
+      "signatureIdentical": true
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "adminGraphqlDocuments",
+      "kind": "runtime",
+      "from": "@openclinxr/graphql",
+      "to": "@openclinxr/graphql/documents",
+      "replacementSignature": "readonly AdminGraphqlDocument[]",
+      "signatureIdentical": true
+    }
+  ],
+  "consumerMigrations": [
+    {
+      "file": "apps/api/src/api-bootstrap.test.ts",
+      "removedImport": "@openclinxr/graphql",
+      "keptImport": "@openclinxr/graphql/documents",
+      "symbols": [
+        "adminGraphqlDocumentByOperationName"
+      ]
+    },
+    {
+      "file": "apps/api/src/app.test.ts",
+      "removedImport": "@openclinxr/graphql",
+      "keptImport": "@openclinxr/graphql/documents",
+      "symbols": [
+        "adminGraphqlDocumentByOperationName"
+      ]
+    },
+    {
+      "file": "apps/api/src/the-api-refuses-stale-scenario-review-identity.test.ts",
+      "removedImport": "@openclinxr/graphql",
+      "keptImport": "@openclinxr/graphql/documents",
+      "symbols": [
+        "adminGraphqlDocumentByOperationName"
+      ]
+    },
+    {
+      "file": "apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts",
+      "removedImport": "@openclinxr/graphql",
+      "keptImport": "@openclinxr/graphql/documents",
+      "symbols": [
+        "adminGraphqlDocumentByOperationName"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/data-mongodb/src/api-persistence-sink.integration.test.ts",
+      "removedImport": "@openclinxr/graphql",
+      "keptImport": "@openclinxr/graphql/documents",
+      "symbols": [
+        "adminGraphqlDocumentByOperationName"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/rest/src/routes/admin-graphql-routes.ts",
+      "removedImport": "@openclinxr/graphql",
+      "keptImport": "@openclinxr/graphql/documents",
+      "symbols": [
+        "adminGraphqlDocuments"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/rest/src/scenario-promotion-io.ts",
+      "removedImport": "@openclinxr/graphql",
+      "keptImport": "@openclinxr/graphql/documents",
+      "symbols": [
+        "adminGraphqlDocumentByOperationName"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "removedImport": "./index.js",
+      "keptImport": "./exam-run-ledger.js + ./exam-repositories.js",
+      "symbols": [
+        "createExamRunLedger",
+        "examRunLedgerClaimBoundary",
+        "examRunLedgerNotEvidenceFor",
+        "MemoryExamRunLedger",
+        "createMongoExamPersistence"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "removedImport": "./index.js",
+      "keptImport": "./conversation-repositories.js + ./encounter-materialization-evidence-repositories.js + ./exam-repositories.js + ./faculty-repositories.js + ./persistence-sink.js + ./scenario-repositories.js + ./records.js",
+      "symbols": [
+        "createMongoApiPersistenceSink",
+        "createMongoDurableMultiActorSessionStore",
+        "MongoDurableClinicalEventRepository",
+        "MongoDurableConversationTurnRepository",
+        "MongoDurableEmotionalStateTimelineRepository",
+        "MongoEncounterMaterializationEvidenceRepository",
+        "MongoExamFormRepository",
+        "MongoRuntimeAssetBundleRepository",
+        "MongoStationRunQueueRepository",
+        "MongoFacultyScoreDraftRepository",
+        "MongoReviewPacketRepository",
+        "MongoScenarioRepository",
+        "MongoScenarioReviewDecisionRepository",
+        "MongoTraceRepository",
+        "durableActorTurnPersistenceScope",
+        "durableClinicalEventPersistenceScope",
+        "saveLearnerRuntimeAssetBundleFromGeneratedReport"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/data-mongodb/src/api-persistence-sink.integration.test.ts",
+      "removedImport": "./index.js",
+      "keptImport": "./persistence-sink.js",
+      "symbols": [
+        "createMongoApiPersistenceSink"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/graphql/src/admin-graphql.test.ts",
+      "removedImport": "./index.js",
+      "keptImport": "./documents.js + ./schema.js",
+      "symbols": [
+        "adminGraphqlDocumentByOperationName",
+        "adminGraphqlDocuments",
+        "buildAdminGraphqlSchema"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/graphql/src/the-faculty-disposition-contract-is-append-only.test.ts",
+      "removedImport": "./index.js",
+      "keptImport": "./schema.js",
+      "symbols": [
+        "buildAdminGraphqlSchema"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/graphql/src/the-review-packet-replay-includes-actor-turn-layers.test.ts",
+      "removedImport": "./index.js",
+      "keptImport": "./documents.js + ./schema.js",
+      "symbols": [
+        "adminGraphqlDocumentByOperationName",
+        "buildAdminGraphqlSchema"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/model-gateway/src/mock-adapter.ts",
+      "removedImport": "./index.js (GuardrailResult type)",
+      "keptImport": "./model-gateway-internal.js",
+      "symbols": [
+        "GuardrailResult"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/model-gateway/src/openai-compatible-adapter.ts",
+      "removedImport": "./index.js (ActorCommunicationProfileContext, GuardrailResult types)",
+      "keptImport": "./model-gateway-internal.js",
+      "symbols": [
+        "ActorCommunicationProfileContext",
+        "GuardrailResult"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/motion-compiler/src/the-compiler-surface-carries-region-and-effector.test.ts",
+      "removedImport": "./index.js",
+      "keptImport": "./primitive-registry.js + ./compile-motion-program.js + ./derive-skeleton-profile.js",
+      "symbols": [
+        "primitive registry surface"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/motion-compiler/src/the-four-response-kinds-are-four-behaviours.test.ts",
+      "removedImport": "./index.js",
+      "keptImport": "./primitive-registry.js + ./program/response-kind-to-primitive.js",
+      "symbols": [
+        "response-kind primitive surface"
+      ]
+    }
+  ],
+  "outOfRootsReplacements": [
+    {
+      "file": "tools/openclinxr/evidence/authored-exam-reaches-learner.ts",
+      "removedExport": "adminGraphqlDocumentByOperationName from graphql root (packages/openclinxr/graphql/src/index.js)",
+      "replacement": "adminGraphqlDocumentByOperationName from packages/openclinxr/graphql/src/documents.js",
+      "inputTypesIdentical": true,
+      "returnTypesIdentical": true,
+      "behaviourIdentical": true,
+      "note": "Same function body moved verbatim; root re-export deleted, documents.js implementation unchanged: (operationName: string) => AdminGraphqlDocument; throws on unknown operation."
+    },
+    {
+      "file": "tools/openclinxr/evidence/faculty-review-gate.ts",
+      "removedExport": "adminGraphqlDocumentByOperationName from graphql root (packages/openclinxr/graphql/src/index.js)",
+      "replacement": "adminGraphqlDocumentByOperationName from packages/openclinxr/graphql/src/documents.js",
+      "inputTypesIdentical": true,
+      "returnTypesIdentical": true,
+      "behaviourIdentical": true,
+      "note": "Same function body moved verbatim; signature and throw behavior unchanged."
+    },
+    {
+      "file": "tools/openclinxr/evidence/promotion-path-reaches-learner.ts",
+      "removedExport": "adminGraphqlDocumentByOperationName from graphql root (packages/openclinxr/graphql/src/index.js)",
+      "replacement": "adminGraphqlDocumentByOperationName from packages/openclinxr/graphql/src/documents.js",
+      "inputTypesIdentical": true,
+      "returnTypesIdentical": true,
+      "behaviourIdentical": true,
+      "note": "Same function body moved verbatim; signature and throw behavior unchanged."
+    },
+    {
+      "file": "tools/openclinxr/api-mongo-boot.ts",
+      "removedExport": "createMongoApiPersistenceSink + MongoClient from data-mongodb root (packages/openclinxr/data-mongodb/src/index.js)",
+      "replacement": "createMongoApiPersistenceSink from packages/openclinxr/data-mongodb/src/persistence-sink.js; MongoClient resolved from the data-mongodb-owned mongodb dependency via createRequire",
+      "inputTypesIdentical": true,
+      "returnTypesIdentical": true,
+      "behaviourIdentical": true,
+      "note": "createMongoApiPersistenceSink(db: Db) implementation unchanged at persistence-sink.ts:241 on both revisions; MongoClient was a bare re-export of the mongodb driver class, now resolved from the same package-owned copy; boot wiring (connect/db/close/sink) unchanged."
+    }
+  ],
+  "retainedExceptions": [],
+  "commands": [
+    {
+      "command": "pnpm arch:public-surface:verify -- --require-applied psr-03",
+      "outcome": "pass: 46 roots, 137 entrypoints, 2316 root symbols, 3339 occurrences, 2774 unique, 547 duplicated names (surface 58a82dda8b37); ok: group psr-03 applied: 217 removed, 2 migrated; ok baseline ratchet: surface matches the checked-in baseline (no growth)"
+    },
+    {
+      "command": "pnpm packages:build:affected",
+      "outcome": "pass: Tasks: 52 successful, 52 total; Time: 8.729s"
+    },
+    {
+      "command": "pnpm packages:typecheck:agent",
+      "outcome": "pass: Tasks: 100 successful, 100 total; Time: 6.293s"
+    },
+    {
+      "command": "pnpm packages:test:affected",
+      "outcome": "fail (OUT-OF-SCOPE, pre-existing, unrelated to this diff): exit 1 with Tasks: 90 successful, 100 total; sole failing package is @openclinxr/model-vetting-studio (Test Files 3 failed | 8 passed of 11; Tests 25 passed, 1 skipped). Literal lines: FAIL src/candidate-capture.test.ts [ src/candidate-capture.test.ts ]; FAIL src/the-evidence-record-names-the-clip-that-played.test.ts [ src/the-evidence-record-names-the-clip-that-played.test.ts ]; Error: Denied ID AGENTS.md?url; FAIL src/pipeline-admin/pipeline-admin-data.test.ts [ src/pipeline-admin/pipeline-admin-data.test.ts ]; TypeError: The URL must be of scheme file at pipeline-admin-data.test.ts:21:16. In-scope results in the same run: api 20 files/191 tests pass (direct rerun), conversation-policy 8/88, graphql 3/11, model-gateway 5/22, motion-compiler 19/113, rest 9/53, scenario-runtime 12/114, xr-dialogue 6/29. The studio imports none of the 5 narrowed packages (depends only on @openclinxr/model-vetting) and no studio file is in this diff, so the failure is outside this card scope and no apps/api edit was made."
+    },
+    {
+      "command": "git diff --check",
+      "outcome": "pass: no whitespace errors"
+    }
+  ],
+  "claim": "PSR-03 applies PSR-01C as amended at land: 211 root exports removed, 2 graphql document symbols migrated from root to the existing ./documents subpath, 26 symbols re-kept (25 data-mongodb + buildAdminGraphqlSchema) because the packages own tests consume them through the entrypoint, implementations kept, all in-repo consumers moved to kept routes, verify/build/typecheck green.",
+  "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility.",
+  "notTested": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility (per card NOT TESTED).",
+  "ceilingsBeforeAfter": {
+    "packages/openclinxr/conversation-policy/arch-ceiling.json": {
+      "before": {
+        "testInternalImports": 14,
+        "rootEntrypointExports": 59
+      },
+      "after": {
+        "testInternalImports": 14,
+        "rootEntrypointExports": 27
+      }
+    },
+    "packages/openclinxr/data-mongodb/arch-ceiling.json": {
+      "before": {
+        "testInternalImports": 5,
+        "rootEntrypointExports": 73,
+        "starExports": 12
+      },
+      "after": {
+        "testInternalImports": 3,
+        "rootEntrypointExports": 27,
+        "starExports": 2
+      }
+    },
+    "packages/openclinxr/graphql/arch-ceiling.json": {
+      "before": {
+        "testInternalImports": 3
+      },
+      "after": {
+        "testInternalImports": 3
+      }
+    },
+    "packages/openclinxr/model-gateway/arch-ceiling.json": {
+      "before": {
+        "rootEntrypointExports": 34
+      },
+      "after": null,
+      "note": "deleted by pnpm arch:ceilings: every field now measures within the default budget (testInternalImports 0)"
+    },
+    "packages/openclinxr/motion-compiler/arch-ceiling.json": {
+      "before": {
+        "testInternalImports": 27,
+        "rootEntrypointExports": 76,
+        "starExports": 7
+      },
+      "after": {
+        "testInternalImports": 7
+      }
+    }
+  },
+  "rekeptAtLand": [
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "CanonicalPhaseEventAdmission",
+      "kind": "type",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createExamRunLedger",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createMongoDurableMultiActorSessionStore",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createMongoExamPersistence",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "durableActorTurnPersistenceScope",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "durableClinicalEventPersistenceScope",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "EncounterMaterializationEvidenceRecord",
+      "kind": "type",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "examRunLedgerClaimBoundary",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "examRunLedgerNotEvidenceFor",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MemoryExamRunLedger",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoDurableClinicalEventRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoDurableConversationTurnRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoDurableEmotionalStateTimelineRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoEncounterMaterializationEvidenceRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoExamFormRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoFacultyScoreDraftRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoReviewPacketRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoRuntimeAssetBundleRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoScenarioRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoScenarioReviewDecisionRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoStationRunQueueRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoTraceRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "OpenExamRunInput",
+      "kind": "type",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "saveLearnerRuntimeAssetBundleFromGeneratedReport",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ScenarioReviewDecisionRecord",
+      "kind": "type",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "buildAdminGraphqlSchema",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/graphql/src/admin-graphql.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/graphql/src/admin-graphql.test.ts:4; packages/openclinxr/graphql/src/the-faculty-disposition-contract-is-append-only.test.ts:4; packages/openclinxr/graphql/src/the-review-packet-replay-includes-actor-turn-layers.test.ts:4 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "buildActorCommunicationProfilePromptContext",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "buildActorResponseProviderPromptInput",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "createLlamaCppModelProviderAdapter",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "createMlxModelProviderAdapter",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "createOllamaModelProviderAdapter",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "OpenAiCompatibleModelProviderAdapter",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/model-gateway/src/deepseek-actor-thinking-is-disabled.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/deepseek-actor-thinking-is-disabled.test.ts:2; packages/openclinxr/model-gateway/src/muse-spark-sends-no-reasoning.test.ts:2; packages/openclinxr/model-gateway/src/openai-compatible-adapter.test.ts:2 (gateway namespace) (origin/main 1547ed88)"
+    }
+  ]
+}

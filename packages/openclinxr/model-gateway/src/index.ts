@@ -1,5 +1,17 @@
-import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@cellix/provider-contracts";
+import { type ProviderHealth, validateProviderHealth } from "@cellix/provider-contracts";
+import { cloneActorCommunicationProfile } from "./actor-prompt.js";
 import { MockModelProviderAdapter } from "./mock-adapter.js";
+import type {
+  ActorCommunicationProfileContext,
+  ActorResponseClinicalStateContext,
+  CreateActorDialogueModelGatewayOptions,
+  DialogueSeedActorResponseRequestOptions,
+  DialogueSeedRequestFixture,
+  DialogueSeedScenarioContext,
+  LocalModelProviderOptions,
+  ModelGatewayOptions,
+  ModelProvenance,
+} from "./model-gateway-internal.js";
 import { OpenAiCompatibleModelProviderAdapter } from "./openai-compatible-adapter.js";
 
 export type ModelCapability = "actor_response" | "scenario_draft" | "scenario_review";
@@ -8,60 +20,6 @@ export type ModelRequestPolicy = {
   requestPolicyId: string;
   promptTemplateId: string;
   safetyPolicyVersion: string;
-};
-
-export type ActorResponseClinicalOrderContext = {
-  orderId: string;
-  traceTag: string;
-  label: string;
-  actorId: string;
-  atSecond: number;
-  status: "requested" | "completed" | "cancelled";
-};
-
-export type ActorResponseClinicalStateContext = {
-  completedTraceTags: string[];
-  openOrders: ActorResponseClinicalOrderContext[];
-};
-
-export type DialogueSeedRequestFixture = {
-  seedId: string;
-  actorId: string;
-  learnerUtterance: string;
-  visibleFacts: readonly string[];
-  hiddenFactCanaries: readonly string[];
-  expectedTraceTags: readonly string[];
-};
-
-export type DialogueSeedScenarioContext = {
-  scenarioId: string;
-  version: number;
-  actors: ReadonlyArray<{
-    actorId: string;
-    displayName: string;
-    role: string;
-    communicationProfile?: ActorCommunicationProfileContext;
-  }>;
-};
-
-export type ActorCommunicationProfileContext = {
-  styleFamily: string;
-  style: string;
-  intensity: number;
-  baselineMood: readonly string[];
-  communicativeness: string;
-  topicsToAvoid: readonly string[];
-  adverseResponse: string;
-  deescalationTriggers: readonly string[];
-  escalationTriggers: readonly string[];
-  culturalLanguageNotes: readonly string[];
-};
-
-export type DialogueSeedActorResponseRequestOptions = {
-  stationRunId?: string;
-  policy?: ModelRequestPolicy;
-  retrievedMemoryIds?: readonly string[];
-  clinicalState?: ActorResponseClinicalStateContext;
 };
 
 export type ActorResponseRequest = {
@@ -83,57 +41,6 @@ export type ActorResponseRequest = {
   policy: ModelRequestPolicy;
 };
 
-export type ActorCommunicationPromptContext = {
-  actorId: string;
-  style: string;
-  context: string;
-};
-
-export type ActorResponseProviderPromptInput = {
-  requestId?: string;
-  stationRunId: string;
-  scenarioId: string;
-  scenarioVersion: number;
-  actorId: string;
-  actorDisplayName: string;
-  actorRole: string;
-  conversationTurn: number;
-  learnerUtterance: string;
-  visibleFacts: string[];
-  retrievedMemoryIds: string[];
-  traceContextTags: string[];
-  clinicalState: ActorResponseClinicalStateContext;
-  communicationContext?: ActorCommunicationPromptContext;
-  policy: ModelRequestPolicy;
-};
-
-export type TokenUsage = {
-  promptTokens: number;
-  completionTokens: number;
-  totalTokens: number;
-};
-
-export type GuardrailResult = {
-  status: "pass" | "blocked";
-  reason: string;
-};
-
-export type ModelProvenance = ProviderAuditRecord & {
-  requestPolicyId: string;
-  promptTemplateId: string;
-  scenarioId: string;
-  scenarioVersion: number;
-  actorId?: string;
-  actorCardVersion?: string;
-  retrievedMemoryIds: string[];
-  safetyPolicyVersion: string;
-  latencyMs: number;
-  tokenUsage: TokenUsage;
-  costEstimateUsd: number;
-  safetyStatus: GuardrailResult["status"];
-  guardrail: GuardrailResult;
-};
-
 export type ActorResponseResult = {
   text: string;
   responseKind: "spoken_actor_response" | "blocked_fallback";
@@ -147,11 +54,6 @@ export interface ModelProviderAdapter {
   health(): Promise<ProviderHealth>;
   generateActorResponse(input: ActorResponseRequest): Promise<ActorResponseResult>;
 }
-
-export type ModelGatewayOptions = {
-  adapters: ModelProviderAdapter[];
-  routeId: string;
-};
 
 export class ModelGateway {
   constructor(private readonly options: ModelGatewayOptions) {}
@@ -203,7 +105,7 @@ export function createDefaultModelGateway(options: ModelGatewayOptions): ModelGa
   return new ModelGateway(options);
 }
 
-export const defaultOfflineActorDialoguePolicy: ModelRequestPolicy = {
+const defaultOfflineActorDialoguePolicy: ModelRequestPolicy = {
   requestPolicyId: "actor-dialogue-offline-v1",
   promptTemplateId: "mock-actor-response-v1",
   safetyPolicyVersion: "clinical-simulation-safety-v1",
@@ -248,82 +150,6 @@ export function buildActorResponseRequestsForDialogueSeeds(
   });
 }
 
-export function buildActorCommunicationProfilePromptContext(
-  input: Pick<ActorResponseRequest, "actorId" | "actorDisplayName" | "actorRole" | "actorCommunicationProfile">,
-): ActorCommunicationPromptContext | undefined {
-  const profile = input.actorCommunicationProfile;
-  if (!profile) {
-    return undefined;
-  }
-
-  const context = [
-    `${input.actorDisplayName} is a simulated ${input.actorRole} actor.`,
-    `Communication style: ${profile.styleFamily}/${profile.style} at intensity ${profile.intensity.toFixed(2)}.`,
-    `Baseline mood: ${profile.baselineMood.join(", ")}.`,
-    `Communicativeness: ${profile.communicativeness}`,
-    `Avoid: ${profile.topicsToAvoid.join(", ")}.`,
-    `Adverse response: ${profile.adverseResponse}`,
-    `De-escalates when: ${profile.deescalationTriggers.join(", ")}.`,
-    `Escalates when: ${profile.escalationTriggers.join(", ")}.`,
-    `Cultural/language notes: ${profile.culturalLanguageNotes.join(", ")}.`,
-    "Do not reveal hidden facts unless the learner has appropriately elicited them through visible scenario context.",
-  ].join(" ");
-
-  return {
-    actorId: input.actorId,
-    style: profile.style,
-    context,
-  };
-}
-
-export function buildActorResponseProviderPromptInput(input: ActorResponseRequest): ActorResponseProviderPromptInput {
-  const communicationContext = buildActorCommunicationProfilePromptContext(input);
-  return {
-    ...(input.requestId ? { requestId: input.requestId } : {}),
-    stationRunId: input.stationRunId,
-    scenarioId: input.scenarioId,
-    scenarioVersion: input.scenarioVersion,
-    actorId: input.actorId,
-    actorDisplayName: input.actorDisplayName,
-    actorRole: input.actorRole,
-    conversationTurn: input.conversationTurn,
-    learnerUtterance: input.learnerUtterance,
-    visibleFacts: [...input.visibleFacts],
-    retrievedMemoryIds: [...input.retrievedMemoryIds],
-    traceContextTags: [...input.traceContextTags],
-    clinicalState: {
-      completedTraceTags: [...input.clinicalState.completedTraceTags],
-      openOrders: input.clinicalState.openOrders.map((order) => ({ ...order })),
-    },
-    ...(communicationContext ? { communicationContext } : {}),
-    policy: { ...input.policy },
-  };
-}
-
-function cloneActorCommunicationProfile(profile: ActorCommunicationProfileContext): ActorCommunicationProfileContext {
-  return {
-    styleFamily: profile.styleFamily,
-    style: profile.style,
-    intensity: profile.intensity,
-    baselineMood: [...profile.baselineMood],
-    communicativeness: profile.communicativeness,
-    topicsToAvoid: [...profile.topicsToAvoid],
-    adverseResponse: profile.adverseResponse,
-    deescalationTriggers: [...profile.deescalationTriggers],
-    escalationTriggers: [...profile.escalationTriggers],
-    culturalLanguageNotes: [...profile.culturalLanguageNotes],
-  };
-}
-
-export type LocalModelProviderOptions = {
-  providerId: string;
-  blockers?: string[];
-};
-
-export type LocalModelProviderStubOptions = {
-  blockers?: string[];
-};
-
 export class LocalModelProviderAdapter implements ModelProviderAdapter {
   readonly capabilities: ModelCapability[] = ["actor_response", "scenario_draft", "scenario_review"];
 
@@ -346,27 +172,6 @@ export class LocalModelProviderAdapter implements ModelProviderAdapter {
   }
 }
 
-export function createMlxModelProviderAdapter(options: LocalModelProviderStubOptions = {}): LocalModelProviderAdapter {
-  return new LocalModelProviderAdapter({
-    providerId: "local-mlx",
-    blockers: options.blockers ?? ["mlx_model_runtime_not_configured"],
-  });
-}
-
-export function createLlamaCppModelProviderAdapter(options: LocalModelProviderStubOptions = {}): LocalModelProviderAdapter {
-  return new LocalModelProviderAdapter({
-    providerId: "local-llama-cpp",
-    blockers: options.blockers ?? ["llama_cpp_model_runtime_not_configured"],
-  });
-}
-
-export function createOllamaModelProviderAdapter(options: LocalModelProviderStubOptions = {}): LocalModelProviderAdapter {
-  return new LocalModelProviderAdapter({
-    providerId: "local-ollama",
-    blockers: options.blockers ?? ["ollama_model_runtime_not_configured"],
-  });
-}
-
 const DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 const DEFAULT_OPENROUTER_MODEL = "stealth/ox-alpha";
 /** Cheapest live actor rung (OpenRouter contributor terms: prompts/outputs may train Meta models — synthetic SP only). */
@@ -374,24 +179,6 @@ const DEFAULT_MUSE_MODEL = "meta/muse-spark-1.3-contributor";
 const DEFAULT_LOCAL_LLAMA_MODEL = "qwen3-8b";
 const DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com";
 const DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash";
-
-export type CreateActorDialogueModelGatewayOptions = {
-  /** Route label for the composed gateway (health/error surface). */
-  routeId?: string;
-  /** DeepSeek key for actor dialogue. Defaults to `DEEPSEEK_API_KEY`; when absent the rung is omitted. */
-  deepseekApiKey?: string;
-  deepseekBaseUrl?: string;
-  deepseekModel?: string;
-  /** OpenRouter key for the Muse contributor + ox rungs. Defaults to `OPENROUTER_API_KEY`; when absent both are omitted. */
-  openRouterApiKey?: string;
-  openRouterBaseUrl?: string;
-  openRouterModel?: string;
-  /** Muse Spark contributor model id (OpenRouter). Defaults to `meta/muse-spark-1.3-contributor`; the rung is present whenever an OpenRouter key is. */
-  museSparkModel?: string;
-  /** Base URL of a local OpenAI-compatible server (llama-server). Defaults to `OPENCLINXR_LOCAL_LLAMA_BASE_URL`; when absent the rung is omitted. */
-  localBaseUrl?: string;
-  localModel?: string;
-};
 
 /**
  * Compose the actor-dialogue gateway the runtime uses by default: Muse Spark contributor
@@ -480,6 +267,15 @@ export function createActorDialogueModelGateway(
   });
 }
 
+/** Kept at the PSR-03 land: this package's own tests consume these through the entrypoint (approval psr-01c). */
+export {
+  buildActorCommunicationProfilePromptContext,
+  buildActorResponseProviderPromptInput,
+} from "./actor-prompt.js";
+export {
+  createLlamaCppModelProviderAdapter,
+  createMlxModelProviderAdapter,
+  createOllamaModelProviderAdapter,
+} from "./local-providers.js";
 export { MockModelProviderAdapter } from "./mock-adapter.js";
-export type { OpenAiCompatibleProviderOptions } from "./openai-compatible-adapter.js";
 export { OpenAiCompatibleModelProviderAdapter } from "./openai-compatible-adapter.js";

@@ -1,17 +1,17 @@
-import { describe, expect, it } from "vitest";
 import { resolveScenarioActorCast } from "@openclinxr/asset-registry";
 import { authoredCasePlacements } from "@openclinxr/asset-registry/case-actor-placements";
 import { bindInitialSceneContents } from "@openclinxr/asset-registry/initial-scene-contents";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
-import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
+import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
+import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "@openclinxr/rest";
 import {
   AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
   authoredScenarioContentIdentity,
   toAdminGraphqlScenario,
 } from "@openclinxr/rest";
-import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "@openclinxr/rest";
 import { scenarioBank } from "@openclinxr/scenario-fixtures";
 import type { Scenario } from "@openclinxr/shared-schemas";
+import { describe, expect, it } from "vitest";
 import { createApiApp } from "./index.js";
 
 /**

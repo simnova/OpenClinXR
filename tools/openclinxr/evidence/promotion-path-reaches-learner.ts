@@ -22,10 +22,10 @@
  * 4. Distinguishing field = title carrying ISSUE167_PROMOTION_SEAM_MARKER (#165 pattern).
  */
 
-import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "../../../packages/openclinxr/rest/src/api-types.js";
-import { createApiApp } from "../../../apps/api/src/index.js";
 import { resolveLearnerExamScenarios } from "@openclinxr/xr-scene";
-import { adminGraphqlDocumentByOperationName } from "../../../packages/openclinxr/graphql/src/index.js";
+import { createApiApp } from "../../../apps/api/src/index.js";
+import { adminGraphqlDocumentByOperationName } from "../../../packages/openclinxr/graphql/src/documents.js";
+import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "../../../packages/openclinxr/rest/src/api-types.js";
 import {
   pediatricAsthmaScenario,
   scenarioBank,

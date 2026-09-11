@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  OpenAiCompatibleModelProviderAdapter,
   type ActorResponseRequest,
+  OpenAiCompatibleModelProviderAdapter,
 } from "./index.js";
 
 /**

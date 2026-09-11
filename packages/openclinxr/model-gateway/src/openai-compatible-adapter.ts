@@ -1,13 +1,15 @@
 import type { ProviderHealth } from "@cellix/provider-contracts";
+import { isHiddenTruthExtractionAttempt } from "./hidden-truth-guardrail.js";
 import type {
-  ActorCommunicationProfileContext,
   ActorResponseRequest,
   ActorResponseResult,
-  GuardrailResult,
   ModelCapability,
   ModelProviderAdapter,
 } from "./index.js";
-import { isHiddenTruthExtractionAttempt } from "./hidden-truth-guardrail.js";
+import type {
+  ActorCommunicationProfileContext,
+  GuardrailResult,
+} from "./model-gateway-internal.js";
 
 /**
  * OpenAI-compatible chat_completions adapter for the model-gateway seam.

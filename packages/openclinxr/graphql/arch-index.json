@@ -3,26 +3,14 @@
   "name": "@openclinxr/graphql",
   "entrypoint": "packages/openclinxr/graphql/src/index.ts",
   "exports": [
-    "AdminGraphqlDocument",
-    "AdminGraphqlExecutionInput",
     "AdminGraphqlReviewDecision",
     "AdminGraphqlRootValue",
     "AdminGraphqlScenario",
     "AdminGraphqlScenarioStatus",
-    "FACULTY_DISPOSITION_CLAIM_BOUNDARY",
-    "FACULTY_DISPOSITION_NOT_EVIDENCE_FOR",
-    "GraphqlCodegenPlan",
-    "REVIEW_PACKET_ACTOR_TURN_CLAIM_SCOPE",
-    "adminGraphqlDocumentByOperationName",
-    "adminGraphqlDocuments",
-    "adminGraphqlFieldResolver",
     "buildAdminGraphqlSchema",
     "createGraphqlCodegenPlan",
     "executeAdminGraphql",
-    "openClinXrAdminSchemaSdl",
-    "projectAppendFacultyDispositionResult",
-    "projectFacultyDispositionTrail",
-    "projectReviewPacketActorTurnLayers"
+    "openClinXrAdminSchemaSdl"
   ],
   "workspaceDependencies": [],
   "tests": [

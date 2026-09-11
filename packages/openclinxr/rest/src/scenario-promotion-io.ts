@@ -7,12 +7,12 @@
  * as the first parameter.
  */
 
-import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
+import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
 import { scenarioBank } from "@openclinxr/scenario-fixtures";
 import type { Scenario } from "@openclinxr/shared-schemas";
+import { toAdminGraphqlScenario } from "./admin-scenario-listing.js";
 import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "./api-types.js";
 import { isRecord, reviewStatesFromRecord } from "./promotion-io-validation.js";
-import { toAdminGraphqlScenario } from "./admin-scenario-listing.js";
 import {
   AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
   authoredScenarioContentIdentity,

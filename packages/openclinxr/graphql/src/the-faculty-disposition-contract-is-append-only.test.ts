@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { GraphQLObjectType, GraphQLUnionType, parse, validate } from "graphql";
 import { describe, expect, it } from "vitest";
-import { buildAdminGraphqlSchema, executeAdminGraphql, type AdminGraphqlRootValue } from "./index.js";
+import { type AdminGraphqlRootValue, buildAdminGraphqlSchema, executeAdminGraphql } from "./index.js";
 import {
   FACULTY_DISPOSITION_CLAIM_BOUNDARY,
   FACULTY_DISPOSITION_NOT_EVIDENCE_FOR,
