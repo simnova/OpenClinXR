@@ -6,8 +6,12 @@ import {
 import { MPFB_GOWN_ADULT_PATIENT_GLB, PEDS_CHILD_GLB, PEDS_PARENT_GLB } from "@openclinxr/asset-registry/cast-asset-constants";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
+import { createActorDialogueModelGateway } from "@openclinxr/model-gateway";
 import { edChestPainScenario, pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
-import type { ScenarioRuntime } from "@openclinxr/scenario-runtime";
+import {
+  createDefaultScenarioRuntime,
+  type ScenarioRuntime,
+} from "@openclinxr/scenario-runtime";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import {
   createInMemoryTelemetryRecorder,
@@ -34,9 +38,6 @@ const expectedProviderHealth = {
   localModel: { providerId: "local-model", status: "not_configured", blockers: ["local_model_runtime_not_configured"] },
   localVoice: { providerId: "local-voice", status: "not_configured", blockers: ["local_voice_runtime_not_configured"] },
   adapters: [
-    { providerId: "muse-spark-contributor", status: "ready" },
-    { providerId: "deepseek-actor-dialogue", status: "ready" },
-    { providerId: "ox-alpha", status: "ready" },
     { providerId: "mock-model", status: "ready" },
     { providerId: "local-model", status: "not_configured", blockers: ["local_model_runtime_not_configured"] },
     { providerId: "mock-voice", status: "ready" },
@@ -45,8 +46,25 @@ const expectedProviderHealth = {
 };
 
 describe("OpenClinXR API shell", () => {
+  function createOfflineApiApp(
+    persistence?: ApiPersistenceSink,
+    options?: Parameters<typeof createApiApp>[2],
+  ): ReturnType<typeof createApiApp> {
+    return createApiApp(
+      createDefaultScenarioRuntime({
+        modelGateway: createActorDialogueModelGateway({
+          openRouterApiKey: "",
+          deepseekApiKey: "",
+          localBaseUrl: "",
+        }),
+      }),
+      persistence,
+      options,
+    );
+  }
+
   it("reports health without requiring cloud providers", async () => {
-    const app = createApiApp();
+    const app = createOfflineApiApp();
     const response = await app.request("/health");
 
     expect(response.status).toBe(200);
@@ -58,11 +76,35 @@ describe("OpenClinXR API shell", () => {
   });
 
   it("reports provider health from the gateway layer", async () => {
-    const app = createApiApp();
+    const app = createOfflineApiApp();
     const response = await app.request("/providers/health");
 
     expect(response.status).toBe(200);
     expect(await json(response)).toEqual(expectedProviderHealth);
+  });
+
+  it("reports configured live adapters in provider health without network calls", async () => {
+    const app = createApiApp(
+      createDefaultScenarioRuntime({
+        modelGateway: createActorDialogueModelGateway({
+          openRouterApiKey: "fake-key-for-test",
+          deepseekApiKey: "fake-key-for-test",
+          localBaseUrl: "",
+        }),
+      }),
+    );
+    const response = await app.request("/providers/health");
+    const body = await json(response) as {
+      adapters: Array<{ providerId: string; status: string }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.adapters).toEqual(
+      expect.arrayContaining([
+        { providerId: "muse-spark-contributor", status: "ready" },
+        { providerId: "deepseek-actor-dialogue", status: "ready" },
+      ]),
+    );
   });
 
   it("allows local XR browser clients to call runtime routes across dev origins", async () => {
@@ -4696,7 +4738,7 @@ describe("OpenClinXR API shell", () => {
   });
 
   it("starts a session, records events, submits a note, and returns a review packet", async () => {
-    const app = createApiApp();
+    const app = createOfflineApiApp();
     const missingConsent = await app.request("/sessions", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -4801,7 +4843,7 @@ describe("OpenClinXR API shell", () => {
       reason: "hidden_truth_extraction_attempt",
     });
     expect(actorResponseBody.actorResponseEvent.payload.provenance).toMatchObject({
-      providerId: "muse-spark-contributor",
+      providerId: "mock-model",
       guardrail: { status: "blocked" },
     });
     expect(JSON.stringify(actorResponseBody)).not.toContain("Father died of myocardial infarction");
