@@ -37,6 +37,13 @@ import { describe, expect, it } from "vitest";
  * re-exports the historic names. Clauses below retarget their source probes at
  * the shared module (interval, heartbeat, best-effort) plus dispatch's import
  * and call sites; the lifecycle behavior they assert is unchanged.
+ *
+ * ## FIXED-2 (bothy-tsk_3fb3bdeedbefdce8 follow-up)
+ *
+ * The shared module gained a second interval for the standalone CLI
+ * (startPidBoundClaimRenewal, which exits with the worker pid). The
+ * recurring-presence probe counts only the unconditional renewal tick, not the
+ * pid-gated one, so this lifecycle contract still asserts exactly one renewer.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
@@ -52,7 +59,8 @@ function heartbeatObject(source: string): string {
 function recurringPresenceCallbacks(source: string): string[] {
   return [...source.matchAll(/setInterval\s*\(\s*\(\)\s*=>\s*\{([\s\S]*?)\}\s*,/g)]
     .map((match) => match[1] ?? "")
-    .filter((body) => /announceBothyDispatchPresence|announceBothyClaimPresence|beat\(input\)|bothy-board\.agents\.heartbeat/.test(body));
+    .filter((body) => /announceBothyDispatchPresence|announceBothyClaimPresence|beat\(input\)|bothy-board\.agents\.heartbeat/.test(body))
+    .filter((body) => !/if\s*\(!alive\(target\)\)/.test(body));
 }
 
 describe("dispatch keeps the exact claimed task alive for the worker lifetime", () => {

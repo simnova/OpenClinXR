@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -26,6 +27,15 @@ import { describe, expect, it, vi } from "vitest";
  * are unchanged. All four clauses flipped it.fails to it; none edited otherwise. The
  * sibling dispatch-lifecycle plant needed its source probes retargeted at the shared
  * module (its FIXED block records the move).
+ *
+ * ## FIXED-2 (bothy-tsk_3fb3bdeedbefdce8 follow-up)
+ *
+ * The module now also exposes a standalone process entry
+ * (pnpm exec tsx bothy-claim-renewal.ts --task <id> --pid <pid> [...]) backed by
+ * startPidBoundClaimRenewal, which polls process.kill(pid, 0) and stops itself once
+ * the worker pid disappears — renewal follows process liveness, not a caller
+ * remembering stop(). Clause (5) pins that plus the missing-PAT refusal (exit 2,
+ * no network call).
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
@@ -99,6 +109,46 @@ describe("the claim renewal is reachable outside dispatch", () => {
       DISPATCH_SRC,
       "dispatch must import the shared starter instead of keeping a private interval",
     ).toMatch(/from\s*["']\.\/bothy-claim-renewal\.js["']/);
+  });
+
+  it("(5) STANDALONE CLI FOLLOWS THE WORKER PID, NOT A CALLER", async () => {
+    const mod = await import("./bothy-claim-renewal.js");
+    expect(
+      mod.parseClaimRenewerArgs(["--task", "tsk_probe", "--pid", "123", "--agent", "a", "--session", "s"]),
+    ).toEqual({ taskId: "tsk_probe", pid: 123, agentId: "a", grokSessionId: "s" });
+    expect(mod.parseClaimRenewerArgs([]), "flag parser must refuse missing flags").toBeNull();
+    expect(mod.claimRenewerCliMain([], {}), "CLI must refuse missing flags").toBe(2);
+    expect(
+      mod.claimRenewerCliMain(["--task", "tsk_probe", "--pid", "123"], {}),
+      "CLI without BOTHY_BOARD_PAT must exit 2 before any network call",
+    ).toBe(2);
+    const shared = renewerSource();
+    expect(shared, "renewer must be directly runnable as a process").toContain("import.meta.url");
+    expect(shared, "renewer CLI must read its own argv").toContain("process.argv");
+
+    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 5000)"]);
+    const childPid = child.pid ?? 0;
+    expect(childPid, "probe child did not spawn").toBeGreaterThan(0);
+    let calls = 0;
+    vi.useFakeTimers();
+    try {
+      const stop = mod.startPidBoundClaimRenewal(
+        { path: "/tmp/wt", branch: "standalone", taskId: "tsk_probe", agentId: "agent_probe" },
+        { pid: childPid, intervalMs: 50, heartbeat: () => { calls += 1; } },
+      );
+      await vi.advanceTimersByTimeAsync(200);
+      expect(calls, "no heartbeat while the worker pid is alive").toBeGreaterThan(0);
+      child.kill();
+      await vi.advanceTimersByTimeAsync(500);
+      const atDeath = calls;
+      expect(atDeath, "kill before any tick cannot prove silence").toBeGreaterThan(0);
+      await vi.advanceTimersByTimeAsync(500);
+      expect(calls, "renewer kept heartbeating after the worker pid died").toBe(atDeath);
+      stop();
+    } finally {
+      vi.useRealTimers();
+      if (child.exitCode === null) child.kill();
+    }
   });
 });
 
