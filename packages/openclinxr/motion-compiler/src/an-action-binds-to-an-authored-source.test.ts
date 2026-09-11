@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   edChestPainDialogueSeeds,
   edChestPainScenario,
-} from "../../scenario-fixtures/src/ed-chest-pain.js";
+} from "../../scenario-fixtures/src/index.js";
 import { motionBodyRegionForComplianceRegion } from "./motion-body-region.js";
 import { validateMotionProgram } from "./motion-program.js";
 import { RESPONSE_KIND_TO_PRIMITIVE } from "./program/compile-scenario-motion.js";
@@ -251,8 +251,8 @@ function m5Facts() {
 function oracleBind(program: Record<string, unknown>, facts: AuthoredSourceFacts): MotionValidation {
   const errors: string[] = [];
   const hidden = new Set(facts.hiddenTokens);
-  const visibleForActor = (actorId: string, sourceId: string): VisibleAuthoredSource | undefined =>
-    facts.visibleSources.find((source) => source.actorId === actorId && source.sourceId === sourceId);
+  const visibleForActor = (sourceActorId: string, sourceId: string): VisibleAuthoredSource | undefined =>
+    facts.visibleSources.find((source) => source.actorId === sourceActorId && source.sourceId === sourceId);
 
   const provenance = program["provenance"] as { sourceRefs?: unknown } | undefined;
   for (const ref of Array.isArray(provenance?.sourceRefs) ? provenance.sourceRefs : []) {
