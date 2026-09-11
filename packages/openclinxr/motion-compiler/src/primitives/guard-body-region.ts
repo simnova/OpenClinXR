@@ -3,13 +3,19 @@ import { REGION_ANCHOR_SPACE } from "../plant-motion-regions.js";
 import { resolvePoseBone } from "../../../asset-registry/src/pose-bone-resolver.js";
 import { requestedEffector } from "../requested-effector.js";
 import { solveArmChain, type ChainJoint, type Quat } from "../ik/solve-chain.js";
+import { seededScale } from "../trajectory.js";
+import { orientWristToSurfaceNormal, resolveSurfaceContactTargets } from "../contact.js";
+import { scaleRotation, signCanonical, signMatch } from "./quaternion-scale.js";
+import { contactKeyValues } from "./contact-keys.js";
 import {
-  orientWristToSurfaceNormal,
-  resolveSurfaceContactTargets,
-} from "../contact.js";
+  CONTACT_VARIATION_JITTER,
+  contactReleaseValue,
+  lastHeldPose,
+  planContactReleaseKeys,
+  prevOf,
+} from "./contact-release.js";
 import {
   planContactWindowKeys,
-  type ContactKey,
   type ContactPoint,
   type ContactWindowInput,
 } from "../contact/contact-window-schedule.js";
@@ -164,29 +170,6 @@ function resolveArmChain(profile: ProfileView, request: PrimitiveRequest): { sho
   return { shoulderName: shoulder.boneName, elbowName: elbow.boneName, wristName: wrist.boneName };
 }
 
-const signCanonical = (q: Quat): Quat => {
-  if (q.w !== 0) return q.w > 0 ? q : { x: -q.x, y: -q.y, z: -q.z, w: -q.w };
-  if (q.x !== 0) return q.x > 0 ? q : { x: -q.x, y: -q.y, z: -q.z, w: -q.w };
-  if (q.y !== 0) return q.y > 0 ? q : { x: -q.x, y: -q.y, z: -q.z, w: -q.w };
-  return q.z >= 0 ? q : { x: -q.x, y: -q.y, z: -q.z, w: -q.w };
-};
-
-const signMatch = (q: Quat, ref: Quat): Quat => {
-  const dot = q.x * ref.x + q.y * ref.y + q.z * ref.z + q.w * ref.w;
-  return dot < 0 ? { x: -q.x, y: -q.y, z: -q.z, w: -q.w } : q;
-};
-
-/** The rotation `q` scaled to `fraction` of its angle, same axis. */
-function scaleRotation(q: Quat, fraction: number): Quat {
-  const vn = Math.hypot(q.x, q.y, q.z);
-  if (vn < 1e-12) return { x: 0, y: 0, z: 0, w: 1 };
-  const sign = q.w < 0 ? -1 : 1;
-  const angle = 2 * Math.atan2(vn, Math.abs(q.w));
-  const axis = { x: (q.x / vn) * sign, y: (q.y / vn) * sign, z: (q.z / vn) * sign };
-  const half = (fraction * angle) / 2;
-  return { x: axis.x * Math.sin(half), y: axis.y * Math.sin(half), z: axis.z * Math.sin(half), w: Math.cos(half) };
-}
-
 type QuatTuple = readonly [number, number, number, number];
 
 /** The 3-keyframe neutral -> peak -> settle values for one bone. */
@@ -287,37 +270,6 @@ function resolveContacts(
   return out;
 }
 
-/**
- * Values for one bone across a CONTACT schedule: bind at rest, the solved pose of each scheduled
- * contact point, and a settle scaled from the last held pose. Sign-aligned per key so the emitted
- * track satisfies the canonical sign-continuity rule.
- */
-function contactKeyValues(
-  keys: readonly ContactKey[],
-  bindLocalQuaternion: Quat,
-  poseOf: (window: number) => Quat,
-  retention: number,
-): readonly QuatTuple[] {
-  let prev = signCanonical(bindLocalQuaternion);
-  let lastHeld: Quat | undefined;
-  const values: QuatTuple[] = [];
-  for (const key of keys) {
-    let raw: Quat;
-    if (key.pose.kind === "bind") {
-      raw = bindLocalQuaternion;
-    } else if (key.pose.kind === "point") {
-      raw = poseOf(key.pose.window);
-      lastHeld = raw;
-    } else {
-      raw = lastHeld !== undefined ? scaleRotation(lastHeld, retention) : bindLocalQuaternion;
-    }
-    const q = signMatch(raw, prev);
-    prev = q;
-    values.push([q.x, q.y, q.z, q.w]);
-  }
-  return values;
-}
-
 /** The solved pose's rotation for one driven bone of the chain. */
 function rotationOfPose(pose: ReturnType<typeof solveArmChain>, boneName: string): Quat {
   switch (boneName) {
@@ -380,14 +332,18 @@ export function compile(request: PrimitiveRequest): CompiledMotionFragment {
       regionSurfaces: profile.regionSurfaces as Readonly<Record<string, unknown>> | undefined,
       contacts: contacts.map((c) => ({ regionId: c.regionId, anchor: c.point })),
     });
-    const windows: ContactWindowInput[] = contacts.map((c, i) => ({
-      startFraction: c.startFraction,
-      endFraction: c.endFraction,
-      positionToleranceMeters: c.positionToleranceMeters,
-      preserveWhileActive: c.preserveWhileActive,
-      point: surfaceTargets[i]!.point,
-      order: c.order,
-    }));
+    const windows: ContactWindowInput[] = contacts.map((c, i) => {
+      const surface = surfaceTargets[i];
+      if (surface === undefined) throw new Error(`guard_body_region: contact ${i} has no surface target`);
+      return {
+        startFraction: c.startFraction,
+        endFraction: c.endFraction,
+        positionToleranceMeters: c.positionToleranceMeters,
+        preserveWhileActive: c.preserveWhileActive,
+        point: surface.point,
+        order: c.order,
+      };
+    });
     const keys = planContactWindowKeys(windows);
 
     // Solve each scheduled point's arm pose once; the schedule references windows by declaration
@@ -395,32 +351,71 @@ export function compile(request: PrimitiveRequest): CompiledMotionFragment {
     // free single-joint wrist rotation that maps the effector's own axis onto the outward normal.
     const poseByWindow = new Map<number, ReturnType<typeof solveArmChain>>();
     const poseForWindow = (window: number): ReturnType<typeof solveArmChain> => {
-      let pose = poseByWindow.get(window);
-      if (pose === undefined) {
-        pose = solveArmChain({ joints, effectorBone: chain.wristName, target: windows[window]!.point });
-        const outwardNormal = surfaceTargets[window]!.outwardNormal;
-        if (outwardNormal !== undefined) {
-          pose = orientWristToSurfaceNormal(pose, joints, outwardNormal);
-        }
-        poseByWindow.set(window, pose);
+      const cached = poseByWindow.get(window);
+      if (cached !== undefined) return cached;
+      const scheduled = windows[window];
+      if (scheduled === undefined) throw new Error(`guard_body_region: contact window ${window} is not scheduled`);
+      let pose = solveArmChain({ joints, effectorBone: chain.wristName, target: scheduled.point });
+      const outwardNormal = surfaceTargets[window]?.outwardNormal;
+      if (outwardNormal !== undefined) {
+        pose = orientWristToSurfaceNormal(pose, joints, outwardNormal);
       }
+      poseByWindow.set(window, pose);
       return pose;
     };
 
     // TRACK TIMES ARE SECONDS (compiler-surface clause 4); key fractions scale the clip duration.
+    // The release is sampled on the shared minimum-jerk envelope: the window schedule's settle
+    // key is kept, and release keys are inserted between the window end and the settle so the
+    // fall eases out of the hold at rest velocity and back to rest, instead of one linear step.
     const durationSeconds = durationMs / 1000;
-    const times = keys.map((key) => key.fraction * durationSeconds);
+    const releaseKeys = planContactReleaseKeys(keys);
+    const allKeys = [...keys, ...releaseKeys].sort((a, b) => a.fraction - b.fraction);
+    const times = allKeys.map((key) => key.fraction * durationSeconds);
+    // Window end and settle fraction locate the release span on the schedule.
+    const lastPointFraction = keys.reduce((m, k) => (k.pose.kind === "point" ? Math.max(m, k.fraction) : m), 0);
+    const settleFraction = keys.reduce((m, k) => (k.pose.kind === "settle" ? Math.max(m, k.fraction) : m), 1);
     const drivenBones = [chain.shoulderName, chain.elbowName, chain.wristName];
-    const tracks: CompiledMotionTrack[] = drivenBones.map((boneName) => {
+    const tracks: CompiledMotionTrack[] = drivenBones.map((boneName, boneIndex) => {
       const bind = byName.get(boneName);
-      if (!bind) throw new Error(`guard_body_region: solved bone "${boneName}" vanished from the joint table`);
+      if (bind === undefined) throw new Error(`guard_body_region: solved bone "${boneName}" vanished from the joint table`);
+      const amp = seededScale(request.seed, boneIndex + 1, CONTACT_VARIATION_JITTER);
+      const base = contactKeyValues(keys, bind.bindLocalQuaternion, (window) => rotationOfPose(poseForWindow(window), boneName), retention);
+      const scheduledAt = new Map<number, QuatTuple>();
+      for (const [i, key] of keys.entries()) {
+        const value = base[i];
+        if (value !== undefined) scheduledAt.set(key.fraction, value);
+      }
+      const held = lastHeldPose(poseForWindow, keys, boneName);
+      const emitted: QuatTuple[] = [];
+      const values = allKeys.map((key) => {
+        const scheduled = scheduledAt.get(key.fraction);
+        if (scheduled !== undefined && key.pose.kind !== "settle") {
+          emitted.push(scheduled);
+          return scheduled;
+        }
+        if (held !== undefined) {
+          const released = contactReleaseValue(key, lastPointFraction, settleFraction, held, retention, amp);
+          if (released !== null) {
+            const aligned = signMatch(released, prevOf(emitted, bind.bindLocalQuaternion));
+            const tuple: QuatTuple = [aligned.x, aligned.y, aligned.z, aligned.w];
+            emitted.push(tuple);
+            return tuple;
+          }
+        }
+        const tail = base[base.length - 1];
+        if (tail === undefined) throw new Error("guard_body_region: contact schedule emitted no keys");
+        const fallback = scheduled ?? tail;
+        emitted.push(fallback);
+        return fallback;
+      });
       return {
         property: "rotationAbsoluteNodeLocal",
         boneName,
         canonicalLandmark: target.id,
         interpolation: "LINEAR",
         times,
-        values: contactKeyValues(keys, bind.bindLocalQuaternion, (window) => rotationOfPose(poseForWindow(window), boneName), retention),
+        values,
       };
     });
     return { actionId, tracks };
