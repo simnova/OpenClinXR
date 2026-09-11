@@ -5047,31 +5047,38 @@ def main():
     # HB-07 attempt 3: un-hide hidden faces that are the first hit of a
     # capture-camera *pixel* ray (screen-space). Centroid rays miss the sleeve
     # hem holes; the attempt-3 probe classified those pixels as miss / prim4.
+    # Attempt 5: capture-aligned 4096 centres (same predicate); re-run AFTER
+    # RENDER_TRUTH_REHIDE because that pass re-painted 222 upper faces on the
+    # attempt-4 bake after this mask was applied.
     from garment_coverage import screen_space_hidden_first_hits as _ss_hidden_first  # noqa: E402
 
-    _ss_idx = np.where(hide_mask)[0]
-    _ss_added = 0
-    if len(_ss_idx):
-        _ss_vis = np.where(~hide_mask)[0]
-        _ss_occ_v = garment_verts
-        _ss_occ_f = garment_faces
-        if len(_ss_vis):
-            _ss_occ_v = np.concatenate([garment_verts, body_verts], axis=0)
-            _ss_occ_f = np.concatenate(
-                [garment_faces, body_faces[_ss_vis] + len(garment_verts)], axis=0
-            )
-        _ss_hit = _ss_hidden_first(
+    def _hb07_screenspace_unhide(
+        tri_hidden: np.ndarray, *, resolution: int = 1024
+    ) -> tuple[np.ndarray, int]:
+        # Occluder is the garment only. Attempt-5 probe: the leftover sleeve
+        # rays first-hit MASK faces; nearby 1024-grid samples first-hit
+        # visible skin 1.5 mm closer, so treating skin as an occluder left
+        # those faces hidden. Un-hiding a face that skin already covers is
+        # a no-op at those pixels; the hole pixels fill with skin.
+        _idx = np.where(tri_hidden)[0]
+        if len(_idx) == 0:
+            return tri_hidden, 0
+        _hit = _ss_hidden_first(
             body_verts,
             body_faces,
-            _ss_idx,
-            _ss_occ_v,
-            _ss_occ_f,
+            _idx,
+            garment_verts,
+            garment_faces,
             height_axis=2,
             depth_axis=1,
+            resolution=resolution,
         )
-        _ss_added = int(_ss_hit.sum())
-        hide_mask[_ss_idx[_ss_hit]] = False
-    print(f"HOLE_GUARD_SCREENSPACE_UNHIDE faces {_ss_added}")
+        _out = np.array(tri_hidden, dtype=bool)
+        _out[_idx[_hit]] = False
+        return _out, int(_hit.sum())
+
+    hide_mask, _ss_added = _hb07_screenspace_unhide(hide_mask, resolution=1024)
+    print(f"HOLE_GUARD_SCREENSPACE_UNHIDE faces {_ss_added}", flush=True)
     # #364 — report the hide-mask boundary smoothness in the bake log, using the same
     # instrument the evidence contract uses (bottom 3% of the mask by height, ordered by
     # angle about the body axis, adjacent-height deltas, p95 in mm). The planted RED is
@@ -5683,6 +5690,37 @@ def main():
         return result
 
     _orphan_hide = _extend_mask_to_orphaned_quads()
+
+    # HB-07 attempt 5 — same screen-space first-hit un-hide, LAST, so
+    # RENDER_TRUTH_REHIDE / ORPHAN_EXTEND cannot re-paint camera-hole faces.
+    # Attempt-4 bake: SCREENSPACE_UNHIDE faces 1, then REHIDE applied 222 upper.
+    _ss_now = np.zeros(len(body_faces), dtype=bool)
+    _tri_i = 0
+    for _poly in human.data.polygons:
+        _n_tri = max(len(_poly.vertices) - 2, 1)
+        _mi = int(_poly.material_index)
+        _mat = human.data.materials[_mi] if _mi < len(human.data.materials) else None
+        _nm = (_mat.name or "").lower() if _mat is not None else ""
+        if "hidden_upper" in _nm:
+            _ss_now[_tri_i : _tri_i + _n_tri] = True
+        _tri_i += _n_tri
+    _ss_was = _ss_now.copy()
+    _ss_now, _ss_final_added = _hb07_screenspace_unhide(_ss_now, resolution=4096)
+    _ss_restore = _ss_was & ~_ss_now
+    _ss_final_polys = 0
+    if _ss_restore.any():
+        _tri_i = 0
+        for _poly in human.data.polygons:
+            _n_tri = max(len(_poly.vertices) - 2, 1)
+            if _ss_restore[_tri_i : _tri_i + _n_tri].any():
+                _poly.material_index = skin_idx
+                _ss_final_polys += 1
+            _tri_i += _n_tri
+    print(
+        f"HOLE_GUARD_SCREENSPACE_UNHIDE_FINAL faces {_ss_final_added} "
+        f"polygons {_ss_final_polys}",
+        flush=True,
+    )
 
     bpy.context.scene.frame_start = 1
     bpy.context.scene.frame_end = 90

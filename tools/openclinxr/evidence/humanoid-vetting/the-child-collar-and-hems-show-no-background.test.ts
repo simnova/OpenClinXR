@@ -185,6 +185,64 @@
  *
  * Neckline closed. Sleeves still 3/4 hidden_upper first hits — not all four
  * sites 0, so it.fails stays. No ## FIXED (HB-07).
+ *
+ * ## PROBE (attempt 5)
+ *
+ * Instrument: same see-through-pixels.ts camera (candidate-capture 35° +
+ * frameCameraForBounds) on the attempt-4 live GLB (sha 794d9438… / 11,362,908 B).
+ * Every exact-bg subject pixel in the sleeve HB-06 boxes is unprojected;
+ * first GLB hit recorded with prim/faceIndex. Factory 1024 grid reconstructed
+ * over the hidden-vert NDC bbox (garment_coverage.screen_space_hidden_first_hits
+ * resolution=1024). Bake log from attempt 4
+ * (openclinxr-hb07-84007/materialize.log): HOLE_GUARD_SCREENSPACE_UNHIDE
+ * faces 1, then RENDER_TRUTH_REHIDE applied upper faces 222.
+ *
+ * | site | px | prim | faceIndex | t | nearest-1024 first | distPx |
+ * |---|---|---:|---:|---:|---|---:|
+ * | sleeve-L | (1576,1699) | 4 | 79 | 5.298 | hidden prim4 f79 | 1.54 |
+ * | sleeve-L | (1575,1701) | 4 | 79 | 5.296 | miss | 2.31 |
+ * | sleeve-L | (1574,1702) | 4 | 79 | 5.297 | visible skin prim0 f2190 (t 5.295) | 1.30 |
+ * | sleeve-R | (2519,1699) | 4 | 190 | 5.298 | hidden prim4 f190 | 1.54 |
+ * | sleeve-R | (2519,1700) | 4 | 190 | 5.296 | hidden prim4 f190 | 1.72 |
+ * | sleeve-R | (2520,1701) | 4 | 190 | 5.296 | miss | 2.31 |
+ * | sleeve-R | (2521,1702) | 4 | 190 | 5.297 | visible skin prim0 f11905 (t 5.295) | 1.30 |
+ *
+ * Both faces: `mpfb_peds_patient_child_body` prim4
+ * (`openclinxr_hidden_upper_…body_mesh.001`, MASK). Screen size 22.5×29.8 px;
+ * 6 factory-grid samples sit inside each face's NDC triangle. Sample spacing
+ * 4.00×3.99 px. Not a region restriction (both faces are still in the
+ * remaining hide_mask / exported MASK prim). Coverage/first-hit: the 1024
+ * sample that lands 1.3 px from (1574,1702) first-hits visible body 1.5 mm
+ * closer than the hidden face, so the factory rejects that sample. Bake then
+ * re-paints 222 upper faces AFTER the numpy mask is applied
+ * (materialize_mpfb_humanoid_candidate.py RENDER_TRUTH_REHIDE).
+ *
+ * Treatment: same predicate, capture-aligned 4096 pixel centres, re-run last
+ * after REHIDE/orphan and restore those polygons to the skin material.
+ *
+ * NOT TESTED until rebake: whether un-hiding prim4 f79/f190 moves torso
+ * visible_skin off 0 (counterweight; do not flip if it does).
+ *
+ * ## FIXED (HB-07)
+ *
+ * Full chain materialize -> bake-humanoid-albedo.ts ->
+ * separate_chest_anchor_joints.mjs (decimation skipped, chosenRungId=raw).
+ * Bake log: HOLE_GUARD_SCREENSPACE_UNHIDE faces 5;
+ * HOLE_GUARD_SCREENSPACE_UNHIDE_FINAL faces 185 polygons 100.
+ * Capture `.openclinxr/evidence/hb07-attempt5/capture/2026-09-11T23-26-23Z`
+ * copied to tracked humanoid-vetting-captures.
+ *
+ * | site | bg before | see-through before | bg after | see-through after |
+ * |---|---:|---:|---:|---:|
+ * | neckline-square-L | 67 | 0 | 67 | 0 |
+ * | neckline-square-R | 99 | 0 | 99 | 0 |
+ * | sleeve-hem-rectangle-L | 382 | 3 | 376 | 0 |
+ * | sleeve-hem-rectangle-R | 292 | 4 | 286 | 0 |
+ * | control C | 0 | 0 | 0 | 0 |
+ * | torso visibleSkinSubject | — | 0 | — | 0 |
+ *
+ * All four sites 0, control 0, torso 0. Triangle count 77422 (delta 0 vs
+ * attempt 4). it.fails flipped to it.
  */
 
 import { execFileSync } from "node:child_process";
@@ -233,7 +291,7 @@ describe("the child collar and hems show no background", () => {
     ).toBeGreaterThan(0);
   }, 120_000);
 
-  it.fails("HB-07-required-behavior", async () => {
+  it("HB-07-required-behavior", async () => {
     expect(existsSync(GLB), `${GLB} exists on disk`).toBe(true);
     expect(existsSync(LIT) && existsSync(STRUCT), "tracked front captures exist").toBe(true);
 

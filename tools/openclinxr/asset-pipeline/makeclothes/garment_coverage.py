@@ -672,7 +672,7 @@ def screen_space_hidden_first_hits(
     *,
     height_axis: int = 2,
     depth_axis: int = 1,
-    resolution: int = 1024,
+    resolution: int = 4096,
     fov_deg: float = 35.0,
     max_t: float = 20.0,
 ) -> np.ndarray:
@@ -683,6 +683,13 @@ def screen_space_hidden_first_hits(
     neckline is mixed miss + hidden_upper MASK prim4. Centroid rays never hit
     those sleeve pixels. A pixel whose first GLB hit is a hidden face currently
     renders the capture clear colour; un-hiding it fills the pixel with skin.
+
+    Attempt-5 probe (live attempt-4 GLB): remaining see-through is prim4
+    face 79 (sleeve-L, 3 px) and face 190 (sleeve-R, 4 px). The 1024 bbox
+    grid had 4.00×3.99 px spacing; 6 samples fell in each face's NDC
+    triangle, but the first-hit occluder (visible body) won on most of
+    those samples (1.5 mm closer). Capture-aligned 4096 pixel centres are
+    the same rule at the instrument's sample locations.
     """
     v = _as_np(body_verts)
     f = np.asarray(body_faces, dtype=np.int64)
@@ -724,10 +731,16 @@ def screen_space_hidden_first_hits(
     x1 = min(1.0, float(ndc_x.max()) + 0.02)
     y0 = max(-1.0, float(ndc_y.min()) - 0.02)
     y1 = min(1.0, float(ndc_y.max()) + 0.02)
-    nx = max(8, int(math.ceil((x1 - x0) * 0.5 * resolution)))
-    ny = max(8, int(math.ceil((y1 - y0) * 0.5 * resolution)))
-    xs = np.linspace(x0, x1, nx, endpoint=False) + (x1 - x0) / (2 * nx)
-    ys = np.linspace(y0, y1, ny, endpoint=False) + (y1 - y0) / (2 * ny)
+    # Capture pixel centres: ndc = ((i+0.5)/R)*2-1. A bbox linspace at
+    # resolution 1024 was 4 px and missed the remaining sleeve centres.
+    i0 = max(0, int(math.floor((x0 + 1.0) * 0.5 * resolution)))
+    i1 = min(resolution - 1, int(math.ceil((x1 + 1.0) * 0.5 * resolution)))
+    j0 = max(0, int(math.floor((y0 + 1.0) * 0.5 * resolution)))
+    j1 = min(resolution - 1, int(math.ceil((y1 + 1.0) * 0.5 * resolution)))
+    xs = ((np.arange(i0, i1 + 1, dtype=float) + 0.5) / resolution) * 2.0 - 1.0
+    ys = ((np.arange(j0, j1 + 1, dtype=float) + 0.5) / resolution) * 2.0 - 1.0
+    if len(xs) == 0 or len(ys) == 0:
+        return out
     grid_x, grid_y = np.meshgrid(xs, ys)
     ndc = np.stack([grid_x.ravel(), grid_y.ravel()], axis=1)
     dirs = forward[None, :] + ndc[:, 0:1] * tan_half * right[None, :] + ndc[:, 1:2] * tan_half * up_w[None, :]
