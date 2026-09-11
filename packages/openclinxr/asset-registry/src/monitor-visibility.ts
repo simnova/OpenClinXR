@@ -1,4 +1,4 @@
-import type { WorldAabb, MeasuredObstacle } from "./bedside-clearance.js";
+import type { MeasuredObstacle, WorldAabb } from "./bedside-clearance.js";
 import type { Vector3 } from "./bedside-target.js";
 
 /**

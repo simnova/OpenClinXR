@@ -7,11 +7,11 @@ import {
   STANDING_BODY_HEIGHT_METERS,
   STANDING_FOOTPRINT_RADIUS_METERS,
 } from "../../../../packages/openclinxr/asset-registry/src/bedside-clearance.js";
+import { planBedsideApproach } from "../../../../packages/openclinxr/asset-registry/src/bedside-approach-path.js";
 import {
   bedsideTargetForClinician,
   ED_STRETCHER_DECK_BOUNDS,
   footSlideMeters,
-  planBedsideApproach,
 } from "../../../../packages/openclinxr/asset-registry/src/index.js";
 import {
   gradeMotionMeasurement,

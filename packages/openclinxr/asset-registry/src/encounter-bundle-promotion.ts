@@ -1,10 +1,10 @@
-import type { RuntimeAssetReviewDecision } from "./runtime-asset-review.js";
+import type { RuntimeAssetReviewDecision } from "./runtime-asset-review-mod.js";
 import {
   buildEncounterRuntimeAssetBundle,
-  toLearnerRuntimeAssetBundle,
   type EncounterRuntimeAsset,
   type LearnerRuntimeAssetBundle,
   type RuntimeAssetStoreKind,
+  toLearnerRuntimeAssetBundle,
 } from "./runtime-bundles.js";
 
 export const encounterBundleFactoryMemberKinds = [

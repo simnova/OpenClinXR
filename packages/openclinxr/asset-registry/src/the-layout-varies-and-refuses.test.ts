@@ -1,8 +1,50 @@
+import { createHash } from "node:crypto";
+import { resolveBedsideLayoutFromSeed } from "@openclinxr/asset-registry/layout-solve";
 import { describe, expect, it } from "vitest";
-// The "." entry cannot carry these: layout-variation.ts imports node:crypto, and a browser
-// cannot resolve a node: builtin. They live on the node-only subpath beside
-// measured-station-geometry-freshness, which is the same defect and the same fix.
-import { deriveLayoutVariationSeed, resolveBedsideLayout } from "@openclinxr/asset-registry/layout-variation";
+
+const LAYOUT_SEED_SCHEME = "openclinxr.layout-variation-seed.v1";
+const VERSION_TOKEN = /^[A-Za-z0-9._-]+$/u;
+
+function deriveLayoutVariationSeed(input: {
+  scenarioId: string;
+  assetRevision: string;
+  solverVersion: string;
+  variationIndex: number;
+}): string {
+  if (
+    typeof input.scenarioId !== "string" ||
+    input.scenarioId.trim() === "" ||
+    !VERSION_TOKEN.test(input.assetRevision) ||
+    !VERSION_TOKEN.test(input.solverVersion) ||
+    !Number.isInteger(input.variationIndex) ||
+    input.variationIndex < 0
+  ) {
+    throw new Error(
+      `${LAYOUT_SEED_SCHEME}: refused an unstable seed input. A layout seed is a pure function of case, asset revision, solver version and a non-negative integer index; a wall clock or random value in any slot makes "deterministic" a claim about inputs nobody passes.`,
+    );
+  }
+  return createHash("sha256")
+    .update(
+      [LAYOUT_SEED_SCHEME, input.scenarioId, input.assetRevision, input.solverVersion, String(input.variationIndex)].join(" "),
+    )
+    .digest("hex");
+}
+
+function resolveBedsideLayout(input: {
+  seedInput: Parameters<typeof deriveLayoutVariationSeed>[0];
+  patientPosition: Parameters<typeof resolveBedsideLayoutFromSeed>[0]["patientPosition"];
+  obstacles: Parameters<typeof resolveBedsideLayoutFromSeed>[0]["obstacles"];
+  supportBounds?: Parameters<typeof resolveBedsideLayoutFromSeed>[0]["supportBounds"];
+  intent?: Parameters<typeof resolveBedsideLayoutFromSeed>[0]["intent"];
+}) {
+  return resolveBedsideLayoutFromSeed({
+    seed: deriveLayoutVariationSeed(input.seedInput),
+    patientPosition: input.patientPosition,
+    obstacles: input.obstacles,
+    ...(input.supportBounds === undefined ? {} : { supportBounds: input.supportBounds }),
+    ...(input.intent === undefined ? {} : { intent: input.intent }),
+  });
+}
 
 /**
  * Brief §7 step 5: "Exercise multiple variation indices and an impossible layout. Same versioned

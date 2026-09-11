@@ -1,4 +1,4 @@
-import type { AuthoredCasePlacement } from "./case-actor-placements.js";
+import type { AuthoredCasePlacement } from "./case-actor-placements-mod.js";
 import type { EncounterRuntimeActorPlacement } from "./runtime-bundles.js";
 
 /**

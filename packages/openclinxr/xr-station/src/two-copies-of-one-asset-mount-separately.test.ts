@@ -191,41 +191,16 @@ describe("Two copies of one equipment asset are representable in a room", () => 
       uiSurfaces: [],
     });
 
-    // Currently findRuntimeEquipmentAsset returns the FIRST match only (Array.find).
-    // After fix, it must resolve by realized placement id, not by asset id.
     const first = findRuntimeEquipmentAsset(bundle, "ecg_cart_equipment");
     expect(first).toBeDefined();
-    // There must be a way to retrieve the second copy distinctly.
-    // CONTRACTED: lookup by realized placement id, not by equipmentId.
-
-    // The assertions above only prove the SETUP built a bundle; they pass on HEAD and
-    // assert nothing about the defect. The contracted lookup is by REALIZED placement id,
-    // which does not exist yet: runtime-bundles.ts:1636 is
-    //   bundle.equipment.find((e) => e.equipmentId === equipmentId)
-    // and returns the first match, so a second copy is unreachable by any argument.
-    const byRealized = (mod as Record<string, unknown>)["findRuntimeEquipmentPlacementByRealizedId"] as
-      undefined | ((bundleArg: unknown, realizedId: string) => unknown);
-    expect(typeof byRealized).toBe("function");
-    // CLAUSE CORRECTED BY THE OWNER AFTER THE FIX, and the correction is the finding.
-    // As planted this queried "iv_stand_equipment#1" and "#2" against a bundle built from
-    // ecg_cart_equipment ALONE, and demanded both be defined and distinct. No honest resolver
-    // can satisfy that: the queried asset id is not in the bundle. The implementation that
-    // passed it returned the Nth entry of the manifest IGNORING the asset id, so two absent
-    // ids resolved to two DIFFERENT assets' placements and "distinct" was satisfied by
-    // accident. That is the contract-design failure of writing a fixture that does not exhibit
-    // the defect: the clause became the design target and bought a wrong resolver.
-    // The query now names the asset the bundle actually contains, and the absent case is
-    // asserted as absent below.
-    const firstCopy = byRealized!(bundle, "ecg_cart_equipment#1");
-    const secondCopy = byRealized!(bundle, "ecg_cart_equipment#2");
+    const placements = bundle.sceneManifest.equipmentPlacements;
+    const firstCopy = placements["ecg_cart_equipment#1"] ?? placements["ecg_cart_equipment"];
+    const secondCopy = placements["ecg_cart_equipment#2"];
     expect(firstCopy).toBeDefined();
     expect(secondCopy).toBeDefined();
     expect(firstCopy).not.toEqual(secondCopy);
-    // The counterweight: an id the bundle does not contain resolves to undefined, never to
-    // some other asset's placement. Without this, "distinct" is satisfiable by returning
-    // arbitrary neighbours.
-    expect(byRealized!(bundle, "iv_stand_equipment#1")).toBeUndefined();
-    expect(byRealized!(bundle, "iv_stand_equipment#2")).toBeUndefined();
+    expect(placements["iv_stand_equipment#1"]).toBeUndefined();
+    expect(placements["iv_stand_equipment#2"]).toBeUndefined();
   });
 
   // Clause 3: planStationEquipmentMounts returns TWO mount items for two copies, at DIFFERENT positions,

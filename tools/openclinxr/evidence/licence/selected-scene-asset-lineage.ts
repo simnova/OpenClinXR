@@ -3,7 +3,7 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
-import { resolveScenarioActorCast } from "../../../../packages/openclinxr/asset-registry/src/index.js";
+import { resolveScenarioActorCast } from "../../../../packages/openclinxr/asset-registry/src/runtime-bundles-entry.js";
 import {
   SCENE_CLOSURE_CASE_ID,
   SCENE_CLOSURE_SELECTED_ASSET_MANIFEST,

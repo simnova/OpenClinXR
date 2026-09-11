@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  ED_STRETCHER_DECK_BOUNDS,
   bedsideTargetForClinician,
+  ED_STRETCHER_DECK_BOUNDS,
   forwardVectorForHeading,
   headingRadiansToward,
 } from "./index.js";

@@ -1,68 +1,56 @@
+import {
+  buildEncounterRuntimeAssetBundle,
+  registerGeneratedRuntimeAssetReference,
+  resolveRuntimeAssetStoreConfig,
+} from "@openclinxr/asset-registry/runtime-bundles";
 import { describe, expect, it } from "vitest";
-import { promoteRuntimeAssetForLocalUse } from "./runtime-asset-review.js";
-import { registerGeneratedRuntimeAssetReference, resolveRuntimeAssetStoreConfig } from "./runtime-bundles.js";
+import { promoteEncounterRuntimeAssetBundleForLocalUse } from "./runtime-asset-review.js";
 
 describe("runtime asset review promotion", () => {
   it("promotes generated assets to local runtime only after required review roles approve with evidence", () => {
-    const asset = generatedAsset("blocked");
-    const result = promoteRuntimeAssetForLocalUse({
-      asset,
-      decisions: [
-        decision("asset_pipeline"),
-        decision("security_privacy"),
-      ],
+    const blocked = promoteEncounterRuntimeAssetBundleForLocalUse({
+      bundle: bundleWith("blocked"),
+      decisions: [decision("asset_pipeline"), decision("security_privacy")],
     });
 
-    expect(result).toMatchObject({
-      assetId: "generated_patient_model_v17",
-      promoted: false,
-      nextStatus: "blocked",
-      blockers: ["asset_currently_blocked"],
-    });
+    expect(blocked.promoted).toBe(false);
+    expect(blocked.blockers).toContain("generated_patient_model_v17:asset_currently_blocked");
 
-    const pendingAsset = { ...asset, reviewStatus: "approved_for_local_runtime" as const };
-    const promoted = promoteRuntimeAssetForLocalUse({
-      asset: pendingAsset,
-      decisions: [
-        decision("asset_pipeline"),
-        decision("security_privacy"),
-      ],
+    const promoted = promoteEncounterRuntimeAssetBundleForLocalUse({
+      bundle: bundleWith("approved_for_local_runtime"),
+      decisions: [decision("asset_pipeline"), decision("security_privacy")],
     });
     expect(promoted).toMatchObject({
       promoted: true,
-      nextStatus: "approved_for_local_runtime",
-      missingReviewerRoles: [],
       blockers: [],
-      asset: { reviewStatus: "approved_for_local_runtime" },
+      promotedBundle: { environment: { reviewStatus: "approved_for_local_runtime" } },
     });
     expect(promoted.notEvidenceFor).toContain("production_asset_readiness");
   });
 
   it("blocks promotion when required roles or evidence are missing", () => {
-    const result = promoteRuntimeAssetForLocalUse({
-      asset: generatedAsset("approved_for_local_runtime"),
-      decisions: [
-        { ...decision("asset_pipeline"), evidenceRefs: [] },
-      ],
+    const result = promoteEncounterRuntimeAssetBundleForLocalUse({
+      bundle: bundleWith("approved_for_local_runtime"),
+      decisions: [{ ...decision("asset_pipeline"), evidenceRefs: [] }],
     });
 
     expect(result.promoted).toBe(false);
-    expect(result.missingReviewerRoles).toEqual(["asset_pipeline", "security_privacy"]);
     expect(result.blockers).toEqual([
-      "missing_runtime_asset_review:asset_pipeline",
-      "missing_runtime_asset_review:security_privacy",
+      "generated_patient_model_v17:missing_runtime_asset_review:asset_pipeline",
+      "generated_patient_model_v17:missing_runtime_asset_review:security_privacy",
     ]);
   });
 
   it("does not promote fixture assets through generated-asset review gates", () => {
-    const fixture = { ...generatedAsset("fixture_approved_for_local_runtime"), reviewStatus: "fixture_approved_for_local_runtime" as const };
-    const result = promoteRuntimeAssetForLocalUse({
-      asset: fixture,
+    const result = promoteEncounterRuntimeAssetBundleForLocalUse({
+      bundle: bundleWith("fixture_approved_for_local_runtime"),
       decisions: [decision("asset_pipeline"), decision("security_privacy")],
     });
 
     expect(result.promoted).toBe(false);
-    expect(result.blockers).toContain("fixture_assets_do_not_require_generated_asset_promotion");
+    expect(result.blockers).toContain(
+      "generated_patient_model_v17:fixture_assets_do_not_require_generated_asset_promotion",
+    );
   });
 });
 
@@ -77,6 +65,22 @@ function generatedAsset(reviewStatus: "approved_for_local_runtime" | "blocked" |
     assetStore: resolveRuntimeAssetStoreConfig({ storeKind: "azurite_blob", containerName: "openclinxr-assets" }),
     reviewStatus,
     provenanceRefs: ["rigging-report-v17"],
+  });
+}
+
+function bundleWith(reviewStatus: "approved_for_local_runtime" | "blocked" | "fixture_approved_for_local_runtime") {
+  const assetStore = resolveRuntimeAssetStoreConfig({ storeKind: "azurite_blob", containerName: "openclinxr-assets" });
+  return buildEncounterRuntimeAssetBundle({
+    bundleId: "test-bundle",
+    tenantId: "test-tenant",
+    userId: "test-user",
+    examRunId: "test-exam",
+    encounterId: "test-encounter",
+    stationId: "test-station",
+    scenarioId: "test-scenario",
+    assetStore,
+    environment: generatedAsset(reviewStatus),
+    actors: [],
   });
 }
 

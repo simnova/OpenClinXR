@@ -2,7 +2,7 @@ import { NodeIO } from "@gltf-transform/core";
 import type { Node as GltfNode } from "@gltf-transform/core";
 // Not published from the entrypoint, and not published for this: the package arch-ceiling is
 // shrink-only. Read the type from the module that declares it.
-import type { FootSample } from "../../../../packages/openclinxr/asset-registry/src/approach-executor.js";
+import type { FootSample } from "../../../../packages/openclinxr/asset-registry/src/approach-executor-mod.js";
 
 /**
  * Forward kinematics over a BOUND GLB clip, so a foot's world track can be measured on the rig that

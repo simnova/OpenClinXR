@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
-  ED_STRETCHER_DECK_BOUNDS,
   bedsideClearanceViolations,
   bedsideTargetForClinician,
+  ED_STRETCHER_DECK_BOUNDS,
 } from "./index.js";
 
 /**

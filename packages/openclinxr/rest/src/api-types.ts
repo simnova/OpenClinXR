@@ -117,8 +117,6 @@ import type {
   ApiAssembledExamRunRecord,
 } from "./runtime-durable-store.js";
 
-
-
 export type ApiAssembledStationFormWindow = {
   startsAtSecond: number;
   endsAtSecond: number;
@@ -147,7 +145,6 @@ export type { ApiAssembledExamDispositionRecord, ApiAssembledExamRunRecord };
 export type RuntimeTraceEvents = ReturnType<ScenarioRuntime["traceEvents"]>;
 
 export type RuntimeReviewPacket = ReturnType<ScenarioRuntime["reviewPacket"]>;
-
 
 export type ApiClinicalEventReviewProjection = {
   clinicalEventId: string;

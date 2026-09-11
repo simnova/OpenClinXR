@@ -38,7 +38,7 @@ import {
   ENVIRONMENT_SHELL_DESCRIPTORS,
   type EnvironmentShellDescriptor,
 } from "../../../packages/openclinxr/asset-registry/src/environment-descriptors.js";
-import { DOOR_WALL_INSET_METERS } from "../../../packages/openclinxr/asset-registry/src/environment-zone-templates.js";
+import { DOOR_WALL_INSET_METERS } from "../../../packages/openclinxr/asset-registry/src/environment-zone-templates-mod.js";
 
 export type CameraVerdict = {
   environmentId: string;

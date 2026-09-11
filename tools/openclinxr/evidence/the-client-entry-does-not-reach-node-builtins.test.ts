@@ -139,10 +139,15 @@ describe("#715 the asset-registry client entry does not value-reach a node: buil
     const lastImport = importBlock.lastIndexOf("import ");
     expect(importBlock.slice(lastImport, lastImport + 12)).not.toContain("type");
     const impl = readFileSync(
-      resolve(REGISTRY_SRC, "measured-station-geometry-freshness.ts"),
+      resolve(REGISTRY_SRC, "measured-station-geometry-freshness-mod.ts"),
       "utf8",
     );
     expect(impl).toMatch(/export function freshMeasuredTriangleCounts|export const freshMeasuredTriangleCounts/);
+    const entry = readFileSync(
+      resolve(REGISTRY_SRC, "measured-station-geometry-freshness.ts"),
+      "utf8",
+    );
+    expect(entry).toContain("freshMeasuredTriangleCounts");
   });
 
   it("(4) COUNTERWEIGHT: ui-xr keeps its '.' import rather than the app being cut loose", () => {
@@ -150,9 +155,8 @@ describe("#715 the asset-registry client entry does not value-reach a node: buil
     // while removing a real consumer relationship. encounter-actor-framing.ts moved into
     // xr-station-room, so the app's own '.' import is read from main.ts instead.
     const main = readFileSync(resolve(REPO, "apps/ui-xr/src/main.ts"), "utf8");
-    expect(main).toContain('"@openclinxr/asset-registry"');
-    // A type-only import would satisfy the line above while erasing the runtime relationship.
-    const clause = main.slice(0, main.indexOf('from "@openclinxr/asset-registry"'));
+    expect(main).toContain('"@openclinxr/asset-registry/runtime-bundles"');
+    const clause = main.slice(0, main.indexOf('from "@openclinxr/asset-registry/runtime-bundles"'));
     const lastImport = clause.lastIndexOf("import ");
     expect(clause.slice(lastImport, lastImport + 12)).not.toContain("type");
   });
@@ -164,7 +168,7 @@ describe("#715 the asset-registry client entry does not value-reach a node: buil
       readFileSync(resolve(REPO, "packages/openclinxr/asset-registry/package.json"), "utf8"),
     ) as { exports?: Record<string, unknown> };
     expect(pkg.exports?.["./layout-variation"]).toBeTruthy();
-    const impl = readFileSync(resolve(REGISTRY_SRC, "layout-variation.ts"), "utf8");
+    const impl = readFileSync(resolve(REGISTRY_SRC, "layout-variation-mod.ts"), "utf8");
     expect(impl).toMatch(/export function deriveLayoutVariationSeed/u);
     expect(impl).toMatch(/export function resolveBedsideLayout/u);
   });

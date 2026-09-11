@@ -6,13 +6,28 @@ import {
   createEdChestPainLocalAssetEvidenceFixtureManifests,
   createEdChestPainLocalEncounterRuntimeAssetBundle,
   createEdChestPainPlaceholderManifests,
-  evaluateScenarioAssetBudget,
   evaluateScenarioGenerationEvidence,
   evaluateScenarioOptimizationEvidence,
-  type ScenarioAssetBudget,
-  type ScenarioGenerationEvidence,
-  type ScenarioOptimizationEvidence,
+  InMemoryAssetRegistry,
 } from "../../../packages/openclinxr/asset-registry/src/index.js";
+
+type ScenarioGenerationEvidence = ReturnType<typeof evaluateScenarioGenerationEvidence>;
+type ScenarioOptimizationEvidence = ReturnType<typeof evaluateScenarioOptimizationEvidence>;
+type ScenarioAssetBudget = ReturnType<InMemoryAssetRegistry["evaluateScenarioReadiness"]>["stationBudget"];
+
+function evaluateScenarioAssetBudget(
+  manifests: readonly AssetManifest[],
+  measuredTriangleCounts?: Readonly<Record<string, number>>,
+): ScenarioAssetBudget {
+  const registry = new InMemoryAssetRegistry();
+  for (const manifest of manifests) registry.upsert(manifest);
+  const scenario = {
+    scenarioId: manifests[0]?.scenarioId ?? "ed_chest_pain_priority_v1",
+    assetNeeds: manifests.map((manifest) => ({ assetId: manifest.assetId })),
+  } as Parameters<InMemoryAssetRegistry["evaluateScenarioReadiness"]>[0];
+  return registry.evaluateScenarioReadiness(scenario, measuredTriangleCounts).stationBudget;
+}
+
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 import { validateBlenderBakeSmokeReport } from "./blender-asset-bake-smoke.js";
 import { validateGltfPipelineSmokeReport } from "./gltf-pipeline-smoke.js";

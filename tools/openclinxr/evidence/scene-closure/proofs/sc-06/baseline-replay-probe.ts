@@ -9,9 +9,9 @@ import {
 } from "../../../../../../packages/openclinxr/asset-registry/src/case-approach-intent.js";
 import {
   composeSupportedActorWorldPosition,
-  createEdChestPainRuntimeSceneManifest,
   supineActorWorldPosition,
-} from "../../../../../../packages/openclinxr/asset-registry/src/index.js";
+} from "../../../../../../packages/openclinxr/asset-registry/src/actor-posture.js";
+import { createEdChestPainRuntimeSceneManifest } from "../../../../../../packages/openclinxr/asset-registry/src/runtime-bundles-entry.js";
 import { observeMountedApproachGeometry } from "../../../../../../packages/openclinxr/xr-humanoid-animation/src/mounted-approach-geometry.js";
 import { beginBedsideApproachExecution } from "../../../../../../packages/openclinxr/xr-runtime-state/src/bedside-approach-execution.js";
 import { buildStationEnvironment } from "../../../../../../packages/openclinxr/xr-station/src/index.js";

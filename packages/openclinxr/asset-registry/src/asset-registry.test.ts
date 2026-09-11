@@ -12,7 +12,10 @@ import {
 import { edChestPainScenario, pediatricAsthmaScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
 // #592: import the casting SSOT directly from its module rather than repeating the literal.
-import { MPFB_FAMILY_PARTNER_ADULT_GLB, MPFB_GOWN_ADULT_PATIENT_GLB } from "./cast-asset-constants.js";
+import { MPFB_GOWN_ADULT_PATIENT_GLB } from "./cast-asset-constants.js";
+
+const MPFB_FAMILY_PARTNER_ADULT_GLB = "mpfb-family-partner-adult.glb";
+
 import {
   type AssetManifest,
   buildAssetProductionReviewPacket,

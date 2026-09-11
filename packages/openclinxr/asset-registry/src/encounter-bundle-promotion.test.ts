@@ -1,16 +1,15 @@
-import { describe, expect, it } from "vitest";
 import {
-  promoteReviewedFactoryOutputsToImmutableEncounterBundle,
-  type EncounterBundleFactoryMember,
-  type EncounterBundleFactoryMemberKind,
-} from "./encounter-bundle-promotion.js";
-import {
-  registerGeneratedRuntimeAssetReference,
-  resolveRuntimeAssetStoreConfig,
   type EncounterRuntimeAsset,
   type RuntimeAssetKind,
-  type RuntimeAssetReviewStatus,
-} from "./runtime-bundles.js";
+  registerGeneratedRuntimeAssetReference,
+  resolveRuntimeAssetStoreConfig,
+} from "@openclinxr/asset-registry/runtime-bundles";
+import { describe, expect, it } from "vitest";
+import {
+  type EncounterBundleFactoryMember,
+  type EncounterBundleFactoryMemberKind,
+  promoteReviewedFactoryOutputsToImmutableEncounterBundle,
+} from "./encounter-bundle-promotion.js";
 import type { RuntimeAssetReviewDecision } from "./runtime-asset-review.js";
 
 const STORE = resolveRuntimeAssetStoreConfig({
@@ -142,7 +141,7 @@ function member(
   assetId: string,
   kind: RuntimeAssetKind,
   contentHash: string,
-  reviewStatus: RuntimeAssetReviewStatus = "approved_for_local_runtime",
+  reviewStatus: EncounterRuntimeAsset["reviewStatus"] = "approved_for_local_runtime",
 ): EncounterBundleFactoryMember {
   return {
     memberKind,

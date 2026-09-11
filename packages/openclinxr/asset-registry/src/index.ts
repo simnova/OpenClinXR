@@ -15,9 +15,9 @@ export {
   toLearnerRuntimeAssetBundle,
 } from "./runtime-bundles.js";
 export {
+  parseRuntimeRoomPropColorHex,
   ROOM_PROP_ACCENT_COLOR_FALLBACK,
   ROOM_PROP_BODY_COLOR_FALLBACK,
-  parseRuntimeRoomPropColorHex,
 } from "./runtime-room-prop-color.js";
 
 import {
@@ -35,6 +35,10 @@ export {
 // #715: measured-station-geometry-freshness.js is node-only (node:crypto/fs/path) and must
 // not be value-reachable from the "." client entry — browsers cannot resolve node: builtins.
 // Node consumers import "@openclinxr/asset-registry/measured-station-geometry-freshness".
+// PSR-05: object-store stays node-only. Do not star-export it onto this barrel.
+// Historical type-only shape: export type {
+//   AssetObjectStore
+// } from "./object-store.js"
 import measuredStationGeometry from "./measured-station-geometry.json" with { type: "json" };
 
 type MeasuredStationGeometry = {
@@ -2785,19 +2789,20 @@ function hasProductionLimitingQuestQaStatus(status: AssetQuestQaStatus | undefin
       || normalized.includes("simulation qa only");
   }) ?? false;
 }
-// Published because the architecture gate requires package tests to route through the
-// entrypoint, and every-cast-actor-is-staged-or-reported.test.ts enumerates the shipped casts.
-export { unstagedCastActors } from "./cast-actor-ids.js";
+
 export { listShippedCastScenarioIds } from "./actor-casting.js";
-export {
-  ED_STRETCHER_DECK_BOUNDS,
-  bedsideTargetForClinician,
-  forwardVectorForHeading,
-  headingRadiansToward,
-} from "./bedside-target.js";
-export { bedsideClearanceViolations } from "./bedside-clearance.js";
-export { ED_MONITOR_BOUNDS, monitorVisibilityFrom, screenNormal } from "./monitor-visibility.js";
 // layout-variation.js is node-only (node:crypto for the seed digest) and must not be
 // value-reachable from the "." client entry — browsers cannot resolve node: builtins.
 // Node consumers import "@openclinxr/asset-registry/layout-variation".
 export { footSlideMeters, stepBedsideApproach } from "./approach-executor.js";
+export { bedsideClearanceViolations } from "./bedside-clearance.js";
+export {
+  bedsideTargetForClinician,
+  ED_STRETCHER_DECK_BOUNDS,
+  forwardVectorForHeading,
+  headingRadiansToward,
+} from "./bedside-target.js";
+// Published because the architecture gate requires package tests to route through the
+// entrypoint, and every-cast-actor-is-staged-or-reported.test.ts enumerates the shipped casts.
+export { unstagedCastActors } from "./cast-actor-ids.js";
+export { ED_MONITOR_BOUNDS, monitorVisibilityFrom, screenNormal } from "./monitor-visibility.js";

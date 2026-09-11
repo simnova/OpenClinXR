@@ -1,8 +1,6 @@
 import {
-  type EquipmentPlacementReport,
-  buildEquipmentPlacementReport,
-  buildRealizedEquipmentPlacements,
-} from "./realized-equipment-placements.js";
+  resolveScenarioActorCast,
+} from "./actor-casting.js";
 import {
   generatedActorLabel,
   generatedActorPlacement,
@@ -10,16 +8,19 @@ import {
   safeRuntimeManifestKey,
 } from "./actor-placement.js";
 import {
-  resolveScenarioActorCast,
-} from "./actor-casting.js";
+  buildEquipmentPlacementReport,
+  buildRealizedEquipmentPlacements,
+  type EquipmentPlacementReport,
+} from "./realized-equipment-placements.js";
 
 export {
   resolveScenarioActorCast } from "./actor-casting.js";
-import { type AuthoredPosture, type CaseScenarioSource, authoredCasePlacements, caseScenarioDocument, postureForSupportSurface } from "./case-actor-placements.js";
-import { placementsWithPersistedCaseIntent, type SupportedPlacementAcceptance } from "./case-intent-placements.js";
-import { caseRealGlbEquipmentFixtures, caseRealGlbEquipmentPlacements } from "./case-runtime-equipment.js";
+
 import { bedsideClinicianPlacement } from "./bedside-target.js";
 import { buildLocalEncounterActors } from "./bundle-actors.js";
+import { type AuthoredPosture, authoredCasePlacements, type CaseScenarioSource, caseScenarioDocument, postureForSupportSurface } from "./case-actor-placements-mod.js";
+import { placementsWithPersistedCaseIntent, type SupportedPlacementAcceptance } from "./case-intent-placements.js";
+import { caseRealGlbEquipmentFixtures, caseRealGlbEquipmentPlacements } from "./case-runtime-equipment-mod.js";
 import { resolveBundleCastActorIds } from "./cast-actor-ids.js";
 import { defaultRuntimeAssetContainerName, missingRuntimeStrings, uniqueRuntimeStrings } from "./runtime-bundle-strings.js";
 
@@ -35,7 +36,7 @@ export type EncounterRuntimeEvidenceGateId =
   | "quest_runtime_evidence"
   | "asset_production_review";
 
-type RuntimeAssetBlobRef = {
+export type RuntimeAssetBlobRef = {
   storeKind: RuntimeAssetStoreKind;
   containerName: string;
   blobName: string;
@@ -93,7 +94,7 @@ export type EncounterRuntimeEquipmentAsset = {
   model: EncounterRuntimeAsset;
 };
 
-type EncounterRuntimeUiSurfaceAsset = {
+export type EncounterRuntimeUiSurfaceAsset = {
   surfaceId: string;
   renderer: "schema_panel" | "static_panel";
   schema?: EncounterRuntimeAsset | undefined;
@@ -116,7 +117,7 @@ export type EncounterRuntimeRoomProp = {
   generatedBy: "scene_manifest";
 };
 
-type EncounterRuntimeStationContext = {
+export type EncounterRuntimeStationContext = {
   title: string;
   subtitle: string;
   chiefConcern: string;
@@ -209,7 +210,7 @@ export type EncounterRuntimeSceneManifest = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
-type EncounterRuntimeEvidenceGateRef = {
+export type EncounterRuntimeEvidenceGateRef = {
   gateId: EncounterRuntimeEvidenceGateId;
   status: "pending" | "attached" | "blocked";
   evidenceRefs: string[];
@@ -218,7 +219,7 @@ type EncounterRuntimeEvidenceGateRef = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
-type PedsHumanoidMaterializationHandoffAsset = {
+export type PedsHumanoidMaterializationHandoffAsset = {
   actorRole: "patient" | "anxious_parent" | "nurse";
   assetPath: string;
   runtimeAssetPath: string;
@@ -278,7 +279,7 @@ export type EncounterRuntimeLearnerUseGate = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
-type EncounterRuntimeGeneratedAssetAuditRef = {
+export type EncounterRuntimeGeneratedAssetAuditRef = {
   assetId: string;
   scenarioAssetId: string;
   kind: RuntimeAssetKind;
@@ -288,7 +289,7 @@ type EncounterRuntimeGeneratedAssetAuditRef = {
   provenanceRefs: string[];
 };
 
-type EncounterRuntimeHumanoidAuditMetadataRef = {
+export type EncounterRuntimeHumanoidAuditMetadataRef = {
   actorId: string;
   actorRole: EncounterRuntimeActorAsset["role"];
   embodiment: EncounterRuntimeActorAsset["embodiment"];
@@ -300,7 +301,7 @@ type EncounterRuntimeHumanoidAuditMetadataRef = {
   claimScope: "metadata_only_not_visual_quality_evidence";
 };
 
-type EncounterRuntimeRemediationPlanAuditRef = {
+export type EncounterRuntimeRemediationPlanAuditRef = {
   planRefId: string;
   dimension: "gaze" | "mouth_viseme" | "pose" | "posture_collision" | "clothing" | "shared_asset_reuse";
   sourceWorkOrderRef: string;
@@ -310,7 +311,7 @@ type EncounterRuntimeRemediationPlanAuditRef = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
-type EncounterRuntimeBundleAssemblyAuditMetadata = {
+export type EncounterRuntimeBundleAssemblyAuditMetadata = {
   schemaVersion: "openclinxr.runtime-bundle-assembly-audit.v1";
   claimBoundary: "asset_reference_audit_metadata_not_materialized_assets";
   sourceDefinitionRefs: string[];
@@ -378,7 +379,7 @@ export type EncounterFactoryDryRunSummary = {
   };
 };
 
-type EncounterFactoryInputSummary = {
+export type EncounterFactoryInputSummary = {
   source: "scenario_definition_and_dialogue_seed_bank";
   scenarioBankOrder?: number;
   factorySelectionRole?: "anchor" | "next_factory_planning_scenario" | "candidate";
@@ -419,19 +420,19 @@ export type EncounterFactoryInputPlanningSummary = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
-type EncounterFactorySummaryContracts = {
+export type EncounterFactorySummaryContracts = {
   dynamicBehaviorCoverage: EncounterDynamicBehaviorCoverageSummary;
   encounterFactoryDryRunSummary: EncounterFactoryDryRunSummary;
   inputPlanningSummary?: EncounterFactoryInputPlanningSummary | undefined;
 };
 
-type BuildEncounterDynamicBehaviorCoverageSummaryInput = {
+export type BuildEncounterDynamicBehaviorCoverageSummaryInput = {
   learnerRuntimeBundle?: Pick<LearnerRuntimeAssetBundle, "actors" | "sceneManifest" | "scenarioId"> | null | undefined;
   requiredActorRoles?: readonly string[] | undefined;
   scenarioId?: string | undefined;
 };
 
-type BuildEncounterFactoryDryRunSummaryInput = {
+export type BuildEncounterFactoryDryRunSummaryInput = {
   requestId: string;
   scenarioId: string;
   encounterFactoryInputSummary?: EncounterFactoryInputSummary | undefined;
@@ -447,7 +448,7 @@ type BuildEncounterFactoryDryRunSummaryInput = {
   blockedPendingRuntimeBundle?: boolean | undefined;
 };
 
-type EncounterRuntimeBundlePublicationMetadata = {
+export type EncounterRuntimeBundlePublicationMetadata = {
   bundleId: string;
   scenarioId: string;
   stationId: string;
@@ -481,12 +482,12 @@ export type LearnerRuntimeAssetBundle = Omit<EncounterRuntimeAssetBundle, "tenan
   identityScope: "learner_runtime_opaque_bundle";
 };
 
-type GuardedRuntimeSelectorCandidateBundle = Pick<
+export type GuardedRuntimeSelectorCandidateBundle = Pick<
   LearnerRuntimeAssetBundle,
   "bundleId" | "scenarioId" | "stationId" | "assetStoreKind" | "evidenceGateRefs" | "notEvidenceFor"
 >;
 
-type BuildGuardedRuntimeSelectorDisabledDecisionInput = {
+export type BuildGuardedRuntimeSelectorDisabledDecisionInput = {
   selectedRuntimeAssetBundleId: string;
   selectedScenarioId: string;
   selectedStationId: string;
@@ -496,7 +497,7 @@ type BuildGuardedRuntimeSelectorDisabledDecisionInput = {
   blockerIds?: readonly string[] | undefined;
 };
 
-type GuardedRuntimeSelectorDisabledDecision = {
+export type GuardedRuntimeSelectorDisabledDecision = {
   schemaVersion: "openclinxr.guarded-runtime-selector-disabled-decision.v1";
   selectionStatus: "disabled_guard_not_runtime_execution" | "blocked_intent_bundle_missing" | "blocked_intent_bundle_mismatch";
   claimBoundary: "guarded_runtime_selector_seam_not_runtime_execution";
@@ -523,7 +524,7 @@ type GuardedRuntimeSelectorDisabledDecision = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
-type ResolveEncounterRuntimeAssetBundleInput = {
+export type ResolveEncounterRuntimeAssetBundleInput = {
   tenantId?: string | undefined;
   userId?: string | undefined;
   examRunId?: string | undefined;
@@ -537,7 +538,7 @@ type ResolveEncounterRuntimeAssetBundleInput = {
   scenario?: CaseScenarioSource | undefined;
 };
 
-type RegisterGeneratedRuntimeAssetReferenceInput = {
+export type RegisterGeneratedRuntimeAssetReferenceInput = {
   assetId: string;
   version: string;
   kind: RuntimeAssetKind;
@@ -551,7 +552,7 @@ type RegisterGeneratedRuntimeAssetReferenceInput = {
   provenanceRefs: string[];
 };
 
-type BuildEncounterRuntimeAssetBundleInput = {
+export type BuildEncounterRuntimeAssetBundleInput = {
   bundleId: string;
   tenantId: string;
   userId: string;
@@ -877,7 +878,7 @@ export function toLearnerRuntimeAssetBundle(bundle: EncounterRuntimeAssetBundle)
   };
 }
 
-function deriveEncounterRuntimeBundleAssemblyAuditMetadata(
+export function deriveEncounterRuntimeBundleAssemblyAuditMetadata(
   bundle: Pick<
     EncounterRuntimeAssetBundle,
     | "bundleId"
