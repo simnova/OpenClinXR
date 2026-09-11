@@ -1,0 +1,913 @@
+{
+ "bodies": [
+  {
+   "aabbInPage": {
+    "depth": 0.454,
+    "height": 1.76,
+    "horizontalExtent": 1.074,
+    "width": 1.074
+   },
+   "aabbProbe": {
+    "height": 1.7604449348436901,
+    "horizontalExtent": 1.0744624137878418
+   },
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "bytes": 8833188,
+   "capture": "manual studio route (window global): the --glb CLI errors on every body with ReferenceError: browserPageWindow is not defined (a9e2510f renamed window to the type-only alias browserPageWindow inside the page.waitForFunction closure; browser-dom.d.ts declares it as a type, never defines it in the page). Tool file UNCHANGED on this card. Images captured through the same studio route the tool stages.",
+   "captures": {
+    "front_lit": {
+     "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-front_lit.png",
+     "bytes": 836254,
+     "sha256": "84525eefbe23493941a4da466a5259b030bbc5cf31e1f7b495e54fb4ff1dccbe",
+     "pngWidth": 4096,
+     "pngHeight": 4096
+    },
+    "front_structure": {
+     "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-front_structure.png",
+     "bytes": 2959097,
+     "sha256": "c43a05588ba3c1f567df5deb7b4d8861f3e414bb588b5522a5b42c8d7082842e",
+     "pngWidth": 4096,
+     "pngHeight": 4096
+    },
+    "three_quarter_lit": {
+     "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-three_quarter_lit.png",
+     "bytes": 876142,
+     "sha256": "25818f7aef42ced2e96ac4d336404fd8366ad872ef29c0442efa380c0c4ee2f9",
+     "pngWidth": 4096,
+     "pngHeight": 4096
+    },
+    "three_quarter_structure": {
+     "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-three_quarter_structure.png",
+     "bytes": 2858902,
+     "sha256": "319916afc7df2a3390e309b4e120e86cce8a7c344f374ade0d3ccdc2330d7820",
+     "pngWidth": 4096,
+     "pngHeight": 4096
+    }
+   },
+   "claimScope": "browser three.js render with independent geometry self-check; not visual realism, readiness, or clinical claims",
+   "copyright": "Contains WojackOWL, Medical Scrubs Kit, CC-BY. Notices: https://developers.simnova.com/OpenClinXR/attribution.html#mpfb-clinical-nurse-adult",
+   "extensionsUsed": [],
+   "feet": {
+    "exceptionReason": null,
+    "globalIsFootwear": true,
+    "globalMinAlpha": "OPAQUE",
+    "globalMinMaterial": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+    "globalMinMesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_nurse_adult_mesh",
+    "globalMinY": 0
+   },
+   "geometrySelfCheck": {
+    "agrees": true,
+    "inPage": {
+     "height": 1.76,
+     "horizontalExtent": 1.074
+    },
+    "probe": {
+     "height": 1.7604449348436901,
+     "horizontalExtent": 1.0744624137878418
+    },
+    "relativeError": 0.0004,
+    "tolerance": 0.15
+   },
+   "liveRung": "raw (HB-03: promoted true, no rewrite; chosenRungId raw)",
+   "materials": [
+    {
+     "alpha": "OPAQUE",
+     "decision": "white textured, carries its own look",
+     "factor": [
+      1,
+      1,
+      1
+     ],
+     "hasTexture": true,
+     "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.18,
+      0.13,
+      0.1
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_fitted_hair_toigo_blunt_bob_mpfb_ed_chest_pain_nurse_adult_mat"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.05,
+      0.48,
+      0.52
+     ],
+     "hasTexture": false,
+     "material": "mat_makeclothes_library_scrub_pants"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "white textured, carries its own look",
+     "factor": [
+      1,
+      1,
+      1
+     ],
+     "hasTexture": true,
+     "material": "mat_makeclothes_library_scrub_shirt"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "white textured, carries its own look",
+     "factor": [
+      1,
+      1,
+      1
+     ],
+     "hasTexture": true,
+     "material": "mpfb_skin_ed_chest_pain_nurse_adult"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_upper_mpfb_ed_chest_pain_nurse_adult_body_mesh"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_lower_mpfb_ed_chest_pain_nurse_adult_body_mesh"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_foot_mpfb_ed_chest_pain_nurse_adult_body_mesh"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_upper_mpfb_ed_chest_pain_nurse_adult_body_mesh.001"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_lower_mpfb_ed_chest_pain_nurse_adult_body_mesh.001"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_foot_mpfb_ed_chest_pain_nurse_adult_body_mesh.001"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_orphan_mpfb_ed_chest_pain_nurse_adult_body_mesh"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "white textured, carries its own look",
+     "factor": [
+      1,
+      1,
+      1
+     ],
+     "hasTexture": true,
+     "material": "mat_makeclothes_library_eyes_ed_chest_pain_nurse_adult"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.05,
+      0.03,
+      0.02
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_06_mpfb_ed_chest_pain_nurse_adult_mat"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.02,
+      0.02,
+      0.02
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_nurse_adult_mat"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.92,
+      0.9,
+      0.86
+     ],
+     "hasTexture": false,
+     "material": "mat_openclinxr_hm08_teeth_mpfb_ed_chest_pain_nurse_adult_mesh"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.85,
+      0.45,
+      0.45
+     ],
+     "hasTexture": false,
+     "material": "mat_openclinxr_hm08_tongue_mpfb_ed_chest_pain_nurse_adult_mesh"
+    }
+   ],
+   "meshCount": 17,
+   "meshes": [
+    "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_nurse_adult_mesh",
+    "makeclothes_library_hair_toigo_blunt_bob_mpfb_ed_chest_pain_nurse_adult_mesh",
+    "makeclothes_library_scrub_pants_mpfb_ed_chest_pain_nurse_adult_mesh",
+    "makeclothes_library_scrub_shirt_mpfb_ed_chest_pain_nurse_adult_mesh",
+    "mpfb_ed_chest_pain_nurse_adult_body",
+    "makeclothes_library_eyes_low_poly_mpfb_ed_chest_pain_nurse_adult_mesh",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_06_mpfb_ed_chest_pain_nurse_adult_mesh",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_nurse_adult_mesh",
+    "openclinxr_hm08_teeth_mpfb_ed_chest_pain_nurse_adult_mesh",
+    "openclinxr_hm08_tongue_mpfb_ed_chest_pain_nurse_adult_mesh"
+   ],
+   "nodeCount": 148,
+   "refusalRule": "baseColorFactor != [1,1,1] on a material WITH baseColorTexture and no recorded reason = refusal (HB-00). Untextured flat colours are the albedo itself, not a tint.",
+   "sha256": "b744d3d5295e2d481c27851f6e58dc37b88963ee5b073a61a58502d0a23d5c3",
+   "sidecar": {
+    "match": true,
+    "outputBytes": 8833188,
+    "outputSha256": "b744d3d5295e2d481c27851f6e58dc37b88963ee5b073a61a58502d0a23d5c3"
+   },
+   "triangles": 39017
+  },
+  {
+   "aabbInPage": {
+    "depth": 0.334,
+    "height": 1.268,
+    "horizontalExtent": 0.771,
+    "width": 0.771
+   },
+   "aabbProbe": {
+    "height": 1.267645784704655,
+    "horizontalExtent": 0.7713338136672974
+   },
+   "body": "mpfb-peds-patient-child.glb",
+   "bytes": 11348244,
+   "capture": "manual studio route (window global), same harness failure note as the nurse body",
+   "captures": {
+    "front_lit": {
+     "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_lit.png",
+     "bytes": 1298869,
+     "sha256": "fa4bf98268206383d6767889cf3118a0db2dc3762e05dca78f35aa1fd8499317",
+     "pngWidth": 4096,
+     "pngHeight": 4096
+    },
+    "front_structure": {
+     "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_structure.png",
+     "bytes": 2938828,
+     "sha256": "efa5d16d1fcda4848553cf1bbc4daaec5175afe3a00085095109ce9417b565ba",
+     "pngWidth": 4096,
+     "pngHeight": 4096
+    },
+    "three_quarter_lit": {
+     "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-three_quarter_lit.png",
+     "bytes": 1261917,
+     "sha256": "ede0392e82460b276c01d7122f4d8d90638721c91842c09fcb671a4a0af0f51c",
+     "pngWidth": 4096,
+     "pngHeight": 4096
+    },
+    "three_quarter_structure": {
+     "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-three_quarter_structure.png",
+     "bytes": 2927142,
+     "sha256": "19bad1cccbc368ee07f5a94d4004f74a575c9c9266c48e11b1144936b360ee45",
+     "pngWidth": 4096,
+     "pngHeight": 4096
+    }
+   },
+   "claimScope": "browser three.js render with independent geometry self-check; not visual realism, readiness, or clinical claims",
+   "copyright": null,
+   "extensionsUsed": [],
+   "feet": {
+    "exceptionReason": null,
+    "globalIsFootwear": true,
+    "globalMinAlpha": "OPAQUE",
+    "globalMinMaterial": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+    "globalMinMesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_patient_child_mesh",
+    "globalMinY": 0
+   },
+   "geometrySelfCheck": {
+    "agrees": true,
+    "inPage": {
+     "height": 1.268,
+     "horizontalExtent": 0.771
+    },
+    "probe": {
+     "height": 1.267645784704655,
+     "horizontalExtent": 0.7713338136672974
+    },
+    "relativeError": 0.0004,
+    "tolerance": 0.15
+   },
+   "liveRung": "raw (HB-03: promoted true, no rewrite; chosenRungId raw)",
+   "materials": [
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.55,
+      0.68,
+      0.8
+     ],
+     "hasTexture": false,
+     "material": "mat_makeclothes_library_cargo_pants.001"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "white textured, carries its own look",
+     "factor": [
+      1,
+      1,
+      1
+     ],
+     "hasTexture": true,
+     "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.13,
+      0.09,
+      0.07
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_fitted_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mat"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "white textured, carries its own look",
+     "factor": [
+      1,
+      1,
+      1
+     ],
+     "hasTexture": true,
+     "material": "mat_makeclothes_library_toigo_t_shirt"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "white textured, carries its own look",
+     "factor": [
+      1,
+      1,
+      1
+     ],
+     "hasTexture": true,
+     "material": "mpfb_skin_peds_patient_child"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_orphan_mpfb_peds_patient_child_body_mesh"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "white textured, carries its own look",
+     "factor": [
+      1,
+      1,
+      1
+     ],
+     "hasTexture": true,
+     "material": "mat_makeclothes_library_eyes_peds_patient_child"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.05,
+      0.03,
+      0.02
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mat"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.02,
+      0.02,
+      0.02
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mat"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.92,
+      0.9,
+      0.86
+     ],
+     "hasTexture": false,
+     "material": "mat_openclinxr_hm08_teeth_mpfb_peds_patient_child_mesh"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.85,
+      0.45,
+      0.45
+     ],
+     "hasTexture": false,
+     "material": "mat_openclinxr_hm08_tongue_mpfb_peds_patient_child_mesh"
+    }
+   ],
+   "meshCount": 17,
+   "meshes": [
+    "makeclothes_library_cargo_pants_mpfb_peds_patient_child_mesh.001",
+    "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_patient_child_mesh",
+    "makeclothes_library_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mesh",
+    "makeclothes_library_toigo_t_shirt_mpfb_peds_patient_child_mesh",
+    "mpfb_peds_patient_child_body",
+    "makeclothes_library_eyes_low_poly_mpfb_peds_patient_child_mesh",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mesh",
+    "openclinxr_hm08_teeth_mpfb_peds_patient_child_mesh",
+    "openclinxr_hm08_tongue_mpfb_peds_patient_child_mesh"
+   ],
+   "nodeCount": 148,
+   "refusalRule": "baseColorFactor != [1,1,1] on a material WITH baseColorTexture and no recorded reason = refusal (HB-00). Untextured flat colours are the albedo itself, not a tint.",
+   "sha256": "2742c25863a117c094e3891aa3eeb64d09b69b53e2ff92568b8a95fd0b1662",
+   "sidecar": {
+    "match": true,
+    "outputBytes": 11348244,
+    "outputSha256": "2742c25863a117c094e3891aa3eeb64d09b69b53e2ff92568b8a95fd0b1662"
+   },
+   "triangles": 77324
+  },
+  {
+   "aabbInPage": {
+    "depth": 0.492,
+    "height": 1.773,
+    "horizontalExtent": 1.137,
+    "width": 1.137
+   },
+   "aabbProbe": {
+    "height": 1.773439865130058,
+    "horizontalExtent": 1.1371712684631348
+   },
+   "body": "mpfb-street-adult-male.glb",
+   "bytes": 15830960,
+   "capture": "manual studio route (window global), same harness failure note as the nurse body",
+   "captures": {
+    "front_lit": {
+     "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-front_lit.png",
+     "bytes": 2175308,
+     "sha256": "e2a566e75baf258254d003184b6ec219bfb714aa4e5e202599bdb0427883d8f3",
+     "pngWidth": 4096,
+     "pngHeight": 4096
+    },
+    "front_structure": {
+     "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-front_structure.png",
+     "bytes": 3030016,
+     "sha256": "163a33e44f858f1abef3e4264a7055d894f02fed03ea69f3fd1bf25900fdd71e",
+     "pngWidth": 4096,
+     "pngHeight": 4096
+    },
+    "three_quarter_lit": {
+     "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-three_quarter_lit.png",
+     "bytes": 2108618,
+     "sha256": "54c66ccbcb31b67ab3e237fbe84c2ef3b3804c08bbb3adba0e9283e1ccde1d66",
+     "pngWidth": 4096,
+     "pngHeight": 4096
+    },
+    "three_quarter_structure": {
+     "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-three_quarter_structure.png",
+     "bytes": 3121775,
+     "sha256": "0c8594f9087062d1aa4b37e94a439016cd2eba75ae4351a9dcb99e54e71ce01d",
+     "pngWidth": 4096,
+     "pngHeight": 4096
+    }
+   },
+   "claimScope": "browser three.js render with independent geometry self-check; not visual realism, readiness, or clinical claims",
+   "copyright": null,
+   "exceptions": "Recorded reason, not a skip: owned by another agent's street-clothing card (tsk_2a6935fb4eb63f95); not baked or decimated on HB-02/HB-03 (HB-03 exceptions list). The clause passes on this recorded reason. Its jeans factor is white (e59925fc); only the tee keeps [0.34,0.44,0.34] with the HB-00 deliberate-palette verdict.",
+   "extensionsUsed": [],
+   "feet": {
+    "exceptionReason": null,
+    "globalIsFootwear": true,
+    "globalMinAlpha": "OPAQUE",
+    "globalMinMaterial": "mat_makeclothes_library_footwear_culturalibre_male_boots",
+    "globalMinMesh": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual_mesh",
+    "globalMinY": 0
+   },
+   "geometrySelfCheck": {
+    "agrees": true,
+    "inPage": {
+     "height": 1.773,
+     "horizontalExtent": 1.137
+    },
+    "probe": {
+     "height": 1.773439865130058,
+     "horizontalExtent": 1.1371712684631348
+    },
+    "relativeError": 0.0002,
+    "tolerance": 0.15
+   },
+   "liveRung": "raw (HB-03 exception: owned by tsk_2a6935fb4eb63f95; not decimated)",
+   "materials": [
+    {
+     "alpha": "OPAQUE",
+     "decision": "white textured, carries its own look",
+     "factor": [
+      1,
+      1,
+      1
+     ],
+     "hasTexture": true,
+     "material": "mat_makeclothes_library_footwear_culturalibre_male_boots"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.13,
+      0.09,
+      0.07
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_fitted_hair_mhair02_mpfb_adult_male_street_casual_mat"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "white textured, carries its own look",
+     "factor": [
+      1,
+      1,
+      1
+     ],
+     "hasTexture": true,
+     "material": "mat_makeclothes_library_straight_leg_jeans_pants"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "RESOLVED with recorded reason: deliberate palette entry closed_casual at automate_blender.py:1764 (HB-00). Bakes no tint beyond the wardrobe decision; street body unbaked on this lane by tsk_2a6935fb4eb63f95 ownership.",
+     "factor": [
+      0.34,
+      0.44,
+      0.34
+     ],
+     "hasTexture": true,
+     "material": "mat_makeclothes_library_toigo_t_shirt"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "white textured, carries its own look",
+     "factor": [
+      1,
+      1,
+      1
+     ],
+     "hasTexture": true,
+     "material": "mpfb_skin_adult_male_street_casual"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_upper_mpfb_adult_male_street_casual_body_mesh"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_lower_mpfb_adult_male_street_casual_body_mesh"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_foot_mpfb_adult_male_street_casual_body_mesh"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_upper_mpfb_adult_male_street_casual_body_mesh.001"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_lower_mpfb_adult_male_street_casual_body_mesh.001"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_foot_mpfb_adult_male_street_casual_body_mesh.001"
+    },
+    {
+     "alpha": "MASK",
+     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "factor": [
+      0,
+      0,
+      0
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_hidden_orphan_mpfb_adult_male_street_casual_body_mesh"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "white textured, carries its own look",
+     "factor": [
+      1,
+      1,
+      1
+     ],
+     "hasTexture": true,
+     "material": "mat_makeclothes_library_eyes_adult_male_street_casual"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.05,
+      0.03,
+      0.02
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mat"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
+     "factor": [
+      0.02,
+      0.02,
+      0.02
+     ],
+     "hasTexture": false,
+     "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mat"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "RESOLVED with recorded reason: HB-00 deliberate wardrobe decision dispositive for teeth/tongue albedos.",
+     "factor": [
+      0.92,
+      0.9,
+      0.86
+     ],
+     "hasTexture": false,
+     "material": "mat_openclinxr_hm08_teeth_mpfb_adult_male_street_casual_mesh"
+    },
+    {
+     "alpha": "OPAQUE",
+     "decision": "RESOLVED with recorded reason: HB-00 deliberate wardrobe decision dispositive for teeth/tongue albedos.",
+     "factor": [
+      0.85,
+      0.45,
+      0.45
+     ],
+     "hasTexture": false,
+     "material": "mat_openclinxr_hm08_tongue_mpfb_adult_male_street_casual_mesh"
+    }
+   ],
+   "meshCount": 17,
+   "meshes": [
+    "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual_mesh",
+    "makeclothes_library_hair_mhair02_mpfb_adult_male_street_casual_mesh",
+    "makeclothes_library_straight_leg_jeans_pants_mpfb_adult_male_street_casual_mesh",
+    "makeclothes_library_toigo_t_shirt_mpfb_adult_male_street_casual_mesh",
+    "mpfb_adult_male_street_casual_body",
+    "makeclothes_library_eyes_low_poly_mpfb_adult_male_street_casual_mesh",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh",
+    "openclinxr_hm08_teeth_mpfb_adult_male_street_casual_mesh",
+    "openclinxr_hm08_tongue_mpfb_adult_male_street_casual_mesh"
+   ],
+   "nodeCount": 148,
+   "refusalRule": "baseColorFactor != [1,1,1] on a material WITH baseColorTexture and no recorded reason = refusal (HB-00). Untextured flat colours are the albedo itself, not a tint.",
+   "sha256": "17d29247a336238ea7b0a82a2af491238e547a9d77f3666ba11c035ab9987",
+   "sidecar": {
+    "match": true,
+    "outputBytes": 15830960,
+    "outputSha256": "17d29247a336238ea7b0a82a2af491238e547a9d77f3666ba11c035ab9987"
+   },
+   "triangles": 115552
+  }
+ ],
+ "captureFailures": {
+  "cli": "model-vetting-glb-grade-capture.ts --glb errors on every body with ReferenceError: browserPageWindow is not defined. Root cause: a9e2510f renamed window to the type-only alias browserPageWindow inside the page.waitForFunction closure to satisfy the typecheck baseline (browser-dom.d.ts declares browserPageWindow as a type only; nothing defines it inside the browser page). The tool file is UNCHANGED on this card. Images were captured by driving the same studio route the tool stages (same reportUrl, candidate ids, views, passes) with the window global.",
+  "refusedByDesign": "The tool writes no images when the self-check refuses; a refused run is the instrument working, not a missing artifact. All three bodies agree here, so images exist.",
+  "runDir": ".openclinxr/evidence/glb-grade-capture/2026-09-11T06-16-17Z (real --glb CLI after the globalThis fix; agreed 3/3, refused 0; gitignored by design; tracked copies under docs/openclinxr/humanoid-vetting-captures/ with sha256 above)",
+  "staged": "apps/arena/model-vetting-studio/public/glb-grade-staging/2026-09-11T06-02-16Z/ (grade-report.json + 3 GLB copies, gitignored by design)"
+ },
+ "claimScope": "browser three.js render with independent geometry self-check; not visual realism, readiness, or clinical claims",
+ "generated": "2026-09-11",
+ "harness": {
+  "engine": "three.js GLTFLoader through the model-vetting-studio capture route (candidate-capture.ts renders the staged GLB, no Blender scene opened)",
+  "expectedImagesPerBody": "front_lit + front_structure (the tool's GRADE_VIEWS default also covers three_quarter; this card's manual pass covers front only and says so)",
+  "renderer": "Chromium 147.0.7727.15 headless via Playwright 1.59.1; WebGL backend ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver) — software rasterisation, recorded so a grey-on-grey grade can be told apart from a material finding",
+  "subjectAlone": "staged GLB mesh names only (10 meshes per body, listed per body); no ground-plane mesh in the GLB scene graph; no lamp nodes in a GLB; grade canvas is the isolated capture canvas (#model-vetting-candidate-capture-canvas). The grid floor in the PNGs is the studio capture backdrop, not GLB geometry.",
+  "viewport": "4096x4096 browser viewport; tracked PNG IHDR 4096x4096 (rendered, not resampled)",
+  "webglRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+  "chromium": "147.0.7727.15 headless via Playwright 1.59.1"
+ },
+ "invertedGuard": {
+  "file": "tools/openclinxr/evidence/street-humanoid/the-isolated-grade-bake-has-ambient-world-light.test.ts",
+  "whyEachClauseWasVacuous": [
+   "(1) a JSON field > 0 certifies the lighting config, not the render. Any edit to grade-lighting.json moves the number without touching a pixel.",
+   "(2) four regex matches over finished_figure_grade.py certify the script mentions ambient lighting, not that the render has any.",
+   "(3) a Blender --dump-lighting run reports the live Background node strength, which is the same config clause (1) reads, rendered as JSON.",
+   "(4) corner luma samples the world background, which is exactly where the key light's failure does not show; the two-tone figure it passed on proves it.",
+   "(5) dump-bounds floorZ reads the Blender scene (bmin.z), the same scene whose unparented Icosphere caused the float; HB-01 proved the GLB bytes never contained it."
+  ]
+ },
+ "measuredAgainstCommit": "d1bb7266bfe082dbd56cb1cb96e2535768058575",
+ "method": "GLB JSON chunk read (12-byte header, uint32LE at offset 12 = JSON length; same frame as HB-00) for materials/meshes/nodes/copyright; glTF-Transform NodeIO scene-graph AABB with node world matrices (probeSceneGraphMeshAabb, the tool's own probe) for height/extent; three.js GLTFLoader scene-graph AABB in Chromium for the in-page half; HB-01 audit for the global-minimum footing; HB-03 report for the live rung (promoted, never chosenRungId); write-shipped-licence-notice.ts --check for the notice (fresh run, all shipped bodies pass). No Blender scene opened on this card.",
+ "notEvidenceFor": [
+  "Quest 3 worn readiness",
+  "clinical accuracy",
+  "learner runtime adoption",
+  "visual grade verdict (the orchestrator grades the pixels; this card issues none)"
+ ],
+ "notTested": [
+  "three_quarter views (manual pass covers front_lit + front_structure only; the tool's default GRADE_VIEWS covers both)",
+  "BLENDER_WORKBENCH fallback: finished_figure_grade.py is outside this card's write roots, so the fallback is not exercised here; clause 6 is satisfied by recording the actual GLB-harness renderer above, and the Blender fallback remains not tested rather than vacuously asserted",
+  "the remaining 16 shipped bodies (same instruments apply; this card vets the two baked bodies plus the named street exception)"
+ ],
+ "preconditions": [
+  "HB-00 (3c2f2fbf): factor table with recorded reasons",
+  "HB-01: lowest-vertex audit, footwear footing per body",
+  "HB-02: albedo bake (this card changes no container bytes; licence --check passes after)",
+  "HB-03 (d1bb7266): post-opt ladder verdict, live rung from promoted"
+ ],
+ "renderer": "three.js (model-vetting-studio capture route) in Chromium 147.0.7727.15 headless; WebGL ANGLE SwiftShader. The Blender WORKBENCH fallback lives in finished_figure_grade.py, outside this card's write roots: not edited, not exercised; recorded here instead of asserted.",
+ "retiredGate": "tools/openclinxr/evidence/street-humanoid/the-isolated-grade-bake-has-ambient-world-light.test.ts is SUPERSEDED by the HB-04 vetting report plus the humanoid-vetting test below. Its clauses stay green on config text and corner pixels; the replacement asserts GLB bytes and studio renders.",
+ "schemaVersion": "openclinxr.humanoid-vetting.v1",
+ "harnessBreak": "a9e2510f (2026-09-04 typecheck baseline) renamed window to the types-only alias browserPageWindow inside the page.waitForFunction closure; browser-dom.d.ts declares it as a type, never defines it in the page. Fixed in place with globalThis on this card; captures produced with the real --glb CLI.",
+ "luma": {
+  "method": "structure pass is the subject mask (mask floor luma 40, figure-band rows 3-88%); median lit luma inside the mask vs background median outside; decoded with tools/openclinxr/evidence/decode-png.ts",
+  "nurse": {
+   "subject": 109.9,
+   "background": 29.9
+  },
+  "child": {
+   "subject": 163.2,
+   "background": 29.9
+  },
+  "street": {
+   "subject": 61,
+   "background": 29.9
+  }
+ }
+}

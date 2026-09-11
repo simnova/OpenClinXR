@@ -743,7 +743,9 @@ async function captureView(input: {
   try {
     const handle = await input.page.waitForFunction(
       () => {
-        const evidence = (browserPageWindow as unknown as {
+        // globalThis, not browserPageWindow: this closure runs in the browser page where the
+        // browser-dom.d.ts alias is types-only and throws ReferenceError (measured 2026-09-11).
+        const evidence = (globalThis as unknown as {
           __openClinXrModelVettingCandidateCaptureEvidence?: CaptureEvidence & { meshCount?: number };
         }).__openClinXrModelVettingCandidateCaptureEvidence;
         return evidence && typeof evidence.meshCount === "number" && evidence.meshCount > 0
