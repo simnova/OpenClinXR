@@ -20,7 +20,7 @@ import { execFileSync, spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, type Dirent } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { homedir, hostname } from "node:os";
+import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { buildRepoAgentSpawnPrompt } from "../../../packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.js";
 import {
@@ -48,7 +48,16 @@ import { setFactoryField } from "./board-cli.js";
 import { evaluateProofTargetsBeforeDispatch } from "./proof-target-preflight.js";
 import { provisionWorktreeAssetsSync } from "./worktree-asset-provisioning.js";
 import { ensureWorktreeBaseFresh, gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
-import { bothyMcpCall } from "./board-bothy-dequeue.js";
+import {
+  announceBothyClaimPresence as announceBothyDispatchPresence,
+  startBothyClaimRenewal,
+} from "./bothy-claim-renewal.js";
+export {
+  announceBothyClaimPresence,
+  BOTHY_CLAIM_INTERVAL_MS,
+  type BothyClaimPresence,
+  type ClaimRenewalHooks,
+} from "./bothy-claim-renewal.js";
 
 /**
  * INCIDENT: a worker was capped at 50 turns and died at exactly turn 50; another survived by one
@@ -1439,64 +1448,11 @@ function pidAlive(pid: number): boolean {
 }
 
 /**
- * Best-effort Bothy visibility for a live dispatch. Missing PAT or a board
- * error must not throw — the worker is already spawned.
+ * Claim renewal lives in bothy-claim-renewal.ts so harness-native spawns can run it without
+ * dispatch(). dispatch keeps the historic name working via this re-export.
  */
-async function announceBothyDispatchPresence(input: {
-  path: string;
-  branch: string;
-  taskId: string;
-  grokSessionId?: string;
-  agentId?: string;
-}): Promise<void> {
-  const pat = process.env.BOTHY_BOARD_PAT ?? "";
-  if (!pat) return;
-  const machineName = hostname();
-  try {
-    await bothyMcpCall(pat, "bothy-board.worktrees.register", {
-      path: input.path,
-      branch: input.branch,
-      machineName,
-      taskId: input.taskId,
-    });
-  } catch {
-    // board visibility is not a dispatch contract
-  }
-  try {
-    await bothyMcpCall(pat, "bothy-board.agents.heartbeat", {
-      name: "dispatch-worker",
-      machineName,
-      currentTaskId: input.taskId,
-      status: "working",
-      ...(input.grokSessionId ? { grokSessionId: input.grokSessionId } : {}),
-      ...(input.agentId ? { agentId: input.agentId } : {}),
-    });
-  } catch {
-    // board visibility is not a dispatch contract
-  }
-}
-
-/**
- * B2 claim renewal (tsk_36ec8d02ad31c685): how often dispatch renews the Bothy claim while the
- * child lives. Measured 2026-08-30: tsk_bca4085904e3b071 was claimed at 15:12:47Z and returned
- * to ready at 15:22:52Z with PID 79565 still alive and writing. Two minutes is comfortably below
- * the ~10-minute reaper while staying quiet for the board.
- */
-const BOTHY_CLAIM_INTERVAL_MS = 2 * 60_000;
-
-/**
- * Renew the exact Bothy claim while the child lives. Returns a stop function the child-close
- * handler calls so renewal ends precisely when the worker does — a stale renewer would keep a
- * dead worker's claim warm. Best-effort like announceBothyDispatchPresence: a transient board
- * failure must neither end renewal nor the worker; the interval keeps running and retries.
- */
-function startBothyClaimRenewal(input: Parameters<typeof announceBothyDispatchPresence>[0]): () => void {
-  const timer = setInterval(() => {
-    void announceBothyDispatchPresence(input);
-  }, BOTHY_CLAIM_INTERVAL_MS);
-  timer.unref();
-  return () => clearInterval(timer);
-}
+export { announceBothyClaimPresence as announceBothyDispatchPresence } from "./bothy-claim-renewal.js";
+export { startBothyClaimRenewal } from "./bothy-claim-renewal.js";
 
 export async function dispatch(repoRoot: string, options: DispatchOptions): Promise<DispatchLedgerEntry> {
   assertSafeEnvironment(process.env);
