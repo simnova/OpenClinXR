@@ -16618,6 +16618,13 @@
       "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
     },
     {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-defect-sites.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "HB-06 machine-readable defect-site attribution for mpfb-peds-patient-child (neckline squares + sleeve-hem rectangles traced to hide-mask mesh/material/UV/texel); read by the-child-defect-sites-are-attributed-from-the-glb.test.ts."
+    },
+    {
       "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-front_lit.png",
       "authority": "keep-evidence",
       "tracked": true,

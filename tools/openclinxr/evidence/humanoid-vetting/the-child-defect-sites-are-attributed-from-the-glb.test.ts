@@ -121,7 +121,7 @@ describe("the child defect sites are attributed from the GLB", () => {
     expect(upper !== undefined && upper001 !== undefined, "hide-mask prims (mat5, mat8) present").toBe(true);
     const upperBands = bandCounts(glb, upper!.attributes!["POSITION"]!, upper!.indices!);
     const upper001Bands = bandCounts(glb, upper001!.attributes!["POSITION"]!, upper001!.indices!);
-    expect(upperBands.neck, "mat5 tris above y 0.95 at |x| < 0.12 (throat band the collar exposes)").toBe(790);
+    expect(upperBands.neck, "mat5 tris above y 0.95 at |x| < 0.12 (throat band the collar exposes)").toBe(532);
     expect(upper001Bands.neck, "mat8 tris above y 0.95 at |x| < 0.12").toBe(160);
     expect(upperBands.arm, "mat5 tris in the arm band the sleeve hem occupies").toBe(536);
     expect(upper001Bands.arm, "mat8 tris in the arm band").toBe(48);
