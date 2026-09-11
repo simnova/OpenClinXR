@@ -28,6 +28,40 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-11T1030">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 7 &middot; 2026-09-11 10:30 EDT</p>
+          <h2>The largest export group landed: the asset registry now publishes 58 names at its root instead of 240.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Landed</h3>
+            <ul>
+              <li><strong>PSR-05</strong> (<code>f6845e61</code>): 329 exports removed from the asset registry and 48 moved to existing subpaths. Its root entrypoint dropped from 240 names to 58.</li>
+              <li>Program total so far, PSR-02 to PSR-05: 669 exports removed, 50 moved. The shrink ratchet now records 2,041 published root names, down from 2,533 at the start (<code>3663acdd</code>).</li>
+              <li>An admin-app test that failed intermittently now waits a measured 5 seconds for its lazily rendered canvas (<code>b44f44ac</code>). Measured inside the full suite, the canvas took 1.2 to 1.8 seconds on main as well, against a 1-second default.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Found while landing</h3>
+            <ul>
+              <li>The export review contradicted itself on 19 asset-registry names: it moved each to a subpath and also removed it from that subpath, leaving no published home. The subpath rows now keep them (<code>26d5aab5</code>).</li>
+              <li>A worker replaced one removed function with a hand-written wrapper in a benchmark tool. That was reverted, and the four names the tool uses stay published.</li>
+              <li>The land was refused twice by gates, not by defects in the change: once by two pre-existing lint errors in a touched file, and once because the shared checkout's compiled output predated the new package entrypoints.</li>
+              <li>The operating system stopped workers three times for low memory. Workers no longer run whole-repository builds and tests; those run once, at land.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Running now</h3>
+            <ul>
+              <li><strong>PSR-06</strong>: the admin route package and the admin app.</li>
+              <li><strong>PSR-07</strong>: the core XR packages and their runtime consumers. Learner behaviour must not change.</li>
+              <li>Queued: HB-06, which traces the neckline and sleeve-hem defects on the child humanoid to the exact texture pixels that produce them.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-11T0900">
         <div class="section-heading">
           <p class="eyebrow">Entry 6 &middot; 2026-09-11 09:00 EDT</p>
