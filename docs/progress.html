@@ -28,6 +28,43 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-11T0700">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 5 &middot; 2026-09-11 07:00 EDT</p>
+          <h2>Seven fixes landed on main, and a gap in the pre-push gate was found and closed.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Landed</h3>
+            <ul>
+              <li><strong>PSR-02</strong> (<code>7eb15436</code>): 30 unused exports removed from four support packages, checked against its approval.</li>
+              <li>API app tests run on an offline runtime, with one clause that still tests live-provider reporting on purpose (<code>52107f3d</code>).</li>
+              <li>The model-vetting studio's test suite runs in node, where it can read its own fixture files (<code>355e9129</code>).</li>
+              <li>The frozen scene record for the scene-closure encounter was regenerated after the humanoid albedo bake changed four of its models, and three provenance records that now match their bytes left the mismatch list (<code>a18c05af</code>). Only hashes moved; the walk route and stop position are unchanged.</li>
+              <li>A package test that timed out when many packages test at once now loads its module outside the timed test (<code>de2d1ba7</code>). No timeout was raised.</li>
+              <li>The pre-push architecture check no longer reuses a cached pass (<code>596eeb28</code>). Detail below.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Found while landing</h3>
+            <ul>
+              <li>The architecture check ran through a build cache keyed only on its own package, while it reads the whole repository. A change anywhere else replayed the last pass. That let one of this run's own fixes (<code>de2d1ba7</code>) raise a test-import ceiling on main without the check noticing. It was repaired in <code>1b4ee942</code>, and the cache is now disabled for that check, with a test that fails if it is re-enabled.</li>
+              <li><strong>PSR-03</strong> was refused at push. Removing exports forced two packages' own tests onto internal modules, which a separate ceiling forbids. The plan counts tests as consumers, so the approval now keeps the 26 names those tests use. A worker is applying that change.</li>
+              <li>Three test files time out only when many packages are tested in parallel. One is fixed; a worker has the other two.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Running now</h3>
+            <ul>
+              <li><strong>PSR-04</strong>: the REST package keeps 90 approved exports and drops 103.</li>
+              <li><strong>PSR-03</strong> handback: re-publish the 26 names, restore the two deleted ceiling files, refresh one package index.</li>
+              <li>The two remaining parallel-load timeouts.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="status-copy">Briefs for the export-removal cards not yet dispatched (PSR-05 to PSR-08) now carry the test-import rule. PSR-04 was dispatched before it, so its land will be checked against the architecture suite by hand.</p>
+      </section>
+
       <section class="band" id="entry-2026-09-11T0500">
         <div class="section-heading">
           <p class="eyebrow">Entry 4 &middot; 2026-09-11 05:00 EDT</p>
