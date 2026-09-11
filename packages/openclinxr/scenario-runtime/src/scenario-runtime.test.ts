@@ -1303,6 +1303,73 @@ describe("non-ED scenario runtime", () => {
       "consent.accepted",
     ]);
   });
+
+  it("coordinates patient, parent, and nurse turns from one case-defined ensemble clock", async () => {
+    const runtime = createDefaultScenarioRuntime({ scenario: pediatricAsthmaScenario });
+    const session = await runtime.startSession({ learnerId: "learner_ensemble_001", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 10 });
+
+    const first = runtime.advanceEnsemble(session.stationRunId, 300);
+    expect(first?.ownerActorId).toBe("nurse_kevin_lee_v1");
+    expect(first?.ownerRole).toBe("nurse");
+    expect(first?.gazeTargetActorId).toBe("patient_maya_johnson_v1");
+    expect(first?.trace.eventType).toBe("multi_actor.ensemble.turn");
+    expect(first?.trace.tag).toBe("oxygen_request");
+
+    const second = runtime.advanceEnsemble(session.stationRunId, 300);
+    expect(second?.ownerActorId).toBe("nurse_kevin_lee_v1");
+
+    const replayed = runtime.traceEvents(session.stationRunId).filter((event) => event.eventType === "multi_actor.ensemble.turn");
+    expect(replayed).toHaveLength(2);
+    expect(replayed[0]?.payload["ownerRole"]).toBe("nurse");
+    expect(replayed[0]?.payload["interruptionPolicy"]).toBe("owner_holds_turn");
+    expect(replayed[0]?.payload["claimScope"]).toBe("multi_actor_ensemble_turn_traced_not_scored");
+  });
+
+  it("gives the patient the same-second turn over the parent when no nurse event is due", async () => {
+    const scenario: Scenario = {
+      ...pediatricAsthmaScenario,
+      eventSchedule: [
+        { eventId: "family_worry", atSecond: 420, actorId: "parent_tara_johnson_v1", tag: "family_interruption" },
+        { eventId: "patient_onset", atSecond: 420, actorId: "patient_maya_johnson_v1", tag: "history_onset" },
+      ],
+    };
+    const runtime = createDefaultScenarioRuntime({ scenario });
+    const session = await runtime.startSession({ learnerId: "learner_ensemble_role_order", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 10 });
+
+    const turn = runtime.advanceEnsemble(session.stationRunId, 420);
+    expect(turn?.ownerActorId).toBe("patient_maya_johnson_v1");
+    expect(turn?.ownerRole).toBe("patient");
+    expect(turn?.gazeTargetActorId).toBe("parent_tara_johnson_v1");
+    expect(turn?.trace.tag).toBe("history_onset");
+
+    const replayRuntime = createDefaultScenarioRuntime({ scenario });
+    const replaySession = await replayRuntime.startSession({ learnerId: "learner_ensemble_role_order", consentAccepted: true });
+    replayRuntime.startEncounter(replaySession.stationRunId, { atSecond: 10 });
+    expect(JSON.stringify(replayRuntime.advanceEnsemble(replaySession.stationRunId, 420))).toBe(JSON.stringify(turn));
+  });
+
+  it("lets a due nurse escalation interrupt a non-nurse same-second owner", async () => {
+    const scenario: Scenario = {
+      ...pediatricAsthmaScenario,
+      eventSchedule: [
+        { eventId: "nurse_call_ecg", atSecond: 420, actorId: "nurse_kevin_lee_v1", tag: "ecg_request" },
+        { eventId: "patient_onset", atSecond: 420, actorId: "patient_maya_johnson_v1", tag: "history_onset" },
+        { eventId: "family_worry", atSecond: 420, actorId: "parent_tara_johnson_v1", tag: "family_interruption" },
+      ],
+    };
+    const runtime = createDefaultScenarioRuntime({ scenario });
+    const session = await runtime.startSession({ learnerId: "learner_ensemble_interrupt", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 10 });
+
+    const turn = runtime.advanceEnsemble(session.stationRunId, 420);
+    expect(turn?.ownerActorId).toBe("nurse_kevin_lee_v1");
+    expect(turn?.ownerRole).toBe("nurse");
+    expect(turn?.gazeTargetActorId).toBe("patient_maya_johnson_v1");
+    expect(turn?.trace.payload["interruptionPolicy"]).toBe("nurse_escalation_interrupts");
+    expect(turn?.trace.payload["interruptedOwnerActorId"]).toBe("patient_maya_johnson_v1");
+  });
 });
 
 describe("peds authored turn persistence", () => {

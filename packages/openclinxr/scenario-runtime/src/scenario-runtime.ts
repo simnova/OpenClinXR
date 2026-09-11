@@ -45,6 +45,7 @@ import {
 } from "./provider-support.js";
 import { ACTOR_TURN_EXECUTED_EVENT_TYPE, executionFromFrozenPlan } from "./actor-turn-plan.js";
 import { generateActorResponseFromContext } from "./actor-turn-generation.js";
+import { advanceMultiActorEnsemble as advanceTick, type MultiActorEnsembleTurn } from "./multi-actor-encounter/index.js";
 import {
   assertObservedFormTime,
   durableEventRef,
@@ -321,10 +322,7 @@ export class ScenarioRuntime {
     };
   }
 
-  /**
-   * Register a learner barge-in against any in-progress actor turn.
-   * Always appends a distinct trace event (eventType conversation.learner.barge_in, tag learner_barge_in).
-   */
+  /** Register a learner barge-in against any in-progress actor turn. */
   registerLearnerBargeIn(stationRunId: string, input: LearnerBargeInInput): RegisterLearnerBargeInResult {
     const session = this.requireSession(stationRunId);
     const resolution = this.conversationPolicy.resolveLearnerBargeIn(session.actorTurnInProgress, input);
@@ -352,13 +350,7 @@ export class ScenarioRuntime {
     return { resolution, event };
   }
 
-  /**
-   * Apply an emotion event against the actor's EmotionEngine.
-   * When the emotion CHANGES, emits a trace event with the PINNED shape:
-   *   { eventType: "emotion_transition", actorId, payload: { from, to, trigger, turnIndex } }
-   *
-   * Returns the resolved EmotionTransition (changed=true when a transition occurred).
-   */
+  /** Apply an emotion event; emits emotion_transition only when the emotion changes. */
   applyEmotionEvent(
     stationRunId: string,
     actorId: string,
@@ -407,14 +399,12 @@ export class ScenarioRuntime {
     return engine.currentEmotion;
   }
 
-  /** Current history-taking domain coverage for a session (traced, not scored). */
+  /** History-taking coverage for a session (traced, not scored). */
   historyTakingCoverage(stationRunId: string): HistoryTakingCoverageState {
     return this.requireSession(stationRunId).historyTakingCoverage;
   }
 
-  /**
-   * Deterministic who-speaks-next helper. Uses session last speaker + scenario actors.
-   */
+  /** Deterministic who-speaks-next from session last speaker + scenario actors. */
   turnTakingDecision(
     stationRunId: string,
     input: {
@@ -546,16 +536,11 @@ export class ScenarioRuntime {
 
   reviewPacket(stationRunId: string): ReviewPacket {
     const packet = this.buildReviewPacketForSession(stationRunId);
-    // Sync signature preserved for API/GraphQL callers; awaitable stores fire-and-forget here.
-    // Prefer reviewPacketAndPersist when durable callbacks must complete before return.
     settleDurableStoreCall(this.options.durableStore?.saveReviewPacket?.(stationRunId, packet));
     return packet;
   }
 
-  /**
-   * Build review packet and await optional durableStore.saveReviewPacket.
-   * Use from CLI/async hosts that need durable completion guarantees.
-   */
+  /** Build review packet and await optional durableStore.saveReviewPacket. */
   async reviewPacketAndPersist(stationRunId: string): Promise<ReviewPacket> {
     const packet = this.buildReviewPacketForSession(stationRunId);
     await this.options.durableStore?.saveReviewPacket?.(stationRunId, packet);
@@ -609,9 +594,24 @@ export class ScenarioRuntime {
     return this.options.assetRegistry.evaluateScenarioReadiness(this.options.scenario);
   }
 
-  /** Events newly due at or before `atSecond`, applied at the effect consumer when one is wired. */
+  /** Events newly due at or before `atSecond`, applied at the effect consumer when wired. */
   advanceScheduledEvents(stationRunId: string, atSecond: number): ScheduledEvent[] {
     return advanceScheduledEffects(this.admissionHost(), this.requireSession(stationRunId), atSecond);
+  }
+  advanceEnsemble(stationRunId: string, atSecond: number): MultiActorEnsembleTurn | null {
+    const session = this.requireSession(stationRunId);
+    return advanceTick(
+      {
+        scenario: this.options.scenario,
+        atSecond,
+        stationRunId,
+        learnerUtterance: "",
+        emittedEventIds: session.emittedScheduledEventIds,
+        priorTurnOwnerActorIds: session.lastSpeakerActorId === null ? [] : [session.lastSpeakerActorId],
+        ledgerSequence: session.nextSequence,
+      },
+      (traceInput) => this.appendTrace(session, traceInput),
+    );
   }
   recordRequirementObservation(stationRunId: string, observation: SceneRequirementObservation): SceneRequirementObservation {
     return recordRequirementObservation(this.admissionHost(), this.requireSession(stationRunId), observation);
@@ -619,7 +619,7 @@ export class ScenarioRuntime {
   encounterAdmissionSnapshot(stationRunId: string): EncounterAdmissionSnapshot | undefined {
     return this.requireSession(stationRunId).encounterAdmission;
   }
-  /** Apply scheduled effects due at `atSecond` at the actual consumer, with retry and stop signal. */
+  /** Apply scheduled effects due at `atSecond` at the consumer, with retry and stop. */
   applyScheduledEffects(stationRunId: string, atSecond: number): ScheduledEffectResult {
     return applyScheduledEffects(this.admissionHost(), this.requireSession(stationRunId), atSecond);
   }
