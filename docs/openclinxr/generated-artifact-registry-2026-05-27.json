@@ -4,13 +4,13 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 174,
+    "keep-evidence": 175,
     "ignore-local-cache": 2112,
     "keep-current": 141,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2471,
-    "total": 2471
+    "entries": 2472,
+    "total": 2472
   },
   "entries": [
     {
@@ -16969,6 +16969,13 @@
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/evidence/psr-01e.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/evidence/psr-02.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",

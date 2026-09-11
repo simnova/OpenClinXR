@@ -22,7 +22,7 @@ export const telemetryAttributeNames = {
   graphqlOperationName: "openclinxr.graphql.operation_name",
 } as const;
 
-export type TelemetryAttributeInput = Partial<Record<keyof typeof telemetryAttributeNames, string | number | boolean>> & {
+type TelemetryAttributeInput = Partial<Record<keyof typeof telemetryAttributeNames, string | number | boolean>> & {
   learnerUtterance?: string;
   promptText?: string;
   hiddenFacts?: string[];
@@ -30,9 +30,9 @@ export type TelemetryAttributeInput = Partial<Record<keyof typeof telemetryAttri
   rawAudioReference?: string;
 };
 
-export type SafeTelemetryAttributes = Record<(typeof telemetryAttributeNames)[keyof typeof telemetryAttributeNames], string | number | boolean>;
+type SafeTelemetryAttributes = Record<(typeof telemetryAttributeNames)[keyof typeof telemetryAttributeNames], string | number | boolean>;
 
-export type OpenClinXrSpanName = (typeof openClinXrSpanNames)[keyof typeof openClinXrSpanNames];
+type OpenClinXrSpanName = (typeof openClinXrSpanNames)[keyof typeof openClinXrSpanNames];
 
 export type TelemetrySpanRecord = {
   name: OpenClinXrSpanName;
@@ -42,9 +42,9 @@ export type TelemetrySpanRecord = {
   errorType?: string;
 };
 
-export type TelemetrySummaryLabelName = (typeof telemetrySummaryLabelNames)[number];
+type TelemetrySummaryLabelName = (typeof telemetrySummaryLabelNames)[number];
 
-export type TelemetrySpanSummaryBucket = {
+type TelemetrySpanSummaryBucket = {
   name: OpenClinXrSpanName;
   labels: Partial<Record<TelemetrySummaryLabelName, string | number | boolean>>;
   count: number;
@@ -58,7 +58,7 @@ export type TelemetrySpanSummaryBucket = {
   };
 };
 
-export type TelemetrySpanSummary = {
+type TelemetrySpanSummary = {
   buckets: TelemetrySpanSummaryBucket[];
 };
 
@@ -66,7 +66,7 @@ export type TelemetryRecorder = {
   recordSpan: (span: TelemetrySpanRecord) => Promise<void> | void;
 };
 
-export type InMemoryTelemetryRecorder = TelemetryRecorder & {
+type InMemoryTelemetryRecorder = TelemetryRecorder & {
   spans: () => TelemetrySpanRecord[];
   clear: () => void;
 };
@@ -113,7 +113,7 @@ export function telemetryRouteAttributes(input: TelemetryAttributeInput): Partia
   return safeTelemetryAttributes(input);
 }
 
-export function safeTelemetryAttributes(input: TelemetryAttributeInput): Partial<SafeTelemetryAttributes> {
+function safeTelemetryAttributes(input: TelemetryAttributeInput): Partial<SafeTelemetryAttributes> {
   const attributes: Partial<SafeTelemetryAttributes> = {};
   for (const key of allowedInputKeys) {
     const value = input[key];
@@ -171,7 +171,7 @@ export function summarizeTelemetrySpans(spans: TelemetrySpanRecord[]): Telemetry
   };
 }
 
-export function createNoopTelemetryRecorder(): TelemetryRecorder {
+function createNoopTelemetryRecorder(): TelemetryRecorder {
   return {
     recordSpan: () => undefined,
   };

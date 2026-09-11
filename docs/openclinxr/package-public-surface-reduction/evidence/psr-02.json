@@ -1,0 +1,565 @@
+{
+  "claim": "PSR-01B dispositions applied exactly across the five support packages; require-applied psr-02 passes on this tree.",
+  "commands": [
+    "pnpm arch:public-surface:verify -- --require-applied psr-02",
+    "pnpm arch:public-surface:verify",
+    "pnpm --filter @openclinxr/architecture-rules exec vitest run --config vitest.arch.config.ts",
+    "pnpm --filter @openclinxr/auth test",
+    "pnpm --filter @openclinxr/telemetry test",
+    "pnpm --filter @openclinxr/config-rolldown test",
+    "pnpm --filter @openclinxr/physics-touch-artifacts test",
+    "pnpm --filter @openclinxr/test-harness test",
+    "pnpm packages:typecheck:agent",
+    "git diff --check"
+  ],
+  "consumerFilesMigrated": [],
+  "dispositions": [
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "AUTH_CLAIM_BOUNDARY"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "AUTH_NOT_EVIDENCE_FOR"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "AuthIdentity"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "AuthRole"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "canReadStationRun"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "DEFAULT_DEV_AUTH_IDENTITY"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "DEFAULT_DEV_AUTH_SECRET"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "hasFacultyAccess"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "parseBearerAuthorization"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "resolveSessionLearnerId"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "signAuthToken"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "SignTokenInput"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "verifyAuthToken"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "VerifyTokenInput"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/auth",
+      "symbol": "VerifyTokenResult"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/config-rolldown",
+      "symbol": "buildOpenClinXrCjsAliasMap"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/config-rolldown",
+      "symbol": "createOpenClinXrAzureFunctionsRolldownConfig"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/config-rolldown",
+      "symbol": "OpenClinXrRolldownConfig"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/config-rolldown",
+      "symbol": "OpenClinXrRolldownConfigOptions"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/config-rolldown",
+      "symbol": "prepareOpenClinXrAzureFunctionsDeploy"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/config-rolldown",
+      "symbol": "PrepareOpenClinXrAzureFunctionsDeployOptions"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/config-rolldown",
+      "symbol": "summarizeRolldownAdoption"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "symbol": "BakedBoneFrame"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "symbol": "BakedBoneTransformsArtifact"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "symbol": "BakedPhysicsSchemaVersion"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "symbol": "bakedTransformsConsumerAllowed"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "symbol": "BoneDelta"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "symbol": "liveEngineInProductionForbidden"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "symbol": "PHYSICS_TOUCH_ARTIFACTS_GATES"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "createInMemoryTelemetryRecorder"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "createNoopTelemetryRecorder"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "createTelemetryRecorder"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "InMemoryTelemetryRecorder"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "OpenClinXrSpanName"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "openClinXrSpanNames"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "RealTelemetryRecorder"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "safeTelemetryAttributes"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "SafeTelemetryAttributes"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "summarizeTelemetrySpans"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "TelemetryAttributeInput"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "telemetryAttributeNames"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "TelemetryRecorder"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "telemetryRouteAttributes"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "TelemetryRunCounters"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "TelemetrySnapshot"
+    },
+    {
+      "disposition": "keep",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "TelemetrySpanRecord"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "TelemetrySpanSummary"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "TelemetrySpanSummaryBucket"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/telemetry",
+      "symbol": "TelemetrySummaryLabelName"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/test-harness",
+      "symbol": "AdversarialProbe"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/test-harness",
+      "symbol": "AdversarialProbeReport"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/test-harness",
+      "symbol": "AdversarialProbeReportOptions"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/test-harness",
+      "symbol": "AdversarialProbeStatus"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/test-harness",
+      "symbol": "buildAdversarialProbeReport"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/test-harness",
+      "symbol": "DialogueSeedReplayEvidence"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/test-harness",
+      "symbol": "OptionalRuntimeSkip"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/test-harness",
+      "symbol": "runDialogueSeedReplayEvidence"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/test-harness",
+      "symbol": "runEdChestPainSimulation"
+    },
+    {
+      "disposition": "remove",
+      "entrypoint": ".",
+      "package": "packages/openclinxr/test-harness",
+      "symbol": "SimulationResult"
+    }
+  ],
+  "exactMigratedExports": [],
+  "exactRemovedExports": [
+    "packages/openclinxr/auth.AUTH_CLAIM_BOUNDARY",
+    "packages/openclinxr/auth.AUTH_NOT_EVIDENCE_FOR",
+    "packages/openclinxr/auth.AuthRole",
+    "packages/openclinxr/auth.SignTokenInput",
+    "packages/openclinxr/auth.VerifyTokenInput",
+    "packages/openclinxr/auth.VerifyTokenResult",
+    "packages/openclinxr/config-rolldown.OpenClinXrRolldownConfig",
+    "packages/openclinxr/config-rolldown.OpenClinXrRolldownConfigOptions",
+    "packages/openclinxr/config-rolldown.PrepareOpenClinXrAzureFunctionsDeployOptions",
+    "packages/openclinxr/config-rolldown.buildOpenClinXrCjsAliasMap",
+    "packages/openclinxr/config-rolldown.summarizeRolldownAdoption",
+    "packages/openclinxr/physics-touch-artifacts.BakedBoneFrame",
+    "packages/openclinxr/physics-touch-artifacts.BakedBoneTransformsArtifact",
+    "packages/openclinxr/physics-touch-artifacts.BakedPhysicsSchemaVersion",
+    "packages/openclinxr/physics-touch-artifacts.BoneDelta",
+    "packages/openclinxr/physics-touch-artifacts.PHYSICS_TOUCH_ARTIFACTS_GATES",
+    "packages/openclinxr/physics-touch-artifacts.bakedTransformsConsumerAllowed",
+    "packages/openclinxr/physics-touch-artifacts.liveEngineInProductionForbidden",
+    "packages/openclinxr/telemetry.InMemoryTelemetryRecorder",
+    "packages/openclinxr/telemetry.OpenClinXrSpanName",
+    "packages/openclinxr/telemetry.SafeTelemetryAttributes",
+    "packages/openclinxr/telemetry.TelemetryAttributeInput",
+    "packages/openclinxr/telemetry.TelemetrySpanSummary",
+    "packages/openclinxr/telemetry.TelemetrySpanSummaryBucket",
+    "packages/openclinxr/telemetry.TelemetrySummaryLabelName",
+    "packages/openclinxr/telemetry.createNoopTelemetryRecorder",
+    "packages/openclinxr/telemetry.safeTelemetryAttributes",
+    "packages/openclinxr/test-harness.AdversarialProbe",
+    "packages/openclinxr/test-harness.AdversarialProbeReport",
+    "packages/openclinxr/test-harness.AdversarialProbeReportOptions",
+    "packages/openclinxr/test-harness.AdversarialProbeStatus",
+    "packages/openclinxr/test-harness.DialogueSeedReplayEvidence",
+    "packages/openclinxr/test-harness.OptionalRuntimeSkip",
+    "packages/openclinxr/test-harness.SimulationResult",
+    "packages/openclinxr/test-harness.buildAdversarialProbeReport",
+    "packages/openclinxr/test-harness.runDialogueSeedReplayEvidence",
+    "packages/openclinxr/test-harness.runEdChestPainSimulation"
+  ],
+  "exactRetainedExceptions": [],
+  "exactRetainedExports": [
+    "packages/openclinxr/auth.AuthIdentity",
+    "packages/openclinxr/auth.DEFAULT_DEV_AUTH_IDENTITY",
+    "packages/openclinxr/auth.DEFAULT_DEV_AUTH_SECRET",
+    "packages/openclinxr/auth.canReadStationRun",
+    "packages/openclinxr/auth.hasFacultyAccess",
+    "packages/openclinxr/auth.parseBearerAuthorization",
+    "packages/openclinxr/auth.resolveSessionLearnerId",
+    "packages/openclinxr/auth.signAuthToken",
+    "packages/openclinxr/auth.verifyAuthToken",
+    "packages/openclinxr/config-rolldown.createOpenClinXrAzureFunctionsRolldownConfig",
+    "packages/openclinxr/config-rolldown.prepareOpenClinXrAzureFunctionsDeploy",
+    "packages/openclinxr/telemetry.RealTelemetryRecorder",
+    "packages/openclinxr/telemetry.TelemetryRecorder",
+    "packages/openclinxr/telemetry.TelemetryRunCounters",
+    "packages/openclinxr/telemetry.TelemetrySnapshot",
+    "packages/openclinxr/telemetry.TelemetrySpanRecord",
+    "packages/openclinxr/telemetry.createInMemoryTelemetryRecorder",
+    "packages/openclinxr/telemetry.createTelemetryRecorder",
+    "packages/openclinxr/telemetry.openClinXrSpanNames",
+    "packages/openclinxr/telemetry.summarizeTelemetrySpans",
+    "packages/openclinxr/telemetry.telemetryAttributeNames",
+    "packages/openclinxr/telemetry.telemetryRouteAttributes"
+  ],
+  "groupHash": "82f312da4e6a9b9514a80765251216e07cfd180c04985ed09d5281a0f170b8a1",
+  "inventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility. BLOCKER outside write-roots: tools/openclinxr/evidence/blueprint-voice-simulation-spike.ts imports removed export safeTelemetryAttributes via relative path (TS2724, repo-wide typecheck 1 > frozen ceiling 0); migrate to kept telemetryRouteAttributes at land.",
+  "manifestHashes": {
+    "packages/openclinxr/agent-loop": "0ba04221f54e09103767d06a098a929fcf525b0d0c791c8c9965b2c146a2d7ef",
+    "packages/openclinxr/arena/iwsdk-spike": "f4c84df8a98303933c7acf29509aa8a7eb08631f4946ab91830e147356c14c9d",
+    "packages/openclinxr/arena/model-vetting": "d6ec85e8147f459069e42f8831ddf149cc6e7ead61f7a92152d421146af59c07",
+    "packages/openclinxr/arena/multi-actor-state-spike": "b997c168690bd169f8729b1840119186d295009078497756eeae1b51c898d4f3",
+    "packages/openclinxr/arena/physics-touch-contract": "642bfd30c909ee15c7861fb786a42d368ca1875e9aa98f97592c69cf40729a1e",
+    "packages/openclinxr/asset-registry": "cf94c0bb72028a015b284642669305dc3b25eec28a82843e8c8236f74a201a63",
+    "packages/openclinxr/auth": "309f70a3295c47d144f5cb9c08989855db83ce086235aeed29e15840868a6b10",
+    "packages/openclinxr/capability-gateway": "5cb73a260434d16140368c9ff7bfe5a2f2816438eb1c9a4c53f77df32a8b9b57",
+    "packages/openclinxr/config-rolldown": "9b47dcf6702c954e96f282f3b417aa64e35bbc3b6dcad1ff864c325c0cace5fc",
+    "packages/openclinxr/conversation-policy": "ebd081cf254760c2deeb67fe45b31f7a374a91f89d831971d548cdc96cbcfebb",
+    "packages/openclinxr/data-mongodb": "d3cd8948917b637b9ccd19447eb8deb701058937704e30e132567926c074c1a1",
+    "packages/openclinxr/data-sources-mongoose-models": "f96f2cf2a16ce2e4e06714efdfe9787d8205747b5f578c01d8d4d064d453c534",
+    "packages/openclinxr/domain": "10d21c5087e653410a20de2113fd3a795a7c6fcb76628005e9195716e2954750",
+    "packages/openclinxr/exam-assembly": "516eca03370b55da98bd09cc8ae84396fb2e60c55120dbc766735832b167a898",
+    "packages/openclinxr/factory-stations": "487f19d5805a24dfde6f18c1c522e10441b2cf283e13c3c26ead94dc6a30ded4",
+    "packages/openclinxr/graphql": "7148f229cd601396d83022873f85b772accdbaaab5ebd25828d98b7b936a924f",
+    "packages/openclinxr/model-gateway": "06eee5942a821487cda5166fa668968c0e3abe7742dcdabcfee9899843096ab2",
+    "packages/openclinxr/motion-compiler": "d87b1c92eccc2d7283d9dbbde4ac026a09caa2a8d7404ef5264db45cfca9df65",
+    "packages/openclinxr/physics-touch-artifacts": "56b983a24bcd0069881cfa83b9d5ff6d581bb2791f2fc6293285b4ec9e96fd87",
+    "packages/openclinxr/rest": "224fa68aebb9347cf2fa582bf7ab5da0bca8f50a67c741fd96c436754ce5b48b",
+    "packages/openclinxr/review-workflow": "cb505b0694cd4ca0d7ef56831e43fdd6c5adbce6f51baadcc0b085c661c326a2",
+    "packages/openclinxr/scenario-fixtures": "29a9d149bd3a14d9d07eb277406f64a2abad7c85ef8ee9aa1e113f6419a9ef26",
+    "packages/openclinxr/scenario-runtime": "de1a9a3ddf7c6e330294dc871e543c03e6a7b3dda215ebc37efac31f08d90065",
+    "packages/openclinxr/session-state": "0542f673e74d7e865254221a21bd72a09196ddf40c11ea6c0f8c56509ac36b2f",
+    "packages/openclinxr/shared-schemas": "6d4cecff7de79dd04619067ad9eb91604f3cddb42c710ae276623c40023c4cb7",
+    "packages/openclinxr/telemetry": "59f577434a594fe5a6c6d936380df37907ef7ebe2cb53713bb5b0ebbcdbada5d",
+    "packages/openclinxr/test-harness": "a4a0685fc043206ae178941e02b32f101e8f5ed14d030efa550fbc9b1d60f963",
+    "packages/openclinxr/ui-route-admin": "b21a6847c8a57981bbe4aa8ad3f2b5cff8a21c7916ec14cb5d0219d079ea30e7",
+    "packages/openclinxr/ui-route-shared": "b8bdd4d27e4fe627608df08f2fa9205414420851e6bc85d0614cfb17b5bd35ca",
+    "packages/openclinxr/ui-shared": "39feafb539f9ab332b55311cb8e184b0a7bd2a3b0cee8f6b920b8dd12114814d",
+    "packages/openclinxr/voice-gateway": "fabe9bb50da1a79a2781ea63bd83b3ed3a51212b92d234e43f93518ff98ade92",
+    "packages/openclinxr/xr-actor-dialogue": "c4612488fdba15809ee696f025c511bb1fd2109b002fb30bf73df8b2ead8c557",
+    "packages/openclinxr/xr-asset-loading": "b893fee5ddedb6286bd6abe9113d8d29f9a2596cba3701b3d152b7eabf087291",
+    "packages/openclinxr/xr-capture-evidence": "40856a9ffab45b5105610233e96f8fe5744331ef3cf6640cca39e44d2c648b21",
+    "packages/openclinxr/xr-dialogue": "a67da3ecb57565a6f2df8872661f49ce4ef7cec87a4756754bf675488475dfaf",
+    "packages/openclinxr/xr-exam-flow": "e595f77d7b1563704615d87b8fb6dfe788db4d115955620a9fe6b05004cdf8d6",
+    "packages/openclinxr/xr-humanoid-animation": "5ed86196df7ff4c5a3661aeb93435696fe9bcf35f7bfa7f376797e8496717b0",
+    "packages/openclinxr/xr-locomotion": "146b08bb24e8bde999fb204ba6ecda943a9870226830368be9007bb86a73c6d8",
+    "packages/openclinxr/xr-pose": "133571e4bab6a065a327a00fdc016896a3ee3f0a3f0d14783ea96c9311adb1c0",
+    "packages/openclinxr/xr-runtime-state": "853a48bf00642a71ec9331f473741c058959bc46aae67050a469bfe43498c408",
+    "packages/openclinxr/xr-runtime-wiring": "ca04cc09c1c55e2cac6cda9bd295385b915c00d41ef0b371310fede07ff17644",
+    "packages/openclinxr/xr-scene": "ddd01b4909e34f2c8f0f4415137e4e8526e58282f45d3592bb68a8417abea2cf",
+    "packages/openclinxr/xr-scene-cues": "3e9cd900a115f10d957406e596024e37dbd033ae2f452278bd980da3d2b1f3db",
+    "packages/openclinxr/xr-station": "18a2b69790e11eeb6b7b156a59d0b891df6661622e42d9d10c1fc88fb5bbe338",
+    "packages/openclinxr/xr-station-room": "2e0cc1c5431c807556dea940230cd45249a8f3297c12032b1e52dd3a7893411b",
+    "packages/openclinxr/xr-trace-readiness": "e8adbe272f645b58be9fce2e20e4e466e5e2ca113b3ada1b81a5b4b2d4010e11"
+  },
+  "measuredAfter": {
+    "duplicateNames": 550,
+    "entrypoints": 137,
+    "occurrences": 3551,
+    "roots": 46,
+    "rootSymbols": 2496,
+    "uniqueSymbols": 2983
+  },
+  "measuredBefore": {
+    "duplicateNames": 550,
+    "entrypoints": 137,
+    "occurrences": 3588,
+    "roots": 46,
+    "rootSymbols": 2533,
+    "uniqueSymbols": 3020
+  },
+  "notTested": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility.",
+  "outcomes": [
+    "verify --require-applied psr-02 exits 0: group psr-02 applied (37 removed, 0 migrated); baseline ratchet ok",
+    "plain verify exits 0",
+    "arch suite: 199 passed, 0 failed (17 files)",
+    "auth/telemetry/config-rolldown/physics-touch-artifacts/test-harness suites pass (5, 11, 5, 6, 4 tests)",
+    "packages:typecheck:agent green (100 tasks); packages:build:affected green (33 tasks); git diff --check clean",
+    "BLOCKER: pre-commit typecheck ratchet fails on tools/openclinxr/evidence/blueprint-voice-simulation-spike.ts TS2724 (safeTelemetryAttributes removed; fix in tools/ outside write-roots)",
+    "FLAKY: pnpm packages:test:affected fails only in @openclinxr/api (2 files, timeout + row-count assertion, varies per run); no removed name referenced from apps/api/src or rest/src"
+  ],
+  "perPackage": {
+    "packages/openclinxr/auth": {
+      "keep": 9,
+      "migrate": 0,
+      "projectedRootExports": 9,
+      "remove": 6,
+      "rows": 15
+    },
+    "packages/openclinxr/config-rolldown": {
+      "keep": 2,
+      "migrate": 0,
+      "projectedRootExports": 2,
+      "remove": 5,
+      "rows": 7
+    },
+    "packages/openclinxr/physics-touch-artifacts": {
+      "keep": 0,
+      "migrate": 0,
+      "projectedRootExports": 0,
+      "remove": 7,
+      "rows": 7
+    },
+    "packages/openclinxr/telemetry": {
+      "keep": 11,
+      "migrate": 0,
+      "projectedRootExports": 11,
+      "remove": 9,
+      "rows": 20
+    },
+    "packages/openclinxr/test-harness": {
+      "keep": 0,
+      "migrate": 0,
+      "projectedRootExports": 0,
+      "remove": 10,
+      "rows": 10
+    }
+  },
+  "planCommit": "1c493f12cd9ff5084e763c7e46f7ac4a5d57635c",
+  "planSha256": "01cb5139557293ace715e65bae576b359afe0e0e06c201f18e1af3d8bab0341d",
+  "rootSubpathDuplicatesRemaining": 550,
+  "rootSubpathDuplicatesRemoved": 0,
+  "sourceRevision": "391fb647f2e68d5f1fe08df1191df443564db92e",
+  "taskId": "PSR-02",
+  "totals": {
+    "keep": 22,
+    "migrate": 0,
+    "remove": 37,
+    "rows": 59
+  },
+  "wildcardDeclarationsRemaining": 0,
+  "wildcardDeclarationsRemoved": 2
+}

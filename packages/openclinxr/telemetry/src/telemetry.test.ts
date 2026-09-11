@@ -2,12 +2,9 @@ import { describe, expect, it } from "vitest";
 import { readFile, rm } from "node:fs/promises";
 import {
   createInMemoryTelemetryRecorder,
-  createNoopTelemetryRecorder,
   createTelemetryRecorder,
   openClinXrSpanNames,
-  safeTelemetryAttributes,
   summarizeTelemetrySpans,
-  type TelemetryAttributeInput,
   type TelemetrySpanRecord,
   telemetryAttributeNames,
   telemetryRouteAttributes,
@@ -54,16 +51,14 @@ describe("OpenClinXR telemetry contract", () => {
   });
 
   it("drops sensitive or high-cardinality fields from telemetry attributes", () => {
-    const input: TelemetryAttributeInput = {
+    expect(telemetryRouteAttributes({
       scenarioId: "ed_chest_pain_priority_v1",
       learnerUtterance: "My father died of a heart attack.",
       promptText: "system prompt",
       hiddenFacts: ["Father died of myocardial infarction"],
       patientNoteText: "Private note text",
       rawAudioReference: "audio://sensitive",
-    };
-
-    expect(safeTelemetryAttributes(input)).toEqual({
+    } as Parameters<typeof telemetryRouteAttributes>[0])).toEqual({
       "openclinxr.scenario_id": "ed_chest_pain_priority_v1",
     });
     expect(Object.keys(telemetryAttributeNames).sort()).toEqual([
@@ -82,13 +77,7 @@ describe("OpenClinXR telemetry contract", () => {
     ]);
   });
 
-  it("offers no-op and in-memory recorders for local verification before exporters exist", async () => {
-    await expect(Promise.resolve(createNoopTelemetryRecorder().recordSpan({
-      name: openClinXrSpanNames.apiRoute,
-      attributes: {},
-      durationMs: 1,
-    }))).resolves.toBeUndefined();
-
+  it("offers an in-memory recorder for local verification before exporters exist", async () => {
     const recorder = createInMemoryTelemetryRecorder();
     recorder.recordSpan({
       name: openClinXrSpanNames.apiRoute,

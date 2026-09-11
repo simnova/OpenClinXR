@@ -296,9 +296,9 @@
       "entrypoint": ".",
       "symbol": "BakedBoneFrame",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/physics-touch-artifacts",
-      "rationale": "zero entrypoint consumers and zero external word-level references to BakedBoneFrame; production-consumer gate types unused by any in-repo source",
+      "disposition": "keep",
+      "owner": "docs/madr/0031-physics-baked-vs-live-consumer-split.md",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment 2026-09-11): MADR 0031 names @openclinxr/physics-touch-artifacts as the production baked-physics path. No in-repository consumer yet; un-publishing all seven names would leave src/types.ts unreferenced, and the plan forbids deleting source to satisfy Knip.",
       "evidence": [
         "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
       ]
@@ -308,9 +308,9 @@
       "entrypoint": ".",
       "symbol": "BakedBoneTransformsArtifact",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/physics-touch-artifacts",
-      "rationale": "zero entrypoint consumers and zero external word-level references to BakedBoneTransformsArtifact; production-consumer gate types unused by any in-repo source",
+      "disposition": "keep",
+      "owner": "docs/madr/0031-physics-baked-vs-live-consumer-split.md",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment 2026-09-11): MADR 0031 names @openclinxr/physics-touch-artifacts as the production baked-physics path. No in-repository consumer yet; un-publishing all seven names would leave src/types.ts unreferenced, and the plan forbids deleting source to satisfy Knip.",
       "evidence": [
         "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
       ]
@@ -320,9 +320,9 @@
       "entrypoint": ".",
       "symbol": "BakedPhysicsSchemaVersion",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/physics-touch-artifacts",
-      "rationale": "zero entrypoint consumers and zero external word-level references to BakedPhysicsSchemaVersion; production-consumer gate types unused by any in-repo source",
+      "disposition": "keep",
+      "owner": "docs/madr/0031-physics-baked-vs-live-consumer-split.md",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment 2026-09-11): MADR 0031 names @openclinxr/physics-touch-artifacts as the production baked-physics path. No in-repository consumer yet; un-publishing all seven names would leave src/types.ts unreferenced, and the plan forbids deleting source to satisfy Knip.",
       "evidence": [
         "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
       ]
@@ -332,9 +332,9 @@
       "entrypoint": ".",
       "symbol": "bakedTransformsConsumerAllowed",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/physics-touch-artifacts",
-      "rationale": "zero entrypoint consumers and zero external word-level references to bakedTransformsConsumerAllowed; production-consumer gate types unused by any in-repo source",
+      "disposition": "keep",
+      "owner": "docs/madr/0031-physics-baked-vs-live-consumer-split.md",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment 2026-09-11): MADR 0031 names @openclinxr/physics-touch-artifacts as the production baked-physics path. No in-repository consumer yet; un-publishing all seven names would leave src/types.ts unreferenced, and the plan forbids deleting source to satisfy Knip.",
       "evidence": [
         "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
       ]
@@ -344,9 +344,9 @@
       "entrypoint": ".",
       "symbol": "BoneDelta",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/physics-touch-artifacts",
-      "rationale": "zero entrypoint consumers and zero external word-level references to BoneDelta; production-consumer gate types unused by any in-repo source",
+      "disposition": "keep",
+      "owner": "docs/madr/0031-physics-baked-vs-live-consumer-split.md",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment 2026-09-11): MADR 0031 names @openclinxr/physics-touch-artifacts as the production baked-physics path. No in-repository consumer yet; un-publishing all seven names would leave src/types.ts unreferenced, and the plan forbids deleting source to satisfy Knip.",
       "evidence": [
         "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
       ]
@@ -356,9 +356,9 @@
       "entrypoint": ".",
       "symbol": "liveEngineInProductionForbidden",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/physics-touch-artifacts",
-      "rationale": "zero entrypoint consumers and zero external word-level references to liveEngineInProductionForbidden; production-consumer gate types unused by any in-repo source",
+      "disposition": "keep",
+      "owner": "docs/madr/0031-physics-baked-vs-live-consumer-split.md",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment 2026-09-11): MADR 0031 names @openclinxr/physics-touch-artifacts as the production baked-physics path. No in-repository consumer yet; un-publishing all seven names would leave src/types.ts unreferenced, and the plan forbids deleting source to satisfy Knip.",
       "evidence": [
         "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
       ]
@@ -368,9 +368,9 @@
       "entrypoint": ".",
       "symbol": "PHYSICS_TOUCH_ARTIFACTS_GATES",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/physics-touch-artifacts",
-      "rationale": "zero entrypoint consumers and zero external word-level references to PHYSICS_TOUCH_ARTIFACTS_GATES; production-consumer gate types unused by any in-repo source",
+      "disposition": "keep",
+      "owner": "docs/madr/0031-physics-baked-vs-live-consumer-split.md",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment 2026-09-11): MADR 0031 names @openclinxr/physics-touch-artifacts as the production baked-physics path. No in-repository consumer yet; un-publishing all seven names would leave src/types.ts unreferenced, and the plan forbids deleting source to satisfy Knip.",
       "evidence": [
         "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
       ]

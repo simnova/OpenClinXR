@@ -3,10 +3,8 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  buildOpenClinXrCjsAliasMap,
   createOpenClinXrAzureFunctionsRolldownConfig,
   prepareOpenClinXrAzureFunctionsDeploy,
-  summarizeRolldownAdoption,
 } from "./index.js";
 
 const tempRootPrefix = path.join(os.tmpdir(), "openclinxr-config-rolldown-");
@@ -88,7 +86,7 @@ describe("OpenClinXR Rolldown config adoption", () => {
 
   it("throws when the requested workspace package cannot be found", async () => {
     await expect(
-      buildOpenClinXrCjsAliasMap({
+      createOpenClinXrAzureFunctionsRolldownConfig({
         repoRoot: await createTempRepo({}),
         appPackageName: "@apps/missing",
       }),
@@ -141,14 +139,38 @@ describe("OpenClinXR Rolldown config adoption", () => {
     );
   });
 
-  it("documents why OpenClinXR owns a local config before copying Cellix config packages", () => {
-    expect(summarizeRolldownAdoption()).toEqual({
-      candidateCellixPackage: "@cellix/config-rolldown",
-      localPackage: "@openclinxr/config-rolldown",
-      status: "workspace_alias_and_deploy_prep_spike",
-      reason:
-        "OpenClinXR keeps a project-owned Rolldown wrapper while validating latest Rolldown compatibility, workspace alias resolution, and Azure Functions deploy artifact prep against its own package layout.",
+  it("keeps the Azure Functions bundle config shaped after Cellix config-rolldown", async () => {
+    const config = await createOpenClinXrAzureFunctionsRolldownConfig({
+      appPackageName: "@apps/api",
+      repoRoot: await createTempRepo({
+        "apps/api/package.json": JSON.stringify(
+          {
+            name: "@apps/api",
+            version: "1.0.0",
+            dependencies: {
+              "@openclinxr/domain": "workspace:*",
+              hono: "4.12.16",
+            },
+          },
+          null,
+          2,
+        ),
+        "packages/openclinxr/domain/package.json": JSON.stringify(
+          {
+            name: "@openclinxr/domain",
+            version: "0.1.0",
+            dependencies: {
+              vitest: "4.1.5",
+            },
+          },
+          null,
+          2,
+        ),
+      }),
     });
+
+    expect(config.resolve.alias["hono"]).toContain("hono");
+    expect(config.resolve.alias["vitest"]).toContain("vitest");
   });
 });
 

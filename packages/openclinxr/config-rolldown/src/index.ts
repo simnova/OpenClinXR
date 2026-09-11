@@ -10,7 +10,7 @@ type ExternalDependency = {
   fromDir: string;
 };
 
-export type OpenClinXrRolldownConfig = {
+type OpenClinXrRolldownConfig = {
   input: string;
   platform: "node";
   treeshake: true;
@@ -31,7 +31,7 @@ export type OpenClinXrRolldownConfig = {
   };
 } & RolldownOptions;
 
-export type OpenClinXrRolldownConfigOptions = {
+type OpenClinXrRolldownConfigOptions = {
   repoRoot: string;
   appPackageName: string;
   input?: string;
@@ -41,7 +41,7 @@ export type OpenClinXrRolldownConfigOptions = {
   suppressEvalWarningsFor?: string[];
 };
 
-export type PrepareOpenClinXrAzureFunctionsDeployOptions = {
+type PrepareOpenClinXrAzureFunctionsDeployOptions = {
   appDir?: string;
   deployDirName?: string;
   bundleEntryRelativePath?: string;
@@ -104,7 +104,7 @@ export async function createOpenClinXrAzureFunctionsRolldownConfig(
   };
 }
 
-export async function buildOpenClinXrCjsAliasMap(options: {
+async function buildOpenClinXrCjsAliasMap(options: {
   repoRoot: string;
   appPackageName: string;
   workspaceNamespaces?: string[];
@@ -157,7 +157,7 @@ export async function prepareOpenClinXrAzureFunctionsDeploy(
   ]);
 }
 
-export function summarizeRolldownAdoption() {
+function summarizeRolldownAdoption() {
   return {
     candidateCellixPackage: "@cellix/config-rolldown",
     localPackage: "@openclinxr/config-rolldown",
