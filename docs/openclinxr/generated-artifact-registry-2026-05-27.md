@@ -2353,6 +2353,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/generated-artifact-registry-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-28.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/godot-project-import-check-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/humanoid-lowest-vertex-audit-2026-09-10.json` - keep-evidence; keep; HB-01 lowest-vertex audit over shipped GLB bytes; consumed by the-lowest-mesh-vertex-is-the-footwear.test.ts contract proof.
 - `docs/openclinxr/humanoid-source-bplus-scorecard-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/humanoid-vision-score-2026-08-03.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/iwsdk-evidence-contract-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.

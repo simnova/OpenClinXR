@@ -1,0 +1,4380 @@
+{
+  "title": "HB-01 lowest-vertex audit",
+  "measured": "2026-09-11",
+  "method": "NodeIO read of shipped GLB bytes in apps/ui-xr/public/generated-humanoids; per-primitive world minY via node world matrix; glTF up axis is +Y so minY is the sole height (card names Blender-scene bmin.z; both mean the boot sole). Grade-engine note: finished_figure_grade.choose_grade_engine falls back to BLENDER_WORKBENCH which ignores Principled Base Color; record the engine before any colour finding.",
+  "icosphereExportedIntoAnyGlb": false,
+  "hiddenShellIsGlobalMinimumInAnyGlb": false,
+  "glbCount": 19,
+  "glbFiles": [
+    "adult_male_street_casual.glb",
+    "ed_chest_pain_adult_cast.glb",
+    "ed_chest_pain_nurse_adult.glb",
+    "ed_chest_pain_spouse_adult.glb",
+    "mpfb-clinical-nurse-adult.glb",
+    "mpfb-clinical-physician-adult.glb",
+    "mpfb-family-partner-adult.glb",
+    "mpfb-gown-adult-patient.glb",
+    "mpfb-gown-inspect.glb",
+    "mpfb-ob-patient-aisha.glb",
+    "mpfb-peds-nurse-kevin.glb",
+    "mpfb-peds-parent-aisha.glb",
+    "mpfb-peds-patient-child.glb",
+    "mpfb-street-adult-male.glb",
+    "mpfb-viseme-inspect.glb",
+    "peds_anxious_parent.glb",
+    "peds_fever_patient_child.glb",
+    "peds_nurse_kevin.glb",
+    "peds_patient_child.glb"
+  ],
+  "causeStatement": "No shipped GLB exports the MPFB Icosphere; no openclinxr_hidden_* cover shell is the global minimum in any body. 17 of 19 bodies have the footwear mesh as the global minimum. The 2 exceptions are VISIBLE bare-skin sole vertices below embedded slipper shells, not invisible helpers. The 158px float in the published still is therefore NOT reproduced by the GLB bytes: it came from the Blender-side unparented Icosphere at z=-1 already fixed in 8f615ceb, not from exported geometry.",
+  "bodies": [
+    {
+      "file": "adult_male_street_casual.glb",
+      "globalMinimum": {
+        "mesh": "openclinxr_footwear_casual_shoe_L_mesh",
+        "material": "openclinxr_footwear_casual_shoe_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": -0.002,
+        "minVertexIndex": 6,
+        "minWorld": [
+          0.1923,
+          -0.002,
+          -0.0229
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "openclinxr_footwear_casual_shoe_L_mesh",
+        "material": "openclinxr_footwear_casual_shoe_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": -0.002,
+        "minVertexIndex": 6,
+        "minWorld": [
+          0.1923,
+          -0.002,
+          -0.0229
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "openclinxr_declared_upper_layers__casual_top+open_cardigan_mesh",
+          "material": null,
+          "alphaMode": null,
+          "triCount": 1,
+          "minY": 0.968,
+          "minVertexIndex": 0,
+          "minWorld": [
+            0,
+            0.968,
+            0.1934
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "adult_male_street_casual.anny_base",
+          "material": "anny_generated_pbr",
+          "alphaMode": "OPAQUE",
+          "triCount": 18220,
+          "minY": 0,
+          "minVertexIndex": 3455,
+          "minWorld": [
+            -0.154,
+            0,
+            0.2325
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "adult_male_street_casual.anny_base",
+          "material": "openclinxr_role_mesh_clothing_patient_lower",
+          "alphaMode": "OPAQUE",
+          "triCount": 2160,
+          "minY": 0.140013,
+          "minVertexIndex": 502,
+          "minWorld": [
+            -0.1802,
+            0.14001,
+            0.0118
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "adult_male_street_casual.anny_base",
+          "material": "openclinxr_role_mesh_clothing_patient_arm",
+          "alphaMode": "OPAQUE",
+          "triCount": 2824,
+          "minY": 1.002351,
+          "minVertexIndex": 115,
+          "minWorld": [
+            -0.4856,
+            1.00235,
+            0.3958
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "adult_male_street_casual.anny_base",
+          "material": "openclinxr_mesh_native_scalp_hair_surface",
+          "alphaMode": "OPAQUE",
+          "triCount": 3488,
+          "minY": 1.576247,
+          "minVertexIndex": 174,
+          "minWorld": [
+            -0.0568,
+            1.57625,
+            0.0861
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_footwear_casual_shoe_L_mesh",
+          "material": "openclinxr_footwear_casual_shoe_L_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": -0.002,
+          "minVertexIndex": 6,
+          "minWorld": [
+            0.1923,
+            -0.002,
+            -0.0229
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_footwear_casual_shoe_R_mesh",
+          "material": "openclinxr_footwear_casual_shoe_R_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": -0.002,
+          "minVertexIndex": 6,
+          "minWorld": [
+            -0.1923,
+            -0.002,
+            -0.0229
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh__under_casual_top",
+          "material": "openclinxr_real_garment_casual_top_phenotype_L0",
+          "alphaMode": "OPAQUE",
+          "triCount": 4399,
+          "minY": 0.845,
+          "minVertexIndex": 1026,
+          "minWorld": [
+            -0.0683,
+            0.845,
+            0.0027
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh",
+          "material": "openclinxr_real_garment_open_cardigan_phenotype_L1",
+          "alphaMode": "OPAQUE",
+          "triCount": 11802,
+          "minY": 0.7392,
+          "minVertexIndex": 2979,
+          "minWorld": [
+            -0.1165,
+            0.7392,
+            0.0654
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "ed_chest_pain_adult_cast.glb",
+      "globalMinimum": {
+        "mesh": "ed_chest_pain_adult_cast.anny_base",
+        "material": "anny_generated_pbr",
+        "alphaMode": "OPAQUE",
+        "triCount": 18212,
+        "minY": 0,
+        "minVertexIndex": 3455,
+        "minWorld": [
+          -0.154,
+          0,
+          0.2325
+        ],
+        "isFootwear": false
+      },
+      "footwearMinimum": {
+        "mesh": "openclinxr_footwear_hospital_slipper_L_mesh",
+        "material": "openclinxr_footwear_hospital_slipper_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": 0.014865,
+        "minVertexIndex": 14,
+        "minWorld": [
+          0.1923,
+          0.01487,
+          0.0523
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": false,
+      "deltaGlobalMinusFootwearM": -0.014865,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": "bare-skin sole vertex of anny_base (x=-0.154,z=0.233,y=0.0) sits 14.9mm BELOW the hospital-slipper sole (y=0.0149); slippers are embedded shells around feet, not full soles. Offending geometry is VISIBLE skin, not a helper shell; no Icosphere or hidden shell sets the minimum in any GLB.",
+      "primitives": [
+        {
+          "mesh": "openclinxr_declared_upper_layers__hospital_gown_mesh",
+          "material": null,
+          "alphaMode": null,
+          "triCount": 1,
+          "minY": 0.968,
+          "minVertexIndex": 0,
+          "minWorld": [
+            0,
+            0.968,
+            0.1934
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "ed_chest_pain_adult_cast.anny_base",
+          "material": "anny_generated_pbr",
+          "alphaMode": "OPAQUE",
+          "triCount": 18212,
+          "minY": 0,
+          "minVertexIndex": 3455,
+          "minWorld": [
+            -0.154,
+            0,
+            0.2325
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "ed_chest_pain_adult_cast.anny_base",
+          "material": "openclinxr_role_mesh_clothing_patient_lower",
+          "alphaMode": "OPAQUE",
+          "triCount": 2160,
+          "minY": 0.140013,
+          "minVertexIndex": 502,
+          "minWorld": [
+            -0.1802,
+            0.14001,
+            0.0118
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "ed_chest_pain_adult_cast.anny_base",
+          "material": "openclinxr_role_mesh_clothing_patient_arm",
+          "alphaMode": "OPAQUE",
+          "triCount": 2824,
+          "minY": 1.002351,
+          "minVertexIndex": 115,
+          "minWorld": [
+            -0.4856,
+            1.00235,
+            0.3958
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "ed_chest_pain_adult_cast.anny_base",
+          "material": "openclinxr_mesh_native_scalp_hair_surface",
+          "alphaMode": "OPAQUE",
+          "triCount": 3496,
+          "minY": 1.576247,
+          "minVertexIndex": 175,
+          "minWorld": [
+            -0.0568,
+            1.57625,
+            0.0861
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_footwear_hospital_slipper_L_mesh",
+          "material": "openclinxr_footwear_hospital_slipper_L_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": 0.014865,
+          "minVertexIndex": 14,
+          "minWorld": [
+            0.1923,
+            0.01487,
+            0.0523
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_footwear_hospital_slipper_R_mesh",
+          "material": "openclinxr_footwear_hospital_slipper_R_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": 0.014865,
+          "minVertexIndex": 14,
+          "minWorld": [
+            -0.1923,
+            0.01487,
+            0.0523
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh",
+          "material": "openclinxr_real_garment_hospital_gown_phenotype_L0",
+          "alphaMode": "OPAQUE",
+          "triCount": 5355,
+          "minY": 0.5632,
+          "minVertexIndex": 1366,
+          "minWorld": [
+            -0.0575,
+            0.5632,
+            0.07
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "ed_chest_pain_nurse_adult.glb",
+      "globalMinimum": {
+        "mesh": "openclinxr_footwear_clinical_shoe_L_mesh",
+        "material": "openclinxr_footwear_clinical_shoe_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": -0.002,
+        "minVertexIndex": 6,
+        "minWorld": [
+          0.1923,
+          -0.002,
+          -0.0229
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "openclinxr_footwear_clinical_shoe_L_mesh",
+        "material": "openclinxr_footwear_clinical_shoe_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": -0.002,
+        "minVertexIndex": 6,
+        "minWorld": [
+          0.1923,
+          -0.002,
+          -0.0229
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "openclinxr_declared_upper_layers__scrub_top+scrub_pocket_mesh",
+          "material": null,
+          "alphaMode": null,
+          "triCount": 1,
+          "minY": 0.968,
+          "minVertexIndex": 0,
+          "minWorld": [
+            0,
+            0.968,
+            0.1934
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "ed_chest_pain_nurse_adult.anny_base",
+          "material": "anny_generated_pbr",
+          "alphaMode": "OPAQUE",
+          "triCount": 18228,
+          "minY": 0,
+          "minVertexIndex": 3456,
+          "minWorld": [
+            -0.154,
+            0,
+            0.2325
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "ed_chest_pain_nurse_adult.anny_base",
+          "material": "openclinxr_role_mesh_clothing_nurse_lower",
+          "alphaMode": "OPAQUE",
+          "triCount": 2160,
+          "minY": 0.140013,
+          "minVertexIndex": 502,
+          "minWorld": [
+            -0.1802,
+            0.14001,
+            0.0118
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "ed_chest_pain_nurse_adult.anny_base",
+          "material": "openclinxr_role_mesh_clothing_nurse_arm",
+          "alphaMode": "OPAQUE",
+          "triCount": 2824,
+          "minY": 1.002351,
+          "minVertexIndex": 115,
+          "minWorld": [
+            -0.4856,
+            1.00235,
+            0.3958
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "ed_chest_pain_nurse_adult.anny_base",
+          "material": "openclinxr_mesh_native_scalp_hair_surface",
+          "alphaMode": "OPAQUE",
+          "triCount": 3480,
+          "minY": 1.579488,
+          "minVertexIndex": 494,
+          "minWorld": [
+            -0.0673,
+            1.57949,
+            0.1502
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_footwear_clinical_shoe_L_mesh",
+          "material": "openclinxr_footwear_clinical_shoe_L_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": -0.002,
+          "minVertexIndex": 6,
+          "minWorld": [
+            0.1923,
+            -0.002,
+            -0.0229
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_footwear_clinical_shoe_R_mesh",
+          "material": "openclinxr_footwear_clinical_shoe_R_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": -0.002,
+          "minVertexIndex": 6,
+          "minWorld": [
+            -0.1923,
+            -0.002,
+            -0.0229
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh",
+          "material": "openclinxr_real_garment_scrub_pocket_phenotype_L1",
+          "alphaMode": "OPAQUE",
+          "triCount": 3837,
+          "minY": 0.845,
+          "minVertexIndex": 876,
+          "minWorld": [
+            -0.04,
+            0.845,
+            -0.0096
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh__under_scrub_top",
+          "material": "openclinxr_real_garment_scrub_top_phenotype_L0",
+          "alphaMode": "OPAQUE",
+          "triCount": 3882,
+          "minY": 0.845,
+          "minVertexIndex": 893,
+          "minWorld": [
+            -0.0681,
+            0.845,
+            0.0035
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "ed_chest_pain_spouse_adult.glb",
+      "globalMinimum": {
+        "mesh": "openclinxr_footwear_casual_shoe_L_mesh",
+        "material": "openclinxr_footwear_casual_shoe_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": -0.002,
+        "minVertexIndex": 6,
+        "minWorld": [
+          0.1864,
+          -0.002,
+          -0.0187
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "openclinxr_footwear_casual_shoe_L_mesh",
+        "material": "openclinxr_footwear_casual_shoe_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": -0.002,
+        "minVertexIndex": 6,
+        "minWorld": [
+          0.1864,
+          -0.002,
+          -0.0187
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "openclinxr_declared_upper_layers__casual_top+open_cardigan_mesh",
+          "material": null,
+          "alphaMode": null,
+          "triCount": 1,
+          "minY": 0.913,
+          "minVertexIndex": 0,
+          "minWorld": [
+            0,
+            0.913,
+            0.1844
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "ed_chest_pain_spouse_adult.anny_base",
+          "material": "anny_generated_pbr",
+          "alphaMode": "OPAQUE",
+          "triCount": 18272,
+          "minY": 0,
+          "minVertexIndex": 4734,
+          "minWorld": [
+            -0.1661,
+            0,
+            0.1834
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "ed_chest_pain_spouse_adult.anny_base",
+          "material": "openclinxr_role_mesh_clothing_family_lower",
+          "alphaMode": "OPAQUE",
+          "triCount": 2192,
+          "minY": 0.128278,
+          "minVertexIndex": 510,
+          "minWorld": [
+            -0.1743,
+            0.12828,
+            0.0143
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "ed_chest_pain_spouse_adult.anny_base",
+          "material": "openclinxr_role_mesh_clothing_family_arm",
+          "alphaMode": "OPAQUE",
+          "triCount": 2800,
+          "minY": 0.943597,
+          "minVertexIndex": 112,
+          "minWorld": [
+            -0.4643,
+            0.9436,
+            0.3783
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "ed_chest_pain_spouse_adult.anny_base",
+          "material": "openclinxr_mesh_native_scalp_hair_surface",
+          "alphaMode": "OPAQUE",
+          "triCount": 3428,
+          "minY": 1.485938,
+          "minVertexIndex": 184,
+          "minWorld": [
+            -0.0628,
+            1.48594,
+            0.1281
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_footwear_casual_shoe_L_mesh",
+          "material": "openclinxr_footwear_casual_shoe_L_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": -0.002,
+          "minVertexIndex": 6,
+          "minWorld": [
+            0.1864,
+            -0.002,
+            -0.0187
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_footwear_casual_shoe_R_mesh",
+          "material": "openclinxr_footwear_casual_shoe_R_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": -0.002,
+          "minVertexIndex": 6,
+          "minWorld": [
+            -0.1864,
+            -0.002,
+            -0.0187
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh__under_casual_top",
+          "material": "openclinxr_real_garment_casual_top_phenotype_L0",
+          "alphaMode": "OPAQUE",
+          "triCount": 4146,
+          "minY": 0.795,
+          "minVertexIndex": 952,
+          "minWorld": [
+            -0.0689,
+            0.795,
+            -0.0051
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh",
+          "material": "openclinxr_real_garment_open_cardigan_phenotype_L1",
+          "alphaMode": "OPAQUE",
+          "triCount": 7829,
+          "minY": 0.6972,
+          "minVertexIndex": 2227,
+          "minWorld": [
+            -0.1063,
+            0.6972,
+            0.0683
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "mpfb-clinical-nurse-adult.glb",
+      "globalMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_nurse_adult_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0,
+        "minVertexIndex": 266,
+        "minWorld": [
+          0.2345,
+          0,
+          0.1556
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_nurse_adult_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0,
+        "minVertexIndex": 266,
+        "minWorld": [
+          0.2345,
+          0,
+          0.1556
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "alphaMode": "OPAQUE",
+          "triCount": 1004,
+          "minY": 0,
+          "minVertexIndex": 266,
+          "minWorld": [
+            0.2345,
+            0,
+            0.1556
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "makeclothes_library_hair_toigo_blunt_bob_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "material": "openclinxr_fitted_hair_toigo_blunt_bob_mpfb_ed_chest_pain_nurse_adult_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 2254,
+          "minY": 1.489614,
+          "minVertexIndex": 845,
+          "minWorld": [
+            -0.0631,
+            1.48961,
+            0.1105
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_scrub_pants_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "material": "mat_makeclothes_library_scrub_pants",
+          "alphaMode": "OPAQUE",
+          "triCount": 2704,
+          "minY": 0.08542,
+          "minVertexIndex": 1824,
+          "minWorld": [
+            -0.211,
+            0.08542,
+            -0.0137
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_scrub_shirt_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "material": "mat_makeclothes_library_scrub_shirt",
+          "alphaMode": "OPAQUE",
+          "triCount": 9384,
+          "minY": 0.974374,
+          "minVertexIndex": 14999,
+          "minWorld": [
+            -0.143,
+            0.97437,
+            -0.0524
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_nurse_adult_body",
+          "material": "mpfb_skin_ed_chest_pain_nurse_adult",
+          "alphaMode": "OPAQUE",
+          "triCount": 8152,
+          "minY": 0.007423,
+          "minVertexIndex": 2462,
+          "minWorld": [
+            -0.2277,
+            0.00742,
+            0.1602
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_nurse_adult_body",
+          "material": "openclinxr_hidden_upper_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2154,
+          "minY": 0.980191,
+          "minVertexIndex": 657,
+          "minWorld": [
+            -0.0193,
+            0.98019,
+            0.1422
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_nurse_adult_body",
+          "material": "openclinxr_hidden_lower_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 432,
+          "minY": 0.099552,
+          "minVertexIndex": 112,
+          "minWorld": [
+            -0.2088,
+            0.09955,
+            0.0377
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_nurse_adult_body",
+          "material": "openclinxr_hidden_foot_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 1804,
+          "minY": 0.000086,
+          "minVertexIndex": 473,
+          "minWorld": [
+            -0.1582,
+            0.00009,
+            0.1863
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_nurse_adult_body",
+          "material": "openclinxr_hidden_upper_mpfb_ed_chest_pain_nurse_adult_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 50,
+          "minY": 1.238014,
+          "minVertexIndex": 28,
+          "minWorld": [
+            -0.2677,
+            1.23801,
+            0.0245
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_nurse_adult_body",
+          "material": "openclinxr_hidden_lower_mpfb_ed_chest_pain_nurse_adult_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 44,
+          "minY": 0.949878,
+          "minVertexIndex": 14,
+          "minWorld": [
+            0,
+            0.94988,
+            0.1365
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_nurse_adult_body",
+          "material": "openclinxr_hidden_foot_mpfb_ed_chest_pain_nurse_adult_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 152,
+          "minY": 0,
+          "minVertexIndex": 58,
+          "minWorld": [
+            -0.1585,
+            0,
+            0.1899
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_nurse_adult_body",
+          "material": "openclinxr_hidden_orphan_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 104,
+          "minY": 0.000086,
+          "minVertexIndex": 68,
+          "minWorld": [
+            -0.1582,
+            0.00009,
+            0.1863
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "material": "mat_makeclothes_library_eyes_ed_chest_pain_nurse_adult",
+          "alphaMode": "OPAQUE",
+          "triCount": 172,
+          "minY": 1.637648,
+          "minVertexIndex": 3,
+          "minWorld": [
+            0.0257,
+            1.63765,
+            0.1287
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_06_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_06_mpfb_ed_chest_pain_nurse_adult_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 9597,
+          "minY": 1.657254,
+          "minVertexIndex": 7136,
+          "minWorld": [
+            0.0538,
+            1.65725,
+            0.1312
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_nurse_adult_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 388,
+          "minY": 1.642468,
+          "minVertexIndex": 92,
+          "minWorld": [
+            0.029,
+            1.64247,
+            0.1407
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_teeth_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "material": "mat_openclinxr_hm08_teeth_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 192,
+          "minY": 1.567018,
+          "minVertexIndex": 90,
+          "minWorld": [
+            0,
+            1.56702,
+            0.1427
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_tongue_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "material": "mat_openclinxr_hm08_tongue_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 430,
+          "minY": 1.564931,
+          "minVertexIndex": 134,
+          "minWorld": [
+            0,
+            1.56493,
+            0.0807
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "mpfb-clinical-physician-adult.glb",
+      "globalMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ward_delirium_senior_resident_adult_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0,
+        "minVertexIndex": 266,
+        "minWorld": [
+          0.2419,
+          0,
+          0.1495
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ward_delirium_senior_resident_adult_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0,
+        "minVertexIndex": 266,
+        "minWorld": [
+          0.2419,
+          0,
+          0.1495
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ward_delirium_senior_resident_adult_mesh",
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "alphaMode": "OPAQUE",
+          "triCount": 1004,
+          "minY": 0,
+          "minVertexIndex": 266,
+          "minWorld": [
+            0.2419,
+            0,
+            0.1495
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "makeclothes_library_hair_mhair02_mpfb_ward_delirium_senior_resident_adult_mesh",
+          "material": "openclinxr_fitted_hair_mhair02_mpfb_ward_delirium_senior_resident_adult_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 2974,
+          "minY": 1.525449,
+          "minVertexIndex": 426,
+          "minWorld": [
+            -0.0025,
+            1.52545,
+            -0.0244
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_lab_coat_mpfb_ward_delirium_senior_resident_adult_mesh",
+          "material": "mat_makeclothes_library_lab_coat",
+          "alphaMode": "OPAQUE",
+          "triCount": 2632,
+          "minY": 0.508498,
+          "minVertexIndex": 2202,
+          "minWorld": [
+            -0.2138,
+            0.5085,
+            0.1045
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_scrub_pants_mpfb_ward_delirium_senior_resident_adult_mesh",
+          "material": "mat_makeclothes_library_scrub_pants",
+          "alphaMode": "OPAQUE",
+          "triCount": 2704,
+          "minY": 0.075906,
+          "minVertexIndex": 1841,
+          "minWorld": [
+            -0.219,
+            0.07591,
+            0.0854
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_scrub_shirt_mpfb_ward_delirium_senior_resident_adult_mesh",
+          "material": "mat_makeclothes_library_scrub_shirt",
+          "alphaMode": "OPAQUE",
+          "triCount": 9384,
+          "minY": 0.95529,
+          "minVertexIndex": 14954,
+          "minWorld": [
+            -0.1646,
+            0.95529,
+            0.0539
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ward_delirium_senior_resident_adult_body",
+          "material": "mpfb_skin_ward_delirium_senior_resident_adult",
+          "alphaMode": "OPAQUE",
+          "triCount": 7833,
+          "minY": 0,
+          "minVertexIndex": 2343,
+          "minWorld": [
+            -0.177,
+            0,
+            0.1359
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ward_delirium_senior_resident_adult_body",
+          "material": "openclinxr_hidden_upper_mpfb_ward_delirium_senior_resident_adult_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2032,
+          "minY": 0.963167,
+          "minVertexIndex": 630,
+          "minWorld": [
+            -0.0197,
+            0.96317,
+            0.1323
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ward_delirium_senior_resident_adult_body",
+          "material": "openclinxr_hidden_lower_mpfb_ward_delirium_senior_resident_adult_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 430,
+          "minY": 0.074898,
+          "minVertexIndex": 149,
+          "minWorld": [
+            -0.2027,
+            0.0749,
+            -0.0295
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ward_delirium_senior_resident_adult_body",
+          "material": "openclinxr_hidden_foot_mpfb_ward_delirium_senior_resident_adult_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2102,
+          "minY": 0.001844,
+          "minVertexIndex": 517,
+          "minWorld": [
+            -0.1668,
+            0.00184,
+            0.177
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ward_delirium_senior_resident_adult_body",
+          "material": "openclinxr_hidden_upper_mpfb_ward_delirium_senior_resident_adult_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 50,
+          "minY": 1.216281,
+          "minVertexIndex": 27,
+          "minWorld": [
+            -0.267,
+            1.21628,
+            0.0103
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ward_delirium_senior_resident_adult_body",
+          "material": "openclinxr_hidden_lower_mpfb_ward_delirium_senior_resident_adult_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 62,
+          "minY": 0.074708,
+          "minVertexIndex": 29,
+          "minWorld": [
+            -0.22,
+            0.07471,
+            0.0507
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ward_delirium_senior_resident_adult_body",
+          "material": "openclinxr_hidden_foot_mpfb_ward_delirium_senior_resident_adult_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 284,
+          "minY": 0,
+          "minVertexIndex": 104,
+          "minWorld": [
+            -0.177,
+            0,
+            0.1359
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ward_delirium_senior_resident_adult_body",
+          "material": "openclinxr_hidden_orphan_mpfb_ward_delirium_senior_resident_adult_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 97,
+          "minY": 0.000831,
+          "minVertexIndex": 21,
+          "minWorld": [
+            -0.1624,
+            0.00083,
+            0.1812
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_ward_delirium_senior_resident_adult_mesh",
+          "material": "mat_makeclothes_library_eyes_ward_delirium_senior_resident_adult",
+          "alphaMode": "OPAQUE",
+          "triCount": 172,
+          "minY": 1.60178,
+          "minVertexIndex": 3,
+          "minWorld": [
+            0.0246,
+            1.60178,
+            0.1273
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ward_delirium_senior_resident_adult_mesh",
+          "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ward_delirium_senior_resident_adult_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 8953,
+          "minY": 1.617707,
+          "minVertexIndex": 6250,
+          "minWorld": [
+            0.0559,
+            1.61771,
+            0.1262
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ward_delirium_senior_resident_adult_mesh",
+          "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ward_delirium_senior_resident_adult_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 395,
+          "minY": 1.605321,
+          "minVertexIndex": 94,
+          "minWorld": [
+            0.0289,
+            1.60532,
+            0.1389
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_teeth_mpfb_ward_delirium_senior_resident_adult_mesh",
+          "material": "mat_openclinxr_hm08_teeth_mpfb_ward_delirium_senior_resident_adult_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 192,
+          "minY": 1.52401,
+          "minVertexIndex": 90,
+          "minWorld": [
+            0,
+            1.52401,
+            0.1381
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_tongue_mpfb_ward_delirium_senior_resident_adult_mesh",
+          "material": "mat_openclinxr_hm08_tongue_mpfb_ward_delirium_senior_resident_adult_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 418,
+          "minY": 1.523455,
+          "minVertexIndex": 131,
+          "minWorld": [
+            0,
+            1.52346,
+            0.0776
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "mpfb-family-partner-adult.glb",
+      "globalMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_spouse_adult_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0,
+        "minVertexIndex": 266,
+        "minWorld": [
+          0.2241,
+          0,
+          0.1497
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_spouse_adult_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0,
+        "minVertexIndex": 266,
+        "minWorld": [
+          0.2241,
+          0,
+          0.1497
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "makeclothes_library_cargo_pants_mpfb_ed_chest_pain_spouse_adult_mesh.001",
+          "material": "mat_makeclothes_library_cargo_pants.001",
+          "alphaMode": "OPAQUE",
+          "triCount": 2789,
+          "minY": 0.116309,
+          "minVertexIndex": 2582,
+          "minWorld": [
+            -0.2177,
+            0.11631,
+            0.0227
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "alphaMode": "OPAQUE",
+          "triCount": 1004,
+          "minY": 0,
+          "minVertexIndex": 266,
+          "minWorld": [
+            0.2241,
+            0,
+            0.1497
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "makeclothes_library_hair_toigo_curled_under_bob_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "material": "openclinxr_fitted_hair_toigo_curled_under_bob_mpfb_ed_chest_pain_spouse_adult_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 2260,
+          "minY": 1.420135,
+          "minVertexIndex": 50,
+          "minWorld": [
+            0.0307,
+            1.42013,
+            0.0983
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_toigo_t_shirt_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "alphaMode": "OPAQUE",
+          "triCount": 2700,
+          "minY": 0.960267,
+          "minVertexIndex": 576,
+          "minWorld": [
+            -0.0931,
+            0.96027,
+            0.1279
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_spouse_adult_body",
+          "material": "mpfb_skin_ed_chest_pain_spouse_adult",
+          "alphaMode": "OPAQUE",
+          "triCount": 8094,
+          "minY": 0.007254,
+          "minVertexIndex": 2417,
+          "minWorld": [
+            -0.2176,
+            0.00725,
+            0.1536
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_spouse_adult_body",
+          "material": "openclinxr_hidden_upper_mpfb_ed_chest_pain_spouse_adult_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2012,
+          "minY": 0.98174,
+          "minVertexIndex": 563,
+          "minWorld": [
+            0,
+            0.98174,
+            0.1483
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_spouse_adult_body",
+          "material": "openclinxr_hidden_lower_mpfb_ed_chest_pain_spouse_adult_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 448,
+          "minY": 0.11961,
+          "minVertexIndex": 161,
+          "minWorld": [
+            -0.1747,
+            0.11961,
+            -0.0108
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_spouse_adult_body",
+          "material": "openclinxr_hidden_foot_mpfb_ed_chest_pain_spouse_adult_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 1877,
+          "minY": 0.000003,
+          "minVertexIndex": 487,
+          "minWorld": [
+            -0.1523,
+            0,
+            0.1788
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_spouse_adult_body",
+          "material": "openclinxr_hidden_upper_mpfb_ed_chest_pain_spouse_adult_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 159,
+          "minY": 0.971782,
+          "minVertexIndex": 146,
+          "minWorld": [
+            -0.1161,
+            0.97178,
+            0.107
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_spouse_adult_body",
+          "material": "openclinxr_hidden_lower_mpfb_ed_chest_pain_spouse_adult_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 82,
+          "minY": 0.116197,
+          "minVertexIndex": 20,
+          "minWorld": [
+            -0.2028,
+            0.1162,
+            0.0231
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_spouse_adult_body",
+          "material": "openclinxr_hidden_foot_mpfb_ed_chest_pain_spouse_adult_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 114,
+          "minY": 0.000003,
+          "minVertexIndex": 42,
+          "minWorld": [
+            -0.1523,
+            0,
+            0.1788
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ed_chest_pain_spouse_adult_body",
+          "material": "openclinxr_hidden_orphan_mpfb_ed_chest_pain_spouse_adult_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 98,
+          "minY": 0.000003,
+          "minVertexIndex": 52,
+          "minWorld": [
+            -0.1523,
+            0,
+            0.1788
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "material": "mat_makeclothes_library_eyes_ed_chest_pain_spouse_adult",
+          "alphaMode": "OPAQUE",
+          "triCount": 172,
+          "minY": 1.541875,
+          "minVertexIndex": 3,
+          "minWorld": [
+            0.0246,
+            1.54188,
+            0.1233
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 10912,
+          "minY": 1.561061,
+          "minVertexIndex": 3091,
+          "minWorld": [
+            -0.0128,
+            1.56106,
+            0.1412
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 387,
+          "minY": 1.547014,
+          "minVertexIndex": 40,
+          "minWorld": [
+            -0.0332,
+            1.54701,
+            0.1341
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_teeth_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "material": "mat_openclinxr_hm08_teeth_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 192,
+          "minY": 1.474557,
+          "minVertexIndex": 90,
+          "minWorld": [
+            0,
+            1.47456,
+            0.1371
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_tongue_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "material": "mat_openclinxr_hm08_tongue_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 430,
+          "minY": 1.472889,
+          "minVertexIndex": 135,
+          "minWorld": [
+            0,
+            1.47289,
+            0.0775
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "mpfb-gown-adult-patient.glb",
+      "globalMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_robert_reference_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0.000004,
+        "minVertexIndex": 1270,
+        "minWorld": [
+          -0.2414,
+          0,
+          0.1494
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_robert_reference_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0.000004,
+        "minVertexIndex": 1270,
+        "minWorld": [
+          -0.2414,
+          0,
+          0.1494
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_robert_reference_mesh",
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "alphaMode": "OPAQUE",
+          "triCount": 1004,
+          "minY": 0.000004,
+          "minVertexIndex": 1270,
+          "minWorld": [
+            -0.2414,
+            0,
+            0.1494
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mesh",
+          "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 3155,
+          "minY": 1.503864,
+          "minVertexIndex": 1386,
+          "minWorld": [
+            -0.0634,
+            1.50386,
+            0.1319
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_toigo_t_shirt_mpfb_robert_reference_mesh",
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "alphaMode": "OPAQUE",
+          "triCount": 2700,
+          "minY": 1.04458,
+          "minVertexIndex": 1253,
+          "minWorld": [
+            0,
+            1.04458,
+            -0.0659
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_declared_upper_layers__hospital_gown_mesh",
+          "material": null,
+          "alphaMode": null,
+          "triCount": 1,
+          "minY": 0.976566,
+          "minVertexIndex": 0,
+          "minWorld": [
+            0,
+            0.97657,
+            0.1305
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh",
+          "material": "openclinxr_real_garment_hospital_gown_phenotype_L0",
+          "alphaMode": "OPAQUE",
+          "triCount": 27995,
+          "minY": 0.568183,
+          "minVertexIndex": 2277,
+          "minWorld": [
+            -0.0942,
+            0.56818,
+            0.1509
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "mpfb_skin_robert_reference",
+          "alphaMode": "OPAQUE",
+          "triCount": 9810,
+          "minY": 0.000004,
+          "minVertexIndex": 2922,
+          "minWorld": [
+            -0.1737,
+            0,
+            0.1357
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_upper_mpfb_robert_reference_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 1818,
+          "minY": 1.062247,
+          "minVertexIndex": 1154,
+          "minWorld": [
+            0.0921,
+            1.06225,
+            -0.0533
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_lower_mpfb_robert_reference_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 495,
+          "minY": 0.103429,
+          "minVertexIndex": 177,
+          "minWorld": [
+            -0.2117,
+            0.10343,
+            -0.0241
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_foot_mpfb_robert_reference_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2093,
+          "minY": 0.001959,
+          "minVertexIndex": 544,
+          "minWorld": [
+            -0.1629,
+            0.00196,
+            0.1777
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_upper_mpfb_robert_reference_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 158,
+          "minY": 1.158134,
+          "minVertexIndex": 74,
+          "minWorld": [
+            0,
+            1.15813,
+            0.1382
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_lower_mpfb_robert_reference_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 82,
+          "minY": 0.099628,
+          "minVertexIndex": 29,
+          "minWorld": [
+            -0.1658,
+            0.09963,
+            0.0025
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_foot_mpfb_robert_reference_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 400,
+          "minY": 0.000004,
+          "minVertexIndex": 162,
+          "minWorld": [
+            -0.1737,
+            0,
+            0.1357
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_orphan_mpfb_robert_reference_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 72,
+          "minY": 0.003312,
+          "minVertexIndex": 14,
+          "minWorld": [
+            -0.1845,
+            0.00331,
+            0.1917
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_robert_reference_mesh",
+          "material": "mat_makeclothes_library_eyes_robert_reference",
+          "alphaMode": "OPAQUE",
+          "triCount": 172,
+          "minY": 1.65174,
+          "minVertexIndex": 3,
+          "minWorld": [
+            0.0253,
+            1.65174,
+            0.1283
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh",
+          "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 13187,
+          "minY": 1.667668,
+          "minVertexIndex": 7995,
+          "minWorld": [
+            0.0502,
+            1.66767,
+            0.1347
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh",
+          "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 386,
+          "minY": 1.654771,
+          "minVertexIndex": 503,
+          "minWorld": [
+            -0.0327,
+            1.65477,
+            0.1395
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_teeth_mpfb_robert_reference_mesh",
+          "material": "mat_openclinxr_hm08_teeth_mpfb_robert_reference_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 190,
+          "minY": 1.571261,
+          "minVertexIndex": 89,
+          "minWorld": [
+            0,
+            1.57126,
+            0.1375
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_tongue_mpfb_robert_reference_mesh",
+          "material": "mat_openclinxr_hm08_tongue_mpfb_robert_reference_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 422,
+          "minY": 1.570578,
+          "minVertexIndex": 132,
+          "minWorld": [
+            0,
+            1.57058,
+            0.076
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "mpfb-gown-inspect.glb",
+      "globalMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0.000985,
+        "minVertexIndex": 388,
+        "minWorld": [
+          0.2665,
+          0.00098,
+          0.1322
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0.000985,
+        "minVertexIndex": 388,
+        "minWorld": [
+          0.2665,
+          0.00098,
+          0.1322
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "alphaMode": "OPAQUE",
+          "triCount": 1004,
+          "minY": 0.000985,
+          "minVertexIndex": 388,
+          "minWorld": [
+            0.2665,
+            0.00098,
+            0.1322
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+          "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 4975,
+          "minY": 1.399561,
+          "minVertexIndex": 1182,
+          "minWorld": [
+            0.049,
+            1.39956,
+            0.1472
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "alphaMode": "OPAQUE",
+          "triCount": 2700,
+          "minY": 0.955204,
+          "minVertexIndex": 3440,
+          "minWorld": [
+            -0.0002,
+            0.9552,
+            -0.0566
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_declared_upper_layers__hospital_gown_mesh",
+          "material": null,
+          "alphaMode": null,
+          "triCount": 1,
+          "minY": 0.917222,
+          "minVertexIndex": 0,
+          "minWorld": [
+            0,
+            0.91722,
+            0.11
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh",
+          "material": "openclinxr_real_garment_hospital_gown_phenotype_L0",
+          "alphaMode": "OPAQUE",
+          "triCount": 57073,
+          "minY": 0.534068,
+          "minVertexIndex": 95,
+          "minWorld": [
+            -0.1937,
+            0.53407,
+            -0.0232
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "mpfb_skin_ob_patient_aisha",
+          "alphaMode": "OPAQUE",
+          "triCount": 19828,
+          "minY": 0.000985,
+          "minVertexIndex": 5304,
+          "minWorld": [
+            -0.2,
+            0.00098,
+            0.1366
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2716,
+          "minY": 0.968173,
+          "minVertexIndex": 1559,
+          "minWorld": [
+            0.1217,
+            0.96817,
+            0.1069
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 402,
+          "minY": 0.106564,
+          "minVertexIndex": 175,
+          "minWorld": [
+            -0.2314,
+            0.10656,
+            -0.0355
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2856,
+          "minY": 0.004685,
+          "minVertexIndex": 913,
+          "minWorld": [
+            -0.2606,
+            0.00468,
+            0.1412
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 160,
+          "minY": 0.972393,
+          "minVertexIndex": 152,
+          "minWorld": [
+            0.1381,
+            0.97239,
+            0.0919
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 78,
+          "minY": 0.100395,
+          "minVertexIndex": 96,
+          "minWorld": [
+            0.2048,
+            0.10039,
+            0.0384
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 648,
+          "minY": 0.000985,
+          "minVertexIndex": 63,
+          "minWorld": [
+            -0.2,
+            0.00098,
+            0.1366
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 68,
+          "minY": 0.004765,
+          "minVertexIndex": 35,
+          "minWorld": [
+            -0.2422,
+            0.00476,
+            0.1555
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_makeclothes_library_eyes_ob_patient_aisha",
+          "alphaMode": "OPAQUE",
+          "triCount": 172,
+          "minY": 1.535071,
+          "minVertexIndex": 7,
+          "minWorld": [
+            0.0262,
+            1.53507,
+            0.1275
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+          "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 35334,
+          "minY": 1.550799,
+          "minVertexIndex": 16461,
+          "minWorld": [
+            0.0618,
+            1.5508,
+            0.1175
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+          "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 16632,
+          "minY": 1.538346,
+          "minVertexIndex": 700,
+          "minWorld": [
+            -0.0332,
+            1.53835,
+            0.1424
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 192,
+          "minY": 1.459661,
+          "minVertexIndex": 1,
+          "minWorld": [
+            0,
+            1.45966,
+            0.1427
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 448,
+          "minY": 1.446951,
+          "minVertexIndex": 24,
+          "minWorld": [
+            0,
+            1.44695,
+            0.0791
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "globalMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0.000983,
+        "minVertexIndex": 388,
+        "minWorld": [
+          0.2665,
+          0.00098,
+          0.1322
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0.000983,
+        "minVertexIndex": 388,
+        "minWorld": [
+          0.2665,
+          0.00098,
+          0.1322
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh.001",
+          "material": "mat_makeclothes_library_cargo_pants.001",
+          "alphaMode": "OPAQUE",
+          "triCount": 2692,
+          "minY": 0.100983,
+          "minVertexIndex": 7932,
+          "minWorld": [
+            0.2465,
+            0.10098,
+            -0.0429
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "alphaMode": "OPAQUE",
+          "triCount": 1004,
+          "minY": 0.000983,
+          "minVertexIndex": 388,
+          "minWorld": [
+            0.2665,
+            0.00098,
+            0.1322
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+          "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 4976,
+          "minY": 1.399562,
+          "minVertexIndex": 1182,
+          "minWorld": [
+            0.049,
+            1.39956,
+            0.1472
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "alphaMode": "OPAQUE",
+          "triCount": 2700,
+          "minY": 0.925393,
+          "minVertexIndex": 2848,
+          "minWorld": [
+            0.0901,
+            0.92539,
+            0.1674
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "mpfb_skin_ob_patient_aisha",
+          "alphaMode": "OPAQUE",
+          "triCount": 19680,
+          "minY": 0.000983,
+          "minVertexIndex": 5267,
+          "minWorld": [
+            -0.2,
+            0.00098,
+            0.1366
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2798,
+          "minY": 0.946938,
+          "minVertexIndex": 733,
+          "minWorld": [
+            0,
+            0.94694,
+            0.2144
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 410,
+          "minY": 0.106562,
+          "minVertexIndex": 168,
+          "minWorld": [
+            -0.2314,
+            0.10656,
+            -0.0355
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2856,
+          "minY": 0.004683,
+          "minVertexIndex": 913,
+          "minWorld": [
+            -0.2606,
+            0.00468,
+            0.1412
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 176,
+          "minY": 0.938543,
+          "minVertexIndex": 85,
+          "minWorld": [
+            -0.129,
+            0.93854,
+            0.1045
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 110,
+          "minY": 0.100393,
+          "minVertexIndex": 66,
+          "minWorld": [
+            -0.2048,
+            0.10039,
+            0.0384
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 648,
+          "minY": 0.000983,
+          "minVertexIndex": 63,
+          "minWorld": [
+            -0.2,
+            0.00098,
+            0.1366
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 78,
+          "minY": 0.004763,
+          "minVertexIndex": 43,
+          "minWorld": [
+            -0.2422,
+            0.00476,
+            0.1555
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_makeclothes_library_eyes_ob_patient_aisha",
+          "alphaMode": "OPAQUE",
+          "triCount": 172,
+          "minY": 1.535073,
+          "minVertexIndex": 7,
+          "minWorld": [
+            0.0262,
+            1.53507,
+            0.1275
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+          "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 35334,
+          "minY": 1.550801,
+          "minVertexIndex": 16461,
+          "minWorld": [
+            0.0618,
+            1.5508,
+            0.1175
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+          "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 16632,
+          "minY": 1.538348,
+          "minVertexIndex": 700,
+          "minWorld": [
+            -0.0332,
+            1.53835,
+            0.1424
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 192,
+          "minY": 1.459663,
+          "minVertexIndex": 1,
+          "minWorld": [
+            0,
+            1.45966,
+            0.1427
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 448,
+          "minY": 1.446953,
+          "minVertexIndex": 24,
+          "minWorld": [
+            0,
+            1.44695,
+            0.0791
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "globalMinimum": {
+        "mesh": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin_mesh",
+        "material": "mat_makeclothes_library_footwear_culturalibre_male_boots",
+        "alphaMode": "OPAQUE",
+        "triCount": 30768,
+        "minY": 0,
+        "minVertexIndex": 13550,
+        "minWorld": [
+          -0.2134,
+          0,
+          -0.0477
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin_mesh",
+        "material": "mat_makeclothes_library_footwear_culturalibre_male_boots",
+        "alphaMode": "OPAQUE",
+        "triCount": 30768,
+        "minY": 0,
+        "minVertexIndex": 13550,
+        "minWorld": [
+          -0.2134,
+          0,
+          -0.0477
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin_mesh",
+          "material": "mat_makeclothes_library_footwear_culturalibre_male_boots",
+          "alphaMode": "OPAQUE",
+          "triCount": 30768,
+          "minY": 0,
+          "minVertexIndex": 13550,
+          "minWorld": [
+            -0.2134,
+            0,
+            -0.0477
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh",
+          "material": "openclinxr_fitted_hair_mhair02_mpfb_peds_nurse_kevin_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 3460,
+          "minY": 1.564495,
+          "minVertexIndex": 1321,
+          "minWorld": [
+            -0.0026,
+            1.56449,
+            -0.0246
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh",
+          "material": "mat_makeclothes_library_scrub_pants",
+          "alphaMode": "OPAQUE",
+          "triCount": 2704,
+          "minY": 0.07759,
+          "minVertexIndex": 2533,
+          "minWorld": [
+            -0.2237,
+            0.07759,
+            0.0865
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh",
+          "material": "mat_makeclothes_library_scrub_shirt",
+          "alphaMode": "OPAQUE",
+          "triCount": 9384,
+          "minY": 0.981697,
+          "minVertexIndex": 10995,
+          "minWorld": [
+            -0.1669,
+            0.9817,
+            0.055
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "material": "mpfb_skin_peds_nurse_kevin",
+          "alphaMode": "OPAQUE",
+          "triCount": 19242,
+          "minY": 0,
+          "minVertexIndex": 5500,
+          "minWorld": [
+            -0.181,
+            0,
+            0.1386
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "material": "openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2762,
+          "minY": 0.989922,
+          "minVertexIndex": 812,
+          "minWorld": [
+            -0.02,
+            0.98992,
+            0.1342
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "material": "openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 508,
+          "minY": 0.087102,
+          "minVertexIndex": 225,
+          "minWorld": [
+            -0.2232,
+            0.0871,
+            0.041
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "material": "openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 3552,
+          "minY": 0.000731,
+          "minVertexIndex": 1105,
+          "minWorld": [
+            -0.1953,
+            0.00073,
+            0.1372
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "material": "openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 46,
+          "minY": 1.246595,
+          "minVertexIndex": 25,
+          "minWorld": [
+            -0.2738,
+            1.24659,
+            0.0111
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "material": "openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 252,
+          "minY": 0.076584,
+          "minVertexIndex": 97,
+          "minWorld": [
+            -0.2248,
+            0.07658,
+            0.0512
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "material": "openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 300,
+          "minY": 0,
+          "minVertexIndex": 129,
+          "minWorld": [
+            -0.181,
+            0,
+            0.1386
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "material": "openclinxr_hidden_orphan_mpfb_peds_nurse_kevin_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 94,
+          "minY": 0.020769,
+          "minVertexIndex": 39,
+          "minWorld": [
+            -0.232,
+            0.02077,
+            0.1675
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_peds_nurse_kevin_mesh",
+          "material": "mat_makeclothes_library_eyes_peds_nurse_kevin",
+          "alphaMode": "OPAQUE",
+          "triCount": 172,
+          "minY": 1.642592,
+          "minVertexIndex": 7,
+          "minWorld": [
+            0.0251,
+            1.64259,
+            0.1301
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh",
+          "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 28716,
+          "minY": 1.658748,
+          "minVertexIndex": 15474,
+          "minWorld": [
+            0.0517,
+            1.65875,
+            0.134
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh",
+          "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 16632,
+          "minY": 1.643514,
+          "minVertexIndex": 700,
+          "minWorld": [
+            -0.0328,
+            1.64351,
+            0.146
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_teeth_mpfb_peds_nurse_kevin_mesh",
+          "material": "mat_openclinxr_hm08_teeth_mpfb_peds_nurse_kevin_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 192,
+          "minY": 1.563485,
+          "minVertexIndex": 1,
+          "minWorld": [
+            0,
+            1.56348,
+            0.1411
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_tongue_mpfb_peds_nurse_kevin_mesh",
+          "material": "mat_openclinxr_hm08_tongue_mpfb_peds_nurse_kevin_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 448,
+          "minY": 1.562725,
+          "minVertexIndex": 24,
+          "minWorld": [
+            0,
+            1.56273,
+            0.0795
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "mpfb-peds-parent-aisha.glb",
+      "globalMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0,
+        "minVertexIndex": 388,
+        "minWorld": [
+          0.2246,
+          0,
+          0.1495
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0,
+        "minVertexIndex": 388,
+        "minWorld": [
+          0.2246,
+          0,
+          0.1495
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "makeclothes_library_cargo_pants_mpfb_peds_anxious_parent_mesh.001",
+          "material": "mat_makeclothes_library_cargo_pants.001",
+          "alphaMode": "OPAQUE",
+          "triCount": 2818,
+          "minY": 0.1,
+          "minVertexIndex": 8277,
+          "minWorld": [
+            -0.1395,
+            0.1,
+            0.0209
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent_mesh",
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "alphaMode": "OPAQUE",
+          "triCount": 1004,
+          "minY": 0,
+          "minVertexIndex": 388,
+          "minWorld": [
+            0.2246,
+            0,
+            0.1495
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh",
+          "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 4976,
+          "minY": 1.412263,
+          "minVertexIndex": 2109,
+          "minWorld": [
+            -0.0607,
+            1.41226,
+            0.1345
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_toigo_t_shirt_mpfb_peds_anxious_parent_mesh",
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "alphaMode": "OPAQUE",
+          "triCount": 2700,
+          "minY": 0.961143,
+          "minVertexIndex": 2852,
+          "minWorld": [
+            0.0946,
+            0.96114,
+            0.1269
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_anxious_parent_body",
+          "material": "mpfb_skin_peds_anxious_parent",
+          "alphaMode": "OPAQUE",
+          "triCount": 20242,
+          "minY": 0.007192,
+          "minVertexIndex": 5782,
+          "minWorld": [
+            -0.2182,
+            0.00719,
+            0.1534
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_anxious_parent_body",
+          "material": "openclinxr_hidden_upper_mpfb_peds_anxious_parent_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2664,
+          "minY": 0.982525,
+          "minVertexIndex": 733,
+          "minWorld": [
+            0,
+            0.98253,
+            0.1486
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_anxious_parent_body",
+          "material": "openclinxr_hidden_lower_mpfb_peds_anxious_parent_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 506,
+          "minY": 0.100631,
+          "minVertexIndex": 215,
+          "minWorld": [
+            -0.1755,
+            0.10063,
+            -0.0112
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_anxious_parent_body",
+          "material": "openclinxr_hidden_foot_mpfb_peds_anxious_parent_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2760,
+          "minY": 0.000007,
+          "minVertexIndex": 572,
+          "minWorld": [
+            -0.1528,
+            0.00001,
+            0.1785
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_anxious_parent_body",
+          "material": "openclinxr_hidden_upper_mpfb_peds_anxious_parent_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 218,
+          "minY": 0.972703,
+          "minVertexIndex": 102,
+          "minWorld": [
+            -0.1164,
+            0.9727,
+            0.1071
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_anxious_parent_body",
+          "material": "openclinxr_hidden_lower_mpfb_peds_anxious_parent_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 88,
+          "minY": 0.098525,
+          "minVertexIndex": 44,
+          "minWorld": [
+            -0.1722,
+            0.09852,
+            0.0619
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_anxious_parent_body",
+          "material": "openclinxr_hidden_foot_mpfb_peds_anxious_parent_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 140,
+          "minY": 0,
+          "minVertexIndex": 11,
+          "minWorld": [
+            -0.1531,
+            0,
+            0.182
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_anxious_parent_body",
+          "material": "openclinxr_hidden_orphan_mpfb_peds_anxious_parent_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 138,
+          "minY": 0.000007,
+          "minVertexIndex": 94,
+          "minWorld": [
+            -0.1528,
+            0.00001,
+            0.1785
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_peds_anxious_parent_mesh",
+          "material": "mat_makeclothes_library_eyes_peds_anxious_parent",
+          "alphaMode": "OPAQUE",
+          "triCount": 172,
+          "minY": 1.541921,
+          "minVertexIndex": 7,
+          "minWorld": [
+            0.0246,
+            1.54192,
+            0.1245
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+          "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 35334,
+          "minY": 1.558206,
+          "minVertexIndex": 16461,
+          "minWorld": [
+            0.0591,
+            1.55821,
+            0.1154
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh",
+          "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 16632,
+          "minY": 1.544376,
+          "minVertexIndex": 700,
+          "minWorld": [
+            -0.0316,
+            1.54438,
+            0.1386
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_teeth_mpfb_peds_anxious_parent_mesh",
+          "material": "mat_openclinxr_hm08_teeth_mpfb_peds_anxious_parent_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 192,
+          "minY": 1.474558,
+          "minVertexIndex": 1,
+          "minWorld": [
+            0,
+            1.47456,
+            0.1382
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_tongue_mpfb_peds_anxious_parent_mesh",
+          "material": "mat_openclinxr_hm08_tongue_mpfb_peds_anxious_parent_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 448,
+          "minY": 1.472878,
+          "minVertexIndex": 24,
+          "minWorld": [
+            0,
+            1.47288,
+            0.0786
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "globalMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_patient_child_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0,
+        "minVertexIndex": 388,
+        "minWorld": [
+          0.1765,
+          0,
+          0.1011
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_patient_child_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0,
+        "minVertexIndex": 388,
+        "minWorld": [
+          0.1765,
+          0,
+          0.1011
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "makeclothes_library_cargo_pants_mpfb_peds_patient_child_mesh.001",
+          "material": "mat_makeclothes_library_cargo_pants.001",
+          "alphaMode": "OPAQUE",
+          "triCount": 2628,
+          "minY": 0.100113,
+          "minVertexIndex": 1242,
+          "minWorld": [
+            -0.1034,
+            0.10011,
+            -0.0038
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_patient_child_mesh",
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "alphaMode": "OPAQUE",
+          "triCount": 1004,
+          "minY": 0,
+          "minVertexIndex": 388,
+          "minWorld": [
+            0.1765,
+            0,
+            0.1011
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "makeclothes_library_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mesh",
+          "material": "openclinxr_fitted_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 4976,
+          "minY": 1.043537,
+          "minVertexIndex": 1148,
+          "minWorld": [
+            0.0303,
+            1.04354,
+            0.0738
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_toigo_t_shirt_mpfb_peds_patient_child_mesh",
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "alphaMode": "OPAQUE",
+          "triCount": 2700,
+          "minY": 0.70136,
+          "minVertexIndex": 3440,
+          "minWorld": [
+            -0.0003,
+            0.70136,
+            -0.0438
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "material": "mpfb_skin_peds_patient_child",
+          "alphaMode": "OPAQUE",
+          "triCount": 19484,
+          "minY": 0,
+          "minVertexIndex": 5244,
+          "minWorld": [
+            -0.1205,
+            0,
+            0.1217
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "material": "openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2754,
+          "minY": 0.71174,
+          "minVertexIndex": 803,
+          "minWorld": [
+            -0.0836,
+            0.71174,
+            0.0821
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "material": "openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 482,
+          "minY": 0.524387,
+          "minVertexIndex": 184,
+          "minWorld": [
+            -0.0215,
+            0.52439,
+            0.0319
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "material": "openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 3224,
+          "minY": 0.001296,
+          "minVertexIndex": 716,
+          "minWorld": [
+            -0.1237,
+            0.0013,
+            0.0856
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "material": "openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 238,
+          "minY": 0.71174,
+          "minVertexIndex": 199,
+          "minWorld": [
+            0.0836,
+            0.71174,
+            0.0821
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "material": "openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 30,
+          "minY": 0.685672,
+          "minVertexIndex": 30,
+          "minWorld": [
+            0.0568,
+            0.68567,
+            0.0961
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "material": "openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 400,
+          "minY": 0,
+          "minVertexIndex": 73,
+          "minWorld": [
+            -0.1205,
+            0,
+            0.1217
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "material": "openclinxr_hidden_orphan_mpfb_peds_patient_child_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 144,
+          "minY": 0.002079,
+          "minVertexIndex": 100,
+          "minWorld": [
+            -0.1499,
+            0.00208,
+            0.1232
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_peds_patient_child_mesh",
+          "material": "mat_makeclothes_library_eyes_peds_patient_child",
+          "alphaMode": "OPAQUE",
+          "triCount": 172,
+          "minY": 1.142789,
+          "minVertexIndex": 7,
+          "minWorld": [
+            0.0213,
+            1.14279,
+            0.0998
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh",
+          "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 21816,
+          "minY": 1.15906,
+          "minVertexIndex": 3094,
+          "minWorld": [
+            -0.0478,
+            1.15906,
+            0.1003
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mesh",
+          "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 16632,
+          "minY": 1.144121,
+          "minVertexIndex": 700,
+          "minWorld": [
+            -0.029,
+            1.14412,
+            0.1123
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_teeth_mpfb_peds_patient_child_mesh",
+          "material": "mat_openclinxr_hm08_teeth_mpfb_peds_patient_child_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 192,
+          "minY": 1.084869,
+          "minVertexIndex": 1,
+          "minWorld": [
+            0,
+            1.08487,
+            0.1105
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_tongue_mpfb_peds_patient_child_mesh",
+          "material": "mat_openclinxr_hm08_tongue_mpfb_peds_patient_child_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 448,
+          "minY": 1.083388,
+          "minVertexIndex": 24,
+          "minWorld": [
+            0,
+            1.08339,
+            0.0631
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "mpfb-street-adult-male.glb",
+      "globalMinimum": {
+        "mesh": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual_mesh",
+        "material": "mat_makeclothes_library_footwear_culturalibre_male_boots",
+        "alphaMode": "OPAQUE",
+        "triCount": 30768,
+        "minY": 0,
+        "minVertexIndex": 13550,
+        "minWorld": [
+          -0.2134,
+          0,
+          -0.0477
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual_mesh",
+        "material": "mat_makeclothes_library_footwear_culturalibre_male_boots",
+        "alphaMode": "OPAQUE",
+        "triCount": 30768,
+        "minY": 0,
+        "minVertexIndex": 13550,
+        "minWorld": [
+          -0.2134,
+          0,
+          -0.0477
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual_mesh",
+          "material": "mat_makeclothes_library_footwear_culturalibre_male_boots",
+          "alphaMode": "OPAQUE",
+          "triCount": 30768,
+          "minY": 0,
+          "minVertexIndex": 13550,
+          "minWorld": [
+            -0.2134,
+            0,
+            -0.0477
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "makeclothes_library_hair_mhair02_mpfb_adult_male_street_casual_mesh",
+          "material": "openclinxr_fitted_hair_mhair02_mpfb_adult_male_street_casual_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 3460,
+          "minY": 1.564495,
+          "minVertexIndex": 1321,
+          "minWorld": [
+            -0.0026,
+            1.56449,
+            -0.0246
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_straight_leg_jeans_pants_mpfb_adult_male_street_casual_mesh",
+          "material": "mat_makeclothes_library_straight_leg_jeans_pants",
+          "alphaMode": "OPAQUE",
+          "triCount": 5708,
+          "minY": 0.046246,
+          "minVertexIndex": 7427,
+          "minWorld": [
+            0.1775,
+            0.04625,
+            -0.0216
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_toigo_t_shirt_mpfb_adult_male_street_casual_mesh",
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "alphaMode": "OPAQUE",
+          "triCount": 2700,
+          "minY": 1.0283,
+          "minVertexIndex": 2824,
+          "minWorld": [
+            0,
+            1.0283,
+            0.1384
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_adult_male_street_casual_body",
+          "material": "mpfb_skin_adult_male_street_casual",
+          "alphaMode": "OPAQUE",
+          "triCount": 19262,
+          "minY": 0,
+          "minVertexIndex": 5516,
+          "minWorld": [
+            -0.181,
+            0,
+            0.1386
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_adult_male_street_casual_body",
+          "material": "openclinxr_hidden_upper_mpfb_adult_male_street_casual_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2444,
+          "minY": 1.048295,
+          "minVertexIndex": 758,
+          "minWorld": [
+            -0.102,
+            1.0483,
+            -0.044
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_adult_male_street_casual_body",
+          "material": "openclinxr_hidden_lower_mpfb_adult_male_street_casual_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 682,
+          "minY": 0.058125,
+          "minVertexIndex": 549,
+          "minWorld": [
+            0.1751,
+            0.05812,
+            -0.0187
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_adult_male_street_casual_body",
+          "material": "openclinxr_hidden_foot_mpfb_adult_male_street_casual_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 3538,
+          "minY": 0.000731,
+          "minVertexIndex": 1102,
+          "minWorld": [
+            -0.1953,
+            0.00073,
+            0.1372
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_adult_male_street_casual_body",
+          "material": "openclinxr_hidden_upper_mpfb_adult_male_street_casual_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 220,
+          "minY": 1.171618,
+          "minVertexIndex": 92,
+          "minWorld": [
+            0,
+            1.17162,
+            0.1372
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_adult_male_street_casual_body",
+          "material": "openclinxr_hidden_lower_mpfb_adult_male_street_casual_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 244,
+          "minY": 0.0446,
+          "minVertexIndex": 65,
+          "minWorld": [
+            -0.2118,
+            0.0446,
+            0.1208
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_adult_male_street_casual_body",
+          "material": "openclinxr_hidden_foot_mpfb_adult_male_street_casual_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 290,
+          "minY": 0,
+          "minVertexIndex": 119,
+          "minWorld": [
+            -0.181,
+            0,
+            0.1386
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_adult_male_street_casual_body",
+          "material": "openclinxr_hidden_orphan_mpfb_adult_male_street_casual_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 76,
+          "minY": 0.020769,
+          "minVertexIndex": 39,
+          "minWorld": [
+            -0.232,
+            0.02077,
+            0.1675
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_adult_male_street_casual_mesh",
+          "material": "mat_makeclothes_library_eyes_adult_male_street_casual",
+          "alphaMode": "OPAQUE",
+          "triCount": 172,
+          "minY": 1.642592,
+          "minVertexIndex": 7,
+          "minWorld": [
+            0.0251,
+            1.64259,
+            0.1301
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh",
+          "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 28716,
+          "minY": 1.658748,
+          "minVertexIndex": 15474,
+          "minWorld": [
+            0.0517,
+            1.65875,
+            0.134
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh",
+          "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 16632,
+          "minY": 1.643514,
+          "minVertexIndex": 700,
+          "minWorld": [
+            -0.0328,
+            1.64351,
+            0.146
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_teeth_mpfb_adult_male_street_casual_mesh",
+          "material": "mat_openclinxr_hm08_teeth_mpfb_adult_male_street_casual_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 192,
+          "minY": 1.563485,
+          "minVertexIndex": 1,
+          "minWorld": [
+            0,
+            1.56348,
+            0.1411
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_tongue_mpfb_adult_male_street_casual_mesh",
+          "material": "mat_openclinxr_hm08_tongue_mpfb_adult_male_street_casual_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 448,
+          "minY": 1.562725,
+          "minVertexIndex": 24,
+          "minWorld": [
+            0,
+            1.56273,
+            0.0795
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "mpfb-viseme-inspect.glb",
+      "globalMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0.000983,
+        "minVertexIndex": 388,
+        "minWorld": [
+          0.2665,
+          0.00098,
+          0.1322
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": 0.000983,
+        "minVertexIndex": 388,
+        "minWorld": [
+          0.2665,
+          0.00098,
+          0.1322
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh.001",
+          "material": "mat_makeclothes_library_cargo_pants.001",
+          "alphaMode": "OPAQUE",
+          "triCount": 2782,
+          "minY": 0.100983,
+          "minVertexIndex": 8194,
+          "minWorld": [
+            0.2465,
+            0.10098,
+            -0.0429
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "alphaMode": "OPAQUE",
+          "triCount": 1004,
+          "minY": 0.000983,
+          "minVertexIndex": 388,
+          "minWorld": [
+            0.2665,
+            0.00098,
+            0.1322
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+          "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 4976,
+          "minY": 1.399562,
+          "minVertexIndex": 1182,
+          "minWorld": [
+            0.049,
+            1.39956,
+            0.1472
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "alphaMode": "OPAQUE",
+          "triCount": 2700,
+          "minY": 0.955204,
+          "minVertexIndex": 3440,
+          "minWorld": [
+            -0.0002,
+            0.9552,
+            -0.0566
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "mpfb_skin_ob_patient_aisha",
+          "alphaMode": "OPAQUE",
+          "triCount": 19828,
+          "minY": 0.000983,
+          "minVertexIndex": 5304,
+          "minWorld": [
+            -0.2,
+            0.00098,
+            0.1366
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2716,
+          "minY": 0.968173,
+          "minVertexIndex": 797,
+          "minWorld": [
+            -0.1217,
+            0.96817,
+            0.1069
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 402,
+          "minY": 0.106562,
+          "minVertexIndex": 175,
+          "minWorld": [
+            -0.2314,
+            0.10656,
+            -0.0355
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2856,
+          "minY": 0.004683,
+          "minVertexIndex": 913,
+          "minWorld": [
+            -0.2606,
+            0.00468,
+            0.1412
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 160,
+          "minY": 0.972393,
+          "minVertexIndex": 79,
+          "minWorld": [
+            -0.1381,
+            0.97239,
+            0.0919
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 78,
+          "minY": 0.100393,
+          "minVertexIndex": 45,
+          "minWorld": [
+            -0.2048,
+            0.10039,
+            0.0384
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 648,
+          "minY": 0.000983,
+          "minVertexIndex": 63,
+          "minWorld": [
+            -0.2,
+            0.00098,
+            0.1366
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "material": "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 68,
+          "minY": 0.004763,
+          "minVertexIndex": 35,
+          "minWorld": [
+            -0.2422,
+            0.00476,
+            0.1555
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_makeclothes_library_eyes_ob_patient_aisha",
+          "alphaMode": "OPAQUE",
+          "triCount": 172,
+          "minY": 1.535073,
+          "minVertexIndex": 7,
+          "minWorld": [
+            0.0262,
+            1.53507,
+            0.1275
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+          "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 35334,
+          "minY": 1.550801,
+          "minVertexIndex": 16461,
+          "minWorld": [
+            0.0618,
+            1.5508,
+            0.1175
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+          "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 16632,
+          "minY": 1.538348,
+          "minVertexIndex": 700,
+          "minWorld": [
+            -0.0332,
+            1.53835,
+            0.1424
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 192,
+          "minY": 1.459663,
+          "minVertexIndex": 1,
+          "minWorld": [
+            0,
+            1.45966,
+            0.1427
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+          "material": "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 448,
+          "minY": 1.446953,
+          "minVertexIndex": 24,
+          "minWorld": [
+            0,
+            1.44695,
+            0.0791
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "peds_anxious_parent.glb",
+      "globalMinimum": {
+        "mesh": "openclinxr_footwear_casual_shoe_L_mesh",
+        "material": "openclinxr_footwear_casual_shoe_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": -0.002,
+        "minVertexIndex": 6,
+        "minWorld": [
+          0.1751,
+          -0.002,
+          -0.0203
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "openclinxr_footwear_casual_shoe_L_mesh",
+        "material": "openclinxr_footwear_casual_shoe_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": -0.002,
+        "minVertexIndex": 6,
+        "minWorld": [
+          0.1751,
+          -0.002,
+          -0.0203
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "openclinxr_footwear_casual_shoe_L_mesh",
+          "material": "openclinxr_footwear_casual_shoe_L_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": -0.002,
+          "minVertexIndex": 6,
+          "minWorld": [
+            0.1751,
+            -0.002,
+            -0.0203
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_footwear_casual_shoe_R_mesh",
+          "material": "openclinxr_footwear_casual_shoe_R_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": -0.002,
+          "minVertexIndex": 6,
+          "minWorld": [
+            -0.1751,
+            -0.002,
+            -0.0203
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh__under_casual_top",
+          "material": "openclinxr_real_garment_casual_top_phenotype_L0",
+          "alphaMode": "OPAQUE",
+          "triCount": 4069,
+          "minY": 0.795,
+          "minVertexIndex": 936,
+          "minWorld": [
+            -0.0634,
+            0.795,
+            0.0116
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh",
+          "material": "openclinxr_real_garment_open_cardigan_phenotype_L1",
+          "alphaMode": "OPAQUE",
+          "triCount": 8009,
+          "minY": 0.6972,
+          "minVertexIndex": 2217,
+          "minWorld": [
+            -0.072,
+            0.6972,
+            0.1218
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_declared_upper_layers__casual_top+open_cardigan_mesh",
+          "material": null,
+          "alphaMode": null,
+          "triCount": 1,
+          "minY": 0.913,
+          "minVertexIndex": 0,
+          "minWorld": [
+            0,
+            0.913,
+            0.1791
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_anxious_parent.anny_base",
+          "material": "anny_generated_pbr",
+          "alphaMode": "OPAQUE",
+          "triCount": 17576,
+          "minY": 0,
+          "minVertexIndex": 4031,
+          "minWorld": [
+            -0.1431,
+            0,
+            0.2109
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_anxious_parent.anny_base",
+          "material": "openclinxr_role_mesh_clothing_family_lower",
+          "alphaMode": "OPAQUE",
+          "triCount": 2176,
+          "minY": 0.11833,
+          "minVertexIndex": 510,
+          "minWorld": [
+            -0.1732,
+            0.11833,
+            0.0913
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_anxious_parent.anny_base",
+          "material": "openclinxr_role_mesh_clothing_family_arm",
+          "alphaMode": "OPAQUE",
+          "triCount": 2856,
+          "minY": 0.941194,
+          "minVertexIndex": 119,
+          "minWorld": [
+            -0.457,
+            0.94119,
+            0.3666
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_anxious_parent.anny_base",
+          "material": "openclinxr_mesh_native_scalp_hair_surface",
+          "alphaMode": "OPAQUE",
+          "triCount": 4084,
+          "minY": 1.486413,
+          "minVertexIndex": 126,
+          "minWorld": [
+            -0.0328,
+            1.48641,
+            0.1662
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "peds_fever_patient_child.glb",
+      "globalMinimum": {
+        "mesh": "openclinxr_footwear_hospital_slipper_L_mesh",
+        "material": "openclinxr_footwear_hospital_slipper_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": -0.002,
+        "minVertexIndex": 5,
+        "minWorld": [
+          0.0938,
+          -0.002,
+          -0.0263
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "openclinxr_footwear_hospital_slipper_L_mesh",
+        "material": "openclinxr_footwear_hospital_slipper_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": -0.002,
+        "minVertexIndex": 5,
+        "minWorld": [
+          0.0938,
+          -0.002,
+          -0.0263
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "openclinxr_footwear_hospital_slipper_L_mesh",
+          "material": "openclinxr_footwear_hospital_slipper_L_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": -0.002,
+          "minVertexIndex": 5,
+          "minWorld": [
+            0.0938,
+            -0.002,
+            -0.0263
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_footwear_hospital_slipper_R_mesh",
+          "material": "openclinxr_footwear_hospital_slipper_R_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": -0.002,
+          "minVertexIndex": 5,
+          "minWorld": [
+            -0.148,
+            -0.002,
+            -0.0263
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh",
+          "material": "openclinxr_real_garment__phenotype_L0",
+          "alphaMode": "OPAQUE",
+          "triCount": 4883,
+          "minY": 0.59,
+          "minVertexIndex": 1114,
+          "minWorld": [
+            -0.0442,
+            0.59,
+            -0.0025
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_declared_upper_layers___mesh",
+          "material": null,
+          "alphaMode": null,
+          "triCount": 1,
+          "minY": 0.6875,
+          "minVertexIndex": 0,
+          "minWorld": [
+            0,
+            0.6875,
+            0.1434
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_fever_patient_child.anny_base",
+          "material": "anny_generated_pbr",
+          "alphaMode": "OPAQUE",
+          "triCount": 18152,
+          "minY": 0,
+          "minVertexIndex": 3377,
+          "minWorld": [
+            -0.0938,
+            0,
+            0.1521
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_fever_patient_child.anny_base",
+          "material": "openclinxr_role_mesh_clothing_patient_lower",
+          "alphaMode": "OPAQUE",
+          "triCount": 2128,
+          "minY": 0.091177,
+          "minVertexIndex": 493,
+          "minWorld": [
+            -0.1124,
+            0.09118,
+            -0.0008
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_fever_patient_child.anny_base",
+          "material": "openclinxr_role_mesh_clothing_patient_arm",
+          "alphaMode": "OPAQUE",
+          "triCount": 2684,
+          "minY": 0.700835,
+          "minVertexIndex": 84,
+          "minWorld": [
+            -0.3443,
+            0.70083,
+            0.2841
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_fever_patient_child.anny_base",
+          "material": "openclinxr_mesh_native_scalp_hair_surface",
+          "alphaMode": "OPAQUE",
+          "triCount": 3728,
+          "minY": 1.120767,
+          "minVertexIndex": 138,
+          "minWorld": [
+            -0.0142,
+            1.12077,
+            0.076
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "peds_nurse_kevin.glb",
+      "globalMinimum": {
+        "mesh": "openclinxr_footwear_clinical_shoe_L_mesh",
+        "material": "openclinxr_footwear_clinical_shoe_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": -0.002,
+        "minVertexIndex": 5,
+        "minWorld": [
+          0.1487,
+          -0.002,
+          -0.0222
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "openclinxr_footwear_clinical_shoe_L_mesh",
+        "material": "openclinxr_footwear_clinical_shoe_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": -0.002,
+        "minVertexIndex": 5,
+        "minWorld": [
+          0.1487,
+          -0.002,
+          -0.0222
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "openclinxr_footwear_clinical_shoe_L_mesh",
+          "material": "openclinxr_footwear_clinical_shoe_L_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": -0.002,
+          "minVertexIndex": 5,
+          "minWorld": [
+            0.1487,
+            -0.002,
+            -0.0222
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_footwear_clinical_shoe_R_mesh",
+          "material": "openclinxr_footwear_clinical_shoe_R_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": -0.002,
+          "minVertexIndex": 5,
+          "minWorld": [
+            -0.2367,
+            -0.002,
+            -0.0222
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh",
+          "material": "openclinxr_real_garment_scrub_pocket_phenotype_L1",
+          "alphaMode": "OPAQUE",
+          "triCount": 4076,
+          "minY": 0.845,
+          "minVertexIndex": 935,
+          "minWorld": [
+            -0.0663,
+            0.845,
+            -0.0106
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh__under_scrub_top",
+          "material": "openclinxr_real_garment_scrub_top_phenotype_L0",
+          "alphaMode": "OPAQUE",
+          "triCount": 4170,
+          "minY": 0.845,
+          "minVertexIndex": 955,
+          "minWorld": [
+            -0.0656,
+            0.845,
+            0.0009
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_declared_upper_layers__scrub_top+scrub_pocket_mesh",
+          "material": null,
+          "alphaMode": null,
+          "triCount": 1,
+          "minY": 0.968,
+          "minVertexIndex": 0,
+          "minWorld": [
+            0,
+            0.968,
+            0.1942
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_nurse_kevin.anny_base",
+          "material": "anny_generated_pbr",
+          "alphaMode": "OPAQUE",
+          "triCount": 18192,
+          "minY": 0,
+          "minVertexIndex": 4720,
+          "minWorld": [
+            -0.1715,
+            0,
+            0.1888
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_nurse_kevin.anny_base",
+          "material": "openclinxr_role_mesh_clothing_nurse_lower",
+          "alphaMode": "OPAQUE",
+          "triCount": 2144,
+          "minY": 0.134627,
+          "minVertexIndex": 496,
+          "minWorld": [
+            -0.1799,
+            0.13463,
+            0.0125
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_nurse_kevin.anny_base",
+          "material": "openclinxr_role_mesh_clothing_nurse_arm",
+          "alphaMode": "OPAQUE",
+          "triCount": 2840,
+          "minY": 1.008538,
+          "minVertexIndex": 108,
+          "minWorld": [
+            -0.4893,
+            1.00854,
+            0.3892
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_nurse_kevin.anny_base",
+          "material": "openclinxr_mesh_native_scalp_hair_surface",
+          "alphaMode": "OPAQUE",
+          "triCount": 3516,
+          "minY": 1.576807,
+          "minVertexIndex": 188,
+          "minWorld": [
+            -0.0665,
+            1.57681,
+            0.1337
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "peds_patient_child.glb",
+      "globalMinimum": {
+        "mesh": "peds_patient_child.anny_base",
+        "material": "anny_generated_pbr",
+        "alphaMode": "OPAQUE",
+        "triCount": 17792,
+        "minY": 0,
+        "minVertexIndex": 2757,
+        "minWorld": [
+          -0.1092,
+          0,
+          0.1661
+        ],
+        "isFootwear": false
+      },
+      "footwearMinimum": {
+        "mesh": "openclinxr_footwear_hospital_slipper_L_mesh",
+        "material": "openclinxr_footwear_hospital_slipper_L_mat",
+        "alphaMode": "OPAQUE",
+        "triCount": 80,
+        "minY": 0.009223,
+        "minVertexIndex": 14,
+        "minWorld": [
+          0.1379,
+          0.00922,
+          0.034
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": false,
+      "deltaGlobalMinusFootwearM": -0.009223,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": "bare-skin sole vertex of anny_base (x=-0.109,z=0.166,y=0.0) sits 9.2mm BELOW the hospital-slipper sole (y=0.0092); same embedded-shell cause as above. Offending geometry is VISIBLE skin; no Icosphere or hidden shell sets the minimum in any GLB.",
+      "primitives": [
+        {
+          "mesh": "openclinxr_footwear_hospital_slipper_L_mesh",
+          "material": "openclinxr_footwear_hospital_slipper_L_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": 0.009223,
+          "minVertexIndex": 14,
+          "minWorld": [
+            0.1379,
+            0.00922,
+            0.034
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_footwear_hospital_slipper_R_mesh",
+          "material": "openclinxr_footwear_hospital_slipper_R_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 80,
+          "minY": 0.009223,
+          "minVertexIndex": 14,
+          "minWorld": [
+            -0.1379,
+            0.00922,
+            0.034
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "openclinxr_real_garment_peds_tshirt_v1_mesh",
+          "material": "openclinxr_real_garment_short_sleeve_exam_tshirt_phenotype_L0",
+          "alphaMode": "OPAQUE",
+          "triCount": 3887,
+          "minY": 0.59,
+          "minVertexIndex": 924,
+          "minWorld": [
+            -0.0116,
+            0.59,
+            -0.0167
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_declared_upper_layers__short_sleeve_exam_tshirt_mesh",
+          "material": null,
+          "alphaMode": null,
+          "triCount": 1,
+          "minY": 0.6875,
+          "minVertexIndex": 0,
+          "minWorld": [
+            0,
+            0.6875,
+            0.138
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_patient_child.anny_base",
+          "material": "anny_generated_pbr",
+          "alphaMode": "OPAQUE",
+          "triCount": 17792,
+          "minY": 0,
+          "minVertexIndex": 2757,
+          "minWorld": [
+            -0.1092,
+            0,
+            0.1661
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_patient_child.anny_base",
+          "material": "openclinxr_role_mesh_clothing_patient_lower",
+          "alphaMode": "OPAQUE",
+          "triCount": 6680,
+          "minY": 0.08936,
+          "minVertexIndex": 1642,
+          "minWorld": [
+            -0.1585,
+            0.08936,
+            0.0455
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_patient_child.anny_base",
+          "material": "openclinxr_role_mesh_clothing_patient_arm",
+          "alphaMode": "OPAQUE",
+          "triCount": 2152,
+          "minY": 0.65578,
+          "minVertexIndex": 201,
+          "minWorld": [
+            -0.3557,
+            0.65578,
+            0.1952
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "peds_patient_child.anny_base",
+          "material": "openclinxr_mesh_native_scalp_hair_surface",
+          "alphaMode": "OPAQUE",
+          "triCount": 796,
+          "minY": 1.118911,
+          "minVertexIndex": 45,
+          "minWorld": [
+            -0.0769,
+            1.11891,
+            0.0209
+          ],
+          "isFootwear": false
+        }
+      ]
+    }
+  ]
+}
