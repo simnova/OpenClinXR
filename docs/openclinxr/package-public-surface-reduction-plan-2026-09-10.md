@@ -2,7 +2,7 @@
 
 Date: 2026-09-10
 
-Status: Delegation contract
+Status: Delegation contract, revised after independent review
 
 Scope: `packages/openclinxr/**` supported package imports
 
@@ -95,6 +95,21 @@ Because every package in scope is private, this program guarantees compatibility
 
 Unknown consumers outside this repository are not discoverable and must remain explicit under `NOT TESTED`. An export may be retained as a deliberate compatibility contract even when no in-repository consumer exists, but the contract inventory must name its purpose and owner.
 
+## Independent-review correction
+
+The review in [`package-public-surface-reduction/review-2026-09-10-claude.md`](package-public-surface-reduction/review-2026-09-10-claude.md) found that the first planted card set could not enforce this plan. The original cards are superseded because their proof commands did not exist, their write roots excluded required files and consumers, and their implementation proofs could pass after writing only an evidence file.
+
+The replacement program applies these rules:
+
+- PSR-00 owns root `package.json` and installs the complete verifier before any inventory or migration card can run.
+- The approved contract manifests are immutable inputs to implementation. Workers do not mark their own rows complete.
+- Every implementation proof names an exact approved group through `--require-applied <group>`; the verifier compares the compiler-derived current surface with that group's approved dispositions and fails when the group is empty.
+- Consumer discovery has positive counterweight fixtures that must find known static, dynamic, re-exported, and computed consumers. A zero-result search cannot silently authorize removal.
+- Contract review is split into four bounded groups after mechanical inventory generation.
+- Migration cards own their required consumer roots or are explicitly removal-only.
+- The final auditor can write only its independent report and cannot edit the meter, policy, inventory, or implementation.
+- Board lanes follow `agents/rules/PROTO_BOARD_LOOP.md`: lane A is learner-facing/XR; lane B is API, Admin, domain, and review. Public-surface work is cross-cutting instrumentation, so `factory_step` is `instrument` with the principal factory step it unblocks.
+
 ## Completion contract
 
 This program is complete only when all of the following are true on one integrated revision:
@@ -150,27 +165,48 @@ Do not delete source files merely because they become internal. Knip-driven dele
 
 ## Delegation graph
 
-`PSR-P` is a non-executable parent. Workers execute `PSR-00` through `PSR-09`.
+`PSR-P` is a non-executable parent. Workers execute fourteen replacement cards. The `PSR-01` review is deliberately split so no worker is asked to judge all 3,020 unique symbols at once.
 
 ```text
 PSR-00 trustworthy compiler-resolved meter
-  └── PSR-01 supported-consumer and contract inventory
-        ├── PSR-02 support and infrastructure leaves ─┐
-        ├── PSR-03 persistence/model/motion leaves ───┼── PSR-04 REST facade ─────┐
-        └── PSR-05 asset-registry facade ─────────────┘                           ├── PSR-06 Admin UI facade ─┐
-                                                        └─────────────────────────┘                          │
-PSR-03 + PSR-05 ───────────────────────────────────────────── PSR-07 XR runtime facades ──────────────────────┤
-                                                                                                             ├── PSR-08 full tail sweep
-                                                                                                             └── PSR-09 independent acceptance
+  └── PSR-01A mechanical inventory
+        ├── PSR-01B support-contract review ─────────── PSR-02 support implementation ──────────────┐
+        ├── PSR-01C data/model/motion review ────────── PSR-03 data/model/motion implementation ───┼── PSR-04 REST facade ───┐
+        ├── PSR-01D REST/asset/Admin review ─────────── PSR-05 asset-registry facade ───────────────┘                       ├── PSR-06 Admin facade ─┐
+        └── PSR-01E XR/remaining review ───────────────────────────────────────────────────┐                                │                       │
+                                                                                           ├── PSR-07 XR facades ──────────┴───────────────────────┤
+PSR-02 through PSR-07 + PSR-01E ───────────────────────────────────────────────────────────┴── PSR-08 explicit tail ───────┤
+                                                                                                                       PSR-09 read-only acceptance
 ```
 
 The actual board dependency edges are authoritative if this diagram and the board ever disagree.
+
+## Machine-proof matrix
+
+| Card | Lane | Factory classification | Required semantic proof |
+| --- | --- | --- | --- |
+| PSR-00 | B | `instrument` → `staging` | install both root commands; meter fixtures and built-output resolution pass |
+| PSR-01A | B | `instrument` → `staging` | `verify --require-inventory` finds every package, entrypoint, and supported consumer class |
+| PSR-01B | B | `instrument` → `dialogue_runtime` | `verify --require-reviewed-group psr-01b` |
+| PSR-01C | B | `instrument` → `motion_retarget` | `verify --require-reviewed-group psr-01c` |
+| PSR-01D | B | `instrument` → `staging` | `verify --require-reviewed-group psr-01d` |
+| PSR-01E | A | `instrument` → `staging` | `verify --require-reviewed-group psr-01e` |
+| PSR-02 | B | `instrument` → `dialogue_runtime` | `verify --require-applied psr-02` plus affected builds and tests |
+| PSR-03 | B | `instrument` → `motion_retarget` | `verify --require-applied psr-03` plus affected builds and tests |
+| PSR-04 | B | `instrument` → `staging` | `verify --require-applied psr-04` plus REST/API/consumer tests |
+| PSR-05 | A | `instrument` → `staging` | `verify --require-applied psr-05` plus asset and affected-consumer tests |
+| PSR-06 | B | `instrument` → `staging` | `verify --require-applied psr-06` plus Admin package/application tests |
+| PSR-07 | A | `instrument` → `staging` | `verify --require-applied psr-07` plus XR package/application tests |
+| PSR-08 | B | `instrument` → `staging` | `verify --require-applied psr-08`, `--require-all-reviewed`, builds, tests, and Knip |
+| PSR-09 | B | `instrument` → `staging` | existing `arch:public-surface:acceptance`, full build/typecheck/test/lint/Knip, report-only diff |
+
+An implementation card cannot satisfy its semantic proof by editing an approval manifest or setting a completion flag. The proof reads immutable approved dispositions, requires a non-empty exact package set, recomputes the current surface, and checks the current import graph and built package output.
 
 ## Task contracts
 
 ### PSR-00 — Make the public-surface meter trustworthy
 
-Replace regex-only measurement with TypeScript module export resolution, discover nested workspace packages, cover all export syntax with positive and negative fixtures, and produce a checked-in baseline without raising the legacy ceilings. Preserve the legacy metric as a transition signal.
+Replace regex-only measurement with TypeScript module export resolution, discover nested workspace packages, cover all export syntax with positive and negative fixtures, and produce a checked-in baseline without raising the legacy ceilings. Preserve the legacy metric as a transition signal. This card owns root `package.json` and installs both `arch:public-surface:verify` and `arch:public-surface:acceptance`.
 
 Minimum proof:
 
@@ -178,54 +214,81 @@ Minimum proof:
 - `rest` and `ui-route-admin` match TypeScript compiler exports.
 - All four arena packages are reported and ratcheted.
 - The test fails when a nested package or `export type *` is introduced outside its ceiling.
+- Positive consumer fixtures prove the scanner finds known static imports, dynamic imports, require calls, re-export chains, and reviewed computed access across every supported JavaScript and TypeScript extension.
+- `--require-reviewed-group <id>` fails for an absent, empty, malformed, or unresolved approval manifest.
+- `--require-applied <id>` fails unless the current compiler-derived package surfaces exactly implement the immutable approved dispositions for a non-empty group.
+- `arch:public-surface:acceptance` recomputes full-tree closure without trusting child-card status or evidence-authored success flags.
 
 The meter also emits deterministic JSON containing manifest hashes, runtime and type symbols separately, root and subpath occurrences, unique names, duplicates, and built-output resolution results. The legacy regex meter remains a historical series only. `narrow-entrypoint.ts` may help prepare changes but is never an acceptance oracle.
 
-### PSR-01 — Define supported consumers and classify the contract
+### PSR-01A — Generate the mechanical inventory
 
-Create the reviewable contract inventory before changing package APIs. Enumerate all supported consumers described above, including dynamic and computed access that static symbol search cannot prove. Classify every exposed symbol as `keep`, `remove`, `migrate`, or `unresolved`; name the intended import route, consumer or compatibility purpose, owner, and rationale. The task completes only with zero unresolved entries and a reviewable manifest hash.
+Generate the complete raw inventory from PSR-00 without changing package APIs. Enumerate every supported consumer described above, including dynamic and computed access that static symbol search cannot prove. Each row contains the current route, runtime/type kind, known consumers, compatibility evidence, manifest hash, and an initially unresolved disposition.
+
+### PSR-01B through PSR-01E — Review bounded contract groups
+
+Review the generated inventory in four immutable approval manifests:
+
+- **PSR-01B:** `config-rolldown`, `physics-touch-artifacts`, `test-harness`, `auth`, and `telemetry`.
+- **PSR-01C:** `data-mongodb`, `motion-compiler`, `conversation-policy`, `model-gateway`, and `graphql`.
+- **PSR-01D:** `rest`, `asset-registry`, and `ui-route-admin`, including their proposed consumer migration routes.
+- **PSR-01E:** the seven PSR-07 XR packages plus the exact PSR-08 tail listed below.
+
+Every row is classified as `keep`, `remove`, or `migrate`; names the intended import route, consumer or compatibility purpose, owner, and rationale; and contains no unresolved disposition. Review cards never change package exports. The verifier rejects an approval manifest whose source inventory hash is stale.
 
 ### PSR-02 — Narrow support and infrastructure leaves
 
 Narrow `config-rolldown`, `physics-touch-artifacts`, `test-harness`, `auth`, and `telemetry`. Keep their implementations; publish only the consumer-facing factories, types, and operations. Align stable package delivery with built output.
 
-The telemetry portion waits for active telemetry/review-workflow work to land. Every change must match an approved PSR-01 disposition.
+Every change must match PSR-01B. The card runs the affected package builds and tests and proves `--require-applied psr-02`.
 
 ### PSR-03 — Narrow persistence, model, conversation, GraphQL, and motion leaves
 
 Narrow `data-mongodb`, `motion-compiler`, `conversation-policy`, `model-gateway`, and `graphql`. Use consumer-oriented subpaths only where a real consumer grouping exists. This task must not interfere with the semantics of active motion-factory cards; write-root overlap defers it until safe.
 
-This task waits for both active motion-compiler cards to land. One-package commits are preferred where the packages do not require an atomic consumer migration.
+Every change must match PSR-01C. One-package commits are preferred where the packages do not require an atomic consumer migration. The replacement card's write roots include every current consumer directory found across `apps`, `packages`, and `tools`; PSR-01C must reject the group if consumer discovery finds a required migration outside that set. The card proves `--require-applied psr-03`.
 
 ### PSR-04 — Turn REST into an adapter facade
 
 Separate route matching and outward application composition from internal promotion, persistence, protocol-evidence, and fixture helpers. The root should offer the supported HTTP adapter and stable route contract. Tests and apps migrate atomically; no endpoint behavior changes.
 
+This card owns `apps/api`, `ui-route-shared`, and the exact tool and architecture consumers approved by PSR-01D. It proves `--require-applied psr-04` and runs REST, API, and affected-consumer tests.
+
 ### PSR-05 — Turn asset-registry into bounded consumer facades
 
 Define a small root for normal runtime asset selection and a few stable subpaths for authoring/review, provenance, and factory integration. Remove root/subpath duplication and keep low-level asset resolvers internal unless a named consumer requires them.
+
+Because asset-registry is a cross-lane seam, the replacement card owns every current consumer directory found across `apps`, `packages`, and `tools` and identifies itself as `integration: A↔B`. PSR-01D must reject the group if it discovers a required migration outside that set. The implementation proves `--require-applied psr-05`.
 
 ### PSR-06 — Turn Admin UI into route composition
 
 Make the package root describe the Admin route/workbench composition. Replace file-shaped component subpaths with a small number of documented groupings where cross-package consumers truly exist. Keep page-local components, hooks, validators, formatters, and codecs internal.
 
+This card proves `--require-applied psr-06` and runs package and Admin application tests.
+
 ### PSR-07 — Narrow XR runtime boundaries
 
 Narrow `xr-runtime-state`, `xr-station`, `xr-scene`, `xr-dialogue`, `xr-locomotion`, `xr-pose`, `xr-humanoid-animation`, and closely coupled XR support packages around runtime use cases. Preserve actor placement, replay, admission, motion, and evidence behavior. Prefer facade objects and cohesive contracts over dozens of primitive cross-package imports.
 
+The card owns the exact application, evidence-tool, `xr-actor-dialogue`, `xr-scene-cues`, `xr-asset-loading`, `xr-station-room`, and other consumers approved by PSR-01E. It proves `--require-applied psr-07` and runs package and UI XR tests.
+
 ### PSR-08 — Complete the full-tree tail sweep
 
-Apply the same procedure to every remaining package, remove all wildcard publication, add or update intentional-exception manifests, eliminate obsolete compatibility duplicates, bring arena packages under derived indexes, and align stable output packaging.
+Apply the same procedure to this exact complement, rather than using all of `packages/openclinxr` as a write root:
+
+`agent-loop`; `arena/iwsdk-spike`; `arena/model-vetting`; `arena/multi-actor-state-spike`; `arena/physics-touch-contract`; `capability-gateway`; `data-sources-mongoose-models`; `domain`; `exam-assembly`; `factory-stations`; `review-workflow`; `scenario-fixtures`; `scenario-runtime`; `session-state`; `shared-schemas`; `ui-route-shared`; `ui-shared`; `voice-gateway`; `xr-actor-dialogue`; `xr-asset-loading`; `xr-capture-evidence`; `xr-exam-flow`; `xr-runtime-wiring`; `xr-scene-cues`; `xr-station-room`; `xr-trace-readiness`.
+
+Remove remaining wildcard publication, apply PSR-01E dispositions, update reviewed exception manifests, eliminate obsolete compatibility duplicates, bring arena packages under derived indexes, and align stable output packaging. The card owns only these packages plus the exact consumers approved by PSR-01E and proves `--require-applied psr-08`.
 
 ### PSR-09 — Independently verify closure
 
-Recompute the complete surface from the integrated tree and enforce every completion criterion. Rerun typecheck, architecture surface tests, Knip, and the affected application/package suites. Produce JSON and Markdown reports that list exact residual exceptions and refuse success if any criterion is missing, self-declared, or measured from an empty sample.
+Run the already-installed acceptance verifier against the integrated tree and enforce every completion criterion. Rerun typecheck, architecture surface tests, Knip, package builds, and affected application/package suites. Produce JSON and Markdown reports that list exact residual exceptions and refuse success if any criterion is missing, self-declared, or measured from an empty sample. This card can write only `evidence/psr-09.{md,json}`; it cannot edit the verifier, package scripts, inventories, approvals, exceptions, packages, applications, or tools.
 
 ## Concurrency and active-board safety
 
 - BothyBoard write-root overlap is the concurrency gate. A planted card remains unavailable while an in-flight task owns an overlapping path.
-- PSR-01 runs after the meter and gates every implementation card.
-- PSR-02, PSR-03, and PSR-05 may run after PSR-01 when their roots are disjoint from active work and their named active-board dependencies have landed.
+- PSR-01A runs after the meter. PSR-01B through PSR-01E may review disjoint groups concurrently.
+- Every implementation card depends on its exact approval group and uses write-root exclusion, rather than unrelated product-card dependencies, to avoid concurrent edits.
 - REST follows the leaf migrations because it consumes many of those packages.
 - Admin UI follows REST and asset-registry because it consumes both boundaries.
 - XR facade work follows motion/model and asset-registry work.
