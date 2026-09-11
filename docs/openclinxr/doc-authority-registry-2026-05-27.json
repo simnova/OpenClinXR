@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 208,
     "archive-candidate": 90,
-    "evidence": 82,
+    "evidence": 83,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -4033,6 +4033,13 @@
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/review-2026-09-10-claude.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "docs/openclinxr/physics-realbind-pre-production-readiness-checklist-2026-08-02.md",
