@@ -50,6 +50,11 @@ export type ScenarioProposalRecord = {
   generatedFields: ScenarioProposalGeneratedField[];
   patchTrail: ScenarioProposalPatch[];
   currentRevision: Scenario;
+  /** SHA-256 of currentRevision + patchTrail. Approve must send this digest. */
+  revisionDigest: string;
+  /** Set only when the proposal record is approved; not copied onto the authored scenario. */
+  approvedBy?: string;
+  approvedAt?: string;
   claimBoundary: typeof SCENARIO_PROPOSAL_CLAIM_BOUNDARY;
   notEvidenceFor: typeof SCENARIO_PROPOSAL_NOT_EVIDENCE_FOR;
 };

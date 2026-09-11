@@ -11,24 +11,42 @@
  * without a faculty patch on a high-uncertainty field (score >= 0.5, midpoint of
  * the 0–1 unit interval) must fail even if acceptedFieldPaths lists that field.
  * Direct POST /scenarios with status approved still demotes to draft.
+ * Proposal approval must not assert exam-pool status or review gates; submitScenarioReview
+ * is the only promotion.
+ *
+ * Measured 2026-09-11: ApiPersistenceSink has no generic document bag or proposal
+ * method; runtime-durable-store only wraps exam-run/packet adapters already on the
+ * sink; a new ApiAppContext field would be a name apps/api must construct. Proposal
+ * storage stays a WeakMap on ctx.
  *
  * ## FIXED (#0)
  * registerAuthoringRoutes mounts POST/GET /internal/scenario-proposals, POST
  * .../patches, and POST .../approve. Generated fields require model provenance
- * and uncertainty. Faculty patches are append-only. Only approve writes an
- * authored scenario compilation can read.
+ * and uncertainty. Faculty patches are append-only. Approve writes the revision
+ * through coerceAuthoredScenarioWrite (authored draft, no review gate asserted).
+ * The proposal record alone carries status approved, faculty identity, time, and
+ * revision digest.
+ *
+ * NOT TESTED: durability across restart.
  */
 
 import { DEFAULT_DEV_AUTH_SECRET, signAuthToken } from "@openclinxr/auth";
+import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
 import { clinicKneePainScenario } from "@openclinxr/scenario-fixtures";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { describe, expect, it } from "vitest";
 import {
+  AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
   ApiApplication,
   type ApiPersistenceSink,
+  type ApiScenarioReviewDecisionRecord,
+  PROMOTION_REVIEW_GATES,
+  authoredScenarioContentIdentity,
+  registerAdminGraphqlRoutes,
   registerAuthoringRoutes,
   registerExamRoutes,
   routeById,
+  toAdminGraphqlScenario,
 } from "../index.js";
 
 const PROPOSALS_PATH = "/internal/scenario-proposals";
@@ -50,6 +68,9 @@ type ProposalBody = {
     }>;
     patchTrail: Array<{ path: string; previous: unknown; next: unknown; reviewerId: string }>;
     currentRevision: Scenario;
+    revisionDigest: string;
+    approvedBy?: string;
+    approvedAt?: string;
   };
   scenario?: Scenario;
 };
@@ -112,15 +133,24 @@ function generatedFields(titleUncertainty = 0.72) {
   ];
 }
 
-function memoryAuthored(): ApiPersistenceSink & { stored: Map<string, Scenario> } {
+function memoryAuthored(): ApiPersistenceSink & {
+  stored: Map<string, Scenario>;
+  decisions: ApiScenarioReviewDecisionRecord[];
+} {
   const stored = new Map<string, Scenario>();
+  const decisions: ApiScenarioReviewDecisionRecord[] = [];
   return {
     stored,
+    decisions,
     saveAuthoredScenario: (scenario) => {
       stored.set(scenario.scenarioId, scenario);
     },
     listAuthoredScenarios: () => [...stored.values()],
     getAuthoredScenario: (scenarioId) => stored.get(scenarioId),
+    saveScenarioReviewDecision: (record) => {
+      decisions.push(record);
+    },
+    listScenarioReviewDecisions: () => decisions,
   };
 }
 
@@ -131,8 +161,18 @@ function compose(persistence: ApiPersistenceSink) {
     .withRoutes((app, ctx) => {
       registerAuthoringRoutes(app, ctx);
       registerExamRoutes(app, ctx);
+      registerAdminGraphqlRoutes(app, ctx);
     })
     .build();
+}
+
+function expectNotExamPoolApproved(scenario: Scenario | undefined): void {
+  expect(scenario).toBeDefined();
+  expect(scenario?.status).not.toBe("approved");
+  expect(scenario?.review.clinical).not.toBe("approved");
+  expect(scenario?.review.psychometric).not.toBe("approved");
+  expect(scenario?.review.legal).not.toBe("approved");
+  expect(scenario?.review.simulationQa).not.toBe("approved");
 }
 
 function authHeader(role: "learner" | "faculty" | "admin"): Record<string, string> {
@@ -177,6 +217,7 @@ describe("a model proposal reaches authoring only after faculty approval", () =>
       expect(field.uncertainty.score).toBeLessThanOrEqual(1);
     }
     expect(createdBody.proposal.patchTrail).toEqual([]);
+    expect(createdBody.proposal.revisionDigest.length).toBeGreaterThan(0);
     expect(persistence.stored.size).toBe(0);
 
     const listedDraft = await app.request(routeById("list-authored-scenarios").path, { headers: faculty });
@@ -190,7 +231,10 @@ describe("a model proposal reaches authoring only after faculty approval", () =>
         generatedFields: [{ path: TITLE_PATH, value: MODEL_TITLE, uncertainty: { score: 0.1, rationale: "x" } }],
       }),
     });
-    expect(missingProvenance.status).toBe(400);
+    expect(missingProvenance.status).toBe(422);
+    const missingJson = await jsonOf(missingProvenance);
+    expect(missingJson["fieldPath"]).toBe(TITLE_PATH);
+    expect(JSON.stringify(missingJson)).toContain(TITLE_PATH);
 
     const learnerCreate = await app.request(PROPOSALS_PATH, {
       method: "POST",
@@ -200,6 +244,7 @@ describe("a model proposal reaches authoring only after faculty approval", () =>
     expect(learnerCreate.status).toBe(403);
 
     const proposalId = createdBody.proposal.proposalId;
+    const createDigest = createdBody.proposal.revisionDigest;
     const prematureApprove = await app.request(`${PROPOSALS_PATH}/${proposalId}/approve`, {
       method: "POST",
       headers: { "content-type": "application/json", ...faculty },
@@ -208,6 +253,7 @@ describe("a model proposal reaches authoring only after faculty approval", () =>
         comments: "Looks fine.",
         evidenceRefs: ["review://proposal/unchecked"],
         acceptedFieldPaths: [TITLE_PATH, OBJECTIVE_PATH],
+        revisionDigest: createDigest,
       }),
     });
     expect(prematureApprove.status).toBe(409);
@@ -248,6 +294,25 @@ describe("a model proposal reaches authoring only after faculty approval", () =>
     });
     expect(stalePatch.status).toBe(400);
 
+    const patchedDigest = patchedBody.proposal.revisionDigest;
+    expect(patchedDigest).not.toBe(createDigest);
+    const staleApprove = await app.request(`${PROPOSALS_PATH}/${proposalId}/approve`, {
+      method: "POST",
+      headers: { "content-type": "application/json", ...faculty },
+      body: JSON.stringify({
+        reviewerId: "faculty_proposal",
+        comments: "Stale digest must fail.",
+        evidenceRefs: ["review://proposal/stale-digest"],
+        acceptedFieldPaths: [OBJECTIVE_PATH],
+        revisionDigest: createDigest,
+      }),
+    });
+    expect(staleApprove.status).toBe(409);
+    const staleApproveJson = await jsonOf(staleApprove);
+    expect(staleApproveJson["reason"]).toBe("stale_revision_digest");
+    expect(staleApproveJson["currentRevisionDigest"]).toBe(patchedDigest);
+    expect(staleApproveJson["submittedRevisionDigest"]).toBe(createDigest);
+
     const approved = await app.request(`${PROPOSALS_PATH}/${proposalId}/approve`, {
       method: "POST",
       headers: { "content-type": "application/json", ...faculty },
@@ -256,20 +321,27 @@ describe("a model proposal reaches authoring only after faculty approval", () =>
         comments: "Title patched; remaining low-uncertainty objective accepted.",
         evidenceRefs: ["review://proposal/title-patch"],
         acceptedFieldPaths: [OBJECTIVE_PATH],
+        revisionDigest: patchedDigest,
       }),
     });
     expect(approved.status).toBe(200);
     const approvedBody = (await approved.json()) as ProposalBody;
     expect(approvedBody.proposal.status).toBe("approved");
-    expect(approvedBody.scenario?.status).toBe("approved");
+    expect(approvedBody.proposal.approvedBy).toBe("faculty_proposal");
+    expect(typeof approvedBody.proposal.approvedAt).toBe("string");
+    expect(approvedBody.proposal.approvedAt?.length).toBeGreaterThan(0);
+    expect(approvedBody.proposal.revisionDigest).toBe(patchedDigest);
     expect(approvedBody.scenario?.title).toContain("faculty-edited");
-    expect(persistence.stored.get(SCENARIO_ID)?.status).toBe("approved");
+    expectNotExamPoolApproved(approvedBody.scenario);
+    expectNotExamPoolApproved(approvedBody.proposal.currentRevision);
+    expectNotExamPoolApproved(persistence.stored.get(SCENARIO_ID));
 
     const fetched = await app.request(`${routeById("get-authored-scenario").path.replace(":scenarioId", SCENARIO_ID)}`, {
       headers: faculty,
     });
     expect(fetched.status).toBe(200);
-    expect(((await fetched.json()) as { scenario: Scenario }).scenario.status).toBe("approved");
+    const fetchedScenario = ((await fetched.json()) as { scenario: Scenario }).scenario;
+    expectNotExamPoolApproved(fetchedScenario);
 
     const form = await app.request(routeById("create-exam-form").path, {
       method: "POST",
@@ -278,7 +350,51 @@ describe("a model proposal reaches authoring only after faculty approval", () =>
     });
     expect(form.status).toBe(201);
     const formBody = (await form.json()) as { stationRefs: Array<{ scenarioId: string }> };
-    expect(formBody.stationRefs.map((ref) => ref.scenarioId)).toContain(SCENARIO_ID);
+    expect(formBody.stationRefs.map((ref) => ref.scenarioId)).not.toContain(SCENARIO_ID);
+
+    const identity = authoredScenarioContentIdentity(toAdminGraphqlScenario(fetchedScenario));
+    const submitDocument = adminGraphqlDocumentByOperationName("SubmitScenarioReview");
+    for (const reviewerRole of PROMOTION_REVIEW_GATES) {
+      const submitted = await app.request(routeById("admin-graphql-execute").path, {
+        method: "POST",
+        headers: { "content-type": "application/json", ...faculty },
+        body: JSON.stringify({
+          query: submitDocument.source,
+          operationName: "SubmitScenarioReview",
+          variables: {
+            input: {
+              scenarioId: SCENARIO_ID,
+              version: fetchedScenario.version,
+              reviewerRole,
+              reviewerId: `reviewer_${reviewerRole}`,
+              decision: "APPROVED",
+              comments: `${reviewerRole} gate approved for local formative review.`,
+              evidenceRefs: [
+                `evidence:proposal:${reviewerRole}`,
+                `${AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX}${identity}`,
+              ],
+            },
+          },
+        }),
+      });
+      expect(submitted.status).toBe(200);
+      const submittedBody = (await submitted.json()) as {
+        errors?: unknown[];
+        data?: { submitScenarioReview?: { status: string } };
+      };
+      expect(submittedBody.errors).toBeUndefined();
+      expect(submittedBody.data?.submitScenarioReview).toBeDefined();
+    }
+    expect(persistence.stored.get(SCENARIO_ID)?.status).toBe("approved");
+
+    const promotedForm = await app.request(routeById("create-exam-form").path, {
+      method: "POST",
+      headers: { "content-type": "application/json", ...faculty },
+      body: JSON.stringify({ examFormId: "form_proposal_compile_promoted_001", stationCount: 32 }),
+    });
+    expect(promotedForm.status).toBe(201);
+    const promotedFormBody = (await promotedForm.json()) as { stationRefs: Array<{ scenarioId: string }> };
+    expect(promotedFormBody.stationRefs.map((ref) => ref.scenarioId)).toContain(SCENARIO_ID);
 
     const replayApprove = await app.request(`${PROPOSALS_PATH}/${proposalId}/approve`, {
       method: "POST",
@@ -288,6 +404,7 @@ describe("a model proposal reaches authoring only after faculty approval", () =>
         comments: "Second approve.",
         evidenceRefs: ["review://proposal/again"],
         acceptedFieldPaths: [OBJECTIVE_PATH],
+        revisionDigest: patchedDigest,
       }),
     });
     expect(replayApprove.status).toBe(409);

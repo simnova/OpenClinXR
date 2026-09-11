@@ -5,7 +5,13 @@ import type {
   ScenarioProposalPatch,
 } from "./types.js";
 
-export type ParseFailure = { ok: false; error: string; reason: string };
+export type ParseFailure = {
+  ok: false;
+  error: string;
+  reason: string;
+  fieldPath?: string;
+  status?: 400 | 422;
+};
 export type ParseOk<T> = { ok: true; value: T };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -34,14 +40,34 @@ function parseUncertainty(value: unknown): ScenarioProposalGeneratedField["uncer
   return { score, rationale };
 }
 
-function parseGeneratedField(value: unknown): ScenarioProposalGeneratedField | undefined {
-  if (!isRecord(value)) return undefined;
+function parseGeneratedField(
+  value: unknown,
+): ParseOk<ScenarioProposalGeneratedField> | ParseFailure {
+  if (!isRecord(value)) {
+    return { ok: false, error: "invalid_body", reason: "generated_field_object_required" };
+  }
   const path = nonblank(value["path"]);
+  if (!path) {
+    return { ok: false, error: "invalid_body", reason: "generated_field_path_required" };
+  }
   const provenance = parseProvenance(value["provenance"]);
+  if (provenance === undefined) {
+    return {
+      ok: false,
+      error: "generated_field_provenance_required",
+      reason: `generated_field_provenance_required:${path}`,
+      fieldPath: path,
+      status: 422,
+    };
+  }
   const uncertainty = parseUncertainty(value["uncertainty"]);
-  if (!path || provenance === undefined || uncertainty === undefined) return undefined;
-  if (!("value" in value)) return undefined;
-  return { path, value: value["value"], provenance, uncertainty };
+  if (uncertainty === undefined) {
+    return { ok: false, error: "invalid_body", reason: `generated_field_uncertainty_required:${path}` };
+  }
+  if (!("value" in value)) {
+    return { ok: false, error: "invalid_body", reason: `generated_field_value_required:${path}` };
+  }
+  return { ok: true, value: { path, value: value["value"], provenance, uncertainty } };
 }
 
 export function parseGeneratedFields(value: unknown): ParseOk<ScenarioProposalGeneratedField[]> | ParseFailure {
@@ -52,14 +78,12 @@ export function parseGeneratedFields(value: unknown): ParseOk<ScenarioProposalGe
   const seen = new Set<string>();
   for (const entry of value) {
     const field = parseGeneratedField(entry);
-    if (!field) {
-      return { ok: false, error: "invalid_body", reason: "generated_field_provenance_and_uncertainty_required" };
-    }
-    if (seen.has(field.path)) {
+    if (!field.ok) return field;
+    if (seen.has(field.value.path)) {
       return { ok: false, error: "invalid_body", reason: "duplicate_generated_field_path" };
     }
-    seen.add(field.path);
-    fields.push(field);
+    seen.add(field.value.path);
+    fields.push(field.value);
   }
   return { ok: true, value: fields };
 }
@@ -145,14 +169,17 @@ export function parseApproveBody(body: unknown): ParseOk<{
   comments: string;
   evidenceRefs: string[];
   acceptedFieldPaths: string[];
+  revisionDigest: string;
 }> | ParseFailure {
   if (!isRecord(body)) {
     return { ok: false, error: "invalid_body", reason: "object_required" };
   }
   const reviewerId = nonblank(body["reviewerId"]);
   const comments = nonblank(body["comments"]);
+  const revisionDigest = nonblank(body["revisionDigest"]);
   if (!reviewerId) return { ok: false, error: "invalid_body", reason: "reviewerId_required" };
   if (!comments) return { ok: false, error: "invalid_body", reason: "comments_required" };
+  if (!revisionDigest) return { ok: false, error: "invalid_body", reason: "revisionDigest_required" };
   const rawRefs = body["evidenceRefs"];
   if (!Array.isArray(rawRefs) || rawRefs.length === 0) {
     return { ok: false, error: "invalid_body", reason: "evidenceRefs_required" };
@@ -175,5 +202,5 @@ export function parseApproveBody(body: unknown): ParseOk<{
       acceptedFieldPaths.push(text);
     }
   }
-  return { ok: true, value: { reviewerId, comments, evidenceRefs, acceptedFieldPaths } };
+  return { ok: true, value: { reviewerId, comments, evidenceRefs, acceptedFieldPaths, revisionDigest } };
 }

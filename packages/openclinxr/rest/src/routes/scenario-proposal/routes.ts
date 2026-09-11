@@ -4,7 +4,12 @@ import { validateScenario } from "@openclinxr/shared-schemas";
 import type { Hono } from "hono";
 import type { ApiAppContext } from "../../api-app-context.js";
 import type { ApiAppVariables } from "../../api-types.js";
-import { applyFacultyPatch, approvalBlockers, approvedAuthoredScenario } from "./approve.js";
+import {
+  applyFacultyPatch,
+  approvalBlockers,
+  approvedAuthoredScenario,
+  proposalRevisionDigest,
+} from "./approve.js";
 import { parseApproveBody, parseCreateBody, parsePatchBody } from "./parse.js";
 import { proposalStoreFor } from "./store.js";
 import {
@@ -31,7 +36,14 @@ export function registerScenarioProposalRoutes(
     }
     const parsed = parseCreateBody(await context.req.json().catch(() => ({})));
     if (!parsed.ok) {
-      return context.json({ error: parsed.error, reason: parsed.reason }, 400);
+      return context.json(
+        {
+          error: parsed.error,
+          reason: parsed.reason,
+          ...(parsed.fieldPath ? { fieldPath: parsed.fieldPath } : {}),
+        },
+        parsed.status ?? 400,
+      );
     }
     const proposalId = parsed.value.proposalId ?? `proposal_${randomUUID()}`;
     if (store.has(proposalId)) {
@@ -43,6 +55,7 @@ export function registerScenarioProposalRoutes(
       generatedFields: parsed.value.generatedFields,
       patchTrail: [],
       currentRevision: parsed.value.scenario,
+      revisionDigest: proposalRevisionDigest(parsed.value.scenario, []),
       claimBoundary: SCENARIO_PROPOSAL_CLAIM_BOUNDARY,
       notEvidenceFor: [...SCENARIO_PROPOSAL_NOT_EVIDENCE_FOR],
     };
@@ -100,6 +113,17 @@ export function registerScenarioProposalRoutes(
     if (!parsed.ok) {
       return context.json({ error: parsed.error, reason: parsed.reason }, 400);
     }
+    if (parsed.value.revisionDigest !== existing.revisionDigest) {
+      return context.json(
+        {
+          error: "stale",
+          reason: "stale_revision_digest",
+          currentRevisionDigest: existing.revisionDigest,
+          submittedRevisionDigest: parsed.value.revisionDigest,
+        },
+        409,
+      );
+    }
     const blockers = approvalBlockers(existing, parsed.value.acceptedFieldPaths);
     if (blockers.length > 0) {
       return context.json({ error: "unreviewed_generated_fields", blockers }, 409);
@@ -113,7 +137,15 @@ export function registerScenarioProposalRoutes(
       return context.json({ error: "invalid_scenario", reason: "approved_revision_invalid" }, 400);
     }
     await persistence.saveAuthoredScenario(authored);
-    const approved: ScenarioProposalRecord = { ...existing, status: "approved", currentRevision: authored };
+    const approvedAt = new Date().toISOString();
+    const approved: ScenarioProposalRecord = {
+      ...existing,
+      status: "approved",
+      currentRevision: authored,
+      approvedBy: parsed.value.reviewerId,
+      approvedAt,
+      revisionDigest: existing.revisionDigest,
+    };
     store.set(proposalId, approved);
     return context.json({ proposal: approved, scenario: authored });
   });

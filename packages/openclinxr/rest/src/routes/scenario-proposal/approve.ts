@@ -1,10 +1,21 @@
+import { createHash } from "node:crypto";
 import { type Scenario, validateScenario } from "@openclinxr/shared-schemas";
+import { coerceAuthoredScenarioWrite } from "../../scenario-review-promotion.js";
 import { getByPath, setByPath, sameJson } from "./field-paths.js";
 import {
   HIGH_UNCERTAINTY_REQUIRES_PATCH,
   type ScenarioProposalPatch,
   type ScenarioProposalRecord,
 } from "./types.js";
+
+export function proposalRevisionDigest(
+  currentRevision: Scenario,
+  patchTrail: readonly ScenarioProposalPatch[],
+): string {
+  return createHash("sha256")
+    .update(JSON.stringify({ currentRevision, patchTrail }))
+    .digest("hex");
+}
 
 export function applyFacultyPatch(
   record: ScenarioProposalRecord,
@@ -29,12 +40,14 @@ export function applyFacultyPatch(
     return { ok: false, reason: "patch_broke_scenario" };
   }
   const currentRevision = { ...(nextRoot as Scenario), status: "draft" as const };
+  const patchTrail = [...record.patchTrail, patch];
   return {
     ok: true,
     record: {
       ...record,
       currentRevision,
-      patchTrail: [...record.patchTrail, patch],
+      patchTrail,
+      revisionDigest: proposalRevisionDigest(currentRevision, patchTrail),
     },
   };
 }
@@ -59,21 +72,7 @@ export function approvalBlockers(
   return blockers;
 }
 
+/** Faculty proposal approval writes an authored draft. Review submit alone promotes. */
 export function approvedAuthoredScenario(record: ScenarioProposalRecord): Scenario {
-  const currentStage = record.currentRevision.governance.validationStage;
-  const validationStage = currentStage === "stage_0_synthetic_draft" ? "stage_1_expert_reviewed" : currentStage;
-  return {
-    ...record.currentRevision,
-    status: "approved",
-    review: {
-      clinical: "approved",
-      psychometric: "approved",
-      legal: "approved",
-      simulationQa: "approved",
-    },
-    governance: {
-      ...record.currentRevision.governance,
-      validationStage,
-    },
-  };
+  return coerceAuthoredScenarioWrite(record.currentRevision);
 }
