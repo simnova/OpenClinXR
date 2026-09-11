@@ -28,6 +28,36 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-11T1430">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 9 &middot; 2026-09-11 14:30 EDT</p>
+          <h2>The package public-surface reduction is complete: the final acceptance check passes on the whole tree.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Closed</h3>
+            <ul>
+              <li><strong>PSR-09</strong> (<code>6d34d781</code>): the acceptance verifier recomputes the surface from the tree and returns <em>close</em>. No wildcard exports remain; all 3,588 inventoried names have a reviewed disposition; every approval group is applied; every measured target is met or covered by a reviewed exception.</li>
+              <li>Result: 2,029 exports removed and 106 moved to existing subpaths. The packages now publish 1,220 root names, down from 2,533 (52% fewer), with 20 duplicated names, down from 550. Build, typecheck, 100 test suites and lint in 58 packages all pass on the closing tree.</li>
+              <li>Along the way: the verifier was rebuilt to check the finished program (<code>25dec7f1</code>), two more packages were cut below 50 names after an independent review (<code>5ae2f68e</code>), and 67 lint errors that predated the program were cleared (<code>fe689466</code>).</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Where the plan's targets were not met</h3>
+            <ul>
+              <li>The plan aimed for at most 1,000 root names, a median of 15 per package, a 90th percentile of 25 and no package above 50. The result is 1,220, 25.5, 47 and 119. Three packages stay above 50: xr-runtime-state (119), rest (94) and xr-station (70).</li>
+              <li>Each miss is recorded as an exception. A reviewer that did not write them (grok-4.6, two separate sessions) checked that the remaining names have real consumers. The first review rejected two packages as still too large; they were cut, and the second review accepted all four. Getting further would mean designing new package interfaces, which is beyond an un-publishing program.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Also landed</h3>
+            <ul>
+              <li><strong>HB-06</strong> (<code>63dc2fb2</code>): the dark squares at the child humanoid's neckline and the pale bands below its sleeves are holes. Body triangles hidden under the shirt reach past the garment's edge, so the background shows through: 154 to 382 background pixels per site, 0 at a control site. HB-07 will fix the factory step and re-render.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-11T1245">
         <div class="section-heading">
           <p class="eyebrow">Entry 8 &middot; 2026-09-11 12:45 EDT</p>
