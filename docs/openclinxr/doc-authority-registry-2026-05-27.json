@@ -6,7 +6,7 @@
   "counts": {
     "agent-methodology": 107,
     "current-reference": 208,
-    "archive-candidate": 89,
+    "archive-candidate": 90,
     "evidence": 82,
     "temporary": 54,
     "protected-policy": 10,
@@ -4022,6 +4022,13 @@
     },
     {
       "path": "docs/openclinxr/owner-memory/measurements.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction-plan-2026-09-10.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",

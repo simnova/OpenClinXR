@@ -12,7 +12,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 107
-- archive-candidate: 89
+- archive-candidate: 90
 - current-reference: 208
 - decision-record: 44
 - evidence: 82
@@ -363,6 +363,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/owner-memory/calibration.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/decisions.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/measurements.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction-plan-2026-09-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
