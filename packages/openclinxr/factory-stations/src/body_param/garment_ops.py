@@ -758,3 +758,87 @@ def fit_upper_hem_to_waistband(
         "marginMeters": WAIST_OVERLAP_MARGIN_M,
         "note": "hem pushed down to the lower garment waistband rim (issue-320, derived)",
     }
+
+
+def cap_sleeve_openings(garment: bpy.types.Object) -> dict:
+    """HB-07 attempt 3 — fill the two sleeve hem openings on an upper garment.
+
+    Attempt-3 screen-space probe: sleeve-hem exact-background pixels are almost
+    all miss (empty gap at the opening). A disk on the existing rim verts (no
+    new vertices, so weights already bind) closes that see-through. Neck and
+    bottom hem stay open — a neck cap would seal the collar. Solidify rim is
+    the #121 failed treatment (glTF micro-islands); this is edgeloop_fill.
+    """
+    if bpy is None:
+        raise RuntimeError("cap_sleeve_openings requires Blender")
+    import bmesh
+
+    faces_before = len(garment.data.polygons)
+    bm = bmesh.new()
+    bm.from_mesh(garment.data)
+    bm.edges.ensure_lookup_table()
+    bm.verts.ensure_lookup_table()
+    boundary = [e for e in bm.edges if e.is_boundary]
+    used = set()
+    loops: list[list] = []
+    for e0 in boundary:
+        if e0.index in used:
+            continue
+        loop = []
+        e = e0
+        v = e.verts[0]
+        guard = 0
+        while e.index not in used and guard < 10000:
+            used.add(e.index)
+            loop.append(e)
+            v = e.other_vert(v)
+            nxt = None
+            for e2 in v.link_edges:
+                if e2 is not e and e2.is_boundary and e2.index not in used:
+                    nxt = e2
+                    break
+            if nxt is None:
+                break
+            e = nxt
+            guard += 1
+        if len(loop) >= 3:
+            loops.append(loop)
+    scored = []
+    for loop in loops:
+        verts = {vv for edge in loop for vv in edge.verts}
+        cx = sum(vv.co.x for vv in verts) / len(verts)
+        cz = sum(vv.co.z for vv in verts) / len(verts)
+        scored.append((cz, abs(cx), loop))
+    scored.sort(key=lambda row: row[0])
+    capped = 0
+    if len(scored) >= 3:
+        mid = scored[1:-1]
+        sleeves = sorted(mid, key=lambda row: -row[1])[:2]
+    else:
+        sleeves = []
+    mat_index = 0
+    if garment.data.materials:
+        mat_index = 0
+    for _, _, loop in sleeves:
+        try:
+            ret = bmesh.ops.edgeloop_fill(bm, edges=loop)
+            geom = ret.get("faces") or []
+        except Exception:
+            ret = bmesh.ops.triangle_fill(bm, use_beauty=True, edges=loop)
+            geom = ret.get("geom") or []
+        for item in geom:
+            face = item if hasattr(item, "material_index") else None
+            if face is None:
+                continue
+            face.material_index = mat_index
+            capped += 1
+    bm.to_mesh(garment.data)
+    faces_after = len(garment.data.polygons)
+    bm.free()
+    garment.data.update()
+    return {
+        "boundaryLoops": len(scored),
+        "sleevesCapped": len(sleeves),
+        "facesAdded": faces_after - faces_before,
+        "fillFaces": capped,
+    }

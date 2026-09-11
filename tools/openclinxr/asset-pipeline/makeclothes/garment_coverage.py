@@ -228,6 +228,59 @@ def _ray_tri_hits(origins, dirs, tri_verts, max_t: float) -> np.ndarray:
     return best
 
 
+def _ray_tri_arghits(origins, dirs, tri_verts, max_t: float) -> tuple[np.ndarray, np.ndarray]:
+    """Min hit distance and triangle index per ray. Index -1 and t=inf on miss."""
+    origins = np.asarray(origins, dtype=float)
+    dirs = np.asarray(dirs, dtype=float)
+    tri_verts = np.asarray(tri_verts, dtype=float)
+    best = np.full(len(origins), np.inf)
+    arg = np.full(len(origins), -1, dtype=np.int64)
+    if len(origins) == 0 or len(tri_verts) == 0:
+        return best, arg
+    ray_block = 256
+    tri_block = 512
+    for r0 in range(0, len(origins), ray_block):
+        r1 = min(r0 + ray_block, len(origins))
+        o = origins[r0:r1]
+        d = dirs[r0:r1]
+        local_best = np.full(r1 - r0, np.inf)
+        local_arg = np.full(r1 - r0, -1, dtype=np.int64)
+        for t0 in range(0, len(tri_verts), tri_block):
+            t1 = min(t0 + tri_block, len(tri_verts))
+            tris = tri_verts[t0:t1]
+            v0 = tris[:, 0][None, :, :]
+            v1 = tris[:, 1][None, :, :]
+            v2 = tris[:, 2][None, :, :]
+            e1 = v1 - v0
+            e2 = v2 - v0
+            p = np.cross(d[:, None, :], np.broadcast_to(e2, (r1 - r0, t1 - t0, 3)))
+            det = np.sum(e1 * p, axis=2)
+            inv = 1.0 / (det + 1e-12)
+            s = o[:, None, :] - v0
+            u = np.sum(s * p, axis=2) * inv
+            q = np.cross(s, e1)
+            vv = np.sum(d[:, None, :] * q, axis=2) * inv
+            t = np.sum(e2 * q, axis=2) * inv
+            hit = (
+                (np.abs(det) > 1e-10)
+                & (u >= 0.0)
+                & (vv >= 0.0)
+                & (u + vv <= 1.0)
+                & (t > 1e-6)
+                & (t <= max_t)
+            )
+            with np.errstate(invalid="ignore"):
+                t_hit = np.where(hit, t, np.inf)
+                col_best = t_hit.min(axis=1)
+                col_arg = t_hit.argmin(axis=1)
+            better = col_best < local_best
+            local_best = np.where(better, col_best, local_best)
+            local_arg = np.where(better, col_arg + t0, local_arg)
+        best[r0:r1] = local_best
+        arg[r0:r1] = local_arg
+    return best, arg
+
+
 def _lateral_footprint(
     garment_verts,
     band_lo: float,
@@ -564,6 +617,139 @@ def grade_front_camera_origin(
     origin[height_axis] = cam_cap[1]
     origin[depth_axis] = -cam_cap[2]
     return origin
+
+
+def grade_front_camera_frame(
+    points,
+    *,
+    height_axis: int = 2,
+    depth_axis: int = 1,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Blender-space (origin, look_at, up) matching frameCameraForBounds.
+
+    lookAt in capture space is (center.x, center.y + 0.08 H, center.z).
+    up is capture +Y → Blender height_axis.
+    """
+    origin = grade_front_camera_origin(points, height_axis=height_axis, depth_axis=depth_axis)
+    p = _as_np(points)
+    if len(p) == 0:
+        look = origin.copy()
+        look[depth_axis] = origin[depth_axis] + 1.0
+        up = np.zeros(3)
+        up[height_axis] = 1.0
+        return origin, look, up
+    lateral = 0 if 0 not in (height_axis, depth_axis) else (1 if height_axis != 1 and depth_axis != 1 else 2)
+    cap = np.empty_like(p)
+    cap[:, 0] = p[:, lateral]
+    cap[:, 1] = p[:, height_axis]
+    cap[:, 2] = -p[:, depth_axis]
+    mn = cap.min(axis=0)
+    mx = cap.max(axis=0)
+    size = mx - mn
+    scale = 2.2 / max(float(size[1]), 0.001)
+    size_s = size * scale
+    center_s = np.array([0.0, float(size_s[1]) * 0.5, 0.0])
+    look_s = np.array([center_s[0], center_s[1] + float(size_s[1]) * 0.08, center_s[2]])
+    trans = np.array(
+        [-((mn[0] + mx[0]) * 0.5) * scale, -mn[1] * scale, -((mn[2] + mx[2]) * 0.5) * scale]
+    )
+    look_cap = (look_s - trans) / scale
+    look = np.zeros(3)
+    look[lateral] = look_cap[0]
+    look[height_axis] = look_cap[1]
+    look[depth_axis] = -look_cap[2]
+    up = np.zeros(3)
+    up[height_axis] = 1.0
+    return origin, look, up
+
+
+def screen_space_hidden_first_hits(
+    body_verts,
+    body_faces,
+    hidden_fidx: np.ndarray,
+    occluder_verts,
+    occluder_faces,
+    *,
+    height_axis: int = 2,
+    depth_axis: int = 1,
+    resolution: int = 1024,
+    fov_deg: float = 35.0,
+    max_t: float = 20.0,
+) -> np.ndarray:
+    """HB-07 attempt 3 — un-hide hidden faces that are the FIRST hit of a
+    capture-camera pixel ray (screen-space), not centroid rays.
+
+    Attempt-3 probe: sleeve hem bg pixels are almost all miss (empty opening);
+    neckline is mixed miss + hidden_upper MASK prim4. Centroid rays never hit
+    those sleeve pixels. A pixel whose first GLB hit is a hidden face currently
+    renders the capture clear colour; un-hiding it fills the pixel with skin.
+    """
+    v = _as_np(body_verts)
+    f = np.asarray(body_faces, dtype=np.int64)
+    fidx = np.asarray(hidden_fidx, dtype=np.int64)
+    out = np.zeros(len(fidx), dtype=bool)
+    if len(fidx) == 0:
+        return out
+    aabb_pts = [v]
+    ov = _as_np(occluder_verts)
+    of = np.asarray(occluder_faces, dtype=np.int64)
+    if len(ov):
+        aabb_pts.append(ov)
+    origin, look, up = grade_front_camera_frame(
+        np.concatenate(aabb_pts, axis=0), height_axis=height_axis, depth_axis=depth_axis
+    )
+    forward = look - origin
+    fn = np.linalg.norm(forward) + 1e-12
+    forward = forward / fn
+    right = np.cross(forward, up)
+    rn = np.linalg.norm(right) + 1e-12
+    right = right / rn
+    up_w = np.cross(right, forward)
+    un = np.linalg.norm(up_w) + 1e-12
+    up_w = up_w / un
+    tan_half = math.tan(math.radians(fov_deg) * 0.5)
+    hidden_tris = v[f[fidx]]
+    occ_tris = ov[of] if len(ov) and len(of) else np.zeros((0, 3, 3))
+    # Project hidden verts to NDC to bound the raster (not centroid rays —
+    # every pixel whose centre sits in that bbox is unprojected).
+    hv = hidden_tris.reshape(-1, 3)
+    rel = hv - origin[None, :]
+    zc = rel @ forward
+    xc = rel @ right
+    yc = rel @ up_w
+    zc = np.maximum(zc, 1e-6)
+    ndc_x = xc / (zc * tan_half)
+    ndc_y = yc / (zc * tan_half)
+    x0 = max(-1.0, float(ndc_x.min()) - 0.02)
+    x1 = min(1.0, float(ndc_x.max()) + 0.02)
+    y0 = max(-1.0, float(ndc_y.min()) - 0.02)
+    y1 = min(1.0, float(ndc_y.max()) + 0.02)
+    nx = max(8, int(math.ceil((x1 - x0) * 0.5 * resolution)))
+    ny = max(8, int(math.ceil((y1 - y0) * 0.5 * resolution)))
+    xs = np.linspace(x0, x1, nx, endpoint=False) + (x1 - x0) / (2 * nx)
+    ys = np.linspace(y0, y1, ny, endpoint=False) + (y1 - y0) / (2 * ny)
+    grid_x, grid_y = np.meshgrid(xs, ys)
+    ndc = np.stack([grid_x.ravel(), grid_y.ravel()], axis=1)
+    dirs = forward[None, :] + ndc[:, 0:1] * tan_half * right[None, :] + ndc[:, 1:2] * tan_half * up_w[None, :]
+    dirs = dirs / (np.linalg.norm(dirs, axis=1, keepdims=True) + 1e-12)
+    origins = np.broadcast_to(origin[None, :], (len(dirs), 3)).copy()
+    t_h, i_h = _ray_tri_arghits(origins, dirs, hidden_tris, max_t)
+    hit_h = np.isfinite(t_h)
+    if not hit_h.any():
+        return out
+    o2 = origins[hit_h]
+    d2 = dirs[hit_h]
+    t2 = t_h[hit_h]
+    i2 = i_h[hit_h]
+    if len(occ_tris):
+        t_o = _ray_tri_hits(o2, d2, occ_tris, max_t)
+        first = t2 < t_o
+    else:
+        first = np.ones(len(t2), dtype=bool)
+    for idx in np.unique(i2[first]):
+        if idx >= 0:
+            out[int(idx)] = True
+    return out
 
 
 def render_hole_columns(

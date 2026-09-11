@@ -4373,6 +4373,7 @@ def main():
         _sys4.path.insert(0, str(_stage_dir2))
     from garment_ops import (  # noqa: E402
         apply_body_hide_material_region,
+        cap_sleeve_openings,
         clip_hide_mask_below_joint,
         clip_hide_mask_to_garment_footprint,
         scope_hide_mask_away_from_hands,
@@ -4407,6 +4408,12 @@ def main():
                 for i in range(1, len(iv) - 1):
                     faces.append((int(iv[0]), int(iv[i]), int(iv[i + 1])))
         return verts, np.array(faces, dtype=np.int64)
+
+    # HB-07 attempt 3: sleeve-hem bg pixels are miss (empty opening). Cap the
+    # two sleeve rims before the hide mask measures the garment that ships.
+    _sleeve_cap = cap_sleeve_openings(garment)
+    print(f"SLEEVE_CAP {json.dumps(_sleeve_cap)}")
+    bpy.context.view_layer.update()
 
     body_verts, body_faces = _triangulate_numpy(human)
     garment_verts, garment_faces = _triangulate_numpy(garment)
@@ -5044,6 +5051,34 @@ def main():
     print(f"RENDER_TRUTH_UNHIDE upper faces {_rt_unhidden}")
     print(f"RENDER_TRUTH_UNHIDE_SKIP_POKE {_rt_skipped_poke if len(_rt_hidden_idx) else 0}")
     print(f"HOLE_GUARD_UNHIDE camera-hole faces {_hb07_added if len(_rt_hidden_idx) else 0}")
+    # HB-07 attempt 3: un-hide hidden faces that are the first hit of a
+    # capture-camera *pixel* ray (screen-space). Centroid rays miss the sleeve
+    # hem holes; the attempt-3 probe classified those pixels as miss / prim4.
+    from garment_coverage import screen_space_hidden_first_hits as _ss_hidden_first  # noqa: E402
+
+    _ss_idx = np.where(hide_mask)[0]
+    _ss_added = 0
+    if len(_ss_idx):
+        _ss_vis = np.where(~hide_mask)[0]
+        _ss_occ_v = garment_verts
+        _ss_occ_f = garment_faces
+        if len(_ss_vis):
+            _ss_occ_v = np.concatenate([garment_verts, body_verts], axis=0)
+            _ss_occ_f = np.concatenate(
+                [garment_faces, body_faces[_ss_vis] + len(garment_verts)], axis=0
+            )
+        _ss_hit = _ss_hidden_first(
+            body_verts,
+            body_faces,
+            _ss_idx,
+            _ss_occ_v,
+            _ss_occ_f,
+            height_axis=2,
+            depth_axis=1,
+        )
+        _ss_added = int(_ss_hit.sum())
+        hide_mask[_ss_idx[_ss_hit]] = False
+    print(f"HOLE_GUARD_SCREENSPACE_UNHIDE faces {_ss_added}")
     # #364 — report the hide-mask boundary smoothness in the bake log, using the same
     # instrument the evidence contract uses (bottom 3% of the mask by height, ordered by
     # angle about the body axis, adjacent-height deltas, p95 in mm). The planted RED is
