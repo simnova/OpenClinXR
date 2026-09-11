@@ -28,6 +28,36 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-11T0500">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 4 &middot; 2026-09-11 05:00 EDT</p>
+          <h2>The first export removals are ready, and two hidden test dependencies on live AI providers were found and are being removed.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Landed</h3>
+            <ul>
+              <li><strong>API startup test runs offline</strong> (<code>ce625a08</code>). It had been calling live AI providers whenever a key was present in the environment, which made it slow and dependent on paid services. The startup now takes an explicit gateway; the test injects an offline one and proves the reply came from it. The app's frozen size budget was held exactly.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Found while landing</h3>
+            <ul>
+              <li>A second API test expected three live providers to be ready, one of them retired, so it passed only when keys happened to be set. Under the build tool's filtered environment it failed on main, which blocked every export-removal card. A worker is fixing it now, with a clause that still tests live-provider reporting when a gateway is injected on purpose.</li>
+              <li>One removal would have left a physics package's types file unused. Rather than delete source, its seven exports were kept as a named compatibility contract under the architecture decision that designates that package as the production path.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Waiting to land</h3>
+            <ul>
+              <li><strong>PSR-02</strong>: 30 unused exports removed from four support packages, checked against its approval. It lands as soon as the API test fix is on main.</li>
+              <li><strong>PSR-03</strong>: 247 exports removed from the data, model, conversation, GraphQL and motion packages; its evidence report is being written.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="status-copy">This window landed less than the previous two. The machine ran short of memory, two workers were stopped by the operating system, and work now runs one heavy job at a time. Nothing was lost.</p>
+      </section>
+
       <section class="band" id="entry-2026-09-11T0300">
         <div class="section-heading">
           <p class="eyebrow">Entry 3 &middot; 2026-09-11 03:00 EDT</p>
