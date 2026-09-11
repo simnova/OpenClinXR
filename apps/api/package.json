@@ -28,6 +28,7 @@
     "@openclinxr/capability-gateway": "workspace:*",
     "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/graphql": "workspace:*",
+    "@openclinxr/model-gateway": "workspace:*",
     "@openclinxr/rest": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
     "@openclinxr/scenario-runtime": "workspace:*",

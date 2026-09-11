@@ -112,6 +112,7 @@ export type BunServerConfigOptions = {
 
 export type OpenClinXrApiStartupOptions = {
   runtime?: ScenarioRuntime;
+  modelGateway?: NonNullable<Parameters<typeof createDefaultScenarioRuntime>[0]>["modelGateway"];
   persistence?: ApiPersistenceSink;
   telemetry?: TelemetryRecorder;
   assetGenerationFacade?: AssetGenerationCapabilityFacade;
@@ -211,11 +212,10 @@ export class OpenClinXrApiStartupBuilder {
 
 export function createOpenClinXrApiStartup(options: OpenClinXrApiStartupOptions = {}): OpenClinXrApiStartupBuilder {
   const persistence = options.persistence ?? createSingleUserMemoryPersistenceSink();
-  // Wire ScenarioRuntime durableStore to API persistence unless caller injects a full runtime.
-  const runtime = options.runtime
-    ?? createDefaultScenarioRuntime({
-      durableStore: createScenarioRuntimeDurableStoreFromApiPersistence(persistence),
-    });
+  const runtime = options.runtime ?? createDefaultScenarioRuntime({
+    durableStore: createScenarioRuntimeDurableStoreFromApiPersistence(persistence),
+    ...(options.modelGateway ? { modelGateway: options.modelGateway } : {}),
+  });
   const telemetry = options.telemetry ?? createTelemetryRecorder();
   const assetGenerationFacade = options.assetGenerationFacade ?? new AssetGenerationCapabilityFacade();
   const realtimeVoiceGatewayPosture = options.realtimeVoiceGatewayPosture ?? createDefaultRealtimeVoiceGatewayPostureInput();
