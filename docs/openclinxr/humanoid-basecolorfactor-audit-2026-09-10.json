@@ -1,0 +1,4898 @@
+{
+ "generated": "2026-09-10",
+ "method": "GLB JSON chunk (12-byte header, uint32LE at offset 12 = JSON length, JSON at offset 20); no provenance sidecars read",
+ "bodies": [
+  "adult_male_street_casual.glb",
+  "ed_chest_pain_adult_cast.glb",
+  "ed_chest_pain_nurse_adult.glb",
+  "ed_chest_pain_spouse_adult.glb",
+  "mpfb-clinical-nurse-adult.glb",
+  "mpfb-clinical-physician-adult.glb",
+  "mpfb-family-partner-adult.glb",
+  "mpfb-gown-adult-patient.glb",
+  "mpfb-gown-inspect.glb",
+  "mpfb-ob-patient-aisha.glb",
+  "mpfb-peds-nurse-kevin.glb",
+  "mpfb-peds-parent-aisha.glb",
+  "mpfb-peds-patient-child.glb",
+  "mpfb-street-adult-male.glb",
+  "mpfb-viseme-inspect.glb",
+  "peds_anxious_parent.glb",
+  "peds_fever_patient_child.glb",
+  "peds_nurse_kevin.glb",
+  "peds_patient_child.glb"
+ ],
+ "bodyCount": 19,
+ "materialRowCount": 249,
+ "refusalRule": "baseColorFactor != [1,1,1] on a material WITH baseColorTexture and no recorded reason = refusal",
+ "factorSpreadTexturedNonWhite": {
+  "0.05,0.48,0.52": [
+   "mpfb-clinical-nurse-adult.glb::mat_makeclothes_library_scrub_shirt",
+   "mpfb-clinical-physician-adult.glb::mat_makeclothes_library_scrub_shirt",
+   "mpfb-peds-nurse-kevin.glb::mat_makeclothes_library_scrub_shirt"
+  ],
+  "0.62,0.28,0.38": [
+   "mpfb-family-partner-adult.glb::mat_makeclothes_library_toigo_t_shirt",
+   "mpfb-peds-parent-aisha.glb::mat_makeclothes_library_toigo_t_shirt"
+  ],
+  "0.34,0.44,0.34": [
+   "mpfb-gown-adult-patient.glb::mat_makeclothes_library_toigo_t_shirt",
+   "mpfb-gown-inspect.glb::mat_makeclothes_library_toigo_t_shirt",
+   "mpfb-ob-patient-aisha.glb::mat_makeclothes_library_toigo_t_shirt",
+   "mpfb-street-adult-male.glb::mat_makeclothes_library_toigo_t_shirt",
+   "mpfb-viseme-inspect.glb::mat_makeclothes_library_toigo_t_shirt"
+  ],
+  "0.55,0.68,0.8": [
+   "mpfb-peds-patient-child.glb::mat_makeclothes_library_toigo_t_shirt"
+  ]
+ },
+ "hiddenVerdict": "REMOVE-at-bake: 77 openclinxr_hidden_* cover shells ship baseColorFactor [0,0,0,0] alphaMode MASK (discarded pre-render, render nothing). Do not bake black; drop masked polys from the bake atlas.",
+ "deliberateVerdict": "[0.34,0.44,0.34] is deliberate: garment_shell_color olive_knit_and_cream_casual/closed_casual (automate_blender.py:1764) selected by the case fabricPalette token, consumed via garment_material_from_declared role_colour -> GARMENT_FACTOR_PATCH (materialize:1062-1068) -> patch_glb_base_color_factors (materialize:1073-1107). Same triple on upper+lower = same palette row on two kinds. Current bytes consume declared .mhmat diffuse textures + luminance normalisation (:1051-1059) so the factor sets hue, the weave is contrast.",
+ "rows": [
+  {
+   "body": "adult_male_street_casual.glb",
+   "material": "anny_generated_pbr",
+   "baseColorFactor": [
+    0.805,
+    0.57,
+    0.454,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny procedural skin (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 918,
+    "literal": "(0.78, 0.56, 0.45, 1.0)",
+    "branch": "warm/light/child skin_tone; else :920 (0.62,0.46,0.36); flush/paleness nudges :924-928; written to Base Color :934"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny procedural skin (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:918."
+  },
+  {
+   "body": "adult_male_street_casual.glb",
+   "material": "openclinxr_role_mesh_clothing_patient_lower",
+   "baseColorFactor": [
+    0.06,
+    0.12,
+    0.28,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny patient lower paint (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 3494,
+    "literal": "(0.06, 0.12, 0.28, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494."
+  },
+  {
+   "body": "adult_male_street_casual.glb",
+   "material": "openclinxr_role_mesh_clothing_patient_arm",
+   "baseColorFactor": [
+    0.48,
+    0.42,
+    0.28,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1759,
+    "literal": "(0.48, 0.42, 0.28, 1.0)",
+    "via": "provisional top_color (:3557-3560), recolored bsdf Base Color = outermost_gown_color (:4372-4377)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1759."
+  },
+  {
+   "body": "adult_male_street_casual.glb",
+   "material": "openclinxr_mesh_native_scalp_hair_surface",
+   "baseColorFactor": [
+    0.12,
+    0.07,
+    0.035,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny scalp hair brown default (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4793,
+    "literal": "(0.12, 0.07, 0.035, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793."
+  },
+  {
+   "body": "adult_male_street_casual.glb",
+   "material": "openclinxr_footwear_casual_shoe_L_mat",
+   "baseColorFactor": [
+    0.12,
+    0.08,
+    0.05,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny casual shoe shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4431,
+    "literal": "(0.12, 0.08, 0.05, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431."
+  },
+  {
+   "body": "adult_male_street_casual.glb",
+   "material": "openclinxr_footwear_casual_shoe_R_mat",
+   "baseColorFactor": [
+    0.12,
+    0.08,
+    0.05,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny casual shoe shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4431,
+    "literal": "(0.12, 0.08, 0.05, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431."
+  },
+  {
+   "body": "adult_male_street_casual.glb",
+   "material": "openclinxr_real_garment_casual_top_phenotype_L0",
+   "baseColorFactor": [
+    0.34,
+    0.44,
+    0.34,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1764,
+    "literal": "(0.34, 0.44, 0.34, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1764."
+  },
+  {
+   "body": "adult_male_street_casual.glb",
+   "material": "openclinxr_real_garment_open_cardigan_phenotype_L1",
+   "baseColorFactor": [
+    0.48,
+    0.42,
+    0.28,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1759,
+    "literal": "(0.48, 0.42, 0.28, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1759."
+  },
+  {
+   "body": "ed_chest_pain_adult_cast.glb",
+   "material": "anny_generated_pbr",
+   "baseColorFactor": [
+    0.789,
+    0.5555,
+    0.444,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny procedural skin (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 918,
+    "literal": "(0.78, 0.56, 0.45, 1.0)",
+    "branch": "warm/light/child skin_tone; else :920 (0.62,0.46,0.36); flush/paleness nudges :924-928; written to Base Color :934"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny procedural skin (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:918."
+  },
+  {
+   "body": "ed_chest_pain_adult_cast.glb",
+   "material": "openclinxr_role_mesh_clothing_patient_lower",
+   "baseColorFactor": [
+    0.06,
+    0.12,
+    0.28,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny patient lower paint (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 3494,
+    "literal": "(0.06, 0.12, 0.28, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494."
+  },
+  {
+   "body": "ed_chest_pain_adult_cast.glb",
+   "material": "openclinxr_role_mesh_clothing_patient_arm",
+   "baseColorFactor": [
+    0.15,
+    0.55,
+    0.82,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1710,
+    "literal": "(0.15, 0.55, 0.82, 1.0)",
+    "via": "provisional top_color (:3557-3560), recolored bsdf Base Color = outermost_gown_color (:4372-4377)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1710."
+  },
+  {
+   "body": "ed_chest_pain_adult_cast.glb",
+   "material": "openclinxr_mesh_native_scalp_hair_surface",
+   "baseColorFactor": [
+    0.12,
+    0.07,
+    0.035,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny scalp hair brown default (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4793,
+    "literal": "(0.12, 0.07, 0.035, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793."
+  },
+  {
+   "body": "ed_chest_pain_adult_cast.glb",
+   "material": "openclinxr_footwear_hospital_slipper_L_mat",
+   "baseColorFactor": [
+    0.18,
+    0.42,
+    0.78,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny hospital slipper shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4429,
+    "literal": "(0.18, 0.42, 0.78, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429."
+  },
+  {
+   "body": "ed_chest_pain_adult_cast.glb",
+   "material": "openclinxr_footwear_hospital_slipper_R_mat",
+   "baseColorFactor": [
+    0.18,
+    0.42,
+    0.78,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny hospital slipper shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4429,
+    "literal": "(0.18, 0.42, 0.78, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429."
+  },
+  {
+   "body": "ed_chest_pain_adult_cast.glb",
+   "material": "openclinxr_real_garment_hospital_gown_phenotype_L0",
+   "baseColorFactor": [
+    0.15,
+    0.55,
+    0.82,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1710,
+    "literal": "(0.15, 0.55, 0.82, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1710."
+  },
+  {
+   "body": "ed_chest_pain_nurse_adult.glb",
+   "material": "anny_generated_pbr",
+   "baseColorFactor": [
+    0.805,
+    0.57,
+    0.454,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny procedural skin (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 918,
+    "literal": "(0.78, 0.56, 0.45, 1.0)",
+    "branch": "warm/light/child skin_tone; else :920 (0.62,0.46,0.36); flush/paleness nudges :924-928; written to Base Color :934"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny procedural skin (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:918."
+  },
+  {
+   "body": "ed_chest_pain_nurse_adult.glb",
+   "material": "openclinxr_role_mesh_clothing_nurse_lower",
+   "baseColorFactor": [
+    0.015,
+    0.34,
+    0.37,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny nurse lower paint (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 3488,
+    "literal": "(0.015, 0.34, 0.37, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny nurse lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3488."
+  },
+  {
+   "body": "ed_chest_pain_nurse_adult.glb",
+   "material": "openclinxr_role_mesh_clothing_nurse_arm",
+   "baseColorFactor": [
+    0.04,
+    0.42,
+    0.48,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1721,
+    "literal": "(0.04, 0.42, 0.48, 1.0)",
+    "via": "provisional top_color (:3557-3560), recolored bsdf Base Color = outermost_gown_color (:4372-4377)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1721."
+  },
+  {
+   "body": "ed_chest_pain_nurse_adult.glb",
+   "material": "openclinxr_mesh_native_scalp_hair_surface",
+   "baseColorFactor": [
+    0.035,
+    0.028,
+    0.022,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny scalp hair black (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4787,
+    "literal": "(0.035, 0.028, 0.022, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair black (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4787."
+  },
+  {
+   "body": "ed_chest_pain_nurse_adult.glb",
+   "material": "openclinxr_footwear_clinical_shoe_L_mat",
+   "baseColorFactor": [
+    0.08,
+    0.09,
+    0.1,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny clinical shoe shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4427,
+    "literal": "(0.08, 0.09, 0.10, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny clinical shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4427."
+  },
+  {
+   "body": "ed_chest_pain_nurse_adult.glb",
+   "material": "openclinxr_footwear_clinical_shoe_R_mat",
+   "baseColorFactor": [
+    0.08,
+    0.09,
+    0.1,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny clinical shoe shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4427,
+    "literal": "(0.08, 0.09, 0.10, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny clinical shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4427."
+  },
+  {
+   "body": "ed_chest_pain_nurse_adult.glb",
+   "material": "openclinxr_real_garment_scrub_pocket_phenotype_L1",
+   "baseColorFactor": [
+    0.04,
+    0.42,
+    0.48,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1721,
+    "literal": "(0.04, 0.42, 0.48, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1721."
+  },
+  {
+   "body": "ed_chest_pain_nurse_adult.glb",
+   "material": "openclinxr_real_garment_scrub_top_phenotype_L0",
+   "baseColorFactor": [
+    0.05,
+    0.48,
+    0.52,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1711,
+    "literal": "(0.05, 0.48, 0.52, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711."
+  },
+  {
+   "body": "ed_chest_pain_spouse_adult.glb",
+   "material": "anny_generated_pbr",
+   "baseColorFactor": [
+    0.7932,
+    0.5534,
+    0.4412,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny procedural skin (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 918,
+    "literal": "(0.78, 0.56, 0.45, 1.0)",
+    "branch": "warm/light/child skin_tone; else :920 (0.62,0.46,0.36); flush/paleness nudges :924-928; written to Base Color :934"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny procedural skin (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:918."
+  },
+  {
+   "body": "ed_chest_pain_spouse_adult.glb",
+   "material": "openclinxr_role_mesh_clothing_family_lower",
+   "baseColorFactor": [
+    0.06,
+    0.12,
+    0.28,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny patient lower paint (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 3494,
+    "literal": "(0.06, 0.12, 0.28, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494."
+  },
+  {
+   "body": "ed_chest_pain_spouse_adult.glb",
+   "material": "openclinxr_role_mesh_clothing_family_arm",
+   "baseColorFactor": [
+    0.62,
+    0.28,
+    0.38,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1750,
+    "literal": "(0.62, 0.28, 0.38, 1.0)",
+    "via": "provisional top_color (:3557-3560), recolored bsdf Base Color = outermost_gown_color (:4372-4377)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1750."
+  },
+  {
+   "body": "ed_chest_pain_spouse_adult.glb",
+   "material": "openclinxr_mesh_native_scalp_hair_surface",
+   "baseColorFactor": [
+    0.12,
+    0.07,
+    0.035,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny scalp hair brown default (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4793,
+    "literal": "(0.12, 0.07, 0.035, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793."
+  },
+  {
+   "body": "ed_chest_pain_spouse_adult.glb",
+   "material": "openclinxr_footwear_casual_shoe_L_mat",
+   "baseColorFactor": [
+    0.12,
+    0.08,
+    0.05,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny casual shoe shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4431,
+    "literal": "(0.12, 0.08, 0.05, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431."
+  },
+  {
+   "body": "ed_chest_pain_spouse_adult.glb",
+   "material": "openclinxr_footwear_casual_shoe_R_mat",
+   "baseColorFactor": [
+    0.12,
+    0.08,
+    0.05,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny casual shoe shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4431,
+    "literal": "(0.12, 0.08, 0.05, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431."
+  },
+  {
+   "body": "ed_chest_pain_spouse_adult.glb",
+   "material": "openclinxr_real_garment_casual_top_phenotype_L0",
+   "baseColorFactor": [
+    0.42,
+    0.36,
+    0.4,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1723,
+    "literal": "(0.42, 0.36, 0.40, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1723."
+  },
+  {
+   "body": "ed_chest_pain_spouse_adult.glb",
+   "material": "openclinxr_real_garment_open_cardigan_phenotype_L1",
+   "baseColorFactor": [
+    0.62,
+    0.28,
+    0.38,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1750,
+    "literal": "(0.62, 0.28, 0.38, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1750."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "openclinxr_fitted_hair_toigo_blunt_bob_mpfb_ed_chest_pain_nurse_adult_mat",
+   "baseColorFactor": [
+    0.18,
+    0.13,
+    0.1,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "MPFB fitted hair, nurse/default role (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
+    "line": 159,
+    "literal": "(0.18, 0.13, 0.10, 1.0)",
+    "via": "materialize :3751 _hair_color(args.actor_role)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, nurse/default role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:159."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "mat_makeclothes_library_scrub_pants",
+   "baseColorFactor": [
+    0.05,
+    0.48,
+    0.52,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "scrub lower, locked scrub colour (untextured cover shell or pre-strip fit)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1711,
+    "literal": "(0.05, 0.48, 0.52, 1.0)",
+    "path": "garment_shell_color scrub lock :1781-1785; lower branch materialize :3951-3960 or cover shell :4485-4492"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). scrub lower, locked scrub colour (untextured cover shell or pre-strip fit). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "mat_makeclothes_library_scrub_shirt",
+   "baseColorFactor": [
+    0.05,
+    0.48,
+    0.52,
+    1
+   ],
+   "hasBaseColorTexture": true,
+   "kind": "locked scrub role colour x authored weave (factor sets hue)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1711,
+    "literal": "(0.05, 0.48, 0.52, 1.0)"
+   },
+   "path": "garment_shell_color scrub lock :1781-1785 -> garment_material_from_declared role_colour -> GARMENT_FACTOR_PATCH :1062-1068 -> patch_glb_base_color_factors :1073-1107",
+   "reason": "Wardrobe decision, not a station default: locked scrub role colour x authored weave (factor sets hue). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711; shipped via GARMENT_FACTOR_PATCH + patch_glb_base_color_factors."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "mpfb_skin_ed_chest_pain_nurse_adult",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "openclinxr_hidden_upper_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "openclinxr_hidden_lower_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "openclinxr_hidden_foot_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "openclinxr_hidden_upper_mpfb_ed_chest_pain_nurse_adult_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "openclinxr_hidden_lower_mpfb_ed_chest_pain_nurse_adult_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "openclinxr_hidden_foot_mpfb_ed_chest_pain_nurse_adult_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "openclinxr_hidden_orphan_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "mat_makeclothes_library_eyes_ed_chest_pain_nurse_adult",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_06_mpfb_ed_chest_pain_nurse_adult_mat",
+   "baseColorFactor": [
+    0.05,
+    0.03,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "brow presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3818,
+    "literal": "(0.05, 0.03, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_nurse_adult_mat",
+   "baseColorFactor": [
+    0.02,
+    0.02,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lash presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3886,
+    "literal": "(0.02, 0.02, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "mat_openclinxr_hm08_teeth_mpfb_ed_chest_pain_nurse_adult_mesh",
+   "baseColorFactor": [
+    0.92,
+    0.9,
+    0.86,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "teeth albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 708,
+    "literal": "(0.92, 0.90, 0.86, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708."
+  },
+  {
+   "body": "mpfb-clinical-nurse-adult.glb",
+   "material": "mat_openclinxr_hm08_tongue_mpfb_ed_chest_pain_nurse_adult_mesh",
+   "baseColorFactor": [
+    0.85,
+    0.45,
+    0.45,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "tongue albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 710,
+    "literal": "(0.85, 0.45, 0.45, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "openclinxr_fitted_hair_mhair02_mpfb_ward_delirium_senior_resident_adult_mat",
+   "baseColorFactor": [
+    0.18,
+    0.13,
+    0.1,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "MPFB fitted hair, nurse/default role (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
+    "line": 159,
+    "literal": "(0.18, 0.13, 0.10, 1.0)",
+    "via": "materialize :3751 _hair_color(args.actor_role)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, nurse/default role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:159."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "mat_makeclothes_library_lab_coat",
+   "baseColorFactor": [
+    0.92,
+    0.92,
+    0.9,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lab coat, locked white (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1716,
+    "literal": "(0.92, 0.92, 0.90, 1.0)",
+    "path": "garment_shell_color lab_coat lock :1785-1787; coat branch materialize :4620-4630"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lab coat, locked white (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1716."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "mat_makeclothes_library_scrub_pants",
+   "baseColorFactor": [
+    0.05,
+    0.48,
+    0.52,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "scrub lower, locked scrub colour (untextured cover shell or pre-strip fit)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1711,
+    "literal": "(0.05, 0.48, 0.52, 1.0)",
+    "path": "garment_shell_color scrub lock :1781-1785; lower branch materialize :3951-3960 or cover shell :4485-4492"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). scrub lower, locked scrub colour (untextured cover shell or pre-strip fit). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "mat_makeclothes_library_scrub_shirt",
+   "baseColorFactor": [
+    0.05,
+    0.48,
+    0.52,
+    1
+   ],
+   "hasBaseColorTexture": true,
+   "kind": "locked scrub role colour x authored weave (factor sets hue)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1711,
+    "literal": "(0.05, 0.48, 0.52, 1.0)"
+   },
+   "path": "garment_shell_color scrub lock :1781-1785 -> garment_material_from_declared role_colour -> GARMENT_FACTOR_PATCH :1062-1068 -> patch_glb_base_color_factors :1073-1107",
+   "reason": "Wardrobe decision, not a station default: locked scrub role colour x authored weave (factor sets hue). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711; shipped via GARMENT_FACTOR_PATCH + patch_glb_base_color_factors."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "mpfb_skin_ward_delirium_senior_resident_adult",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "openclinxr_hidden_upper_mpfb_ward_delirium_senior_resident_adult_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "openclinxr_hidden_lower_mpfb_ward_delirium_senior_resident_adult_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "openclinxr_hidden_foot_mpfb_ward_delirium_senior_resident_adult_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "openclinxr_hidden_upper_mpfb_ward_delirium_senior_resident_adult_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "openclinxr_hidden_lower_mpfb_ward_delirium_senior_resident_adult_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "openclinxr_hidden_foot_mpfb_ward_delirium_senior_resident_adult_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "openclinxr_hidden_orphan_mpfb_ward_delirium_senior_resident_adult_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "mat_makeclothes_library_eyes_ward_delirium_senior_resident_adult",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ward_delirium_senior_resident_adult_mat",
+   "baseColorFactor": [
+    0.05,
+    0.03,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "brow presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3818,
+    "literal": "(0.05, 0.03, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ward_delirium_senior_resident_adult_mat",
+   "baseColorFactor": [
+    0.02,
+    0.02,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lash presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3886,
+    "literal": "(0.02, 0.02, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "mat_openclinxr_hm08_teeth_mpfb_ward_delirium_senior_resident_adult_mesh",
+   "baseColorFactor": [
+    0.92,
+    0.9,
+    0.86,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "teeth albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 708,
+    "literal": "(0.92, 0.90, 0.86, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708."
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "mat_openclinxr_hm08_tongue_mpfb_ward_delirium_senior_resident_adult_mesh",
+   "baseColorFactor": [
+    0.85,
+    0.45,
+    0.45,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "tongue albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 710,
+    "literal": "(0.85, 0.45, 0.45, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "mat_makeclothes_library_cargo_pants.001",
+   "baseColorFactor": [
+    0.62,
+    0.28,
+    0.38,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lower cover shell = garment_shell_color(_lower_kind,role,palette) (untextured; library trouser replaced by LOWER GATE)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1750,
+    "literal": "(0.62, 0.28, 0.38, 1.0)",
+    "via": "cover shell make_material(mat_<lower>) (materialize:4485-4492); gate :4436-4466"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lower cover shell = garment_shell_color(_lower_kind,role,palette) (untextured; library trouser replaced by LOWER GATE). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1750."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "openclinxr_fitted_hair_toigo_curled_under_bob_mpfb_ed_chest_pain_spouse_adult_mat",
+   "baseColorFactor": [
+    0.16,
+    0.11,
+    0.09,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "MPFB fitted hair, family role (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
+    "line": 156,
+    "literal": "(0.16, 0.11, 0.09, 1.0)",
+    "via": "materialize :3751"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, family role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:156."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "mat_makeclothes_library_toigo_t_shirt",
+   "baseColorFactor": [
+    0.62,
+    0.28,
+    0.38,
+    1
+   ],
+   "hasBaseColorTexture": true,
+   "kind": "muted_rose_and_neutral palette closed_casual x authored weave",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1750,
+    "literal": "(0.62, 0.28, 0.38, 1.0)"
+   },
+   "path": "garment_shell_color palette table (role fallback :1811-1813) -> GARMENT_FACTOR_PATCH -> patch_glb",
+   "reason": "Wardrobe decision, not a station default: muted_rose_and_neutral palette closed_casual x authored weave. Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1750; shipped via GARMENT_FACTOR_PATCH + patch_glb_base_color_factors."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "mpfb_skin_ed_chest_pain_spouse_adult",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "openclinxr_hidden_upper_mpfb_ed_chest_pain_spouse_adult_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "openclinxr_hidden_lower_mpfb_ed_chest_pain_spouse_adult_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "openclinxr_hidden_foot_mpfb_ed_chest_pain_spouse_adult_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "openclinxr_hidden_upper_mpfb_ed_chest_pain_spouse_adult_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "openclinxr_hidden_lower_mpfb_ed_chest_pain_spouse_adult_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "openclinxr_hidden_foot_mpfb_ed_chest_pain_spouse_adult_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "openclinxr_hidden_orphan_mpfb_ed_chest_pain_spouse_adult_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "mat_makeclothes_library_eyes_ed_chest_pain_spouse_adult",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mat",
+   "baseColorFactor": [
+    0.05,
+    0.03,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "brow presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3818,
+    "literal": "(0.05, 0.03, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mat",
+   "baseColorFactor": [
+    0.02,
+    0.02,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lash presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3886,
+    "literal": "(0.02, 0.02, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "mat_openclinxr_hm08_teeth_mpfb_ed_chest_pain_spouse_adult_mesh",
+   "baseColorFactor": [
+    0.92,
+    0.9,
+    0.86,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "teeth albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 708,
+    "literal": "(0.92, 0.90, 0.86, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708."
+  },
+  {
+   "body": "mpfb-family-partner-adult.glb",
+   "material": "mat_openclinxr_hm08_tongue_mpfb_ed_chest_pain_spouse_adult_mesh",
+   "baseColorFactor": [
+    0.85,
+    0.45,
+    0.45,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "tongue albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 710,
+    "literal": "(0.85, 0.45, 0.45, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mat",
+   "baseColorFactor": [
+    0.13,
+    0.09,
+    0.07,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "MPFB fitted hair, patient role (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
+    "line": 158,
+    "literal": "(0.13, 0.09, 0.07, 1.0)",
+    "via": "materialize :3751"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, patient role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:158."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "mat_makeclothes_library_toigo_t_shirt",
+   "baseColorFactor": [
+    0.34,
+    0.44,
+    0.34,
+    1
+   ],
+   "hasBaseColorTexture": true,
+   "kind": "olive_knit_and_cream_casual palette closed_casual x authored weave",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1764,
+    "literal": "(0.34, 0.44, 0.34, 1.0)"
+   },
+   "path": "garment_shell_color palette table :1769-1800 -> GARMENT_FACTOR_PATCH -> patch_glb",
+   "reason": "Wardrobe decision, not a station default: olive_knit_and_cream_casual palette closed_casual x authored weave. Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1764; shipped via GARMENT_FACTOR_PATCH + patch_glb_base_color_factors."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "mpfb_skin_robert_reference",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "openclinxr_hidden_upper_mpfb_robert_reference_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "openclinxr_hidden_lower_mpfb_robert_reference_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "openclinxr_hidden_foot_mpfb_robert_reference_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "openclinxr_hidden_upper_mpfb_robert_reference_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "openclinxr_hidden_lower_mpfb_robert_reference_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "openclinxr_hidden_foot_mpfb_robert_reference_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "openclinxr_hidden_orphan_mpfb_robert_reference_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "mat_makeclothes_library_eyes_robert_reference",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mat",
+   "baseColorFactor": [
+    0.05,
+    0.03,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "brow presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3818,
+    "literal": "(0.05, 0.03, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mat",
+   "baseColorFactor": [
+    0.02,
+    0.02,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lash presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3886,
+    "literal": "(0.02, 0.02, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "mat_openclinxr_hm08_teeth_mpfb_robert_reference_mesh",
+   "baseColorFactor": [
+    0.92,
+    0.9,
+    0.86,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "teeth albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 708,
+    "literal": "(0.92, 0.90, 0.86, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "mat_openclinxr_hm08_tongue_mpfb_robert_reference_mesh",
+   "baseColorFactor": [
+    0.85,
+    0.45,
+    0.45,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "tongue albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 710,
+    "literal": "(0.85, 0.45, 0.45, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710."
+  },
+  {
+   "body": "mpfb-gown-adult-patient.glb",
+   "material": "openclinxr_real_garment_hospital_gown_phenotype_L0",
+   "baseColorFactor": [
+    0.15,
+    0.55,
+    0.82,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1710,
+    "literal": "(0.15, 0.55, 0.82, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1710."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat",
+   "baseColorFactor": [
+    0.13,
+    0.09,
+    0.07,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "MPFB fitted hair, patient role (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
+    "line": 158,
+    "literal": "(0.13, 0.09, 0.07, 1.0)",
+    "via": "materialize :3751"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, patient role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:158."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "mat_makeclothes_library_toigo_t_shirt",
+   "baseColorFactor": [
+    0.34,
+    0.44,
+    0.34,
+    1
+   ],
+   "hasBaseColorTexture": true,
+   "kind": "olive_knit_and_cream_casual palette closed_casual x authored weave",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1764,
+    "literal": "(0.34, 0.44, 0.34, 1.0)"
+   },
+   "path": "garment_shell_color palette table :1769-1800 -> GARMENT_FACTOR_PATCH -> patch_glb",
+   "reason": "Wardrobe decision, not a station default: olive_knit_and_cream_casual palette closed_casual x authored weave. Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1764; shipped via GARMENT_FACTOR_PATCH + patch_glb_base_color_factors."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "openclinxr_real_garment_hospital_gown_phenotype_L0",
+   "baseColorFactor": [
+    0.15,
+    0.55,
+    0.82,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1710,
+    "literal": "(0.15, 0.55, 0.82, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1710."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "mpfb_skin_ob_patient_aisha",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "mat_makeclothes_library_eyes_ob_patient_aisha",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+   "baseColorFactor": [
+    0.05,
+    0.03,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "brow presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3818,
+    "literal": "(0.05, 0.03, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mat",
+   "baseColorFactor": [
+    0.02,
+    0.02,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lash presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3886,
+    "literal": "(0.02, 0.02, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+   "baseColorFactor": [
+    0.92,
+    0.9,
+    0.86,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "teeth albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 708,
+    "literal": "(0.92, 0.90, 0.86, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708."
+  },
+  {
+   "body": "mpfb-gown-inspect.glb",
+   "material": "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+   "baseColorFactor": [
+    0.85,
+    0.45,
+    0.45,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "tongue albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 710,
+    "literal": "(0.85, 0.45, 0.45, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "mat_makeclothes_library_cargo_pants.001",
+   "baseColorFactor": [
+    0.34,
+    0.44,
+    0.34,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lower cover shell = garment_shell_color(_lower_kind,role,palette) (untextured; library trouser replaced by LOWER GATE)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1764,
+    "literal": "(0.34, 0.44, 0.34, 1.0)",
+    "via": "cover shell make_material(mat_<lower>) (materialize:4485-4492); gate :4436-4466"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lower cover shell = garment_shell_color(_lower_kind,role,palette) (untextured; library trouser replaced by LOWER GATE). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1764."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat",
+   "baseColorFactor": [
+    0.13,
+    0.09,
+    0.07,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "MPFB fitted hair, patient role (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
+    "line": 158,
+    "literal": "(0.13, 0.09, 0.07, 1.0)",
+    "via": "materialize :3751"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, patient role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:158."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "mat_makeclothes_library_toigo_t_shirt",
+   "baseColorFactor": [
+    0.34,
+    0.44,
+    0.34,
+    1
+   ],
+   "hasBaseColorTexture": true,
+   "kind": "olive_knit_and_cream_casual palette closed_casual x authored weave",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1764,
+    "literal": "(0.34, 0.44, 0.34, 1.0)"
+   },
+   "path": "garment_shell_color palette table :1769-1800 -> GARMENT_FACTOR_PATCH -> patch_glb",
+   "reason": "Wardrobe decision, not a station default: olive_knit_and_cream_casual palette closed_casual x authored weave. Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1764; shipped via GARMENT_FACTOR_PATCH + patch_glb_base_color_factors."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "mpfb_skin_ob_patient_aisha",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "mat_makeclothes_library_eyes_ob_patient_aisha",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+   "baseColorFactor": [
+    0.05,
+    0.03,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "brow presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3818,
+    "literal": "(0.05, 0.03, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mat",
+   "baseColorFactor": [
+    0.02,
+    0.02,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lash presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3886,
+    "literal": "(0.02, 0.02, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+   "baseColorFactor": [
+    0.92,
+    0.9,
+    0.86,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "teeth albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 708,
+    "literal": "(0.92, 0.90, 0.86, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708."
+  },
+  {
+   "body": "mpfb-ob-patient-aisha.glb",
+   "material": "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+   "baseColorFactor": [
+    0.85,
+    0.45,
+    0.45,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "tongue albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 710,
+    "literal": "(0.85, 0.45, 0.45, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "mat_makeclothes_library_footwear_culturalibre_male_boots",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "openclinxr_fitted_hair_mhair02_mpfb_peds_nurse_kevin_mat",
+   "baseColorFactor": [
+    0.18,
+    0.13,
+    0.1,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "MPFB fitted hair, nurse/default role (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
+    "line": 159,
+    "literal": "(0.18, 0.13, 0.10, 1.0)",
+    "via": "materialize :3751 _hair_color(args.actor_role)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, nurse/default role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:159."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "mat_makeclothes_library_scrub_pants",
+   "baseColorFactor": [
+    0.05,
+    0.48,
+    0.52,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "scrub lower, locked scrub colour (untextured cover shell or pre-strip fit)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1711,
+    "literal": "(0.05, 0.48, 0.52, 1.0)",
+    "path": "garment_shell_color scrub lock :1781-1785; lower branch materialize :3951-3960 or cover shell :4485-4492"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). scrub lower, locked scrub colour (untextured cover shell or pre-strip fit). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "mat_makeclothes_library_scrub_shirt",
+   "baseColorFactor": [
+    0.05,
+    0.48,
+    0.52,
+    1
+   ],
+   "hasBaseColorTexture": true,
+   "kind": "locked scrub role colour x authored weave (factor sets hue)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1711,
+    "literal": "(0.05, 0.48, 0.52, 1.0)"
+   },
+   "path": "garment_shell_color scrub lock :1781-1785 -> garment_material_from_declared role_colour -> GARMENT_FACTOR_PATCH :1062-1068 -> patch_glb_base_color_factors :1073-1107",
+   "reason": "Wardrobe decision, not a station default: locked scrub role colour x authored weave (factor sets hue). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711; shipped via GARMENT_FACTOR_PATCH + patch_glb_base_color_factors."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "mpfb_skin_peds_nurse_kevin",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "openclinxr_hidden_orphan_mpfb_peds_nurse_kevin_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "mat_makeclothes_library_eyes_peds_nurse_kevin",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mat",
+   "baseColorFactor": [
+    0.05,
+    0.03,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "brow presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3818,
+    "literal": "(0.05, 0.03, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mat",
+   "baseColorFactor": [
+    0.02,
+    0.02,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lash presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3886,
+    "literal": "(0.02, 0.02, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "mat_openclinxr_hm08_teeth_mpfb_peds_nurse_kevin_mesh",
+   "baseColorFactor": [
+    0.92,
+    0.9,
+    0.86,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "teeth albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 708,
+    "literal": "(0.92, 0.90, 0.86, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708."
+  },
+  {
+   "body": "mpfb-peds-nurse-kevin.glb",
+   "material": "mat_openclinxr_hm08_tongue_mpfb_peds_nurse_kevin_mesh",
+   "baseColorFactor": [
+    0.85,
+    0.45,
+    0.45,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "tongue albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 710,
+    "literal": "(0.85, 0.45, 0.45, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "mat_makeclothes_library_cargo_pants.001",
+   "baseColorFactor": [
+    0.62,
+    0.28,
+    0.38,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lower cover shell = garment_shell_color(_lower_kind,role,palette) (untextured; library trouser replaced by LOWER GATE)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1750,
+    "literal": "(0.62, 0.28, 0.38, 1.0)",
+    "via": "cover shell make_material(mat_<lower>) (materialize:4485-4492); gate :4436-4466"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lower cover shell = garment_shell_color(_lower_kind,role,palette) (untextured; library trouser replaced by LOWER GATE). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1750."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mat",
+   "baseColorFactor": [
+    0.16,
+    0.11,
+    0.09,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "MPFB fitted hair, family role (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
+    "line": 156,
+    "literal": "(0.16, 0.11, 0.09, 1.0)",
+    "via": "materialize :3751"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, family role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:156."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "mat_makeclothes_library_toigo_t_shirt",
+   "baseColorFactor": [
+    0.62,
+    0.28,
+    0.38,
+    1
+   ],
+   "hasBaseColorTexture": true,
+   "kind": "muted_rose_and_neutral palette closed_casual x authored weave",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1750,
+    "literal": "(0.62, 0.28, 0.38, 1.0)"
+   },
+   "path": "garment_shell_color palette table (role fallback :1811-1813) -> GARMENT_FACTOR_PATCH -> patch_glb",
+   "reason": "Wardrobe decision, not a station default: muted_rose_and_neutral palette closed_casual x authored weave. Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1750; shipped via GARMENT_FACTOR_PATCH + patch_glb_base_color_factors."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "mpfb_skin_peds_anxious_parent",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "openclinxr_hidden_upper_mpfb_peds_anxious_parent_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "openclinxr_hidden_lower_mpfb_peds_anxious_parent_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "openclinxr_hidden_foot_mpfb_peds_anxious_parent_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "openclinxr_hidden_upper_mpfb_peds_anxious_parent_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "openclinxr_hidden_lower_mpfb_peds_anxious_parent_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "openclinxr_hidden_foot_mpfb_peds_anxious_parent_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "openclinxr_hidden_orphan_mpfb_peds_anxious_parent_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "mat_makeclothes_library_eyes_peds_anxious_parent",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mat",
+   "baseColorFactor": [
+    0.05,
+    0.03,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "brow presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3818,
+    "literal": "(0.05, 0.03, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mat",
+   "baseColorFactor": [
+    0.02,
+    0.02,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lash presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3886,
+    "literal": "(0.02, 0.02, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "mat_openclinxr_hm08_teeth_mpfb_peds_anxious_parent_mesh",
+   "baseColorFactor": [
+    0.92,
+    0.9,
+    0.86,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "teeth albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 708,
+    "literal": "(0.92, 0.90, 0.86, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708."
+  },
+  {
+   "body": "mpfb-peds-parent-aisha.glb",
+   "material": "mat_openclinxr_hm08_tongue_mpfb_peds_anxious_parent_mesh",
+   "baseColorFactor": [
+    0.85,
+    0.45,
+    0.45,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "tongue albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 710,
+    "literal": "(0.85, 0.45, 0.45, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "mat_makeclothes_library_cargo_pants.001",
+   "baseColorFactor": [
+    0.55,
+    0.68,
+    0.8,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lower cover shell = garment_shell_color(_lower_kind,role,palette) (untextured; library trouser replaced by LOWER GATE)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1756,
+    "literal": "(0.55, 0.68, 0.80, 1.0)",
+    "via": "cover shell make_material(mat_<lower>) (materialize:4485-4492); gate :4436-4466"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lower cover shell = garment_shell_color(_lower_kind,role,palette) (untextured; library trouser replaced by LOWER GATE). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1756."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "openclinxr_fitted_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mat",
+   "baseColorFactor": [
+    0.13,
+    0.09,
+    0.07,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "MPFB fitted hair, patient role (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
+    "line": 158,
+    "literal": "(0.13, 0.09, 0.07, 1.0)",
+    "via": "materialize :3751"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, patient role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:158."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "mat_makeclothes_library_toigo_t_shirt",
+   "baseColorFactor": [
+    0.55,
+    0.68,
+    0.8,
+    1
+   ],
+   "hasBaseColorTexture": true,
+   "kind": "soft_blue_and_warm_white palette closed_casual x authored weave",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1756,
+    "literal": "(0.55, 0.68, 0.80, 1.0)"
+   },
+   "path": "garment_shell_color palette table -> GARMENT_FACTOR_PATCH -> patch_glb",
+   "reason": "Wardrobe decision, not a station default: soft_blue_and_warm_white palette closed_casual x authored weave. Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1756; shipped via GARMENT_FACTOR_PATCH + patch_glb_base_color_factors."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "mpfb_skin_peds_patient_child",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "openclinxr_hidden_orphan_mpfb_peds_patient_child_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "mat_makeclothes_library_eyes_peds_patient_child",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mat",
+   "baseColorFactor": [
+    0.05,
+    0.03,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "brow presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3818,
+    "literal": "(0.05, 0.03, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mat",
+   "baseColorFactor": [
+    0.02,
+    0.02,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lash presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3886,
+    "literal": "(0.02, 0.02, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "mat_openclinxr_hm08_teeth_mpfb_peds_patient_child_mesh",
+   "baseColorFactor": [
+    0.92,
+    0.9,
+    0.86,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "teeth albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 708,
+    "literal": "(0.92, 0.90, 0.86, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708."
+  },
+  {
+   "body": "mpfb-peds-patient-child.glb",
+   "material": "mat_openclinxr_hm08_tongue_mpfb_peds_patient_child_mesh",
+   "baseColorFactor": [
+    0.85,
+    0.45,
+    0.45,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "tongue albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 710,
+    "literal": "(0.85, 0.45, 0.45, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "mat_makeclothes_library_footwear_culturalibre_male_boots",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "openclinxr_fitted_hair_mhair02_mpfb_adult_male_street_casual_mat",
+   "baseColorFactor": [
+    0.13,
+    0.09,
+    0.07,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "MPFB fitted hair, patient role (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
+    "line": 158,
+    "literal": "(0.13, 0.09, 0.07, 1.0)",
+    "via": "materialize :3751"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, patient role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:158."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "mat_makeclothes_library_straight_leg_jeans_pants",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "mat_makeclothes_library_toigo_t_shirt",
+   "baseColorFactor": [
+    0.34,
+    0.44,
+    0.34,
+    1
+   ],
+   "hasBaseColorTexture": true,
+   "kind": "olive_knit_and_cream_casual palette closed_casual x authored weave",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1764,
+    "literal": "(0.34, 0.44, 0.34, 1.0)"
+   },
+   "path": "garment_shell_color palette table :1769-1800 -> GARMENT_FACTOR_PATCH -> patch_glb",
+   "reason": "Wardrobe decision, not a station default: olive_knit_and_cream_casual palette closed_casual x authored weave. Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1764; shipped via GARMENT_FACTOR_PATCH + patch_glb_base_color_factors."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "mpfb_skin_adult_male_street_casual",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "openclinxr_hidden_upper_mpfb_adult_male_street_casual_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "openclinxr_hidden_lower_mpfb_adult_male_street_casual_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "openclinxr_hidden_foot_mpfb_adult_male_street_casual_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "openclinxr_hidden_upper_mpfb_adult_male_street_casual_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "openclinxr_hidden_lower_mpfb_adult_male_street_casual_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "openclinxr_hidden_foot_mpfb_adult_male_street_casual_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "openclinxr_hidden_orphan_mpfb_adult_male_street_casual_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "mat_makeclothes_library_eyes_adult_male_street_casual",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mat",
+   "baseColorFactor": [
+    0.05,
+    0.03,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "brow presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3818,
+    "literal": "(0.05, 0.03, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mat",
+   "baseColorFactor": [
+    0.02,
+    0.02,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lash presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3886,
+    "literal": "(0.02, 0.02, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "mat_openclinxr_hm08_teeth_mpfb_adult_male_street_casual_mesh",
+   "baseColorFactor": [
+    0.92,
+    0.9,
+    0.86,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "teeth albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 708,
+    "literal": "(0.92, 0.90, 0.86, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708."
+  },
+  {
+   "body": "mpfb-street-adult-male.glb",
+   "material": "mat_openclinxr_hm08_tongue_mpfb_adult_male_street_casual_mesh",
+   "baseColorFactor": [
+    0.85,
+    0.45,
+    0.45,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "tongue albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 710,
+    "literal": "(0.85, 0.45, 0.45, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "mat_makeclothes_library_cargo_pants.001",
+   "baseColorFactor": [
+    0.34,
+    0.44,
+    0.34,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lower cover shell = garment_shell_color(_lower_kind,role,palette) (untextured; library trouser replaced by LOWER GATE)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1764,
+    "literal": "(0.34, 0.44, 0.34, 1.0)",
+    "via": "cover shell make_material(mat_<lower>) (materialize:4485-4492); gate :4436-4466"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lower cover shell = garment_shell_color(_lower_kind,role,palette) (untextured; library trouser replaced by LOWER GATE). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1764."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat",
+   "baseColorFactor": [
+    0.13,
+    0.09,
+    0.07,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "MPFB fitted hair, patient role (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
+    "line": 158,
+    "literal": "(0.13, 0.09, 0.07, 1.0)",
+    "via": "materialize :3751"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, patient role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:158."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "mat_makeclothes_library_toigo_t_shirt",
+   "baseColorFactor": [
+    0.34,
+    0.44,
+    0.34,
+    1
+   ],
+   "hasBaseColorTexture": true,
+   "kind": "olive_knit_and_cream_casual palette closed_casual x authored weave",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1764,
+    "literal": "(0.34, 0.44, 0.34, 1.0)"
+   },
+   "path": "garment_shell_color palette table :1769-1800 -> GARMENT_FACTOR_PATCH -> patch_glb",
+   "reason": "Wardrobe decision, not a station default: olive_knit_and_cream_casual palette closed_casual x authored weave. Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1764; shipped via GARMENT_FACTOR_PATCH + patch_glb_base_color_factors."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "mpfb_skin_ob_patient_aisha",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+   "baseColorFactor": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "hide-mask cover shell (alpha 0, discarded pre-render)",
+   "decision": "resolved-keep",
+   "origin": {
+    "file": "packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+    "line": 334,
+    "literal": "(0.0, 0.0, 0.0, 0.0)"
+   },
+   "alphaMode": "MASK",
+   "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
+   "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "mat_makeclothes_library_eyes_ob_patient_aisha",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 846,
+    "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
+   },
+   "alphaMode": "OPAQUE",
+   "note": "factor absent = glTF default [1,1,1]; texture carries the look",
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+   "baseColorFactor": [
+    0.05,
+    0.03,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "brow presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3818,
+    "literal": "(0.05, 0.03, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mat",
+   "baseColorFactor": [
+    0.02,
+    0.02,
+    0.02,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "lash presence silhouette (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 3886,
+    "literal": "(0.02, 0.02, 0.02, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+   "baseColorFactor": [
+    0.92,
+    0.9,
+    0.86,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "teeth albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 708,
+    "literal": "(0.92, 0.90, 0.86, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708."
+  },
+  {
+   "body": "mpfb-viseme-inspect.glb",
+   "material": "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+   "baseColorFactor": [
+    0.85,
+    0.45,
+    0.45,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "tongue albedo (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 710,
+    "literal": "(0.85, 0.45, 0.45, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710."
+  },
+  {
+   "body": "peds_anxious_parent.glb",
+   "material": "openclinxr_footwear_casual_shoe_L_mat",
+   "baseColorFactor": [
+    0.12,
+    0.08,
+    0.05,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny casual shoe shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4431,
+    "literal": "(0.12, 0.08, 0.05, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431."
+  },
+  {
+   "body": "peds_anxious_parent.glb",
+   "material": "openclinxr_footwear_casual_shoe_R_mat",
+   "baseColorFactor": [
+    0.12,
+    0.08,
+    0.05,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny casual shoe shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4431,
+    "literal": "(0.12, 0.08, 0.05, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431."
+  },
+  {
+   "body": "peds_anxious_parent.glb",
+   "material": "openclinxr_real_garment_casual_top_phenotype_L0",
+   "baseColorFactor": [
+    0.42,
+    0.36,
+    0.4,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1723,
+    "literal": "(0.42, 0.36, 0.40, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1723."
+  },
+  {
+   "body": "peds_anxious_parent.glb",
+   "material": "openclinxr_real_garment_open_cardigan_phenotype_L1",
+   "baseColorFactor": [
+    0.62,
+    0.28,
+    0.38,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1750,
+    "literal": "(0.62, 0.28, 0.38, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1750."
+  },
+  {
+   "body": "peds_anxious_parent.glb",
+   "material": "anny_generated_pbr",
+   "baseColorFactor": [
+    0.7668,
+    0.5316,
+    0.4288,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny procedural skin (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 918,
+    "literal": "(0.78, 0.56, 0.45, 1.0)",
+    "branch": "warm/light/child skin_tone; else :920 (0.62,0.46,0.36); flush/paleness nudges :924-928; written to Base Color :934"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny procedural skin (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:918."
+  },
+  {
+   "body": "peds_anxious_parent.glb",
+   "material": "openclinxr_role_mesh_clothing_family_lower",
+   "baseColorFactor": [
+    0.18,
+    0.17,
+    0.2,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny family lower paint (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 3491,
+    "literal": "(0.18, 0.17, 0.20, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny family lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3491."
+  },
+  {
+   "body": "peds_anxious_parent.glb",
+   "material": "openclinxr_role_mesh_clothing_family_arm",
+   "baseColorFactor": [
+    0.62,
+    0.28,
+    0.38,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1750,
+    "literal": "(0.62, 0.28, 0.38, 1.0)",
+    "via": "provisional top_color (:3557-3560), recolored bsdf Base Color = outermost_gown_color (:4372-4377)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1750."
+  },
+  {
+   "body": "peds_anxious_parent.glb",
+   "material": "openclinxr_mesh_native_scalp_hair_surface",
+   "baseColorFactor": [
+    0.12,
+    0.07,
+    0.035,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny scalp hair brown default (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4793,
+    "literal": "(0.12, 0.07, 0.035, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793."
+  },
+  {
+   "body": "peds_fever_patient_child.glb",
+   "material": "openclinxr_footwear_hospital_slipper_L_mat",
+   "baseColorFactor": [
+    0.18,
+    0.42,
+    0.78,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny hospital slipper shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4429,
+    "literal": "(0.18, 0.42, 0.78, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429."
+  },
+  {
+   "body": "peds_fever_patient_child.glb",
+   "material": "openclinxr_footwear_hospital_slipper_R_mat",
+   "baseColorFactor": [
+    0.18,
+    0.42,
+    0.78,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny hospital slipper shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4429,
+    "literal": "(0.18, 0.42, 0.78, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429."
+  },
+  {
+   "body": "peds_fever_patient_child.glb",
+   "material": "openclinxr_real_garment__phenotype_L0",
+   "baseColorFactor": [
+    0.08,
+    0.52,
+    0.95,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1724,
+    "literal": "(0.08, 0.52, 0.95, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1724."
+  },
+  {
+   "body": "peds_fever_patient_child.glb",
+   "material": "anny_generated_pbr",
+   "baseColorFactor": [
+    0.805,
+    0.57,
+    0.454,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny procedural skin (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 918,
+    "literal": "(0.78, 0.56, 0.45, 1.0)",
+    "branch": "warm/light/child skin_tone; else :920 (0.62,0.46,0.36); flush/paleness nudges :924-928; written to Base Color :934"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny procedural skin (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:918."
+  },
+  {
+   "body": "peds_fever_patient_child.glb",
+   "material": "openclinxr_role_mesh_clothing_patient_lower",
+   "baseColorFactor": [
+    0.06,
+    0.12,
+    0.28,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny patient lower paint (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 3494,
+    "literal": "(0.06, 0.12, 0.28, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494."
+  },
+  {
+   "body": "peds_fever_patient_child.glb",
+   "material": "openclinxr_role_mesh_clothing_patient_arm",
+   "baseColorFactor": [
+    0.08,
+    0.52,
+    0.95,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1724,
+    "literal": "(0.08, 0.52, 0.95, 1.0)",
+    "via": "provisional top_color (:3557-3560), recolored bsdf Base Color = outermost_gown_color (:4372-4377)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1724."
+  },
+  {
+   "body": "peds_fever_patient_child.glb",
+   "material": "openclinxr_mesh_native_scalp_hair_surface",
+   "baseColorFactor": [
+    0.12,
+    0.07,
+    0.035,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny scalp hair brown default (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4793,
+    "literal": "(0.12, 0.07, 0.035, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793."
+  },
+  {
+   "body": "peds_nurse_kevin.glb",
+   "material": "openclinxr_footwear_clinical_shoe_L_mat",
+   "baseColorFactor": [
+    0.08,
+    0.09,
+    0.1,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny clinical shoe shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4427,
+    "literal": "(0.08, 0.09, 0.10, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny clinical shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4427."
+  },
+  {
+   "body": "peds_nurse_kevin.glb",
+   "material": "openclinxr_footwear_clinical_shoe_R_mat",
+   "baseColorFactor": [
+    0.08,
+    0.09,
+    0.1,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny clinical shoe shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4427,
+    "literal": "(0.08, 0.09, 0.10, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny clinical shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4427."
+  },
+  {
+   "body": "peds_nurse_kevin.glb",
+   "material": "openclinxr_real_garment_scrub_pocket_phenotype_L1",
+   "baseColorFactor": [
+    0.04,
+    0.42,
+    0.48,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1721,
+    "literal": "(0.04, 0.42, 0.48, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1721."
+  },
+  {
+   "body": "peds_nurse_kevin.glb",
+   "material": "openclinxr_real_garment_scrub_top_phenotype_L0",
+   "baseColorFactor": [
+    0.05,
+    0.48,
+    0.52,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1711,
+    "literal": "(0.05, 0.48, 0.52, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711."
+  },
+  {
+   "body": "peds_nurse_kevin.glb",
+   "material": "anny_generated_pbr",
+   "baseColorFactor": [
+    0.805,
+    0.57,
+    0.454,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny procedural skin (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 918,
+    "literal": "(0.78, 0.56, 0.45, 1.0)",
+    "branch": "warm/light/child skin_tone; else :920 (0.62,0.46,0.36); flush/paleness nudges :924-928; written to Base Color :934"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny procedural skin (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:918."
+  },
+  {
+   "body": "peds_nurse_kevin.glb",
+   "material": "openclinxr_role_mesh_clothing_nurse_lower",
+   "baseColorFactor": [
+    0.015,
+    0.34,
+    0.37,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny nurse lower paint (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 3488,
+    "literal": "(0.015, 0.34, 0.37, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny nurse lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3488."
+  },
+  {
+   "body": "peds_nurse_kevin.glb",
+   "material": "openclinxr_role_mesh_clothing_nurse_arm",
+   "baseColorFactor": [
+    0.04,
+    0.42,
+    0.48,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1721,
+    "literal": "(0.04, 0.42, 0.48, 1.0)",
+    "via": "provisional top_color (:3557-3560), recolored bsdf Base Color = outermost_gown_color (:4372-4377)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1721."
+  },
+  {
+   "body": "peds_nurse_kevin.glb",
+   "material": "openclinxr_mesh_native_scalp_hair_surface",
+   "baseColorFactor": [
+    0.035,
+    0.028,
+    0.022,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny scalp hair black (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4787,
+    "literal": "(0.035, 0.028, 0.022, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair black (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4787."
+  },
+  {
+   "body": "peds_patient_child.glb",
+   "material": "openclinxr_footwear_hospital_slipper_L_mat",
+   "baseColorFactor": [
+    0.18,
+    0.42,
+    0.78,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny hospital slipper shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4429,
+    "literal": "(0.18, 0.42, 0.78, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429."
+  },
+  {
+   "body": "peds_patient_child.glb",
+   "material": "openclinxr_footwear_hospital_slipper_R_mat",
+   "baseColorFactor": [
+    0.18,
+    0.42,
+    0.78,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny hospital slipper shell (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4429,
+    "literal": "(0.18, 0.42, 0.78, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429."
+  },
+  {
+   "body": "peds_patient_child.glb",
+   "material": "openclinxr_real_garment_short_sleeve_exam_tshirt_phenotype_L0",
+   "baseColorFactor": [
+    0.08,
+    0.52,
+    0.95,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1724,
+    "literal": "(0.08, 0.52, 0.95, 1.0)",
+    "via": "gown_color = garment_shell_color(kind, role, phenotype) (automate_blender.py:4141), emitted create_role_marker_material (:4230)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1724."
+  },
+  {
+   "body": "peds_patient_child.glb",
+   "material": "anny_generated_pbr",
+   "baseColorFactor": [
+    0.805,
+    0.57,
+    0.454,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny procedural skin (untextured; factor IS the albedo)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 918,
+    "literal": "(0.78, 0.56, 0.45, 1.0)",
+    "branch": "warm/light/child skin_tone; else :920 (0.62,0.46,0.36); flush/paleness nudges :924-928; written to Base Color :934"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny procedural skin (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:918."
+  },
+  {
+   "body": "peds_patient_child.glb",
+   "material": "openclinxr_role_mesh_clothing_patient_lower",
+   "baseColorFactor": [
+    0.06,
+    0.12,
+    0.28,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny patient lower paint (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 3494,
+    "literal": "(0.06, 0.12, 0.28, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494."
+  },
+  {
+   "body": "peds_patient_child.glb",
+   "material": "openclinxr_role_mesh_clothing_patient_arm",
+   "baseColorFactor": [
+    0.08,
+    0.52,
+    0.95,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 1724,
+    "literal": "(0.08, 0.52, 0.95, 1.0)",
+    "via": "provisional top_color (:3557-3560), recolored bsdf Base Color = outermost_gown_color (:4372-4377)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1724."
+  },
+  {
+   "body": "peds_patient_child.glb",
+   "material": "openclinxr_mesh_native_scalp_hair_surface",
+   "baseColorFactor": [
+    0.24,
+    0.15,
+    0.075,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "kind": "Anny scalp hair light (untextured)",
+   "decision": "resolved",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "line": 4791,
+    "literal": "(0.24, 0.15, 0.075, 1.0)"
+   },
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair light (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4791."
+  }
+ ]
+}
