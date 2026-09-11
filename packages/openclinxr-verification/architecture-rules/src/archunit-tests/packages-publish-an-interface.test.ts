@@ -57,19 +57,17 @@ describe("packages publish an interface", () => {
     expect(checkExportSurface([{ pkg: "p", exports: 12, starExports: 0 }], () => null)).toEqual([]);
   });
 
-  it("(7) the symbol counter follows export * chains rather than counting lines", () => {
-    // This clause named xr-station, which reached 214 symbols through 32 walls. The narrowing
-    // campaign removed every one of its stars on 2026-09-08, so the specimen disappeared and the
-    // clause failed on its own success. It is written against the PROPERTY now, not a specimen:
-    // some package still has stars, and its symbol count exceeds its star count.
+  it("(7) SUPERSEDED: no package publishes an export * wall (plan criterion 3)", () => {
+    // Was: "the symbol counter follows export * chains rather than counting lines", written against
+    // whichever package still had stars (xr-station, then data-mongodb). On 2026-09-11 the public-surface
+    // program removed the last two (data-mongodb src/index.ts), and plan criterion 3 requires zero
+    // `export * from` in supported entrypoints, so this clause now guards that absence.
+    // If a star wall returns, do NOT widen this: remove the wall. If the counter itself must be re-proved,
+    // restore the old property assertion against a FIXTURE package with a star chain (symbols > walls,
+    // ceiling == measured exports), not against a live package.
     const measured = measureExportSurface();
-    const walled = measured.filter((m) => m.starExports > 0);
-    expect(walled.length, "no package has an export * wall left; retire this clause").toBeGreaterThan(0);
-    for (const pkg of walled) {
-      expect(pkg.exports, `${pkg.pkg} symbols vs walls`).toBeGreaterThan(pkg.starExports);
-      const ceiling = readExportCeiling(pkg.pkg)?.rootEntrypointExports;
-      if (ceiling !== undefined) expect(ceiling, `${pkg.pkg} ceiling`).toBe(pkg.exports);
-    }
+    const walled = measured.filter((m) => m.starExports > 0).map((m) => `${m.pkg} (${m.starExports})`);
+    expect(walled, "packages with export * walls (plan criterion 3 requires none)").toEqual([]);
   });
 
   it("(8) a re-exported name is counted once, under its exported alias", () => {

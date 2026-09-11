@@ -6,7 +6,7 @@ export {
   MongoDurableConversationTurnRepository,
   MongoDurableEmotionalStateTimelineRepository,
 } from "./conversation-repositories.js";
-export * from "./encounter-materialization-evidence-repositories.js";
+export { MongoEncounterMaterializationEvidenceRepository } from "./encounter-materialization-evidence-repositories.js";
 export {
   createMongoExamPersistence,
   MongoExamFormRepository,
@@ -30,4 +30,9 @@ export {
   type EncounterMaterializationEvidenceRecord,
   type ScenarioReviewDecisionRecord,
 } from "./records.js";
-export * from "./scenario-repositories.js";
+export {
+  MongoReviewPacketRepository,
+  MongoScenarioRepository,
+  MongoScenarioReviewDecisionRepository,
+  MongoTraceRepository,
+} from "./scenario-repositories.js";
