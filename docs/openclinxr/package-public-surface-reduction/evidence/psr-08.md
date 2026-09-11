@@ -46,3 +46,9 @@ PSR-08 applies PSR-01E remaining 26-package complement as amended: 682 names un-
 ## Limitations and NOT TESTED
 
 Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility. `packages:typecheck:agent`, `packages:build:agent`, and `packages:test:agent` are land-time orchestrator runs.
+
+## Orchestrator amendment at land (2026-09-11)
+
+`@openclinxr/session-state/accepted-scene-plan` keeps `acceptedScenePlanProblems`, `DurableAcceptedScenePlanRecord` and `requireAcceptedScenePlan` (approval psr-01e amended). The SC-06 behaviour test and `tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts` consume them, and `asset-registry` documents that subpath as the validator source (`scene-plan-freeze-mod.ts:90`). The review saw no consumer because both import by relative path. Both consumers are back on the entry file; `two-sided-gate.sh` now reads the `-mod` implementations it pins. Two TS4111 errors introduced by a blanket `biome check --write` were reverted to bracket access.
+
+`46 roots, 114 entrypoints, 1243 root symbols, 1484 occurrences, 1456 unique, 28 duplicated names (surface dd39b80a2a76)`; `ok: group psr-08 applied: 679 removed, 45 migrated`; `--require-all-reviewed`: ok. `pnpm architecture` 199 passed; `typecheck:relaxed` exit 0.

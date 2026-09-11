@@ -7187,10 +7187,10 @@
       "entrypoint": "./accepted-scene-plan",
       "symbol": "acceptedScenePlanProblems",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/session-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
+      "rationale": "Amended at PSR-08 land (orchestrator, 2026-09-11): the SC-06 behaviour test and tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts consume it, and asset-registry scene-plan-freeze-mod.ts:90 and accepted-scene-plan-evidence-mod.ts:4 document this subpath as the authoritative declaration. The review saw no package-name consumer because both import by relative path.",
+      "evidence": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts:54-58,256; tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts:12,159 (origin/main 3357d1f2)"
     },
     {
       "package": "packages/openclinxr/session-state",
@@ -7217,20 +7217,20 @@
       "entrypoint": "./accepted-scene-plan",
       "symbol": "DurableAcceptedScenePlanRecord",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/session-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
+      "rationale": "Amended at PSR-08 land (orchestrator, 2026-09-11): the SC-06 behaviour test and tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts consume it, and asset-registry scene-plan-freeze-mod.ts:90 and accepted-scene-plan-evidence-mod.ts:4 document this subpath as the authoritative declaration. The review saw no package-name consumer because both import by relative path.",
+      "evidence": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts:54-58,256; tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts:12,159 (origin/main 3357d1f2)"
     },
     {
       "package": "packages/openclinxr/session-state",
       "entrypoint": "./accepted-scene-plan",
       "symbol": "requireAcceptedScenePlan",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/session-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
+      "rationale": "Amended at PSR-08 land (orchestrator, 2026-09-11): the SC-06 behaviour test and tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts consume it, and asset-registry scene-plan-freeze-mod.ts:90 and accepted-scene-plan-evidence-mod.ts:4 document this subpath as the authoritative declaration. The review saw no package-name consumer because both import by relative path.",
+      "evidence": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts:54-58,256; tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts:12,159 (origin/main 3357d1f2)"
     },
     {
       "package": "packages/openclinxr/session-state",

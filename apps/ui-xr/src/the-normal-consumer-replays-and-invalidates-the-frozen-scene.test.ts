@@ -55,7 +55,7 @@ import {
   acceptedScenePlanProblems,
   type DurableAcceptedScenePlanRecord,
   requireAcceptedScenePlan,
-} from "../../../packages/openclinxr/session-state/src/accepted-scene-plan-mod.js";
+} from "../../../packages/openclinxr/session-state/src/accepted-scene-plan.js";
 // WHERE THE REPLAY BOUNDARY LIVES, and it was decided by two standing rules rather than by taste.
 //
 // It was first written into the scenario-runtime package. `workspace-architecture.test.ts:926` refused

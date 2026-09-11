@@ -4519,5 +4519,7 @@
   ],
   "claim": "PSR-08 applies PSR-01E 26-package complement as amended: 682 names un-published, 45 migrated. Implementations kept. --require-applied psr-08 and --require-all-reviewed exit 0.",
   "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility. packages:build:agent / packages:test:agent / packages:typecheck:agent are land-time orchestrator runs.",
-  "notTested": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility."
+  "notTested": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility.",
+  "verifyAfterLand": "46 roots, 114 entrypoints, 1243 root symbols, 1484 occurrences, 1456 unique, 28 duplicated names (surface dd39b80a2a76); ok: group psr-08 applied: 679 removed, 45 migrated; ok baseline ratchet: surface matches the checked-in baseline (no growth)",
+  "orchestratorAmendmentAtLand": "session-state ./accepted-scene-plan keeps acceptedScenePlanProblems, DurableAcceptedScenePlanRecord and requireAcceptedScenePlan (approval psr-01e amended). The SC-06 behaviour test and the sc-06 freeze tool consume them, and asset-registry documents that subpath as the validator source; the worker had repointed both consumers at session-state/src/accepted-scene-plan-mod.js. Both are back on the entry file; two-sided-gate.sh now reads the -mod implementations it pins. Orchestrator also fixed two TS4111 errors from a blanket biome --write."
 }
