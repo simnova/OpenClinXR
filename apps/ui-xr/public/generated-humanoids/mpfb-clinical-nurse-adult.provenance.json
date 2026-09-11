@@ -64,7 +64,7 @@
   "claimScope": "nurse_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_toigo_blunt_bob_kept",
   "promotionGates": false,
   "generatedAt": "2026-08-14T21:33:00Z",
-  "outputSha256": "53c38b2a4629ac0f421f22cc70fbd536e84093ee5bf2cf269a18db039263c644",
+  "outputSha256": "b744d3d5295e2d4840ceae586924727725667cb0260a5b1f3ee68dd2e72e136f",
   "outputBytes": 8833188,
   "byteLineage": {
     "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
@@ -93,6 +93,6 @@
   },
   "licenceNoticeWrittenAt": "2026-09-10T17:27:31.847Z",
   "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here.",
-  "albedoBakeWrittenAt": "2026-09-11T04:58:26.339Z",
-  "albedoBakeNote": "HB-02: per-texel baseColorFactor x baseColorTexture folded into the texture, factor reset to white; geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
+  "albedoBakeWrittenAt": "2026-09-11T05:16:52.362Z",
+  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
 }

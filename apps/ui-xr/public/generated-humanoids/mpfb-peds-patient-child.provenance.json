@@ -64,8 +64,8 @@
   "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
   "promotionGates": false,
   "generatedAt": "2026-08-14T15:17:02Z",
-  "outputSha256": "dee541d5ea69c5351015b131facf8c9c97db3de38f11a20c3446990383c3fec4",
+  "outputSha256": "2742c25863a117c0c57509039998b845f7d000f112d9d8343d1bd71eb12d0636",
   "outputBytes": 11348244,
-  "albedoBakeWrittenAt": "2026-09-11T04:58:26.409Z",
-  "albedoBakeNote": "HB-02: per-texel baseColorFactor x baseColorTexture folded into the texture, factor reset to white; geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
+  "albedoBakeWrittenAt": "2026-09-11T05:16:52.446Z",
+  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
 }

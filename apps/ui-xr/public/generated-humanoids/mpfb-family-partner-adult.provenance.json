@@ -59,7 +59,7 @@
   "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
   "promotionGates": false,
   "generatedAt": "2026-08-14T17:30:00Z",
-  "outputSha256": "9f2094ccf1d593b30f20756f3c87c7edcc17ea3cfc836f6a9ca248ac2edf0753",
+  "outputSha256": "0b1b9c991e1129d5328155080532d22e2897ab5b79cca5e6393a531f44190fcb",
   "outputBytes": 8151256,
   "byteLineage": {
     "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
@@ -86,6 +86,6 @@
     "reproduction": "byte-identical to the shipped file",
     "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte."
   },
-  "albedoBakeWrittenAt": "2026-09-11T04:58:26.355Z",
-  "albedoBakeNote": "HB-02: per-texel baseColorFactor x baseColorTexture folded into the texture, factor reset to white; geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
+  "albedoBakeWrittenAt": "2026-09-11T05:16:52.377Z",
+  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
 }

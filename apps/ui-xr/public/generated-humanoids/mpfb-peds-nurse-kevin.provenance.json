@@ -69,10 +69,10 @@
   "claimScope": "kevin_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_mhair02_kept",
   "promotionGates": false,
   "generatedAt": "2026-08-21T15:18:19.255Z",
-  "outputSha256": "7e111bcab537ee53ebdf3fce6bc6dc1fc1edb7aba8746e14c4ce8c7325d6ba80",
+  "outputSha256": "f362ca449d825a0eaacdf1a2deb8ea21ef6b7b96f5c0c27849e92ee3d4f8514d",
   "outputBytes": 14477264,
   "licenceNoticeWrittenAt": "2026-09-10T17:27:31.899Z",
   "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here.",
-  "albedoBakeWrittenAt": "2026-09-11T04:58:26.393Z",
-  "albedoBakeNote": "HB-02: per-texel baseColorFactor x baseColorTexture folded into the texture, factor reset to white; geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
+  "albedoBakeWrittenAt": "2026-09-11T05:16:52.423Z",
+  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
 }

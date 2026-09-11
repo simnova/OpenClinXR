@@ -13,7 +13,7 @@
  * 512 / 1024 / 2048. Every texture baked here is natively 2048 wide, so no new
  * number is invented; the report cites rung "res2048" of that ladder.
  */
-import { inflateSync, deflateSync } from "node:zlib";
+import { crc32, inflateSync, deflateSync } from "node:zlib";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
@@ -24,30 +24,12 @@ const HB00_AUDIT = "docs/openclinxr/humanoid-basecolorfactor-audit-2026-09-10.js
 type GlbJson = Record<string, unknown>;
 type JsonObj = Record<string, unknown>;
 
-function crc32Table(): Uint32Array {
-  const table = new Uint32Array(256);
-  for (let n = 0; n < 256; n += 1) {
-    let c = n;
-    for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-    table[n] = c >>> 0;
-  }
-  return table;
-}
-
-const CRC_TABLE = crc32Table();
-
-function crc32(bytes: Uint8Array): number {
-  let c = 0xffffffff;
-  for (let i = 0; i < bytes.length; i += 1) c = CRC_TABLE[(c ^ bytes[i]!) >>> 0]! ^ (c >>> 8);
-  return (c ^ 0xffffffff) >>> 0;
-}
-
 function pngChunk(type: string, body: Uint8Array): Buffer {
   const header = Buffer.alloc(8);
   header.writeUInt32BE(body.length, 0);
   header.write(type, 4, 4, "ascii");
   const crc = Buffer.alloc(4);
-  crc.writeUInt32BE(crc32(Buffer.concat([Buffer.from(type, "ascii"), Buffer.from(body)])), 0);
+  crc.writeUInt32BE(crc32(Buffer.concat([Buffer.from(type, "ascii"), Buffer.from(body)])) >>> 0, 0);
   return Buffer.concat([header, Buffer.from(body), crc]);
 }
 
@@ -175,6 +157,8 @@ function isWhite3(factor: unknown): boolean {
   return (factor as number[]).slice(0, 3).every((c) => c === 1);
 }
 
+export type BakedSample = { x: number; y: number; before: number[]; factor: number[] };
+
 export type BakedMaterialRow = {
   material: string;
   decision: string;
@@ -184,6 +168,7 @@ export type BakedMaterialRow = {
   texelBudget: number;
   factorBefore: number[];
   factorAfter: number[];
+  samples: BakedSample[];
 };
 
 export type BakedBodyRow = {
@@ -237,6 +222,7 @@ export function bakeGlbAlbedo(input: string, output: string): BakedBodyRow {
         texelBudget: 0,
         factorBefore: [0, 0, 0],
         factorAfter: [0, 0, 0],
+        samples: [],
       });
       continue;
     }
@@ -260,6 +246,7 @@ export function bakeGlbAlbedo(input: string, output: string): BakedBodyRow {
         texelBudget: 0,
         factorBefore: [1, 1, 1],
         factorAfter: [1, 1, 1],
+        samples: [],
       });
       continue;
     }
@@ -279,6 +266,18 @@ export function bakeGlbAlbedo(input: string, output: string): BakedBodyRow {
     }
     viewBytes[bvIndex] = new Uint8Array(encodePng8({ w: decoded.w, h: decoded.h, chans: decoded.chans, px: out }));
     if (pbr !== undefined) pbr["baseColorFactor"] = [1, 1, 1, 1];
+    const samples: BakedSample[] = [];
+    for (let s = 0; s < 32; s += 1) {
+      const x = (s * 401 + 7) % decoded.w;
+      const y = (s * 733 + 13) % decoded.h;
+      const i = y * decoded.w + x;
+      samples.push({
+        x,
+        y,
+        before: [decoded.px[i * decoded.chans]!, decoded.px[i * decoded.chans + 1]!, decoded.px[i * decoded.chans + 2]!],
+        factor: [...factor3],
+      });
+    }
     materialsOut.push({
       material: name,
       decision: "baked: per-texel texture x factor folded into the texture, factor reset to white",
@@ -288,6 +287,7 @@ export function bakeGlbAlbedo(input: string, output: string): BakedBodyRow {
       texelBudget: decoded.w * decoded.h,
       factorBefore: factor3,
       factorAfter: [1, 1, 1],
+      samples,
     });
   }
 

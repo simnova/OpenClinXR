@@ -68,12 +68,12 @@
   ],
   "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
   "promotionGates": false,
-  "outputSha256": "2c10621e57418ae1fcd4bb1ea2541b48ba3d1ebf6e8416f95b2150e9ecaa09f2",
+  "outputSha256": "dfcffe74ef3cfed7cfc27fd2e78df96e42cbc0aaa45f5452adb8a82d0b2ec57f",
   "outputBytes": 11857108,
   "generatedAt": "2026-08-23T19:35:00.000Z",
   "method": "mpfb2_materializer_rebake_numeric_phenotype_macros_576",
   "runtimeRole": "intermediate_bake",
   "runtimeRoleWhy": "The runtime loads the .motion-bind DERIVATIVE of this base (humanoid-runtime-asset-url.ts:83), not this file. Contracts that measure this base and call it 'the shipped parent' are measuring the wrong asset - a latent false-green.",
-  "albedoBakeWrittenAt": "2026-09-11T04:58:26.401Z",
-  "albedoBakeNote": "HB-02: per-texel baseColorFactor x baseColorTexture folded into the texture, factor reset to white; geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
+  "albedoBakeWrittenAt": "2026-09-11T05:16:52.437Z",
+  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
 }

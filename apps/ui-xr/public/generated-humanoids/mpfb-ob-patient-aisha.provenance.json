@@ -81,10 +81,10 @@
   ],
   "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
   "promotionGates": false,
-  "outputSha256": "fbe2bc09396805dc86808915d1bb3bc252b97df5f94dc3ea78c19b39a602b6c3",
+  "outputSha256": "08a0902bb0166bbdf9bd5434cee8abaf639bb4ac57b5c4288baf61f626d84094",
   "outputBytes": 11677568,
   "generatedAt": "2026-08-14T07:07:00Z",
   "method": "mpfb2_materializer_rebake_on_promoted_cast",
-  "albedoBakeWrittenAt": "2026-09-11T04:58:26.383Z",
-  "albedoBakeNote": "HB-02: per-texel baseColorFactor x baseColorTexture folded into the texture, factor reset to white; geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
+  "albedoBakeWrittenAt": "2026-09-11T05:16:52.409Z",
+  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
 }
