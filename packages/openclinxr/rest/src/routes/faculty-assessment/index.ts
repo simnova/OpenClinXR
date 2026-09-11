@@ -21,6 +21,7 @@ import {
   isFacultyObservationRating,
 } from "./grounding.js";
 import { sealedAssessmentIdFor } from "./seal.js";
+import { registerRaterCalibrationRoutes } from "../rater-calibration/index.js";
 import {
   FacultyAssessmentSaveError,
   conflict,
@@ -56,11 +57,16 @@ export function registerFacultyAssessmentRoutes(
       return context.json({ error: "assembled_exam_review_packet_not_found" }, 404);
     }
     const stored = await loadDisposition(durable, assembledExamDispositions, examRunId);
+    const identity = context.get("identity");
+    const viewerRaterId = identity.role === "faculty" ? identity.subject.trim() : undefined;
     const assessments = stored?.facultyAssessments ?? [];
-    if (assessments.length === 0) {
+    const visible = viewerRaterId
+      ? assessments.filter((entry) => entry.raterId === viewerRaterId)
+      : assessments;
+    if (visible.length === 0) {
       return context.json({ error: "faculty_assessment_not_found" }, 404);
     }
-    return context.json(toReadModel(packet, stored));
+    return context.json(toReadModel(packet, stored, viewerRaterId));
   });
 
   app.post(FACULTY_ASSESSMENT_SEAL_PATH, async (context) => {
@@ -89,15 +95,17 @@ export function registerFacultyAssessmentRoutes(
     }
     const stored = await loadDisposition(durable, assembledExamDispositions, examRunId);
     const trail = [...(stored?.facultyAssessments ?? [])];
-    const current = trail[trail.length - 1];
+    const identity = context.get("identity");
+    const raterId = command.raterId
+      ?? (identity.role === "faculty" ? identity.subject.trim() : trail[trail.length - 1]?.raterId ?? "");
+    const raterIndex = trail.findIndex((entry) => entry.raterId === raterId);
+    const current = raterIndex >= 0 ? trail[raterIndex] : undefined;
     if (!current) {
       return context.json({ error: "faculty_assessment_not_found" }, 404);
     }
     if (stored && stored.packetDigest !== digest) {
       return conflict(context, "stale_packet_digest", "stored_packet_digest_mismatch");
     }
-    const identity = context.get("identity");
-    const raterId = command.raterId ?? current.raterId;
     if (identity.role === "faculty" && identity.subject.trim() !== raterId) {
       return conflict(context, "identity_mutation", "rater_mismatch");
     }
@@ -105,7 +113,7 @@ export function registerFacultyAssessmentRoutes(
       return conflict(context, "identity_mutation", "rater_mismatch");
     }
     if (current.sealedAssessmentId && current.sealedAt) {
-      return context.json(toReadModel(packet, stored), 200);
+      return context.json(toReadModel(packet, stored, identity.role === "faculty" ? raterId : undefined), 200);
     }
     if (current.status !== "final") {
       return conflict(context, "not_final", "assessment_not_final");
@@ -121,10 +129,14 @@ export function registerFacultyAssessmentRoutes(
         { raterId, at: sealedAt, status: "sealed" },
       ],
     };
-    const record = nextDisposition(packet, digest, stored, [...trail.slice(0, -1), sealed]);
+    const nextTrail = [...trail.slice(0, raterIndex), sealed, ...trail.slice(raterIndex + 1)];
+    const record = nextDisposition(packet, digest, stored, nextTrail);
     try {
       await persistDisposition(durable, assembledExamDispositions, record);
-      return context.json(toReadModel(packet, record), 200);
+      return context.json(
+        toReadModel(packet, record, identity.role === "faculty" ? raterId : undefined),
+        200,
+      );
     } catch (error) {
       return saveFailure(context, error);
     }
@@ -167,11 +179,8 @@ export function registerFacultyAssessmentRoutes(
       return conflict(context, "stale_packet_digest", "stored_packet_digest_mismatch");
     }
     const trail = [...(stored?.facultyAssessments ?? [])];
-    const lockedRater = trail[0]?.raterId;
-    if (lockedRater && lockedRater !== command.raterId) {
-      return conflict(context, "identity_mutation", "rater_mismatch");
-    }
-    const current = trail[trail.length - 1];
+    const raterIndex = trail.findIndex((entry) => entry.raterId === command.raterId);
+    const current = raterIndex >= 0 ? trail[raterIndex] : undefined;
     if (current?.sealedAt || current?.sealedAssessmentId) {
       return conflict(context, "sealed", "assessment_already_sealed");
     }
@@ -193,7 +202,7 @@ export function registerFacultyAssessmentRoutes(
     const now = command.attestedAt;
     const assessmentId = command.assessmentId
       ?? current?.assessmentId
-      ?? `faculty_assessment:${examRunId}:1`;
+      ?? `faculty_assessment:${examRunId}:${command.raterId}`;
     const createdAt = current?.createdAt ?? now;
     const transitions = nextTransitions(current?.transitions, command.raterId, now, command.status, createdAt);
     const assessment: ApiFacultyAssessmentRecord = {
@@ -215,15 +224,20 @@ export function registerFacultyAssessmentRoutes(
       scoringValidityClaimed: false,
       examEquivalenceGate: false,
     };
-    const nextTrail = current ? [...trail.slice(0, -1), assessment] : [...trail, assessment];
+    const nextTrail = raterIndex >= 0
+      ? [...trail.slice(0, raterIndex), assessment, ...trail.slice(raterIndex + 1)]
+      : [...trail, assessment];
     const record = nextDisposition(packet, digest, stored, nextTrail);
     try {
       await persistDisposition(durable, assembledExamDispositions, record);
-      return context.json(toReadModel(packet, record), current ? 200 : 201);
+      const viewerRaterId = identity.role === "faculty" ? command.raterId : undefined;
+      return context.json(toReadModel(packet, record, viewerRaterId), current ? 200 : 201);
     } catch (error) {
       return saveFailure(context, error);
     }
   });
+
+  registerRaterCalibrationRoutes(app, ctx);
 }
 
 type ParsedCommand = {

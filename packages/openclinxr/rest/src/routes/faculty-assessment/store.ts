@@ -54,14 +54,19 @@ export function overwriteAttempt(body: Record<string, unknown>): boolean {
   return "evidencePacket" in body
     || "decisions" in body
     || "feedbackReleases" in body
-    || "facultyAssessments" in body;
+    || "facultyAssessments" in body
+    || "raterCalibrations" in body;
 }
 
 export function toReadModel(
   packet: AssembledExamReviewPacket,
   stored: ApiAssembledExamDispositionRecord | undefined,
+  viewerRaterId?: string,
 ): Record<string, unknown> {
-  const assessments = stored?.facultyAssessments ?? [];
+  const trail = stored?.facultyAssessments ?? [];
+  const assessments = viewerRaterId
+    ? trail.filter((entry) => entry.raterId === viewerRaterId)
+    : trail;
   const current = assessments[assessments.length - 1] ?? null;
   return {
     examRunId: packet.examRunId,
@@ -120,8 +125,11 @@ export function nextDisposition(
     examEquivalenceGate: false,
     facultyAssessments: assessments,
   };
-  if (stored?.feedbackReleases && stored.feedbackReleases.length > 0) {
-    return { ...record, feedbackReleases: stored.feedbackReleases };
+  const withReleases = stored?.feedbackReleases && stored.feedbackReleases.length > 0
+    ? { ...record, feedbackReleases: stored.feedbackReleases }
+    : record;
+  if (stored?.raterCalibrations && stored.raterCalibrations.length > 0) {
+    return { ...withReleases, raterCalibrations: stored.raterCalibrations };
   }
-  return record;
+  return withReleases;
 }
