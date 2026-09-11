@@ -104,6 +104,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Print applied world/key/fill JSON and exit (no GLB, no PNG)",
     )
+    p.add_argument(
+        "--dump-bounds",
+        action="store_true",
+        help="Import --glb, print subject AABB JSON (Icosphere excluded), exit",
+    )
     return p.parse_args(args)
 
 
@@ -115,12 +120,26 @@ def clear_scene() -> None:
             block.remove(b)
 
 
+def _is_grade_subject_mesh(obj: Any) -> bool:
+    """Skip unparented helper meshes (MPFB Icosphere z=-1) so the floor sits under soles."""
+    if obj.type != "MESH":
+        return False
+    name = (obj.name or "").lower()
+    if "icosphere" in name:
+        return False
+    keep = ("mpfb", "makeclothes", "openclinxr", "garment", "body")
+    if any(tok in name for tok in keep):
+        return True
+    parent = obj.parent
+    return parent is not None and parent.type == "ARMATURE"
+
+
 def world_mesh_bounds() -> Optional[Tuple[Vector, Vector]]:
     mins = [1e9, 1e9, 1e9]
     maxs = [-1e9, -1e9, -1e9]
     any_mesh = False
     for obj in bpy.data.objects:
-        if obj.type != "MESH":
+        if not _is_grade_subject_mesh(obj):
             continue
         any_mesh = True
         for corner in obj.bound_box:
@@ -183,6 +202,17 @@ def main() -> None:
     if bounds is None:
         raise SystemExit("no meshes after import")
     bmin, bmax = bounds
+    print(
+        json.dumps(
+            {
+                "bmin": [bmin.x, bmin.y, bmin.z],
+                "bmax": [bmax.x, bmax.y, bmax.z],
+                "floorZ": bmin.z - 0.001,
+            }
+        )
+    )
+    if args.dump_bounds:
+        return
     center = (bmin + bmax) * 0.5
     height = max(0.01, bmax.z - bmin.z)
     width = max(0.01, bmax.x - bmin.x)

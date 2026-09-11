@@ -121,4 +121,36 @@ describe("the isolated grade bake has ambient world light", () => {
       `public still corner luma ${mean.toFixed(1)} looks like the key-only black void (ceiling ${KEY_ONLY_BLACK_LUMA_CEILING})`,
     ).toBeGreaterThan(KEY_ONLY_BLACK_LUMA_CEILING);
   });
+
+  it("(5) dump-bounds floorZ sits under the soles, not under the stray Icosphere (z=-1)", () => {
+    const blender = spawnSync("which", ["blender"], { encoding: "utf8" });
+    if (blender.status !== 0) {
+      expect(existsSync(GRADE_PY), "blender missing; grade script must still exist").toBe(true);
+      return;
+    }
+    const glb = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb");
+    const run = spawnSync(
+      "blender",
+      [
+        "--background",
+        "--python",
+        GRADE_PY,
+        "--",
+        "--dump-bounds",
+        "--glb",
+        glb,
+        "--out",
+        join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/.dump-bounds-unused.png"),
+      ],
+      { encoding: "utf8", timeout: 90_000 },
+    );
+    const blob = `${run.stdout}\n${run.stderr}`;
+    const match = blob.match(/\{[^{}]*"floorZ"\s*:\s*(-?[0-9.]+)[^{}]*\}/);
+    expect(match, `dump-bounds produced no AABB JSON: ${blob.slice(-600)}`).toBeTruthy();
+    const parsed = JSON.parse(match![0]) as { floorZ: number };
+    expect(
+      parsed.floorZ,
+      `grade floorZ ${parsed.floorZ} is the Icosphere basement (~-1), not the soles (~0)`,
+    ).toBeGreaterThan(-0.05);
+  });
 });

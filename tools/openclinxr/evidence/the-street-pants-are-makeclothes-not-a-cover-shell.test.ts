@@ -162,6 +162,8 @@ type StreetRow = {
   pantsYMin: number;
   pantsYMax: number;
   shirtYMin: number;
+  bootYMin: number;
+  bootYMax: number;
 };
 
 const io = new NodeIO();
@@ -175,12 +177,15 @@ async function measureStreet(): Promise<StreetRow> {
   let pantsYMin = Infinity;
   let pantsYMax = -Infinity;
   let shirtYMin = Infinity;
+  let bootYMin = Infinity;
+  let bootYMax = -Infinity;
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
-      const name = prim.getMaterial()?.getName() ?? "";
+      const name = prim.getMaterial()?.getName() ?? mesh.getName() ?? "";
       const pants = isPantsName(name);
       const shirt = isUpperGarmentName(name);
-      if (!pants && !shirt) continue;
+      const boot = /footwear|boot/i.test(name);
+      if (!pants && !shirt && !boot) continue;
       const pos = prim.getAttribute("POSITION");
       if (!pos) continue;
       const v = [0, 0, 0];
@@ -198,9 +203,12 @@ async function measureStreet(): Promise<StreetRow> {
         pantsTris = idx ? idx.getCount() / 3 : 0;
         pantsYMin = lo;
         pantsYMax = hi;
-      } else {
+      } else if (shirt) {
         shirtName = name;
         shirtYMin = Math.min(shirtYMin, lo);
+      } else {
+        bootYMin = Math.min(bootYMin, lo);
+        bootYMax = Math.max(bootYMax, hi);
       }
     }
   }
@@ -213,6 +221,8 @@ async function measureStreet(): Promise<StreetRow> {
     pantsYMin,
     pantsYMax,
     shirtYMin,
+    bootYMin,
+    bootYMax,
   };
 }
 
@@ -256,5 +266,21 @@ describe("the street pants are MakeClothes, not a cover shell", () => {
       row.pantsYMin,
       `${row.actor} pants ymin ${row.pantsYMin.toFixed(4)} m > ${PANTS_YMIN_MAX_M} — trousers cropped off the ankle`,
     ).toBeLessThanOrEqual(PANTS_YMIN_MAX_M);
+  });
+
+  it("(4) RED: pants hem is not perched on the boot rim (ymin below boot ymax by >= 20 mm)", () => {
+    expect(Number.isFinite(row.bootYMax), "street GLB must carry footwear").toBe(true);
+    const gap = row.bootYMax - row.pantsYMin;
+    expect(
+      gap,
+      `${row.actor} pants ymin ${row.pantsYMin.toFixed(4)} vs boot ymax ${row.bootYMax.toFixed(4)} (gap ${gap.toFixed(4)} m) — cuff sitting on the boot rim`,
+    ).toBeGreaterThanOrEqual(0.02);
+  });
+
+  it("(5) RED: boot soles meet the ground (ymin <= 20 mm)", () => {
+    expect(
+      row.bootYMin,
+      `${row.actor} boot ymin ${row.bootYMin.toFixed(4)} m — soles lifted off the ground plane`,
+    ).toBeLessThanOrEqual(0.02);
   });
 });
