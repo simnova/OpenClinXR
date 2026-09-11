@@ -150,6 +150,62 @@ export type ApiAssembledExamFeedbackReleaseRecord = {
   withdrawnBy: string | null;
 };
 
+export const assembledExamFacultyAssessmentClaimBoundary =
+  "assembled_exam_faculty_assessment_not_score_use" as const;
+
+export const assembledExamFacultyAssessmentNotEvidenceFor = [
+  "exam_equivalence",
+  "clinical_validity",
+  "scoring_validity",
+  "automated_scoring",
+  "credentialing",
+  "production_deployment",
+  "norming",
+] as const;
+
+export type AssembledExamFacultyAssessmentStatus = "draft" | "final";
+
+/** Packet-pointer for one criterion observation. Must resolve against the stored packet. */
+export type ApiFacultyAssessmentEvidenceCite = {
+  packetField: string;
+  stationRunId: string;
+  sequence?: number;
+  durableEventRef?: string;
+  eventType?: string;
+  tag?: string;
+};
+
+/** One rubric-grounded faculty observation. Never score-use. */
+export type ApiFacultyCriterionObservation = {
+  observationId: string;
+  rubricItemId: string;
+  stationRunId: string;
+  comment: string;
+  evidenceCites: readonly ApiFacultyAssessmentEvidenceCite[];
+};
+
+/**
+ * Faculty assessment packet on the disposition aggregate. Drafts may be replaced
+ * in place; a final record is sealed and never rewritten.
+ */
+export type ApiFacultyAssessmentRecord = {
+  assessmentId: string;
+  examRunId: string;
+  packetDigest: string;
+  raterId: string;
+  status: AssembledExamFacultyAssessmentStatus;
+  observations: readonly ApiFacultyCriterionObservation[];
+  narrativeFeedback: string;
+  createdAt: string;
+  updatedAt: string;
+  finalizedAt: string | null;
+  sealedAt: string | null;
+  claimBoundary: typeof assembledExamFacultyAssessmentClaimBoundary;
+  notEvidenceFor: typeof assembledExamFacultyAssessmentNotEvidenceFor;
+  scoringValidityClaimed: false;
+  examEquivalenceGate: false;
+};
+
 /**
  * Durable faculty disposition aggregate. Evidence packet is stored by reference
  * to the immutable assembled-review artifact; decisions are an append-only trail.
@@ -165,6 +221,8 @@ export type ApiAssembledExamDispositionRecord = {
   examEquivalenceGate: false;
   /** Optional append-only release trail; older records omit it. */
   feedbackReleases?: readonly ApiAssembledExamFeedbackReleaseRecord[];
+  /** Optional faculty assessment trail; older records omit it. */
+  facultyAssessments?: readonly ApiFacultyAssessmentRecord[];
 };
 
 export type AssembledExamDispositionDurableStore = {

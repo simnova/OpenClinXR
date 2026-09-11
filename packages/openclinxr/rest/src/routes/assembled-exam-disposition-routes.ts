@@ -15,6 +15,7 @@ import {
   assembledExamPacketDigest,
   createScenarioRuntimeDurableStoreFromApiPersistence,
 } from "../runtime-durable-store.js";
+import { registerFacultyAssessmentRoutes } from "./faculty-assessment/index.js";
 import { registerFeedbackReleaseRoutes } from "./feedback-release/index.js";
 
 /** Faculty disposition trail — decisions sit beside, not inside, the evidence packet. */
@@ -139,6 +140,9 @@ export function registerAssembledExamDispositionRoutes(
       ...(stored?.feedbackReleases && stored.feedbackReleases.length > 0
         ? { feedbackReleases: stored.feedbackReleases }
         : {}),
+      ...(stored?.facultyAssessments && stored.facultyAssessments.length > 0
+        ? { facultyAssessments: stored.facultyAssessments }
+        : {}),
     };
 
     try {
@@ -157,6 +161,7 @@ export function registerAssembledExamDispositionRoutes(
   });
 
   registerFeedbackReleaseRoutes(app, ctx);
+  registerFacultyAssessmentRoutes(app, ctx);
 }
 
 type ParsedCommand = {
