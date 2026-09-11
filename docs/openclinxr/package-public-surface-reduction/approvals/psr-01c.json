@@ -1,0 +1,3336 @@
+{
+  "id": "psr-01c",
+  "rawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "groupHash": "a8bd55837e0db542cf66dee57048b6dbac253f7eb6e175e15c6919bf59c89b24",
+  "packages": [
+    "packages/openclinxr/data-mongodb",
+    "packages/openclinxr/motion-compiler",
+    "packages/openclinxr/conversation-policy",
+    "packages/openclinxr/model-gateway",
+    "packages/openclinxr/graphql"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "ActorTurnInProgress",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/index.ts:54; packages/openclinxr/scenario-runtime/src/runtime-types.ts:2; packages/openclinxr/scenario-runtime/src/scenario-runtime.ts:2"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "arbitrateTurnTaking",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Confirmed external named import by the learner runtime entry.",
+      "evidence": "apps/ui-xr/src/main.ts:20"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "ArbitrateTurnTakingInput",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/scenario-runtime.ts:2"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "BargeInContext",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/voice-gateway",
+      "rationale": "Confirmed external named import by the voice gateway.",
+      "evidence": "packages/openclinxr/voice-gateway/src/carry-learner-stt-interruption.ts:6"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "BargeInOutcome",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/voice-gateway",
+      "rationale": "Confirmed external named import by the voice gateway.",
+      "evidence": "packages/openclinxr/voice-gateway/src/carry-learner-stt-interruption.ts:6"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "BargeInResolution",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/index.ts:54; packages/openclinxr/scenario-runtime/src/runtime-types.ts:2; packages/openclinxr/voice-gateway/src/carry-learner-stt-interruption.ts:6"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "buildHistoryTakingCoverageSpec",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Confirmed external named import by the learner runtime entry.",
+      "evidence": "apps/ui-xr/src/main.ts:20"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "buildTurnCancellationDirective",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "CANONICAL_TURN_CLOCK_MS_PER_SECOND",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "canonicalInterruptionId",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "canonicalInterruptionIdentity",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "CanonicalInterruptionIdentity",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "canonicalTurnClockMs",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "CaseEmotionPolicy",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/emotion-policy.ts:1; packages/openclinxr/scenario-runtime/src/runtime-types.ts:2; packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts:3"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "classifyEmotionEvent",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "classifyEmotionEventDetailed",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/actor-turn-plan.ts:1"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "CONVERSATION_CLAIM_SCOPE",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "CONVERSATION_NOT_EVIDENCE_FOR",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "ConversationActorRef",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "ConversationNotEvidenceFor",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "ConversationPolicy",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/index.ts:54; packages/openclinxr/scenario-runtime/src/runtime-types.ts:2; packages/openclinxr/scenario-runtime/src/scenario-runtime.ts:2"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "coverageTraceTagForDomain",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "createDefaultConversationPolicy",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/default-runtime-factory.ts:3; packages/openclinxr/scenario-runtime/src/deterministic-dialogue-runtime.test.ts:7; packages/openclinxr/scenario-runtime/src/scenario-runtime.ts:2"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "domainsForTraceTag",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Confirmed external named import by the learner runtime.",
+      "evidence": "apps/ui-xr/src/peds-adaptive-dialogue-policy.ts:1"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EMOTION_EVENT_RULES",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionEngine",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/deterministic-dialogue-runtime.test.ts:7; packages/openclinxr/scenario-runtime/src/runtime-types.ts:2; packages/openclinxr/scenario-runtime/src/scenario-runtime.ts:2"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionEvent",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionEventClassifierInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionEventClassifierVerdict",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/actor-turn-plan.ts:1"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionEventKind",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/actor-turn-generation.ts:1; packages/openclinxr/scenario-runtime/src/deterministic-dialogue-runtime.test.ts:7; packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts:3"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionEventRule",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionPerformanceMapperInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionPerformancePlan",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionTransition",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/actor-turn-generation.ts:1; packages/openclinxr/scenario-runtime/src/actor-turn-plan.ts:1; packages/openclinxr/scenario-runtime/src/scenario-runtime.ts:2"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionTransitionInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "EmotionTransitionRule",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "HistoryTakingCoverageSpec",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/runtime-types.ts:2; packages/openclinxr/scenario-runtime/src/scenario-runtime.ts:2"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "HistoryTakingCoverageState",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "apps/ui-xr/src/main.ts:20; packages/openclinxr/scenario-runtime/src/actor-turn-generation.ts:1; packages/openclinxr/scenario-runtime/src/index.ts:54"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "HistoryTakingCoverageUpdateInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "HistoryTakingCoverageUpdateResult",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "HistoryTakingDomain",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "initialHistoryTakingCoverageState",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Confirmed external named import by the learner runtime entry.",
+      "evidence": "apps/ui-xr/src/main.ts:20"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "LearnerBargeInInput",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/scenario-runtime.ts:2"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "learnerBargeInInputFromStt",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "LearnerSttBargeInRecord",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/voice-gateway",
+      "rationale": "Confirmed external named import by the voice gateway.",
+      "evidence": "packages/openclinxr/voice-gateway/src/carry-learner-stt-interruption.ts:6"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "mapEmotionPerformance",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/actor-turn-plan.ts:1"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "PerformanceIntensityBucket",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "ProviderMarkupStripped",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "resolveCanonicalLearnerInterruption",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "resolveEmotionTransition",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "resolveLearnerBargeIn",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "resolveLearnerBargeInFromStt",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/voice-gateway",
+      "rationale": "Confirmed external named import by the voice gateway.",
+      "evidence": "packages/openclinxr/voice-gateway/src/carry-learner-stt-interruption.ts:6"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "stripProviderMarkup",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/actor-turn-plan.ts:1"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "TURN_MODALITIES_CANCELLED_ON_BARGE_IN",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "TurnCancellationDirective",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/voice-gateway",
+      "rationale": "Confirmed external named import by the voice gateway.",
+      "evidence": "packages/openclinxr/voice-gateway/src/carry-learner-stt-interruption.ts:6"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "TurnCancelModality",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "TurnTakingDecision",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the dialogue runtime consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/index.ts:54; packages/openclinxr/scenario-runtime/src/runtime-types.ts:2; packages/openclinxr/scenario-runtime/src/scenario-runtime.ts:2"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "TurnTakingReason",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/conversation-policy",
+      "rationale": "No confirmed external named importer from the package specifier; implementation stays, publication removed.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/conversation-policy",
+      "entrypoint": ".",
+      "symbol": "updateHistoryTakingCoverage",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Confirmed external named import by the learner runtime entry.",
+      "evidence": "apps/ui-xr/src/main.ts:20"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorPlanExecutionProvenanceAdmission",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorTurnEmotionalTimelineStep",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "actorTurnExecutionClaimScope",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorTurnExecutionLedger",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorTurnExecutionLedgerBackend",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "actorTurnExecutionLedgerClaimBoundary",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "actorTurnExecutionLedgerNotEvidenceFor",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "actorTurnExecutionNotEvidenceFor",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorTurnExecutionRecord",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorTurnExecutionRepositoryBackend",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ActorTurnReplayRestore",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "AdmitActorTurnExecutionInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "AdmittedActorPlanExecutionProvenance",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "AdmittedCanonicalPhaseEvent",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "assertValidActorTurnExecutionRecord",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "CanonicalPhaseEventAdmission",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "CanonicalPhaseEventType",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "cloneActorTurnExecutionRecord",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createActorTurnExecutionLedger",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createActorTurnExecutionRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createExamRunLedger",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createMongoActorTurnExecutionRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createMongoApiPersistenceSink",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createMongoDurableMultiActorSessionStore",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createMongoExamPersistence",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createPromotedEncounterBundleRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "durableActorTurnPersistenceScope",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "durableClinicalEventPersistenceScope",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "EncounterMaterializationEvidenceRecord",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunFormIdentity",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunLedger",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunLedgerBackend",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "examRunLedgerClaimBoundary",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "examRunLedgerNotEvidenceFor",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunOmission",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunOmissionKind",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunResumeProjection",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamRunStationBinding",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ExamStationRunQueueSnapshot",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "FacultyReviewDecisionRecord",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "FacultyScoreDraftRecord",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MemoryActorTurnExecutionLedger",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MemoryActorTurnExecutionRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MemoryExamRunLedger",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MemoryPromotedEncounterBundleRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoActorTurnExecutionLedger",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoActorTurnExecutionRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoApiPersistenceSink",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoClient",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoDurableClinicalEventRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoDurableConversationTurnRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoDurableEmotionalStateTimelineRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoDurableMultiActorSessionStore",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoEncounterMaterializationEvidenceRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoExamFormEncounterBundlePinRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoExamFormRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoExamRunLedger",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoFacultyReviewDecisionRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoFacultyScoreDraftRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoPromotedEncounterBundleRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoReviewPacketRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoRuntimeAssetBundleRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoScenarioRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoScenarioReviewDecisionRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoStationRunQueueRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoTraceRepository",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "OpenExamRunInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "PatientNoteAdmission",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "PromotedEncounterBundleRecord",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "PromotedEncounterBundleRepositoryBackend",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ReviewPacketReference",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "saveLearnerRuntimeAssetBundleFromGeneratedReport",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ScenarioReviewDecisionRecord",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/data-mongodb",
+      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AppendAssembledExamFacultyDispositionDocument",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AppendAssembledExamFacultyDispositionMutation",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AppendAssembledExamFacultyDispositionMutationVariables",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AppendFacultyDispositionInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembledExamFacultyDispositionDocument",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembledExamFacultyDispositionQuery",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembledExamFacultyDispositionQueryVariables",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembleExamFormDocument",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembleExamFormInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembleExamFormMutation",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "AssembleExamFormMutationVariables",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "CreateStationRunQueueSnapshotDocument",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "CreateStationRunQueueSnapshotInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "CreateStationRunQueueSnapshotMutation",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "CreateStationRunQueueSnapshotMutationVariables",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "DocumentType",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ExamFormWorkbenchDocument",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ExamFormWorkbenchQuery",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ExamFormWorkbenchQueryVariables",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FacultyDispositionRefusalCode",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-shared/src/faculty-disposition-codec.ts:1; packages/openclinxr/ui-shared/src/faculty-disposition-panel.tsx:1; packages/openclinxr/ui-shared/src/faculty-disposition-record.ts:1"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FacultyDispositionRefusalFieldsFragment",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FacultyDispositionRefusalFieldsFragmentDoc",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FacultyDispositionStatus",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-shared/src/faculty-disposition-codec.ts:1; packages/openclinxr/ui-shared/src/faculty-disposition-panel.tsx:1; packages/openclinxr/ui-shared/src/faculty-disposition-record.ts:1"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FacultyDispositionTrailFieldsFragment",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FacultyDispositionTrailFieldsFragmentDoc",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FacultyDispositionValue",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-shared/src/faculty-disposition-codec.ts:1; packages/openclinxr/ui-shared/src/faculty-disposition-panel.tsx:1; packages/openclinxr/ui-shared/src/faculty-disposition-record.ts:1"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FacultyScoreDraftInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "FragmentType",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "graphql",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "Incremental",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "isFragmentReady",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "makeFragmentData",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ReviewDecision",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ReviewPacketDialogueEmotion",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ReviewPacketEmotionEventKind",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ReviewPacketInterruptionKind",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ReviewPacketReplayDocument",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ReviewPacketReplayQuery",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-shared/src/actor-turn-replay-panel.tsx:1; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ReviewPacketReplayQueryVariables",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "SaveFacultyScoreDraftDocument",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "SaveFacultyScoreDraftMutation",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "SaveFacultyScoreDraftMutationVariables",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ScenarioBankDocument",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ScenarioBankQuery",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ScenarioBankQueryVariables",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ScenarioDetailDocument",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ScenarioDetailQuery",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ScenarioDetailQueryVariables",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ScenarioReviewDecisionInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ScenarioReviewDecisionsDocument",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ScenarioReviewDecisionsQuery",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ScenarioReviewDecisionsQueryVariables",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "ScenarioStatus",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "StationRunQueueSnapshotsDocument",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "StationRunQueueSnapshotsQuery",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "StationRunQueueSnapshotsQueryVariables",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "SubmitScenarioReviewDocument",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "SubmitScenarioReviewMutation",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "SubmitScenarioReviewMutationVariables",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-shared",
+      "rationale": "Confirmed external named import from the consumer-oriented ./client subpath.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts:12; packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:12; packages/openclinxr/ui-route-admin/src/admin-review-types.ts:11"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./client",
+      "symbol": "useFragment",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./documents",
+      "symbol": "AdminGraphqlDocument",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "apps/api",
+      "rationale": "Canonical consumer-oriented ./documents route for the admin document type; root copy removed.",
+      "evidence": "packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:22 returns adminGraphqlDocuments (AdminGraphqlDocument[]) over HTTP; type flows through the documents route"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./documents",
+      "symbol": "adminGraphqlDocumentByOperationName",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/api",
+      "rationale": "Confirmed external named import from the consumer-oriented ./documents subpath.",
+      "evidence": "apps/api/scripts/smoke-azure-bundle.ts:3"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": "./documents",
+      "symbol": "adminGraphqlDocuments",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "Canonical ./documents route serving the document list over the admin-graphql-documents endpoint.",
+      "evidence": "packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:22"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "AdminGraphqlDocument",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "adminGraphqlDocumentByOperationName",
+      "kind": "runtime",
+      "disposition": "migrate",
+      "route": "./documents",
+      "owner": "apps/api",
+      "rationale": "Symbol published by both root and ./documents; consumers should use the consumer-oriented ./documents route; root copy removed.",
+      "evidence": "apps/api/src/api-bootstrap.test.ts:2; apps/api/src/app.test.ts:8; apps/api/src/the-api-refuses-stale-scenario-review-identity.test.ts:1 (root copy; canonical route @openclinxr/graphql/documents)"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "adminGraphqlDocuments",
+      "kind": "runtime",
+      "disposition": "migrate",
+      "route": "./documents",
+      "owner": "apps/api",
+      "rationale": "Symbol published by both root and ./documents; consumers should use the consumer-oriented ./documents route; root copy removed.",
+      "evidence": "packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:2 (root copy; canonical route @openclinxr/graphql/documents)"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "AdminGraphqlExecutionInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "adminGraphqlFieldResolver",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "AdminGraphqlReviewDecision",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "Confirmed external named import from the root server facade.",
+      "evidence": "packages/openclinxr/rest/src/api-route-support.ts:29"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "AdminGraphqlRootValue",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "Confirmed external named import from the root server facade.",
+      "evidence": "packages/openclinxr/rest/src/api-route-support.ts:29"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "AdminGraphqlScenario",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "Confirmed external named import from the root server facade.",
+      "evidence": "packages/openclinxr/rest/src/admin-scenario-listing.ts:1; packages/openclinxr/rest/src/api-app-context.ts:3; packages/openclinxr/rest/src/api-route-support.ts:29"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "AdminGraphqlScenarioStatus",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "Confirmed external named import from the root server facade.",
+      "evidence": "packages/openclinxr/rest/src/admin-scenario-listing.ts:1; packages/openclinxr/rest/src/api-route-support.ts:29; packages/openclinxr/rest/src/scenario-review-promotion.ts:1"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "buildAdminGraphqlSchema",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "createGraphqlCodegenPlan",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "Confirmed external named import from the root server facade.",
+      "evidence": "packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:2"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "executeAdminGraphql",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "Confirmed external named import from the root server facade.",
+      "evidence": "packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:2"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "FACULTY_DISPOSITION_CLAIM_BOUNDARY",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "FACULTY_DISPOSITION_NOT_EVIDENCE_FOR",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "GraphqlCodegenPlan",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "openClinXrAdminSchemaSdl",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "Confirmed external named import from the root server facade.",
+      "evidence": "packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:2"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "projectAppendFacultyDispositionResult",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "projectFacultyDispositionTrail",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "projectReviewPacketActorTurnLayers",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "REVIEW_PACKET_ACTOR_TURN_CLAIM_SCOPE",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "No confirmed external named importer from this entrypoint; generated helper or duplicate document stays available via the kept route where applicable.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ActorCommunicationProfileContext",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ActorCommunicationPromptContext",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ActorResponseClinicalOrderContext",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ActorResponseClinicalStateContext",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ActorResponseProviderPromptInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ActorResponseRequest",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the scenario-runtime/test-harness consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/actor-turn-plan-is-frozen-before-render.test.ts:3; packages/openclinxr/scenario-runtime/src/deterministic-dialogue-runtime.test.ts:13; packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts:4"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ActorResponseResult",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the scenario-runtime/test-harness consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/actor-turn-generation.ts:2; packages/openclinxr/scenario-runtime/src/actor-turn-plan-is-frozen-before-render.test.ts:3; packages/openclinxr/scenario-runtime/src/deterministic-dialogue-runtime.test.ts:13"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "buildActorCommunicationProfilePromptContext",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "buildActorResponseProviderPromptInput",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "buildActorResponseRequestsForDialogueSeeds",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/test-harness",
+      "rationale": "Confirmed external named import by the simulation harness.",
+      "evidence": "packages/openclinxr/test-harness/src/station-simulation.ts:3"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "createActorDialogueModelGateway",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the scenario-runtime/test-harness consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/default-runtime-factory.ts:4"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "CreateActorDialogueModelGatewayOptions",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "createDefaultModelGateway",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by scenario-runtime tests and test-harness station simulation.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/a-scheduled-event-fires-once-at-its-second.test.ts:3; packages/openclinxr/scenario-runtime/src/actor-turn-plan-is-frozen-before-render.test.ts:3; packages/openclinxr/scenario-runtime/src/deterministic-dialogue-runtime.test.ts:13"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "createLlamaCppModelProviderAdapter",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "createMlxModelProviderAdapter",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "createOllamaModelProviderAdapter",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "defaultOfflineActorDialoguePolicy",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "DialogueSeedActorResponseRequestOptions",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "DialogueSeedRequestFixture",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "DialogueSeedScenarioContext",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "GuardrailResult",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "LocalModelProviderAdapter",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by scenario-runtime tests.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/a-scheduled-event-fires-once-at-its-second.test.ts:3; packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts:4"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "LocalModelProviderOptions",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "LocalModelProviderStubOptions",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "MockModelProviderAdapter",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by scenario-runtime tests and test-harness station simulation.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/a-scheduled-event-fires-once-at-its-second.test.ts:3; packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts:4; packages/openclinxr/test-harness/src/station-simulation.ts:3"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ModelCapability",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the scenario-runtime/test-harness consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/actor-turn-plan-is-frozen-before-render.test.ts:3; packages/openclinxr/scenario-runtime/src/deterministic-dialogue-runtime.test.ts:13; packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts:4"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ModelGateway",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the scenario-runtime/test-harness consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/actor-turn-generation.ts:2; packages/openclinxr/scenario-runtime/src/runtime-types.ts:13; packages/openclinxr/scenario-runtime/src/scenario-runtime.ts:17"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ModelGatewayOptions",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ModelProvenance",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ModelProviderAdapter",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the scenario-runtime/test-harness consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/actor-turn-plan-is-frozen-before-render.test.ts:3; packages/openclinxr/scenario-runtime/src/deterministic-dialogue-runtime.test.ts:13; packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts:4"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "ModelRequestPolicy",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime",
+      "rationale": "Confirmed external named import by the scenario-runtime/test-harness consumer.",
+      "evidence": "packages/openclinxr/scenario-runtime/src/provider-support.ts:1"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "OpenAiCompatibleModelProviderAdapter",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "OpenAiCompatibleProviderOptions",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "TokenUsage",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/model-gateway",
+      "rationale": "No confirmed external named importer from the package specifier; provider adapters and option types stay implemented, unpublished.",
+      "evidence": "compiler named-import attribution over all out-of-package source importers returns zero references"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": "./planted-red-manifest",
+      "symbol": "DerivedPlantedEntry",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Named import by the intra-package derivation test pins the derived planted-RED manifest contract.",
+      "evidence": "packages/openclinxr/motion-compiler/src/test/planted-red-manifest.derived.test.ts:10"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": "./planted-red-manifest",
+      "symbol": "derivePlantedEntries",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Named import by the intra-package derivation test pins the derived planted-RED manifest contract.",
+      "evidence": "packages/openclinxr/motion-compiler/src/test/planted-red-manifest.derived.test.ts:10"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": "./planted-red-manifest",
+      "symbol": "DiscoveredPlantedClause",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Named import by the intra-package derivation test pins the derived planted-RED manifest contract.",
+      "evidence": "packages/openclinxr/motion-compiler/src/test/planted-red-manifest.derived.test.ts:10"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": "./planted-red-manifest",
+      "symbol": "discoverPlantedClauses",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Named import by the intra-package derivation test pins the derived planted-RED manifest contract.",
+      "evidence": "packages/openclinxr/motion-compiler/src/test/planted-red-manifest.derived.test.ts:10"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": "./planted-red-manifest",
+      "symbol": "INSTRUMENT_FAILURES",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Named import by the intra-package derivation test pins the derived planted-RED manifest contract.",
+      "evidence": "packages/openclinxr/motion-compiler/src/test/planted-red-manifest.derived.test.ts:10"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": "./planted-red-manifest",
+      "symbol": "PLANTED_REDS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Named import by the intra-package derivation test pins the derived planted-RED manifest contract.",
+      "evidence": "packages/openclinxr/motion-compiler/src/test/planted-red-manifest.derived.test.ts:10"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": "./planted-red-manifest",
+      "symbol": "PlantedRed",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Named import by the intra-package derivation test pins the derived planted-RED manifest contract.",
+      "evidence": "packages/openclinxr/motion-compiler/src/test/planted-red-manifest.derived.test.ts:10"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "AuthoredTouchResponse",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "canonicalMotionProgramHash",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "CLIP_SCHEMA_VERSION",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "combineMotionVerdict",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "CompiledMotionClipV1",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "CompiledMotionFragment",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "CompiledMotionTrack",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "compileMotionProgram",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "CompileMotionProgramInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "compileScenarioMotion",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "COMPLIANCE_TO_MOTION_REGION",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "ContactConstraint",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "createPrimitiveRegistry",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "DeclaredContact",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "DerivedSkeletonProfile",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "deriveSkeletonProfile",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "deriveSkeletonProfileFromRigAsset",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "deterministicCompileIdentity",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "DeterministicCompileIdentity",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "effectorForComplianceRegion",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "EffectorKey",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "GateResult",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "GateVerdict",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "isMotionBodyRegion",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_ACTION_EFFECTORS",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_BODY_REGIONS",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_COMPILER_VERSION",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_GATE_IDS",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_PLAN_CLAIM_BOUNDARY",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_PROGRAM_SCHEMA_VERSION",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_PROVENANCE_SOURCE_KINDS",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_REGION_GUARD_FLANK_R",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MOTION_TARGET_KINDS",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionAction",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionActionTarget",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionBaseline",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionBodyRegion",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "motionBodyRegionForComplianceRegion",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionClipFixture",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionConstraint",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionEffector",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionEvidenceReport",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionGateId",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionGateSpec",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionProgram",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionProvenanceSourceKind",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionTargetKind",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionTiming",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionTrigger",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionValidation",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionVerdict",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "planMotionProgram",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "postureForSupportSurface",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "PRIMITIVE_IDS",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "PRIMITIVE_LIBRARY_VERSION",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "PrimitiveId",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "PrimitiveRegistry",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "PrimitiveRegistryEntry",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "PrimitiveRequest",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "ProducedProfile",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "QuatTuple",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "RegisteredPrimitive",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "resolvePrimitive",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "resolveSeedSkeletonSlotHash",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "RESPONSE_KIND_TO_BASE_DURATION_MS",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "RESPONSE_KIND_TO_PRIMITIVE",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "RigAsset",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "runMotionEvidenceGates",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "ScenarioMotionCompileInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "TRACK_PROPERTIES",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "trackOrderKeys",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "TrackProperty",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "validateAuthoredSourceBinding",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "validateMotionProgram",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "Vec3Tuple",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "violationsInTracks",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+    }
+  ]
+}
