@@ -133,23 +133,32 @@ describe("dispatch-worker argv", () => {
     expect(buildArgv({ prompt: "x" })).toContain("json");
   });
 
-  it("defaults to flash-first model — frontier / pro are opt-in per task", () => {
-    expect(buildArgv({ prompt: "x" })).toContain("deepseek-v4-flash");
+  it("defaults to muse-spark-1 — DeepSeek HOLD; frontier is opt-in per task", () => {
+    expect(buildArgv({ prompt: "x" })).toContain("muse-spark-1");
     expect(buildArgv({ prompt: "x", model: "grok-4.5" })).toContain("grok-4.5");
   });
 
-  it("ranks muse-spark-1.3-contributor with flash (rank 0): a write role naming it needs the same downgrade reason", () => {
-    // MODEL_RANK carries the optional cheaper alias at rank 0 (dispatch-worker.ts). Unrecognised
-    // models skip the guard; ranking it makes write-role + muse demand a modelDowngradeReason
-    // exactly like flash instead of slipping through unnamed.
+  it("ranks nemotron-lightning below muse: a write role naming it needs modelDowngradeReason", () => {
     expect(() =>
-      buildArgv({ prompt: "x", role: TEST_ROLE, model: "muse-spark-1.3-contributor" }),
+      buildArgv({ prompt: "x", role: TEST_ROLE, model: "nemotron-lightning" }),
     ).toThrow(/DOWNGRADE with no modelDowngradeReason/);
     const argv = buildArgv({
       prompt: "x",
       role: TEST_ROLE,
+      model: "nemotron-lightning",
+      modelDowngradeReason: "free text-only fallback, less capable",
+    });
+    expect(argv[argv.indexOf("--model") + 1]).toBe("nemotron-lightning");
+  });
+
+  it("treats muse-spark-1.3-contributor as in-policy with muse-spark-1 (same rank)", () => {
+    expect(() =>
+      buildArgv({ prompt: "x", role: TEST_ROLE, model: "muse-spark-1.3-contributor" }),
+    ).not.toThrow();
+    const argv = buildArgv({
+      prompt: "x",
+      role: TEST_ROLE,
       model: "muse-spark-1.3-contributor",
-      modelDowngradeReason: "muse rank pin: optional cheaper rung below flash direct",
     });
     expect(argv[argv.indexOf("--model") + 1]).toBe("muse-spark-1.3-contributor");
   });
@@ -979,9 +988,13 @@ describe("issue #242 — text-only models cannot Read images (the 400 fence)", (
     "deepseek",
     "deepseek-pro-chat",
     "deepseek-via-moon",
+    "nemotron-lightning",
+    "nemotron-ultra",
   ];
   const visionIds = [
     "deepseek-v4-flash-vision-exp",
+    "muse-spark-1",
+    "muse-spark-1.3-contributor",
     "grok-4.5",
     "grok-4.6",
     "grok-4-multi-agent",

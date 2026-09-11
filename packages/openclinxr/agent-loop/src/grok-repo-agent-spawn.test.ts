@@ -16,25 +16,25 @@ import {
 import { getRepoRoleHarnessPolicy } from "./role-harness-policy.js";
 
 describe("grok repo agent spawn", () => {
-  it("maps chief-coordinator to explore flash", () => {
+  it("maps chief-coordinator to explore muse-spark-1", () => {
     const spec = buildGrokRepoAgentSpawnSpec({
       roleId: "chief-coordinator",
       roleDir: "agents/coordinator/chief-coordinator",
       group: "coordinator",
     });
     expect(spec.grokSubagentType).toBe("explore");
-    expect(spec.model).toBe("deepseek-v4-flash");
+    expect(spec.model).toBe("muse-spark-1");
     expect(spec.spawnSubagentCall?.capability_mode).toBe("read-only");
   });
 
-  it("maps asset-pipeline-lead to general-purpose pro (standard_execution tier)", () => {
+  it("maps asset-pipeline-lead to general-purpose muse-spark-1 (standard_execution tier)", () => {
     const spec = buildGrokRepoAgentSpawnSpec({
       roleId: "asset-pipeline-lead",
       roleDir: "agents/core/asset-pipeline-lead",
       group: "core",
     });
     expect(spec.grokSubagentType).toBe("general-purpose");
-    expect(spec.model).toBe("deepseek-v4-pro");
+    expect(spec.model).toBe("muse-spark-1");
     expect(spec.spawnSubagentCall?.capability_mode).toBe("read-write");
   });
 
@@ -86,14 +86,14 @@ describe("grok repo agent spawn", () => {
     expect(recommendRepoAgentsForConsult("cadence")).toContain("pmo");
   });
 
-  it("maps archivist to explore flash read-only", () => {
+  it("maps archivist to explore muse-spark-1 read-only", () => {
     const spec = buildGrokRepoAgentSpawnSpec({
       roleId: "archivist",
       roleDir: "agents/coordinator/archivist",
       group: "coordinator",
     });
     expect(spec.grokSubagentType).toBe("explore");
-    expect(spec.model).toBe("deepseek-v4-flash");
+    expect(spec.model).toBe("muse-spark-1");
     expect(spec.spawnSubagentCall?.capability_mode).toBe("read-only");
     expect(spec.isolation).toBe("none");
     expect(spec.pathScope.writeRoots).toEqual(
@@ -101,14 +101,14 @@ describe("grok repo agent spawn", () => {
     );
   });
 
-  it("maps architect to general-purpose pro with worktree", () => {
+  it("maps architect to general-purpose muse-spark-1 with worktree", () => {
     const spec = buildGrokRepoAgentSpawnSpec({
       roleId: "architect",
       roleDir: "agents/core/architect",
       group: "core",
     });
     expect(spec.grokSubagentType).toBe("general-purpose");
-    expect(spec.model).toBe("deepseek-v4-pro");
+    expect(spec.model).toBe("muse-spark-1");
     expect(spec.isolation).toBe("worktree");
     expect(spec.safeguards.some((s) => s.includes("general-purpose"))).toBe(true);
     expect(spec.spawnPrompt).toContain("COMPOSITION-ROOTS");
@@ -273,8 +273,8 @@ describe("grok repo agent spawn", () => {
   });
 });
 
-describe("multimodal spawn routing (operator 2026-08-29: deepseek vision, grok-4.6 escalate-only)", () => {
-  it("routes multimodal tasks to deepseek-v4-flash-vision-exp and bakes model into spawnSubagentCall", () => {
+describe("multimodal spawn routing (operator 2026-09-10: muse-spark-1 vision, DeepSeek HOLD)", () => {
+  it("routes multimodal tasks to muse-spark-1 and bakes model into spawnSubagentCall", () => {
     const spec = buildGrokRepoAgentSpawnSpec({
       roleId: "chief-coordinator",
       roleDir: "agents/coordinator/chief-coordinator",
@@ -282,43 +282,43 @@ describe("multimodal spawn routing (operator 2026-08-29: deepseek vision, grok-4
       task: "Grade cagematch front.png evidence",
     });
     expect(spec.multimodal).toBe(true);
-    expect(spec.model).toBe("deepseek-v4-flash-vision-exp");
-    expect(spec.spawnSubagentCall?.model).toBe("deepseek-v4-flash-vision-exp");
+    expect(spec.model).toBe("muse-spark-1");
+    expect(spec.spawnSubagentCall?.model).toBe("muse-spark-1");
     expect(spec.spawnSubagentCall?.subagent_type).toBe("explore");
-    expect(spec.spawnPrompt).toContain("model: deepseek-v4-flash-vision-exp (multimodal)");
+    expect(spec.spawnPrompt).toContain("model: muse-spark-1 (multimodal)");
   });
 
-  it("routes productivity-skeptic with no task to deepseek-v4-flash-vision-exp (goal panel inherits PNGs)", () => {
+  it("routes productivity-skeptic with no task to muse-spark-1 (goal panel inherits PNGs)", () => {
     const spec = buildGrokRepoAgentSpawnSpec({
       roleId: "productivity-skeptic",
       roleDir: "agents/adversarial/productivity-skeptic",
       group: "adversarial",
     });
     expect(spec.multimodal).toBe(true);
-    expect(spec.model).toBe("deepseek-v4-flash-vision-exp");
-    expect(spec.spawnSubagentCall?.model).toBe("deepseek-v4-flash-vision-exp");
+    expect(spec.model).toBe("muse-spark-1");
+    expect(spec.spawnSubagentCall?.model).toBe("muse-spark-1");
   });
 
-  it("routes implementation-plan-gap-attacker with no task to vision-exp (goal panel inherits PNGs)", () => {
+  it("routes implementation-plan-gap-attacker with no task to muse-spark-1 (goal panel inherits PNGs)", () => {
     const spec = buildGrokRepoAgentSpawnSpec({
       roleId: "implementation-plan-gap-attacker",
       roleDir: "agents/adversarial/implementation-plan-gap-attacker",
       group: "adversarial",
     });
     expect(spec.multimodal).toBe(true);
-    expect(spec.model).toBe("deepseek-v4-flash-vision-exp");
-    expect(spec.spawnSubagentCall?.model).toBe("deepseek-v4-flash-vision-exp");
+    expect(spec.model).toBe("muse-spark-1");
+    expect(spec.spawnSubagentCall?.model).toBe("muse-spark-1");
   });
 
-  it("routes visual-realism-adversary with no task to vision-exp (goal panel inherits PNGs)", () => {
+  it("routes visual-realism-adversary with no task to muse-spark-1 (goal panel inherits PNGs)", () => {
     const spec = buildGrokRepoAgentSpawnSpec({
       roleId: "visual-realism-adversary",
       roleDir: "agents/adversarial/visual-realism-adversary",
       group: "adversarial",
     });
     expect(spec.multimodal).toBe(true);
-    expect(spec.model).toBe("deepseek-v4-flash-vision-exp");
-    expect(spec.spawnSubagentCall?.model).toBe("deepseek-v4-flash-vision-exp");
+    expect(spec.model).toBe("muse-spark-1");
+    expect(spec.spawnSubagentCall?.model).toBe("muse-spark-1");
   });
 
   it("routes a png in files[] to vision-exp even on a text scout role", () => {
@@ -330,7 +330,7 @@ describe("multimodal spawn routing (operator 2026-08-29: deepseek vision, grok-4
     ).toBe(true);
   });
 
-  it("keeps non-multimodal fast_bounded on explore + deepseek-v4-flash", () => {
+  it("keeps non-multimodal fast_bounded on explore + muse-spark-1", () => {
     const spec = buildGrokRepoAgentSpawnSpec({
       roleId: "chief-coordinator",
       roleDir: "agents/coordinator/chief-coordinator",
@@ -338,11 +338,11 @@ describe("multimodal spawn routing (operator 2026-08-29: deepseek vision, grok-4
       task: "Scout next slice",
     });
     expect(spec.multimodal).toBe(false);
-    expect(spec.model).toBe("deepseek-v4-flash");
-    expect(spec.spawnSubagentCall?.model).toBe("deepseek-v4-flash");
+    expect(spec.model).toBe("muse-spark-1");
+    expect(spec.spawnSubagentCall?.model).toBe("muse-spark-1");
   });
 
-  it("registry aligns multimodal roles on deepseek-v4-flash-vision-exp (multimodal_uses_deepseek_vision)", () => {
+  it("registry aligns multimodal roles on muse-spark-1 (multimodal_uses_deepseek_vision checkId kept)", () => {
     const roles = ["imagine-trellis", "chief-coordinator"].map((roleId) => ({
       roleId,
       roleDir: `agents/group/${roleId}`,
@@ -352,7 +352,7 @@ describe("multimodal spawn routing (operator 2026-08-29: deepseek vision, grok-4
     const multimodalAgents = registry.agents.filter((a) => a.multimodal);
     expect(multimodalAgents.length).toBeGreaterThan(0);
     for (const a of multimodalAgents) {
-      expect(a.model).toBe("deepseek-v4-flash-vision-exp");
+      expect(a.model).toBe("muse-spark-1");
     }
     const check = registry.checks.find((c) => c.checkId === "multimodal_uses_deepseek_vision");
     expect(check?.passed).toBe(true);

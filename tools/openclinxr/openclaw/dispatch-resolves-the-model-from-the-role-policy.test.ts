@@ -83,6 +83,12 @@ import { buildArgv } from "./dispatch-worker.js";
  *     never that the registry is right.
  *   - Codex/Cursor harness routing; `.codex/agents/*.toml` is untouched.
  *   - The Claude per-prompt directive (a separate, prose surface).
+ *
+ * ## FIXED (DeepSeek HOLD 2026-09-10)
+ * Operator put DeepSeek on hold. Grok policy default is muse-spark-1; nemotron-lightning is
+ * the free less-capable fallback (rank 0). Assertions (1)(5)(6) now pin muse-spark-1.
+ * (2)(4) still use explicit deepseek-v4-flash as the ranked-0 downgrade probe.
+ * Diagnosis tables above are immutable.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -90,12 +96,13 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 const LOOP_PROMPT = join(REPO_ROOT, ".openclinxr/openclaw/superagent-loop-prompt.md");
 const DISPATCH_SRC = join(HERE, "dispatch-worker.ts");
 
-/** standard_execution -> deepseek-v4-pro per role-harness-policy.ts:164. */
+/** standard_execution -> muse-spark-1 (DeepSeek HOLD 2026-09-10). */
 const WRITE_ROLE = "xr-systems-architect";
-/** fast_bounded -> deepseek-v4-flash per role-harness-policy.ts:157. Flash here is IN POLICY. */
+/** fast_bounded -> muse-spark-1. Muse here is IN POLICY. */
 const SCOUT_ROLE = "openclaw-drift-police";
+const WORKER = "muse-spark-1";
+const FALLBACK = "nemotron-lightning";
 const FLASH = "deepseek-v4-flash";
-const PRO = "deepseek-v4-pro";
 
 const modelOf = (argv: string[]): string | undefined => argv[argv.indexOf("--model") + 1];
 
@@ -104,9 +111,8 @@ describe("dispatch resolves the model from the role policy", () => {
     const argv = buildArgv({ prompt: "x", role: WRITE_ROLE } as never);
     expect(
       modelOf(argv),
-      `${WRITE_ROLE} is standard_execution -> ${PRO}; five write slices this session silently ran `
-        + `${FLASH} because the default ignores the role`,
-    ).toBe(PRO);
+      `${WRITE_ROLE} is standard_execution -> ${WORKER} (DeepSeek HOLD)`,
+    ).toBe(WORKER);
   });
 
   it("(2) RED: an explicit tier downgrade with no stated reason throws", () => {
@@ -138,20 +144,19 @@ describe("dispatch resolves the model from the role policy", () => {
     expect(modelOf(argv), "a named downgrade is honoured, not silently upgraded").toBe(FLASH);
   });
 
-  it("(5) COUNTERWEIGHT: a fast_bounded role on flash is in policy and needs no reason", () => {
-    // Refuses (a). Hardcoding pro would break every scout.
+  it("(5) COUNTERWEIGHT: a fast_bounded role on muse-spark-1 is in policy and needs no reason", () => {
     const argv = buildArgv({ prompt: "x", role: SCOUT_ROLE } as never);
-    expect(modelOf(argv), `${SCOUT_ROLE} is fast_bounded -> ${FLASH}, no ceremony`).toBe(FLASH);
-    expect(() => buildArgv({ prompt: "x", role: SCOUT_ROLE, model: FLASH } as never)).not.toThrow();
+    expect(modelOf(argv), `${SCOUT_ROLE} is fast_bounded -> ${WORKER}, no ceremony`).toBe(WORKER);
+    expect(() => buildArgv({ prompt: "x", role: SCOUT_ROLE, model: WORKER } as never)).not.toThrow();
   });
 
-  it("(6) COUNTERWEIGHT: the roleless path still defaults to flash-first", () => {
-    // Refuses (d). dispatch-worker.test.ts:132 pins this and is CORRECT for the low-level path.
-    expect(modelOf(buildArgv({ prompt: "x" } as never)), "roleless stays flash-first").toBe(FLASH);
+  it("(6) COUNTERWEIGHT: the roleless path defaults to muse-spark-1 (DeepSeek HOLD)", () => {
+    expect(modelOf(buildArgv({ prompt: "x" } as never)), "roleless stays GROK_WORKER_MODEL").toBe(WORKER);
   });
 
-  it("(7) VACUITY GUARD: the tiers are distinct, so 'downgrade' has meaning", () => {
-    expect(PRO).not.toBe(FLASH);
+  it("(7) VACUITY GUARD: the fallback is ranked below muse, so 'downgrade' has meaning", () => {
+    expect(WORKER).not.toBe(FALLBACK);
+    expect(WORKER).not.toBe(FLASH);
     const src = readFileSync(DISPATCH_SRC, "utf8");
     expect(
       src.includes("getRepoRoleHarnessPolicy"),

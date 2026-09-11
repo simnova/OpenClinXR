@@ -6,6 +6,8 @@
 import type { GrokSubagentType } from "./grok-tier-routing.js";
 import {
   formatPathScopeBlock,
+  GROK_WORKER_FALLBACK_MODEL,
+  GROK_WORKER_MODEL,
   getRepoRoleHarnessPolicy,
   getRolePathScope,
   repoRoleHarnessPolicies,
@@ -68,7 +70,7 @@ export type GrokRepoAgentSpawnSpec = {
     index: string;
   };
   safeguards: string[];
-  /** True when task/role requires vision/multimodal (images, cagematch/UI-XR evidence screenshots, visual reports). Such efforts route to deepseek-v4-flash-vision-exp (grok-4.6 is rung-2 escalate only). */
+  /** True when task/role requires vision/multimodal (images, cagematch/UI-XR evidence screenshots, visual reports). Routes to GROK_WORKER_MODEL (muse-spark-1, vision OK). Nemotron is text-only. DeepSeek HOLD. */
   multimodal?: boolean;
 };
 
@@ -198,8 +200,8 @@ export function buildRepoAgentSpawnPrompt(input: {
   const harness = input.harness ?? "grok";
   const modelSpec = resolveHarnessModelSpec(input.policy.policyTier, harness);
   const isMultimodal = !!input.multimodal;
-  // Multimodal (vision / Imagine / trellis / glb-grade) routes to deepseek-v4-flash-vision-exp — matches buildGrokRepoAgentSpawnSpec hardening. grok-4.6 is rung-2 escalate only.
-  const effectiveModel = isMultimodal ? "deepseek-v4-flash-vision-exp" : modelSpec.model;
+  // Multimodal stays on GROK_WORKER_MODEL (muse-spark-1 has vision). Never nemotron (text-only) or DeepSeek (HOLD 402). grok-4.6 is escalate only.
+  const effectiveModel = modelSpec.model;
   const isWriter = input.policy.sandboxMode === "workspace-write";
   const largeTask = looksLikeLargeParallelTask(input.task);
 
@@ -214,11 +216,11 @@ export function buildRepoAgentSpawnPrompt(input: {
     .filter(Boolean)
     .join(" ");
   const multimodalNote = isMultimodal
-    ? " MULTIMODAL: images/cagematch/UI-XR/png/webm/Imagine/trellis → deepseek-v4-flash-vision-exp; grok-4.6 is rung-2 escalate only (quota near exhausted)."
+    ? " MULTIMODAL: stay on muse-spark-1 (vision OK). Never nemotron (text-only) or DeepSeek (HOLD)."
     : "";
   const escalateLadder = isMultimodal
-    ? "(deepseek-v4-flash-vision-exp → grok-4.6 rung-2 escalate → grok-build)"
-    : "(flash → pro → grok-build, cheap-first)";
+    ? "(muse-spark-1 → grok-4.6 → grok-build)"
+    : "(muse-spark-1 → grok-4.6 → grok-build)";
   const compositionPointer =
     isWriter
       ? "COMPOSITION-ROOTS: feature→packages; apps compose/boot only; tools CLI. Residual topology/DI/seedwork → architect. See docs/agent-ops/COMPOSITION-ROOTS.md."
@@ -235,7 +237,7 @@ export function buildRepoAgentSpawnPrompt(input: {
     : "";
   const fanOutBlock = largeTask || isWriter
     ? largeTask
-      ? `LARGE-TASK FAN-OUT (required): decompose into N≥2 disjoint file-scoped workstreams; each gets worktree isolation + unique ${OPENCLINXR_JOB_TMP_CONVENTION.envVar} + distinct ports; prefer deepseek-v4-pro workers over solo frontier. See ${LARGE_TASK_ORCHESTRATION_SKILL}.`
+      ? `LARGE-TASK FAN-OUT (required): decompose into N≥2 disjoint file-scoped workstreams; each gets worktree isolation + unique ${OPENCLINXR_JOB_TMP_CONVENTION.envVar} + distinct ports; prefer muse-spark-1 workers over solo frontier. See ${LARGE_TASK_ORCHESTRATION_SKILL}.`
       : `If task spans multiple packages/meshes/files: self-decompose into disjoint workstreams (worktree + unique temp + ports).`
     : "";
   return [
@@ -267,9 +269,9 @@ export function buildRepoAgentSpawnPrompt(input: {
 
 /**
  * Roles whose default job is looking at pixels (goal-verification skeptics inherit
- * parent CHANGED_FILES PNGs). Always route to deepseek-v4-flash-vision-exp even
- * with an empty task string — measured 2026-09-01: harness skeptics on
- * deepseek-v4-flash 400 "This model does not support image".
+ * parent CHANGED_FILES PNGs). Stay on GROK_WORKER_MODEL (muse-spark-1, vision OK)
+ * even with an empty task string — measured 2026-09-01: text-only DeepSeek flash
+ * 400 "This model does not support image". DeepSeek HOLD 2026-09-10. Never nemotron.
  */
 export const VISION_INFER_ROLE_IDS: ReadonlySet<string> = new Set([
   "visual-realism-adversary",
@@ -278,7 +280,8 @@ export const VISION_INFER_ROLE_IDS: ReadonlySet<string> = new Set([
   "implementation-plan-gap-attacker",
 ]);
 
-export const DEEPSEEK_FLASH_VISION_MODEL = "deepseek-v4-flash-vision-exp";
+/** @deprecated DeepSeek HOLD 2026-09-10. Vision stays on GROK_WORKER_MODEL. */
+export const DEEPSEEK_FLASH_VISION_MODEL = GROK_WORKER_MODEL;
 
 export function requiresMultimodalReasoning(roleId: string, task?: string, files?: readonly string[]): boolean {
   if (VISION_INFER_ROLE_IDS.has(roleId)) {
@@ -320,10 +323,9 @@ export function buildGrokRepoAgentSpawnSpec(input: {
   const isMultimodal = requiresMultimodalReasoning(input.roleId, input.task);
 
   let modelSpec = resolveHarnessModelSpec(policy.policyTier, "grok");
-  if (isMultimodal) {
-    // Vision / Imagine / glb-grade → deepseek-v4-flash-vision-exp (cheap, vision-capable).
-    // Never default vision work to grok-4.6 (quota near exhausted); grok-4.6 is rung-2 escalate only.
-    modelSpec = { model: DEEPSEEK_FLASH_VISION_MODEL, reasoningEffort: "high" };
+  if (isMultimodal && modelSpec.model === GROK_WORKER_FALLBACK_MODEL) {
+    // Nemotron is text-only. Vision roles must stay on Muse even if a caller tried the fallback.
+    modelSpec = { model: GROK_WORKER_MODEL, reasoningEffort: "high" };
   }
 
   const surface = resolveGrokSpawnSurfaceForPolicy(policy);
@@ -429,21 +431,15 @@ export function buildGrokRepoAgentSpawnRegistry(input: {
       checkId: "scouts_use_appropriate_model",
       passed: agents
         .filter((a) => a.policyTier === "fast_bounded")
-        .every((a) => {
-          if (a.multimodal) {
-            // Multimodal/vision scouts use explore + deepseek-v4-flash-vision-exp (cheap, vision-capable)
-            return a.grokSubagentType === "explore" && a.model === "deepseek-v4-flash-vision-exp";
-          }
-          return a.grokSubagentType === "explore" && a.model === "deepseek-v4-flash";
-        }),
-      note: "fast_bounded non-multimodal must use explore + deepseek-v4-flash; multimodal scouts must use explore + deepseek-v4-flash-vision-exp",
+        .every((a) => a.grokSubagentType === "explore" && a.model === GROK_WORKER_MODEL),
+      note: "fast_bounded must use explore + muse-spark-1 (DeepSeek HOLD; nemotron is text-only fallback, never the vision default)",
     },
     {
       checkId: "multimodal_uses_deepseek_vision",
       passed: agents
         .filter((a) => a.multimodal)
-        .every((a) => a.model === "deepseek-v4-flash-vision-exp"),
-      note: "Any multimodal-reasoning (vision, Imagine/trellis, cagematch/UI-XR image evidence, screenshots) must resolve to deepseek-v4-flash-vision-exp — never grok-4.6 by default (quota near exhausted); grok-4.6 is rung-2 escalate only.",
+        .every((a) => a.model === GROK_WORKER_MODEL),
+      note: "Multimodal-reasoning must resolve to muse-spark-1 (vision OK). Never nemotron-lightning (text-only) or DeepSeek (HOLD 402). grok-4.6 is escalate only.",
     },
   ];
 

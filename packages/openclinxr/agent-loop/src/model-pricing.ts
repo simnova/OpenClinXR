@@ -47,16 +47,26 @@ export const MODEL_PRICE_ROWS: readonly ModelPriceRow[] = [
   // --- OpenRouter Muse Spark contributor (cheapest actor-dialogue rung; optional worker alias) ---
   {
     id: "muse-spark-1.3-contributor",
-    match: ["muse-spark-1.3-contributor", "muse-spark-contributor", "meta/muse-spark-1.3-contributor"],
+    match: ["muse-spark-1.3-contributor", "muse-spark-contributor", "muse-spark-1", "meta/muse-spark-1.3-contributor"],
     inputPer1M: 0.1,
     outputPer1M: 0.2,
     blendedPer1M: 0.13,
     cacheHitInputPer1M: 0.002,
     asOf: "2026-09-02",
     source: "https://openrouter.ai/api/v1/models",
-    note: "Cheapest actor-dialogue / optional worker alias vs DeepSeek Flash DIRECT official off-peak $0.22/$0.66 (api-docs.deepseek.com, 2026-08-28). Contributor data-use: prompts/outputs may train Meta models — synthetic SP only. OpenRouter Flash is cheaper ($0.079/$0.159) — not this rung. 18+ attestation required for live completions.",
+    note: "Grok worker default alias muse-spark-1 (DeepSeek HOLD 2026-09-10). Contributor data-use: prompts/outputs may train Meta models — synthetic SP only.",
   },
-  // --- DeepSeek 4 (cheapest; chat/reasoner aliases deprecated 2026-07-24) ---
+  {
+    id: "nemotron-lightning",
+    match: ["nemotron-lightning", "nemotron", "nvidia/nemotron-3.5-lightning:free"],
+    inputPer1M: 0,
+    outputPer1M: 0,
+    blendedPer1M: 0,
+    asOf: "2026-09-10",
+    source: "https://openrouter.ai/nvidia/nemotron-3.5-lightning:free",
+    note: "Free, less capable, text-only. Grok worker fallback. Not write-role default; not vision.",
+  },
+  // --- DeepSeek 4 (HOLD 2026-09-10; chat/reasoner aliases deprecated 2026-07-24) ---
   {
     id: "deepseek-v4-flash",
     match: ["deepseek-v4-flash", "deepseek-flash"],

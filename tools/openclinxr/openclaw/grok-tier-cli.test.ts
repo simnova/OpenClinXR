@@ -13,7 +13,7 @@ describe("grok tier cli helpers", () => {
     const advice = evaluateGrokDelegationAdvice({ intent: "scout" });
     expect(advice.useNativeSpawnSubagent).toBe(true);
     expect(advice.useCursorTask).toBe(false);
-    expect(advice.spawnHint?.model).toBe("deepseek-v4-flash");
+    expect(advice.spawnHint?.model).toBe("muse-spark-1");
   });
 
   it("upgrades when scout output lacks repo paths", () => {
@@ -26,7 +26,7 @@ describe("grok tier cli helpers", () => {
   });
 
   it("formats tier record lines for state files", () => {
-    expect(formatGrokTierRecordLine("tier1_deepseek_flash_scout")).toContain("tier: flash");
+    expect(formatGrokTierRecordLine("tier1_deepseek_flash_scout")).toContain("tier: muse");
   });
 
   it("accepts execute tier alias used by agents", () => {
@@ -34,8 +34,8 @@ describe("grok tier cli helpers", () => {
   });
 });
 
-describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek.com)", () => {
-  it("deepseek-v4-flash and deepseek-v4-pro are text-only: content must be string (not image_url array)", () => {
+describe("Grok worker model after DeepSeek HOLD (2026-09-10)", () => {
+  it("muse-spark-1 is the default scout/execute model; spawn prompts stay string content", () => {
     // Per /api/create-chat-completion and first-call docs:
     // - models: deepseek-v4-flash, deepseek-v4-pro
     // - messages[].content is documented as "Text content (string)"
@@ -60,7 +60,7 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
       task: "scout task for test - text only",
     });
 
-    expect(flashSpec.model).toBe("deepseek-v4-flash");
+    expect(flashSpec.model).toBe("muse-spark-1");
     expect(flashSpec.spawnSubagentCall).not.toBeNull();
     const prompt = flashSpec.spawnSubagentCall!.prompt;
     expect(typeof prompt).toBe("string");
@@ -86,7 +86,7 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
       policy: proPolicy,
       task: "execute task for test - text only",
     });
-    expect(proSpec.model).toBe("deepseek-v4-pro");
+    expect(proSpec.model).toBe("muse-spark-1");
     expect(proSpec.spawnSubagentCall!.prompt).not.toMatch(/image_url|type":\s*"image|data:image\//i);
   });
 
@@ -100,10 +100,10 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
       task: "scout phase for ed-real-garment-phenotype-expansion: re-assess cagematch front/three_quarter/body_motion pngs + ui-xr-ed-seed-inspection with sleeveDeform evidence, garmentGeometry, cyan visuals in Model Vetting and UI-XR",
     });
     expect(skepticVisual.multimodal).toBe(true);
-    expect(skepticVisual.model).toBe("deepseek-v4-flash-vision-exp");
+    expect(skepticVisual.model).toBe("muse-spark-1");
     expect(skepticVisual.spawnSubagentCall!.description).toContain("multimodal");
     const prompt = skepticVisual.spawnSubagentCall!.prompt;
-    expect(prompt).toMatch(/deepseek-v4-flash-vision-exp/);
+    expect(prompt).toMatch(/muse-spark-1/);
     expect(prompt).not.toMatch(/(?<![\w-])deepseek-v4-pro(?![\w-])/);
 
     // Non-visual text task on a non-infer role stays on flash
@@ -114,7 +114,7 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
       task: "text-only policy review of coordination MDs and worker-backlog matrix",
     });
     expect(textOnly.multimodal).toBe(false);
-    expect(textOnly.model).toBe("deepseek-v4-flash");
+    expect(textOnly.model).toBe("muse-spark-1");
     const skepticDefault = buildGrokRepoAgentSpawnSpec({
       roleId: "productivity-skeptic",
       roleDir: "agents/adversarial/productivity-skeptic",
@@ -122,12 +122,12 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
       task: "text-only policy review of coordination MDs and worker-backlog matrix",
     });
     expect(skepticDefault.multimodal).toBe(true);
-    expect(skepticDefault.model).toBe("deepseek-v4-flash-vision-exp");
+    expect(skepticDefault.model).toBe("muse-spark-1");
   });
 
   it("flash scout roles must use explore + text prompt (cost-conscious tier)", () => {
     const advice = evaluateGrokDelegationAdvice({ intent: "scout" });
-    expect(advice.spawnHint?.model).toBe("deepseek-v4-flash");
+    expect(advice.spawnHint?.model).toBe("muse-spark-1");
     expect(advice.useNativeSpawnSubagent).toBe(true);
     // The actual subagent_type (explore) is resolved by the spawn-spec builder + role policy,
     // not always present on the high-level advice object. The important guard is the model + native surface.
@@ -143,7 +143,7 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
       group: "adversarial",
       task: badTask,
     });
-    expect(spec.model).toBe("deepseek-v4-flash-vision-exp");
+    expect(spec.model).toBe("muse-spark-1");
     expect(spec.multimodal).toBe(true);
     // The prompt text may mention the task, but must not serialize as image_url content block for the API
     // and must route vision to grok-4 models.

@@ -263,13 +263,13 @@ describe("agent-loop synthesis planning", () => {
       policyTier: "frontier_thinking",
     });
     expect(recommendBackgroundAgentModel({ taskType: "bounded_scout", harness: "grok" })).toMatchObject({
-      model: "deepseek-v4-flash",
+      model: "muse-spark-1",
       reasoningEffort: "low",
       policyTier: "fast_bounded",
       harness: "grok",
     });
     expect(recommendBackgroundAgentModel({ taskType: "implementation_worker", harness: "grok" })).toMatchObject({
-      model: "deepseek-v4-pro",
+      model: "muse-spark-1",
       reasoningEffort: "medium",
       harness: "grok",
     });

@@ -88,17 +88,17 @@ export function harnessModelForTask(
   switch (policyTier) {
     case "fast_bounded":
       if (harness === "grok") {
-        return { model: "deepseek-v4-flash", reasoningEffort: "low" };
+        return { model: "muse-spark-1", reasoningEffort: "low" };
       }
       return { model: "gpt-5.4-mini", reasoningEffort: "low" };
     case "standard_execution":
       if (harness === "grok") {
-        return { model: "deepseek-v4-pro", reasoningEffort: "medium" };
+        return { model: "muse-spark-1", reasoningEffort: "medium" };
       }
       return { model: "gpt-5.4", reasoningEffort: "medium" };
     case "expert_review":
       if (harness === "grok") {
-        return { model: "deepseek-v4-pro", reasoningEffort: "high" };
+        return { model: "muse-spark-1", reasoningEffort: "high" };
       }
       return { model: "gpt-5.4", reasoningEffort: "high" };
     case "frontier_thinking": {

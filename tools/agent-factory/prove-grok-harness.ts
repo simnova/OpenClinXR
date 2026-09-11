@@ -164,8 +164,8 @@ async function iterationConfigComposerHints(): Promise<Record<string, unknown>> 
   const exploreModel = readTomlValue(configPath, "subagents.models.explore");
   const planModel = readTomlValue(configPath, "subagents.models.plan");
   const defaultModel = readTomlValue(configPath, "subagents.default_model");
-  if (exploreModel !== "deepseek-v4-flash" || planModel !== "deepseek-v4-pro") {
-    throw new Error(`Unexpected subagent models: explore=${exploreModel} plan=${planModel}`);
+  if (exploreModel !== "muse-spark-1" || planModel !== "muse-spark-1") {
+    throw new Error(`Unexpected subagent models (DeepSeek HOLD): explore=${exploreModel} plan=${planModel}`);
   }
   if (defaultModel) {
     throw new Error(`subagents.default_model must be unset for per-type routing; found ${defaultModel}`);
@@ -183,8 +183,8 @@ async function iterationRolePolicyMatrix(): Promise<Record<string, unknown>> {
   }
   const exploreRec = recommendBackgroundAgentModel({ taskType: "bounded_scout", harness: "grok" });
   const codexRec = recommendBackgroundAgentModel({ taskType: "bounded_scout", harness: "codex" });
-  if (exploreRec.model !== "deepseek-v4-flash") {
-    throw new Error(`Grok scout model expected deepseek-v4-flash, got ${exploreRec.model}`);
+  if (exploreRec.model !== "muse-spark-1") {
+    throw new Error(`Grok scout model expected muse-spark-1 (DeepSeek HOLD), got ${exploreRec.model}`);
   }
   if (codexRec.codexAssistBridge !== "moonbridge") {
     throw new Error("Codex scout should offer moonbridge assist bridge");
@@ -606,8 +606,8 @@ async function iterationOrchestrationWorkflow(): Promise<Record<string, unknown>
       ? resolveHarnessModelSpec(getRepoRoleHarnessPolicy(roleId)!.policyTier, "grok").model
       : "missing",
   }));
-  if (!scoutModels.every((row) => row.model === "deepseek-v4-flash")) {
-    throw new Error(`Scout roles should map to deepseek-v4-flash on Grok: ${JSON.stringify(scoutModels)}`);
+  if (!scoutModels.every((row) => row.model === "muse-spark-1")) {
+    throw new Error(`Scout roles should map to muse-spark-1 on Grok (DeepSeek HOLD): ${JSON.stringify(scoutModels)}`);
   }
   return { scoutModels, orchestrationDocumented: true };
 }

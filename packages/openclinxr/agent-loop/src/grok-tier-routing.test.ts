@@ -12,8 +12,8 @@ import {
 
 const SAMPLE_CONFIG = `
 [subagents.models]
-explore = "deepseek-v4-flash"
-plan = "deepseek-v4-pro"
+explore = "muse-spark-1"
+plan = "muse-spark-1"
 # grok-tier-routing: see agents/rules/grok-tier-routing.md
 `;
 
@@ -30,11 +30,11 @@ describe("grok tier routing", () => {
       scoutQuestion: "Which Blender stage owns garment trim?",
     });
     expect(order.schemaVersion).toBe("openclinxr.grok-tier-work-order.v1");
-    expect(order.spawnSubagentHints.explore.model).toBe("deepseek-v4-flash");
+    expect(order.spawnSubagentHints.explore.model).toBe("muse-spark-1");
     expect(order.upgradeTriggers.length).toBeGreaterThan(5);
     expect(order.cursorTaskWarning).toContain("Cursor Task");
     expect(order.repoAgentSpawns.scout?.roleId).toBe("chief-coordinator");
-    expect(order.repoAgentSpawns.scout?.model).toBe("deepseek-v4-flash");
+    expect(order.repoAgentSpawns.scout?.model).toBe("muse-spark-1");
   });
 
   it("validates grok harness config", () => {
@@ -42,12 +42,12 @@ describe("grok tier routing", () => {
     expect(good.ok).toBe(true);
     const bad = validateGrokHarnessTierConfig(`[subagents.models]\nexplore = "grok-build"\n`);
     expect(bad.ok).toBe(false);
-    const visionExplore = validateGrokHarnessTierConfig(`[subagents.models]
-explore = "deepseek-v4-flash-vision-exp"
-plan = "deepseek-v4-pro"
+    const fallbackExplore = validateGrokHarnessTierConfig(`[subagents.models]
+explore = "nemotron-lightning"
+plan = "muse-spark-1"
 # grok-tier-routing
 `);
-    expect(visionExplore.ok).toBe(true);
+    expect(fallbackExplore.ok).toBe(true);
   });
 
   it("builds introspection report posture", () => {

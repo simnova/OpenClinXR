@@ -8,6 +8,7 @@ import {
   recommendRepoAgentsForConsult,
   type GrokRepoAgentSpawnSpec,
 } from "./grok-repo-agent-spawn.js";
+import { GROK_WORKER_FALLBACK_MODEL, GROK_WORKER_MODEL } from "./role-harness-policy.js";
 
 export type GrokHarnessSurface =
   | "grok_native_spawn_subagent"
@@ -98,21 +99,17 @@ export const GROK_TIER_LADDER: GrokTierSpec[] = [
   },
   {
     tierId: "tier1_deepseek_flash_scout",
-    label: "DeepSeek V4 Flash scout (text-only tasks only)",
-    model: "deepseek-v4-flash",
+    label: "Muse Spark scout (DeepSeek HOLD; nemotron-lightning is free text-only fallback)",
+    model: GROK_WORKER_MODEL,
     grokSubagentType: "explore",
     preferredSurface: "grok_native_spawn_subagent",
     capabilityMode: "read-only",
     role: "scout",
   },
-  // NOTE: Multimodal/vision/reasoning efforts (images, cagematch/UI-XR evidence, visual reports, screenshots)
-  // are HARDENED in spawn builder: routed to deepseek-v4-flash-vision-exp (cheap, vision-capable).
-  // See grok-repo-agent-spawn.ts: requiresMultimodalReasoning + buildGrokRepoAgentSpawnSpec override.
-  // grok-4.6 is rung-2 escalate only (quota near exhausted); never default vision work to grok-4.6.
   {
     tierId: "tier2_deepseek_pro_analysis",
-    label: "DeepSeek V4 Pro analysis / plan",
-    model: "deepseek-v4-pro",
+    label: "Muse Spark analysis / plan (DeepSeek HOLD)",
+    model: GROK_WORKER_MODEL,
     grokSubagentType: "plan",
     preferredSurface: "grok_native_spawn_subagent",
     capabilityMode: "read-only",
@@ -120,8 +117,8 @@ export const GROK_TIER_LADDER: GrokTierSpec[] = [
   },
   {
     tierId: "tier3_deepseek_pro_execution",
-    label: "DeepSeek V4 Pro bounded execution",
-    model: "deepseek-v4-pro",
+    label: "Muse Spark bounded execution (DeepSeek HOLD)",
+    model: GROK_WORKER_MODEL,
     grokSubagentType: "general-purpose",
     preferredSurface: "grok_native_spawn_subagent",
     capabilityMode: "read-write",
@@ -285,10 +282,10 @@ export function evaluateGrokDelegationAdvice(input: {
   if (spec.preferredSurface === "grok_native_spawn_subagent" && spec.grokSubagentType) {
     useNativeSpawnSubagent = true;
     spawnHint = spec.grokSubagentType === "explore"
-      ? { subagent_type: "explore", capability_mode: "read-only", model: "deepseek-v4-flash" }
+      ? { subagent_type: "explore", capability_mode: "read-only", model: GROK_WORKER_MODEL }
       : spec.grokSubagentType === "plan"
-        ? { subagent_type: "plan", capability_mode: "read-only", model: "deepseek-v4-pro" }
-        : { subagent_type: "general-purpose", capability_mode: "read-write", model: "deepseek-v4-pro" };
+        ? { subagent_type: "plan", capability_mode: "read-only", model: GROK_WORKER_MODEL }
+        : { subagent_type: "general-purpose", capability_mode: "read-write", model: GROK_WORKER_MODEL };
   }
   if (input.intent === "scout" || input.intent === "plan") {
     warnings.push(GROK_CURSOR_TASK_WARNING);
@@ -355,10 +352,10 @@ export function evaluateGrokTierUpgrade(input: {
 export function formatGrokTierRecordLine(tierId: GrokTierId): string {
   const spec = getGrokTierSpec(tierId);
   const short =
-    spec.role === "scout" && spec.model === "deepseek-v4-flash"
-      ? "flash"
-      : spec.role === "plan" || (spec.role === "execute" && spec.model === "deepseek-v4-pro")
-        ? "pro"
+    spec.role === "scout" && spec.model === GROK_WORKER_MODEL
+      ? "muse"
+      : spec.role === "plan" || (spec.role === "execute" && spec.model === GROK_WORKER_MODEL)
+        ? "muse"
         : spec.role === "integrate"
           ? "compose"
           : spec.role === "frontier"
@@ -451,8 +448,8 @@ export function buildGrokTierWorkOrder(input: {
     executionPrompt: executeSpawn?.spawnPrompt ?? null,
     integrationNotes: [
       "Composer integrates subagent summaries, runs focused verify, updates state files.",
-      "If flash scout insufficient, upgrade to pro plan before any write scope.",
-      "If pro execution fails twice, Composer owns debug and integration.",
+      "If muse-spark-1 scout insufficient, upgrade to plan before any write scope. Nemotron is text-only fallback only.",
+      "If muse execution fails twice, Composer owns debug and integration. DeepSeek is HOLD.",
     ],
     upgradeTriggers: GROK_TIER_UPGRADE_TRIGGERS,
     safeguards: GROK_TIER_SAFEGUARDS,
@@ -469,17 +466,17 @@ export function buildGrokTierWorkOrder(input: {
       explore: {
         subagent_type: "explore",
         capability_mode: "read-only",
-        model: "deepseek-v4-flash",
+        model: GROK_WORKER_MODEL,
       },
       plan: {
         subagent_type: "plan",
         capability_mode: "read-only",
-        model: "deepseek-v4-pro",
+        model: GROK_WORKER_MODEL,
       },
       execute: {
         subagent_type: "general-purpose",
         capability_mode: "read-write",
-        model: "deepseek-v4-pro",
+        model: GROK_WORKER_MODEL,
       },
     },
     cursorTaskWarning: GROK_CURSOR_TASK_WARNING,
@@ -502,8 +499,10 @@ export function validateGrokHarnessTierConfig(configToml: string): {
   const explore = readTomlQuotedValue(configToml, "subagents.models", "explore");
   const plan = readTomlQuotedValue(configToml, "subagents.models", "plan");
   const defaultModel = readTomlQuotedValue(configToml, "subagents", "default_model");
-  if (explore !== "deepseek-v4-flash" && explore !== "deepseek-v4-flash-vision-exp") errors.push(`subagents.models.explore must be deepseek-v4-flash or deepseek-v4-flash-vision-exp (got ${explore ?? "missing"})`);
-  if (plan !== "deepseek-v4-pro") errors.push(`subagents.models.plan must be deepseek-v4-pro (got ${plan ?? "missing"})`);
+  if (!explore || !new Set([GROK_WORKER_MODEL, GROK_WORKER_FALLBACK_MODEL]).has(explore)) {
+    errors.push(`subagents.models.explore must be ${GROK_WORKER_MODEL} or ${GROK_WORKER_FALLBACK_MODEL} (got ${explore ?? "missing"})`);
+  }
+  if (plan !== GROK_WORKER_MODEL) errors.push(`subagents.models.plan must be ${GROK_WORKER_MODEL} (got ${plan ?? "missing"})`);
   if (defaultModel) errors.push(`subagents.default_model must be unset (got ${defaultModel})`);
   if (!configToml.includes("tier routing") && !configToml.includes("grok-tier-routing")) {
     errors.push("Missing grok tier routing reference in .grok/config.toml");

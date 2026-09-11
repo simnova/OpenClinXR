@@ -190,6 +190,8 @@ export type BackgroundAgentModelName =
   | "gpt-5.4-mini"
   | "gpt-5.4"
   | "gpt-5.5"
+  | "muse-spark-1"
+  | "nemotron-lightning"
   | "deepseek-v4-flash"
   | "deepseek-v4-pro"
   | "grok-build";

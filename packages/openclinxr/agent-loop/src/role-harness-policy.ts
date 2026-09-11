@@ -29,6 +29,9 @@ export type HarnessModelSpec = {
   reasoningEffort: BackgroundAgentReasoningEffort;
 };
 
+export const GROK_WORKER_MODEL = "muse-spark-1";
+export const GROK_WORKER_FALLBACK_MODEL = "nemotron-lightning";
+
 export type RolePathScope = {
   /** Globs relative to repo root — agent may EDIT these */
   writeRoots: string[];
@@ -157,21 +160,21 @@ const tierDefaults: Record<
   fast_bounded: {
     taskType: "bounded_scout",
     openai: { model: "gpt-5.4-mini", reasoningEffort: "low" },
-    grok: { model: "deepseek-v4-flash", reasoningEffort: "low" },
+    grok: { model: GROK_WORKER_MODEL, reasoningEffort: "low" },
     codex: { model: "gpt-5.4-mini", reasoningEffort: "low" },
     moonbridgeAssistOnCodex: true,
   },
   standard_execution: {
     taskType: "implementation_worker",
     openai: { model: "gpt-5.4", reasoningEffort: "medium" },
-    grok: { model: "deepseek-v4-pro", reasoningEffort: "medium" },
+    grok: { model: GROK_WORKER_MODEL, reasoningEffort: "medium" },
     codex: { model: "gpt-5.4", reasoningEffort: "medium" },
     moonbridgeAssistOnCodex: false,
   },
   expert_review: {
     taskType: "specialist_review",
     openai: { model: "gpt-5.4", reasoningEffort: "high" },
-    grok: { model: "deepseek-v4-flash", reasoningEffort: "high" },
+    grok: { model: GROK_WORKER_MODEL, reasoningEffort: "high" },
     codex: { model: "gpt-5.4", reasoningEffort: "high" },
     moonbridgeAssistOnCodex: true,
   },

@@ -138,6 +138,7 @@ export const GROK_TOKEN_THRESHOLDS = {
 
 export function classifyGrokModelTier(modelId: string): GrokModelTierClass {
   const normalized = modelId.toLowerCase();
+  if (normalized.includes("muse-spark") || normalized.includes("nemotron")) return "flash";
   if (normalized.includes("deepseek") && normalized.includes("flash")) return "flash";
   if (normalized.includes("deepseek") && (normalized.includes("pro") || normalized.includes("v4-pro"))) {
     return "pro";
@@ -292,7 +293,7 @@ export function evaluateGrokSliceTokenViolations(input: {
       violationId: "scout_tier_composer_spike",
       severity: "violation",
       message: `Scout-tier slice grew Composer peak by ${input.composerPeakDelta} tokens (limit ${GROK_TOKEN_THRESHOLDS.scoutPeakMax}).`,
-      remediation: "Delegate read-only consults to spawn_subagent explore (deepseek-v4-flash), not Composer or Cursor Task.",
+      remediation: "Delegate read-only consults to spawn_subagent explore (muse-spark-1; DeepSeek HOLD), not Composer or Cursor Task.",
     });
   }
 
@@ -332,7 +333,7 @@ export function evaluateGrokSliceTokenViolations(input: {
       violationId: "routine_slice_peak_growth",
       severity: "warning",
       message: `Non-frontier slice grew workspace peak by ${input.peakDelta} tokens (threshold ${GROK_TOKEN_THRESHOLDS.composerRoutinePeakMax}).`,
-      remediation: "Keep Composer context lean; move read-only exploration to explore+deepseek-v4-flash.",
+      remediation: "Keep Composer context lean; move read-only exploration to explore+muse-spark-1 (DeepSeek HOLD).",
     });
   }
 
@@ -466,7 +467,7 @@ export function buildGrokSliceTokenIntrospectionReport(input: {
       "Primary token source: Grok native sessions (updates.jsonl + signals.json) including subagent child sessions.",
       "ccusage is optional cross-harness (Codex) check — not required for Grok-only slices.",
       hasViolation
-        ? "Next slice: force explore+deepseek-v4-flash for read-only work before Composer integration."
+        ? "Next slice: force explore+muse-spark-1 for read-only work before Composer integration (DeepSeek HOLD)."
         : "Token posture aligned with tier routing guidance.",
       "Run pnpm grok:tier:slice-start at slice begin and pnpm grok:tier:slice-introspect at slice end.",
     ],

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  GROK_WORKER_FALLBACK_MODEL,
+  GROK_WORKER_MODEL,
   allowedToolsForRole,
   assertDeliveryRoleMapped,
   assertTouchedWithinWriteRoots,
@@ -23,6 +25,11 @@ import {
 } from "./grok-repo-agent-spawn.js";
 
 describe("role-harness-policy", () => {
+  it("holds DeepSeek and defaults Grok workers to muse-spark-1 with nemotron fallback", () => {
+    expect(GROK_WORKER_MODEL).toBe("muse-spark-1");
+    expect(GROK_WORKER_FALLBACK_MODEL).toBe("nemotron-lightning");
+  });
+
   it("maps active repo roles to differentiated tiers and sandboxes", () => {
     expect(getRepoRoleHarnessPolicy("chief-coordinator")).toMatchObject({
       policyTier: "fast_bounded",
@@ -43,8 +50,12 @@ describe("role-harness-policy", () => {
 
   it("resolves harness-specific model specs", () => {
     expect(resolveHarnessModelSpec("fast_bounded", "grok")).toEqual({
-      model: "deepseek-v4-flash",
+      model: "muse-spark-1",
       reasoningEffort: "low",
+    });
+    expect(resolveHarnessModelSpec("standard_execution", "grok")).toEqual({
+      model: "muse-spark-1",
+      reasoningEffort: "medium",
     });
     expect(resolveHarnessModelSpec("standard_execution", "codex")).toEqual({
       model: "gpt-5.4",

@@ -33,9 +33,9 @@ Composer should **not** patch product code during pure orchestration turns. The 
 Configured in `.grok/config.toml`:
 
 - **Composer (parent):** keep frontier composer model for orchestration and integration judgment.
-- **`explore` subagents:** `deepseek-v4-flash` (cheap read-only scout/coordinator consult).
-- **`plan` subagents:** `deepseek-v4-pro` (bounded planning).
-- **Do not** route Grok subagents through Moonbridge when direct DeepSeek is available.
+- **`explore` subagents:** `muse-spark-1` (DeepSeek HOLD 2026-09-10). Fallback `nemotron-lightning` is free, less capable, text-only.
+- **`plan` / `general-purpose` subagents:** `muse-spark-1` (vision OK).
+- **Do not** dispatch DeepSeek while HOLD is in force.
 - **Moonbridge** remains Codex Desktop-only optional assist (see `docs/agent-factory/model-assignment-policy.md`).
 
 Do **not** set `[subagents] default_model` in project config — it overrides per-type routing.
@@ -46,9 +46,9 @@ Full policy: `agents/rules/grok-tier-routing.md` + `packages/openclinxr/agent-lo
 
 | Tier | Model | Surface |
 | --- | --- | --- |
-| Scout | `deepseek-v4-flash` | Native `spawn_subagent` **explore** (read-only) |
-| Plan | `deepseek-v4-pro` | Native `spawn_subagent` **plan** |
-| Execute | `deepseek-v4-pro` | Native `spawn_subagent` **general-purpose** (bounded) |
+| Scout | `muse-spark-1` (`nemotron-lightning` fallback) | Native `spawn_subagent` **explore** (read-only) |
+| Plan | `muse-spark-1` | Native `spawn_subagent` **plan** |
+| Execute | `muse-spark-1` | Native `spawn_subagent` **general-purpose** (bounded) |
 | Integrate | Composer | Main thread — lease, state files, post-slice |
 | Frontier | `grok-build` | Protected-claim / ambiguous synthesis |
 

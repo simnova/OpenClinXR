@@ -459,9 +459,9 @@ describe("codex-bothy-event-monitor", () => {
     expect(prompt).toContain("canonical");
     expect(prompt).toContain("bothy-board skill");
     expect(prompt).toContain("at most 3");
-    expect(prompt).toContain("deepseek-v4-flash");
-    expect(prompt).toContain('modelDowngradeReason "budget constraints"');
-    expect(prompt).toContain("deepseek-v4-flash-vision-exp only");
+    expect(prompt).toContain("muse-spark-1");
+    expect(prompt).toContain("nemotron-lightning");
+    expect(prompt).toContain("DeepSeek HOLD");
     expect(prompt).toContain("Owner-only operations are create, plant, cancel");
     expect(prompt).toContain("Independently verify");
     expect(prompt).toContain("never infer absence from sync");

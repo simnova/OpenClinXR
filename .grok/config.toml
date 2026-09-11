@@ -25,7 +25,7 @@ name = "orchestrator"
 #   explore subagent → chief-coordinator, openclaw-drift-police, gap-attacker (read-only, cheap)
 #   plan subagent    → implementation-planning-lead (sequencing)
 #   specialists      → asset-pipeline-lead, xr-systems-architect, etc. (disjoint write scopes)
-# Token efficiency: keep Composer context lean; push scout/review reads to explore+deepseek-v4-flash.
+# Token efficiency: keep Composer context lean; push scout/review reads to explore+muse-spark-1 (DeepSeek HOLD).
 # Measure: pnpm agent:harness:prove (parses ~/.grok/sessions + ccusage codex where available).
 #
 # SERVANT LEADERSHIP DISCIPLINE (codified 2026-06-08):
@@ -54,9 +54,12 @@ plan = true      # implementation-planning-lead sequencing
 general-purpose = true  # execution specialists (asset/xr/impl) after scoping
 
 [subagents.models]
-explore = "deepseek-v4-flash"   # cheap text scouts. USER ~/.grok/config.toml binds live children; set explore to deepseek-v4-flash-vision-exp when sessions inherit PNGs (goal-verification skeptics).
-plan = "deepseek-v4-pro"        # bounded planning slices
-general-purpose = "deepseek-v4-pro"  # 2026-08-13: v4-pro. USER config binds. Pixel grade / inherited images → deepseek-v4-flash-vision-exp, never text flash.
+# Operator 2026-09-10: DeepSeek HOLD (402). Muse Spark contributor is the worker default
+# (image OK). Nemotron-lightning is the free, less-capable text fallback.
+# USER ~/.grok/config.toml binds live children — keep it in sync with this block.
+explore = "muse-spark-1"
+plan = "muse-spark-1"
+general-purpose = "muse-spark-1"
 # grok-build only for frontier/protected (escalation or high-stakes per LEX_AGENTIC + harness-usage)
 # grok-tier-routing: tier 1 scout / tier 2 plan ladder — see agents/rules/grok-tier-routing.md
 # CLI: pnpm grok:tier:introspect | grok:tier:work-order | grok:tier:check

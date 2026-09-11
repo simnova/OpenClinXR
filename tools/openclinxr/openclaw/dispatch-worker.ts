@@ -23,7 +23,12 @@ import { dirname, join, resolve } from "node:path";
 import { homedir, hostname } from "node:os";
 import { fileURLToPath } from "node:url";
 import { buildRepoAgentSpawnPrompt } from "../../../packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.js";
-import { getRepoRoleHarnessPolicy, resolveHarnessModelSpec } from "../../../packages/openclinxr/agent-loop/src/role-harness-policy.js";
+import {
+  GROK_WORKER_FALLBACK_MODEL,
+  GROK_WORKER_MODEL,
+  getRepoRoleHarnessPolicy,
+  resolveHarnessModelSpec,
+} from "../../../packages/openclinxr/agent-loop/src/role-harness-policy.js";
 import {
   DONE_WHEN_RULE_VOCABULARY,
   evaluateDoneWhenRule,
@@ -83,8 +88,8 @@ const FORBIDDEN_ENV = ["RUST_LOG", "GROK_DEBUG_FILE"] as const;
  *
  * The fence: DENY Read of image/video extensions for text-only models in dispatch().
  */
-const TEXT_ONLY_MODEL_PREFIXES = ["deepseek"] as const;
-const VISION_MODEL_MARKERS = ["vision", "grok-4", "grok-build", "x-grok", "x-reasoning"] as const;
+const TEXT_ONLY_MODEL_PREFIXES = ["deepseek", "nemotron"] as const;
+const VISION_MODEL_MARKERS = ["vision", "grok-4", "grok-build", "x-grok", "x-reasoning", "muse-spark"] as const;
 
 /** Raster + video containers the Read tool can embed into the transcript as image_url. */
 const VISION_DENY_EXTENSIONS = [
@@ -728,18 +733,16 @@ const DEFAULT_PROMPT_FILE_DIR = join(homedir(), ".grok", "dispatch-prompts");
  * and the three vision-appendix sites) with no reference to the role. role-harness-policy.ts
  * already maps tier -> grok model; this is the ONE resolver, called from all five sites.
  *
- * A downgrade is a RANK, not "flash is wrong": fast_bounded and expert_review map to flash BY
- * POLICY, so flash on those roles needs no reason. The refusal is a role whose policy names a
- * HIGHER tier being run on a lower one, without a stated modelDowngradeReason — a warning is what
- * five slices ignored. The roleless path stays flash-first (dispatch-worker.test.ts:132 pins it).
+ * A downgrade is a RANK, not "the default is wrong". Operator 2026-09-10: DeepSeek HOLD (402).
+ * Grok policy default is muse-spark-1 (rank 1). Nemotron-lightning is free, less capable, rank 0
+ * — a write role naming it needs modelDowngradeReason. DeepSeek flash stays rank 0 so an explicit
+ * HOLD-rung pass still trips the guard. Roleless path defaults to GROK_WORKER_MODEL.
  */
 const MODEL_RANK = new Map<string, number>([
-  // muse-spark-1.3-contributor is the optional cheaper worker alias (OpenRouter contributor,
-  // $0.10/$0.20 per 1M vs Flash DIRECT off-peak $0.22/$0.66 — verified 2026-09-02). Rank 0
-  // like flash, so a write role naming it demands the same modelDowngradeReason; unrecognised
-  // models skip the guard, and ranking it closes that hole for the alias.
-  ["muse-spark-1.3-contributor", 0],
+  [GROK_WORKER_FALLBACK_MODEL, 0],
   ["deepseek-v4-flash", 0],
+  [GROK_WORKER_MODEL, 1],
+  ["muse-spark-1.3-contributor", 1],
   ["deepseek-v4-pro", 1],
   ["grok-build", 2],
 ]);
@@ -770,7 +773,7 @@ export function resolveDispatchModel(
       );
     }
   }
-  return { model: options.model ?? policyModel ?? "deepseek-v4-flash", tier };
+  return { model: options.model ?? policyModel ?? GROK_WORKER_MODEL, tier };
 }
 
 export function buildArgv(options: DispatchOptions): string[] {
@@ -788,7 +791,7 @@ export function buildArgv(options: DispatchOptions): string[] {
     argv.push("--session-id", options.sessionId ?? randomUUID());
   }
   // ISSUE #461: the model is a property of the role's policy — one resolver, called from all five
-  // sites. The roleless path stays flash-first (dispatch-worker.test.ts:132 pins that).
+  // sites. Roleless path defaults to GROK_WORKER_MODEL (DeepSeek HOLD 2026-09-10).
   argv.push("--model", resolveDispatchModel(options).model);
   argv.push("--always-approve");
   // streaming-json emits a usage event per turn — the only way to see a stall while the worker is
@@ -1780,11 +1783,11 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   const sampler = setInterval(sampleDescendants, 1000);
   sampler.unref();
 
-  const code = await new Promise<number>((resolve) => {
+  const code = await new Promise<number>((settleExit) => {
     child.on("close", (value: number | null) => {
       clearInterval(sampler);
       stopBothyRenewal();
-      resolve(value ?? 1);
+      settleExit(value ?? 1);
     });
   });
   const output = chunks.join("");

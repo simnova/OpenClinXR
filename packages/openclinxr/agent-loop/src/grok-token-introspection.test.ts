@@ -23,6 +23,8 @@ const SAMPLE_CCUSAGE = {
 describe("grok token introspection", () => {
   it("classifies grok model tiers", () => {
     expect(classifyGrokModelTier("deepseek-v4-flash")).toBe("flash");
+    expect(classifyGrokModelTier("muse-spark-1")).toBe("flash");
+    expect(classifyGrokModelTier("nemotron-lightning")).toBe("flash");
     expect(classifyGrokModelTier("grok-composer-2.5-fast")).toBe("composer");
     expect(classifyGrokModelTier("grok-4.5")).toBe("composer");
     expect(classifyGrokModelTier("deepseek-v4-pro")).toBe("pro");

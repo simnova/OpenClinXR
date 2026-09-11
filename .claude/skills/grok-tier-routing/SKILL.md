@@ -37,9 +37,9 @@ See: `agentic-eval/docs/CONFIDENCE.md`, `docs/findings/{personas,agent-defs,hook
 | Tier | Model | Surface | Role |
 | --- | --- | --- | --- |
 | 0 | none (local) | `local_repo_agent_consult` | Zero-cost charter/memory consult |
-| 1 | `deepseek-v4-flash` | `spawn_subagent` **explore** (read-only) | Scout / coordinator consult |
-| 2 | `deepseek-v4-flash` (or `deepseek-v4-pro` plan override) | `spawn_subagent` **plan** (read-only) | Bounded analysis / sequencing |
-| 3 | `deepseek-v4-flash` | `spawn_subagent` **general-purpose** (read-write) | Disjoint bounded execution (2026-08-10 flash-first) |
+| 1 | `muse-spark-1` (fallback `nemotron-lightning`) | `spawn_subagent` **explore** (read-only) | Scout / coordinator consult. DeepSeek HOLD 2026-09-10 |
+| 2 | `muse-spark-1` | `spawn_subagent` **plan** (read-only) | Bounded analysis / sequencing |
+| 3 | `muse-spark-1` | `spawn_subagent` **general-purpose** (read-write) | Disjoint bounded execution |
 | 4 | `grok-composer-*` | Composer main thread | Integration, lease, state files |
 | 5 | `grok-build` | Composer / frontier | Protected-claim or ambiguous synthesis |
 
@@ -91,9 +91,9 @@ pnpm agent:harness:sync                           # regenerate .grok/agents poin
 
 | Policy tier | Grok subagent | Model | Example roles |
 | --- | --- | --- | --- |
-| fast_bounded | explore (read-only) | deepseek-v4-flash | chief-coordinator, openclaw-drift-police |
-| expert_review / read-only plan | plan (read-only) | deepseek-v4-pro | pediatrics-physician, clinical-safety-critic |
-| standard_execution write | general-purpose | deepseek-v4-pro | asset-pipeline-lead, xr-systems-architect |
+| fast_bounded | explore (read-only) | muse-spark-1 | chief-coordinator, openclaw-drift-police |
+| expert_review / read-only plan | plan (read-only) | muse-spark-1 | pediatrics-physician, clinical-safety-critic |
+| standard_execution write | general-purpose | muse-spark-1 | asset-pipeline-lead, xr-systems-architect |
 | frontier_thinking | Composer only | grok-build | vp-engineering-delivery |
 
 Work orders from `pnpm grok:tier:work-order` embed `repoAgentSpawns` with full `spawn_subagent` payloads.

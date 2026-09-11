@@ -14,33 +14,24 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-02 | main `3e360aad` | Grok orchestrator | Muse Spark cheapest LLM rung**
+**2026-09-10 | DeepSeek HOLD | workers default `muse-spark-1`**
 
 **BLOCKED**
-- Live Muse completions HTTP 403 until operator confirms 18+ at https://openrouter.ai/settings/preferences. Actor-dialogue failovers to DeepSeek Flash direct. Workers stay on flash until a probe returns 200.
+- DeepSeek (`deepseek-v4-flash` / `-pro` / vision-exp) HOLD: 402 Insufficient Balance. Do not dispatch.
 
 **LANDED this wake**
-- `3e360aad` `meta/muse-spark-1.3-contributor` first actor-dialogue rung when `OPENROUTER_API_KEY` is set. Verified cheaper than Flash **direct** official off-peak ($0.10/$0.20 vs $0.22/$0.66). Alias in `~/.grok/config.toml`. `[subagents.models]` unchanged.
+- Agent routing: Grok workers / explore / plan / general-purpose → `muse-spark-1` (contributor, vision OK). Fallback `nemotron-lightning` (free, less capable, text-only; write roles need `modelDowngradeReason`). User `~/.grok/config.toml` `[subagents.models]` binds live children.
 
-**NEXT this wake:** operator 18+ attestation, then re-probe Muse. Do not default workers until 200.
+**NEXT this wake:** dequeue with Muse default. Escalate `grok-4.6` only on measured Muse failure.
 
-NOT TESTED: live Muse completion (403).
+NOT TESTED: live DeepSeek recovery probe (HOLD until operator lifts it).
 <!-- WAKE-BLUF:END -->
 
-**OPERATOR MODEL LADDERS (2026-08-27) — CODIFIED in the `model-routing` skill**
-- Subagents / workers / wakes: `deepseek-v4-flash` (cheapest) → `deepseek-v4-flash-vision-exp` (image) → `grok-4.6` (strong/smart).
-- `ox-alpha` is **retired** (404). Do not spawn it. User `~/.grok/config.toml` `[subagents.models]` is flash as of this wake.
-- Supersedes "grok-4.5 only on a 402". The Grok tier is LAST, not second.
-- ALL FOUR RUNGS VERIFIED 2026-08-23 17:50, identical tool-using probe, ground truth 43:
-  `ox-alpha` 34 s / `deepseek-v4-flash` 13 s / `deepseek-v4-flash-vision-exp` 18 s / `grok-4.6` 24 s,
-  every one exit 0 and correct. `ox-alpha` also held worker `ef42e49d` 50+ min / 572 session lines.
-- **THE DEEPSEEK `402 Insufficient Balance` RECORDED BELOW NO LONGER REPRODUCES.** Both DeepSeek rungs
-  answered. Treat that 402 as a historical incident and re-probe rather than assuming it.
-- Rung 3 is CONDITIONAL, not sequential: `deepseek-v4-flash-vision-exp` only when a slice needs the
-  worker to read an image AND `ox-alpha` is down. `ox-alpha` is itself multimodal. On an identical
-  text-only probe the vision model cost 730 output tokens against 135 for plain flash.
-- NOT ENFORCED IN CODE: `ox-alpha` is in zero executable files; `MODEL_RANK` has 3 entries and none
-  is `ox-alpha`, so it passes the #461 guard by being unrecognized. The skill is the enforcement.
+**OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**
+- Subagents / workers / wakes: `muse-spark-1` (default, vision OK) → `nemotron-lightning` (free text-only fallback) → `grok-4.6` (escalate).
+- DeepSeek is **HOLD** (402). Do not spawn `deepseek-v4-flash` / `-pro` / `-vision-exp`.
+- `ox-alpha` is **retired** (404). Do not spawn it.
+- USER `~/.grok/config.toml` `[subagents.models]` is the live spawn bind (project config does not merge that section).
 
 **LANDED**
 - `#570` `bced6456` — the Codex session's verified fix, blocked on a read-only `.git`, is committed.
