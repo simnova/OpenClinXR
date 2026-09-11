@@ -1,15 +1,15 @@
 {
-  "hash": "bd6307b0c20fa053e3217182967bd575d8903cebd93794fa25e565ea5a4bc377",
+  "hash": "7f994e47ff0b2e1a93935bf41f6d45f422e572bac4bc2f61d61f9afbf5a7a7a4",
   "revision": "working-tree",
   "totals": {
     "roots": 46,
     "entrypoints": 137,
-    "rootSymbols": 2322,
-    "occurrences": 3345,
-    "uniqueSymbols": 2780,
+    "rootSymbols": 2223,
+    "occurrences": 3246,
+    "uniqueSymbols": 2681,
     "duplicateNames": 547
   },
-  "inventoryHash": "879bb85c89ec0854df913118f82112fe7a983d596433320819143eb3c8c5e185",
+  "inventoryHash": "65a1bfdf6815600ed7165b42d247588348d69287ee99dc1b3d3f6575ebc5b73b",
   "manifestHashes": {
     "packages/openclinxr/agent-loop": "0ba04221f54e09103767d06a098a929fcf525b0d0c791c8c9965b2c146a2d7ef",
     "packages/openclinxr/arena/iwsdk-spike": "f4c84df8a98303933c7acf29509aa8a7eb08631f4946ab91830e147356c14c9d",
@@ -30,7 +30,7 @@
     "packages/openclinxr/model-gateway": "f9b30c3185720d7ccec3638403ec129cc83da62d2339be4ea1afe71d942ad258",
     "packages/openclinxr/motion-compiler": "89df63d3c59a6abbaddac4cf344d2708f5642ef5fd305718bbbe7b13cd29e351",
     "packages/openclinxr/physics-touch-artifacts": "e15866c5490d753e4aa3ed5ff969fea8fb4182304754ca306541d9d6e898ecae",
-    "packages/openclinxr/rest": "224fa68aebb9347cf2fa582bf7ab5da0bca8f50a67c741fd96c436754ce5b48b",
+    "packages/openclinxr/rest": "3a611ac2a354bef67249cc176358a3d5143e0daad9ebc940f4fb27660e3e1507",
     "packages/openclinxr/review-workflow": "cb505b0694cd4ca0d7ef56831e43fdd6c5adbce6f51baadcc0b085c661c326a2",
     "packages/openclinxr/scenario-fixtures": "29a9d149bd3a14d9d07eb277406f64a2abad7c85ef8ee9aa1e113f6419a9ef26",
     "packages/openclinxr/scenario-runtime": "de1a9a3ddf7c6e330294dc871e543c03e6a7b3dda215ebc37efac31f08d90065",
@@ -682,15 +682,15 @@
     },
     {
       "packageDir": "packages/openclinxr/rest",
-      "rootSymbols": 193,
-      "occurrences": 193,
-      "uniqueSymbols": 193,
+      "rootSymbols": 94,
+      "occurrences": 94,
+      "uniqueSymbols": 94,
       "duplicateNames": 0,
       "entrypoints": [
         {
           "specifier": ".",
           "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 1
+          "typeWildcardDeclarations": 0
         }
       ]
     },
