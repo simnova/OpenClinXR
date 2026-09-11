@@ -1,8 +1,8 @@
-export type OpenClinXrRestSurface = "control-plane" | "xr-runtime" | "admin-graphql";
+type OpenClinXrRestSurface = "control-plane" | "xr-runtime" | "admin-graphql";
 
-export type OpenClinXrRestMethod = "GET" | "POST";
+type OpenClinXrRestMethod = "GET" | "POST";
 
-export type OpenClinXrRestRoute = {
+type OpenClinXrRestRoute = {
   id: string;
   method: OpenClinXrRestMethod;
   path: `/${string}`;
@@ -17,7 +17,7 @@ export type OpenClinXrRestRoute = {
   };
 };
 
-export type OpenClinXrRestRouteMatch = {
+type OpenClinXrRestRouteMatch = {
   route: (typeof openClinXrRestRoutes)[number];
   params: {
     stationRunId?: string;
@@ -105,17 +105,17 @@ export const openClinXrRestRoutes = Object.freeze([
   route("save-faculty-compile-lock", "POST", "/internal/faculty-compile-locks", "control-plane"),
 ] as const);
 
-export type OpenClinXrRestRouteId = (typeof openClinXrRestRoutes)[number]["id"];
+type OpenClinXrRestRouteId = (typeof openClinXrRestRoutes)[number]["id"];
 
-export const openClinXrRestRouteIds = Object.freeze(openClinXrRestRoutes.map((route) => route.id));
+export const openClinXrRestRouteIds = Object.freeze(openClinXrRestRoutes.map((entry) => entry.id));
 
 export function routeById(routeId: OpenClinXrRestRouteId): Extract<(typeof openClinXrRestRoutes)[number], { id: typeof routeId }> {
-  const route = openClinXrRestRoutes.find((candidate) => candidate.id === routeId);
-  if (!route) {
+  const found = openClinXrRestRoutes.find((candidate) => candidate.id === routeId);
+  if (!found) {
     throw new Error(`Unknown REST route: ${routeId}`);
   }
 
-  return route as Extract<(typeof openClinXrRestRoutes)[number], { id: typeof routeId }>;
+  return found as Extract<(typeof openClinXrRestRoutes)[number], { id: typeof routeId }>;
 }
 
 export function buildSessionRoutePath(routeId: OpenClinXrRestRouteId, stationRunId: string): string {
@@ -123,26 +123,26 @@ export function buildSessionRoutePath(routeId: OpenClinXrRestRouteId, stationRun
     throw new Error("stationRunId is required");
   }
 
-  const route = routeById(routeId);
-  if (!route.stationRunScoped) {
+  const found = routeById(routeId);
+  if (!found.stationRunScoped) {
     throw new Error(`Route ${routeId} is not station-run scoped`);
   }
 
-  return route.path.replace(":stationRunId", encodeURIComponent(stationRunId));
+  return found.path.replace(":stationRunId", encodeURIComponent(stationRunId));
 }
 
 export function matchOpenClinXrRestRoute(method: string, pathname: string): OpenClinXrRestRouteMatch | undefined {
   const normalizedMethod = method.toUpperCase();
   const pathSegments = splitPath(pathname);
 
-  for (const route of openClinXrRestRoutes) {
-    if (route.method !== normalizedMethod) {
+  for (const candidate of openClinXrRestRoutes) {
+    if (candidate.method !== normalizedMethod) {
       continue;
     }
 
-    const params = matchRouteSegments(route.path, pathSegments);
+    const params = matchRouteSegments(candidate.path, pathSegments);
     if (params) {
-      return { route, params };
+      return { route: candidate, params };
     }
   }
 
@@ -226,134 +226,61 @@ function decodePathSegment(value: string): string {
   }
 }
 
-export {
-  listAdminGraphqlScenarios,
-  toAdminGraphqlScenario,
-} from "./admin-scenario-listing.js";
+export { toAdminGraphqlScenario } from "./admin-scenario-listing.js";
 export type { ApiAppContext } from "./api-app-context.js";
-export { createApiAppContext } from "./api-app-context.js";
+export type { ApiApp } from "./api-application.js";
+export { ApiApplication } from "./api-application.js";
 export {
   type ApiFetchBody,
   type ApiFetchHeaders,
   type ApiFetchInput,
-  type ApiFetchRequestLike,
   isApiFetchRequestLike,
 } from "./api-fetch-request-validation.js";
-export type { ApiApp, ApiLifecycleService, ApiLifecycleServiceInput, ComposedApiApp } from "./api-application.js";
-export { ApiApplication, shutdownApiApp } from "./api-application.js";
-export { registerCoreMiddleware } from "./api-middleware.js";
-export {
-  buildAssetReleaseLadderReplayProjection,
-  createAdminGraphqlRoot,
-  createSeedBankAssetReadiness,
-  createSeedBankSceneGenerationPipelineQueue,
-  createSeedStationRunQueueSnapshot,
-  findSeedBankAssetReadiness,
-  summarizeClinicalEventReviewProjections,
-  summarizeReviewReplayReadiness,
-  uniqueStrings,
-} from "./api-route-support.js";
-export {
-  createDefaultRealtimeVoiceGatewayPostureInput,
-  recordApiRouteSpan,
-  telemetrySnapshotFromRecorder,
-} from "./api-support.js";
-export type * from "./api-types.js";
 export type {
   ApiAppOptions,
   ApiAppVariables,
+  ApiAssetReleaseLadderReplayProjection,
   ApiAuthOptions,
+  ApiClinicalEventReviewProjection,
+  ApiFacultyCompileLockRecord,
+  ApiFacultyReviewDecisionRecord,
+  ApiFacultyScoreDraftRecord,
+  ApiHumanReviewActionSummary,
+  ApiMaterializationInputReviewDecision,
+  ApiMaterializationInputReviewDecisionRecord,
   ApiPersistenceSink,
+  ApiRuntimeEvidenceCaptureScaffold,
+  ApiRuntimeRealismEvidenceAttachmentSummary,
+  ApiRuntimeRealismEvidenceInputReviewDecision,
+  ApiRuntimeRealismEvidenceInputReviewDecisionRecord,
+  ApiRuntimeVisualEvidenceAttachment,
+  ApiRuntimeVisualEvidenceAttachmentActionPacket,
+  ApiRuntimeVisualEvidenceAttachmentRecord,
+  ApiRuntimeVisualEvidenceReplayProjection,
+  ApiScenarioReviewDecisionRecord,
+  ApiScenarioReviewerRole,
+  ApiScenarioReviewGateSummary,
+  ApiScenarioSceneGenerationRequestRecord,
+  ApiStationRunQueueSnapshot,
+  ApiUiXrRuntimeEvidenceConsumerWorkflowSummary,
+  RuntimeReviewPacket,
+  RuntimeTraceEvents,
 } from "./api-types.js";
-export { buildExamAssemblyScenarioPool } from "./exam-assembly-pool.js";
+export { createBunServerConfig } from "./bun-realtime-voice-handler.js";
+export { parseFactoryRunRollup } from "./factory-run-rollup-validation.js";
 export {
   compileLocksPathFor,
-  FACULTY_COMPILE_LOCK_CLAIM_BOUNDARY,
-  FACULTY_COMPILE_LOCK_NOT_EVIDENCE_FOR,
-  FACULTY_COMPILE_LOCK_OVERRIDE_PATHS,
   FACULTY_COMPILE_LOCKS_DIR,
-  type FacultyCompileLockFile,
-  type FacultyCompileLockFileLock,
   readFacultyCompileLocksRecord,
-  resolveCompileLocksRepoRoot,
-  writeFacultyCompileLock,
 } from "./faculty-compile-lock-store.js";
 export {
-  type FactoryRunCaseRow,
-  type FactoryRunRollupValue,
-  type FactoryRunStationRow,
-  parseFactoryRunRollup,
-} from "./factory-run-rollup-validation.js";
-export { createOpenClinXrApiProtocolPosture } from "./protocol-support.js";
-export type { OpenClinXrApiProtocolPosture, OpenClinXrApiProtocolSupport } from "./protocol-support.js";
-export { isRecord, reviewStatesFromRecord } from "./promotion-io-validation.js";
-export {
-  isPassedApiBunWebSocketRuntimeSmokeEvidence,
-  isProtocolPostureEvidenceDiscoverySuppressed,
-  isRealtimeVoiceWebSocketUpgradeRequest,
-  isSupportedRealtimeVoiceControlType,
-  parseStringArray,
-  parseFiniteNumber,
-} from "./protocol-posture-validation.js";
-export { supportedRealtimeVoiceControlTypes } from "./protocol-posture-readers.js";
-export {
-  readOptionalEvidenceFile,
-  resolveRepoRelativePath,
-  findLatestApiBunWebSocketRuntimeSmokeEvidencePath,
-  resolveApiBunWebSocketRuntimeEvidencePath,
-  readOptionalProtocolPostureEvidenceFile,
-  readApiBunWebSocketRuntimeVerifiedFromEnvironment,
-  createOpenClinXrApiProtocolPostureFromEnvironment,
   createBunRealtimeVoiceGatewayPostureInputFromEnvironment,
+  createOpenClinXrApiProtocolPostureFromEnvironment,
+  readApiBunWebSocketRuntimeVerifiedFromEnvironment,
 } from "./protocol-posture-readers.js";
-export {
-  createBunRealtimeVoiceWebSocketHandler,
-  createBunServerConfig,
-} from "./bun-realtime-voice-handler.js";
-export {
-  BLUEPRINT_ID as PROMOTION_BLUEPRINT_ID,
-  IN_PROCESS_ORIGIN as PROMOTION_IN_PROCESS_ORIGIN,
-  REVIEW_GATES as PROMOTION_REVIEW_GATES,
-  createAuthoredMemorySink,
-  createInProcessDispatcher,
-  findBankFixture,
-  readAuthoredGateState,
-  readQueueItem,
-  readReadiness,
-  requestApp,
-  submitReviewDecision,
-} from "./scenario-promotion-io.js";
-export type {
-  ApiFetchCall,
-  ApiFetchDispatcher,
-  AuthoredMemorySink,
-  HonoLikeApp,
-  LearnerScenarioResolver,
-  LearnerScenarioResolverLoader,
-  PromotionHarnessContext,
-  QueueItemRead,
-  ScenarioGateState,
-} from "./scenario-promotion-io.js";
-export type { PromotionPathContext } from "./scenario-promotion-path.js";
-export {
-  CONTROL_SCENARIO_ID,
-  PROMOTED_SCENARIO_ID,
-  inspectScenarioPromotionPath,
-  inspectStageZeroStaysBlocking,
-} from "./scenario-promotion-path.js";
-export type { PromotionHop, PromotionPathRun, StageZeroStuckRun } from "./scenario-promotion-path.js";
-export {
-  PRE_FIX_ARTIFACT_RELATIVE_PATH,
-  measureBankBaseline,
-  writePreFixArtifact,
-} from "./scenario-promotion-baseline.js";
-export type { BankBaseline, BaselineContext, BaselineScenarioRow } from "./scenario-promotion-baseline.js";
+export type { OpenClinXrApiProtocolPosture, OpenClinXrApiProtocolSupport } from "./protocol-support.js";
+export { createOpenClinXrApiProtocolPosture } from "./protocol-support.js";
 export { registerAdminGraphqlRoutes } from "./routes/admin-graphql-routes.js";
-export { registerFacultyCompileLockRoutes } from "./routes/faculty-compile-lock-routes.js";
-export { registerFactoryRunTableRoutes, FACTORY_RUN_ROLLUP_REL } from "./routes/factory-run-table-routes.js";
-export type { FactoryRunTableContext } from "./routes/factory-run-table-routes.js";
-export { registerWorldCompileRoutes, resolvePriorEvidencePathForScenario } from "./routes/world-compile-routes.js";
-export type { WorldCompileContext } from "./routes/world-compile-routes.js";
 export { registerAssembledExamDispositionRoutes } from "./routes/assembled-exam-disposition-routes.js";
 export { registerAssembledExamReviewRoutes } from "./routes/assembled-exam-review-routes.js";
 export { registerAssembledExamRunRoutes } from "./routes/assembled-exam-run-routes.js";
@@ -367,25 +294,41 @@ export {
 } from "./routes/encounter-bundle-promotion/index.js";
 export { registerEncounterSessionRoutes } from "./routes/encounter-session-routes.js";
 export { registerExamRoutes } from "./routes/exam-routes.js";
+export { registerFactoryRunTableRoutes } from "./routes/factory-run-table-routes.js";
+export { registerFacultyCompileLockRoutes } from "./routes/faculty-compile-lock-routes.js";
 export { registerPlatformRoutes } from "./routes/platform-routes.js";
 export { registerReviewRoutes } from "./routes/review-routes.js";
 export { registerRuntimeEvidenceRoutes } from "./routes/runtime-evidence-routes.js";
 export { registerScenarioSceneGenerationRoutes } from "./routes/scenario-scene-generation-routes.js";
-export { registerSessionRoutes, resolveSessionRuntime } from "./routes/session-routes.js";
+export { registerSessionRoutes } from "./routes/session-routes.js";
+export { registerWorldCompileRoutes } from "./routes/world-compile-routes.js";
 export {
   type ApiAssembledExamDispositionRecord,
   type ApiAssembledExamRunRecord,
   type ApiRuntimeDurableStore,
   createScenarioRuntimeDurableStoreFromApiPersistence,
 } from "./runtime-durable-store.js";
-export { parseStationPayloads } from "./station-payload-validation.js";
+export {
+  measureBankBaseline,
+  PRE_FIX_ARTIFACT_RELATIVE_PATH,
+  writePreFixArtifact,
+} from "./scenario-promotion-baseline.js";
+export type { HonoLikeApp, LearnerScenarioResolver } from "./scenario-promotion-io.js";
+export {
+  createInProcessDispatcher,
+  IN_PROCESS_ORIGIN as PROMOTION_IN_PROCESS_ORIGIN,
+  REVIEW_GATES as PROMOTION_REVIEW_GATES,
+} from "./scenario-promotion-io.js";
+export {
+  CONTROL_SCENARIO_ID,
+  inspectScenarioPromotionPath,
+  inspectStageZeroStaysBlocking,
+  PROMOTED_SCENARIO_ID,
+} from "./scenario-promotion-path.js";
 export {
   AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
   authoredScenarioContentIdentity,
-  bindScenarioReviewDecisionToAuthoredIdentity,
-  coerceAuthoredScenarioWrite,
   MISSING_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR,
-  neutralizeClientAssertedApprovedGates,
-  persistAuthoredScenarioReviewPromotion,
   STALE_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR,
 } from "./scenario-review-promotion.js";
+export { parseStationPayloads } from "./station-payload-validation.js";

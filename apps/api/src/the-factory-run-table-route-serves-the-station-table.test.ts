@@ -1,24 +1,10 @@
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { describe, expect, it } from "vitest";
-import { createApiApp } from "./index.js";
 import { parseFactoryRunRollup } from "@openclinxr/rest";
+import { describe, expect, it } from "vitest";
+import { FACTORY_RUN_ROLLUP_REL } from "../../../packages/openclinxr/rest/src/routes/factory-run-table-routes.js";
+import { createApiApp } from "./index.js";
 import { repoRoot } from "./scenario-promotion-bridge.js";
-
-/**
- * Resolved through a STATIC import now that the validator lives in
- * packages/openclinxr/rest/src/factory-run-rollup-validation.ts and is re-exported
- * from @openclinxr/rest. The non-static specifier below remains for the route
- * constant FACTORY_RUN_ROLLUP_REL, which stays with the route (composition root).
- */
-const ROUTE_SPECIFIER = ["@openclinxr/rest"].join("");
-
-async function routeModule(): Promise<{
-  FACTORY_RUN_ROLLUP_REL: string;
-  parseFactoryRunRollup: (raw: unknown) => { ok: boolean; value?: { cases: unknown[] } };
-}> {
-  return (await import(/* @vite-ignore */ ROUTE_SPECIFIER)) as never;
-}
 
 /**
  * OBSERVABLE: the only artifact that records per-station run outcomes has no
@@ -67,6 +53,10 @@ async function routeModule(): Promise<{
 // route constant still resolves through the non-static specifier. Diagnosis header
 // above left byte-identical.
 
+// ## FIXED (psr-04): 2026-09-11. FACTORY_RUN_ROLLUP_REL is a route-local constant (approval
+// remove). The test now imports it from the route module; parseFactoryRunRollup stays on
+// the rest root. Diagnosis header above left byte-identical.
+
 const ROLLUP_FIXTURE = {
   schemaVersion: "openclinxr.dark-factory-multi-case-rollup.v1",
   generatedAt: "2026-09-06T00:00:00.000Z",
@@ -103,7 +93,6 @@ const ROLLUP_FIXTURE = {
 
 /** Write the rollup only when the tree has none, and remove only what we wrote. */
 async function withRollupFixture<T>(body: () => T | Promise<T>): Promise<T> {
-  const { FACTORY_RUN_ROLLUP_REL } = await routeModule();
   const absolute = join(repoRoot(), FACTORY_RUN_ROLLUP_REL);
   if (existsSync(absolute)) return body();
   mkdirSync(dirname(absolute), { recursive: true });
@@ -116,8 +105,7 @@ async function withRollupFixture<T>(body: () => T | Promise<T>): Promise<T> {
 }
 
 describe("the factory run-table route serves the station table", () => {
-  it("(1) the published rollup path is under the evidence root, not a per-issue dir", async () => {
-    const { FACTORY_RUN_ROLLUP_REL } = await routeModule();
+  it("(1) the published rollup path is under the evidence root, not a per-issue dir", () => {
     expect(FACTORY_RUN_ROLLUP_REL).toMatch(/^\.openclinxr\/evidence\/factory-run\//);
     expect(FACTORY_RUN_ROLLUP_REL).toMatch(/\.json$/);
     expect(FACTORY_RUN_ROLLUP_REL).not.toMatch(/issue-\d+/);
