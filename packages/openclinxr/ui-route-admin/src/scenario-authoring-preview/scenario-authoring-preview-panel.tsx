@@ -1,10 +1,10 @@
+import { Alert, Button, List, Space, Tag, Typography } from "antd";
+import { type ReactElement, useMemo } from "react";
 import {
   type AuthoringPreviewResult,
   previewAuthoringRevision,
   STALE_REVIEW_IDENTITY_REFUSAL,
-} from "@openclinxr/ui-route-admin";
-import { Alert, Button, List, Space, Tag, Typography } from "antd";
-import { type ReactElement, useMemo } from "react";
+} from "./preview-authoring-revision.js";
 
 export type ScenarioAuthoringPreviewPanelProps = {
   draft: unknown;

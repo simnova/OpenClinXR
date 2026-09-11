@@ -8,125 +8,33 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./scenario-authoring-preview": {
-      "types": "./dist/scenario-authoring-preview/preview-authoring-revision.d.ts",
-      "default": "./dist/scenario-authoring-preview/preview-authoring-revision.js"
-    },
-    "./encounter-bundle-promotion": {
-      "types": "./dist/encounter-bundle-promotion/index.d.ts",
-      "default": "./dist/encounter-bundle-promotion/index.js"
-    },
-    "./actor-phenotype-fields": {
-      "types": "./dist/actor-phenotype-fields.d.ts",
-      "default": "./dist/actor-phenotype-fields.js"
-    },
-    "./actor-touch-response-fields": {
-      "types": "./dist/actor-touch-response-fields.d.ts",
-      "default": "./dist/actor-touch-response-fields.js"
-    },
-    "./admin-review-types": {
-      "types": "./dist/admin-review-types.d.ts",
-      "default": "./dist/admin-review-types.js"
-    },
-    "./asset-needs-panel": {
-      "types": "./dist/asset-needs-panel.d.ts",
-      "default": "./dist/asset-needs-panel.js"
-    },
-    "./case-authoring-io": {
-      "types": "./dist/case-authoring-io.d.ts",
-      "default": "./dist/case-authoring-io.js"
-    },
-    "./case-authoring-model": {
-      "types": "./dist/case-authoring-model.d.ts",
-      "default": "./dist/case-authoring-model.js"
-    },
     "./case-authoring-workbench": {
-      "types": "./dist/case-authoring-workbench.d.ts",
-      "default": "./dist/case-authoring-workbench.js"
-    },
-    "./dialogue-seed-authoring-panel": {
-      "types": "./dist/dialogue-seed-authoring-panel.d.ts",
-      "default": "./dist/dialogue-seed-authoring-panel.js"
-    },
-    "./emotion-policy-panel": {
-      "types": "./dist/emotion-policy-panel.d.ts",
-      "default": "./dist/emotion-policy-panel.js"
-    },
-    "./encounter-environment-panel": {
-      "types": "./dist/encounter-environment-panel.d.ts",
-      "default": "./dist/encounter-environment-panel.js"
+      "types": "./dist/case-authoring-workbench-entry.d.ts",
+      "default": "./dist/case-authoring-workbench-entry.js"
     },
     "./environment-generation-queue-panel": {
-      "types": "./dist/environment-generation-queue-panel.d.ts",
-      "default": "./dist/environment-generation-queue-panel.js"
-    },
-    "./environment-queue-readiness-summaries": {
-      "types": "./dist/environment-queue-readiness-summaries.d.ts",
-      "default": "./dist/environment-queue-readiness-summaries.js"
-    },
-    "./equipment-panel": {
-      "types": "./dist/equipment-panel.d.ts",
-      "default": "./dist/equipment-panel.js"
-    },
-    "./faculty-adjudication-workspace": {
-      "types": "./dist/faculty-adjudication-workspace.d.ts",
-      "default": "./dist/faculty-adjudication-workspace.js"
-    },
-    "./faculty-compile-lock-types": {
-      "types": "./dist/faculty-compile-lock-types.d.ts",
-      "default": "./dist/faculty-compile-lock-types.js"
+      "types": "./dist/environment-generation-queue-panel-entry.d.ts",
+      "default": "./dist/environment-generation-queue-panel-entry.js"
     },
     "./faculty-compile-lock": {
-      "types": "./dist/faculty-compile-lock.d.ts",
-      "default": "./dist/faculty-compile-lock.js"
+      "types": "./dist/faculty-compile-lock-entry.d.ts",
+      "default": "./dist/faculty-compile-lock-entry.js"
     },
-    "./faculty-review-decision-panel": {
-      "types": "./dist/faculty-review-decision-panel.d.ts",
-      "default": "./dist/faculty-review-decision-panel.js"
-    },
-    "./queue-review-snapshot-history": {
-      "types": "./dist/queue-review-snapshot-history.d.ts",
-      "default": "./dist/queue-review-snapshot-history.js"
+    "./faculty-compile-lock-types": {
+      "types": "./dist/faculty-compile-lock-types-entry.d.ts",
+      "default": "./dist/faculty-compile-lock-types-entry.js"
     },
     "./review-replay-readiness-summary-panel": {
-      "types": "./dist/review-replay-readiness-summary-panel.d.ts",
-      "default": "./dist/review-replay-readiness-summary-panel.js"
-    },
-    "./review-replay-safety-panel": {
-      "types": "./dist/review-replay-safety-panel.d.ts",
-      "default": "./dist/review-replay-safety-panel.js"
-    },
-    "./runtime-selection-review-packet-panel": {
-      "types": "./dist/runtime-selection-review-packet-panel.d.ts",
-      "default": "./dist/runtime-selection-review-packet-panel.js"
-    },
-    "./scenario-authoring-workspace": {
-      "types": "./dist/scenario-authoring-workspace.d.ts",
-      "default": "./dist/scenario-authoring-workspace.js"
-    },
-    "./scenario-bank-maturity-panel": {
-      "types": "./dist/scenario-bank-maturity-panel.d.ts",
-      "default": "./dist/scenario-bank-maturity-panel.js"
-    },
-    "./scenario-review-gate-constants": {
-      "types": "./dist/scenario-review-gate-constants.d.ts",
-      "default": "./dist/scenario-review-gate-constants.js"
+      "types": "./dist/review-replay-readiness-summary-panel-entry.d.ts",
+      "default": "./dist/review-replay-readiness-summary-panel-entry.js"
     },
     "./scenario-review-gate-panel": {
-      "types": "./dist/scenario-review-gate-panel.d.ts",
-      "default": "./dist/scenario-review-gate-panel.js"
-    },
-    "./seed-exam-readiness-boundary-panel": {
-      "types": "./dist/seed-exam-readiness-boundary-panel.d.ts",
-      "default": "./dist/seed-exam-readiness-boundary-panel.js"
+      "types": "./dist/scenario-review-gate-panel-entry.d.ts",
+      "default": "./dist/scenario-review-gate-panel-entry.js"
     },
     "./seed-worldview-queue": {
-      "types": "./dist/seed-worldview-queue.d.ts",
-      "default": "./dist/seed-worldview-queue.js"
-    },
-    "./status-view-model": {
-      "types": "./dist/status-view-model.d.ts",
-      "default": "./dist/status-view-model.js"
+      "types": "./dist/seed-worldview-queue-entry.d.ts",
+      "default": "./dist/seed-worldview-queue-entry.js"
     }
   },
   "scripts": {

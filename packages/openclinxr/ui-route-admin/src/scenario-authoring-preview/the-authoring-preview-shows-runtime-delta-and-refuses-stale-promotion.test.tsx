@@ -1,10 +1,12 @@
 import "@testing-library/jest-dom/vitest";
-import { authoredContentIdentity, previewAuthoringRevision, STALE_REVIEW_IDENTITY_REFUSAL } from "@openclinxr/ui-route-admin";
+import { authoredContentIdentity } from "@openclinxr/domain";
 import { clinicKneePainScenario } from "@openclinxr/scenario-fixtures";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { previewAuthoringRevision } from "./preview-authoring-revision.js";
 import { ScenarioAuthoringPreviewPanel } from "./scenario-authoring-preview-panel.js";
+import { STALE_REVIEW_IDENTITY_REFUSAL } from "./types.js";
 
 beforeAll(() => {
   vi.stubGlobal("matchMedia", (query: string) => ({

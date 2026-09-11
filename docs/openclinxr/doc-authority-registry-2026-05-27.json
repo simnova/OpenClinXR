@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 208,
     "archive-candidate": 90,
-    "evidence": 100,
+    "evidence": 101,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -4134,6 +4134,13 @@
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/evidence/psr-05.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/evidence/psr-06.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",

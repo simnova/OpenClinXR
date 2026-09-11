@@ -109,10 +109,13 @@ function writeGroup(
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 46 roots and 137 declared entrypoints", () => {
+  it("(1) the live tree discovers 46 roots and 114 declared entrypoints", () => {
     const report = measureSurface();
     expect(report.totals.roots).toBe(46);
-    expect(report.totals.entrypoints).toBe(137);
+    // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
+    // approval removes. Re-derived independently by counting `exports` keys in the 46 scoped
+    // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
+    expect(report.totals.entrypoints).toBe(114);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -122,7 +125,9 @@ describe("compiler-resolved surface meter", () => {
     // Re-derived independently with ts.TypeChecker.getExportsOfModule on rest/src/index.ts, which also
     // returns the untouched ui-route-admin pin (277), so the method agrees with this calibration.
     expect(byDir.get("packages/openclinxr/rest")?.rootSymbols).toBe(94);
-    expect(byDir.get("packages/openclinxr/ui-route-admin")?.rootSymbols).toBe(277);
+    // 277 before PSR-06; 12 after it (approval psr-01d ui-route-admin subset), re-derived with
+    // ts.TypeChecker.getExportsOfModule on ui-route-admin/src/index.ts, which still returns 94 for rest.
+    expect(byDir.get("packages/openclinxr/ui-route-admin")?.rootSymbols).toBe(12);
   });
 
   it("(3) all four arena packages are reported", () => {

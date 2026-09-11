@@ -1,14 +1,14 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
-import { adminPublicationGates, adminWorkbenchRoutes, ScenarioBankWorkbenchProvider, ScenarioBankWorkbenchUI, ReviewReplayWorkbenchProvider, ReviewReplayWorkbenchUI, SeedBlueprintWorkbenchProvider, SeedBlueprintWorkbenchUI, ScenarioDetailWorkbenchProvider, ScenarioDetailWorkbenchUI, capabilityTagColor } from "@openclinxr/ui-route-admin";
+import { adminPublicationGates, adminWorkbenchRoutes, capabilityTagColor, ReviewReplayWorkbenchProvider, ReviewReplayWorkbenchUI, ScenarioBankWorkbenchProvider, ScenarioBankWorkbenchUI, ScenarioDetailWorkbenchProvider, ScenarioDetailWorkbenchUI, SeedBlueprintWorkbenchProvider, SeedBlueprintWorkbenchUI } from "@openclinxr/ui-route-admin";
 import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/ui-shared";
 import "@xyflow/react/dist/style.css";
+import { CaseAuthoringWorkbench } from "@openclinxr/ui-route-admin/case-authoring-workbench";
+import type { FacultyCompileLockClient } from "@openclinxr/ui-route-admin/faculty-compile-lock-types";
+import { type AdminControlPlaneClient, buildAdminGraphqlEndpoint, compileEncounterWorld, createAdminControlPlaneClient } from "@openclinxr/ui-route-shared";
 import { Card, ConfigProvider, Layout, Space, Steps, Tag, Typography } from "antd";
-import { Link } from "react-router";
 import { useMemo } from "react";
-import { BrowserRouter, MemoryRouter, Route, Routes } from "react-router";
-import { buildAdminGraphqlEndpoint, createAdminControlPlaneClient, compileEncounterWorld, type AdminControlPlaneClient } from "@openclinxr/ui-route-shared";
-import { CaseAuthoringWorkbench, type FacultyCompileLockClient } from "@openclinxr/ui-route-admin";
+import { BrowserRouter, Link, MemoryRouter, Route, Routes } from "react-router";
 
 const { Content, Sider } = Layout;
 
