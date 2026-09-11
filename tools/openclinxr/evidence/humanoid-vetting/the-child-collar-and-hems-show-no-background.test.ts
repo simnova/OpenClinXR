@@ -1,10 +1,3 @@
-import { existsSync, readFileSync } from "node:fs";
-import { createHash } from "node:crypto";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
-import { decodePng } from "../decode-png.ts";
-
 /**
  * HB-07 RED (it.fails): the baked child humanoid shows no background through
  * its body at the collar or sleeve hems in a fresh front render.
@@ -136,56 +129,108 @@ import { decodePng } from "../decode-png.ts";
  * Sleeves unchanged from HB-06. Neckline matches attempt 2. Not all four
  * sites 0 — it.fails stays. Live GLB restored to origin/main
  * (sha 2742c258… / 11,348,244 B).
+ *
+ * ## CORRECTION (orchestrator, 2026-09-11)
+ *
+ * The shipped capture shows two dark see-through squares at the neck base,
+ * one each side. Attempt-3 treatment (screen-space unhide) REMOVED them: 87
+ * of 154 and 92 of 191 neckline background pixels were hidden_upper first
+ * hits, and exactly those are gone (154 -> 67, 191 -> 99).
+ *
+ * Every remaining background pixel in the four boxes MISSES all geometry:
+ * neckline 67/99 are the gap between hair and neck; sleeve 379/382 and
+ * 288/292 are the gap between the arm and the torso, which the HB-06 boxes
+ * include. Those pixels are outside the silhouette and correctly show
+ * background. The sleeve hems were never see-through.
+ *
+ * So the RED's criterion (all exact-background pixels in each box = 0)
+ * measures the wrong population and can never pass on a correct body. The
+ * corrected criterion keeps the zero threshold on the see-through
+ * population: an exact-background pixel counts ONLY if the capture camera's
+ * ray through it first-hits a GLB face (any primitive, including alpha-MASK
+ * hidden faces). Camera reconstruction is the attempt-3 probe (helper
+ * see-through-pixels.ts beside this file).
+ *
+ * Attempt-3 probe table (evidence; origin/main child sha 2742c258…):
+ *
+ * | site | bg | miss | t-shirt | hidden_upper (MASK) | visible skin | other |
+ * |---|---:|---:|---:|---:|---:|---:|
+ * | neckline-square-L | 154 | 67 | 0 | 87 | 0 | 0 |
+ * | neckline-square-R | 191 | 99 | 0 | 92 | 0 | 0 |
+ * | sleeve-hem-rectangle-L | 382 | 379 | 0 | 3 | 0 | 0 |
+ * | sleeve-hem-rectangle-R | 292 | 288 | 0 | 4 | 0 | 0 |
+ * | control C (chin) | 0 | 0 | 0 | 0 | 0 | 0 |
+ *
+ * Assertion: per site, see-through (exact-background AND camera ray hits a
+ * GLB face) = 0; control C = 0; torso box skin pixels (visible_skin first
+ * hits on subject pixels, poke-through counterweight) = 0. The see-through
+ * count on the SHIPPED bytes at 63dc2fb2 is > 0 for both neckline sites —
+ * the test must fail on the defect it names.
  */
+
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve as pathResolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it } from "vitest";
+import { PRE_FIX_REV, SITES, countSeeThrough } from "./see-through-pixels.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../../..");
 const GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb");
 const LIT = join(REPO_ROOT, "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_lit.png");
 const STRUCT = join(REPO_ROOT, "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_structure.png");
-const BG_LUMA = 0.299 * 24 + 0.587 * 33 + 0.114 * 29;
+const GLB_REV = `${PRE_FIX_REV}:apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb`;
+const LIT_REV = `${PRE_FIX_REV}:docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_lit.png`;
+const STRUCT_REV = `${PRE_FIX_REV}:docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_structure.png`;
 
-const SITES: Record<string, number[]> = {
-  "neckline-square-L": [1840, 1300, 1980, 1400],
-  "neckline-square-R": [2120, 1300, 2260, 1400],
-  "sleeve-hem-rectangle-L": [1560, 1630, 1920, 1920],
-  "sleeve-hem-rectangle-R": [2180, 1630, 2540, 1920],
-};
-const CONTROL_C = [1980, 1180, 2120, 1300];
+function gitShow(revPath: string): Buffer {
+  return execFileSync("git", ["show", revPath], { cwd: REPO_ROOT, maxBuffer: 64 * 1024 * 1024 });
+}
 
-function sha256Hex(bytes: Buffer): string {
-  return createHash("sha256").update(bytes).digest("hex");
+function writeShippedBytes(): { glbPath: string; litPath: string; structPath: string } {
+  const dir = join(tmpdir(), `hb07-shipped-${process.pid}`);
+  mkdirSync(dir, { recursive: true });
+  const glbPath = join(dir, "mpfb-peds-patient-child.glb");
+  const litPath = join(dir, "front_lit.png");
+  const structPath = join(dir, "front_structure.png");
+  writeFileSync(glbPath, gitShow(GLB_REV));
+  writeFileSync(litPath, gitShow(LIT_REV));
+  writeFileSync(structPath, gitShow(STRUCT_REV));
+  return { glbPath, litPath, structPath };
 }
 
 describe("the child collar and hems show no background", () => {
-  it.fails("HB-07-required-behavior", () => {
+  it("63dc2fb2 neckline see-through is the named defect", async () => {
+    const shipped = await countSeeThrough(writeShippedBytes());
+    expect(
+      shipped.sites["neckline-square-L"]!.seeThrough,
+      "63dc2fb2 neckline-square-L see-through (exact-bg AND ray hits a GLB face) is the named defect",
+    ).toBeGreaterThan(0);
+    expect(
+      shipped.sites["neckline-square-R"]!.seeThrough,
+      "63dc2fb2 neckline-square-R see-through (exact-bg AND ray hits a GLB face) is the named defect",
+    ).toBeGreaterThan(0);
+  }, 120_000);
+
+  it.fails("HB-07-required-behavior", async () => {
     expect(existsSync(GLB), `${GLB} exists on disk`).toBe(true);
     expect(existsSync(LIT) && existsSync(STRUCT), "tracked front captures exist").toBe(true);
-    const lit = decodePng(new Uint8Array(readFileSync(LIT)))!;
-    const struct = decodePng(new Uint8Array(readFileSync(STRUCT)))!;
-    expect(lit !== null && struct !== null, "both PNGs decode").toBe(true);
-    const W = lit!.w;
-    const count = (box: number[]): { subj: number; bg: number } => {
-      let subj = 0;
-      let bg = 0;
-      for (let y = box[1]!; y < box[3]!; y++) {
-        for (let x = box[0]!; x < box[2]!; x++) {
-          const i = y * W + x;
-          if (struct!.lum[i]! > 40) {
-            subj++;
-            if (Math.abs(lit!.lum[i]! - BG_LUMA) < 0.01) bg++;
-          }
-        }
-      }
-      return { subj, bg };
-    };
-    for (const [id, box] of Object.entries(SITES)) {
-      const got = count(box);
-      expect(got.subj, `${id}: subject pixels recomputed from the tracked PNGs`).toBeGreaterThan(0);
-      expect(got.bg, `${id}: zero exact-background pixels (hide-mask boundary closed)`).toBe(0);
+
+    const live = await countSeeThrough({ glbPath: GLB, litPath: LIT, structPath: STRUCT });
+    for (const id of Object.keys(SITES)) {
+      expect(live.sites[id]!.subject, `${id}: subject pixels recomputed from the tracked PNGs`).toBeGreaterThan(0);
+      expect(
+        live.sites[id]!.seeThrough,
+        `${id}: zero see-through pixels (exact-background AND camera ray hits a GLB face)`,
+      ).toBe(0);
     }
-    const ctrl = count(CONTROL_C);
-    expect(ctrl.bg, "control site C (chin) holds zero exact-background pixels").toBe(0);
-    void sha256Hex;
-  });
+    expect(live.controlC.seeThrough, "control site C (chin) holds zero see-through pixels").toBe(0);
+    expect(
+      live.torso.visibleSkinSubject,
+      "torso box skin pixels (visible_skin first hits; poke-through counterweight)",
+    ).toBe(0);
+  }, 120_000);
 });
+
