@@ -30,9 +30,6 @@ const HUMANOIDS_DIR = new URL("../public/generated-humanoids/", import.meta.url)
 /** Records whose outputSha256 did not match on 2026-09-09. This list may only SHRINK. */
 const PROVENANCE_HASH_MISMATCH_FREEZE = [
   "adult_male_street_casual.provenance.json",
-  "mpfb-ob-patient-aisha.provenance.json",
-  "mpfb-peds-parent-aisha.provenance.json",
-  "mpfb-peds-patient-child.provenance.json",
 ] as const;
 
 /**
@@ -54,6 +51,19 @@ const PROVENANCE_HASH_MISMATCH_FREEZE = [
  * mpfb-gown-adult-patient.provenance.json is NEW in the same change — that asset had never had a
  * record at all — and it enters OUTSIDE the freeze, so clause (1) holds it to its bytes from the
  * start.
+ *
+ * PAID DOWN by HB-02 (22ec335a + 435d8531), 2026-09-11, and removed from the freeze above rather
+ * than left as stale entries:
+ *
+ *   mpfb-ob-patient-aisha.provenance.json     08a0902b…, 11,677,568 B
+ *   mpfb-peds-parent-aisha.provenance.json    dfcffe74…, 11,857,108 B
+ *   mpfb-peds-patient-child.provenance.json   2742c258…, 11,348,244 B
+ *
+ * Neither hash was taken off disk to make a mismatch go away. HB-02 rebaked the albedo into ten
+ * MPFB GLBs (per-texel baseColorFactor x texture fold; geometry, rig, animations unchanged) and
+ * re-recorded outputSha256/outputBytes in the same change that moved the bytes, with the rebake
+ * note in the record's albedoBakeNote field. The recorded digests therefore describe the shipped
+ * bytes by construction of the rebake that produced them.
  */
 
 type ProvenanceRow = {

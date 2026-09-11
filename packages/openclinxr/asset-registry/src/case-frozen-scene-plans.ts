@@ -40,7 +40,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
         "caseId": "scene_closure_supine_bedside_v1",
         "caseVersion": 2,
         "caseSourceVersion": "openclinxr.scene-closure-case-source.v2",
-        "caseContentSha256": "ac7c9e24e6dbf18ac14e9e341fad00e8f94d1bc52525aca6d81d3b0ba04e0543",
+        "caseContentSha256": "c6d99b8cad2cead2c6916f02c9975e483e0d270f4f51f80b4cd8f2f25569801e",
         "stationId": "scene_closure_supine_bedside_station_v1",
         "environmentId": "inpatient_ward_room_v1"
       },
@@ -59,32 +59,32 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "patient_margaret_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
-          "assetSha256": "59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6",
-          "byteCount": 18840492
+          "assetSha256": "2e9a9615fa2034675eab9b2634139a74b3918c9698e97b6a1cb65bd8076ed588",
+          "byteCount": 18576544
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:senior_resident_ward_v1",
           "kind": "actor",
           "contentId": "senior_resident_ward_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-          "assetSha256": "4a6d8a78cd2eabd724cfd2570881cf36df25064545941c7f10dbce44ea597d3c",
-          "byteCount": 11736568
+          "assetSha256": "63a4c9dec2065aae38d0e3336fc4a46be2de647354848cebe8269564c01d4b13",
+          "byteCount": 9457652
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:ward_nurse_patel_v1",
           "kind": "actor",
           "contentId": "ward_nurse_patel_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-          "assetSha256": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d",
-          "byteCount": 11112092
+          "assetSha256": "b744d3d5295e2d4840ceae586924727725667cb0260a5b1f3ee68dd2e72e136f",
+          "byteCount": 8833188
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:daughter_lena_ellis_v1",
           "kind": "actor",
           "contentId": "daughter_lena_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-          "assetSha256": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93",
-          "byteCount": 8411080
+          "assetSha256": "0b1b9c991e1129d5328155080532d22e2897ab5b79cca5e6393a531f44190fcb",
+          "byteCount": 8151256
         }
       ],
       "revisions": {
@@ -146,11 +146,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-bb6eab9141446d890e45c86195075b14",
+      "planRevision": "plan-v1-8c77098de26f827f54b695d88e9f9e41",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-bb6eab9141446d890e45c86195075b14"
+        "acknowledgedPlanRevision": "plan-v1-8c77098de26f827f54b695d88e9f9e41"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);
