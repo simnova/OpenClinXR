@@ -73,6 +73,16 @@ import { decodePng } from "../decode-png.ts";
  *
  * NOT TESTED: Blender-space camera origin vs three.js origin to millimetres;
  * the other nine bodies; waistband/crotch.
+ *
+ * Rebake after the camera-ray shrink (materialize + HB-02 albedo + chest-anchor;
+ * face-preserving decimation skipped, ladder chosenRungId=raw): bake log
+ * HOLE_GUARD_UNHIDE camera-hole faces 2. Fresh capture
+ * `.openclinxr/evidence/glb-grade-capture/2026-09-11T21-05-19Z` (not landed;
+ * live GLB restored to origin/main because the materialize exports 80,404 tris /
+ * 13,034,988 B vs ladder raw 77,324 / 11,348,244 B). Site exact-background on
+ * that capture: neckline-square-L 67, neckline-square-R 99,
+ * sleeve-hem-rectangle-L 380, sleeve-hem-rectangle-R 289; control C 0; torso 0.
+ * Not all four sites 0 — it.fails stays. GLB not promoted.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
