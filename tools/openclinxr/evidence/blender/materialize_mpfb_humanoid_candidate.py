@@ -4373,7 +4373,6 @@ def main():
         _sys4.path.insert(0, str(_stage_dir2))
     from garment_ops import (  # noqa: E402
         apply_body_hide_material_region,
-        cap_sleeve_openings,
         clip_hide_mask_below_joint,
         clip_hide_mask_to_garment_footprint,
         scope_hide_mask_away_from_hands,
@@ -4408,12 +4407,6 @@ def main():
                 for i in range(1, len(iv) - 1):
                     faces.append((int(iv[0]), int(iv[i]), int(iv[i + 1])))
         return verts, np.array(faces, dtype=np.int64)
-
-    # HB-07 attempt 3: sleeve-hem bg pixels are miss (empty opening). Cap the
-    # two sleeve rims before the hide mask measures the garment that ships.
-    _sleeve_cap = cap_sleeve_openings(garment)
-    print(f"SLEEVE_CAP {json.dumps(_sleeve_cap)}")
-    bpy.context.view_layer.update()
 
     body_verts, body_faces = _triangulate_numpy(human)
     garment_verts, garment_faces = _triangulate_numpy(garment)
