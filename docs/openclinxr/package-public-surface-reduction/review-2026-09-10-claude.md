@@ -15,8 +15,9 @@ here; peer review earns its place by being cheap to falsify.
 
 The plan is sound. The ten planted cards cannot deliver it as written, for three reasons that each
 block the program on their own: the proof commands do not exist and no card may create them; every
-implementation card's proofs pass on an empty change; and four of six implementation cards cannot
-reach the consumers their objectives require them to migrate.
+implementation card's proofs pass on an empty change; and four of the six package-scoped cards
+(PSR-02 to PSR-07: PSR-03, PSR-04, PSR-05, PSR-07) cannot reach the consumers their objectives
+require them to migrate.
 
 `done_when`, `writeRoots` and `depIds` are create-only on BothyBoard (`tasks.update` accepts them,
 returns success and leaves them unchanged), so each correction is a new card plus a cancel.
