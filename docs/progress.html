@@ -28,6 +28,38 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-11T1615">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 10 &middot; 2026-09-11 16:15 EDT</p>
+          <h2>Product work has resumed on the board: four workers in parallel, two cards landed.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Landed</h3>
+            <ul>
+              <li><strong>Exam-run retries are safe</strong> (<code>a4614586</code>): repeating the same phase event after an exam ends returns the stored result instead of appending twice, and a new event on a finished run is refused with a 409 <code>finalized</code> error.</li>
+              <li><strong>Motion bake tests planted</strong> (<code>5a43ebb2</code>): three failing tests define the next motion slice, from a compiled motion program to a GLB the runtime loads and plays by clip name.</li>
+              <li>A correction to entry 9: the program removed 2,021 exports, not 2,029 (<code>40257215</code>). The verifier's per-group counts are the source.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Unblocking the product cards</h3>
+            <ul>
+              <li>The export program's checks now refuse any new public export, which had stalled about 15 product cards. A read-only scout found that every one of them can be rescoped so its code stays inside the package that uses it, with no new export. Cards go out with that rule, and must stop if they cannot keep it.</li>
+              <li>One card, exam completion, genuinely needs one new export. It waits for the operator's approval to raise that package's export limit by one.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Running now</h3>
+            <ul>
+              <li><strong>HB-07</strong>: closing the see-through holes at the child humanoid's collar and sleeves. The fix is committed; the fresh render and test flip are in progress.</li>
+              <li>Minimum-jerk motion tracks, multi-actor turn coordination, and the deterministic branch scheduler.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="status-copy">Model routing measured today: the cheapest model finished single-package cards well but ran out of turns on four multi-package cards; the Grok escalation model finished each of those in 44 to 68 turns. Multi-package cards now start on the escalation model.</p>
+      </section>
+
       <section class="band" id="entry-2026-09-11T1430">
         <div class="section-heading">
           <p class="eyebrow">Entry 9 &middot; 2026-09-11 14:30 EDT</p>
