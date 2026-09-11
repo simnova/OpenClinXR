@@ -1303,6 +1303,28 @@ describe("non-ED scenario runtime", () => {
       "consent.accepted",
     ]);
   });
+
+  it("coordinates patient, parent, and nurse turns from one case-defined ensemble clock", async () => {
+    const runtime = createDefaultScenarioRuntime({ scenario: pediatricAsthmaScenario });
+    const session = await runtime.startSession({ learnerId: "learner_ensemble_001", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 10 });
+
+    const first = runtime.advanceEnsemble(session.stationRunId, 300);
+    expect(first?.ownerActorId).toBe("nurse_kevin_lee_v1");
+    expect(first?.ownerRole).toBe("nurse");
+    expect(first?.gazeTargetActorId).toBe("patient_maya_johnson_v1");
+    expect(first?.trace.eventType).toBe("multi_actor.ensemble.turn");
+    expect(first?.trace.tag).toBe("oxygen_request");
+
+    const second = runtime.advanceEnsemble(session.stationRunId, 300);
+    expect(second?.ownerActorId).toBe("nurse_kevin_lee_v1");
+
+    const replayed = runtime.traceEvents(session.stationRunId).filter((event) => event.eventType === "multi_actor.ensemble.turn");
+    expect(replayed).toHaveLength(2);
+    expect(replayed[0]?.payload["ownerRole"]).toBe("nurse");
+    expect(replayed[0]?.payload["interruptionPolicy"]).toBe("owner_holds_turn");
+    expect(replayed[0]?.payload["claimScope"]).toBe("multi_actor_ensemble_turn_traced_not_scored");
+  });
 });
 
 describe("peds authored turn persistence", () => {

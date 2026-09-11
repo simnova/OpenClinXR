@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createStationRun, evaluateRequiredTraceTags, transitionStation } from "./index.js";
+import { createStationRun, encounterRoleForActorId, evaluateRequiredTraceTags, getEncounterRolesDue, transitionStation } from "./index.js";
 import { getScheduledEventsDue } from "./station-state.js";
 
 describe("station state domain", () => {
@@ -82,6 +82,33 @@ describe("station state domain", () => {
       "nurse_call_ecg",
       "nurse_repeat_vitals",
     ]);
+  });
+
+  it("annotates due events with the case-defined patient, parent, nurse role in role order", () => {
+    const scenario = {
+      actors: [
+        { actorId: "patient_robert_hayes_v1", role: "patient" },
+        { actorId: "spouse_anna_hayes_v1", role: "family" },
+        { actorId: "nurse_maria_alvarez_v1", role: "nurse" },
+      ],
+      eventSchedule: [
+        { eventId: "nurse_call_ecg", atSecond: 420, actorId: "nurse_maria_alvarez_v1", tag: "ecg_request" },
+        { eventId: "patient_onset", atSecond: 420, actorId: "patient_robert_hayes_v1", tag: "history_onset" },
+        { eventId: "family_worry", atSecond: 420, actorId: "spouse_anna_hayes_v1", tag: "family_interruption" },
+      ],
+    };
+
+    expect(encounterRoleForActorId("patient_robert_hayes_v1", scenario)).toBe("patient");
+    expect(encounterRoleForActorId("spouse_anna_hayes_v1", scenario)).toBe("parent");
+    expect(encounterRoleForActorId("nurse_maria_alvarez_v1", scenario)).toBe("nurse");
+    expect(encounterRoleForActorId("unknown_cast_v1", scenario)).toBe("patient");
+    expect(getEncounterRolesDue(scenario, 420, new Set()).map((event) => event.eventId)).toEqual([
+      "patient_onset",
+      "family_worry",
+      "nurse_call_ecg",
+    ]);
+    const replayed = getEncounterRolesDue(scenario, 420, new Set());
+    expect(JSON.stringify(replayed)).toBe(JSON.stringify(getEncounterRolesDue(scenario, 420, new Set())));
   });
 });
 
