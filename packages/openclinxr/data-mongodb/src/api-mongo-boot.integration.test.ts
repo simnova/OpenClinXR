@@ -72,11 +72,11 @@ describe("API Mongo boot cross-restart persistence", () => {
   async function fetchJson(
     startup: { fetch: (req: Request) => Response | Promise<Response> },
     method: string,
-    path: string,
+    requestPath: string,
     body?: unknown,
   ) {
     const res = await startup.fetch(
-      new Request(`http://localhost${path}`, {
+      new Request(`http://localhost${requestPath}`, {
         method,
         ...(body !== undefined
           ? { headers: { "content-type": "application/json" }, body: JSON.stringify(body) }

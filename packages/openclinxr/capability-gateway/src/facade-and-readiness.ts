@@ -25,7 +25,6 @@ import {
   providerGate,
   recommendedNextActionForProviderGates,
   uniqueStrings,
-  binding,
   summarizeProviderPlane,
   capabilityIdsByStatus,
   planeForCapability,

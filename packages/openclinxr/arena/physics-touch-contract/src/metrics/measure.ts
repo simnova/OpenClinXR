@@ -54,6 +54,20 @@ function round3(n: number): number {
   return Math.round(n * 1000) / 1000;
 }
 
+// Minimal structural view of the Rapier bodies/worlds this module touches.
+type RapierBodyLike = {
+  isKinematic(): boolean;
+  isFixed(): boolean;
+  translation(): { x: number; y: number; z: number };
+  setNextKinematicTranslation(t: { x: number; y: number; z: number }): void;
+  setNextKinematicRotation(r: { x: number; y: number; z: number; w: number }): void;
+};
+type RapierWorldLike = {
+  forEachRigidBody(cb: (body: RapierBodyLike) => void): void;
+  step(): void;
+  free(): void;
+};
+
 // ---------------------------------------------------------------------------
 // Main measurement function
 // ---------------------------------------------------------------------------
@@ -78,8 +92,7 @@ export async function runMeasuredMetrics(
   const RAPIER: RapierModule = mod.default;
 
   // 2. Build physics world once (shared for all scenarios)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const buildWorld = (s: number): any => {
+  const buildWorld = (s: number): RapierWorldLike => {
     const gravity = { x: 0.0, y: -9.81, z: 0.0 };
     const world = new RAPIER.World(gravity);
     world.timestep = 1 / 60;
@@ -149,14 +162,17 @@ export async function runMeasuredMetrics(
   const world = buildWorld(seed);
 
   // Track rigid body references
-  let handRb: any = null;
-  let abdomenRb: any = null;
-  world.forEachRigidBody((body: any) => {
-    if (body.isKinematic() && !handRb) handRb = body;
-    else if (!body.isFixed() && Math.abs(body.translation().y - 0.5) < 0.1 && !abdomenRb) abdomenRb = body;
+  const bodies: RapierBodyLike[] = [];
+  world.forEachRigidBody((body: RapierBodyLike) => {
+    bodies.push(body);
   });
-
-  if (!handRb || !abdomenRb) {
+  const hand: RapierBodyLike | null = bodies.find((candidate) => candidate.isKinematic()) ?? null;
+  const abdomen: RapierBodyLike | null =
+    bodies.find(
+      (candidate) =>
+        candidate !== hand && !candidate.isFixed() && Math.abs(candidate.translation().y - 0.5) < 0.1,
+    ) ?? null;
+  if (hand === null || abdomen === null) {
     throw new Error("Could not locate hand/abdomen rigid bodies after world construction");
   }
 
@@ -166,12 +182,12 @@ export async function runMeasuredMetrics(
   for (const input of palpationLog.entries) {
     // Update hand position
     for (const pose of input.jointPoses) {
-      handRb.setNextKinematicTranslation({
+      hand.setNextKinematicTranslation({
         x: pose.position.x,
         y: pose.position.y,
         z: pose.position.z,
       });
-      handRb.setNextKinematicRotation({
+      hand.setNextKinematicRotation({
         x: pose.rotation.x,
         y: pose.rotation.y,
         z: pose.rotation.z,
@@ -186,7 +202,7 @@ export async function runMeasuredMetrics(
     stepCosts.push(t1 - t0);
 
     // Check for joint explosions (NaN positions or extreme values)
-    const abdPos = abdomenRb.translation();
+    const abdPos = abdomen.translation();
     if (isNaN(abdPos.x) || isNaN(abdPos.y) || isNaN(abdPos.z)) {
       jointExplosions++;
     }

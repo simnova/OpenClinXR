@@ -87,9 +87,9 @@ export function ScenarioDetailWorkbenchUI(): ReactElement {
         ? controlPlaneClient.getEdChestPainPublicationReadiness({ targetUse: "local_formative", reviewerEvidence: [] }).catch(() => undefined)
         : Promise.resolve(undefined),
     ])
-      .then(([detail, publicationReadiness]) => {
+      .then(([detail, fetchedPublicationReadiness]) => {
         if (active) {
-          setState(publicationReadiness ? { status: "ready", detail, publicationReadiness } : { status: "ready", detail });
+          setState(fetchedPublicationReadiness ? { status: "ready", detail, publicationReadiness: fetchedPublicationReadiness } : { status: "ready", detail });
         }
       })
       .catch((error: unknown) => {

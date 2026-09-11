@@ -359,7 +359,7 @@ function actorFromFormValue(base: Scenario, formActor: ScenarioActorFormValue): 
   // Preserve the richer communicationProfile (and any future optional fields) from the
   // imported actor by id so round-trips stay lossless while the form owns identity,
   // demeanor, hidden facts, and body-mechanics touch responses.
-  const preserved = base.actors.find((actor) => actor.actorId === formActor.actorId);
+  const preserved = base.actors.find((candidateActor) => candidateActor.actorId === formActor.actorId);
   const hiddenFacts = cleanStrings(formActor.hiddenFacts);
   const touchResponses = (formActor.touchResponses ?? []).map((response) => ({ ...response }));
   const demeanor = formActor.demeanor?.trim() ?? "";

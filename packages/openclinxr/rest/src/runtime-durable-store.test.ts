@@ -65,11 +65,11 @@ describe("createScenarioRuntimeDurableStoreFromApiPersistence", () => {
   it("forwards exam-run packet save and get without flattening stations", async () => {
     const saved: AssembledExamReviewPacket[] = [];
     const sink: ApiPersistenceSink = {
-      saveAssembledExamReviewPacket: (examRunId, packet) => {
-        expect(examRunId).toBe(packet.examRunId);
-        saved.push(packet);
+      saveAssembledExamReviewPacket: (examRunId, incomingPacket) => {
+        expect(examRunId).toBe(incomingPacket.examRunId);
+        saved.push(incomingPacket);
       },
-      getAssembledExamReviewPacket: (examRunId) => saved.find((packet) => packet.examRunId === examRunId),
+      getAssembledExamReviewPacket: (examRunId) => saved.find((candidatePacket) => candidatePacket.examRunId === examRunId),
     };
     const store = createScenarioRuntimeDurableStoreFromApiPersistence(sink);
     const packet = {
@@ -110,11 +110,11 @@ describe("createScenarioRuntimeDurableStoreFromApiPersistence", () => {
   it("forwards assembled-exam run aggregate save and get without flattening stations", async () => {
     const saved: ApiAssembledExamRunRecord[] = [];
     const sink: ApiPersistenceSink = {
-      saveAssembledExamRun: (examRunId, record) => {
-        expect(examRunId).toBe(record.examRunId);
-        saved.push(record);
+      saveAssembledExamRun: (examRunId, incomingRecord) => {
+        expect(examRunId).toBe(incomingRecord.examRunId);
+        saved.push(incomingRecord);
       },
-      getAssembledExamRun: (examRunId) => saved.find((record) => record.examRunId === examRunId),
+      getAssembledExamRun: (examRunId) => saved.find((candidateRecord) => candidateRecord.examRunId === examRunId),
     };
     const store = createScenarioRuntimeDurableStoreFromApiPersistence(sink);
     const record = {
@@ -144,11 +144,11 @@ describe("createScenarioRuntimeDurableStoreFromApiPersistence", () => {
   it("forwards assembled-exam disposition save and get without mutating the evidence packet", async () => {
     const saved: ApiAssembledExamDispositionRecord[] = [];
     const sink: ApiPersistenceSink = {
-      saveAssembledExamDisposition: (examRunId, record) => {
-        expect(examRunId).toBe(record.examRunId);
-        saved.push(record);
+      saveAssembledExamDisposition: (examRunId, incomingRecord) => {
+        expect(examRunId).toBe(incomingRecord.examRunId);
+        saved.push(incomingRecord);
       },
-      getAssembledExamDisposition: (examRunId) => saved.find((record) => record.examRunId === examRunId),
+      getAssembledExamDisposition: (examRunId) => saved.find((candidateRecord) => candidateRecord.examRunId === examRunId),
     };
     const store = createScenarioRuntimeDurableStoreFromApiPersistence(sink);
     const evidencePacket = {

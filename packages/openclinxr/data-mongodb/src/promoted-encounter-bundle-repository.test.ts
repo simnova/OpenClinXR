@@ -44,16 +44,16 @@ describe("PromotedEncounterBundleRepository", () => {
     const same = await repository.promote(input);
     expect(same).toEqual(first);
 
-    const mutatedMembers = reviewedMembers().map((member) =>
-      member.memberKind === "humanoid"
+    const mutatedMembers = reviewedMembers().map((bundleMember) =>
+      bundleMember.memberKind === "humanoid"
         ? {
-          ...member,
+          ...bundleMember,
           asset: {
-            ...member.asset,
-            blob: { ...member.asset.blob, contentHash: "mutated-humanoid-hash" },
+            ...bundleMember.asset,
+            blob: { ...bundleMember.asset.blob, contentHash: "mutated-humanoid-hash" },
           },
         }
-        : member,
+        : bundleMember,
     );
     await expect(repository.promote({
       ...input,

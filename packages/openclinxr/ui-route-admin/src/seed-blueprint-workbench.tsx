@@ -218,9 +218,9 @@ export function SeedBlueprintWorkbenchProvider({
       controlPlaneClient.getRuntimeProtocolPosture(),
       controlPlaneClient.getRealtimeVoicePosture(),
     ])
-      .then(([blueprint, readiness, timingPlan, stationRunQueue, queueSnapshots, assetReadiness, environmentGenerationQueue, environmentGenerationWorkOrderQueue, sceneGenerationPipelineQueue, sceneGenerationRequestQueue, dynamicEncounterFactoryPlanning, runtimeProviderReadiness, runtimeSelectionReviewPacket, runtimeProtocolPosture, realtimeVoicePosture]) => {
+      .then(([blueprint, readiness, timingPlan, stationRunQueue, queueSnapshots, assetReadiness, environmentGenerationQueue, environmentGenerationWorkOrderQueue, fetchedSceneGenerationPipelineQueue, sceneGenerationRequestQueue, dynamicEncounterFactoryPlanning, runtimeProviderReadiness, runtimeSelectionReviewPacket, runtimeProtocolPosture, realtimeVoicePosture]) => {
         if (active) {
-          setState({ status: "ready", blueprint, readiness, timingPlan, stationRunQueue, queueSnapshots, assetReadiness, environmentGenerationQueue, environmentGenerationWorkOrderQueue, sceneGenerationPipelineQueue, sceneGenerationRequestQueue, dynamicEncounterFactoryPlanning, runtimeProviderReadiness, runtimeSelectionReviewPacket, runtimeProtocolPosture, realtimeVoicePosture });
+          setState({ status: "ready", blueprint, readiness, timingPlan, stationRunQueue, queueSnapshots, assetReadiness, environmentGenerationQueue, environmentGenerationWorkOrderQueue, sceneGenerationPipelineQueue: fetchedSceneGenerationPipelineQueue, sceneGenerationRequestQueue, dynamicEncounterFactoryPlanning, runtimeProviderReadiness, runtimeSelectionReviewPacket, runtimeProtocolPosture, realtimeVoicePosture });
         }
       })
       .catch((error: unknown) => {

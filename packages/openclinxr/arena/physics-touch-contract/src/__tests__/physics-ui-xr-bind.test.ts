@@ -71,7 +71,7 @@ describe("physics-bone-transforms artifact", () => {
     const artifact = JSON.parse(fs.readFileSync(ARTIFACT_PATH, "utf-8"));
     // At least one frame must have spine Z displacement > 0.005m (5mm)
     const hasVisibleDelta = artifact.frames.some(
-      (f: any) => Math.abs(f.boneDeltas.spine?.position?.z ?? 0) > 0.005,
+      (f: { boneDeltas: { spine?: { position?: { z?: number } } } }) => Math.abs(f.boneDeltas.spine?.position?.z ?? 0) > 0.005,
     );
     expect(hasVisibleDelta, "no frame has spine Z displacement > 5mm").toBe(true);
   });

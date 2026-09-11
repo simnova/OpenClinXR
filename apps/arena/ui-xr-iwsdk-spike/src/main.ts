@@ -1129,7 +1129,7 @@ type KeyboardLocomotionState = {
 };
 
 function createKeyboardLocomotion(): KeyboardLocomotionState {
-  const state = { forward: 0, strafe: 0, turn: 0 };
+  const locomotionState = { forward: 0, strafe: 0, turn: 0 };
   const pressedKeys = new Set<string>();
 
   const update = (event: KeyboardEvent, pressed: boolean): void => {
@@ -1141,16 +1141,16 @@ function createKeyboardLocomotion(): KeyboardLocomotionState {
     } else {
       pressedKeys.delete(event.code);
     }
-    state.forward = (pressedKeys.has("KeyW") || pressedKeys.has("ArrowUp") ? 1 : 0)
+    locomotionState.forward = (pressedKeys.has("KeyW") || pressedKeys.has("ArrowUp") ? 1 : 0)
       + (pressedKeys.has("KeyS") || pressedKeys.has("ArrowDown") ? -1 : 0);
-    state.strafe = (pressedKeys.has("KeyD") || pressedKeys.has("ArrowRight") ? 1 : 0)
+    locomotionState.strafe = (pressedKeys.has("KeyD") || pressedKeys.has("ArrowRight") ? 1 : 0)
       + (pressedKeys.has("KeyA") || pressedKeys.has("ArrowLeft") ? -1 : 0);
-    state.turn = (pressedKeys.has("KeyE") ? -1 : 0) + (pressedKeys.has("KeyQ") ? 1 : 0);
+    locomotionState.turn = (pressedKeys.has("KeyE") ? -1 : 0) + (pressedKeys.has("KeyQ") ? 1 : 0);
   };
 
   window.addEventListener("keydown", (event) => update(event, true));
   window.addEventListener("keyup", (event) => update(event, false));
-  return state;
+  return locomotionState;
 }
 
 function applyLocomotion(input: {

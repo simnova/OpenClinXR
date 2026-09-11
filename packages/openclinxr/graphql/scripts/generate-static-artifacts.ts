@@ -102,9 +102,9 @@ async function buildGeneratedFiles(): Promise<GeneratedFile[]> {
   ];
 }
 
-async function findOutOfDateFiles(files: GeneratedFile[]): Promise<string[]> {
+async function findOutOfDateFiles(generatedFiles: GeneratedFile[]): Promise<string[]> {
   const results: string[] = [];
-  for (const file of files) {
+  for (const file of generatedFiles) {
     const current = await fs.readFile(file.filePath, "utf8").catch((error: unknown) => {
       if (isNodeErrnoException(error) && error.code === "ENOENT") {
         return undefined;
