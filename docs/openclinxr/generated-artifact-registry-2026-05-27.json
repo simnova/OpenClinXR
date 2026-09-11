@@ -4,13 +4,13 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 152,
+    "keep-evidence": 153,
     "ignore-local-cache": 2112,
     "keep-current": 141,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2449,
-    "total": 2449
+    "entries": 2450,
+    "total": 2450
   },
   "entries": [
     {
@@ -16497,6 +16497,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "HB-01 lowest-vertex audit over shipped GLB bytes; consumed by the-lowest-mesh-vertex-is-the-footwear.test.ts contract proof."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-postopt-ladder-2026-09-10.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-animated-2026-05-23.json",
