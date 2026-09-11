@@ -27,3 +27,11 @@ the test onto an internal module, which raises `testInternalImports` above its s
 ceiling and is refused by `package-tests-use-the-public-entrypoint` at push. Each amended row
 names the consuming test as owner, with file:line evidence. `--require-reviewed-group psr-01d`
 still exits 0.
+
+## Amendment at PSR-05 (orchestrator, 2026-09-11)
+
+19 asset-registry rows on the subpaths `./actor-posture` (12), `./runtime-asset-review` (2) and
+`./runtime-bundles` (5) move from `remove` to `keep`. Each name's root row is `migrate` with that
+subpath as its `route`, so the subpath is where consumers are moved and must keep publishing it;
+the review had marked the destination `remove` as well, leaving the name with no published home.
+The other 29 migrate rows already kept their destination. Owner and evidence copy the root row.

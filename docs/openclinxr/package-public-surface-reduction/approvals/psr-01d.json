@@ -2561,20 +2561,20 @@
       "entrypoint": "./actor-posture",
       "symbol": "ActorPosture",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./actor-posture), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "apps/ui-xr/src/main.ts:2,packages/openclinxr/xr-asset-loading/src/generated-loaders.ts:7,packages/openclinxr/xr-pose/src/seated-pose.ts:21"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": "./actor-posture",
       "symbol": "clipBindingForPosture",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-pose",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./actor-posture), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "packages/openclinxr/xr-pose/src/seated-pose.ts:22,packages/openclinxr/xr-pose/src/supine-pose.ts:24"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2591,10 +2591,10 @@
       "entrypoint": "./actor-posture",
       "symbol": "DEFAULT_PATIENT_CHAIR_POSITION",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./actor-posture), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "apps/ui-xr/src/the-authored-offset-reaches-the-posed-humanoid.test.ts:5,packages/openclinxr/xr-scene/src/encounter-actor-framing.ts:17"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2611,10 +2611,10 @@
       "entrypoint": "./actor-posture",
       "symbol": "DEFAULT_STRETCHER_POSITION",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./actor-posture), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts:5,apps/ui-xr/src/the-authored-offset-reaches-the-posed-humanoid.test.ts:6,packages/openclinxr/xr-pose/src/supine-deck-plant.ts:10"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2681,20 +2681,20 @@
       "entrypoint": "./actor-posture",
       "symbol": "resolveActorPosture",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./actor-posture), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "apps/ui-xr/src/main.ts:3,packages/openclinxr/xr-asset-loading/src/generated-loaders.ts:7"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": "./actor-posture",
       "symbol": "SEATED_CLIP_NAME",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-pose",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./actor-posture), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "packages/openclinxr/xr-pose/src/seated-pose-mpfb2.ts:24,packages/openclinxr/xr-pose/src/seated-pose.ts:19"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2711,20 +2711,20 @@
       "entrypoint": "./actor-posture",
       "symbol": "seatedActorWorldPosition",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-runtime-state",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./actor-posture), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "packages/openclinxr/xr-runtime-state/src/supported-actor-placement.ts:4,apps/ui-xr/src/the-composition-call-site-is-live.test.ts:3"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": "./actor-posture",
       "symbol": "seatedVerticalOffsetForSeatHeight",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./actor-posture), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "apps/ui-xr/src/main.ts:4"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2741,20 +2741,20 @@
       "entrypoint": "./actor-posture",
       "symbol": "STANDING_CLIP_NAME",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-pose",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./actor-posture), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "packages/openclinxr/xr-pose/src/seated-pose.ts:20"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": "./actor-posture",
       "symbol": "SUPINE_CLIP_NAME",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-pose",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./actor-posture), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "packages/openclinxr/xr-pose/src/supine-pose.ts:22"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2771,20 +2771,20 @@
       "entrypoint": "./actor-posture",
       "symbol": "supineActorWorldPosition",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./actor-posture), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts:20,apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts:7,packages/openclinxr/xr-humanoid-animation/src/station-bedside-approach.ts:4"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": "./actor-posture",
       "symbol": "supineVerticalOffsetSeed",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./actor-posture), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "apps/ui-xr/src/main.ts:5"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -4451,20 +4451,20 @@
       "entrypoint": "./runtime-asset-review",
       "symbol": "EncounterBundleFactoryMemberKind",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./runtime-asset-review), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "packages/openclinxr/rest/src/routes/encounter-bundle-promotion/encounter-bundle-promotion-routes.test.ts:3,packages/openclinxr/rest/src/routes/encounter-bundle-promotion/faculty-encounter-bundle-promotion.ts:3"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": "./runtime-asset-review",
       "symbol": "encounterBundleFactoryMemberKinds",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./runtime-asset-review), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "packages/openclinxr/rest/src/routes/encounter-bundle-promotion/faculty-encounter-bundle-promotion.ts:4"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -4871,10 +4871,10 @@
       "entrypoint": "./runtime-bundles",
       "symbol": "ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./runtime-bundles), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "packages/openclinxr/rest/src/routes/scenario-scene-generation-routes.ts:1"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -4891,30 +4891,30 @@
       "entrypoint": "./runtime-bundles",
       "symbol": "EncounterDynamicBehaviorCoverageSummary",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-admin",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./runtime-bundles), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "packages/openclinxr/ui-route-admin/src/admin-review-types.ts:2,packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:3,packages/openclinxr/ui-route-shared/src/admin-api-client.ts:3"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": "./runtime-bundles",
       "symbol": "EncounterFactoryDryRunSummary",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-admin",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./runtime-bundles), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "packages/openclinxr/ui-route-admin/src/admin-review-types.ts:3,packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:4,packages/openclinxr/ui-route-shared/src/admin-api-client.ts:4"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": "./runtime-bundles",
       "symbol": "EncounterFactoryInputPlanningSummary",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-admin",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./runtime-bundles), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "packages/openclinxr/ui-route-admin/src/admin-review-types.ts:4,packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:5,packages/openclinxr/ui-route-shared/src/admin-api-client.ts:5"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -5331,10 +5331,10 @@
       "entrypoint": "./runtime-bundles",
       "symbol": "RuntimeAssetReviewStatus",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "Amended at PSR-05 (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./runtime-bundles), so it must keep publishing the name its consumers are moved to. The review marked both rows, which left 19 names with no published home; the other 29 migrate rows already kept their destination.",
+      "evidence": "packages/openclinxr/rest/src/routes/encounter-bundle-promotion/encounter-bundle-promotion-routes.test.ts:7"
     },
     {
       "package": "packages/openclinxr/asset-registry",
