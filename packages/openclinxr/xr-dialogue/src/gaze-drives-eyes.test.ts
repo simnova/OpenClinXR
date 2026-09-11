@@ -107,6 +107,9 @@ const GAZE = 0.6;
 
 describe("a gaze drive moves the eyes, not the whole actor", () => {
   it("(1) RED flipped: applying gaze rotates both eye bones", () => {
+    expect(typeof applyGazeToHumanoid, "xr-dialogue's entrypoint must export applyGazeToHumanoid").toBe(
+      "function",
+    );
     const { root, bones } = buildActorSkeleton();
     applyGazeToHumanoid(root, GAZE);
 
