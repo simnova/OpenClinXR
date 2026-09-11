@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { createApiApp } from "./index.js";
 
 /**
  * OBSERVABLE: faculty compileEncounterWorld POSTs /internal/world-compile but
@@ -42,7 +43,6 @@ function _apiTsSources(): string[] {
 
 describe("the world-compile route invokes compileEncounterMaterialization", () => {
   it("(1) the registered route handles /internal/world-compile", async () => {
-    const { createApiApp } = await import("./index.js");
     const app = createApiApp();
     const response = await app.request("/internal/world-compile", {
       method: "POST",

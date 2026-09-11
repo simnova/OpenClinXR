@@ -1,5 +1,6 @@
 import { Bone, Group } from "three";
 import { describe, expect, it } from "vitest";
+import { applyGazeToHumanoid } from "./index.js";
 
 /**
  * "Gaze" rotates the actor's whole body. The eye bones exist on every rail, are skinned, and nothing
@@ -102,33 +103,15 @@ function buildActorSkeleton(): { root: Group; bones: Map<string, Bone> } {
   return { root, bones };
 }
 
-/**
- * The deliverable. Absent today, so (1) and (2) are red. Expected in `apps/ui-xr/src` exporting
- * `applyGazeToHumanoid(root: Object3D, gaze: number): void` — resolve the eye bones on whatever rig
- * the root carries and rotate them; do not touch the root's own rotation.
- */
-async function loadGazeApplier(): Promise<((root: Group, gaze: number) => void) | null> {
-  // Non-literal specifier on purpose: the module does not exist yet, and a literal import path
-  // would fail `tsgo --noEmit` (TS2307) and leave the package typecheck red the way a planted
-  // contract of mine did in #93. Resolution is deliberately a runtime concern here.
-  const specifier = "./gaze-drives-eyes.js";
-  const mod = (await import(/* @vite-ignore */ specifier).catch(() => null)) as
-    | { applyGazeToHumanoid?: unknown }
-    | null;
-  return typeof mod?.applyGazeToHumanoid === "function"
-    ? (mod.applyGazeToHumanoid as (root: Group, gaze: number) => void)
-    : null;
-}
-
 const GAZE = 0.6;
 
 describe("a gaze drive moves the eyes, not the whole actor", () => {
-  it("(1) RED flipped: applying gaze rotates both eye bones", async () => {
-    const applyGazeToHumanoid = await loadGazeApplier();
-    expect(applyGazeToHumanoid, "apps/ui-xr/src must export applyGazeToHumanoid").not.toBeNull();
-
+  it("(1) RED flipped: applying gaze rotates both eye bones", () => {
+    expect(typeof applyGazeToHumanoid, "xr-dialogue's entrypoint must export applyGazeToHumanoid").toBe(
+      "function",
+    );
     const { root, bones } = buildActorSkeleton();
-    applyGazeToHumanoid!(root, GAZE);
+    applyGazeToHumanoid(root, GAZE);
 
     const unmoved = EYE_BONE_NAMES.filter((name) => {
       const b = bones.get(name)!;
@@ -139,12 +122,9 @@ describe("a gaze drive moves the eyes, not the whole actor", () => {
 
   it(
     "(2) RED counterweight flipped: applying gaze leaves the actor ROOT unrotated — spinning the body and adding eyes on top is refused",
-    async () => {
-      const applyGazeToHumanoid = await loadGazeApplier();
-      expect(applyGazeToHumanoid, "apps/ui-xr/src must export applyGazeToHumanoid").not.toBeNull();
-
+    () => {
       const { root } = buildActorSkeleton();
-      applyGazeToHumanoid!(root, GAZE);
+      applyGazeToHumanoid(root, GAZE);
 
       expect(
         [root.rotation.x, root.rotation.y, root.rotation.z],
