@@ -3,6 +3,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { buildArgv } from "./dispatch-worker.js";
+import { ensureGitignoredState } from "./fixtures/ensure-gitignored-state.js";
 
 /**
  * #462 — dispatch silently downgrades every write role to flash.
@@ -107,6 +108,7 @@ const FLASH = "deepseek-v4-flash";
 const modelOf = (argv: string[]): string | undefined => argv[argv.indexOf("--model") + 1];
 
 describe("dispatch resolves the model from the role policy", () => {
+  ensureGitignoredState(REPO_ROOT);
   it("(1) RED: a standard_execution role with no model resolves to its policy tier", () => {
     const argv = buildArgv({ prompt: "x", role: WRITE_ROLE } as never);
     expect(

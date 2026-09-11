@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "openclinxr.contract-verify.v1",
+  "phase": "merge",
+  "sliceId": "issue-181",
+  "treeRoot": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-181",
+  "headSha": "43a46cb415eef8283182a20a970c241cc459054d",
+  "baselineDir": "/Volumes/files/src/openclinxr/.openclinxr/slices/issue-181",
+  "proofsOk": true,
+  "checks": [
+    {
+      "rule": "run:pnpm exec vitest run tools/openclinxr/evidence/the-supine-head-rests-on-its-pillow.test.ts",
+      "passed": true,
+      "detail": "exited zero: pnpm exec vitest run tools/openclinxr/evidence/the-supine-head-rests-on-its-pillow.test.ts"
+    }
+  ],
+  "narrativeSkipped": [],
+  "unknown": [],
+  "at": "2026-08-26T05:19:00.246Z"
+}
