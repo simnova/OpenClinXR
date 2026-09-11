@@ -32,7 +32,8 @@ Operator direction, 2026-09-10: *"this fix is necessary for claude only - so we 
 agentic config that applies to all, then layer on top of that harness specific needs such as that
 line."*
 
-It was briefly promoted to `agents/rules/MANDATE_PROSE.md` and the Grok core tier on the reasoning
+It was briefly promoted to a shared-tier rule (MANDATE_PROSE, added in 7729a9f4 and deleted in
+d4a7a8c2) and the Grok core tier on the reasoning
 that a directive binding one of four harnesses is not a project policy. That reasoning was wrong
 about the architecture: the shared tier is the BASELINE, and a harness layers its own needs on top.
 Grok already has its own voice contract (`.grok/personas/terse-bluf.toml` mirroring
