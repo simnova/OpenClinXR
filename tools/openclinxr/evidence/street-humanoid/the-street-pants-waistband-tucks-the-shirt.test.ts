@@ -2,8 +2,8 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { isUpperGarmentName } from "./garment-slot.ts";
-import { isPantsName, ringHighFrequency, type Ring } from "./waistband-ring.ts";
+import { isUpperGarmentName } from "../garment-slot.ts";
+import { isPantsName, ringHighFrequency, type Ring } from "../waistband-ring.ts";
 
 /**
  * **The street cargo-pants waistband is a bikini cut: hip skin triangles show between the
@@ -97,7 +97,7 @@ import { isPantsName, ringHighFrequency, type Ring } from "./waistband-ring.ts";
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = pathResolve(HERE, "../../../..");
 const STREET_GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb");
 const STREET_ACTOR = "mpfb-street-adult-male";
 

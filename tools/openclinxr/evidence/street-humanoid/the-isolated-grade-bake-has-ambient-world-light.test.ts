@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { decodePng } from "./decode-png.ts";
+import { decodePng } from "../decode-png.ts";
 
 /**
  * The public street still (`docs/assets/mpfb-street-adult-clothed-2026-09-10.png`)
@@ -24,7 +24,7 @@ import { decodePng } from "./decode-png.ts";
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = pathResolve(HERE, "../../../..");
 const LIGHTING_JSON = join(
   REPO_ROOT,
   "tools/openclinxr/asset-pipeline/makeclothes/grade-lighting.json",

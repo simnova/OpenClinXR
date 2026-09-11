@@ -2,8 +2,8 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { isUpperGarmentName } from "./garment-slot.ts";
-import { isPantsName } from "./waistband-ring.ts";
+import { isUpperGarmentName } from "../garment-slot.ts";
+import { isPantsName } from "../waistband-ring.ts";
 
 /**
  * **The street patient's trousers are a body-derived cover shell, not a MakeClothes garment.**
@@ -127,7 +127,7 @@ import { isPantsName } from "./waistband-ring.ts";
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = pathResolve(HERE, "../../../..");
 const STREET_GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb");
 const STREET_ACTOR = "mpfb-street-adult-male";
 
