@@ -32,6 +32,14 @@ from garment_coverage import _orient_outward, _ray_tri_hits  # noqa: E402
 # subset of makehuman-shoes01 (ledger: toigo_flats CC0, toigo_mj_cloth_shoes CC0,
 # culturalibre_male_boots CC-0; every .mhclo references only basemesh verts < 13,380),
 # so each fits the #318 helper-stripped 13,380-vert basemesh like the t-shirt/pants.
+# HB-07: the child shipped `makeclothes_library_cargo_pants` (2,628 tris — the
+# LOWER GATE cover shell over cortu_cargo_pants). Default non-clinician lower is
+# Elvaerwyn jeans (5,708 tris). Attempt 2 rebaked this body in jeans and landed
+# 80,404 = 77,324 + 3,080. Override only this reference; other bodies keep jeans.
+LOWER_GARMENT_BY_REFERENCE = {
+    "peds_patient_child": "cortu_cargo_pants",
+}
+
 SHOE_BY_REFERENCE = {
     # #598 — default + clinician rows leave the leopard toigo_flats party shoe.
     # Plain CC0 toigo_mj_cloth_shoes already bakes on spouse/child; both .mhclo
@@ -4211,14 +4219,25 @@ def main():
     # covered but read as balloon/jodhpur thighs with a washed lower leg.
     # cortu_cargo_pants (211/196) still hits the LOWER GATE if selected.
     # The slot name keeps a `pants` token so isPantsName still finds the lower.
+    # HB-07: peds_patient_child is keyed to cargo so a rebake keeps the shipped
+    # 2,628-tri cover shell (LOWER_GARMENT_BY_REFERENCE).
     if pants is None:
-        _pants_dir = (
-            REPO_ROOT
-            / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_jeans_straight_leg"
-        )
-        pants_obj = _pants_dir / "mens_elv_jeans2slf.obj"
-        pants_mhclo = _pants_dir / "elvs_jeans_straight_leg.mhclo"
-        _lower_lib_name = "makeclothes_library_straight_leg_jeans_pants"
+        if LOWER_GARMENT_BY_REFERENCE.get(args.reference or "") == "cortu_cargo_pants":
+            _pants_dir = (
+                REPO_ROOT
+                / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants"
+            )
+            pants_obj = _pants_dir / "cargo_pants.obj"
+            pants_mhclo = _pants_dir / "cargo_pants.mhclo"
+            _lower_lib_name = "makeclothes_library_cargo_pants"
+        else:
+            _pants_dir = (
+                REPO_ROOT
+                / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_jeans_straight_leg"
+            )
+            pants_obj = _pants_dir / "mens_elv_jeans2slf.obj"
+            pants_mhclo = _pants_dir / "elvs_jeans_straight_leg.mhclo"
+            _lower_lib_name = "makeclothes_library_straight_leg_jeans_pants"
         if not pants_obj.is_file() or not pants_mhclo.is_file():
             raise RuntimeError(f"lower garment sources missing in provider cache: {_pants_dir}")
 
@@ -4248,12 +4267,20 @@ def main():
                 f".mhclo header: {_lower_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
             )
         print(f"LOWER_GARMENT_LICENCE {_lower_lib_name} {_lower_lic_raw!r} matcher={_lower_lic_matcher}")
-        print(
-            "LOWER_GARMENT_ATTRIBUTION makeclothes_library_straight_leg_jeans_pants "
-            "author=Elvaerwyn pack=pants02 "
-            "page=https://static.makehumancommunity.org/assets/assetpacks/pants02.html "
-            "license=CC-BY"
-        )
+        if _lower_lib_name == "makeclothes_library_cargo_pants":
+            print(
+                "LOWER_GARMENT_ATTRIBUTION makeclothes_library_cargo_pants "
+                "author=Cortu Johnstone pack=pants01 "
+                "page=https://static.makehumancommunity.org/assets/assetpacks/pants01.html "
+                "license=CC0"
+            )
+        else:
+            print(
+                "LOWER_GARMENT_ATTRIBUTION makeclothes_library_straight_leg_jeans_pants "
+                "author=Elvaerwyn pack=pants02 "
+                "page=https://static.makehumancommunity.org/assets/assetpacks/pants02.html "
+                "license=CC-BY"
+            )
 
         pants = import_obj(str(pants_obj), _lower_lib_name, force_z=False)
         apply_object_transforms(pants)
