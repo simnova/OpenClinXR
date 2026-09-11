@@ -4,10 +4,12 @@ import type { Hono } from "hono";
 import type { ApiAppContext } from "../api-app-context.js";
 import type { ApiAppVariables } from "../api-types.js";
 import { coerceAuthoredScenarioWrite } from "../scenario-review-promotion.js";
+import { registerScenarioProposalRoutes } from "./scenario-proposal/index.js";
 
 /** Authoring domain routes (composition-root migration). */
 export function registerAuthoringRoutes(app: Hono<{ Variables: ApiAppVariables }>, ctx: ApiAppContext): void {
   const { persistence } = ctx;
+  registerScenarioProposalRoutes(app, ctx);
 
   app.post(routeById("save-authored-scenario").path, async (context) => {
     const body = (await context.req.json().catch(() => ({}))) as { scenario?: unknown };
