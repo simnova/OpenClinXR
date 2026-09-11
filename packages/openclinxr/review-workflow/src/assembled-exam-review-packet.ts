@@ -1,5 +1,15 @@
 import type { PatientNote, ReviewPacket } from "@openclinxr/shared-schemas";
 import {
+  bindStationEncounterBundle,
+  indexEncounterBundlePins,
+  rejectSubstitutedOrMissingEncounterBundles,
+} from "./attempt-replay-manifest/assembled-exam-encounter-bundle-binding.js";
+import {
+  rejectDuplicateSequences,
+  rejectOutOfOrderTraceEvents,
+  toPhaseTransitionRecord,
+} from "./attempt-replay-manifest/assembled-exam-evidence-ordering.js";
+import {
   extractFacultyActorTurnReplays,
 } from "./faculty-actor-turn-replay.js";
 import {
@@ -51,6 +61,10 @@ export type AssembledExamStationEvidenceInput = {
   stationRunId: string;
   scenarioId: string;
   stationOrder: number;
+  encounterBundle?: {
+    bundleId: string;
+    contentIdentity: string;
+  };
   requiredTraceTags: readonly string[];
   timeCriticalTraceTagThresholds?: Readonly<Record<string, number>>;
   traceEvents: readonly AssembledExamReviewTraceInput[];
@@ -66,6 +80,12 @@ export type BuildAssembledExamReviewPacketInput = {
   examRunId: string;
   learnerId?: string;
   stations: readonly AssembledExamStationEvidenceInput[];
+  encounterBundlePins?: readonly {
+    stationOrder: number;
+    scenarioId: string;
+    bundleId: string;
+    contentIdentity: string;
+  }[];
 };
 
 export type AssembledExamAuthoredScenarioIdentity = {
@@ -105,6 +125,15 @@ export type AssembledExamStationReviewSlice = {
   omissions: readonly string[];
   patientNoteSubmitted: boolean;
   phaseTransitions: readonly AssembledExamPhaseTransitionRecord[];
+  encounterBundle: {
+    pinnedBundleId: string | null;
+    pinnedContentIdentity: string | null;
+    runtimeBundleId: string | null;
+    runtimeContentIdentity: string | null;
+    bound: boolean;
+    mismatch: "missing_runtime_bundle" | "substituted_bundle" | "cross_station_bundle" | null;
+    omissions: readonly string[];
+  };
   reviewPacket: ReviewPacketWithEmotionTimeline;
 };
 
@@ -132,12 +161,14 @@ export function buildAssembledExamReviewPacket(
   rejectInvalidStationOrders(input);
   rejectCrossRunEvidence(input);
   rejectMalformedPhaseTransitions(input);
-  rejectDuplicateSequences(input);
-  rejectOutOfOrderTraceEvents(input);
+  rejectDuplicateSequences(input.stations);
+  rejectOutOfOrderEvidence(input);
+  rejectSubstitutedOrMissingEncounterBundles(input);
+  const bundlePins = indexEncounterBundlePins(input);
 
   const stations = [...input.stations]
     .sort((left, right) => left.stationOrder - right.stationOrder)
-    .map((station) => projectStationSlice(input.examRunId, station));
+    .map((station) => projectStationSlice(input.examRunId, station, bundlePins));
 
   const examTimeline = stations.flatMap((station) =>
     examTimelineForStation(station),
@@ -159,6 +190,7 @@ export function buildAssembledExamReviewPacket(
 function projectStationSlice(
   examRunId: string,
   station: AssembledExamStationEvidenceInput,
+  bundlePins: ReadonlyMap<number, { bundleId: string; contentIdentity: string; scenarioId: string }>,
 ): AssembledExamStationReviewSlice {
   const packetInput: BuildReviewPacketInput = {
     stationRunId: station.stationRunId,
@@ -180,7 +212,8 @@ function projectStationSlice(
     .sort((left, right) => left.sequence - right.sequence);
   const advanceReason = station.advanceReason?.trim() ? station.advanceReason : null;
   const blockers = [...(station.blockers ?? [])];
-  const omissions = stationOmissions(station, reviewPacket, phaseTransitions, advanceReason);
+  const encounterBundle = bindStationEncounterBundle(station, bundlePins);
+  const omissions = stationOmissions(station, reviewPacket, phaseTransitions, advanceReason, encounterBundle);
 
   return {
     identity: {
@@ -194,6 +227,7 @@ function projectStationSlice(
     omissions,
     patientNoteSubmitted: Boolean(reviewPacket.patientNote) || hasNoteSubmitted(station),
     phaseTransitions,
+    encounterBundle,
     reviewPacket,
   };
 }
@@ -230,6 +264,7 @@ function stationOmissions(
   reviewPacket: ReviewPacketWithEmotionTimeline,
   phaseTransitions: readonly AssembledExamPhaseTransitionRecord[],
   advanceReason: string | null,
+  encounterBundle: AssembledExamStationReviewSlice["encounterBundle"],
 ): string[] {
   const presentTypes = new Set(phaseTransitions.map((event) => event.eventType));
   const omissions: string[] = [];
@@ -257,6 +292,9 @@ function stationOmissions(
   );
   if (station.traceEvents.some((event) => hasActorTurnPayload(event)) && plannedKeys.size === 0) {
     omissions.push("missing_actor_turn_provenance");
+  }
+  for (const omission of encounterBundle.omissions) {
+    omissions.push(omission);
   }
   return uniquePreserve(omissions);
 }
@@ -393,52 +431,13 @@ function rejectMalformedPhaseTransitions(input: BuildAssembledExamReviewPacketIn
   }
 }
 
-function rejectDuplicateSequences(input: BuildAssembledExamReviewPacketInput): void {
-  for (const station of input.stations) {
-    const sequences = [...station.traceEvents, ...station.phaseTransitions]
-      .map((event) => event.sequence)
-      .filter((sequence): sequence is number => typeof sequence === "number");
-    if (new Set(sequences).size !== sequences.length) {
-      fail("rejects duplicate-sequence evidence");
-    }
-  }
-}
-
-function rejectOutOfOrderTraceEvents(input: BuildAssembledExamReviewPacketInput): void {
-  for (const station of input.stations) {
-    const sequenced = station.traceEvents.filter(
-      (event): event is AssembledExamReviewTraceInput & { sequence: number } =>
-        typeof event.sequence === "number",
-    );
-    const ordered = [...sequenced].sort((left, right) => left.sequence - right.sequence);
-    for (let index = 1; index < ordered.length; index += 1) {
-      const previous = ordered[index - 1]!;
-      const current = ordered[index]!;
-      if (current.sequence <= previous.sequence || current.atSecond < previous.atSecond) {
-        fail("rejects out-of-order evidence");
-      }
-    }
-  }
+function rejectOutOfOrderEvidence(input: BuildAssembledExamReviewPacketInput): void {
+  rejectOutOfOrderTraceEvents(input.stations);
 }
 
 function toReviewTraceInput(event: AssembledExamReviewTraceInput): ReviewTraceInput {
   const { stationRunId: _stationRunId, ...rest } = event;
   return rest;
-}
-
-function toPhaseTransitionRecord(
-  event: AssembledExamReviewTraceInput,
-): AssembledExamPhaseTransitionRecord {
-  const eventType = event.eventType as AssembledExamPhaseTransitionType;
-  return {
-    eventType,
-    sequence: event.sequence as number,
-    atSecond: event.atSecond,
-    formAtSecond: payloadValue(event.payload, "formAtSecond") as number,
-    phase: ASSEMBLED_EXAM_PHASE_BY_TYPE[eventType],
-    advanceReason: payloadString(event.payload, "advanceReason"),
-    durableEventRef: payloadString(event.payload, "durableEventRef") ?? "",
-  };
 }
 
 function durableEventRef(stationRunId: string, sequence: number): string {
