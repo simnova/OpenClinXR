@@ -16,6 +16,18 @@ import { describe, expect, it, vi } from "vitest";
  * Diagnosis header IMMUTABLE. Flip it.fails to it and append ## FIXED below.
  */
 
+/**
+ * ## FIXED (bothy-tsk_3fb3bdeedbefdce8)
+ *
+ * bothy-claim-renewal.ts now owns announceBothyClaimPresence, BOTHY_CLAIM_INTERVAL_MS
+ * (2 min), and startBothyClaimRenewal with an injected heartbeat hook for tests;
+ * dispatch-worker.ts imports the starter and re-exports the historic names, so the
+ * one-shot at spawn, the interval until child close, and the exact-claimant heartbeat
+ * are unchanged. All four clauses flipped it.fails to it; none edited otherwise. The
+ * sibling dispatch-lifecycle plant needed its source probes retargeted at the shared
+ * module (its FIXED block records the move).
+ */
+
 const SRC = dirname(fileURLToPath(import.meta.url));
 const RENEWER_REL = "bothy-claim-renewal.ts";
 const DISPATCH_SRC = readFileSync(join(SRC, "dispatch-worker.ts"), "utf8");
@@ -27,7 +39,7 @@ function renewerSource(): string {
 }
 
 describe("the claim renewal is reachable outside dispatch", () => {
-  it.fails("(1) RENEWER IS IMPORTABLE OUTSIDE DISPATCH", async () => {
+  it("(1) RENEWER IS IMPORTABLE OUTSIDE DISPATCH", async () => {
     const mod = await import("./bothy-claim-renewal.js");
     expect(typeof mod.startBothyClaimRenewal, "renewer must export a starter").toBe("function");
     expect(typeof mod.BOTHY_CLAIM_INTERVAL_MS, "renewer must export its cadence").toBe("number");
@@ -37,7 +49,7 @@ describe("the claim renewal is reachable outside dispatch", () => {
     ).toBeLessThan(10 * 60_000);
   });
 
-  it.fails("(2) RENEWAL HEARTBEATS THE EXACT CLAIMANT ON AN INTERVAL", async () => {
+  it("(2) RENEWAL HEARTBEATS THE EXACT CLAIMANT ON AN INTERVAL", async () => {
     const mod = await import("./bothy-claim-renewal.js");
     const seen: Array<{ agentId?: string; taskId: string }> = [];
     vi.useFakeTimers();
@@ -60,7 +72,7 @@ describe("the claim renewal is reachable outside dispatch", () => {
     expect(seen[0]?.agentId, "renewal omits the board claimant identity").toBe("agent_probe");
   });
 
-  it.fails("(3) COUNTERWEIGHT: RENEWAL STOPS WHEN THE WORKER EXITS", async () => {
+  it("(3) COUNTERWEIGHT: RENEWAL STOPS WHEN THE WORKER EXITS", async () => {
     const mod = await import("./bothy-claim-renewal.js");
     let calls = 0;
     vi.useFakeTimers();
@@ -80,7 +92,7 @@ describe("the claim renewal is reachable outside dispatch", () => {
     }
   });
 
-  it.fails("(4) DISPATCH USES THE SHARED RENEWER, NOT A FORKED COPY", () => {
+  it("(4) DISPATCH USES THE SHARED RENEWER, NOT A FORKED COPY", () => {
     const shared = renewerSource();
     expect(shared, "renewer module must define the starter").toMatch(/startBothyClaimRenewal/);
     expect(

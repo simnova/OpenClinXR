@@ -29,8 +29,19 @@ import { describe, expect, it } from "vitest";
  * interval nor the worker.
  */
 
+/**
+ * ## FIXED (bothy-tsk_3fb3bdeedbefdce8)
+ *
+ * Renewal moved to bothy-claim-renewal.ts so harness-native spawns can run it
+ * without dispatch(); dispatch-worker.ts imports startBothyClaimRenewal and
+ * re-exports the historic names. Clauses below retarget their source probes at
+ * the shared module (interval, heartbeat, best-effort) plus dispatch's import
+ * and call sites; the lifecycle behavior they assert is unchanged.
+ */
+
 const SRC = dirname(fileURLToPath(import.meta.url));
 const DISPATCH = readFileSync(join(SRC, "dispatch-worker.ts"), "utf8");
+const RENEWER = readFileSync(join(SRC, "bothy-claim-renewal.ts"), "utf8");
 
 function heartbeatObject(source: string): string {
   const call = source.indexOf('bothyMcpCall(pat, "bothy-board.agents.heartbeat"');
@@ -41,21 +52,25 @@ function heartbeatObject(source: string): string {
 function recurringPresenceCallbacks(source: string): string[] {
   return [...source.matchAll(/setInterval\s*\(\s*\(\)\s*=>\s*\{([\s\S]*?)\}\s*,/g)]
     .map((match) => match[1] ?? "")
-    .filter((body) => /announceBothyDispatchPresence|bothy-board\.agents\.heartbeat/.test(body));
+    .filter((body) => /announceBothyDispatchPresence|announceBothyClaimPresence|beat\(input\)|bothy-board\.agents\.heartbeat/.test(body));
 }
 
 describe("dispatch keeps the exact claimed task alive for the worker lifetime", () => {
   it("(1) A LIVE CHILD RENEWS BEFORE THE TEN-MINUTE REAPER", () => {
-    const loops = recurringPresenceCallbacks(DISPATCH);
-    expect(loops, "dispatch has no recurring Bothy presence callback tied to a live child").toHaveLength(1);
-    expect(DISPATCH, "renewal cadence must be comfortably below the measured ten-minute reap").toMatch(
+    const loops = recurringPresenceCallbacks(RENEWER);
+    expect(loops, "renewer has no recurring Bothy presence callback tied to a live worker").toHaveLength(1);
+    expect(RENEWER, "renewal cadence must be comfortably below the measured ten-minute reap").toMatch(
       /(?:BOTHY|CLAIM|HEARTBEAT)[A-Z_]*INTERVAL[A-Z_]*\s*=\s*(?:[1-4]\s*\*\s*60_?000|[1-5]\d{4,5})/,
     );
+    expect(
+      DISPATCH,
+      "dispatch must use the shared renewer rather than a forked private interval",
+    ).toMatch(/from\s*["']\.\/bothy-claim-renewal\.js["']/);
   });
 
   it("(2) RENEWAL NAMES THE EXACT CLAIMANT, NOT ONLY A SESSION", () => {
-    const heartbeat = heartbeatObject(DISPATCH);
-    expect(heartbeat, "dispatch must keep the existing Bothy heartbeat call").not.toBe("");
+    const heartbeat = heartbeatObject(RENEWER);
+    expect(heartbeat, "renewer must keep the Bothy heartbeat call").not.toBe("");
     expect(heartbeat, "heartbeat omits the board claimant identity and cannot renew that assignee").toMatch(
       /agentId\s*:/,
     );
@@ -75,19 +90,19 @@ describe("dispatch keeps the exact claimed task alive for the worker lifetime", 
   });
 
   it("(4) A TRANSIENT BOARD FAILURE DOES NOT END RENEWAL OR THE WORKER", () => {
-    const loops = recurringPresenceCallbacks(DISPATCH);
+    const loops = recurringPresenceCallbacks(RENEWER);
     expect(loops, "no recurring renewal exists to survive a transient board failure").toHaveLength(1);
     expect(
       loops[0],
       "renewal callback must contain or call a best-effort path whose rejection cannot escape the timer",
-    ).toMatch(/announceBothyDispatchPresence|\.catch\s*\(/);
-    expect(DISPATCH, "board visibility remains explicitly best-effort after spawn").toContain(
+    ).toMatch(/announceBothyClaimPresence|announceBothyDispatchPresence|\.catch\s*\(/);
+    expect(RENEWER, "board visibility remains explicitly best-effort after spawn").toContain(
       "board visibility is not a dispatch contract",
     );
   });
 
   it("(5) COUNTERWEIGHT: dispatch still registers the worktree once after spawn", () => {
-    expect(DISPATCH).toContain("bothy-board.worktrees.register");
+    expect(RENEWER).toContain("bothy-board.worktrees.register");
     expect(DISPATCH).toContain("announceBothyDispatchPresence({");
     expect(DISPATCH.indexOf("announceBothyDispatchPresence({")).toBeGreaterThan(DISPATCH.indexOf("const child = spawn("));
   });
