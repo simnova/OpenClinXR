@@ -212,63 +212,111 @@ describe("assembled review packet binds stations to pinned bundles", () => {
     expect(packet.stations[1]?.omissions).toEqual([]);
   });
 
-  it("rejects a substituted bundle", () => {
-    expect(() =>
-      buildAssembledExamReviewPacket({
-        examRunId: EXAM_RUN_ID,
-        stations: [
-          edStation({
-            encounterBundle: { bundleId: "bundle_substituted_999", contentIdentity: ED_CONTENT_IDENTITY },
-          }),
-          pedsStation(),
-        ],
-        encounterBundlePins: pins(),
-      }),
-    ).toThrow(/rejects substituted or missing encounter bundle/);
+  it("marks a substituted bundle without refusing the packet", () => {
+    const packet = buildAssembledExamReviewPacket({
+      examRunId: EXAM_RUN_ID,
+      stations: [
+        edStation({
+          encounterBundle: { bundleId: "bundle_substituted_999", contentIdentity: ED_CONTENT_IDENTITY },
+        }),
+        pedsStation(),
+      ],
+      encounterBundlePins: pins(),
+    });
+    expect(packet.stations[0]?.encounterBundle).toMatchObject({
+      pinnedBundleId: ED_BUNDLE_ID,
+      runtimeBundleId: "bundle_substituted_999",
+      bound: false,
+      mismatch: "substituted_bundle",
+    });
+    expect(packet.stations[0]?.encounterBundle.omissions).toContain("substituted_encounter_bundle");
+    expect(packet.stations[0]?.omissions).toContain("substituted_encounter_bundle");
+    expect(packet.omissions).toContain("substituted_encounter_bundle");
   });
 
-  it("rejects substituted content identity on the same bundle id", () => {
-    expect(() =>
-      buildAssembledExamReviewPacket({
-        examRunId: EXAM_RUN_ID,
-        stations: [
-          edStation(),
-          pedsStation({
-            encounterBundle: { bundleId: PEDS_BUNDLE_ID, contentIdentity: "cid_tampered_999" },
-          }),
-        ],
-        encounterBundlePins: pins(),
-      }),
-    ).toThrow(/rejects substituted or missing encounter bundle/);
+  it("marks substituted content identity on the same bundle id", () => {
+    const packet = buildAssembledExamReviewPacket({
+      examRunId: EXAM_RUN_ID,
+      stations: [
+        edStation(),
+        pedsStation({
+          encounterBundle: { bundleId: PEDS_BUNDLE_ID, contentIdentity: "cid_tampered_999" },
+        }),
+      ],
+      encounterBundlePins: pins(),
+    });
+    expect(packet.stations[1]?.encounterBundle).toMatchObject({
+      pinnedBundleId: PEDS_BUNDLE_ID,
+      runtimeContentIdentity: "cid_tampered_999",
+      bound: false,
+      mismatch: "substituted_bundle",
+    });
+    expect(packet.stations[1]?.omissions).toContain("substituted_encounter_bundle");
+    expect(packet.omissions).toContain("substituted_encounter_bundle");
   });
 
-  it("rejects missing runtime bundle evidence", () => {
+  it("marks missing runtime bundle evidence without refusing the packet", () => {
     const ed = edStation();
     const { encounterBundle: _dropped, ...edWithoutBundle } = ed;
-    expect(() =>
-      buildAssembledExamReviewPacket({
-        examRunId: EXAM_RUN_ID,
-        stations: [edWithoutBundle, pedsStation()],
-        encounterBundlePins: pins(),
-      }),
-    ).toThrow(/rejects substituted or missing encounter bundle/);
+    const packet = buildAssembledExamReviewPacket({
+      examRunId: EXAM_RUN_ID,
+      stations: [edWithoutBundle, pedsStation()],
+      encounterBundlePins: pins(),
+    });
+    expect(packet.stations[0]?.encounterBundle).toMatchObject({
+      pinnedBundleId: ED_BUNDLE_ID,
+      runtimeBundleId: null,
+      bound: false,
+      mismatch: "missing_runtime_bundle",
+    });
+    expect(packet.stations[0]?.encounterBundle.omissions).toContain("missing_encounter_bundle_evidence");
+    expect(packet.stations[0]?.omissions).toContain("missing_encounter_bundle_evidence");
+    expect(packet.omissions).toContain("missing_encounter_bundle_evidence");
   });
 
-  it("rejects a cross-station bundle swap", () => {
-    expect(() =>
-      buildAssembledExamReviewPacket({
-        examRunId: EXAM_RUN_ID,
-        stations: [
-          edStation({
-            encounterBundle: { bundleId: PEDS_BUNDLE_ID, contentIdentity: PEDS_CONTENT_IDENTITY },
-          }),
-          pedsStation({
-            encounterBundle: { bundleId: ED_BUNDLE_ID, contentIdentity: ED_CONTENT_IDENTITY },
-          }),
-        ],
-        encounterBundlePins: pins(),
-      }),
-    ).toThrow(/rejects substituted or missing encounter bundle/);
+  it("marks a cross-station bundle swap without refusing the packet", () => {
+    const packet = buildAssembledExamReviewPacket({
+      examRunId: EXAM_RUN_ID,
+      stations: [
+        edStation({
+          encounterBundle: { bundleId: PEDS_BUNDLE_ID, contentIdentity: PEDS_CONTENT_IDENTITY },
+        }),
+        pedsStation({
+          encounterBundle: { bundleId: ED_BUNDLE_ID, contentIdentity: ED_CONTENT_IDENTITY },
+        }),
+      ],
+      encounterBundlePins: pins(),
+    });
+    expect(packet.stations[0]?.encounterBundle).toMatchObject({
+      bound: false,
+      mismatch: "cross_station_bundle",
+    });
+    expect(packet.stations[1]?.encounterBundle).toMatchObject({
+      bound: false,
+      mismatch: "cross_station_bundle",
+    });
+    expect(packet.stations[0]?.omissions).toContain("cross_station_encounter_bundle");
+    expect(packet.omissions).toContain("cross_station_encounter_bundle");
+  });
+
+  it("binds every station after a multi-station restart with the same pins and runtime evidence", () => {
+    const packet = buildAssembledExamReviewPacket({
+      examRunId: EXAM_RUN_ID,
+      stations: [
+        edStation({
+          traceEvents: [
+            { stationRunId: ED_STATION_RUN_ID, sequence: 0, eventType: "station.started", source: "system", atSecond: 0 },
+            { stationRunId: ED_STATION_RUN_ID, sequence: 1, eventType: "station.started", source: "system", atSecond: 300 },
+            { stationRunId: ED_STATION_RUN_ID, sequence: 7, eventType: "learner.order", source: "learner", tag: "ecg_request", atSecond: 400 },
+            { stationRunId: ED_STATION_RUN_ID, sequence: 9, eventType: "note.submitted", source: "learner", tag: "patient_note_submitted", atSecond: 1260 },
+          ],
+        }),
+        pedsStation(),
+      ],
+      encounterBundlePins: pins(),
+    });
+    expect(packet.stations[0]?.encounterBundle).toMatchObject({ bound: true, mismatch: null });
+    expect(packet.stations[1]?.encounterBundle).toMatchObject({ bound: true, mismatch: null });
   });
 
   it("rejects pins that do not cover every station", () => {

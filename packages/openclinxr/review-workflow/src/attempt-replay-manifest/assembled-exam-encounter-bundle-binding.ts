@@ -127,12 +127,14 @@ export function rejectSubstitutedOrMissingEncounterBundles(
   input: BuildAssembledExamReviewPacketInput,
 ): void {
   const bundlePins = indexEncounterBundlePins(input);
-  if (bundlePins.size > 0 && bundlePins.size !== input.stations.length) {
+  if (bundlePins.size === 0) {
+    return;
+  }
+  if (bundlePins.size !== input.stations.length) {
     fail("rejects substituted or missing encounter bundle");
   }
   for (const station of input.stations) {
-    const binding = bindStationEncounterBundle(station, bundlePins);
-    if (bundlePins.size > 0 && !binding.bound) {
+    if (!bundlePins.has(station.stationOrder)) {
       fail("rejects substituted or missing encounter bundle");
     }
   }
