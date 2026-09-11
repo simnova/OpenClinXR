@@ -83,6 +83,38 @@ import { decodePng } from "../decode-png.ts";
  * that capture: neckline-square-L 67, neckline-square-R 99,
  * sleeve-hem-rectangle-L 380, sleeve-hem-rectangle-R 289; control C 0; torso 0.
  * Not all four sites 0 — it.fails stays. GLB not promoted.
+ *
+ * ## PROBE (attempt 3)
+ *
+ * Instrument: three.js Raycaster + NodeIO world meshes, DoubleSide. Camera is
+ * candidate-capture.ts PerspectiveCamera(35, 1, 0.01, 100) +
+ * candidate-capture-geometry.ts frameCameraForBounds on the capture clone
+ * (scale height to 2.2 m, ground minY, xz-center) of the restored origin/main
+ * child (sha 2742c258… / 11,348,244 B). Eye (0, 1.364, 5.17), lookDir
+ * (0, -0.0170, -0.9999) — same framing as attempt 2 / HB-04. Every exact-
+ * background subject pixel (structure lum > 40 AND |lit lum − BG_LUMA| < 0.01)
+ * inside each HB-06 site box is unprojected; first GLB hit classified.
+ * Header diagnosis untouched. No factory change.
+ *
+ * | site | bg | miss | t-shirt | hidden_upper (MASK) | visible skin | other |
+ * |---|---:|---:|---:|---:|---:|---:|
+ * | neckline-square-L | 154 | 67 | 0 | 87 | 0 | 0 |
+ * | neckline-square-R | 191 | 99 | 0 | 92 | 0 | 0 |
+ * | sleeve-hem-rectangle-L | 382 | 379 | 0 | 3 | 0 | 0 |
+ * | sleeve-hem-rectangle-R | 292 | 288 | 0 | 4 | 0 | 0 |
+ * | control C (chin) | 0 | 0 | 0 | 0 | 0 | 0 |
+ *
+ * hidden_upper first hits are all `mpfb_peds_patient_child_body` prim4
+ * (`openclinxr_hidden_upper_…body_mesh.001`, alphaMode MASK, 238 tris).
+ * Zero t-shirt / visible-skin first hits. Sleeves are almost all miss
+ * (empty gap at the opening). Neckline is mixed miss + hidden_upper.
+ * Totals: miss 833, hidden_upper 186, t-shirt 0, visible_skin 0.
+ * Step-3 polarity: mixed — un-hide the prim4 faces those pixel rays hit
+ * (screen-space, not centroids), then close remaining opening misses on
+ * the garment side.
+ *
+ * NOT TESTED: other nine bodies; waistband/crotch; Blender-space millimetre
+ * match of this Node camera to the in-page WebGL camera.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
