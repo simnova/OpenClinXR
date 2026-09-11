@@ -1,0 +1,324 @@
+{
+  "id": "psr-01d",
+  "rawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "groupHash": "21f46d05a61ca2639359ddbf9b80cbebf4c6e5e0932e15603fd7ee71ec593e3f",
+  "sourceHash": "01cb5139557293ace715e65bae576b359afe0e0e06c201f18e1af3d8bab0341d",
+  "reviewTargets": {
+    "maxPerRoot": 50,
+    "maxRootExportsProgram": 1000
+  },
+  "perPackage": {
+    "packages/openclinxr/rest": {
+      "rows": 193,
+      "keep": 90,
+      "remove": 103,
+      "migrate": 0,
+      "rootBefore": 193,
+      "rootAfter": 90
+    },
+    "packages/openclinxr/asset-registry": {
+      "rows": 538,
+      "keep": 92,
+      "remove": 398,
+      "migrate": 48,
+      "rootBefore": 240,
+      "rootAfter": 21
+    },
+    "packages/openclinxr/ui-route-admin": {
+      "rows": 573,
+      "keep": 25,
+      "remove": 546,
+      "migrate": 2,
+      "rootBefore": 277,
+      "rootAfter": 11
+    }
+  },
+  "sampledRemoves": [
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./bedside-approach-path",
+      "symbol": "SWEPT_OCCUPANCY_SAMPLE_SPACING_METERS",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "SceneGenerationPipelineStage",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "AZURITE_DEFAULT_CONTAINER_NAME",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "MPFB_PEDS_PATIENT_CHILD_GLB",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "AzureFunctionHttpHandlerSpec",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterDynamicBehaviorCoverageSummary",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterRuntimeRemediationPlanAuditRef",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-asset-review",
+      "symbol": "promoteRuntimeAssetForLocalUse",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "MPFB_OB_PATIENT_AISHA_GLB",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "BuildEncounterFactoryDryRunSummaryInput",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "SaveFacultyReviewDecisionInput",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetGenerationMethod",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "mergeFacultyCompileLockRows",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./admin-review-types",
+      "symbol": "AdminNoReadinessEvidenceClaim",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./scenario-bank-maturity-panel",
+      "symbol": "ScenarioBankMaturityPanelProps",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "AdminCaseDefinedHumanoidPerformanceContract",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "summarizeEvidenceGateRefs",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterAssetReadinessBehaviorCategory",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./faculty-adjudication-workspace",
+      "symbol": "FacultyAdjudicationWorkspaceProps",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": "./dialogue-seed-authoring-panel",
+      "symbol": "AUTHORED_LOCAL_FIXTURE_PROVIDER_ID",
+      "externalReferences": 0,
+      "method": "ts-parse named/namespaced import + dynamic-member + require/destructure scan over 120 external consumer files; checker spot-check on 36 same-name leads"
+    }
+  ],
+  "sampledKeeps": [
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "LearnerScenarioResolver",
+      "disposition": "keep",
+      "reference": "apps/api/src/scenario-promotion-bridge.ts:8"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./approach-executor",
+      "symbol": "CLINICIAN_WALK_SPEED_MPS",
+      "disposition": "keep",
+      "reference": "apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts:10"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ApiAssetReleaseLadderReplayProjection",
+      "disposition": "keep",
+      "reference": "apps/api/src/app.ts:32"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeActorPlacement",
+      "disposition": "migrate",
+      "reference": "apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts:8(checker:asset-registry/dist/runtime-bundles.d.ts)"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-approach-intent",
+      "symbol": "geometryRevisionDigest",
+      "disposition": "keep",
+      "reference": "apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts:14"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "encounterBundleFactoryMemberKinds",
+      "disposition": "migrate",
+      "reference": "packages/openclinxr/rest/src/routes/encounter-bundle-promotion/faculty-encounter-bundle-promotion.ts:4"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS",
+      "disposition": "migrate",
+      "reference": "packages/openclinxr/rest/src/routes/scenario-scene-generation-routes.ts:1"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ApiPersistenceSink",
+      "disposition": "keep",
+      "reference": "apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts:12"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "SUPINE_CLIP_NAME",
+      "disposition": "migrate",
+      "reference": "packages/openclinxr/xr-pose/src/supine-pose.ts:22"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./encounter-bundle-admission",
+      "symbol": "stationIdForSceneClosureScenario",
+      "disposition": "keep",
+      "reference": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts:33"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "MEASURED_STATION_GEOMETRY",
+      "disposition": "keep",
+      "reference": "packages/openclinxr/rest/src/api-route-support.ts:12"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "PEDS_CHILD_GLB",
+      "disposition": "keep",
+      "reference": "apps/api/src/app.test.ts:6"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ApiRuntimeRealismEvidenceInputReviewDecisionRecord",
+      "disposition": "keep",
+      "reference": "apps/api/src/app.ts:25"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "MPFB_GOWN_ADULT_PATIENT_GLB",
+      "disposition": "keep",
+      "reference": "apps/api/src/app.test.ts:6"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "toAdminGraphqlScenario",
+      "disposition": "keep",
+      "reference": "apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts:10"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "isApiFetchRequestLike",
+      "disposition": "keep",
+      "reference": "apps/api/src/api-fetch-transport.ts:10"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "ApiRuntimeEvidenceCaptureScaffold",
+      "disposition": "keep",
+      "reference": "apps/api/src/app.ts:33"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./encounter-bundle-admission",
+      "symbol": "admitFrozenScenePlanForObservedScene",
+      "disposition": "keep",
+      "reference": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts:31"
+    },
+    {
+      "package": "packages/openclinxr/rest",
+      "entrypoint": ".",
+      "symbol": "registerExamRoutes",
+      "disposition": "keep",
+      "reference": "apps/api/src/app.ts:49"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./scene-plan-freeze",
+      "symbol": "freezeAcceptedScenePlan",
+      "disposition": "keep",
+      "reference": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts:42"
+    }
+  ],
+  "classifier": "outside-repo source: /tmp/psr01d-cls/consumer-refs3.mjs (ts compiler-api parse of 120 external consumer files: static named incl. import-type, namespace member use, export-from, dynamic import member/destructure, require) + checker module-export + identifier-resolution passes (tc2/tc3); rerunnable against raw-inventory.json with ROOT pointed at the checkout",
+  "verifyBefore": "FAIL: approval manifest for psr-01d is absent (exit 1)",
+  "verifyAfter": "ok: group psr-01d reviewed: 1304 resolved rows (exit 0); baseline ratchet ok",
+  "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility (per card NOT TESTED). Parser-level: computed member access on renamed dynamic bindings, string-built specifiers, and re-export-through-app barrels beyond the 120 parsed files may hide consumers; implementation cards rerun compiler + builds per row."
+}
