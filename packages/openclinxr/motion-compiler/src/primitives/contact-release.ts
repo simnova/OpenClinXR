@@ -1,4 +1,4 @@
-import { minimumJerkFall } from "../trajectory.js";
+import { minimumJerkFall } from "../trajectory/minimum-jerk-fall.js";
 import { scaleRotation, signCanonical } from "./quaternion-scale.js";
 import type { Quat, SolvedArmPose } from "../ik/solve-chain.js";
 import type { ContactKey } from "../contact/contact-window-schedule.js";
