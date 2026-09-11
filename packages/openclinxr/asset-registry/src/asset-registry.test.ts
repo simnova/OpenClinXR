@@ -1,13 +1,18 @@
 import { findRuntimeActorAsset, findRuntimeEquipmentAsset } from "@openclinxr/asset-registry/runtime-bundle-lookups";
+import { promoteEncounterRuntimeAssetBundleForLocalUse } from "@openclinxr/asset-registry/runtime-asset-review";
 import {
   buildEncounterDynamicBehaviorCoverageSummary,
+  buildEncounterFactoryDryRunSummary,
   buildEncounterRuntimeAssetBundle,
   buildEncounterRuntimeBundlePublicationMetadata,
+  createEdChestPainLocalEncounterRuntimeAssetBundle,
   createEdChestPainLocalLearnerRuntimeAssetBundle,
   evaluateEncounterRuntimeLearnerUseGate,
   registerGeneratedRuntimeAssetReference,
+  resolveRuntimeAssetBlobUrl,
   resolveRuntimeAssetStoreConfig,
   resolveRuntimeAssetUrl,
+  toLearnerRuntimeAssetBundle,
 } from "@openclinxr/asset-registry/runtime-bundles";
 import { edChestPainScenario, pediatricAsthmaScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
@@ -20,7 +25,6 @@ import {
   type AssetManifest,
   buildAssetProductionReviewPacket,
   buildEncounterAssetNeedsReadinessManifest,
-  buildEncounterFactoryDryRunSummary,
   buildEnvironmentGenerationPacket,
   buildEnvironmentGenerationQueue,
   buildEnvironmentGenerationWorkOrder,
@@ -28,7 +32,6 @@ import {
   buildScenarioSceneGenerationPipelineWorkOrder,
   buildScenarioSceneGenerationPipelineWorkOrderQueue,
   createEdChestPainLocalAssetEvidenceFixtureManifests,
-  createEdChestPainLocalEncounterRuntimeAssetBundle,
   createEdChestPainPlaceholderManifests,
   createScenarioPlaceholderManifests,
   evaluateAssetManifest,
@@ -39,11 +42,8 @@ import {
   evaluateScenarioOptimizationEvidence,
   type HumanoidRealismMetadata,
   InMemoryAssetRegistry,
-  promoteEncounterRuntimeAssetBundleForLocalUse,
   recommendedAssetPipelineTools,
-  resolveRuntimeAssetBlobUrl,
   selectAssetPipelineToolsForLane,
-  toLearnerRuntimeAssetBundle,
   validateAssetManifestStructure,
 } from "./index.js";
 

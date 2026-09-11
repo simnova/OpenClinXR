@@ -6,14 +6,6 @@ export {
 } from "./environment-descriptors.js";
 export { resolveMorphTarget } from "./morph-target-resolver.js";
 export { resolvePoseBone } from "./pose-bone-resolver.js";
-export { promoteEncounterRuntimeAssetBundleForLocalUse } from "./runtime-asset-review.js";
-export {
-  buildEncounterFactoryDryRunSummary,
-  buildEncounterFactoryInputPlanningSummary,
-  createEdChestPainLocalEncounterRuntimeAssetBundle,
-  resolveRuntimeAssetBlobUrl,
-  toLearnerRuntimeAssetBundle,
-} from "./runtime-bundles.js";
 export {
   parseRuntimeRoomPropColorHex,
   ROOM_PROP_ACCENT_COLOR_FALLBACK,
@@ -2796,7 +2788,6 @@ export { listShippedCastScenarioIds } from "./actor-casting.js";
 // layout-variation.js is node-only (node:crypto for the seed digest) and must not be
 // value-reachable from the "." client entry — browsers cannot resolve node: builtins.
 // Node consumers import "@openclinxr/asset-registry/layout-variation".
-export { footSlideMeters, stepBedsideApproach } from "./approach-executor.js";
 export { bedsideClearanceViolations } from "./bedside-clearance.js";
 export {
   bedsideTargetForClinician,

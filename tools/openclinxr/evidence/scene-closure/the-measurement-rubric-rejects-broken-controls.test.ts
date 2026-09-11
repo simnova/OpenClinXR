@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   CLINICIAN_WALK_SPEED_MPS,
   FOOT_CONTACT_HEIGHT_METERS,
+  footSlideMeters,
 } from "../../../../packages/openclinxr/asset-registry/src/approach-executor.js";
 import {
   STANDING_BODY_HEIGHT_METERS,
@@ -11,7 +12,6 @@ import { planBedsideApproach } from "../../../../packages/openclinxr/asset-regis
 import {
   bedsideTargetForClinician,
   ED_STRETCHER_DECK_BOUNDS,
-  footSlideMeters,
 } from "../../../../packages/openclinxr/asset-registry/src/index.js";
 import {
   gradeMotionMeasurement,

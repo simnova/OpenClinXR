@@ -2,10 +2,12 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { planBedsideApproach } from "../../../../packages/openclinxr/asset-registry/src/bedside-approach-path.js";
 import {
-  ED_STRETCHER_DECK_BOUNDS,
-  bedsideTargetForClinician,
   footSlideMeters,
   stepBedsideApproach,
+} from "../../../../packages/openclinxr/asset-registry/src/approach-executor.js";
+import {
+  ED_STRETCHER_DECK_BOUNDS,
+  bedsideTargetForClinician,
 } from "../../../../packages/openclinxr/asset-registry/src/index.js";
 import { jointWorldTrack, parseBvh } from "./bvh-foot-plant.js";
 

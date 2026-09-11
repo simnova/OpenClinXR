@@ -24,8 +24,6 @@
     "bedsideTargetForClinician",
     "buildAssetProductionReviewPacket",
     "buildEncounterAssetNeedsReadinessManifest",
-    "buildEncounterFactoryDryRunSummary",
-    "buildEncounterFactoryInputPlanningSummary",
     "buildEnvironmentGenerationPacket",
     "buildEnvironmentGenerationQueue",
     "buildEnvironmentGenerationWorkOrder",
@@ -33,7 +31,6 @@
     "buildScenarioSceneGenerationPipelineWorkOrder",
     "buildScenarioSceneGenerationPipelineWorkOrderQueue",
     "createEdChestPainLocalAssetEvidenceFixtureManifests",
-    "createEdChestPainLocalEncounterRuntimeAssetBundle",
     "createEdChestPainPlaceholderManifests",
     "createScenarioPlaceholderManifests",
     "evaluateAssetManifest",
@@ -43,22 +40,17 @@
     "evaluateScenarioAssetBudget",
     "evaluateScenarioGenerationEvidence",
     "evaluateScenarioOptimizationEvidence",
-    "footSlideMeters",
     "forwardVectorForHeading",
     "headingRadiansToward",
     "listShippedCastScenarioIds",
     "monitorVisibilityFrom",
     "parseRuntimeRoomPropColorHex",
-    "promoteEncounterRuntimeAssetBundleForLocalUse",
     "recommendedAssetPipelineTools",
     "resolveEnvironmentShellDescriptor",
     "resolveMorphTarget",
     "resolvePoseBone",
-    "resolveRuntimeAssetBlobUrl",
     "screenNormal",
     "selectAssetPipelineToolsForLane",
-    "stepBedsideApproach",
-    "toLearnerRuntimeAssetBundle",
     "unstagedCastActors",
     "validateAssetManifestStructure"
   ],
@@ -95,6 +87,6 @@
   },
   "ceilings": {
     "testInternalImports": 1,
-    "rootEntrypointExports": 58
+    "rootEntrypointExports": 50
   }
 }
