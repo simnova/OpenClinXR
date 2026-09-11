@@ -16,34 +16,26 @@ import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-sche
 import type { Document } from "mongodb";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
+  createMongoApiPersistenceSink,
   createMongoDurableMultiActorSessionStore,
-  MongoDurableClinicalEventRepository,
-  MongoDurableConversationTurnRepository,
-  MongoDurableEmotionalStateTimelineRepository,
-} from "./conversation-repositories.js";
-import {
-  MongoEncounterMaterializationEvidenceRepository,
-} from "./encounter-materialization-evidence-repositories.js";
-import {
-  MongoExamFormRepository,
-  MongoRuntimeAssetBundleRepository,
-  MongoStationRunQueueRepository,
-  saveLearnerRuntimeAssetBundleFromGeneratedReport,
-} from "./exam-repositories.js";
-import { MongoFacultyScoreDraftRepository } from "./faculty-repositories.js";
-import { createMongoApiPersistenceSink } from "./persistence-sink.js";
-import {
   durableActorTurnPersistenceScope,
   durableClinicalEventPersistenceScope,
   type EncounterMaterializationEvidenceRecord,
-  type ScenarioReviewDecisionRecord,
-} from "./records.js";
-import {
+  MongoDurableClinicalEventRepository,
+  MongoDurableConversationTurnRepository,
+  MongoDurableEmotionalStateTimelineRepository,
+  MongoEncounterMaterializationEvidenceRepository,
+  MongoExamFormRepository,
+  MongoFacultyScoreDraftRepository,
   MongoReviewPacketRepository,
+  MongoRuntimeAssetBundleRepository,
   MongoScenarioRepository,
   MongoScenarioReviewDecisionRepository,
+  MongoStationRunQueueRepository,
   MongoTraceRepository,
-} from "./scenario-repositories.js";
+  type ScenarioReviewDecisionRecord,
+  saveLearnerRuntimeAssetBundleFromGeneratedReport,
+} from "./index.js";
 
 const scenario: Scenario = {
   scenarioId: "ed_chest_pain_priority_v1",

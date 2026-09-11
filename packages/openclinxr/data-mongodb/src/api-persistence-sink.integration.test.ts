@@ -4,7 +4,7 @@ import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/ass
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
 import type { AsyncDurableMultiActorSessionStore } from "@openclinxr/session-state";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createMongoApiPersistenceSink } from "./persistence-sink.js";
+import { createMongoApiPersistenceSink } from "./index.js";
 
 async function json(response: Response): Promise<unknown> {
   return response.json() as Promise<unknown>;

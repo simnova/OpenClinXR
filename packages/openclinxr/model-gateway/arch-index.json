@@ -3,31 +3,15 @@
   "name": "@openclinxr/model-gateway",
   "entrypoint": "packages/openclinxr/model-gateway/src/index.ts",
   "exports": [
-    "ActorCommunicationProfileContext",
-    "ActorCommunicationPromptContext",
-    "ActorResponseClinicalOrderContext",
-    "ActorResponseClinicalStateContext",
-    "ActorResponseProviderPromptInput",
     "ActorResponseRequest",
     "ActorResponseResult",
-    "CreateActorDialogueModelGatewayOptions",
-    "DialogueSeedActorResponseRequestOptions",
-    "DialogueSeedRequestFixture",
-    "DialogueSeedScenarioContext",
-    "GuardrailResult",
     "LocalModelProviderAdapter",
-    "LocalModelProviderOptions",
-    "LocalModelProviderStubOptions",
     "MockModelProviderAdapter",
     "ModelCapability",
     "ModelGateway",
-    "ModelGatewayOptions",
-    "ModelProvenance",
     "ModelProviderAdapter",
     "ModelRequestPolicy",
     "OpenAiCompatibleModelProviderAdapter",
-    "OpenAiCompatibleProviderOptions",
-    "TokenUsage",
     "buildActorCommunicationProfilePromptContext",
     "buildActorResponseProviderPromptInput",
     "buildActorResponseRequestsForDialogueSeeds",
@@ -35,8 +19,7 @@
     "createDefaultModelGateway",
     "createLlamaCppModelProviderAdapter",
     "createMlxModelProviderAdapter",
-    "createOllamaModelProviderAdapter",
-    "defaultOfflineActorDialoguePolicy"
+    "createOllamaModelProviderAdapter"
   ],
   "workspaceDependencies": [
     "@cellix/provider-contracts"
@@ -53,8 +36,5 @@
     "typecheck": "pnpm --filter @openclinxr/model-gateway typecheck",
     "build": "pnpm --filter @openclinxr/model-gateway build",
     "lint": "pnpm --filter @openclinxr/model-gateway lint"
-  },
-  "ceilings": {
-    "rootEntrypointExports": 34
   }
 }

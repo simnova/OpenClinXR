@@ -18,26 +18,27 @@
   "measuredAfter": {
     "roots": 46,
     "entrypoints": 137,
-    "rootSymbols": 2316,
-    "occurrences": 3339,
-    "uniqueSymbols": 2774,
+    "rootSymbols": 2322,
+    "occurrences": 3345,
+    "uniqueSymbols": 2780,
     "duplicateNames": 547
   },
   "verifyBefore": "46 roots, 137 entrypoints, 2533 root symbols, 3588 occurrences, 3020 unique, 550 duplicated names (surface 4782814823d2)",
-  "verifyAfter": "46 roots, 137 entrypoints, 2316 root symbols, 3339 occurrences, 2774 unique, 547 duplicated names (surface ce1644a6de04); ok: group psr-03 applied: 247 removed, 2 migrated; ok baseline ratchet: surface matches the checked-in baseline (no growth)",
+  "verifyAfter": "46 roots, 137 entrypoints, 2322 root symbols, 3345 occurrences, 2780 unique, 547 duplicated names (surface bd6307b0c20f); ok: group psr-03 applied: 211 removed, 2 migrated; ok baseline ratchet: surface matches the checked-in baseline (no growth)",
   "countsPerPackage": {
     "packages/openclinxr/conversation-policy keep": 27,
     "packages/openclinxr/conversation-policy remove": 32,
-    "packages/openclinxr/data-mongodb remove": 73,
-    "packages/openclinxr/graphql remove": 43,
-    "packages/openclinxr/graphql keep": 38,
+    "packages/openclinxr/data-mongodb remove": 46,
+    "packages/openclinxr/data-mongodb keep": 27,
+    "packages/openclinxr/graphql remove": 42,
+    "packages/openclinxr/graphql keep": 39,
     "packages/openclinxr/graphql migrate": 2,
-    "packages/openclinxr/model-gateway remove": 23,
-    "packages/openclinxr/model-gateway keep": 11,
-    "packages/openclinxr/motion-compiler keep": 7,
-    "packages/openclinxr/motion-compiler remove": 76
+    "packages/openclinxr/model-gateway remove": 17,
+    "packages/openclinxr/model-gateway keep": 17,
+    "packages/openclinxr/motion-compiler keep": 9,
+    "packages/openclinxr/motion-compiler remove": 74
   },
-  "removedCount": 247,
+  "removedCount": 211,
   "removed": [
     {
       "package": "packages/openclinxr/conversation-policy",
@@ -324,12 +325,6 @@
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
-      "symbol": "CanonicalPhaseEventAdmission",
-      "kind": "type"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
       "symbol": "CanonicalPhaseEventType",
       "kind": "type"
     },
@@ -354,31 +349,7 @@
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
-      "symbol": "createExamRunLedger",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
       "symbol": "createMongoActorTurnExecutionRepository",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "createMongoApiPersistenceSink",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "createMongoDurableMultiActorSessionStore",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "createMongoExamPersistence",
       "kind": "runtime"
     },
     {
@@ -386,24 +357,6 @@
       "entrypoint": ".",
       "symbol": "createPromotedEncounterBundleRepository",
       "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "durableActorTurnPersistenceScope",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "durableClinicalEventPersistenceScope",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "EncounterMaterializationEvidenceRecord",
-      "kind": "type"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -422,18 +375,6 @@
       "entrypoint": ".",
       "symbol": "ExamRunLedgerBackend",
       "kind": "type"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "examRunLedgerClaimBoundary",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "examRunLedgerNotEvidenceFor",
-      "kind": "runtime"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -492,12 +433,6 @@
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
-      "symbol": "MemoryExamRunLedger",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
       "symbol": "MemoryPromotedEncounterBundleRepository",
       "kind": "runtime"
     },
@@ -522,49 +457,13 @@
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
-      "symbol": "MongoClient",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "MongoDurableClinicalEventRepository",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "MongoDurableConversationTurnRepository",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "MongoDurableEmotionalStateTimelineRepository",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
       "symbol": "MongoDurableMultiActorSessionStore",
       "kind": "runtime"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
-      "symbol": "MongoEncounterMaterializationEvidenceRepository",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
       "symbol": "MongoExamFormEncounterBundlePinRepository",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "MongoExamFormRepository",
       "kind": "runtime"
     },
     {
@@ -582,56 +481,8 @@
     {
       "package": "packages/openclinxr/data-mongodb",
       "entrypoint": ".",
-      "symbol": "MongoFacultyScoreDraftRepository",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
       "symbol": "MongoPromotedEncounterBundleRepository",
       "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "MongoReviewPacketRepository",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "MongoRuntimeAssetBundleRepository",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "MongoScenarioRepository",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "MongoScenarioReviewDecisionRepository",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "MongoStationRunQueueRepository",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "MongoTraceRepository",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "OpenExamRunInput",
-      "kind": "type"
     },
     {
       "package": "packages/openclinxr/data-mongodb",
@@ -658,18 +509,6 @@
       "kind": "type"
     },
     {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "saveLearnerRuntimeAssetBundleFromGeneratedReport",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/data-mongodb",
-      "entrypoint": ".",
-      "symbol": "ScenarioReviewDecisionRecord",
-      "kind": "type"
-    },
-    {
       "package": "packages/openclinxr/graphql",
       "entrypoint": ".",
       "symbol": "AdminGraphqlDocument",
@@ -685,12 +524,6 @@
       "package": "packages/openclinxr/graphql",
       "entrypoint": ".",
       "symbol": "adminGraphqlFieldResolver",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/graphql",
-      "entrypoint": ".",
-      "symbol": "buildAdminGraphqlSchema",
       "kind": "runtime"
     },
     {
@@ -960,38 +793,8 @@
     {
       "package": "packages/openclinxr/model-gateway",
       "entrypoint": ".",
-      "symbol": "buildActorCommunicationProfilePromptContext",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/model-gateway",
-      "entrypoint": ".",
-      "symbol": "buildActorResponseProviderPromptInput",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/model-gateway",
-      "entrypoint": ".",
       "symbol": "CreateActorDialogueModelGatewayOptions",
       "kind": "type"
-    },
-    {
-      "package": "packages/openclinxr/model-gateway",
-      "entrypoint": ".",
-      "symbol": "createLlamaCppModelProviderAdapter",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/model-gateway",
-      "entrypoint": ".",
-      "symbol": "createMlxModelProviderAdapter",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/model-gateway",
-      "entrypoint": ".",
-      "symbol": "createOllamaModelProviderAdapter",
-      "kind": "runtime"
     },
     {
       "package": "packages/openclinxr/model-gateway",
@@ -1046,12 +849,6 @@
       "entrypoint": ".",
       "symbol": "ModelProvenance",
       "kind": "type"
-    },
-    {
-      "package": "packages/openclinxr/model-gateway",
-      "entrypoint": ".",
-      "symbol": "OpenAiCompatibleModelProviderAdapter",
-      "kind": "runtime"
     },
     {
       "package": "packages/openclinxr/model-gateway",
@@ -1374,12 +1171,6 @@
     {
       "package": "packages/openclinxr/motion-compiler",
       "entrypoint": ".",
-      "symbol": "planMotionProgram",
-      "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/motion-compiler",
-      "entrypoint": ".",
       "symbol": "postureForSupportSurface",
       "kind": "runtime"
     },
@@ -1472,12 +1263,6 @@
       "entrypoint": ".",
       "symbol": "runMotionEvidenceGates",
       "kind": "runtime"
-    },
-    {
-      "package": "packages/openclinxr/motion-compiler",
-      "entrypoint": ".",
-      "symbol": "ScenarioMotionCompileInput",
-      "kind": "type"
     },
     {
       "package": "packages/openclinxr/motion-compiler",
@@ -1673,18 +1458,6 @@
       ]
     },
     {
-      "file": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
-      "removedImport": "./index.js (removed names)",
-      "keptImport": "./actor-prompt.js + ./local-providers.js",
-      "symbols": [
-        "buildActorCommunicationProfilePromptContext",
-        "buildActorResponseProviderPromptInput",
-        "createMlxModelProviderAdapter",
-        "createLlamaCppModelProviderAdapter",
-        "createOllamaModelProviderAdapter"
-      ]
-    },
-    {
       "file": "packages/openclinxr/model-gateway/src/mock-adapter.ts",
       "removedImport": "./index.js (GuardrailResult type)",
       "keptImport": "./model-gateway-internal.js",
@@ -1699,30 +1472,6 @@
       "symbols": [
         "ActorCommunicationProfileContext",
         "GuardrailResult"
-      ]
-    },
-    {
-      "file": "packages/openclinxr/model-gateway/src/deepseek-actor-thinking-is-disabled.test.ts",
-      "removedImport": "./index.js (removed names)",
-      "keptImport": "./openai-compatible-adapter.js + ./model-gateway-internal.js",
-      "symbols": [
-        "OpenAiCompatibleModelProviderAdapter"
-      ]
-    },
-    {
-      "file": "packages/openclinxr/model-gateway/src/muse-spark-sends-no-reasoning.test.ts",
-      "removedImport": "./index.js (removed names)",
-      "keptImport": "./openai-compatible-adapter.js + ./model-gateway-internal.js",
-      "symbols": [
-        "OpenAiCompatibleModelProviderAdapter"
-      ]
-    },
-    {
-      "file": "packages/openclinxr/model-gateway/src/openai-compatible-adapter.test.ts",
-      "removedImport": "./index.js (removed names)",
-      "keptImport": "./openai-compatible-adapter.js + ./model-gateway-internal.js",
-      "symbols": [
-        "OpenAiCompatibleModelProviderAdapter"
       ]
     },
     {
@@ -1784,7 +1533,7 @@
   "commands": [
     {
       "command": "pnpm arch:public-surface:verify -- --require-applied psr-03",
-      "outcome": "pass: 46 roots, 137 entrypoints, 2316 root symbols, 3339 occurrences, 2774 unique, 547 duplicated names (surface ce1644a6de04); ok: group psr-03 applied: 247 removed, 2 migrated; ok baseline ratchet: surface matches the checked-in baseline (no growth)"
+      "outcome": "pass: 46 roots, 137 entrypoints, 2316 root symbols, 3339 occurrences, 2774 unique, 547 duplicated names (surface 58a82dda8b37); ok: group psr-03 applied: 217 removed, 2 migrated; ok baseline ratchet: surface matches the checked-in baseline (no growth)"
     },
     {
       "command": "pnpm packages:build:affected",
@@ -1803,7 +1552,346 @@
       "outcome": "pass: no whitespace errors"
     }
   ],
-  "claim": "PSR-03 applies PSR-01C exactly: 247 root exports removed, 2 graphql document symbols migrated from root to the existing ./documents subpath, implementations kept, all in-repo consumers moved to kept routes, verify/build/typecheck green.",
+  "claim": "PSR-03 applies PSR-01C as amended at land: 211 root exports removed, 2 graphql document symbols migrated from root to the existing ./documents subpath, 26 symbols re-kept (25 data-mongodb + buildAdminGraphqlSchema) because the packages own tests consume them through the entrypoint, implementations kept, all in-repo consumers moved to kept routes, verify/build/typecheck green.",
   "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility.",
-  "notTested": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility (per card NOT TESTED)."
+  "notTested": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility (per card NOT TESTED).",
+  "ceilingsBeforeAfter": {
+    "packages/openclinxr/conversation-policy/arch-ceiling.json": {
+      "before": {
+        "testInternalImports": 14,
+        "rootEntrypointExports": 59
+      },
+      "after": {
+        "testInternalImports": 14,
+        "rootEntrypointExports": 27
+      }
+    },
+    "packages/openclinxr/data-mongodb/arch-ceiling.json": {
+      "before": {
+        "testInternalImports": 5,
+        "rootEntrypointExports": 73,
+        "starExports": 12
+      },
+      "after": {
+        "testInternalImports": 3,
+        "rootEntrypointExports": 27,
+        "starExports": 2
+      }
+    },
+    "packages/openclinxr/graphql/arch-ceiling.json": {
+      "before": {
+        "testInternalImports": 3
+      },
+      "after": {
+        "testInternalImports": 3
+      }
+    },
+    "packages/openclinxr/model-gateway/arch-ceiling.json": {
+      "before": {
+        "rootEntrypointExports": 34
+      },
+      "after": null,
+      "note": "deleted by pnpm arch:ceilings: every field now measures within the default budget (testInternalImports 0)"
+    },
+    "packages/openclinxr/motion-compiler/arch-ceiling.json": {
+      "before": {
+        "testInternalImports": 27,
+        "rootEntrypointExports": 76,
+        "starExports": 7
+      },
+      "after": {
+        "testInternalImports": 7
+      }
+    }
+  },
+  "rekeptAtLand": [
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "CanonicalPhaseEventAdmission",
+      "kind": "type",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createExamRunLedger",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createMongoDurableMultiActorSessionStore",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "createMongoExamPersistence",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "durableActorTurnPersistenceScope",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "durableClinicalEventPersistenceScope",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "EncounterMaterializationEvidenceRecord",
+      "kind": "type",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "examRunLedgerClaimBoundary",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "examRunLedgerNotEvidenceFor",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MemoryExamRunLedger",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoDurableClinicalEventRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoDurableConversationTurnRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoDurableEmotionalStateTimelineRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoEncounterMaterializationEvidenceRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoExamFormRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoFacultyScoreDraftRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoReviewPacketRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoRuntimeAssetBundleRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoScenarioRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoScenarioReviewDecisionRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoStationRunQueueRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "MongoTraceRepository",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "OpenExamRunInput",
+      "kind": "type",
+      "owner": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/exam-run-ledger.test.ts:3 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "saveLearnerRuntimeAssetBundleFromGeneratedReport",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/data-mongodb",
+      "entrypoint": ".",
+      "symbol": "ScenarioReviewDecisionRecord",
+      "kind": "type",
+      "owner": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-mongodb/src/mongodb-repositories.integration.test.ts:17 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/graphql",
+      "entrypoint": ".",
+      "symbol": "buildAdminGraphqlSchema",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/graphql/src/admin-graphql.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/graphql/src/admin-graphql.test.ts:4; packages/openclinxr/graphql/src/the-faculty-disposition-contract-is-append-only.test.ts:4; packages/openclinxr/graphql/src/the-review-packet-replay-includes-actor-turn-layers.test.ts:4 (origin/main de2d1ba7)"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "buildActorCommunicationProfilePromptContext",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "buildActorResponseProviderPromptInput",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "createLlamaCppModelProviderAdapter",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "createMlxModelProviderAdapter",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "createOllamaModelProviderAdapter",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/model-gateway.test.ts:3 (origin/main 1547ed88)"
+    },
+    {
+      "package": "packages/openclinxr/model-gateway",
+      "entrypoint": ".",
+      "symbol": "OpenAiCompatibleModelProviderAdapter",
+      "kind": "runtime",
+      "owner": "packages/openclinxr/model-gateway/src/deepseek-actor-thinking-is-disabled.test.ts",
+      "rationale": "Amended at PSR-03 land (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; un-publishing forced the test onto an internal module, which raised testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/model-gateway/src/deepseek-actor-thinking-is-disabled.test.ts:2; packages/openclinxr/model-gateway/src/muse-spark-sends-no-reasoning.test.ts:2; packages/openclinxr/model-gateway/src/openai-compatible-adapter.test.ts:2 (gateway namespace) (origin/main 1547ed88)"
+    }
+  ]
 }

@@ -267,4 +267,15 @@ export function createActorDialogueModelGateway(
   });
 }
 
+/** Kept at the PSR-03 land: this package's own tests consume these through the entrypoint (approval psr-01c). */
+export {
+  buildActorCommunicationProfilePromptContext,
+  buildActorResponseProviderPromptInput,
+} from "./actor-prompt.js";
+export {
+  createLlamaCppModelProviderAdapter,
+  createMlxModelProviderAdapter,
+  createOllamaModelProviderAdapter,
+} from "./local-providers.js";
 export { MockModelProviderAdapter } from "./mock-adapter.js";
+export { OpenAiCompatibleModelProviderAdapter } from "./openai-compatible-adapter.js";

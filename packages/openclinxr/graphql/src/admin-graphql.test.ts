@@ -2,8 +2,7 @@ import { readFileSync } from "node:fs";
 import { GraphQLObjectType, parse, validate } from "graphql";
 import { describe, expect, it } from "vitest";
 import { adminGraphqlDocumentByOperationName, adminGraphqlDocuments } from "./documents.js";
-import { createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "./index.js";
-import { buildAdminGraphqlSchema } from "./schema.js";
+import { buildAdminGraphqlSchema, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "./index.js";
 
 describe("OpenClinXR admin GraphQL contract", () => {
   it("builds a schema with admin workbench query and mutation roots", () => {

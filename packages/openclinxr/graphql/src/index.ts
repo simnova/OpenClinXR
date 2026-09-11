@@ -1,7 +1,7 @@
 import { type ExecutionResult, graphql } from "graphql";
 import { adminGraphqlFieldResolver, buildAdminGraphqlSchema } from "./schema.js";
 
-export { openClinXrAdminSchemaSdl } from "./schema.js";
+export { buildAdminGraphqlSchema, openClinXrAdminSchemaSdl } from "./schema.js";
 
 import type {
   AssetReadiness,
