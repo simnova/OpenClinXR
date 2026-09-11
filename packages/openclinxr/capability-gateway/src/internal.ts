@@ -27,7 +27,7 @@ export function buildProviderGateMetadata(
   deterministicReplayReady: boolean,
 ): ProviderGateMetadata[] {
   const capabilityStatus = (capabilityId: CapabilityId): CapabilityBindingStatus =>
-    bindings.find((binding) => binding.capabilityId === capabilityId)?.status ?? "blocked";
+    bindings.find((candidate) => candidate.capabilityId === capabilityId)?.status ?? "blocked";
   const liveBlockers = (capabilityIds: CapabilityId[], extraBlockers: string[] = []) => uniqueStrings([
     ...capabilityIds.map((capabilityId) => `${profile}:${capabilityId}:${capabilityStatus(capabilityId)}`),
     "provider_credentials_or_operator_approval_missing",
@@ -171,7 +171,7 @@ export function binding(
     notes: string;
   },
 ): CapabilityProviderBinding {
-  const binding: CapabilityProviderBinding = {
+  const built: CapabilityProviderBinding = {
     profile,
     capabilityId,
     plane: options.plane ?? planeForCapability(capabilityId),
@@ -187,14 +187,14 @@ export function binding(
     notes: options.notes,
   };
 
-  return options.endpointPath ? { ...binding, endpointPath: options.endpointPath } : binding;
+  return options.endpointPath ? { ...built, endpointPath: options.endpointPath } : built;
 }
 
 export function summarizeProviderPlane(
   bindings: readonly CapabilityProviderBinding[],
   plane: CapabilityPlane,
 ): RuntimeProviderPlaneReadiness {
-  const planeBindings = bindings.filter((binding) => binding.plane === plane);
+  const planeBindings = bindings.filter((candidateBinding) => candidateBinding.plane === plane);
 
   return {
     readyCapabilityIds: capabilityIdsByStatus(planeBindings, "ready"),
@@ -209,8 +209,8 @@ export function capabilityIdsByStatus(
   status: CapabilityBindingStatus,
 ): CapabilityId[] {
   return bindings
-    .filter((binding) => binding.status === status)
-    .map((binding) => binding.capabilityId);
+    .filter((candidateBinding) => candidateBinding.status === status)
+    .map((candidateBinding) => candidateBinding.capabilityId);
 }
 
 export function planeForCapability(capabilityId: CapabilityId): CapabilityPlane {

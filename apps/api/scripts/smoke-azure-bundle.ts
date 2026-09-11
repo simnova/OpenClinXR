@@ -200,7 +200,7 @@ const graphqlList = await graphqlListResponse.json() as {
 };
 
 const listedGraphqlSnapshot = graphqlList.data?.stationRunQueueSnapshots?.find(
-  (snapshot) => snapshot.snapshotId === "queue_snapshot_azure_graphql_001",
+  (candidateSnapshot) => candidateSnapshot.snapshotId === "queue_snapshot_azure_graphql_001",
 );
 
 if (

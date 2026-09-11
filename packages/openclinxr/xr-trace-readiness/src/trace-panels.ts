@@ -301,10 +301,10 @@ export function formatRuntimeReadinessDecision(decision: XrRuntimeReadinessDecis
 
 export function formatLearnerRuntimeUseGate(
   evidence: import("@openclinxr/xr-runtime-state").LearnerRuntimeUseGateEvidence | null,
-  formatMaterializationAttachmentSummary: (
+  formatMaterializationAttachmentSummaryFn: (
     summary: import("@openclinxr/xr-runtime-state").RuntimeMaterializationEvidenceAttachmentSummary | null | undefined,
   ) => string,
-  formatRemainingRuntimeBlockerReasons: (
+  formatRemainingRuntimeBlockerReasonsFn: (
     reasons: import("@openclinxr/xr-runtime-state").RuntimeRemainingRuntimeBlockerReasons | null | undefined,
   ) => string,
 ): string {
@@ -325,7 +325,7 @@ export function formatLearnerRuntimeUseGate(
       : "generated learner use gate clear";
   const gate = evidence.actorEquipmentMaterializationGate;
   const materializationText = gate?.runtimeSelectionBlockedUntilEvidenceAttached
-    ? `actor/equipment materialization blocked ${[...(gate.actorBlockers ?? []), ...(gate.equipmentBlockers ?? [])].join(",")}${formatMaterializationAttachmentSummary(gate.materializationEvidenceAttachmentSummary)}${formatRemainingRuntimeBlockerReasons(gate.remainingRuntimeBlockerReasons)}`
+    ? `actor/equipment materialization blocked ${[...(gate.actorBlockers ?? []), ...(gate.equipmentBlockers ?? [])].join(",")}${formatMaterializationAttachmentSummaryFn(gate.materializationEvidenceAttachmentSummary)}${formatRemainingRuntimeBlockerReasonsFn(gate.remainingRuntimeBlockerReasons)}`
     : "actor/equipment materialization gate not attached";
   return [
     sourceText,

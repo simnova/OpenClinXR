@@ -1518,7 +1518,7 @@ describe("XR runtime state", () => {
       },
       // live blueprint dialogue emotion lipsync mouth-morph bind (Q1/Q5) adds optional turn refs + live source (peds adaptive/runtime playback)
       activeDialogueTurnRef: undefined,
-      liveSource: "live_blueprint_dialogue_emotion_source" as any,
+      liveSource: "live_blueprint_dialogue_emotion_source" as const,
       activeExpressionCueIds: [
         "visible_runtime_mouth_shape_cue",
         "visible_runtime_eye_focus_cue",

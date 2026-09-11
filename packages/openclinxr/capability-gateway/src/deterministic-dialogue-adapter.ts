@@ -188,10 +188,10 @@ export function resolveDeterministicActorTurnPlan(
     throw new Error(`unknown_actor:${payload.actorId}`);
   }
 
-  const matches = scenario.seeds.filter((seed) =>
-    seed.actorId === payload.actorId
-    && seed.turnIndex === payload.turnIndex
-    && seed.learnerUtterance === payload.learnerUtterance
+  const matches = scenario.seeds.filter((candidateSeed) =>
+    candidateSeed.actorId === payload.actorId
+    && candidateSeed.turnIndex === payload.turnIndex
+    && candidateSeed.learnerUtterance === payload.learnerUtterance
   );
   if (matches.length === 0) {
     throw new Error(`no_matching_dialogue_seed:${payload.scenarioId}:${payload.actorId}:${payload.turnIndex}`);

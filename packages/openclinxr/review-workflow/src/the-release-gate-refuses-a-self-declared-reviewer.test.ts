@@ -199,10 +199,10 @@ describe("the release gate trusts a verifier, not a self-declared role", () => {
     // the bank, and every later version of this one. Both halves are asserted through the SAME
     // verifier, so a gate that never passes the subject through fails both.
     const seenRequests: AttestationRequest[] = [];
-    const recording: ReviewerAttestationVerifier = (request) => {
-      seenRequests.push(request);
-      return request.scenarioId === SCENARIO.scenarioId && request.scenarioVersion === SCENARIO.version
-        ? { verified: true, principalId: request.reviewerId, roles: [request.assertedRole] }
+    const recording: ReviewerAttestationVerifier = (attestationRequest) => {
+      seenRequests.push(attestationRequest);
+      return attestationRequest.scenarioId === SCENARIO.scenarioId && attestationRequest.scenarioVersion === SCENARIO.version
+        ? { verified: true, principalId: attestationRequest.reviewerId, roles: [attestationRequest.assertedRole] }
         : { verified: false, reason: "attestation is bound to a different scenario or version" };
     };
 

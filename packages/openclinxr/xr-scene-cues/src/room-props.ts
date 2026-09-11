@@ -65,7 +65,7 @@ function buildRoomPropEntry(ctx: SceneCueRoomPropContext,
     exclusiveMountedEquipmentIds,
     createAffordanceMarker: ctx.createAffordanceMarker,
     createActorNameplate: ctx.createActorNameplate,
-    addFallbackDetailVisuals: (group, propId, label, scale, color, accentColor) => addDetailedRoomPropVisuals(group, propId, label, scale, color, accentColor),
+    addFallbackDetailVisuals: (detailGroup, detailPropId, detailLabel, detailScale, detailColor, detailAccentColor) => addDetailedRoomPropVisuals(detailGroup, detailPropId, detailLabel, detailScale, detailColor, detailAccentColor),
   });
   if (group) ctx.registerReactiveProp(propId, group);
   return group;

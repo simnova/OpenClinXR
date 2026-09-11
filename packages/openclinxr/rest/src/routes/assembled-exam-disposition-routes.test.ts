@@ -225,8 +225,8 @@ describe("assembled-exam faculty disposition API", () => {
     const sinkPackets = new Map<string, AssembledExamReviewPacket>();
     const sinkDispositions: ApiAssembledExamDispositionRecord[] = [];
     const composed = compose({
-      saveAssembledExamReviewPacket: (examRunId, packet) => {
-        sinkPackets.set(examRunId, packet);
+      saveAssembledExamReviewPacket: (examRunId, incomingPacket) => {
+        sinkPackets.set(examRunId, incomingPacket);
       },
       getAssembledExamReviewPacket: (examRunId) => sinkPackets.get(examRunId),
       saveAssembledExamDisposition: (examRunId, record) => {

@@ -35,7 +35,7 @@ export function createActorNameplate(ctx: SceneCueNameplateContext, label: strin
 export function createVirtualDeviceActorAffordance(
   ctx: SceneCueVirtualDeviceContext,
   createAffordanceMarker: (id: string, color: number) => Mesh,
-  createActorNameplate: (label: string, accentColor: number) => Mesh,
+  buildActorNameplate: (label: string, accentColor: number) => Mesh,
 ): (actorId: string) => Group {
   return (actorId: string): Group => {
     const placement = ctx.resolvePlacement(actorId);
@@ -43,7 +43,7 @@ export function createVirtualDeviceActorAffordance(
       actorId,
       placement,
       createAffordanceMarker,
-      createActorNameplate,
+      createActorNameplate: buildActorNameplate,
       actorNameplateLabel: ctx.actorNameplateLabel,
       registerSlot: ctx.registerSlot,
     });
