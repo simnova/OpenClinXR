@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.humanoid-postopt-ladder-face-preserving.v1",
   "generated": "2026-09-11",
   "card": "HB-05",
-  "ladderSource": "tools/openclinxr/asset-pipeline/trellis/vr-postopt-ladder.ts",
+  "ladderSource": "tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts",
   "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
   "handRule": "hands are skinned regions of the *_body mesh: every primitive carries JOINTS_0/WEIGHTS_0 and the single skin binds finger/metacarpal/wrist joints, so hand survival is reported via the body-mesh triangle count; there is no dedicated hand mesh on any of the ten bodies",
   "budgets": {
@@ -187,7 +187,31 @@
           "bytes": 709671,
           "engine": "Blender EEVEE headless (baked Principled base colour, not Workbench)"
         }
-      }
+      },
+      "sweep": [
+        {
+          "rungId": "fp-r0.4",
+          "ratio": 0.4,
+          "error": 0.01,
+          "triangleCount": 68214,
+          "faceTriangles": 52778
+        },
+        {
+          "rungId": "fp-r0.3",
+          "ratio": 0.3,
+          "error": 0.01,
+          "triangleCount": 64514,
+          "faceTriangles": 52778
+        },
+        {
+          "rungId": "fp-r0.15",
+          "ratio": 0.15,
+          "error": 0.01,
+          "triangleCount": 59775,
+          "faceTriangles": 52778
+        }
+      ],
+      "falsifierRatio": 0.4
     }
   ],
   "exceptions": [
@@ -205,5 +229,25 @@
     "clinical accuracy",
     "learner runtime adoption"
   ],
-  "outcome": "GREEN: five HB-03 over-budget bodies land on a face-preserving decimated rung inside the acceptable 120k budget with faceRetentionRatio 1 and joints unchanged; live GLBs rewritten by this card with provenance sidecars re-recorded in the same change."
+  "outcome": "GREEN: five HB-03 over-budget bodies land on a face-preserving decimated rung inside the acceptable 120k budget with faceRetentionRatio 1 and joints unchanged; live GLBs rewritten by this card with provenance sidecars re-recorded in the same change.",
+  "facePreservingMode": {
+    "source": "tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts",
+    "flag": "--face-preserving",
+    "singleRatioFlag": "--face-preserving-ratio <r>",
+    "rungIds": [
+      "fp-r0.4",
+      "fp-r0.3",
+      "fp-r0.15"
+    ],
+    "error": 0.01,
+    "technique": "per-primitive weld, then simplifyPrimitive at the rung ratio, on every non-face mesh only; face meshes (/eye|brow|lash|teeth|tongue/i) untouched; 1-triangle gown marker untouched"
+  },
+  "reproduceCommands": {
+    "mpfb-gown-inspect.glb": "pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.15",
+    "mpfb-ob-patient-aisha.glb": "pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.4",
+    "mpfb-peds-nurse-kevin.glb": "pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.3",
+    "mpfb-peds-parent-aisha.glb": "pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.4",
+    "mpfb-viseme-inspect.glb": "pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.4"
+  },
+  "errorNote": "This does not repeat the FAILED TREATMENT in tools/openclinxr/evidence/eyebrow-budget/reduce-shipped-eyebrows.ts:10 (simplifyPrimitive with error=1 scattered brow strands across the body): that treatment ran unconstrained meshopt simplification directly ON the brow strand mesh, a many-tiny-component primitive where the error budget lets components drift. Here error 0.01 (one hundred times tighter) applies only to NON-face meshes \u2014 body, garments, hair, footwear \u2014 whose primitives are large connected surfaces, and face meshes are excluded by name before any simplifier call. Measured: face triangles 52778/52778 on every HB-05 body."
 }
