@@ -28,6 +28,43 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-11T0900">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 6 &middot; 2026-09-11 09:00 EDT</p>
+          <h2>Two more export groups landed, and five humanoids were decimated with every face triangle kept.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Landed</h3>
+            <ul>
+              <li><strong>PSR-03</strong> (<code>26d03d2d</code>): 211 exports removed from the data, model, conversation, GraphQL and motion packages, 2 moved to an existing subpath.</li>
+              <li><strong>PSR-04</strong> (<code>6566bd82</code>): 99 exports removed from the REST package; 94 remain.</li>
+              <li>The shrink ratchet now records 2,223 published root symbols, down from 2,533 before the program (<code>43ffd845</code>, <code>b3c98150</code>). Any change that adds one back fails.</li>
+              <li><strong>HB-05</strong> (<code>dd20e998</code>): five humanoids that could not previously be decimated without destroying their faces now drop from 91,000&ndash;145,000 triangles to about 68,000&ndash;69,000. Every face triangle and every joint is kept. The step is a committed mode of the optimizer, and a test re-runs it and must reproduce the shipped counts exactly.</li>
+              <li>Test reliability, seven tests in three commits: two that timed out under parallel load (<code>1547ed88</code>), a React lazy-load wait in the admin app (<code>37d4460d</code>), and four tooling tests that failed in any fresh worktree (<code>3f32821f</code>).</li>
+            </ul>
+          </div>
+          <figure style="margin:0;border:1px solid var(--line);border-radius:6px;overflow:hidden;">
+            <img src="openclinxr/humanoid-vetting-captures/mpfb-peds-nurse-kevin-front_fp.png" alt="Paediatric nurse humanoid in light-blue scrubs and brown boots, standing in an A-pose, rendered alone after decimation." loading="lazy" />
+            <figcaption style="padding:8px 12px;font-size:0.8rem;color:var(--muted);">Paediatric nurse after HB-05: 119,232 triangles cut to 68,100, face 46,160 of 46,160 kept. The render shows the figure intact; it is not a claim about facial detail at this size.</figcaption>
+          </figure>
+          <div class="progress-card">
+            <h3>Found while landing</h3>
+            <ul>
+              <li>The export review missed consumers in two ways. Packages' own tests import names the review marked for removal, and one app test loaded its package through a string-built import the scanner could not read. The plan counts tests as consumers, so 198 names were moved back to keep, each owned by the test that uses it.</li>
+              <li>The cheapest worker model ran out of turns twice on large export-removal cards. The escalation model finished PSR-04 in 68 turns, against 250 for the failed attempt.</li>
+              <li>HB-05's first pass shipped the decimated models without committing the code that made them. It was sent back; the code is now in the optimizer, and changing its error setting makes the reproduction test fail.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Running now</h3>
+            <ul>
+              <li><strong>PSR-05</strong>: the asset-registry package, the largest group (352 removals, 48 moves to existing subpaths). PSR-06 and PSR-07 wait on it.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-11T0700">
         <div class="section-heading">
           <p class="eyebrow">Entry 5 &middot; 2026-09-11 07:00 EDT</p>
