@@ -31,7 +31,7 @@ export function findRuntimeEquipmentAsset(
  * Resolve one equipment copy by its realized placement id
  * (`<equipmentId>` for the first copy, `<equipmentId>#<n>` after).
  */
-export function findRuntimeEquipmentPlacementByRealizedId(
+function findRuntimeEquipmentPlacementByRealizedId(
   bundle: Pick<EncounterRuntimeAssetBundle, "equipment" | "sceneManifest">,
   realizedId: string,
 ): EncounterRuntimeEquipmentAsset | EncounterRuntimeEquipmentPlacement | undefined {

@@ -1,5 +1,5 @@
+import type { EncounterRuntimeSceneManifest } from "@openclinxr/asset-registry/runtime-bundles";
 import { describe, expect, it } from "vitest";
-import type { EncounterRuntimeSceneManifest } from "@openclinxr/asset-registry";
 import {
   planStationEquipmentMounts,
 } from "./index.js";
@@ -127,7 +127,10 @@ describe("Two copies of one equipment asset are representable in a room", () => 
   // Clause 2: The lookup at runtime-bundles.ts:1636 resolves the SECOND copy distinctly from the first.
   it("(2) findRuntimeEquipmentAsset resolves the second copy distinctly from the first", async () => {
     const mod = await import("@openclinxr/asset-registry");
-    const { buildEncounterRuntimeAssetBundle, findRuntimeEquipmentAsset } = mod;
+    const { buildEncounterRuntimeAssetBundle } = mod;
+    const { findRuntimeEquipmentAsset } = await import(
+      "@openclinxr/asset-registry/runtime-bundle-lookups"
+    );
 
     const assetStore = {
       storeKind: "app_public_fixture" as const,

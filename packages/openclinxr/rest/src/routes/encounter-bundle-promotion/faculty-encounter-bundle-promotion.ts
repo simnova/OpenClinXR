@@ -5,12 +5,14 @@ import {
   immutableEncounterBundleNotEvidenceFor,
   type PromoteReviewedFactoryOutputsInput,
   promoteReviewedFactoryOutputsToImmutableEncounterBundle,
-  type RuntimeAssetKind,
   type RuntimeAssetReviewDecision,
+} from "@openclinxr/asset-registry/runtime-asset-review";
+import {
+  type RuntimeAssetKind,
   type RuntimeAssetStoreKind,
   registerGeneratedRuntimeAssetReference,
   resolveRuntimeAssetStoreConfig,
-} from "@openclinxr/asset-registry";
+} from "@openclinxr/asset-registry/runtime-bundles";
 
 export const FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH = "/faculty/encounter-bundle-promotion";
 export const FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH = "/faculty/encounter-bundle-promotion/preview";

@@ -1,4 +1,6 @@
-import type { buildScenarioSceneGenerationPipelineWorkOrderQueue, createEdChestPainLocalLearnerRuntimeAssetBundle, RuntimeAssetReviewDecision } from "@openclinxr/asset-registry";
+import type { buildScenarioSceneGenerationPipelineWorkOrderQueue } from "@openclinxr/asset-registry";
+import type { RuntimeAssetReviewDecision } from "@openclinxr/asset-registry/runtime-asset-review";
+import type { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import type { AuthIdentity, } from "@openclinxr/auth";
 import type { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import type { ExamForm, ExamStationRunQueue } from "@openclinxr/exam-assembly";
@@ -109,6 +111,7 @@ export type OpenClinXrApiProtocolPostureEnvironmentOptions = {
   readEvidenceFile?: (filePath: string) => unknown;
   discoverLatestSmokeEvidence?: boolean;
 };
+
 import type {
   ApiAssembledExamDispositionRecord,
   ApiAssembledExamRunRecord,

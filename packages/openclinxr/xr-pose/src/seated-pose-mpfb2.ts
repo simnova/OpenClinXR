@@ -20,8 +20,8 @@
  * notEvidenceFor: clinical sitting realism, mocap quality, Quest readiness.
  */
 
-import { Quaternion, Vector3, type Object3D } from "three";
-import { SEATED_CLIP_NAME } from "@openclinxr/asset-registry";
+import { SEATED_CLIP_NAME } from "@openclinxr/asset-registry/actor-posture";
+import { type Object3D, Quaternion, Vector3 } from "three";
 
 /** Seated shin tuck (radians) — 48° back under the chair. */
 const MPFB2_SHIN_TUCK_RAD = (48 * Math.PI) / 180;

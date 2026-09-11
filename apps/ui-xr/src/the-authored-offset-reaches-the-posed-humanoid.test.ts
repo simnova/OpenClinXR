@@ -1,14 +1,14 @@
-import * as THREE from "three";
-import { describe, expect, it } from "vitest";
 import {
-  createEdChestPainRuntimeSceneManifest,
   DEFAULT_PATIENT_CHAIR_POSITION,
   DEFAULT_STRETCHER_POSITION,
-} from "@openclinxr/asset-registry";
+} from "@openclinxr/asset-registry/actor-posture";
+import { createEdChestPainRuntimeSceneManifest } from "@openclinxr/asset-registry/runtime-bundles";
 import {
   applyCleanEncounterVisualReviewActorFraming,
   type EncounterActorFramingInput,
 } from "@openclinxr/xr-scene";
+import * as THREE from "three";
+import { describe, expect, it } from "vitest";
 
 // OBSERVABLE: the last link of the placement chain REPLACES the resolved position instead of
 // composing it. apps/ui-xr/src/main.ts:843-848 reads

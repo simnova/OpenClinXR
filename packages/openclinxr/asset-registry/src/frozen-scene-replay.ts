@@ -70,9 +70,9 @@ export const FROZEN_SCENE_RUBRIC = {
  * cannot be tripped by float dust. A tolerance derived from the observed offset instead would pass
  * by construction, which is the tautology `PROTO_VERIFY_DELEGATION.md` records under #151.
  */
-export const LAYOUT_REPRODUCTION_TOLERANCE_METERS = 1e-9;
+const LAYOUT_REPRODUCTION_TOLERANCE_METERS = 1e-9;
 
-export type FrozenSceneRefusalReason =
+type FrozenSceneRefusalReason =
   /** The three the DURABLE READ owns. This module never produces them; its caller maps them here. */
   | "plan_absent"
   | "plan_malformed"
@@ -113,7 +113,7 @@ export type FrozenSceneReopen =
     };
 
 /** What the room and the case look like right now, as the consumer observed them. */
-export type FrozenSceneObservation = {
+type FrozenSceneObservation = {
   evidence: ObservedScenePlanEvidence;
   geometry: ObservedApproachGeometry;
   patientWorldPosition: { x: number; y: number; z: number };
@@ -307,7 +307,7 @@ export function reopenFrozenScene(
  * and measured replay, not bit-identical learned inference/physics". A record whose arrival never
  * met the rubric was never acceptable, and reopening must not launder it.
  */
-export function arrivalRubricProblems(record: DurableAcceptedScenePlanRecord): string[] {
+function arrivalRubricProblems(record: DurableAcceptedScenePlanRecord): string[] {
   const problems: string[] = [];
   const arrival = record.arrival;
   if (arrival.arrivalErrorMeters > FROZEN_SCENE_RUBRIC.arrivalErrorMaxMeters) {
@@ -350,7 +350,7 @@ export function arrivalRubricProblems(record: DurableAcceptedScenePlanRecord): s
  * replay that cannot reconstruct what was said. Returns null when they agree, including when the
  * encounter had no dialogue at all — an empty pair agrees.
  */
-export function dialogueIdentityProblem(record: DurableAcceptedScenePlanRecord): string | null {
+function dialogueIdentityProblem(record: DurableAcceptedScenePlanRecord): string | null {
   const declared = new Set(record.dialogueTurnIds);
   const applied = new Set(
     record.eventOrder

@@ -190,11 +190,11 @@ export const GENERIC_CLINIC_ZONES: readonly EnvironmentZoneTemplate[] = [
  */
 
 /** Floor center Z matching station-environment shell placement (doorway opens +Z). */
-export function shellFloorCenterZ(roomDepthMeters: number): number {
+function shellFloorCenterZ(roomDepthMeters: number): number {
   return -(roomDepthMeters / 2) + 0.95;
 }
 
-export type RoomPlanDimensions = {
+type RoomPlanDimensions = {
   widthMeters: number;
   depthMeters: number;
   heightMeters?: number;
@@ -203,7 +203,7 @@ export type RoomPlanDimensions = {
 /**
  * True when the slot is a person spawn / standing marker and must not track walls.
  */
-export function isAbsoluteFixtureSlotId(slotId: string): boolean {
+function isAbsoluteFixtureSlotId(slotId: string): boolean {
   return /learner[_-]?start/iu.test(slotId);
 }
 
@@ -412,13 +412,13 @@ export const OFFSET_CHAIR: EnvironmentFixtureSlot = {
  * the assembly in the wall; the legacy 1.35 m (halfWidth−2.15 at 7 m) reads as a free
  * prop. Same value in every environment; chairs/beds stay fraction.
  */
-export const DOOR_WALL_INSET_METERS = 0.5;
+const DOOR_WALL_INSET_METERS = 0.5;
 
 /**
  * #204 board inset — SEPARATE from the door. A board is mounted on the wall (thin
  * frame), not fitted as an entrance assembly. 0.08 m ≈ frame/mount setback.
  */
-export const BOARD_WALL_INSET_METERS = 0.08;
+const BOARD_WALL_INSET_METERS = 0.08;
 
 export const DOOR_LEAF: EnvironmentFixtureSlot = {
   slotId: "door_leaf",

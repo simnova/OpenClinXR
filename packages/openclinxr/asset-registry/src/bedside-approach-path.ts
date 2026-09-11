@@ -28,7 +28,7 @@ import { headingRadiansToward, type Vector3 } from "./bedside-target.js";
  * detour would be inventing a path nobody validated.
  */
 
-export type ApproachWaypoint = { position: Vector3; headingRadians: number };
+type ApproachWaypoint = { position: Vector3; headingRadians: number };
 
 export type BedsideApproachPlan = {
   waypoints: ApproachWaypoint[];
@@ -41,7 +41,7 @@ export type BedsideApproachPlan = {
 };
 
 /** Default spacing between waypoints, in metres. A normal walking stride is ~0.7 m. */
-export const APPROACH_WAYPOINT_SPACING_METERS = 0.35;
+const APPROACH_WAYPOINT_SPACING_METERS = 0.35;
 
 /**
  * The step a SWEPT occupancy check resamples the route at, in metres.
@@ -51,7 +51,7 @@ export const APPROACH_WAYPOINT_SPACING_METERS = 0.35;
  * coarser than the thinnest thing it must find can step over one. Deliberately NOT
  * `APPROACH_WAYPOINT_SPACING_METERS`: waypoints are a stride, the sweep is a measurement.
  */
-export const SWEPT_OCCUPANCY_SAMPLE_SPACING_METERS = 0.04;
+const SWEPT_OCCUPANCY_SAMPLE_SPACING_METERS = 0.04;
 
 /**
  * Violations found by SWEEPING the occupied standing volume along the route, not by sampling

@@ -14,12 +14,12 @@ import { fileURLToPath } from "node:url";
 const REPO_ROOT = nodePath.resolve(nodePath.dirname(fileURLToPath(import.meta.url)), "../../..");
 const repoPath = (relative: string): string =>
   nodePath.isAbsolute(relative) ? relative : nodePath.join(REPO_ROOT, relative);
+
+import { revalidateAcceptedScenePlan } from "@openclinxr/asset-registry/accepted-scene-plan-evidence";
 import {
   composeSupportedActorWorldPosition,
-  createEdChestPainRuntimeSceneManifest,
   supineActorWorldPosition,
-} from "@openclinxr/asset-registry";
-import { revalidateAcceptedScenePlan } from "@openclinxr/asset-registry/accepted-scene-plan-evidence";
+} from "@openclinxr/asset-registry/actor-posture";
 import type { ObservedApproachGeometry } from "@openclinxr/asset-registry/case-approach-intent";
 import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-scene-plans";
 import {
@@ -35,7 +35,7 @@ import {
 } from "@openclinxr/asset-registry/encounter-bundle-admission";
 import { reopenFrozenScene } from "@openclinxr/asset-registry/frozen-scene-replay";
 import { resolveBedsideLayoutFromSeed } from "@openclinxr/asset-registry/layout-solve";
-import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
+import { createEdChestPainLocalLearnerRuntimeAssetBundle, createEdChestPainRuntimeSceneManifest } from "@openclinxr/asset-registry/runtime-bundles";
 import {
   canonicalJson,
   type FreezeScenePlanInput,

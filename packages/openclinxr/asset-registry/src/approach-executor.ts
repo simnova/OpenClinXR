@@ -26,7 +26,7 @@ import type { Vector3 } from "./bedside-target.js";
 /** A walking speed for an unhurried clinician, in metres per second. */
 export const CLINICIAN_WALK_SPEED_MPS = 1.1;
 
-export type ExecutorPose = {
+type ExecutorPose = {
   position: Vector3;
   headingRadians: number;
   /** True once the goal is reached; the pose then stops changing. */
@@ -100,9 +100,9 @@ export function stepBedsideApproach(input: {
 }
 
 /** One sampled frame of a foot, in world metres. */
-export type FootSample = { atMs: number; position: Vector3 };
+type FootSample = { atMs: number; position: Vector3 };
 
-export type FootSlideReport = {
+type FootSlideReport = {
   /** Total horizontal distance a foot travelled WHILE IN CONTACT with the floor. */
   slideMeters: number;
   /** Frames judged to be in contact. Zero means the metric observed nothing, not that it passed. */

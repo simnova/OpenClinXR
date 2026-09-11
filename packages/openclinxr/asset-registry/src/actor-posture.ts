@@ -13,7 +13,7 @@
 
 export type ActorPosture = "standing" | "seated" | "supine";
 
-export const ACTOR_POSTURES: readonly ActorPosture[] = ["standing", "seated", "supine"] as const;
+const ACTOR_POSTURES: readonly ActorPosture[] = ["standing", "seated", "supine"] as const;
 
 /** Clip names consumed by the seating wiring contracts (/sit/ match for seated). */
 export const SEATED_CLIP_NAME = "openclinxr_seated_sit_idle";
@@ -27,7 +27,7 @@ export const STANDING_CLIP_NAME = "openclinxr_posture_shift_standing";
  * (#77 declined the rigger; #81 evaluates the clips). Procedural sit is the runtime
  * binding when 66→23 retarget does not clear our armature.
  */
-export const SHIPPED_CLIP_SOURCES: readonly string[] = [
+const SHIPPED_CLIP_SOURCES: readonly string[] = [
   "openclinxr/procedural:openclinxr_seated_sit_idle",
   "openclinxr/procedural:openclinxr_posture_shift_standing",
   "openclinxr/procedural:openclinxr_supine_recumbent_idle",
@@ -35,13 +35,13 @@ export const SHIPPED_CLIP_SOURCES: readonly string[] = [
   "mesh2motion-app/static/animations/human-base-animations.glb#Sitting_Talking",
 ] as const;
 
-export type PostureClipBinding = {
+type PostureClipBinding = {
   posture: ActorPosture;
   clipName: string;
   source: string;
 };
 
-export function isActorPosture(value: unknown): value is ActorPosture {
+function isActorPosture(value: unknown): value is ActorPosture {
   return value === "standing" || value === "seated" || value === "supine";
 }
 
@@ -54,14 +54,14 @@ export function isActorPosture(value: unknown): value is ActorPosture {
  * ed_chest_pain. Rejected a descriptor `patientPosture` field — larger surface for
  * three stations; rejected care-setting auto-supine (ambulatory clinics stay standing).
  */
-export const INPATIENT_RECUMBENT_SCENARIO_MARKERS = [
+const INPATIENT_RECUMBENT_SCENARIO_MARKERS = [
   "ward_delirium_med_rec",
   "stepdown_sepsis_nurse_escalation",
   "postop_fever_consult_pressure",
 ] as const;
 
 /** True when scenarioId matches a declared inpatient-recumbent staging station. */
-export function isInpatientRecumbentScenario(
+function isInpatientRecumbentScenario(
   scenarioId: string | null | undefined,
 ): boolean {
   const scenario = (scenarioId ?? "").toLowerCase();
@@ -73,7 +73,7 @@ export function isInpatientRecumbentScenario(
  * Where `defaultPostureForEnvironmentSlot` / `resolveActorPosture` get recumbent
  * staging decisions — for evidence reports so the next reader does not re-grep.
  */
-export const POSTURE_SOURCE_DESCRIPTION =
+const POSTURE_SOURCE_DESCRIPTION =
   "packages/openclinxr/asset-registry/src/actor-posture.ts defaultPostureForEnvironmentSlot "
   + "(scenario-id markers: telehealth seated, peds_asthma family seated (#574), "
   + "ed_chest_pain + INPATIENT_RECUMBENT_SCENARIO_MARKERS supine; else standing). "
@@ -88,7 +88,7 @@ export const POSTURE_SOURCE_DESCRIPTION =
  * - Everyone else stands. Do NOT auto-seat/auto-supine every station with furniture —
  *   ambulatory patients and stations without a bed stay standing.
  */
-export function defaultPostureForEnvironmentSlot(input: {
+function defaultPostureForEnvironmentSlot(input: {
   environmentId?: string | null | undefined;
   scenarioId?: string | null | undefined;
   slotKind: string;
@@ -180,7 +180,7 @@ export function clipBindingForPosture(posture: ActorPosture): PostureClipBinding
  * verticalOffsetMeters positions the actor root relative to the chair seat;
  * Mesh2Motion Sitting_Idle pelvis/root translation is NOT applied (would double-apply).
  */
-export const SEATED_HEIGHT_OWNERSHIP = {
+const SEATED_HEIGHT_OWNERSHIP = {
   owner: "verticalOffsetMeters_and_chair_seatHeightMeters" as const,
   clipRootTranslation: "stripped_not_applied" as const,
   rationale:
@@ -215,7 +215,7 @@ export function seatedActorWorldPosition(input: {
 export const DEFAULT_STRETCHER_POSITION = { x: -0.9, y: 0, z: -0.1 } as const;
 
 /** Deck top of the procedural stretcher (station-stretcher STRETCHER_DECK_TOP_METERS). */
-export const DEFAULT_STRETCHER_DECK_TOP_METERS = 0.55;
+const DEFAULT_STRETCHER_DECK_TOP_METERS = 0.55;
 
 /**
  * World XZ plant for a supine actor on the stretcher deck.
@@ -242,7 +242,7 @@ export function supineVerticalOffsetSeed(): number {
  * Supine height ownership (#150): plant owns Y from deck top + body thickness.
  * Clip root translation is stripped (same as seated).
  */
-export const SUPINE_HEIGHT_OWNERSHIP = {
+const SUPINE_HEIGHT_OWNERSHIP = {
   owner: "plantSupineBodyOnDeck_and_deckTopYMeters" as const,
   clipRootTranslation: "stripped_not_applied" as const,
   rationale:
@@ -250,7 +250,7 @@ export const SUPINE_HEIGHT_OWNERSHIP = {
 } as const;
 
 /** A refusal, returned instead of a position when the authored offset is unbuildable. */
-export type SupportedActorPositionRefusal = { refused: true; reason: string };
+type SupportedActorPositionRefusal = { refused: true; reason: string };
 
 /**
  * Compose an authored plant offset onto a fixture anchor for a SUPPORTED posture.

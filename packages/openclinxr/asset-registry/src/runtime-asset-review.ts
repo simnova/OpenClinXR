@@ -1,6 +1,6 @@
 import type { EncounterRuntimeAsset, EncounterRuntimeAssetBundle, RuntimeAssetReviewStatus } from "./runtime-bundles.js";
 
-export type RuntimeAssetReviewRole = "asset_pipeline" | "clinical_simulation" | "xr_performance" | "security_privacy";
+type RuntimeAssetReviewRole = "asset_pipeline" | "clinical_simulation" | "xr_performance" | "security_privacy";
 
 export type RuntimeAssetReviewDecision = {
   assetId: string;
@@ -12,7 +12,7 @@ export type RuntimeAssetReviewDecision = {
   reviewedAt: string;
 };
 
-export type RuntimeAssetPromotionResult = {
+type RuntimeAssetPromotionResult = {
   assetId: string;
   promoted: boolean;
   nextStatus: RuntimeAssetReviewStatus;
@@ -22,7 +22,7 @@ export type RuntimeAssetPromotionResult = {
   notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"];
 };
 
-export type RuntimeAssetBundlePromotionResult = {
+type RuntimeAssetBundlePromotionResult = {
   bundleId: string;
   promoted: boolean;
   promotedBundle: EncounterRuntimeAssetBundle | null;
@@ -31,7 +31,7 @@ export type RuntimeAssetBundlePromotionResult = {
   notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"];
 };
 
-export const requiredRuntimeAssetReviewerRoles = [
+const requiredRuntimeAssetReviewerRoles = [
   "asset_pipeline",
   "security_privacy",
 ] as const satisfies RuntimeAssetReviewRole[];
@@ -43,7 +43,7 @@ const NOT_EVIDENCE_FOR = [
   "scoring_validity",
 ] as const;
 
-export function promoteRuntimeAssetForLocalUse(input: {
+function promoteRuntimeAssetForLocalUse(input: {
   asset: EncounterRuntimeAsset;
   decisions: readonly RuntimeAssetReviewDecision[];
   requiredRoles?: readonly RuntimeAssetReviewRole[] | undefined;
@@ -159,8 +159,5 @@ export {
   type EncounterBundleFactoryMember,
   type EncounterBundleFactoryMemberKind,
   type EncounterBundleMemberContentIdentity,
-  type ImmutableEncounterBundlePromotion,
-  type ImmutableEncounterBundlePromotionRefusal,
-  type ImmutableEncounterBundlePromotionResult,
   type PromoteReviewedFactoryOutputsInput,
 } from "./encounter-bundle-promotion.js";

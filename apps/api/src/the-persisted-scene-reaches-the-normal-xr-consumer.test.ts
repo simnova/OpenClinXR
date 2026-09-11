@@ -1,7 +1,6 @@
-import { resolveScenarioActorCast } from "@openclinxr/asset-registry";
 import { authoredCasePlacements } from "@openclinxr/asset-registry/case-actor-placements";
 import { bindInitialSceneContents } from "@openclinxr/asset-registry/initial-scene-contents";
-import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
+import { createEdChestPainLocalLearnerRuntimeAssetBundle, resolveScenarioActorCast } from "@openclinxr/asset-registry/runtime-bundles";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
 import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "@openclinxr/rest";
 import {

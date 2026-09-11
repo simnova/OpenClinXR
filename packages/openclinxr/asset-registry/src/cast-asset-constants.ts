@@ -21,11 +21,11 @@ export const RUNTIME_CANDIDATES = "/xr-assets/humanoids/candidates";
  * patient attire (telehealth + clinic share it). Female street remains on
  * spouse/parent shells.
  */
-export const ED_ADULT_CAST_GLB = "ed_chest_pain_adult_cast.glb";
-export const ED_NURSE_GLB = "ed_chest_pain_nurse_adult.glb";
-export const ED_SPOUSE_GLB = "ed_chest_pain_spouse_adult.glb";
+const ED_ADULT_CAST_GLB = "ed_chest_pain_adult_cast.glb";
+const ED_NURSE_GLB = "ed_chest_pain_nurse_adult.glb";
+const ED_SPOUSE_GLB = "ed_chest_pain_spouse_adult.glb";
 export const PEDS_PARENT_GLB = "peds_anxious_parent.glb";
-export const PEDS_NURSE_GLB = "peds_nurse_kevin.glb";
+const PEDS_NURSE_GLB = "peds_nurse_kevin.glb";
 export const PEDS_CHILD_GLB = "peds_patient_child.glb";
 /** Male street casual — blender-only rebake (#160); not a gown, not female street. */
 export const ADULT_MALE_STREET_CASUAL_GLB = "adult_male_street_casual.glb";

@@ -42,7 +42,7 @@ export type ResolvedLayout =
     };
 
 /** Standoffs the resolver will try, nearest first. */
-export const STANDOFF_CANDIDATES_METERS = [0.75, 0.9, 1.05] as const;
+const STANDOFF_CANDIDATES_METERS = [0.75, 0.9, 1.05] as const;
 
 /**
  * Explicit authored intent for the bedside target.
@@ -61,7 +61,7 @@ export type BedsideLayoutIntent = {
 };
 
 /** A seed is a lowercase hex digest. Rejected here so a caller cannot pass a wall clock. */
-export const LAYOUT_SEED_PATTERN = /^[0-9a-f]{64}$/u;
+const LAYOUT_SEED_PATTERN = /^[0-9a-f]{64}$/u;
 
 /**
  * Resolve a bedside layout for one already-derived seed, or REFUSE with the constraints that failed.

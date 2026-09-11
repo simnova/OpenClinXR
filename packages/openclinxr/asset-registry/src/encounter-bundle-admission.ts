@@ -67,7 +67,7 @@ import { canonicalJson } from "./scene-plan-freeze.js";
  */
 
 /** A bundle MAY carry the accepted plan the encounter was frozen with. Most do not. */
-export type BundleCarryingAcceptedScenePlan = LearnerRuntimeAssetBundle & {
+type BundleCarryingAcceptedScenePlan = LearnerRuntimeAssetBundle & {
   acceptedScenePlan?: unknown;
 };
 
@@ -174,7 +174,7 @@ export function admitFrozenScenePlan(input: {
  * from the record and is therefore NOT re-verified on this path; `verify.ts` is where bytes are
  * re-hashed, and the module header says so.
  */
-export function admitFrozenScenePlanForObservedRoom(input: {
+function admitFrozenScenePlanForObservedRoom(input: {
   record: DurableAcceptedScenePlanRecord;
   geometry: ObservedApproachGeometry;
   patientWorldPosition: { x: number; y: number; z: number };
@@ -227,7 +227,7 @@ export function admitFrozenScenePlanForObservedRoom(input: {
  * A scenario with no frozen plan has no entry and resolves to undefined; the caller keeps its own
  * default, which is the honest answer for every encounter that has never been frozen.
  */
-export const SCENE_CLOSURE_SCENARIO_STATION_ID: Readonly<Record<string, string>> = Object.freeze({
+const SCENE_CLOSURE_SCENARIO_STATION_ID: Readonly<Record<string, string>> = Object.freeze({
   "scene_closure_supine_bedside_v1": "scene_closure_supine_bedside_station_v1",
 });
 
@@ -247,7 +247,7 @@ export function stationIdForSceneClosureScenario(scenarioId: string): string | u
  * `readBytes` is injected so the behavior test can drive it without touching disk. The record is
  * passed in rather than imported, so the clause fails on a drifted record, not a drifted import.
  */
-export type CommittedScenePlanDiskCheck = {
+type CommittedScenePlanDiskCheck = {
   ok: boolean;
   problems: string[];
 };
@@ -349,7 +349,7 @@ export function verifyCommittedScenePlanAgainstDisk(input: {
 }
 
 /** The station fields an identity check needs. Structural so the app keeps owning its own type. */
-export type PinnedStationSelection = {
+type PinnedStationSelection = {
   stationId: string;
   scenarioId: string;
 };

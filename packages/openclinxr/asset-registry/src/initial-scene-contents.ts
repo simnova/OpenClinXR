@@ -30,7 +30,7 @@ import { realizedEquipmentPlacementId } from "./realized-equipment-placements.js
  */
 
 /** How a requirement came to name a catalogue id. Recorded per row, never inferred by a reader. */
-export type EquipmentBindingPrecedence =
+type EquipmentBindingPrecedence =
   | "authored_asset_need_id"
   | "reviewed_alias"
   | "unbound";
@@ -42,9 +42,9 @@ export type EquipmentBindingPrecedence =
  * absent or unconnected items", so an item a case has decided against stays in the plan, bound to
  * nothing, and is never realized.
  */
-export type StartStateClass = "required_at_start" | "optional" | "intentionally_absent";
+type StartStateClass = "required_at_start" | "optional" | "intentionally_absent";
 
-export type SceneContentConflictKind =
+type SceneContentConflictKind =
   /** The phrase names more than one catalogue id. Picking one is what this refuses. */
   | "ambiguous_binding"
   /** Required at start, and neither a direct asset-need id nor a reviewed alias binds it. */
@@ -52,7 +52,7 @@ export type SceneContentConflictKind =
   /** Bound, but the item is also declared intentionally absent. The case disagrees with itself. */
   | "required_and_absent";
 
-export type SceneContentRow = {
+type SceneContentRow = {
   /** The authored text, exactly as the case wrote it. */
   authoredPhrase: string;
   /** The activity or rule this requirement came from. Every row carries one. */
@@ -72,13 +72,13 @@ export type SceneContentRow = {
   evidence: string;
 };
 
-export type SceneContentConflict = {
+type SceneContentConflict = {
   kind: SceneContentConflictKind;
   authoredPhrase: string;
   detail: string;
 };
 
-export type SceneContentsPlan = {
+type SceneContentsPlan = {
   schemaVersion: "openclinxr.initial-scene-contents.v1";
   scenarioId: string;
   rows: SceneContentRow[];
@@ -87,7 +87,7 @@ export type SceneContentsPlan = {
   resolves: boolean;
 };
 
-export type SceneContentsInput = {
+type SceneContentsInput = {
   scenario: {
     scenarioId: string;
     /** Authored descriptive phrases. NOT catalogue keys. */

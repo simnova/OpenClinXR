@@ -1,13 +1,15 @@
+import type {
+  EncounterBundleFactoryMember,
+  EncounterBundleFactoryMemberKind,
+  RuntimeAssetReviewDecision,
+} from "@openclinxr/asset-registry/runtime-asset-review";
 import {
-  type EncounterBundleFactoryMember,
-  type EncounterBundleFactoryMemberKind,
   type EncounterRuntimeAsset,
   type RuntimeAssetKind,
-  type RuntimeAssetReviewDecision,
   type RuntimeAssetReviewStatus,
   registerGeneratedRuntimeAssetReference,
   resolveRuntimeAssetStoreConfig,
-} from "@openclinxr/asset-registry";
+} from "@openclinxr/asset-registry/runtime-bundles";
 import { DEFAULT_DEV_AUTH_SECRET, signAuthToken } from "@openclinxr/auth";
 import { describe, expect, it } from "vitest";
 import { ApiApplication } from "../../api-application.js";

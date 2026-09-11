@@ -1,15 +1,14 @@
 import { appendFileSync, readFileSync } from "node:fs";
+import { headingRadiansToward } from "@openclinxr/asset-registry";
 import {
   composeSupportedActorWorldPosition,
-  createEdChestPainRuntimeSceneManifest,
-  headingRadiansToward,
-  planBedsideApproach,
   supineActorWorldPosition,
-} from "@openclinxr/asset-registry";
+} from "@openclinxr/asset-registry/actor-posture";
 import {
   CLINICIAN_WALK_SPEED_MPS,
   FOOT_CONTACT_HEIGHT_METERS,
 } from "@openclinxr/asset-registry/approach-executor";
+import { planBedsideApproach } from "@openclinxr/asset-registry/bedside-approach-path";
 import {
   geometryRevisionDigest,
   type ObservedApproachGeometry,
@@ -21,6 +20,7 @@ import type {
   EncounterRuntimeAsset,
   LearnerRuntimeAssetBundle,
 } from "@openclinxr/asset-registry/runtime-bundles";
+import { createEdChestPainRuntimeSceneManifest } from "@openclinxr/asset-registry/runtime-bundles";
 import type { AssetLoadingContext } from "@openclinxr/xr-asset-loading";
 import * as assetLoading from "@openclinxr/xr-asset-loading";
 import {

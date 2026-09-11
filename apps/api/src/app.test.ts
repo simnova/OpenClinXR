@@ -1,9 +1,9 @@
 import path from "node:path";
+import { MPFB_GOWN_ADULT_PATIENT_GLB, PEDS_CHILD_GLB, PEDS_PARENT_GLB } from "@openclinxr/asset-registry/cast-asset-constants";
 import {
   buildEncounterFactorySummaryContracts,
   createEdChestPainLocalLearnerRuntimeAssetBundle,
-} from "@openclinxr/asset-registry";
-import { MPFB_GOWN_ADULT_PATIENT_GLB, PEDS_CHILD_GLB, PEDS_PARENT_GLB } from "@openclinxr/asset-registry/cast-asset-constants";
+} from "@openclinxr/asset-registry/runtime-bundles";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
 import { createActorDialogueModelGateway } from "@openclinxr/model-gateway";

@@ -55,7 +55,7 @@ export const CASE_SCENE_PLAN_SOLVER_VERSION = "openclinxr.bedside-layout-solver.
  */
 export const CASE_SCENE_PLAN_AUTHORIZED_VARIATION_INDICES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 
-export type CaseScenePlanConflict = {
+type CaseScenePlanConflict = {
   /** Which hard constraint defeated this candidate. */
   constraint: "working_clearance" | "route_blocked" | "swept_occupancy" | "does_not_arrive";
   approachSide: string;
@@ -63,7 +63,7 @@ export type CaseScenePlanConflict = {
   reason: string;
 };
 
-export type CaseOwnedScenePlanRefusal = {
+type CaseOwnedScenePlanRefusal = {
   resolved: false;
   seed: string;
   variationIndex: number;
@@ -89,7 +89,7 @@ export type CaseOwnedScenePlan = {
 
 export type CaseOwnedScenePlanResult = CaseOwnedScenePlan | CaseOwnedScenePlanRefusal;
 
-export function isAuthorizedVariationIndex(index: number): boolean {
+function isAuthorizedVariationIndex(index: number): boolean {
   return (CASE_SCENE_PLAN_AUTHORIZED_VARIATION_INDICES as readonly number[]).includes(index);
 }
 

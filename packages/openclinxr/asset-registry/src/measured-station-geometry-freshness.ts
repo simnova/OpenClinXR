@@ -18,7 +18,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-export type MeasuredGeometryFingerprint = {
+type MeasuredGeometryFingerprint = {
   bytes?: number;
   sha256?: string;
 };
@@ -29,7 +29,7 @@ export type MeasuredGeometryFingerprint = {
  * verified, so a missing or empty fingerprint reports the assetId rather than
  * silently passing — that is the same lie one layer along.
  */
-export function findStaleMeasuredGeometry(doc: unknown, repoRoot: string): string[] {
+function findStaleMeasuredGeometry(doc: unknown, repoRoot: string): string[] {
   const sources = (doc as { sources?: Record<string, unknown> } | undefined)?.sources ?? {};
   const fingerprints = (doc as { fingerprints?: Record<string, MeasuredGeometryFingerprint> } | undefined)
     ?.fingerprints ?? {};

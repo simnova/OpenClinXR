@@ -1,7 +1,7 @@
 import type { AssetObjectStore, AssetObjectStorePutResult } from "./object-store.js";
 import type { EncounterRuntimeAsset, EncounterRuntimeAssetBundle } from "./runtime-bundles.js";
 
-export type RuntimeAssetManifestRecord = {
+type RuntimeAssetManifestRecord = {
   schemaVersion: "openclinxr.runtime-asset-manifest.v1";
   asset: EncounterRuntimeAsset;
   storedAt: string;
@@ -9,13 +9,13 @@ export type RuntimeAssetManifestRecord = {
   notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"];
 };
 
-export type GeneratedRuntimeAssetWriteResult = {
+type GeneratedRuntimeAssetWriteResult = {
   assetPut: AssetObjectStorePutResult;
   manifestPut: AssetObjectStorePutResult;
   manifestBlobName: string;
 };
 
-export type EncounterRuntimeAssetBundleWriteResult = {
+type EncounterRuntimeAssetBundleWriteResult = {
   bundlePut: AssetObjectStorePutResult;
   bundleBlobName: string;
 };
@@ -27,7 +27,7 @@ const NOT_EVIDENCE_FOR = [
   "scoring_validity",
 ] as const;
 
-export async function writeGeneratedRuntimeAssetWithManifest(input: {
+async function writeGeneratedRuntimeAssetWithManifest(input: {
   store: AssetObjectStore;
   asset: EncounterRuntimeAsset;
   body: Uint8Array | string;
@@ -57,7 +57,7 @@ export async function writeGeneratedRuntimeAssetWithManifest(input: {
   return { assetPut, manifestPut, manifestBlobName };
 }
 
-export async function writeEncounterRuntimeAssetBundle(input: {
+async function writeEncounterRuntimeAssetBundle(input: {
   store: AssetObjectStore;
   bundle: EncounterRuntimeAssetBundle;
 }): Promise<EncounterRuntimeAssetBundleWriteResult> {
@@ -76,13 +76,13 @@ export async function writeEncounterRuntimeAssetBundle(input: {
   return { bundlePut, bundleBlobName };
 }
 
-export function runtimeAssetManifestBlobName(asset: EncounterRuntimeAsset): string {
+function runtimeAssetManifestBlobName(asset: EncounterRuntimeAsset): string {
   const slashIndex = asset.blob.blobName.lastIndexOf("/");
   const prefix = slashIndex >= 0 ? asset.blob.blobName.slice(0, slashIndex + 1) : "";
   return `${prefix}asset.runtime-manifest.json`;
 }
 
-export function encounterRuntimeAssetBundleBlobName(bundle: EncounterRuntimeAssetBundle): string {
+function encounterRuntimeAssetBundleBlobName(bundle: EncounterRuntimeAssetBundle): string {
   return [
     "tenants",
     sanitizePathSegment(bundle.tenantId),
@@ -94,7 +94,7 @@ export function encounterRuntimeAssetBundleBlobName(bundle: EncounterRuntimeAsse
   ].join("/");
 }
 
-export function assertRuntimeAssetApprovedForWrite(asset: EncounterRuntimeAsset): void {
+function assertRuntimeAssetApprovedForWrite(asset: EncounterRuntimeAsset): void {
   if (asset.reviewStatus === "blocked") {
     throw new Error(`Blocked runtime asset cannot be written to object storage: ${asset.assetId}`);
   }

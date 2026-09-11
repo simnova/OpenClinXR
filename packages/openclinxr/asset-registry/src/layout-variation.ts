@@ -28,10 +28,10 @@ import {
  * explicit intent rather than substituting a different target".
  */
 
-export const LAYOUT_SEED_SCHEME = "openclinxr.layout-variation-seed.v1";
-export const VERSION_TOKEN = /^[A-Za-z0-9._-]+$/u;
+const LAYOUT_SEED_SCHEME = "openclinxr.layout-variation-seed.v1";
+const VERSION_TOKEN = /^[A-Za-z0-9._-]+$/u;
 
-export type LayoutSeedInput = {
+type LayoutSeedInput = {
   /** The case. Stable across runs by construction. */
   scenarioId: string;
   /** A version token for the geometry the layout is solved against. */
@@ -50,7 +50,7 @@ export type LayoutSeedInput = {
  * passes. That reasoning is the motion seed contract's, which states it first and is worth
  * repeating here rather than cross-referencing, because the refusal is the contract.
  */
-export function isValidLayoutSeedInput(input: LayoutSeedInput): boolean {
+function isValidLayoutSeedInput(input: LayoutSeedInput): boolean {
   if (typeof input.scenarioId !== "string" || input.scenarioId.trim() === "") return false;
   if (!VERSION_TOKEN.test(input.assetRevision)) return false;
   if (!VERSION_TOKEN.test(input.solverVersion)) return false;
@@ -84,9 +84,6 @@ export function deriveLayoutVariationSeed(input: LayoutSeedInput): string {
  * Only the SEED DERIVATION stays here, because it hashes. See that module's header for why the
  * split is the replay contract rather than a packaging convenience.
  */
-export type { BedsideLayoutIntent, ResolvedLayout } from "./layout-solve.js";
-export { STANDOFF_CANDIDATES_METERS } from "./layout-solve.js";
-
 /**
  * Derive this variation's seed, then resolve the layout against measured geometry.
  *

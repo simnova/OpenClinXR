@@ -128,7 +128,7 @@ export type ObservedScenePlanEvidence = {
   stationRunId?: string | undefined;
 };
 
-export type ScenePlanEvidenceConflictKind = "missing" | "corrupt" | "changed";
+type ScenePlanEvidenceConflictKind = "missing" | "corrupt" | "changed";
 
 export type ScenePlanEvidenceConflict = {
   subject: string;
@@ -271,7 +271,7 @@ export function acknowledgmentBindsPlan(record: DurableAcceptedScenePlanRecord):
  * produces a NEW record with a new plan revision and an unset acknowledgment, so re-acceptance is a
  * separate recorded act rather than a sidecar overwrite.
  */
-export type FreshScenePlanObservation = {
+type FreshScenePlanObservation = {
   observedBy: string;
   observedAtIso: string;
   evidence: ObservedScenePlanEvidence;
@@ -279,7 +279,7 @@ export type FreshScenePlanObservation = {
   planRevision: string;
 };
 
-export type ScenePlanRevalidation =
+type ScenePlanRevalidation =
   | { status: "revalidated"; record: DurableAcceptedScenePlanRecord }
   | { status: "refused"; reason: string; conflicts: ScenePlanEvidenceConflict[] };
 

@@ -1,4 +1,4 @@
-import type { ActorPosture } from "@openclinxr/asset-registry";
+import type { ActorPosture } from "@openclinxr/asset-registry/actor-posture";
 import type { Group, Scene } from "three";
 import { BoxGeometry, CylinderGeometry, Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 import type {

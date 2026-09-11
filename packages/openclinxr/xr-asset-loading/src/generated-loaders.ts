@@ -4,7 +4,7 @@
  * the package; app state reads go through ctx. No mutable module state.
  */
 
-import { type ActorPosture, resolveActorPosture } from "@openclinxr/asset-registry";
+import { type ActorPosture, resolveActorPosture } from "@openclinxr/asset-registry/actor-posture";
 import { recordSceneAssetStatus, runtimeAssetAffordanceCueIds } from "@openclinxr/xr-capture-evidence";
 import { applyGeneratedHumanoidRoleSpecificPosture } from "@openclinxr/xr-locomotion";
 import {
@@ -15,8 +15,8 @@ import {
 import { AnimationClip, BoxGeometry, type Group, Mesh, MeshStandardMaterial, SphereGeometry } from "three";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { registerGeneratedHumanoidAnimation } from "./humanoid-animation.js";
 import { type LoadSceneSlotOptions, stampEquipmentSlotIdentity } from "./equipment-slot-identity.js";
+import { registerGeneratedHumanoidAnimation } from "./humanoid-animation.js";
 import { addRoleSpecificHumanoidVisuals } from "./role-visuals.js";
 import type { AssetLoadingContext, HumanoidSourceComparator } from "./types.js";
 import { runtimeHumanoidVariantAssetPath } from "./variant-paths.js";

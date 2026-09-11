@@ -1,9 +1,9 @@
+import { resolveEnvironmentShellDescriptor } from "@openclinxr/asset-registry";
 import {
   composeSupportedActorWorldPosition,
-  resolveEnvironmentShellDescriptor,
   seatedActorWorldPosition,
   supineActorWorldPosition,
-} from "@openclinxr/asset-registry";
+} from "@openclinxr/asset-registry/actor-posture";
 // #196 pattern: subpath avoids growing the frozen asset-registry barrel.
 import { FAMILY_CHAIR, resolveFixtureSlotPosition } from "@openclinxr/asset-registry/environment-zone-templates";
 import type { EncounterRuntimeActorPlacement } from "@openclinxr/asset-registry/runtime-bundles";

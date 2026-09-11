@@ -13,9 +13,9 @@
  * so a placement fix upstream cannot look applied while a capture shows otherwise.
  */
 
-import type { Group } from "three";
-import { DEFAULT_PATIENT_CHAIR_POSITION } from "@openclinxr/asset-registry";
+import { DEFAULT_PATIENT_CHAIR_POSITION } from "@openclinxr/asset-registry/actor-posture";
 import { ADDITIONAL_CAST_FRAMING_XZ } from "@openclinxr/xr-runtime-state";
+import type { Group } from "three";
 
 export type EncounterActorFramingInput = {
   actor: Group;

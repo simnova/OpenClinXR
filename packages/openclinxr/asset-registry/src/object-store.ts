@@ -2,14 +2,14 @@ import { createHmac } from "node:crypto";
 import type { EncounterRuntimeAsset, RuntimeAssetStoreConfig } from "./runtime-bundles.js";
 import { resolveRuntimeAssetBlobUrl, resolveRuntimeAssetStoreConfig } from "./runtime-bundles.js";
 
-export type AssetObjectStorePutInput = {
+type AssetObjectStorePutInput = {
   blobName: string;
   body: Uint8Array | string;
   contentType?: string | undefined;
   metadata?: Record<string, string> | undefined;
 };
 
-export type AssetObjectStoreGetInput = {
+type AssetObjectStoreGetInput = {
   blobName: string;
 };
 
@@ -22,7 +22,7 @@ export type AssetObjectStorePutResult = {
   requestId: string | null;
 };
 
-export type AssetObjectStoreGetResult = {
+type AssetObjectStoreGetResult = {
   storeKind: RuntimeAssetStoreConfig["storeKind"];
   containerName: string;
   blobName: string;
@@ -39,18 +39,18 @@ export type AssetObjectStore = {
   putEncounterRuntimeAsset(asset: EncounterRuntimeAsset, body: Uint8Array | string): Promise<AssetObjectStorePutResult>;
 };
 
-export type AzuriteAssetObjectStoreOptions = {
+type AzuriteAssetObjectStoreOptions = {
   config?: Partial<RuntimeAssetStoreConfig> | undefined;
   accountKey?: string | undefined;
   fetch?: typeof fetch | undefined;
   now?: () => Date;
 };
 
-export const AZURITE_DEFAULT_ACCOUNT_NAME = "devstoreaccount1";
-export const AZURITE_DEFAULT_CONTAINER_NAME = "openclinxr-assets";
-export const AZURITE_ALLOWED_METADATA_KEYS = ["assetid", "scenarioassetid", "reviewstatus", "version"] as const;
+const AZURITE_DEFAULT_ACCOUNT_NAME = "devstoreaccount1";
+const AZURITE_DEFAULT_CONTAINER_NAME = "openclinxr-assets";
+const AZURITE_ALLOWED_METADATA_KEYS = ["assetid", "scenarioassetid", "reviewstatus", "version"] as const;
 
-export function createAzuriteAssetObjectStore(options: AzuriteAssetObjectStoreOptions = {}): AssetObjectStore {
+function createAzuriteAssetObjectStore(options: AzuriteAssetObjectStoreOptions = {}): AssetObjectStore {
   const config = resolveRuntimeAssetStoreConfig({
     storeKind: "azurite_blob",
     containerName: options.config?.containerName ?? AZURITE_DEFAULT_CONTAINER_NAME,
@@ -135,7 +135,7 @@ export function createAzuriteAssetObjectStore(options: AzuriteAssetObjectStoreOp
   };
 }
 
-export function buildAzuriteConnectionSummary(config: RuntimeAssetStoreConfig = {
+function buildAzuriteConnectionSummary(config: RuntimeAssetStoreConfig = {
   storeKind: "azurite_blob",
   containerName: AZURITE_DEFAULT_CONTAINER_NAME,
 }): {
@@ -158,7 +158,7 @@ export function buildAzuriteConnectionSummary(config: RuntimeAssetStoreConfig = 
   };
 }
 
-export function assertLocalAzuriteEndpoint(baseUrl: string): void {
+function assertLocalAzuriteEndpoint(baseUrl: string): void {
   let parsed: URL;
   try {
     parsed = new URL(baseUrl);
@@ -171,7 +171,7 @@ export function assertLocalAzuriteEndpoint(baseUrl: string): void {
   }
 }
 
-export function buildSharedKeyAuthorizationHeader(input: {
+function buildSharedKeyAuthorizationHeader(input: {
   method: "GET" | "PUT";
   accountName: string;
   accountKey: string;

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
-import { composeSupportedActorWorldPosition, seatedActorWorldPosition } from "@openclinxr/asset-registry";
+import { composeSupportedActorWorldPosition, seatedActorWorldPosition } from "@openclinxr/asset-registry/actor-posture";
 import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
+import { describe, expect, it } from "vitest";
 
 // WHY THIS FILE EXISTS, beside the planted RED
 // (the-authored-offset-reaches-the-posed-humanoid.test.ts).

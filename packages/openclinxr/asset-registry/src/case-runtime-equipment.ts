@@ -31,13 +31,13 @@ import type { EncounterRuntimeEquipmentPlacement } from "./runtime-bundles.js";
  * within this pair today, and `unrealizableEquipmentDecisions` reports any decision that names
  * something outside it rather than accepting a decision that can have no effect.
  */
-export const REAL_GLB_EQUIPMENT_BY_AUTHORED_CATALOGUE_ID: Readonly<Record<string, string>> = {
+const REAL_GLB_EQUIPMENT_BY_AUTHORED_CATALOGUE_ID: Readonly<Record<string, string>> = {
   "12_lead_ecg_machine_equipment": "ecg_cart_equipment",
   iv_pole_equipment: "iv_stand_equipment",
 };
 
 /** The pair the local bundle has always carried, in its historical order. */
-export const ED_BAY_REAL_GLB_EQUIPMENT_IDS: readonly string[] = ["ecg_cart_equipment", "iv_stand_equipment"];
+const ED_BAY_REAL_GLB_EQUIPMENT_IDS: readonly string[] = ["ecg_cart_equipment", "iv_stand_equipment"];
 
 /** Historical positions for the two fixtures. Copy 2+ is offset so it is not mounted inside copy 1. */
 const ED_BAY_EQUIPMENT_PLACEMENTS: Readonly<Record<string, EncounterRuntimeEquipmentPlacement>> = {
@@ -81,7 +81,7 @@ export function unrealizableEquipmentDecisions(
 }
 
 /** The bundle row a realized fixture becomes: its asset identity and the blob it loads. */
-export type RealGlbEquipmentFixture = {
+type RealGlbEquipmentFixture = {
   equipmentId: string;
   assetId: string;
   scenarioAssetId: string;
@@ -112,7 +112,7 @@ const REAL_GLB_EQUIPMENT_FIXTURES: Readonly<Record<string, RealGlbEquipmentFixtu
  * No injected case, or an injected case with no `equipmentDecisions`, returns the historical pair
  * once each — exactly today's behaviour.
  */
-export function caseRealGlbEquipmentIds(scenario?: CaseScenarioSource | undefined): readonly string[] {
+function caseRealGlbEquipmentIds(scenario?: CaseScenarioSource | undefined): readonly string[] {
   const decisions = scenario?.equipmentDecisions;
   const refused = new Set(
     (decisions?.intentionallyAbsentEquipmentIds ?? [])

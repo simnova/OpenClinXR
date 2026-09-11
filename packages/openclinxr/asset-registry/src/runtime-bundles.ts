@@ -14,9 +14,7 @@ import {
 } from "./actor-casting.js";
 
 export {
-  ADULT_STATURE_FLOOR_METERS, declareAgeBand, ED_ADULT_CAST_ASSET_PATH, ED_ADULT_CAST_PROVENANCE_PATH,
-  ED_ADULT_CAST_RUNTIME_PATH, ED_CHEST_PAIN_SCENARIO_ID, PEDS_ASTHMA_SCENARIO_ID,
-  provenancePathForRuntimeAsset, resolveRuntimeCastAssetPath, resolveScenarioActorCast } from "./actor-casting.js";
+  resolveScenarioActorCast } from "./actor-casting.js";
 import { type AuthoredPosture, type CaseScenarioSource, authoredCasePlacements, caseScenarioDocument, postureForSupportSurface } from "./case-actor-placements.js";
 import { placementsWithPersistedCaseIntent, type SupportedPlacementAcceptance } from "./case-intent-placements.js";
 import { caseRealGlbEquipmentFixtures, caseRealGlbEquipmentPlacements } from "./case-runtime-equipment.js";
@@ -37,7 +35,7 @@ export type EncounterRuntimeEvidenceGateId =
   | "quest_runtime_evidence"
   | "asset_production_review";
 
-export type RuntimeAssetBlobRef = {
+type RuntimeAssetBlobRef = {
   storeKind: RuntimeAssetStoreKind;
   containerName: string;
   blobName: string;
@@ -95,7 +93,7 @@ export type EncounterRuntimeEquipmentAsset = {
   model: EncounterRuntimeAsset;
 };
 
-export type EncounterRuntimeUiSurfaceAsset = {
+type EncounterRuntimeUiSurfaceAsset = {
   surfaceId: string;
   renderer: "schema_panel" | "static_panel";
   schema?: EncounterRuntimeAsset | undefined;
@@ -118,7 +116,7 @@ export type EncounterRuntimeRoomProp = {
   generatedBy: "scene_manifest";
 };
 
-export type EncounterRuntimeStationContext = {
+type EncounterRuntimeStationContext = {
   title: string;
   subtitle: string;
   chiefConcern: string;
@@ -211,7 +209,7 @@ export type EncounterRuntimeSceneManifest = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
-export type EncounterRuntimeEvidenceGateRef = {
+type EncounterRuntimeEvidenceGateRef = {
   gateId: EncounterRuntimeEvidenceGateId;
   status: "pending" | "attached" | "blocked";
   evidenceRefs: string[];
@@ -220,7 +218,7 @@ export type EncounterRuntimeEvidenceGateRef = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
-export type PedsHumanoidMaterializationHandoffAsset = {
+type PedsHumanoidMaterializationHandoffAsset = {
   actorRole: "patient" | "anxious_parent" | "nurse";
   assetPath: string;
   runtimeAssetPath: string;
@@ -280,7 +278,7 @@ export type EncounterRuntimeLearnerUseGate = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
-export type EncounterRuntimeGeneratedAssetAuditRef = {
+type EncounterRuntimeGeneratedAssetAuditRef = {
   assetId: string;
   scenarioAssetId: string;
   kind: RuntimeAssetKind;
@@ -290,7 +288,7 @@ export type EncounterRuntimeGeneratedAssetAuditRef = {
   provenanceRefs: string[];
 };
 
-export type EncounterRuntimeHumanoidAuditMetadataRef = {
+type EncounterRuntimeHumanoidAuditMetadataRef = {
   actorId: string;
   actorRole: EncounterRuntimeActorAsset["role"];
   embodiment: EncounterRuntimeActorAsset["embodiment"];
@@ -302,7 +300,7 @@ export type EncounterRuntimeHumanoidAuditMetadataRef = {
   claimScope: "metadata_only_not_visual_quality_evidence";
 };
 
-export type EncounterRuntimeRemediationPlanAuditRef = {
+type EncounterRuntimeRemediationPlanAuditRef = {
   planRefId: string;
   dimension: "gaze" | "mouth_viseme" | "pose" | "posture_collision" | "clothing" | "shared_asset_reuse";
   sourceWorkOrderRef: string;
@@ -312,7 +310,7 @@ export type EncounterRuntimeRemediationPlanAuditRef = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
-export type EncounterRuntimeBundleAssemblyAuditMetadata = {
+type EncounterRuntimeBundleAssemblyAuditMetadata = {
   schemaVersion: "openclinxr.runtime-bundle-assembly-audit.v1";
   claimBoundary: "asset_reference_audit_metadata_not_materialized_assets";
   sourceDefinitionRefs: string[];
@@ -380,7 +378,7 @@ export type EncounterFactoryDryRunSummary = {
   };
 };
 
-export type EncounterFactoryInputSummary = {
+type EncounterFactoryInputSummary = {
   source: "scenario_definition_and_dialogue_seed_bank";
   scenarioBankOrder?: number;
   factorySelectionRole?: "anchor" | "next_factory_planning_scenario" | "candidate";
@@ -421,19 +419,19 @@ export type EncounterFactoryInputPlanningSummary = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
-export type EncounterFactorySummaryContracts = {
+type EncounterFactorySummaryContracts = {
   dynamicBehaviorCoverage: EncounterDynamicBehaviorCoverageSummary;
   encounterFactoryDryRunSummary: EncounterFactoryDryRunSummary;
   inputPlanningSummary?: EncounterFactoryInputPlanningSummary | undefined;
 };
 
-export type BuildEncounterDynamicBehaviorCoverageSummaryInput = {
+type BuildEncounterDynamicBehaviorCoverageSummaryInput = {
   learnerRuntimeBundle?: Pick<LearnerRuntimeAssetBundle, "actors" | "sceneManifest" | "scenarioId"> | null | undefined;
   requiredActorRoles?: readonly string[] | undefined;
   scenarioId?: string | undefined;
 };
 
-export type BuildEncounterFactoryDryRunSummaryInput = {
+type BuildEncounterFactoryDryRunSummaryInput = {
   requestId: string;
   scenarioId: string;
   encounterFactoryInputSummary?: EncounterFactoryInputSummary | undefined;
@@ -449,7 +447,7 @@ export type BuildEncounterFactoryDryRunSummaryInput = {
   blockedPendingRuntimeBundle?: boolean | undefined;
 };
 
-export type EncounterRuntimeBundlePublicationMetadata = {
+type EncounterRuntimeBundlePublicationMetadata = {
   bundleId: string;
   scenarioId: string;
   stationId: string;
@@ -483,12 +481,12 @@ export type LearnerRuntimeAssetBundle = Omit<EncounterRuntimeAssetBundle, "tenan
   identityScope: "learner_runtime_opaque_bundle";
 };
 
-export type GuardedRuntimeSelectorCandidateBundle = Pick<
+type GuardedRuntimeSelectorCandidateBundle = Pick<
   LearnerRuntimeAssetBundle,
   "bundleId" | "scenarioId" | "stationId" | "assetStoreKind" | "evidenceGateRefs" | "notEvidenceFor"
 >;
 
-export type BuildGuardedRuntimeSelectorDisabledDecisionInput = {
+type BuildGuardedRuntimeSelectorDisabledDecisionInput = {
   selectedRuntimeAssetBundleId: string;
   selectedScenarioId: string;
   selectedStationId: string;
@@ -498,7 +496,7 @@ export type BuildGuardedRuntimeSelectorDisabledDecisionInput = {
   blockerIds?: readonly string[] | undefined;
 };
 
-export type GuardedRuntimeSelectorDisabledDecision = {
+type GuardedRuntimeSelectorDisabledDecision = {
   schemaVersion: "openclinxr.guarded-runtime-selector-disabled-decision.v1";
   selectionStatus: "disabled_guard_not_runtime_execution" | "blocked_intent_bundle_missing" | "blocked_intent_bundle_mismatch";
   claimBoundary: "guarded_runtime_selector_seam_not_runtime_execution";
@@ -525,7 +523,7 @@ export type GuardedRuntimeSelectorDisabledDecision = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
-export type ResolveEncounterRuntimeAssetBundleInput = {
+type ResolveEncounterRuntimeAssetBundleInput = {
   tenantId?: string | undefined;
   userId?: string | undefined;
   examRunId?: string | undefined;
@@ -539,7 +537,7 @@ export type ResolveEncounterRuntimeAssetBundleInput = {
   scenario?: CaseScenarioSource | undefined;
 };
 
-export type RegisterGeneratedRuntimeAssetReferenceInput = {
+type RegisterGeneratedRuntimeAssetReferenceInput = {
   assetId: string;
   version: string;
   kind: RuntimeAssetKind;
@@ -553,7 +551,7 @@ export type RegisterGeneratedRuntimeAssetReferenceInput = {
   provenanceRefs: string[];
 };
 
-export type BuildEncounterRuntimeAssetBundleInput = {
+type BuildEncounterRuntimeAssetBundleInput = {
   bundleId: string;
   tenantId: string;
   userId: string;
@@ -578,7 +576,6 @@ export type BuildEncounterRuntimeAssetBundleInput = {
 // `equipmentPlacementReport` on the bundle, so a consumer cannot read those fields without them.
 // The five value helpers that produced them stay internal to this package — republishing a builder
 // nothing outside calls is how an entrypoint ceiling gets spent on surface no one uses.
-export type { EquipmentPlacementReport, RealizedEquipmentPlacementEntry } from "./realized-equipment-placements.js";
 
 const LOCAL_RUNTIME_NOT_EVIDENCE_FOR = [
   "production_asset_readiness",
@@ -880,7 +877,7 @@ export function toLearnerRuntimeAssetBundle(bundle: EncounterRuntimeAssetBundle)
   };
 }
 
-export function deriveEncounterRuntimeBundleAssemblyAuditMetadata(
+function deriveEncounterRuntimeBundleAssemblyAuditMetadata(
   bundle: Pick<
     EncounterRuntimeAssetBundle,
     | "bundleId"

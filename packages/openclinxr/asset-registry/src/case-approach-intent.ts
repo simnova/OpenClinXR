@@ -45,7 +45,7 @@ import { type MonitorVisibility, monitorVisibilityFrom } from "./monitor-visibil
  * those are engineering distances and need qualified review, which has not happened.
  */
 
-export type ApproachRefusalCode =
+type ApproachRefusalCode =
   | "physician_not_cast"
   | "non_physician_in_first_clinical_slot"
   | "no_named_floor_frame"
@@ -54,7 +54,7 @@ export type ApproachRefusalCode =
   | "authored_side_blocked"
   | "route_blocked";
 
-export type BedsideApproachRefusal = { refused: true; code: ApproachRefusalCode; reason: string };
+type BedsideApproachRefusal = { refused: true; code: ApproachRefusalCode; reason: string };
 
 /** The floor frame a standing start is authored against, observed off the live room. */
 export type ObservedFloorFrame = {
@@ -102,7 +102,7 @@ export type ResolvedBedsideApproach = {
   geometryRevision: string;
 };
 
-export type BedsideApproachIntent = ResolvedBedsideApproach | BedsideApproachRefusal;
+type BedsideApproachIntent = ResolvedBedsideApproach | BedsideApproachRefusal;
 
 /**
  * FNV-1a over a canonical rendering of the observed geometry.
@@ -141,7 +141,7 @@ export function geometryRevisionDigest(geometry: ObservedApproachGeometry): stri
  * a physician who starts on the +side of that axis approaches from the +side. Nothing here
  * defaults — a case that authors no start reaches this function's caller as a refusal first.
  */
-export function approachSideForAuthoredStart(input: {
+function approachSideForAuthoredStart(input: {
   start: Vector3;
   supportBounds: SupportBounds;
 }): "patient_left" | "patient_right" {

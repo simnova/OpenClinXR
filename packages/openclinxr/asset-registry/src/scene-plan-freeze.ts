@@ -42,7 +42,7 @@ import { deriveLayoutVariationSeed } from "./layout-variation.js";
  * notEvidenceFor: that the plan was walked, that a browser rendered it, or clinical validity.
  */
 
-export type ScenePlanAssetBinding = {
+type ScenePlanAssetBinding = {
   instanceId: string;
   kind: AcceptedScenePlanInstance["kind"];
   contentId: string;
@@ -98,7 +98,7 @@ export type FreezeScenePlanInput = {
   validateRecord: (record: DurableAcceptedScenePlanRecord) => string[];
 };
 
-export type FreezeScenePlanResult =
+type FreezeScenePlanResult =
   | { frozen: true; record: DurableAcceptedScenePlanRecord; plan: CaseOwnedScenePlan }
   | { frozen: false; reason: string; unresolved?: CaseOwnedScenePlanResult | undefined };
 
@@ -130,7 +130,7 @@ export function canonicalJson(value: unknown): string {
  * self-referential and the binding unfalsifiable. Editing any decision moves this value, so the
  * acknowledgment that approved the old one stops binding and the reopen refuses.
  */
-export function scenePlanRevision(
+function scenePlanRevision(
   record: Omit<DurableAcceptedScenePlanRecord, "planRevision" | "acknowledgment">,
 ): string {
   return `plan-v1-${sha256Hex(
