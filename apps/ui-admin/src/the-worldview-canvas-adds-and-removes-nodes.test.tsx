@@ -4,6 +4,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
+// Warm the React.lazy canvas chunk before the timed findByRole below.
+import "@openclinxr/ui-shared/admin-compile-graph-canvas";
 import { SeedWorldviewQueue } from "@openclinxr/ui-route-admin/seed-worldview-queue";
 import { installWorldviewQueueTestDom } from "./worldview-queue-test-dom.js";
 
