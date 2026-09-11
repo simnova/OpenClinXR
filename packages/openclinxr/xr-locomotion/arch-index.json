@@ -5,9 +5,6 @@
   "purpose": "Public interface of @openclinxr/xr-locomotion.",
   "exports": [
     "ExamineeLocomotionEvidence",
-    "HAND_GESTURE_DWELL_MS",
-    "HAND_PINCH_DISTANCE_THRESHOLD_METERS",
-    "KeyboardLocomotionState",
     "PORTAL_THRESHOLD_Z",
     "PortalTransitionContext",
     "PortalTransitionEvidence",
@@ -29,8 +26,6 @@
     "isXrHandPinching",
     "maybeCompleteTraceActionFromHandSelect",
     "parsePortalPreviewStart",
-    "readXrGamepadLocomotion",
-    "readXrHandGestureLocomotion",
     "recordHandSelectTraceLatency",
     "sampleRoomScalePose",
     "updateExamineeLocomotionTrail",
@@ -52,6 +47,6 @@
   },
   "ceilings": {
     "testInternalImports": 2,
-    "rootEntrypointExports": 32
+    "rootEntrypointExports": 27
   }
 }

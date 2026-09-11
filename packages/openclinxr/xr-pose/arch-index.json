@@ -4,17 +4,9 @@
   "entrypoint": "packages/openclinxr/xr-pose/src/index.ts",
   "purpose": "Public interface of @openclinxr/xr-pose.",
   "exports": [
-    "ApplySupinePoseOptions",
-    "LIBRARY_CLINICAL_IDLE_ARM_HANG",
-    "MAX_FLOAT_METERS",
-    "MAX_SINK_METERS",
-    "MIXAMO_CLINICAL_IDLE_ARM_HANG",
     "MPFB_CLINICAL_IDLE_ARM_HANG",
     "MPFB_IDLE_FORELARM_BEND_FRACTION",
     "OwnedChain",
-    "PoseRotation",
-    "SEATED_CLIP_NAME",
-    "STANDING_CLIP_NAME",
     "animatedTranslationBoneNames",
     "applyAndPlantSupineOnDeck",
     "applyBoneEuler",
@@ -28,27 +20,20 @@
     "collectJointNames",
     "describeRuntimeBundleScenarioMatch",
     "findBonesBySanitisedName",
-    "findSupineBone",
     "holdSupinePlantFrame",
-    "isMpfb2Rig",
-    "lowerSupineBodyOntoDeck",
     "measureBackToDeckGap",
     "measureHeadPillowGapMeters",
     "measurePelvisOnSeat",
     "measureSeatClearanceMeters",
     "mpfbForearmIdleEuler",
-    "plantSeatedFeetNearFloor",
     "plantSeatedPelvisOnSeat",
-    "plantSupineBodyOnDeck",
     "readBackSectionPlane",
     "readSupineTorsoWorldDeg",
     "reapplySupineHeadToStoredPillow",
     "resolveEffectiveVerticalOffsetMeters",
     "resolveRotationMap",
-    "restSeatedHandsOnThighs",
     "sanitiseBoneName",
     "seatedRoleClipIsPlayable",
-    "settleSupineFloatOntoDeck",
     "settleSupineOntoBackSection",
     "settleSupineOntoBackSectionPreservingSeat"
   ],
@@ -66,6 +51,6 @@
     "lint": "pnpm --filter @openclinxr/xr-pose lint"
   },
   "ceilings": {
-    "rootEntrypointExports": 47
+    "rootEntrypointExports": 32
   }
 }

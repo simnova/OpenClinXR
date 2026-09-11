@@ -15,25 +15,17 @@
     "HumanoidSpeechPlayback",
     "MouthGazePoseComparatorEvidenceRecord",
     "RuntimeHumanoidActingCueEvidenceRecord",
-    "applyHumanoidFaceRigControls",
     "applyHumanoidMorphTargetCue",
     "buildHumanoidSpeechEvidence",
-    "buildRuntimeActorRealismLaunchBadge",
-    "computeHumanoidEyeMotionMetrics",
     "createHumanoidEmotionExpressionState",
     "humanoidDialogueDurationMs",
     "isGeneratedRuntimeDrive",
     "orientHumanoidEyeFocusCue",
     "orientHumanoidTowardGazeTarget",
-    "pediatricAsthmaActingOverlayForSlot",
-    "recordMouthGazePoseComparatorEvidence",
-    "recordRuntimeHumanoidActingCueEvidence",
     "resolveHumanoidGazeTargetWorld",
     "startHumanoidEmotionTransition",
     "updateGeneratedHumanoidAnimations",
-    "updateHumanoidEmotionExpression",
-    "updateHumanoidSpeechCue",
-    "visemeOpenness"
+    "updateHumanoidEmotionExpression"
   ],
   "workspaceDependencies": [
     "@openclinxr/asset-registry",
@@ -58,7 +50,6 @@
     "contexts": {
       "HumanoidAnimationRuntimeContext": 35
     },
-    "testInternalImports": 3,
-    "rootEntrypointExports": 30
+    "testInternalImports": 3
   }
 }

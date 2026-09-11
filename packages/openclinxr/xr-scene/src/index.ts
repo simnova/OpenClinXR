@@ -9,33 +9,30 @@ export {
   computeMeshBounds,
   frameCamera,
 } from "./camera-fit-to-bounds.js";
-export type {
-  CaptureView,
-} from "./camera-fit-to-bounds.js";
+
 export {
   mountStationEnvironmentForRuntime,
   resolveCompiledRoomFromRuntimeEnvironment,
 } from "./compiled-room-runtime-mount.js";
+export type {
+  EncounterActorFramingInput,
+} from "./encounter-actor-framing.js";
 export {
   addGeneratedHumanoidRoleContinuityWardrobeCue,
   applyCleanEncounterVisualReviewActorFraming,
 } from "./encounter-actor-framing.js";
 export type {
-  EncounterActorFramingInput,
-} from "./encounter-actor-framing.js";
+  HeadBoxGeometry,
+  Vec3,
+} from "./head-box-from-geometry.js";
 export {
   deriveHeadBoxFromPoints,
   isFittedHairMeshName,
-} from "./head-box-from-geometry.js";
-export type {
-  HeadBoxGeometry,
-  Vec3,
 } from "./head-box-from-geometry.js";
 export {
   assertHumanoidRootUpright,
 } from "./humanoid-load-guard.js";
 export {
-  LIBRARY_ADULT_LEAN_FEMALE_RUNTIME_PATH,
   MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH,
   resolveHumanoidVariantOrCastPath,
   resolveLocalHumanoidRuntimeAssetFileName,
@@ -47,24 +44,10 @@ export {
   isGltfMissingAuthoredMaterial,
 } from "./infinigen-room-primitive-materials.js";
 export {
-  INFINIGEN_ENVIRONMENT_ASSETS,
   collectActorWorldBoxes,
   deriveInteriorPreviewCamera,
-  hideProceduralShellMeshes,
   loadInfinigenEnvironmentIntoStation,
-  measureRoomInteriorPlanes,
-  positionInfinigenRoom,
-  reanchorWallFixturesToRoom,
 } from "./infinigen-station-environment.js";
-export type {
-  Vec3Tuple,
-} from "./infinigen-station-environment.js";
-export {
-  roomInteriorAndHull,
-} from "./interior-preview-camera.js";
-export {
-  resolveFocus,
-} from "./isolated-subject-focus.js";
 export {
   bootIsolatedSubjectLab,
 } from "./isolated-subject-lab.js";
@@ -78,6 +61,17 @@ export {
   resolveLearnerExamScenarios,
   scenariosFromFixtureSequence,
 } from "./learner-exam-scenario-source.js";
+export type {
+  LightingRig,
+  LightingRigLight,
+  RigLightType,
+} from "./lighting-rig-contract.js";
+export {
+  LIGHTING_RIG_SCHEMA_VERSION,
+} from "./lighting-rig-contract.js";
+export {
+  parseLightingRig,
+} from "./lighting-rig-validation.js";
 export {
   createPrimitiveActorMesh,
 } from "./primitive-actor-mesh.js";
@@ -88,23 +82,3 @@ export {
 export {
   createVirtualDeviceActorAffordance,
 } from "./virtual-device-actor.js";
-export {
-  LIGHTING_RIG_SCHEMA_VERSION,
-} from "./lighting-rig-contract.js";
-export type {
-  LightingRig,
-  LightingRigLight,
-  RigLightType,
-} from "./lighting-rig-contract.js";
-export {
-  parseLightingRig,
-} from "./lighting-rig-validation.js";
-export {
-  measureBackToDeckGap,
-  measureHeadPillowGapMeters,
-  measurePelvisOnSeat,
-  measureSeatClearanceMeters,
-  readBackSectionPlane,
-  settleSupineOntoBackSection,
-  settleSupineOntoBackSectionPreservingSeat,
-} from "./articulating-hob-measure.js";
