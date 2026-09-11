@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, join, resolve as pathResolve } from "node:path";
@@ -20,14 +21,23 @@ import { decodePng } from "../decode-png.ts";
  *
  * Out of scope: any fix; the waistband and crotch defects (separate
  * garment-fit sites, not measured here).
+ *
+ * ## SUPERSEDED BY HB-07
+ *
+ * The live GLB and front captures moved on HB-07 (rebake 3f1c222a, capture
+ * 591e74c0). This diagnosis contract now reads the pre-fix bytes from git at
+ * 63dc2fb2 so the measured attribution stays reproducible. It does not
+ * describe the post-rebake file. Never deleted.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../../..");
 const GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb");
 const REPORT = join(REPO_ROOT, "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-defect-sites.json");
-const LIT = join(REPO_ROOT, "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_lit.png");
-const STRUCT = join(REPO_ROOT, "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_structure.png");
+const PRE_FIX = "63dc2fb2";
+const GLB_REV = `${PRE_FIX}:apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb`;
+const LIT_REV = `${PRE_FIX}:docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_lit.png`;
+const STRUCT_REV = `${PRE_FIX}:docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_structure.png`;
 const BG_LUMA = 0.299 * 24 + 0.587 * 33 + 0.114 * 29;
 
 type GlbJson = {
@@ -48,8 +58,12 @@ type Report = {
   factoryStep?: { file?: string };
 };
 
+function gitShow(revPath: string): Buffer {
+  return execFileSync("git", ["show", revPath], { cwd: REPO_ROOT, maxBuffer: 64 * 1024 * 1024 });
+}
+
 function readGlb(): { bytes: Buffer; json: GlbJson; bin: Buffer } {
-  const bytes = readFileSync(GLB);
+  const bytes = gitShow(GLB_REV);
   const jsonLength = bytes.readUInt32LE(12);
   return { bytes, json: JSON.parse(bytes.subarray(20, 20 + jsonLength).toString("utf8")) as GlbJson, bin: bytes.subarray(20 + jsonLength + 8) };
 }
@@ -101,12 +115,13 @@ function sha256Hex(bytes: Buffer): string {
 describe("the child defect sites are attributed from the GLB", () => {
   it("HB-06-required-behavior", () => {
     expect(existsSync(REPORT), `${REPORT} must exist and be TRACKED — a deliverable under a gitignored path has no land path (#64)`).toBe(true);
+    expect(existsSync(GLB), `${GLB} still exists on disk (superseded diagnosis reads ${PRE_FIX}, not these bytes)`).toBe(true);
     const report = JSON.parse(readFileSync(REPORT, "utf8")) as Report;
     expect(report.schemaVersion).toBe("openclinxr.child-defect-sites.v1");
 
-    // (1) Subject pinned to the live bytes.
+    // (1) Subject pinned to the pre-fix bytes at 63dc2fb2 (HB-07 superseded the live file).
     const glb = readGlb();
-    expect(glb.bytes.length, "live GLB length equals the report subject").toBe(11348244);
+    expect(glb.bytes.length, "pre-fix GLB length equals the report subject").toBe(11348244);
     expect(sha256Hex(glb.bytes), "live GLB sha256 equals the report subject").toBe(
       "2742c25863a117c0c57509039998b845f7d000f112d9d8343d1bd71eb12d0636",
     );
@@ -148,8 +163,8 @@ describe("the child defect sites are attributed from the GLB", () => {
     expect(skinUV.length, "skin UV count equals the vertex count").toBe(10930);
 
     // (4) Capture pixels: every in-scope site holds exact-background pixels; control site C holds none.
-    const lit = decodePng(new Uint8Array(readFileSync(LIT)))!;
-    const struct = decodePng(new Uint8Array(readFileSync(STRUCT)))!;
+    const lit = decodePng(new Uint8Array(gitShow(LIT_REV)))!;
+    const struct = decodePng(new Uint8Array(gitShow(STRUCT_REV)))!;
     expect(lit !== null && struct !== null, "both PNGs decode").toBe(true);
     const W = lit!.w;
     const count = (box: number[]): { subj: number; bg: number } => {

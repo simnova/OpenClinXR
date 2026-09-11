@@ -32,6 +32,14 @@ from garment_coverage import _orient_outward, _ray_tri_hits  # noqa: E402
 # subset of makehuman-shoes01 (ledger: toigo_flats CC0, toigo_mj_cloth_shoes CC0,
 # culturalibre_male_boots CC-0; every .mhclo references only basemesh verts < 13,380),
 # so each fits the #318 helper-stripped 13,380-vert basemesh like the t-shirt/pants.
+# HB-07: the child shipped `makeclothes_library_cargo_pants` (2,628 tris — the
+# LOWER GATE cover shell over cortu_cargo_pants). Default non-clinician lower is
+# Elvaerwyn jeans (5,708 tris). Attempt 2 rebaked this body in jeans and landed
+# 80,404 = 77,324 + 3,080. Override only this reference; other bodies keep jeans.
+LOWER_GARMENT_BY_REFERENCE = {
+    "peds_patient_child": "cortu_cargo_pants",
+}
+
 SHOE_BY_REFERENCE = {
     # #598 — default + clinician rows leave the leopard toigo_flats party shoe.
     # Plain CC0 toigo_mj_cloth_shoes already bakes on spouse/child; both .mhclo
@@ -4211,14 +4219,25 @@ def main():
     # covered but read as balloon/jodhpur thighs with a washed lower leg.
     # cortu_cargo_pants (211/196) still hits the LOWER GATE if selected.
     # The slot name keeps a `pants` token so isPantsName still finds the lower.
+    # HB-07: peds_patient_child is keyed to cargo so a rebake keeps the shipped
+    # 2,628-tri cover shell (LOWER_GARMENT_BY_REFERENCE).
     if pants is None:
-        _pants_dir = (
-            REPO_ROOT
-            / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_jeans_straight_leg"
-        )
-        pants_obj = _pants_dir / "mens_elv_jeans2slf.obj"
-        pants_mhclo = _pants_dir / "elvs_jeans_straight_leg.mhclo"
-        _lower_lib_name = "makeclothes_library_straight_leg_jeans_pants"
+        if LOWER_GARMENT_BY_REFERENCE.get(args.reference or "") == "cortu_cargo_pants":
+            _pants_dir = (
+                REPO_ROOT
+                / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants"
+            )
+            pants_obj = _pants_dir / "cargo_pants.obj"
+            pants_mhclo = _pants_dir / "cargo_pants.mhclo"
+            _lower_lib_name = "makeclothes_library_cargo_pants"
+        else:
+            _pants_dir = (
+                REPO_ROOT
+                / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_jeans_straight_leg"
+            )
+            pants_obj = _pants_dir / "mens_elv_jeans2slf.obj"
+            pants_mhclo = _pants_dir / "elvs_jeans_straight_leg.mhclo"
+            _lower_lib_name = "makeclothes_library_straight_leg_jeans_pants"
         if not pants_obj.is_file() or not pants_mhclo.is_file():
             raise RuntimeError(f"lower garment sources missing in provider cache: {_pants_dir}")
 
@@ -4248,12 +4267,20 @@ def main():
                 f".mhclo header: {_lower_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
             )
         print(f"LOWER_GARMENT_LICENCE {_lower_lib_name} {_lower_lic_raw!r} matcher={_lower_lic_matcher}")
-        print(
-            "LOWER_GARMENT_ATTRIBUTION makeclothes_library_straight_leg_jeans_pants "
-            "author=Elvaerwyn pack=pants02 "
-            "page=https://static.makehumancommunity.org/assets/assetpacks/pants02.html "
-            "license=CC-BY"
-        )
+        if _lower_lib_name == "makeclothes_library_cargo_pants":
+            print(
+                "LOWER_GARMENT_ATTRIBUTION makeclothes_library_cargo_pants "
+                "author=Cortu Johnstone pack=pants01 "
+                "page=https://static.makehumancommunity.org/assets/assetpacks/pants01.html "
+                "license=CC0"
+            )
+        else:
+            print(
+                "LOWER_GARMENT_ATTRIBUTION makeclothes_library_straight_leg_jeans_pants "
+                "author=Elvaerwyn pack=pants02 "
+                "page=https://static.makehumancommunity.org/assets/assetpacks/pants02.html "
+                "license=CC-BY"
+            )
 
         pants = import_obj(str(pants_obj), _lower_lib_name, force_z=False)
         apply_object_transforms(pants)
@@ -4755,6 +4782,8 @@ def main():
     # which the glTF export maps to +Z — the same +Z the occlusion gate shoots
     # from).
     from garment_coverage import _ray_tri_hits as _ray_tri_hits_341  # noqa: E402
+    from garment_coverage import grade_front_camera_origin as _grade_front_camera_origin_341  # noqa: E402
+    from garment_coverage import render_hole_columns as _render_hole_columns_341  # noqa: E402
 
     _VIEW_Y = np.array([0.0, -1.0, 0.0])
     _BLACK_BACK_Y = np.array([0.0, 1.0, 0.0])
@@ -4940,6 +4969,7 @@ def main():
     _rt_front_tris = _outer_facing_front_tris(garment_verts, garment_faces)
     _rt_hidden_idx = np.where(hide_mask)[0]
     _rt_unhidden = 0
+    _hb07_added = 0
     if len(_rt_hidden_idx):
         _rt_tris = body_verts[body_faces[_rt_hidden_idx]]
         _rt_samples = _area_sample_points(_rt_tris)  # (F,7,3)
@@ -4972,10 +5002,83 @@ def main():
         )
         _rt_unhide = _rt_hole.any(axis=1) & ~_rt_centroid_poke
         _rt_skipped_poke = int((_rt_hole.any(axis=1) & _rt_centroid_poke).sum())
+        # HB-07 — camera-ray hole shrink, run LAST inside round 7. Attempt 1 kept
+        # axis-aligned (depth_axis=1) holes hidden; the attempt-2 probe measured
+        # those parallel rays 4.8° off the isolated-grade camera at the collar,
+        # so the behind-test hit the shirt back panel and the capture camera ray
+        # hit only MASK faces (no garment, no visible skin). Shrink the mask:
+        # un-hide any still-hidden face whose *camera* ray has no garment in
+        # front and no garment behind (render_hole_columns + grade_front_camera_origin).
+        # Faces under the shirt have garment in front along the camera ray and
+        # stay hidden. Sawtooth faces with garment behind along the camera ray
+        # stay on the any-of-7 path above.
+        _aabb_pts = [body_verts, garment_verts]
+        for _ob in bpy.data.objects:
+            if _ob.type != "MESH" or _ob == human or not getattr(_ob.data, "vertices", None):
+                continue
+            try:
+                _mw = np.array(_ob.matrix_world, dtype=float)
+                _lv = np.array([tuple(v.co) + (1.0,) for v in _ob.data.vertices], dtype=float)
+                if len(_lv):
+                    _aabb_pts.append((_lv @ _mw.T)[:, :3])
+            except Exception:
+                continue
+        _cam_origin = _grade_front_camera_origin_341(
+            np.concatenate(_aabb_pts, axis=0),
+            height_axis=2, depth_axis=1,
+        )
+        print(
+            "HOLE_GUARD_CAMERA origin "
+            f"{_cam_origin[0]:.4f} {_cam_origin[1]:.4f} {_cam_origin[2]:.4f}"
+        )
+        _hb07_hole = _render_hole_columns_341(
+            body_verts, body_faces, _rt_hidden_idx,
+            garment_verts, garment_faces,
+            height_axis=2, depth_axis=1, max_t=0.5,
+            camera_origin=_cam_origin,
+        )
+        _hb07_added = int((_hb07_hole & ~_rt_unhide).sum())
+        _rt_unhide = _rt_unhide | _hb07_hole
         _rt_unhidden = int(_rt_unhide.sum())
         hide_mask[_rt_hidden_idx[_rt_unhide]] = False
     print(f"RENDER_TRUTH_UNHIDE upper faces {_rt_unhidden}")
     print(f"RENDER_TRUTH_UNHIDE_SKIP_POKE {_rt_skipped_poke if len(_rt_hidden_idx) else 0}")
+    print(f"HOLE_GUARD_UNHIDE camera-hole faces {_hb07_added if len(_rt_hidden_idx) else 0}")
+    # HB-07 attempt 3: un-hide hidden faces that are the first hit of a
+    # capture-camera *pixel* ray (screen-space). Centroid rays miss the sleeve
+    # hem holes; the attempt-3 probe classified those pixels as miss / prim4.
+    # Attempt 5: capture-aligned 4096 centres (same predicate); re-run AFTER
+    # RENDER_TRUTH_REHIDE because that pass re-painted 222 upper faces on the
+    # attempt-4 bake after this mask was applied.
+    from garment_coverage import screen_space_hidden_first_hits as _ss_hidden_first  # noqa: E402
+
+    def _hb07_screenspace_unhide(
+        tri_hidden: np.ndarray, *, resolution: int = 1024
+    ) -> tuple[np.ndarray, int]:
+        # Occluder is the garment only. Attempt-5 probe: the leftover sleeve
+        # rays first-hit MASK faces; nearby 1024-grid samples first-hit
+        # visible skin 1.5 mm closer, so treating skin as an occluder left
+        # those faces hidden. Un-hiding a face that skin already covers is
+        # a no-op at those pixels; the hole pixels fill with skin.
+        _idx = np.where(tri_hidden)[0]
+        if len(_idx) == 0:
+            return tri_hidden, 0
+        _hit = _ss_hidden_first(
+            body_verts,
+            body_faces,
+            _idx,
+            garment_verts,
+            garment_faces,
+            height_axis=2,
+            depth_axis=1,
+            resolution=resolution,
+        )
+        _out = np.array(tri_hidden, dtype=bool)
+        _out[_idx[_hit]] = False
+        return _out, int(_hit.sum())
+
+    hide_mask, _ss_added = _hb07_screenspace_unhide(hide_mask, resolution=1024)
+    print(f"HOLE_GUARD_SCREENSPACE_UNHIDE faces {_ss_added}", flush=True)
     # #364 — report the hide-mask boundary smoothness in the bake log, using the same
     # instrument the evidence contract uses (bottom 3% of the mask by height, ordered by
     # angle about the body axis, adjacent-height deltas, p95 in mm). The planted RED is
@@ -5587,6 +5690,37 @@ def main():
         return result
 
     _orphan_hide = _extend_mask_to_orphaned_quads()
+
+    # HB-07 attempt 5 — same screen-space first-hit un-hide, LAST, so
+    # RENDER_TRUTH_REHIDE / ORPHAN_EXTEND cannot re-paint camera-hole faces.
+    # Attempt-4 bake: SCREENSPACE_UNHIDE faces 1, then REHIDE applied 222 upper.
+    _ss_now = np.zeros(len(body_faces), dtype=bool)
+    _tri_i = 0
+    for _poly in human.data.polygons:
+        _n_tri = max(len(_poly.vertices) - 2, 1)
+        _mi = int(_poly.material_index)
+        _mat = human.data.materials[_mi] if _mi < len(human.data.materials) else None
+        _nm = (_mat.name or "").lower() if _mat is not None else ""
+        if "hidden_upper" in _nm:
+            _ss_now[_tri_i : _tri_i + _n_tri] = True
+        _tri_i += _n_tri
+    _ss_was = _ss_now.copy()
+    _ss_now, _ss_final_added = _hb07_screenspace_unhide(_ss_now, resolution=4096)
+    _ss_restore = _ss_was & ~_ss_now
+    _ss_final_polys = 0
+    if _ss_restore.any():
+        _tri_i = 0
+        for _poly in human.data.polygons:
+            _n_tri = max(len(_poly.vertices) - 2, 1)
+            if _ss_restore[_tri_i : _tri_i + _n_tri].any():
+                _poly.material_index = skin_idx
+                _ss_final_polys += 1
+            _tri_i += _n_tri
+    print(
+        f"HOLE_GUARD_SCREENSPACE_UNHIDE_FINAL faces {_ss_final_added} "
+        f"polygons {_ss_final_polys}",
+        flush=True,
+    )
 
     bpy.context.scene.frame_start = 1
     bpy.context.scene.frame_end = 90
