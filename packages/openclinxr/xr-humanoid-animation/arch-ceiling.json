@@ -2,6 +2,5 @@
   "contexts": {
     "HumanoidAnimationRuntimeContext": 35
   },
-  "testInternalImports": 3,
-  "rootEntrypointExports": 30
+  "testInternalImports": 3
 }

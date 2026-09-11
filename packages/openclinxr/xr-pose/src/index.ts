@@ -6,25 +6,23 @@
  * from what the tree actually consumes, then proved by `pnpm packages:typecheck:agent`.
  */
 export {
-  MAX_FLOAT_METERS,
-  MAX_SINK_METERS,
   describeRuntimeBundleScenarioMatch,
   resolveEffectiveVerticalOffsetMeters,
-} from "./actor-floor-composition.js";
+} from "./actor-floor-composition-mod.js";
+export type { OwnedChain } from "./chain-ownership.js";
+// The chain-ownership seam a motion executor declares against. Named, not a star: this file's
+// header says a star republishes a module wholesale.
+export { boneIsOwned } from "./chain-ownership.js";
 export {
-  LIBRARY_CLINICAL_IDLE_ARM_HANG,
-  MIXAMO_CLINICAL_IDLE_ARM_HANG,
-  MPFB_CLINICAL_IDLE_ARM_HANG,
-  MPFB_IDLE_FORELARM_BEND_FRACTION,
   applyBoneEuler,
   applyGeneratedHumanoidClinicalIdlePosture,
   applyHumanoidJointRotationsByAlias,
+  MPFB_CLINICAL_IDLE_ARM_HANG,
+  MPFB_IDLE_FORELARM_BEND_FRACTION,
   mpfbForearmIdleEuler,
 } from "./clinical-idle-posture.js";
 export {
   holdSupinePlantFrame,
-  lowerSupineBodyOntoDeck,
-  settleSupineFloatOntoDeck,
 } from "./hob-body-align.js";
 export {
   measureBackToDeckGap,
@@ -36,28 +34,17 @@ export {
   settleSupineOntoBackSectionPreservingSeat,
 } from "./hob-contact-metrics.js";
 export {
-  findSupineBone,
-} from "./hob-extremity-flex.js";
-export {
   collectJointNames,
   findBonesBySanitisedName,
   resolveRotationMap,
   sanitiseBoneName,
 } from "./pose-bone-runtime.js";
-export type {
-  PoseRotation,
-} from "./pose-bone-runtime.js";
 export {
-  SEATED_CLIP_NAME,
-  STANDING_CLIP_NAME,
   applyPosturePose,
-  plantSeatedFeetNearFloor,
   plantSeatedPelvisOnSeat,
-  restSeatedHandsOnThighs,
 } from "./seated-pose.js";
 export {
   applyMpfb2SeatedFold,
-  isMpfb2Rig,
 } from "./seated-pose-mpfb2.js";
 export {
   animatedTranslationBoneNames,
@@ -66,18 +53,9 @@ export {
 export {
   applyAndPlantSupineOnDeck,
   applySupinePoseHoldingIncline,
-  plantSupineBodyOnDeck,
   readSupineTorsoWorldDeg,
   reapplySupineHeadToStoredPillow,
 } from "./supine-deck-plant.js";
 export {
   applySupinePose,
 } from "./supine-pose.js";
-export type {
-  ApplySupinePoseOptions,
-} from "./supine-pose.js";
-
-// The chain-ownership seam a motion executor declares against. Named, not a star: this file's
-// header says a star republishes a module wholesale.
-export { boneIsOwned } from "./chain-ownership.js";
-export type { OwnedChain } from "./chain-ownership.js";

@@ -87,7 +87,7 @@ import { describe, expect, it } from "vitest";
  * (elevated framing retained ED verticalOffset). resolveFloorBandPlantLocalY plants out-of-band only.
  */
 
-const load = async () => import("./actor-floor-composition.js") as Promise<Record<string, unknown>>;
+const load = async () => import("./actor-floor-composition-mod.js") as Promise<Record<string, unknown>>;
 
 type ActorSample = {
   actorId: string;

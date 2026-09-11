@@ -1,0 +1,797 @@
+{
+  "id": "psr-07",
+  "taskId": "tsk_33fd77bc3512d46f",
+  "sourceRevision": "3663acdd1ab0f140c3c25d8e99d8900fb92034d4",
+  "baseRevision": "3663acdd1ab0f140c3c25d8e99d8900fb92034d4",
+  "planCommit": "1c493f12cd9ff5084e763c7e46f7ac4a5d57635c",
+  "planSha256": "01cb5139557293ace715e65bae576b359afe0e0e06c201f18e1af3d8bab0341d",
+  "rawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "groupHash": "7e8b0ae8c2ea0bfc39e7f8a0a622a350d6be58ac52fba2b47fade6a1ba224664",
+  "measuredBefore": {
+    "roots": 46,
+    "entrypoints": 137,
+    "rootSymbols": 2041,
+    "occurrences": 2869,
+    "uniqueSymbols": 2439,
+    "duplicateNames": 415,
+    "note": "origin/main after PSR-05 land (psr-05.json measuredAfter); card known-good at plan commit was 2533/3588/3020/550"
+  },
+  "measuredAfter": {
+    "roots": 46,
+    "entrypoints": 137,
+    "rootSymbols": 1959,
+    "occurrences": 2753,
+    "uniqueSymbols": 2326,
+    "duplicateNames": 412
+  },
+  "verifyBefore": "On origin/main 3663acdd (pre-apply) --require-applied psr-07 fails because the seven XR packages still publish the 115 remove names. First measured fail: extra: packages/openclinxr/xr-dialogue. publishes unapproved DIALOGUE_PRONUNCIATIONS; extra: packages/openclinxr/xr-dialogue. publishes unapproved JAW_OPEN_TEETH_CLEAR_RADIANS; extra: packages/openclinxr/xr-dialogue. publishes unapproved MorphRootLike; extra: packages/openclinxr/xr-dialogue. publishes unapproved NamedVisemeDriveResult; extra: packages/openclinxr/xr-dialogue. publishes unapproved VisemeFrame. Card known-good: 46 roots, 137 entrypoints, 2533 root symbols, 3588 occurrences, 3020 unique, 550 duplicated names.",
+  "verifyAfter": "46 roots, 137 entrypoints, 1959 root symbols, 2753 occurrences, 2326 unique, 412 duplicated names (surface 3311da409553); ok: group psr-07 applied: 115 removed, 1 migrated; ok baseline ratchet: surface matches the checked-in baseline (no growth)",
+  "countsPerPackage": {
+    "packages/openclinxr/xr-dialogue keep": 47,
+    "packages/openclinxr/xr-dialogue remove": 15,
+    "packages/openclinxr/xr-dialogue migrate": 0,
+    "packages/openclinxr/xr-humanoid-animation keep": 33,
+    "packages/openclinxr/xr-humanoid-animation remove": 26,
+    "packages/openclinxr/xr-humanoid-animation migrate": 0,
+    "packages/openclinxr/xr-locomotion keep": 27,
+    "packages/openclinxr/xr-locomotion remove": 5,
+    "packages/openclinxr/xr-locomotion migrate": 0,
+    "packages/openclinxr/xr-pose keep": 34,
+    "packages/openclinxr/xr-pose remove": 25,
+    "packages/openclinxr/xr-pose migrate": 1,
+    "packages/openclinxr/xr-runtime-state keep": 127,
+    "packages/openclinxr/xr-runtime-state remove": 17,
+    "packages/openclinxr/xr-runtime-state migrate": 0,
+    "packages/openclinxr/xr-scene keep": 38,
+    "packages/openclinxr/xr-scene remove": 17,
+    "packages/openclinxr/xr-scene migrate": 0,
+    "packages/openclinxr/xr-station keep": 70,
+    "packages/openclinxr/xr-station remove": 10,
+    "packages/openclinxr/xr-station migrate": 0
+  },
+  "removedCount": 115,
+  "removed": [
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "applyDialogueVisemeTimelineToRoot",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "applyJawOpenToRoot",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "applyVisemeWeights",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "bankPatientDisplayNameForScenario",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "collectMorphTargetNames",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "DIALOGUE_PRONUNCIATIONS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "driveVisemeTimeline",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "JAW_OPEN_TEETH_CLEAR_RADIANS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "mapDialoguePhonemesToCues",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "mapDialoguePhonemeToArkit",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "MorphRootLike",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "NamedVisemeDriveResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "resolveVisemeTarget",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "sampleLiveVisemeInfluencesFromRoot",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "VisemeFrame",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./case-owned-approach-runtime",
+      "symbol": "CaseOwnedBedsideApproach",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./case-owned-approach-runtime",
+      "symbol": "CaseOwnedBedsideApproachRefusal",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./case-owned-approach-runtime",
+      "symbol": "KNOWN_TOE_BONE_NAMES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./case-owned-approach-runtime",
+      "symbol": "resolveToeBones",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./locomotion-clip-playback",
+      "symbol": "LOCOMOTION_CHAIN_OWNER_ID",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./locomotion-clip-playback",
+      "symbol": "LOCOMOTION_OWNED_BONE_CHAIN_CATEGORIES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./locomotion-clip-playback",
+      "symbol": "locomotionOwnedBoneChains",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./mounted-approach-geometry",
+      "symbol": "MountedApproachGeometry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stance-lock",
+      "symbol": "applyStanceLockedGroundAdvance",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stance-lock",
+      "symbol": "createStanceLockState",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stance-lock",
+      "symbol": "StanceFoot",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stance-lock",
+      "symbol": "StanceLockState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./station-bedside-approach",
+      "symbol": "BEDSIDE_APPROACH_EVIDENCE_SAMPLE_LIMIT",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./station-bedside-approach",
+      "symbol": "BedsideApproachRuntimeEvidence",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./station-bedside-approach",
+      "symbol": "publishBedsideApproachRuntimeEvidence",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./station-bedside-approach",
+      "symbol": "resolveStationBedsideApproach",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./station-bedside-approach",
+      "symbol": "StationBedsideApproachContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./station-bedside-approach",
+      "symbol": "StationBedsideApproachState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "applyHumanoidFaceRigControls",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "buildRuntimeActorRealismLaunchBadge",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "computeHumanoidEyeMotionMetrics",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "pediatricAsthmaActingOverlayForSlot",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "recordMouthGazePoseComparatorEvidence",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "recordRuntimeHumanoidActingCueEvidence",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "updateHumanoidSpeechCue",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "visemeOpenness",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-locomotion",
+      "entrypoint": ".",
+      "symbol": "HAND_GESTURE_DWELL_MS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-locomotion",
+      "entrypoint": ".",
+      "symbol": "HAND_PINCH_DISTANCE_THRESHOLD_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-locomotion",
+      "entrypoint": ".",
+      "symbol": "KeyboardLocomotionState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-locomotion",
+      "entrypoint": ".",
+      "symbol": "readXrGamepadLocomotion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-locomotion",
+      "entrypoint": ".",
+      "symbol": "readXrHandGestureLocomotion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": "./actor-floor-composition",
+      "symbol": "ActorFloorSample",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": "./actor-floor-composition",
+      "symbol": "assessActorFloorComposition",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": "./actor-floor-composition",
+      "symbol": "AssessActorFloorCompositionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": "./actor-floor-composition",
+      "symbol": "AssessActorFloorCompositionResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": "./actor-floor-composition",
+      "symbol": "FLOOR_TOP_Y_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": "./actor-floor-composition",
+      "symbol": "FloorBandPlantInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": "./actor-floor-composition",
+      "symbol": "FloorBandPlantResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": "./actor-floor-composition",
+      "symbol": "MAX_FLOAT_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": "./actor-floor-composition",
+      "symbol": "MAX_SINK_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": "./actor-floor-composition",
+      "symbol": "RuntimeBundleScenarioMatch",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "ApplySupinePoseOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "findSupineBone",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "isMpfb2Rig",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "LIBRARY_CLINICAL_IDLE_ARM_HANG",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "lowerSupineBodyOntoDeck",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "MAX_FLOAT_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "MAX_SINK_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "MIXAMO_CLINICAL_IDLE_ARM_HANG",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "plantSeatedFeetNearFloor",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "plantSupineBodyOnDeck",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "PoseRotation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "restSeatedHandsOnThighs",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "SEATED_CLIP_NAME",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "settleSupineFloatOntoDeck",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "STANDING_CLIP_NAME",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": "./bedside-approach-execution",
+      "symbol": "ApproachPhase",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": "./bedside-approach-execution",
+      "symbol": "approachRouteLengthMeters",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": "./bedside-approach-execution",
+      "symbol": "BedsideApproachExecutionRefusal",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": "./bedside-approach-execution",
+      "symbol": "shortestYawDelta",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": "./composed-body-direction",
+      "symbol": "shortestAngleDelta",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": ".",
+      "symbol": "AdvanceExamFormRunStationInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": ".",
+      "symbol": "createExamStationRunQueueSnapshot",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": ".",
+      "symbol": "deriveRuntimeTraceActionTags",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": ".",
+      "symbol": "examFormRunNotEvidenceFor",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": ".",
+      "symbol": "ExamStationRunQueueSnapshot",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": ".",
+      "symbol": "familyChairFixtureWorldPosition",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": ".",
+      "symbol": "LocomotionAttempt",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": ".",
+      "symbol": "persistExamStationRunQueueSnapshot",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": ".",
+      "symbol": "RuntimeActorEquipmentMaterializationGateEvidence",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": ".",
+      "symbol": "RuntimeInputSourceKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": ".",
+      "symbol": "startExamFormRun",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": ".",
+      "symbol": "stationTraceActionTags",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "CaptureView",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "hideProceduralShellMeshes",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "INFINIGEN_ENVIRONMENT_ASSETS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "LIBRARY_ADULT_LEAN_FEMALE_RUNTIME_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "measureBackToDeckGap",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "measureHeadPillowGapMeters",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "measurePelvisOnSeat",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "measureRoomInteriorPlanes",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "measureSeatClearanceMeters",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "positionInfinigenRoom",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "readBackSectionPlane",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "reanchorWallFixturesToRoom",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "resolveFocus",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "roomInteriorAndHull",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "settleSupineOntoBackSection",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "settleSupineOntoBackSectionPreservingSeat",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "Vec3Tuple",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station",
+      "entrypoint": ".",
+      "symbol": "ActorResponseRequest",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station",
+      "entrypoint": ".",
+      "symbol": "applyGltfEquipmentFootprintFit",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-station",
+      "entrypoint": ".",
+      "symbol": "AssembledStationFormWindow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station",
+      "entrypoint": ".",
+      "symbol": "buildFixtureLayoutProp",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-station",
+      "entrypoint": ".",
+      "symbol": "equipmentDisplayLabel",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-station",
+      "entrypoint": ".",
+      "symbol": "isStretcherSlotId",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-station",
+      "entrypoint": ".",
+      "symbol": "PARAMETRIC_WALL_THICKNESS_M",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-station",
+      "entrypoint": ".",
+      "symbol": "RuntimeSessionSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station",
+      "entrypoint": ".",
+      "symbol": "StationRunQueueSnapshotRequest",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station",
+      "entrypoint": ".",
+      "symbol": "Vec3",
+      "kind": "type"
+    }
+  ],
+  "migratedCount": 1,
+  "migrated": [
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": "./actor-floor-composition",
+      "symbol": "describeRuntimeBundleScenarioMatch",
+      "kind": "runtime",
+      "route": "."
+    }
+  ],
+  "consumerMigrations": [
+    "packages/openclinxr/xr-humanoid-animation/src/case-owned-approach-runtime-mod.ts now imports stance-lock-mod (removed stance-lock names stay unpublished)",
+    "packages/openclinxr/xr-humanoid-animation/src/station-bedside-approach-mod.ts now imports case-owned-approach-runtime-mod for unpublished CaseOwnedBedsideApproach/resolveToeBones",
+    "packages/openclinxr/xr-pose/src/actor-floor-composition.test.ts dynamic-imports actor-floor-composition-mod (removed subpath names stay unpublished)",
+    "packages/openclinxr/xr-pose/src/index.ts re-exports describeRuntimeBundleScenarioMatch from actor-floor-composition-mod (migrated off ./actor-floor-composition onto .)",
+    "apps/ui-xr non-test source: no import-line changes (net-zero line budget held)"
+  ],
+  "retainedExceptions": [
+    "xr-runtime-state projected root 119 remains above the plan's 50-root review target; PSR-01E recorded this as an exception for PSR-07 to justify. Keep rows include the 115 test-consumer keeps amended at cc3da7f3 (group-wide); this card applies only the seven-package subset.",
+    "xr-station projected root 70 remains above 50; reported, not forced.",
+    "xr-humanoid-animation ./stance-lock keep=0: empty barrel remains as the declared subpath; implementation in stance-lock-mod.ts."
+  ],
+  "commands": [
+    {
+      "cmd": "pnpm arch:public-surface:verify -- --require-applied psr-07",
+      "before": "fail exit 1",
+      "after": "pass exit 0"
+    },
+    {
+      "cmd": "pnpm --filter @openclinxr/ui-xr test",
+      "outcome": "pass: Test Files 19 passed (19); Tests 130 passed (130)"
+    },
+    {
+      "cmd": "pnpm architecture",
+      "outcome": "pass: Test Files 17 passed (17); Tests 199 passed (199)"
+    },
+    {
+      "cmd": "pnpm typecheck:relaxed",
+      "outcome": "pass"
+    },
+    {
+      "cmd": "pnpm hygiene:knip",
+      "outcome": "pass"
+    },
+    {
+      "cmd": "git diff --check",
+      "outcome": "pass"
+    }
+  ],
+  "claim": "PSR-07 applies PSR-01E core XR subset (seven packages): 115 names un-published, 1 migrated (describeRuntimeBundleScenarioMatch from ./actor-floor-composition to .), keep names remain published. Implementations kept. --require-applied psr-07 exits 0 after the change.",
+  "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility. packages:typecheck:agent, packages:build:affected, and packages:test:affected are land-time orchestrator runs on this turn.",
+  "notTested": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility."
+}

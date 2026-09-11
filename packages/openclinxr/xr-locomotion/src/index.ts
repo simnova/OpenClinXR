@@ -6,8 +6,6 @@
  * from what the tree actually consumes, then proved by `pnpm packages:typecheck:agent`.
  */
 export {
-  HAND_GESTURE_DWELL_MS,
-  HAND_PINCH_DISTANCE_THRESHOLD_METERS,
   applyLocomotion,
   createKeyboardLocomotion,
   createXrHandGestureLocomotionState,
@@ -16,17 +14,15 @@ export {
   isLocomotionVectorActive,
   isXrHandPinching,
   maybeCompleteTraceActionFromHandSelect,
-  readXrGamepadLocomotion,
-  readXrHandGestureLocomotion,
   recordHandSelectTraceLatency,
   sampleRoomScalePose,
 } from "./locomotion.js";
 export {
-  PORTAL_THRESHOLD_Z,
   applyDeterministicPortalPreviewStart,
   buildExamineeLocomotionEvidence,
   createExamineeLocomotionTrail,
   formatPortalTransitionEvidence,
+  PORTAL_THRESHOLD_Z,
   parsePortalPreviewStart,
   updateExamineeLocomotionTrail,
   updatePortalTransitionEvidence,
@@ -37,7 +33,6 @@ export {
 } from "./role-posture.js";
 export type {
   ExamineeLocomotionEvidence,
-  KeyboardLocomotionState,
   PortalTransitionContext,
   PortalTransitionEvidence,
   RolePostureContext,
