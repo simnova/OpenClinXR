@@ -123,6 +123,7 @@
     "src/routes/encounter-bundle-promotion/encounter-bundle-promotion-routes.test.ts",
     "src/routes/the-exam-run-phase-events-refuse-duplicates-and-finalized-runs.test.ts",
     "src/routes/the-feedback-release-is-explicit-immutable-and-learner-safe.test.ts",
+    "src/routes/the-station-quality-review-exposes-signals-and-no-learner-content.test.ts",
     "src/runtime-durable-store.test.ts"
   ],
   "commands": {

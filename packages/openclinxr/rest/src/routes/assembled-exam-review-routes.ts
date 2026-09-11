@@ -15,6 +15,10 @@ import {
   type ApiRuntimeDurableStore,
   createScenarioRuntimeDurableStoreFromApiPersistence,
 } from "../runtime-durable-store.js";
+import {
+  projectStationQualityReview,
+  STATION_QUALITY_REVIEW_PATH,
+} from "./station-quality-review/index.js";
 
 /** Faculty assembled-exam review packet — one exam-run artifact, not a flattened station list. */
 export const ASSEMBLED_EXAM_REVIEW_PACKET_PATH = "/exam-runs/:examRunId/assembled-review-packet";
@@ -101,44 +105,95 @@ export function registerAssembledExamReviewRoutes(
   });
 
   app.get(ASSEMBLED_EXAM_REVIEW_PACKET_PATH, async (context) => {
-    if (!hasFacultyAccess(context.get("identity"))) {
-      return context.json({ error: "forbidden", reason: "faculty_role_required" }, 403);
+    const loaded = await facultyLoadStoredPacket(context, {
+      durable,
+      assembledExamReviewPackets,
+      sessionOwners,
+      examRunOwners,
+    });
+    if (loaded instanceof Response) {
+      return loaded;
     }
-
-    const examRunId = context.req.param("examRunId")?.trim() ?? "";
-    if (examRunId.length === 0) {
-      return context.json({ error: "invalid_exam_run", reason: "examRunId_required" }, 400);
-    }
-
-    const stored = await loadAssembledExamReviewPacket(durable, assembledExamReviewPackets, examRunId);
-    if (!stored) {
-      return context.json({ error: "assembled_exam_review_packet_not_found" }, 404);
-    }
-    if (stored.examRunId !== examRunId) {
-      return staleIdentity(context, "exam_run_mismatch");
-    }
-
-    const requestedStationRunIds = parseOptionalStationRunIds(context.req.query("stationRunIds"));
-    const storedStationRunIds = stored.stations.map((station) => station.identity.stationRunId);
-    if (requestedStationRunIds && !sameStationRunIds(requestedStationRunIds, storedStationRunIds)) {
-      return staleIdentity(context, "station_run_mismatch");
-    }
-
-    const ownershipDenied = denyStations(context.get("identity"), sessionOwners, storedStationRunIds);
-    if (ownershipDenied) {
-      return context.json(ownershipDenied.body, ownershipDenied.status);
-    }
-
-    const examOwner = examRunOwners.get(examRunId);
-    if (examOwner) {
-      const examOwnershipDenied = denyIfCannotReadStationRun(context.get("identity"), examRunOwners, examRunId);
-      if (examOwnershipDenied) {
-        return context.json(examOwnershipDenied.body, examOwnershipDenied.status);
-      }
-    }
-
-    return context.json(stored);
+    return context.json(loaded);
   });
+
+  app.get(STATION_QUALITY_REVIEW_PATH, async (context) => {
+    const loaded = await facultyLoadStoredPacket(context, {
+      durable,
+      assembledExamReviewPackets,
+      sessionOwners,
+      examRunOwners,
+    });
+    if (loaded instanceof Response) {
+      return loaded;
+    }
+    return context.json(projectStationQualityReview(loaded));
+  });
+}
+
+type FacultyPacketReadContext = {
+  json: (body: Record<string, unknown>, status: 400 | 403 | 404 | 409) => Response;
+  get: (key: "identity") => Parameters<typeof denyIfCannotReadStationRun>[0];
+  req: {
+    param: (name: string) => string | undefined;
+    query: (name: string) => string | undefined;
+  };
+};
+
+async function facultyLoadStoredPacket(
+  context: FacultyPacketReadContext,
+  stores: {
+    durable: ApiRuntimeDurableStore;
+    assembledExamReviewPackets: Map<string, AssembledExamReviewPacket>;
+    sessionOwners: Map<string, string>;
+    examRunOwners: Map<string, string>;
+  },
+): Promise<AssembledExamReviewPacket | Response> {
+  if (!hasFacultyAccess(context.get("identity"))) {
+    return context.json({ error: "forbidden", reason: "faculty_role_required" }, 403);
+  }
+
+  const examRunId = context.req.param("examRunId")?.trim() ?? "";
+  if (examRunId.length === 0) {
+    return context.json({ error: "invalid_exam_run", reason: "examRunId_required" }, 400);
+  }
+
+  const stored = await loadAssembledExamReviewPacket(
+    stores.durable,
+    stores.assembledExamReviewPackets,
+    examRunId,
+  );
+  if (!stored) {
+    return context.json({ error: "assembled_exam_review_packet_not_found" }, 404);
+  }
+  if (stored.examRunId !== examRunId) {
+    return staleIdentity(context, "exam_run_mismatch");
+  }
+
+  const requestedStationRunIds = parseOptionalStationRunIds(context.req.query("stationRunIds"));
+  const storedStationRunIds = stored.stations.map((station) => station.identity.stationRunId);
+  if (requestedStationRunIds && !sameStationRunIds(requestedStationRunIds, storedStationRunIds)) {
+    return staleIdentity(context, "station_run_mismatch");
+  }
+
+  const ownershipDenied = denyStations(context.get("identity"), stores.sessionOwners, storedStationRunIds);
+  if (ownershipDenied) {
+    return context.json(ownershipDenied.body, ownershipDenied.status);
+  }
+
+  const examOwner = stores.examRunOwners.get(examRunId);
+  if (examOwner) {
+    const examOwnershipDenied = denyIfCannotReadStationRun(
+      context.get("identity"),
+      stores.examRunOwners,
+      examRunId,
+    );
+    if (examOwnershipDenied) {
+      return context.json(examOwnershipDenied.body, examOwnershipDenied.status);
+    }
+  }
+
+  return stored;
 }
 
 async function persistAssembledExamReviewPacket(
