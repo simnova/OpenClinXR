@@ -652,7 +652,7 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
     expect(recordSource).not.toMatch(/from "node:/u);
     // COUNTERWEIGHT: the server-only half genuinely IS server-only, so the split above is a real
     // division rather than three modules that happen to need nothing.
-    const freezeSource = readFileSync(repoPath("packages/openclinxr/asset-registry/src/scene-plan-freeze.ts"),
+    const freezeSource = readFileSync(repoPath("packages/openclinxr/asset-registry/src/scene-plan-freeze-mod.ts"),
       "utf8",
     );
     expect(freezeSource).toMatch(/from "node:crypto"/u);
@@ -770,7 +770,7 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
       readFileSync(repoPath("packages/openclinxr/session-state/src/accepted-scene-plan.ts"), "utf8"),
     );
     const pinnedFields = declaredFields(
-      readFileSync(repoPath("packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts"), "utf8"),
+      readFileSync(repoPath("packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence-mod.ts"), "utf8"),
     );
     expect(durableFields.length).toBeGreaterThanOrEqual(14);
     expect(pinnedFields).toEqual(durableFields);
@@ -1066,17 +1066,17 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
       ],
       [
         "the admission calls the reopen",
-        "packages/openclinxr/asset-registry/src/encounter-bundle-admission.ts",
+        "packages/openclinxr/asset-registry/src/encounter-bundle-admission-mod.ts",
         /reopenFrozenScene\(input\.record,/u,
       ],
       [
         "the reopen calls the case-owned solver consumer",
-        "packages/openclinxr/asset-registry/src/frozen-scene-replay.ts",
+        "packages/openclinxr/asset-registry/src/frozen-scene-replay-mod.ts",
         /resolveCaseOwnedScenePlan\(\{/u,
       ],
       [
         "the case-owned consumer calls the seeded solver",
-        "packages/openclinxr/asset-registry/src/case-owned-scene-plan.ts",
+        "packages/openclinxr/asset-registry/src/case-owned-scene-plan-mod.ts",
         /resolveBedsideLayoutFromSeed\(\{/u,
       ],
     ];

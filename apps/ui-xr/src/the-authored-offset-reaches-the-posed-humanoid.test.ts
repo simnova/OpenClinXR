@@ -68,7 +68,7 @@ const CLINIC_PATIENT_OFFSET = { x: 0.4, y: 0, z: 0 } as const; // clinic-knee-pa
 const CLINIC_FAMILY_OFFSET = { x: -0.55, y: 0, z: 0.2 } as const; // clinic-knee-pain.ts:76
 
 async function compose() {
-  const mod = (await import("@openclinxr/asset-registry")) as Record<string, unknown>;
+  const mod = (await import("@openclinxr/asset-registry/actor-posture")) as Record<string, unknown>;
   return mod.composeSupportedActorWorldPosition as
     | undefined
     | ((input: {
@@ -80,7 +80,7 @@ async function compose() {
 }
 
 describe("the authored offset reaches the posed humanoid", () => {
-  it("(1) composeSupportedActorWorldPosition is exported from the asset-registry entrypoint", async () => {
+  it("(1) composeSupportedActorWorldPosition is exported from the actor-posture subpath", async () => {
     expect(typeof (await compose())).toBe("function");
   });
 
