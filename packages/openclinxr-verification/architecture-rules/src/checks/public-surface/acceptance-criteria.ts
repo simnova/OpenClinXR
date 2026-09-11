@@ -6,6 +6,8 @@ import { REVIEW_GROUPS } from "./apply-map.js";
 import {
   APPROVALS_DIR_REL,
   RAW_INVENTORY_REL,
+  groupHash,
+  inventoryHash,
   requireAllReviewed,
   requireApplied,
 } from "./gates.js";
@@ -46,7 +48,7 @@ export type CriterionResult = {
 };
 
 export type QuantitativeMiss = {
-  metric: string;
+  metric: keyof typeof METRIC_TO_TARGET;
   measured: number;
   target: number;
   exceptionId?: string;
@@ -224,9 +226,11 @@ function criterion5(root: string, report: SurfaceReport): CriterionResult {
   };
 }
 
-type ExceptionFile = { id?: string; exceptions?: { kind?: string; owner?: string; reason?: string }[] };
+export type ReviewTarget = keyof typeof REVIEW_TARGETS;
 
-function loadExceptions(root: string): { files: ExceptionFile[]; error?: string } {
+type LoadedExceptionFile = { fileName: string; id: string; exceptions: unknown[] };
+
+function loadExceptions(root: string): { files: LoadedExceptionFile[]; error?: string } {
   const dir = join(root, EXCEPTIONS_DIR_REL);
   if (!existsSync(dir)) return { files: [] };
   let names: string[] = [];
@@ -235,71 +239,143 @@ function loadExceptions(root: string): { files: ExceptionFile[]; error?: string 
   } catch {
     return { files: [], error: `exceptions dir ${EXCEPTIONS_DIR_REL} unreadable` };
   }
-  const files: ExceptionFile[] = [];
+  const files: LoadedExceptionFile[] = [];
   for (const name of names) {
     const value = readJson(root, `${EXCEPTIONS_DIR_REL}/${name}`);
     const flag = completionFlag(value);
     if (flag !== undefined) {
       return { files: [], error: `exception ${name} carries self-attested completion flag "${flag}"` };
     }
-    if (value === null || typeof value !== "object") {
+    if (value === null || typeof value !== "object" || Array.isArray(value)) {
       return { files: [], error: `exception ${name} is malformed` };
     }
-    files.push(value as ExceptionFile);
+    const rec = value as Record<string, unknown>;
+    const idRaw = rec["id"];
+    files.push({
+      fileName: name,
+      id: typeof idRaw === "string" && idRaw !== "" ? idRaw : name,
+      exceptions: Array.isArray(rec["exceptions"]) ? rec["exceptions"] : [],
+    });
   }
   return { files };
 }
 
-const TARGET_KIND = {
-  rootExports: "program-root-export-count",
-  median: "program-median-root-symbols",
-  p90: "program-p90-root-symbols",
-  maxRoot: "program-no-root-above",
-  duplicateNames: "program-duplicate-names",
+export const METRIC_TO_TARGET = {
+  rootSymbols: "rootExportsAtMost",
+  median: "medianAtMost",
+  p90: "p90AtMost",
+  maxRoot: "noRootAbove",
+  duplicateNames: "duplicateNamesAtMost",
 } as const;
 
-function exceptionFor(files: ExceptionFile[], kind: string): string | undefined {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isReviewTarget(value: unknown): value is ReviewTarget {
+  return (
+    value === "rootExportsAtMost" ||
+    value === "medianAtMost" ||
+    value === "p90AtMost" ||
+    value === "noRootAbove" ||
+    value === "duplicateNamesAtMost"
+  );
+}
+
+function isOldKindShape(entry: Record<string, unknown>): boolean {
+  return "kind" in entry && !isReviewTarget(entry["target"]);
+}
+
+const KIND_TO_TARGET: Record<string, ReviewTarget> = {
+  "program-root-export-count": "rootExportsAtMost",
+  "program-median-root-symbols": "medianAtMost",
+  "program-p90-root-symbols": "p90AtMost",
+  "program-no-root-above": "noRootAbove",
+  "program-duplicate-names": "duplicateNamesAtMost",
+};
+
+function independentlyReviewed(
+  files: LoadedExceptionFile[],
+  target: ReviewTarget,
+  measured: number,
+  threshold: number,
+): { coveredBy?: string; refuse: string } {
+  const oldShapeFiles: string[] = [];
+  let sameOwner = false;
+  let missingReviewer = false;
+  let staleMeasured = false;
+  let wrongThreshold = false;
   for (const file of files) {
-    for (const entry of file.exceptions ?? []) {
-      if (entry.kind === kind && typeof entry.owner === "string" && entry.owner !== "" && typeof entry.reason === "string" && entry.reason !== "") {
-        return typeof file.id === "string" ? file.id : kind;
+    const rel = `${EXCEPTIONS_DIR_REL}/${file.fileName}`;
+    for (const raw of file.exceptions) {
+      if (!isRecord(raw)) continue;
+      if (isOldKindShape(raw)) {
+        const mapped = typeof raw["kind"] === "string" ? KIND_TO_TARGET[raw["kind"]] : undefined;
+        if (mapped === target) oldShapeFiles.push(rel);
+        continue;
       }
+      if (raw["target"] !== target) continue;
+      const owner = raw["owner"];
+      const reason = raw["reason"];
+      const reviewedBy = raw["reviewedBy"];
+      if (typeof reviewedBy !== "string" || reviewedBy === "") {
+        missingReviewer = true;
+        continue;
+      }
+      if (typeof owner !== "string" || owner === "" || typeof reason !== "string" || reason === "") continue;
+      if (reviewedBy === owner) {
+        sameOwner = true;
+        continue;
+      }
+      if (raw["threshold"] !== threshold) {
+        wrongThreshold = true;
+        continue;
+      }
+      if (raw["measured"] !== measured) {
+        staleMeasured = true;
+        continue;
+      }
+      return { coveredBy: file.id, refuse: "" };
     }
   }
-  return undefined;
+  const head = `${target} ${measured} > ${threshold}`;
+  if (oldShapeFiles.length > 0) {
+    const named = [...new Set(oldShapeFiles)].join(", ");
+    return { refuse: `${head} (${named} uses the retired kind shape, not target/measured/threshold/reviewedBy)` };
+  }
+  if (sameOwner) return { refuse: `${head} (reviewedBy equals owner; independent review required)` };
+  if (missingReviewer) return { refuse: `${head} (no reviewedBy)` };
+  if (staleMeasured) return { refuse: `${head} (exception measured differs from the tree)` };
+  if (wrongThreshold) return { refuse: `${head} (exception threshold does not match REVIEW_TARGETS)` };
+  return { refuse: `${head} (no independently reviewed exception)` };
 }
 
 function criterion6(
   report: SurfaceReport,
   quantiles: { median: number; p90: number; maxRoot: number },
-  files: ExceptionFile[],
+  files: LoadedExceptionFile[],
 ): { result: CriterionResult; misses: QuantitativeMiss[]; targetsMet: boolean } {
-  const checks: { metric: string; measured: number; target: number; kind: string }[] = [
-    { metric: "rootSymbols", measured: report.totals.rootSymbols, target: REVIEW_TARGETS.rootExportsAtMost, kind: TARGET_KIND.rootExports },
-    { metric: "median", measured: quantiles.median, target: REVIEW_TARGETS.medianAtMost, kind: TARGET_KIND.median },
-    { metric: "p90", measured: quantiles.p90, target: REVIEW_TARGETS.p90AtMost, kind: TARGET_KIND.p90 },
-    { metric: "maxRoot", measured: quantiles.maxRoot, target: REVIEW_TARGETS.noRootAbove, kind: TARGET_KIND.maxRoot },
-    { metric: "duplicateNames", measured: report.totals.duplicateNames, target: REVIEW_TARGETS.duplicateNamesAtMost, kind: TARGET_KIND.duplicateNames },
+  const checks: { metric: keyof typeof METRIC_TO_TARGET; measured: number; target: number }[] = [
+    { metric: "rootSymbols", measured: report.totals.rootSymbols, target: REVIEW_TARGETS.rootExportsAtMost },
+    { metric: "median", measured: quantiles.median, target: REVIEW_TARGETS.medianAtMost },
+    { metric: "p90", measured: quantiles.p90, target: REVIEW_TARGETS.p90AtMost },
+    { metric: "maxRoot", measured: quantiles.maxRoot, target: REVIEW_TARGETS.noRootAbove },
+    { metric: "duplicateNames", measured: report.totals.duplicateNames, target: REVIEW_TARGETS.duplicateNamesAtMost },
   ];
   const misses: QuantitativeMiss[] = [];
   const uncovered: string[] = [];
   for (const check of checks) {
     if (check.measured <= check.target) continue;
-    const exceptionId = exceptionFor(files, check.kind);
+    const match = independentlyReviewed(files, METRIC_TO_TARGET[check.metric], check.measured, check.target);
     const miss: QuantitativeMiss = { metric: check.metric, measured: check.measured, target: check.target };
-    if (exceptionId !== undefined) miss.exceptionId = exceptionId;
+    if (match.coveredBy !== undefined) miss.exceptionId = match.coveredBy;
     misses.push(miss);
-    if (exceptionId === undefined) uncovered.push(`${check.metric} ${check.measured} > ${check.target} (no exception ${check.kind})`);
+    if (match.coveredBy === undefined) uncovered.push(match.refuse);
   }
   const targetsMet = misses.length === 0;
   if (uncovered.length > 0) {
     return {
-      result: {
-        criterion: "6",
-        id: "quantitative-review-targets",
-        ok: false,
-        detail: uncovered.join("; "),
-      },
+      result: { criterion: "6", id: "quantitative-review-targets", ok: false, detail: uncovered.join("; ") },
       misses,
       targetsMet,
     };
@@ -321,7 +397,7 @@ function criterion6(
       criterion: "6",
       id: "quantitative-review-targets",
       ok: true,
-      detail: `targets missed with checked-in exceptions: ${misses.map((miss) => `${miss.metric}=${miss.measured} via ${miss.exceptionId}`).join("; ")}`,
+      detail: `targets missed with independently reviewed exceptions: ${misses.map((miss) => `${miss.metric}=${miss.measured} via ${miss.exceptionId}`).join("; ")}`,
     },
     misses,
     targetsMet,
@@ -409,12 +485,7 @@ export function evaluateAcceptance(root: string, report?: SurfaceReport): Accept
   for (const item of [c3, c4, c5, c6.result, c12]) {
     if (!item.ok) refuseReasons.push(`criterion ${item.criterion} (${item.id}): ${item.detail}`);
   }
-  const programClose = c3.ok && c4.ok && c5.ok && c6.targetsMet && c12.ok;
-  if (!programClose && c6.result.ok && !c6.targetsMet) {
-    refuseReasons.push(
-      "criterion 6 targets missed with checked-in exceptions; independent review of those exceptions is residual (not this card)",
-    );
-  }
+  const programClose = c3.ok && c4.ok && c5.ok && c6.result.ok && c12.ok;
   const verdict: "close" | "refuse" = programClose ? "close" : "refuse";
   const record: AcceptanceRecord = {
     schema: "openclinxr.psr-00b-acceptance.v1",
@@ -450,46 +521,175 @@ export function evaluateAcceptance(root: string, report?: SurfaceReport): Accept
 const SELF_TEST_MANIFEST = (name: string): string =>
   JSON.stringify({ name, exports: { ".": { types: "./dist/index.d.ts", default: "./dist/index.js" } } });
 
+const SELF_TEST_GROUPS: readonly { group: string; dir: string }[] = [
+  { group: "psr-01b", dir: "packages/openclinxr/g-b" },
+  { group: "psr-01c", dir: "packages/openclinxr/g-c" },
+  { group: "psr-01d", dir: "packages/openclinxr/g-d" },
+  { group: "psr-01e", dir: "packages/openclinxr/g-e" },
+];
+
 function writeSelfTestPackage(fixture: string, dir: string, source: string): void {
   mkdirSync(join(fixture, dir, "src"), { recursive: true });
   writeFileSync(join(fixture, dir, "package.json"), SELF_TEST_MANIFEST(`@openclinxr/${dir.split("/").pop()}`));
   writeFileSync(join(fixture, dir, "src/index.ts"), source);
 }
 
-/** Fail-closed proofs for acceptance: empty sample and leftover wildcards refuse. */
+function bulkySource(): string {
+  return `${Array.from({ length: 60 }, (_, index) => `export const n${index} = ${index};\n`).join("")}export const kept = 1;\n`;
+}
+
+function writeClassifiedBulky(fixture: string): void {
+  writeFileSync(join(fixture, "pnpm-workspace.yaml"), "packages:\n  - packages/**\n");
+  for (const item of SELF_TEST_GROUPS) {
+    writeSelfTestPackage(fixture, item.dir, item.dir.endsWith("g-e") ? bulkySource() : "export const kept = 1;\n");
+  }
+  const report = measureSurface(fixture);
+  const rows: { package: string; entrypoint: string; symbol: string; kind: string }[] = [];
+  for (const pkg of report.packages) {
+    for (const entry of pkg.entrypoints) {
+      for (const symbol of entry.symbols) {
+        rows.push({ package: pkg.packageDir, entrypoint: entry.specifier, symbol: symbol.name, kind: symbol.kind });
+      }
+    }
+  }
+  mkdirSync(join(fixture, "docs/openclinxr/package-public-surface-reduction"), { recursive: true });
+  writeFileSync(join(fixture, RAW_INVENTORY_REL), JSON.stringify({ inventoryHash: inventoryHash(fixture, report), rows }, null, 2));
+  mkdirSync(join(fixture, APPROVALS_DIR_REL), { recursive: true });
+  for (const item of SELF_TEST_GROUPS) {
+    const scoped = rows.filter((row) => row.package === item.dir);
+    writeFileSync(
+      join(fixture, `${APPROVALS_DIR_REL}/${item.group}.json`),
+      JSON.stringify({
+        id: item.group,
+        rawInventoryHash: inventoryHash(fixture, report),
+        groupHash: groupHash(rows, [item.dir]),
+        rows: scoped.map((row) => ({
+          ...row,
+          disposition: "keep",
+          owner: "fixture",
+          rationale: "self-test keep",
+        })),
+      }),
+    );
+  }
+}
+
+function writeExceptionFile(fixture: string, name: string, exceptions: unknown[]): void {
+  mkdirSync(join(fixture, EXCEPTIONS_DIR_REL), { recursive: true });
+  writeFileSync(join(fixture, `${EXCEPTIONS_DIR_REL}/${name}`), JSON.stringify({ id: name.replace(/\.json$/u, ""), exceptions }));
+}
+
+function withTemp(prefix: string, run: (root: string) => GateResult): GateResult {
+  const root = join(tmpdir(), `${prefix}-${process.pid}`);
+  try {
+    rmSync(root, { recursive: true, force: true });
+    mkdirSync(root, { recursive: true });
+    return run(root);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function entriesForMisses(evaluation: AcceptanceEvaluation, tweak: (entry: Record<string, unknown>) => Record<string, unknown>): Record<string, unknown>[] {
+  return evaluation.record.quantitativeMisses.map((miss) =>
+    tweak({
+      target: METRIC_TO_TARGET[miss.metric],
+      measured: miss.measured,
+      threshold: miss.target,
+      owner: "psr-08",
+      reason: "fixture residual",
+      reviewedBy: "independent-reviewer",
+    }),
+  );
+}
+
+/** Fail-closed proofs: empty/wildcard plus C6 reviewedBy fixtures. */
 export function acceptanceSelfTest(): GateResult[] {
   const out: GateResult[] = [];
-  const emptyRoot = join(tmpdir(), `psr-00b-empty-${process.pid}`);
-  try {
-    rmSync(emptyRoot, { recursive: true, force: true });
-    mkdirSync(emptyRoot, { recursive: true });
-    writeFileSync(join(emptyRoot, "pnpm-workspace.yaml"), "packages:\n  - packages/**\n");
-    const empty = evaluateAcceptance(emptyRoot);
-    out.push({
-      ok: empty.record.verdict === "refuse" && !empty.record.criteria["12"].ok,
-      detail: `empty sample refused: ${empty.record.criteria["12"].detail}`,
-    });
-  } finally {
-    rmSync(emptyRoot, { recursive: true, force: true });
-  }
-  const wildRoot = join(tmpdir(), `psr-00b-wild-${process.pid}`);
-  try {
-    rmSync(wildRoot, { recursive: true, force: true });
-    mkdirSync(join(wildRoot, APPROVALS_DIR_REL), { recursive: true });
-    writeFileSync(join(wildRoot, "pnpm-workspace.yaml"), "packages:\n  - packages/**\n");
-    writeSelfTestPackage(
-      wildRoot,
-      "packages/openclinxr/fixture-wild",
-      "export const kept = 1;\nexport * from './empty.js';\n",
-    );
-    writeFileSync(join(wildRoot, "packages/openclinxr/fixture-wild/src/empty.ts"), "export {};\n");
-    const wild = evaluateAcceptance(wildRoot);
-    out.push({
-      ok: !wild.record.criteria["3"].ok,
-      detail: `wildcard publication refused: ${wild.record.criteria["3"].detail}`,
-    });
-  } finally {
-    rmSync(wildRoot, { recursive: true, force: true });
-  }
+  out.push(
+    withTemp("psr-00b-empty", (root) => {
+      writeFileSync(join(root, "pnpm-workspace.yaml"), "packages:\n  - packages/**\n");
+      const empty = evaluateAcceptance(root);
+      return {
+        ok: empty.record.verdict === "refuse" && !empty.record.criteria["12"].ok,
+        detail: `empty sample refused: ${empty.record.criteria["12"].detail}`,
+      };
+    }),
+  );
+  out.push(
+    withTemp("psr-00b-wild", (root) => {
+      writeFileSync(join(root, "pnpm-workspace.yaml"), "packages:\n  - packages/**\n");
+      writeSelfTestPackage(root, "packages/openclinxr/fixture-wild", "export const kept = 1;\nexport * from './empty.js';\n");
+      writeFileSync(join(root, "packages/openclinxr/fixture-wild/src/empty.ts"), "export {};\n");
+      const wild = evaluateAcceptance(root);
+      return { ok: !wild.record.criteria["3"].ok, detail: `wildcard publication refused: ${wild.record.criteria["3"].detail}` };
+    }),
+  );
+  out.push(
+    withTemp("psr-00b-c6-none", (root) => {
+      writeClassifiedBulky(root);
+      const evaluation = evaluateAcceptance(root);
+      return {
+        ok: !evaluation.record.criteria["6"].ok && evaluation.record.criteria["6"].detail.includes("no independently reviewed exception"),
+        detail: `C6 no-exception refused: ${evaluation.record.criteria["6"].detail}`,
+      };
+    }),
+  );
+  out.push(
+    withTemp("psr-00b-c6-owner", (root) => {
+      writeClassifiedBulky(root);
+      const baseline = evaluateAcceptance(root);
+      writeExceptionFile(root, "psr-self.json", entriesForMisses(baseline, (entry) => ({ ...entry, reviewedBy: String(entry["owner"]) })));
+      const evaluation = evaluateAcceptance(root);
+      return {
+        ok: !evaluation.record.criteria["6"].ok && evaluation.record.criteria["6"].detail.includes("reviewedBy equals owner"),
+        detail: `C6 reviewedBy==owner refused: ${evaluation.record.criteria["6"].detail}`,
+      };
+    }),
+  );
+  out.push(
+    withTemp("psr-00b-c6-norev", (root) => {
+      writeClassifiedBulky(root);
+      const baseline = evaluateAcceptance(root);
+      writeExceptionFile(
+        root,
+        "psr-self.json",
+        entriesForMisses(baseline, (entry) => {
+          const { reviewedBy: _reviewedBy, ...rest } = entry;
+          void _reviewedBy;
+          return rest;
+        }),
+      );
+      const evaluation = evaluateAcceptance(root);
+      return {
+        ok: !evaluation.record.criteria["6"].ok && evaluation.record.criteria["6"].detail.includes("no reviewedBy"),
+        detail: `C6 missing reviewedBy refused: ${evaluation.record.criteria["6"].detail}`,
+      };
+    }),
+  );
+  out.push(
+    withTemp("psr-00b-c6-stale", (root) => {
+      writeClassifiedBulky(root);
+      const baseline = evaluateAcceptance(root);
+      writeExceptionFile(root, "psr-self.json", entriesForMisses(baseline, (entry) => ({ ...entry, measured: 1 })));
+      const evaluation = evaluateAcceptance(root);
+      return {
+        ok: !evaluation.record.criteria["6"].ok && evaluation.record.criteria["6"].detail.includes("measured differs from the tree"),
+        detail: `C6 stale measured refused: ${evaluation.record.criteria["6"].detail}`,
+      };
+    }),
+  );
+  out.push(
+    withTemp("psr-00b-c6-ok", (root) => {
+      writeClassifiedBulky(root);
+      const baseline = evaluateAcceptance(root);
+      writeExceptionFile(root, "psr-self.json", entriesForMisses(baseline, (entry) => entry));
+      const evaluation = evaluateAcceptance(root);
+      return {
+        ok: evaluation.record.criteria["6"].ok,
+        detail: `C6 conforming reviewed exception accepted: ${evaluation.record.criteria["6"].detail}`,
+      };
+    }),
+  );
   return out;
 }

@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { evaluateAcceptance } from "../../checks/public-surface/acceptance-criteria.js";
+import { evaluateAcceptance, METRIC_TO_TARGET, REVIEW_TARGETS } from "../../checks/public-surface/acceptance-criteria.js";
 import { groupHash, inventoryHash } from "../../checks/public-surface/gates.js";
 import { measureSurface, workspaceRoot } from "../../checks/public-surface/resolve.js";
 import type { RunnerIo } from "../../checks/public-surface/runner.js";
@@ -185,51 +185,120 @@ describe("acceptance closes the program or refuses for a named reason", () => {
     );
   });
 
-  it("refuses criterion 6 when a review target is missed with no exception", () => {
-    const bulky = `${Array.from({ length: 60 }, (_, index) => `export const n${index} = ${index};\n`).join("")}export const kept = 1;\n`;
-    withTree({ ...fourKeepPackages(), "packages/openclinxr/g-e/src/index.ts": bulky }, (root) => {
+  const bulkyKeep = `${Array.from({ length: 60 }, (_, index) => `export const n${index} = ${index};\n`).join("")}export const kept = 1;\n`;
+  const bulkyExtras = Array.from({ length: 60 }, (_, index) => ({
+    group: "psr-01e" as const,
+    symbol: `n${index}`,
+    disposition: "keep",
+    dir: GROUP_DIRS["psr-01e"],
+  }));
+
+  function withBulkyClassified(run: (root: string) => void): void {
+    withTree({ ...fourKeepPackages(), "packages/openclinxr/g-e/src/index.ts": bulkyKeep }, (root) => {
       writeRawInventory(root);
-      writeKeepGroups(root, Array.from({ length: 60 }, (_, index) => ({
-        group: "psr-01e",
-        symbol: `n${index}`,
-        disposition: "keep",
-        dir: GROUP_DIRS["psr-01e"],
-      })));
+      writeKeepGroups(root, bulkyExtras);
+      run(root);
+    });
+  }
+
+  function writeExceptionEntries(root: string, fileName: string, exceptions: unknown[]): void {
+    mkdirSync(join(root, exceptionsDir), { recursive: true });
+    writeFileSync(join(root, `${exceptionsDir}/${fileName}`), JSON.stringify({ id: fileName.replace(/\.json$/u, ""), exceptions }));
+  }
+
+  function conformingEntries(root: string): Record<string, unknown>[] {
+    return evaluateAcceptance(root).record.quantitativeMisses.map((miss) => ({
+      target: METRIC_TO_TARGET[miss.metric],
+      measured: miss.measured,
+      threshold: miss.target,
+      owner: "psr-08",
+      reason: "fixture residual",
+      reviewedBy: "independent-reviewer",
+    }));
+  }
+
+  it("refuses criterion 6 when a review target is missed with no exception", () => {
+    withBulkyClassified((root) => {
       const evaluation = evaluateAcceptance(root);
       expect(evaluation.record.criteria["6"].ok).toBe(false);
       expect(evaluation.record.verdict).toBe("refuse");
-      expect(evaluation.record.refuseReasons.some((reason) => reason.includes("quantitative-review-targets"))).toBe(true);
+      expect(evaluation.record.criteria["6"].detail).toContain("no independently reviewed exception");
     });
   });
 
-  it("files a quantitative exception without closing: independent review is residual", () => {
-    const bulky = `${Array.from({ length: 60 }, (_, index) => `export const n${index} = ${index};\n`).join("")}export const kept = 1;\n`;
-    withTree({ ...fourKeepPackages(), "packages/openclinxr/g-e/src/index.ts": bulky }, (root) => {
-      writeRawInventory(root);
-      writeKeepGroups(root, Array.from({ length: 60 }, (_, index) => ({
-        group: "psr-01e",
-        symbol: `n${index}`,
-        disposition: "keep",
-        dir: GROUP_DIRS["psr-01e"],
-      })));
-      mkdirSync(join(root, exceptionsDir), { recursive: true });
-      writeFileSync(
-        join(root, `${exceptionsDir}/psr-fixture-residual.json`),
-        JSON.stringify({
-          id: "psr-fixture-residual",
-          owner: "fixture",
-          exceptions: [
-            { kind: "program-p90-root-symbols", reason: "fixture p90", owner: "fixture" },
-            { kind: "program-no-root-above", reason: "fixture max", owner: "fixture" },
-            { kind: "program-median-root-symbols", reason: "fixture median", owner: "fixture" },
-            { kind: "program-root-export-count", reason: "fixture roots", owner: "fixture" },
-          ],
+  it("refuses criterion 6 when reviewedBy equals owner", () => {
+    withBulkyClassified((root) => {
+      writeExceptionEntries(
+        root,
+        "psr-same-owner.json",
+        conformingEntries(root).map((entry) => ({ ...entry, reviewedBy: entry["owner"] })),
+      );
+      const evaluation = evaluateAcceptance(root);
+      expect(evaluation.record.criteria["6"].ok).toBe(false);
+      expect(evaluation.record.criteria["6"].detail).toContain("reviewedBy equals owner");
+    });
+  });
+
+  it("refuses criterion 6 when reviewedBy is absent", () => {
+    withBulkyClassified((root) => {
+      writeExceptionEntries(
+        root,
+        "psr-no-reviewer.json",
+        conformingEntries(root).map((entry) => {
+          const { reviewedBy: _reviewedBy, ...rest } = entry;
+          void _reviewedBy;
+          return rest;
         }),
       );
       const evaluation = evaluateAcceptance(root);
+      expect(evaluation.record.criteria["6"].ok).toBe(false);
+      expect(evaluation.record.criteria["6"].detail).toContain("no reviewedBy");
+    });
+  });
+
+  it("refuses criterion 6 when exception measured differs from the tree", () => {
+    withBulkyClassified((root) => {
+      writeExceptionEntries(
+        root,
+        "psr-stale.json",
+        conformingEntries(root).map((entry) => ({ ...entry, measured: 1 })),
+      );
+      const evaluation = evaluateAcceptance(root);
+      expect(evaluation.record.criteria["6"].ok).toBe(false);
+      expect(evaluation.record.criteria["6"].detail).toContain("measured differs from the tree");
+    });
+  });
+
+  it("refuses criterion 6 when the exception file still uses the retired kind shape", () => {
+    withBulkyClassified((root) => {
+      writeExceptionEntries(root, "psr-08-residual.json", [
+        { kind: "program-p90-root-symbols", measuredAfterPsr08: 61, target: 25, owner: "psr-08", reason: "old shape" },
+        { kind: "program-no-root-above", measuredAfterPsr08: 61, target: 50, owner: "psr-08", reason: "old shape" },
+      ]);
+      const evaluation = evaluateAcceptance(root);
+      expect(evaluation.record.criteria["6"].ok).toBe(false);
+      expect(evaluation.record.criteria["6"].detail).toContain("psr-08-residual.json");
+      expect(evaluation.record.criteria["6"].detail).toContain("retired kind shape");
+    });
+  });
+
+  it("accepts criterion 6 when every miss has an independently reviewed exception", () => {
+    withBulkyClassified((root) => {
+      writeExceptionEntries(root, "psr-reviewed.json", conformingEntries(root));
+      const evaluation = evaluateAcceptance(root);
       expect(evaluation.record.criteria["6"].ok).toBe(true);
-      expect(evaluation.record.verdict).toBe("refuse");
-      expect(evaluation.record.refuseReasons.some((reason) => reason.includes("independent review"))).toBe(true);
+      expect(evaluation.record.criteria["6"].detail).toContain("independently reviewed exceptions");
+      expect(evaluation.record.verdict).toBe("close");
+    });
+  });
+
+  it("REVIEW_TARGETS stay the plan line 122 numbers", () => {
+    expect(REVIEW_TARGETS).toEqual({
+      rootExportsAtMost: 1000,
+      medianAtMost: 15,
+      p90AtMost: 25,
+      noRootAbove: 50,
+      duplicateNamesAtMost: 200,
     });
   });
 

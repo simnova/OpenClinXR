@@ -46,7 +46,7 @@
       "criterion": "6",
       "id": "quantitative-review-targets",
       "ok": false,
-      "detail": "median 25.5 > 15 (no exception program-median-root-symbols); p90 56 > 25 (no exception program-p90-root-symbols); maxRoot 119 > 50 (no exception program-no-root-above)"
+      "detail": "rootExportsAtMost 1243 > 1000 (docs/openclinxr/package-public-surface-reduction/exceptions/psr-08-residual.json uses the retired kind shape, not target/measured/threshold/reviewedBy); medianAtMost 25.5 > 15 (no independently reviewed exception); p90AtMost 56 > 25 (no independently reviewed exception); noRootAbove 119 > 50 (no independently reviewed exception)"
     },
     "12": {
       "criterion": "12",
@@ -59,8 +59,7 @@
     {
       "metric": "rootSymbols",
       "measured": 1243,
-      "target": 1000,
-      "exceptionId": "psr-08-residual"
+      "target": 1000
     },
     {
       "metric": "median",
@@ -81,7 +80,7 @@
   "verdict": "refuse",
   "refuseReasons": [
     "criterion 3 (no-wildcard-publication): packages/openclinxr/data-mongodb. export * from ×2",
-    "criterion 6 (quantitative-review-targets): median 25.5 > 15 (no exception program-median-root-symbols); p90 56 > 25 (no exception program-p90-root-symbols); maxRoot 119 > 50 (no exception program-no-root-above)"
+    "criterion 6 (quantitative-review-targets): rootExportsAtMost 1243 > 1000 (docs/openclinxr/package-public-surface-reduction/exceptions/psr-08-residual.json uses the retired kind shape, not target/measured/threshold/reviewedBy); medianAtMost 25.5 > 15 (no independently reviewed exception); p90AtMost 56 > 25 (no independently reviewed exception); noRootAbove 119 > 50 (no independently reviewed exception)"
   ],
   "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility. CellixJS is a directional reference, not feature-equivalence.",
   "notTested": "Whether the residual exceptions will be accepted on review; that is decided outside this card."

@@ -43,7 +43,7 @@ if (args.includes("--self-test")) {
     console.error("acceptance self-test FAILED: a gate passed on real or fixture input it must refuse");
     process.exit(1);
   }
-  console.log("acceptance self-test passed: gates fail closed on absent, unapplied, empty, and wildcard inputs");
+  console.log("acceptance self-test passed: gates fail closed on absent, unapplied, empty, wildcard, and unreviewed C6 exceptions");
   process.exit(0);
 }
 
