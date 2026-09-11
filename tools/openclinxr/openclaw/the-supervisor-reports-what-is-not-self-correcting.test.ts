@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { join } from "node:path";
 import { CHRONIC_AFTER, classifyDoneClaims, MIN_AUDIT_GAP_MS, PERSISTENCE_WINDOW, READY_DEPTH_TARGET, expectedFailureResidue, markChronic, priorFindingKeys, proofFilesFromArtifact, readyDepth, resolvedSince, verifyDoneClaim } from "./supervisor-audit.js";
 import type { Finding } from "./supervisor-audit.js";
+import { ensureGitignoredState } from "./fixtures/ensure-gitignored-state.js";
 
 /**
  * OBSERVABLE: the supervisor loop's four duties are measurements, and each has a way to lie.
@@ -32,6 +33,7 @@ import type { Finding } from "./supervisor-audit.js";
 const f = (key: string, duty: 1 | 2 | 3 | 4 = 1): Finding => ({ duty, key, detail: key });
 
 describe("the supervisor reports what is not self-correcting", () => {
+  ensureGitignoredState(process.cwd());
   it("(1) DUTY 1: a finding seen once is not chronic", () => {
     const prior = [["other-a"], ["other-b"]];
     const [only] = markChronic([f("seen-once")], prior);
@@ -69,18 +71,18 @@ describe("the supervisor reports what is not self-correcting", () => {
     // Not cosmetic. Duty 1 asks what is NOT self-correcting, and severity IS persistence. A gauge
     // pinned at 3 says a 15-run failure and a 3-run failure are the same thing — which is why I kept
     // "correcting" this finding for six hours without noticing it had never moved.
-    const { mkdtempSync, writeFileSync, mkdirSync } = require("node:fs") as typeof import("node:fs");
-    const { tmpdir } = require("node:os") as typeof import("node:os");
-    const { join: j } = require("node:path") as typeof import("node:path");
-    const root = mkdtempSync(j(tmpdir(), "sup-persist-"));
-    mkdirSync(j(root, ".openclinxr/openclaw"), { recursive: true });
+    const { mkdtempSync: mkPersistDir, writeFileSync: writePersistFile, mkdirSync: mkPersistParents } = require("node:fs") as typeof import("node:fs");
+    const { tmpdir: persistTmp } = require("node:os") as typeof import("node:os");
+    const { join: persistJoin } = require("node:path") as typeof import("node:path");
+    const root = mkPersistDir(persistJoin(persistTmp(), "sup-persist-"));
+    mkPersistParents(persistJoin(root, ".openclinxr/openclaw"), { recursive: true });
     const now = Date.parse("2026-08-24T12:00:00Z");
     // 15 genuinely spaced audits, every one carrying the finding. Oldest first, as production writes.
     const rows = Array.from({ length: 15 }, (_, i) => JSON.stringify({
       at: new Date(now - (14 - i) * (MIN_AUDIT_GAP_MS + 60_000)).toISOString(),
       keys: ["never-cleared"],
     })).join("\n");
-    writeFileSync(j(root, ".openclinxr/openclaw/supervisor-audit-history.jsonl"), `${rows}\n`);
+    writePersistFile(persistJoin(root, ".openclinxr/openclaw/supervisor-audit-history.jsonl"), `${rows}\n`);
 
     const persistence = priorFindingKeys(root, PERSISTENCE_WINDOW, now);
     const [only] = markChronic([f("never-cleared")], priorFindingKeys(root, CHRONIC_AFTER, now), persistence);
@@ -133,8 +135,8 @@ describe("the supervisor reports what is not self-correcting", () => {
     const { findings, pendingReviews } = classifyDoneClaims([
       { issue: 646, stage: "Landed", ok: true, commitOnMain: true, contractVerified: true, why: "" },
     ] as never);
-    expect(findings.map((f) => f.key), "a landed card awaiting its grade is not drift").toEqual([]);
-    expect(pendingReviews.map((p) => p.issue), "and it is still reported").toEqual([646]);
+    expect(findings.map((finding) => finding.key), "a landed card awaiting its grade is not drift").toEqual([]);
+    expect(pendingReviews.map((review) => review.issue), "and it is still reported").toEqual([646]);
   });
 
   it("(25) DUTY 3 COUNTERWEIGHT: an OPEN card marked GRADED still IS drift", () => {
@@ -144,7 +146,7 @@ describe("the supervisor reports what is not self-correcting", () => {
     const { findings } = classifyDoneClaims([
       { issue: 999, stage: "Graded", ok: true, commitOnMain: true, contractVerified: true, why: "" },
     ] as never);
-    expect(findings.map((f) => f.key), "graded and still open is genuine drift")
+    expect(findings.map((graded) => graded.key), "graded and still open is genuine drift")
       .toEqual(["done-but-open-999"]);
   });
 
@@ -161,7 +163,7 @@ describe("the supervisor reports what is not self-correcting", () => {
       { issue: 646, stage: "Landed", ok: true, commitOnMain: true, contractVerified: true, why: "" },
     ] as never);
     expect(findings, "a card awaiting its grade is not a defect").toEqual([]);
-    expect(pendingReviews.map((p) => p.issue), "but it must still be REPORTED, not silently dropped")
+    expect(pendingReviews.map((telemetry) => telemetry.issue), "but it must still be REPORTED, not silently dropped")
       .toEqual([646]);
   });
 
@@ -171,7 +173,7 @@ describe("the supervisor reports what is not self-correcting", () => {
     const { findings, pendingReviews } = classifyDoneClaims([
       { issue: 999, stage: "Graded", ok: true, commitOnMain: true, contractVerified: true, why: "" },
     ] as never);
-    expect(findings.map((f) => f.key)).toEqual(["done-but-open-999"]);
+    expect(findings.map((openGraded) => openGraded.key)).toEqual(["done-but-open-999"]);
     expect(pendingReviews, "a graded card is not pending review").toEqual([]);
   });
 
@@ -277,43 +279,43 @@ describe("the supervisor reports what is not self-correcting", () => {
     // finding CHRONIC, because recurrence counted invocations. That makes "not self-correcting" a
     // function of how often someone hits enter — the metric would scream loudest exactly while a
     // person iterates on the audit itself.
-    const { mkdtempSync, writeFileSync, mkdirSync } = require("node:fs") as typeof import("node:fs");
-    const { tmpdir } = require("node:os") as typeof import("node:os");
-    const { join } = require("node:path") as typeof import("node:path");
-    const root = mkdtempSync(join(tmpdir(), "sup-"));
-    mkdirSync(join(root, ".openclinxr/openclaw"), { recursive: true });
+    const { mkdtempSync: mkGapDir, writeFileSync: writeGapFile, mkdirSync: mkGapParents } = require("node:fs") as typeof import("node:fs");
+    const { tmpdir: gapTmp } = require("node:os") as typeof import("node:os");
+    const { join: gapJoin } = require("node:path") as typeof import("node:path");
+    const root = mkGapDir(gapJoin(gapTmp(), "sup-"));
+    mkGapParents(gapJoin(root, ".openclinxr/openclaw"), { recursive: true });
     const now = Date.parse("2026-08-24T12:00:00Z");
     // APPEND ORDER — oldest first, exactly as the real history jsonl is written. Writing it
     // newest-first made this fixture disagree with production and hid the real ordering.
     const rows = [2, 1, 0].map((i) => JSON.stringify({
       at: new Date(now - i * 60_000).toISOString(), keys: ["same-thing"],
     })).join("\n");
-    writeFileSync(join(root, ".openclinxr/openclaw/supervisor-audit-history.jsonl"), `${rows}\n`);
+    writeGapFile(gapJoin(root, ".openclinxr/openclaw/supervisor-audit-history.jsonl"), `${rows}\n`);
 
     const prior = priorFindingKeys(root, CHRONIC_AFTER, now);
     expect(prior.length, "three runs one minute apart collapse to one observation").toBe(1);
-    const [f] = markChronic([{ duty: 1, key: "same-thing", detail: "x" }], prior);
-    expect(f!.chronic, "one real observation cannot establish chronic").toBeFalsy();
+    const [gapFinding] = markChronic([{ duty: 1, key: "same-thing", detail: "x" }], prior);
+    expect(gapFinding!.chronic, "one real observation cannot establish chronic").toBeFalsy();
   });
 
   it("(12) DUTY 1 COUNTERWEIGHT: genuinely spaced audits DO establish chronic", () => {
     // Refuses the over-correction of spacing so aggressively that a real chronic finding never
     // qualifies. Two observations a full gap apart are exactly what the metric is for.
-    const { mkdtempSync, writeFileSync, mkdirSync } = require("node:fs") as typeof import("node:fs");
-    const { tmpdir } = require("node:os") as typeof import("node:os");
-    const { join } = require("node:path") as typeof import("node:path");
-    const root = mkdtempSync(join(tmpdir(), "sup2-"));
-    mkdirSync(join(root, ".openclinxr/openclaw"), { recursive: true });
+    const { mkdtempSync: mkSpacedDir, writeFileSync: writeSpacedFile, mkdirSync: mkSpacedParents } = require("node:fs") as typeof import("node:fs");
+    const { tmpdir: spacedTmp } = require("node:os") as typeof import("node:os");
+    const { join: spacedJoin } = require("node:path") as typeof import("node:path");
+    const root = mkSpacedDir(spacedJoin(spacedTmp(), "sup2-"));
+    mkSpacedParents(spacedJoin(root, ".openclinxr/openclaw"), { recursive: true });
     const now = Date.parse("2026-08-24T12:00:00Z");
     const rows = [2, 1, 0].map((i) => JSON.stringify({
       at: new Date(now - i * (MIN_AUDIT_GAP_MS + 60_000)).toISOString(), keys: ["stuck"],
     })).join("\n");
-    writeFileSync(join(root, ".openclinxr/openclaw/supervisor-audit-history.jsonl"), `${rows}\n`);
+    writeSpacedFile(spacedJoin(root, ".openclinxr/openclaw/supervisor-audit-history.jsonl"), `${rows}\n`);
 
     const prior = priorFindingKeys(root, CHRONIC_AFTER, now);
     expect(prior.length).toBe(CHRONIC_AFTER);
-    const [f] = markChronic([{ duty: 1, key: "stuck", detail: "x" }], prior);
-    expect(f!.chronic, "spaced observations are what chronic means").toBe(true);
+    const [spacedFinding] = markChronic([{ duty: 1, key: "stuck", detail: "x" }], prior);
+    expect(spacedFinding!.chronic, "spaced observations are what chronic means").toBe(true);
   });
 
   it("(13) DUTY 3: a landed commit with NO contract-verify artifact is not fully verified", () => {
@@ -369,7 +371,7 @@ describe("the supervisor reports what is not self-correcting", () => {
     // exactly the guard this clause is for: a green artifact beside an unflipped RED is not
     // verification. The sha-anchored half is exercised against the live tree by clause (16).
     expect(r.status, "a green artifact beside an unflipped RED must not read as clean").not.toBe("none");
-    expect(r.files.some((f) => /planted\.test\.ts/u.test(f.file))).toBe(true);
+    expect(r.files.some((residue) => /planted\.test\.ts/u.test(residue.file))).toBe(true);
     rmSync(dir, { recursive: true, force: true });
   });
 
@@ -394,14 +396,14 @@ describe("the supervisor reports what is not self-correcting", () => {
     //
     // Tested on a synthetic artifact whose sha is real but whose proof file did not exist there, so
     // the at-sha count is unavailable and the current-tree count is all there is.
-    const { mkdtempSync, writeFileSync, mkdirSync, copyFileSync } = require("node:fs") as typeof import("node:fs");
-    const { tmpdir } = require("node:os") as typeof import("node:os");
-    const root = mkdtempSync(join(tmpdir(), "residue-later-"));
-    mkdirSync(join(root, ".openclinxr/openclaw"), { recursive: true });
-    mkdirSync(join(root, "tools/openclinxr/evidence"), { recursive: true });
-    writeFileSync(join(root, "tools/openclinxr/evidence/x.test.ts"), 'it.fails("planted later", () => {});\n');
+    const { mkdtempSync: mkLaterDir, writeFileSync: writeLaterFile, mkdirSync: mkLaterParents } = require("node:fs") as typeof import("node:fs");
+    const { tmpdir: laterTmp } = require("node:os") as typeof import("node:os");
+    const root = mkLaterDir(join(laterTmp(), "residue-later-"));
+    mkLaterParents(join(root, ".openclinxr/openclaw"), { recursive: true });
+    mkLaterParents(join(root, "tools/openclinxr/evidence"), { recursive: true });
+    writeLaterFile(join(root, "tools/openclinxr/evidence/x.test.ts"), 'it.fails("planted later", () => {});\n');
     const art = join(root, ".openclinxr/openclaw/contract-verify-issue-1-merge.json");
-    writeFileSync(art, JSON.stringify({
+    writeLaterFile(art, JSON.stringify({
       headSha: "0000000000000000000000000000000000000000",
       checks: [{ rule: "run:pnpm exec vitest run tools/openclinxr/evidence/x.test.ts", passed: true }],
     }));
@@ -425,12 +427,12 @@ describe("the supervisor reports what is not self-correcting", () => {
     // version filtered on `count > 0`, which silently turned -1 into "no residue" — a check
     // reporting clean about a file it never opened, which is the defect class this whole audit
     // exists to catch.
-    const { mkdtempSync, writeFileSync, mkdirSync } = require("node:fs") as typeof import("node:fs");
-    const { tmpdir } = require("node:os") as typeof import("node:os");
-    const root = mkdtempSync(join(tmpdir(), "residue-"));
-    mkdirSync(join(root, ".openclinxr/openclaw"), { recursive: true });
+    const { mkdtempSync: mkUnreadableDir, writeFileSync: writeUnreadableFile, mkdirSync: mkUnreadableParents } = require("node:fs") as typeof import("node:fs");
+    const { tmpdir: unreadableTmp } = require("node:os") as typeof import("node:os");
+    const root = mkUnreadableDir(join(unreadableTmp(), "residue-"));
+    mkUnreadableParents(join(root, ".openclinxr/openclaw"), { recursive: true });
     const art = join(root, ".openclinxr/openclaw/contract-verify-issue-1-merge.json");
-    writeFileSync(art, JSON.stringify({
+    writeUnreadableFile(art, JSON.stringify({
       headSha: "deadbeef",
       checks: [{ rule: "run:pnpm exec vitest run tools/does/not/exist.test.ts", passed: true }],
     }));

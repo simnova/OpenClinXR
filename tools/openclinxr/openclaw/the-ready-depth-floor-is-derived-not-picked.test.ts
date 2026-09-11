@@ -46,8 +46,10 @@ import {
   deriveReadyDepthTarget,
 } from "./supervisor-audit.js";
 import { readFileSync } from "node:fs";
+import { ensureGitignoredState } from "./fixtures/ensure-gitignored-state.js";
 
 describe("the ready-depth floor is derived, not picked", () => {
+  ensureGitignoredState(process.cwd());
   // (1) THE HOLE: the exported target must BE the derivation applied to the measured input,
   //     not a literal that happens to equal it.
   it("is the derivation applied to the measured concurrency", () => {
