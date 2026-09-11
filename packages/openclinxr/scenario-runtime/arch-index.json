@@ -4,36 +4,25 @@
   "entrypoint": "packages/openclinxr/scenario-runtime/src/index.ts",
   "purpose": "Public interface of @openclinxr/scenario-runtime.",
   "exports": [
-    "ActorTurnInProgress",
     "AssembledExamAdmittedPhaseEvent",
     "AssembledExamLedgerResumeProjection",
     "AssembledExamResumeDecision",
     "AssembledStationContext",
-    "AssembledStationFormWindow",
-    "BargeInResolution",
-    "ConversationPolicy",
     "DurableStorePersistenceHooks",
-    "GenerateRoutedActorResponseResult",
-    "HistoryTakingCoverageState",
     "ProviderHealthSnapshot",
     "PublicationTargetUse",
     "REQUIRED_STATE_OUTCOMES",
     "ReviewerEvidence",
     "RouteRuntimeActorInteractionInput",
-    "RuntimeSessionSummary",
-    "SaveFacultyScoreDraftInput",
     "ScenarioCatalogPort",
-    "ScenarioPublicationReadiness",
     "ScenarioRuntime",
     "ScenarioRuntimeActorTurn",
     "ScenarioRuntimeDurableStore",
-    "TurnTakingDecision",
     "assembledExamOrchestratorClaimBoundary",
     "buildInitialSceneSpec",
     "createDefaultScenarioRuntime",
     "createDurableStoreFromPersistenceHooks",
     "createScenarioRuntimeWithPersistenceHooks",
-    "freezeActorTurnPlan",
     "initialSceneSpecPermitsPromotion",
     "requiredStateOutcomePromotes",
     "resolveScenarioById",
@@ -74,7 +63,6 @@
     "lint": "pnpm --filter @openclinxr/scenario-runtime lint"
   },
   "ceilings": {
-    "testInternalImports": 17,
-    "rootEntrypointExports": 34
+    "testInternalImports": 17
   }
 }

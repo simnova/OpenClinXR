@@ -10,7 +10,7 @@ import {
 } from "@openclinxr/graphql/client";
 import { print } from "graphql";
 import { describe, expect, it, vi } from "vitest";
-import { type AdminApolloGraphqlClient, buildAdminGraphqlEndpoint, createAdminControlPlaneClient } from "./admin-api-client.js";
+import { buildAdminGraphqlEndpoint, createAdminControlPlaneClient } from "./index.js";
 
 describe("admin control-plane API client", () => {
   it("builds the Apollo endpoint from the same base URL as fetch-backed GraphQL requests", () => {
@@ -1919,10 +1919,10 @@ describe("admin control-plane API client", () => {
         }
         return { data: { createStationRunQueueSnapshot: queueSnapshot } };
       }),
-    } as unknown as AdminApolloGraphqlClient;
+    };
     const fetcher = vi.fn<typeof fetch>();
     const client = createAdminControlPlaneClient({
-      apolloClient,
+      apolloClient: apolloClient as never,
       baseUrl: "http://localhost:8787",
       fetch: fetcher,
     });

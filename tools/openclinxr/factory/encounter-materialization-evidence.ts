@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { findScenarioFixtureById } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
+import { findScenarioFixtureById } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 
 /**

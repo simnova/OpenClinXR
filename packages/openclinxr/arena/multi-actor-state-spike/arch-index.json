@@ -1,0 +1,32 @@
+{
+  "package": "arena/multi-actor-state-spike",
+  "name": "@openclinxr/multi-actor-state-spike",
+  "entrypoint": "packages/openclinxr/arena/multi-actor-state-spike/src/index.ts",
+  "purpose": "Public interface of @openclinxr/multi-actor-state-spike.",
+  "exports": [
+    "buildActorModelContext",
+    "createMultiActorClinicalSession",
+    "createPersistenceSpikeStores",
+    "evaluateMultiActorPersistencePhase2Strategy",
+    "evaluateMultiActorStateOptions",
+    "persistLatestInteractionTurn",
+    "recordClinicalAction",
+    "rehydrateRealtimeCacheFromDurableState",
+    "routeActorInteraction",
+    "updateActorSpatialState",
+    "writeRealtimeCacheSnapshot"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/scenario-fixtures",
+    "@openclinxr/shared-schemas"
+  ],
+  "tests": [
+    "src/multi-actor-state-spike.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/multi-actor-state-spike test",
+    "typecheck": "pnpm --filter @openclinxr/multi-actor-state-spike typecheck",
+    "build": "pnpm --filter @openclinxr/multi-actor-state-spike build",
+    "lint": "pnpm --filter @openclinxr/multi-actor-state-spike lint"
+  }
+}

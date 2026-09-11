@@ -1,6 +1,5 @@
-import type { Scenario } from "@openclinxr/shared-schemas";
-import type { DialogueFixtureSeed } from "./ed-chest-pain.js";
 import { actor, asset, draftScenario, event, rubric, satirProfile } from "./builders.js";
+import type { DialogueFixtureSeed } from "./ed-chest-pain-mod.js";
 
 export const strokeAlertScenario = draftScenario({
   scenarioId: "ed_stroke_alert_handoff_v1",

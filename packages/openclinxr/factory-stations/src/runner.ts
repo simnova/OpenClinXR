@@ -1,4 +1,4 @@
-import { factoryStationSchemas, type ProductionStationId, type StandardFailureResult, type StandardResult } from "./catalog.js";
+import { factoryStationSchemas, type ProductionStationId, type StandardFailureResult, type StandardResult } from "./catalog-mod.js";
 
 /** Dry-run record. No GPU, no Blender. */
 export type StationPlan = Record<string, unknown> & { mode: "dry-run"; stationId: ProductionStationId };

@@ -5,37 +5,23 @@
   "purpose": "Public interface of @openclinxr/factory-stations.",
   "exports": [
     "FactoryStationSchema",
-    "KNOWN_EQUIPMENT_SUBJECTS",
-    "LIGHTING_RIG_SCHEMA_VERSION",
-    "LightingRig",
-    "LipSyncCue",
     "PRODUCTION_STATION_IDS",
     "ProductionStationId",
     "ROOM_ALBEDO_REL",
     "ROOM_OCCLUSION_REL",
-    "RigLightType",
     "StandardIssue",
     "StandardResult",
     "StationJsonSchema",
     "StationPropertySchema",
     "applyStationPayloadToCompileSpec",
-    "bodyParamRunner",
-    "clothingConsumeRunner",
-    "clothingGenerateRunner",
-    "dialogueRuntimeRunner",
-    "equipmentGenerateRunner",
     "factoryStationSchemas",
     "findEquipmentSubject",
-    "lightingDesignRunner",
-    "lipSyncRunner",
-    "motionRetargetRunner",
     "planBodyParam",
     "planClothingConsume",
     "planEquipmentGenerate",
     "planMotionRetarget",
     "planRoomGenerate",
     "productionStationIds",
-    "roomGenerateRunner",
     "runBodyParam",
     "runClothingConsume",
     "runClothingGenerate",
@@ -45,8 +31,6 @@
     "runMotionRetarget",
     "runRoomGenerate",
     "runStaging",
-    "stagingRunner",
-    "stationRunners",
     "writeLipSyncFixtureWav"
   ],
   "workspaceDependencies": [],
@@ -72,7 +56,7 @@
     "lint": "pnpm --filter @openclinxr/factory-stations lint"
   },
   "ceilings": {
-    "testInternalImports": 19,
-    "rootEntrypointExports": 44
+    "testInternalImports": 18,
+    "rootEntrypointExports": 28
   }
 }

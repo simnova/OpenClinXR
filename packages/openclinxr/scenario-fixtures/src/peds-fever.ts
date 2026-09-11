@@ -1,5 +1,5 @@
 import type { Scenario } from "@openclinxr/shared-schemas";
-import type { DialogueFixtureSeed } from "./ed-chest-pain.js";
+import type { DialogueFixtureSeed } from "./ed-chest-pain-mod.js";
 import { responseClipForBodyRegion } from "./touch-response-clip.js";
 
 /**

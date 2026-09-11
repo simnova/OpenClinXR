@@ -5,7 +5,8 @@ import {
   validateScenario,
 } from "@openclinxr/shared-schemas";
 import { describe, expect, it } from "vitest";
-import { buildDynamicEncounterFactoryPlanningProjection, buildDynamicEncounterFactoryProjectionArtifact, buildScenarioBankExamSequenceProjection, createLearnerScenarioView, edChestPainScenario, edChestPainScenarioV2, edChestPainScenarioV3, evaluateScenarioBankMaturity, pediatricAsthmaDialogueSeeds, pediatricAsthmaScenario, scenarioBank, scenarioDialogueSeedBank, variantScenarioBank } from "./index.js";
+import { buildDynamicEncounterFactoryPlanningProjection, buildDynamicEncounterFactoryProjectionArtifact, buildScenarioBankExamSequenceProjection, createLearnerScenarioView, edChestPainScenario, edChestPainScenarioV2, edChestPainScenarioV3, evaluateScenarioBankMaturity, pediatricAsthmaScenario, scenarioBank, scenarioDialogueSeedBank, variantScenarioBank } from "./index.js";
+import { pediatricAsthmaDialogueSeeds } from "./pediatric-asthma.js";
 import { abdominalPainInterpreterScenario } from "./abdominal-pain-interpreter.js";
 import { obPreeclampsiaDialogueSeeds, obPreeclampsiaScenario } from "./ob-preeclampsia.js";
 import { oncologyBadNewsScenario } from "./oncology-bad-news.js";

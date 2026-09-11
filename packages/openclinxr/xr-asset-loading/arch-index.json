@@ -7,7 +7,6 @@
     "AssetLoadingContext",
     "AssetLoadingScenarioTheme",
     "HumanoidCueMode",
-    "HumanoidSourceProvenance",
     "addActorSpecificIdentityVariantCue",
     "addHumanoidSourceComparatorFaceReviewCues",
     "addReusableExteriorPreEncounterRoom",
@@ -60,6 +59,6 @@
       "AssetLoadingContext": 93
     },
     "testInternalImports": 3,
-    "rootEntrypointExports": 30
+    "rootEntrypointExports": 29
   }
 }

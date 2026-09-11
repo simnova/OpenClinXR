@@ -1,6 +1,6 @@
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { asset } from "./builders.js";
-import type { DialogueFixtureSeed } from "./ed-chest-pain.js";
+import type { DialogueFixtureSeed } from "./ed-chest-pain-mod.js";
 
 export const CLINIC_KNEE_PAIN_SCENARIO_ID = "clinic_knee_pain_return_to_play_v1";
 

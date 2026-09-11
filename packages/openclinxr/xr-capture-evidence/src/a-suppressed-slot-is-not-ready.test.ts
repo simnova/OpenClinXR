@@ -50,8 +50,8 @@ type Loose = any;
 // OUT-OF-SCOPE: Adding a scene-readiness phase, changing startup order, the placement chain.
 //
 
-// Import from the package entrypoint as required by the contract
-const modPromise = import("./index.js");
+// PSR-08: sceneAssetSlotIsReady is unpublished from the package root; implementation stays.
+const modPromise = import("./scene-asset-evidence.js");
 
 describe("A suppressed placeholder GLB cannot report itself ready", () => {
   it("(1) A genuine load (status: loaded, fallbackActive: false) satisfies the predicate", async () => {

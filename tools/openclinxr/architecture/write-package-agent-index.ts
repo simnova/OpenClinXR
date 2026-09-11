@@ -1,9 +1,9 @@
-import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  INDEX_FILENAME,
   buildPackageAgentIndex,
+  INDEX_FILENAME,
   indexedPackages,
   serializePackageAgentIndex,
 } from "../../../packages/openclinxr-verification/architecture-rules/src/checks/package-agent-index.ts";
@@ -34,6 +34,14 @@ const removed: string[] = [];
 const withoutPurpose: string[] = [];
 
 const indexed = new Set(indexedPackages(root));
+const arenaRoot = join(packagesRoot, "arena");
+if (existsSync(arenaRoot)) {
+  for (const entry of readdirSync(arenaRoot, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const nested = `arena/${entry.name}`;
+    if (existsSync(join(packagesRoot, nested, "src", "index.ts"))) indexed.add(nested);
+  }
+}
 for (const pkg of indexed) {
   const built = buildPackageAgentIndex(pkg, root);
   if (built === null) continue;

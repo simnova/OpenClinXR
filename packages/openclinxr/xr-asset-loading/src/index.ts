@@ -31,6 +31,10 @@ export {
   pedsAsthmaPatientBundleVisemeUtterance,
   suppressRuntimeDiagnosticOverlaysForSourceComparator,
 } from "./morph-helpers.js";
+export type {
+  AssetLoadingScenarioTheme,
+  HumanoidCueMode,
+} from "./role-visuals.js";
 export {
   addActorSpecificIdentityVariantCue,
   addReusableExteriorPreEncounterRoom,
@@ -43,12 +47,7 @@ export {
   shouldShowProceduralHumanoidDetailCues,
 } from "./role-visuals.js";
 export type {
-  AssetLoadingScenarioTheme,
-  HumanoidCueMode,
-} from "./role-visuals.js";
-export type {
   AssetLoadingContext,
-  HumanoidSourceProvenance,
 } from "./types.js";
 export {
   runtimeHumanoidVariantAssetPath,

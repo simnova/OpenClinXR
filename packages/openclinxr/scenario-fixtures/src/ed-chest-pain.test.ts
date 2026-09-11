@@ -1,6 +1,7 @@
 import { validateScenario } from "@openclinxr/shared-schemas";
 import { describe, expect, it } from "vitest";
-import { edChestPainDialogueSeeds, edChestPainScenario, responseClipForBodyRegion } from "./index.js";
+import { edChestPainDialogueSeeds, edChestPainScenario } from "./index.js";
+import { responseClipForBodyRegion } from "./scenario-bank.js";
 
 describe("ED chest pain fixture", () => {
   it("is approved, multi-actor, and schema-valid", () => {
@@ -69,10 +70,10 @@ describe("ED chest pain fixture", () => {
     // a single clip across regions is the collapse this assertion replaced.
     expect(new Set(responses.map((response) => response.responseClip)).size).toBe(responses.length);
     // RLQ maximal (lowest force threshold = most sensitive / rebound-style guarding).
-    const rlq = byRegion["abdomen_rlq"]!;
-    expect(rlq.forceThreshold).toBeLessThan(byRegion["abdomen_ruq"]!.forceThreshold);
-    expect(rlq.forceThreshold).toBeLessThan(byRegion["abdomen_luq"]!.forceThreshold);
-    expect(rlq.forceThreshold).toBeLessThan(byRegion["abdomen_llq"]!.forceThreshold);
+    const rlq = byRegion.abdomen_rlq!;
+    expect(rlq.forceThreshold).toBeLessThan(byRegion.abdomen_ruq!.forceThreshold);
+    expect(rlq.forceThreshold).toBeLessThan(byRegion.abdomen_luq!.forceThreshold);
+    expect(rlq.forceThreshold).toBeLessThan(byRegion.abdomen_llq!.forceThreshold);
     expect(rlq.emotion).toBe("pain");
     expect(rlq.traceTag).toBe("clinical_touch_guard_rlq");
     // Additive + optional: actors without bodyMechanics remain valid.

@@ -105,8 +105,9 @@ import type {
   SubmitScenarioSceneGenerationMaterializationInputReviewInput,
   SubmitScenarioSceneGenerationRequestReviewInput,
 } from "./admin-api-client-types.js";
-import { encounterBundlePromotionMethods } from "./compile-encounter-world.js";export * from "./admin-api-client-types.js";
-export { compileEncounterWorld } from "./compile-encounter-world.js"; 
+import { encounterBundlePromotionMethods } from "./compile-encounter-world-mod.js";
+export * from "./admin-api-client-types.js";
+export { compileEncounterWorld } from "./compile-encounter-world-mod.js";
 
 export const defaultAdminApiBaseUrl = import.meta.env["VITE_OPENCLINXR_API_BASE_URL"] ?? "";
 
@@ -501,7 +502,7 @@ async function get<TResponse>(
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    const errorCode = isRecord(errorBody) && typeof errorBody['error'] === "string" ? errorBody['error'] : "unknown_error";
+    const errorCode = readErrorCode(errorBody);
     throw new Error(`OpenClinXR admin API request failed: GET ${url} ${response.status} ${errorCode}`);
   }
 
@@ -524,7 +525,7 @@ async function post<TResponse = unknown>(
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    const errorCode = isRecord(errorBody) && typeof errorBody['error'] === "string" ? errorBody['error'] : "unknown_error";
+    const errorCode = readErrorCode(errorBody);
     throw new Error(`OpenClinXR admin API request failed: POST ${url} ${response.status} ${errorCode}`);
   }
 
@@ -548,7 +549,7 @@ async function graphql<TData>(
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    const errorCode = isRecord(errorBody) && typeof errorBody['error'] === "string" ? errorBody['error'] : "unknown_error";
+    const errorCode = readErrorCode(errorBody);
     throw new Error(`OpenClinXR admin API request failed: POST ${url} ${response.status} ${errorCode}`);
   }
 
@@ -580,6 +581,12 @@ function normalizeBaseUrl(baseUrl: string): string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readErrorCode(errorBody: unknown): string {
+  if (!isRecord(errorBody)) return "unknown_error";
+  const code: unknown = (errorBody as { error?: unknown }).error;
+  return typeof code === "string" ? code : "unknown_error";
 }
 
 function requireStringField(value: unknown, fieldName: string, context: string): string {

@@ -1,5 +1,5 @@
 import { mkdir, stat, writeFile } from "node:fs/promises";
-import path from "node:path";
+import nodePath from "node:path";
 import type {
   EncounterDynamicBehaviorCoverageSummary,
   EncounterFactoryDryRunSummary,
@@ -12,16 +12,14 @@ import {
   buildEncounterFactorySummaryContracts,
   ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS,
 } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
+import type { EncounterHumanoidRealismRequirements } from "../../../packages/openclinxr/capability-gateway/src/index.js";
+import { buildEncounterAssetGenerationPublicationTargets } from "../../../packages/openclinxr/capability-gateway/src/index.js";
 import type {
+  EncounterAssetGenerationPublicationTargets,
   EncounterGenerationWorkOrder,
-  EncounterHumanoidRealismRequirements,
   EncounterWorkerMaterializationPlan,
-} from "../../../packages/openclinxr/capability-gateway/src/index.js";
-import {
-  buildEncounterAssetGenerationPublicationTargets,
-  buildEncounterWorkerMaterializationPlan,
-  type EncounterAssetGenerationPublicationTargets,
-} from "../../../packages/openclinxr/capability-gateway/src/index.js";
+} from "../../../packages/openclinxr/capability-gateway/src/asset-generation-jobs.js";
+import { buildEncounterWorkerMaterializationPlan } from "../../../packages/openclinxr/capability-gateway/src/asset-generation-jobs.js";
 import type { DynamicEncounterFactoryProjectionArtifact } from "../../../packages/openclinxr/shared-schemas/src/index.js";
 import { validateDynamicEncounterFactoryProjectionArtifact } from "../../../packages/openclinxr/shared-schemas/src/index.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
@@ -414,17 +412,17 @@ export async function buildEncounterPublicationPayloadReport(input: {
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const targets = buildEncounterAssetGenerationPublicationTargets(input.queueReport.request);
   const artifactRoot = input.artifactRoot ?? ".openclinxr/encounter-publication";
-  const localPrefix = path.join(
+  const localPrefix = nodePath.join(
     artifactRoot,
     input.queueReport.request.tenantId,
     input.queueReport.request.scenarioId,
     input.queueReport.request.encounterId,
   );
-  const sceneManifestPath = path.join(localPrefix, "scene-manifest.v1.json");
-  const learnerRuntimeBundlePath = path.join(localPrefix, "learner-runtime-bundle.v1.json");
-  const publicPrefix = path.join(input.uiXrPublicAssetRoot ?? "apps/ui-xr/public/xr-assets/generated", input.queueReport.request.scenarioId);
-  const uiXrPublicSceneManifestPath = path.join(publicPrefix, "scene-manifest.v1.json");
-  const uiXrPublicLearnerRuntimeBundlePath = path.join(publicPrefix, "learner-runtime-bundle.v1.json");
+  const sceneManifestPath = nodePath.join(localPrefix, "scene-manifest.v1.json");
+  const learnerRuntimeBundlePath = nodePath.join(localPrefix, "learner-runtime-bundle.v1.json");
+  const publicPrefix = nodePath.join(input.uiXrPublicAssetRoot ?? "apps/ui-xr/public/xr-assets/generated", input.queueReport.request.scenarioId);
+  const uiXrPublicSceneManifestPath = nodePath.join(publicPrefix, "scene-manifest.v1.json");
+  const uiXrPublicLearnerRuntimeBundlePath = nodePath.join(publicPrefix, "learner-runtime-bundle.v1.json");
   const humanoidRealismRequirements = input.queueReport.humanoidRealismRequirements ?? deriveHumanoidRealismRequirementsFromBundle(input.bundleReport);
   const encounterAssetNeedsReadinessManifest = input.queueReport.encounterAssetNeedsReadinessManifest;
   const manifestBlockers = collectEncounterAssetNeedsReadinessBlockers(encounterAssetNeedsReadinessManifest);

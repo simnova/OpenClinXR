@@ -1,14 +1,13 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import {
-  type AgentLoopPlan,
   type AgentMemoryEntry,
   createAgentDispatchPackets,
   createAgentLoopPlan,
-  type LegacyScorecard,
   normalizeLegacyScorecard,
   serializeAgentLoopPlan,
 } from "../../packages/openclinxr/agent-loop/src/index.js";
+import type { AgentLoopPlan, LegacyScorecard } from "../../packages/openclinxr/agent-loop/src/types.js";
 import { iterationScorecardPaths, readJson } from "./lib.js";
 
 type MemoryIndexFile = {

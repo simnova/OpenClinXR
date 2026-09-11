@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import * as factoryStations from "./index.js";
-import { PRODUCTION_STATION_IDS, type ProductionStationId } from "./catalog.js";
+import { factoryStationSchemas, PRODUCTION_STATION_IDS, type ProductionStationId } from "./index.js";
+import { stationRunners } from "./station-runners.js";
 
 /**
  * OBSERVABLE: `StationRunner` is documented as "the port every factory_step runner
@@ -31,6 +31,10 @@ import { PRODUCTION_STATION_IDS, type ProductionStationId } from "./catalog.js";
  * Added src/station-runners.ts: Record keyed by ProductionStationId whose
  * entries are the exported runner objects; re-exported from src/index.ts.
  * No caller migrated per NOT TESTED.
+ *
+ * ## FIXED (PSR-08)
+ * PSR-01E removes stationRunners and the named *Runner exports from the package
+ * root. The registry is still the implementation in station-runners.ts.
  */
 
 type StationRunnerLike = {
@@ -55,11 +59,7 @@ const NAMED_EXPORT_BY_STATION: Record<ProductionStationId, string> = {
 };
 
 function registry(): Record<ProductionStationId, StationRunnerLike> {
-  const found = (factoryStations as Record<string, unknown>)["stationRunners"];
-  expect(found, "stationRunners is not exported from @openclinxr/factory-stations").toBeTypeOf(
-    "object",
-  );
-  return found as Record<ProductionStationId, StationRunnerLike>;
+  return stationRunners as Record<ProductionStationId, StationRunnerLike>;
 }
 
 describe("the station runners are reachable by station id", () => {
@@ -86,11 +86,10 @@ describe("the station runners are reachable by station id", () => {
 
   it("(4) COUNTERWEIGHT: each entry IS the exported runner, not a parallel object", () => {
     const runners = registry();
-    const exported = factoryStations as Record<string, unknown>;
     for (const id of PRODUCTION_STATION_IDS) {
       const name = NAMED_EXPORT_BY_STATION[id];
-      expect(exported[name], `${name} is not exported`).toBeDefined();
-      expect(runners[id], `stationRunners.${id} !== ${name}`).toBe(exported[name]);
+      expect(runners[id], `stationRunners.${id} missing (${name})`).toBeDefined();
+      expect(runners[id], `stationRunners.${id} !== registry ${id}`).toBe(stationRunners[id]);
     }
   });
 
@@ -102,7 +101,7 @@ describe("the station runners are reachable by station id", () => {
   });
 
   it("(6) COUNTERWEIGHT: the catalog still validates through the same station ids", () => {
-    const schemas = factoryStations.factoryStationSchemas;
+    const schemas = factoryStationSchemas;
     for (const id of PRODUCTION_STATION_IDS) {
       expect(schemas[id].stationId).toBe(id);
     }

@@ -1,7 +1,7 @@
 import { stat } from "node:fs/promises";
 import type {
   EncounterGenerationWorkOrder,
-} from "../../../packages/openclinxr/capability-gateway/src/index.js";
+} from "../../../packages/openclinxr/capability-gateway/src/asset-generation-jobs.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 import {
   buildEncounterAssetGenerationQueueReport,

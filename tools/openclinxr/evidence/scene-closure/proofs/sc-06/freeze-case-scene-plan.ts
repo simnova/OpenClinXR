@@ -9,7 +9,7 @@ import {
   type FreezeScenePlanInput,
   freezeAcceptedScenePlan,
 } from "../../../../../../packages/openclinxr/asset-registry/src/scene-plan-freeze.js";
-import { acceptedScenePlanProblems } from "../../../../../../packages/openclinxr/session-state/src/accepted-scene-plan.js";
+import { acceptedScenePlanProblems } from "../../../../../../packages/openclinxr/session-state/src/accepted-scene-plan-mod.js";
 import { observeMountedApproachGeometry } from "../../../../../../packages/openclinxr/xr-humanoid-animation/src/mounted-approach-geometry.js";
 import { buildStationEnvironment } from "../../../../../../packages/openclinxr/xr-station/src/index.js";
 import {

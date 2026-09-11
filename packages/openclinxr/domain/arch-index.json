@@ -4,24 +4,18 @@
   "entrypoint": "packages/openclinxr/domain/src/index.ts",
   "purpose": "Public interface of @openclinxr/domain.",
   "exports": [
-    "AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX",
-    "AUTHORED_CONTENT_IDENTITY_OMITTED_NESTED_KEYS",
-    "AUTHORED_CONTENT_IDENTITY_OMITTED_ROOT_KEYS",
     "CompletedHumanReview",
     "SCENARIO_BANK_AUTONOMOUS_APPROVAL_ERROR",
     "SCENARIO_BANK_PARTIAL_APPROVAL_ERROR",
     "SCENARIO_BANK_STALE_APPROVAL_ERROR",
     "ScenarioBankRevision",
     "ScheduledEvent",
-    "StationPhase",
     "StationRun",
     "approveScenarioBankVersion",
     "assemblyVisibleRevisions",
     "authoredContentIdentity",
     "authoredContentIdentityEvidenceRef",
     "authoredContentIdentityFromEvidenceRefs",
-    "buildScenarioGovernanceCopy",
-    "canonicalizeAuthoredValue",
     "createScenarioBankDraft",
     "createStationRun",
     "evaluateRequiredTraceTags",
@@ -29,11 +23,8 @@
     "forkDraftFromImmutableVersion",
     "getScheduledEventsDue",
     "markScenarioBankReviewReady",
-    "safeUserFacingClaimLanguage",
-    "scoreUseCopy",
     "transitionStation",
-    "updateScenarioBankDraft",
-    "validationStageCopy"
+    "updateScenarioBankDraft"
   ],
   "workspaceDependencies": [
     "@openclinxr/shared-schemas"
@@ -51,7 +42,6 @@
     "lint": "pnpm --filter @openclinxr/domain lint"
   },
   "ceilings": {
-    "testInternalImports": 4,
-    "rootEntrypointExports": 30
+    "testInternalImports": 4
   }
 }

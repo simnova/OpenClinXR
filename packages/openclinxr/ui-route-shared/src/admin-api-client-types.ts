@@ -1351,4 +1351,4 @@ export type {
   AuthoredDialogueSeedDraft,
   DialogueSeedPublicationGate,
   FrozenActorTurnPlanPreview,
-} from "./dialogue-seed-types.js";
+} from "./dialogue-seed-types-mod.js";

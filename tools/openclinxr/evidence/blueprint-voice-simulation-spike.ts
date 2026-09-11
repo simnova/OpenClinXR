@@ -6,9 +6,9 @@ import { createDefaultModelGateway, MockModelProviderAdapter } from "../../../pa
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 import {
   createDefaultScenarioRuntime,
-  type GenerateRoutedActorResponseResult,
   type ScenarioRuntime,
 } from "../../../packages/openclinxr/scenario-runtime/src/index.js";
+import type { GenerateRoutedActorResponseResult } from "../../../packages/openclinxr/scenario-runtime/src/runtime-types.js";
 import type { InteractionRoutingReason } from "../../../packages/openclinxr/session-state/src/index.js";
 import type { Scenario, TraceEvent } from "../../../packages/openclinxr/shared-schemas/src/index.js";
 import {
@@ -21,9 +21,9 @@ import {
   collectVoiceStream,
   createDefaultVoiceGateway,
   MockVoiceProviderAdapter,
-  type TranscriptEvent,
   type VoiceGateway,
 } from "../../../packages/openclinxr/voice-gateway/src/index.js";
+import type { TranscriptEvent } from "../../../packages/openclinxr/voice-gateway/src/types.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 
 type CliOptions = {
