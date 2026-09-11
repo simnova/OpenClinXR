@@ -191,8 +191,7 @@ describe("package index injection", () => {
   });
 
   it("bounds a large export list rather than pasting the file", () => {
-    // rest publishes over 30 symbols. Pasted whole it would
-    // push the ask out of the worker's first read.
+    // rest publishes 94 root symbols (measured 2026-09-11); pasted whole it would push the ask out of the worker's first read.
     const result = briefFromIssue(
       issue(
         "## factory_step: staging\nEdit packages/openclinxr/rest/src/index.ts.\n\n"
