@@ -4,13 +4,13 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 146,
+    "keep-evidence": 147,
     "ignore-local-cache": 2112,
     "keep-current": 141,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2443,
-    "total": 2443
+    "entries": 2444,
+    "total": 2444
   },
   "entries": [
     {
@@ -16462,6 +16462,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Template/license/provenance/source artifact; never prune as generated clutter."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-basecolorfactor-audit-2026-09-10.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "HB-00 audit: per-material baseColorFactor table for all 19 shipped humanoid GLBs; named test asserts against it and live bytes."
     },
     {
       "path": "docs/openclinxr/humanoid-collision-probe-2026-05-23.json",
