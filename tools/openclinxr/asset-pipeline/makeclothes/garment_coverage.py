@@ -511,6 +511,65 @@ def _region_signed_clearance_samples(
     return clearance, fidx, face_verts, sample_normals
 
 
+def render_hole_columns(
+    body_verts,
+    body_faces,
+    region_fidx: np.ndarray,
+    garment_verts,
+    garment_faces,
+    *,
+    height_axis: int = 1,
+    depth_axis: int = 2,
+    max_t: float = 0.5,
+) -> np.ndarray:
+    """HB-07 — viewer-ray render holes behind hidden body faces.
+
+    A discarded (alpha-0 hide-mask) body face renders as the capture background
+    wherever the viewer ray through its centroid meets NO garment surface in
+    front and the first non-hidden surface behind it is bare SKIN rather than
+    cloth (measured 2026-09-11 on mpfb-peds-patient-child: 323 clean
+    hidden-first skin-behind columns, 186 collar + 137 sleeve, gaps 8-92 mm at
+    p50 75 mm — the round-7 refinement un-hides these because its behind test
+    casts against the OUTER-facing garment subset only, and an open collar/hem
+    ring has no outer-facing cloth behind its own discarded ring).
+
+    Returns a boolean per region face: True = the centroid column is a render
+    hole (hidden-first, visible-behind is skin, no garment surface behind the
+    skin within max_t). Columns whose visible-behind is the garment itself, or
+    that have garment behind the skin, are NOT holes — un-hiding those is the
+    round-7 sawtooth fix and must keep working.
+    """
+    v = _as_np(body_verts)
+    f = np.asarray(body_faces, dtype=np.int64)
+    gv = _as_np(garment_verts)
+    gf = np.asarray(garment_faces, dtype=np.int64)
+    fidx = np.asarray(region_fidx, dtype=np.int64)
+    if len(fidx) == 0:
+        return np.zeros(0, dtype=bool)
+    gw, gfw = weld_by_position(gv, gf)
+    garment_tris = gw[gfw]
+    body_tris = v[f]
+    cents = body_tris[fidx].mean(axis=1)
+    n = len(fidx)
+    view = np.zeros(3)
+    view[depth_axis] = -1.0
+    back = np.zeros(3)
+    back[depth_axis] = 1.0
+    hole = np.zeros(n, dtype=bool)
+    for block in range(0, n, 256):
+        bl = cents[block : block + 256]
+        nb = len(bl)
+        origins = bl + view * 1e-4
+        dirs = np.tile(view, (nb, 1))
+        front = _ray_tri_hits(origins, dirs, garment_tris, max_t)
+        covered = np.isfinite(front)
+        back_origins = bl + back * 1e-4
+        back_dirs = np.tile(back, (nb, 1))
+        behind = _ray_tri_hits(back_origins, back_dirs, garment_tris, max_t)
+        hole[block : block + nb] = ~covered & ~np.isfinite(behind)
+    return hole
+
+
 def body_hide_mask(
     body_verts,
     body_faces,
