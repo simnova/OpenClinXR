@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Progress log — OpenClinXR</title>
+    <meta name="description" content="Dated, two-hourly progress entries for the package public-surface reduction program and the open factory board, with the evidence each claim rests on." />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="band band--evidence">
+        <div class="section-heading">
+          <p class="eyebrow">Progress log &middot; updated every two hours while the run is live</p>
+          <h2>What the factory board moved, and the evidence for each line.</h2>
+        </div>
+        <p class="status-copy">
+          One orchestrator coordinates low-cost parallel workers (Meta Muse Spark contributor model through the Grok CLI,
+          NVIDIA Nemotron Ultra as the free fallback) against cards on the project board. Each entry below is written
+          at a two-hour mark and names what landed, what is running, and what was refused, with the commit or card that
+          proves it. Newest first. The repository ledger (<code>PROJECT_STATUS.md</code>) remains the source of truth.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production claim is made
+          here. Architecture and asset-audit work is measured by repository tests, not by learners.
+        </p>
+      </section>
+
+      <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+
+      <section class="band" id="entry-2026-09-11T0015">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 1 &middot; 2026-09-11 00:15 EDT</p>
+          <h2>Program started: three workers dispatched, and the board's two stuck slots diagnosed.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Workers running at this mark.</caption>
+            <thead><tr><th scope="col">Card</th><th scope="col">What it produces</th><th scope="col">Model</th><th scope="col">State</th></tr></thead>
+            <tbody>
+              <tr><td>PSR-00 v2</td><td>A compiler-derived verifier for every package's supported exports, plus the two root proof commands the rest of the program depends on</td><td>muse-spark-1</td><td>running</td></tr>
+              <tr><td>HB-00</td><td>An audit of every humanoid material's colour multiplier across all 19 shipped bodies, before anything is baked</td><td>muse-spark-1</td><td>running</td></tr>
+              <tr><td>HB-01</td><td>A per-body audit of which mesh is lowest, as a regression guard for the "figure floats above the floor" defect</td><td>muse-spark-1</td><td>running</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Package public-surface reduction</h3>
+            <ul>
+              <li>A peer review found three blocking defects in the first ten cards: the proof commands did not exist, every implementation card passed on an empty change, and four cards could not reach the consumers they had to migrate.</li>
+              <li>The plan's author rebuilt the program as fourteen v2 cards that fix all three: the verifier checks each package against an approved inventory, the inventory review is split into five groups, and write roots now include the consumers.</li>
+              <li>Baseline being reduced: 2,533 root-exported symbols across 46 package roots, 550 names exposed by more than one entrypoint.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Humanoid materials</h3>
+            <ul>
+              <li>Measured from the GLB bytes: 11 of 19 shipped bodies carry a textured garment whose colour multiplier is not neutral, in 4 distinct values.</li>
+              <li>The desaturated green <code>[0.34, 0.44, 0.34]</code> that tints the street figure's shirt is on 5 bodies. HB-00 must trace each value to the line that sets it before any texture bake is allowed to freeze it in.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Board health</h3>
+            <ul>
+              <li>Both of the board's in-flight slots have been held since 2026-09-04 by two cards whose workers finished but never landed. Both were rebased onto current main and re-verified; each card's own tests pass.</li>
+              <li>Neither can land yet: architecture rules added since then refuse them (7 new failures on one, an export ceiling on the other). Both are held for the package-inventory step rather than landed by raising a ceiling. Main was not changed.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <p class="status-copy"><a href="index.html">Back to the main page</a></p>
+    </main>
+  </body>
+</html>
