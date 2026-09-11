@@ -1,22 +1,22 @@
 {
-  "hash": "7f994e47ff0b2e1a93935bf41f6d45f422e572bac4bc2f61d61f9afbf5a7a7a4",
+  "hash": "c5327ea6903928e8c1a487833ad94abc09c413aff800b1d497d7a998f53bf0a0",
   "revision": "working-tree",
   "totals": {
     "roots": 46,
     "entrypoints": 137,
-    "rootSymbols": 2223,
-    "occurrences": 3246,
-    "uniqueSymbols": 2681,
-    "duplicateNames": 547
+    "rootSymbols": 2041,
+    "occurrences": 2869,
+    "uniqueSymbols": 2439,
+    "duplicateNames": 415
   },
-  "inventoryHash": "65a1bfdf6815600ed7165b42d247588348d69287ee99dc1b3d3f6575ebc5b73b",
+  "inventoryHash": "f4258102da9b83bd92e0f46f1d11d206dde4ad52cc298c31addc63f3c70ea7f3",
   "manifestHashes": {
     "packages/openclinxr/agent-loop": "0ba04221f54e09103767d06a098a929fcf525b0d0c791c8c9965b2c146a2d7ef",
     "packages/openclinxr/arena/iwsdk-spike": "f4c84df8a98303933c7acf29509aa8a7eb08631f4946ab91830e147356c14c9d",
     "packages/openclinxr/arena/model-vetting": "d6ec85e8147f459069e42f8831ddf149cc6e7ead61f7a92152d421146af59c07",
     "packages/openclinxr/arena/multi-actor-state-spike": "b997c168690bd169f8729b1840119186d295009078497756eeae1b51c898d4f3",
     "packages/openclinxr/arena/physics-touch-contract": "642bfd30c909ee15c7861fb786a42d368ca1875e9aa98f97592c69cf40729a1e",
-    "packages/openclinxr/asset-registry": "cf94c0bb72028a015b284642669305dc3b25eec28a82843e8c8236f74a201a63",
+    "packages/openclinxr/asset-registry": "737e37d9f86fa5c47562f90a977a6bff165a7904831c651bfb7e498d3e4d350b",
     "packages/openclinxr/auth": "309f70a3295c47d144f5cb9c08989855db83ce086235aeed29e15840868a6b10",
     "packages/openclinxr/capability-gateway": "5cb73a260434d16140368c9ff7bfe5a2f2816438eb1c9a4c53f77df32a8b9b57",
     "packages/openclinxr/config-rolldown": "9b47dcf6702c954e96f282f3b417aa64e35bbc3b6dcad1ff864c325c0cace5fc",
@@ -69,9 +69,9 @@
       "computed": 49
     },
     "@openclinxr/asset-registry": {
-      "static": 137,
-      "computed": 94,
-      "dynamic": 5
+      "static": 167,
+      "computed": 117,
+      "dynamic": 10
     },
     "@openclinxr/review-workflow": {
       "static": 28,
@@ -144,7 +144,7 @@
       "re-export": 1
     },
     "@openclinxr/ui-shared": {
-      "static": 28,
+      "static": 29,
       "computed": 17,
       "dynamic": 1,
       "re-export": 1
@@ -170,7 +170,7 @@
       "computed": 14
     },
     "@openclinxr/xr-dialogue": {
-      "static": 17,
+      "static": 16,
       "computed": 9,
       "re-export": 1,
       "dynamic": 1
@@ -341,14 +341,14 @@
     },
     {
       "packageDir": "packages/openclinxr/asset-registry",
-      "rootSymbols": 240,
-      "occurrences": 538,
-      "uniqueSymbols": 395,
-      "duplicateNames": 140,
+      "rootSymbols": 58,
+      "occurrences": 161,
+      "uniqueSymbols": 153,
+      "duplicateNames": 8,
       "entrypoints": [
         {
           "specifier": ".",
-          "wildcardDeclarations": 8,
+          "wildcardDeclarations": 0,
           "typeWildcardDeclarations": 0
         },
         {
