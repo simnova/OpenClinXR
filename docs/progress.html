@@ -28,6 +28,39 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-11T1245">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 8 &middot; 2026-09-11 12:45 EDT</p>
+          <h2>Every export-removal group has landed: the packages now publish 1,243 root names, down from 2,533.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Landed</h3>
+            <ul>
+              <li><strong>PSR-06</strong> (<code>404bff14</code>): 543 exports removed from the admin route package; its root went from 277 names to 12.</li>
+              <li><strong>PSR-07</strong> (<code>cb8a4df7</code>): 115 exports removed from the core XR packages without changing learner behaviour.</li>
+              <li><strong>PSR-08</strong> (<code>7a1c4212</code>): 679 exports removed across the remaining 26 packages; every review group is now resolved.</li>
+              <li>Program total, PSR-02 to PSR-08: 2,006 exports removed and 98 moved to existing subpaths. The shrink ratchet records 1,243 root names (<code>adb3a004</code>), 51% fewer than at the start; adding one back fails the gate.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Found while landing</h3>
+            <ul>
+              <li>The final acceptance check cannot pass on a finished program: it only compares the tree with the inventory taken before any removal, so it reports the 2,104 approved removals and moves as errors, and it checks none of the plan's closing criteria. A new card (PSR-00B) rebuilds it against the approvals, the size targets and reviewed exceptions. The closing run, PSR-09, waits for it.</li>
+              <li>The result misses one of the plan's size targets: 1,243 root names against an aim of 1,000. The plan allows that only with a checked-in exception that someone other than its author reviews; that review is still to do.</li>
+              <li>Review errors kept surfacing at land: names the approval moved and also removed, and consumers the scanner could not see because they import by file path. Each was fixed in the approval with the consumer named, rather than by re-publishing names quietly.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Running now</h3>
+            <ul>
+              <li><strong>PSR-00B</strong>: the acceptance verifier that closes the program.</li>
+              <li>Queued: HB-06, tracing the child humanoid's neckline and sleeve-hem defects to exact texture pixels.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-11T1030">
         <div class="section-heading">
           <p class="eyebrow">Entry 7 &middot; 2026-09-11 10:30 EDT</p>
