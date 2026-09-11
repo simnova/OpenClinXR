@@ -17,6 +17,7 @@
   ],
   "workspaceDependencies": [],
   "tests": [
+    "src/branch-decision/branch-decision.test.ts",
     "src/telemetry.test.ts"
   ],
   "commands": {

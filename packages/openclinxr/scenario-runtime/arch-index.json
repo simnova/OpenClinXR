@@ -48,6 +48,7 @@
     "src/api-canonical-phase-session.test.ts",
     "src/assembled-exam-orchestrator.test.ts",
     "src/assembled-station-clock.test.ts",
+    "src/branch-scheduler/branch-scheduler.test.ts",
     "src/deterministic-dialogue-runtime.test.ts",
     "src/exam-run-bridge.test.ts",
     "src/scenario-runtime.test.ts",

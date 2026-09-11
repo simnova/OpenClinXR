@@ -43,6 +43,7 @@
   "tests": [
     "src/assembled-actor-turn-replay.test.ts",
     "src/assembled-exam-review-packet.test.ts",
+    "src/branch-replay/branch-replay.test.ts",
     "src/faculty-review-path.test.ts",
     "src/faculty-score-decision-draft.test.ts",
     "src/review-packet-distinguishes-plan-from-execution.test.ts",
