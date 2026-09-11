@@ -30,16 +30,12 @@ export {
   updateScenarioBankDraft,
 } from "./scenario-bank-lifecycle.js";
 export type {
-  EncounterRoleAssignment,
-  EncounterRoleKind,
   ScheduledEvent,
   StationRun,
 } from "./station-state.js";
 export {
   createStationRun,
-  encounterRoleForActorId,
   evaluateRequiredTraceTags,
-  getEncounterRolesDue,
   getScheduledEventsDue,
   transitionStation,
 } from "./station-state.js";

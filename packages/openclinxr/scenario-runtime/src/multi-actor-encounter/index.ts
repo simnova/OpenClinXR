@@ -1,7 +1,7 @@
-import { getEncounterRolesDue, type EncounterRoleAssignment } from "@openclinxr/domain";
 import type { ScheduledEvent } from "@openclinxr/domain";
 import type { Scenario, TraceEvent } from "@openclinxr/shared-schemas";
-import { durableEventRef } from "./trace.js";
+import { durableEventRef } from "../trace.js";
+import { getEncounterRolesDue, type EncounterRoleKind } from "./roles.js";
 
 /**
  * Case-defined three-role ensemble clock. The case, not a hard-coded roster, owns turn
@@ -25,14 +25,14 @@ export type MultiActorEnsembleInput = {
 
 export type MultiActorEnsembleTurn = {
   ownerActorId: string;
-  ownerRole: EncounterRoleAssignment["role"];
+  ownerRole: EncounterRoleKind;
   gazeTargetActorId: string | null;
   trace: Omit<TraceEvent, "occurredAt"> & { occurredAt: string };
   turnOwnerEvent: ScheduledEvent | null;
 };
 
 export type MultiActorEnsembleTracePayload = {
-  ownerRole: EncounterRoleAssignment["role"];
+  ownerRole: EncounterRoleKind;
   gazeTargetActorId: string | null;
   dueRoleCount: number;
   encounterClockAtSecond: number;

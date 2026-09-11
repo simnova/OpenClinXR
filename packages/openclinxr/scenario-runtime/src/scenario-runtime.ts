@@ -45,7 +45,7 @@ import {
 } from "./provider-support.js";
 import { ACTOR_TURN_EXECUTED_EVENT_TYPE, executionFromFrozenPlan } from "./actor-turn-plan.js";
 import { generateActorResponseFromContext } from "./actor-turn-generation.js";
-import { advanceMultiActorEnsemble as advanceTick, type MultiActorEnsembleTurn } from "./multi-actor-encounter.js";
+import { advanceMultiActorEnsemble as advanceTick, type MultiActorEnsembleTurn } from "./multi-actor-encounter/index.js";
 import {
   assertObservedFormTime,
   durableEventRef,

@@ -101,53 +101,6 @@ export function transitionStation(run: StationRun, command: StationCommand): Sta
   };
 }
 
-export type EncounterRoleKind = "patient" | "parent" | "nurse";
-
-export type EncounterRoleAssignment = {
-  eventId: string;
-  atSecond: number;
-  actorId: string;
-  tag: string;
-  role: EncounterRoleKind;
-};
-
-/**
- * Case-defined role for one scheduled encounter event.
- * Unknown casts default to patient, the primary-actor default this file already uses.
- */
-export function encounterRoleForActorId(
-  actorId: string,
-  scenario: { actors?: ReadonlyArray<{ actorId: string; role?: string }> },
-): EncounterRoleKind {
-  const cast = scenario.actors ?? [];
-  const actor = cast.find((entry) => entry.actorId === actorId);
-  if (!actor || actor.role === "patient") {
-    return "patient";
-  }
-  if (actor.role === "nurse") {
-    return "nurse";
-  }
-  return "parent";
-}
-
-/** Scheduled events due at `atSecond`, annotated with their case-defined role and role order. */
-export function getEncounterRolesDue(
-  scenario: { eventSchedule: ScheduledEvent[]; actors?: ReadonlyArray<{ actorId: string; role?: string }> },
-  atSecond: number,
-  emittedEventIds: ReadonlySet<string>,
-): EncounterRoleAssignment[] {
-  const due = getScheduledEventsDue(scenario, atSecond, emittedEventIds);
-  const precedence: Record<EncounterRoleKind, number> = { patient: 0, parent: 1, nurse: 2 };
-  return due
-    .map((event) => ({ ...event, role: encounterRoleForActorId(event.actorId, scenario) }))
-    .sort(
-      (left, right) =>
-        left.atSecond - right.atSecond
-        || precedence[left.role] - precedence[right.role]
-        || left.eventId.localeCompare(right.eventId),
-    );
-}
-
 export function getScheduledEventsDue(
   scenario: { eventSchedule: ScheduledEvent[] },
   atSecond: number,
