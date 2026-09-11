@@ -35,5 +35,5 @@ export {
   pluralizeWorkbenchCount,
   uniqueWorkbenchValues,
 } from "./admin-workbench-format-mod.js";
-export { EmissionReplayBindPanel, type EmissionReplayBindPanelProps } from "./emission-replay-bind-panel-mod.js";
+export { EmissionReplayBindPanel, type EmissionReplayBindPanelProps } from "./emission-replay-bind-panel.js";
 export { FacultyDispositionPanel, type FacultyDispositionPanelProps } from "./faculty-disposition-panel-mod.js";
