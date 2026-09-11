@@ -165,6 +165,12 @@ export const assembledExamFacultyAssessmentNotEvidenceFor = [
 
 export type AssembledExamFacultyAssessmentStatus = "draft" | "final";
 
+export type AssembledExamFacultyObservationRating =
+  | "not_observed"
+  | "not_met"
+  | "partially_met"
+  | "met";
+
 /** Packet-pointer for one criterion observation. Must resolve against the stored packet. */
 export type ApiFacultyAssessmentEvidenceCite = {
   packetField: string;
@@ -180,13 +186,20 @@ export type ApiFacultyCriterionObservation = {
   observationId: string;
   rubricItemId: string;
   stationRunId: string;
+  rating: AssembledExamFacultyObservationRating;
   comment: string;
   evidenceCites: readonly ApiFacultyAssessmentEvidenceCite[];
 };
 
+export type ApiFacultyAssessmentTransition = {
+  raterId: string;
+  at: string;
+  status: AssembledExamFacultyAssessmentStatus | "sealed";
+};
+
 /**
  * Faculty assessment packet on the disposition aggregate. Drafts may be replaced
- * in place; a final record is sealed and never rewritten.
+ * in place; a final cannot be edited; seal is a separate step.
  */
 export type ApiFacultyAssessmentRecord = {
   assessmentId: string;
@@ -200,6 +213,8 @@ export type ApiFacultyAssessmentRecord = {
   updatedAt: string;
   finalizedAt: string | null;
   sealedAt: string | null;
+  sealedAssessmentId: string | null;
+  transitions: readonly ApiFacultyAssessmentTransition[];
   claimBoundary: typeof assembledExamFacultyAssessmentClaimBoundary;
   notEvidenceFor: typeof assembledExamFacultyAssessmentNotEvidenceFor;
   scoringValidityClaimed: false;

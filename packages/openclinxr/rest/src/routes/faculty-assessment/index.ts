@@ -3,30 +3,38 @@ import type { AssembledExamReviewPacket } from "@openclinxr/review-workflow";
 import type { Hono } from "hono";
 import type { ApiAppContext } from "../../api-app-context.js";
 import type { ApiAppVariables } from "../../api-types.js";
+import type {
+  ApiFacultyAssessmentEvidenceCite,
+  ApiFacultyAssessmentRecord,
+  ApiFacultyAssessmentTransition,
+} from "../../runtime-durable-store.js";
 import {
-  type ApiAssembledExamDispositionRecord,
-  type ApiFacultyAssessmentEvidenceCite,
-  type ApiFacultyAssessmentRecord,
-  type ApiRuntimeDurableStore,
-  assembledExamDispositionClaimBoundary,
-  assembledExamDispositionNotEvidenceFor,
   assembledExamFacultyAssessmentClaimBoundary,
   assembledExamFacultyAssessmentNotEvidenceFor,
   assembledExamPacketDigest,
   createScenarioRuntimeDurableStoreFromApiPersistence,
 } from "../../runtime-durable-store.js";
-import { type FacultyObservationInput, groundObservations } from "./grounding.js";
+import {
+  type FacultyObservationInput,
+  type GroundingFailure,
+  groundObservations,
+  isFacultyObservationRating,
+} from "./grounding.js";
+import { sealedAssessmentIdFor } from "./seal.js";
+import {
+  FacultyAssessmentSaveError,
+  conflict,
+  forbiddenBody,
+  loadDisposition,
+  loadPacket,
+  nextDisposition,
+  overwriteAttempt,
+  persistDisposition,
+  toReadModel,
+} from "./store.js";
 
 const FACULTY_ASSESSMENT_PATH = "/exam-runs/:examRunId/faculty-assessment";
-
-class FacultyAssessmentSaveError extends Error {
-  readonly code = "durable_save_failed" as const;
-
-  constructor(cause?: unknown) {
-    super(cause instanceof Error ? cause.message : "durable_save_failed");
-    this.name = "FacultyAssessmentSaveError";
-  }
-}
+const FACULTY_ASSESSMENT_SEAL_PATH = "/exam-runs/:examRunId/faculty-assessment/seal";
 
 export function registerFacultyAssessmentRoutes(
   app: Hono<{ Variables: ApiAppVariables }>,
@@ -53,6 +61,73 @@ export function registerFacultyAssessmentRoutes(
       return context.json({ error: "faculty_assessment_not_found" }, 404);
     }
     return context.json(toReadModel(packet, stored));
+  });
+
+  app.post(FACULTY_ASSESSMENT_SEAL_PATH, async (context) => {
+    if (!hasFacultyAccess(context.get("identity"))) {
+      return context.json(forbiddenBody("faculty_role_required"), 403);
+    }
+    const examRunId = context.req.param("examRunId")?.trim() ?? "";
+    if (examRunId.length === 0) {
+      return context.json({ error: "invalid_exam_run", reason: "examRunId_required" }, 400);
+    }
+    const body = (await context.req.json().catch(() => ({}))) as Record<string, unknown>;
+    if (overwriteAttempt(body) || sealCarriesWriteCommand(body)) {
+      return conflict(context, "overwrite_refused", "seal_is_a_separate_command");
+    }
+    const packet = await loadPacket(durable, assembledExamReviewPackets, examRunId);
+    if (!packet) {
+      return context.json({ error: "assembled_exam_review_packet_not_found" }, 404);
+    }
+    const command = parseSealCommand(body, examRunId);
+    if ("error" in command) {
+      return context.json(command, 400);
+    }
+    const digest = assembledExamPacketDigest(packet);
+    if (command.packetDigest !== digest) {
+      return conflict(context, "stale_packet_digest", "packet_digest_mismatch");
+    }
+    const stored = await loadDisposition(durable, assembledExamDispositions, examRunId);
+    const trail = [...(stored?.facultyAssessments ?? [])];
+    const current = trail[trail.length - 1];
+    if (!current) {
+      return context.json({ error: "faculty_assessment_not_found" }, 404);
+    }
+    if (stored && stored.packetDigest !== digest) {
+      return conflict(context, "stale_packet_digest", "stored_packet_digest_mismatch");
+    }
+    const identity = context.get("identity");
+    const raterId = command.raterId ?? current.raterId;
+    if (identity.role === "faculty" && identity.subject.trim() !== raterId) {
+      return conflict(context, "identity_mutation", "rater_mismatch");
+    }
+    if (current.raterId !== raterId) {
+      return conflict(context, "identity_mutation", "rater_mismatch");
+    }
+    if (current.sealedAssessmentId && current.sealedAt) {
+      return context.json(toReadModel(packet, stored), 200);
+    }
+    if (current.status !== "final") {
+      return conflict(context, "not_final", "assessment_not_final");
+    }
+    const sealedAt = command.attestedAt;
+    const sealed: ApiFacultyAssessmentRecord = {
+      ...current,
+      updatedAt: sealedAt,
+      sealedAt,
+      sealedAssessmentId: sealedAssessmentIdFor(digest, current),
+      transitions: [
+        ...current.transitions,
+        { raterId, at: sealedAt, status: "sealed" },
+      ],
+    };
+    const record = nextDisposition(packet, digest, stored, [...trail.slice(0, -1), sealed]);
+    try {
+      await persistDisposition(durable, assembledExamDispositions, record);
+      return context.json(toReadModel(packet, record), 200);
+    } catch (error) {
+      return saveFailure(context, error);
+    }
   });
 
   app.post(FACULTY_ASSESSMENT_PATH, async (context) => {
@@ -97,35 +172,22 @@ export function registerFacultyAssessmentRoutes(
       return conflict(context, "identity_mutation", "rater_mismatch");
     }
     const current = trail[trail.length - 1];
-    if (current?.status === "final") {
-      return conflict(context, "finalized", "assessment_already_sealed");
+    if (current?.sealedAt || current?.sealedAssessmentId) {
+      return conflict(context, "sealed", "assessment_already_sealed");
     }
-    if (command.assessmentId && trail.some((item) => item.assessmentId === command.assessmentId && item.status === "final")) {
-      return conflict(context, "overwrite_refused", "assessment_id_already_sealed");
+    if (current?.status === "final") {
+      return conflict(context, "finalized", "assessment_already_final");
     }
     const grounded = groundObservations(packet, command.observations);
     if ("error" in grounded) {
-      const status = grounded.error === "invalid_body" ? 400 : 409;
-      return context.json({
-        error: grounded.error,
-        reason: grounded.reason,
-        notEvidenceFor: [...assembledExamFacultyAssessmentNotEvidenceFor],
-      }, status);
+      return groundingResponse(context, grounded);
     }
     if (command.status === "final") {
       if (grounded.length === 0) {
-        return context.json({
-          error: "completeness_incomplete",
-          reason: "observations_required",
-          notEvidenceFor: [...assembledExamFacultyAssessmentNotEvidenceFor],
-        }, 409);
+        return conflict(context, "completeness_incomplete", "observations_required");
       }
       if (command.narrativeFeedback.length === 0) {
-        return context.json({
-          error: "completeness_incomplete",
-          reason: "narrative_feedback_required",
-          notEvidenceFor: [...assembledExamFacultyAssessmentNotEvidenceFor],
-        }, 409);
+        return conflict(context, "completeness_incomplete", "narrative_feedback_required");
       }
     }
     const now = command.attestedAt;
@@ -133,6 +195,7 @@ export function registerFacultyAssessmentRoutes(
       ?? current?.assessmentId
       ?? `faculty_assessment:${examRunId}:1`;
     const createdAt = current?.createdAt ?? now;
+    const transitions = nextTransitions(current?.transitions, command.raterId, now, command.status, createdAt);
     const assessment: ApiFacultyAssessmentRecord = {
       assessmentId,
       examRunId,
@@ -144,41 +207,21 @@ export function registerFacultyAssessmentRoutes(
       createdAt,
       updatedAt: now,
       finalizedAt: command.status === "final" ? now : null,
-      sealedAt: command.status === "final" ? now : null,
+      sealedAt: null,
+      sealedAssessmentId: null,
+      transitions,
       claimBoundary: assembledExamFacultyAssessmentClaimBoundary,
       notEvidenceFor: assembledExamFacultyAssessmentNotEvidenceFor,
       scoringValidityClaimed: false,
       examEquivalenceGate: false,
     };
-    const nextTrail = current
-      ? [...trail.slice(0, -1), assessment]
-      : [...trail, assessment];
-    const record: ApiAssembledExamDispositionRecord = {
-      examRunId,
-      packetDigest: digest,
-      evidencePacket: stored?.evidencePacket ?? packet,
-      decisions: stored?.decisions ?? [],
-      claimBoundary: assembledExamDispositionClaimBoundary,
-      notEvidenceFor: assembledExamDispositionNotEvidenceFor,
-      scoringValidityClaimed: false,
-      examEquivalenceGate: false,
-      ...(stored?.feedbackReleases && stored.feedbackReleases.length > 0
-        ? { feedbackReleases: stored.feedbackReleases }
-        : {}),
-      facultyAssessments: nextTrail,
-    };
+    const nextTrail = current ? [...trail.slice(0, -1), assessment] : [...trail, assessment];
+    const record = nextDisposition(packet, digest, stored, nextTrail);
     try {
       await persistDisposition(durable, assembledExamDispositions, record);
       return context.json(toReadModel(packet, record), current ? 200 : 201);
     } catch (error) {
-      if (error instanceof FacultyAssessmentSaveError) {
-        return context.json({
-          error: "durable_save_failed",
-          reason: error.message,
-          notEvidenceFor: [...assembledExamFacultyAssessmentNotEvidenceFor],
-        }, 500);
-      }
-      throw error;
+      return saveFailure(context, error);
     }
   });
 }
@@ -221,8 +264,8 @@ function parseCommand(
     return { error: "invalid_body", reason: "examRunId_mismatch" };
   }
   const observations = parseObservations(body["observations"]);
-  if (!observations) {
-    return { error: "invalid_body", reason: "observations_required" };
+  if ("error" in observations) {
+    return observations;
   }
   const assessmentId = typeof body["assessmentId"] === "string" ? body["assessmentId"].trim() : "";
   return {
@@ -231,38 +274,73 @@ function parseCommand(
     status,
     narrativeFeedback,
     attestedAt,
-    observations,
+    observations: observations.ok,
     ...(assessmentId.length > 0 ? { assessmentId } : {}),
   };
 }
 
-function parseObservations(value: unknown): FacultyObservationInput[] | undefined {
+function parseSealCommand(
+  body: Record<string, unknown>,
+  examRunId: string,
+): { packetDigest: string; attestedAt: string; raterId?: string } | { error: string; reason: string } {
+  const packetDigest = typeof body["packetDigest"] === "string" ? body["packetDigest"].trim() : "";
+  if (packetDigest.length === 0) {
+    return { error: "invalid_body", reason: "packetDigest_required" };
+  }
+  const attestedAt = typeof body["attestedAt"] === "string" ? body["attestedAt"].trim() : "";
+  if (attestedAt.length === 0 || Number.isNaN(Date.parse(attestedAt))) {
+    return { error: "invalid_body", reason: "attestedAt_required" };
+  }
+  const bodyExamRunId = typeof body["examRunId"] === "string" ? body["examRunId"].trim() : "";
+  if (bodyExamRunId.length > 0 && bodyExamRunId !== examRunId) {
+    return { error: "invalid_body", reason: "examRunId_mismatch" };
+  }
+  const raterId = typeof body["raterId"] === "string" ? body["raterId"].trim() : "";
+  return {
+    packetDigest,
+    attestedAt,
+    ...(raterId.length > 0 ? { raterId } : {}),
+  };
+}
+
+function parseObservations(
+  value: unknown,
+): { ok: FacultyObservationInput[] } | { error: "invalid_body"; reason: string } {
   if (!Array.isArray(value) || value.length === 0) {
-    return undefined;
+    return { error: "invalid_body", reason: "observations_required" };
   }
   const parsed: FacultyObservationInput[] = [];
   for (const item of value) {
     if (!item || typeof item !== "object") {
-      return undefined;
+      return { error: "invalid_body", reason: "observations_required" };
     }
     const record = item as Record<string, unknown>;
+    if (!isFacultyObservationRating(record["rating"])) {
+      return {
+        error: "invalid_body",
+        reason: typeof record["rating"] === "string" && record["rating"].length > 0
+          ? "rating_invalid"
+          : "rating_required",
+      };
+    }
     const rubricItemId = typeof record["rubricItemId"] === "string" ? record["rubricItemId"] : "";
     const stationRunId = typeof record["stationRunId"] === "string" ? record["stationRunId"] : "";
     const comment = typeof record["comment"] === "string" ? record["comment"] : "";
     const cites = parseCites(record["evidenceCites"]);
     if (!cites) {
-      return undefined;
+      return { error: "invalid_body", reason: "observations_required" };
     }
     const observationId = typeof record["observationId"] === "string" ? record["observationId"].trim() : "";
     parsed.push({
       rubricItemId,
       stationRunId,
+      rating: record["rating"],
       comment,
       evidenceCites: cites,
       ...(observationId.length > 0 ? { observationId } : {}),
     });
   }
-  return parsed;
+  return { ok: parsed };
 }
 
 function parseCites(value: unknown): ApiFacultyAssessmentEvidenceCite[] | undefined {
@@ -296,11 +374,28 @@ function parseCites(value: unknown): ApiFacultyAssessmentEvidenceCite[] | undefi
   return cites;
 }
 
-function overwriteAttempt(body: Record<string, unknown>): boolean {
-  return "evidencePacket" in body
-    || "decisions" in body
-    || "feedbackReleases" in body
-    || "facultyAssessments" in body;
+function sealCarriesWriteCommand(body: Record<string, unknown>): boolean {
+  return "observations" in body
+    || "status" in body
+    || "narrativeFeedback" in body
+    || "assessmentId" in body;
+}
+
+function nextTransitions(
+  existing: readonly ApiFacultyAssessmentTransition[] | undefined,
+  raterId: string,
+  at: string,
+  status: "draft" | "final",
+  createdAt: string,
+): ApiFacultyAssessmentTransition[] {
+  if (!existing || existing.length === 0) {
+    const draft: ApiFacultyAssessmentTransition = { raterId, at: createdAt, status: "draft" };
+    return status === "final" ? [draft, { raterId, at, status: "final" }] : [draft];
+  }
+  if (status === "final") {
+    return [...existing, { raterId, at, status: "final" }];
+  }
+  return [...existing];
 }
 
 function producerSelfReview(
@@ -327,71 +422,43 @@ function producerSelfReview(
   return undefined;
 }
 
-function toReadModel(
-  packet: AssembledExamReviewPacket,
-  stored: ApiAssembledExamDispositionRecord | undefined,
-): Record<string, unknown> {
-  const assessments = stored?.facultyAssessments ?? [];
-  const current = assessments[assessments.length - 1] ?? null;
-  return {
-    examRunId: packet.examRunId,
-    packetDigest: stored?.packetDigest ?? assembledExamPacketDigest(packet),
-    current,
-    assessments,
-    claimBoundary: assembledExamFacultyAssessmentClaimBoundary,
-    notEvidenceFor: [...assembledExamFacultyAssessmentNotEvidenceFor],
-    scoringValidityClaimed: false,
-    examEquivalenceGate: false,
-  };
-}
-
-function forbiddenBody(reason: string) {
-  return {
-    error: "forbidden",
-    reason,
-    notEvidenceFor: [...assembledExamFacultyAssessmentNotEvidenceFor],
-  };
-}
-
-function conflict(
-  context: { json: (body: Record<string, unknown>, status: 409) => Response },
-  error: string,
-  reason: string,
+function groundingResponse(
+  context: { json: (body: Record<string, unknown>, status: 400 | 409 | 422) => Response },
+  grounded: GroundingFailure,
 ): Response {
-  return context.json({
-    error,
-    reason,
-    notEvidenceFor: [...assembledExamFacultyAssessmentNotEvidenceFor],
-  }, 409);
-}
-
-async function persistDisposition(
-  durable: ApiRuntimeDurableStore,
-  memory: Map<string, ApiAssembledExamDispositionRecord>,
-  record: ApiAssembledExamDispositionRecord,
-): Promise<void> {
-  try {
-    await durable.saveAssembledExamDisposition(record.examRunId, record);
-  } catch (error) {
-    throw new FacultyAssessmentSaveError(error);
+  if (grounded.error === "invalid_body") {
+    return context.json({
+      error: grounded.error,
+      reason: grounded.reason,
+      notEvidenceFor: [...assembledExamFacultyAssessmentNotEvidenceFor],
+    }, 400);
   }
-  memory.set(record.examRunId, record);
+  if (grounded.error === "observation_missing_evidence") {
+    return context.json({
+      error: grounded.error,
+      reason: grounded.reason,
+      notEvidenceFor: [...assembledExamFacultyAssessmentNotEvidenceFor],
+    }, 409);
+  }
+  return context.json({
+    error: grounded.error,
+    reason: grounded.reason,
+    ...(grounded.rubricId ? { rubricId: grounded.rubricId } : {}),
+    ...(grounded.evidenceId ? { evidenceId: grounded.evidenceId } : {}),
+    notEvidenceFor: [...assembledExamFacultyAssessmentNotEvidenceFor],
+  }, 422);
 }
 
-async function loadDisposition(
-  durable: ApiRuntimeDurableStore,
-  memory: Map<string, ApiAssembledExamDispositionRecord>,
-  examRunId: string,
-): Promise<ApiAssembledExamDispositionRecord | undefined> {
-  const fromSink = await durable.getAssembledExamDisposition(examRunId);
-  return fromSink ?? memory.get(examRunId);
-}
-
-async function loadPacket(
-  durable: ApiRuntimeDurableStore,
-  memory: Map<string, AssembledExamReviewPacket>,
-  examRunId: string,
-): Promise<AssembledExamReviewPacket | undefined> {
-  const fromSink = await durable.getAssembledExamReviewPacket(examRunId);
-  return fromSink ?? memory.get(examRunId);
+function saveFailure(
+  context: { json: (body: Record<string, unknown>, status: 500) => Response },
+  error: unknown,
+): Response {
+  if (error instanceof FacultyAssessmentSaveError) {
+    return context.json({
+      error: "durable_save_failed",
+      reason: error.message,
+      notEvidenceFor: [...assembledExamFacultyAssessmentNotEvidenceFor],
+    }, 500);
+  }
+  throw error;
 }

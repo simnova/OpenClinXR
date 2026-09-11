@@ -19,6 +19,12 @@
  * scenario-bank rubric item and packet evidence; final adds rater identity
  * and timestamps and seals the assessment immutably on the disposition
  * aggregate.
+ *
+ * ## FIXED (#1)
+ * Each observation carries a closed-set rating (not_observed / not_met /
+ * partially_met / met). Ungrounded rubricId or evidence id is 422 and names
+ * the offender; 409 stays for state conflicts. Finalize and seal are separate
+ * POSTs; seal returns a content+digest sha256 id and is idempotent.
  */
 
 import { createHash } from "node:crypto";
@@ -47,8 +53,11 @@ const ED_STATION_RUN_ID = "run_ed_001";
 const PEDS_STATION_RUN_ID = "run_peds_001";
 const PACKET_PATH = `/exam-runs/${EXAM_RUN_ID}/assembled-review-packet`;
 const ASSESSMENT_PATH = `/exam-runs/${EXAM_RUN_ID}/faculty-assessment`;
+const SEAL_PATH = `${ASSESSMENT_PATH}/seal`;
+const UNKNOWN_EXAM_PATH = "/exam-runs/exam_run_does_not_exist/faculty-assessment";
 const DRAFT_AT = "2026-09-11T15:00:00.000Z";
 const FINAL_AT = "2026-09-11T16:00:00.000Z";
+const SEAL_AT = "2026-09-11T17:00:00.000Z";
 const RATER_ID = "faculty_disposition_001";
 const LEARNER_ID = "learner_phase_001";
 const NARRATIVE = "Local formative documentation observation only.";
@@ -246,6 +255,7 @@ function documentationObservation(packet: AssembledExamReviewPacket, overrides: 
   return {
     rubricItemId: "documentation",
     stationRunId: ED_STATION_RUN_ID,
+    rating: "met",
     comment: "Patient note submitted; documentation criterion observed.",
     evidenceCites: [documentationCite(packet)],
     ...overrides,
@@ -302,6 +312,7 @@ describe("faculty assessment is rubric-grounded and seals immutably", () => {
     expect(observations[0]).toMatchObject({
       rubricItemId: "documentation",
       stationRunId: ED_STATION_RUN_ID,
+      rating: "met",
     });
     const cites = observations[0]?.["evidenceCites"] as Array<Record<string, unknown>>;
     expect(cites[0]).toMatchObject({
@@ -309,6 +320,13 @@ describe("faculty assessment is rubric-grounded and seals immutably", () => {
       stationRunId: ED_STATION_RUN_ID,
     });
     expect(JSON.stringify(draftBody)).not.toContain("Local debrief note.");
+
+    const sealDraft = await composed.app.request(SEAL_PATH, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ packetDigest: packetDigest(packet), attestedAt: SEAL_AT, raterId: RATER_ID }),
+    });
+    expect(sealDraft.status).toBe(409);
 
     const finalized = await composed.app.request(ASSESSMENT_PATH, {
       method: "POST",
@@ -322,22 +340,51 @@ describe("faculty assessment is rubric-grounded and seals immutably", () => {
     });
     expect(finalized.status).toBe(200);
     const finalBody = await json(finalized);
-    const sealed = finalBody["current"] as Record<string, unknown>;
-    expect(sealed["assessmentId"]).toBe(currentDraft["assessmentId"]);
-    expect(sealed["status"]).toBe("final");
-    expect(sealed["raterId"]).toBe(RATER_ID);
-    expect(sealed["createdAt"]).toBe(DRAFT_AT);
-    expect(sealed["updatedAt"]).toBe(FINAL_AT);
-    expect(sealed["finalizedAt"]).toBe(FINAL_AT);
-    expect(sealed["sealedAt"]).toBe(FINAL_AT);
-    expect(sealed["narrativeFeedback"]).toBe(NARRATIVE);
-    expect(sealed["packetDigest"]).toBe(packetDigest(packet));
+    const currentFinal = finalBody["current"] as Record<string, unknown>;
+    expect(currentFinal["assessmentId"]).toBe(currentDraft["assessmentId"]);
+    expect(currentFinal["status"]).toBe("final");
+    expect(currentFinal["raterId"]).toBe(RATER_ID);
+    expect(currentFinal["createdAt"]).toBe(DRAFT_AT);
+    expect(currentFinal["updatedAt"]).toBe(FINAL_AT);
+    expect(currentFinal["finalizedAt"]).toBe(FINAL_AT);
+    expect(currentFinal["sealedAt"]).toBeNull();
+    expect(currentFinal["sealedAssessmentId"]).toBeNull();
+    expect(currentFinal["narrativeFeedback"]).toBe(NARRATIVE);
+    expect(currentFinal["packetDigest"]).toBe(packetDigest(packet));
+    const transitions = currentFinal["transitions"] as Array<Record<string, unknown>>;
+    expect(transitions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ status: "final", raterId: RATER_ID, at: FINAL_AT }),
+    ]));
+
+    const sealedResponse = await composed.app.request(SEAL_PATH, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ packetDigest: packetDigest(packet), attestedAt: SEAL_AT, raterId: RATER_ID }),
+    });
+    expect(sealedResponse.status).toBe(200);
+    const sealed = (await json(sealedResponse))["current"] as Record<string, unknown>;
+    expect(typeof sealed["sealedAssessmentId"]).toBe("string");
+    expect(String(sealed["sealedAssessmentId"]).length).toBe(64);
+    expect(sealed["sealedAt"]).toBe(SEAL_AT);
+    expect(sealed["claimBoundary"]).toBe("assembled_exam_faculty_assessment_not_score_use");
+    expect(sealed["notEvidenceFor"]).toEqual(expect.arrayContaining(["scoring_validity", "exam_equivalence"]));
+    expect(sealed["scoringValidityClaimed"]).toBe(false);
+
+    const sealedAgain = await composed.app.request(SEAL_PATH, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ packetDigest: packetDigest(packet), attestedAt: SEAL_AT, raterId: RATER_ID }),
+    });
+    expect(sealedAgain.status).toBe(200);
+    expect(((await json(sealedAgain))["current"] as Record<string, unknown>)["sealedAssessmentId"])
+      .toBe(sealed["sealedAssessmentId"]);
 
     const fetched = await composed.app.request(ASSESSMENT_PATH);
     expect(fetched.status).toBe(200);
     const fetchedBody = await json(fetched);
     expect(fetchedBody["current"]).toEqual(sealed);
     expect(sinkDispositions.at(-1)?.facultyAssessments?.[0]?.status).toBe("final");
+    expect(sinkDispositions.at(-1)?.facultyAssessments?.[0]?.sealedAssessmentId).toBe(sealed["sealedAssessmentId"]);
   });
 
   it("refuses ungrounded rubric items, missing evidence, and cites absent from the packet", async () => {
@@ -351,8 +398,11 @@ describe("faculty assessment is rubric-grounded and seals immutably", () => {
         observations: [documentationObservation(packet, { rubricItemId: "not_a_rubric_item" })],
       }),
     });
-    expect(unknownRubric.status).toBe(409);
-    expect(await json(unknownRubric)).toMatchObject({ error: "rubric_ungrounded" });
+    expect(unknownRubric.status).toBe(422);
+    expect(await json(unknownRubric)).toMatchObject({
+      error: "rubric_ungrounded",
+      rubricId: "not_a_rubric_item",
+    });
 
     const missingEvidence = await composed.app.request(ASSESSMENT_PATH, {
       method: "POST",
@@ -378,8 +428,35 @@ describe("faculty assessment is rubric-grounded and seals immutably", () => {
         })],
       }),
     });
-    expect(absentCite.status).toBe(409);
-    expect(await json(absentCite)).toMatchObject({ error: "evidence_not_in_packet" });
+    expect(absentCite.status).toBe(422);
+    expect(await json(absentCite)).toMatchObject({
+      error: "evidence_not_in_packet",
+      evidenceId: "999",
+    });
+
+    const missing = await composed.app.request(ASSESSMENT_PATH);
+    expect(missing.status).toBe(404);
+
+    const invalidRating = await composed.app.request(ASSESSMENT_PATH, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: assessmentBody(packet, {
+        observations: [documentationObservation(packet, { rating: "excellent" })],
+      }),
+    });
+    expect(invalidRating.status).toBe(400);
+    expect(await json(invalidRating)).toMatchObject({ error: "invalid_body", reason: "rating_invalid" });
+
+    const notObserved = await composed.app.request(ASSESSMENT_PATH, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: assessmentBody(packet, {
+        observations: [documentationObservation(packet, { rating: "not_observed" })],
+      }),
+    });
+    expect(notObserved.status).toBe(201);
+    expect((((await json(notObserved))["current"] as Record<string, unknown>)["observations"] as Array<Record<string, unknown>>)[0]?.["rating"])
+      .toBe("not_observed");
   });
 
   it("refuses mutation after seal and learner writes", async () => {
@@ -403,9 +480,30 @@ describe("faculty assessment is rubric-grounded and seals immutably", () => {
       }),
     });
     expect(finalized.status).toBe(200);
-    const sealed = (await json(finalized))["current"] as Record<string, unknown>;
+    const currentFinal = (await json(finalized))["current"] as Record<string, unknown>;
 
-    const mutated = await composed.app.request(ASSESSMENT_PATH, {
+    const mutatedFinal = await composed.app.request(ASSESSMENT_PATH, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: assessmentBody(packet, {
+        status: "draft",
+        assessmentId,
+        observations: [documentationObservation(packet, { comment: "try to rewrite final packet" })],
+      }),
+    });
+    expect(mutatedFinal.status).toBe(409);
+    expect(await json(mutatedFinal)).toMatchObject({ error: "finalized" });
+
+    const sealedResponse = await composed.app.request(SEAL_PATH, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ packetDigest: packetDigest(packet), attestedAt: SEAL_AT, raterId: RATER_ID }),
+    });
+    expect(sealedResponse.status).toBe(200);
+    const sealed = (await json(sealedResponse))["current"] as Record<string, unknown>;
+    expect(sealed["assessmentId"]).toBe(currentFinal["assessmentId"]);
+
+    const mutatedSealed = await composed.app.request(ASSESSMENT_PATH, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: assessmentBody(packet, {
@@ -414,22 +512,37 @@ describe("faculty assessment is rubric-grounded and seals immutably", () => {
         observations: [documentationObservation(packet, { comment: "try to rewrite sealed packet" })],
       }),
     });
-    expect(mutated.status).toBe(409);
-    expect(await json(mutated)).toMatchObject({ error: "finalized" });
+    expect(mutatedSealed.status).toBe(409);
+    expect(await json(mutatedSealed)).toMatchObject({ error: "sealed" });
 
     const replay = await composed.app.request(ASSESSMENT_PATH);
     expect(replay.status).toBe(200);
     expect((await json(replay))["current"]).toEqual(sealed);
 
-    const learner = await composed.app.request(ASSESSMENT_PATH, {
+    const learnerHeaders = authHeader({ subject: LEARNER_ID, role: "learner", learnerId: LEARNER_ID });
+    const learnerWrite = await composed.app.request(ASSESSMENT_PATH, {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        ...authHeader({ subject: LEARNER_ID, role: "learner", learnerId: LEARNER_ID }),
-      },
+      headers: { "content-type": "application/json", ...learnerHeaders },
       body: assessmentBody(packet),
     });
-    expect(learner.status).toBe(403);
+    expect(learnerWrite.status).toBe(403);
+    const learnerRead = await composed.app.request(ASSESSMENT_PATH, { headers: learnerHeaders });
+    expect(learnerRead.status).toBe(403);
+    const learnerSeal = await composed.app.request(SEAL_PATH, {
+      method: "POST",
+      headers: { "content-type": "application/json", ...learnerHeaders },
+      body: JSON.stringify({ packetDigest: packetDigest(packet), attestedAt: SEAL_AT }),
+    });
+    expect(learnerSeal.status).toBe(403);
+
+    const unknownGet = await composed.app.request(UNKNOWN_EXAM_PATH);
+    expect(unknownGet.status).toBe(404);
+    const unknownPost = await composed.app.request(UNKNOWN_EXAM_PATH, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: assessmentBody(packet),
+    });
+    expect(unknownPost.status).toBe(404);
 
     const stale = await compose();
     const stalePacket = await persistPacket(stale);

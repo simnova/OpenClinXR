@@ -3,12 +3,21 @@ import { scenarioBank } from "@openclinxr/scenario-fixtures";
 import type {
   ApiFacultyAssessmentEvidenceCite,
   ApiFacultyCriterionObservation,
+  AssembledExamFacultyObservationRating,
 } from "../../runtime-durable-store.js";
+
+export const FACULTY_OBSERVATION_RATINGS = [
+  "not_observed",
+  "not_met",
+  "partially_met",
+  "met",
+] as const satisfies readonly AssembledExamFacultyObservationRating[];
 
 export type FacultyObservationInput = {
   observationId?: string;
   rubricItemId: string;
   stationRunId: string;
+  rating: AssembledExamFacultyObservationRating;
   comment: string;
   evidenceCites: readonly ApiFacultyAssessmentEvidenceCite[];
 };
@@ -16,7 +25,16 @@ export type FacultyObservationInput = {
 export type GroundingFailure = {
   error: "rubric_ungrounded" | "observation_missing_evidence" | "evidence_not_in_packet" | "invalid_body";
   reason: string;
+  rubricId?: string;
+  evidenceId?: string;
 };
+
+export function isFacultyObservationRating(
+  value: unknown,
+): value is AssembledExamFacultyObservationRating {
+  return typeof value === "string"
+    && (FACULTY_OBSERVATION_RATINGS as readonly string[]).includes(value);
+}
 
 type RubricItem = {
   rubricId: string;
@@ -62,15 +80,15 @@ function groundOne(
   }
   const stationIndex = packet.stations.findIndex((slice) => slice.identity.stationRunId === stationRunId);
   if (stationIndex < 0) {
-    return { error: "evidence_not_in_packet", reason: "station_not_in_packet" };
+    return { error: "evidence_not_in_packet", reason: "station_not_in_packet", evidenceId: stationRunId };
   }
   const station = packet.stations[stationIndex];
   if (!station) {
-    return { error: "evidence_not_in_packet", reason: "station_not_in_packet" };
+    return { error: "evidence_not_in_packet", reason: "station_not_in_packet", evidenceId: stationRunId };
   }
   const rubric = rubricItemFor(station.identity.scenarioId, rubricItemId);
   if (!rubric) {
-    return { error: "rubric_ungrounded", reason: "unknown_rubric_item" };
+    return { error: "rubric_ungrounded", reason: "unknown_rubric_item", rubricId: rubricItemId };
   }
   if (input.evidenceCites.length === 0) {
     return { error: "observation_missing_evidence", reason: "evidence_cite_required" };
@@ -88,7 +106,11 @@ function groundOne(
     }
   }
   if (!rubricLinked) {
-    return { error: "rubric_ungrounded", reason: "evidence_does_not_cite_rubric_item" };
+    return {
+      error: "rubric_ungrounded",
+      reason: "evidence_does_not_cite_rubric_item",
+      rubricId: rubric.rubricId,
+    };
   }
   const observationId = typeof input.observationId === "string" ? input.observationId.trim() : "";
   return {
@@ -97,6 +119,7 @@ function groundOne(
       : `faculty_observation:${packet.examRunId}:${index + 1}`,
     rubricItemId: rubric.rubricId,
     stationRunId,
+    rating: input.rating,
     comment,
     evidenceCites: cites,
   };
@@ -120,10 +143,18 @@ function resolveCite(
   const stationRunId = cite.stationRunId.trim();
   const packetField = cite.packetField.trim();
   if (stationRunId.length === 0 || stationRunId !== station.identity.stationRunId) {
-    return { error: "evidence_not_in_packet", reason: "cite_station_mismatch" };
+    return {
+      error: "evidence_not_in_packet",
+      reason: "cite_station_mismatch",
+      evidenceId: stationRunId.length > 0 ? stationRunId : packetField,
+    };
   }
   if (packetField.length === 0 || !packetField.includes(`stations[${stationIndex}]`)) {
-    return { error: "evidence_not_in_packet", reason: "packet_field_not_in_packet" };
+    return {
+      error: "evidence_not_in_packet",
+      reason: "packet_field_not_in_packet",
+      evidenceId: packetField,
+    };
   }
   if (cite.sequence !== undefined) {
     const timelineHit = station.reviewPacket.timeline.some((entry) => entry.sequence === cite.sequence);
@@ -131,13 +162,21 @@ function resolveCite(
       (entry) => entry.stationRunId === stationRunId && entry.sequence === cite.sequence,
     );
     if (!timelineHit && !examHit) {
-      return { error: "evidence_not_in_packet", reason: "sequence_not_in_packet" };
+      return {
+        error: "evidence_not_in_packet",
+        reason: "sequence_not_in_packet",
+        evidenceId: String(cite.sequence),
+      };
     }
   }
   if (cite.durableEventRef) {
     const hit = station.phaseTransitions.some((phase) => phase.durableEventRef === cite.durableEventRef);
     if (!hit) {
-      return { error: "evidence_not_in_packet", reason: "durable_event_not_in_packet" };
+      return {
+        error: "evidence_not_in_packet",
+        reason: "durable_event_not_in_packet",
+        evidenceId: cite.durableEventRef,
+      };
     }
   }
   if (cite.tag) {
@@ -145,7 +184,11 @@ function resolveCite(
       || station.reviewPacket.timeline.some((entry) => entry.tag === cite.tag)
       || station.omissions.some((omission) => omission.includes(cite.tag ?? ""));
     if (!observed) {
-      return { error: "evidence_not_in_packet", reason: "tag_not_in_packet" };
+      return {
+        error: "evidence_not_in_packet",
+        reason: "tag_not_in_packet",
+        evidenceId: cite.tag,
+      };
     }
   }
   if (cite.eventType) {
@@ -155,7 +198,11 @@ function resolveCite(
         (entry) => entry.stationRunId === stationRunId && entry.eventType === cite.eventType,
       );
     if (!hit) {
-      return { error: "evidence_not_in_packet", reason: "event_type_not_in_packet" };
+      return {
+        error: "evidence_not_in_packet",
+        reason: "event_type_not_in_packet",
+        evidenceId: cite.eventType,
+      };
     }
   }
   return {
