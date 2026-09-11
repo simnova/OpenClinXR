@@ -109,21 +109,21 @@ export type ResolvedEnvironmentShell = {
 
 
 import {
+  DOOR_LEAF,
   ED_BAY_ZONES,
-  TELEHEALTH_HOME_ZONES,
+  ED_STRETCHER,
+  EXAM_WORK_SURFACE,
+  FAMILY_CHAIR,
   GENERIC_CLINIC_ZONES,
   LEARNER_START,
-  ED_STRETCHER,
-  OFFSET_STRETCHER,
-  PLANT_ALIGNED_STRETCHER,
   OFFSET_CHAIR,
-  DOOR_LEAF,
+  OFFSET_STRETCHER,
+  OVERBED_SURFACE,
+  PLANT_ALIGNED_STRETCHER,
+  TELEHEALTH_HOME_ZONES,
   WALL_BOARD,
   WORK_SURFACE,
-  FAMILY_CHAIR,
-  OVERBED_SURFACE,
-  EXAM_WORK_SURFACE,
-} from "./environment-zone-templates.js";
+} from "./environment-zone-templates-mod.js";
 
 function shell(
   partial: Omit<EnvironmentShellDescriptor, "zoneTemplates" | "fixtureSlots"> & {

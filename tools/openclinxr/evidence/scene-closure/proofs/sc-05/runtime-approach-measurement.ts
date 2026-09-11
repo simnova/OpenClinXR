@@ -16,10 +16,10 @@ import {
 } from "../../../../../../packages/openclinxr/asset-registry/src/case-approach-intent.js";
 import {
   composeSupportedActorWorldPosition,
-  createEdChestPainRuntimeSceneManifest,
-  headingRadiansToward,
   supineActorWorldPosition,
-} from "../../../../../../packages/openclinxr/asset-registry/src/index.js";
+} from "../../../../../../packages/openclinxr/asset-registry/src/actor-posture.js";
+import { createEdChestPainRuntimeSceneManifest } from "../../../../../../packages/openclinxr/asset-registry/src/runtime-bundles-entry.js";
+import { headingRadiansToward } from "../../../../../../packages/openclinxr/asset-registry/src/index.js";
 import type { EncounterRuntimeActorPlacement } from "../../../../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
 import {
   advanceCaseOwnedBedsideApproach,

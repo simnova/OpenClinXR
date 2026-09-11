@@ -1,8 +1,7 @@
+import { bindInitialSceneContents } from "@openclinxr/asset-registry/initial-scene-contents";
 import { describe, expect, it } from "vitest";
-import {
-  bindInitialSceneContents,
-  type SceneContentsInput,
-} from "@openclinxr/asset-registry/initial-scene-contents";
+
+type SceneContentsInput = Parameters<typeof bindInitialSceneContents>[0];
 
 /**
  * Brief §3, initial scene planner step 2: "define an explicit reviewed binding and precedence,

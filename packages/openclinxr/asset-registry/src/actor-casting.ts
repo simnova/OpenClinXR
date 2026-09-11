@@ -14,8 +14,9 @@
  */
 
 import { scenarioBank } from "@openclinxr/scenario-fixtures";
-import { type CaseScenarioSource, caseScenarioDocument } from "./case-actor-placements.js";
-export type { CaseScenarioSource } from "./case-actor-placements.js";
+import { type CaseScenarioSource, caseScenarioDocument } from "./case-actor-placements-mod.js";
+
+export type { CaseScenarioSource } from "./case-actor-placements-mod.js";
 
 export type DeclaredAgeBand = "adult" | "child" | "infant" | "unknown";
 
@@ -45,8 +46,6 @@ export const OB_HEADACHE_PREECLAMPSIA_SCENARIO_ID = "ob_headache_preeclampsia_tr
 import {
   ADULT_POOL_GLBS,
   CANDIDATES,
-  ED_ADULT_CAST_PROVENANCE_PATH,
-  ED_ADULT_CAST_RUNTIME_PATH,
   GENERATED,
   MPFB_CLINICAL_NURSE_ADULT_GLB,
   MPFB_CLINICAL_PHYSICIAN_ADULT_GLB,
@@ -54,20 +53,20 @@ import {
   MPFB_GOWN_ADULT_PATIENT_GLB,
   MPFB_OB_PATIENT_AISHA_GLB,
   MPFB_PEDS_NURSE_KEVIN_GLB,
-  MPFB_PEDS_PARENT_AISHA_GLB,
   MPFB_PEDS_PARENT_AISHA_MOTION_BIND_GLB,
   MPFB_PEDS_PATIENT_CHILD_GLB,
   MPFB_STREET_ADULT_MALE_GLB,
   RUNTIME_CANDIDATES,
   RUNTIME_GENERATED,
-} from "./cast-asset-constants.js";
+} from "./cast-asset-constants-mod.js";
+
 export {
   ADULT_MALE_STREET_CASUAL_GLB,
   ED_ADULT_CAST_ASSET_PATH,
   ED_ADULT_CAST_PROVENANCE_PATH,
   ED_ADULT_CAST_RUNTIME_PATH,
-  LIBRARY_ADULT_LEAN_FEMALE_GLB,
   LIBRARY_ADULT_HEAVY_MALE_GLB,
+  LIBRARY_ADULT_LEAN_FEMALE_GLB,
   MPFB_CLINICAL_NURSE_ADULT_GLB,
   MPFB_CLINICAL_PHYSICIAN_ADULT_GLB,
   MPFB_FAMILY_PARTNER_ADULT_GLB,
@@ -77,7 +76,7 @@ export {
   MPFB_PEDS_PARENT_AISHA_MOTION_BIND_GLB,
   MPFB_PEDS_PATIENT_CHILD_GLB,
   MPFB_STREET_ADULT_MALE_GLB,
-} from "./cast-asset-constants.js";
+} from "./cast-asset-constants-mod.js";
 
 
 /**

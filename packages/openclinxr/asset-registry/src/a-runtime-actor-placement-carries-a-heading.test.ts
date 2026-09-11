@@ -1,5 +1,5 @@
+import type { EncounterRuntimeActorPlacement, EncounterRuntimeSceneManifest } from "@openclinxr/asset-registry/runtime-bundles";
 import { describe, expect, it } from "vitest";
-import type { EncounterRuntimeActorPlacement, EncounterRuntimeSceneManifest } from "./index.js";
 
 //
 // OBSERVABLE: `EncounterRuntimeActorPlacement` (runtime-bundles.ts:162-171) lacks a `headingRadians`
@@ -39,7 +39,7 @@ import type { EncounterRuntimeActorPlacement, EncounterRuntimeSceneManifest } fr
 //
 describe("A runtime actor placement can express a heading", () => {
   it("(1) The field is named headingRadians (unit in the symbol), reachable on a placement value obtained from a BUILT manifest, not from a literal the test types inline", async () => {
-    const mod = await import("./index.js");
+    const mod = await import("@openclinxr/asset-registry/runtime-bundles");
     const createManifest = (mod as Record<string, unknown>)["createEdChestPainRuntimeSceneManifest"] as
       undefined | ((input?: Record<string, unknown>) => EncounterRuntimeSceneManifest);
     expect(typeof createManifest).toBe("function");
@@ -53,7 +53,7 @@ describe("A runtime actor placement can express a heading", () => {
   });
 
   it("(2) A manifest built by createEdChestPainRuntimeSceneManifest carries a numeric headingRadians on at least one actor placement", async () => {
-    const mod = await import("./index.js");
+    const mod = await import("@openclinxr/asset-registry/runtime-bundles");
     const createManifest = (mod as Record<string, unknown>)["createEdChestPainRuntimeSceneManifest"] as
       undefined | ((input?: Record<string, unknown>) => EncounterRuntimeSceneManifest);
     expect(typeof createManifest).toBe("function");
@@ -68,7 +68,7 @@ describe("A runtime actor placement can express a heading", () => {
   });
 
   it("(3) The field is genuinely optional in practice: the builder emits at least one placement WITH headingRadians and at least one WITHOUT it", async () => {
-    const mod = await import("./index.js");
+    const mod = await import("@openclinxr/asset-registry/runtime-bundles");
     const createManifest = (mod as Record<string, unknown>)["createEdChestPainRuntimeSceneManifest"] as
       undefined | ((input: unknown) => EncounterRuntimeSceneManifest);
     expect(typeof createManifest).toBe("function");
@@ -84,7 +84,7 @@ describe("A runtime actor placement can express a heading", () => {
   });
 
   it("(4) Absent is distinguishable from zero: the placement that carries a heading reports a number, and one with no authored facing reports undefined, never 0", async () => {
-    const mod = await import("./index.js");
+    const mod = await import("@openclinxr/asset-registry/runtime-bundles");
     const createManifest = (mod as Record<string, unknown>)["createEdChestPainRuntimeSceneManifest"] as
       undefined | ((input: unknown) => EncounterRuntimeSceneManifest);
     expect(typeof createManifest).toBe("function");

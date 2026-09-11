@@ -1,10 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { stat } from "node:fs/promises";
-import {
-  buildEncounterAssetNeedsReadinessManifest,
-  type EncounterAssetNeedsReadinessManifest,
-} from "../../../packages/openclinxr/asset-registry/src/index.js";
+import { buildEncounterAssetNeedsReadinessManifest } from "../../../packages/openclinxr/asset-registry/src/index.js";
 import { ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
 import {
   buildEncounterAssetGenerationPlan,
@@ -95,7 +92,7 @@ export type EncounterAssetGenerationQueueReport = {
   };
   request: EncounterExecutableAssetGenerationRequest;
   plan: ReturnType<typeof buildEncounterAssetGenerationPlan>;
-  encounterAssetNeedsReadinessManifest?: EncounterAssetNeedsReadinessManifest;
+  encounterAssetNeedsReadinessManifest?: ReturnType<typeof buildEncounterAssetNeedsReadinessManifest>;
   storageTargets: {
     blobStoreKind: EncounterExecutableAssetGenerationRequest["targetAssetStore"]["storeKind"];
     blobContainerName: string;

@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildEncounterFactorySummaryContracts } from "../../../packages/openclinxr/asset-registry/src/index.js";
+import { buildEncounterFactorySummaryContracts } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles-entry.js";
 import {
   buildDynamicEncounterFactoryProjectionArtifact,
   edChestPainScenario,
@@ -12,6 +12,7 @@ import {
   scenarioBank,
   variantScenarioBank,
 } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
+import type { VisualQaRemediationWorkOrderRef } from "../evidence/visual-qa-evidence-check.js";
 import { buildEncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
 import type { EncounterMaterializationEvidenceReport } from "./encounter-materialization-evidence.js";
 import type { EncounterMaterializationEvidenceAttachmentRecords } from "./encounter-materialization-evidence-attachments.js";
@@ -22,7 +23,6 @@ import {
   validateEncounterPublicationPayloadReport,
 } from "./encounter-publication-payloads.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
-import type { VisualQaRemediationWorkOrderRef } from "../evidence/visual-qa-evidence-check.js";
 
 const notEvidenceFor: GeneratedEdStationRuntimeBundleReport["notEvidenceFor"] = [
   "production_asset_readiness",

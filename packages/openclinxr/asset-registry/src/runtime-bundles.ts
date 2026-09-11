@@ -1,8 +1,6 @@
 import {
-  type EquipmentPlacementReport,
-  buildEquipmentPlacementReport,
-  buildRealizedEquipmentPlacements,
-} from "./realized-equipment-placements.js";
+  resolveScenarioActorCast,
+} from "./actor-casting.js";
 import {
   generatedActorLabel,
   generatedActorPlacement,
@@ -10,18 +8,19 @@ import {
   safeRuntimeManifestKey,
 } from "./actor-placement.js";
 import {
-  resolveScenarioActorCast,
-} from "./actor-casting.js";
+  buildEquipmentPlacementReport,
+  buildRealizedEquipmentPlacements,
+  type EquipmentPlacementReport,
+} from "./realized-equipment-placements.js";
 
 export {
-  ADULT_STATURE_FLOOR_METERS, declareAgeBand, ED_ADULT_CAST_ASSET_PATH, ED_ADULT_CAST_PROVENANCE_PATH,
-  ED_ADULT_CAST_RUNTIME_PATH, ED_CHEST_PAIN_SCENARIO_ID, PEDS_ASTHMA_SCENARIO_ID,
-  provenancePathForRuntimeAsset, resolveRuntimeCastAssetPath, resolveScenarioActorCast } from "./actor-casting.js";
-import { type AuthoredPosture, type CaseScenarioSource, authoredCasePlacements, caseScenarioDocument, postureForSupportSurface } from "./case-actor-placements.js";
-import { placementsWithPersistedCaseIntent, type SupportedPlacementAcceptance } from "./case-intent-placements.js";
-import { caseRealGlbEquipmentFixtures, caseRealGlbEquipmentPlacements } from "./case-runtime-equipment.js";
+  resolveScenarioActorCast } from "./actor-casting.js";
+
 import { bedsideClinicianPlacement } from "./bedside-target.js";
 import { buildLocalEncounterActors } from "./bundle-actors.js";
+import { type AuthoredPosture, authoredCasePlacements, type CaseScenarioSource, caseScenarioDocument, postureForSupportSurface } from "./case-actor-placements-mod.js";
+import { placementsWithPersistedCaseIntent, type SupportedPlacementAcceptance } from "./case-intent-placements.js";
+import { caseRealGlbEquipmentFixtures, caseRealGlbEquipmentPlacements } from "./case-runtime-equipment-mod.js";
 import { resolveBundleCastActorIds } from "./cast-actor-ids.js";
 import { defaultRuntimeAssetContainerName, missingRuntimeStrings, uniqueRuntimeStrings } from "./runtime-bundle-strings.js";
 
@@ -578,7 +577,6 @@ export type BuildEncounterRuntimeAssetBundleInput = {
 // `equipmentPlacementReport` on the bundle, so a consumer cannot read those fields without them.
 // The five value helpers that produced them stay internal to this package — republishing a builder
 // nothing outside calls is how an entrypoint ceiling gets spent on surface no one uses.
-export type { EquipmentPlacementReport, RealizedEquipmentPlacementEntry } from "./realized-equipment-placements.js";
 
 const LOCAL_RUNTIME_NOT_EVIDENCE_FOR = [
   "production_asset_readiness",

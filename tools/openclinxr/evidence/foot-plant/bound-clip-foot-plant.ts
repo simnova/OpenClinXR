@@ -1,17 +1,13 @@
 import { createHash } from "node:crypto";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
+import { planBedsideApproach } from "../../../../packages/openclinxr/asset-registry/src/bedside-approach-path.js";
 import {
   ED_STRETCHER_DECK_BOUNDS,
   bedsideTargetForClinician,
   footSlideMeters,
-  planBedsideApproach,
   stepBedsideApproach,
 } from "../../../../packages/openclinxr/asset-registry/src/index.js";
-// The two constants are NOT published from the entrypoint and are not published for this: the
-// package's arch-ceiling is shrink-only, and an export added for one instrument's convenience is
-// how a root entrypoint grows. Read from the module that declares them so the instrument and the
-// runtime cannot disagree about the numbers.
 import {
   CLINICIAN_WALK_SPEED_MPS,
   FOOT_CONTACT_HEIGHT_METERS,

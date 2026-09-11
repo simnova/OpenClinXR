@@ -1,14 +1,12 @@
 import { appendFileSync, readFileSync } from "node:fs";
 import { NodeIO } from "@gltf-transform/core";
-import {
-  createEdChestPainRuntimeSceneManifest,
-  DEFAULT_STRETCHER_POSITION,
-} from "@openclinxr/asset-registry";
+import { DEFAULT_STRETCHER_POSITION } from "@openclinxr/asset-registry/actor-posture";
 import type {
   EncounterRuntimeActorPlacement,
   EncounterRuntimeAsset,
   LearnerRuntimeAssetBundle,
 } from "@openclinxr/asset-registry/runtime-bundles";
+import { createEdChestPainRuntimeSceneManifest } from "@openclinxr/asset-registry/runtime-bundles";
 import type { AssetLoadingContext } from "@openclinxr/xr-asset-loading";
 import * as assetLoading from "@openclinxr/xr-asset-loading";
 import {

@@ -1,0 +1,2553 @@
+{
+  "id": "psr-05",
+  "taskId": "tsk_71a17af99c7db421",
+  "sourceRevision": "601be899c8203946db11aab3b460124719ac7aa3",
+  "baseRevision": "26d5aab5d79f50e30fe59e27e539feebd2e3fb24",
+  "planCommit": "1c493f12cd9ff5084e763c7e46f7ac4a5d57635c",
+  "planSha256": "01cb5139557293ace715e65bae576b359afe0e0e06c201f18e1af3d8bab0341d",
+  "rawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "groupHash": "21f46d05a61ca2639359ddbf9b80cbebf4c6e5e0932e15603fd7ee71ec593e3f",
+  "measuredBefore": {
+    "roots": 46,
+    "entrypoints": 137,
+    "rootSymbols": 2223,
+    "occurrences": 3246,
+    "uniqueSymbols": 2681,
+    "duplicateNames": 547,
+    "note": "origin/main after PSR-04 land (psr-04.json measuredAfter); card known-good at plan commit was 2533/3588/3020/550"
+  },
+  "measuredAfter": {
+    "roots": 46,
+    "entrypoints": 137,
+    "rootSymbols": 2041,
+    "occurrences": 2869,
+    "uniqueSymbols": 2439,
+    "duplicateNames": 415
+  },
+  "verifyBefore": "On origin/main 26d5aab5 (pre-apply) --require-applied psr-05 fails because packages/openclinxr/asset-registry still publishes the 333 remove names. First measured fail on this branch after partial de-export: extra accepted-scene-plan-evidence names (truncated to 5). Card known-good: 46 roots, 137 entrypoints, 2533 root symbols, 3588 occurrences, 3020 unique, 550 duplicated names.",
+  "verifyAfter": "46 roots, 137 entrypoints, 2041 root symbols, 2869 occurrences, 2439 unique, 415 duplicated names (surface c5327ea69039); ok: group psr-05 applied: 329 removed, 48 migrated; ok baseline ratchet: surface matches the checked-in baseline (no growth)",
+  "countsPerPackage": {
+    "packages/openclinxr/asset-registry keep": 157,
+    "packages/openclinxr/asset-registry remove": 333,
+    "packages/openclinxr/asset-registry migrate": 48
+  },
+  "removedCount": 329,
+  "removed": [
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ACTOR_POSTURES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ADULT_STATURE_FLOOR_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "APPROACH_WAYPOINT_SPACING_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetGenerationEvidence",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetGenerationMethod",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetLicenseStatus",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetObjectStore",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetObjectStoreGetInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetObjectStoreGetResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetObjectStorePutInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetObjectStorePutResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetOptimizationEvidence",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetPipelineLane",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetPipelineStage",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetPipelineStageName",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetPipelineTool",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetPipelineToolMatrixReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetPipelineToolReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetProductionReadinessLadder",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetProductionReadinessStep",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetProductionReadinessStepName",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetProductionReviewPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetQuestQaStatus",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetTargetRuntime",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetToolLicensePolicy",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AssetToolRuntimePlacement",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "AzuriteAssetObjectStoreOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "BuildEncounterDynamicBehaviorCoverageSummaryInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "BuildEncounterFactoryDryRunSummaryInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "BuildEncounterRuntimeAssetBundleInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "BuildGuardedRuntimeSelectorDisabledDecisionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "DEFAULT_STRETCHER_DECK_TOP_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ED_ADULT_CAST_ASSET_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ED_ADULT_CAST_PROVENANCE_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ED_ADULT_CAST_RUNTIME_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ED_CHEST_PAIN_SCENARIO_ID",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ENCOUNTER_LEARNER_RUNTIME_REQUIRED_GATE_IDS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterActorAssetNeed",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterAssetNeedsReadinessManifest",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterAssetReadinessBehaviorCategory",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterBundleMemberContentIdentity",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterEnvironmentAssetNeed",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterEquipmentAssetNeed",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterFactoryInputSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterFactorySummaryContracts",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeActorAsset",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeAssetBundle",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeAssetBundleWriteResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeBundleAssemblyAuditMetadata",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeBundlePublicationMetadata",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeEquipmentAsset",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeEquipmentPlacement",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeEvidenceGateId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeEvidenceGateRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeGeneratedAssetAuditRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeHumanoidAuditMetadataRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeLearnerUseGate",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeRemediationPlanAuditRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeStationContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeUiSurfaceAsset",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterSharedAssetLibraryLookupKey",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EnvironmentFixtureSlot",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EnvironmentGenerationOperatorHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EnvironmentGenerationReviewGate",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EnvironmentGenerationReviewGateName",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EnvironmentGenerationWorkOrder",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EnvironmentGenerationWorkOrderTask",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EnvironmentGenerationWorkOrderTaskId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EnvironmentShellDescriptor",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EnvironmentSpatialZone",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EnvironmentSpatialZoneId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EnvironmentZoneTemplate",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EquipmentPlacementReport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "FALLBACK_ENVIRONMENT_SHELL",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "GeneratedRuntimeAssetWriteResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "GuardedRuntimeSelectorCandidateBundle",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "GuardedRuntimeSelectorDisabledDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "INPATIENT_RECUMBENT_SCENARIO_MARKERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ImmutableEncounterBundlePromotion",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ImmutableEncounterBundlePromotionRefusal",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ImmutableEncounterBundlePromotionResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "LearnerRuntimeAssetBundle",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "MIXAMORIG_RIG_BONE_NAMES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "MPFB2_RIG_BONE_NAMES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "MPFB_FACS_MORPH_NAMES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "MPFB_OB_PATIENT_AISHA_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "MeasuredStationGeometry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "OB_HEADACHE_PREECLAMPSIA_SCENARIO_ID",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "PEDS_ASTHMA_SCENARIO_ID",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "POSTURE_SOURCE_DESCRIPTION",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "PedsHumanoidMaterializationHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "PedsHumanoidMaterializationHandoffAsset",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "PostureClipBinding",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "RealizedEquipmentPlacementEntry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "RegisterGeneratedRuntimeAssetReferenceInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ResolveEncounterRuntimeAssetBundleInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ResolvedEnvironmentShell",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "RuntimeAssetBlobRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "RuntimeAssetBundlePromotionResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "RuntimeAssetManifestRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "RuntimeAssetPromotionResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "RuntimeAssetReviewRole",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "RuntimeAssetStoreConfig",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "SEATED_HEIGHT_OWNERSHIP",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "SHIPPED_CLIP_SOURCES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "SUPINE_HEIGHT_OWNERSHIP",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ScenarioActorCast",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ScenarioAssetProductionReadinessLadder",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ScenarioSceneGenerationPipelineWorkOrder",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "SceneGenerationActorWorkOrder",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "SceneGenerationEnvironmentWorkOrder",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "SceneGenerationPipelineStage",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "SceneGenerationPipelineStageId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "SupportedActorPositionRefusal",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "assertRuntimeAssetApprovedForWrite",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "buildSpatialZonesForEnvironment",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "declareAgeBand",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "defaultPostureForEnvironmentSlot",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "deriveEncounterRuntimeBundleAssemblyAuditMetadata",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "encounterRuntimeAssetBundleBlobName",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "findRuntimeEquipmentPlacementByRealizedId",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "immutableEncounterBundleClaimScope",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "isActorPosture",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "isInpatientRecumbentScenario",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "isRuntimeHumanoidAssetPath",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "promoteRuntimeAssetForLocalUse",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "provenancePathForRuntimeAsset",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "requiredRuntimeAssetReviewerRoles",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "resolveRuntimeCastAssetPath",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "runtimeAssetManifestBlobName",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "writeEncounterRuntimeAssetBundle",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "writeGeneratedRuntimeAssetWithManifest",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./accepted-scene-plan-evidence",
+      "symbol": "DurableAcceptedScenePlanRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./accepted-scene-plan-evidence",
+      "symbol": "FreshScenePlanObservation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./accepted-scene-plan-evidence",
+      "symbol": "ObservedScenePlanEvidence",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./accepted-scene-plan-evidence",
+      "symbol": "ScenePlanEvidenceConflict",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./accepted-scene-plan-evidence",
+      "symbol": "ScenePlanEvidenceConflictKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./accepted-scene-plan-evidence",
+      "symbol": "ScenePlanRevalidation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./accepted-scene-plan-evidence",
+      "symbol": "acknowledgmentBindsPlan",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./accepted-scene-plan-evidence",
+      "symbol": "compareScenePlanEvidence",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./actor-posture",
+      "symbol": "ACTOR_POSTURES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./actor-posture",
+      "symbol": "DEFAULT_STRETCHER_DECK_TOP_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./actor-posture",
+      "symbol": "INPATIENT_RECUMBENT_SCENARIO_MARKERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./actor-posture",
+      "symbol": "POSTURE_SOURCE_DESCRIPTION",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./actor-posture",
+      "symbol": "PostureClipBinding",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./actor-posture",
+      "symbol": "SEATED_HEIGHT_OWNERSHIP",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./actor-posture",
+      "symbol": "SHIPPED_CLIP_SOURCES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./actor-posture",
+      "symbol": "SUPINE_HEIGHT_OWNERSHIP",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./actor-posture",
+      "symbol": "SupportedActorPositionRefusal",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./actor-posture",
+      "symbol": "defaultPostureForEnvironmentSlot",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./actor-posture",
+      "symbol": "isActorPosture",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./actor-posture",
+      "symbol": "isInpatientRecumbentScenario",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./approach-executor",
+      "symbol": "ExecutorPose",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./approach-executor",
+      "symbol": "FootSample",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./approach-executor",
+      "symbol": "FootSlideReport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./asset-writer",
+      "symbol": "EncounterRuntimeAssetBundleWriteResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./asset-writer",
+      "symbol": "GeneratedRuntimeAssetWriteResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./asset-writer",
+      "symbol": "RuntimeAssetManifestRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./asset-writer",
+      "symbol": "assertRuntimeAssetApprovedForWrite",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./asset-writer",
+      "symbol": "encounterRuntimeAssetBundleBlobName",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./asset-writer",
+      "symbol": "runtimeAssetManifestBlobName",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./asset-writer",
+      "symbol": "writeEncounterRuntimeAssetBundle",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./asset-writer",
+      "symbol": "writeGeneratedRuntimeAssetWithManifest",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./bedside-approach-path",
+      "symbol": "APPROACH_WAYPOINT_SPACING_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./bedside-approach-path",
+      "symbol": "ApproachWaypoint",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./bedside-approach-path",
+      "symbol": "SWEPT_OCCUPANCY_SAMPLE_SPACING_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./bedside-approach-path",
+      "symbol": "sweptRouteViolations",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-actor-placements",
+      "symbol": "AuthoredCasePlacement",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-actor-placements",
+      "symbol": "AuthoredPosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-actor-placements",
+      "symbol": "CaseScenarioSource",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-actor-placements",
+      "symbol": "caseScenarioDocument",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-actor-placements",
+      "symbol": "postureForSupportSurface",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-approach-intent",
+      "symbol": "ApproachRefusalCode",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-approach-intent",
+      "symbol": "BedsideApproachIntent",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-approach-intent",
+      "symbol": "BedsideApproachRefusal",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-approach-intent",
+      "symbol": "approachSideForAuthoredStart",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-owned-scene-plan",
+      "symbol": "CaseOwnedScenePlan",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-owned-scene-plan",
+      "symbol": "CaseOwnedScenePlanRefusal",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-owned-scene-plan",
+      "symbol": "CaseOwnedScenePlanResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-owned-scene-plan",
+      "symbol": "CaseScenePlanConflict",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-owned-scene-plan",
+      "symbol": "isAuthorizedVariationIndex",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-owned-scene-plan",
+      "symbol": "resolveCaseOwnedScenePlan",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-runtime-equipment",
+      "symbol": "ED_BAY_REAL_GLB_EQUIPMENT_IDS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-runtime-equipment",
+      "symbol": "REAL_GLB_EQUIPMENT_BY_AUTHORED_CATALOGUE_ID",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-runtime-equipment",
+      "symbol": "RealGlbEquipmentFixture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-runtime-equipment",
+      "symbol": "caseRealGlbEquipmentFixtures",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-runtime-equipment",
+      "symbol": "caseRealGlbEquipmentIds",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./case-runtime-equipment",
+      "symbol": "caseRealGlbEquipmentPlacements",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "ADULT_MALE_STREET_CASUAL_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "ADULT_POOL_GLBS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "CANDIDATES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "ED_ADULT_CAST_ASSET_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "ED_ADULT_CAST_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "ED_ADULT_CAST_PROVENANCE_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "ED_ADULT_CAST_RUNTIME_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "ED_NURSE_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "ED_SPOUSE_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "GENERATED",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "LIBRARY_ADULT_HEAVY_MALE_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "LIBRARY_ADULT_LEAN_FEMALE_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "MPFB_CLINICAL_NURSE_ADULT_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "MPFB_CLINICAL_PHYSICIAN_ADULT_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "MPFB_FAMILY_PARTNER_ADULT_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "MPFB_OB_PATIENT_AISHA_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "MPFB_PEDS_NURSE_KEVIN_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "MPFB_PEDS_PARENT_AISHA_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "MPFB_PEDS_PARENT_AISHA_MOTION_BIND_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "MPFB_PEDS_PATIENT_CHILD_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "MPFB_STREET_ADULT_MALE_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "PEDS_NURSE_GLB",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "RUNTIME_CANDIDATES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./cast-asset-constants",
+      "symbol": "RUNTIME_GENERATED",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./encounter-bundle-admission",
+      "symbol": "BundleCarryingAcceptedScenePlan",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./encounter-bundle-admission",
+      "symbol": "CommittedScenePlanDiskCheck",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./encounter-bundle-admission",
+      "symbol": "PinnedStationSelection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./encounter-bundle-admission",
+      "symbol": "SCENE_CLOSURE_SCENARIO_STATION_ID",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./encounter-bundle-admission",
+      "symbol": "admitFrozenScenePlanForObservedRoom",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "BOARD_WALL_INSET_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "DOOR_LEAF",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "DOOR_WALL_INSET_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "ED_BAY_ZONES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "ED_STRETCHER",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "EXAM_WORK_SURFACE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "GENERIC_CLINIC_ZONES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "LEARNER_START",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "OFFSET_CHAIR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "OFFSET_STRETCHER",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "OVERBED_SURFACE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "PLANT_ALIGNED_STRETCHER",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "RoomPlanDimensions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "TELEHEALTH_HOME_ZONES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "WALL_BOARD",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "WORK_SURFACE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "isAbsoluteFixtureSlotId",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./environment-zone-templates",
+      "symbol": "shellFloorCenterZ",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./frozen-scene-replay",
+      "symbol": "ACCEPTED_SCENE_PLAN_SCHEMA_VERSION",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./frozen-scene-replay",
+      "symbol": "FROZEN_SCENE_RUBRIC",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./frozen-scene-replay",
+      "symbol": "FrozenSceneObservation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./frozen-scene-replay",
+      "symbol": "FrozenSceneRefusalReason",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./frozen-scene-replay",
+      "symbol": "FrozenSceneReopen",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./frozen-scene-replay",
+      "symbol": "FrozenSceneReproduction",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./frozen-scene-replay",
+      "symbol": "LAYOUT_REPRODUCTION_TOLERANCE_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./frozen-scene-replay",
+      "symbol": "arrivalRubricProblems",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./frozen-scene-replay",
+      "symbol": "dialogueIdentityProblem",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./initial-scene-contents",
+      "symbol": "EquipmentBindingPrecedence",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./initial-scene-contents",
+      "symbol": "SceneContentConflict",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./initial-scene-contents",
+      "symbol": "SceneContentConflictKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./initial-scene-contents",
+      "symbol": "SceneContentRow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./initial-scene-contents",
+      "symbol": "SceneContentsInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./initial-scene-contents",
+      "symbol": "SceneContentsPlan",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./initial-scene-contents",
+      "symbol": "StartStateClass",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./layout-solve",
+      "symbol": "BedsideLayoutIntent",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./layout-solve",
+      "symbol": "LAYOUT_SEED_PATTERN",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./layout-solve",
+      "symbol": "ResolvedLayout",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./layout-solve",
+      "symbol": "STANDOFF_CANDIDATES_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./layout-variation",
+      "symbol": "BedsideLayoutIntent",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./layout-variation",
+      "symbol": "LAYOUT_SEED_SCHEME",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./layout-variation",
+      "symbol": "LayoutSeedInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./layout-variation",
+      "symbol": "ResolvedLayout",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./layout-variation",
+      "symbol": "STANDOFF_CANDIDATES_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./layout-variation",
+      "symbol": "VERSION_TOKEN",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./layout-variation",
+      "symbol": "deriveLayoutVariationSeed",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./layout-variation",
+      "symbol": "isValidLayoutSeedInput",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./layout-variation",
+      "symbol": "resolveBedsideLayout",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./measured-station-geometry-freshness",
+      "symbol": "MeasuredGeometryFingerprint",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./measured-station-geometry-freshness",
+      "symbol": "findStaleMeasuredGeometry",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "AZURITE_ALLOWED_METADATA_KEYS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "AZURITE_DEFAULT_ACCOUNT_NAME",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "AZURITE_DEFAULT_CONTAINER_NAME",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "AssetObjectStore",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "AssetObjectStoreGetInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "AssetObjectStoreGetResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "AssetObjectStorePutInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "AssetObjectStorePutResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "AzuriteAssetObjectStoreOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "assertLocalAzuriteEndpoint",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "buildAzuriteConnectionSummary",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "buildSharedKeyAuthorizationHeader",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./object-store",
+      "symbol": "createAzuriteAssetObjectStore",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-asset-review",
+      "symbol": "ImmutableEncounterBundlePromotion",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-asset-review",
+      "symbol": "ImmutableEncounterBundlePromotionRefusal",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-asset-review",
+      "symbol": "ImmutableEncounterBundlePromotionResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-asset-review",
+      "symbol": "RuntimeAssetBundlePromotionResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-asset-review",
+      "symbol": "RuntimeAssetPromotionResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-asset-review",
+      "symbol": "RuntimeAssetReviewRole",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-asset-review",
+      "symbol": "promoteRuntimeAssetForLocalUse",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-asset-review",
+      "symbol": "requiredRuntimeAssetReviewerRoles",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundle-lookups",
+      "symbol": "findRuntimeEquipmentPlacementByRealizedId",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "ADULT_STATURE_FLOOR_METERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "BuildEncounterDynamicBehaviorCoverageSummaryInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "BuildEncounterFactoryDryRunSummaryInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "BuildEncounterRuntimeAssetBundleInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "BuildGuardedRuntimeSelectorDisabledDecisionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "ED_ADULT_CAST_ASSET_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "ED_ADULT_CAST_PROVENANCE_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "ED_ADULT_CAST_RUNTIME_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "ED_CHEST_PAIN_SCENARIO_ID",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterFactoryInputSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterFactorySummaryContracts",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterRuntimeActorAsset",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterRuntimeBundleAssemblyAuditMetadata",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterRuntimeBundlePublicationMetadata",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterRuntimeEquipmentAsset",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterRuntimeEquipmentPlacement",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterRuntimeEvidenceGateRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterRuntimeGeneratedAssetAuditRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterRuntimeHumanoidAuditMetadataRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterRuntimeRemediationPlanAuditRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterRuntimeStationContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EncounterRuntimeUiSurfaceAsset",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "EquipmentPlacementReport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "GuardedRuntimeSelectorCandidateBundle",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "GuardedRuntimeSelectorDisabledDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "PEDS_ASTHMA_SCENARIO_ID",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "PedsHumanoidMaterializationHandoffAsset",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "RealizedEquipmentPlacementEntry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "RegisterGeneratedRuntimeAssetReferenceInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "ResolveEncounterRuntimeAssetBundleInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "RuntimeAssetBlobRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "RuntimeAssetStoreConfig",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "declareAgeBand",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "deriveEncounterRuntimeBundleAssemblyAuditMetadata",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "provenancePathForRuntimeAsset",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundles",
+      "symbol": "resolveRuntimeCastAssetPath",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./scene-plan-freeze",
+      "symbol": "FreezeScenePlanResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./scene-plan-freeze",
+      "symbol": "ScenePlanAssetBinding",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./scene-plan-freeze",
+      "symbol": "scenePlanRevision",
+      "kind": "runtime"
+    }
+  ],
+  "migratedCount": 48,
+  "migrated": [
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ActorPosture",
+      "kind": "type",
+      "route": "./actor-posture"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "DEFAULT_PATIENT_CHAIR_POSITION",
+      "kind": "runtime",
+      "route": "./actor-posture"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "DEFAULT_STRETCHER_POSITION",
+      "kind": "runtime",
+      "route": "./actor-posture"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterBundleFactoryMember",
+      "kind": "type",
+      "route": "./runtime-asset-review"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterBundleFactoryMemberKind",
+      "kind": "type",
+      "route": "./runtime-asset-review"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterDynamicBehaviorCoverageSummary",
+      "kind": "type",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterFactoryDryRunSummary",
+      "kind": "type",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterFactoryInputPlanningSummary",
+      "kind": "type",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeActorPlacement",
+      "kind": "type",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeAsset",
+      "kind": "type",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeDialogueTurn",
+      "kind": "type",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeRoomProp",
+      "kind": "type",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "EncounterRuntimeSceneManifest",
+      "kind": "type",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "PromoteReviewedFactoryOutputsInput",
+      "kind": "type",
+      "route": "./runtime-asset-review"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "RuntimeAssetKind",
+      "kind": "type",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "RuntimeAssetReviewDecision",
+      "kind": "type",
+      "route": "./runtime-asset-review"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "RuntimeAssetReviewStatus",
+      "kind": "type",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "RuntimeAssetStoreKind",
+      "kind": "type",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "SEATED_CLIP_NAME",
+      "kind": "runtime",
+      "route": "./actor-posture"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "STANDING_CLIP_NAME",
+      "kind": "runtime",
+      "route": "./actor-posture"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "SUPINE_CLIP_NAME",
+      "kind": "runtime",
+      "route": "./actor-posture"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "buildEncounterDynamicBehaviorCoverageSummary",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "buildEncounterFactorySummaryContracts",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "buildEncounterRuntimeAssetBundle",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "buildEncounterRuntimeBundlePublicationMetadata",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "buildGuardedRuntimeSelectorDisabledDecision",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "clipBindingForPosture",
+      "kind": "runtime",
+      "route": "./actor-posture"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "composeSupportedActorWorldPosition",
+      "kind": "runtime",
+      "route": "./actor-posture"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "createEdChestPainLocalLearnerRuntimeAssetBundle",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "createEdChestPainRuntimeSceneManifest",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "encounterBundleFactoryMemberKinds",
+      "kind": "runtime",
+      "route": "./runtime-asset-review"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "evaluateEncounterRuntimeLearnerUseGate",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "findRuntimeActorAsset",
+      "kind": "runtime",
+      "route": "./runtime-bundle-lookups"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "findRuntimeActorAssetByRole",
+      "kind": "runtime",
+      "route": "./runtime-bundle-lookups"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "findRuntimeEquipmentAsset",
+      "kind": "runtime",
+      "route": "./runtime-bundle-lookups"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "immutableEncounterBundleNotEvidenceFor",
+      "kind": "runtime",
+      "route": "./runtime-asset-review"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "planBedsideApproach",
+      "kind": "runtime",
+      "route": "./bedside-approach-path"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "promoteReviewedFactoryOutputsToImmutableEncounterBundle",
+      "kind": "runtime",
+      "route": "./runtime-asset-review"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "registerGeneratedRuntimeAssetReference",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "resolveActorPosture",
+      "kind": "runtime",
+      "route": "./actor-posture"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "resolveRuntimeAssetStoreConfig",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "resolveRuntimeAssetUrl",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "resolveScenarioActorCast",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "seatedActorWorldPosition",
+      "kind": "runtime",
+      "route": "./actor-posture"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "seatedVerticalOffsetForSeatHeight",
+      "kind": "runtime",
+      "route": "./actor-posture"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "supineActorWorldPosition",
+      "kind": "runtime",
+      "route": "./actor-posture"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "supineVerticalOffsetSeed",
+      "kind": "runtime",
+      "route": "./actor-posture"
+    }
+  ],
+  "consumerFilesMoved": [
+    {
+      "file": "apps/ui-xr/src/main.ts",
+      "from": "@openclinxr/asset-registry root",
+      "to": "@openclinxr/asset-registry/actor-posture and /runtime-bundle-lookups keep names"
+    },
+    {
+      "file": "apps/ui-xr/src/the-authored-offset-reaches-the-posed-humanoid.test.ts",
+      "from": "dynamic import @openclinxr/asset-registry composeSupportedActorWorldPosition",
+      "to": "@openclinxr/asset-registry/actor-posture"
+    },
+    {
+      "file": "apps/ui-xr/src/the-composition-call-site-is-live.test.ts",
+      "from": "root actor-posture names",
+      "to": "@openclinxr/asset-registry/actor-posture"
+    },
+    {
+      "file": "apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts",
+      "from": "root actor-posture names",
+      "to": "@openclinxr/asset-registry/actor-posture"
+    },
+    {
+      "file": "apps/ui-xr/src/the-normal-encounter-physician-approaches-and-stops.test.ts",
+      "from": "root actor-posture names",
+      "to": "@openclinxr/asset-registry/actor-posture"
+    },
+    {
+      "file": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
+      "from": "source greps of keep-only barrels",
+      "to": "*-mod implementation files for node:crypto and DurableAcceptedScenePlanRecord"
+    },
+    {
+      "file": "apps/api/src/the-persisted-scene-reaches-the-normal-xr-consumer.test.ts",
+      "from": "root",
+      "to": "@openclinxr/asset-registry/initial-scene-contents bindInitialSceneContents"
+    },
+    {
+      "file": "packages/openclinxr/rest/src/api-route-support.ts",
+      "from": "@openclinxr/asset-registry root",
+      "to": "@openclinxr/asset-registry/runtime-asset-review"
+    },
+    {
+      "file": "packages/openclinxr/rest/src/api-types.ts",
+      "from": "root type imports",
+      "to": "/runtime-asset-review and /runtime-bundles keep types"
+    },
+    {
+      "file": "packages/openclinxr/rest/src/routes/encounter-bundle-promotion/faculty-encounter-bundle-promotion.ts",
+      "from": "root",
+      "to": "/runtime-asset-review and /runtime-bundles"
+    },
+    {
+      "file": "packages/openclinxr/rest/src/routes/scenario-scene-generation-routes.ts",
+      "from": "root",
+      "to": "/runtime-bundles"
+    },
+    {
+      "file": "packages/openclinxr/ui-route-admin/src/admin-review-types.ts",
+      "from": "root",
+      "to": "/runtime-bundles"
+    },
+    {
+      "file": "packages/openclinxr/ui-route-shared/src/admin-api-client.ts",
+      "from": "root",
+      "to": "/runtime-bundles keep types"
+    },
+    {
+      "file": "packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts",
+      "from": "root",
+      "to": "/runtime-bundles keep types"
+    },
+    {
+      "file": "packages/openclinxr/xr-asset-loading/src/generated-loaders.ts",
+      "from": "root",
+      "to": "/actor-posture"
+    },
+    {
+      "file": "packages/openclinxr/xr-humanoid-animation/src/station-bedside-approach.ts",
+      "from": "root",
+      "to": "/actor-posture"
+    },
+    {
+      "file": "packages/openclinxr/xr-humanoid-animation/src/types.ts",
+      "from": "root",
+      "to": "/actor-posture"
+    },
+    {
+      "file": "packages/openclinxr/xr-pose/src/seated-pose.ts",
+      "from": "root",
+      "to": "/actor-posture"
+    },
+    {
+      "file": "packages/openclinxr/xr-pose/src/seated-pose-mpfb2.ts",
+      "from": "root",
+      "to": "/actor-posture"
+    },
+    {
+      "file": "packages/openclinxr/xr-pose/src/supine-deck-plant.ts",
+      "from": "root",
+      "to": "/actor-posture"
+    },
+    {
+      "file": "packages/openclinxr/xr-pose/src/supine-pose.ts",
+      "from": "root",
+      "to": "/actor-posture"
+    },
+    {
+      "file": "packages/openclinxr/xr-runtime-state/src/supported-actor-placement.ts",
+      "from": "root",
+      "to": "/actor-posture"
+    },
+    {
+      "file": "packages/openclinxr/xr-scene-cues/src/cue-evidence.ts",
+      "from": "root",
+      "to": "/actor-posture"
+    },
+    {
+      "file": "packages/openclinxr/xr-scene/src/encounter-actor-framing.ts",
+      "from": "root",
+      "to": "/actor-posture"
+    },
+    {
+      "file": "packages/openclinxr/xr-station/src/two-copies-of-one-asset-mount-separately.test.ts",
+      "from": "dynamic findRuntimeEquipmentPlacementByRealizedId on runtime-bundles",
+      "to": "findRuntimeEquipmentAsset from /runtime-bundle-lookups plus sceneManifest.equipmentPlacements"
+    },
+    {
+      "file": "tools/openclinxr/factory/publish-generated-learner-runtime-bundle.ts",
+      "from": "src/index.js migrated names",
+      "to": "src/runtime-bundles-entry.js keep names; EncounterRuntimeBundlePublicationMetadata via ReturnType of keep function"
+    },
+    {
+      "file": "tools/openclinxr/factory/generated-ed-station-runtime-bundle.ts",
+      "from": "src/asset-writer.js and src/object-store.js (empty keep-only barrels)",
+      "to": "src/asset-writer-mod.js and src/object-store-mod.js (no keep row for writeEncounterRuntimeAssetBundle / createAzuriteAssetObjectStore)"
+    },
+    {
+      "file": "tools/openclinxr/factory/encounter-asset-generation-queue.ts",
+      "from": "type EncounterAssetNeedsReadinessManifest (remove on root)",
+      "to": "ReturnType<typeof buildEncounterAssetNeedsReadinessManifest> (keep on root)"
+    },
+    {
+      "file": "tools/openclinxr/evidence/licence/selected-scene-asset-lineage.ts",
+      "from": "src/index.js resolveScenarioActorCast",
+      "to": "src/runtime-bundles-entry.js"
+    },
+    {
+      "file": "tools/openclinxr/evidence/azurite-asset-upload-smoke.ts",
+      "from": "src/asset-writer.js and src/object-store.js",
+      "to": "*-mod implementation modules"
+    },
+    {
+      "file": "tools/openclinxr/evidence/the-readiness-verdict-reads-measured-geometry.test.ts",
+      "from": "evaluateScenarioAssetBudget (remove, unexported)",
+      "to": "InMemoryAssetRegistry.evaluateScenarioReadiness(...).stationBudget (keep)"
+    }
+  ],
+  "retainedExceptions": [
+    {
+      "symbol": "19 destination names on ./actor-posture, ./runtime-asset-review, ./runtime-bundles",
+      "owner": "in-repo consumers (ui-xr, xr-*, rest, ui-route-*)",
+      "reason": "amendment 26d5aab5: subpath rows that said remove after a root migrate to that subpath were flipped to keep (review error, not missed consumers)"
+    },
+    {
+      "symbol": "writeEncounterRuntimeAssetBundle",
+      "owner": "tools/openclinxr/factory/generated-ed-station-runtime-bundle.ts",
+      "reason": "no keep row at root or ./asset-writer; factory import-line retargeted to asset-writer-mod.ts (implementation). Not republished."
+    },
+    {
+      "symbol": "createAzuriteAssetObjectStore",
+      "owner": "tools/openclinxr/factory/generated-ed-station-runtime-bundle.ts",
+      "reason": "no keep row at ./object-store; factory import-line retargeted to object-store-mod.ts (implementation). Not republished."
+    }
+  ],
+  "commands": {
+    "pnpm arch:public-surface:verify -- --require-applied psr-05": "pass after apply; exit 0: 333 removed, 48 migrated",
+    "pnpm --filter @openclinxr/asset-registry test": "pass: 19 files, 140 tests",
+    "pnpm --filter @openclinxr/api test": "pass: 20 files, 192 tests",
+    "pnpm --filter @openclinxr/ui-xr test": "pass: 19 files, 130 tests",
+    "pnpm typecheck:relaxed": "pass",
+    "pnpm architecture": "pass: 17 files, 199 tests (after pnpm arch:index regenerated asset-registry/arch-index.json)",
+    "git diff --check": "pass",
+    "pnpm packages:typecheck:agent": "not re-run this turn; orchestrator runs at land. Earlier this session: 100 successful",
+    "pnpm packages:build:affected": "not re-run this turn; orchestrator runs at land. Earlier this session: 44 successful",
+    "pnpm packages:test:affected": "not re-run this turn; orchestrator runs at land. Earlier this session failed on two ui-xr tests that 163b2782 fixes"
+  },
+  "ceilings": {
+    "packages/openclinxr/asset-registry/arch-ceiling.json": {
+      "before": {
+        "testInternalImports": 1,
+        "rootEntrypointExports": 240,
+        "starExports": 8
+      },
+      "after": {
+        "testInternalImports": 1,
+        "rootEntrypointExports": 54
+      }
+    }
+  },
+  "claim": "PSR-05 applies PSR-01D asset-registry subset as amended at 26d5aab5: 333 names un-published, 48 migrated from root to existing subpaths, 157 keep names remain published (54 at root). Implementations kept. --require-applied psr-05 exits 0. testInternalImports stays 1; rootEntrypointExports 240->54; starExports 8 dropped.",
+  "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility. writeEncounterRuntimeAssetBundle and createAzuriteAssetObjectStore have no keep route; factory/evidence reach them via *-mod implementation files, not declared entrypoints.",
+  "notTested": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility. packages:typecheck:agent, packages:build:affected, and packages:test:affected are land-time orchestrator runs on this turn.",
+  "orchestratorAmendmentAtLand": "Four root names stay published: evaluateScenarioAssetBudget, ScenarioAssetBudget, ScenarioGenerationEvidence, ScenarioOptimizationEvidence. The asset-production readiness benchmark and the-readiness-verdict-reads-measured-geometry.test.ts consume them; the apply worker had replaced the function with a hand-written wrapper, which was reverted. Approval psr-01d amended to keep them."
+}

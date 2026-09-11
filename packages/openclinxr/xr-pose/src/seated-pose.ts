@@ -14,14 +14,14 @@
  * notEvidenceFor: clinical sitting realism, mocap quality, Mesh2Motion retarget success.
  */
 
-import type { Object3D } from "three";
+import { resolvePoseBone } from "@openclinxr/asset-registry";
 import {
-  SEATED_CLIP_NAME,
-  STANDING_CLIP_NAME,
   type ActorPosture,
   clipBindingForPosture,
-  resolvePoseBone,
-} from "@openclinxr/asset-registry";
+  SEATED_CLIP_NAME,
+  STANDING_CLIP_NAME,
+} from "@openclinxr/asset-registry/actor-posture";
+import type { Object3D } from "three";
 import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
 // #447: the MPFB2 rail's baked rest is not Anny-frame — the leg fold lives in its own module.
 import { applyMpfb2SeatedFold, isMpfb2Rig } from "./seated-pose-mpfb2.js";

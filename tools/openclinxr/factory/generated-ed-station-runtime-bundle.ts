@@ -1,8 +1,8 @@
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { writeEncounterRuntimeAssetBundle } from "../../../packages/openclinxr/asset-registry/src/asset-writer.js";
-import { createAzuriteAssetObjectStore } from "../../../packages/openclinxr/asset-registry/src/object-store.js";
+import { writeEncounterRuntimeAssetBundle } from "../../../packages/openclinxr/asset-registry/src/asset-writer-mod.js";
+import { createAzuriteAssetObjectStore } from "../../../packages/openclinxr/asset-registry/src/object-store-mod.js";
 import type { RuntimeAssetReviewDecision } from "../../../packages/openclinxr/asset-registry/src/runtime-asset-review.js";
 import {
   buildEncounterRuntimeAssetBundle,
@@ -15,8 +15,8 @@ import {
 } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 import { buildEnvironmentRuntimeAssetReference, defaultEnvironmentArtifactsReportPath, type EnvironmentArtifactsReport } from "../evidence/environment-artifacts.js";
-import { buildGeneratedHumanRiggingRuntimeAssetReference, defaultGeneratedHumanRiggingReportPath, type GeneratedHumanRiggingReport } from "./generated-human-rigging-artifacts.js";
 import { buildMedicalEquipmentRuntimeAssetReferences, defaultMedicalEquipmentReportPath, type MedicalEquipmentArtifactsReport } from "../evidence/medical-equipment-artifacts.js";
+import { buildGeneratedHumanRiggingRuntimeAssetReference, defaultGeneratedHumanRiggingReportPath, type GeneratedHumanRiggingReport } from "./generated-human-rigging-artifacts.js";
 
 export type GeneratedEdStationRuntimeBundleReport = {
   schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1";

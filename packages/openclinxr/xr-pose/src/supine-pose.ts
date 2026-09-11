@@ -17,13 +17,13 @@
  * notEvidenceFor: clinical lying realism, Quest readiness, multi-joint bed fidelity.
  */
 
-import { Euler, Quaternion, type Object3D } from "three";
+import { resolvePoseBone } from "@openclinxr/asset-registry";
 import {
-  SUPINE_CLIP_NAME,
   type ActorPosture,
   clipBindingForPosture,
-  resolvePoseBone,
-} from "@openclinxr/asset-registry";
+  SUPINE_CLIP_NAME,
+} from "@openclinxr/asset-registry/actor-posture";
+import { Euler, type Object3D, Quaternion } from "three";
 import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
 import { isMpfb2Rig } from "./seated-pose-mpfb2.js";
 

@@ -1,5 +1,5 @@
-import { buildGuardedRuntimeSelectorDisabledDecision, createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry";
 import { unrealizableEquipmentDecisions } from "@openclinxr/asset-registry/case-runtime-equipment";
+import { buildGuardedRuntimeSelectorDisabledDecision, createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import { routeById } from "@openclinxr/rest";
 import { buildDynamicEncounterFactoryPlanningProjection, scenarioBank } from "@openclinxr/scenario-fixtures";
 import { resolveScenarioById, type ScenarioCatalogPort } from "@openclinxr/scenario-runtime";

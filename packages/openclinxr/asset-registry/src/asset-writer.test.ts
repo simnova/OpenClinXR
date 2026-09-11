@@ -1,12 +1,12 @@
+import { buildEncounterRuntimeAssetBundle, registerGeneratedRuntimeAssetReference, resolveRuntimeAssetStoreConfig } from "@openclinxr/asset-registry/runtime-bundles";
 import { describe, expect, it } from "vitest";
 import {
   encounterRuntimeAssetBundleBlobName,
   runtimeAssetManifestBlobName,
   writeEncounterRuntimeAssetBundle,
   writeGeneratedRuntimeAssetWithManifest,
-} from "./asset-writer.js";
-import type { AssetObjectStore, AssetObjectStorePutInput, AssetObjectStorePutResult } from "./object-store.js";
-import { buildEncounterRuntimeAssetBundle, registerGeneratedRuntimeAssetReference, resolveRuntimeAssetStoreConfig } from "./runtime-bundles.js";
+} from "./asset-writer-mod.js";
+import type { AssetObjectStore, AssetObjectStorePutInput, AssetObjectStorePutResult } from "./object-store-mod.js";
 
 describe("asset writer", () => {
   it("writes generated asset bytes plus a sidecar runtime manifest through the object store", async () => {

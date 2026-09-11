@@ -1,11 +1,11 @@
+import { registerGeneratedRuntimeAssetReference, resolveRuntimeAssetStoreConfig } from "@openclinxr/asset-registry/runtime-bundles";
 import { describe, expect, it } from "vitest";
 import {
   assertLocalAzuriteEndpoint,
   buildAzuriteConnectionSummary,
   buildSharedKeyAuthorizationHeader,
   createAzuriteAssetObjectStore,
-} from "./object-store.js";
-import { registerGeneratedRuntimeAssetReference, resolveRuntimeAssetStoreConfig } from "./runtime-bundles.js";
+} from "./object-store-mod.js";
 
 describe("asset object store", () => {
   it("summarizes Azurite emulator endpoints without production cloud calls", () => {

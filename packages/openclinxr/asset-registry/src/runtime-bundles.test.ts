@@ -1,22 +1,26 @@
-import { describe, expect, it } from "vitest";
 import {
   buildEncounterDynamicBehaviorCoverageSummary,
-  buildEncounterFactoryDryRunSummary,
-  buildEncounterFactoryInputPlanningSummary,
   buildEncounterFactorySummaryContracts,
   buildEncounterRuntimeAssetBundle,
   buildGuardedRuntimeSelectorDisabledDecision,
   createEdChestPainLocalLearnerRuntimeAssetBundle,
+  type EncounterRuntimeAsset,
+  type RuntimeAssetKind,
+} from "@openclinxr/asset-registry/runtime-bundles";
+import { describe, expect, it } from "vitest";
+import {
+  buildEncounterFactoryDryRunSummary,
+  buildEncounterFactoryInputPlanningSummary,
 } from "./index.js";
 
 function testRuntimeAsset(
   input: {
     assetId: string;
     scenarioAssetId: string;
-    kind: import("./index.js").RuntimeAssetKind;
+    kind: RuntimeAssetKind;
     displayName: string;
   },
-): import("./index.js").EncounterRuntimeAsset {
+): EncounterRuntimeAsset {
   return {
     assetId: input.assetId,
     version: "test-fixture",
@@ -163,7 +167,7 @@ describe("encounter factory summary contracts", () => {
 
   it("carries provider-disabled remediation plan refs without unblocking learner runtime use", () => {
     const sourceBundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
-    const remediationPlanRefs: import("./index.js").EncounterRuntimeRemediationPlanAuditRef[] = [
+    const remediationPlanRefs = [
       {
         planRefId: "visual-remediation-plan:ed:patient:gaze",
         dimension: "gaze" as const,
@@ -171,7 +175,12 @@ describe("encounter factory summary contracts", () => {
         executionStatus: "metadata_only_not_executed" as const,
         providerRoutesRequireExplicitApproval: true as const,
         learnerUseBlockedUntilEvidenceGatesAttach: true as const,
-        notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+        notEvidenceFor: [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity",
+        ] as Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">,
       },
     ];
     const bundle = buildEncounterRuntimeAssetBundle({

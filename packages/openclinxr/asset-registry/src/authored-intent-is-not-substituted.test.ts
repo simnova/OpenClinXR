@@ -1,10 +1,39 @@
+import { createHash } from "node:crypto";
+import { planBedsideApproach } from "@openclinxr/asset-registry/bedside-approach-path";
+import { resolveBedsideLayoutFromSeed } from "@openclinxr/asset-registry/layout-solve";
 import { describe, expect, it } from "vitest";
+
+function resolveBedsideLayout(input: {
+  seedInput: { scenarioId: string; assetRevision: string; solverVersion: string; variationIndex: number };
+  patientPosition: Parameters<typeof resolveBedsideLayoutFromSeed>[0]["patientPosition"];
+  obstacles: Parameters<typeof resolveBedsideLayoutFromSeed>[0]["obstacles"];
+  supportBounds?: Parameters<typeof resolveBedsideLayoutFromSeed>[0]["supportBounds"];
+  intent?: Parameters<typeof resolveBedsideLayoutFromSeed>[0]["intent"];
+}) {
+  const seed = createHash("sha256")
+    .update(
+      [
+        "openclinxr.layout-variation-seed.v1",
+        input.seedInput.scenarioId,
+        input.seedInput.assetRevision,
+        input.seedInput.solverVersion,
+        String(input.seedInput.variationIndex),
+      ].join(" "),
+    )
+    .digest("hex");
+  return resolveBedsideLayoutFromSeed({
+    seed,
+    patientPosition: input.patientPosition,
+    obstacles: input.obstacles,
+    ...(input.supportBounds === undefined ? {} : { supportBounds: input.supportBounds }),
+    ...(input.intent === undefined ? {} : { intent: input.intent }),
+  });
+}
+
 import {
-  ED_STRETCHER_DECK_BOUNDS,
   bedsideClearanceViolations,
-  planBedsideApproach,
+  ED_STRETCHER_DECK_BOUNDS,
 } from "./index.js";
-import { resolveBedsideLayout } from "@openclinxr/asset-registry/layout-variation";
 
 /**
  * Brief §3, deterministic solving: "Apply hard constraints before ranking valid alternatives, break

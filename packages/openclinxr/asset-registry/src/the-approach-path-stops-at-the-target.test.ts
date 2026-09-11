@@ -1,8 +1,8 @@
+import { planBedsideApproach } from "@openclinxr/asset-registry/bedside-approach-path";
 import { describe, expect, it } from "vitest";
 import {
-  ED_STRETCHER_DECK_BOUNDS,
   bedsideTargetForClinician,
-  planBedsideApproach,
+  ED_STRETCHER_DECK_BOUNDS,
 } from "./index.js";
 
 const PATIENT = { x: -0.9, y: 0, z: -0.1 };

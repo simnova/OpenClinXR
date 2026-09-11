@@ -1,8 +1,8 @@
+import { headingRadiansToward } from "@openclinxr/asset-registry";
 import {
   composeSupportedActorWorldPosition,
-  headingRadiansToward,
   supineActorWorldPosition,
-} from "@openclinxr/asset-registry";
+} from "@openclinxr/asset-registry/actor-posture";
 import { FOOT_CONTACT_HEIGHT_METERS } from "@openclinxr/asset-registry/approach-executor";
 import { geometryRevisionDigest, resolveBedsideApproachIntent } from "@openclinxr/asset-registry/case-approach-intent";
 import type { EncounterRuntimeActorPlacement } from "@openclinxr/asset-registry/runtime-bundles";

@@ -3,7 +3,7 @@ import {
   resolveActorPosture,
   seatedVerticalOffsetForSeatHeight,
   supineVerticalOffsetSeed,
-} from "@openclinxr/asset-registry";
+} from "@openclinxr/asset-registry/actor-posture";
 import { admitFrozenScenePlanForObservedScene, type ScenePlanAdmission, stationIdForSceneClosureScenario } from "@openclinxr/asset-registry/encounter-bundle-admission";
 import {
   findRuntimeActorAsset,

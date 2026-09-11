@@ -1,8 +1,8 @@
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { writeGeneratedRuntimeAssetWithManifest } from "../../../packages/openclinxr/asset-registry/src/asset-writer.js";
-import { buildAzuriteConnectionSummary, createAzuriteAssetObjectStore } from "../../../packages/openclinxr/asset-registry/src/object-store.js";
+import { writeGeneratedRuntimeAssetWithManifest } from "../../../packages/openclinxr/asset-registry/src/asset-writer-mod.js";
+import { buildAzuriteConnectionSummary, createAzuriteAssetObjectStore } from "../../../packages/openclinxr/asset-registry/src/object-store-mod.js";
 import { buildGeneratedHumanRiggingRuntimeAssetReference, defaultGeneratedHumanRiggingReportPath, type GeneratedHumanRiggingReport } from "../factory/generated-human-rigging-artifacts.js";
 
 export type AzuriteAssetUploadSmokeReport = {

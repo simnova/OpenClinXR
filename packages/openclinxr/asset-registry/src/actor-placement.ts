@@ -2,13 +2,13 @@
  * Generated actor/equipment placement helpers extracted from runtime-bundles (#81 freeze).
  */
 
+import { resolveActorPosture } from "./actor-posture-mod.js";
 import type {
   EncounterRuntimeActorAsset,
   EncounterRuntimeActorPlacement,
   EncounterRuntimeEquipmentAsset,
   EncounterRuntimeEquipmentPlacement,
 } from "./runtime-bundles.js";
-import { resolveActorPosture } from "./actor-posture.js";
 
 export function safeRuntimeManifestKey(value: string): string {
   return value.trim().replace(/[^a-zA-Z0-9_.:-]+/gu, "_") || "unknown";

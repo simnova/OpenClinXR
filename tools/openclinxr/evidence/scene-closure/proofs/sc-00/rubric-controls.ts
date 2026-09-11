@@ -23,10 +23,10 @@
  */
 
 import { CLINICIAN_WALK_SPEED_MPS } from "../../../../../../packages/openclinxr/asset-registry/src/approach-executor.js";
+import { planBedsideApproach } from "../../../../../../packages/openclinxr/asset-registry/src/bedside-approach-path.js";
 import {
   bedsideTargetForClinician,
   ED_STRETCHER_DECK_BOUNDS,
-  planBedsideApproach,
 } from "../../../../../../packages/openclinxr/asset-registry/src/index.js";
 import {
   type MotionMeasurement,

@@ -1,9 +1,8 @@
 import {
   buildEncounterRuntimeBundlePublicationMetadata,
   createEdChestPainLocalLearnerRuntimeAssetBundle,
-  type EncounterRuntimeBundlePublicationMetadata,
   type LearnerRuntimeAssetBundle,
-} from "../../../packages/openclinxr/asset-registry/src/index.js";
+} from "../../../packages/openclinxr/asset-registry/src/runtime-bundles-entry.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 
@@ -23,7 +22,7 @@ export type GeneratedLearnerRuntimeBundlePublicationReport = {
   schemaVersion: "openclinxr.generated-learner-runtime-bundle-publication.v1";
   status: "planned_not_persisted";
   sourceBundleReportPath?: string;
-  publication: EncounterRuntimeBundlePublicationMetadata;
+  publication: ReturnType<typeof buildEncounterRuntimeBundlePublicationMetadata>;
   persistence: {
     mongoUriConfigured: false;
     mongoWritePerformed: false;

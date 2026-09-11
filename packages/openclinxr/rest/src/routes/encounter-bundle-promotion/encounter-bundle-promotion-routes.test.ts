@@ -1,13 +1,15 @@
+import type {
+  EncounterBundleFactoryMember,
+  EncounterBundleFactoryMemberKind,
+  RuntimeAssetReviewDecision,
+} from "@openclinxr/asset-registry/runtime-asset-review";
 import {
-  type EncounterBundleFactoryMember,
-  type EncounterBundleFactoryMemberKind,
   type EncounterRuntimeAsset,
   type RuntimeAssetKind,
-  type RuntimeAssetReviewDecision,
   type RuntimeAssetReviewStatus,
   registerGeneratedRuntimeAssetReference,
   resolveRuntimeAssetStoreConfig,
-} from "@openclinxr/asset-registry";
+} from "@openclinxr/asset-registry/runtime-bundles";
 import { DEFAULT_DEV_AUTH_SECRET, signAuthToken } from "@openclinxr/auth";
 import { describe, expect, it } from "vitest";
 import { ApiApplication } from "../../api-application.js";
@@ -74,10 +76,10 @@ describe("faculty encounter bundle promotion routes", () => {
   it("previews every blocking review and provenance attestation without promoting", async () => {
     const composed = compose();
     const request = reviewedRequest();
-    request.members = request.members.map((member, index) =>
+    request.members = request.members.map((candidate, index) =>
       index === 0
-        ? { ...member, pipelineState: "generated", asset: { ...member.asset, provenanceRefs: [] } }
-        : member,
+        ? { ...candidate, pipelineState: "generated", asset: { ...candidate.asset, provenanceRefs: [] } }
+        : candidate,
     );
     const response = await composed.app.request(FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH, {
       method: "POST",
@@ -166,9 +168,9 @@ function reviewedRequest(): FacultyEncounterBundlePromotionRequest {
     assetStoreKind: "azurite_blob",
     members,
     decisions: reviewDecisions(members),
-    expectedContentHashes: Object.fromEntries(members.map((member) => [
-      member.asset.assetId,
-      member.asset.blob.contentHash ?? "",
+    expectedContentHashes: Object.fromEntries(members.map((bundleMember) => [
+      bundleMember.asset.assetId,
+      bundleMember.asset.blob.contentHash ?? "",
     ])),
   };
 }

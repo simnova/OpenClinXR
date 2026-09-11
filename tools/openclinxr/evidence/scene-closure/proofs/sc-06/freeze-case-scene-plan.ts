@@ -2,9 +2,9 @@ import { writeFileSync } from "node:fs";
 import { Scene } from "three";
 import {
   composeSupportedActorWorldPosition,
-  createEdChestPainRuntimeSceneManifest,
   supineActorWorldPosition,
-} from "../../../../../../packages/openclinxr/asset-registry/src/index.js";
+} from "../../../../../../packages/openclinxr/asset-registry/src/actor-posture.js";
+import { createEdChestPainRuntimeSceneManifest } from "../../../../../../packages/openclinxr/asset-registry/src/runtime-bundles-entry.js";
 import {
   type FreezeScenePlanInput,
   freezeAcceptedScenePlan,

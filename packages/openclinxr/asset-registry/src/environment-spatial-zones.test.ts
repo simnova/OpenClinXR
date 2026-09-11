@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
+import { describe, expect, it } from "vitest";
 import { buildEnvironmentGenerationPacket, createScenarioPlaceholderManifests } from "./index.js";
 
 /**

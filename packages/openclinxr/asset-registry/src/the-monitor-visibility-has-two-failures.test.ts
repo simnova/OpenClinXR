@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-  ED_MONITOR_BOUNDS,
-  ED_STRETCHER_DECK_BOUNDS,
   bedsideClearanceViolations,
   bedsideTargetForClinician,
+  ED_MONITOR_BOUNDS,
+  ED_STRETCHER_DECK_BOUNDS,
   monitorVisibilityFrom,
   screenNormal,
 } from "./index.js";

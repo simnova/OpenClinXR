@@ -1,12 +1,5 @@
-import type {
-  EncounterDynamicBehaviorCoverageSummary,
-  EncounterFactoryDryRunSummary,
-  EncounterFactoryInputPlanningSummary,
-  EnvironmentGenerationQueue,
-  EnvironmentGenerationWorkOrderQueue,
-  ScenarioAssetReadiness,
-  ScenarioSceneGenerationPipelineWorkOrderQueue,
-} from "@openclinxr/asset-registry";
+import type { EncounterDynamicBehaviorCoverageSummary, EncounterFactoryDryRunSummary, EncounterFactoryInputPlanningSummary } from "@openclinxr/asset-registry/runtime-bundles";
+import type { EnvironmentGenerationQueue, EnvironmentGenerationWorkOrderQueue, ScenarioAssetReadiness, ScenarioSceneGenerationPipelineWorkOrderQueue } from "@openclinxr/asset-registry";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import type {
   ReviewPacketReplayQuery,

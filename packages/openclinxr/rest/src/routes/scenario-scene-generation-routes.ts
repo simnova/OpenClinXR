@@ -1,4 +1,4 @@
-import { buildEncounterDynamicBehaviorCoverageSummary, buildEncounterFactorySummaryContracts, buildEncounterRuntimeBundlePublicationMetadata, createEdChestPainLocalLearnerRuntimeAssetBundle, ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS, evaluateEncounterRuntimeLearnerUseGate } from "@openclinxr/asset-registry";
+import { buildEncounterDynamicBehaviorCoverageSummary, buildEncounterFactorySummaryContracts, buildEncounterRuntimeBundlePublicationMetadata, createEdChestPainLocalLearnerRuntimeAssetBundle, ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS, evaluateEncounterRuntimeLearnerUseGate } from "@openclinxr/asset-registry/runtime-bundles";
 import { routeById } from "@openclinxr/rest";
 import { buildScenarioBankExamSequenceProjection, createLearnerScenarioView, edChestPainScenario, evaluateScenarioBankMaturity, scenarioBank } from "@openclinxr/scenario-fixtures";
 import type { Hono } from "hono";

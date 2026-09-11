@@ -1,0 +1,456 @@
+import { createHash } from "node:crypto";
+import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evidence-mod.js";
+import { geometryRevisionDigest, type ObservedApproachGeometry } from "./case-approach-intent-mod.js";
+import { CASE_FROZEN_SCENE_PLANS } from "./case-frozen-scene-plans.js";
+import { resolveCaseOwnedScenePlan } from "./case-owned-scene-plan-mod.js";
+import {
+  type FrozenSceneReopen,
+  type FrozenSceneReproduction,
+  reopenFrozenScene,
+} from "./frozen-scene-replay-mod.js";
+import type { BedsideLayoutIntent } from "./layout-solve-mod.js";
+import {
+  type EncounterRuntimeAsset,
+  evaluateEncounterRuntimeLearnerUseGate,
+  type LearnerRuntimeAssetBundle,
+} from "./runtime-bundles.js";
+import { canonicalJson } from "./scene-plan-freeze-mod.js";
+
+/**
+ * WHAT THE SHIPPED RUNTIME CALLS to admit — or refuse — a frozen scene plan.
+ *
+ * WHY THIS MODULE EXISTS. The first SC-06 attempt built the record, the freeze, the reopen and the
+ * invalidation, and wired none of them to anything a learner runs. Measured on that head: a grep over
+ * apps, packages and tools excluding dist for importers of the seven new modules returned the modules
+ * themselves, the card's own behavior test, and two files under `proofs/sc-06` that named them only
+ * inside strings. `apps/ui-xr/src/main.ts` imported none of them. The owner survey's finding that the
+ * layout solver had zero production callers had been repaired exactly one level: the solver gained a
+ * non-test caller, and that caller's callers terminated at the test. An inert helper had become an
+ * inert subsystem.
+ *
+ * The calibration is the repo's own pre-existing chain, which does reach a learner:
+ * `main.ts:141` imports `@openclinxr/xr-humanoid-animation/station-bedside-approach`, which calls
+ * `resolveBedsideApproachIntent` at `station-bedside-approach.ts:177`, and
+ * `case-owned-approach-runtime.ts:211` calls `beginBedsideApproachExecution`. This module is the
+ * equivalent for the replay ring, and clause (m) of
+ * `apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts` asserts every
+ * link of that chain from source, so severing any one of them fails the card's named behavior test.
+ *
+ * IT ALSO HOLDS FOUR FUNCTIONS THAT MOVED HERE FROM THE APP. `inspectPinnedBundleIdentity`,
+ * `inspectBundleEligibility`, `bundleUsesOnlyApprovedLocalFixtureAssets` and `runtimeBundleAssets`
+ * were 53 lines of pure inspection over `LearnerRuntimeAssetBundle` — an asset-registry type — living
+ * in an app composition root. `apps/ui-xr/src` sits at EXACTLY its frozen budget of 10 files / 6,069
+ * lines (`composition-root-conventions.ts:59-62`), and that gate's own message says the fix is to
+ * "put new behaviour in a package". Moving them is what paid for the wiring below, and it is where
+ * they belonged: an app composes and boots rather than deciding what a bundle is.
+ *
+ * TWO ENTRY POINTS, because the two halves of a reopen become answerable at different moments.
+ *
+ * `admitFrozenScenePlan` runs at BOOT, where the bundle has arrived and no room has been observed.
+ * It answers identity: does this plan belong to this bundle, and is it shaped like a plan at all.
+ *
+ * `admitFrozenScenePlanForObservedRoom` runs once the scene EXISTS, and it is the half that matters:
+ * it re-solves the layout from the persisted seed against the room actually on screen. A browser
+ * cannot rehash an 11 MB GLB, so byte identity stays the server's job — the freeze and the
+ * actual-evidence CLI own it — and this side owns geometry, reproduction, rubric, acknowledgment and
+ * dialogue identity. That boundary is stated rather than implied because a reader could otherwise
+ * take "the runtime reopens the plan" to mean the runtime re-verified the bytes. It did not.
+ *
+ * VERIFIED, NOT VOUCHED. A consumer that claims these bytes match disk is asserting something this
+ * path never measured. Use `verifyCommittedScenePlanAgainstDisk` (below), which rehashes the four
+ * selected GLBs off disk, before claiming the committed record's digests describe the files. The
+ * behavior test drives that check, so a committed record that drifted from its own assets fails.
+ *
+ * claimScope: admission of one frozen plan against one bundle and, when observed, one room.
+ * notEvidenceFor: byte identity of the bound assets in a browser, clinical validity, or that the
+ * frozen route was walked.
+ */
+
+/** A bundle MAY carry the accepted plan the encounter was frozen with. Most do not. */
+export type BundleCarryingAcceptedScenePlan = LearnerRuntimeAssetBundle & {
+  acceptedScenePlan?: unknown;
+};
+
+export type ScenePlanAdmission =
+  /** The bundle carries no frozen plan. Not a refusal: most encounters have never been frozen. */
+  | { status: "no_plan_carried" }
+  | {
+      status: "admitted";
+      record: DurableAcceptedScenePlanRecord;
+      /** Present only once a room has been observed and the layout re-solved. */
+      reproduced: FrozenSceneReproduction | null;
+    }
+  | { status: "refused"; reason: string; detail: string };
+
+/**
+ * The frozen plan this bundle should be reopened against, from the bundle or from the case.
+ *
+ * TWO SOURCES, and the order matters. A bundle that CARRIES a plan wins: a server that froze this
+ * exact compilation knows more than a build-time default. Otherwise the case's own frozen plan is
+ * looked up by scenario id from `CASE_FROZEN_SCENE_PLANS`, which the build-time freeze generated by
+ * hashing real bytes.
+ *
+ * WHY THE FALLBACK EXISTS. Round 2 shipped this function reading `bundle.acceptedScenePlan` when no
+ * producer in the repo ever wrote that field — a grep found the declaration and the read and nothing
+ * else — so the body could never execute and gutting it was invisible to every gate. A lookup the
+ * runtime can actually satisfy is what makes the wiring real.
+ *
+ * A case with no frozen plan returns undefined and the caller answers `no_plan_carried`. That is the
+ * honest answer for most encounters, which have never been frozen.
+ */
+export function carriedAcceptedScenePlan(bundle: BundleCarryingAcceptedScenePlan): unknown {
+  if (bundle.acceptedScenePlan !== undefined && bundle.acceptedScenePlan !== null) {
+    return bundle.acceptedScenePlan;
+  }
+  return CASE_FROZEN_SCENE_PLANS[bundle.scenarioId];
+}
+
+function isRecordObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/**
+ * BOOT ADMISSION: does the carried plan belong to the bundle in front of us?
+ *
+ * This runs before any geometry exists, so it deliberately does NOT claim the plan reproduces. What
+ * it refuses is a plan bound to a different encounter — the shape that would otherwise sail through
+ * every later check, because a plan for another case can re-solve its own layout perfectly well and
+ * still be the wrong plan.
+ */
+export function admitFrozenScenePlan(input: {
+  bundle: BundleCarryingAcceptedScenePlan;
+}): ScenePlanAdmission {
+  const candidate = carriedAcceptedScenePlan(input.bundle);
+  if (candidate === undefined || candidate === null) return { status: "no_plan_carried" };
+  if (!isRecordObject(candidate)) {
+    return {
+      status: "refused",
+      reason: "plan_malformed",
+      detail: `the bundle carries an accepted scene plan that is not an object (${typeof candidate})`,
+    };
+  }
+  const caseSection = candidate["case"];
+  if (!isRecordObject(caseSection)) {
+    return {
+      status: "refused",
+      reason: "plan_wrong_schema",
+      detail: "the carried plan has no case section, so it binds no encounter",
+    };
+  }
+  if (caseSection["caseId"] !== input.bundle.scenarioId) {
+    return {
+      status: "refused",
+      reason: "plan_bound_to_another_encounter",
+      detail:
+        `the carried plan was frozen for case ${String(caseSection["caseId"])} and this bundle is `
+        + `${input.bundle.scenarioId}. A plan for another case re-solves its own layout perfectly and `
+        + "is still the wrong plan.",
+    };
+  }
+  if (caseSection["stationId"] !== input.bundle.stationId) {
+    return {
+      status: "refused",
+      reason: "plan_bound_to_another_station",
+      detail:
+        `the carried plan was frozen for station ${String(caseSection["stationId"])} and this bundle is `
+        + `${input.bundle.stationId}`,
+    };
+  }
+  return {
+    status: "admitted",
+    record: candidate as unknown as DurableAcceptedScenePlanRecord,
+    reproduced: null,
+  };
+}
+
+/**
+ * FRAME ADMISSION, pure core: re-solve the frozen layout against the room that is actually on screen.
+ *
+ * `admitFrozenScenePlanForObservedScene` below is the scene-facing wrapper the runtime calls; this
+ * takes an already-observed geometry so a test can drive it without a scene graph.
+ *
+ * The geometry revision handed to the comparison is computed HERE, from the live scene, so a room
+ * that moved since acceptance refuses. Everything the browser cannot recompute is carried straight
+ * from the record and is therefore NOT re-verified on this path; `verify.ts` is where bytes are
+ * re-hashed, and the module header says so.
+ */
+export function admitFrozenScenePlanForObservedRoom(input: {
+  record: DurableAcceptedScenePlanRecord;
+  geometry: ObservedApproachGeometry;
+  patientWorldPosition: { x: number; y: number; z: number };
+  start: { x: number; y: number; z: number };
+  intent?: BedsideLayoutIntent | undefined;
+}): ScenePlanAdmission {
+  const observedGeometryRevision = geometryRevisionDigest(input.geometry);
+  const reopened: FrozenSceneReopen = reopenFrozenScene(input.record, {
+    evidence: {
+      caseContentSha256: input.record.case.caseContentSha256,
+      bundleSha256: input.record.bundle.bundleSha256,
+      assetSha256ByPath: Object.fromEntries(
+        input.record.instances
+          .filter((instance) => instance.assetPath !== undefined)
+          .map((instance) => [instance.assetPath as string, instance.assetSha256]),
+      ),
+      solverVersion: input.record.revisions.solverVersion,
+      rigRevision: input.record.revisions.rigRevision,
+      clipRevision: input.record.revisions.clipRevision,
+      // THE ONE FIELD THIS PATH ACTUALLY OBSERVES. Every other digest above is carried from the
+      // record because a browser cannot recompute it; this one is measured off the live scene, so a
+      // room that changed since acceptance is refused here rather than at the next server run.
+      geometryRevision: observedGeometryRevision,
+      stationRunId: input.record.run.stationRunId,
+    },
+    geometry: input.geometry,
+    patientWorldPosition: input.patientWorldPosition,
+    start: input.start,
+    ...(input.intent === undefined ? {} : { intent: input.intent }),
+  });
+  if (reopened.status === "refused") {
+    return { status: "refused", reason: reopened.reason, detail: reopened.detail };
+  }
+  return { status: "admitted", record: reopened.record, reproduced: reopened.reproduced };
+}
+
+// ── Bundle inspection, moved here from apps/ui-xr/src/encounter-bundle-boot/index.ts ─────────────
+
+/**
+ * THE SCENE-CLOSURE STATION, and it is DATA rather than a second parameter.
+ *
+ * No resolver in the tree maps a scenario id to its station: scenarios carry no station field,
+ * the producer takes `stationId` as a caller parameter with an ED default, and the case source is
+ * authoring input nothing under packages/ or apps/ may import. This table binds the case whose
+ * frozen plan `CASE_FROZEN_SCENE_PLANS` carries to the bundle the runtime must build, and
+ * `stationIdForSceneClosureScenario` is the resolution the app call site and this card's behavior
+ * test both use — so the ordinary path and the tested path cannot disagree about which station a
+ * scenario stages.
+ *
+ * A scenario with no frozen plan has no entry and resolves to undefined; the caller keeps its own
+ * default, which is the honest answer for every encounter that has never been frozen.
+ */
+export const SCENE_CLOSURE_SCENARIO_STATION_ID: Readonly<Record<string, string>> = Object.freeze({
+  "scene_closure_supine_bedside_v1": "scene_closure_supine_bedside_station_v1",
+});
+
+export function stationIdForSceneClosureScenario(scenarioId: string): string | undefined {
+  return SCENE_CLOSURE_SCENARIO_STATION_ID[scenarioId];
+}
+
+/**
+ * DOES THE COMMITTED RECORD STILL DESCRIBE THE FILES ON DISK. Runs in node: it rehashes bytes.
+ *
+ * The browser admission above cannot rehash an 11 MB GLB, so it carries the record's own digests
+ * instead and answers geometry only (stated in the module header). The verifier CLI and
+ * `observeScenePlanEvidence` DO rehash from the filesystem. This is the same check, callable
+ * without a report: it compares the committed record's four asset digests, the
+ * case document digest, the bundle digest and the re-derived route length against disk.
+ *
+ * `readBytes` is injected so the behavior test can drive it without touching disk. The record is
+ * passed in rather than imported, so the clause fails on a drifted record, not a drifted import.
+ */
+export type CommittedScenePlanDiskCheck = {
+  ok: boolean;
+  problems: string[];
+};
+
+/**
+ * Re-derive the route length from the persisted seed against the ward geometry, so the committed
+ * record's `routeLengthMeters` is compared with a re-execution rather than trusted. Returns null
+ * when the seed will not resolve here; the reopen owns that refusal, not this check.
+ */
+function rederiveRouteLengthMeters(input: {
+  record: DurableAcceptedScenePlanRecord;
+  geometry: ObservedApproachGeometry;
+  patientWorldPosition: { x: number; y: number; z: number };
+  start: { x: number; y: number; z: number };
+}): number | null {
+  let resolved: ReturnType<typeof resolveCaseOwnedScenePlan>;
+  try {
+    resolved = resolveCaseOwnedScenePlan({
+      seed: input.record.variation.seed,
+      variationIndex: input.record.variation.variationIndex,
+      patientWorldPosition: input.patientWorldPosition,
+      start: input.start,
+      geometry: input.geometry,
+    });
+  } catch {
+    return null;
+  }
+  if (!resolved.resolved) return null;
+  let total = 0;
+  for (let index = 1; index < resolved.plan.waypoints.length; index += 1) {
+    const from = resolved.plan.waypoints[index - 1]?.position;
+    const to = resolved.plan.waypoints[index]?.position;
+    if (from === undefined || to === undefined) continue;
+    total += Math.hypot(to.x - from.x, to.z - from.z);
+  }
+  return total;
+}
+
+export function verifyCommittedScenePlanAgainstDisk(input: {
+  record: DurableAcceptedScenePlanRecord;
+  caseSourcePath: string;
+  bundleContent: unknown;
+  geometry: ObservedApproachGeometry;
+  patientWorldPosition: { x: number; y: number; z: number };
+  start: { x: number; y: number; z: number };
+  readBytes: (repoRelativePath: string) => Buffer;
+}): CommittedScenePlanDiskCheck {
+  const problems: string[] = [];
+  const sha256Hex = (bytes: Buffer | string): string =>
+    createHash("sha256").update(bytes).digest("hex");
+  for (const instance of input.record.instances) {
+    if (instance.assetPath === undefined || instance.assetSha256 === undefined) continue;
+    let bytes: Buffer;
+    try {
+      bytes = input.readBytes(instance.assetPath);
+    } catch {
+      problems.push(`instance ${instance.instanceId} names ${instance.assetPath}, which cannot be read`);
+      continue;
+    }
+    const actual = sha256Hex(bytes);
+    if (actual !== instance.assetSha256) {
+      problems.push(
+        `instance ${instance.instanceId} hashes to ${actual.slice(0, 12)} on disk, `
+          + `the committed record binds ${instance.assetSha256.slice(0, 12)}`,
+      );
+    }
+  }
+  try {
+    const actual = sha256Hex(input.readBytes(input.caseSourcePath));
+    if (actual !== input.record.case.caseContentSha256) {
+      problems.push(
+        `case document hashes to ${actual.slice(0, 12)} on disk, `
+          + `the committed record binds ${input.record.case.caseContentSha256.slice(0, 12)}`,
+      );
+    }
+  } catch {
+    problems.push(`case document ${input.caseSourcePath} cannot be read`);
+  }
+  const bundleActual = sha256Hex(canonicalJson(input.bundleContent));
+  if (bundleActual !== input.record.bundle.bundleSha256) {
+    problems.push(
+      `bundle content hashes to ${bundleActual.slice(0, 12)} on disk, `
+        + `the committed record binds ${input.record.bundle.bundleSha256.slice(0, 12)}`,
+    );
+  }
+  const resolved = rederiveRouteLengthMeters({
+    record: input.record,
+    geometry: input.geometry,
+    patientWorldPosition: input.patientWorldPosition,
+    start: input.start,
+  });
+  if (resolved !== null && resolved !== input.record.resolvedLayout.routeLengthMeters) {
+    problems.push(
+      `route length re-derives to ${String(resolved)} m, `
+        + `the committed record binds ${String(input.record.resolvedLayout.routeLengthMeters)} m`,
+    );
+  }
+  return { ok: problems.length === 0, problems };
+}
+
+/** The station fields an identity check needs. Structural so the app keeps owning its own type. */
+export type PinnedStationSelection = {
+  stationId: string;
+  scenarioId: string;
+};
+
+export function inspectPinnedBundleIdentity(
+  bundle: LearnerRuntimeAssetBundle,
+  station: PinnedStationSelection,
+  pinnedBundleId: string,
+): string[] {
+  const blockers: string[] = [];
+  if (bundle.identityScope !== "learner_runtime_opaque_bundle") {
+    blockers.push("identity_scope_mismatch");
+  }
+  if (bundle.bundleId !== pinnedBundleId) {
+    blockers.push("pinned_bundle_id_mismatch");
+  }
+  if (bundle.stationId !== station.stationId) {
+    blockers.push("station_id_mismatch");
+  }
+  if (bundle.scenarioId !== station.scenarioId) {
+    blockers.push("scenario_id_mismatch");
+  }
+  return blockers;
+}
+
+export function inspectBundleEligibility(bundle: LearnerRuntimeAssetBundle): string[] {
+  if (bundleUsesOnlyApprovedLocalFixtureAssets(bundle)) {
+    return [];
+  }
+  const gate = evaluateEncounterRuntimeLearnerUseGate(bundle);
+  if (gate.canUseGeneratedBundleForLearnerRuntime) {
+    return [];
+  }
+  return gate.blockers.length > 0 ? [...gate.blockers] : ["learner_runtime_use_blocked"];
+}
+
+function bundleUsesOnlyApprovedLocalFixtureAssets(bundle: LearnerRuntimeAssetBundle): boolean {
+  return runtimeBundleAssets(bundle).every((asset) =>
+    asset.blob.storeKind === "app_public_fixture"
+      && asset.reviewStatus !== "blocked"
+      && (asset.reviewStatus === "fixture_approved_for_local_runtime"
+        || asset.reviewStatus === "approved_for_local_runtime"),
+  );
+}
+
+function runtimeBundleAssets(bundle: LearnerRuntimeAssetBundle): EncounterRuntimeAsset[] {
+  return [
+    bundle.environment,
+    ...bundle.actors.map((actor) => actor.model),
+    ...bundle.actors.flatMap((actor) => actor.animationClips),
+    ...bundle.actors
+      .map((actor) => actor.phonemeMap)
+      .filter((asset): asset is EncounterRuntimeAsset => Boolean(asset)),
+    ...bundle.equipment.map((equipment) => equipment.model),
+  ];
+}
+
+/**
+ * The call the SHIPPED FRAME LOOP makes, once per unresolved plan.
+ *
+ * The whole decision lives here rather than in `apps/ui-xr/src/main.ts` for two reasons, and the
+ * second is the interesting one. First, `apps/ui-xr/src` sits at exactly its frozen composition-root
+ * budget (`composition-root-conventions.ts:59-62`), and that gate's message is explicit that new
+ * behaviour goes in a package. Second, an app composition root that decided when to re-solve, how to
+ * name the support instance and what to do with a refusal would be the behaviour this repo keeps
+ * extracting back out of `main.ts`.
+ *
+ * `observeGeometry` is INJECTED because the observer lives in `@openclinxr/xr-humanoid-animation`,
+ * which sits above this package; importing it here would invert the dependency. The runtime already
+ * imports that module, so passing the function is free at the call site.
+ *
+ * It returns the admission unchanged unless there is work to do: a plan that is not admitted, or one
+ * already reproduced, is passed straight back, so the re-solve happens once and not every frame.
+ */
+export function admitFrozenScenePlanForObservedScene<TScene>(input: {
+  /** Last frame's admission. `no_plan_carried` means the bundle has not been consulted yet. */
+  admission: ScenePlanAdmission;
+  /** The booted bundle, so this call can admit the plan itself rather than waiting to be handed one. */
+  bundle: BundleCarryingAcceptedScenePlan;
+  scene: TScene;
+  environmentId: string | null;
+  observeGeometry: (scene: TScene, options: { supportInstanceId: string }) => ObservedApproachGeometry;
+  patientWorldPosition: { x: number; y: number; z: number };
+  start: { x: number; y: number; z: number };
+}): ScenePlanAdmission {
+  // FIRST FRAME: consult the bundle. Round 2 initialised the runtime's variable to
+  // `no_plan_carried` and only ever assigned this function's return, and this function returned its
+  // input unchanged unless it was already `admitted` — so nothing ever admitted anything and the
+  // body below was unreachable in a shipped run. The admission starts here now.
+  const admission =
+    input.admission.status === "no_plan_carried"
+      ? admitFrozenScenePlan({ bundle: input.bundle })
+      : input.admission;
+  if (admission.status !== "admitted" || admission.reproduced !== null) return admission;
+  if (input.environmentId === null || input.environmentId === "") return admission;
+  return admitFrozenScenePlanForObservedRoom({
+    record: admission.record,
+    geometry: input.observeGeometry(input.scene, {
+      supportInstanceId: `${input.environmentId}:stretcher`,
+    }),
+    patientWorldPosition: input.patientWorldPosition,
+    start: input.start,
+  });
+}

@@ -2,7 +2,7 @@
 // value from the freeze, not a reference to a math constant. The bedside heading for this ward
 // happens to land on pi because the physician faces straight down the long axis of the bed;
 // rewriting it as Math.PI would replace an observation with an assertion.
-import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evidence.js";
+import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evidence-mod.js";
 
 /**
  * GENERATED — do not hand-edit. Regenerate with:

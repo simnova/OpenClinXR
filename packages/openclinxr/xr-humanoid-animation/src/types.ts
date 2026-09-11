@@ -1,11 +1,9 @@
-import type { Group } from "three";
-import type { EncounterRuntimeDialogueTurn } from "@openclinxr/asset-registry";
-import type { LiveActorTurnConsumption } from "@openclinxr/xr-dialogue";
-import type { GeneratedDriveScalarInput, HumanoidSpeechEvidence } from "@openclinxr/xr-runtime-state";
-import type {
+import type { EncounterRuntimeDialogueTurn } from "@openclinxr/asset-registry/runtime-bundles";
+import type { LiveActorTurnConsumption, 
   UiXrExpressionEmotion,
-  UiXrExpressionWeights,
-} from "@openclinxr/xr-dialogue";
+  UiXrExpressionWeights,} from "@openclinxr/xr-dialogue";
+import type { GeneratedDriveScalarInput, HumanoidSpeechEvidence } from "@openclinxr/xr-runtime-state";
+import type { Group } from "three";
 
 export type HumanoidExpressionEmotion = UiXrExpressionEmotion;
 export type HumanoidExpressionWeights = UiXrExpressionWeights;

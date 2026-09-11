@@ -5,16 +5,24 @@
  * Pose bones stay in supine-pose.ts; this owns plant, tip, head-align, lift.
  */
 
-import { Quaternion, Vector3, type Object3D } from "three";
 import {
   DEFAULT_STRETCHER_POSITION,
-} from "@openclinxr/asset-registry";
+} from "@openclinxr/asset-registry/actor-posture";
 import {
-  STRETCHER_LENGTH_METERS,
   readStretcherBackSectionWorldDeg,
   readStretcherInclineDegrees,
   readStretcherPillowWorld,
+  STRETCHER_LENGTH_METERS,
 } from "@openclinxr/xr-station";
+import { type Object3D, Quaternion, Vector3 } from "three";
+import { flexSupineArmsOntoDeck } from "./hob-arm-flex.js";
+import {
+  alignSupineHeadToPillow,
+  centerSupineBodyOnDeck,
+  liftSupineBodyAboveDeck,
+  lowerSupineBodyOntoDeck,
+  settleSupineFloatOntoDeck,
+} from "./hob-body-align.js";
 import {
   measureBackToDeckGap,
   measureHeadPillowGapMeters,
@@ -24,20 +32,12 @@ import {
   settleSupineOntoBackSectionPreservingSeat,
 } from "./hob-contact-metrics.js";
 import {
+  findSupineBone,
   raiseSupineFeetOntoSeat,
   reapplyStoredSupineFootFlex,
-  findSupineBone,
 } from "./hob-extremity-flex.js";
-import { applySupinePose, type ApplySupinePoseResult } from "./supine-pose.js";
 import { flexSupineHeadOntoPillow } from "./hob-head-flex.js";
-import { flexSupineArmsOntoDeck } from "./hob-arm-flex.js";
-import {
-  alignSupineHeadToPillow,
-  liftSupineBodyAboveDeck,
-  lowerSupineBodyOntoDeck,
-  centerSupineBodyOnDeck,
-  settleSupineFloatOntoDeck,
-} from "./hob-body-align.js";
+import { type ApplySupinePoseResult, applySupinePose } from "./supine-pose.js";
 
 export type PlantStepMetrics = {
   step: string;
@@ -548,10 +548,10 @@ export function applyAndPlantSupineOnDeck(
 
 // Body align helpers — re-exported for callers that import from this module.
 export {
-  liftSupineBodyAboveDeck,
   alignSupineHeadToPillow,
-  alignSupineHeadToPillowWorld,
   alignSupineHeadToPillowSoft,
-  holdSupinePlantFrame,
+  alignSupineHeadToPillowWorld,
   centerSupineBodyOnDeck,
+  holdSupinePlantFrame,
+  liftSupineBodyAboveDeck,
 } from "./hob-body-align.js";

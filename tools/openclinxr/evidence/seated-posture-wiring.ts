@@ -15,7 +15,7 @@ import {
   clipBindingForPosture,
   resolveActorPosture,
   type ActorPosture,
-} from "../../../packages/openclinxr/asset-registry/src/actor-posture.js";
+} from "../../../packages/openclinxr/asset-registry/src/actor-posture-mod.js";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
 import { buildStationEnvironment } from "@openclinxr/xr-station";
 import {
