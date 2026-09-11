@@ -116,6 +116,14 @@ import { isPantsName } from "./waistband-ring.ts";
  *   - **hm08 / fit_stage.py.** Production path is
  *     `tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py`.
  *   - **Pixel grade of the jeans.** Parent grades the isolated EEVEE still.
+ *
+ * ## FIXED (straight-leg look-good 2026-09-10)
+ *
+ * Punkduck classic jeans covered but graded as balloon/jodhpur thighs with a
+ * washed lower-leg fade. Treatment: patient/family lower slot fits
+ * `elvs_jeans_straight_leg` (`mens_elv_jeans2slf.obj` 3109/2854, 5708 tris,
+ * `# license CC_by`, pack page pants02 CC-BY) via ClothesService. Slot name
+ * `makeclothes_library_straight_leg_jeans_pants`. Shirt ymin pin unchanged.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -123,10 +131,10 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 const STREET_GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb");
 const STREET_ACTOR = "mpfb-street-adult-male";
 
-/** punkduck_male_classic_jeans / male-classic-jeans.obj (pants02 CC-BY, staged this slice). */
-const CHOSEN_MHCLO_OBJ_VERTS = 2614;
-/** 2295 quads → fan-triangulated tris. Survives glTF POSITION splits. */
-const CHOSEN_MHCLO_TRIS = 4590;
+/** elvs_jeans_straight_leg / mens_elv_jeans2slf.obj (pants02 CC-BY). */
+const CHOSEN_MHCLO_OBJ_VERTS = 3109;
+/** 2854 quads → fan-triangulated tris. Survives glTF POSITION splits. */
+const CHOSEN_MHCLO_TRIS = 5708;
 /** 5% — cover shell 2844 tris is 38% below and must fail; sparse cargo 392 far below. */
 const TRIS_TOLERANCE = 0.05;
 const PANTS_TRIS_MIN = Math.round(CHOSEN_MHCLO_TRIS * (1 - TRIS_TOLERANCE));
@@ -214,7 +222,7 @@ describe("the street pants are MakeClothes, not a cover shell", () => {
   it(
     `(1) RED: shipped pants tris within 5% of triangulated punkduck classic jeans obj (${CHOSEN_MHCLO_TRIS} → [${PANTS_TRIS_MIN}, ${PANTS_TRIS_MAX}]); cargo ${CARGO_OBJ_VERTS}/${CARGO_OBJ_FACES} vs shell ${COVER_SHELL_VERTS}v/${COVER_SHELL_TRIS}t`,
     () => {
-      expect(row.pantsName, "street GLB must carry classic jeans, not cargo/scrub").toMatch(/classic_jeans/i);
+      expect(row.pantsName, "street GLB must carry straight-leg jeans, not cargo/scrub").toMatch(/straight_leg/i);
       expect(
         row.pantsTris,
         `${row.actor} pants tris ${row.pantsTris} (name=${row.pantsName} glbVerts=${row.pantsVerts} objVerts=${CHOSEN_MHCLO_OBJ_VERTS}) outside ${PANTS_TRIS_MIN}..${PANTS_TRIS_MAX} (5% of jeans triangulated obj ${CHOSEN_MHCLO_TRIS}). Cover shell is ${COVER_SHELL_VERTS}v/${COVER_SHELL_TRIS}t; sparse cargo obj is ${CARGO_OBJ_VERTS}/${CARGO_OBJ_FACES}.`,

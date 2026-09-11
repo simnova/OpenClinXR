@@ -4205,22 +4205,20 @@ def main():
     )
 
     # Lower slot: clinician scrub pants were fitted PRE-STRIP (helper x_scale).
-    # Patients/family wear punkduck classic jeans (pants02 pack page CC-BY, mhclo
-    # header `# license CC-BY 4.0`; male-classic-jeans.obj 2614 verts / 2295 quads,
-    # max ref 13351) on the stripped basemesh. cortu_cargo_pants (211/196) still
-    # exists in cache and still hits the LOWER GATE cover-shell replacement if
-    # selected — do not delete that gate. Do not point this slot at Scrub_Pants.
-    # Wool (toigo_wool_pants, pants01 CC0) is superseded: pale/translucent crotch
-    # even with ambient world light. The slot name keeps a `pants` token so the
-    # isPantsName waistband matcher still finds the lower primitive.
+    # Patients/family wear Elvaerwyn straight-leg jeans (pants02 pack page CC-BY,
+    # mhclo `# license CC_by`; mens_elv_jeans2slf.obj 3109 verts / 2854 quads /
+    # 5708 tris, max ref 13351) on the stripped basemesh. Punkduck classic jeans
+    # covered but read as balloon/jodhpur thighs with a washed lower leg.
+    # cortu_cargo_pants (211/196) still hits the LOWER GATE if selected.
+    # The slot name keeps a `pants` token so isPantsName still finds the lower.
     if pants is None:
         _pants_dir = (
             REPO_ROOT
-            / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/punkduck_male_classic_jeans"
+            / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_jeans_straight_leg"
         )
-        pants_obj = _pants_dir / "male-classic-jeans.obj"
-        pants_mhclo = _pants_dir / "punkduck_male_classic_jeans.mhclo"
-        _lower_lib_name = "makeclothes_library_classic_jeans_pants"
+        pants_obj = _pants_dir / "mens_elv_jeans2slf.obj"
+        pants_mhclo = _pants_dir / "elvs_jeans_straight_leg.mhclo"
+        _lower_lib_name = "makeclothes_library_straight_leg_jeans_pants"
         if not pants_obj.is_file() or not pants_mhclo.is_file():
             raise RuntimeError(f"lower garment sources missing in provider cache: {_pants_dir}")
 
@@ -4251,8 +4249,8 @@ def main():
             )
         print(f"LOWER_GARMENT_LICENCE {_lower_lib_name} {_lower_lic_raw!r} matcher={_lower_lic_matcher}")
         print(
-            "LOWER_GARMENT_ATTRIBUTION makeclothes_library_classic_jeans_pants "
-            "author=Punkduck pack=pants02 "
+            "LOWER_GARMENT_ATTRIBUTION makeclothes_library_straight_leg_jeans_pants "
+            "author=Elvaerwyn pack=pants02 "
             "page=https://static.makehumancommunity.org/assets/assetpacks/pants02.html "
             "license=CC-BY"
         )
@@ -4264,11 +4262,15 @@ def main():
         _lower_role_colour = garment_shell_color(
             _lower_kind, args.actor_role, {"fabricPalette": phenotype_fabric_palette(args.reference)}
         )
+        # Keep authored denim albedo. patch_factor=True luminance-normalised a 0.17-mean
+        # navy map ~5.8x and multiplied the patient olive factor, washing calves to cyan.
+        # Footwear already uses patch_factor=False for the author's look.
         _pants_mat, _pants_mat_record = garment_material_from_declared(
             pants_mhclo,
             _lower_role_colour,
             f"mat_{_lower_lib_name}",
             mesh=pants,
+            patch_factor=False,
         )
         pants.data.materials.append(_pants_mat)
         # Wool defect was translucency: force OPAQUE on the jeans material.
@@ -4433,6 +4435,7 @@ def main():
         "makeclothes_library_scrub_pants",
         "makeclothes_library_wool_pants",
         "makeclothes_library_classic_jeans_pants",
+        "makeclothes_library_straight_leg_jeans_pants",
     }
     _sparse_open_shell = (
         lower_rep["verdict"] == "does_not_cover"

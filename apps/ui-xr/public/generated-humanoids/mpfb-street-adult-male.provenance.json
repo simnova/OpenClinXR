@@ -61,11 +61,12 @@
  "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-street-adult-male.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed).",
  "2026-09-10 street cargo waistband: LOWER GATE build_cover_shell band_hi is shirt hem rim MAX not AABB min; street regularize_rim window 45 deg; shirt hem band pinned to known-good ymin 1.0283 (fit_upper_hem_to_waistband not re-called). Pants rim span 22.0 mm <= 24.1. Chest-anchor stage re-applied after rematerialize. Parent grades a fresh glb-grade front_lit.",
  "2026-09-10 tsk_2a6935fb4eb63f95: street/family lower slot is toigo_wool_pants (pants01 CC0, # license CC0, 1372 obj verts / 1337 quads / 2674 tris) via ClothesService, not the cargo cover shell. LOWER GATE verdict covers (raycast 0.9361); cargo still hits the cover-shell replacement if selected. Shirt ymin pin 1.0283. Pants ymin 0.0687. Isolated EEVEE still at tools/openclinxr/evidence/street-wool-pants/mpfb-street-adult-male-full-eevee.png — parent grades, not copied to docs/assets.",
- "2026-09-10 street jeans: patient/family lower slot is pants02 CC-BY punkduck_male_classic_jeans via ClothesService (pack page is the grant). 2614 obj verts / 2295 quads / 4590 tris. LOWER GATE covers (raycast 0.9785). Shirt ymin pin 1.0283. Pants ymin 0.0597. Isolated EEVEE bake uses grade-lighting.json worldBackgroundStrength 0.55."
+ "2026-09-10 street jeans: patient/family lower slot is pants02 CC-BY punkduck_male_classic_jeans via ClothesService (pack page is the grant). 2614 obj verts / 2295 quads / 4590 tris. LOWER GATE covers (raycast 0.9785). Shirt ymin pin 1.0283. Pants ymin 0.0597. Isolated EEVEE bake uses grade-lighting.json worldBackgroundStrength 0.55.",
+ "2026-09-10 look-good: balloon/jodhpur thighs on punkduck jeans. Lower slot is pants02 CC-BY elvs_jeans_straight_leg via ClothesService (pack page is the grant). 3109 obj verts / 2854 quads / 5708 tris. LOWER GATE covers (raycast 0.9886). Shirt ymin pin 1.0283. Pants material patch_factor=False (authored navy albedo, no 5.8x luminance wash). Isolated EEVEE bake uses grade-lighting.json worldBackgroundStrength 0.55."
  ],
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
- "generatedAt": "2026-09-10T21:25:00Z",
- "outputSha256": "3c8754a8887ad822e74e4f9362ed1fc2d4e30cf7b2185dec00bd2174ab7190d7",
- "outputBytes": 23738616
+ "generatedAt": "2026-09-10T21:58:00Z",
+ "outputSha256": "17d29247a336238e685eb8aa284b8f8eceb5a51797c257f40d9025b0e8e771e6",
+ "outputBytes": 15830960
 }
