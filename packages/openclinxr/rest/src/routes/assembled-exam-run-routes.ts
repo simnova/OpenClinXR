@@ -179,7 +179,7 @@ export function registerAssembledExamRunRoutes(
     }
     try {
       const next = admitPhaseEvent(record, admitted.event);
-      await persistAssembledExamRun(durable, assembledExamRuns, examRunOwners, sessionOwners, next);
+      if (next !== record) await persistAssembledExamRun(durable, assembledExamRuns, examRunOwners, sessionOwners, next);
       return context.json(toContract(decide(next), next), 201);
     } catch (error) {
       return assembledExamRunError(context, error);
@@ -415,10 +415,16 @@ function admitPhaseEvent(
   record: ApiAssembledExamRunRecord,
   event: ApiAssembledExamAdmittedPhaseEvent,
 ): ApiAssembledExamRunRecord {
-  const current = decide(record).selectedStation;
-  if (!current) {
-    throw new AssembledExamRunIdentityError("station_order_mismatch");
+  const prior = record.admittedPhaseEvents
+    .filter((row) => row.stationRunId === event.stationRunId)
+    .sort((left, right) => left.sequence - right.sequence);
+  const existing = prior.find((row) => row.sequence === event.sequence);
+  if (existing) {
+    if (phaseEventFingerprint(existing) === phaseEventFingerprint(event)) return record;
+    throw new AssembledExamRunIdentityError("sequence_mismatch");
   }
+  const current = decide(record).selectedStation;
+  if (!current) throw new Error("exam run is finalized");
   if (
     event.stationOrder !== current.stationOrder
     || event.scenarioId !== current.scenarioId
@@ -426,33 +432,17 @@ function admitPhaseEvent(
   ) {
     throw new AssembledExamRunIdentityError("station_order_mismatch");
   }
-  const prior = record.admittedPhaseEvents
-    .filter((row) => row.stationRunId === event.stationRunId)
-    .sort((left, right) => left.sequence - right.sequence);
   const last = prior[prior.length - 1];
-  const existing = prior.find((row) => row.sequence === event.sequence);
-  if (existing) {
-    if (phaseEventFingerprint(existing) === phaseEventFingerprint(event)) {
-      return record;
-    }
-    throw new AssembledExamRunIdentityError("sequence_mismatch");
-  }
   const expectedSequence = last ? last.sequence + 1 : 0;
-  if (event.sequence !== expectedSequence) {
-    throw new AssembledExamRunIdentityError("sequence_mismatch");
-  }
+  if (event.sequence !== expectedSequence) throw new AssembledExamRunIdentityError("sequence_mismatch");
   const lastRank = last ? (PHASE_RANK.get(last.eventType) ?? -1) : -1;
-  const newRank = PHASE_RANK.get(event.eventType) ?? -1;
-  if (newRank !== lastRank + 1) {
+  if ((PHASE_RANK.get(event.eventType) ?? -1) !== lastRank + 1) {
     throw new AssembledExamRunIdentityError("sequence_mismatch");
   }
   if (last && (event.atSecond < last.atSecond || event.formAtSecond < last.formAtSecond)) {
     throw new AssembledExamRunIdentityError("sequence_mismatch");
   }
-  return {
-    ...record,
-    admittedPhaseEvents: [...record.admittedPhaseEvents, event],
-  };
+  return { ...record, admittedPhaseEvents: [...record.admittedPhaseEvents, event] };
 }
 
 class AssembledExamRunIdentityError extends Error {
@@ -576,6 +566,14 @@ function assembledExamRunError(
     return staleIdentity(context, error.reason);
   }
   const message = error instanceof Error ? error.message : "assembled_exam_run_failed";
+  if (message.includes("finalized")) {
+    return context.json({
+      error: "finalized",
+      reason: "exam_run_already_final",
+      examEquivalenceGate: false,
+      notEvidenceFor: [...assembledExamRunNotEvidenceFor],
+    }, 409);
+  }
   if (message.includes("out-of-form") || message.includes("skipped station") || message.includes("duplicated")) {
     return staleIdentity(context, "form_mismatch");
   }

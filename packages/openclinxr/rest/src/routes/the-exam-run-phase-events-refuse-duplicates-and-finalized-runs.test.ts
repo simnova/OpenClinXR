@@ -18,6 +18,12 @@
  *
  * Counterweight: a same-sequence retry whose payload is not byte-equivalent stays 409
  * sequence_mismatch; a new append after exam_complete must not be that 409.
+ *
+ * ## FIXED (#0)
+ * admitPhaseEvent fingerprints an exact duplicate before selectedStation. After
+ * exam_complete, exact retry returns 201 with no extra save; a new append returns
+ * 409 error finalized / exam_run_already_final. Ledger applyPhaseEvent throws
+ * "exam run is finalized" for a new admit once every station has station.advanced.
  */
 
 import { DEFAULT_DEV_AUTH_SECRET, signAuthToken } from "@openclinxr/auth";
@@ -267,9 +273,10 @@ describe("exam-run phase events refuse duplicates and finalized runs", () => {
     expect(retry.status).toBe(201);
     expect((await json(retry))["action"]).toBe("resume_station");
     expect(sink.runs.get(EXAM_RUN_ID)?.admittedPhaseEvents).toHaveLength(1);
+    expect(sink.saves).toBe(2);
   });
 
-  it.fails("returns the already-admitted last command when retried after exam_complete", async () => {
+  it("returns the already-admitted last command when retried after exam_complete", async () => {
     const sink = countingSink();
     const composed = compose(sink);
     await startExam(composed.app);
@@ -291,7 +298,7 @@ describe("exam-run phase events refuse duplicates and finalized runs", () => {
     expect(sink.saves).toBe(savesAfterComplete);
   });
 
-  it.fails("refuses a new append after exam_complete as finalized, not stale_identity", async () => {
+  it("refuses a new append after exam_complete as finalized, not stale_identity", async () => {
     const sink = countingSink();
     const composed = compose(sink);
     await startExam(composed.app);
