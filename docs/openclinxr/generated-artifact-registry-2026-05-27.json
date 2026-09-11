@@ -4,13 +4,13 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 161,
+    "keep-evidence": 174,
     "ignore-local-cache": 2112,
     "keep-current": 141,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2458,
-    "total": 2458
+    "entries": 2471,
+    "total": 2471
   },
   "entries": [
     {
@@ -16518,6 +16518,97 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-2026-09-10.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-front_lit.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-front_structure.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-three_quarter_lit.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-three_quarter_structure.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_lit.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_structure.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-three_quarter_lit.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-three_quarter_structure.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-front_lit.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-front_structure.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-three_quarter_lit.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-three_quarter_structure.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
     },
     {
       "path": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",

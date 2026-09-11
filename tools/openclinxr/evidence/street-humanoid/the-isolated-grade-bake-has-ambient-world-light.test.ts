@@ -6,6 +6,12 @@ import { describe, expect, it } from "vitest";
 import { decodePng } from "../decode-png.ts";
 
 /**
+ * SUPERSEDED by HB-04 (docs/openclinxr/humanoid-vetting-2026-09-10.json +
+ * tools/openclinxr/evidence/humanoid-vetting/the-vetted-humanoid-glb-is-the-subject-alone.test.ts).
+ * The four clauses below stay green on config text and corner pixels; the replacement asserts
+ * GLB bytes (factors, rung, footing, sidecar) and three.js studio renders. Do not delete this
+ * file: it records why each clause was vacuous (see the HB-04 report `invertedGuard`).
+ *
  * The public street still (`docs/assets/mpfb-street-adult-clothed-2026-09-10.png`)
  * was baked with key-only AREA lights (energy 180/70, no world Background).
  * That produced a two-tone figure: dark chest, pale thighs. The isolated grade
