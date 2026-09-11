@@ -1368,10 +1368,10 @@
       "entrypoint": ".",
       "symbol": "evaluateScenarioAssetBudget",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence/asset-production-readiness-benchmark.ts",
+      "rationale": "Amended at PSR-05 land (orchestrator, 2026-09-11): the asset-production readiness benchmark and the-readiness-verdict-reads-measured-geometry.test.ts import it from the package root; plan line 92 counts tools as consumers. Un-publishing it made the apply worker hand-write a substitute wrapper, which the brief forbids.",
+      "evidence": "tools/openclinxr/evidence/asset-production-readiness-benchmark.ts; tools/openclinxr/evidence/the-readiness-verdict-reads-measured-geometry.test.ts (origin/main 26d5aab5)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2154,10 +2154,10 @@
       "entrypoint": ".",
       "symbol": "ScenarioAssetBudget",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence/asset-production-readiness-benchmark.ts",
+      "rationale": "Amended at PSR-05 land (orchestrator, 2026-09-11): the asset-production readiness benchmark and the-readiness-verdict-reads-measured-geometry.test.ts import it from the package root; plan line 92 counts tools as consumers. Un-publishing it made the apply worker hand-write a substitute wrapper, which the brief forbids.",
+      "evidence": "tools/openclinxr/evidence/asset-production-readiness-benchmark.ts; tools/openclinxr/evidence/the-readiness-verdict-reads-measured-geometry.test.ts (origin/main 26d5aab5)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2184,20 +2184,20 @@
       "entrypoint": ".",
       "symbol": "ScenarioGenerationEvidence",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence/asset-production-readiness-benchmark.ts",
+      "rationale": "Amended at PSR-05 land (orchestrator, 2026-09-11): the asset-production readiness benchmark and the-readiness-verdict-reads-measured-geometry.test.ts import it from the package root; plan line 92 counts tools as consumers. Un-publishing it made the apply worker hand-write a substitute wrapper, which the brief forbids.",
+      "evidence": "tools/openclinxr/evidence/asset-production-readiness-benchmark.ts; tools/openclinxr/evidence/the-readiness-verdict-reads-measured-geometry.test.ts (origin/main 26d5aab5)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": ".",
       "symbol": "ScenarioOptimizationEvidence",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence/asset-production-readiness-benchmark.ts",
+      "rationale": "Amended at PSR-05 land (orchestrator, 2026-09-11): the asset-production readiness benchmark and the-readiness-verdict-reads-measured-geometry.test.ts import it from the package root; plan line 92 counts tools as consumers. Un-publishing it made the apply worker hand-write a substitute wrapper, which the brief forbids.",
+      "evidence": "tools/openclinxr/evidence/asset-production-readiness-benchmark.ts; tools/openclinxr/evidence/the-readiness-verdict-reads-measured-geometry.test.ts (origin/main 26d5aab5)"
     },
     {
       "package": "packages/openclinxr/asset-registry",

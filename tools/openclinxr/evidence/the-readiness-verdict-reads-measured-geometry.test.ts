@@ -2,23 +2,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  type AssetManifest,
   createEdChestPainPlaceholderManifests,
-  InMemoryAssetRegistry,
+  evaluateScenarioAssetBudget,
 } from "../../../packages/openclinxr/asset-registry/src/index.js";
-
-function evaluateScenarioAssetBudget(
-  manifests: readonly AssetManifest[],
-  measuredTriangleCounts?: Readonly<Record<string, number>>,
-) {
-  const registry = new InMemoryAssetRegistry();
-  for (const manifest of manifests) registry.upsert(manifest);
-  const scenario = {
-    scenarioId: manifests[0]?.scenarioId ?? "ed_chest_pain_priority_v1",
-    assetNeeds: manifests.map((manifest) => ({ assetId: manifest.assetId })),
-  } as Parameters<InMemoryAssetRegistry["evaluateScenarioReadiness"]>[0];
-  return registry.evaluateScenarioReadiness(scenario, measuredTriangleCounts).stationBudget;
-}
 
 /**
  * OBSERVABLE: the readiness verdict that gates `devReady` computes its station budget from DECLARED

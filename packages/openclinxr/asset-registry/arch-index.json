@@ -15,7 +15,10 @@
     "MEASURED_STATION_GEOMETRY",
     "ROOM_PROP_ACCENT_COLOR_FALLBACK",
     "ROOM_PROP_BODY_COLOR_FALLBACK",
+    "ScenarioAssetBudget",
     "ScenarioAssetReadiness",
+    "ScenarioGenerationEvidence",
+    "ScenarioOptimizationEvidence",
     "ScenarioSceneGenerationPipelineWorkOrderQueue",
     "bedsideClearanceViolations",
     "bedsideTargetForClinician",
@@ -37,6 +40,7 @@
     "evaluateAssetPipelineTool",
     "evaluateAssetPipelineToolMatrix",
     "evaluateAssetProductionReadinessLadder",
+    "evaluateScenarioAssetBudget",
     "evaluateScenarioGenerationEvidence",
     "evaluateScenarioOptimizationEvidence",
     "footSlideMeters",
@@ -91,6 +95,6 @@
   },
   "ceilings": {
     "testInternalImports": 1,
-    "rootEntrypointExports": 54
+    "rootEntrypointExports": 58
   }
 }

@@ -30,6 +30,8 @@ import { isPlaceholderAsset } from "./scenario-readiness-evidence.js";
 export {
   evaluateScenarioGenerationEvidence,
   evaluateScenarioOptimizationEvidence,
+  type ScenarioGenerationEvidence,
+  type ScenarioOptimizationEvidence,
 } from "./scenario-readiness-evidence.js";
 
 // #715: measured-station-geometry-freshness.js is node-only (node:crypto/fs/path) and must
@@ -589,7 +591,7 @@ export type ScenarioAssetReadiness = {
   productionReadinessLadder?: ScenarioAssetProductionReadinessLadder;
 };
 
-type ScenarioAssetBudget = {
+export type ScenarioAssetBudget = {
   maxVisibleTriangles: number;
   maxTextureMegabytes: number;
   maxDrawCalls: number;
@@ -2351,7 +2353,7 @@ export function validateAssetManifestStructure(manifest: unknown): ValidationRes
   return validateSharedAssetManifest(manifest);
 }
 
-function evaluateScenarioAssetBudget(
+export function evaluateScenarioAssetBudget(
   manifests: readonly AssetManifest[],
   measuredTriangleCounts?: Readonly<Record<string, number>>,
 ): ScenarioAssetBudget {
