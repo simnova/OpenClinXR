@@ -1,15 +1,15 @@
 {
-  "hash": "c5327ea6903928e8c1a487833ad94abc09c413aff800b1d497d7a998f53bf0a0",
+  "hash": "85a9bae22e882da112d35c889ec1d81b064bc760055493a935180bf3425aa0c1",
   "revision": "working-tree",
   "totals": {
     "roots": 46,
-    "entrypoints": 137,
-    "rootSymbols": 2041,
-    "occurrences": 2869,
-    "uniqueSymbols": 2439,
-    "duplicateNames": 415
+    "entrypoints": 114,
+    "rootSymbols": 1694,
+    "occurrences": 2208,
+    "uniqueSymbols": 2040,
+    "duplicateNames": 160
   },
-  "inventoryHash": "f4258102da9b83bd92e0f46f1d11d206dde4ad52cc298c31addc63f3c70ea7f3",
+  "inventoryHash": "5c5c5bf9b2cab819f2687db9a1f09aed49a5a66f3e3b35deb9eb0cc39549f534",
   "manifestHashes": {
     "packages/openclinxr/agent-loop": "0ba04221f54e09103767d06a098a929fcf525b0d0c791c8c9965b2c146a2d7ef",
     "packages/openclinxr/arena/iwsdk-spike": "f4c84df8a98303933c7acf29509aa8a7eb08631f4946ab91830e147356c14c9d",
@@ -38,23 +38,23 @@
     "packages/openclinxr/shared-schemas": "6d4cecff7de79dd04619067ad9eb91604f3cddb42c710ae276623c40023c4cb7",
     "packages/openclinxr/telemetry": "59f577434a594fe5a6c6d936380df37907ef7ebe2cb53713bb5b0ebbcdbada5d",
     "packages/openclinxr/test-harness": "a4a0685fc043206ae178941e02b32f101e8f5ed14d030efa550fbc9b1d60f963",
-    "packages/openclinxr/ui-route-admin": "b21a6847c8a57981bbe4aa8ad3f2b5cff8a21c7916ec14cb5d0219d079ea30e7",
+    "packages/openclinxr/ui-route-admin": "d580c368fa89cc591a415522d819b21db591b2f01b664979fb1ec9beecfaed5a",
     "packages/openclinxr/ui-route-shared": "b8bdd4d27e4fe627608df08f2fa9205414420851e6bc85d0614cfb17b5bd35ca",
     "packages/openclinxr/ui-shared": "39feafb539f9ab332b55311cb8e184b0a7bd2a3b0cee8f6b920b8dd12114814d",
     "packages/openclinxr/voice-gateway": "fabe9bb50da1a79a2781ea63bd83b3ed3a51212b92d234e43f93518ff98ade92",
     "packages/openclinxr/xr-actor-dialogue": "c4612488fdba15809ee696f025c511bb1fd2109b002fb30bf73df8b2ead8c557",
     "packages/openclinxr/xr-asset-loading": "b893fee5ddedb6286bd6abe9113d8d29f9a2596cba3701b3d152b7eabf087291",
     "packages/openclinxr/xr-capture-evidence": "40856a9ffab45b5105610233e96f8fe5744331ef3cf6640cca39e44d2c648b21",
-    "packages/openclinxr/xr-dialogue": "a67da3ecb57565a6f2df8872661f49ce4ef7cec87a4756754bf675488475dfaf",
+    "packages/openclinxr/xr-dialogue": "c8b41b8b3c167b8930b9cb38776df44e317a6baec52ceeb1fd36c6fdfa21e5d4",
     "packages/openclinxr/xr-exam-flow": "e595f77d7b1563704615d87b8fb6dfe788db4d115955620a9fe6b05004cdf8d6",
-    "packages/openclinxr/xr-humanoid-animation": "5ed86196df7ff4c5a3661a6eb93435696fe9bcf35f7bfa7f376797e8496717b0",
-    "packages/openclinxr/xr-locomotion": "146b08bb24e8bde999fb204ba6ecda943a9870226830368be9007bb86a73c6d8",
-    "packages/openclinxr/xr-pose": "133571e4bab6a065a327a00fdc016896a3ee3f0a3f0d14783ea96c9311adb1c0",
-    "packages/openclinxr/xr-runtime-state": "853a48bf00642a71ec9331f473741c058959bc46aae67050a469bfe43498c408",
+    "packages/openclinxr/xr-humanoid-animation": "0642e362e57ca840eef9b5c2d5d864e885db69fb69cd28b428d9c883c2444f83",
+    "packages/openclinxr/xr-locomotion": "7d2104132dcdf1d6eade09c4b2d31bedd8a5ab1c9d1f4c2c6cfca1704e46a310",
+    "packages/openclinxr/xr-pose": "c03612e1101af3b646536ca8e76aab8831631d3595484134e24c3c5f3ad40d08",
+    "packages/openclinxr/xr-runtime-state": "e2524b0cbd81293baa58fa40a1298ba3ccc3a79e5c11f1b2c1812f15bd48c25a",
     "packages/openclinxr/xr-runtime-wiring": "ca04cc09c1c55e2cac6cda9bd295385b915c00d41ef0b371310fede07ff17644",
-    "packages/openclinxr/xr-scene": "ddd01b4909e34f2c8f0f4415137e4e8526e58282f45d3592bb68a8417abea2cf",
+    "packages/openclinxr/xr-scene": "885c25149158111d05ae261e3c2a4774d7d84adc964f519ca5161b46a4c1e0ec",
     "packages/openclinxr/xr-scene-cues": "3e9cd900a115f10d957406e596024e37dbd033ae2f452278bd980da3d2b1f3db",
-    "packages/openclinxr/xr-station": "18a2b69790e11eeb6b7b156a59d0b891df6661622e42d9d10c1fc88fb5bbe338",
+    "packages/openclinxr/xr-station": "e1cc9c96adeb67cff71881fd196c16fde422531f2e7028ca2cecdfd65d258586",
     "packages/openclinxr/xr-station-room": "2e0cc1c5431c807556dea940230cd45249a8f3297c12032b1e52dd3a7893411b",
     "packages/openclinxr/xr-trace-readiness": "e8adbe272f645b58be9fce2e20e4e466e5e2ca113b3ada1b81a5b4b2d4010e11"
   },
@@ -131,7 +131,7 @@
       "re-export": 1
     },
     "@openclinxr/domain": {
-      "static": 19,
+      "static": 20,
       "computed": 12
     },
     "@openclinxr/model-gateway": {
@@ -148,11 +148,6 @@
       "computed": 17,
       "dynamic": 1,
       "re-export": 1
-    },
-    "@openclinxr/ui-route-admin": {
-      "static": 15,
-      "computed": 8,
-      "dynamic": 3
     },
     "@openclinxr/ui-route-shared": {
       "static": 5,
@@ -250,6 +245,10 @@
     "@openclinxr/iwsdk-spike": {
       "static": 2,
       "computed": 1
+    },
+    "@openclinxr/ui-route-admin": {
+      "static": 13,
+      "computed": 8
     },
     "@openclinxr/xr-actor-dialogue": {
       "static": 1,
@@ -824,43 +823,13 @@
     },
     {
       "packageDir": "packages/openclinxr/ui-route-admin",
-      "rootSymbols": 277,
-      "occurrences": 573,
-      "uniqueSymbols": 314,
-      "duplicateNames": 252,
+      "rootSymbols": 12,
+      "occurrences": 28,
+      "uniqueSymbols": 28,
+      "duplicateNames": 0,
       "entrypoints": [
         {
           "specifier": ".",
-          "wildcardDeclarations": 10,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./actor-phenotype-fields",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./actor-touch-response-fields",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./admin-review-types",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./asset-needs-panel",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./case-authoring-io",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./case-authoring-model",
           "wildcardDeclarations": 0,
           "typeWildcardDeclarations": 0
         },
@@ -870,42 +839,7 @@
           "typeWildcardDeclarations": 0
         },
         {
-          "specifier": "./dialogue-seed-authoring-panel",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./emotion-policy-panel",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./encounter-bundle-promotion",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./encounter-environment-panel",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
           "specifier": "./environment-generation-queue-panel",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./environment-queue-readiness-summaries",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./equipment-panel",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./faculty-adjudication-workspace",
           "wildcardDeclarations": 0,
           "typeWildcardDeclarations": 0
         },
@@ -920,47 +854,7 @@
           "typeWildcardDeclarations": 0
         },
         {
-          "specifier": "./faculty-review-decision-panel",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./queue-review-snapshot-history",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
           "specifier": "./review-replay-readiness-summary-panel",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./review-replay-safety-panel",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./runtime-selection-review-packet-panel",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./scenario-authoring-preview",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./scenario-authoring-workspace",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./scenario-bank-maturity-panel",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./scenario-review-gate-constants",
           "wildcardDeclarations": 0,
           "typeWildcardDeclarations": 0
         },
@@ -970,17 +864,7 @@
           "typeWildcardDeclarations": 0
         },
         {
-          "specifier": "./seed-exam-readiness-boundary-panel",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
           "specifier": "./seed-worldview-queue",
-          "wildcardDeclarations": 0,
-          "typeWildcardDeclarations": 0
-        },
-        {
-          "specifier": "./status-view-model",
           "wildcardDeclarations": 0,
           "typeWildcardDeclarations": 0
         }
@@ -1157,9 +1041,9 @@
     },
     {
       "packageDir": "packages/openclinxr/xr-dialogue",
-      "rootSymbols": 62,
-      "occurrences": 62,
-      "uniqueSymbols": 62,
+      "rootSymbols": 47,
+      "occurrences": 47,
+      "uniqueSymbols": 47,
       "duplicateNames": 0,
       "entrypoints": [
         {
@@ -1185,9 +1069,9 @@
     },
     {
       "packageDir": "packages/openclinxr/xr-humanoid-animation",
-      "rootSymbols": 30,
-      "occurrences": 59,
-      "uniqueSymbols": 59,
+      "rootSymbols": 22,
+      "occurrences": 33,
+      "uniqueSymbols": 33,
       "duplicateNames": 0,
       "entrypoints": [
         {
@@ -1224,9 +1108,9 @@
     },
     {
       "packageDir": "packages/openclinxr/xr-locomotion",
-      "rootSymbols": 32,
-      "occurrences": 32,
-      "uniqueSymbols": 32,
+      "rootSymbols": 27,
+      "occurrences": 27,
+      "uniqueSymbols": 27,
       "duplicateNames": 0,
       "entrypoints": [
         {
@@ -1238,10 +1122,10 @@
     },
     {
       "packageDir": "packages/openclinxr/xr-pose",
-      "rootSymbols": 47,
-      "occurrences": 60,
-      "uniqueSymbols": 56,
-      "duplicateNames": 4,
+      "rootSymbols": 32,
+      "occurrences": 34,
+      "uniqueSymbols": 33,
+      "duplicateNames": 1,
       "entrypoints": [
         {
           "specifier": ".",
@@ -1257,9 +1141,9 @@
     },
     {
       "packageDir": "packages/openclinxr/xr-runtime-state",
-      "rootSymbols": 131,
-      "occurrences": 144,
-      "uniqueSymbols": 141,
+      "rootSymbols": 119,
+      "occurrences": 127,
+      "uniqueSymbols": 124,
       "duplicateNames": 3,
       "entrypoints": [
         {
@@ -1295,9 +1179,9 @@
     },
     {
       "packageDir": "packages/openclinxr/xr-scene",
-      "rootSymbols": 55,
-      "occurrences": 55,
-      "uniqueSymbols": 55,
+      "rootSymbols": 38,
+      "occurrences": 38,
+      "uniqueSymbols": 38,
       "duplicateNames": 0,
       "entrypoints": [
         {
@@ -1323,9 +1207,9 @@
     },
     {
       "packageDir": "packages/openclinxr/xr-station",
-      "rootSymbols": 80,
-      "occurrences": 80,
-      "uniqueSymbols": 80,
+      "rootSymbols": 70,
+      "occurrences": 70,
+      "uniqueSymbols": 70,
       "duplicateNames": 0,
       "entrypoints": [
         {
