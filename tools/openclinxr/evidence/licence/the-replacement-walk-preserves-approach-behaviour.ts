@@ -10,7 +10,7 @@ import {
   // above already come from this module, so this crosses no boundary the file had not crossed.
   type FootSample,
 } from "../../../../packages/openclinxr/asset-registry/src/approach-executor-mod.js";
-import { footSlideMeters } from "../../../../packages/openclinxr/asset-registry/src/index.js";
+import { footSlideMeters } from "../../../../packages/openclinxr/asset-registry/src/approach-executor.js";
 import { boundClipJointTrack } from "../foot-plant/bound-clip-foot-track.js";
 
 /**

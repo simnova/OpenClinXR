@@ -5,28 +5,16 @@
   "purpose": "Public interface of @openclinxr/shared-schemas.",
   "exports": [
     "ActorCard",
-    "ActorCardSchema",
     "ActorPhenotype",
-    "ActorPhenotypeSchema",
-    "ActorPlacementSchema",
     "ActorTurnExecution",
     "ActorTurnPlan",
-    "AssetKind",
-    "AssetKindSchema",
-    "AssetManifest",
-    "AssetNeedSchema",
     "BodyMechanics",
     "CaseEmotionPolicy",
-    "CaseEmotionPolicySchema",
     "ComplianceRegion",
     "ComplianceRegionSchema",
     "DialogueEmotion",
-    "DynamicEncounterFactoryPlanningProjection",
     "DynamicEncounterFactoryProjectionArtifact",
     "EQUIPMENT_BINDING_PRECEDENCE",
-    "EmotionEventKind",
-    "EmotionTransitionRule",
-    "EnvironmentSchema",
     "EquipmentBindingClassification",
     "ExamBlueprint",
     "ExamBlueprintTiming",
@@ -39,11 +27,8 @@
     "ReviewPacket",
     "Scenario",
     "ScenarioGovernance",
-    "ScenarioSchema",
-    "StationPhase",
     "StationRun",
     "TouchResponse",
-    "TouchResponseSchema",
     "TraceEvent",
     "ValidationResult",
     "classifyScenarioEquipmentBinding",
@@ -79,6 +64,6 @@
   },
   "ceilings": {
     "testInternalImports": 2,
-    "rootEntrypointExports": 56
+    "rootEntrypointExports": 41
   }
 }

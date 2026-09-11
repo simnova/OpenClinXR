@@ -1,10 +1,10 @@
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import { createEdChestPainLocalEncounterRuntimeAssetBundle } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles-entry.js";
 import {
   type AssetManifest,
   createEdChestPainLocalAssetEvidenceFixtureManifests,
-  createEdChestPainLocalEncounterRuntimeAssetBundle,
   createEdChestPainPlaceholderManifests,
   evaluateScenarioAssetBudget,
   evaluateScenarioGenerationEvidence,

@@ -7787,9 +7787,9 @@
       "entrypoint": ".",
       "symbol": "ActorCardSchema",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/ui-route-admin",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/ui-route-admin/src/case-authoring-model.ts:129"
     },
     {
@@ -7807,9 +7807,9 @@
       "entrypoint": ".",
       "symbol": "ActorPhenotypeSchema",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/rest",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/rest/src/api-types.ts:244"
     },
     {
@@ -7817,9 +7817,9 @@
       "entrypoint": ".",
       "symbol": "ActorPlacementSchema",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/ui-route-admin",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/ui-route-admin/src/case-authoring-model.ts:95"
     },
     {
@@ -7867,9 +7867,9 @@
       "entrypoint": ".",
       "symbol": "AssetKind",
       "kind": "type",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/asset-registry",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/asset-registry/src/index.ts:69"
     },
     {
@@ -7877,9 +7877,9 @@
       "entrypoint": ".",
       "symbol": "AssetKindSchema",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/ui-route-admin",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/ui-route-admin/src/case-authoring-model.ts:72"
     },
     {
@@ -7887,9 +7887,9 @@
       "entrypoint": ".",
       "symbol": "AssetManifest",
       "kind": "type",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/asset-registry",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/asset-registry/src/index.ts:216"
     },
     {
@@ -7897,9 +7897,9 @@
       "entrypoint": ".",
       "symbol": "AssetNeedSchema",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/scenario-fixtures",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/scenario-fixtures/src/every-authored-equipment-string-is-classified.test.ts:16"
     },
     {
@@ -7927,9 +7927,9 @@
       "entrypoint": ".",
       "symbol": "CaseEmotionPolicySchema",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/ui-route-admin",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/ui-route-admin/src/case-authoring-model.ts:475"
     },
     {
@@ -7987,9 +7987,9 @@
       "entrypoint": ".",
       "symbol": "DynamicEncounterFactoryPlanningProjection",
       "kind": "type",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/scenario-fixtures",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/scenario-fixtures/src/scenario-bank-maturity.ts:148"
     },
     {
@@ -8007,9 +8007,9 @@
       "entrypoint": ".",
       "symbol": "EmotionEventKind",
       "kind": "type",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/conversation-policy",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/conversation-policy/src/emotion-engine.ts:12"
     },
     {
@@ -8027,9 +8027,9 @@
       "entrypoint": ".",
       "symbol": "EmotionTransitionRule",
       "kind": "type",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/conversation-policy",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/conversation-policy/src/emotion-engine.ts:31"
     },
     {
@@ -8047,9 +8047,9 @@
       "entrypoint": ".",
       "symbol": "EnvironmentSchema",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/ui-route-admin",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/ui-route-admin/src/case-authoring-model.ts:434"
     },
     {
@@ -8257,9 +8257,9 @@
       "entrypoint": ".",
       "symbol": "ScenarioSchema",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/scenario-runtime",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts:1161"
     },
     {
@@ -8297,9 +8297,9 @@
       "entrypoint": ".",
       "symbol": "StationPhase",
       "kind": "type",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/domain",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/domain/src/station-state.ts:3"
     },
     {
@@ -8337,9 +8337,9 @@
       "entrypoint": ".",
       "symbol": "TouchResponseSchema",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/ui-route-admin",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) found no package importer (only 'mirrors XSchema' comments) and rejected noRootAbove for shared-schemas (56). If PSR-10 finds a consumer, it stops and this row returns to keep.",
       "evidence": "packages/openclinxr/ui-route-admin/src/case-authoring-model.ts:100"
     },
     {

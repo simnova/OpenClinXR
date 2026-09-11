@@ -1,5 +1,7 @@
 import {
   buildEncounterDynamicBehaviorCoverageSummary,
+  buildEncounterFactoryDryRunSummary,
+  buildEncounterFactoryInputPlanningSummary,
   buildEncounterFactorySummaryContracts,
   buildEncounterRuntimeAssetBundle,
   buildGuardedRuntimeSelectorDisabledDecision,
@@ -8,10 +10,6 @@ import {
   type RuntimeAssetKind,
 } from "@openclinxr/asset-registry/runtime-bundles";
 import { describe, expect, it } from "vitest";
-import {
-  buildEncounterFactoryDryRunSummary,
-  buildEncounterFactoryInputPlanningSummary,
-} from "./index.js";
 
 function testRuntimeAsset(
   input: {

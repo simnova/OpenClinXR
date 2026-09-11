@@ -5,12 +5,12 @@ import { planBedsideApproach } from "../../../../packages/openclinxr/asset-regis
 import {
   ED_STRETCHER_DECK_BOUNDS,
   bedsideTargetForClinician,
-  footSlideMeters,
-  stepBedsideApproach,
 } from "../../../../packages/openclinxr/asset-registry/src/index.js";
 import {
   CLINICIAN_WALK_SPEED_MPS,
   FOOT_CONTACT_HEIGHT_METERS,
+  footSlideMeters,
+  stepBedsideApproach,
 } from "../../../../packages/openclinxr/asset-registry/src/approach-executor.js";
 import { boundClipJointTrack } from "./bound-clip-foot-track.js";
 

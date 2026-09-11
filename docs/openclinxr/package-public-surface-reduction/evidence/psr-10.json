@@ -1,0 +1,301 @@
+{
+  "id": "psr-10",
+  "taskId": "tsk_88e388304dbf73ee",
+  "sourceRevision": "c810a39a8a81d1565e330a8c8254748b095034c0",
+  "baseRevision": "1b43a8e785c26cd4eff4a268fbe36d35ce49c1c0",
+  "planCommit": "1c493f12cd9ff5084e763c7e46f7ac4a5d57635c",
+  "planSha256": "01cb5139557293ace715e65bae576b359afe0e0e06c201f18e1af3d8bab0341d",
+  "rawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "groupHashPsr01d": "21f46d05a61ca2639359ddbf9b80cbebf4c6e5e0932e15603fd7ee71ec593e3f",
+  "groupHashPsr01e": "7e8b0ae8c2ea0bfc39e7f8a0a622a350d6be58ac52fba2b47fade6a1ba224664",
+  "reviewSession": "01a09174-3a8e-72b3-90f9-92a59232f49f",
+  "measuredBefore": {
+    "roots": 46,
+    "entrypoints": 114,
+    "rootSymbols": 1243,
+    "occurrences": 1484,
+    "uniqueSymbols": 1456,
+    "duplicateNames": 28,
+    "assetRegistryRoot": 58,
+    "sharedSchemasRoot": 56,
+    "note": "this worktree at 1b43a8e7 after the approval amendment and before barrel apply. Card known-good at origin/main 63dc2fb2: 1243/1484/1456/28; roots over 50 included asset-registry 58 and shared-schemas 56"
+  },
+  "measuredAfter": {
+    "roots": 46,
+    "entrypoints": 114,
+    "rootSymbols": 1220,
+    "occurrences": 1461,
+    "uniqueSymbols": 1441,
+    "duplicateNames": 20,
+    "assetRegistryRoot": 50,
+    "sharedSchemasRoot": 41
+  },
+  "verifyBeforePsr05": "46 roots, 114 entrypoints, 1243 root symbols, 1484 occurrences, 1456 unique, 28 duplicated names (surface 8ea82b069725)\nFAIL: group psr-05 not applied: extra: packages/openclinxr/asset-registry. publishes unapproved buildEncounterFactoryDryRunSummary; extra: packages/openclinxr/asset-registry. publishes unapproved buildEncounterFactoryInputPlanningSummary; extra: packages/openclinxr/asset-registry. publishes unapproved createEdChestPainLocalEncounterRuntimeAssetBundle; extra: packages/openclinxr/asset-registry. publishes unapproved footSlideMeters; extra: packages/openclinxr/asset-registry. publishes unapproved promoteEncounterRuntimeAssetBundleForLocalUse\nok baseline ratchet: surface matches the checked-in baseline (no growth)",
+  "verifyAfterPsr05": "46 roots, 114 entrypoints, 1220 root symbols, 1461 occurrences, 1441 unique, 20 duplicated names (surface 6580727cf497); ok: group psr-05 applied: 329 removed, 56 migrated; ok baseline ratchet: surface matches the checked-in baseline (no growth)",
+  "verifyAfterPsr08": "46 roots, 114 entrypoints, 1220 root symbols, 1461 occurrences, 1441 unique, 20 duplicated names (surface 6580727cf497); ok: group psr-08 applied: 694 removed, 45 migrated; ok baseline ratchet: surface matches the checked-in baseline (no growth)",
+  "verifyAfterAllReviewed": "46 roots, 114 entrypoints, 1220 root symbols, 1461 occurrences, 1441 unique, 20 duplicated names (surface 6580727cf497); ok: all review groups resolved; ok baseline ratchet: surface matches the checked-in baseline (no growth)",
+  "countsThisSlice": {
+    "packages/openclinxr/asset-registry migrate": 8,
+    "packages/openclinxr/shared-schemas remove": 15
+  },
+  "migrated": [
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "footSlideMeters",
+      "kind": "runtime",
+      "route": "./approach-executor"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "stepBedsideApproach",
+      "kind": "runtime",
+      "route": "./approach-executor"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "promoteEncounterRuntimeAssetBundleForLocalUse",
+      "kind": "runtime",
+      "route": "./runtime-asset-review"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "buildEncounterFactoryDryRunSummary",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "buildEncounterFactoryInputPlanningSummary",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "createEdChestPainLocalEncounterRuntimeAssetBundle",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "resolveRuntimeAssetBlobUrl",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": ".",
+      "symbol": "toLearnerRuntimeAssetBundle",
+      "kind": "runtime",
+      "route": "./runtime-bundles"
+    }
+  ],
+  "removed": [
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "ActorCardSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "ActorPhenotypeSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "ActorPlacementSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "AssetKindSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "AssetNeedSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "CaseEmotionPolicySchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "EnvironmentSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "ScenarioSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "TouchResponseSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "AssetKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "StationPhase",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "EmotionEventKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "EmotionTransitionRule",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "AssetManifest",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "DynamicEncounterFactoryPlanningProjection",
+      "kind": "type"
+    }
+  ],
+  "consumerFilesMoved": [
+    {
+      "file": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "names": [
+        "buildEncounterFactoryDryRunSummary",
+        "createEdChestPainLocalEncounterRuntimeAssetBundle",
+        "promoteEncounterRuntimeAssetBundleForLocalUse",
+        "resolveRuntimeAssetBlobUrl",
+        "toLearnerRuntimeAssetBundle"
+      ],
+      "from": "./index.js",
+      "to": [
+        "@openclinxr/asset-registry/runtime-bundles",
+        "@openclinxr/asset-registry/runtime-asset-review"
+      ]
+    },
+    {
+      "file": "packages/openclinxr/asset-registry/src/runtime-bundles.test.ts",
+      "names": [
+        "buildEncounterFactoryDryRunSummary",
+        "buildEncounterFactoryInputPlanningSummary"
+      ],
+      "from": "./index.js",
+      "to": "@openclinxr/asset-registry/runtime-bundles"
+    },
+    {
+      "file": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts",
+      "names": [
+        "footSlideMeters",
+        "stepBedsideApproach"
+      ],
+      "from": "./index.js",
+      "to": "@openclinxr/asset-registry/approach-executor"
+    },
+    {
+      "file": "tools/openclinxr/evidence/asset-production-readiness-benchmark.ts",
+      "names": [
+        "createEdChestPainLocalEncounterRuntimeAssetBundle"
+      ],
+      "from": "packages/openclinxr/asset-registry/src/index.js",
+      "to": "packages/openclinxr/asset-registry/src/runtime-bundles-entry.js"
+    },
+    {
+      "file": "tools/openclinxr/evidence/foot-plant/bound-clip-foot-plant.ts",
+      "names": [
+        "footSlideMeters",
+        "stepBedsideApproach"
+      ],
+      "from": "packages/openclinxr/asset-registry/src/index.js",
+      "to": "packages/openclinxr/asset-registry/src/approach-executor.js"
+    },
+    {
+      "file": "tools/openclinxr/evidence/foot-plant/the-walk-clip-plants-its-feet.test.ts",
+      "names": [
+        "footSlideMeters",
+        "stepBedsideApproach"
+      ],
+      "from": "packages/openclinxr/asset-registry/src/index.js",
+      "to": "packages/openclinxr/asset-registry/src/approach-executor.js"
+    },
+    {
+      "file": "tools/openclinxr/evidence/licence/the-replacement-walk-preserves-approach-behaviour.ts",
+      "names": [
+        "footSlideMeters"
+      ],
+      "from": "packages/openclinxr/asset-registry/src/index.js",
+      "to": "packages/openclinxr/asset-registry/src/approach-executor.js"
+    },
+    {
+      "file": "tools/openclinxr/evidence/scene-closure/the-measurement-rubric-rejects-broken-controls.test.ts",
+      "names": [
+        "footSlideMeters"
+      ],
+      "from": "packages/openclinxr/asset-registry/src/index.js",
+      "to": "packages/openclinxr/asset-registry/src/approach-executor.js"
+    }
+  ],
+  "sharedSchemasConsumersFound": [],
+  "ceilings": {
+    "packages/openclinxr/asset-registry/arch-ceiling.json": {
+      "before": {
+        "testInternalImports": 1,
+        "rootEntrypointExports": 58
+      },
+      "after": {
+        "testInternalImports": 1,
+        "rootEntrypointExports": 50
+      }
+    },
+    "packages/openclinxr/shared-schemas/arch-ceiling.json": {
+      "before": {
+        "testInternalImports": 2,
+        "rootEntrypointExports": 56
+      },
+      "after": {
+        "testInternalImports": 2,
+        "rootEntrypointExports": 41
+      }
+    }
+  },
+  "proofs": {
+    "pnpm arch:public-surface:verify -- --require-applied psr-05": "pass after apply; exit 0: 329 removed, 56 migrated",
+    "pnpm arch:public-surface:verify -- --require-applied psr-08": "pass after apply; exit 0: 694 removed, 45 migrated",
+    "pnpm arch:public-surface:verify -- --require-all-reviewed": "pass; ok: all review groups resolved",
+    "pnpm --filter @openclinxr/asset-registry test": "pass: Test Files 19 passed (19); Tests 140 passed (140)",
+    "pnpm --filter @openclinxr/shared-schemas test": "pass: Test Files 4 passed (4); Tests 39 passed (39)",
+    "pnpm typecheck:relaxed": "pass; exit 0",
+    "pnpm architecture": "pass: Test Files 18 passed (18); Tests 213 passed (213)"
+  },
+  "claim": "PSR-10 applies the independent criterion-6 review: 8 asset-registry root names migrated to kept subpaths (58→50) and 15 shared-schemas root names un-published (56→41). Defining-module export keywords kept. --require-applied psr-05 and psr-08 exit 0. No other package export map changed."
+}

@@ -4,13 +4,13 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 189,
+    "keep-evidence": 190,
     "ignore-local-cache": 2112,
     "keep-current": 141,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2486,
-    "total": 2486
+    "entries": 2487,
+    "total": 2487
   },
   "entries": [
     {
@@ -16590,6 +16590,13 @@
       "rationale": "HB-05 EEVEE lit grade render of the face-preserving decimated rung; orchestrator grades the pixels."
     },
     {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-defect-sites.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "HB-06 machine-readable defect-site attribution for mpfb-peds-patient-child (neckline squares + sleeve-hem rectangles traced to hide-mask mesh/material/UV/texel); read by the-child-defect-sites-are-attributed-from-the-glb.test.ts."
+    },
+    {
       "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_lit.png",
       "authority": "keep-evidence",
       "tracked": true,
@@ -16616,13 +16623,6 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-defect-sites.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "HB-06 machine-readable defect-site attribution for mpfb-peds-patient-child (neckline squares + sleeve-hem rectangles traced to hide-mask mesh/material/UV/texel); read by the-child-defect-sites-are-attributed-from-the-glb.test.ts."
     },
     {
       "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-front_lit.png",
@@ -17074,6 +17074,13 @@
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/evidence/psr-08.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/evidence/psr-10.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
