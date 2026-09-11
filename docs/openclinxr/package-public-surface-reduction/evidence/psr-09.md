@@ -37,7 +37,7 @@ No file outside `psr-09.json` and `psr-09.md` was written by this slice.
 
 `../exceptions/psr-c6-residual.json` (id `psr-c6-residual`, measured at `origin/main 5ae2f68e` after PSR-10), reviewed read-only by grok-4.6 sessions `01a09174-3a8e-72b3-90f9-92a59232f49f` (pre-PSR-10) and `01a09194-2e36-7eb0-94b7-a66584bfb625` (post-PSR-10 confirmation), 2026-09-11:
 
-- rootExportsAtMost 1,220 vs 1,000: 2,006 exports removed and 106 migrated across PSR-02..10; remaining 1,220 root names are approval keep rows with package-name-import consumers confirmed. ~40 further no-behaviour-change cuts were found, of which PSR-10 made the 23 it required; the rest of the gap is live contracts of rest and xr-runtime-state.
+- rootExportsAtMost 1,220 vs 1,000: 2,021 exports removed and 106 migrated across PSR-02..10; remaining 1,220 root names are approval keep rows with package-name-import consumers confirmed. ~40 further no-behaviour-change cuts were found, of which PSR-10 made the 23 it required; the rest of the gap is live contracts of rest and xr-runtime-state.
 - medianAtMost 25.5 vs 15: median sits in the 24-27 band (physics-touch-contract, xr-trace-readiness); no existing-subpath route moves it, and shrinking the largest roots does not change it.
 - p90AtMost 47 vs 25: p90 is set by the fifth-largest root (xr-dialogue 47) after PSR-10 brought asset-registry to 50 and shared-schemas to 41; roots above it are consumer-proven.
 - noRootAbove 119 vs 50: three roots exceed 50 (xr-runtime-state 119, rest 94, xr-station 70), all accepted as consumer-proven with no existing subpath to move names to; reaching 50 needs new facade subpaths, which is API design beyond an un-publish program. asset-registry and shared-schemas, which the review rejected, were cut by PSR-10.

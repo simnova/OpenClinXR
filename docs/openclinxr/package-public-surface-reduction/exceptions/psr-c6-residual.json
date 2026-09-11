@@ -8,7 +8,7 @@
       "measured": 1220,
       "threshold": 1000,
       "owner": "orchestrator (Claude CEO session, package public-surface reduction program)",
-      "reason": "2,006 exports were removed and 106 migrated across PSR-02..10; the remaining 1,220 root names are approval keep rows whose consumers were confirmed by package-name imports. An independent review found ~40 further no-behaviour-change cuts, of which PSR-10 made the 23 it required; the rest of the gap is live contracts of rest and xr-runtime-state.",
+      "reason": "2,021 exports were removed and 106 migrated across PSR-02..10; the remaining 1,220 root names are approval keep rows whose consumers were confirmed by package-name imports. An independent review found ~40 further no-behaviour-change cuts, of which PSR-10 made the 23 it required; the rest of the gap is live contracts of rest and xr-runtime-state.",
       "reviewedBy": "grok-4.6 independent reviewer: sessions 01a09174-3a8e-72b3-90f9-92a59232f49f (pre-PSR-10 review) and 01a09194-2e36-7eb0-94b7-a66584bfb625 (confirmation of these entries), 2026-09-11"
     },
     {
@@ -36,5 +36,6 @@
       "reviewedBy": "grok-4.6 independent reviewer: sessions 01a09174-3a8e-72b3-90f9-92a59232f49f (pre-PSR-10 review) and 01a09194-2e36-7eb0-94b7-a66584bfb625 (confirmation of these entries), 2026-09-11"
     }
   ],
-  "reviewRecord": "Both reviews ran read-only in fresh grok-4.6 sessions that did not author the entries; the first rejected noRootAbove for asset-registry and shared-schemas, which PSR-10 (5ae2f68e) then cut; the second accepted all four entries on the post-PSR-10 numbers."
+  "reviewRecord": "Both reviews ran read-only in fresh grok-4.6 sessions that did not author the entries; the first rejected noRootAbove for asset-registry and shared-schemas, which PSR-10 (5ae2f68e) then cut; the second accepted all four entries on the post-PSR-10 numbers.",
+  "correction": "2026-09-11 after review: the rootExportsAtMost reason said 2,006 removed; the verifier's per-group counts on 710622a3 total 2,021 (the 15 shared-schemas removals of PSR-10 were missing). Measured values, thresholds and verdicts are unchanged."
 }
