@@ -119,6 +119,37 @@ export type ApiAssembledExamDispositionDecision = {
   sequence: number;
 };
 
+export const assembledExamFeedbackReleaseClaimBoundary =
+  "assembled_exam_feedback_release_not_score_use" as const;
+
+export const assembledExamFeedbackReleaseNotEvidenceFor = [
+  "exam_equivalence",
+  "clinical_validity",
+  "scoring_validity",
+  "automated_scoring",
+  "credentialing",
+  "production_deployment",
+  "hidden_case_truth",
+  "private_actor_state",
+  "faculty_only_annotation",
+] as const;
+
+export type AssembledExamFeedbackReleaseStatus = "active" | "superseded" | "withdrawn";
+
+/** Append-only faculty feedback-release identity. Never rewritten in place. */
+export type ApiAssembledExamFeedbackReleaseRecord = {
+  releaseId: string;
+  examRunId: string;
+  packetDigest: string;
+  dispositionDecisionId: string;
+  releasedBy: string;
+  releasedAt: string;
+  status: AssembledExamFeedbackReleaseStatus;
+  supersedesReleaseId: string | null;
+  withdrawnAt: string | null;
+  withdrawnBy: string | null;
+};
+
 /**
  * Durable faculty disposition aggregate. Evidence packet is stored by reference
  * to the immutable assembled-review artifact; decisions are an append-only trail.
@@ -132,6 +163,8 @@ export type ApiAssembledExamDispositionRecord = {
   notEvidenceFor: typeof assembledExamDispositionNotEvidenceFor;
   scoringValidityClaimed: false;
   examEquivalenceGate: false;
+  /** Optional append-only release trail; older records omit it. */
+  feedbackReleases?: readonly ApiAssembledExamFeedbackReleaseRecord[];
 };
 
 export type AssembledExamDispositionDurableStore = {
