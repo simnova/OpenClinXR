@@ -293,34 +293,34 @@
     "horizontalExtent": 0.7713338136672974
    },
    "body": "mpfb-peds-patient-child.glb",
-   "bytes": 11348244,
+   "bytes": 11362908,
    "capture": "manual studio route (window global), same harness failure note as the nurse body",
    "captures": {
     "front_lit": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_lit.png",
-     "bytes": 1298869,
-     "sha256": "fa4bf98268206383d6767889cf3118a0db2dc3762e05dca78f35aa1fd8499317",
+     "bytes": 1266133,
+     "sha256": "7bee0d8223c0a5866c136e13cbf93c8a2678d1c893acfe5d48532f47cc4f0547",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "front_structure": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_structure.png",
-     "bytes": 2938828,
-     "sha256": "efa5d16d1fcda4848553cf1bbc4daaec5175afe3a00085095109ce9417b565ba",
+     "bytes": 2948522,
+     "sha256": "94a18a26d8163fa35b9598d23bbe82f6c08d3aecccc57b2168aca3ee977657ba",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "three_quarter_lit": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-three_quarter_lit.png",
-     "bytes": 1261917,
-     "sha256": "ede0392e82460b276c01d7122f4d8d90638721c91842c09fcb671a4a0af0f51c",
+     "bytes": 1235171,
+     "sha256": "012f03eb8f16f5ba13a59232a3f5ceebf59ea2a562c6dfda730d2aedb18831a2",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "three_quarter_structure": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-three_quarter_structure.png",
-     "bytes": 2927142,
-     "sha256": "19bad1cccbc368ee07f5a94d4004f74a575c9c9266c48e11b1144936b360ee45",
+     "bytes": 2935306,
+     "sha256": "203bd0eb597f0587a8e10f152a9302b524480308ee6b899c4f2907a9b544a890",
      "pngWidth": 4096,
      "pngHeight": 4096
     }
@@ -554,13 +554,14 @@
    ],
    "nodeCount": 148,
    "refusalRule": "baseColorFactor != [1,1,1] on a material WITH baseColorTexture and no recorded reason = refusal (HB-00). Untextured flat colours are the albedo itself, not a tint.",
-   "sha256": "2742c25863a117c094e3891aa3eeb64d09b69b53e2ff92568b8a95fd0b1662",
+   "sha256": "794d94386ef142fd5147306cd08a91552d59d06ba138057dcbb08c71d8a4208c",
    "sidecar": {
     "match": true,
-    "outputBytes": 11348244,
-    "outputSha256": "2742c25863a117c094e3891aa3eeb64d09b69b53e2ff92568b8a95fd0b1662"
+    "outputBytes": 11362908,
+    "outputSha256": "794d94386ef142fd5147306cd08a91552d59d06ba138057dcbb08c71d8a4208c"
    },
-   "triangles": 77324
+   "triangles": 77422,
+   "hb07Note": "HB-07: child GLB sha 2742c25863a117c094e3891aa3eeb64d09b69b53e2ff92568b8a95fd0b1662 -> 794d94386ef142fd5147306cd08a91552d59d06ba138057dcbb08c71d8a4208c, bytes 11348244 -> 11362908, triangles 77324 -> 77422; front_lit sha fa4bf98268206383d6767889cf3118a0db2dc3762e05dca78f35aa1fd8499317 -> 7bee0d8223c0a5866c136e13cbf93c8a2678d1c893acfe5d48532f47cc4f0547."
   },
   {
    "aabbInPage": {
@@ -856,7 +857,7 @@
  "harness": {
   "engine": "three.js GLTFLoader through the model-vetting-studio capture route (candidate-capture.ts renders the staged GLB, no Blender scene opened)",
   "expectedImagesPerBody": "front_lit + front_structure (the tool's GRADE_VIEWS default also covers three_quarter; this card's manual pass covers front only and says so)",
-  "renderer": "Chromium 147.0.7727.15 headless via Playwright 1.59.1; WebGL backend ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver) — software rasterisation, recorded so a grey-on-grey grade can be told apart from a material finding",
+  "renderer": "Chromium 147.0.7727.15 headless via Playwright 1.59.1; WebGL backend ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver) \u2014 software rasterisation, recorded so a grey-on-grey grade can be told apart from a material finding",
   "subjectAlone": "staged GLB mesh names only (10 meshes per body, listed per body); no ground-plane mesh in the GLB scene graph; no lamp nodes in a GLB; grade canvas is the isolated capture canvas (#model-vetting-candidate-capture-canvas). The grid floor in the PNGs is the studio capture backdrop, not GLB geometry.",
   "viewport": "4096x4096 browser viewport; tracked PNG IHDR 4096x4096 (rendered, not resampled)",
   "webglRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
