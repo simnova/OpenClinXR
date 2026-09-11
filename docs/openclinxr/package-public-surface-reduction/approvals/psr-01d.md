@@ -35,3 +35,10 @@ still exits 0.
 subpath as its `route`, so the subpath is where consumers are moved and must keep publishing it;
 the review had marked the destination `remove` as well, leaving the name with no published home.
 The other 29 migrate rows already kept their destination. Owner and evidence copy the root row.
+
+## Amendment at PSR-06 (orchestrator, 2026-09-11)
+
+Two more migrate destinations carried `remove`, the same defect as the 19 asset-registry rows:
+`ui-route-admin` `./case-authoring-workbench` `CaseAuthoringWorkbench` and
+`./faculty-compile-lock-types` `FacultyCompileLockClient`. Both now `keep`. A scan of every
+root `migrate` row in psr-01d and psr-01e found no others.

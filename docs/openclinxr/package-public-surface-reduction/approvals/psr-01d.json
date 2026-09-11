@@ -11293,10 +11293,10 @@
       "entrypoint": "./case-authoring-workbench",
       "symbol": "CaseAuthoringWorkbench",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/ui-route-admin",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "apps/ui-admin",
+      "rationale": "Amended before land (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./case-authoring-workbench), so it must keep publishing the name its consumers are moved to. Same review defect as the 19 asset-registry rows amended in 26d5aab5.",
+      "evidence": "apps/ui-admin/src/app.tsx:11"
     },
     {
       "package": "packages/openclinxr/ui-route-admin",
@@ -12373,10 +12373,10 @@
       "entrypoint": "./faculty-compile-lock-types",
       "symbol": "FacultyCompileLockClient",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/ui-route-admin",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "apps/ui-admin",
+      "rationale": "Amended before land (orchestrator, 2026-09-11): this subpath is the destination of the root row's migrate (route ./faculty-compile-lock-types), so it must keep publishing the name its consumers are moved to. Same review defect as the 19 asset-registry rows amended in 26d5aab5.",
+      "evidence": "apps/ui-admin/src/app.test.tsx:7,apps/ui-admin/src/app.tsx:11"
     },
     {
       "package": "packages/openclinxr/ui-route-admin",
