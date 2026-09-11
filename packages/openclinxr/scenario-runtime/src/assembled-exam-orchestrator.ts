@@ -19,6 +19,11 @@ import {
 } from "./assembled-station-clock.js";
 import type { AssembledStationContext } from "./runtime-types.js";
 import { validateAssembledStationContext } from "./trace.js";
+import {
+  restoreInterruptedActorTurn,
+  type InterruptedActorTurnEntry,
+  type RestoredActorTurn,
+} from "./actor-turn-resume/resume.js";
 
 export const assembledExamOrchestratorClaimBoundary =
   "assembled_exam_resume_not_exam_equivalence" as const;
@@ -80,6 +85,8 @@ export type ResumeAssembledExamInput = {
   timingPlan: ExamTimingPlan;
   projection: AssembledExamLedgerResumeProjection;
   requestedStation?: RequestedAssembledExamStation;
+  /** Interrupted actor turns keyed by stationRunId; at most one restores, for the current station. */
+  interruptedActorTurns?: readonly InterruptedActorTurnEntry[];
 };
 
 export type ApplyAssembledStationTimeoutsInput = ResumeAssembledExamInput & {
@@ -122,6 +129,8 @@ export type AssembledExamResumeDecision = {
   selectedStation: AssembledExamSelectedStation | null;
   durableEventRefs: string[];
   omissions: AssembledExamOmission[];
+  /** Restored interrupted actor turn, present only when the projection carries one for the current station. */
+  restoredActorTurn: RestoredActorTurn | null;
   claimBoundary: typeof assembledExamOrchestratorClaimBoundary;
   notEvidenceFor: typeof assembledExamOrchestratorNotEvidenceFor;
   examEquivalenceGate: false;
@@ -370,7 +379,13 @@ export function resumeAssembledExam(input: ResumeAssembledExamInput): AssembledE
         `skipped station identity: requested stationOrder ${input.requestedStation.stationOrder} after exam complete`,
       );
     }
-    return { ...base, action: "exam_complete", selectedStation: null };
+    if (input.interruptedActorTurns !== undefined && input.interruptedActorTurns.length > 0) {
+      const [stale] = input.interruptedActorTurns;
+      throw new Error(
+        `skipped station identity: interrupted actor turn for stationRunId ${stale?.stationRunId} after exam complete`,
+      );
+    }
+    return { ...base, action: "exam_complete", selectedStation: null, restoredActorTurn: null };
   }
 
   const events = eventsByRun.get(current.stationRunId) ?? [];
@@ -393,6 +408,7 @@ export function resumeAssembledExam(input: ResumeAssembledExamInput): AssembledE
   return {
     ...base,
     action,
+    restoredActorTurn: restoreInterruptedActorTurn(current.stationRunId, input.interruptedActorTurns),
     selectedStation: {
       stationOrder: current.stationOrder,
       scenarioId: current.scenarioId,

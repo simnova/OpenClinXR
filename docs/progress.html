@@ -28,6 +28,40 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-11T1735">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 11 &middot; 2026-09-11 17:35 EDT</p>
+          <h2>Eight product cards landed since 16:15, none of them adding a public export.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Landed: faculty review</h3>
+            <ul>
+              <li><strong>Debrief causal chain</strong> (<code>89102dcb</code>): the review packet now links each learner hypothesis to the observations, note and actor responses that support or contradict it. Every link cites an event that exists in the trace, and a statement not present on its source event is refused.</li>
+              <li><strong>Feedback release</strong> (<code>37125f38</code>): faculty release a finalized disposition to the learner as an immutable release that can be superseded or withdrawn. The learner view is tested against planted hidden-truth, prompt and faculty-note strings and carries none of them.</li>
+              <li><strong>Station quality review</strong> (<code>3304772d</code>): a per-station view of completion, phase timing, required-tag coverage, omissions and technical failures, each citing the durable events it came from, with no learner utterances or notes.</li>
+              <li><strong>Encounter bundle binding</strong> (<code>4ec6521e</code>): the assembled review packet checks each station against the encounter bundle pinned at exam start and marks a substituted, missing or swapped bundle instead of hiding it.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Landed: exam runtime and motion</h3>
+            <ul>
+              <li><strong>Reconnect resume</strong> (<code>1568fd06</code>): resuming an exam restores an interrupted actor turn with its clock position, barge-in state and already-emitted events, each event once.</li>
+              <li><strong>Deterministic branch scheduler</strong> (<code>749ac860</code>) and a <strong>case-defined ensemble clock</strong> for patient, parent and nurse (<code>67006918</code>).</li>
+              <li><strong>Minimum-jerk motion tracks</strong> (<code>3d8048ce</code>): emitted reach and guard tracks ease into and out of a flat contact hold instead of stepping linearly.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Not landed</h3>
+            <ul>
+              <li><strong>HB-07</strong>, the see-through gaps at the child humanoid's collar and sleeve hems, failed twice. The second attempt cut the collar gaps by about half and left the sleeve gaps unchanged. A peer consult then showed the sleeve pixels are not hidden body faces, so a third attempt now measures what each gap pixel hits before choosing a fix.</li>
+              <li>The same work found that re-baking the child today would dress it in jeans rather than the cargo trousers it shipped with, adding 3,080 triangles. The third attempt pins the shipped garments so a rebake reproduces the published body.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="status-copy">Four held cards (bundle binding, feedback release, quality review, reconnect resume) were rewritten before dispatch so their code stays inside the package that uses it. Three cards were handed back once before landing: one put its fix in a file its contract did not name, one refused a packet where its brief asked it to mark the station, and one reported a barge-in that never happened.</p>
+      </section>
+
       <section class="band" id="entry-2026-09-11T1615">
         <div class="section-heading">
           <p class="eyebrow">Entry 10 &middot; 2026-09-11 16:15 EDT</p>

@@ -116,6 +116,7 @@
     "src/api-application.test.ts",
     "src/protocol-support.test.ts",
     "src/rest-routes.test.ts",
+    "src/routes/a-model-proposal-reaches-authoring-only-after-faculty-approval.test.ts",
     "src/routes/assembled-exam-disposition-routes.test.ts",
     "src/routes/assembled-exam-review-routes.test.ts",
     "src/routes/assembled-exam-run-routes.test.ts",
