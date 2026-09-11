@@ -5,8 +5,8 @@
   "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
   "runtimeRole": "inspection_fixture",
   "runtimeRoleWhy": "Inspection subject for viseme contracts. Never cast; the shipped-bank cast resolver does not name it.",
-  "outputSha256": "8d399859eaa684006f7a0705da9f488615d0dbd1943a2a82ac507f401f94b9cb",
-  "outputBytes": 11738220,
+  "outputSha256": "98c8ec0bbc494890737e708b2cd9321c00c6fc06dc03a86e1aa28c792b1083f1",
+  "outputBytes": 8560664,
   "albedoBakeWrittenAt": "2026-09-11T05:16:52.463Z",
-  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
+  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.4 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts)."
 }

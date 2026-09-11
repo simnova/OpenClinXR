@@ -27,7 +27,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
-import { simplify, weld, quantize } from "@gltf-transform/functions";
+import { simplify, simplifyPrimitive, weld, weldPrimitive, quantize } from "@gltf-transform/functions";
 import { MeshoptSimplifier } from "meshoptimizer";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -60,6 +60,39 @@ const STRETCH = 25_000;
 const FORCE_ERROR = 1.0;
 const WELD_TOL = 1e-4;
 
+/**
+ * HB-05 face-preserving rung (D9 deterministic station).
+ *
+ * Exactly the technique that produced the five promoted HB-05 bytes: per-primitive
+ * weld, then simplifyPrimitive at the rung ratio, on every NON-face mesh only.
+ * Face meshes (matching FACE_RE) are never touched; the 1-triangle gown marker is
+ * never simplified. Joints, morph targets, animations, materials and textures pass
+ * through unchanged because only vertex/index buffers of non-face primitives move.
+ *
+ * This does not repeat the FAILED TREATMENT in
+ * tools/openclinxr/evidence/eyebrow-budget/reduce-shipped-eyebrows.ts:10
+ * (simplifyPrimitive with error=1 scattered brow strands across the body): that
+ * treatment ran unconstrained meshopt simplification directly ON the brow strand
+ * mesh, a many-tiny-component primitive where the error budget lets components
+ * drift. Here the error budget (FACE_PRESERVING_ERROR = 0.01, one hundred times
+ * tighter) applies only to NON-face meshes — body, garments, hair, footwear —
+ * whose primitives are large connected surfaces, and face meshes are excluded by
+ * name before any simplifier call. Measured: brow bbox unchanged on every body
+ * because the brow primitive is never passed to the simplifier.
+ */
+const FACE_RE = /eye|brow|lash|teeth|tongue/i;
+const GOWN_MARKER = "openclinxr_declared_upper_layers__hospital_gown_mesh";
+const FACE_PRESERVING_RATIOS = [0.4, 0.3, 0.15];
+const FACE_PRESERVING_ERROR = 0.01;
+
+export function facePreservingRungIds(): string[] {
+  return FACE_PRESERVING_RATIOS.map((r) => `fp-r${r}`);
+}
+
+export function facePreservingError(): number {
+  return FACE_PRESERVING_ERROR;
+}
+
 type Rung = {
   iter: number;
   technique: string;
@@ -89,6 +122,14 @@ function pickChampion(survivors: Rung[]): Rung | undefined {
   );
 }
 
+function resolveInput(input: string): string {
+  return path.resolve(input);
+}
+
+function resolveOut(out: string): string {
+  return path.resolve(out);
+}
+
 function parseArgs(argv: string[]) {
   let input = "";
   let out = "";
@@ -97,6 +138,8 @@ function parseArgs(argv: string[]) {
   let target = "";
   let bakeRes = DEFAULT_BAKE_RES;
   let renderOut = "";
+  let facePreserving = false;
+  let facePreservingRatio = 0;
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--input") input = argv[++i] ?? "";
     else if (argv[i] === "--out") out = argv[++i] ?? "";
@@ -105,9 +148,12 @@ function parseArgs(argv: string[]) {
     else if (argv[i] === "--target") target = argv[++i] ?? "";
     else if (argv[i] === "--bake-res") bakeRes = Number(argv[++i] ?? DEFAULT_BAKE_RES);
     else if (argv[i] === "--render-out") renderOut = argv[++i] ?? "";
+    else if (argv[i] === "--face-preserving") facePreserving = true;
+    else if (argv[i] === "--face-preserving-ratio") facePreservingRatio = Number(argv[++i] ?? 0);
   }
   if (!input || !out) {
     console.error("Usage: iterate-optimize.ts --input <raw.glb> --out <dir> [--bake] [--bake-res <n>] [--target <low.glb>] [--render] [--render-out <png>]");
+    console.error("   or: iterate-optimize.ts --input <raw.glb> --out <dir> --face-preserving [--face-preserving-ratio <r>]");
     process.exit(2);
   }
   if (target && !bake && !render) {
@@ -118,7 +164,15 @@ function parseArgs(argv: string[]) {
     console.error(`invalid --bake-res ${bakeRes}`);
     process.exit(2);
   }
-  return { input: path.resolve(input), out: path.resolve(out), bake, render, target: target ? path.resolve(target) : "", bakeRes, renderOut };
+  if (facePreservingRatio !== 0 && !facePreserving) {
+    console.error("--face-preserving-ratio requires --face-preserving");
+    process.exit(2);
+  }
+  if (facePreserving && target) {
+    console.error("--face-preserving cannot combine with --target (bake/render stage-only mode)");
+    process.exit(2);
+  }
+  return { input: resolveInput(input), out: resolveOut(out), bake, render, target: target ? resolveInput(target) : "", bakeRes, renderOut, facePreserving, facePreservingRatio };
 }
 
 async function countTris(glbPath: string): Promise<number> {
@@ -187,6 +241,46 @@ async function writeSimplified(
   }
   await doc.transform(...ops);
   await io.write(output, doc);
+}
+
+export async function countFaceTris(glbPath: string): Promise<{ tris: number; face: number }> {
+  const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
+  const doc = await io.read(glbPath);
+  let tris = 0;
+  let face = 0;
+  for (const mesh of doc.getRoot().listMeshes()) {
+    let mt = 0;
+    for (const prim of mesh.listPrimitives()) {
+      const idx = prim.getIndices();
+      if (idx) mt += idx.getCount() / 3;
+    }
+    tris += mt;
+    if (FACE_RE.test(mesh.getName())) face += mt;
+  }
+  return { tris: Math.round(tris), face: Math.round(face) };
+}
+
+/** HB-05 face-preserving rung: weld then simplifyPrimitive on non-face primitives only. */
+export async function writeFacePreservingRung(
+  input: string,
+  output: string,
+  ratio: number,
+): Promise<{ tris: number; face: number }> {
+  const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
+  const doc = await io.read(input);
+  for (const mesh of doc.getRoot().listMeshes()) {
+    if (FACE_RE.test(mesh.getName()) || mesh.getName() === GOWN_MARKER) continue;
+    for (const prim of mesh.listPrimitives()) {
+      try {
+        weldPrimitive(prim);
+      } catch {
+        // A primitive that cannot weld still simplifies from its raw indices.
+      }
+      simplifyPrimitive(prim, { simplifier: MeshoptSimplifier, ratio, error: FACE_PRESERVING_ERROR });
+    }
+  }
+  await io.write(output, doc);
+  return countFaceTris(output);
 }
 
 async function measureRung(
@@ -389,12 +483,41 @@ async function runBakeRenderStages(opts: {
 }
 
 async function main() {
-  const { input, out, bake, render, target, bakeRes, renderOut } = parseArgs(process.argv.slice(2));
+  const { input, out, bake, render, target, bakeRes, renderOut, facePreserving, facePreservingRatio } = parseArgs(process.argv.slice(2));
   if (!existsSync(input)) {
     console.error("missing input", input);
     process.exit(2);
   }
   mkdirSync(out, { recursive: true });
+
+  // HB-05 face-preserving mode: one rung per ratio in FACE_PRESERVING_RATIOS
+  // (or the single --face-preserving-ratio), face meshes untouched. Deterministic:
+  // same input bytes + ratio always yield the same triangle counts.
+  if (facePreserving) {
+    await MeshoptSimplifier.ready;
+    const ratios = facePreservingRatio !== 0 ? [facePreservingRatio] : FACE_PRESERVING_RATIOS;
+    const base = path.basename(input).replace(/\.glb$/i, "");
+    const rungs = [];
+    for (const ratio of ratios) {
+      const dest = path.join(out, `${base}-fp-r${ratio}.glb`);
+      const counts = await writeFacePreservingRung(input, dest, ratio);
+      rungs.push({
+        label: `fp-r${ratio}`,
+        ratio,
+        error: FACE_PRESERVING_ERROR,
+        triangleCount: counts.tris,
+        faceTriangles: counts.face,
+        path: dest,
+        bytes: statSync(dest).size,
+      });
+      console.log(`  fp-r${ratio} → ${counts.tris} tris (face ${counts.face})`);
+    }
+    writeFileSync(
+      path.join(out, "face-preserving-rungs.json"),
+      JSON.stringify({ input, mode: "face-preserving", error: FACE_PRESERVING_ERROR, rungs }, null, 2) + "\n",
+    );
+    return;
+  }
 
   // Stage-only mode: bake/render an explicit low rung against the raw (used by rung sweeps).
   if (target) {
