@@ -45,6 +45,7 @@
   "tests": [
     "src/a-scheduled-event-fires-once-at-its-second.test.ts",
     "src/actor-turn-plan-is-frozen-before-render.test.ts",
+    "src/actor-turn-resume/a-reconnect-restores-the-interrupted-actor-turn-exactly-once.test.ts",
     "src/api-canonical-phase-session.test.ts",
     "src/assembled-exam-orchestrator.test.ts",
     "src/assembled-station-clock.test.ts",
