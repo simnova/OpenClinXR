@@ -4,13 +4,13 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 150,
+    "keep-evidence": 152,
     "ignore-local-cache": 2112,
     "keep-current": 141,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2447,
-    "total": 2447
+    "entries": 2449,
+    "total": 2449
   },
   "entries": [
     {
@@ -16812,6 +16812,20 @@
       "tracked": true,
       "action": "keep",
       "rationale": "PSR-00 evidence report written by pnpm arch:public-surface:verify --report: measured totals, manifest hashes, falsifier outcomes."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/evidence/psr-01a.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/raw-inventory.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
     },
     {
       "path": "docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json",
