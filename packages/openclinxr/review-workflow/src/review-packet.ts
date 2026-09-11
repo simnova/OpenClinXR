@@ -2,6 +2,10 @@ import { evaluateRequiredTraceTags } from "@openclinxr/domain";
 import { type PatientNote, type ReviewPacket, validateReviewPacket } from "@openclinxr/shared-schemas";
 import { authoredTurnReplayFromPayload, summarizeAuthoredTurnReplay } from "./authored-turn-replay.js";
 import {
+  projectFacultyCausalChain,
+  type FacultyCausalChain,
+} from "./faculty-causal-chain/index.js";
+import {
   actorTurnExecutionFromPayload,
   actorTurnPlanFromPayload,
   extractFacultyActorTurnReplays,
@@ -41,6 +45,7 @@ export type EmotionalTimelineEntry = {
 export type ReviewPacketWithEmotionTimeline = ReviewPacket & {
   emotionalTimeline: EmotionalTimelineEntry[];
   actorTurnReplays: FacultyActorTurnReplay[];
+  causalChain: FacultyCausalChain;
 };
 
 export type ReviewTraceInput = {
@@ -118,6 +123,7 @@ export function buildReviewPacket(input: BuildReviewPacketInput): ReviewPacketWi
 
   const emotionalTimeline = extractEmotionalTimeline(input.traceEvents);
   const actorTurnReplays = extractFacultyActorTurnReplays(input.traceEvents);
+  const causalChain = projectFacultyCausalChain(input.traceEvents);
 
   const { observed, missing } = evaluateRequiredTraceTags(input.requiredTraceTags, input.traceEvents);
   const reviewTraceEvents = input.xrTraceInteractionEvidence
@@ -169,7 +175,7 @@ export function buildReviewPacket(input: BuildReviewPacketInput): ReviewPacketWi
     throw new Error(`Invalid review packet: ${validation.errors.join("; ")}`);
   }
 
-  return { ...packet, emotionalTimeline, actorTurnReplays };
+  return { ...packet, emotionalTimeline, actorTurnReplays, causalChain };
 }
 
 function xrTraceInteractionSummaryEvent(summary: StationXrTraceEvidenceSummary): ReviewTraceInput {
