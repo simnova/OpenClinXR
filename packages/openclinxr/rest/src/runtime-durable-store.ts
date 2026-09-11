@@ -238,6 +238,48 @@ export type ApiAssembledExamDispositionRecord = {
   feedbackReleases?: readonly ApiAssembledExamFeedbackReleaseRecord[];
   /** Optional faculty assessment trail; older records omit it. */
   facultyAssessments?: readonly ApiFacultyAssessmentRecord[];
+  /** Optional rater-calibration adjudications; older records omit it. Never mutates facultyAssessments. */
+  raterCalibrations?: readonly ApiRaterCalibrationRecord[];
+};
+
+export const assembledExamRaterCalibrationClaimBoundary =
+  "assembled_exam_rater_calibration_not_score_use" as const;
+
+export const assembledExamRaterCalibrationNotEvidenceFor = [
+  "exam_equivalence",
+  "clinical_validity",
+  "scoring_validity",
+  "automated_scoring",
+  "credentialing",
+  "production_deployment",
+  "norming",
+  "reliability_coefficient",
+] as const;
+
+export type AssembledExamCalibrationResolution = "agree" | "disagree" | "inconclusive";
+
+export type ApiRaterCalibrationCriterionResolution = {
+  rubricItemId: string;
+  stationRunId: string;
+  resolution: AssembledExamCalibrationResolution;
+  note: string;
+};
+
+/** Append-only calibration adjudication. Original sealed assessments stay byte-stable. */
+export type ApiRaterCalibrationRecord = {
+  adjudicationId: string;
+  examRunId: string;
+  packetDigest: string;
+  leftSealedAssessmentId: string;
+  rightSealedAssessmentId: string;
+  adjudicatorId: string;
+  attestedAt: string;
+  criterionResolutions: readonly ApiRaterCalibrationCriterionResolution[];
+  agreementKind: "calibration_evidence";
+  claimBoundary: typeof assembledExamRaterCalibrationClaimBoundary;
+  notEvidenceFor: typeof assembledExamRaterCalibrationNotEvidenceFor;
+  scoringValidityClaimed: false;
+  examEquivalenceGate: false;
 };
 
 export type AssembledExamDispositionDurableStore = {
