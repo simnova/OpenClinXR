@@ -22,7 +22,7 @@ parseable_sections: 6
 **LANDED this wake**
 - Agent routing: Grok workers / explore / plan / general-purpose → `muse-spark-1` (contributor, vision OK). Fallback `nemotron-ultra` (free, text-only; write roles need `modelDowngradeReason`). User `~/.grok/config.toml` `[subagents.models]` binds live children.
 
-**NEXT this wake:** dequeue with Muse default. Escalate `grok-4.6` only on measured Muse failure.
+**NEXT this wake:** dequeue with Muse default. Street look-good parked (shin wash, open-collar cuff). Escalate `grok-4.6` only on measured Muse failure.
 
 NOT TESTED: live DeepSeek recovery probe (HOLD until operator lifts it).
 <!-- WAKE-BLUF:END -->
