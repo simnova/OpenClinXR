@@ -66,8 +66,8 @@
   "claimScope": "physician_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_plus_cc0_lab_coat_over_scrubs",
   "promotionGates": false,
   "generatedAt": "2026-08-14T17:56:00Z",
-  "outputSha256": "fe9ef56a32210f125e373cc63d56bd0f4d822ea97309f98f0bd8a228b61f5712",
-  "outputBytes": 11736724,
+  "outputSha256": "63a4c9dec2065aae38d0e3336fc4a46be2de647354848cebe8269564c01d4b13",
+  "outputBytes": 9457652,
   "motionClips": [
     {
       "clipName": "openclinxr_retarget_walk_formal_cc0",
@@ -103,5 +103,7 @@
     }
   ],
   "licenceNoticeWrittenAt": "2026-09-10T17:27:31.866Z",
-  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here."
+  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here.",
+  "albedoBakeWrittenAt": "2026-09-11T05:16:52.371Z",
+  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
 }
