@@ -14,7 +14,7 @@ import type { Scenario, TraceEvent } from "../../../packages/openclinxr/shared-s
 import {
   createInMemoryTelemetryRecorder,
   openClinXrSpanNames,
-  safeTelemetryAttributes,
+  telemetryRouteAttributes,
   summarizeTelemetrySpans,
 } from "../../../packages/openclinxr/telemetry/src/index.js";
 import {
@@ -136,7 +136,7 @@ export type BlueprintVoiceSimulationPlan = {
       id: string;
     }>;
   };
-  telemetryAttributes: ReturnType<typeof safeTelemetryAttributes>;
+  telemetryAttributes: ReturnType<typeof telemetryRouteAttributes>;
 };
 
 export type BlueprintVoiceSimulationSpikeReport = {
@@ -455,7 +455,7 @@ export function buildBlueprintVoiceSimulationPlan(input: {
         },
       ],
     },
-    telemetryAttributes: safeTelemetryAttributes({
+    telemetryAttributes: telemetryRouteAttributes({
       scenarioId: scenario.scenarioId,
       scenarioVersion: scenario.version,
       routeId: "blueprint-voice-simulation-spike-v1",
@@ -522,7 +522,7 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
   const telemetry = createInMemoryTelemetryRecorder();
   telemetry.recordSpan({
     name: openClinXrSpanNames.voiceSynthesize,
-    attributes: safeTelemetryAttributes({
+    attributes: telemetryRouteAttributes({
       scenarioId: plan.station.scenarioId,
       scenarioVersion: plan.station.scenarioVersion,
       actorId: selectedActor.actorId,
@@ -1612,7 +1612,7 @@ function buildPrewarmEvidence(plan: BlueprintVoiceSimulationPlan): BlueprintVoic
 }
 
 function sensitiveTelemetryFieldsDropped(learnerUtterance: string): boolean {
-  return Object.keys(safeTelemetryAttributes({
+  return Object.keys(telemetryRouteAttributes({
     learnerUtterance,
     hiddenFacts: ["redacted hidden fact"],
     patientNoteText: "redacted patient note",

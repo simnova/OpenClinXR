@@ -3,13 +3,8 @@
   "name": "@openclinxr/config-rolldown",
   "entrypoint": "packages/openclinxr/config-rolldown/src/index.ts",
   "exports": [
-    "OpenClinXrRolldownConfig",
-    "OpenClinXrRolldownConfigOptions",
-    "PrepareOpenClinXrAzureFunctionsDeployOptions",
-    "buildOpenClinXrCjsAliasMap",
     "createOpenClinXrAzureFunctionsRolldownConfig",
-    "prepareOpenClinXrAzureFunctionsDeploy",
-    "summarizeRolldownAdoption"
+    "prepareOpenClinXrAzureFunctionsDeploy"
   ],
   "workspaceDependencies": [],
   "tests": [

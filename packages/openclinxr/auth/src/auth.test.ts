@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  AUTH_CLAIM_BOUNDARY,
-  AUTH_NOT_EVIDENCE_FOR,
   canReadStationRun,
   DEFAULT_DEV_AUTH_IDENTITY,
   DEFAULT_DEV_AUTH_SECRET,
@@ -80,9 +78,7 @@ describe("@openclinxr/auth HMAC-JWT", () => {
     expect(resolveSessionLearnerId(DEFAULT_DEV_AUTH_IDENTITY)).toBe("learner_001");
   });
 
-  it("keeps claim boundary conservative", () => {
-    expect(AUTH_CLAIM_BOUNDARY).toBe("local_hmac_jwt_not_production_identity_provider");
-    expect(AUTH_NOT_EVIDENCE_FOR).toContain("production_identity_provider");
+  it("keeps the dev identity conservative", () => {
     expect(DEFAULT_DEV_AUTH_IDENTITY.role).toBe("admin");
   });
 });
