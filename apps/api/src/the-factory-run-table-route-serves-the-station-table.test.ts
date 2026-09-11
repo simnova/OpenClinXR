@@ -98,7 +98,7 @@ async function withRollupFixture<T>(body: () => T | Promise<T>): Promise<T> {
   mkdirSync(dirname(absolute), { recursive: true });
   writeFileSync(absolute, JSON.stringify(ROLLUP_FIXTURE), "utf8");
   try {
-    return body();
+    return await body();
   } finally {
     rmSync(absolute, { force: true });
   }
