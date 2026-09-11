@@ -98,6 +98,7 @@
       "outputs": []
     },
     "architecture": {
+      "cache": false,
       "dependsOn": [
         "^typecheck"
       ],
