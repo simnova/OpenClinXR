@@ -1,0 +1,88 @@
+{
+  "schema": "openclinxr.psr-00b-acceptance.v1",
+  "revision": "working-tree",
+  "hash": "6580727cf497e1d049679428208a7838ae903203a022fb8e0f97010b1d4a015c",
+  "totals": {
+    "roots": 46,
+    "entrypoints": 114,
+    "rootSymbols": 1220,
+    "occurrences": 1461,
+    "uniqueSymbols": 1441,
+    "duplicateNames": 20
+  },
+  "quantiles": {
+    "median": 25.5,
+    "p90": 47,
+    "maxRoot": 119
+  },
+  "cellix": {
+    "planPin": "adf3bc9deb2d0ca006041d9326215996a2b00e12",
+    "clonePath": "/Volumes/files/src/cellixjs-current",
+    "clone": {
+      "head": "adf3bc9deb2d0ca006041d9326215996a2b00e12",
+      "matchesPin": true
+    }
+  },
+  "criteria": {
+    "3": {
+      "criterion": "3",
+      "id": "no-wildcard-publication",
+      "ok": true,
+      "detail": "zero export * / export type * on supported entrypoints"
+    },
+    "4": {
+      "criterion": "4",
+      "id": "complete-contract-inventory",
+      "ok": true,
+      "detail": "all 3588 inventory symbols classified keep/remove/migrate"
+    },
+    "5": {
+      "criterion": "5",
+      "id": "reviewed-execution",
+      "ok": true,
+      "detail": "all review groups resolved; applied psr-01b, psr-01c, psr-01d, psr-01e"
+    },
+    "6": {
+      "criterion": "6",
+      "id": "quantitative-review-targets",
+      "ok": true,
+      "detail": "targets missed with independently reviewed exceptions: rootSymbols=1220 via psr-c6-residual; median=25.5 via psr-c6-residual; p90=47 via psr-c6-residual; maxRoot=119 via psr-c6-residual"
+    },
+    "12": {
+      "criterion": "12",
+      "id": "independent-closure",
+      "ok": true,
+      "detail": "recomputed 46 packages from the tree; Cellix pin adf3bc9deb2d0ca006041d9326215996a2b00e12; no self-attested completion flag"
+    }
+  },
+  "quantitativeMisses": [
+    {
+      "metric": "rootSymbols",
+      "measured": 1220,
+      "target": 1000,
+      "exceptionId": "psr-c6-residual"
+    },
+    {
+      "metric": "median",
+      "measured": 25.5,
+      "target": 15,
+      "exceptionId": "psr-c6-residual"
+    },
+    {
+      "metric": "p90",
+      "measured": 47,
+      "target": 25,
+      "exceptionId": "psr-c6-residual"
+    },
+    {
+      "metric": "maxRoot",
+      "measured": 119,
+      "target": 50,
+      "exceptionId": "psr-c6-residual"
+    }
+  ],
+  "verdict": "close",
+  "refuseReasons": [],
+  "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility. CellixJS is a directional reference, not feature-equivalence.",
+  "notTested": "Whether the residual exceptions will be accepted on review; that is decided outside this card."
+}
