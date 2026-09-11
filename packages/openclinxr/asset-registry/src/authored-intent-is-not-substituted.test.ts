@@ -1,10 +1,10 @@
+import { planBedsideApproach } from "@openclinxr/asset-registry/bedside-approach-path";
+import { resolveBedsideLayout } from "@openclinxr/asset-registry/layout-variation";
 import { describe, expect, it } from "vitest";
 import {
-  ED_STRETCHER_DECK_BOUNDS,
   bedsideClearanceViolations,
-  planBedsideApproach,
+  ED_STRETCHER_DECK_BOUNDS,
 } from "./index.js";
-import { resolveBedsideLayout } from "@openclinxr/asset-registry/layout-variation";
 
 /**
  * Brief §3, deterministic solving: "Apply hard constraints before ranking valid alternatives, break

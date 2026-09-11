@@ -51,7 +51,7 @@ describe("Two copies of one equipment asset are representable in a room", () => 
   // The Record at runtime-bundles.ts:187 is the first thing that must change, because today
   // the input cannot even express the case.
   it("(1) two authored copies of one asset id produce two realized identities in the built bundle", async () => {
-    const mod = await import("@openclinxr/asset-registry");
+    const mod = await import("@openclinxr/asset-registry/runtime-bundles");
     const { buildEncounterRuntimeAssetBundle } = mod;
 
     // Build a minimal bundle with two equipment entries sharing the same equipmentId
@@ -126,7 +126,7 @@ describe("Two copies of one equipment asset are representable in a room", () => 
 
   // Clause 2: The lookup at runtime-bundles.ts:1636 resolves the SECOND copy distinctly from the first.
   it("(2) findRuntimeEquipmentAsset resolves the second copy distinctly from the first", async () => {
-    const mod = await import("@openclinxr/asset-registry");
+    const mod = await import("@openclinxr/asset-registry/runtime-bundles");
     const { buildEncounterRuntimeAssetBundle } = mod;
     const { findRuntimeEquipmentAsset } = await import(
       "@openclinxr/asset-registry/runtime-bundle-lookups"
@@ -280,7 +280,7 @@ describe("Two copies of one equipment asset are representable in a room", () => 
 
   // Clause 4: A collision or overflow is REPORTED in the shape of runtime-actor-slots.ts:130-135, never silent.
   it("(4) overflow/collision is reported in notStaged-shaped form", async () => {
-    const mod = await import("@openclinxr/asset-registry");
+    const mod = await import("@openclinxr/asset-registry/runtime-bundles");
     const { buildEncounterRuntimeAssetBundle } = mod;
 
     const assetStore = {

@@ -1,5 +1,5 @@
+import { composeSupportedActorWorldPosition } from "@openclinxr/asset-registry/actor-posture";
 import { describe, expect, it } from "vitest";
-import { composeSupportedActorWorldPosition } from "./index.js";
 
 /**
  * Brief §3, "Authored intent versus resolved placement". Three of its requirements had no

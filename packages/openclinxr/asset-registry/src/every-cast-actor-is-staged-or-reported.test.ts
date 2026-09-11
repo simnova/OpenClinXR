@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vitest";
 import {
   createEdChestPainLocalLearnerRuntimeAssetBundle,
   resolveScenarioActorCast,
+} from "@openclinxr/asset-registry/runtime-bundles";
+import { describe, expect, it } from "vitest";
+import {
   listShippedCastScenarioIds,
   unstagedCastActors,
 } from "./index.js";
