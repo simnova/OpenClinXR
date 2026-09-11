@@ -1,5 +1,15 @@
 import type { PatientNote, ReviewPacket } from "@openclinxr/shared-schemas";
 import {
+  bindStationEncounterBundle,
+  indexEncounterBundlePins,
+  rejectSubstitutedOrMissingEncounterBundles,
+} from "./attempt-replay-manifest/assembled-exam-encounter-bundle-binding.js";
+import {
+  rejectDuplicateSequences,
+  rejectOutOfOrderTraceEvents,
+  toPhaseTransitionRecord,
+} from "./attempt-replay-manifest/assembled-exam-evidence-ordering.js";
+import {
   extractFacultyActorTurnReplays,
 } from "./faculty-actor-turn-replay.js";
 import {
@@ -151,8 +161,8 @@ export function buildAssembledExamReviewPacket(
   rejectInvalidStationOrders(input);
   rejectCrossRunEvidence(input);
   rejectMalformedPhaseTransitions(input);
-  rejectDuplicateSequences(input);
-  rejectOutOfOrderTraceEvents(input);
+  rejectDuplicateSequences(input.stations);
+  rejectOutOfOrderEvidence(input);
   rejectSubstitutedOrMissingEncounterBundles(input);
   const bundlePins = indexEncounterBundlePins(input);
 
@@ -289,138 +299,6 @@ function stationOmissions(
   return uniquePreserve(omissions);
 }
 
-type EncounterBundlePin = {
-  bundleId: string;
-  contentIdentity: string;
-  scenarioId: string;
-};
-
-function indexEncounterBundlePins(
-  input: BuildAssembledExamReviewPacketInput,
-): ReadonlyMap<number, EncounterBundlePin> {
-  const pins = input.encounterBundlePins ?? [];
-  const byStationOrder = new Map<number, EncounterBundlePin>();
-  for (const pin of pins) {
-    if (!isPositiveInteger(pin.stationOrder) || byStationOrder.has(pin.stationOrder)) {
-      fail("requires positive unique integer stationOrder");
-    }
-    if (pin.bundleId.trim().length === 0 || pin.contentIdentity.trim().length === 0) {
-      fail("rejects substituted or missing encounter bundle");
-    }
-    byStationOrder.set(pin.stationOrder, {
-      bundleId: pin.bundleId,
-      contentIdentity: pin.contentIdentity,
-      scenarioId: pin.scenarioId,
-    });
-  }
-  return byStationOrder;
-}
-
-function bindStationEncounterBundle(
-  station: AssembledExamStationEvidenceInput,
-  bundlePins: ReadonlyMap<number, EncounterBundlePin>,
-): AssembledExamStationReviewSlice["encounterBundle"] {
-  const pinned = bundlePins.get(station.stationOrder);
-  const runtimeBundleId = station.encounterBundle?.bundleId ?? null;
-  const runtimeContentIdentity = station.encounterBundle?.contentIdentity ?? null;
-  if (bundlePins.size === 0) {
-    return {
-      pinnedBundleId: null,
-      pinnedContentIdentity: null,
-      runtimeBundleId,
-      runtimeContentIdentity,
-      bound: runtimeBundleId !== null && runtimeContentIdentity !== null,
-      mismatch: null,
-      omissions: [],
-    };
-  }
-  const pinnedBundleId = pinned?.bundleId ?? null;
-  const pinnedContentIdentity = pinned?.contentIdentity ?? null;
-  if (!pinned) {
-    return {
-      pinnedBundleId,
-      pinnedContentIdentity,
-      runtimeBundleId,
-      runtimeContentIdentity,
-      bound: false,
-      mismatch: "missing_runtime_bundle",
-      omissions: ["missing_encounter_bundle_pin"],
-    };
-  }
-  if (!runtimeBundleId || !runtimeContentIdentity) {
-    return {
-      pinnedBundleId,
-      pinnedContentIdentity,
-      runtimeBundleId,
-      runtimeContentIdentity,
-      bound: false,
-      mismatch: "missing_runtime_bundle",
-      omissions: ["missing_encounter_bundle_evidence"],
-    };
-  }
-  if (pinned.scenarioId !== station.scenarioId) {
-    return {
-      pinnedBundleId,
-      pinnedContentIdentity,
-      runtimeBundleId,
-      runtimeContentIdentity,
-      bound: false,
-      mismatch: "cross_station_bundle",
-      omissions: ["cross_station_encounter_bundle"],
-    };
-  }
-  const otherPinBundleIds = new Set<string>();
-  for (const [order, pin] of bundlePins) {
-    if (order !== station.stationOrder) {
-      otherPinBundleIds.add(pin.bundleId);
-    }
-  }
-  if (otherPinBundleIds.has(runtimeBundleId) && runtimeBundleId !== pinnedBundleId) {
-    return {
-      pinnedBundleId,
-      pinnedContentIdentity,
-      runtimeBundleId,
-      runtimeContentIdentity,
-      bound: false,
-      mismatch: "cross_station_bundle",
-      omissions: ["cross_station_encounter_bundle"],
-    };
-  }
-  if (runtimeBundleId !== pinnedBundleId || runtimeContentIdentity !== pinnedContentIdentity) {
-    return {
-      pinnedBundleId,
-      pinnedContentIdentity,
-      runtimeBundleId,
-      runtimeContentIdentity,
-      bound: false,
-      mismatch: "substituted_bundle",
-      omissions: ["substituted_encounter_bundle"],
-    };
-  }
-  return {
-    pinnedBundleId,
-    pinnedContentIdentity,
-    runtimeBundleId,
-    runtimeContentIdentity,
-    bound: true,
-    mismatch: null,
-    omissions: [],
-  };
-}
-
-function rejectSubstitutedOrMissingEncounterBundles(input: BuildAssembledExamReviewPacketInput): void {
-  const bundlePins = indexEncounterBundlePins(input);
-  if (bundlePins.size > 0 && bundlePins.size !== input.stations.length) {
-    fail("rejects substituted or missing encounter bundle");
-  }
-  for (const station of input.stations) {
-    const binding = bindStationEncounterBundle(station, bundlePins);
-    if (bundlePins.size > 0 && !binding.bound) {
-      fail("rejects substituted or missing encounter bundle");
-    }
-  }
-}
-
 function rejectInvalidStationOrders(input: BuildAssembledExamReviewPacketInput): void {
   const seen = new Set<number>();
   for (const station of input.stations) {
@@ -553,52 +431,13 @@ function rejectMalformedPhaseTransitions(input: BuildAssembledExamReviewPacketIn
   }
 }
 
-function rejectDuplicateSequences(input: BuildAssembledExamReviewPacketInput): void {
-  for (const station of input.stations) {
-    const sequences = [...station.traceEvents, ...station.phaseTransitions]
-      .map((event) => event.sequence)
-      .filter((sequence): sequence is number => typeof sequence === "number");
-    if (new Set(sequences).size !== sequences.length) {
-      fail("rejects duplicate-sequence evidence");
-    }
-  }
-}
-
-function rejectOutOfOrderTraceEvents(input: BuildAssembledExamReviewPacketInput): void {
-  for (const station of input.stations) {
-    const sequenced = station.traceEvents.filter(
-      (event): event is AssembledExamReviewTraceInput & { sequence: number } =>
-        typeof event.sequence === "number",
-    );
-    const ordered = [...sequenced].sort((left, right) => left.sequence - right.sequence);
-    for (let index = 1; index < ordered.length; index += 1) {
-      const previous = ordered[index - 1]!;
-      const current = ordered[index]!;
-      if (current.sequence <= previous.sequence || current.atSecond < previous.atSecond) {
-        fail("rejects out-of-order evidence");
-      }
-    }
-  }
+function rejectOutOfOrderEvidence(input: BuildAssembledExamReviewPacketInput): void {
+  rejectOutOfOrderTraceEvents(input.stations);
 }
 
 function toReviewTraceInput(event: AssembledExamReviewTraceInput): ReviewTraceInput {
   const { stationRunId: _stationRunId, ...rest } = event;
   return rest;
-}
-
-function toPhaseTransitionRecord(
-  event: AssembledExamReviewTraceInput,
-): AssembledExamPhaseTransitionRecord {
-  const eventType = event.eventType as AssembledExamPhaseTransitionType;
-  return {
-    eventType,
-    sequence: event.sequence as number,
-    atSecond: event.atSecond,
-    formAtSecond: payloadValue(event.payload, "formAtSecond") as number,
-    phase: ASSEMBLED_EXAM_PHASE_BY_TYPE[eventType],
-    advanceReason: payloadString(event.payload, "advanceReason"),
-    durableEventRef: payloadString(event.payload, "durableEventRef") ?? "",
-  };
 }
 
 function durableEventRef(stationRunId: string, sequence: number): string {
