@@ -1,0 +1,4523 @@
+{
+  "id": "psr-08",
+  "taskId": "tsk_7e8b151eab28f3f5",
+  "sourceRevision": "2f050c9162aeb6a99eeff2f534629177d854b07f",
+  "baseRevision": "3357d1f2ea344ab2b9a6902393cab711ce5a787d",
+  "planCommit": "1c493f12cd9ff5084e763c7e46f7ac4a5d57635c",
+  "planSha256": "01cb5139557293ace715e65bae576b359afe0e0e06c201f18e1af3d8bab0341d",
+  "rawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "groupHash": "7e8b0ae8c2ea0bfc39e7f8a0a622a350d6be58ac52fba2b47fade6a1ba224664",
+  "measuredBefore": {
+    "roots": 46,
+    "entrypoints": 114,
+    "rootSymbols": 1694,
+    "occurrences": 2208,
+    "uniqueSymbols": 2040,
+    "duplicateNames": 160,
+    "note": "this worktree at 3357d1f2 before apply (post PSR-06/PSR-07). Card known-good at plan commit was 2533/3588/3020/550"
+  },
+  "measuredAfter": {
+    "roots": 46,
+    "entrypoints": 114,
+    "rootSymbols": 1243,
+    "occurrences": 1481,
+    "uniqueSymbols": 1453,
+    "duplicateNames": 28
+  },
+  "verifyBefore": "On 3357d1f2 (pre-apply) --require-applied psr-08 fails: 46 roots, 114 entrypoints, 1694 root symbols, 2208 occurrences, 2040 unique, 160 duplicated names (surface 85a9bae22e88); FAIL: group psr-08 not applied: extra: packages/openclinxr/agent-loop. publishes unapproved AgentLoopPlan (and four more extras in the first five). Card known-good: 46 roots, 137 entrypoints, 2533 root symbols, 3588 occurrences, 3020 unique, 550 duplicated names.",
+  "verifyAfter": "46 roots, 114 entrypoints, 1243 root symbols, 1481 occurrences, 1453 unique, 28 duplicated names (surface b4eb88b99559); ok: group psr-08 applied: 682 removed, 45 migrated; ok: all review groups resolved; ok baseline ratchet: surface matches the checked-in baseline (no growth)",
+  "countsPerPackage": {
+    "packages/openclinxr/agent-loop remove": 56,
+    "packages/openclinxr/agent-loop keep": 6,
+    "packages/openclinxr/arena/iwsdk-spike keep": 34,
+    "packages/openclinxr/arena/iwsdk-spike remove": 67,
+    "packages/openclinxr/arena/model-vetting remove": 53,
+    "packages/openclinxr/arena/model-vetting keep": 27,
+    "packages/openclinxr/arena/multi-actor-state-spike remove": 33,
+    "packages/openclinxr/arena/multi-actor-state-spike keep": 11,
+    "packages/openclinxr/arena/physics-touch-contract keep": 24,
+    "packages/openclinxr/arena/physics-touch-contract remove": 84,
+    "packages/openclinxr/capability-gateway remove": 14,
+    "packages/openclinxr/capability-gateway keep": 33,
+    "packages/openclinxr/data-sources-mongoose-models keep": 3,
+    "packages/openclinxr/domain remove": 10,
+    "packages/openclinxr/domain keep": 26,
+    "packages/openclinxr/domain migrate": 4,
+    "packages/openclinxr/exam-assembly keep": 34,
+    "packages/openclinxr/exam-assembly remove": 6,
+    "packages/openclinxr/factory-stations migrate": 6,
+    "packages/openclinxr/factory-stations keep": 31,
+    "packages/openclinxr/factory-stations remove": 18,
+    "packages/openclinxr/review-workflow remove": 11,
+    "packages/openclinxr/review-workflow keep": 31,
+    "packages/openclinxr/scenario-fixtures migrate": 10,
+    "packages/openclinxr/scenario-fixtures remove": 9,
+    "packages/openclinxr/scenario-fixtures keep": 33,
+    "packages/openclinxr/scenario-runtime remove": 11,
+    "packages/openclinxr/scenario-runtime keep": 23,
+    "packages/openclinxr/session-state remove": 32,
+    "packages/openclinxr/session-state keep": 31,
+    "packages/openclinxr/shared-schemas keep": 56,
+    "packages/openclinxr/shared-schemas remove": 19,
+    "packages/openclinxr/ui-route-shared remove": 187,
+    "packages/openclinxr/ui-route-shared keep": 12,
+    "packages/openclinxr/ui-route-shared migrate": 11,
+    "packages/openclinxr/ui-shared keep": 45,
+    "packages/openclinxr/ui-shared remove": 43,
+    "packages/openclinxr/ui-shared migrate": 14,
+    "packages/openclinxr/voice-gateway remove": 2,
+    "packages/openclinxr/voice-gateway keep": 15,
+    "packages/openclinxr/xr-actor-dialogue keep": 29,
+    "packages/openclinxr/xr-actor-dialogue remove": 4,
+    "packages/openclinxr/xr-asset-loading keep": 29,
+    "packages/openclinxr/xr-asset-loading remove": 1,
+    "packages/openclinxr/xr-capture-evidence keep": 36,
+    "packages/openclinxr/xr-capture-evidence remove": 3,
+    "packages/openclinxr/xr-exam-flow keep": 15,
+    "packages/openclinxr/xr-exam-flow remove": 3,
+    "packages/openclinxr/xr-runtime-wiring keep": 13,
+    "packages/openclinxr/xr-scene-cues keep": 38,
+    "packages/openclinxr/xr-scene-cues remove": 2,
+    "packages/openclinxr/xr-station-room keep": 12,
+    "packages/openclinxr/xr-station-room remove": 14,
+    "packages/openclinxr/xr-trace-readiness keep": 27
+  },
+  "removedCount": 682,
+  "migratedCount": 45,
+  "removed": [
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "AgentLoopPlan",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "allowedToolsForRole",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "assertWriterIsolation",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "buildGrokRepoAgentSpawnRegistry",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "buildGrokRepoAgentSpawnSpec",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "buildGrokSliceTokenBaseline",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "buildGrokSliceTokenIntrospectionReport",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "buildGrokTierIntrospectionReport",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "buildGrokTierWorkOrder",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "buildParentSpawnChecklist",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "buildRepoAgentSpawnPrompt",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "buildSliceTeamSpawnPrompt",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "buildTeamSpawnReport",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "disallowedToolsForRole",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "DONE_WHEN_RULE_VOCABULARY",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "evaluateGrokDelegationAdvice",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "evaluateGrokTierUpgrade",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "formatGrokRepoAgentSpawnBrief",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "formatGrokSliceTokenBrief",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "formatGrokTierIntrospectionBrief",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "formatGrokTierRecordLine",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "formatTeamSpawnBrief",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "getRepoRoleHarnessPolicy",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "GROK_TIER_PACKAGE_SCRIPTS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "GrokDelegationIntent",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "GrokSessionTokenSnapshot",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "GrokSliceTokenBaseline",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "GrokTierId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "isKnownDoneWhenRule",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "LegacyScorecard",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "materializeBriefFromTemplate",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "NextAction",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "parseCcusageDailyPayload",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "PREFERRED_CLI_SOFT_WARN",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "recommendGrokStartTier",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "recommendRepoAgentsForConsult",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "repoRoleHarnessPolicies",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "RepoRoleHarnessPolicy",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "RepoWorkflowSkillId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "requiresMultimodalReasoning",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "resolveGrokSpawnSurfaceForPolicy",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "resolveHarnessModelSpec",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "role",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "ScoreDimension",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "scoreWeights",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "shouldRecommendMoonbridgeAssist",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "SliceBrief",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "sliceBriefPath",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "SliceHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "sliceHandoffPath",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "sliceRootDir",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "SliceTeamTemplate",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "validateGrokHarnessTierConfig",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "verifySliceBrief",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "WORKER_PLANTED_CONTRACT_DIRECTIVE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/agent-loop",
+      "entrypoint": ".",
+      "symbol": "WORKER_TONE_DIRECTIVE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "buildIwsdkCoreRequiredTransitivePackageNames",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "buildIwsdkCoreTransitivePackageLicenseEvidence",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "buildIwsdkPackageManagedMcpCommand",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkAgentMode",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkAgentToolingEvidenceReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkAgentToolingLocalPreflightReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkAgentVerificationRunbook",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkAiModeProfile",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkAiTool",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkCodexMcpAdapterTemplate",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkCommittedSpikePhase",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkCommittedSpikeSequence",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkCompatibilityContract",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkCompatibilityEvidence",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkCompatibilityReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkDevUiPosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkManagedBrowserEvidence",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkManagedBrowserEvidenceContract",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkManagedBrowserEvidenceReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkManagedBrowserModeEvidence",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkMcpToolCategory",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkMcpToolCoverage",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkMcpToolInventory",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkMcpToolInventoryCategory",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkMcpToolInventoryRequirement",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkMcpToolName",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkNormalBrowserPosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkOperatorApproval",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkOperatorApprovalContract",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkOperatorApprovalNpmResolution",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkOperatorSteeringBlocker",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkOptionalMcpServerPolicy",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkPackageManagedMcpCommand",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkPackageMetadataDriftEvidence",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkPackageMetadataDriftPolicy",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkPackageMetadataDriftReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkPackageSelection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkPlaywrightBrowserPosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkPreInstallPackagePolicy",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkPreInstallPackageSelectionResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkSidecarReadinessContract",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkSourceRecordIdContract",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkSpikeGateStatus",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkSpikeMetricReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkSpikeMetricThresholds",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkSpikePackage",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkSpikePackagePosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkSpikePlan",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkSpikeReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkUiXrStationParityContract",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkVerificationClaim",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkVerificationEvidenceStep",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkVerificationToolContract",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkVerificationToolId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkVerificationToolPosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkVerificationToolSelectionContract",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkViteAiDevConfigContract",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkWorkspaceDependency",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkWorkspaceDependencyField",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkWorkspacePackageManagerControls",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkWorkspacePackageManagerReference",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkWorkspacePostureInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkWorkspacePostureReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkWorkspaceScriptReference",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkWorkspaceSidecarProductionUiCoupling",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkWorkspaceSidecarStatus",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/iwsdk-spike",
+      "entrypoint": ".",
+      "symbol": "IwsdkWorkspaceSourceReference",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "AnnyLikeCandidate",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "AnnyLikeProvenance",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "buildCandidateId",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "buildPipelineCandidateIndex",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "CagematchDecisionBranch",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "cagematchDeployTargetForManifest",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "CagematchProcessExplanation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "CagematchReportMedia",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "CagematchTechnologyId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "CandidatePromotionStatus",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "CandidateRiggingDelta",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "CandidateRiggingSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "CandidateScoreDelta",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "CandidateVisionScore",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "deployTargetForManifest",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "deployTargetsForManifest",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "deriveCandidateRole",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "deriveManifestId",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "DualFrameVisionScoreRow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "EmotionTransitionMappingMode",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "EmotionTransitionTimeline",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "expressionWeightsForEmotion",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "humanoidDialogueDurationMs",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "HumanoidExpressionEmotion",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "HumanoidExpressionWeights",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "joinPromotionStatus",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "joinVisionScore",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "ModelVettingFalseGates",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "ModelVettingGateResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "ModelVettingLabMode",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "ModelVettingLabModeId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "ModelVettingProceduralFaceDetailHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "ModelVettingProviderBoundary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "ModelVettingRoleAnimationHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "ModelVettingRoleMaterialHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "MorphTargetEmotionCueEvidence",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "MorphTargetVisemeCueEvidence",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "numericDelta",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "phonemeSequenceForDialogue",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "PIPELINE_CANDIDATE_INDEX_CLAIM_SCOPE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "PIPELINE_CANDIDATE_INDEX_SCHEMA_VERSION",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "PIPELINE_CANDIDATE_PROMOTION_CLAIM_SCOPE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "PIPELINE_CANDIDATE_PROMOTION_SCHEMA_VERSION",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "PipelineCandidateNotEvidenceForClaim",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "RhubarbMouthCue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "summarizeRigging",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "VisemeCueTiming",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "visemeForPhoneme",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "visemeForRhubarbValue",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "visemeOpenness",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "visemeTimelineFromRhubarbCues",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/model-vetting",
+      "entrypoint": ".",
+      "symbol": "VisemeTimelineMappingMode",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "ActorInteractionState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "ActorMemory",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "ActorModelContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "ActorRuntimeState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "ActorTransformState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "ClinicalOrderState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "CreateMultiActorClinicalSessionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "DurableConversationTurnRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "DurableEmotionalStateTimelineRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "DurableMultiActorSessionStore",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "DurableStorePosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "InteractionLogEntry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "InteractionRoutingReason",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "InteractionTurnSource",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "MultiActorClinicalSession",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "MultiActorPersistencePhase2Strategy",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "MultiActorStateOption",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "MultiActorStateOptionEvaluation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "MultiActorStateOptionId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "PersistenceSpikeStores",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "RealtimeCacheStorePosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "RealtimeSessionCache",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "RealtimeSessionCacheSnapshot",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "RealtimeSessionCacheTurnRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "RecordClinicalActionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "RouteActorInteractionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "RouteActorInteractionResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "RouteActorInteractionSourceInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "TextInteractionSource",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "UpdateActorSpatialStateInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "Vector3",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "VoiceTranscriptInteractionSource",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/multi-actor-state-spike",
+      "entrypoint": ".",
+      "symbol": "WriteRealtimeCacheSnapshotInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "AVERAGE_COMPLIANCE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "AVERAGE_GUARDING_TRIGGERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "AVERAGE_JOINT_LIMITS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "AVERAGE_MASS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "bakedTransformsCaptureAllowed",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "BuildCagematchReportOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "buildGuardingInputLog",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "BuildInspectionReportOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "buildPassiveRomInputLog",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "buildPositioningInputLog",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "buildScenarioInspectionReport",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "ComplianceRegion",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "ComplianceTable",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "ContactRegionId",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "createDefaultPhysicsConfigV1",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "DEFAULT_CHECKPOINT_INTERVAL",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "DEFAULT_GUARDING_CONFIG",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "DEFAULT_PALPATION_SITES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "DEFAULT_PASSIVE_ROM_CONFIG",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "DEFAULT_POSITIONING_CONFIG",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "DeterminismScope",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "EngineResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "FixedStepAccumulator",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "FRAIL_COMPLIANCE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "FRAIL_GUARDING_TRIGGERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "FRAIL_JOINT_LIMITS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "FRAIL_MASS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "GarmentCoherenceClaim",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "generatePhysicsConfigFromPhenotype",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "GuardingConfig",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "GuardingThresholdEvent",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "GuardingTriggerEntry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "Habitus",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "HabitusBodyRegion",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "HabitusJoint",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "Handedness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "HavokCandidateAdapter",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "initRapier",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "InputLog",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "isRapierInitialized",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "JointLimit",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "JointLimitTable",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "JointPose",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "JoltCandidateAdapter",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "liveEngineProductionAllowed",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "MassTable",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "MeasuredMetric",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "MeasuredMetricsReport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "OBESE_COMPLIANCE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "OBESE_GUARDING_TRIGGERS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "OBESE_JOINT_LIMITS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "OBESE_MASS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "PalpationConfig",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "PalpationQuadrant",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "PalpationSite",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "PassiveRomConfig",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "PhenotypeBodyMechanics",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "PHYSICS_TOUCH_PROMOTION",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "PhysicsAdapter",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "PhysicsArtifactMeta",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "PhysicsConfigPhenotypeInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "PhysicsConfigV1",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "PhysicsStateSnapshot",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "PhysicsTickInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "PositioningConfig",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "RapierCandidateAdapter",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "RapierRealAdapter",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "ReplayResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "ReplayTrace",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "RomDirection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "RomJoint",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "RomSide",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "runtimePromotionAllowed",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "ScenarioEntry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "ScenarioInspectionReport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "ScenarioInspectionResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "selectComplianceTable",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "selectGuardingTriggers",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "selectJointLimitTable",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "selectMassTable",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "Sha256Hex",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "SnapshotChecksum",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "ThreeWayCagematchReport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "entrypoint": ".",
+      "symbol": "ThreeWayVerdict",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "ACTOR_TURN_PLAN_CLAIM_SCOPE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "ACTOR_TURN_PLAN_NOT_EVIDENCE_FOR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "AssetGenerationArtifactKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "AssetGenerationJobRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "buildEncounterWorkerMaterializationPlan",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "CapabilityProviderBinding",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "createAzureStorageEncounterAssetGenerationQueueClientFromConnectionString",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "EncounterAssetGenerationPublicationTargets",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "EncounterAssetGenerationQueueProcessingResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "EncounterFactoryInputSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "EncounterGenerationWorkOrder",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "EncounterGenerationWorkOrderTargetKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "EncounterHumanoidRealismProfile",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/capability-gateway",
+      "entrypoint": ".",
+      "symbol": "EncounterWorkerMaterializationPlan",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": "./claim-language",
+      "symbol": "assertSafeClaimLanguage",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": "./claim-language",
+      "symbol": "ScenarioGovernanceCopy",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": "./claim-language",
+      "symbol": "ScoreUseLabel",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": "./claim-language",
+      "symbol": "UnsafeClaimLanguageFinding",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": "./claim-language",
+      "symbol": "ValidationStage",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": ".",
+      "symbol": "AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": ".",
+      "symbol": "AUTHORED_CONTENT_IDENTITY_OMITTED_NESTED_KEYS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": ".",
+      "symbol": "AUTHORED_CONTENT_IDENTITY_OMITTED_ROOT_KEYS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": ".",
+      "symbol": "canonicalizeAuthoredValue",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": ".",
+      "symbol": "StationPhase",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/exam-assembly",
+      "entrypoint": ".",
+      "symbol": "AssembleExamFormInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/exam-assembly",
+      "entrypoint": ".",
+      "symbol": "ExamBlueprintTiming",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/exam-assembly",
+      "entrypoint": ".",
+      "symbol": "ExamStationRunQueueScenarioBodySource",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/exam-assembly",
+      "entrypoint": ".",
+      "symbol": "ExamStationSlot",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/exam-assembly",
+      "entrypoint": ".",
+      "symbol": "ExamStationTimingWindow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/exam-assembly",
+      "entrypoint": ".",
+      "symbol": "ExamTimingWindow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": "./catalog",
+      "symbol": "StandardFailureResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": "./catalog",
+      "symbol": "StandardSuccessResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "bodyParamRunner",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "clothingConsumeRunner",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "clothingGenerateRunner",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "dialogueRuntimeRunner",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "equipmentGenerateRunner",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "KNOWN_EQUIPMENT_SUBJECTS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "LIGHTING_RIG_SCHEMA_VERSION",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "lightingDesignRunner",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "LightingRig",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "LipSyncCue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "lipSyncRunner",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "motionRetargetRunner",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "RigLightType",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "roomGenerateRunner",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "stagingRunner",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "stationRunners",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/review-workflow",
+      "entrypoint": "./accepted-scene-plan-review",
+      "symbol": "ACCEPTED_SCENE_PLAN_REVIEW_NOT_EVIDENCE_FOR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/review-workflow",
+      "entrypoint": "./accepted-scene-plan-review",
+      "symbol": "AcceptedScenePlanReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/review-workflow",
+      "entrypoint": "./accepted-scene-plan-review",
+      "symbol": "AcceptedScenePlanReviewProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/review-workflow",
+      "entrypoint": "./accepted-scene-plan-review",
+      "symbol": "privateKeysInProjection",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/review-workflow",
+      "entrypoint": "./accepted-scene-plan-review",
+      "symbol": "projectAcceptedScenePlanForReview",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/review-workflow",
+      "entrypoint": ".",
+      "symbol": "EmotionalTimelineEntry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/review-workflow",
+      "entrypoint": ".",
+      "symbol": "PEDS_ASTHMA_SCENARIO_ID",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/review-workflow",
+      "entrypoint": ".",
+      "symbol": "PEDS_CREDIBILITY_VETO_ROLES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/review-workflow",
+      "entrypoint": ".",
+      "symbol": "SCENARIO_BANK_AUTONOMOUS_APPROVAL_ERROR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/review-workflow",
+      "entrypoint": ".",
+      "symbol": "SCENARIO_BANK_PARTIAL_APPROVAL_ERROR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/review-workflow",
+      "entrypoint": ".",
+      "symbol": "SCENARIO_BANK_STALE_APPROVAL_ERROR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": "./authored-utterance-record",
+      "symbol": "AuthoredDialogueAffect",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": "./authored-utterance-record",
+      "symbol": "PEDS_CREDIBILITY_VETO_ROLES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": "./authored-utterance-record",
+      "symbol": "pedsCastActorIds",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": "./scenario-bank",
+      "symbol": "LearnerScenarioView",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": "./scenario-bank",
+      "symbol": "ScenarioDialogueSeedBankEntry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": ".",
+      "symbol": "adultAbdominalPainScenario",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": ".",
+      "symbol": "DynamicEncounterFactoryPlanningProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": ".",
+      "symbol": "DynamicEncounterFactoryPlanningScenario",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": ".",
+      "symbol": "PEDS_CREDIBILITY_VETO_ROLES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/scenario-runtime",
+      "entrypoint": ".",
+      "symbol": "ActorTurnInProgress",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-runtime",
+      "entrypoint": ".",
+      "symbol": "AssembledStationFormWindow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-runtime",
+      "entrypoint": ".",
+      "symbol": "BargeInResolution",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-runtime",
+      "entrypoint": ".",
+      "symbol": "ConversationPolicy",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-runtime",
+      "entrypoint": ".",
+      "symbol": "freezeActorTurnPlan",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/scenario-runtime",
+      "entrypoint": ".",
+      "symbol": "GenerateRoutedActorResponseResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-runtime",
+      "entrypoint": ".",
+      "symbol": "HistoryTakingCoverageState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-runtime",
+      "entrypoint": ".",
+      "symbol": "RuntimeSessionSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-runtime",
+      "entrypoint": ".",
+      "symbol": "SaveFacultyScoreDraftInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-runtime",
+      "entrypoint": ".",
+      "symbol": "ScenarioPublicationReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/scenario-runtime",
+      "entrypoint": ".",
+      "symbol": "TurnTakingDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": "./accepted-scene-plan",
+      "symbol": "ACCEPTED_SCENE_PLAN_SCHEMA_VERSION",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": "./accepted-scene-plan",
+      "symbol": "AcceptedScenePlanEvent",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": "./accepted-scene-plan",
+      "symbol": "AcceptedScenePlanInstance",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": "./accepted-scene-plan",
+      "symbol": "AcceptedScenePlanInstanceKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": "./accepted-scene-plan",
+      "symbol": "acceptedScenePlanProblems",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": "./accepted-scene-plan",
+      "symbol": "AcceptedScenePlanRead",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": "./accepted-scene-plan",
+      "symbol": "AcceptedScenePlanVector3",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": "./accepted-scene-plan",
+      "symbol": "DurableAcceptedScenePlanRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": "./accepted-scene-plan",
+      "symbol": "requireAcceptedScenePlan",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "ActorInteractionState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "ActorMemory",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "ActorRuntimeState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "ActorTransformState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "ClinicalOrderState",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "CreateMultiActorClinicalSessionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "DurableMultiActorSessionStore",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "DurableStorePosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "InteractionLogEntry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "InteractionTurnSource",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "MultiActorPersistencePhase2Strategy",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "PersistenceSpikeStores",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "RealtimeCacheStorePosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "RealtimeSessionCache",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "RealtimeSessionCacheSnapshot",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "RealtimeSessionCacheTurnRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "RouteActorInteractionResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "RouteActorInteractionSourceInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "TextInteractionSource",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "UpdateActorSpatialStateInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "Vector3",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "VoiceTranscriptInteractionSource",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/session-state",
+      "entrypoint": ".",
+      "symbol": "WriteRealtimeCacheSnapshotInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "ActorTurnExecutionSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "ActorTurnPlanSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "CommunicationProfile",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "EmotionEventKindSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "EmotionTransitionRuleSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "FactoryStationSchema",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "InteractionEmotionSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "ModelProviderAudit",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "ModelProviderAuditSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "ProviderAuditRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "ProviderAuditRecordSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "ProviderHealthSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "StandardIssue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "StandardResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "StationJsonSchema",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "StationPropertySchema",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "TraceEventSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "VoiceProviderAudit",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "VoiceProviderAuditSchema",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminApolloGraphqlClient",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminAssetReleaseLadderReplayProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminCaseDefinedHumanoidPerformanceContract",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminCaseDefinedHumanoidRuntimeHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminControlPlaneClientOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminDynamicEncounterFactoryPlanningProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminFacultyCompileLockRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminFacultyReviewDecisionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminFacultyScoreDraft",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminFacultyScoreDraftRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminNoReadinessEvidenceClaim",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminPedsHumanoidMaterializationHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminRealtimeVoicePosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminReviewPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminReviewReplayEvidenceHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminReviewReplayGeneratedBundlePosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminReviewReplayProviderDisabledRemediation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminReviewReplayReadinessSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminReviewReplayRuntimeEvidenceGateRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminRuntimeProtocolPosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminRuntimeProtocolSupport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminRuntimeProviderPlaneReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminRuntimeProviderReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminRuntimeProviderReadinessSurface",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminRuntimeSelectionReviewPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminRuntimeVisualEvidenceReplayProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminScenarioBankExamSequenceProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminScenarioBankMaturityReport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminScenarioDetail",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminScenarioPublicationReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminScenarioReviewResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminStationRunQueueSnapshot",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AuthoredDialogueSeedDraft",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "BlueprintScenarioReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "CreateLocalReviewReplaySeedInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "CreateLocalReviewReplaySeedResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "CreateScenarioSceneGenerationRequestInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "CreateScenarioSceneGenerationRequestResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "CreateStationRunQueueSnapshotInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "DialogueSeedPublicationGate",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "EncounterMaterializationAttachmentPlanSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "EncounterMaterializationEvidenceAttachmentSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "EncounterMaterializationInputManifestSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "EncounterMaterializationInputReviewActionPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "EncounterMaterializationInputReviewDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "EncounterMaterializationInputReviewDecisionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "EnvironmentGenerationQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "EnvironmentGenerationWorkOrderQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "ExamBlueprint",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "ExamStationRunQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "ExamTimingPlan",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "FacultyEncounterBundlePromotionMemberInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "FacultyEncounterBundlePromotionSelection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "FacultyLearnerLaunchIdentity",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "FrozenActorTurnPlanPreview",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "GetReviewPacketReplayInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "GetScenarioDetailInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "GetScenarioPublicationReadinessInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "HumanReviewActionSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "ListScenarioReviewDecisionsInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "ListScenariosInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "PersistFacultyCompileLockInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "PersistFacultyScoreDraftInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "RuntimeEvidenceCaptureScaffold",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "RuntimeRealismEvidenceInputReviewDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "RuntimeRealismEvidenceInputReviewDecisionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "RuntimeVisualEvidenceAttachment",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "RuntimeVisualEvidenceAttachmentActionPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "RuntimeVisualEvidenceAttachmentRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "RuntimeVisualEvidenceAttachmentSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "SaveFacultyReviewDecisionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "SaveFacultyScoreDraftInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "ScenarioAssetReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "ScenarioReviewApprovalBoundary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "ScenarioReviewGateSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "ScenarioSceneGenerationPipelineWorkOrderQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "ScenarioSceneGenerationRequestPublicationReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "ScenarioSceneGenerationRequestQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "SubmitRuntimeRealismEvidenceInputReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "SubmitRuntimeVisualEvidenceAttachmentInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "SubmitScenarioReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "SubmitScenarioSceneGenerationMaterializationInputReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "SubmitScenarioSceneGenerationRequestReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminApolloGraphqlClient",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminAssetReleaseLadderReplayProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminCaseDefinedHumanoidPerformanceContract",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminCaseDefinedHumanoidRuntimeHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminControlPlaneClientOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminDynamicEncounterFactoryPlanningProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminFacultyCompileLockRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminFacultyReviewDecisionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminFacultyScoreDraft",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminFacultyScoreDraftRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminNoReadinessEvidenceClaim",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminPedsHumanoidMaterializationHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminRealtimeVoicePosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminReviewPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminReviewReplayEvidenceHandoff",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminReviewReplayGeneratedBundlePosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminReviewReplayProviderDisabledRemediation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminReviewReplayReadinessSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminReviewReplayRuntimeEvidenceGateRef",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminRuntimeProtocolPosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminRuntimeProtocolSupport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminRuntimeProviderPlaneReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminRuntimeProviderReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminRuntimeProviderReadinessSurface",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminRuntimeSelectionReviewPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminRuntimeVisualEvidenceReplayProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminScenarioBankExamSequenceProjection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminScenarioBankMaturityReport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminScenarioDetail",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminScenarioPublicationReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminScenarioReviewResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminStationRunQueueSnapshot",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AuthoredDialogueSeedDraft",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "BlueprintScenarioReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "CreateLocalReviewReplaySeedInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "CreateLocalReviewReplaySeedResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "CreateScenarioSceneGenerationRequestInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "CreateScenarioSceneGenerationRequestResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "CreateStationRunQueueSnapshotInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "defaultAdminApiBaseUrl",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "DialogueSeedPublicationGate",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "EncounterMaterializationAttachmentPlanSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "EncounterMaterializationEvidenceAttachmentSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "EncounterMaterializationInputManifestSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "EncounterMaterializationInputReviewActionPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "EncounterMaterializationInputReviewDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "EncounterMaterializationInputReviewDecisionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "EnvironmentGenerationQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "EnvironmentGenerationWorkOrderQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "ExamBlueprint",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "ExamStationRunQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "ExamTimingPlan",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "FacultyEncounterBundlePromotionMemberInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "FacultyEncounterBundlePromotionSelection",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "FacultyLearnerLaunchIdentity",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "FrozenActorTurnPlanPreview",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "GetReviewPacketReplayInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "GetScenarioDetailInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "GetScenarioPublicationReadinessInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "HumanReviewActionSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "ListScenarioReviewDecisionsInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "ListScenariosInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "PersistFacultyCompileLockInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "PersistFacultyScoreDraftInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "RuntimeEvidenceCaptureScaffold",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "RuntimeRealismEvidenceInputReviewDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "RuntimeRealismEvidenceInputReviewDecisionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "RuntimeVisualEvidenceAttachment",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "RuntimeVisualEvidenceAttachmentActionPacket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "RuntimeVisualEvidenceAttachmentRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "RuntimeVisualEvidenceAttachmentSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "SaveFacultyReviewDecisionInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "SaveFacultyScoreDraftInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "ScenarioAssetReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "ScenarioReviewApprovalBoundary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "ScenarioReviewGateSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "ScenarioSceneGenerationPipelineWorkOrderQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "ScenarioSceneGenerationRequestPublicationReadiness",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "ScenarioSceneGenerationRequestQueue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "SubmitRuntimeRealismEvidenceInputReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "SubmitRuntimeVisualEvidenceAttachmentInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "SubmitScenarioReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "SubmitScenarioSceneGenerationMaterializationInputReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "SubmitScenarioSceneGenerationRequestReviewInput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./compile-encounter-world",
+      "symbol": "encounterBundlePromotionMethods",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "ACTOR_TURN_PLAN_CLAIM_SCOPE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "AUTHORED_LOCAL_FIXTURE_PROVIDER_ID",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "AuthoredDialogueSeedDraft",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "DIALOGUE_SEED_AUTHORING_CLAIM_BOUNDARY",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "DIALOGUE_SEED_AUTHORING_PREVIEW_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "DialogueEmotion",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "DialogueSafetyExpectation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "DialogueSeedActor",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "DialogueSeedDisclosurePolicy",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "DialogueSeedFailure",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "DialogueSeedFailureCode",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "DialogueSeedPublicationGate",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "FrozenActorTurnPlanPreview",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./dialogue-seed-types",
+      "symbol": "REQUIRED_NOT_EVIDENCE_FOR",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": ".",
+      "symbol": "AdminApolloGraphqlClient",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": ".",
+      "symbol": "AdminControlPlaneClientOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": ".",
+      "symbol": "defaultAdminApiBaseUrl",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": ".",
+      "symbol": "RouteManifest",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": ".",
+      "symbol": "RouteManifestEntry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./actor-turn-replay-panel",
+      "symbol": "ACTOR_TURN_REPLAY_CLAIM_SCOPE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./actor-turn-replay-panel",
+      "symbol": "ActorTurnReplayPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./admin-compile-graph-canvas",
+      "symbol": "CompileGraphCanvasProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./admin-compile-graph-canvas",
+      "symbol": "CompileGraphModel",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./admin-factory-station-cards",
+      "symbol": "FactoryStationCardsProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./admin-workbench-format",
+      "symbol": "formatMinutes",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./assembled-exam-replay-timeline",
+      "symbol": "AdminAssembledExamPhaseTransition",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./assembled-exam-replay-timeline",
+      "symbol": "AdminAssembledExamPhaseTransitionType",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./assembled-exam-replay-timeline",
+      "symbol": "AssembledExamReplayTimelineProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./assembled-exam-replay-timeline",
+      "symbol": "AssembledExamStationReplayPosture",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./emission-replay-bind-panel",
+      "symbol": "EmissionReplayBindPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./emission-replay-bind-panel",
+      "symbol": "EmissionReplayProjectionSource",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./emission-replay-bind-panel",
+      "symbol": "EmissionReplayTimelineEntry",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./factory-run-progress-panel",
+      "symbol": "FactoryRunCaseRow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./factory-run-progress-panel",
+      "symbol": "FactoryRunProgressPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./factory-run-progress-panel",
+      "symbol": "FactoryRunStationClassification",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./factory-run-progress-panel",
+      "symbol": "FactoryRunStationRow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./factory-run-table-client",
+      "symbol": "FactoryRunStationClassification",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./factory-run-table-client",
+      "symbol": "FactoryRunTableCase",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./factory-run-table-client",
+      "symbol": "FactoryRunTableStation",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./factory-run-table-client",
+      "symbol": "FetchFactoryRunTableOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-codec",
+      "symbol": "asRefusal",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-codec",
+      "symbol": "asTrail",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-panel",
+      "symbol": "ASSEMBLED_EXAM_DISPOSITION_PATH",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-panel",
+      "symbol": "assembledExamDispositionPath",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-panel",
+      "symbol": "FacultyDispositionPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-record",
+      "symbol": "AdminFacultyDispositionDecision",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-record",
+      "symbol": "AdminFacultyDispositionRefusal",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-record",
+      "symbol": "AdminFacultyDispositionTrail",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-record",
+      "symbol": "AppendFacultyDispositionCommand",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-record",
+      "symbol": "DISPOSITION_LABEL",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-record",
+      "symbol": "FACULTY_DISPOSITION_CLAIM_BOUNDARY",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-record",
+      "symbol": "FACULTY_DISPOSITION_VALUES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-record",
+      "symbol": "FacultyDispositionTransport",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-record",
+      "symbol": "isRecord",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-record",
+      "symbol": "isRefusal",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-record",
+      "symbol": "readString",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-record",
+      "symbol": "readStringArray",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./faculty-disposition-record",
+      "symbol": "REFUSAL_TITLE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": ".",
+      "symbol": "ActorTurnReplayPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": ".",
+      "symbol": "EmissionReplayBindPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": ".",
+      "symbol": "FacultyDispositionPanelProps",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": ".",
+      "symbol": "formatMinutes",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/voice-gateway",
+      "entrypoint": ".",
+      "symbol": "ActorTurnExecutionRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/voice-gateway",
+      "entrypoint": ".",
+      "symbol": "TranscriptEvent",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-actor-dialogue",
+      "entrypoint": ".",
+      "symbol": "pedsActorPlayerRuntimeSequenceForTrace",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-actor-dialogue",
+      "entrypoint": ".",
+      "symbol": "pedsActorPlayerTurnForTraceTag",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-actor-dialogue",
+      "entrypoint": ".",
+      "symbol": "pedsActorPlayerTurnFromRuntimeBundleTrace",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-actor-dialogue",
+      "entrypoint": ".",
+      "symbol": "PedsAdaptiveDialogueBranchType",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-asset-loading",
+      "entrypoint": ".",
+      "symbol": "HumanoidSourceProvenance",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-capture-evidence",
+      "entrypoint": ".",
+      "symbol": "bundleUsesOnlyApprovedLocalFixtureAssets",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-capture-evidence",
+      "entrypoint": ".",
+      "symbol": "runtimeBundleAssets",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-capture-evidence",
+      "entrypoint": ".",
+      "symbol": "sceneAssetSlotIsReady",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-exam-flow",
+      "entrypoint": ".",
+      "symbol": "ExamFlowIdentity",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-exam-flow",
+      "entrypoint": ".",
+      "symbol": "ExamFlowIntentKind",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-exam-flow",
+      "entrypoint": ".",
+      "symbol": "ExamFlowStoreOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene-cues",
+      "entrypoint": ".",
+      "symbol": "drawWrappedText",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene-cues",
+      "entrypoint": ".",
+      "symbol": "publishReadableVrTextPanelEvidence",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "ApplyStationInteriorLightingForEnvironment",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "StationActorSlotAssignment",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "StationActorStagingResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "StationPointerInteractionContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "StationRoomContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "StationRoomScenarioTheme",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "StationSceneActorsStage",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "StationSceneAssembly",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "StationSceneBuiltStage",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "StationSceneFixturesStage",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "StationSceneInteractionStage",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "StationScenePanelsStage",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "StationSceneRoomStage",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "StationSceneStage",
+      "kind": "type"
+    }
+  ],
+  "migrated": [
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": ".",
+      "symbol": "buildScenarioGovernanceCopy",
+      "kind": "runtime",
+      "route": "./claim-language"
+    },
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": ".",
+      "symbol": "safeUserFacingClaimLanguage",
+      "kind": "runtime",
+      "route": "./claim-language"
+    },
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": ".",
+      "symbol": "scoreUseCopy",
+      "kind": "runtime",
+      "route": "./claim-language"
+    },
+    {
+      "package": "packages/openclinxr/domain",
+      "entrypoint": ".",
+      "symbol": "validationStageCopy",
+      "kind": "runtime",
+      "route": "./claim-language"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": "./catalog",
+      "symbol": "FactoryStationSchema",
+      "kind": "type",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": "./catalog",
+      "symbol": "PRODUCTION_STATION_IDS",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": "./catalog",
+      "symbol": "StandardIssue",
+      "kind": "type",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": "./catalog",
+      "symbol": "StandardResult",
+      "kind": "type",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": "./catalog",
+      "symbol": "StationJsonSchema",
+      "kind": "type",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": "./catalog",
+      "symbol": "StationPropertySchema",
+      "kind": "type",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": "./authored-utterance-record",
+      "symbol": "affectForAuthoredRecord",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": "./authored-utterance-record",
+      "symbol": "AuthoredUtteranceRecord",
+      "kind": "type",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": "./authored-utterance-record",
+      "symbol": "keywordAffectFallbackFromText",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": "./ed-chest-pain",
+      "symbol": "DialogueFixtureSeed",
+      "kind": "type",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": "./ed-chest-pain",
+      "symbol": "edChestPainDialogueSeeds",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": ".",
+      "symbol": "findScenarioFixtureById",
+      "kind": "runtime",
+      "route": "./scenario-bank"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": ".",
+      "symbol": "firstNameFromDisplayName",
+      "kind": "runtime",
+      "route": "./authored-utterance-record"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": ".",
+      "symbol": "learnerVisibleAuthoredCaption",
+      "kind": "runtime",
+      "route": "./authored-utterance-record"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": ".",
+      "symbol": "pediatricAsthmaDialogueSeeds",
+      "kind": "runtime",
+      "route": "./pediatric-asthma"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": ".",
+      "symbol": "responseClipForBodyRegion",
+      "kind": "runtime",
+      "route": "./scenario-bank"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "AdminControlPlaneClient",
+      "kind": "type",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client-types",
+      "symbol": "FacultyCompileLockClient",
+      "kind": "type",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminAssembledExamReplayProjection",
+      "kind": "type",
+      "route": "./admin-api-client-types"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminControlPlaneClient",
+      "kind": "type",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminReviewPacketReplay",
+      "kind": "type",
+      "route": "./admin-api-client-types"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminScenario",
+      "kind": "type",
+      "route": "./admin-api-client-types"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "AdminScenarioReviewDecision",
+      "kind": "type",
+      "route": "./admin-api-client-types"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "buildAdminGraphqlEndpoint",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "compileEncounterWorld",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "createAdminControlPlaneClient",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-route-shared",
+      "entrypoint": "./admin-api-client",
+      "symbol": "FacultyCompileLockClient",
+      "kind": "type",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./admin-workbench-format",
+      "symbol": "capabilityTagColor",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./admin-workbench-format",
+      "symbol": "clampedScoreFromWorkbenchInput",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./admin-workbench-format",
+      "symbol": "countActorCommunicationProfiles",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./admin-workbench-format",
+      "symbol": "formatActorCommunicationProfileCoverage",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./admin-workbench-format",
+      "symbol": "formatDuration",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./admin-workbench-format",
+      "symbol": "pluralizeWorkbenchCount",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": "./admin-workbench-format",
+      "symbol": "uniqueWorkbenchValues",
+      "kind": "runtime",
+      "route": "."
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": ".",
+      "symbol": "AdminNoReadinessEvidenceClaim",
+      "kind": "type",
+      "route": "./admin-runtime-posture"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": ".",
+      "symbol": "AdminRealtimeVoicePosture",
+      "kind": "type",
+      "route": "./admin-runtime-posture"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": ".",
+      "symbol": "AdminRuntimeProtocolPosture",
+      "kind": "type",
+      "route": "./admin-runtime-posture"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": ".",
+      "symbol": "AdminRuntimeProtocolSupport",
+      "kind": "type",
+      "route": "./admin-runtime-posture"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": ".",
+      "symbol": "AdminRuntimeProviderPlaneReadiness",
+      "kind": "type",
+      "route": "./admin-runtime-posture"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": ".",
+      "symbol": "AdminRuntimeProviderReadiness",
+      "kind": "type",
+      "route": "./admin-runtime-posture"
+    },
+    {
+      "package": "packages/openclinxr/ui-shared",
+      "entrypoint": ".",
+      "symbol": "AdminRuntimeProviderReadinessSurface",
+      "kind": "type",
+      "route": "./admin-runtime-posture"
+    }
+  ],
+  "wildcardDeclarationsRemoved": [
+    "packages/openclinxr/arena/model-vetting/src/index.ts export * from ./types.js and ./logic.js",
+    "packages/openclinxr/arena/multi-actor-state-spike/src/index.ts export * from ./types.js and ./functions.js"
+  ],
+  "consumerFilesMoved": [
+    "packages/openclinxr/domain/src/claim-language.test.ts",
+    "packages/openclinxr/factory-stations/src/the-station-runners-are-reachable-by-station-id.test.ts",
+    "packages/openclinxr/factory-stations/src/the-station-schemas-conform-to-standard-schema.test.ts",
+    "packages/openclinxr/scenario-fixtures/src/pediatric-asthma.test.ts",
+    "packages/openclinxr/scenario-fixtures/src/clinic-knee-pain.test.ts",
+    "packages/openclinxr/scenario-fixtures/src/ed-chest-pain.test.ts",
+    "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts",
+    "packages/openclinxr/ui-shared/src/admin-workbench-format.test.ts",
+    "packages/openclinxr/ui-route-shared/src/admin-api-client.test.ts",
+    "packages/openclinxr/shared-schemas/src/actor-turn-plan-forbids-dialogue-pain.test.ts",
+    "packages/openclinxr/xr-capture-evidence/src/a-suppressed-slot-is-not-ready.test.ts",
+    "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+    "packages/openclinxr/scenario-runtime/src/deterministic-dialogue-runtime.ts"
+  ],
+  "retainedExceptions": [
+    "docs/openclinxr/package-public-surface-reduction/exceptions/psr-08-residual.json"
+  ],
+  "claim": "PSR-08 applies PSR-01E 26-package complement as amended: 682 names un-published, 45 migrated. Implementations kept. --require-applied psr-08 and --require-all-reviewed exit 0.",
+  "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility. packages:build:agent / packages:test:agent / packages:typecheck:agent are land-time orchestrator runs.",
+  "notTested": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility."
+}

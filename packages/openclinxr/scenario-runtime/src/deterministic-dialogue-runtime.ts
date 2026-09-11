@@ -134,7 +134,7 @@ export function recoverFrozenActorTurnPlanFromReplay(
   const planned = [...events]
     .reverse()
     .find((event) => event.eventType === ACTOR_TURN_PLANNED_EVENT_TYPE && event.actorId === actorId);
-  const plan = planned?.payload.actorTurnPlan;
+  const plan = planned?.payload["actorTurnPlan"];
   if (!plan || typeof plan !== "object") {
     return undefined;
   }
