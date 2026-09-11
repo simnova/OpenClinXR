@@ -1,0 +1,758 @@
+{
+  "id": "psr-01b",
+  "rawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "groupHash": "82f312da4e6a9b9514a80765251216e07cfd180c04985ed09d5281a0f170b8a1",
+  "packages": [
+    "packages/openclinxr/config-rolldown",
+    "packages/openclinxr/physics-touch-artifacts",
+    "packages/openclinxr/test-harness",
+    "packages/openclinxr/auth",
+    "packages/openclinxr/telemetry"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "AUTH_CLAIM_BOUNDARY",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/auth",
+      "rationale": "zero checker-confirmed external references to AUTH_CLAIM_BOUNDARY; input/output type only used through keep-listed function signatures",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "AUTH_NOT_EVIDENCE_FOR",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/auth",
+      "rationale": "zero checker-confirmed external references to AUTH_NOT_EVIDENCE_FOR; input/output type only used through keep-listed function signatures",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "AuthIdentity",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of AuthIdentity from @openclinxr/auth in rest route/middleware sources",
+      "evidence": [
+        "packages/openclinxr/rest/src/api-route-support.ts:141",
+        "packages/openclinxr/rest/src/api-route-support.ts:17",
+        "packages/openclinxr/rest/src/api-types.ts:2"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "AuthRole",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/auth",
+      "rationale": "zero checker-confirmed external references to AuthRole; input/output type only used through keep-listed function signatures",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "canReadStationRun",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of canReadStationRun from @openclinxr/auth in rest route/middleware sources",
+      "evidence": [
+        "packages/openclinxr/rest/src/api-route-support.ts:150",
+        "packages/openclinxr/rest/src/api-route-support.ts:18"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "DEFAULT_DEV_AUTH_IDENTITY",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of DEFAULT_DEV_AUTH_IDENTITY from @openclinxr/auth in rest route/middleware sources",
+      "evidence": [
+        "packages/openclinxr/rest/src/api-app-context.ts:1",
+        "packages/openclinxr/rest/src/api-app-context.ts:111",
+        "packages/openclinxr/rest/src/api-app-context.ts:47"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "DEFAULT_DEV_AUTH_SECRET",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of DEFAULT_DEV_AUTH_SECRET from @openclinxr/auth in rest route/middleware sources",
+      "evidence": [
+        "apps/api/src/the-faculty-encounter-bundle-promotion-is-wired.test.ts:2",
+        "apps/api/src/the-faculty-encounter-bundle-promotion-is-wired.test.ts:53",
+        "packages/openclinxr/rest/src/api-app-context.ts:1"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "hasFacultyAccess",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of hasFacultyAccess from @openclinxr/auth in rest route/middleware sources",
+      "evidence": [
+        "packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:1",
+        "packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:43",
+        "packages/openclinxr/rest/src/routes/assembled-exam-disposition-routes.ts:1"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "parseBearerAuthorization",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of parseBearerAuthorization from @openclinxr/auth in rest route/middleware sources",
+      "evidence": [
+        "packages/openclinxr/rest/src/api-middleware.ts:1",
+        "packages/openclinxr/rest/src/api-middleware.ts:32"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "resolveSessionLearnerId",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of resolveSessionLearnerId from @openclinxr/auth in rest route/middleware sources",
+      "evidence": [
+        "packages/openclinxr/rest/src/routes/assembled-exam-run-routes.ts:1",
+        "packages/openclinxr/rest/src/routes/assembled-exam-run-routes.ts:169",
+        "packages/openclinxr/rest/src/routes/assembled-exam-run-routes.ts:65"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "signAuthToken",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of signAuthToken from @openclinxr/auth in rest route/middleware sources",
+      "evidence": [
+        "apps/api/src/the-faculty-encounter-bundle-promotion-is-wired.test.ts:2",
+        "apps/api/src/the-faculty-encounter-bundle-promotion-is-wired.test.ts:51",
+        "packages/openclinxr/rest/src/routes/assembled-exam-disposition-routes.test.ts:1"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "SignTokenInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/auth",
+      "rationale": "zero checker-confirmed external references to SignTokenInput; input/output type only used through keep-listed function signatures",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "verifyAuthToken",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of verifyAuthToken from @openclinxr/auth in rest route/middleware sources",
+      "evidence": [
+        "packages/openclinxr/rest/src/api-middleware.ts:1",
+        "packages/openclinxr/rest/src/api-middleware.ts:34"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "VerifyTokenInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/auth",
+      "rationale": "zero checker-confirmed external references to VerifyTokenInput; input/output type only used through keep-listed function signatures",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "VerifyTokenResult",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/auth",
+      "rationale": "zero checker-confirmed external references to VerifyTokenResult; input/output type only used through keep-listed function signatures",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "buildOpenClinXrCjsAliasMap",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/config-rolldown",
+      "rationale": "zero checker-confirmed external references to buildOpenClinXrCjsAliasMap; internal helper/type not imported by apps/api deploy sources",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "createOpenClinXrAzureFunctionsRolldownConfig",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/api",
+      "rationale": "checker-confirmed external import of createOpenClinXrAzureFunctionsRolldownConfig from @openclinxr/config-rolldown in apps/api deploy config",
+      "evidence": [
+        "apps/api/rolldown.config.ts:10",
+        "apps/api/rolldown.config.ts:3"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "OpenClinXrRolldownConfig",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/config-rolldown",
+      "rationale": "zero checker-confirmed external references to OpenClinXrRolldownConfig; internal helper/type not imported by apps/api deploy sources",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "OpenClinXrRolldownConfigOptions",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/config-rolldown",
+      "rationale": "zero checker-confirmed external references to OpenClinXrRolldownConfigOptions; internal helper/type not imported by apps/api deploy sources",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "prepareOpenClinXrAzureFunctionsDeploy",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/api",
+      "rationale": "checker-confirmed external import of prepareOpenClinXrAzureFunctionsDeploy from @openclinxr/config-rolldown in apps/api deploy config",
+      "evidence": [
+        "apps/api/scripts/prepare-deploy.ts:3",
+        "apps/api/scripts/prepare-deploy.ts:7"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "PrepareOpenClinXrAzureFunctionsDeployOptions",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/config-rolldown",
+      "rationale": "zero checker-confirmed external references to PrepareOpenClinXrAzureFunctionsDeployOptions; internal helper/type not imported by apps/api deploy sources",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "summarizeRolldownAdoption",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/config-rolldown",
+      "rationale": "zero checker-confirmed external references to summarizeRolldownAdoption; internal helper/type not imported by apps/api deploy sources",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "BakedBoneFrame",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/physics-touch-artifacts",
+      "rationale": "zero entrypoint consumers and zero external word-level references to BakedBoneFrame; production-consumer gate types unused by any in-repo source",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "BakedBoneTransformsArtifact",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/physics-touch-artifacts",
+      "rationale": "zero entrypoint consumers and zero external word-level references to BakedBoneTransformsArtifact; production-consumer gate types unused by any in-repo source",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "BakedPhysicsSchemaVersion",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/physics-touch-artifacts",
+      "rationale": "zero entrypoint consumers and zero external word-level references to BakedPhysicsSchemaVersion; production-consumer gate types unused by any in-repo source",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "bakedTransformsConsumerAllowed",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/physics-touch-artifacts",
+      "rationale": "zero entrypoint consumers and zero external word-level references to bakedTransformsConsumerAllowed; production-consumer gate types unused by any in-repo source",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "BoneDelta",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/physics-touch-artifacts",
+      "rationale": "zero entrypoint consumers and zero external word-level references to BoneDelta; production-consumer gate types unused by any in-repo source",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "liveEngineInProductionForbidden",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/physics-touch-artifacts",
+      "rationale": "zero entrypoint consumers and zero external word-level references to liveEngineInProductionForbidden; production-consumer gate types unused by any in-repo source",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "PHYSICS_TOUCH_ARTIFACTS_GATES",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/physics-touch-artifacts",
+      "rationale": "zero entrypoint consumers and zero external word-level references to PHYSICS_TOUCH_ARTIFACTS_GATES; production-consumer gate types unused by any in-repo source",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "createInMemoryTelemetryRecorder",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/api",
+      "rationale": "checker-confirmed external import of createInMemoryTelemetryRecorder from @openclinxr/telemetry",
+      "evidence": [
+        "apps/api/src/app.test.ts:13",
+        "apps/api/src/app.test.ts:3306",
+        "apps/api/src/app.test.ts:3346"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "createNoopTelemetryRecorder",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/telemetry",
+      "rationale": "zero checker-confirmed external references to createNoopTelemetryRecorder; internal helper/type not imported outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "createTelemetryRecorder",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/api",
+      "rationale": "checker-confirmed external import of createTelemetryRecorder from @openclinxr/telemetry",
+      "evidence": [
+        "apps/api/src/api-bootstrap.ts:219",
+        "apps/api/src/api-bootstrap.ts:5",
+        "apps/api/src/app.test.ts:14"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "InMemoryTelemetryRecorder",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/telemetry",
+      "rationale": "zero checker-confirmed external references to InMemoryTelemetryRecorder; internal helper/type not imported outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "OpenClinXrSpanName",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/telemetry",
+      "rationale": "zero checker-confirmed external references to OpenClinXrSpanName; internal helper/type not imported outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "openClinXrSpanNames",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/api",
+      "rationale": "checker-confirmed external import of openClinXrSpanNames from @openclinxr/telemetry",
+      "evidence": [
+        "apps/api/src/app.test.ts:15",
+        "apps/api/src/app.test.ts:3326",
+        "apps/api/src/app.test.ts:3333"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "RealTelemetryRecorder",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of RealTelemetryRecorder from @openclinxr/telemetry",
+      "evidence": [
+        "packages/openclinxr/rest/src/api-support.ts:4",
+        "packages/openclinxr/rest/src/api-support.ts:503",
+        "packages/openclinxr/rest/src/api-support.ts:504"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "safeTelemetryAttributes",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/telemetry",
+      "rationale": "zero checker-confirmed external references to safeTelemetryAttributes; internal helper/type not imported outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "SafeTelemetryAttributes",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/telemetry",
+      "rationale": "zero checker-confirmed external references to SafeTelemetryAttributes; internal helper/type not imported outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "summarizeTelemetrySpans",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of summarizeTelemetrySpans from @openclinxr/telemetry",
+      "evidence": [
+        "packages/openclinxr/rest/src/api-support.ts:4",
+        "packages/openclinxr/rest/src/api-support.ts:497"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "TelemetryAttributeInput",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/telemetry",
+      "rationale": "zero checker-confirmed external references to TelemetryAttributeInput; internal helper/type not imported outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "telemetryAttributeNames",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/api",
+      "rationale": "checker-confirmed external import of telemetryAttributeNames from @openclinxr/telemetry",
+      "evidence": [
+        "apps/api/src/app.test.ts:16",
+        "apps/api/src/app.test.ts:3328",
+        "apps/api/src/app.test.ts:3335"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "TelemetryRecorder",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "apps/api",
+      "rationale": "checker-confirmed external import of TelemetryRecorder from @openclinxr/telemetry",
+      "evidence": [
+        "apps/api/src/api-bootstrap.ts:116",
+        "apps/api/src/api-bootstrap.ts:38",
+        "apps/api/src/api-bootstrap.ts:47"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "telemetryRouteAttributes",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of telemetryRouteAttributes from @openclinxr/telemetry",
+      "evidence": [
+        "packages/openclinxr/rest/src/api-route-support.ts:54",
+        "packages/openclinxr/rest/src/api-route-support.ts:942",
+        "packages/openclinxr/rest/src/api-support.ts:4"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "TelemetryRunCounters",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of TelemetryRunCounters from @openclinxr/telemetry",
+      "evidence": [
+        "packages/openclinxr/rest/src/api-support.ts:4",
+        "packages/openclinxr/rest/src/api-support.ts:516"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "TelemetrySnapshot",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of TelemetrySnapshot from @openclinxr/telemetry",
+      "evidence": [
+        "packages/openclinxr/rest/src/api-support.ts:4",
+        "packages/openclinxr/rest/src/api-support.ts:488"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "TelemetrySpanRecord",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest",
+      "rationale": "checker-confirmed external import of TelemetrySpanRecord from @openclinxr/telemetry",
+      "evidence": [
+        "packages/openclinxr/rest/src/api-support.ts:4",
+        "packages/openclinxr/rest/src/api-support.ts:493",
+        "packages/openclinxr/rest/src/api-support.ts:536"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "TelemetrySpanSummary",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/telemetry",
+      "rationale": "zero checker-confirmed external references to TelemetrySpanSummary; internal helper/type not imported outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "TelemetrySpanSummaryBucket",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/telemetry",
+      "rationale": "zero checker-confirmed external references to TelemetrySpanSummaryBucket; internal helper/type not imported outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "TelemetrySummaryLabelName",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/telemetry",
+      "rationale": "zero checker-confirmed external references to TelemetrySummaryLabelName; internal helper/type not imported outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/test-harness",
+      "entrypoint": ".",
+      "symbol": "AdversarialProbe",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/test-harness",
+      "rationale": "zero entrypoint consumers and zero external word-level references to AdversarialProbe; simulation/adversarial helper unused outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/test-harness",
+      "entrypoint": ".",
+      "symbol": "AdversarialProbeReport",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/test-harness",
+      "rationale": "zero entrypoint consumers and zero external word-level references to AdversarialProbeReport; simulation/adversarial helper unused outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/test-harness",
+      "entrypoint": ".",
+      "symbol": "AdversarialProbeReportOptions",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/test-harness",
+      "rationale": "zero entrypoint consumers and zero external word-level references to AdversarialProbeReportOptions; simulation/adversarial helper unused outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/test-harness",
+      "entrypoint": ".",
+      "symbol": "AdversarialProbeStatus",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/test-harness",
+      "rationale": "zero entrypoint consumers and zero external word-level references to AdversarialProbeStatus; simulation/adversarial helper unused outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/test-harness",
+      "entrypoint": ".",
+      "symbol": "buildAdversarialProbeReport",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/test-harness",
+      "rationale": "zero entrypoint consumers and zero external word-level references to buildAdversarialProbeReport; simulation/adversarial helper unused outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/test-harness",
+      "entrypoint": ".",
+      "symbol": "DialogueSeedReplayEvidence",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/test-harness",
+      "rationale": "zero entrypoint consumers and zero external word-level references to DialogueSeedReplayEvidence; simulation/adversarial helper unused outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/test-harness",
+      "entrypoint": ".",
+      "symbol": "OptionalRuntimeSkip",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/test-harness",
+      "rationale": "zero entrypoint consumers and zero external word-level references to OptionalRuntimeSkip; simulation/adversarial helper unused outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/test-harness",
+      "entrypoint": ".",
+      "symbol": "runDialogueSeedReplayEvidence",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/test-harness",
+      "rationale": "zero entrypoint consumers and zero external word-level references to runDialogueSeedReplayEvidence; simulation/adversarial helper unused outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/test-harness",
+      "entrypoint": ".",
+      "symbol": "runEdChestPainSimulation",
+      "kind": "runtime",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/test-harness",
+      "rationale": "zero entrypoint consumers and zero external word-level references to runEdChestPainSimulation; simulation/adversarial helper unused outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/test-harness",
+      "entrypoint": ".",
+      "symbol": "SimulationResult",
+      "kind": "type",
+      "disposition": "remove",
+      "owner": "packages/openclinxr/test-harness",
+      "rationale": "zero entrypoint consumers and zero external word-level references to SimulationResult; simulation/adversarial helper unused outside the package",
+      "evidence": [
+        "compiler external-reference count 0 (checker over consumer programs; entrypoint consumers 0 or narrowed to other symbols)"
+      ]
+    }
+  ]
+}

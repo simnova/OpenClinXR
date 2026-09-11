@@ -1,0 +1,416 @@
+{
+  "group": "psr-01b",
+  "sourceRevision": "40b6a874bde71b77bc8642c0b3edec3626ac8b1e",
+  "rawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "groupHash": "82f312da4e6a9b9514a80765251216e07cfd180c04985ed09d5281a0f170b8a1",
+  "totals": {
+    "rows": 59,
+    "keep": 22,
+    "remove": 37,
+    "migrate": 0
+  },
+  "perPackage": {
+    "packages/openclinxr/auth": {
+      "rows": 15,
+      "keep": 9,
+      "remove": 6,
+      "migrate": 0,
+      "projectedRootExports": 9
+    },
+    "packages/openclinxr/config-rolldown": {
+      "rows": 7,
+      "keep": 2,
+      "remove": 5,
+      "migrate": 0,
+      "projectedRootExports": 2
+    },
+    "packages/openclinxr/physics-touch-artifacts": {
+      "rows": 7,
+      "keep": 0,
+      "remove": 7,
+      "migrate": 0,
+      "projectedRootExports": 0
+    },
+    "packages/openclinxr/telemetry": {
+      "rows": 20,
+      "keep": 11,
+      "remove": 9,
+      "migrate": 0,
+      "projectedRootExports": 11
+    },
+    "packages/openclinxr/test-harness": {
+      "rows": 10,
+      "keep": 0,
+      "remove": 10,
+      "migrate": 0,
+      "projectedRootExports": 0
+    }
+  },
+  "reviewTargets": {
+    "maxPerRoot": 50,
+    "maxRootExportsProgram": 1000
+  },
+  "sampledRemoves": [
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "AUTH_CLAIM_BOUNDARY",
+      "kind": "runtime",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "AUTH_NOT_EVIDENCE_FOR",
+      "kind": "runtime",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "AuthRole",
+      "kind": "type",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "SignTokenInput",
+      "kind": "type",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "VerifyTokenInput",
+      "kind": "type",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "VerifyTokenResult",
+      "kind": "type",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "buildOpenClinXrCjsAliasMap",
+      "kind": "runtime",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "OpenClinXrRolldownConfig",
+      "kind": "type",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "OpenClinXrRolldownConfigOptions",
+      "kind": "type",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "PrepareOpenClinXrAzureFunctionsDeployOptions",
+      "kind": "type",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "summarizeRolldownAdoption",
+      "kind": "runtime",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "BakedBoneFrame",
+      "kind": "type",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "BakedBoneTransformsArtifact",
+      "kind": "type",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "BakedPhysicsSchemaVersion",
+      "kind": "type",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "bakedTransformsConsumerAllowed",
+      "kind": "runtime",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "BoneDelta",
+      "kind": "type",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "liveEngineInProductionForbidden",
+      "kind": "runtime",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/physics-touch-artifacts",
+      "entrypoint": ".",
+      "symbol": "PHYSICS_TOUCH_ARTIFACTS_GATES",
+      "kind": "runtime",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "createNoopTelemetryRecorder",
+      "kind": "runtime",
+      "externalReferences": 0
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "InMemoryTelemetryRecorder",
+      "kind": "type",
+      "externalReferences": 0
+    }
+  ],
+  "sampledKeeps": [
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "AuthIdentity",
+      "kind": "type",
+      "references": [
+        "packages/openclinxr/rest/src/api-route-support.ts:141",
+        "packages/openclinxr/rest/src/api-route-support.ts:17",
+        "packages/openclinxr/rest/src/api-types.ts:2"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "canReadStationRun",
+      "kind": "runtime",
+      "references": [
+        "packages/openclinxr/rest/src/api-route-support.ts:150",
+        "packages/openclinxr/rest/src/api-route-support.ts:18"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "DEFAULT_DEV_AUTH_IDENTITY",
+      "kind": "runtime",
+      "references": [
+        "packages/openclinxr/rest/src/api-app-context.ts:1",
+        "packages/openclinxr/rest/src/api-app-context.ts:111",
+        "packages/openclinxr/rest/src/api-app-context.ts:47"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "DEFAULT_DEV_AUTH_SECRET",
+      "kind": "runtime",
+      "references": [
+        "apps/api/src/the-faculty-encounter-bundle-promotion-is-wired.test.ts:2",
+        "apps/api/src/the-faculty-encounter-bundle-promotion-is-wired.test.ts:53",
+        "packages/openclinxr/rest/src/api-app-context.ts:1"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "hasFacultyAccess",
+      "kind": "runtime",
+      "references": [
+        "packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:1",
+        "packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:43",
+        "packages/openclinxr/rest/src/routes/assembled-exam-disposition-routes.ts:1"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "parseBearerAuthorization",
+      "kind": "runtime",
+      "references": [
+        "packages/openclinxr/rest/src/api-middleware.ts:1",
+        "packages/openclinxr/rest/src/api-middleware.ts:32"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "resolveSessionLearnerId",
+      "kind": "runtime",
+      "references": [
+        "packages/openclinxr/rest/src/routes/assembled-exam-run-routes.ts:1",
+        "packages/openclinxr/rest/src/routes/assembled-exam-run-routes.ts:169",
+        "packages/openclinxr/rest/src/routes/assembled-exam-run-routes.ts:65"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "signAuthToken",
+      "kind": "runtime",
+      "references": [
+        "apps/api/src/the-faculty-encounter-bundle-promotion-is-wired.test.ts:2",
+        "apps/api/src/the-faculty-encounter-bundle-promotion-is-wired.test.ts:51",
+        "packages/openclinxr/rest/src/routes/assembled-exam-disposition-routes.test.ts:1"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/auth",
+      "entrypoint": ".",
+      "symbol": "verifyAuthToken",
+      "kind": "runtime",
+      "references": [
+        "packages/openclinxr/rest/src/api-middleware.ts:1",
+        "packages/openclinxr/rest/src/api-middleware.ts:34"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "createOpenClinXrAzureFunctionsRolldownConfig",
+      "kind": "runtime",
+      "references": [
+        "apps/api/rolldown.config.ts:10",
+        "apps/api/rolldown.config.ts:3"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/config-rolldown",
+      "entrypoint": ".",
+      "symbol": "prepareOpenClinXrAzureFunctionsDeploy",
+      "kind": "runtime",
+      "references": [
+        "apps/api/scripts/prepare-deploy.ts:3",
+        "apps/api/scripts/prepare-deploy.ts:7"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "createInMemoryTelemetryRecorder",
+      "kind": "runtime",
+      "references": [
+        "apps/api/src/app.test.ts:13",
+        "apps/api/src/app.test.ts:3306",
+        "apps/api/src/app.test.ts:3346"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "createTelemetryRecorder",
+      "kind": "runtime",
+      "references": [
+        "apps/api/src/api-bootstrap.ts:219",
+        "apps/api/src/api-bootstrap.ts:5",
+        "apps/api/src/app.test.ts:14"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "openClinXrSpanNames",
+      "kind": "runtime",
+      "references": [
+        "apps/api/src/app.test.ts:15",
+        "apps/api/src/app.test.ts:3326",
+        "apps/api/src/app.test.ts:3333"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "RealTelemetryRecorder",
+      "kind": "type",
+      "references": [
+        "packages/openclinxr/rest/src/api-support.ts:4",
+        "packages/openclinxr/rest/src/api-support.ts:503",
+        "packages/openclinxr/rest/src/api-support.ts:504"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "summarizeTelemetrySpans",
+      "kind": "runtime",
+      "references": [
+        "packages/openclinxr/rest/src/api-support.ts:4",
+        "packages/openclinxr/rest/src/api-support.ts:497"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "telemetryAttributeNames",
+      "kind": "runtime",
+      "references": [
+        "apps/api/src/app.test.ts:16",
+        "apps/api/src/app.test.ts:3328",
+        "apps/api/src/app.test.ts:3335"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "TelemetryRecorder",
+      "kind": "type",
+      "references": [
+        "apps/api/src/api-bootstrap.ts:116",
+        "apps/api/src/api-bootstrap.ts:38",
+        "apps/api/src/api-bootstrap.ts:47"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "telemetryRouteAttributes",
+      "kind": "runtime",
+      "references": [
+        "packages/openclinxr/rest/src/api-route-support.ts:54",
+        "packages/openclinxr/rest/src/api-route-support.ts:942",
+        "packages/openclinxr/rest/src/api-support.ts:4"
+      ]
+    },
+    {
+      "package": "packages/openclinxr/telemetry",
+      "entrypoint": ".",
+      "symbol": "TelemetryRunCounters",
+      "kind": "type",
+      "references": [
+        "packages/openclinxr/rest/src/api-support.ts:4",
+        "packages/openclinxr/rest/src/api-support.ts:516"
+      ]
+    }
+  ],
+  "commands": [
+    "pnpm arch:public-surface:verify -- --require-reviewed-group psr-01b",
+    "git diff --check"
+  ],
+  "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility.",
+  "notTested": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility."
+}
