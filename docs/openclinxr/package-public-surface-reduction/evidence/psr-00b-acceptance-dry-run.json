@@ -1,0 +1,88 @@
+{
+  "schema": "openclinxr.psr-00b-acceptance.v1",
+  "revision": "working-tree",
+  "hash": "8c446bc498a1305aa763871d93207f47dabe25896c6cc08dae9035439200d8d7",
+  "totals": {
+    "roots": 46,
+    "entrypoints": 114,
+    "rootSymbols": 1243,
+    "occurrences": 1484,
+    "uniqueSymbols": 1456,
+    "duplicateNames": 28
+  },
+  "quantiles": {
+    "median": 25.5,
+    "p90": 56,
+    "maxRoot": 119
+  },
+  "cellix": {
+    "planPin": "adf3bc9deb2d0ca006041d9326215996a2b00e12",
+    "clonePath": "/Volumes/files/src/cellixjs-current",
+    "clone": {
+      "head": "adf3bc9deb2d0ca006041d9326215996a2b00e12",
+      "matchesPin": true
+    }
+  },
+  "criteria": {
+    "3": {
+      "criterion": "3",
+      "id": "no-wildcard-publication",
+      "ok": false,
+      "detail": "packages/openclinxr/data-mongodb. export * from ×2"
+    },
+    "4": {
+      "criterion": "4",
+      "id": "complete-contract-inventory",
+      "ok": true,
+      "detail": "all 3588 inventory symbols classified keep/remove/migrate"
+    },
+    "5": {
+      "criterion": "5",
+      "id": "reviewed-execution",
+      "ok": true,
+      "detail": "all review groups resolved; applied psr-01b, psr-01c, psr-01d, psr-01e"
+    },
+    "6": {
+      "criterion": "6",
+      "id": "quantitative-review-targets",
+      "ok": false,
+      "detail": "median 25.5 > 15 (no exception program-median-root-symbols); p90 56 > 25 (no exception program-p90-root-symbols); maxRoot 119 > 50 (no exception program-no-root-above)"
+    },
+    "12": {
+      "criterion": "12",
+      "id": "independent-closure",
+      "ok": true,
+      "detail": "recomputed 46 packages from the tree; Cellix pin adf3bc9deb2d0ca006041d9326215996a2b00e12; no self-attested completion flag"
+    }
+  },
+  "quantitativeMisses": [
+    {
+      "metric": "rootSymbols",
+      "measured": 1243,
+      "target": 1000,
+      "exceptionId": "psr-08-residual"
+    },
+    {
+      "metric": "median",
+      "measured": 25.5,
+      "target": 15
+    },
+    {
+      "metric": "p90",
+      "measured": 56,
+      "target": 25
+    },
+    {
+      "metric": "maxRoot",
+      "measured": 119,
+      "target": 50
+    }
+  ],
+  "verdict": "refuse",
+  "refuseReasons": [
+    "criterion 3 (no-wildcard-publication): packages/openclinxr/data-mongodb. export * from ×2",
+    "criterion 6 (quantitative-review-targets): median 25.5 > 15 (no exception program-median-root-symbols); p90 56 > 25 (no exception program-p90-root-symbols); maxRoot 119 > 50 (no exception program-no-root-above)"
+  ],
+  "limitations": "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility. CellixJS is a directional reference, not feature-equivalence.",
+  "notTested": "Whether the residual exceptions will be accepted on review; that is decided outside this card."
+}

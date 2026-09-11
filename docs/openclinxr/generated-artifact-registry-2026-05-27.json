@@ -4,13 +4,13 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 188,
+    "keep-evidence": 189,
     "ignore-local-cache": 2112,
     "keep-current": 141,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2485,
-    "total": 2485
+    "entries": 2486,
+    "total": 2486
   },
   "entries": [
     {
@@ -16980,6 +16980,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "PSR-00 evidence report written by pnpm arch:public-surface:verify --report: measured totals, manifest hashes, falsifier outcomes."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/evidence/psr-00b-acceptance-dry-run.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "PSR-00B acceptance dry-run written by pnpm arch:public-surface:acceptance --report: criteria 3/4/5/6/12 plus named close/refuse verdict. Independent review of residual exceptions is not this artifact."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/evidence/psr-01a.json",

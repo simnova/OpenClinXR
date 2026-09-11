@@ -1,4 +1,6 @@
 import { createHash } from "node:crypto";
+import { evaluateAcceptance } from "./acceptance-criteria.js";
+import type { AcceptanceRecord } from "./acceptance-criteria.js";
 import { consumerFormSummary, discoverConsumers } from "./consumers.js";
 import {
   currentManifestHashes,
@@ -232,14 +234,12 @@ export type RunAcceptanceOptions = {
   io: RunnerIo;
 };
 
-export type RunAcceptanceOutcome = { failed: boolean; lines: string[] };
+export type RunAcceptanceOutcome = { failed: boolean; lines: string[]; record: AcceptanceRecord };
 
-/** Acceptance recomputes full-tree closure; it writes only with an explicit --report flag. */
+/** Acceptance recomputes criteria 3/4/5/6/12; it writes only with an explicit --report flag. */
 export function runAcceptance(options: RunAcceptanceOptions): RunAcceptanceOutcome {
   const { root, args, io } = options;
-  const report = measureSurface(root);
-  const inventory = requireInventory(root, report);
-  const lines = [`${inventory.ok ? "ok" : "FAIL"} inventory: ${inventory.detail}`];
+  const evaluation = evaluateAcceptance(root);
   let output: string | undefined;
   for (let index = 0; index < args.length; index += 1) {
     if (args[index] === "--report" || args[index] === "--report-out") {
@@ -247,21 +247,15 @@ export function runAcceptance(options: RunAcceptanceOptions): RunAcceptanceOutco
       index += 1;
     }
   }
+  const lines = [...evaluation.lines];
   if (output !== undefined && output !== "") {
-    const record = {
-      revision: "working-tree",
-      hash: createHash("sha256").update(JSON.stringify(report)).digest("hex"),
-      totals: report.totals,
-      inventory: { ok: inventory.ok, detail: inventory.detail },
-      limitations:
-        "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility.",
-      notTested:
-        "Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility.",
-    };
-    io.writeFile(output, `${JSON.stringify(record, null, 2)}\n`);
+    io.writeFile(output, `${JSON.stringify(evaluation.record, null, 2)}\n`);
     lines.push(`acceptance report written to ${output}`);
   }
-  if (!inventory.ok) lines.push(`acceptance FAILED: ${inventory.detail}`);
-  else lines.push("acceptance passed: full-tree closure recomputed from the tree");
-  return { failed: !inventory.ok, lines };
+  if (evaluation.failed) {
+    lines.push(`acceptance refuse: ${evaluation.record.refuseReasons[0] ?? "named criterion failed"}`);
+  } else {
+    lines.push("acceptance close: criteria 3, 4, 5, 6 and 12 hold on the recomputed tree");
+  }
+  return { failed: evaluation.failed, lines, record: evaluation.record };
 }
