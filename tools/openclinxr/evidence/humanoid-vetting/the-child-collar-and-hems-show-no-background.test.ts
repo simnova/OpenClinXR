@@ -166,6 +166,25 @@
  * hits on subject pixels, poke-through counterweight) = 0. The see-through
  * count on the SHIPPED bytes at 63dc2fb2 is > 0 for both neckline sites —
  * the test must fail on the defect it names.
+ *
+ * ## REBAKE (attempt 4, 2026-09-11)
+ *
+ * Full chain without sleeve caps. Capture
+ * `.openclinxr/evidence/glb-grade-capture/2026-09-11T22-23-04Z` copied to
+ * tracked humanoid-vetting-captures. See-through (exact-bg AND ray hits a
+ * GLB face):
+ *
+ * | site | bg | miss | see-through |
+ * |---|---:|---:|---:|
+ * | neckline-square-L | 67 | 67 | 0 |
+ * | neckline-square-R | 99 | 99 | 0 |
+ * | sleeve-hem-rectangle-L | 382 | 379 | 3 |
+ * | sleeve-hem-rectangle-R | 292 | 288 | 4 |
+ * | control C | 0 | 0 | 0 |
+ * | torso visibleSkinSubject | 0 | — | 0 |
+ *
+ * Neckline closed. Sleeves still 3/4 hidden_upper first hits — not all four
+ * sites 0, so it.fails stays. No ## FIXED (HB-07).
  */
 
 import { execFileSync } from "node:child_process";
