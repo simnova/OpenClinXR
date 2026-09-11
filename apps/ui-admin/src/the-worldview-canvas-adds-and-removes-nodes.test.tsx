@@ -26,6 +26,9 @@ installWorldviewQueueTestDom();
  * buildCompileGraphModel remain; xyflow onNodesChange stays a no-op.
  *
  * ## FIXED (skeptic: SeedWorldviewQueue merge mutates compileEdges)
+ *
+ * ## FIXED (load flake, 2026-09-11): the lazy canvas renders in 1.2-1.8 s inside the suite; the one
+ * findByRole that waits for it carries a measured 5 s budget. No assertion changed.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
@@ -49,7 +52,10 @@ describe("the worldview canvas adds and removes nodes", () => {
       />,
     );
     expect(screen.getByText(/0 compile dependency edges/)).toBeInTheDocument();
-    fireEvent.click(await screen.findByRole("button", { name: /add compile graph node/i }));
+    // The canvas is React.lazy (xyflow) and renders in 1,178-1,752 ms inside the full ui-admin suite
+    // (measured 2026-09-11, 2 runs each on origin/main 26d5aab5 and the PSR-05 tree), above Testing
+    // Library's 1,000 ms findBy default even with the chunk preloaded. 5,000 ms is ~3x the slowest run.
+    fireEvent.click(await screen.findByRole("button", { name: /add compile graph node/i }, { timeout: 5_000 }));
     expect(screen.getByText(/1 compile dependency edge/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /remove compile graph node/i }));
     expect(screen.getByText(/0 compile dependency edges/)).toBeInTheDocument();
