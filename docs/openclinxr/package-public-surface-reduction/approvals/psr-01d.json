@@ -395,10 +395,11 @@
       "entrypoint": ".",
       "symbol": "buildEncounterFactoryDryRunSummary",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "migrate",
       "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
-      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
-      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5; packages/openclinxr/asset-registry/src/runtime-bundles.test.ts:2 (origin/main 43ffd845)"
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): duplicate of the kept subpath ./runtime-bundles; Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) rejected noRootAbove for asset-registry (58) and named this cut. Consumers move to the subpath.",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5; packages/openclinxr/asset-registry/src/runtime-bundles.test.ts:2 (origin/main 43ffd845)",
+      "route": "./runtime-bundles"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -415,10 +416,11 @@
       "entrypoint": ".",
       "symbol": "buildEncounterFactoryInputPlanningSummary",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "migrate",
       "owner": "packages/openclinxr/asset-registry/src/runtime-bundles.test.ts",
-      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
-      "evidence": "packages/openclinxr/asset-registry/src/runtime-bundles.test.ts:2 (origin/main 43ffd845)"
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): duplicate of the kept subpath ./runtime-bundles; Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) rejected noRootAbove for asset-registry (58) and named this cut. Consumers move to the subpath.",
+      "evidence": "packages/openclinxr/asset-registry/src/runtime-bundles.test.ts:2 (origin/main 43ffd845)",
+      "route": "./runtime-bundles"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -591,10 +593,11 @@
       "entrypoint": ".",
       "symbol": "createEdChestPainLocalEncounterRuntimeAssetBundle",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "migrate",
       "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
-      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
-      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): duplicate of the kept subpath ./runtime-bundles; Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) rejected noRootAbove for asset-registry (58) and named this cut. Consumers move to the subpath.",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)",
+      "route": "./runtime-bundles"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -1451,10 +1454,11 @@
       "entrypoint": ".",
       "symbol": "footSlideMeters",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "migrate",
       "owner": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts",
-      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
-      "evidence": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts:2 (origin/main 43ffd845)"
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): duplicate of the kept subpath ./approach-executor; Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) rejected noRootAbove for asset-registry (58) and named this cut. Consumers move to the subpath.",
+      "evidence": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts:2 (origin/main 43ffd845)",
+      "route": "./approach-executor"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -1793,10 +1797,11 @@
       "entrypoint": ".",
       "symbol": "promoteEncounterRuntimeAssetBundleForLocalUse",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "migrate",
       "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
-      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
-      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): duplicate of the kept subpath ./runtime-asset-review; Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) rejected noRootAbove for asset-registry (58) and named this cut. Consumers move to the subpath.",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)",
+      "route": "./runtime-asset-review"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -1957,10 +1962,11 @@
       "entrypoint": ".",
       "symbol": "resolveRuntimeAssetBlobUrl",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "migrate",
       "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
-      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
-      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): duplicate of the kept subpath ./runtime-bundles; Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) rejected noRootAbove for asset-registry (58) and named this cut. Consumers move to the subpath.",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)",
+      "route": "./runtime-bundles"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2348,10 +2354,11 @@
       "entrypoint": ".",
       "symbol": "stepBedsideApproach",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "migrate",
       "owner": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts",
-      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
-      "evidence": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts:2 (origin/main 43ffd845)"
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): duplicate of the kept subpath ./approach-executor; Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) rejected noRootAbove for asset-registry (58) and named this cut. Consumers move to the subpath.",
+      "evidence": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts:2 (origin/main 43ffd845)",
+      "route": "./approach-executor"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2411,10 +2418,11 @@
       "entrypoint": ".",
       "symbol": "toLearnerRuntimeAssetBundle",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "migrate",
       "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
-      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
-      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
+      "rationale": "Amended at PSR-10 (orchestrator, 2026-09-11): duplicate of the kept subpath ./runtime-bundles; Independent grok-4.6 criterion-6 review (session 01a09174-3a8e-72b3-90f9-92a59232f49f, 2026-09-11) rejected noRootAbove for asset-registry (58) and named this cut. Consumers move to the subpath.",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)",
+      "route": "./runtime-bundles"
     },
     {
       "package": "packages/openclinxr/asset-registry",
