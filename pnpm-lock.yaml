@@ -188,6 +188,9 @@ importers:
       '@openclinxr/graphql':
         specifier: workspace:*
         version: link:../../packages/openclinxr/graphql
+      '@openclinxr/model-gateway':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/model-gateway
       '@openclinxr/rest':
         specifier: workspace:*
         version: link:../../packages/openclinxr/rest

@@ -1,5 +1,6 @@
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
+import { createActorDialogueModelGateway } from "@openclinxr/model-gateway";
 import { pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
 import { toAdminGraphqlScenario } from "@openclinxr/rest";
@@ -741,6 +742,13 @@ describe("OpenClinXR API startup", () => {
     const savedPackets: Array<{ stationRunId: string; scenarioId: string }> = [];
 
     const startup = createOpenClinXrApiStartup({
+      // Offline actor dialogue: explicit empty keys win over process.env per key,
+      // so inherited provider keys never add live rungs to this startup.
+      modelGateway: createActorDialogueModelGateway({
+        openRouterApiKey: "",
+        deepseekApiKey: "",
+        localBaseUrl: "",
+      }),
       persistence: {
         saveActorTurn: (stationRunId, turn) => {
           savedTurns.push({
@@ -789,6 +797,11 @@ describe("OpenClinXR API startup", () => {
       }),
     );
     expect(actorResponse.status).toBe(201);
+    const actorBody = (await actorResponse.json()) as {
+      response?: { text?: string; provenance?: { providerId?: string } };
+    };
+    // Offline gateway answers from visible facts; any live rung would differ.
+    expect(actorBody.response?.provenance?.providerId).toBe("mock-model");
 
     expect(savedTurns).toEqual([
       {
