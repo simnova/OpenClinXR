@@ -69,8 +69,10 @@
   "claimScope": "kevin_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_mhair02_kept",
   "promotionGates": false,
   "generatedAt": "2026-08-21T15:18:19.255Z",
-  "outputSha256": "b468e7cb466f389abaaa14ed226c1289a5b01d8afa84a5add390304b589d681e",
-  "outputBytes": 16756332,
+  "outputSha256": "7e111bcab537ee53ebdf3fce6bc6dc1fc1edb7aba8746e14c4ce8c7325d6ba80",
+  "outputBytes": 14477264,
   "licenceNoticeWrittenAt": "2026-09-10T17:27:31.899Z",
-  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here."
+  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here.",
+  "albedoBakeWrittenAt": "2026-09-11T04:58:26.393Z",
+  "albedoBakeNote": "HB-02: per-texel baseColorFactor x baseColorTexture folded into the texture, factor reset to white; geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
 }

@@ -66,8 +66,8 @@
   "claimScope": "physician_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_plus_cc0_lab_coat_over_scrubs",
   "promotionGates": false,
   "generatedAt": "2026-08-14T17:56:00Z",
-  "outputSha256": "fe9ef56a32210f125e373cc63d56bd0f4d822ea97309f98f0bd8a228b61f5712",
-  "outputBytes": 11736724,
+  "outputSha256": "1726e94367735adb6abf62982db266c94fefd261de6d5a9c080eb7b7d235721f",
+  "outputBytes": 9457652,
   "motionClips": [
     {
       "clipName": "openclinxr_retarget_walk_formal_cc0",
@@ -103,5 +103,7 @@
     }
   ],
   "licenceNoticeWrittenAt": "2026-09-10T17:27:31.866Z",
-  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here."
+  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here.",
+  "albedoBakeWrittenAt": "2026-09-11T04:58:26.349Z",
+  "albedoBakeNote": "HB-02: per-texel baseColorFactor x baseColorTexture folded into the texture, factor reset to white; geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
 }

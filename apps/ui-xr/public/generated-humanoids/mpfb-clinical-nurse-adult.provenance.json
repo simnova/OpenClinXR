@@ -64,8 +64,8 @@
   "claimScope": "nurse_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_toigo_blunt_bob_kept",
   "promotionGates": false,
   "generatedAt": "2026-08-14T21:33:00Z",
-  "outputSha256": "a1d947e86045366afdad8c30c3abdb66f664be8b3d47f2d8f705a2a5de39909d",
-  "outputBytes": 11112244,
+  "outputSha256": "53c38b2a4629ac0f421f22cc70fbd536e84093ee5bf2cf269a18db039263c644",
+  "outputBytes": 8833188,
   "byteLineage": {
     "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
     "correctedAt": "2026-09-09T20:55:55.296Z",
@@ -92,5 +92,7 @@
     "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte."
   },
   "licenceNoticeWrittenAt": "2026-09-10T17:27:31.847Z",
-  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here."
+  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here.",
+  "albedoBakeWrittenAt": "2026-09-11T04:58:26.339Z",
+  "albedoBakeNote": "HB-02: per-texel baseColorFactor x baseColorTexture folded into the texture, factor reset to white; geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
 }

@@ -4,5 +4,9 @@
   "declarationOnly": true,
   "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
   "runtimeRole": "inspection_fixture",
-  "runtimeRoleWhy": "Inspection subject for viseme contracts. Never cast; the shipped-bank cast resolver does not name it."
+  "runtimeRoleWhy": "Inspection subject for viseme contracts. Never cast; the shipped-bank cast resolver does not name it.",
+  "outputSha256": "322d3f214afc21cf51498559129515335f1218ba659fca87e13ae96848ad5219",
+  "outputBytes": 11738220,
+  "albedoBakeWrittenAt": "2026-09-11T04:58:26.417Z",
+  "albedoBakeNote": "HB-02: per-texel baseColorFactor x baseColorTexture folded into the texture, factor reset to white; geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
 }

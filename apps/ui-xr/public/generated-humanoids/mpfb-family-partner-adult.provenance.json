@@ -1,89 +1,91 @@
 {
- "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
- "derivationMode": "mpfb2_macro_from_anny_reference",
- "scenarioId": "ed_chest_pain_priority_v1",
- "actorId": "spouse_anna_hayes_v1",
- "actorRole": "family",
- "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
- "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.anny_manifest.json",
- "generatorMode": "mpfb2_humanservice_create_human_with_macro_dict_from_tracked_anny_reference_v1",
- "sourceKind": "mpfb2_makehuman_basemesh_from_anny_reference",
- "usesRealAnnyForwardPass": false,
- "realAnnyWeightsUsed": false,
- "textureMode": "authored_or_baked",
- "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
- "optimizationMode": "unoptimized_post_blender_glb",
- "realismGrade": "not_graded",
- "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
- "sourceOriginChain": {
-  "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
-  "annyReference": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.anny_base.obj (tracked)",
-  "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
-  "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-  "derivationNote": "Issue #403 step 2: the shared Anny spouse mesh (9 cast slots) is replaced by this MPFB2 adult. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.66 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. Standard 137-joint rig; #317 face keys (32 targets / 13 mouth); #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris). Wardrobe: #180 closed_casual toigo t-shirt upper (family palette muted_rose 0.42,0.36,0.40), cortu_cargo_pants lower cover shell, toigo_mj_cloth_shoes footwear, #381 CC0 toigo_curled_under_bob fitted hair, #356 green iris (CC0 makehuman system-assets pack), #377 anatomical 24.0 mm eyes, #343 skin tone warm_light (0.78,0.62,0.52), #370 tangent-space normal map, #359 scalp region (0.898-1.000 H)."
- },
- "licenseChain": {
-  "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
-  "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
-  "sourceRecordClaimsSupported": [
-   "MPFB2 2.0.15 from Blender Extensions; MPFB declares SPDX:GPL-3.0-or-later for its own code (installed 2.0.15, blender_manifest.toml sha256 b7e1d0732e67cc18955f91b91ff9049b9f0bc868f05eb074e4ea3cf38fa3ddd5; corrected 2026-09-09 from a stale AGPLv3 label) with bundled assets CC0 1.0 per LICENSE.ASSETS.md and a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
-  ],
-  "notRun": [
-   "licence_text_reenumeration",
-   "makehuman_license_review",
-   "production_asset_readiness"
-  ],
-  "explicitUnknown": [
-   "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a cagematch comparator for evidence only."
-  ]
- },
- "notEvidenceFor": [
-  "b_plus_visual_realism_gate",
-  "production_asset_readiness",
-  "quest_readiness",
-  "learner_readiness",
-  "clinical_validity",
-  "scoring_validity",
-  "scene_placement_readiness",
-  "madr_0051_s5_landmark_match_within_bands"
- ],
- "sourceNotes": [
-  "Issue #403 first adult MPFB2 migration slice: the 19-slot Anny nurse/spouse pair is replaced by two MPFB2 adults generated from the tracked Anny references. The Anny GLBs stay on disk as comparators.",
-  "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
-  "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
-  "Family-class body is a different bake from the nurse-class body: different reference (1.66 m vs 1.76 m), different macro height (0.5 vs 0.5827), different wardrobe/iris/hair — two distinct identities.",
-  "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris).",
-  "Rebaked 2026-08-14 (medical wardrobe): same reference/role, scalp RULE now fires — `scalp_placeholder_retired_for` suppresses the placeholder `openclinxr_mesh_native_scalp_hair_surface` shell wherever a fitted hair mesh exists (e4880c99). Same wardrobe: toigo t-shirt (muted_rose), cortu_cargo_pants (CC0 ledger row; named-uuid GARMENT_PAGE_CC0_OVERRIDE because its `.mhclo` declares CC0 on the author line, not a `# license` line), toigo_mj_cloth_shoes, toigo_curled_under_bob hair. scalpTris=0, hairTris=2852 measured on the exported GLB.",
-  "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-family-partner-adult.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed)."
- ],
- "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
- "promotionGates": false,
- "generatedAt": "2026-08-14T17:30:00Z",
- "outputSha256": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93",
- "outputBytes": 8411080,
- "byteLineage": {
-  "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-09-09T20:55:55.787Z",
-  "recordedBefore": {
-   "outputSha256": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93",
-   "outputBytes": 8411080
+  "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+  "derivationMode": "mpfb2_macro_from_anny_reference",
+  "scenarioId": "ed_chest_pain_priority_v1",
+  "actorId": "spouse_anna_hayes_v1",
+  "actorRole": "family",
+  "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+  "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.anny_manifest.json",
+  "generatorMode": "mpfb2_humanservice_create_human_with_macro_dict_from_tracked_anny_reference_v1",
+  "sourceKind": "mpfb2_makehuman_basemesh_from_anny_reference",
+  "usesRealAnnyForwardPass": false,
+  "realAnnyWeightsUsed": false,
+  "textureMode": "authored_or_baked",
+  "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+  "optimizationMode": "unoptimized_post_blender_glb",
+  "realismGrade": "not_graded",
+  "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
+  "sourceOriginChain": {
+    "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
+    "annyReference": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.anny_base.obj (tracked)",
+    "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
+    "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "derivationNote": "Issue #403 step 2: the shared Anny spouse mesh (9 cast slots) is replaced by this MPFB2 adult. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.66 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. Standard 137-joint rig; #317 face keys (32 targets / 13 mouth); #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris). Wardrobe: #180 closed_casual toigo t-shirt upper (family palette muted_rose 0.42,0.36,0.40), cortu_cargo_pants lower cover shell, toigo_mj_cloth_shoes footwear, #381 CC0 toigo_curled_under_bob fitted hair, #356 green iris (CC0 makehuman system-assets pack), #377 anatomical 24.0 mm eyes, #343 skin tone warm_light (0.78,0.62,0.52), #370 tangent-space normal map, #359 scalp region (0.898-1.000 H)."
   },
-  "preImageRevision": "91b12607^:apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-  "preImageSha256": "14a4167a9b6d6aec9d01f367b91c806d1c8e18568a0ebe36e6405240697e7a0c",
-  "preImageBytes": 8411072,
-  "derivationArgv": [
-   "node",
-   "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
-   "--input",
-   "{pre}",
-   "--output",
-   "{out}",
-   "--report",
-   ".openclinxr/evidence/scene-closure/sc-04/rederive/family-rederive-report.json",
-   "--half-span-m",
-   "0.085"
+  "licenseChain": {
+    "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
+    "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+    "sourceRecordClaimsSupported": [
+      "MPFB2 2.0.15 from Blender Extensions; MPFB declares SPDX:GPL-3.0-or-later for its own code (installed 2.0.15, blender_manifest.toml sha256 b7e1d0732e67cc18955f91b91ff9049b9f0bc868f05eb074e4ea3cf38fa3ddd5; corrected 2026-09-09 from a stale AGPLv3 label) with bundled assets CC0 1.0 per LICENSE.ASSETS.md and a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
+    ],
+    "notRun": [
+      "licence_text_reenumeration",
+      "makehuman_license_review",
+      "production_asset_readiness"
+    ],
+    "explicitUnknown": [
+      "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a cagematch comparator for evidence only."
+    ]
+  },
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "scene_placement_readiness",
+    "madr_0051_s5_landmark_match_within_bands"
   ],
-  "reproduction": "byte-identical to the shipped file",
-  "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte."
- }
+  "sourceNotes": [
+    "Issue #403 first adult MPFB2 migration slice: the 19-slot Anny nurse/spouse pair is replaced by two MPFB2 adults generated from the tracked Anny references. The Anny GLBs stay on disk as comparators.",
+    "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
+    "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
+    "Family-class body is a different bake from the nurse-class body: different reference (1.66 m vs 1.76 m), different macro height (0.5 vs 0.5827), different wardrobe/iris/hair — two distinct identities.",
+    "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris).",
+    "Rebaked 2026-08-14 (medical wardrobe): same reference/role, scalp RULE now fires — `scalp_placeholder_retired_for` suppresses the placeholder `openclinxr_mesh_native_scalp_hair_surface` shell wherever a fitted hair mesh exists (e4880c99). Same wardrobe: toigo t-shirt (muted_rose), cortu_cargo_pants (CC0 ledger row; named-uuid GARMENT_PAGE_CC0_OVERRIDE because its `.mhclo` declares CC0 on the author line, not a `# license` line), toigo_mj_cloth_shoes, toigo_curled_under_bob hair. scalpTris=0, hairTris=2852 measured on the exported GLB.",
+    "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-family-partner-adult.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed)."
+  ],
+  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
+  "promotionGates": false,
+  "generatedAt": "2026-08-14T17:30:00Z",
+  "outputSha256": "9f2094ccf1d593b30f20756f3c87c7edcc17ea3cfc836f6a9ca248ac2edf0753",
+  "outputBytes": 8151256,
+  "byteLineage": {
+    "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+    "correctedAt": "2026-09-09T20:55:55.787Z",
+    "recordedBefore": {
+      "outputSha256": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93",
+      "outputBytes": 8411080
+    },
+    "preImageRevision": "91b12607^:apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+    "preImageSha256": "14a4167a9b6d6aec9d01f367b91c806d1c8e18568a0ebe36e6405240697e7a0c",
+    "preImageBytes": 8411072,
+    "derivationArgv": [
+      "node",
+      "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
+      "--input",
+      "{pre}",
+      "--output",
+      "{out}",
+      "--report",
+      ".openclinxr/evidence/scene-closure/sc-04/rederive/family-rederive-report.json",
+      "--half-span-m",
+      "0.085"
+    ],
+    "reproduction": "byte-identical to the shipped file",
+    "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte."
+  },
+  "albedoBakeWrittenAt": "2026-09-11T04:58:26.355Z",
+  "albedoBakeNote": "HB-02: per-texel baseColorFactor x baseColorTexture folded into the texture, factor reset to white; geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
 }
