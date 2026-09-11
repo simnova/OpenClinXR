@@ -1,4 +1,4 @@
-import { minimumJerkSample } from "../trajectory.js";
+import { minimumJerkFall } from "../trajectory.js";
 import { scaleRotation, signCanonical } from "./quaternion-scale.js";
 import type { Quat, SolvedArmPose } from "../ik/solve-chain.js";
 import type { ContactKey } from "../contact/contact-window-schedule.js";
@@ -52,7 +52,7 @@ export function contactReleaseValue(
   // minimum-jerk envelope: every release key stays on the unit sphere, eases out of the
   // hold at rest velocity, and lands on the retention settle the schedule freezes.
   const p = Math.min(1, Math.max(0, progress));
-  const fall = 1 - minimumJerkSample(p);
+  const fall = minimumJerkFall(p);
   const target = scaleRotation(held, retention * (1 + (amp - 1) * CONTACT_RELEASE_VARIATION_GAIN));
   const dot = held.x * target.x + held.y * target.y + held.z * target.z + held.w * target.w;
   const end = dot < 0
