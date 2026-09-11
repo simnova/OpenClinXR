@@ -28,6 +28,40 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-11T1915">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 12 &middot; 2026-09-11 19:15 EDT</p>
+          <h2>The child patient no longer shows the background through its neck, and six more cards landed.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>HB-07 closed, on the fifth attempt</h3>
+            <ul>
+              <li>The shipped child humanoid had two dark gaps at the base of its neck where the capture background showed through the body. On the rebaked body (<code>b936c9a6</code>) that count is zero, measured as background pixels whose camera ray hits the model.</li>
+              <li>The first two attempts failed. The third measured what every gap pixel actually hits and found the sleeve "gaps" were the space between the arm and the torso, which is background by rights. The test had been counting pixels outside the figure; it now counts only pixels where you can see through the body, and still demands zero.</li>
+              <li>The same work found the pipeline no longer reproduced its own output: re-baking the child dressed it in jeans instead of the cargo trousers it shipped in, 3,080 triangles heavier. The garment is now pinned to what shipped.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Landed alongside it</h3>
+            <ul>
+              <li><strong>Faculty assessment</strong> (<code>53762731</code>): criterion observations grounded in the station's rubric and the stored evidence, draft to final to a sealed record; an observation citing a rubric item or event that is not there is refused.</li>
+              <li><strong>Rater calibration</strong> (<code>d92bb366</code>): two faculty seal their own assessments of the same attempt without seeing each other's, then the comparison is labelled calibration evidence, and adjudication leaves both originals untouched.</li>
+              <li><strong>Model-assisted case proposals</strong> (<code>af085455</code>): every generated field carries its provenance and uncertainty, faculty edits are an append-only patch trail, and approval writes a draft case. A review found the first version stamped clinical and legal approval on approve; it does not.</li>
+              <li>Two gates fixed: a test that deleted its own fixture mid-request (<code>a62ba7ae</code>), and pre-commit checks timing out under parallel work, which had been teaching workers to skip the hook (<code>b504fdfd</code>).</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The child patient, after the fix</h3>
+            <figure style="margin:0;border:1px solid var(--line);border-radius:6px;overflow:hidden;">
+              <img src="openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-front_lit.png" alt="Paediatric patient humanoid in a blue t-shirt and pale trousers, standing in an A-pose on a reference grid, with a solid neck and sleeve hems." loading="lazy" />
+            </figure>
+            <p class="status-copy">Rendered alone by the vetting harness after the rebake. Not a headset capture, and no claim about clinical realism.</p>
+          </div>
+        </div>
+        <p class="status-copy">Fifteen cards landed between 16:15 and 19:15. Eight of them came back passing their contract while missing something their brief asked for, and were handed back once before landing. What catches that is reading the change against the brief; the contract cannot.</p>
+      </section>
+
       <section class="band" id="entry-2026-09-11T1735">
         <div class="section-heading">
           <p class="eyebrow">Entry 11 &middot; 2026-09-11 17:35 EDT</p>
