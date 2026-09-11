@@ -74,7 +74,10 @@ const KINDS = ["guarding", "palpation", "passive_rom", "positioning"] as const;
 const SITE = "abdomen_epigastric";
 
 const rootModule = async (): Promise<Record<string, unknown>> =>
-  (await import("./index.js")) as Record<string, unknown>;
+  ({
+    ...(await import("./primitive-registry.js")),
+    ...(await import("./program/response-kind-to-primitive.js")),
+  }) as Record<string, unknown>;
 
 const compileFor = async (primitiveId: string): Promise<string> => {
   const m = await rootModule();

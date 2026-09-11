@@ -88,7 +88,11 @@ const trackDigest = (tracks: readonly unknown[]): string =>
   createHash("sha256").update(JSON.stringify(tracks)).digest("hex");
 
 const rootModule = async (): Promise<Record<string, unknown>> =>
-  (await import("./index.js")) as Record<string, unknown>;
+  ({
+    ...(await import("./primitive-registry.js")),
+    ...(await import("./compile-motion-program.js")),
+    ...(await import("./derive-skeleton-profile.js")),
+  }) as Record<string, unknown>;
 
 describe("the compiler surface carries region and effector", () => {
   it("(1) a consumer outside this package can reach the primitive registry from the root", async () => {

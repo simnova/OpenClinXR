@@ -1,92 +1,59 @@
 export {
-  arbitrateTurnTaking,
-  type ArbitrateTurnTakingInput,
-} from "./turn-taking.js";
-export { resolveLearnerBargeIn } from "./barge-in.js";
+  type CaseEmotionPolicy,
+  EmotionEngine,
+  type EmotionEventKind,
+  type EmotionTransition,
+} from "./emotion-engine.js";
 export {
-  learnerBargeInInputFromStt,
-  resolveLearnerBargeInFromStt,
-  type LearnerSttBargeInRecord,
-} from "./learner-stt-barge-in.js";
+  classifyEmotionEventDetailed,
+  type EmotionEventClassifierVerdict,
+} from "./emotion-event-classifier.js";
 export {
-  buildTurnCancellationDirective,
-  canonicalInterruptionId,
-  canonicalInterruptionIdentity,
-  canonicalTurnClockMs,
-  resolveCanonicalLearnerInterruption,
-  CANONICAL_TURN_CLOCK_MS_PER_SECOND,
-} from "./canonical-interruption.js";
+  mapEmotionPerformance,
+  stripProviderMarkup,
+} from "./emotion-performance-mapper.js";
 export {
   buildHistoryTakingCoverageSpec,
-  coverageTraceTagForDomain,
   domainsForTraceTag,
   initialHistoryTakingCoverageState,
   updateHistoryTakingCoverage,
 } from "./history-coverage.js";
 export {
-  CONVERSATION_CLAIM_SCOPE,
-  CONVERSATION_NOT_EVIDENCE_FOR,
-  TURN_MODALITIES_CANCELLED_ON_BARGE_IN,
-  type ActorTurnInProgress,
-  type BargeInContext,
-  type BargeInOutcome,
-  type BargeInResolution,
-  type CanonicalInterruptionIdentity,
-  type ConversationActorRef,
-  type ConversationNotEvidenceFor,
-  type HistoryTakingCoverageSpec,
-  type HistoryTakingCoverageState,
-  type HistoryTakingCoverageUpdateInput,
-  type HistoryTakingCoverageUpdateResult,
-  type HistoryTakingDomain,
-  type LearnerBargeInInput,
-  type TurnCancelModality,
-  type TurnCancellationDirective,
-  type TurnTakingDecision,
-  type TurnTakingReason,
-} from "./types.js";
+  type LearnerSttBargeInRecord,
+  resolveLearnerBargeInFromStt,
+} from "./learner-stt-barge-in.js";
 export {
-  resolveEmotionTransition,
-  EmotionEngine,
-  type CaseEmotionPolicy,
-  type EmotionEvent,
-  type EmotionEventKind,
+  type ArbitrateTurnTakingInput,
+  arbitrateTurnTaking,
+} from "./turn-taking.js";
+export type {
+  ActorTurnInProgress,
+  BargeInContext,
+  BargeInOutcome,
+  BargeInResolution,
+  HistoryTakingCoverageSpec,
+  HistoryTakingCoverageState,
+  LearnerBargeInInput,
+  TurnCancellationDirective,
+  TurnTakingDecision,
+} from "./types.js";
+
+import type { Scenario } from "@openclinxr/shared-schemas";
+import { resolveLearnerBargeIn } from "./barge-in.js";
+import {
   type EmotionTransition,
   type EmotionTransitionInput,
-  type EmotionTransitionRule,
+  resolveEmotionTransition,
 } from "./emotion-engine.js";
-export {
-  classifyEmotionEvent,
-  classifyEmotionEventDetailed,
-  EMOTION_EVENT_RULES,
-  type EmotionEventClassifierInput,
-  type EmotionEventClassifierVerdict,
-  type EmotionEventRule,
-} from "./emotion-event-classifier.js";
-export {
-  mapEmotionPerformance,
-  stripProviderMarkup,
-  type EmotionPerformanceMapperInput,
-  type EmotionPerformancePlan,
-  type PerformanceIntensityBucket,
-  type ProviderMarkupStripped,
-} from "./emotion-performance-mapper.js";
-
-import {
-  arbitrateTurnTaking,
-  type ArbitrateTurnTakingInput,
-} from "./turn-taking.js";
-import { resolveLearnerBargeIn } from "./barge-in.js";
 import {
   buildHistoryTakingCoverageSpec,
   initialHistoryTakingCoverageState,
   updateHistoryTakingCoverage,
 } from "./history-coverage.js";
 import {
-  resolveEmotionTransition,
-  type EmotionTransition,
-  type EmotionTransitionInput,
-} from "./emotion-engine.js";
+  type ArbitrateTurnTakingInput,
+  arbitrateTurnTaking,
+} from "./turn-taking.js";
 import type {
   ActorTurnInProgress,
   BargeInResolution,
@@ -97,7 +64,6 @@ import type {
   LearnerBargeInInput,
   TurnTakingDecision,
 } from "./types.js";
-import type { Scenario } from "@openclinxr/shared-schemas";
 
 /**
  * Optional injectable conversation policy surface for ScenarioRuntime.

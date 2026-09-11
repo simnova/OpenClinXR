@@ -1,14 +1,14 @@
 import type { ReviewPacket } from "@openclinxr/shared-schemas";
 import { describe, expect, it } from "vitest";
+import { createMongoExamPersistence } from "./exam-repositories.js";
 import {
+  type CanonicalPhaseEventAdmission,
   createExamRunLedger,
-  createMongoExamPersistence,
   examRunLedgerClaimBoundary,
   examRunLedgerNotEvidenceFor,
   MemoryExamRunLedger,
-  type CanonicalPhaseEventAdmission,
   type OpenExamRunInput,
-} from "./index.js";
+} from "./exam-run-ledger.js";
 
 const examRunId = "exam_run_ledger_001";
 const stationA = "run_station_a";

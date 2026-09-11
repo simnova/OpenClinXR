@@ -1,3 +1,5 @@
+import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "@cellix/server-mongodb-memory-mock";
+import { createEdChestPainLocalEncounterRuntimeAssetBundle, createEdChestPainLocalLearnerRuntimeAssetBundle, type EncounterRuntimeAsset, type EncounterRuntimeAssetBundle, toLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import {
   assembleExamForm,
   createDefaultClinicalSkillsBlueprint,
@@ -13,29 +15,35 @@ import type {
 import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import type { Document } from "mongodb";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createEdChestPainLocalEncounterRuntimeAssetBundle, createEdChestPainLocalLearnerRuntimeAssetBundle, type EncounterRuntimeAsset, type EncounterRuntimeAssetBundle, toLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import {
-  createMongoApiPersistenceSink,
   createMongoDurableMultiActorSessionStore,
-  durableActorTurnPersistenceScope,
-  durableClinicalEventPersistenceScope,
   MongoDurableClinicalEventRepository,
   MongoDurableConversationTurnRepository,
   MongoDurableEmotionalStateTimelineRepository,
+} from "./conversation-repositories.js";
+import {
   MongoEncounterMaterializationEvidenceRepository,
+} from "./encounter-materialization-evidence-repositories.js";
+import {
   MongoExamFormRepository,
-  MongoFacultyScoreDraftRepository,
-  MongoReviewPacketRepository,
   MongoRuntimeAssetBundleRepository,
-  MongoScenarioRepository,
-  MongoScenarioReviewDecisionRepository,
   MongoStationRunQueueRepository,
-  MongoTraceRepository,
+  saveLearnerRuntimeAssetBundleFromGeneratedReport,
+} from "./exam-repositories.js";
+import { MongoFacultyScoreDraftRepository } from "./faculty-repositories.js";
+import { createMongoApiPersistenceSink } from "./persistence-sink.js";
+import {
+  durableActorTurnPersistenceScope,
+  durableClinicalEventPersistenceScope,
   type EncounterMaterializationEvidenceRecord,
   type ScenarioReviewDecisionRecord,
-  saveLearnerRuntimeAssetBundleFromGeneratedReport,
-} from "./index.js";
-import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "@cellix/server-mongodb-memory-mock";
+} from "./records.js";
+import {
+  MongoReviewPacketRepository,
+  MongoScenarioRepository,
+  MongoScenarioReviewDecisionRepository,
+  MongoTraceRepository,
+} from "./scenario-repositories.js";
 
 const scenario: Scenario = {
   scenarioId: "ed_chest_pain_priority_v1",
@@ -1750,7 +1758,7 @@ function runtimeAssetReviewDecisionsForBundle(bundle: EncounterRuntimeAssetBundl
     bundle.environment,
     ...bundle.actors.flatMap((actor) => [actor.model, ...actor.animationClips, ...(actor.phonemeMap ? [actor.phonemeMap] : [])]),
     ...bundle.equipment.map((equipment) => equipment.model),
-    ...bundle.uiSurfaces.flatMap((surface) => [surface.schema, surface.data].filter((asset): asset is EncounterRuntimeAsset => asset !== undefined)),
+    ...bundle.uiSurfaces.flatMap((surface) => [surface.schema, surface.data].filter((candidate): candidate is EncounterRuntimeAsset => candidate !== undefined)),
   ]) {
     assets.set(asset.assetId, asset);
   }

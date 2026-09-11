@@ -3,10 +3,10 @@ import { isHiddenTruthExtractionAttempt } from "./hidden-truth-guardrail.js";
 import type {
   ActorResponseRequest,
   ActorResponseResult,
-  GuardrailResult,
   ModelCapability,
   ModelProviderAdapter,
 } from "./index.js";
+import type { GuardrailResult } from "./model-gateway-internal.js";
 
 /**
  * Deterministic offline actor-dialogue adapter. Answers from the request's visible facts and

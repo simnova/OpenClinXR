@@ -1,17 +1,21 @@
-import { describe, expect, it } from "vitest";
 import { scenarioBank, scenarioDialogueSeedBank } from "@openclinxr/scenario-fixtures/scenario-bank";
+import { describe, expect, it } from "vitest";
 import {
   buildActorCommunicationProfilePromptContext,
   buildActorResponseProviderPromptInput,
+} from "./actor-prompt.js";
+import {
   buildActorResponseRequestsForDialogueSeeds,
   createDefaultModelGateway,
-  createLlamaCppModelProviderAdapter,
-  createMlxModelProviderAdapter,
-  createOllamaModelProviderAdapter,
   LocalModelProviderAdapter,
   MockModelProviderAdapter,
   type ModelProviderAdapter,
 } from "./index.js";
+import {
+  createLlamaCppModelProviderAdapter,
+  createMlxModelProviderAdapter,
+  createOllamaModelProviderAdapter,
+} from "./local-providers.js";
 
 describe("model gateway", () => {
   it("routes actor response requests to a deterministic auditable mock provider", async () => {

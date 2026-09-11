@@ -1,16 +1,14 @@
-import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
-import { pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
-import type { Scenario } from "@openclinxr/shared-schemas";
-import { describe, expect, it } from "vitest";
-import { toAdminGraphqlScenario } from "@openclinxr/rest";
-import { createApiApp } from "./index.js";
+import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
 import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "@openclinxr/rest";
-import {
+import { 
   AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
   authoredScenarioContentIdentity,
   MISSING_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR,
-  STALE_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR,
-} from "@openclinxr/rest";
+  STALE_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR,toAdminGraphqlScenario, } from "@openclinxr/rest";
+import { pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
+import type { Scenario } from "@openclinxr/shared-schemas";
+import { describe, expect, it } from "vitest";
+import { createApiApp } from "./index.js";
 
 /**
  * API-domain contract for identity-bound faculty review (BothyBoard tsk_cb14bedfb55b0f28).

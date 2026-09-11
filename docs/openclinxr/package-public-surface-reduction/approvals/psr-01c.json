@@ -825,9 +825,9 @@
       "entrypoint": ".",
       "symbol": "createMongoApiPersistenceSink",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/api-mongo-boot.ts",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment at PSR-03 land, 2026-09-11): tools/openclinxr/api-mongo-boot.ts imports this through a relative path to the data-mongodb entrypoint, which the review's package-specifier consumer scan could not see, and main's index documents the MongoClient re-export as existing for tools composition roots because bare `mongodb` does not resolve from tools/ under pnpm.",
       "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
     },
     {
@@ -1085,9 +1085,9 @@
       "entrypoint": ".",
       "symbol": "MongoClient",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-mongodb",
-      "rationale": "Zero confirmed external importers of the package specifier in source form; only string-literal mentions in architecture tests and capability routing, no static/dynamic/require/re-export/computed import.",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/api-mongo-boot.ts",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment at PSR-03 land, 2026-09-11): tools/openclinxr/api-mongo-boot.ts imports this through a relative path to the data-mongodb entrypoint, which the review's package-specifier consumer scan could not see, and main's index documents the MongoClient re-export as existing for tools composition roots because bare `mongodb` does not resolve from tools/ under pnpm.",
       "evidence": "grep for from \"@openclinxr/data-mongodb\" across apps/packages/tools/docs source returns no importer; raw inventory entrypoint consumers empty"
     },
     {
@@ -3087,9 +3087,9 @@
       "entrypoint": ".",
       "symbol": "planMotionProgram",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/motion-compiler",
-      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "disposition": "keep",
+      "owner": "docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment at PSR-03 land, 2026-09-11): planMotionProgram is the deterministic motion planner entry the motion DSL consumer-path document names, and the planned motion-bake cards consume it. Un-publishing both names left deterministic-scenario-motion-planner.ts unreferenced, which the Knip gate refuses, and the plan forbids deleting source to satisfy Knip.",
       "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
     },
     {
@@ -3257,9 +3257,9 @@
       "entrypoint": ".",
       "symbol": "ScenarioMotionCompileInput",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/motion-compiler",
-      "rationale": "Zero confirmed external importers of the root specifier; the only tree reference is the adapter string literal in factory-stations motion_retarget/run.ts, not a module import; consumers entrypoint-level hits are intra-package test only.",
+      "disposition": "keep",
+      "owner": "docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md",
+      "rationale": "Deliberate compatibility contract (orchestrator amendment at PSR-03 land, 2026-09-11): planMotionProgram is the deterministic motion planner entry the motion DSL consumer-path document names, and the planned motion-bake cards consume it. Un-publishing both names left deterministic-scenario-motion-planner.ts unreferenced, which the Knip gate refuses, and the plan forbids deleting source to satisfy Knip.",
       "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
     },
     {

@@ -1,16 +1,18 @@
-import { defaultFieldResolver, type GraphQLFieldResolver } from "graphql";
+import { buildSchema, defaultFieldResolver, type GraphQLFieldResolver, type GraphQLSchema } from "graphql";
 import {
   projectAppendFacultyDispositionResult,
   projectFacultyDispositionTrail,
 } from "./faculty-disposition.js";
 
-export { openClinXrAdminSchemaSdl } from "./generated/schema.generated.js";
+import { openClinXrAdminSchemaSdl } from "./generated/schema.generated.js";
+
 export {
   FACULTY_DISPOSITION_CLAIM_BOUNDARY,
   FACULTY_DISPOSITION_NOT_EVIDENCE_FOR,
   projectAppendFacultyDispositionResult,
   projectFacultyDispositionTrail,
 } from "./faculty-disposition.js";
+export { openClinXrAdminSchemaSdl } from "./generated/schema.generated.js";
 
 const DIALOGUE_EMOTIONS = new Set(["anxious", "concerned", "reassured", "neutral"]);
 const EVENT_KINDS = new Set([
@@ -33,6 +35,11 @@ const PRIVATE_KEYS = new Set([
   "confidentialNote",
 ]);
 const PROVIDER_MARKUP = /<\/?[a-z][a-z0-9-]*\s*\/?>|\[[a-z][a-z0-9-]*\]/gi;
+
+export function buildAdminGraphqlSchema(): GraphQLSchema {
+  return buildSchema(openClinXrAdminSchemaSdl);
+}
+
 export const REVIEW_PACKET_ACTOR_TURN_CLAIM_SCOPE = "simulated_actor_behavior" as const;
 
 export type ReviewPacketActorTurnGraphql = {

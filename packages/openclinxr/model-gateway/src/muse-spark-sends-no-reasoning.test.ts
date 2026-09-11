@@ -1,8 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  OpenAiCompatibleModelProviderAdapter,
-  type ActorResponseRequest,
-} from "./index.js";
+import type { ActorResponseRequest } from "./index.js";
+import { OpenAiCompatibleModelProviderAdapter } from "./openai-compatible-adapter.js";
 
 /**
  * Muse Spark contributor (OpenRouter, cheapest actor rung) must POST chat_completions

@@ -1,8 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  OpenAiCompatibleModelProviderAdapter,
-  type ActorResponseRequest,
-} from "./index.js";
+import type { ActorResponseRequest } from "./index.js";
+import { OpenAiCompatibleModelProviderAdapter } from "./openai-compatible-adapter.js";
 
 /**
  * OBSERVABLE: OpenAiCompatibleModelProviderAdapter.generateActorResponse POSTs

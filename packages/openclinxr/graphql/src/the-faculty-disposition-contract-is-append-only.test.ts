@@ -1,11 +1,10 @@
 import { readFileSync } from "node:fs";
 import { GraphQLObjectType, GraphQLUnionType, parse, validate } from "graphql";
 import { describe, expect, it } from "vitest";
-import { buildAdminGraphqlSchema, executeAdminGraphql, type AdminGraphqlRootValue } from "./index.js";
-import {
+import { type AdminGraphqlRootValue, executeAdminGraphql } from "./index.js";
+import { buildAdminGraphqlSchema, 
   FACULTY_DISPOSITION_CLAIM_BOUNDARY,
-  FACULTY_DISPOSITION_NOT_EVIDENCE_FOR,
-} from "./schema.js";
+  FACULTY_DISPOSITION_NOT_EVIDENCE_FOR,} from "./schema.js";
 
 const EXAM_RUN_ID = "exam_run_faculty_disposition_graphql_001";
 const LEARNER_ID = "learner_phase_001";

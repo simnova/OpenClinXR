@@ -1,10 +1,10 @@
+import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "@cellix/server-mongodb-memory-mock";
 import { createApiApp } from "@openclinxr/api";
-import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
+import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
+import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
 import type { AsyncDurableMultiActorSessionStore } from "@openclinxr/session-state";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
-import { createMongoApiPersistenceSink } from "./index.js";
-import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "@cellix/server-mongodb-memory-mock";
+import { createMongoApiPersistenceSink } from "./persistence-sink.js";
 
 async function json(response: Response): Promise<unknown> {
   return response.json() as Promise<unknown>;

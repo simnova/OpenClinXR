@@ -16,14 +16,14 @@
  * 3. Rationale required; evidenceRefs optional for human (client supplies local procedural ref).
  */
 
-import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "../../../packages/openclinxr/rest/src/api-types.js";
 import { createApiApp } from "../../../apps/api/src/index.js";
-import { buildExamAssemblyScenarioPool } from "../../../packages/openclinxr/rest/src/exam-assembly-pool.js";
-import { adminGraphqlDocumentByOperationName } from "../../../packages/openclinxr/graphql/src/index.js";
 import {
   createExamStationRunQueue,
   createStep2CsStyleSeedBlueprint,
 } from "../../../packages/openclinxr/exam-assembly/src/index.js";
+import { adminGraphqlDocumentByOperationName } from "../../../packages/openclinxr/graphql/src/documents.js";
+import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "../../../packages/openclinxr/rest/src/api-types.js";
+import { buildExamAssemblyScenarioPool } from "../../../packages/openclinxr/rest/src/exam-assembly-pool.js";
 import {
   pediatricAsthmaScenario,
   scenarioBank,
