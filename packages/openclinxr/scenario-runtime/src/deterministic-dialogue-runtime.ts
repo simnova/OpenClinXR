@@ -1,9 +1,9 @@
 import {
   AUTHORED_LOCAL_FIXTURE_PROVIDER_ID,
-  buildOpenClinXrCapabilityRoutingMatrix,
-  createDeterministicDialogueAdapter,
   type AuthoredDialogueCatalog,
   type AuthoredDialogueSeed,
+  buildOpenClinXrCapabilityRoutingMatrix,
+  createDeterministicDialogueAdapter,
   type DeterministicDialogueRequestPayload,
 } from "@openclinxr/capability-gateway";
 import type { ActorResponseResult } from "@openclinxr/model-gateway";
@@ -44,7 +44,9 @@ export function isMissingAuthoredDialogueSeed(error: unknown): boolean {
   return error instanceof Error && error.message.startsWith("no_matching_dialogue_seed:");
 }
 
-export function localDevelopmentModelDialogueBinding() {
+export function localDevelopmentModelDialogueBinding(): ReturnType<
+  typeof buildOpenClinXrCapabilityRoutingMatrix
+>["bindings"][number] {
   const binding = buildOpenClinXrCapabilityRoutingMatrix().bindings.find(
     (entry) => entry.profile === "local-development" && entry.capabilityId === "model-dialogue",
   );

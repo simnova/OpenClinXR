@@ -3,16 +3,18 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { readFile as readFileAsync, writeFile as writeFileAsync } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { recommendBackgroundAgentModel } from "../../packages/openclinxr/agent-loop/src/index.js";
+import { buildGrokRepoAgentSpawnRegistry } from "../../packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.js";
+import { buildGrokSliceTokenIntrospectionReport } from "../../packages/openclinxr/agent-loop/src/grok-token-introspection.js";
 import {
-  buildGrokRepoAgentSpawnRegistry,
-  buildGrokSliceTokenIntrospectionReport,
   buildGrokTierIntrospectionReport,
+  validateGrokHarnessTierConfig,
+} from "../../packages/openclinxr/agent-loop/src/grok-tier-routing.js";
+import {
   getRepoRoleHarnessPolicy,
-  recommendBackgroundAgentModel,
   repoRoleHarnessPolicies,
   resolveHarnessModelSpec,
-  validateGrokHarnessTierConfig,
-} from "../../packages/openclinxr/agent-loop/src/index.js";
+} from "../../packages/openclinxr/agent-loop/src/role-harness-policy.js";
 
 type ProofIteration = {
   id: string;

@@ -1,6 +1,5 @@
-import type { Scenario } from "@openclinxr/shared-schemas";
-import type { DialogueFixtureSeed } from "./ed-chest-pain.js";
 import { actor, asset, draftScenario, event, rubric } from "./builders.js";
+import type { DialogueFixtureSeed } from "./ed-chest-pain-mod.js";
 
 export const obPreeclampsiaScenario = draftScenario({
   scenarioId: "ob_headache_preeclampsia_triage_v1",

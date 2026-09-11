@@ -1,6 +1,7 @@
 import { validateScenario } from "@openclinxr/shared-schemas";
 import { describe, expect, it } from "vitest";
-import { edChestPainDialogueSeeds, edChestPainScenario, responseClipForBodyRegion } from "./index.js";
+import { edChestPainDialogueSeeds, edChestPainScenario } from "./index.js";
+import { responseClipForBodyRegion } from "./scenario-bank.js";
 
 describe("ED chest pain fixture", () => {
   it("is approved, multi-actor, and schema-valid", () => {

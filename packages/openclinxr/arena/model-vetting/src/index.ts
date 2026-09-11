@@ -1,21 +1,43 @@
-export * from "./types.js";
-export * from "./logic.js";
-export {
-  visemeTimelineFromRhubarbCues,
-  visemeForRhubarbValue,
-} from "./viseme-timeline.js";
-export type { RhubarbMouthCue, VisemeCueTiming } from "./viseme-timeline.js";
+/**
+ * Public interface of @openclinxr/model-vetting.
+ *
+ * Named lists, not `export *`. A star republishes a module wholesale, so a symbol added inside
+ * becomes public with nobody deciding it should be.
+ */
+
 export type {
-  CandidatePromotionStatus,
-  CandidateRiggingDelta,
-  CandidateRiggingSummary,
-  CandidateScoreDelta,
-  CandidateVisionScore,
-  DualFrameVisionScoreRow,
+  CagematchFeasibilityCriterion,
+  CagematchReportPage,
+  CagematchReportRegistry,
+  VisemeTimeline,
+} from "./logic.js";
+export {
+  applyMorphTargetEmotionCue,
+  applyMorphTargetVisemeCue,
+  batchScorePipelineIndex,
+  buildModelVettingReportFromAnnyPreflight,
+  buildPedsAsthmaPatientEmotionTransitionTimeline,
+  buildPromotionRecord,
+  buildVisemeTimelineFromDialogue,
+  diffPipelineCandidates,
+  emotionWeightsAtTimelineProgress,
+  PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE,
+  validateCagematchReportPage,
+  validateCagematchReportRegistry,
+  validateModelVettingReport,
+  validatePipelineCandidateIndex,
+  visemeAtTimelineProgress,
+} from "./logic.js";
+export type {
   PipelineCandidate,
   PipelineCandidateDiff,
   PipelineCandidateIndex,
-  PipelineCandidateNotEvidenceForClaim,
   PromotionRecord,
 } from "./pipeline-candidate.js";
+export type {
+  AnnyLikePreflightReport,
+  ModelVettingCandidate,
+  ModelVettingCaptureArtifacts,
+  ModelVettingReport,
+} from "./types.js";
 

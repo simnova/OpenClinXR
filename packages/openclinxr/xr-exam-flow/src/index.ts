@@ -1,21 +1,22 @@
+/** Public entry: keep-only re-exports. Implementation: ./index-mod.js */
+
+
 export type {
+  ExamFlowRuntimeAccessors,
   ExamRunStationOutcome,
   OpenClinXrExamFlowEvidence,
-  OpenClinXrExamRunSummaryEvidence,
   OpenClinXrExamFormRunEvidence,
-} from "./types.js";
+  OpenClinXrExamRunSummaryEvidence,
+} from "./index-mod.js";
 export {
+  advanceFormRunClock,
   buildExamFlowEvidence,
   buildExamFormRunEvidence,
   buildExamRunSummaryEvidence,
+  createExamFlowStore,
+  createFormRunState,
+  persistFormRunQueueSnapshot,
   readExamRunSummaryOutcomes,
   recordStationOutcome,
-} from "./evidence.js";
-export type { ExamFlowIdentity, ExamFlowIntentKind, ExamFlowRuntimeAccessors } from "./store.js";
-export { createExamFlowStore } from "./store.js";
-export { advanceFormRunClock, createFormRunState, persistFormRunQueueSnapshot, recordStationOutcomeOnFormRun } from "./actions.js";
-import type {
-  ExamFlowIdentity as FlowIdentity,
-  ExamFlowRuntimeAccessors as FlowAccessors,
-} from "./store.js";
-export type ExamFlowStoreOptions = { identity: FlowIdentity; accessors: FlowAccessors };
+  recordStationOutcomeOnFormRun,
+} from "./index-mod.js";

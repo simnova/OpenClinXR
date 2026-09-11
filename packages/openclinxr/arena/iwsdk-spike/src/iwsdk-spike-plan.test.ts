@@ -36,7 +36,7 @@ import {
   type IwsdkAgentToolingEvidence,
   type IwsdkSpikeGateEvidence,
   selectIwsdkVerificationToolsForClaim,
-} from "./index.js";
+} from "./public.js";
 
 describe("IWSDK spike plan", () => {
   it("requires every IWSDK contract source ID to resolve to a committed source record", () => {

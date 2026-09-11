@@ -339,7 +339,7 @@ function sha256File(absPath: string): string | null {
 
 export function planEquipmentGenerate(
   input: unknown,
-): import("../catalog.js").StandardFailureResult | { readonly value: Record<string, unknown>; readonly plan: EquipmentGeneratePlan; readonly issues?: undefined } {
+): import("../catalog-mod.js").StandardFailureResult | { readonly value: Record<string, unknown>; readonly plan: EquipmentGeneratePlan; readonly issues?: undefined } {
   const checked = factoryStationSchemas.equipment_generate["~standard"].validate(input);
   if (checked.issues !== undefined) return checked;
 

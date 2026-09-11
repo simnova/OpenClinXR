@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import * as sharedSchemas from "./index.js";
 import { validateCaseEmotionPolicy } from "./index.js";
 
 /**
@@ -16,6 +15,10 @@ import { validateCaseEmotionPolicy } from "./index.js";
  * ## FIXED (DVA-1)
  * DialogueEmotionSchema excludes pain. CaseEmotionPolicy transitions use
  * DialogueEmotion. ActorTurnPlanSchema is exported.
+ *
+ * ## FIXED (PSR-08)
+ * PSR-01E un-publishes ActorTurnPlanSchema from the package root. Pain remains
+ * unrepresentable as a dialogue transition via validateCaseEmotionPolicy.
  */
 
 const DIALOGUE_PAIN_POLICY = {
@@ -46,8 +49,8 @@ describe("actor turn plan forbids dialogue pain", () => {
 
   it("(2) ActorTurnPlanSchema is exported from shared-schemas", () => {
     expect(
-      (sharedSchemas as Record<string, unknown>)["ActorTurnPlanSchema"],
-      "ActorTurnPlanSchema missing — dialogue and somatic still share InteractionEmotion",
-    ).toBeDefined();
+      validateCaseEmotionPolicy(DIALOGUE_PAIN_POLICY).ok,
+      "ActorTurnPlanSchema unpublished; pain still unrepresentable as dialogue to=",
+    ).toBe(false);
   });
 });

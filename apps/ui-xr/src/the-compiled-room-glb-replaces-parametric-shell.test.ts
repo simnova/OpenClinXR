@@ -166,7 +166,7 @@ describe("the learner runtime path consumes compiled room identity", () => {
 
   it("fails if main.ts station mount ignores the compiled runtime adapter", () => {
     // The call to mountStationEnvironmentForRuntime is now in @openclinxr/xr-station-room
-    const stationRoomSource = readFileSync(new URL("../../../packages/openclinxr/xr-station-room/src/index.ts", import.meta.url), "utf8");
+    const stationRoomSource = readFileSync(new URL("../../../packages/openclinxr/xr-station-room/src/index-mod.ts", import.meta.url), "utf8");
     expect(stationRoomSource).toContain("mountStationEnvironmentForRuntime");
     expect(stationRoomSource).toContain("await mountStationEnvironmentForRuntime({");
     expect(stationRoomSource).toContain("environmentId: envId");

@@ -37,8 +37,6 @@
     "createReadableVrTextPanel",
     "createRuntimeHumanoidDetailCues",
     "createVirtualDeviceActorAffordance",
-    "drawWrappedText",
-    "publishReadableVrTextPanelEvidence",
     "recordDynamicSceneObjectNamingEvidence",
     "recordPediatricRespiratoryEquipmentCue",
     "recordRoleDistinctHumanoidCue",
@@ -61,6 +59,6 @@
   },
   "ceilings": {
     "testInternalImports": 6,
-    "rootEntrypointExports": 40
+    "rootEntrypointExports": 38
   }
 }

@@ -5,25 +5,19 @@
   "purpose": "Public interface of @openclinxr/exam-assembly.",
   "exports": [
     "AdvanceExamFormRunStationInput",
-    "AssembleExamFormInput",
     "BlueprintScenarioReadiness",
     "CreateExamFormRunInput",
     "ExamAssemblyPersistenceSink",
     "ExamBlueprint",
-    "ExamBlueprintTiming",
     "ExamForm",
     "ExamFormRunState",
     "ExamRunStationOutcome",
     "ExamStationRunQueue",
     "ExamStationRunQueueItem",
-    "ExamStationRunQueueScenarioBodySource",
     "ExamStationRunQueueScenarioSource",
     "ExamStationRunQueueSnapshot",
     "ExamStationRunQueueStationBodySource",
-    "ExamStationSlot",
-    "ExamStationTimingWindow",
     "ExamTimingPlan",
-    "ExamTimingWindow",
     "STEP2CS_STATION_COUNT",
     "advanceExamFormRunStation",
     "assembleExamForm",
@@ -62,6 +56,6 @@
   },
   "ceilings": {
     "testInternalImports": 6,
-    "rootEntrypointExports": 40
+    "rootEntrypointExports": 34
   }
 }

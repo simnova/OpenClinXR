@@ -1,6 +1,6 @@
 import type { Scenario } from "@openclinxr/shared-schemas";
-import type { DialogueFixtureSeed } from "./ed-chest-pain.js";
 import { satirProfile } from "./builders.js";
+import type { DialogueFixtureSeed } from "./ed-chest-pain-mod.js";
 
 export const psychiatricSafetyScenario: Scenario = {
   scenarioId: "psych_suicidal_ideation_safety_v1",

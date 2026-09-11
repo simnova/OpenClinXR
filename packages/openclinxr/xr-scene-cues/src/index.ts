@@ -33,8 +33,6 @@ export {
   clinicalPanelLinesForBundle,
   createClinicalPanel,
   createReadableVrTextPanel,
-  drawWrappedText,
-  publishReadableVrTextPanelEvidence,
 } from "./scene-panels.js";
 export {
   applyEnvironmentStateVisuals,

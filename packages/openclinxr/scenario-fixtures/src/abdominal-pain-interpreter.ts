@@ -1,6 +1,5 @@
-import type { Scenario } from "@openclinxr/shared-schemas";
-import type { DialogueFixtureSeed } from "./ed-chest-pain.js";
 import { actor, asset, draftScenario, event, rubric, satirProfile } from "./builders.js";
+import type { DialogueFixtureSeed } from "./ed-chest-pain-mod.js";
 
 export const abdominalPainInterpreterScenario = draftScenario({
   scenarioId: "clinic_abdominal_pain_interpreter_v1",

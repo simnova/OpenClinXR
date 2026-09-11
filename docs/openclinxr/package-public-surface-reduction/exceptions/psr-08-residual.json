@@ -1,0 +1,47 @@
+{
+  "id": "psr-08-residual",
+  "owner": "PSR-08",
+  "planCommit": "1c493f12cd9ff5084e763c7e46f7ac4a5d57635c",
+  "reviewTargets": {
+    "rootExportsAtMost": 1000,
+    "medianAtMost": 15,
+    "p90AtMost": 25,
+    "noRootAbove": 50,
+    "duplicateNamesAtMost": 200
+  },
+  "exceptions": [
+    {
+      "kind": "program-root-export-count",
+      "measuredAfterPsr08": 1243,
+      "target": 1000,
+      "reason": "PSR-01E keep rows plus prior-group keeps still exceed the 1,000-root review target after the 26-package complement is applied. Counts are review signals, not a force. Residual lives in keep names, not unpublished ones.",
+      "owner": "PSR-09"
+    },
+    {
+      "kind": "experimental-source-publish",
+      "package": "packages/openclinxr/arena/physics-touch-contract",
+      "exportsMap": "./src/index.ts",
+      "reason": "Arena spike, not a stable package. Plan allows source-published experimental packages when explicitly documented. Aligning this package to dist JS+d.ts is out of PSR-08's un-publish scope.",
+      "owner": "packages/openclinxr/arena/physics-touch-contract"
+    },
+    {
+      "kind": "empty-declared-subpaths",
+      "packages": [
+        "packages/openclinxr/ui-route-shared/admin-api-client",
+        "packages/openclinxr/ui-route-shared/dialogue-seed-types",
+        "packages/openclinxr/ui-shared/admin-workbench-format",
+        "packages/openclinxr/ui-shared/faculty-disposition-codec",
+        "packages/openclinxr/ui-shared/faculty-disposition-record",
+        "packages/openclinxr/review-workflow/accepted-scene-plan-review",
+        "packages/openclinxr/session-state/accepted-scene-plan"
+      ],
+      "reason": "Approval keep=0 on these existing export-map specifiers. Barrels are `export {}`. Implementation stays in *-mod.ts. Specifiers were not deleted (no relocation theater / no inventing a smaller map).",
+      "owner": "PSR-08"
+    },
+    {
+      "kind": "arena-index-gate-scope",
+      "reason": "pnpm arch:index now writes packages/openclinxr/arena/*/arch-index.json. architecture-rules indexedPackages() still lists only direct children of packages/openclinxr; that check is outside this card's write roots.",
+      "owner": "packages/openclinxr-verification/architecture-rules"
+    }
+  ]
+}

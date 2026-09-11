@@ -4,10 +4,9 @@ import {
   clampedScoreFromWorkbenchInput,
   countActorCommunicationProfiles,
   formatDuration,
-  formatMinutes,
   pluralizeWorkbenchCount,
   uniqueWorkbenchValues,
-} from "./admin-workbench-format.js";
+} from "./index.js";
 
 describe("admin workbench format helpers", () => {
   it("counts actors with communication profiles", () => {
@@ -16,7 +15,7 @@ describe("admin workbench format helpers", () => {
 
   it("formats durations and minute values", () => {
     expect(formatDuration(18720)).toBe("5h 12m");
-    expect(formatMinutes(720)).toBe("12m");
+    expect(formatDuration(720)).toBe("12m");
   });
 
   it("dedupes values and pluralizes counts", () => {

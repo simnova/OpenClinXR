@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildScenarioGovernanceCopy, findUnsafeClaimLanguage, safeUserFacingClaimLanguage, scoreUseCopy, validationStageCopy } from "./index.js";
-import { assertSafeClaimLanguage, type ScenarioGovernanceCopy } from "./claim-language.js";
+import { buildScenarioGovernanceCopy, safeUserFacingClaimLanguage, scoreUseCopy, validationStageCopy } from "./claim-language.js";
+import { findUnsafeClaimLanguage } from "./index.js";
 
 describe("safe claim language", () => {
   it("keeps approved user-facing copy free of exam, licensure, diagnosis, and score-use overclaims", () => {
@@ -8,7 +8,7 @@ describe("safe claim language", () => {
       ...Object.values(safeUserFacingClaimLanguage),
       ...Object.values(scoreUseCopy),
       ...Object.values(validationStageCopy),
-    ];
+    ] as string[];
 
     expect(approvedCopy.flatMap((copy) => findUnsafeClaimLanguage(copy))).toEqual([]);
   });
@@ -24,13 +24,13 @@ describe("safe claim language", () => {
       "diagnostic-performance",
       "high-stakes-score-use",
     ]);
-    expect(() => assertSafeClaimLanguage("USMLE-equivalent high-stakes assessment")).toThrow(
-      "Unsafe claim language: exam-equivalence, high-stakes-score-use",
-    );
+    expect(
+      findUnsafeClaimLanguage("USMLE-equivalent high-stakes assessment").map((finding) => finding.ruleId),
+    ).toEqual(["exam-equivalence", "high-stakes-score-use"]);
   });
 
   it("builds scenario governance notices from the schema-owned score-use and validation labels", () => {
-    const copy: ScenarioGovernanceCopy = buildScenarioGovernanceCopy({
+    const copy: ReturnType<typeof buildScenarioGovernanceCopy> = buildScenarioGovernanceCopy({
       scoreUseLabel: "formative_local_only",
       syntheticCaseDisclosure: "Synthetic repository-contract fixture.",
       validationStage: "stage_1_expert_reviewed",

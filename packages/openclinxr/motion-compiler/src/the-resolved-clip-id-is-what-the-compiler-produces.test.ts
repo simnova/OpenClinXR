@@ -84,7 +84,7 @@ const REGION_MODULE = "./motion-body-region.js";
  * Reading the index also states the requirement correctly: this is the package's PUBLIC surface, and
  * a resolver a consumer cannot import is not wired.
  */
-const RESOLVER_MODULE = "../../scenario-fixtures/src/index.js";
+const RESOLVER_MODULE = "../../scenario-fixtures/src/scenario-bank.js";
 
 /**
  * TWO VOCABULARIES, HELD APART ON PURPOSE — corrected 2026-08-30 after this file was found erasing
@@ -151,7 +151,7 @@ async function loadRegionMapper(): Promise<((region: string) => string) | undefi
 }
 
 async function loadResolver(): Promise<((region: string) => string) | undefined> {
-  const mod = (await import("../../scenario-fixtures/src/index.js")) as Record<string, unknown>;
+  const mod = (await import("../../scenario-fixtures/src/scenario-bank.js")) as Record<string, unknown>;
   return mod["responseClipForBodyRegion"] as ((region: string) => string) | undefined;
 }
 

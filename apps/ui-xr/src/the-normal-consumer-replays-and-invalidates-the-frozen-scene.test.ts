@@ -50,7 +50,7 @@ import {
   ACCEPTED_SCENE_PLAN_REVIEW_NOT_EVIDENCE_FOR,
   privateKeysInProjection,
   projectAcceptedScenePlanForReview,
-} from "../../../packages/openclinxr/review-workflow/src/accepted-scene-plan-review.js";
+} from "../../../packages/openclinxr/review-workflow/src/accepted-scene-plan-review-mod.js";
 import {
   acceptedScenePlanProblems,
   type DurableAcceptedScenePlanRecord,
@@ -767,7 +767,7 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
       return fields.sort();
     };
     const durableFields = declaredFields(
-      readFileSync(repoPath("packages/openclinxr/session-state/src/accepted-scene-plan.ts"), "utf8"),
+      readFileSync(repoPath("packages/openclinxr/session-state/src/accepted-scene-plan-mod.ts"), "utf8"),
     );
     const pinnedFields = declaredFields(
       readFileSync(repoPath("packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence-mod.ts"), "utf8"),

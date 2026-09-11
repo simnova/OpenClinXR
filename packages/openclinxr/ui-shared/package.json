@@ -25,8 +25,8 @@
       "default": "./dist/assembled-exam-replay-timeline.js"
     },
     "./emission-replay-bind-panel": {
-      "types": "./dist/emission-replay-bind-panel.d.ts",
-      "default": "./dist/emission-replay-bind-panel.js"
+      "types": "./dist/emission-replay-bind-panel-entry.d.ts",
+      "default": "./dist/emission-replay-bind-panel-entry.js"
     },
     "./faculty-disposition-panel": {
       "types": "./dist/faculty-disposition-panel.d.ts",

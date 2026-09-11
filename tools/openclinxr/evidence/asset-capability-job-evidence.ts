@@ -1,11 +1,13 @@
 import { existsSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import {
-  type AssetGenerationArtifactKind,
   AssetGenerationCapabilityFacade,
   type AssetGenerationCapabilityId,
-  type AssetGenerationJobRecord,
 } from "../../../packages/openclinxr/capability-gateway/src/index.js";
+import type {
+  AssetGenerationArtifactKind,
+  AssetGenerationJobRecord,
+} from "../../../packages/openclinxr/capability-gateway/src/asset-generation-jobs.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 
 type CliOptions = {

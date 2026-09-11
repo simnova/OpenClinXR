@@ -1,6 +1,5 @@
-import type { Scenario } from "@openclinxr/shared-schemas";
-import type { DialogueFixtureSeed } from "./ed-chest-pain.js";
 import { actor, asset, draftScenario, event, rubric } from "./builders.js";
+import type { DialogueFixtureSeed } from "./ed-chest-pain-mod.js";
 
 export const wardDeliriumScenario = draftScenario({
   scenarioId: "ward_delirium_med_rec_v1",

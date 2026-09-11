@@ -1,15 +1,17 @@
 import { stat } from "node:fs/promises";
-import path from "node:path";
+import nodePath from "node:path";
 import { Mongoose } from "mongoose";
 import {
-  createAzureStorageEncounterAssetGenerationQueueClientFromConnectionString,
   decodeAzureStorageQueueMessage,
   type EncounterAssetGenerationQueueClient,
   type EncounterAssetGenerationQueueMessageEnvelope,
-  type EncounterAssetGenerationQueueProcessingResult,
   type EncounterAssetGenerationWorkerExecution,
   processNextEncounterAssetGenerationQueueMessage,
 } from "../../../packages/openclinxr/capability-gateway/src/index.js";
+import {
+  createAzureStorageEncounterAssetGenerationQueueClientFromConnectionString,
+} from "../../../packages/openclinxr/capability-gateway/src/azure-storage-queue-client.js";
+import type { EncounterAssetGenerationQueueProcessingResult } from "../../../packages/openclinxr/capability-gateway/src/asset-generation-jobs.js";
 import {
   createEncounterAssetGenerationJobModel,
   EncounterAssetGenerationJobMongooseRepository,
@@ -486,7 +488,7 @@ async function buildPedsHumanoidMaterializationHandoffAsset(
     throw new Error(`Generated humanoid provenance manifest must be an object: ${provenanceManifestPath}`);
   }
   const sourceAssetPath = requireManifestString(provenance.assetPath, "assetPath", provenanceManifestPath);
-  const publicFileName = path.basename(sourceAssetPath);
+  const publicFileName = nodePath.basename(sourceAssetPath);
   return {
     actorRole,
     assetPath: `apps/ui-xr/public/generated-humanoids/${publicFileName}`,

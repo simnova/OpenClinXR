@@ -51,8 +51,8 @@ echo "commit: $(git rev-parse HEAD)"
 echo "started: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 echo
 
-REC="$ROOT/packages/openclinxr/session-state/src/accepted-scene-plan.ts"
-EVID="$ROOT/packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts"
+REC="$ROOT/packages/openclinxr/session-state/src/accepted-scene-plan-mod.ts"
+EVID="$ROOT/packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence-mod.ts"
 PLAN="$ROOT/packages/openclinxr/asset-registry/src/case-owned-scene-plan.ts"
 REPLAY="$ROOT/packages/openclinxr/asset-registry/src/frozen-scene-replay.ts"
 FREEZE="$ROOT/packages/openclinxr/asset-registry/src/scene-plan-freeze.ts"
@@ -64,31 +64,31 @@ CONTROL="$ROOT/tools/openclinxr/evidence/supine-control-freeze/supine-control-fr
 CORE="$ROOT/tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify-core.ts"
 
 revert "instance asset digests are not compared" \
-  "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts" \
+  "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence-mod.ts" \
   "import pathlib;p=pathlib.Path('$EVID');s=p.read_text();s=s.replace('  for (const instance of record.instances) {','  for (const instance of [] as typeof record.instances) {',1);p.write_text(s)" \
   "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
   "(e) changed/missing/corrupt GLB refusals"
 
 revert "missing collapses into changed" \
-  "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts" \
+  "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence-mod.ts" \
   "import pathlib;p=pathlib.Path('$EVID');s=p.read_text();s=s.replace('kind: \"missing\",','kind: \"changed\",');p.write_text(s)" \
   "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
   "(e) the three refusal reasons are distinct"
 
 revert "acknowledgment always binds" \
-  "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts" \
+  "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence-mod.ts" \
   "import pathlib;p=pathlib.Path('$EVID');s=p.read_text();s=s.replace('  return record.acknowledgment.acknowledgedPlanRevision === record.planRevision;','  return true;');p.write_text(s)" \
   "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
   "(f) stale_acknowledgment"
 
 revert "a re-baseline may reuse its own revision" \
-  "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts" \
+  "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence-mod.ts" \
   "import pathlib;p=pathlib.Path('$EVID');s=p.read_text();s=s.replace('  if (observation.planRevision === record.planRevision) {','  if (false) {');p.write_text(s)" \
   "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
   "(g) repair requires fresh observation"
 
 revert "the seed is not required to be a digest" \
-  "packages/openclinxr/session-state/src/accepted-scene-plan.ts" \
+  "packages/openclinxr/session-state/src/accepted-scene-plan-mod.ts" \
   "import pathlib;p=pathlib.Path('$REC');s=p.read_text();s=s.replace('    if (!/^[0-9a-f]{64}\$/u.test(String(variation[\"seed\"]))) {','    if (false) {');p.write_text(s)" \
   "@openclinxr/session-state" "$BEHAVIOR_TEST" \
   "(j2) requireAcceptedScenePlan refuses a wall-clock seed"
@@ -136,7 +136,7 @@ revert "the seeded solver accepts any string as a seed" \
   "(k) resolveBedsideLayoutFromSeed throws on a non-digest seed"
 
 revert "the pinned record type drifts from the durable one" \
-  "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts" \
+  "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence-mod.ts" \
   "import pathlib;p=pathlib.Path('$EVID');s=p.read_text();s=s.replace('  dialogueTurnIds: string[];\n};','  dialogueTurnIds: string[];\n  driftedField: string;\n};',1);p.write_text(s)" \
   "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
   "(k0) the two record declarations correspond"
@@ -190,7 +190,7 @@ revert "the admission stops calling the reopen" \
   "(m) the admission calls the reopen"
 
 revert "a repair may predate the acceptance it replaces" \
-  "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence.ts" \
+  "packages/openclinxr/asset-registry/src/accepted-scene-plan-evidence-mod.ts" \
   "import pathlib;p=pathlib.Path('$EVID');s=p.read_text();s=s.replace('  if (Number.isFinite(acceptedAt) && observedAt < acceptedAt) {','  if (false) {');p.write_text(s)" \
   "@openclinxr/asset-registry" "$BEHAVIOR_TEST" \
   "(n) a repair must postdate the acceptance"

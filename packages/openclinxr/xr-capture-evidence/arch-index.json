@@ -8,7 +8,6 @@
     "OpenClinXrXrEntryEvidence",
     "buildCaseDefinedHumanoidPerformanceContractEvidence",
     "buildRuntimeSceneManifestEvidence",
-    "bundleUsesOnlyApprovedLocalFixtureAssets",
     "formatCaseDefinedHumanoidPerformanceContractEvidence",
     "formatSceneAssetEvidenceStatus",
     "formatUnknownError",
@@ -31,8 +30,6 @@
     "resolveRuntimeSlotAssignment",
     "roundPerformanceNow",
     "runtimeAssetAffordanceCueIds",
-    "runtimeBundleAssets",
-    "sceneAssetSlotIsReady",
     "selectedCaptureMode",
     "shouldRenderRoomPropInVisualReview",
     "shouldShowActorRealismRequirementPanel",
@@ -61,6 +58,6 @@
   },
   "ceilings": {
     "testInternalImports": 7,
-    "rootEntrypointExports": 39
+    "rootEntrypointExports": 36
   }
 }

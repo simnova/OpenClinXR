@@ -6,11 +6,7 @@
   "exports": [
     "AuthoredUtteranceRecord",
     "DialogueFixtureSeed",
-    "DynamicEncounterFactoryPlanningProjection",
-    "DynamicEncounterFactoryPlanningScenario",
     "PEDS_ASTHMA_SCENARIO_ID",
-    "PEDS_CREDIBILITY_VETO_ROLES",
-    "adultAbdominalPainScenario",
     "affectForAuthoredRecord",
     "buildDynamicEncounterFactoryPlanningProjection",
     "buildDynamicEncounterFactoryProjectionArtifact",
@@ -22,14 +18,9 @@
     "edChestPainScenarioV2",
     "edChestPainScenarioV3",
     "evaluateScenarioBankMaturity",
-    "findScenarioFixtureById",
-    "firstNameFromDisplayName",
     "keywordAffectFallbackFromText",
-    "learnerVisibleAuthoredCaption",
-    "pediatricAsthmaDialogueSeeds",
     "pediatricAsthmaScenario",
     "resolveAuthoredUtteranceRecord",
-    "responseClipForBodyRegion",
     "scenarioBank",
     "scenarioDialogueSeedBank",
     "variantScenarioBank"
@@ -54,7 +45,6 @@
     "lint": "pnpm --filter @openclinxr/scenario-fixtures lint"
   },
   "ceilings": {
-    "testInternalImports": 13,
-    "rootEntrypointExports": 29
+    "testInternalImports": 13
   }
 }

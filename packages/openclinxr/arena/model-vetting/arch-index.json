@@ -1,0 +1,50 @@
+{
+  "package": "arena/model-vetting",
+  "name": "@openclinxr/model-vetting",
+  "entrypoint": "packages/openclinxr/arena/model-vetting/src/index.ts",
+  "purpose": "Public interface of @openclinxr/model-vetting.",
+  "exports": [
+    "AnnyLikePreflightReport",
+    "CagematchFeasibilityCriterion",
+    "CagematchReportPage",
+    "CagematchReportRegistry",
+    "ModelVettingCandidate",
+    "ModelVettingCaptureArtifacts",
+    "ModelVettingReport",
+    "PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE",
+    "PipelineCandidate",
+    "PipelineCandidateDiff",
+    "PipelineCandidateIndex",
+    "PromotionRecord",
+    "VisemeTimeline",
+    "applyMorphTargetEmotionCue",
+    "applyMorphTargetVisemeCue",
+    "batchScorePipelineIndex",
+    "buildModelVettingReportFromAnnyPreflight",
+    "buildPedsAsthmaPatientEmotionTransitionTimeline",
+    "buildPromotionRecord",
+    "buildVisemeTimelineFromDialogue",
+    "diffPipelineCandidates",
+    "emotionWeightsAtTimelineProgress",
+    "validateCagematchReportPage",
+    "validateCagematchReportRegistry",
+    "validateModelVettingReport",
+    "validatePipelineCandidateIndex",
+    "visemeAtTimelineProgress"
+  ],
+  "workspaceDependencies": [],
+  "tests": [
+    "src/cagematch-report.test.ts",
+    "src/emotion-transition.test.ts",
+    "src/model-vetting.test.ts",
+    "src/pipeline-candidate.test.ts",
+    "src/the-viseme-timeline-consumes-rhubarb-cues.test.ts",
+    "src/viseme-timeline.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/model-vetting test",
+    "typecheck": "pnpm --filter @openclinxr/model-vetting typecheck",
+    "build": "pnpm --filter @openclinxr/model-vetting build",
+    "lint": "pnpm --filter @openclinxr/model-vetting lint"
+  }
+}

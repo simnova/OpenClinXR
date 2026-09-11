@@ -1,12 +1,11 @@
-import { describe, expect, it } from "vitest";
 import { validateScenario } from "@openclinxr/shared-schemas";
+import { describe, expect, it } from "vitest";
 import {
   affectForAuthoredRecord,
   keywordAffectFallbackFromText,
   PEDS_ASTHMA_SCENARIO_ID,
-  PEDS_CREDIBILITY_VETO_ROLES,
   resolveAuthoredUtteranceRecord,
-} from "./authored-utterance-record.js";
+} from "./index.js";
 import { pediatricAsthmaDialogueSeeds, pediatricAsthmaScenario } from "./pediatric-asthma.js";
 
 describe("pediatric asthma authored actor floor", () => {
@@ -90,9 +89,8 @@ describe("pediatric asthma authored actor floor", () => {
   });
 
   it("names the three-reviewer credibility veto roles without promoting the draft", () => {
-    expect([...PEDS_CREDIBILITY_VETO_ROLES]).toEqual(["pediatrician", "psychometrician", "simulation_qa"]);
     expect(pediatricAsthmaScenario.governance.requiredReviewerRoles).toEqual(
-      expect.arrayContaining([...PEDS_CREDIBILITY_VETO_ROLES]),
+      expect.arrayContaining(["pediatrician", "psychometrician", "simulation_qa"]),
     );
     expect(pediatricAsthmaScenario.status).toBe("draft");
   });

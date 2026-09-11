@@ -2,11 +2,9 @@
   "package": "xr-exam-flow",
   "name": "@openclinxr/xr-exam-flow",
   "entrypoint": "packages/openclinxr/xr-exam-flow/src/index.ts",
+  "purpose": "Public entry: keep-only re-exports.",
   "exports": [
-    "ExamFlowIdentity",
-    "ExamFlowIntentKind",
     "ExamFlowRuntimeAccessors",
-    "ExamFlowStoreOptions",
     "ExamRunStationOutcome",
     "OpenClinXrExamFlowEvidence",
     "OpenClinXrExamFormRunEvidence",

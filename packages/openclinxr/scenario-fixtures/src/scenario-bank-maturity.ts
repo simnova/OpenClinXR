@@ -2,9 +2,9 @@ import type {
   DynamicEncounterFactoryProjectionArtifact,
   Scenario,
 } from "@openclinxr/shared-schemas";
-import { type DialogueFixtureSeed, edChestPainScenario, edChestPainScenarioV2, edChestPainScenarioV3 } from "./ed-chest-pain.js";
 import type { LearnerScenarioView } from "./builders.js";
-import { type ScenarioDialogueSeedBankEntry, scenarioBank, scenarioDialogueSeedBank } from "./scenario-bank.js";
+import { type DialogueFixtureSeed, edChestPainScenario, edChestPainScenarioV2, edChestPainScenarioV3 } from "./ed-chest-pain-mod.js";
+import { type ScenarioDialogueSeedBankEntry, scenarioBank, scenarioDialogueSeedBank } from "./scenario-bank-mod.js";
 
 export type ScenarioBankMaturityReport = {
   scenarioCount: number;

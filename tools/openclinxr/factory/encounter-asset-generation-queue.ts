@@ -11,7 +11,7 @@ import {
   type EncounterHumanoidRealismRequirements,
   encodeAzureStorageQueueMessage,
 } from "../../../packages/openclinxr/capability-gateway/src/index.js";
-import { findScenarioFixtureById } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
+import { findScenarioFixtureById } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
 import {
   buildDynamicEncounterFactoryPlanningProjection,
   type DynamicEncounterFactoryPlanningScenario,
