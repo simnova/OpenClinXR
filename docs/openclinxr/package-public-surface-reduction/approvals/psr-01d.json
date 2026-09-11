@@ -104,10 +104,10 @@
       "entrypoint": ".",
       "symbol": "AssetManifest",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -334,40 +334,40 @@
       "entrypoint": ".",
       "symbol": "bedsideClearanceViolations",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/authored-intent-is-not-substituted.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/authored-intent-is-not-substituted.test.ts:2; packages/openclinxr/asset-registry/src/the-bedside-clearance-has-controls.test.ts:2; packages/openclinxr/asset-registry/src/the-monitor-visibility-has-two-failures.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": ".",
       "symbol": "bedsideTargetForClinician",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/the-approach-path-stops-at-the-target.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/the-approach-path-stops-at-the-target.test.ts:2; packages/openclinxr/asset-registry/src/the-bedside-clearance-has-controls.test.ts:2; packages/openclinxr/asset-registry/src/the-bedside-heading-faces-the-patient.test.ts:2; packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": ".",
       "symbol": "buildAssetProductionReviewPacket",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": ".",
       "symbol": "buildEncounterAssetNeedsReadinessManifest",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -395,10 +395,10 @@
       "entrypoint": ".",
       "symbol": "buildEncounterFactoryDryRunSummary",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5; packages/openclinxr/asset-registry/src/runtime-bundles.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -415,10 +415,10 @@
       "entrypoint": ".",
       "symbol": "buildEncounterFactoryInputPlanningSummary",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/runtime-bundles.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/runtime-bundles.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -468,10 +468,10 @@
       "entrypoint": ".",
       "symbol": "buildEnvironmentGenerationPacket",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5; packages/openclinxr/asset-registry/src/environment-spatial-zones.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -529,10 +529,10 @@
       "entrypoint": ".",
       "symbol": "buildScenarioSceneGenerationPipelineWorkOrder",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -581,20 +581,20 @@
       "entrypoint": ".",
       "symbol": "createEdChestPainLocalAssetEvidenceFixtureManifests",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": ".",
       "symbol": "createEdChestPainLocalEncounterRuntimeAssetBundle",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -745,20 +745,20 @@
       "entrypoint": ".",
       "symbol": "ED_MONITOR_BOUNDS",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/the-monitor-visibility-has-two-failures.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/the-monitor-visibility-has-two-failures.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": ".",
       "symbol": "ED_STRETCHER_DECK_BOUNDS",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/authored-intent-is-not-substituted.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/authored-intent-is-not-substituted.test.ts:2; packages/openclinxr/asset-registry/src/the-approach-path-stops-at-the-target.test.ts:2; packages/openclinxr/asset-registry/src/the-bedside-clearance-has-controls.test.ts:2; packages/openclinxr/asset-registry/src/the-bedside-heading-faces-the-patient.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -1317,40 +1317,40 @@
       "entrypoint": ".",
       "symbol": "evaluateAssetManifest",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": ".",
       "symbol": "evaluateAssetPipelineTool",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": ".",
       "symbol": "evaluateAssetPipelineToolMatrix",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": ".",
       "symbol": "evaluateAssetProductionReadinessLadder",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -1378,20 +1378,20 @@
       "entrypoint": ".",
       "symbol": "evaluateScenarioGenerationEvidence",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": ".",
       "symbol": "evaluateScenarioOptimizationEvidence",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -1451,20 +1451,20 @@
       "entrypoint": ".",
       "symbol": "footSlideMeters",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": ".",
       "symbol": "forwardVectorForHeading",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/the-bedside-heading-faces-the-patient.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/the-bedside-heading-faces-the-patient.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -1511,10 +1511,10 @@
       "entrypoint": ".",
       "symbol": "HumanoidRealismMetadata",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -1632,10 +1632,10 @@
       "entrypoint": ".",
       "symbol": "listShippedCastScenarioIds",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/every-cast-actor-is-staged-or-reported.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/every-cast-actor-is-staged-or-reported.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -1672,10 +1672,10 @@
       "entrypoint": ".",
       "symbol": "monitorVisibilityFrom",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/the-monitor-visibility-has-two-failures.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/the-monitor-visibility-has-two-failures.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -1793,10 +1793,10 @@
       "entrypoint": ".",
       "symbol": "promoteEncounterRuntimeAssetBundleForLocalUse",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -1855,10 +1855,10 @@
       "entrypoint": ".",
       "symbol": "recommendedAssetPipelineTools",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -1957,10 +1957,10 @@
       "entrypoint": ".",
       "symbol": "resolveRuntimeAssetBlobUrl",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2264,10 +2264,10 @@
       "entrypoint": ".",
       "symbol": "screenNormal",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/the-monitor-visibility-has-two-failures.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/the-monitor-visibility-has-two-failures.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2317,10 +2317,10 @@
       "entrypoint": ".",
       "symbol": "selectAssetPipelineToolsForLane",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2348,10 +2348,10 @@
       "entrypoint": ".",
       "symbol": "stepBedsideApproach",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2411,30 +2411,30 @@
       "entrypoint": ".",
       "symbol": "toLearnerRuntimeAssetBundle",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": ".",
       "symbol": "unstagedCastActors",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/every-cast-actor-is-staged-or-reported.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/every-cast-actor-is-staged-or-reported.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": ".",
       "symbol": "validateAssetManifestStructure",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2581,10 +2581,10 @@
       "entrypoint": "./actor-posture",
       "symbol": "composeSupportedActorWorldPosition",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/an-authored-offset-needs-a-frame.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/an-authored-offset-needs-a-frame.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2841,10 +2841,10 @@
       "entrypoint": "./approach-executor",
       "symbol": "footSlideMeters",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2861,10 +2861,10 @@
       "entrypoint": "./approach-executor",
       "symbol": "stepBedsideApproach",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -2981,10 +2981,10 @@
       "entrypoint": "./bedside-approach-path",
       "symbol": "planBedsideApproach",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/authored-intent-is-not-substituted.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/authored-intent-is-not-substituted.test.ts:2; packages/openclinxr/asset-registry/src/the-approach-path-stops-at-the-target.test.ts:2; packages/openclinxr/asset-registry/src/the-executor-arrives-and-feet-are-measured.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -4671,10 +4671,10 @@
       "entrypoint": "./runtime-bundles",
       "symbol": "buildEncounterDynamicBehaviorCoverageSummary",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5; packages/openclinxr/asset-registry/src/runtime-bundles.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -4691,10 +4691,10 @@
       "entrypoint": "./runtime-bundles",
       "symbol": "buildEncounterFactoryDryRunSummary",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5; packages/openclinxr/asset-registry/src/runtime-bundles.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -4711,30 +4711,30 @@
       "entrypoint": "./runtime-bundles",
       "symbol": "buildEncounterFactoryInputPlanningSummary",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/runtime-bundles.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/runtime-bundles.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": "./runtime-bundles",
       "symbol": "buildEncounterFactorySummaryContracts",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/runtime-bundles.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/runtime-bundles.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": "./runtime-bundles",
       "symbol": "buildEncounterRuntimeAssetBundle",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5; packages/openclinxr/asset-registry/src/runtime-bundles.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -4751,20 +4751,20 @@
       "entrypoint": "./runtime-bundles",
       "symbol": "buildEncounterRuntimeBundlePublicationMetadata",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
       "entrypoint": "./runtime-bundles",
       "symbol": "buildGuardedRuntimeSelectorDisabledDecision",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/runtime-bundles.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/runtime-bundles.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -5101,10 +5101,10 @@
       "entrypoint": "./runtime-bundles",
       "symbol": "EncounterRuntimeSceneManifest",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/a-runtime-actor-placement-carries-a-heading.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/a-runtime-actor-placement-carries-a-heading.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -5261,10 +5261,10 @@
       "entrypoint": "./runtime-bundles",
       "symbol": "resolveRuntimeAssetBlobUrl",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/asset-registry",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/asset-registry/src/asset-registry.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/asset-registry",
@@ -6541,10 +6541,10 @@
       "entrypoint": ".",
       "symbol": "matchOpenClinXrRestRoute",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/rest",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest/src/rest-routes.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/rest/src/rest-routes.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/rest",
@@ -6661,10 +6661,10 @@
       "entrypoint": ".",
       "symbol": "openClinXrRestRouteIds",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/rest",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest/src/rest-routes.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/rest/src/rest-routes.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/rest",
@@ -6681,10 +6681,10 @@
       "entrypoint": ".",
       "symbol": "openClinXrRestRoutes",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/rest",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/rest/src/rest-routes.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/rest/src/rest-routes.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/rest",
@@ -8663,10 +8663,10 @@
       "entrypoint": ".",
       "symbol": "findAdminWorkbenchRoute",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/ui-route-admin",
-      "rationale": "zero confirmed external consumers: no static/dynamic/require/re-export/computed import of this name from this specifier; checker resolves same-name uses to local declarations, other routes, or comment/string contexts",
-      "evidence": "compiler-parse:0+checker:0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/ui-route-admin/src/admin-routes.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/ui-route-admin/src/admin-routes.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/ui-route-admin",

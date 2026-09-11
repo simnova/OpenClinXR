@@ -57,10 +57,10 @@
       "entrypoint": ".",
       "symbol": "AgentMemoryEntry",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/agent-loop",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/agent-loop/src/agent-loop.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/agent-loop/src/agent-loop.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/agent-loop",
@@ -187,20 +187,20 @@
       "entrypoint": ".",
       "symbol": "createAgentDispatchPackets",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/agent-loop",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/agent-loop/src/agent-loop.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/agent-loop/src/agent-loop.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/agent-loop",
       "entrypoint": ".",
       "symbol": "createAgentLoopPlan",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/agent-loop",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/agent-loop/src/agent-loop.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/agent-loop/src/agent-loop.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/agent-loop",
@@ -397,10 +397,10 @@
       "entrypoint": ".",
       "symbol": "normalizeLegacyScorecard",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/agent-loop",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/agent-loop/src/agent-loop.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/agent-loop/src/agent-loop.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/agent-loop",
@@ -427,10 +427,10 @@
       "entrypoint": ".",
       "symbol": "recommendBackgroundAgentModel",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/agent-loop",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/agent-loop/src/agent-loop.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/agent-loop/src/agent-loop.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/agent-loop",
@@ -547,10 +547,10 @@
       "entrypoint": ".",
       "symbol": "serializeAgentLoopPlan",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/agent-loop",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/agent-loop/src/agent-loop.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/agent-loop/src/agent-loop.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/agent-loop",
@@ -667,50 +667,50 @@
       "entrypoint": ".",
       "symbol": "buildIwsdkAgentVerificationRunbook",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkAiModeProfiles",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkCodexMcpAdapterTemplate",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkCommittedSpikeSequence",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkCompatibilityContract",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
@@ -737,70 +737,70 @@
       "entrypoint": ".",
       "symbol": "buildIwsdkManagedBrowserEvidenceContract",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkMcpToolCoverage",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkMcpToolInventory",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkMcpToolInventoryRequirement",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkOperatorApprovalContract",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkOperatorSteeringBlockers",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkOptionalMcpServerPolicy",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
@@ -817,60 +817,60 @@
       "entrypoint": ".",
       "symbol": "buildIwsdkPackageMetadataDriftPolicies",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkPreInstallPackagePolicy",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkSidecarReadinessContract",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkSourceRecordIdContract",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkSpikeMetricThresholds",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkSpikePlan",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
@@ -887,110 +887,110 @@
       "entrypoint": ".",
       "symbol": "buildIwsdkVerificationToolSelectionContract",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "buildIwsdkViteAiDevConfigContract",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "evaluateIwsdkAgentToolingEvidence",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "evaluateIwsdkAgentToolingLocalPreflightEvidence",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "evaluateIwsdkCompatibilityEvidence",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "evaluateIwsdkManagedBrowserEvidence",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "evaluateIwsdkPackageMetadataDriftEvidence",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "evaluateIwsdkPreInstallPackageSelection",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "evaluateIwsdkSpikeMetrics",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "evaluateIwsdkSpikeReadiness",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
       "entrypoint": ".",
       "symbol": "evaluateIwsdkWorkspacePosture",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
@@ -1007,10 +1007,10 @@
       "entrypoint": ".",
       "symbol": "IwsdkAgentToolingEvidence",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
@@ -1397,10 +1397,10 @@
       "entrypoint": ".",
       "symbol": "IwsdkSpikeGateEvidence",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/iwsdk-spike",
@@ -1667,10 +1667,10 @@
       "entrypoint": ".",
       "symbol": "selectIwsdkVerificationToolsForClaim",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/iwsdk-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/iwsdk-spike/src/iwsdk-spike-plan.test.ts:5 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/model-vetting",
@@ -1687,10 +1687,10 @@
       "entrypoint": ".",
       "symbol": "AnnyLikePreflightReport",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/model-vetting",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/model-vetting/src/model-vetting.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/model-vetting/src/model-vetting.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/model-vetting",
@@ -1747,10 +1747,10 @@
       "entrypoint": ".",
       "symbol": "buildModelVettingReportFromAnnyPreflight",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/model-vetting",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/model-vetting/src/model-vetting.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/model-vetting/src/model-vetting.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/model-vetting",
@@ -2087,10 +2087,10 @@
       "entrypoint": ".",
       "symbol": "ModelVettingCaptureArtifacts",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/model-vetting",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/model-vetting/src/model-vetting.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/model-vetting/src/model-vetting.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/model-vetting",
@@ -2527,10 +2527,10 @@
       "entrypoint": ".",
       "symbol": "buildActorModelContext",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/multi-actor-state-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/multi-actor-state-spike",
@@ -2547,10 +2547,10 @@
       "entrypoint": ".",
       "symbol": "createMultiActorClinicalSession",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/multi-actor-state-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/multi-actor-state-spike",
@@ -2567,10 +2567,10 @@
       "entrypoint": ".",
       "symbol": "createPersistenceSpikeStores",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/multi-actor-state-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/multi-actor-state-spike",
@@ -2617,20 +2617,20 @@
       "entrypoint": ".",
       "symbol": "evaluateMultiActorPersistencePhase2Strategy",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/multi-actor-state-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/multi-actor-state-spike",
       "entrypoint": ".",
       "symbol": "evaluateMultiActorStateOptions",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/multi-actor-state-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/multi-actor-state-spike",
@@ -2727,10 +2727,10 @@
       "entrypoint": ".",
       "symbol": "persistLatestInteractionTurn",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/multi-actor-state-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/multi-actor-state-spike",
@@ -2777,10 +2777,10 @@
       "entrypoint": ".",
       "symbol": "recordClinicalAction",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/multi-actor-state-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/multi-actor-state-spike",
@@ -2797,20 +2797,20 @@
       "entrypoint": ".",
       "symbol": "rehydrateRealtimeCacheFromDurableState",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/multi-actor-state-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/multi-actor-state-spike",
       "entrypoint": ".",
       "symbol": "routeActorInteraction",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/multi-actor-state-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/multi-actor-state-spike",
@@ -2857,10 +2857,10 @@
       "entrypoint": ".",
       "symbol": "updateActorSpatialState",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/multi-actor-state-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/multi-actor-state-spike",
@@ -2897,10 +2897,10 @@
       "entrypoint": ".",
       "symbol": "writeRealtimeCacheSnapshot",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/multi-actor-state-spike",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/multi-actor-state-spike/src/multi-actor-state-spike.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/multi-actor-state-spike",
@@ -2917,20 +2917,20 @@
       "entrypoint": ".",
       "symbol": "accumulateFrameTime",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
       "entrypoint": ".",
       "symbol": "appendTickInput",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -2997,10 +2997,10 @@
       "entrypoint": ".",
       "symbol": "buildDeterministicInputLog",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/havok-adapter.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/havok-adapter.test.ts:2; packages/openclinxr/arena/physics-touch-contract/src/__tests__/jolt-adapter.test.ts:2; packages/openclinxr/arena/physics-touch-contract/src/__tests__/rapier-adapter.test.ts:2; packages/openclinxr/arena/physics-touch-contract/src/__tests__/real-engine-loaded.test.ts:18 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3027,10 +3027,10 @@
       "entrypoint": ".",
       "symbol": "buildPalpationInputLog",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/havok-adapter.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/havok-adapter.test.ts:2; packages/openclinxr/arena/physics-touch-contract/src/__tests__/jolt-adapter.test.ts:2; packages/openclinxr/arena/physics-touch-contract/src/__tests__/rapier-adapter.test.ts:2; packages/openclinxr/arena/physics-touch-contract/src/__tests__/real-engine-loaded.test.ts:18 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3047,10 +3047,10 @@
       "entrypoint": ".",
       "symbol": "buildPhysicsCagematchReport",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/metrics-report.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/metrics-report.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3097,20 +3097,20 @@
       "entrypoint": ".",
       "symbol": "computeSnapshotHash",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
       "entrypoint": ".",
       "symbol": "consumeTick",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3137,40 +3137,40 @@
       "entrypoint": ".",
       "symbol": "createFixedStepAccumulator",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
       "entrypoint": ".",
       "symbol": "createInputLog",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
       "entrypoint": ".",
       "symbol": "createStubPhysicsArtifactMeta",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
       "entrypoint": ".",
       "symbol": "currentTick",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3227,10 +3227,10 @@
       "entrypoint": ".",
       "symbol": "defaultNotEvidenceFor",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3257,10 +3257,10 @@
       "entrypoint": ".",
       "symbol": "FIXED_DT",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3337,10 +3337,10 @@
       "entrypoint": ".",
       "symbol": "getTickInput",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3417,10 +3417,10 @@
       "entrypoint": ".",
       "symbol": "hashState",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3457,10 +3457,10 @@
       "entrypoint": ".",
       "symbol": "inputLogLength",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3517,10 +3517,10 @@
       "entrypoint": ".",
       "symbol": "listTickInputs",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3687,10 +3687,10 @@
       "entrypoint": ".",
       "symbol": "PhysicsCagematchReport",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/metrics-report.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/metrics-report.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3767,20 +3767,20 @@
       "entrypoint": ".",
       "symbol": "replayFromSnapshot",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/havok-adapter.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/havok-adapter.test.ts:2; packages/openclinxr/arena/physics-touch-contract/src/__tests__/jolt-adapter.test.ts:2; packages/openclinxr/arena/physics-touch-contract/src/__tests__/rapier-adapter.test.ts:2; packages/openclinxr/arena/physics-touch-contract/src/__tests__/real-engine-loaded.test.ts:18 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
       "entrypoint": ".",
       "symbol": "replayInputLog",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/havok-adapter.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/havok-adapter.test.ts:2; packages/openclinxr/arena/physics-touch-contract/src/__tests__/jolt-adapter.test.ts:2; packages/openclinxr/arena/physics-touch-contract/src/__tests__/rapier-adapter.test.ts:2; packages/openclinxr/arena/physics-touch-contract/src/__tests__/real-engine-loaded.test.ts:18 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3847,10 +3847,10 @@
       "entrypoint": ".",
       "symbol": "runThreeWayCagematch",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/three-way-cagematch.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/three-way-cagematch.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3937,10 +3937,10 @@
       "entrypoint": ".",
       "symbol": "serializeState",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -3967,10 +3967,10 @@
       "entrypoint": ".",
       "symbol": "StubPhysicsAdapter",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/arena/physics-touch-contract",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/arena/physics-touch-contract/src/physics-touch-contract.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/arena/physics-touch-contract",
@@ -4117,20 +4117,20 @@
       "entrypoint": ".",
       "symbol": "buildEncounterAssetGenerationPlan",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/capability-gateway",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts:4 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/capability-gateway",
       "entrypoint": ".",
       "symbol": "buildEncounterAssetGenerationPublicationTargets",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/capability-gateway",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts:4 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/capability-gateway",
@@ -4157,10 +4157,10 @@
       "entrypoint": ".",
       "symbol": "buildVisualQaRemediationWorkOrderPlans",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/capability-gateway",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts:4 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/capability-gateway",
@@ -4187,10 +4187,10 @@
       "entrypoint": ".",
       "symbol": "createDeterministicAssetGenerationAdapter",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/capability-gateway",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts:4 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/capability-gateway",
@@ -4217,10 +4217,10 @@
       "entrypoint": ".",
       "symbol": "decodeAzureStorageQueueMessage",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/capability-gateway",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts:4 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/capability-gateway",
@@ -4277,10 +4277,10 @@
       "entrypoint": ".",
       "symbol": "EncounterAssetGenerationQueueClient",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/capability-gateway",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts:4 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/capability-gateway",
@@ -4317,10 +4317,10 @@
       "entrypoint": ".",
       "symbol": "EncounterExecutableAssetGenerationRequest",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/capability-gateway",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts:4 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/capability-gateway",
@@ -4367,10 +4367,10 @@
       "entrypoint": ".",
       "symbol": "EncounterHumanoidRealismRequirements",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/capability-gateway",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts:4 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/capability-gateway",
@@ -4437,10 +4437,10 @@
       "entrypoint": ".",
       "symbol": "processNextEncounterAssetGenerationQueueMessage",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/capability-gateway",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts:4; packages/openclinxr/capability-gateway/src/azure-storage-queue-client.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/capability-gateway",
@@ -4467,30 +4467,30 @@
       "entrypoint": ".",
       "symbol": "createEncounterAssetGenerationJobModel",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-sources-mongoose-models",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-sources-mongoose-models/src/encounter-asset-generation-job-repository.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-sources-mongoose-models/src/encounter-asset-generation-job-repository.test.ts:8 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/data-sources-mongoose-models",
       "entrypoint": ".",
       "symbol": "EncounterAssetGenerationJobMongooseRepository",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-sources-mongoose-models",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-sources-mongoose-models/src/encounter-asset-generation-job-repository.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-sources-mongoose-models/src/encounter-asset-generation-job-repository.test.ts:8 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/data-sources-mongoose-models",
       "entrypoint": ".",
       "symbol": "ScenarioReviewDecisionRecord",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/data-sources-mongoose-models",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/data-sources-mongoose-models/src/scenario-review-decision-repository.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/data-sources-mongoose-models/src/scenario-review-decision-repository.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/domain",
@@ -6412,20 +6412,20 @@
       "entrypoint": "./ed-chest-pain",
       "symbol": "edChestPainScenarioV2",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/scenario-fixtures",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts:8 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/scenario-fixtures",
       "entrypoint": "./ed-chest-pain",
       "symbol": "edChestPainScenarioV3",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/scenario-fixtures",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts:8 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/scenario-fixtures",
@@ -6552,10 +6552,10 @@
       "entrypoint": ".",
       "symbol": "buildDynamicEncounterFactoryProjectionArtifact",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/scenario-fixtures",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts:8 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/scenario-fixtures",
@@ -6642,20 +6642,20 @@
       "entrypoint": ".",
       "symbol": "edChestPainScenarioV2",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/scenario-fixtures",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts:8 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/scenario-fixtures",
       "entrypoint": ".",
       "symbol": "edChestPainScenarioV3",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/scenario-fixtures",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts:8 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/scenario-fixtures",
@@ -6797,10 +6797,10 @@
       "entrypoint": ".",
       "symbol": "variantScenarioBank",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/scenario-fixtures",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts:8 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/scenario-runtime",
@@ -6917,30 +6917,30 @@
       "entrypoint": ".",
       "symbol": "createDurableStoreFromPersistenceHooks",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/scenario-runtime",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts:22 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/scenario-runtime",
       "entrypoint": ".",
       "symbol": "createScenarioRuntimeWithPersistenceHooks",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/scenario-runtime",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts:22 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/scenario-runtime",
       "entrypoint": ".",
       "symbol": "DurableStorePersistenceHooks",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/scenario-runtime",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts:22 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/scenario-runtime",
@@ -7347,10 +7347,10 @@
       "entrypoint": ".",
       "symbol": "createPersistenceSpikeStores",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/session-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/session-state/src/session-state.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/session-state/src/session-state.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/session-state",
@@ -7457,10 +7457,10 @@
       "entrypoint": ".",
       "symbol": "evaluateMultiActorPersistencePhase2Strategy",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/session-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/session-state/src/session-state.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/session-state/src/session-state.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/session-state",
@@ -7577,10 +7577,10 @@
       "entrypoint": ".",
       "symbol": "persistLatestInteractionTurn",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/session-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/session-state/src/session-state.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/session-state/src/session-state.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/session-state",
@@ -7657,10 +7657,10 @@
       "entrypoint": ".",
       "symbol": "rehydrateRealtimeCacheFromDurableState",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/session-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/session-state/src/session-state.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/session-state/src/session-state.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/session-state",
@@ -7717,10 +7717,10 @@
       "entrypoint": ".",
       "symbol": "updateActorSpatialState",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/session-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/session-state/src/session-state.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/session-state/src/session-state.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/session-state",
@@ -7757,10 +7757,10 @@
       "entrypoint": ".",
       "symbol": "writeRealtimeCacheSnapshot",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/session-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/session-state/src/session-state.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/session-state/src/session-state.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/session-state",
@@ -8417,10 +8417,10 @@
       "entrypoint": ".",
       "symbol": "validateModelProviderAudit",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/shared-schemas",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/shared-schemas/src/schemas.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/shared-schemas/src/schemas.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/shared-schemas",
@@ -8437,10 +8437,10 @@
       "entrypoint": ".",
       "symbol": "validateProviderAuditRecord",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/shared-schemas",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/shared-schemas/src/schemas.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/shared-schemas/src/schemas.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/shared-schemas",
@@ -8487,10 +8487,10 @@
       "entrypoint": ".",
       "symbol": "validateVoiceProviderAudit",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/shared-schemas",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/shared-schemas/src/schemas.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/shared-schemas/src/schemas.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/shared-schemas",
@@ -14382,20 +14382,20 @@
       "entrypoint": ".",
       "symbol": "isLocomotionVectorActive",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/xr-locomotion",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-locomotion/src/locomotion.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/xr-locomotion/src/locomotion.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/xr-locomotion",
       "entrypoint": ".",
       "symbol": "isXrHandPinching",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/xr-locomotion",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-locomotion/src/locomotion.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/xr-locomotion/src/locomotion.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/xr-locomotion",
@@ -14532,10 +14532,10 @@
       "entrypoint": ".",
       "symbol": "updateReusableExteriorAnteroomVisibility",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/xr-locomotion",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-locomotion/src/locomotion.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/xr-locomotion/src/locomotion.test.ts:3 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/xr-locomotion",
@@ -15263,30 +15263,30 @@
       "entrypoint": "./composed-body-direction",
       "symbol": "bodyDirectionWithinAllowance",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/xr-runtime-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
       "entrypoint": "./composed-body-direction",
       "symbol": "composedIdleBodyHeading",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/xr-runtime-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
       "entrypoint": "./composed-body-direction",
       "symbol": "IDLE_BODY_DIRECTION_ALLOWANCE_RADIANS",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/xr-runtime-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -15443,10 +15443,10 @@
       "entrypoint": ".",
       "symbol": "bodyDirectionWithinAllowance",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/xr-runtime-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -15613,10 +15613,10 @@
       "entrypoint": ".",
       "symbol": "composedIdleBodyHeading",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/xr-runtime-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -15933,10 +15933,10 @@
       "entrypoint": ".",
       "symbol": "IDLE_BODY_DIRECTION_ALLOWANCE_RADIANS",
       "kind": "runtime",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/xr-runtime-state",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts:2 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -17813,10 +17813,10 @@
       "entrypoint": ".",
       "symbol": "StationClinicalTouchSource",
       "kind": "type",
-      "disposition": "remove",
-      "owner": "packages/openclinxr/xr-station-room",
-      "rationale": "No confirmed external consumer at package-specifier level; implementation stays in package.",
-      "evidence": "compiler external-reference count 0"
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-station-room/src/station-interaction.test.ts",
+      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
+      "evidence": "packages/openclinxr/xr-station-room/src/station-interaction.test.ts:4 (origin/main 43ffd845)"
     },
     {
       "package": "packages/openclinxr/xr-station-room",

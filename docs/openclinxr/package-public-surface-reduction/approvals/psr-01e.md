@@ -111,3 +111,15 @@ No consumer file moves in this review card: keep rows name the consuming package
 ## Limitations and NOT TESTED
 
 Unknown consumers outside this private repository; clinical validity, Quest readiness, runtime performance, and public npm compatibility.
+
+## Amendment before dispatch (orchestrator, 2026-09-11)
+
+115 rows move from `remove` to `keep` (797 remove rows remain) because each name is imported by
+its own package's tests through the entrypoint on origin/main 43ffd845. By package:
+iwsdk-spike 32, physics-touch-contract 23, multi-actor-state-spike 11, capability-gateway 9,
+agent-loop 6, scenario-fixtures 6, session-state 6, xr-runtime-state 6, model-vetting 3,
+data-sources-mongoose-models 3, scenario-runtime 3, shared-schemas 3, xr-locomotion 3,
+xr-station-room 1. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that
+un-publishing such a name raises `testInternalImports` above its shrink-only ceiling. Each amended
+row names the consuming test as owner, with file:line evidence. `--require-reviewed-group psr-01e`
+still exits 0.
