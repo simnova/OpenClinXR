@@ -1,49 +1,35 @@
 import { type Scenario, type ValidationResult, validateAssetManifest as validateSharedAssetManifest } from "@openclinxr/shared-schemas";
 
-export * from "./actor-posture.js";
-export * from "./asset-writer.js";
-export {
-  MPFB_OB_PATIENT_AISHA_GLB,
-  OB_HEADACHE_PREECLAMPSIA_SCENARIO_ID,
-  resolveScenarioActorCast,
-  resolveRuntimeCastAssetPath,
-  type ScenarioActorCast,
-} from "./actor-casting.js";
 export {
   ENVIRONMENT_SHELL_DESCRIPTORS,
-  type EnvironmentFixtureSlot,
-  type EnvironmentShellDescriptor,
-  type EnvironmentSpatialZoneId,
-  type EnvironmentZoneTemplate,
-  FALLBACK_ENVIRONMENT_SHELL,
-  type ResolvedEnvironmentShell,
   resolveEnvironmentShellDescriptor,
 } from "./environment-descriptors.js";
-export * from "./humanoid-asset-path.js";
-export * from "./morph-target-resolver.js";
-export type {
-  AssetObjectStore, AssetObjectStoreGetInput, AssetObjectStoreGetResult,
-  AssetObjectStorePutInput, AssetObjectStorePutResult, AzuriteAssetObjectStoreOptions,
-} from "./object-store.js";
-export * from "./pose-bone-resolver.js";
-export * from "./runtime-asset-review.js";
-export * from "./runtime-bundles.js";
-export * from "./runtime-room-prop-color.js";
+export { resolveMorphTarget } from "./morph-target-resolver.js";
+export { resolvePoseBone } from "./pose-bone-resolver.js";
+export { promoteEncounterRuntimeAssetBundleForLocalUse } from "./runtime-asset-review.js";
+export {
+  buildEncounterFactoryDryRunSummary,
+  buildEncounterFactoryInputPlanningSummary,
+  createEdChestPainLocalEncounterRuntimeAssetBundle,
+  resolveRuntimeAssetBlobUrl,
+  toLearnerRuntimeAssetBundle,
+} from "./runtime-bundles.js";
+export {
+  ROOM_PROP_ACCENT_COLOR_FALLBACK,
+  ROOM_PROP_BODY_COLOR_FALLBACK,
+  parseRuntimeRoomPropColorHex,
+} from "./runtime-room-prop-color.js";
 
 import {
   buildSpatialZonesForEnvironment,
   type EnvironmentSpatialZone,
 } from "./environment-spatial-zones.js";
 
-export { buildSpatialZonesForEnvironment, type EnvironmentSpatialZone };
-
 import { isPlaceholderAsset } from "./scenario-readiness-evidence.js";
 
 export {
   evaluateScenarioGenerationEvidence,
   evaluateScenarioOptimizationEvidence,
-  type ScenarioGenerationEvidence,
-  type ScenarioOptimizationEvidence,
 } from "./scenario-readiness-evidence.js";
 
 // #715: measured-station-geometry-freshness.js is node-only (node:crypto/fs/path) and must
@@ -51,7 +37,7 @@ export {
 // Node consumers import "@openclinxr/asset-registry/measured-station-geometry-freshness".
 import measuredStationGeometry from "./measured-station-geometry.json" with { type: "json" };
 
-export type MeasuredStationGeometry = {
+type MeasuredStationGeometry = {
   generatedBy: string;
   generatedAt: string;
   sources: Record<string, string>;
@@ -66,15 +52,15 @@ export type MeasuredStationGeometry = {
  */
 export const MEASURED_STATION_GEOMETRY: Readonly<MeasuredStationGeometry> = measuredStationGeometry;
 
-export type AssetKind = "character" | "environment" | "equipment" | "prop" | "texture" | "audio";
+type AssetKind = "character" | "environment" | "equipment" | "prop" | "texture" | "audio";
 
-export type AssetTargetRuntime = "quest3_webxr" | "desktop_webxr";
+type AssetTargetRuntime = "quest3_webxr" | "desktop_webxr";
 
-export type AssetGenerationMethod = "procedural_placeholder" | "makehuman2" | "anny" | "stablegen" | "smplitex" | "manual_modeling";
+type AssetGenerationMethod = "procedural_placeholder" | "makehuman2" | "anny" | "stablegen" | "smplitex" | "manual_modeling";
 
-export type AssetLicenseStatus = "approved" | "permissive_review_required" | "copyleft_blocked" | "unknown";
+type AssetLicenseStatus = "approved" | "permissive_review_required" | "copyleft_blocked" | "unknown";
 
-export type AssetPipelineLane =
+type AssetPipelineLane =
   | "human_base_mesh"
   | "skin_texture"
   | "clothing"
@@ -84,19 +70,19 @@ export type AssetPipelineLane =
   | "environment_equipment"
   | "optimization";
 
-export type AssetToolRuntimePlacement =
+type AssetToolRuntimePlacement =
   | "local_or_ci_authoring"
   | "offline_gpu_authoring"
   | "external_commercial_adapter"
   | "production_runtime";
 
-export type AssetToolLicensePolicy =
+type AssetToolLicensePolicy =
   | "production_allowed"
   | "authoring_output_allowed"
   | "sidecar_review_required"
   | "blocked_without_exception";
 
-export type AssetPipelineTool = {
+type AssetPipelineTool = {
   toolId: string;
   displayName: string;
   lanes: AssetPipelineLane[];
@@ -111,7 +97,7 @@ export type AssetPipelineTool = {
   prohibitedUses: string[];
 };
 
-export type AssetPipelineToolReadiness = {
+type AssetPipelineToolReadiness = {
   toolId: string;
   authoringAllowedNow: boolean;
   productionRuntimeAllowed: boolean;
@@ -120,7 +106,7 @@ export type AssetPipelineToolReadiness = {
   warnings: string[];
 };
 
-export type AssetPipelineToolMatrixReadiness = {
+type AssetPipelineToolMatrixReadiness = {
   authoringReadyToolIds: string[];
   sidecarCandidateToolIds: string[];
   blockedToolIds: string[];
@@ -128,28 +114,28 @@ export type AssetPipelineToolMatrixReadiness = {
   policyBlockers: string[];
 };
 
-export type AssetPipelineStageName = "requested" | "source_reviewed" | "mesh_generated" | "rigged" | "optimized" | "qa_ready";
+type AssetPipelineStageName = "requested" | "source_reviewed" | "mesh_generated" | "rigged" | "optimized" | "qa_ready";
 
-export type AssetPipelineStage = {
+type AssetPipelineStage = {
   stage: AssetPipelineStageName;
   completedAt: string;
   notes: string;
 };
 
-export type AssetQuestQaStatus = {
+type AssetQuestQaStatus = {
   status: "not_reviewed" | "placeholder_dev_ready" | "sim_qa_ready" | "failed";
   reviewedAt: string;
   limitations: string[];
 };
 
-export type AssetOptimizationEvidence = {
+type AssetOptimizationEvidence = {
   lodTiers?: string[];
   textureCompressionFormat?: string;
   textureBudgetReportId?: string;
   colliderSimplificationReportId?: string;
 };
 
-export type AssetGenerationEvidence = {
+type AssetGenerationEvidence = {
   generatedHumanRiggingReportId?: string;
   skinClothingProvenanceId?: string;
   medicalEquipmentLibraryRecordId?: string;
@@ -239,7 +225,7 @@ export type AssetManifest = {
   tags: string[];
 };
 
-export type AssetReadiness = {
+type AssetReadiness = {
   assetId: string;
   devReady: boolean;
   productionReady: boolean;
@@ -248,7 +234,7 @@ export type AssetReadiness = {
   warnings: string[];
 };
 
-export type AssetProductionReadinessStepName =
+type AssetProductionReadinessStepName =
   | "provenance_license"
   | "generation_evidence"
   | "optimization_evidence"
@@ -256,14 +242,14 @@ export type AssetProductionReadinessStepName =
   | "visual_clinical_critique"
   | "production_release";
 
-export type AssetProductionReadinessStep = {
+type AssetProductionReadinessStep = {
   step: AssetProductionReadinessStepName;
   status: "complete" | "blocked";
   evidenceRefs: string[];
   blockers: string[];
 };
 
-export type AssetProductionReadinessLadder = {
+type AssetProductionReadinessLadder = {
   assetId: string;
   scenarioId: string;
   productionReady: boolean;
@@ -271,7 +257,7 @@ export type AssetProductionReadinessLadder = {
   steps: AssetProductionReadinessStep[];
 };
 
-export type AssetProductionReviewPacket = {
+type AssetProductionReviewPacket = {
   assetId: string;
   scenarioId: string;
   displayName: string;
@@ -286,14 +272,14 @@ export type AssetProductionReviewPacket = {
   }>;
 };
 
-export type EnvironmentGenerationReviewGateName =
+type EnvironmentGenerationReviewGateName =
   | "provenance_license"
   | "attach_environment_generation_evidence"
   | "attach_optimization_evidence"
   | "visual_clinical_critique"
   | "quest_runtime_evidence";
 
-export type EnvironmentGenerationReviewGate = {
+type EnvironmentGenerationReviewGate = {
   gate: EnvironmentGenerationReviewGateName;
   status: "complete" | "blocked";
   evidenceRefs: string[];
@@ -329,14 +315,14 @@ export type EnvironmentGenerationQueue = {
   packets: EnvironmentGenerationPacket[];
 };
 
-export type EnvironmentGenerationWorkOrderTaskId =
+type EnvironmentGenerationWorkOrderTaskId =
   | "prepare_scene_layout"
   | "model_static_room_shell"
   | "place_required_equipment"
   | "export_quest_budget_reports"
   | "request_clinical_visual_review";
 
-export type EnvironmentGenerationWorkOrderTask = {
+type EnvironmentGenerationWorkOrderTask = {
   taskId: EnvironmentGenerationWorkOrderTaskId;
   title: string;
   status: "pending";
@@ -344,7 +330,7 @@ export type EnvironmentGenerationWorkOrderTask = {
   evidenceOutputs: string[];
 };
 
-export type EnvironmentGenerationOperatorHandoff = {
+type EnvironmentGenerationOperatorHandoff = {
   summary: string;
   nextAction: string;
   missingEvidenceIds: string[];
@@ -352,7 +338,7 @@ export type EnvironmentGenerationOperatorHandoff = {
   claimBoundary: "operator_handoff_not_asset_generation";
 };
 
-export type EnvironmentGenerationWorkOrder = {
+type EnvironmentGenerationWorkOrder = {
   workOrderId: string;
   scenarioId: string;
   environmentAssetId: string;
@@ -386,7 +372,7 @@ export type EnvironmentGenerationWorkOrderQueue = {
   workOrders: EnvironmentGenerationWorkOrder[];
 };
 
-export type SceneGenerationPipelineStageId =
+type SceneGenerationPipelineStageId =
   | "admin_scenario_configuration"
   | "asset_need_expansion"
   | "humanoid_generation"
@@ -397,7 +383,7 @@ export type SceneGenerationPipelineStageId =
   | "runtime_bundle_binding"
   | "review_and_quest_evidence";
 
-export type SceneGenerationPipelineStage = {
+type SceneGenerationPipelineStage = {
   stageId: SceneGenerationPipelineStageId;
   title: string;
   status: "pending";
@@ -406,7 +392,7 @@ export type SceneGenerationPipelineStage = {
   expectedOutputs: string[];
 };
 
-export type SceneGenerationActorWorkOrder = {
+type SceneGenerationActorWorkOrder = {
   workOrderId: string;
   actorId: string;
   actorRole: string;
@@ -440,7 +426,7 @@ export type SceneGenerationActorWorkOrder = {
   claimBoundary: "metadata_work_order_not_generated_asset";
 };
 
-export type SceneGenerationEnvironmentWorkOrder = {
+type SceneGenerationEnvironmentWorkOrder = {
   workOrderId: string;
   environmentAssetId: string;
   equipmentAssetIds: string[];
@@ -451,7 +437,7 @@ export type SceneGenerationEnvironmentWorkOrder = {
   claimBoundary: "metadata_work_order_not_generated_asset";
 };
 
-export type ScenarioSceneGenerationPipelineWorkOrder = {
+type ScenarioSceneGenerationPipelineWorkOrder = {
   workOrderId: string;
   scenarioId: string;
   scenarioStatus: Scenario["status"];
@@ -490,7 +476,7 @@ export type ScenarioSceneGenerationPipelineWorkOrderQueue = {
   workOrders: ScenarioSceneGenerationPipelineWorkOrder[];
 };
 
-export type ScenarioAssetProductionReadinessLadder = {
+type ScenarioAssetProductionReadinessLadder = {
   scenarioId: string;
   productionReady: boolean;
   assetCount: number;
@@ -502,16 +488,16 @@ export type ScenarioAssetProductionReadinessLadder = {
   assetLadders: AssetProductionReadinessLadder[];
 };
 
-export type EncounterAssetReadinessBehaviorCategory = "animation" | "emotion" | "gaze" | "lip_sync";
+type EncounterAssetReadinessBehaviorCategory = "animation" | "emotion" | "gaze" | "lip_sync";
 
-export type EncounterSharedAssetLibraryLookupKey = {
+type EncounterSharedAssetLibraryLookupKey = {
   targetKind: "role_specific_humanoid_glb" | "role_idle_animation_glb" | "facial_lipsync_gaze_animation" | "environment_shell_glb" | "medical_equipment_glb";
   actorRole: string | null;
   semanticInputs: string[];
   lookupKey: string;
 };
 
-export type EncounterActorAssetNeed = {
+type EncounterActorAssetNeed = {
   actorId: string;
   actorRole: string;
   assetNeedId: string;
@@ -521,7 +507,7 @@ export type EncounterActorAssetNeed = {
   sharedAssetLibraryLookupKeys: EncounterSharedAssetLibraryLookupKey[];
 };
 
-export type EncounterEnvironmentAssetNeed = {
+type EncounterEnvironmentAssetNeed = {
   environmentId: string;
   assetNeedId: string;
   hasExplicitAssetNeed: boolean;
@@ -529,7 +515,7 @@ export type EncounterEnvironmentAssetNeed = {
   sharedAssetLibraryLookupKey: EncounterSharedAssetLibraryLookupKey;
 };
 
-export type EncounterEquipmentAssetNeed = {
+type EncounterEquipmentAssetNeed = {
   source: string;
   assetNeedId: string;
   hasExplicitAssetNeed: boolean;
@@ -537,7 +523,7 @@ export type EncounterEquipmentAssetNeed = {
   sharedAssetLibraryLookupKey: EncounterSharedAssetLibraryLookupKey;
 };
 
-export type EncounterAssetNeedsReadinessManifest = {
+type EncounterAssetNeedsReadinessManifest = {
   schemaVersion: "openclinxr.encounter-asset-needs-readiness.v1";
   scenarioId: string;
   scenarioTitle: string;
@@ -599,7 +585,7 @@ export type ScenarioAssetReadiness = {
   productionReadinessLadder?: ScenarioAssetProductionReadinessLadder;
 };
 
-export type ScenarioAssetBudget = {
+type ScenarioAssetBudget = {
   maxVisibleTriangles: number;
   maxTextureMegabytes: number;
   maxDrawCalls: number;
@@ -2361,7 +2347,7 @@ export function validateAssetManifestStructure(manifest: unknown): ValidationRes
   return validateSharedAssetManifest(manifest);
 }
 
-export function evaluateScenarioAssetBudget(
+function evaluateScenarioAssetBudget(
   manifests: readonly AssetManifest[],
   measuredTriangleCounts?: Readonly<Record<string, number>>,
 ): ScenarioAssetBudget {
@@ -2799,12 +2785,6 @@ function hasProductionLimitingQuestQaStatus(status: AssetQuestQaStatus | undefin
       || normalized.includes("simulation qa only");
   }) ?? false;
 }
-export {
-  findRuntimeActorAsset,
-  findRuntimeActorAssetByRole,
-  findRuntimeEquipmentAsset,
-  findRuntimeEquipmentPlacementByRealizedId,
-} from "./runtime-bundle-lookups.js";
 // Published because the architecture gate requires package tests to route through the
 // entrypoint, and every-cast-actor-is-staged-or-reported.test.ts enumerates the shipped casts.
 export { unstagedCastActors } from "./cast-actor-ids.js";
@@ -2817,7 +2797,6 @@ export {
 } from "./bedside-target.js";
 export { bedsideClearanceViolations } from "./bedside-clearance.js";
 export { ED_MONITOR_BOUNDS, monitorVisibilityFrom, screenNormal } from "./monitor-visibility.js";
-export { APPROACH_WAYPOINT_SPACING_METERS, planBedsideApproach } from "./bedside-approach-path.js";
 // layout-variation.js is node-only (node:crypto for the seed digest) and must not be
 // value-reachable from the "." client entry — browsers cannot resolve node: builtins.
 // Node consumers import "@openclinxr/asset-registry/layout-variation".
