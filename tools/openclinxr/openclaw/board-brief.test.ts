@@ -191,11 +191,11 @@ describe("package index injection", () => {
   });
 
   it("bounds a large export list rather than pasting the file", () => {
-    // ui-route-admin publishes over 200 symbols; its index file is 11 KB. Pasted whole it would
+    // rest publishes over 30 symbols. Pasted whole it would
     // push the ask out of the worker's first read.
     const result = briefFromIssue(
       issue(
-        "## factory_step: staging\nEdit packages/openclinxr/ui-route-admin/src/index.ts.\n\n"
+        "## factory_step: staging\nEdit packages/openclinxr/rest/src/index.ts.\n\n"
         + "## done_when\n- run:pnpm packages:typecheck:agent\n",
       ),
       REPO,
