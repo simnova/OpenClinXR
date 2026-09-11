@@ -22,10 +22,12 @@ const HUMANOIDS = path.join(ROOT, "apps/ui-xr/public/generated-humanoids");
 const REPORT_PATH = path.join(ROOT, "docs/openclinxr/humanoid-postopt-ladder-face-preserving-2026-09-11.json");
 
 const FACE_RE = /eye|brow|lash|teeth|tongue/i;
+const GOWN_MARKER = "openclinxr_declared_upper_layers__hospital_gown_mesh";
 
 type FacePreservingBodyRow = {
   body: string;
   chosenRungId: string;
+  rungTechnique: string;
   triangleCountBefore: number;
   triangleCountAfter: number;
   bytesBefore: number;
@@ -36,15 +38,37 @@ type FacePreservingBodyRow = {
   jointCountBefore: number;
   jointCountAfter: number;
   jointCountExpected: number;
+  bodyMorphTargetsBefore: number;
+  bodyMorphTargetsAfter: number;
+  weightsChannelsBefore: number;
+  weightsChannelsAfter: number;
+  zeroTriangleMeshes: string[];
   promoted: boolean;
+  promotionNote: string;
   noSurvivingRungReason?: string;
 };
-type FacePreservingReport = { bodies: FacePreservingBodyRow[] };
+type FacePreservingReport = {
+  bodies: FacePreservingBodyRow[];
+  budgets: {
+    propPreferred: number;
+    propShare: number;
+    skeletonHard: number;
+    acceptableSingleProp: number;
+  };
+};
 
-async function liveStats(file: string): Promise<{ tris: number; face: number; joints: number }> {
+async function liveStats(file: string): Promise<{
+  tris: number;
+  face: number;
+  joints: number;
+  bodyMorphTargets: number;
+  weightsChannels: number;
+  zeroMeshes: string[];
+}> {
   const doc = await new NodeIO().registerExtensions(ALL_EXTENSIONS).read(path.join(HUMANOIDS, file));
   let tris = 0;
   let face = 0;
+  const zeroMeshes: string[] = [];
   for (const mesh of doc.getRoot().listMeshes()) {
     let mt = 0;
     for (const prim of mesh.listPrimitives()) {
@@ -53,9 +77,18 @@ async function liveStats(file: string): Promise<{ tris: number; face: number; jo
     }
     tris += mt;
     if (FACE_RE.test(mesh.getName())) face += mt;
+    else if (Math.round(mt) === 0 && mesh.getName() !== GOWN_MARKER) zeroMeshes.push(mesh.getName());
   }
   const joints = doc.getRoot().listSkins()[0]!.listJoints().length;
-  return { tris: Math.round(tris), face: Math.round(face), joints };
+  const bodyMesh = doc.getRoot().listMeshes().find((mesh) => /_body$/.test(mesh.getName()))!;
+  const bodyMorphTargets = bodyMesh.listPrimitives()[0]!.listTargets().length;
+  let weightsChannels = 0;
+  for (const anim of doc.getRoot().listAnimations()) {
+    for (const channel of anim.listChannels()) {
+      if (channel.getTargetPath() === "weights") weightsChannels += 1;
+    }
+  }
+  return { tris: Math.round(tris), face: Math.round(face), joints, bodyMorphTargets, weightsChannels, zeroMeshes };
 }
 
 describe("the face-preserving rung keeps every face triangle", () => {
@@ -83,6 +116,15 @@ describe("the face-preserving rung keeps every face triangle", () => {
       expect(live.joints).toBe(row.jointCountAfter);
       expect(row.jointCountAfter).toBe(row.jointCountExpected);
       expect(live.tris).toBe(row.triangleCountAfter);
+      expect(row.bodyMorphTargetsAfter).toBe(row.bodyMorphTargetsBefore);
+      expect(live.bodyMorphTargets).toBe(row.bodyMorphTargetsAfter);
+      expect(row.weightsChannelsAfter).toBe(row.weightsChannelsBefore);
+      expect(live.weightsChannels).toBe(row.weightsChannelsAfter);
+      expect(live.zeroMeshes).toEqual(row.zeroTriangleMeshes);
+      expect(row.zeroTriangleMeshes).toEqual([]);
+      if (row.promoted) {
+        expect(row.triangleCountAfter).toBeLessThanOrEqual(report.budgets.acceptableSingleProp);
+      }
     }
   }, 120_000);
 
@@ -94,5 +136,12 @@ describe("the face-preserving rung keeps every face triangle", () => {
         expect(row.noSurvivingRungReason ?? "").not.toBe("");
       }
     }
+  });
+
+  it("budgets are read from the ladder source, never lowered to fit", () => {
+    expect(report.budgets.propPreferred).toBe(80000);
+    expect(report.budgets.propShare).toBe(40000);
+    expect(report.budgets.skeletonHard).toBe(180000);
+    expect(report.budgets.acceptableSingleProp).toBe(120000);
   });
 });

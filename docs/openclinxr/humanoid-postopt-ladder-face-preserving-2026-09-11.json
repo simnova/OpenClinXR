@@ -1,0 +1,209 @@
+{
+  "schemaVersion": "openclinxr.humanoid-postopt-ladder-face-preserving.v1",
+  "generated": "2026-09-11",
+  "card": "HB-05",
+  "ladderSource": "tools/openclinxr/asset-pipeline/trellis/vr-postopt-ladder.ts",
+  "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
+  "handRule": "hands are skinned regions of the *_body mesh: every primitive carries JOINTS_0/WEIGHTS_0 and the single skin binds finger/metacarpal/wrist joints, so hand survival is reported via the body-mesh triangle count; there is no dedicated hand mesh on any of the ten bodies",
+  "budgets": {
+    "propPreferred": 80000,
+    "propShare": 40000,
+    "skeletonHard": 180000,
+    "acceptableSingleProp": 120000,
+    "note": "budgets are read from the ladder source, never lowered to make a rung fit (requirement 2)"
+  },
+  "knownGood": "HB-03 five raw-rung bodies: faceRetentionRatio 1, joints 137, inside budget",
+  "bodies": [
+    {
+      "body": "mpfb-gown-inspect.glb",
+      "chosenRungId": "fp-r0.15",
+      "rungTechnique": "selective weld+simplifyPrimitive ratio 0.15 error 0.01 on every non-face mesh (face meshes /eye|brow|lash|teeth|tongue/i untouched); 1-triangle gown marker never simplified",
+      "triangleCountBefore": 145287,
+      "triangleCountAfter": 69420,
+      "bytesBefore": 12999904,
+      "bytesAfter": 7922448,
+      "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
+      "faceBefore": 52778,
+      "faceAfter": 52778,
+      "faceRetentionRatio": 1,
+      "jointCountBefore": 138,
+      "jointCountAfter": 138,
+      "jointCountExpected": 138,
+      "jointNote": "gown bodies carry one extra joint (neutral_bone) vs the 137-joint MPFB2 rig on the other eight baked bodies; joint set otherwise identical",
+      "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
+      "bodyMorphTargetsBefore": 47,
+      "bodyMorphTargetsAfter": 47,
+      "weightsChannelsBefore": 1,
+      "weightsChannelsAfter": 1,
+      "zeroTriangleMeshes": [],
+      "featureSurvival": "ok",
+      "promoted": true,
+      "promotionNote": "face-preserving rung 69420 <= 120000 acceptableSingleProp with every face triangle and every joint kept (face 52778/52778 = 1, joints 138/138); live GLB rewritten by this card",
+      "outputSha256": "0e718440bd978e939211d0da9ebecda7cb4ba01da8d81f8b1520723569e75c95",
+      "captures": {
+        "front_fp_lit_eevee": {
+          "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-gown-inspect-front_fp.png",
+          "sha256": "34d822c0387f4949d0ada3a569df6af4e1f26ec392abfbf3c85323380a91379d",
+          "bytes": 713107,
+          "engine": "Blender EEVEE headless (baked Principled base colour, not Workbench)"
+        }
+      }
+    },
+    {
+      "body": "mpfb-ob-patient-aisha.glb",
+      "chosenRungId": "fp-r0.4",
+      "rungTechnique": "selective weld+simplifyPrimitive ratio 0.4 error 0.01 on every non-face mesh (face meshes /eye|brow|lash|teeth|tongue/i untouched); 1-triangle gown marker never simplified",
+      "triangleCountBefore": 90906,
+      "triangleCountAfter": 68178,
+      "bytesBefore": 11677568,
+      "bytesAfter": 8512436,
+      "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
+      "faceBefore": 52778,
+      "faceAfter": 52778,
+      "faceRetentionRatio": 1,
+      "jointCountBefore": 137,
+      "jointCountAfter": 137,
+      "jointCountExpected": 137,
+      "jointNote": "137-joint MPFB2 rig; joint set identical before and after",
+      "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
+      "bodyMorphTargetsBefore": 47,
+      "bodyMorphTargetsAfter": 47,
+      "weightsChannelsBefore": 1,
+      "weightsChannelsAfter": 1,
+      "zeroTriangleMeshes": [],
+      "featureSurvival": "ok",
+      "promoted": true,
+      "promotionNote": "face-preserving rung 68178 <= 120000 acceptableSingleProp with every face triangle and every joint kept (face 52778/52778 = 1, joints 137/137); live GLB rewritten by this card",
+      "outputSha256": "d987587239ee2e2bf1ae58feb52c395080eb29e851fa2ec1506c381bae6b938b",
+      "captures": {
+        "front_fp_lit_eevee": {
+          "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_fp.png",
+          "sha256": "e36de2ec0c9f31e86fcb8bc68fc460eb2b7f95871b46675b218069cd614c1087",
+          "bytes": 709652,
+          "engine": "Blender EEVEE headless (baked Principled base colour, not Workbench)"
+        }
+      }
+    },
+    {
+      "body": "mpfb-peds-nurse-kevin.glb",
+      "chosenRungId": "fp-r0.3",
+      "rungTechnique": "selective weld+simplifyPrimitive ratio 0.3 error 0.01 on every non-face mesh (face meshes /eye|brow|lash|teeth|tongue/i untouched); 1-triangle gown marker never simplified",
+      "triangleCountBefore": 119232,
+      "triangleCountAfter": 68100,
+      "bytesBefore": 14477264,
+      "bytesAfter": 7513812,
+      "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
+      "faceBefore": 46160,
+      "faceAfter": 46160,
+      "faceRetentionRatio": 1,
+      "jointCountBefore": 137,
+      "jointCountAfter": 137,
+      "jointCountExpected": 137,
+      "jointNote": "137-joint MPFB2 rig; joint set identical before and after",
+      "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
+      "bodyMorphTargetsBefore": 47,
+      "bodyMorphTargetsAfter": 47,
+      "weightsChannelsBefore": 1,
+      "weightsChannelsAfter": 1,
+      "zeroTriangleMeshes": [],
+      "featureSurvival": "ok",
+      "promoted": true,
+      "promotionNote": "face-preserving rung 68100 <= 120000 acceptableSingleProp with every face triangle and every joint kept (face 46160/46160 = 1, joints 137/137); live GLB rewritten by this card",
+      "outputSha256": "fc5f285c79a13459de3bb9de5fbe3409d9725d2834e43a1e4f977b08f19765d5",
+      "captures": {
+        "front_fp_lit_eevee": {
+          "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-nurse-kevin-front_fp.png",
+          "sha256": "62251f4374c69196ed8be142f85b78dd42ecf2dc982155850f63b7a8d843a536",
+          "bytes": 712819,
+          "engine": "Blender EEVEE headless (baked Principled base colour, not Workbench)"
+        }
+      }
+    },
+    {
+      "body": "mpfb-peds-parent-aisha.glb",
+      "chosenRungId": "fp-r0.4",
+      "rungTechnique": "selective weld+simplifyPrimitive ratio 0.4 error 0.01 on every non-face mesh (face meshes /eye|brow|lash|teeth|tongue/i untouched); 1-triangle gown marker never simplified",
+      "triangleCountBefore": 91032,
+      "triangleCountAfter": 68129,
+      "bytesBefore": 11857108,
+      "bytesAfter": 8620932,
+      "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
+      "faceBefore": 52778,
+      "faceAfter": 52778,
+      "faceRetentionRatio": 1,
+      "jointCountBefore": 137,
+      "jointCountAfter": 137,
+      "jointCountExpected": 137,
+      "jointNote": "137-joint MPFB2 rig; joint set identical before and after",
+      "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
+      "bodyMorphTargetsBefore": 47,
+      "bodyMorphTargetsAfter": 47,
+      "weightsChannelsBefore": 1,
+      "weightsChannelsAfter": 1,
+      "zeroTriangleMeshes": [],
+      "featureSurvival": "ok",
+      "promoted": true,
+      "promotionNote": "face-preserving rung 68129 <= 120000 acceptableSingleProp with every face triangle and every joint kept (face 52778/52778 = 1, joints 137/137); live GLB rewritten by this card",
+      "outputSha256": "cef1e21b12c55437d98ef0a97db46a21fecf70cae3aad23033acbfd61d7f6eae",
+      "captures": {
+        "front_fp_lit_eevee": {
+          "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-parent-aisha-front_fp.png",
+          "sha256": "296e8cb7edf69d691004e6be96623863c6f8c76091724cadf65366f36a736c1d",
+          "bytes": 708709,
+          "engine": "Blender EEVEE headless (baked Principled base colour, not Workbench)"
+        }
+      }
+    },
+    {
+      "body": "mpfb-viseme-inspect.glb",
+      "chosenRungId": "fp-r0.4",
+      "rungTechnique": "selective weld+simplifyPrimitive ratio 0.4 error 0.01 on every non-face mesh (face meshes /eye|brow|lash|teeth|tongue/i untouched); 1-triangle gown marker never simplified",
+      "triangleCountBefore": 90996,
+      "triangleCountAfter": 68214,
+      "bytesBefore": 11738220,
+      "bytesAfter": 8560664,
+      "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
+      "faceBefore": 52778,
+      "faceAfter": 52778,
+      "faceRetentionRatio": 1,
+      "jointCountBefore": 137,
+      "jointCountAfter": 137,
+      "jointCountExpected": 137,
+      "jointNote": "137-joint MPFB2 rig; joint set identical before and after",
+      "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
+      "bodyMorphTargetsBefore": 47,
+      "bodyMorphTargetsAfter": 47,
+      "weightsChannelsBefore": 1,
+      "weightsChannelsAfter": 1,
+      "zeroTriangleMeshes": [],
+      "featureSurvival": "ok",
+      "promoted": true,
+      "promotionNote": "face-preserving rung 68214 <= 120000 acceptableSingleProp with every face triangle and every joint kept (face 52778/52778 = 1, joints 137/137); live GLB rewritten by this card",
+      "outputSha256": "98c8ec0bbc494890737e708b2cd9321c00c6fc06dc03a86e1aa28c792b1083f1",
+      "captures": {
+        "front_fp_lit_eevee": {
+          "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-viseme-inspect-front_fp.png",
+          "sha256": "5cacd3528dd4d53f3a5204e4d07560ff3d6cc76f3a1d0653a02304b4c0007553",
+          "bytes": 709671,
+          "engine": "Blender EEVEE headless (baked Principled base colour, not Workbench)"
+        }
+      }
+    }
+  ],
+  "exceptions": [
+    {
+      "body": "mpfb-street-adult-male.glb",
+      "reason": "Owned by another agent's street-clothing card (tsk_2a6935fb4eb63f95); not baked or decimated on this card, same as HB-02 and HB-03."
+    }
+  ],
+  "loaderCompatibility": "packages/openclinxr/xr-asset-loading/src/generated-loaders.ts:82 registers MeshoptDecoder on the humanoid GLTFLoader; no KTX2 or Draco loader is registered. The ladder emits plain (uncompressed) GLBs with extensionsUsed [] \u2014 no KHR_texture_basisu, KHR_draco_mesh_compression or WebP \u2014 so every rung output is loadable as shipped.",
+  "claimScope": [
+    "face-preserving meshopt post-opt rung after the HB-02 albedo bake, per body; face meshes untouched, joints and body morph targets unchanged"
+  ],
+  "notEvidenceFor": [
+    "Quest 3 worn readiness",
+    "clinical accuracy",
+    "learner runtime adoption"
+  ],
+  "outcome": "GREEN: five HB-03 over-budget bodies land on a face-preserving decimated rung inside the acceptable 120k budget with faceRetentionRatio 1 and joints unchanged; live GLBs rewritten by this card with provenance sidecars re-recorded in the same change."
+}
