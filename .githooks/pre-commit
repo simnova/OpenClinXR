@@ -14,4 +14,7 @@ if [ -s "$NVM_DIR/nvm.sh" ]; then
 fi
 
 echo "Running OpenClaw pre-commit guardrails..."
+# Path-scoped architecture scans cap vitest at 1 worker and serialize on a
+# git-common-dir lock (agentic-hook-runner.ts). Do not reach for the emergency
+# hook bypass; this step timing out under parallel load is the defect the lock closes.
 pnpm hooks:pre-commit
