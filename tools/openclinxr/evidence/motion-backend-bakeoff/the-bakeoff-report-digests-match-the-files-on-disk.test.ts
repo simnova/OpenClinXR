@@ -28,6 +28,18 @@ import { describe, expect, it } from "vitest";
  *   capture.mts hashed (mpfb-clinical-nurse-adult.glb, harness.html).
  * notEvidenceFor: what the stills SHOW; which backend wins; still-file digest agreement (out of
  *   scope / not-tested on this card).
+ *
+ * ## FIXED (tsk_c1cc229c4a12a3b5)
+ * Recapture completed via the bake-off's own command, foreground:
+ *   pnpm exec tsx tools/openclinxr/evidence/motion-backend-bakeoff/capture.mts
+ * /usr/bin/time -p: real 3.48 user 4.11 sys 0.66; wall-clock 3 s; exit 0.
+ * capture.mts wrote report.json; verdict/schemaVersion restored to the pre-capture values
+ * (`other` / openclinxr.motion-backend-bakeoff.v1); verdictDetail restored (no regrade).
+ * Digests were not hand-edited. After capture:
+ *   actorAssetSha256      b744d3d5295e2d4840ceae586924727725667cb0260a5b1f3ee68dd2e72e136f
+ *   harnessSha256         18bffc2e664c6c361fab3aa5f61d289653e91a4c16b6221e9029d3bd4f821e99
+ *   measuredAgainstCommit 6c9892fe403fb51e76a593cde90527f047894106
+ * Both match the files on disk. The next drift fails these cases.
  */
 
 const REPO = join(import.meta.dirname, "../../../..");
@@ -59,7 +71,7 @@ describe("the bake-off report digests match the files on disk", () => {
     expect(r.harnessSha256, "the report records no harnessSha256; staleness is undetectable").toMatch(/^[0-9a-f]{64}$/u);
   });
 
-  it.fails("(1) RED: the report's actor digest is the actor on disk", () => {
+  it("(1) RED: the report's actor digest is the actor on disk", () => {
     const recorded = String(report().actorAssetSha256 ?? "");
     const onDisk = sha256File(ACTOR);
     expect(
@@ -68,7 +80,7 @@ describe("the bake-off report digests match the files on disk", () => {
     ).toBe(onDisk);
   });
 
-  it.fails("(2) RED: the report's harness digest is the harness on disk", () => {
+  it("(2) RED: the report's harness digest is the harness on disk", () => {
     const recorded = String(report().harnessSha256 ?? "");
     const onDisk = sha256File(HARNESS);
     expect(

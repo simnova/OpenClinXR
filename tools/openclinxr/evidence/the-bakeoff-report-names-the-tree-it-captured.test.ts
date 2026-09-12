@@ -38,6 +38,11 @@ import { describe, expect, it } from "vitest";
  * claimScope: whether report.json's recorded actor and harness digests are the files on disk.
  * notEvidenceFor: what the stills SHOW — no pixel is graded here. Which backend wins. Whether a
  *   fresh capture's verdict is right. Any other cached artifact; the survey found only these two.
+ *
+ * ## FIXED (tsk_c1cc229c4a12a3b5)
+ * Recapture via `pnpm exec tsx tools/openclinxr/evidence/motion-backend-bakeoff/capture.mts`
+ * (foreground, real 3.48s, exit 0) wrote matching actor/harness digests into report.json.
+ * These expected-fail clauses now pass; flipped so the next drift fails them.
  */
 
 const ROOT = join(import.meta.dirname, "../../..");
@@ -75,7 +80,7 @@ describe("the bake-off report names the tree it captured", () => {
     }
   });
 
-  it.fails("(1) RED: the report's actor digest is the actor on disk", () => {
+  it("(1) RED: the report's actor digest is the actor on disk", () => {
     const recorded = String(report().actorAssetSha256 ?? "");
     const onDisk = digest(ACTOR);
     expect(
@@ -84,7 +89,7 @@ describe("the bake-off report names the tree it captured", () => {
     ).toBe(onDisk);
   });
 
-  it.fails("(2) RED: the report's harness digest is the harness on disk", () => {
+  it("(2) RED: the report's harness digest is the harness on disk", () => {
     const recorded = String(report().harnessSha256 ?? "");
     const onDisk = digest(HARNESS);
     expect(
