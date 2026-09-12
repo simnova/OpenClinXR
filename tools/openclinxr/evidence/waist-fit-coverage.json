@@ -95,11 +95,11 @@
     {
       "id": "mpfb-street-adult-male",
       "source": "cast",
-      "overlapMm": -16.8,
+      "overlapMm": 5,
       "bucketCount": 31,
       "upperName": "mat_makeclothes_library_toigo_t_shirt",
       "lowerName": "mat_makeclothes_library_straight_leg_jeans_pants",
-      "gapped": 4
+      "gapped": 0
     }
   ]
 }
