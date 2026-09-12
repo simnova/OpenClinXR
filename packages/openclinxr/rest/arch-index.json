@@ -127,7 +127,8 @@
     "src/routes/the-faculty-assessment-is-rubric-grounded-and-seals-immutably.test.ts",
     "src/routes/the-feedback-release-is-explicit-immutable-and-learner-safe.test.ts",
     "src/routes/the-station-quality-review-exposes-signals-and-no-learner-content.test.ts",
-    "src/runtime-durable-store.test.ts"
+    "src/runtime-durable-store.test.ts",
+    "src/the-admin-graphql-root-executes-faculty-dispositions-against-the-durable-store.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/rest test",
