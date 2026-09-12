@@ -6,13 +6,19 @@ import {
   createExamFormRun,
   currentExamFormRunStation,
   startExamFormRun,
+  type ExamFormRunState,
 } from "../index.js";
 import { completeExamFormRunWithAttemptManifest } from "../exam-form-run.js";
+import {
+  reconstructOrderedAttemptSegmentsFromManifest,
+  type ReconstructedAttemptSegment,
+} from "./replay-from-manifest.js";
 import type {
   AttemptManifestBreakEvidenceInput,
   AttemptManifestPersistenceSink,
   AttemptManifestStationEvidenceInput,
   CompleteExamFormRunWithAttemptManifestInput,
+  ReplayableAttemptManifest,
 } from "./types.js";
 
 const FIRST_ADVANCED_AT = "2026-09-04T12:01:00.000Z";
@@ -123,18 +129,64 @@ describe("attempt manifest exam completion", () => {
     ).rejects.toThrow("durable manifest write failed");
     expect(prepared.run.status).toBe("in_progress");
   });
+
+  it("replays ordered attempt segments from a JSON-cloned sealed manifest alone", async () => {
+    const prepared = preparedTerminalRun();
+    const input = completionInput(prepared, {
+      saveAttemptManifest: vi.fn<AttemptManifestPersistenceSink["saveAttemptManifest"]>(),
+    });
+    const completed = await completeExamFormRunWithAttemptManifest(input);
+    const produced = orderedAttemptSegmentsFromCompletedRun(completed.run, input);
+
+    const isolatedManifest = JSON.parse(
+      JSON.stringify(completed.manifest),
+    ) as ReplayableAttemptManifest;
+    const reconstructed = reconstructOrderedAttemptSegmentsFromManifest(isolatedManifest);
+
+    expect(reconstructOrderedAttemptSegmentsFromManifest.length).toBe(1);
+    expect(reconstructed.map((segment) => segment.kind)).toEqual(["station", "break", "station"]);
+    expect(reconstructed).toEqual(produced);
+  });
+
+  it("seals a two-station run with no break through the same path", async () => {
+    const saveWithBreak = vi.fn<AttemptManifestPersistenceSink["saveAttemptManifest"]>();
+    const saveNoBreak = vi.fn<AttemptManifestPersistenceSink["saveAttemptManifest"]>();
+    const withBreak = await completeExamFormRunWithAttemptManifest(
+      completionInput(preparedTerminalRun(), { saveAttemptManifest: saveWithBreak }),
+    );
+    const noBreak = await completeExamFormRunWithAttemptManifest(
+      completionInput(preparedTerminalRun({ breakAfterStationOrders: [] }), {
+        saveAttemptManifest: saveNoBreak,
+      }),
+    );
+
+    expect(noBreak.run.status).toBe("complete");
+    expect(noBreak.manifest.status).toBe("sealed");
+    expect(noBreak.manifest.breaks).toEqual([]);
+    expect(saveNoBreak).toHaveBeenCalledOnce();
+    expect(saveNoBreak).toHaveBeenCalledWith(noBreak.manifest);
+    expect(saveWithBreak).toHaveBeenCalledOnce();
+    expect(stationSegmentShape(noBreak.manifest.stations)).toEqual(
+      stationSegmentShape(withBreak.manifest.stations),
+    );
+    expect(Object.isFrozen(noBreak.manifest)).toBe(true);
+    expect(noBreak.manifest.examEquivalenceGate).toBe(withBreak.manifest.examEquivalenceGate);
+    expect(noBreak.manifest.claimBoundary).toBe(withBreak.manifest.claimBoundary);
+  });
 });
 
 type PreparedTerminalRun = ReturnType<typeof preparedTerminalRun>;
 
-function preparedTerminalRun() {
+function preparedTerminalRun(
+  options: { breakAfterStationOrders?: readonly number[] } = { breakAfterStationOrders: [1] },
+) {
   const scenarios = [edChestPainScenario, edChestPainScenario];
   const baseBlueprint = createDefaultClinicalSkillsBlueprint(scenarios, { stationCount: 2 });
   const blueprint = {
     ...baseBlueprint,
     timing: {
       ...baseBlueprint.timing,
-      breakAfterStationOrders: [1],
+      breakAfterStationOrders: [...(options.breakAfterStationOrders ?? [])],
     },
   };
   let run = startExamFormRun(createExamFormRun({
@@ -175,7 +227,7 @@ function completionInput(
       stationEvidence(prepared.firstStation, "station_run_manifest_001", FIRST_ADVANCED_AT, 10),
       stationEvidence(prepared.finalStation, "station_run_manifest_002", FINAL_ADVANCED_AT, 20),
     ],
-    breakEvidence: breakEvidence(prepared),
+    breakEvidence: prepared.run.queue.breakWindows.length === 0 ? [] : breakEvidence(prepared),
     finalDisposition: {
       kind: "completed",
       dispositionRef: "durable://exam-runs/exam_run_manifest_001/dispositions/final",
@@ -254,6 +306,60 @@ function breakEvidence(prepared: PreparedTerminalRun): AttemptManifestBreakEvide
       durableEventRef: "durable://exam-runs/exam_run_manifest_001/breaks/1/events/2",
     },
   }];
+}
+
+function orderedAttemptSegmentsFromCompletedRun(
+  run: ExamFormRunState,
+  input: CompleteExamFormRunWithAttemptManifestInput,
+): ReconstructedAttemptSegment[] {
+  const segments: ReconstructedAttemptSegment[] = [];
+  for (const station of run.queue.stationQueue) {
+    const evidence = requireValue(
+      input.stationEvidence.find((entry) => entry.stationOrder === station.stationOrder),
+      `station ${station.stationOrder} evidence`,
+    );
+    segments.push({
+      kind: "station",
+      stationOrder: station.stationOrder,
+      slotId: station.slotId,
+      stationRunId: evidence.stationRunId,
+      admittedPhaseRefs: evidence.admittedPhaseRefs,
+      learnerEventTraceRef: evidence.learnerEventTraceRef,
+      reviewPacketRef: evidence.reviewPacketRef,
+    });
+    const window = run.queue.breakWindows.find(
+      (entry) => entry.afterStationOrder === station.stationOrder,
+    );
+    if (!window) {
+      continue;
+    }
+    const breakEntry = requireValue(
+      input.breakEvidence.find((entry) => entry.afterStationOrder === window.afterStationOrder),
+      `break after station ${window.afterStationOrder} evidence`,
+    );
+    segments.push({
+      kind: "break",
+      afterStationOrder: window.afterStationOrder,
+      durationSeconds: window.durationSeconds,
+      started: breakEntry.started,
+      ended: breakEntry.ended,
+    });
+  }
+  return segments;
+}
+
+function stationSegmentShape(stations: ReplayableAttemptManifest["stations"]) {
+  return stations.map((station) => ({
+    stationOrder: station.stationOrder,
+    fieldNames: Object.keys(station).sort(),
+    phaseTypes: station.admittedPhaseRefs.map((ref) => ref.eventType),
+    phaseFieldNames: Object.keys(station.admittedPhaseRefs[0] ?? {}).sort(),
+    outcomeFieldNames: Object.keys(station.outcome).sort(),
+    outcomePhase: station.outcome.phase,
+    noteSubmitted: station.outcome.noteSubmitted,
+    hasTraceRef: station.learnerEventTraceRef.startsWith("durable://station-runs/"),
+    hasReviewPacketRef: station.reviewPacketRef.startsWith("durable://station-runs/"),
+  }));
 }
 
 function requireValue<T>(value: T | null | undefined, label: string): T {

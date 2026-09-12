@@ -3,6 +3,7 @@ import {
   createImmutableAttemptManifest,
   LocalTestAttemptManifestStore,
 } from "./durable-attempt-manifest.js";
+import { reconstructOrderedAttemptSegmentsFromManifest } from "./replay-from-manifest.js";
 import type { ReplayableAttemptManifest } from "./types.js";
 
 describe("durable attempt manifests", () => {
@@ -71,18 +72,38 @@ describe("durable attempt manifests", () => {
     );
     expect(await store.loadAttemptManifestForExamRun("exam_run_manifest_001")).toBeNull();
   });
+
+  it("replays ordered attempt segments from a JSON-cloned sealed manifest alone", () => {
+    const sealed = twoStationManifestWithBreakFixture();
+    const isolatedManifest = JSON.parse(JSON.stringify(sealed)) as ReplayableAttemptManifest;
+    const reconstructed = reconstructOrderedAttemptSegmentsFromManifest(isolatedManifest);
+
+    expect(reconstructOrderedAttemptSegmentsFromManifest.length).toBe(1);
+    expect(reconstructed.map((segment) => segment.kind)).toEqual(["station", "break", "station"]);
+    expect(reconstructed[0]).toMatchObject({
+      kind: "station",
+      stationOrder: 1,
+      admittedPhaseRefs: sealed.stations[0]?.admittedPhaseRefs,
+      learnerEventTraceRef: sealed.stations[0]?.learnerEventTraceRef,
+      reviewPacketRef: sealed.stations[0]?.reviewPacketRef,
+    });
+    expect(reconstructed[1]).toMatchObject({
+      kind: "break",
+      afterStationOrder: 1,
+      durationSeconds: 60,
+    });
+    expect(reconstructed[2]).toMatchObject({
+      kind: "station",
+      stationOrder: 2,
+      admittedPhaseRefs: sealed.stations[1]?.admittedPhaseRefs,
+      learnerEventTraceRef: sealed.stations[1]?.learnerEventTraceRef,
+      reviewPacketRef: sealed.stations[1]?.reviewPacketRef,
+    });
+  });
 });
 
 function manifestFixture(): ReplayableAttemptManifest {
-  const stationRunId = "station_run_manifest_001";
   const occurredAtIso = "2026-09-04T12:03:00.000Z";
-  const phaseTypes = [
-    "encounter.started",
-    "encounter.ended",
-    "note.started",
-    "note.submitted",
-    "station.advanced",
-  ] as const;
   return {
     schemaVersion: "openclinxr.attempt-manifest.v1",
     manifestId: "attempt_manifest_exam_run_manifest_001",
@@ -93,37 +114,7 @@ function manifestFixture(): ReplayableAttemptManifest {
     status: "sealed",
     completedAtIso: occurredAtIso,
     sealedAtIso: "2026-09-04T12:03:01.000Z",
-    stations: [{
-      stationOrder: 1,
-      slotId: "slot_manifest_001",
-      stationRunId,
-      scenarioId: "scenario_manifest_001",
-      scenarioVersion: 7,
-      admittedPhaseRefs: phaseTypes.map((eventType, index) => ({
-        eventType,
-        stationRunId,
-        sequence: 10 + index,
-        formAtSecond: requireValue([60, 960, 960, 1_560, 1_560][index], "phase time"),
-        occurredAtIso: eventType === "station.advanced"
-          ? occurredAtIso
-          : "2026-09-04T12:00:00.000Z",
-        durableEventRef: `durable://station-runs/${stationRunId}/events/${10 + index}`,
-      })),
-      learnerEventTraceRef: `durable://station-runs/${stationRunId}/trace`,
-      reviewPacketRef: `durable://station-runs/${stationRunId}/review-packet`,
-      outcome: {
-        stationOrder: 1,
-        slotId: "slot_manifest_001",
-        scenarioId: "scenario_manifest_001",
-        scenarioVersion: 7,
-        phase: "complete",
-        noteSubmitted: true,
-        startedAtFormSecond: 0,
-        endedAtFormSecond: 1_560,
-        advanceReason: "last_station_note_submitted_exam_complete",
-        recordedAtIso: occurredAtIso,
-      },
-    }],
+    stations: [stationFixture(1, "station_run_manifest_001", 10, 0, 1_560, occurredAtIso)],
     breaks: [],
     finalDisposition: {
       kind: "completed",
@@ -151,6 +142,100 @@ function manifestFixture(): ReplayableAttemptManifest {
     clinicalValidityClaimed: false,
     scoringValidityClaimed: false,
     questReadinessClaimed: false,
+  };
+}
+
+function twoStationManifestWithBreakFixture(): ReplayableAttemptManifest {
+  const firstEndedAtIso = "2026-09-04T12:01:00.000Z";
+  const finalEndedAtIso = "2026-09-04T12:03:00.000Z";
+  const first = stationFixture(1, "station_run_manifest_001", 10, 0, 1_560, firstEndedAtIso);
+  const second = stationFixture(2, "station_run_manifest_002", 20, 1_620, 3_180, finalEndedAtIso);
+  return {
+    ...manifestFixture(),
+    completedAtIso: finalEndedAtIso,
+    stations: [first, second],
+    breaks: [{
+      afterStationOrder: 1,
+      startsAtFormSecond: 1_560,
+      endsAtFormSecond: 1_620,
+      durationSeconds: 60,
+      started: {
+        eventType: "break.started",
+        examRunId: "exam_run_manifest_001",
+        sequence: 15,
+        formAtSecond: 1_560,
+        recordedAtIso: firstEndedAtIso,
+        durableEventRef: "durable://exam-runs/exam_run_manifest_001/breaks/1/events/1",
+      },
+      ended: {
+        eventType: "break.ended",
+        examRunId: "exam_run_manifest_001",
+        sequence: 16,
+        formAtSecond: 1_620,
+        recordedAtIso: "2026-09-04T12:02:00.000Z",
+        durableEventRef: "durable://exam-runs/exam_run_manifest_001/breaks/1/events/2",
+      },
+    }],
+  };
+}
+
+function stationFixture(
+  stationOrder: number,
+  stationRunId: string,
+  sequenceStart: number,
+  startedAtFormSecond: number,
+  endedAtFormSecond: number,
+  occurredAtIso: string,
+): ReplayableAttemptManifest["stations"][number] {
+  const phaseTypes = [
+    "encounter.started",
+    "encounter.ended",
+    "note.started",
+    "note.submitted",
+    "station.advanced",
+  ] as const;
+  const encounterStart = startedAtFormSecond + 60;
+  const encounterEnd = endedAtFormSecond - 600;
+  const phaseTimes = [
+    encounterStart,
+    encounterEnd,
+    encounterEnd,
+    endedAtFormSecond,
+    endedAtFormSecond,
+  ];
+  const slotId = `slot_manifest_${String(stationOrder).padStart(3, "0")}`;
+  return {
+    stationOrder,
+    slotId,
+    stationRunId,
+    scenarioId: "scenario_manifest_001",
+    scenarioVersion: 7,
+    admittedPhaseRefs: phaseTypes.map((eventType, index) => ({
+      eventType,
+      stationRunId,
+      sequence: sequenceStart + index,
+      formAtSecond: requireValue(phaseTimes[index], "phase time"),
+      occurredAtIso: eventType === "station.advanced"
+        ? occurredAtIso
+        : "2026-09-04T12:00:00.000Z",
+      durableEventRef: `durable://station-runs/${stationRunId}/events/${sequenceStart + index}`,
+    })),
+    learnerEventTraceRef: `durable://station-runs/${stationRunId}/trace`,
+    reviewPacketRef: `durable://station-runs/${stationRunId}/review-packet`,
+    outcome: {
+      stationOrder,
+      slotId,
+      scenarioId: "scenario_manifest_001",
+      scenarioVersion: 7,
+      phase: "complete",
+      noteSubmitted: true,
+      startedAtFormSecond,
+      endedAtFormSecond,
+      advanceReason: stationOrder === 2
+        ? "last_station_note_submitted_exam_complete"
+        : "patient_note_submitted_advancing",
+      recordedAtIso: occurredAtIso,
+    },
   };
 }
 
