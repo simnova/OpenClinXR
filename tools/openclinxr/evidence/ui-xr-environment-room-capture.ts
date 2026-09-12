@@ -19,6 +19,19 @@ import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "playwright";
 import { deriveDoorwayOverviewCameraForEnvironment } from "./doorway-overview-camera.js";
 import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
+import {
+  attachStationCapturePageDiagnostics,
+  formatStationCapturePageDiagnostics,
+  stationCapturePageDiagnosticsOf,
+  type StationCapturePageDiagnostics,
+  type StationCapturePageListenerHost,
+} from "./station-capture/page-diagnostics.js";
+
+export {
+  attachStationCapturePageDiagnostics,
+  formatStationCapturePageDiagnostics,
+  type StationCapturePageDiagnostics,
+};
 
 export const ROOM_CAPTURE_OUTPUT_DIR = ".openclinxr/evidence/ui-xr-environment-room/latest";
 export const ROOM_CAPTURE_MANIFEST_NAME = "capture-manifest.json";
@@ -1030,26 +1043,26 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
     const scene = (browserPageWindow as unknown as { __openClinXrDebugScene?: Obj }).__openClinXrDebugScene;
     if (!scene?.traverse) return "no-scene";
 
-    let camera: Cam | undefined;
+    let foundCamera: Cam | undefined;
     scene.traverse((object) => {
-      if (camera) return;
+      if (foundCamera) return;
       if (object.isPerspectiveCamera || object.type === "PerspectiveCamera") {
-        camera = object as unknown as Cam;
+        foundCamera = object as unknown as Cam;
       }
     });
-    if (!camera) return "no-camera";
+    if (!foundCamera) return "no-camera";
 
     // Doorway-side elevated overview looking into the encounter (negative Z).
-    camera.position.set(cam.x, cam.y, cam.z);
-    camera.lookAt(0, 1.0, -1.35);
-    if (typeof camera.fov === "number") {
-      camera.fov = 62;
-      camera.updateProjectionMatrix?.();
+    foundCamera.position.set(cam.x, cam.y, cam.z);
+    foundCamera.lookAt(0, 1.0, -1.35);
+    if (typeof foundCamera.fov === "number") {
+      foundCamera.fov = 62;
+      foundCamera.updateProjectionMatrix?.();
     }
-    if (camera.userData) {
-      camera.userData.openClinXrCameraFraming = "environment_room_capture_doorway_elevated_overview_#398";
+    if (foundCamera.userData) {
+      foundCamera.userData.openClinXrCameraFraming = "environment_room_capture_doorway_elevated_overview_#398";
     }
-    return `roomCam=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`;
+    return `roomCam=${foundCamera.position.x.toFixed(2)},${foundCamera.position.y.toFixed(2)},${foundCamera.position.z.toFixed(2)}`;
   }, camera);
 }
 
@@ -1061,15 +1074,32 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
  * closed keeps its own meaning), and the original message survives so the cause is not
  * traded for a name.
  */
-function rethrowNamedWaitTimeout(err: unknown, waitName: string): never {
+function rethrowNamedWaitTimeout(
+  err: unknown,
+  waitName: string,
+  diagnostics?: StationCapturePageDiagnostics,
+): never {
   if (err instanceof Error && err.message.includes("Timeout")) {
-    throw new Error(`${waitName} wait timed out: ${err.message}`, { cause: err });
+    throw new Error(
+      `${waitName} wait timed out: ${err.message}${formatStationCapturePageDiagnostics(diagnostics)}`,
+      { cause: err },
+    );
   }
   throw err;
 }
 
+function diagnosticsForPage(page: Page): StationCapturePageDiagnostics | undefined {
+  const existing = stationCapturePageDiagnosticsOf(page);
+  if (existing) return existing;
+  if (typeof (page as { on?: unknown }).on === "function") {
+    return attachStationCapturePageDiagnostics(page as unknown as StationCapturePageListenerHost);
+  }
+  return undefined;
+}
+
 /** Wait until station shell is present (exported for #83 measure). */
 export async function waitForStationShell(page: Page, timeoutMs = 180_000): Promise<LiveShellFromPage> {
+  const diagnostics = diagnosticsForPage(page);
   // Playwright signature is (fn, arg, options) — options must be the third argument.
   try {
     await page.waitForFunction(
@@ -1092,7 +1122,7 @@ export async function waitForStationShell(page: Page, timeoutMs = 180_000): Prom
       { timeout: timeoutMs },
     );
   } catch (err) {
-    rethrowNamedWaitTimeout(err, "station shell");
+    rethrowNamedWaitTimeout(err, "station shell", diagnostics);
   }
   const reading = await readLiveShellFromPage(page);
   if (!reading.ready) {
@@ -1106,6 +1136,7 @@ export async function waitForStationShell(page: Page, timeoutMs = 180_000): Prom
  * #85: 700ms settle after shell was too short — capture froze bare mannequins mid-load.
  */
 export async function waitForHumanoidAssetsLoaded(page: Page, timeoutMs = 180_000): Promise<void> {
+  const diagnostics = diagnosticsForPage(page);
   try {
     await page.waitForFunction(
       () => {
@@ -1138,7 +1169,7 @@ export async function waitForHumanoidAssetsLoaded(page: Page, timeoutMs = 180_00
       { timeout: timeoutMs },
     );
   } catch (err) {
-    rethrowNamedWaitTimeout(err, "humanoid assets");
+    rethrowNamedWaitTimeout(err, "humanoid assets", diagnostics);
   }
 }
 
@@ -1194,11 +1225,18 @@ export async function captureStationEnvironmentRooms(
 
       for (const scenarioId of scenarioIds) {
         const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+        const diagnostics = attachStationCapturePageDiagnostics(
+          page as unknown as StationCapturePageListenerHost,
+        );
         try {
           const url = buildCaptureUrl(baseUrl, scenarioId, captureMode);
           process.stdout.write(`room-capture: goto ${scenarioId} mode=${captureMode}\n`);
           // Prefer "load" over networkidle — WebGL/XR pages often never go fully idle.
-          await page.goto(url, { waitUntil: "load", timeout: 180_000 });
+          try {
+            await page.goto(url, { waitUntil: "load", timeout: 180_000 });
+          } catch (err) {
+            rethrowNamedWaitTimeout(err, "page load", diagnostics);
+          }
 
           const live = await waitForStationShell(page, 180_000);
           // #342 — the empty-stage guard requires A STANDING SURFACE, not specifically the
