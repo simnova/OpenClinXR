@@ -89,7 +89,7 @@ describe("the luminance gate only claims what it can see", () => {
     const s = stations();
     const dark = s["primary_care_dyslipidemia_joint_pain_v1"]?.median;
     const bright = s["ward_delirium_med_rec_v1"]?.median;
-    expect(dark, "primary_care missing from the sweep").toBeTruthy();
+    expect(typeof dark === "number", "primary_care missing from the sweep").toBe(true);
     expect(bright, "ward_delirium missing from the sweep").toBeTruthy();
     expect(
       bright! / dark!,

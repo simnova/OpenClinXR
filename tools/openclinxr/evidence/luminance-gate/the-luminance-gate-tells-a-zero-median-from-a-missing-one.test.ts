@@ -23,6 +23,10 @@ import { describe, expect, it } from "vitest";
  * claimScope: that the gate distinguishes a recorded median of 0 from no recorded median.
  * notEvidenceFor: floors, ceilings or bands; how any frame looks; the sweep's storage shape;
  *   whether any other gate makes the same truthiness mistake.
+ *
+ * ## FIXED
+ * Gate line 92 now asserts `typeof dark === "number"` (was `toBeTruthy()`), so a recorded
+ * median of 0 counts as present. An absent row is still not a number.
  */
 
 const SWEEP = "tools/openclinxr/evidence/station-luminance-sweep.json";
@@ -54,11 +58,11 @@ describe("the luminance gate tells a zero median from a missing one", () => {
     ).toBeUndefined();
   });
 
-  it.fails("(1) RED: a recorded median of 0 is present, not missing", () => {
-    // The gate's clause (2) shape: toBeTruthy on the optional-chained median. Median 0 is
-    // falsy, so this fails exactly the way the gate fails — a sampling zero reads as absent.
+  it("(1) RED: a recorded median of 0 is present, not missing", () => {
+    // The gate's clause (2) shape: typeof === "number" on the optional-chained median.
+    // Median 0 is a number, so a sampling zero reads as present.
     const dark = readDark(sweepStations());
-    expect(dark, `${STATION} missing from the sweep`).toBeTruthy();
+    expect(typeof dark === "number", `${STATION} missing from the sweep`).toBe(true);
   });
 
   it("(2) KNOWN-GOOD COLUMN: the note measures the same station at median 23 with sd 60.3", () => {
@@ -87,7 +91,7 @@ describe("the luminance gate tells a zero median from a missing one", () => {
     expect(existsSync(GATE), `${GATE} moved — the marker points at nothing`).toBe(true);
     const gate = readFileSync(GATE, "utf8");
     expect(
-      gate.includes('expect(dark, "primary_care missing from the sweep").toBeTruthy();'),
+      gate.includes('expect(typeof dark === "number", "primary_care missing from the sweep").toBe(true);'),
       "the gate no longer carries the truthy clause this RED pins — flip (1), do not delete this file",
     ).toBe(true);
   });
