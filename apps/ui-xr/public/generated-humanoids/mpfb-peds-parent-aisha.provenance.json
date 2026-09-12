@@ -68,12 +68,18 @@
   ],
   "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
   "promotionGates": false,
-  "outputSha256": "57fa9d91409408e02860084eeecd2320a342b11a090a59dd6eb6411726430ed9",
-  "outputBytes": 17181156,
+  "outputSha256": "1e21a07a929600f72032e962814e1127ae1695786d60600a403881c3c081c1d8",
+  "outputBytes": 14017284,
+  "fitTimeLower": {
+    "garment": "punkduck_female_tight_jeans",
+    "sourceObjFaces": 2108,
+    "fittedTris": 4216,
+    "lowerGateCoverage": 0.9775
+  },
   "generatedAt": "2026-08-23T19:35:00.000Z",
   "method": "mpfb2_materializer_rebake_numeric_phenotype_macros_576",
   "runtimeRole": "intermediate_bake",
   "runtimeRoleWhy": "The runtime loads the .motion-bind DERIVATIVE of this base (humanoid-runtime-asset-url.ts:83), not this file. Contracts that measure this base and call it 'the shipped parent' are measuring the wrong asset - a latent false-green.",
   "albedoBakeWrittenAt": "2026-09-11T05:16:52.437Z",
-  "albedoBakeNote": "2026-09-12 female covering lower: rematerialize with pants02 punkduck_female_tight_jeans (4216 tris = 2108 faces x 2) via ClothesService; albedo bake; chest-anchor 0.085 m. Face-preserving 0.4 skipped (jeans topology). Previous pin cef1e21b12c55437 / 8620932. Report: tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-acquisition-2026-09-12.md."
+  "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt fp-r0.4 then chest-anchor 0.085 m. Shipped 68898 tris / 14017284 B (jeans 1893). Previous raw pin 57fa9d91409408e0 / 17181156."
 }

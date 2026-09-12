@@ -119,9 +119,9 @@
   {
    "body": "mpfb-ob-patient-aisha.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 17002120,
-   "bytesBefore": 11677568,
-   "chosenRungId": "raw",
+   "bytesAfter": 13927908,
+   "bytesBefore": 17002120,
+   "chosenRungId": "fp-r0.4",
    "faceAfter": 52778,
    "faceBefore": 52778,
    "faceRetentionRatio": 1,
@@ -133,9 +133,9 @@
    "jointCountBefore": 137,
    "jointCountExpected": 137,
    "promoted": true,
-   "promotionNote": "2026-09-12 female covering lower: rematerialize punkduck_female_tight_jeans 4216 tris = 2108 x 2; albedo; chest-anchor 0.085. Face-preserving 0.4 skipped (simplified jeans off faces x 2). budgets.propShare 40000 unchanged. chosenRungId raw.",
-   "triangleCountAfter": 92430,
-   "triangleCountBefore": 90906
+   "promotionNote": "2026-09-12 fp-r0.4 restore after female covering lower. Fit-time jeans 4216 (2108 x 2). Shipped jeans 1986. budgets.propShare 40000 unchanged.",
+   "triangleCountAfter": 69093,
+   "triangleCountBefore": 92430
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -170,9 +170,9 @@
   {
    "body": "mpfb-peds-parent-aisha.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 17181156,
-   "bytesBefore": 11857108,
-   "chosenRungId": "raw",
+   "bytesAfter": 14017284,
+   "bytesBefore": 17181156,
+   "chosenRungId": "fp-r0.4",
    "faceAfter": 52778,
    "faceBefore": 52778,
    "faceRetentionRatio": 1,
@@ -184,9 +184,9 @@
    "jointCountBefore": 137,
    "jointCountExpected": 137,
    "promoted": true,
-   "promotionNote": "2026-09-12 female covering lower: rematerialize punkduck_female_tight_jeans 4216 tris = 2108 x 2; albedo; chest-anchor 0.085. Face-preserving 0.4 skipped. budgets.propShare 40000 unchanged. chosenRungId raw.",
-   "triangleCountAfter": 92430,
-   "triangleCountBefore": 91032
+   "promotionNote": "2026-09-12 fp-r0.4 restore. Fit-time jeans 4216. Shipped jeans 1893. budgets.propShare 40000 unchanged.",
+   "triangleCountAfter": 68898,
+   "triangleCountBefore": 92430
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -213,9 +213,9 @@
   {
    "body": "mpfb-viseme-inspect.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 17035784,
-   "bytesBefore": 11738220,
-   "chosenRungId": "raw",
+   "bytesAfter": 13932816,
+   "bytesBefore": 17035784,
+   "chosenRungId": "fp-r0.4",
    "faceAfter": 52778,
    "faceBefore": 52778,
    "faceRetentionRatio": 1,
@@ -227,9 +227,9 @@
    "jointCountBefore": 137,
    "jointCountExpected": 137,
    "promoted": true,
-   "promotionNote": "2026-09-12 female covering lower: rematerialize punkduck_female_tight_jeans 4216 tris = 2108 x 2; albedo; chest-anchor 0.085. Face-preserving 0.4 skipped. budgets.propShare 40000 unchanged. chosenRungId raw.",
-   "triangleCountAfter": 92430,
-   "triangleCountBefore": 90996
+   "promotionNote": "2026-09-12 fp-r0.4 restore. Fit-time jeans 4216. Shipped jeans 1958. budgets.propShare 40000 unchanged.",
+   "triangleCountAfter": 69067,
+   "triangleCountBefore": 92430
   }
  ],
  "budgets": {

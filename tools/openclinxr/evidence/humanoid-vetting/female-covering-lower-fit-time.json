@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "openclinxr.fit-time-lower.v1",
+  "garment": "punkduck_female_tight_jeans",
+  "sourceObj": "makehuman-pants02/clothes/punkduck_female_tight_jeans/tightjeans.obj",
+  "sourceObjFaces": 2108,
+  "fittedTris": 4216,
+  "discriminator": "PANTS_FIT tris == source obj faces x 2, recorded at ClothesService fit time before postopt",
+  "actors": {
+    "mpfb-ob-patient-aisha": {
+      "pantsFitTris": 4216,
+      "lowerGateCoverage": 0.9875,
+      "lowerGateVerdict": "covers"
+    },
+    "mpfb-peds-parent-aisha": {
+      "pantsFitTris": 4216,
+      "lowerGateCoverage": 0.9775,
+      "lowerGateVerdict": "covers"
+    },
+    "mpfb-viseme-inspect": {
+      "pantsFitTris": 4216,
+      "lowerGateCoverage": 0.98,
+      "lowerGateVerdict": "covers"
+    }
+  },
+  "postoptRungId": "fp-r0.4",
+  "postoptNote": "face-preserving ratio 0.4; jeans topology is not preserved (4216 -> ~1900). Fit-time faces x 2 stays in this record. Shipped shell-vs-fit uses standoff spread."
+}

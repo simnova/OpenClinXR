@@ -117,3 +117,37 @@ vs shirt 8.8–9.0 mm; nurse 2704 / street 5708 / family 5708 / child 2726 uncha
 NOT TESTED: whether the jeans clip in a renderer; pixel grade (orchestrator);
 mindfront_female_trousers_1 on a helper-present body; pants03 shorts as a
 deliberate short lower; Quest/WebXR.
+
+## fp-r0.4 restore (same day)
+
+The 4216-tri exactness on *shipped* bytes forbade decimation. Restored the
+pre-slice rung: `iterate-optimize --face-preserving --face-preserving-ratio 0.4`
+then chest-anchor 0.085 m. Fit-time faces × 2 stays in
+`female-covering-lower-fit-time.json` + provenance `fitTimeLower`.
+
+| actor | rung | shipped tris | shipped bytes | shipped jeans tris |
+|---|---|---:|---:|---:|
+| mpfb-ob-patient-aisha | fp-r0.4 | 69093 | 13927908 | 1986 |
+| mpfb-peds-parent-aisha | fp-r0.4 | 68898 | 14017284 | 1893 |
+| mpfb-viseme-inspect | fp-r0.4 | 69067 | 13932816 | 1958 |
+
+Bytes are ~14 MB not 8.5 MB because `tightjeans.png` is in the GLB (the 8.5 MB
+pin was a cargo-named shell without that texture). Tris 69k vs prior 68,178.
+
+Post-fp standoff (same instrument):
+
+| actor | jeans p95−p5 mm | shirt p95−p5 mm |
+|---|---:|---:|
+| aisha | 11.095 | 9.446 |
+| parent | 11.013 | 9.922 |
+| viseme | 11.568 | 9.487 |
+| child (shell, bite) | **0.983** | 8.479 |
+
+Fit-floor > 5 mm: child FAIL (0.983); aisha PASS (11.095).
+
+Jeans at ~1900 tris still read as denim / belt loops / fly / pockets / ankle
+taper on the front_lit captures (orchestrator grades). Did not STOP.
+
+CLAIM (restore): fp-r0.4 shipped; fit-time 4216 = 2108 × 2; shipped shell-vs-fit
+is standoff spread (child 0.983 mm vs fits 11 mm).
+NOT TESTED (restore): texture-budget cut to recover 8.5 MB; Quest.

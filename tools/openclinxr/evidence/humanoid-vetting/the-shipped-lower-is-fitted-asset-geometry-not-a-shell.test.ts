@@ -49,6 +49,15 @@
  * page CC-BY, tag Female/Pants/Jeans, max mhclo ref 13351, 2108 obj faces).
  * Three adult-female stems keyed to it. Shipped lower tris == 2108 x 2 = 4216.
  * Report: female-covering-lower-acquisition-2026-09-12.md.
+ *
+ * ## FIXED (#0 restore-fp-r0.4 discriminator re-point)
+ *
+ * Faces x 2 is a FIT-TIME invariant (PANTS_FIT 4216 == 2108 x 2 in
+ * female-covering-lower-fit-time.json). The shipped mesh is fp-r0.4 (~1900
+ * jeans tris) so exactness on shipped bytes forbids the postopt rung.
+ * Shipped shell-vs-fit is standoff spread: a cover-shell sits in a
+ * sub-millimetre band (child 0.983 mm at ~15 mm); a fit keeps drape
+ * (aisha/parent/viseme 11.0-11.6 mm after fp-r0.4). Child remains the bite.
  */
 
 import { execFileSync } from "node:child_process";
@@ -57,6 +66,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { readNamedMesh, standoffMm, standoffSpreadMm } from "./lower-standoff.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../../..");
@@ -103,10 +113,21 @@ const STREET = join(HUMANOIDS, "mpfb-street-adult-male.glb");
 const NURSE = join(HUMANOIDS, "mpfb-clinical-nurse-adult.glb");
 const REPORT = join(HERE, "remaining-cover-shell-lowers-2026-09-12.md");
 const ACQUISITION = join(HERE, "female-covering-lower-acquisition-2026-09-12.md");
+const FIT_TIME = join(HERE, "female-covering-lower-fit-time.json");
 const MATERIALIZER = join(HERE, "../blender/materialize_mpfb_humanoid_candidate.py");
 const LOWER_RE = /pants|jean|trouser|cargo/i;
 const FAMILY_LOWER_RE = /bootcut_jeans_pants|straight_leg_jeans_pants|cargo_pants/i;
 const FEMALE_JEANS_RE = /female_tight_jeans/i;
+/** Landed snapped-shell band 0.563 mm (family-partner pre-fix) and child 0.983 mm. */
+const SHELL_STANDOFF_SPREAD_MAX_MM = 2;
+/** Landed fitted drape 9.36 mm (shirt) / 10.2 mm (jeans); post-fp jeans 11.0-11.6 mm. */
+const FIT_STANDOFF_SPREAD_MIN_MM = 5;
+
+type FitTimeRecord = {
+  sourceObjFaces: number;
+  fittedTris: number;
+  actors: Record<string, { pantsFitTris: number }>;
+};
 
 function objFaceCount(path: string): number {
   const text = readFileSync(path, "utf8");
@@ -162,20 +183,40 @@ describe("the shipped lower is fitted asset geometry, not a shell", () => {
     expect(tris, "family-partner lower is a shell if tris !== faces*2").toBe(faces * 2);
   });
 
-  it("the same arithmetic FAILS on a cover-shell actor (aisha cargo)", async () => {
+  it("FIT-TIME faces x 2: PANTS_FIT 4216 == tightjeans.obj 2108 x 2", () => {
     const faces = objFaceCount(FEMALE_JEANS_OBJ);
-    const tris = await lowerTriangleCount(AISHA, FEMALE_JEANS_RE);
+    const rec = JSON.parse(readFileSync(FIT_TIME, "utf8")) as FitTimeRecord;
     expect(faces, "punkduck tightjeans.obj face count").toBe(2108);
-    expect(tris, "aisha lower is a shell if tris !== faces*2").toBe(faces * 2);
+    expect(rec.sourceObjFaces, "fit-time record sourceObjFaces").toBe(faces);
+    expect(rec.fittedTris, "fit-time faces x 2").toBe(faces * 2);
+    expect(rec.actors["mpfb-ob-patient-aisha"]?.pantsFitTris).toBe(faces * 2);
+    expect(rec.actors["mpfb-peds-parent-aisha"]?.pantsFitTris).toBe(faces * 2);
+    expect(rec.actors["mpfb-viseme-inspect"]?.pantsFitTris).toBe(faces * 2);
+    const src = readFileSync(MATERIALIZER, "utf8");
+    expect(src.includes("PANTS_FIT"), "materializer still logs PANTS_FIT").toBe(true);
   });
 
-  it("parent and viseme-inspect remain cover shells (no female covering mhclo)", async () => {
-    const faces = objFaceCount(FEMALE_JEANS_OBJ);
-    const parentTris = await lowerTriangleCount(PARENT, FEMALE_JEANS_RE);
-    const visemeTris = await lowerTriangleCount(VISEME, FEMALE_JEANS_RE);
-    expect(faces, "punkduck tightjeans.obj face count").toBe(2108);
-    expect(parentTris, "parent lower is a shell if tris !== faces*2").toBe(faces * 2);
-    expect(visemeTris, "viseme-inspect lower is a shell if tris !== faces*2").toBe(faces * 2);
+  it("SHIPPED standoff spread PASSES on the three fp-r0.4 fits", async () => {
+    for (const glb of [AISHA, PARENT, VISEME]) {
+      const body = await readNamedMesh(glb, /_body/i);
+      const pants = await readNamedMesh(glb, FEMALE_JEANS_RE);
+      const spread = standoffSpreadMm(standoffMm(body, pants)).spread;
+      expect(
+        spread,
+        `${glb} shipped jeans standoff spread must exceed the 5 mm fit floor (shells are <2 mm)`,
+      ).toBeGreaterThan(FIT_STANDOFF_SPREAD_MIN_MM);
+    }
+  });
+
+  it("SHIPPED standoff spread FAILS on the child cover-shell (bite)", async () => {
+    if (!existsSync(CHILD)) return;
+    const body = await readNamedMesh(CHILD, /_body/i);
+    const pants = await readNamedMesh(CHILD, LOWER_RE);
+    const spread = standoffSpreadMm(standoffMm(body, pants)).spread;
+    expect(
+      spread,
+      "child cargo-named shell is a sub-millimetre 15 mm snap band; a fit would exceed 5 mm",
+    ).toBeLessThan(SHELL_STANDOFF_SPREAD_MAX_MM);
   });
 
   it("HB-07 child remains the cargo-named shell (out of scope, not rebaked)", async () => {

@@ -5,8 +5,14 @@
   "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
   "runtimeRole": "inspection_fixture",
   "runtimeRoleWhy": "Inspection subject for viseme contracts. Never cast; the shipped-bank cast resolver does not name it.",
-  "outputSha256": "7abbbac74220bba7fa9027dc97c9f39a2d95f013ab514016fef8494307e7c894",
-  "outputBytes": 17035784,
+  "outputSha256": "407272baf7bcc4969218028448470eb6472dd9ea2069db5f6d2580683614e078",
+  "outputBytes": 13932816,
+  "fitTimeLower": {
+    "garment": "punkduck_female_tight_jeans",
+    "sourceObjFaces": 2108,
+    "fittedTris": 4216,
+    "lowerGateCoverage": 0.98
+  },
   "albedoBakeWrittenAt": "2026-09-11T05:16:52.463Z",
-  "albedoBakeNote": "2026-09-12 female covering lower: rematerialize with pants02 punkduck_female_tight_jeans (4216 tris = 2108 faces x 2) via ClothesService; albedo bake; chest-anchor 0.085 m. Face-preserving 0.4 skipped (jeans topology). Previous pin 98c8ec0bbc494890 / 8560664. Report: tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-acquisition-2026-09-12.md."
+  "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt fp-r0.4 then chest-anchor 0.085 m. Shipped 69067 tris / 13932816 B (jeans 1958). Previous raw pin 7abbbac74220bba7 / 17035784."
 }
