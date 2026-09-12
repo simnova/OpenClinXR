@@ -26,6 +26,7 @@ import {
   type StationCapturePageDiagnostics,
   type StationCapturePageListenerHost,
 } from "./station-capture/page-diagnostics.js";
+import { refineCameraForOcclusionAndContainment } from "./station-capture/refine-camera-for-occlusion-and-containment.js";
 
 export {
   attachStationCapturePageDiagnostics,
@@ -1034,7 +1035,7 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
   } | null;
 
   if (derived) {
-    return page.evaluate((d) => {
+    const note = await page.evaluate((d) => {
       type Vec3 = { set: (x: number, y: number, z: number) => void; x: number; y: number; z: number };
       type Cam = {
         position: Vec3;
@@ -1087,6 +1088,8 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       }
       return `roomCam(derived)=${d.eye.map((v) => v.toFixed(2)).join(",")} look=${d.look.map((v) => v.toFixed(2)).join(",")} nearestActor=${d.nearestActorMeters.toFixed(2)}m rejected=${d.rejectedCandidates.map((p) => p[0].toFixed(1) + "/" + p[1].toFixed(1)).join(" ")} interiorMaxZ=${d.interiorMax[2].toFixed(2)} wallThickness=${d.wallThickness.toFixed(3)}`;
     }, derived);
+    const refineNote = await refineCameraForOcclusionAndContainment(page);
+    return `${note} ${refineNote}`;
   }
 
   // #398 — the camera derives from the shell width and the door constants, not a literal.
@@ -1096,7 +1099,7 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
   const camera = verdict?.camera ?? { x: 1.35, y: 2.05, z: 3.15 };
   const leaf = verdict?.doorLeafXSpan;
   const lookX = leaf ? (leaf[0] + leaf[1]) / 2 : 0;
-  return page.evaluate((cam) => {
+  const fallbackNote = await page.evaluate((cam) => {
     type Cam = {
       position: { set: (x: number, y: number, z: number) => void; x: number; y: number; z: number };
       lookAt: (x: number, y: number, z: number) => void;
@@ -1138,6 +1141,8 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
     }
     return `roomCam=${foundCamera.position.x.toFixed(2)},${foundCamera.position.y.toFixed(2)},${foundCamera.position.z.toFixed(2)} lookX=${cam.lookX.toFixed(2)}`;
   }, { ...camera, lookX });
+  const refineNote = await refineCameraForOcclusionAndContainment(page);
+  return `${fallbackNote} ${refineNote}`;
 }
 
 /**
