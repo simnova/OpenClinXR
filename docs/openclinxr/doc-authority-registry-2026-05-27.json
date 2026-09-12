@@ -6,8 +6,8 @@
   "counts": {
     "agent-methodology": 107,
     "current-reference": 208,
-    "archive-candidate": 91,
-    "evidence": 120,
+    "archive-candidate": 92,
+    "evidence": 121,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -4397,6 +4397,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/scene-closure-2026-09-09/foot-lock-ik-review-2026-09-12.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Four-round Grok consultation 2026-09-12 on terminal-turn foot locking; consultation record, no board mutation."
     },
     {
       "path": "docs/openclinxr/scene-closure-2026-09-09/index.md",
