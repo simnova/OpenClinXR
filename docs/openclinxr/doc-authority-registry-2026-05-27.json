@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 209,
     "archive-candidate": 92,
-    "evidence": 128,
+    "evidence": 130,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -4950,8 +4950,7 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    }
-,
+    },
     {
       "path": "docs/openclinxr/humanoid-motion-clip-deviation-2026-09-12.md",
       "authority": "evidence",
@@ -4965,6 +4964,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Provider empty-response failover fix: measured outage, cooldown tier, two-direction probe."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-seated-pose-transfer-2026-09-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Seated pose transfer diagnosis: retarget_bvh drops held hip flexion via T-pose overwrite. Rest-to-frame-0, asymmetry, 85-deg knee artefact measured."
     }
   ]
 }
