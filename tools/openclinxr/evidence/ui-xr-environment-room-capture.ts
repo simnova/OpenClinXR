@@ -1390,7 +1390,7 @@ export async function captureStationEnvironmentRooms(
               floorVisible: liveAfter.floorVisible,
               encounterFloorTheme: liveAfter.encounterFloorTheme,
               captureMode,
-              cameraFraming: liveAfter.cameraFraming || frameNote,
+              cameraFraming: `${liveAfter.cameraFraming || ""} ${frameNote}`.trim(),
             },
           });
         } finally {

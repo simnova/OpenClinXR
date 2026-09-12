@@ -123,10 +123,22 @@ export function rowFromMetrics(
     largestStandingTouchLeft: largest?.touchLeft ?? false,
     largestStandingTouchRight: metrics.largestStandingTouchRight,
     largestStandingTouchBottom: metrics.largestStandingTouchBottom,
+    largestStandingTouchTop: metrics.largestStandingTouchTop,
     anyStandingTouchRight: metrics.anyStandingTouchRight,
     anyStandingTouchBottom: metrics.anyStandingTouchBottom,
+    anyStandingTouchTop: metrics.anyStandingTouchTop,
+    anyStandingTouchLeft: metrics.anyStandingTouchLeft,
     largestStandingContained: metrics.largestStandingContained,
+    fourEdgeContained: metrics.fourEdgeContained,
+    skinnedTouchLeft: metrics.skinnedTouchLeft,
+    skinnedTouchRight: metrics.skinnedTouchRight,
+    skinnedTouchTop: metrics.skinnedTouchTop,
+    skinnedTouchBottom: metrics.skinnedTouchBottom,
     framesClear: metrics.framesClear,
+    framesWhole: metrics.framesWhole,
+    placardBack: null,
+    meanFacingDeg: null,
+    framesActors: null,
   };
 }
 
