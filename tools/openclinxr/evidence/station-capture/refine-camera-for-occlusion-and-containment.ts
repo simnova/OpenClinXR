@@ -88,12 +88,32 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       const id = actorIdOf(o);
       actorMap[id] = grow(actorMap[id] || null, box);
     });
+    const headingOf = function (mesh) {
+      let root = mesh;
+      let depth = 0;
+      while (root && depth < 8) {
+        const ud = root.userData;
+        if (ud && typeof ud.openClinXrBaseHeadingRadians === "number") return ud.openClinXrBaseHeadingRadians;
+        if (ud && typeof ud.openClinXrConsumedHeadingRadians === "number") return ud.openClinXrConsumedHeadingRadians;
+        root = root.parent;
+        depth += 1;
+      }
+      const e = mesh.matrixWorld && mesh.matrixWorld.elements;
+      if (!e) return 0;
+      return Math.atan2(-e[8], -e[10]);
+    };
+    const actorHeading = {};
+    scene.traverse(function (o) {
+      if (!o.isSkinnedMesh) return;
+      const id = actorIdOf(o);
+      if (actorHeading[id] === undefined) actorHeading[id] = headingOf(o);
+    });
     const standing = [];
     const ids = Object.keys(actorMap);
     for (let i = 0; i < ids.length; i++) {
       const box = actorMap[ids[i]];
       const height = box.max[1] - box.min[1];
-      if (height >= 1.15) standing.push({ id: ids[i], box: box });
+      if (height >= 1.15) standing.push({ id: ids[i], box: box, heading: actorHeading[ids[i]] || 0 });
     }
     if (standing.length === 0) return "refine=no-standing";
 
@@ -123,6 +143,26 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       if (!/door_leaf|fixture-slot.door/i.test(o.name || "")) return;
       const box = worldBoxOf(o);
       if (box) doorBoxes.push(box);
+    });
+    const placards = [];
+    scene.traverse(function (o) {
+      if (!(o.isMesh || o.isSkinnedMesh)) return;
+      if (o.visible === false) return;
+      const n = o.name || "";
+      const ud = o.userData || {};
+      if (!(/scenario-expectation-visual-review-panel|patient-note-capture-cue/i.test(n)
+        || ud.openClinXrPortalInteriorReviewAffordance === true)) return;
+      const box = worldBoxOf(o);
+      if (!box) return;
+      const e = o.matrixWorld && o.matrixWorld.elements;
+      if (!e) return;
+      placards.push({
+        box: box,
+        nx: e[8], ny: e[9], nz: e[10],
+        cx: (box.min[0] + box.max[0]) / 2,
+        cy: (box.min[1] + box.max[1]) / 2,
+        cz: (box.min[2] + box.max[2]) / 2
+      });
     });
 
     const rayHitsBoxes = function (ox, oy, oz, dx, dy, dz, boxes) {
@@ -228,6 +268,45 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       if (rayHitsBoxes(cam[0], cam[1], cam[2], dx, dy, dz, doorBoxes)) return false;
       return true;
     };
+    const placardBackVisible = function () {
+      const cam = cameraWorld();
+      const look = [
+        (primary.box.min[0] + primary.box.max[0]) / 2,
+        (primary.box.min[1] + primary.box.max[1]) / 2,
+        (primary.box.min[2] + primary.box.max[2]) / 2
+      ];
+      const ldx = look[0] - cam[0], ldy = look[1] - cam[1], ldz = look[2] - cam[2];
+      for (let i = 0; i < placards.length; i++) {
+        const p = placards[i];
+        if (rayHitsBoxes(cam[0], cam[1], cam[2], ldx, ldy, ldz, [p.box])) {
+          const vx = p.cx - cam[0], vz = p.cz - cam[2];
+          if (vx * p.nx + vz * p.nz > 0) return true;
+        }
+      }
+      return false;
+    };
+    const meanFacingDeg = function () {
+      const cam = cameraWorld();
+      let sum = 0;
+      for (let i = 0; i < standing.length; i++) {
+        const a = standing[i];
+        const cx = (a.box.min[0] + a.box.max[0]) / 2;
+        const cz = (a.box.min[2] + a.box.max[2]) / 2;
+        const fx = -Math.sin(a.heading);
+        const fz = -Math.cos(a.heading);
+        const tx = cam[0] - cx, tz = cam[2] - cz;
+        const tlen = Math.hypot(tx, tz);
+        let deg = 180;
+        if (tlen > 1e-4) {
+          let c = (fx * tx + fz * tz) / tlen;
+          if (c > 1) c = 1;
+          if (c < -1) c = -1;
+          deg = Math.acos(c) * 180 / Math.PI;
+        }
+        sum += deg;
+      }
+      return standing.length === 0 ? 180 : sum / standing.length;
+    };
     const scoreStanding = function () {
       const extent = boxNdc(primary.box);
       const whole = actorWhole(primary.box);
@@ -235,7 +314,12 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       if (extent) {
         minMargin = Math.min(extent.minX + 1, 1 - extent.maxX, extent.minY + 1, 1 - extent.maxY);
       }
-      return { n: whole ? 1 : 0, minMargin: minMargin };
+      return {
+        n: whole ? 1 : 0,
+        minMargin: minMargin,
+        placardBack: placardBackVisible(),
+        meanFacing: meanFacingDeg()
+      };
     };
 
     const applyEyeLook = function (ex, ey, ez, lx, ly, lz) {
@@ -269,18 +353,31 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       return ey;
     });
 
+    const formatScore = function (tag, scored, eye) {
+      return tag
+        + " standing=" + String(scored.n) + "/1 of " + String(standing.length)
+        + " placardBack=" + (scored.placardBack ? "1" : "0")
+        + " meanFacingDeg=" + scored.meanFacing.toFixed(1)
+        + " eye=" + eye.map(function (v) { return v.toFixed(2); }).join(",")
+        + " look=" + [lookX, lookY, lookZ].map(function (v) { return v.toFixed(2); }).join(",");
+    };
     const baseline = scoreStanding();
-    if (baseline.n === 1) {
-      return "refine=keep standing=1/" + String(standing.length);
+    const baselineEye = cameraWorld();
+    if (baseline.n === 1 && !baseline.placardBack && baseline.meanFacing <= 90) {
+      if (camera.userData) {
+        camera.userData.openClinXrActorContainment = "1/1";
+        camera.userData.openClinXrPlacardBack = false;
+        camera.userData.openClinXrMeanFacingDeg = baseline.meanFacing;
+      }
+      return formatScore("refine=keep", baseline, baselineEye);
     }
 
     const savedPx = camera.position.x, savedPy = camera.position.y, savedPz = camera.position.z;
     const savedQx = camera.quaternion.x, savedQy = camera.quaternion.y, savedQz = camera.quaternion.z, savedQw = camera.quaternion.w;
-    let bestN = baseline.n;
-    let bestMargin = baseline.minMargin;
+    let best = null;
     let bestEye = null;
-    const distances = [2.0, 2.4, 2.8, 3.2, 3.6];
-    const turns = 20;
+    const distances = [1.8, 2.2, 2.6, 3.0];
+    const turns = 16;
     for (let yi = 0; yi < eyeYs.length; yi++) {
       const eyeY = eyeYs[yi];
       for (let di = 0; di < distances.length; di++) {
@@ -290,33 +387,44 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
           const ex = lookX + Math.sin(ang) * dist;
           const ez = lookZ + Math.cos(ang) * dist;
           if (ex < xMin || ex > xMax || ez < zMin || ez > zMax) continue;
+          if (ez < lookZ) continue;
           applyEyeLook(ex, eyeY, ez, lookX, lookY, lookZ);
           const cam = cameraWorld();
           if (cam[0] < interior.min[0] || cam[0] > interior.max[0]
             || cam[1] < interior.min[1] || cam[1] > interior.max[1]
             || cam[2] < interior.min[2] || cam[2] > interior.max[2]) continue;
           const scored = scoreStanding();
-          if (scored.n > bestN || (scored.n === bestN && scored.minMargin > bestMargin + 0.01)) {
-            bestN = scored.n;
-            bestMargin = scored.minMargin;
+          if (scored.placardBack) continue;
+          if (scored.n === 0) continue;
+          if (best === null
+            || scored.n > best.n
+            || (scored.n === best.n && scored.meanFacing < best.meanFacing - 4)
+            || (scored.n === best.n && Math.abs(scored.meanFacing - best.meanFacing) <= 4 && scored.minMargin > best.minMargin + 0.01)) {
+            best = scored;
             bestEye = [ex, eyeY, ez];
           }
         }
       }
     }
-    if (bestEye === null || bestN === 0) {
+    if (bestEye === null || best === null) {
       camera.position.set(savedPx, savedPy, savedPz);
       camera.quaternion.set(savedQx, savedQy, savedQz, savedQw);
       camera.updateMatrixWorld(true);
-      return "refine=keep-unimproved standing=" + String(baseline.n) + "/1 of " + String(standing.length);
+      const kept = scoreStanding();
+      if (camera.userData) {
+        camera.userData.openClinXrActorContainment = String(kept.n) + "/1";
+        camera.userData.openClinXrPlacardBack = kept.placardBack;
+        camera.userData.openClinXrMeanFacingDeg = kept.meanFacing;
+      }
+      return formatScore("refine=keep-unimproved", kept, cameraWorld());
     }
     applyEyeLook(bestEye[0], bestEye[1], bestEye[2], lookX, lookY, lookZ);
     if (camera.userData) {
-      camera.userData.openClinXrActorContainment = bestN + "/1";
+      camera.userData.openClinXrActorContainment = String(best.n) + "/1";
+      camera.userData.openClinXrPlacardBack = best.placardBack;
+      camera.userData.openClinXrMeanFacingDeg = best.meanFacing;
     }
-    return "refine=orbit standing=" + String(bestN) + "/1 of " + String(standing.length)
-      + " eye=" + bestEye.map(function (v) { return v.toFixed(2); }).join(",")
-      + " look=" + [lookX, lookY, lookZ].map(function (v) { return v.toFixed(2); }).join(",");
+    return formatScore("refine=orbit", best, bestEye);
   })()`)) as string;
   return note;
 }

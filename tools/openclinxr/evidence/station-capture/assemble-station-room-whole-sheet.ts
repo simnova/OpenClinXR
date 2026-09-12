@@ -23,6 +23,7 @@ import {
   CONTACT_SHEET_MIN_BYTES,
 } from "./assemble-station-room-grade-set.js";
 import { rowFromMetrics } from "./assemble-station-room-clear-sheet.js";
+import { measureActorFrame } from "./actor-frame-metrics.js";
 import { BEIGE_CEILING, INTERIOR_SD_FLOOR, measureInteriorCenter } from "./interior-frame-metrics.js";
 import {
   CLEAR_CELLS_DIR_REL,
@@ -51,8 +52,21 @@ function yn(value: boolean): string {
   return value ? "Y" : "n";
 }
 
-function lrtb(row: ClearStationRow): string {
+function anyLrtb(row: ClearStationRow): string {
   return `${yn(row.anyStandingTouchLeft)}/${yn(row.anyStandingTouchRight)}/${yn(row.anyStandingTouchTop)}/${yn(row.anyStandingTouchBottom)}`;
+}
+
+function skinnedLrtb(row: ClearStationRow): string {
+  return `${yn(row.skinnedTouchLeft)}/${yn(row.skinnedTouchRight)}/${yn(row.skinnedTouchTop)}/${yn(row.skinnedTouchBottom)}`;
+}
+
+function parseRefineNote(note: string): { placardBack: boolean | null; meanFacingDeg: number | null } {
+  const placard = note.match(/placardBack=([01])/);
+  const facing = note.match(/meanFacingDeg=([0-9.]+)/);
+  return {
+    placardBack: placard ? placard[1] === "1" : null,
+    meanFacingDeg: facing ? Number(facing[1]) : null,
+  };
 }
 
 function stationBlock(station: ClearStationRow): string {
@@ -79,10 +93,43 @@ function stationBlock(station: ClearStationRow): string {
     `- anyStandingTouchTop: ${String(station.anyStandingTouchTop)}`,
     `- largestStandingContained: ${String(station.largestStandingContained)}`,
     `- fourEdgeContained: ${String(station.fourEdgeContained)}`,
+    `- skinnedTouchLeft: ${String(station.skinnedTouchLeft)}`,
+    `- skinnedTouchRight: ${String(station.skinnedTouchRight)}`,
+    `- skinnedTouchTop: ${String(station.skinnedTouchTop)}`,
+    `- skinnedTouchBottom: ${String(station.skinnedTouchBottom)}`,
     `- framesClear: ${String(station.framesClear)}`,
     `- framesWhole: ${String(station.framesWhole)}`,
+    `- placardBack: ${station.placardBack === null ? "null" : String(station.placardBack)}`,
+    `- meanFacingDeg: ${station.meanFacingDeg === null ? "null" : station.meanFacingDeg.toFixed(1)}`,
+    `- framesActors: ${station.framesActors === null ? "null" : String(station.framesActors)}`,
     "",
   ].join("\n");
+}
+
+function residualNote(stations: readonly ClearStationRow[]): string {
+  const adult = stations.find((row) => row.caseId === "adult_abdominal_pain_v1");
+  const adultLine = adult?.framesWhole
+    ? `adult_abdominal_pain_v1 now framesWhole on the doorway-side camera (skinned L/R/T/B=${skinnedLrtb(adult)} skinPct=${adult.largestStandingSkinPct.toFixed(2)} placardBack=${String(adult.placardBack)} meanFacingDeg=${adult.meanFacingDeg === null ? "null" : adult.meanFacingDeg.toFixed(1)}).`
+    : adult
+      ? [
+          `Residual adult_abdominal_pain_v1: framesWhole=false on the doorway-side camera.`,
+          `skinned L/R/T/B=${skinnedLrtb(adult)} skinPct=${adult.largestStandingSkinPct.toFixed(2)}`,
+          `unobstructed=${String(adult.unobstructed)} framesActors=${String(adult.framesActors)}`,
+          `placardBack=${String(adult.placardBack)} meanFacingDeg=${adult.meanFacingDeg === null ? "null" : adult.meanFacingDeg.toFixed(1)}.`,
+          "CLEAR skinned blob already touched bottom (n/n/n/Y, skin 9.4). A behind-placard retreat is refused.",
+        ].join(" ")
+      : "";
+  const residual = stations.filter((row) => !row.framesWhole && row.caseId !== "adult_abdominal_pain_v1");
+  const rest = residual.map((row) => {
+    return [
+      `Residual ${row.caseId}: framesWhole=false on the doorway-side camera.`,
+      `skinned L/R/T/B=${skinnedLrtb(row)} skinPct=${row.largestStandingSkinPct.toFixed(2)}`,
+      `unobstructed=${String(row.unobstructed)} framesActors=${String(row.framesActors)}`,
+      `placardBack=${String(row.placardBack)} meanFacingDeg=${row.meanFacingDeg === null ? "null" : row.meanFacingDeg.toFixed(1)}.`,
+      "A behind-placard retreat that would raise containment is refused; this is a room/layout constraint, not a missing orbit.",
+    ].join(" ");
+  });
+  return [adultLine, ...rest].filter((line) => line.length > 0).join("\n");
 }
 
 function comparisonTable(
@@ -90,13 +137,14 @@ function comparisonTable(
   after: readonly ClearStationRow[],
 ): string {
   const header = [
-    "| case | before whole | after whole | before L/R/T/B | after L/R/T/B |",
-    "|---|---|---|---|---|",
+    "| case | before whole | after whole | before skinned L/R/T/B | after skinned L/R/T/B | before any L/R/T/B | after any L/R/T/B | placardBack | meanFacingDeg |",
+    "|---|---|---|---|---|---|---|---|---|",
   ];
   const lines = after.map((aft) => {
     const bef = before.find((row) => row.caseId === aft.caseId);
-    const bLR = bef ? lrtb(bef) : "—";
-    return `| ${aft.caseId} | ${String(bef?.framesWhole ?? "—")} | ${String(aft.framesWhole)} | ${bLR} | ${lrtb(aft)} |`;
+    const facing = aft.meanFacingDeg === null ? "—" : aft.meanFacingDeg.toFixed(1);
+    const placard = aft.placardBack === null ? "—" : String(aft.placardBack);
+    return `| ${aft.caseId} | ${String(bef?.framesWhole ?? "—")} | ${String(aft.framesWhole)} | ${bef ? skinnedLrtb(bef) : "—"} | ${skinnedLrtb(aft)} | ${bef ? anyLrtb(bef) : "—"} | ${anyLrtb(aft)} | ${placard} | ${facing} |`;
   });
   return [...header, ...lines].join("\n");
 }
@@ -153,10 +201,15 @@ export function renderWholeReport(input: {
     "",
     "Count formula: cells = count(### `caseId` rows under ## Stations).",
     "framesWhole = unobstructed AND largest skinned standing blob fourEdgeContained.",
-    "Residual with no four-edge camera found without moving actors:",
-    "adult_abdominal_pain_v1 (skinned standing blob absent or edge-clipped).",
-    "L/R/T/B = any standing blob touchLeft / touchRight / touchTop / touchBottom.",
+    "skinned L/R/T/B = the largest blob with skinInHeadBandPct > STANDING_SKIN_FLOOR",
+    "(the blob framesWhole uses). any L/R/T/B = any standing chroma blob, including",
+    "furniture-sized components. ed_chest_pain_priority_v1 can be whole true while",
+    "any L/R/T/B is Y because a non-skinned blob clips; that is not a gate bug.",
+    "placardBack = pre-encounter / scenario-expectation panel is between camera and",
+    "actors with its back face toward the camera (mirrored text). meanFacingDeg =",
+    "mean angle between standing-actor heading (-Z) and camera, 0 = facing camera.",
     "HUD overlay on the screenshot right of the 3D canvas is not a frame edge.",
+    residualNote(input.stations),
     "",
     `## Before (${CLEAR_CELLS_DIR_REL})`,
     "",
@@ -221,7 +274,7 @@ export async function assembleStationRoomWholeSheet(): Promise<{
   const stations: ClearStationRow[] = [];
   const sheetCells: Array<{ imagePath: string; label: string }> = [];
   for (const caseId of caseIds) {
-    const entry = manifest.entries.find((row) => row.scenarioId === caseId);
+    const entry = manifest.entries.find((manifestRow) => manifestRow.scenarioId === caseId);
     if (entry === undefined) {
       throw new Error(`capture manifest missing ${caseId}`);
     }
@@ -242,9 +295,13 @@ export async function assembleStationRoomWholeSheet(): Promise<{
         `${caseId} whole recapture lost interior framing (centerSd=${String(interior?.sd)} beigePct=${String(interior?.beigePct)}; floors ${String(INTERIOR_SD_FLOOR)}/${String(BEIGE_CEILING)})`,
       );
     }
-    stations.push(
-      rowFromMetrics(caseId, imageRel, entry.liveShell.environmentId, bytes, metrics),
-    );
+    const row = rowFromMetrics(caseId, imageRel, entry.liveShell.environmentId, bytes, metrics);
+    const refine = parseRefineNote(entry.liveShell.cameraFraming ?? "");
+    const actors = measureActorFrame(png);
+    row.placardBack = refine.placardBack;
+    row.meanFacingDeg = refine.meanFacingDeg;
+    row.framesActors = actors?.framesActors ?? null;
+    stations.push(row);
     sheetCells.push({
       imagePath: dest,
       label: `${caseId}  ${entry.liveShell.environmentId}`,

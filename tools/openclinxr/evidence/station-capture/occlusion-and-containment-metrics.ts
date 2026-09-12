@@ -176,6 +176,10 @@ export type OcclusionContainmentMetrics = {
   anyStandingTouchTop: boolean;
   anyStandingTouchLeft: boolean;
   fourEdgeContained: boolean;
+  skinnedTouchLeft: boolean;
+  skinnedTouchRight: boolean;
+  skinnedTouchTop: boolean;
+  skinnedTouchBottom: boolean;
   framesClear: boolean;
   framesWhole: boolean;
 };
@@ -339,6 +343,10 @@ export function measureOcclusionAndContainment(bytes: Uint8Array): OcclusionCont
     anyStandingTouchTop,
     anyStandingTouchLeft,
     fourEdgeContained,
+    skinnedTouchLeft: skinnedPrimary?.touchLeft === true,
+    skinnedTouchRight: skinnedPrimary?.touchRight === true,
+    skinnedTouchTop: skinnedPrimary?.touchTop === true,
+    skinnedTouchBottom: skinnedPrimary?.touchBottom === true,
     framesClear: unobstructed && largestStandingContained,
     framesWhole: unobstructed && fourEdgeContained,
   };
@@ -367,8 +375,15 @@ export type ClearStationRow = {
   anyStandingTouchLeft: boolean;
   largestStandingContained: boolean;
   fourEdgeContained: boolean;
+  skinnedTouchLeft: boolean;
+  skinnedTouchRight: boolean;
+  skinnedTouchTop: boolean;
+  skinnedTouchBottom: boolean;
   framesClear: boolean;
   framesWhole: boolean;
+  placardBack: boolean | null;
+  meanFacingDeg: number | null;
+  framesActors: boolean | null;
 };
 
 export function parseClearHeadline(body: string): number | null {
@@ -422,8 +437,22 @@ function parseStationBlocks(body: string): ClearStationRow[] {
       (block.match(/^- largestStandingContained: (true|false)$/m)?.[1] ?? "") === "true";
     const fourEdgeContained =
       (block.match(/^- fourEdgeContained: (true|false)$/m)?.[1] ?? "") === "true";
+    const skinnedTouchLeft =
+      (block.match(/^- skinnedTouchLeft: (true|false)$/m)?.[1] ?? "") === "true";
+    const skinnedTouchRight =
+      (block.match(/^- skinnedTouchRight: (true|false)$/m)?.[1] ?? "") === "true";
+    const skinnedTouchTop =
+      (block.match(/^- skinnedTouchTop: (true|false)$/m)?.[1] ?? "") === "true";
+    const skinnedTouchBottom =
+      (block.match(/^- skinnedTouchBottom: (true|false)$/m)?.[1] ?? "") === "true";
     const framesClear = (block.match(/^- framesClear: (true|false)$/m)?.[1] ?? "") === "true";
     const framesWhole = (block.match(/^- framesWhole: (true|false)$/m)?.[1] ?? "") === "true";
+    const placardRaw = block.match(/^- placardBack: (true|false|null)$/m)?.[1];
+    const placardBack = placardRaw === "true" ? true : placardRaw === "false" ? false : null;
+    const facingRaw = block.match(/^- meanFacingDeg: (.+)$/m)?.[1]?.trim() ?? "";
+    const meanFacingDeg = facingRaw === "" || facingRaw === "null" ? null : Number(facingRaw);
+    const actorsRaw = block.match(/^- framesActors: (true|false|null)$/m)?.[1];
+    const framesActors = actorsRaw === "true" ? true : actorsRaw === "false" ? false : null;
     rows.push({
       caseId: start.id,
       imageRel,
@@ -447,8 +476,15 @@ function parseStationBlocks(body: string): ClearStationRow[] {
       anyStandingTouchLeft,
       largestStandingContained,
       fourEdgeContained,
+      skinnedTouchLeft,
+      skinnedTouchRight,
+      skinnedTouchTop,
+      skinnedTouchBottom,
       framesClear,
       framesWhole,
+      placardBack,
+      meanFacingDeg: meanFacingDeg !== null && Number.isFinite(meanFacingDeg) ? meanFacingDeg : null,
+      framesActors,
     });
   }
   return rows;

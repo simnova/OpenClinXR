@@ -130,8 +130,15 @@ export function rowFromMetrics(
     anyStandingTouchLeft: metrics.anyStandingTouchLeft,
     largestStandingContained: metrics.largestStandingContained,
     fourEdgeContained: metrics.fourEdgeContained,
+    skinnedTouchLeft: metrics.skinnedTouchLeft,
+    skinnedTouchRight: metrics.skinnedTouchRight,
+    skinnedTouchTop: metrics.skinnedTouchTop,
+    skinnedTouchBottom: metrics.skinnedTouchBottom,
     framesClear: metrics.framesClear,
     framesWhole: metrics.framesWhole,
+    placardBack: null,
+    meanFacingDeg: null,
+    framesActors: null,
   };
 }
 
