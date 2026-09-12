@@ -40,6 +40,7 @@
     "@openclinxr/shared-schemas"
   ],
   "tests": [
+    "src/attempt-manifest/durable-attempt-manifest.test.ts",
     "src/encounter-bundle-selection/durable-pins.test.ts",
     "src/session-state.test.ts"
   ],
