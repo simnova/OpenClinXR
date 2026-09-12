@@ -2,7 +2,7 @@
 
 Date: 2026-09-10
 
-Status: Delegation contract, revised after independent review
+Status: COMPLETE, 2026-09-11 — the acceptance verifier closes on the recomputed tree. See "Closing record" at the end of this document.
 
 Scope: `packages/openclinxr/**` supported package imports
 
@@ -331,3 +331,37 @@ A reviewer should reject a card that only moves names from root to subpaths, rai
 A reviewer should also reject numerical improvement produced by namespace wrapping, facade indirection, package splitting, or incomplete consumer discovery. Raw counts never override the contract inventory.
 
 The desired result is a package system where a new contributor can identify the supported use cases from `package.json`, the root entrypoint, and one short contract manifest without reading the implementation tree.
+
+## Closing record — 2026-09-11
+
+Reproduce with `pnpm arch:public-surface:acceptance`. It recomputes every package from the tree and
+prints `verdict: close`; it does not read a completion flag, and no card can set one.
+
+| measure | at the plan's baseline | 2026-09-11 |
+|---|---:|---:|
+| root names across supported entrypoints | 2,533 | 1,220 |
+| names removed from entrypoints | — | 2,021 |
+| names migrated to a declared subpath | — | 106 |
+| packages recomputed by the verifier | — | 46 |
+
+Criteria as the verifier reports them: criterion 3 (no `export *` on any supported entrypoint),
+criterion 4 (all 3,588 inventory symbols classified keep / remove / migrate), criterion 5 (every
+review group resolved and applied), criterion 6 (quantitative targets, missed only where an
+independently reviewed exception exists), criterion 12 (independent closure, recomputed from the
+tree against the Cellix pin `adf3bc9deb2d0ca006041d9326215996a2b00e12`).
+
+Criterion 6 does not pass on its numbers alone. Five packages stay above the 50-name target —
+`xr-runtime-state` 119, `rest` 94, `xr-station` 70, `asset-registry` 58 before PSR-10, `shared-schemas`
+56 before PSR-10 — and the misses are carried by the exception
+`package-public-surface-reduction/exceptions/psr-c6-residual.{json,md}`, reviewed by a session other
+than the one that did the work, as criterion 6 requires. PSR-10 then removed 8 duplicate root names
+from `asset-registry` and un-published 15 unimported names from `shared-schemas`. The residual is
+recorded, not waived.
+
+What the plan did not achieve: the median and p90 targets, and `noRootAbove` for the five packages
+above. Those are the exception's contents, and they remain open work rather than a closed claim.
+
+The ratchet that keeps this true is `docs/openclinxr/package-public-surface-reduction/baseline.json`
+at 1,220, enforced on every run of `pnpm arch:public-surface:verify`, plus per-package
+`arch-ceiling.json` files that only ever shrink. A card that adds a public name fails before it can
+land.
