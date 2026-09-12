@@ -662,6 +662,14 @@ def _fit_one_garment(
 # are the #316 class). Constants mirror the evidence contract
 # (`garments-meet-at-the-waist.test.ts`) so the factory and the gate measure the same
 # edges at the same resolution.
+#
+# ONE CONTRACT: these three values are the single definition of the waist-meet fit,
+# shared with the post-export GLB stage
+# (tools/openclinxr/asset-pipeline/makeclothes/apply-waist-meet-glb.ts) via
+# tools/openclinxr/evidence/humanoid-vetting/waist-meet-contract.ts. The GLB stage
+# imports them from that file; this stage keeps literal mirrors because the bake
+# runs inside Blender with no TS toolchain. the-two-waist-meet-implementations-agree
+# fails closed on any drift between the two copies — update both, never one.
 WAIST_OVERLAP_MARGIN_M = 0.005  # positive overlap target: "several millimetres" (#320)
 WAIST_RIM_FRACTION = 0.12  # same rim band the evidence contract measures
 WAIST_BUCKETS = 36

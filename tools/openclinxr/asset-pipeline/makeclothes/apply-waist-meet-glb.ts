@@ -3,8 +3,11 @@
  *
  * The factory function lives in packages/openclinxr/factory-stations/src/body_param/garment_ops.py
  * and runs in the Z-up Blender stage. This is the same algorithm in the exported Y-up frame the
- * waist-meet instrument reads (atan2(glb_z, glb_x), height = Y). Constants are copied, not
- * retuned: WAIST_OVERLAP_MARGIN_M 0.005, WAIST_RIM_FRACTION 0.12, WAIST_BUCKETS 36.
+ * waist-meet instrument reads (atan2(glb_z, glb_x), height = Y). Constants are
+ * imported from the ONE contract in
+ * tools/openclinxr/evidence/humanoid-vetting/waist-meet-contract.ts — never
+ * copied, never retuned here. The Blender bake stage mirrors the same values;
+ * the-two-waist-meet-implementations-agree.test.ts fails on any drift.
  *
  * Run:
  *   pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/apply-waist-meet-glb.ts \
@@ -16,10 +19,11 @@ import { pathToFileURL } from "node:url";
 import { NodeIO, type Accessor } from "@gltf-transform/core";
 import { isUpperGarmentName } from "../../evidence/garment-slot.ts";
 import { isPantsName } from "../../evidence/waistband-ring.ts";
-
-const WAIST_OVERLAP_MARGIN_M = 0.005;
-const WAIST_RIM_FRACTION = 0.12;
-const WAIST_BUCKETS = 36;
+import {
+  WAIST_BUCKETS,
+  WAIST_OVERLAP_MARGIN_M,
+  WAIST_RIM_FRACTION,
+} from "../../evidence/humanoid-vetting/waist-meet-contract.ts";
 
 type Vec3 = [number, number, number];
 
