@@ -46,6 +46,19 @@ LOWER_GARMENT_BY_REFERENCE = {
     "ed_chest_pain_spouse_adult": "elvs_jeans_bootcut",
 }
 
+# Adult-female default-macro stems (aisha / peds parent / viseme inspect) cannot
+# key LOWER_GARMENT_BY_REFERENCE: their bakes omit --reference. Unkeyed falls
+# through to menswear straight-leg jeans. Staged covering lowers are all
+# tag male/menswear (or clinician unisex Scrub_Pants already on the nurse).
+# Fail closed until a covering female mhclo is staged. See
+# remaining-cover-shell-lowers-2026-09-12.md.
+MISSING_FEMALE_COVERING_LOWER = "missing_female_covering_lower"
+LOWER_GARMENT_BY_OUTPUT_STEM = {
+    "mpfb-ob-patient-aisha": MISSING_FEMALE_COVERING_LOWER,
+    "mpfb-peds-parent-aisha": MISSING_FEMALE_COVERING_LOWER,
+    "mpfb-viseme-inspect": MISSING_FEMALE_COVERING_LOWER,
+}
+
 SHOE_BY_REFERENCE = {
     # #598 — default + clinician rows leave the leopard toigo_flats party shoe.
     # Plain CC0 toigo_mj_cloth_shoes already bakes on spouse/child; both .mhclo
@@ -4228,7 +4241,21 @@ def main():
     # HB-07: peds_patient_child is keyed to cargo so a rebake keeps the shipped
     # 2,628-tri cover shell (LOWER_GARMENT_BY_REFERENCE).
     if pants is None:
-        _ref_lower = LOWER_GARMENT_BY_REFERENCE.get(args.reference or "")
+        _stem_lower = LOWER_GARMENT_BY_OUTPUT_STEM.get(pathlib.Path(args.output).stem)
+        _ref_lower = (
+            _stem_lower
+            if _stem_lower is not None
+            else LOWER_GARMENT_BY_REFERENCE.get(args.reference or "")
+        )
+        if _ref_lower == MISSING_FEMALE_COVERING_LOWER:
+            raise RuntimeError(
+                "missing covering female library lower for "
+                f"{pathlib.Path(args.output).stem}: staged covering mhclo assets "
+                "are tag male/menswear (elvs jeans/trousers, punkduck, mindfront, "
+                "toigo_wool_pants) or clinician unisex Scrub_Pants; do not dress "
+                "this actor in menswear or fall back to build_cover_shell. "
+                "See remaining-cover-shell-lowers-2026-09-12.md."
+            )
         if _ref_lower == "cortu_cargo_pants":
             _pants_dir = (
                 REPO_ROOT
