@@ -9,6 +9,12 @@ import {
   type AssembledExamStationEvidenceInput,
 } from "@openclinxr/review-workflow";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.stubGlobal("ResizeObserver", class {
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+});
 import { assembledExamDerivedBlockers } from "@openclinxr/ui-shared/assembled-exam-replay-timeline";
 import {
   actorTurnDurableRef,
@@ -38,9 +44,15 @@ describe("the faculty adjudication workspace preserves assembled evidence", () =
     ]);
     expect(assembledExamDerivedBlockers(assembledExamReplayProjectionFromReviewPacket(packet).stations[0]!)).toEqual([]);
     const loadPacket = vi.fn(async () => packet);
+    const executeGraphql = createEvidenceDispositionExecute(EXAM_RUN_ID, "packet-digest-frozen");
 
     render(
-      <FacultyAdjudicationWorkspace examRunId={EXAM_RUN_ID} loadPacket={loadPacket} />,
+      <FacultyAdjudicationWorkspace
+        examRunId={EXAM_RUN_ID}
+        loadPacket={loadPacket}
+        executeGraphql={executeGraphql}
+        now={() => "2026-09-04T10:00:00.000Z"}
+      />,
     );
 
     expect(loadPacket).toHaveBeenCalledWith(EXAM_RUN_ID);
@@ -103,13 +115,19 @@ describe("the faculty adjudication workspace preserves assembled evidence", () =
     expect(blockers).toHaveTextContent("missing_advance_reason");
     expect(blockers).toHaveTextContent("out_of_order_phase_transition");
 
-    fireEvent.click(within(workspace).getByLabelText("Record disposition hold_for_debrief"));
-    const recorded = within(workspace).getByLabelText("Recorded faculty disposition");
-    expect(recorded).toHaveTextContent("hold_for_debrief");
+    fireEvent.change(await within(workspace).findByLabelText("Faculty reviewer identity"), {
+      target: { value: "faculty_disposition_001" },
+    });
+    fireEvent.change(within(workspace).getByLabelText("Faculty disposition rationale"), {
+      target: { value: "Hold for faculty debrief; no score use." },
+    });
+    fireEvent.click(within(workspace).getByLabelText("Save disposition draft"));
+    const recorded = await within(workspace).findByLabelText("Recorded faculty disposition");
+    expect(recorded).toHaveTextContent("hold");
+    expect(recorded).toHaveTextContent("draft");
     expect(recorded).toHaveTextContent("scoringValidityClaimed false");
     expect(recorded).toHaveTextContent("examEquivalenceGate false");
-    expect(recorded).toHaveTextContent("clinicalValidityClaimed false");
-    expect(recorded).toHaveTextContent("faculty_adjudication_disposition_not_score_use_or_clinical_validity");
+    expect(recorded).toHaveTextContent("assembled_exam_faculty_disposition_not_score_use");
 
     expect(workspace.textContent).not.toContain("Private learner utterance must stay out of exam packet summaries.");
     expect(workspace.textContent).not.toContain("Quest ready");
@@ -445,4 +463,51 @@ function incompleteStation(): AssembledExamStationEvidenceInput {
       comments: "",
     },
   };
+}
+
+function createEvidenceDispositionExecute(examRunId: string, packetDigest: string) {
+  const evidencePacket = {
+    examRunId,
+    packetDigest,
+    learnerId: "learner_faculty_001",
+    stationRunIds: [ED_STATION_RUN_ID, PEDS_STATION_RUN_ID, INCOMPLETE_STATION_RUN_ID],
+    claimBoundary: "assembled_exam_review_packet_not_exam_equivalence",
+    notEvidenceFor: [...assembledExamReviewNotEvidenceFor],
+    examEquivalenceGate: false,
+  };
+  let decisions: Array<Record<string, unknown>> = [];
+  return async (request: { operationName: string; variables: Record<string, unknown> }) => {
+    if (request.operationName === "AssembledExamFacultyDisposition") {
+      return { data: { assembledExamFacultyDisposition: trail() } };
+    }
+    const input = request.variables["input"] as Record<string, unknown>;
+    const sequence = decisions.length + 1;
+    const next = {
+      decisionId: `assembled_exam_disposition:${examRunId}:${sequence}`,
+      examRunId,
+      reviewerId: input["reviewerId"],
+      packetDigest,
+      disposition: input["disposition"],
+      status: input["status"],
+      rationale: input["rationale"],
+      attestedAt: input["attestedAt"],
+      sequence,
+    };
+    decisions = [...decisions, next];
+    return { data: { appendAssembledExamFacultyDisposition: { __typename: "FacultyDispositionTrail", ...trail() } } };
+  };
+
+  function trail() {
+    return {
+      examRunId,
+      packetDigest,
+      evidencePacket,
+      decisions,
+      current: decisions[decisions.length - 1] ?? null,
+      claimBoundary: "assembled_exam_faculty_disposition_not_score_use",
+      notEvidenceFor: [...assembledExamReviewNotEvidenceFor],
+      scoringValidityClaimed: false,
+      examEquivalenceGate: false,
+    };
+  }
 }

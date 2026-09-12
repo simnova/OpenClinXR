@@ -43,6 +43,7 @@
     "src/scenario-authoring-preview/the-authoring-preview-surfaces-runtime-delta.test.ts",
     "src/scenario-review-gate-panel.test.tsx",
     "src/seed-exam-readiness-boundary-panel.test.tsx",
+    "src/the-adjudication-workspace-persists-dispositions-through-graphql.test.tsx",
     "src/the-authoring-form-lists-shell-fixture-slots.test.tsx",
     "src/the-authoring-form-lists-shell-lighting.test.tsx",
     "src/the-authoring-form-writes-asset-needs.test.tsx",
