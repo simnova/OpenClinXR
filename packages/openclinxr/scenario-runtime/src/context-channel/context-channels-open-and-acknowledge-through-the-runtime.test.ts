@@ -1,3 +1,6 @@
+/**
+ * Acknowledgement is appended at context-channel/runtime.ts:100 (`appendTrace` `context_channel.acknowledged`); doorway phase for authored cases without channels is proven at this file:96 via `startSession` `phase` (scenario-runtime.ts:129).
+ */
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createDefaultScenarioRuntime } from "../index.js";
@@ -140,13 +143,17 @@ describe("context channels open and acknowledge through the runtime", () => {
     expect(() => {
       (viewed.payload as { modality: string }).modality = "heard";
     }).toThrow();
-    expect(() =>
-      runtime.acknowledgeContextChannel(session.stationRunId, {
-        channelId: "door_card",
-        modality: "viewed",
-        atSecond: 11,
-      }),
-    ).toThrow(/immutable/);
+    const viewedAgain = runtime.acknowledgeContextChannel(session.stationRunId, {
+      channelId: "door_card",
+      modality: "viewed",
+      atSecond: 11,
+    });
+    expect(viewedAgain).toEqual(viewed);
+    expect(
+      runtime.traceEvents(session.stationRunId).filter(
+        (event) => event.eventType === "context_channel.acknowledged" && event.payload["channelId"] === "door_card",
+      ),
+    ).toHaveLength(1);
 
     runtime.startEncounter(session.stationRunId, { atSecond: 60 });
     const heard = runtime.acknowledgeContextChannel(session.stationRunId, {

@@ -585,6 +585,7 @@ export class ScenarioRuntime {
     return this.options.assetRegistry.evaluateScenarioReadiness(this.options.scenario);
   }
 
+  /** Events newly due at or before `atSecond`, applied at the effect consumer when wired. */
   advanceScheduledEvents(stationRunId: string, atSecond: number): ScheduledEvent[] {
     return advanceScheduledEffects(this.admissionHost(), this.requireSession(stationRunId), atSecond);
   }
@@ -616,6 +617,7 @@ export class ScenarioRuntime {
   encounterAdmissionSnapshot(stationRunId: string): EncounterAdmissionSnapshot | undefined {
     return this.requireSession(stationRunId).encounterAdmission;
   }
+  /** Apply scheduled effects due at `atSecond` at the consumer, with retry and stop. */
   applyScheduledEffects(stationRunId: string, atSecond: number): ScheduledEffectResult {
     return applyScheduledEffects(this.admissionHost(), this.requireSession(stationRunId), atSecond);
   }
@@ -793,4 +795,7 @@ export class ScenarioRuntime {
     };
   }
 }
+
+// Factory functions extracted to default-runtime-factory.ts to keep class file under freeze.
+export { createDefaultScenarioRuntime, createScenarioRuntimeWithPersistenceHooks } from "./default-runtime-factory.js";
 

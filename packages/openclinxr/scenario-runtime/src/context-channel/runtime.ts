@@ -14,7 +14,7 @@ import {
 } from "./evaluate.js";
 
 const snapshotBySession = new WeakMap<SessionRecord, readonly AuthoredContextChannel[]>();
-const acksBySession = new WeakMap<SessionRecord, Set<string>>();
+const acksBySession = new WeakMap<SessionRecord, Map<string, TraceEvent>>();
 
 export type AcknowledgeContextChannelInput = {
   channelId: string;
@@ -40,12 +40,12 @@ function snapshotChannels(session: SessionRecord, scenario: Scenario): readonly 
   return authored;
 }
 
-function acksFor(session: SessionRecord): Set<string> {
+function acksFor(session: SessionRecord): Map<string, TraceEvent> {
   const existing = acksBySession.get(session);
   if (existing) {
     return existing;
   }
-  const created = new Set<string>();
+  const created = new Map<string, TraceEvent>();
   acksBySession.set(session, created);
   return created;
 }
@@ -77,6 +77,10 @@ export function acknowledgeContextChannelOnSession(
     throw new Error("stale context-channel identity");
   }
   const acks = acksFor(session);
+  const existing = acks.get(ackKey(input.channelId, input.modality));
+  if (existing) {
+    return existing;
+  }
   const channel = requireAcknowledgeableChannel({
     channels: snapshotChannels(session, scenario),
     channelId: input.channelId,
@@ -85,7 +89,6 @@ export function acknowledgeContextChannelOnSession(
     atSecond: input.atSecond,
     hiddenFacts: hiddenFactsFromCase(scenario),
     scenarioId: scenario.scenarioId,
-    alreadyAcknowledged: acks,
   });
   const payload = Object.freeze({
     channelId: channel.channelId,
@@ -101,7 +104,7 @@ export function acknowledgeContextChannelOnSession(
     tag: `context_channel:${channel.kind}:${input.modality}`,
     payload,
   });
-  acks.add(ackKey(channel.channelId, input.modality));
+  acks.set(ackKey(channel.channelId, input.modality), event);
   Object.freeze(event);
   return event;
 }

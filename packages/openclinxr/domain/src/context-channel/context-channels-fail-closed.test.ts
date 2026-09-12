@@ -62,7 +62,7 @@ describe("case-defined context channels fail closed", () => {
     expect(open.map((channel) => channel.channelId)).toEqual(["door_card"]);
   });
 
-  it("refuses reviewer-only, hidden truth, stale identity, and a second acknowledgement", () => {
+  it("refuses reviewer-only, hidden truth, stale identity, and modality mismatch", () => {
     const authored = authoredContextChannelsFromCase({
       scenarioId: "case_1",
       contextChannels: LEARNER_CHANNELS,
@@ -76,7 +76,6 @@ describe("case-defined context channels fail closed", () => {
         atSecond: 10,
         hiddenFacts: [],
         scenarioId: "case_1",
-        alreadyAcknowledged: new Set(),
       }),
     ).toThrow(/reviewer-only context/);
     expect(() =>
@@ -88,7 +87,6 @@ describe("case-defined context channels fail closed", () => {
         atSecond: 10,
         hiddenFacts: [],
         scenarioId: "case_1",
-        alreadyAcknowledged: new Set(),
       }),
     ).toThrow(/hidden truth/);
     expect(() =>
@@ -100,21 +98,19 @@ describe("case-defined context channels fail closed", () => {
         atSecond: 10,
         hiddenFacts: [],
         scenarioId: "case_1",
-        alreadyAcknowledged: new Set(),
       }),
     ).toThrow(/stale context-channel identity/);
     expect(() =>
       requireAcknowledgeableChannel({
         channels: authored,
         channelId: "door_card",
-        modality: "viewed",
+        modality: "heard",
         phase: "doorway",
         atSecond: 10,
         hiddenFacts: [],
         scenarioId: "case_1",
-        alreadyAcknowledged: new Set(["door_card:viewed"]),
       }),
-    ).toThrow(/immutable/);
+    ).toThrow(/modality mismatch/);
   });
 
   it("refuses a mutated hidden-truth fingerprint and a foreign scenarioId", () => {

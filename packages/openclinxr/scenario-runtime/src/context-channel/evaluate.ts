@@ -123,7 +123,6 @@ export function requireAcknowledgeableChannel(input: {
   atSecond: number;
   hiddenFacts: readonly string[];
   scenarioId: string;
-  alreadyAcknowledged: ReadonlySet<string>;
 }): AuthoredContextChannel {
   const authored = input.channels.find((channel) => channel.channelId === input.channelId);
   if (!authored) {
@@ -142,9 +141,6 @@ export function requireAcknowledgeableChannel(input: {
   }
   if (authored.modality !== input.modality) {
     throw new Error("context channel modality mismatch");
-  }
-  if (input.alreadyAcknowledged.has(ackKey(authored.channelId, input.modality))) {
-    throw new Error("context channel acknowledgement is immutable");
   }
   return authored;
 }
