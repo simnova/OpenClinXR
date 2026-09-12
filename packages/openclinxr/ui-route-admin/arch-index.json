@@ -29,6 +29,7 @@
   ],
   "tests": [
     "src/admin-routes.test.ts",
+    "src/blueprint-coverage/blueprint-coverage-panel.test.tsx",
     "src/case-authoring-model.test.ts",
     "src/case-authoring-workbench.test.tsx",
     "src/dialogue-seed-authoring-panel.test.tsx",
