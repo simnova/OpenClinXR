@@ -28,6 +28,37 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-12T0825">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 24 &middot; 2026-09-12 08:25 EDT</p>
+          <h2>Thirteen of the fifteen rooms now show whole people. The check that says all fifteen do is measuring the wrong thing.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>People, at last</h3>
+            <ul>
+              <li>The camera now stands at a person&rsquo;s eye height inside each room (<code>fba57fb9</code>). This morning two of the fifteen pictures were a blank wall; an hour ago six were close-ups of furniture. Thirteen now read as a clinical scene: a patient on a bed, a nurse beside them, a parent holding a child.</li>
+              <li>Each step was measured against the pictures that came before it, so the bar for &ldquo;this is a room&rdquo; was set by an old bad frame and an old good one rather than by the frames being judged.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The check that cannot see the problem</h3>
+            <ul>
+              <li>Two pictures pass the new check and are useless. In one, a wall panel fills two thirds of the frame and the only person is sliced down the middle by the edge. In the other, a door slab cuts across the room and the patient is halved.</li>
+              <li>The check counts how many pixels of person appear in the upper part of the picture. A person sliced by the edge still contributes pixels, and a wall in front of them contributes none. No setting of that number can catch either fault &mdash; it is the wrong quantity, not a badly chosen limit.</li>
+              <li>The replacement measures two different things: whether each person&rsquo;s whole body is inside the frame, and whether a straight line from the camera reaches them without hitting something else first. The two bad pictures have to come out as failures; if they do not, the new instrument is wrong and the work stops there rather than moving a camera to match my opinion.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>One rule, one place</h3>
+            <ul>
+              <li>Closing the street figure&rsquo;s waist yesterday left the same fitting rule written twice, in two languages, with its three numbers copied by hand. There is now one definition, and a check that reads the live value from each side (<code>fcce705d</code>).</li>
+              <li>I broke it on purpose to prove the check works: changing one number on one side only took the tests from six passing to one failing, and putting it back restored six. A check that compared two copies of the same written-down number would have passed all three times and proved nothing.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-12T0730">
         <div class="section-heading">
           <p class="eyebrow">Entry 23 &middot; 2026-09-12 07:30 EDT</p>
