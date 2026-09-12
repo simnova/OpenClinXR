@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 /**
  * 2026-08-21 — THE CASE'S `eye_color` NEVER REACHES THE IRIS SELECTOR. Product, not instrument.
@@ -82,7 +83,7 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 const ANNY = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/anny");
 const CALL_SITE = join(REPO_ROOT, "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py");
 const BANK = join(REPO_ROOT, "packages/openclinxr/scenario-fixtures/src/pediatric-asthma.ts");
-const EYE_MATS = join(REPO_ROOT, ".openclinxr-local/provider-cache/eyes/makehuman-system-assets");
+const EYE_MATS = join(mainWorktreeRoot(REPO_ROOT), ".openclinxr-local/provider-cache/eyes/makehuman-system-assets");
 
 /** Call the selector from a Blender-free import. Returns stdout, or "ERR:<Type>" when it raises. */
 function selector(role: string, phenotype: Record<string, string>): string {

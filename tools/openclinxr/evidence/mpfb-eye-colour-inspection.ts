@@ -27,6 +27,7 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { inflateSync } from "node:zlib";
 import { NodeIO } from "@gltf-transform/core";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 export const MPFB_EYE_COLOUR_EVIDENCE_ROOT = ".openclinxr/evidence/mpfb-eye-colour";
 
@@ -335,7 +336,7 @@ export async function writeMpfbEyeColourPreFix(options?: { cwd?: string; outputR
     });
   }
 
-  const cacheDir = path.join(cwd, EYES_CACHE_DIR);
+  const cacheDir = path.join(mainWorktreeRoot(cwd), EYES_CACHE_DIR);
   let files: CacheFileReport[] = [];
   try {
     files = readdirSync(cacheDir)

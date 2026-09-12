@@ -26,12 +26,14 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 export const GARMENT_TEXTURE_EVIDENCE_ROOT = ".openclinxr/evidence/garment-textures";
 export const GARMENTS_CACHE_ROOT = ".openclinxr-local/provider-cache/garments/sources";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = pathResolve(HERE, "../../..");
+const CACHE_ROOT = mainWorktreeRoot(REPO_ROOT);
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
 /** The same slot->asset selection the materializer uses (D1: read the code, do not invent a table). */
@@ -245,7 +247,7 @@ export async function inspectGarmentTextures(artifactName = "pre-fix.json"): Pro
       ["footwear", shoeMhclo, /footwear|shoe|boot|flat/i],
     ];
     for (const [slot, mhcloRel, slotRe] of slotsSpec) {
-      const mhcloAbs = join(REPO_ROOT, mhcloRel);
+      const mhcloAbs = join(CACHE_ROOT, mhcloRel);
       const objAbs = firstObjInDir(dirname(mhcloAbs));
       const mhmat = inspectMhmat(mhcloAbs);
       // The worktree's staged cache is a provisioned SUBSET (machine note). The canonical
@@ -280,7 +282,7 @@ export async function inspectGarmentTextures(artifactName = "pre-fix.json"): Pro
   }
 
   // Provider-cache census: which garment source dirs exist and what they hold.
-  const cacheRoot = join(REPO_ROOT, GARMENTS_CACHE_ROOT);
+  const cacheRoot = join(CACHE_ROOT, GARMENTS_CACHE_ROOT);
   const cache: Record<string, string[]> = {};
   for (const pack of ["makehuman-shirts01", "makehuman-community-scrub-shirt", "makehuman-pants01", "makehuman-shoes01"]) {
     const packDir = join(cacheRoot, pack);

@@ -2,6 +2,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 /**
  * # THE GAP, MEASURED 2026-08-19 on main 56a97b41 — do not re-derive these rows
@@ -203,7 +204,7 @@ describe("the hair sheet shows every cached style", () => {
     // Reads the landed inventory and the cache, not the absent sheet, so it passes today and
     // keeps passing: if the inventory is trimmed, this goes red before (1) becomes unfalsifiable.
     expect(inventory.length, "#450's inventory must still hold 27 rows").toBe(27);
-    const cache = join(REPO_ROOT, ".openclinxr-local/provider-cache/hair/sources");
+    const cache = join(mainWorktreeRoot(REPO_ROOT), ".openclinxr-local/provider-cache/hair/sources");
     expect(existsSync(cache), "the hair cache must be readable").toBe(true);
     expect(
       inventory.filter((r) => r.fitsStrippedBasemesh).length,

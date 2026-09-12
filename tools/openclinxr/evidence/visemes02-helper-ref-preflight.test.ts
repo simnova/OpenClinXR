@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 /**
  * E6 slice 1 (#423) — INDEX PREFLIGHT ON THE STAGED CC0 VISEME PACK.
@@ -79,7 +80,8 @@ import { describe, expect, it } from "vitest";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const PACK = join(REPO_ROOT, ".openclinxr-local/provider-cache/visemes/makehuman-visemes02/targets/visemes");
+const CACHE_ROOT = mainWorktreeRoot(REPO_ROOT);
+const PACK = join(CACHE_ROOT, ".openclinxr-local/provider-cache/visemes/makehuman-visemes02/targets/visemes");
 const PREFLIGHT = join(REPO_ROOT, "tools/openclinxr/evidence/visemes02-preflight.json");
 
 /** MADR 0052 helper-strip boundary. Not tuned — it is the basemesh split point, same as S0 used. */

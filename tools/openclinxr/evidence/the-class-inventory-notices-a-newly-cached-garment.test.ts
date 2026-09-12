@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 /**
  * E5 slice, 2026-08-21 — THE CLASS INVENTORY'S POPULATION GUARD IS BLIND.
@@ -98,7 +99,7 @@ import { describe, expect, it } from "vitest";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const CACHE = join(REPO_ROOT, ".openclinxr-local/provider-cache");
+const CACHE = join(mainWorktreeRoot(REPO_ROOT), ".openclinxr-local/provider-cache");
 const INVENTORY = join(REPO_ROOT, "tools/openclinxr/evidence/garment-class-inventory.json");
 
 /**

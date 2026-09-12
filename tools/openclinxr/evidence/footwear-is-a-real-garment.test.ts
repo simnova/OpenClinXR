@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 /**
  * #295 graded the learner-visible library figures and named "brown blob shoes with pale toes
@@ -287,7 +288,7 @@ describe("footwear is a fitted library garment, not an 86-vertex blob", () => {
   });
 
   it("(4) NET: the CC0 shoes pack is staged where the fit stage can read it", () => {
-    const dir = `${REPO_ROOT}/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01`;
+    const dir = `${mainWorktreeRoot(REPO_ROOT)}/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01`;
     expect(existsSync(dir), `shoes01 staged at ${dir}`).toBe(true);
     for (const shoe of ["toigo_flats", "toigo_mj_cloth_shoes"]) {
       expect(existsSync(`${dir}/${shoe}/${shoe}.mhclo`), `${shoe}.mhclo staged`).toBe(true);

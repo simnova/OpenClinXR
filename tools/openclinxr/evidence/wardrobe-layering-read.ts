@@ -14,10 +14,11 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readMhcloLayering } from "../asset-pipeline/makeclothes/fit-cli.ts";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 const HERE = fileURLToPath(new URL(".", import.meta.url));
 const REPO_ROOT = join(HERE, "../../..");
-const CACHE = join(REPO_ROOT, ".openclinxr-local/provider-cache/garments");
+const CACHE = join(mainWorktreeRoot(REPO_ROOT), ".openclinxr-local/provider-cache/garments");
 const REPORT = join(HERE, "wardrobe-layering-read-report.json");
 
 function cachedMhclo(): string[] {

@@ -1,0 +1,1 @@
+provider-cache/no-test-resolves-the-provider-cache-from-its-own-worktree.test.ts
