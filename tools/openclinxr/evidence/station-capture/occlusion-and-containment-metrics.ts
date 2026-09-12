@@ -30,6 +30,13 @@
  * framesClear = !wallOccluded && !doorOccluded && largest standing blob contained.
  * Recumbent (bed) blobs may touch the left edge — stepdown's patient does.
  * The HUD right edge is not a frame edge (UI overlay); named, not gated.
+ *
+ * four-edge (2026-09-12 #0): framesClear still gates LEFT only. framesWhole
+ * requires the largest skinned standing blob (skinInHeadBandPct >
+ * STANDING_SKIN_FLOOR) !touchLeft && !touchRight && !touchBottom &&
+ * !touchTop. CLEAR after-frames: 11/15 anyStandingTouchBottom. Known-good
+ * four-edge column is clinic / ob / primary_care / telehealth / ward.
+ * peds_asthma is NOT known-good. Residual: adult_abdominal_pain_v1.
  */
 import { decodePng } from "../decode-png.js";
 import { ACTOR_CANVAS, ACTOR_CELLS_DIR_REL, ACTOR_KNOWN_GOOD_CASE_IDS } from "./actor-frame-metrics.js";
@@ -74,6 +81,22 @@ export const CLEAR_REPORT_REL =
 /** Actor-frame recapture this branch replaced; tree fba57fb9. */
 export const BEFORE_CELLS_DIR_REL = ACTOR_CELLS_DIR_REL;
 export const BEFORE_TREE_SHA = "fba57fb91a507295bdafa847be5c0858d65c2831";
+
+export const WHOLE_CELLS_DIR_REL =
+  "docs/openclinxr/humanoid-vetting-captures/station-rooms-whole-2026-09-12";
+export const WHOLE_CONTACT_SHEET_REL =
+  "docs/openclinxr/humanoid-vetting-captures/station-rooms-whole-contact-sheet-2026-09-12.png";
+export const WHOLE_REPORT_REL =
+  "tools/openclinxr/evidence/station-capture/station-room-four-edge-containment-2026-09-12.md";
+export const WHOLE_KNOWN_GOOD_CASE_IDS = [
+  "clinic_abdominal_pain_interpreter_v1",
+  "ob_headache_preeclampsia_triage_v1",
+  "primary_care_dyslipidemia_joint_pain_v1",
+  "telehealth_diabetes_health_literacy_v1",
+  "ward_delirium_med_rec_v1",
+] as const;
+/** CLEAR after-frame: largest standing touches right and bottom. */
+export const WHOLE_NAMED_FAIL_CASE_ID = "peds_asthma_parent_anxiety_v1";
 
 export { ACTOR_CELLS_DIR_REL };
 
@@ -128,9 +151,11 @@ export type StandingBlob = {
   touchLeft: boolean;
   touchRight: boolean;
   touchBottom: boolean;
+  touchTop: boolean;
   skinInHeadBandPct: number;
   crownY: number;
   contained: boolean;
+  fourEdgeContained: boolean;
 };
 
 export type OcclusionContainmentMetrics = {
@@ -145,9 +170,14 @@ export type OcclusionContainmentMetrics = {
   largestStandingContained: boolean;
   largestStandingTouchRight: boolean;
   largestStandingTouchBottom: boolean;
+  largestStandingTouchTop: boolean;
   anyStandingTouchRight: boolean;
   anyStandingTouchBottom: boolean;
+  anyStandingTouchTop: boolean;
+  anyStandingTouchLeft: boolean;
+  fourEdgeContained: boolean;
   framesClear: boolean;
+  framesWhole: boolean;
 };
 
 export function measureOcclusionAndContainment(bytes: Uint8Array): OcclusionContainmentMetrics | null {
@@ -257,16 +287,20 @@ export function measureOcclusionAndContainment(bytes: Uint8Array): OcclusionCont
     const touchLeft = minX <= 1;
     const touchRight = maxX >= gw - 2;
     const touchBottom = maxY >= gh - 2;
+    const touchTop = minY <= 1;
     const crownY = (y0 + minY * STEP) / h;
     const contained = !touchLeft;
+    const fourEdgeContained = !touchLeft && !touchRight && !touchBottom && !touchTop;
     standing.push({
       samples: n,
       touchLeft,
       touchRight,
       touchBottom,
+      touchTop,
       skinInHeadBandPct,
       crownY,
       contained,
+      fourEdgeContained,
     });
   }
   standing.sort((left, right) => right.samples - left.samples);
@@ -280,8 +314,13 @@ export function measureOcclusionAndContainment(bytes: Uint8Array): OcclusionCont
   const largestStandingContained = largest?.contained === true;
   const largestStandingTouchRight = largest?.touchRight === true;
   const largestStandingTouchBottom = largest?.touchBottom === true;
+  const largestStandingTouchTop = largest?.touchTop === true;
   const anyStandingTouchRight = standing.some((blob) => blob.touchRight);
   const anyStandingTouchBottom = standing.some((blob) => blob.touchBottom);
+  const anyStandingTouchTop = standing.some((blob) => blob.touchTop);
+  const anyStandingTouchLeft = standing.some((blob) => blob.touchLeft);
+  const skinnedPrimary = standing.find((blob) => blob.skinInHeadBandPct > STANDING_SKIN_FLOOR);
+  const fourEdgeContained = skinnedPrimary?.fourEdgeContained === true;
   return {
     samples,
     centerFigPct,
@@ -294,9 +333,14 @@ export function measureOcclusionAndContainment(bytes: Uint8Array): OcclusionCont
     largestStandingContained,
     largestStandingTouchRight,
     largestStandingTouchBottom,
+    largestStandingTouchTop,
     anyStandingTouchRight,
     anyStandingTouchBottom,
+    anyStandingTouchTop,
+    anyStandingTouchLeft,
+    fourEdgeContained,
     framesClear: unobstructed && largestStandingContained,
+    framesWhole: unobstructed && fourEdgeContained,
   };
 }
 
@@ -316,10 +360,15 @@ export type ClearStationRow = {
   largestStandingTouchLeft: boolean;
   largestStandingTouchRight: boolean;
   largestStandingTouchBottom: boolean;
+  largestStandingTouchTop: boolean;
   anyStandingTouchRight: boolean;
   anyStandingTouchBottom: boolean;
+  anyStandingTouchTop: boolean;
+  anyStandingTouchLeft: boolean;
   largestStandingContained: boolean;
+  fourEdgeContained: boolean;
   framesClear: boolean;
+  framesWhole: boolean;
 };
 
 export function parseClearHeadline(body: string): number | null {
@@ -359,13 +408,22 @@ function parseStationBlocks(body: string): ClearStationRow[] {
       (block.match(/^- largestStandingTouchRight: (true|false)$/m)?.[1] ?? "") === "true";
     const largestStandingTouchBottom =
       (block.match(/^- largestStandingTouchBottom: (true|false)$/m)?.[1] ?? "") === "true";
+    const largestStandingTouchTop =
+      (block.match(/^- largestStandingTouchTop: (true|false)$/m)?.[1] ?? "") === "true";
     const anyStandingTouchRight =
       (block.match(/^- anyStandingTouchRight: (true|false)$/m)?.[1] ?? "") === "true";
     const anyStandingTouchBottom =
       (block.match(/^- anyStandingTouchBottom: (true|false)$/m)?.[1] ?? "") === "true";
+    const anyStandingTouchTop =
+      (block.match(/^- anyStandingTouchTop: (true|false)$/m)?.[1] ?? "") === "true";
+    const anyStandingTouchLeft =
+      (block.match(/^- anyStandingTouchLeft: (true|false)$/m)?.[1] ?? "") === "true";
     const largestStandingContained =
       (block.match(/^- largestStandingContained: (true|false)$/m)?.[1] ?? "") === "true";
+    const fourEdgeContained =
+      (block.match(/^- fourEdgeContained: (true|false)$/m)?.[1] ?? "") === "true";
     const framesClear = (block.match(/^- framesClear: (true|false)$/m)?.[1] ?? "") === "true";
+    const framesWhole = (block.match(/^- framesWhole: (true|false)$/m)?.[1] ?? "") === "true";
     rows.push({
       caseId: start.id,
       imageRel,
@@ -382,10 +440,15 @@ function parseStationBlocks(body: string): ClearStationRow[] {
       largestStandingTouchLeft,
       largestStandingTouchRight,
       largestStandingTouchBottom,
+      largestStandingTouchTop,
       anyStandingTouchRight,
       anyStandingTouchBottom,
+      anyStandingTouchTop,
+      anyStandingTouchLeft,
       largestStandingContained,
+      fourEdgeContained,
       framesClear,
+      framesWhole,
     });
   }
   return rows;

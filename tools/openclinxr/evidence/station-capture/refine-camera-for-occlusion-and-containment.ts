@@ -1,10 +1,12 @@
 /**
  * After reframeCameraForRoom places the elevated interior camera, reject a
- * viewpoint whose standing actors are left-clipped or whose eye→actor ray
- * hits a wall/door. Orbit around the actor union inside the interior AABB.
+ * viewpoint whose standing actors clip any of the four NDC edges or whose
+ * eye→actor ray hits a wall/door. Orbit around the actor union inside the
+ * interior AABB.
  *
  * Does not move rooms, furniture, actors, or lights. Known-good viewpoints
- * that already contain standing actors unoccluded are left in place.
+ * that already contain standing actors unoccluded on all four edges are
+ * left in place.
  */
 import type { Page } from "playwright";
 
@@ -187,13 +189,39 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
         (box.min[2] + box.max[2]) / 2
       ];
     };
-    const actorClear = function (box) {
+    const EDGE = 0.80;
+    const MIN_NDC_HEIGHT = 0.36;
+    const boxNdc = function (box) {
+      const xs = [box.min[0], box.max[0]];
+      const ys = [box.min[1], box.max[1]];
+      const zs = [box.min[2], box.max[2]];
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      let ok = 0;
+      for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) for (let k = 0; k < 2; k++) {
+        const ndc = project(xs[i], ys[j], zs[k]);
+        if (!ndc) continue;
+        if (ndc.z <= -1 || ndc.z >= 1) continue;
+        ok += 1;
+        if (ndc.x < minX) minX = ndc.x;
+        if (ndc.x > maxX) maxX = ndc.x;
+        if (ndc.y < minY) minY = ndc.y;
+        if (ndc.y > maxY) maxY = ndc.y;
+      }
+      if (ok < 4) return null;
+      return { minX: minX, maxX: maxX, minY: minY, maxY: maxY };
+    };
+    let primary = standing[0];
+    for (let i = 1; i < standing.length; i++) {
+      const h = standing[i].box.max[1] - standing[i].box.min[1];
+      const ph = primary.box.max[1] - primary.box.min[1];
+      if (h > ph) primary = standing[i];
+    }
+    const actorWhole = function (box) {
+      const extent = boxNdc(box);
+      if (!extent) return false;
+      if (extent.maxY - extent.minY < MIN_NDC_HEIGHT) return false;
+      if (extent.minX < -EDGE || extent.maxX > EDGE || extent.minY < -EDGE || extent.maxY > EDGE) return false;
       const crown = crownOf(box);
-      const ndc = project(crown[0], crown[1], crown[2]);
-      if (!ndc) return false;
-      if (ndc.z <= -1 || ndc.z >= 1) return false;
-      if (ndc.x < -0.82 || ndc.x > 0.88) return false;
-      if (ndc.y < -0.55 || ndc.y > 0.88) return false;
       const cam = cameraWorld();
       const dx = crown[0] - cam[0], dy = crown[1] - cam[1], dz = crown[2] - cam[2];
       if (rayHitsBoxes(cam[0], cam[1], cam[2], dx, dy, dz, partitionBoxesFrom(cam, wallBoxes))) return false;
@@ -201,15 +229,13 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       return true;
     };
     const scoreStanding = function () {
-      let n = 0;
-      let minLeft = Infinity;
-      for (let i = 0; i < standing.length; i++) {
-        const crown = crownOf(standing[i].box);
-        const ndc = project(crown[0], crown[1], crown[2]);
-        if (actorClear(standing[i].box)) n += 1;
-        if (ndc && ndc.x < minLeft) minLeft = ndc.x;
+      const extent = boxNdc(primary.box);
+      const whole = actorWhole(primary.box);
+      let minMargin = -1;
+      if (extent) {
+        minMargin = Math.min(extent.minX + 1, 1 - extent.maxX, extent.minY + 1, 1 - extent.maxY);
       }
-      return { n: n, minLeft: minLeft };
+      return { n: whole ? 1 : 0, minMargin: minMargin };
     };
 
     const applyEyeLook = function (ex, ey, ez, lx, ly, lz) {
@@ -227,48 +253,54 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       camera.updateMatrixWorld(true);
     };
 
-    const lookX = standing.reduce(function (s, a) { return s + (a.box.min[0] + a.box.max[0]) / 2; }, 0) / standing.length;
-    const lookZ = standing.reduce(function (s, a) { return s + (a.box.min[2] + a.box.max[2]) / 2; }, 0) / standing.length;
-    const lookY = 1.0;
+    const lookX = (primary.box.min[0] + primary.box.max[0]) / 2;
+    const lookY = (primary.box.min[1] + primary.box.max[1]) / 2;
+    const lookZ = (primary.box.min[2] + primary.box.max[2]) / 2;
     const ceilingY = interior.max[1] - 0.45;
-    let eyeY = 1.68;
-    if (eyeY > ceilingY) eyeY = ceilingY;
-    if (eyeY < 1.4) eyeY = 1.4;
-    const standoff = 0.28;
+    const standoff = 0.22;
     const xMin = interior.min[0] + standoff;
     const xMax = interior.max[0] - standoff;
     const zMin = interior.min[2] + standoff;
     const zMax = interior.max[2] - standoff;
+    const eyeYs = [1.52, 1.68, 1.84].map(function (y) {
+      let ey = y;
+      if (ey > ceilingY) ey = ceilingY;
+      if (ey < 1.4) ey = 1.4;
+      return ey;
+    });
 
     const baseline = scoreStanding();
-    if (baseline.n === standing.length) {
-      return "refine=keep standing=" + String(baseline.n) + "/" + String(standing.length);
+    if (baseline.n === 1) {
+      return "refine=keep standing=1/" + String(standing.length);
     }
 
     const savedPx = camera.position.x, savedPy = camera.position.y, savedPz = camera.position.z;
     const savedQx = camera.quaternion.x, savedQy = camera.quaternion.y, savedQz = camera.quaternion.z, savedQw = camera.quaternion.w;
     let bestN = baseline.n;
-    let bestLeft = baseline.minLeft;
+    let bestMargin = baseline.minMargin;
     let bestEye = null;
-    const distances = [2.2, 2.8, 3.4, 4.0];
-    const turns = 16;
-    for (let di = 0; di < distances.length; di++) {
-      const dist = distances[di];
-      for (let t = 0; t < turns; t++) {
-        const ang = (t * Math.PI * 2) / turns;
-        const ex = lookX + Math.sin(ang) * dist;
-        const ez = lookZ + Math.cos(ang) * dist;
-        if (ex < xMin || ex > xMax || ez < zMin || ez > zMax) continue;
-        applyEyeLook(ex, eyeY, ez, lookX, lookY, lookZ);
-        const cam = cameraWorld();
-        if (cam[0] < interior.min[0] || cam[0] > interior.max[0]
-          || cam[1] < interior.min[1] || cam[1] > interior.max[1]
-          || cam[2] < interior.min[2] || cam[2] > interior.max[2]) continue;
-        const scored = scoreStanding();
-        if (scored.n > bestN || (scored.n === bestN && scored.minLeft > bestLeft + 0.02)) {
-          bestN = scored.n;
-          bestLeft = scored.minLeft;
-          bestEye = [ex, eyeY, ez];
+    const distances = [2.0, 2.4, 2.8, 3.2, 3.6];
+    const turns = 20;
+    for (let yi = 0; yi < eyeYs.length; yi++) {
+      const eyeY = eyeYs[yi];
+      for (let di = 0; di < distances.length; di++) {
+        const dist = distances[di];
+        for (let t = 0; t < turns; t++) {
+          const ang = (t * Math.PI * 2) / turns;
+          const ex = lookX + Math.sin(ang) * dist;
+          const ez = lookZ + Math.cos(ang) * dist;
+          if (ex < xMin || ex > xMax || ez < zMin || ez > zMax) continue;
+          applyEyeLook(ex, eyeY, ez, lookX, lookY, lookZ);
+          const cam = cameraWorld();
+          if (cam[0] < interior.min[0] || cam[0] > interior.max[0]
+            || cam[1] < interior.min[1] || cam[1] > interior.max[1]
+            || cam[2] < interior.min[2] || cam[2] > interior.max[2]) continue;
+          const scored = scoreStanding();
+          if (scored.n > bestN || (scored.n === bestN && scored.minMargin > bestMargin + 0.01)) {
+            bestN = scored.n;
+            bestMargin = scored.minMargin;
+            bestEye = [ex, eyeY, ez];
+          }
         }
       }
     }
@@ -276,13 +308,13 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       camera.position.set(savedPx, savedPy, savedPz);
       camera.quaternion.set(savedQx, savedQy, savedQz, savedQw);
       camera.updateMatrixWorld(true);
-      return "refine=keep-unimproved standing=" + String(baseline.n) + "/" + String(standing.length);
+      return "refine=keep-unimproved standing=" + String(baseline.n) + "/1 of " + String(standing.length);
     }
     applyEyeLook(bestEye[0], bestEye[1], bestEye[2], lookX, lookY, lookZ);
     if (camera.userData) {
-      camera.userData.openClinXrActorContainment = bestN + "/" + standing.length;
+      camera.userData.openClinXrActorContainment = bestN + "/1";
     }
-    return "refine=orbit standing=" + String(bestN) + "/" + String(standing.length)
+    return "refine=orbit standing=" + String(bestN) + "/1 of " + String(standing.length)
       + " eye=" + bestEye.map(function (v) { return v.toFixed(2); }).join(",")
       + " look=" + [lookX, lookY, lookZ].map(function (v) { return v.toFixed(2); }).join(",");
   })()`)) as string;

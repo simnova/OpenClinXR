@@ -1,7 +1,8 @@
 /**
- * Recapture the fifteen shipped stations after the occlusion/containment refine
- * and assemble one labelled contact sheet. Does not change rooms, lights,
- * materials, population, wait budgets, or existing actor/interior thresholds.
+ * Recapture the fifteen shipped stations so standing actors sit inside all
+ * four 3D-canvas edges, then assemble one labelled contact sheet. Does not
+ * change rooms, lights, materials, population, wait budgets, or existing
+ * interior/actor-band thresholds. Recumbent blobs stay ungated.
  */
 import { execFileSync } from "node:child_process";
 import { copyFileSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -21,22 +22,18 @@ import {
   CONTACT_SHEET_COLUMNS,
   CONTACT_SHEET_MIN_BYTES,
 } from "./assemble-station-room-grade-set.js";
+import { rowFromMetrics } from "./assemble-station-room-clear-sheet.js";
+import { BEIGE_CEILING, INTERIOR_SD_FLOOR, measureInteriorCenter } from "./interior-frame-metrics.js";
 import {
-  BEFORE_CELLS_DIR_REL,
-  BEFORE_TREE_SHA,
   CLEAR_CELLS_DIR_REL,
-  CLEAR_CONTACT_SHEET_REL,
-  CLEAR_KNOWN_GOOD_CASE_IDS,
-  CLEAR_REPORT_REL,
-  DOOR_PCT_CEILING,
-  STANDING_SKIN_FLOOR,
-  WALL_CENTER_PLASTER_FLOOR,
-  WALL_OCCLUDED_CASE_ID,
+  WHOLE_CELLS_DIR_REL,
+  WHOLE_CONTACT_SHEET_REL,
+  WHOLE_KNOWN_GOOD_CASE_IDS,
+  WHOLE_NAMED_FAIL_CASE_ID,
+  WHOLE_REPORT_REL,
   measureOcclusionAndContainment,
   type ClearStationRow,
-  type OcclusionContainmentMetrics,
 } from "./occlusion-and-containment-metrics.js";
-import { BEIGE_CEILING, INTERIOR_SD_FLOOR, measureInteriorCenter } from "./interior-frame-metrics.js";
 
 const REPO_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -52,6 +49,10 @@ function gitSha(): string {
 
 function yn(value: boolean): string {
   return value ? "Y" : "n";
+}
+
+function lrtb(row: ClearStationRow): string {
+  return `${yn(row.anyStandingTouchLeft)}/${yn(row.anyStandingTouchRight)}/${yn(row.anyStandingTouchTop)}/${yn(row.anyStandingTouchBottom)}`;
 }
 
 function stationBlock(station: ClearStationRow): string {
@@ -71,10 +72,15 @@ function stationBlock(station: ClearStationRow): string {
     `- largestStandingTouchLeft: ${String(station.largestStandingTouchLeft)}`,
     `- largestStandingTouchRight: ${String(station.largestStandingTouchRight)}`,
     `- largestStandingTouchBottom: ${String(station.largestStandingTouchBottom)}`,
+    `- largestStandingTouchTop: ${String(station.largestStandingTouchTop)}`,
+    `- anyStandingTouchLeft: ${String(station.anyStandingTouchLeft)}`,
     `- anyStandingTouchRight: ${String(station.anyStandingTouchRight)}`,
     `- anyStandingTouchBottom: ${String(station.anyStandingTouchBottom)}`,
+    `- anyStandingTouchTop: ${String(station.anyStandingTouchTop)}`,
     `- largestStandingContained: ${String(station.largestStandingContained)}`,
+    `- fourEdgeContained: ${String(station.fourEdgeContained)}`,
     `- framesClear: ${String(station.framesClear)}`,
+    `- framesWhole: ${String(station.framesWhole)}`,
     "",
   ].join("\n");
 }
@@ -84,58 +90,18 @@ function comparisonTable(
   after: readonly ClearStationRow[],
 ): string {
   const header = [
-    "| case | before wall | after wall | before door | after door | before unob | after unob | before clear | after clear | before L/R/B | after L/R/B | after anyR/anyB |",
-    "|---|---|---|---|---|---|---|---|---|---|---|---|",
+    "| case | before whole | after whole | before L/R/T/B | after L/R/T/B |",
+    "|---|---|---|---|---|",
   ];
   const lines = after.map((aft) => {
     const bef = before.find((row) => row.caseId === aft.caseId);
-    const bLRB = bef
-      ? `${yn(bef.largestStandingTouchLeft)}/${yn(bef.largestStandingTouchRight)}/${yn(bef.largestStandingTouchBottom)}`
-      : "—";
-    const aLRB = `${yn(aft.largestStandingTouchLeft)}/${yn(aft.largestStandingTouchRight)}/${yn(aft.largestStandingTouchBottom)}`;
-    const aAny = `${yn(aft.anyStandingTouchRight)}/${yn(aft.anyStandingTouchBottom)}`;
-    return `| ${aft.caseId} | ${String(bef?.wallOccluded ?? "—")} | ${String(aft.wallOccluded)} | ${String(bef?.doorOccluded ?? "—")} | ${String(aft.doorOccluded)} | ${String(bef?.unobstructed ?? "—")} | ${String(aft.unobstructed)} | ${String(bef?.framesClear ?? "—")} | ${String(aft.framesClear)} | ${bLRB} | ${aLRB} | ${aAny} |`;
+    const bLR = bef ? lrtb(bef) : "—";
+    return `| ${aft.caseId} | ${String(bef?.framesWhole ?? "—")} | ${String(aft.framesWhole)} | ${bLR} | ${lrtb(aft)} |`;
   });
   return [...header, ...lines].join("\n");
 }
 
-export function rowFromMetrics(
-  caseId: string,
-  imageRel: string,
-  environmentId: string,
-  bytes: number,
-  metrics: OcclusionContainmentMetrics,
-): ClearStationRow {
-  const largest = metrics.standing[0];
-  return {
-    caseId,
-    imageRel,
-    environmentId,
-    bytes,
-    centerFigPct: metrics.centerFigPct,
-    centerPlasterPct: metrics.centerPlasterPct,
-    doorPct: metrics.doorPct,
-    wallOccluded: metrics.wallOccluded,
-    doorOccluded: metrics.doorOccluded,
-    unobstructed: metrics.unobstructed,
-    standingCount: metrics.standing.length,
-    largestStandingSkinPct: largest?.skinInHeadBandPct ?? 0,
-    largestStandingTouchLeft: largest?.touchLeft ?? false,
-    largestStandingTouchRight: metrics.largestStandingTouchRight,
-    largestStandingTouchBottom: metrics.largestStandingTouchBottom,
-    largestStandingTouchTop: metrics.largestStandingTouchTop,
-    anyStandingTouchRight: metrics.anyStandingTouchRight,
-    anyStandingTouchBottom: metrics.anyStandingTouchBottom,
-    anyStandingTouchTop: metrics.anyStandingTouchTop,
-    anyStandingTouchLeft: metrics.anyStandingTouchLeft,
-    largestStandingContained: metrics.largestStandingContained,
-    fourEdgeContained: metrics.fourEdgeContained,
-    framesClear: metrics.framesClear,
-    framesWhole: metrics.framesWhole,
-  };
-}
-
-export function renderClearReport(input: {
+export function renderWholeReport(input: {
   treeSha: string;
   generatedAt: string;
   contactSheetRel: string;
@@ -144,27 +110,24 @@ export function renderClearReport(input: {
   cellWidth: number;
   cellHeight: number;
   stations: readonly ClearStationRow[];
-  beforeStations?: readonly ClearStationRow[];
+  beforeStations: readonly ClearStationRow[];
 }): string {
   const sections = input.stations.map((station) => stationBlock(station));
-  const before = input.beforeStations ?? [];
-  const beforeSections = before.map((station) => stationBlock(station));
-  const clearCount = input.stations.filter((row) => row.framesClear).length;
-  const beforeFailCount = before.filter((row) => !row.framesClear).length;
-  const namedBefore = before.filter(
-    (row) =>
-      row.caseId === WALL_OCCLUDED_CASE_ID || row.caseId.startsWith("ed_chest_pain_priority_"),
-  );
-  const namedBeforeFail = namedBefore.filter((row) => !row.framesClear);
+  const beforeSections = input.beforeStations.map((station) => stationBlock(station));
+  const wholeCount = input.stations.filter((row) => row.framesWhole).length;
+  const beforeFailCount = input.beforeStations.filter((row) => !row.framesWhole).length;
+  const namedBefore = input.beforeStations.filter((row) => row.caseId === WHOLE_NAMED_FAIL_CASE_ID);
+  const namedBeforeFail = namedBefore.filter((row) => !row.framesWhole);
+  const beforeBottom = input.beforeStations.filter((row) => row.anyStandingTouchBottom).length;
+  const beforeRight = input.beforeStations.filter((row) => row.anyStandingTouchRight).length;
   return [
-    "# Station room occlusion and containment (2026-09-12)",
+    "# Station room four-edge containment (2026-09-12)",
     "",
-    "Instrument + recapture. Each shipped station is photographed with the",
-    "elevated interior camera, then refineCameraForOcclusionAndContainment",
-    "orbits inside the interior AABB until standing actors (world AABB height",
-    ">= 1.15 m) are unoccluded and not left-clipped. Rooms, lights, materials,",
-    "population, wait budgets, and existing interior/actor-band thresholds are",
-    "unchanged. UI text bleeding over the canvas is named, not fixed here.",
+    "Instrument + recapture. framesClear still gates the left edge only.",
+    "framesWhole requires the largest skinned standing blob (skinInHeadBandPct",
+    "> STANDING_SKIN_FLOOR) inside all four 3D-canvas edges. Recumbent",
+    "blobs stay ungated. Rooms, lights, materials, population, wait budgets,",
+    "and existing interior/actor-band thresholds are unchanged.",
     "",
     `- tree: \`${input.treeSha}\``,
     `- generatedAt: ${input.generatedAt}`,
@@ -173,60 +136,54 @@ export function renderClearReport(input: {
     `- populationSource: shippedStationIds()`,
     `- population: ${String(input.stations.length)}`,
     `- cells: ${String(input.stations.length)}`,
-    `- clearCells: ${String(clearCount)}`,
-    `- beforeSource: ${BEFORE_CELLS_DIR_REL} at \`${BEFORE_TREE_SHA}\``,
+    `- wholeCells: ${String(wholeCount)}`,
+    `- beforeSource: ${CLEAR_CELLS_DIR_REL}`,
     `- beforeFailCount: ${String(beforeFailCount)}`,
     `- namedBeforeFailCount: ${String(namedBeforeFail.length)} of ${String(namedBefore.length)}`,
+    `- beforeAnyStandingTouchBottom: ${String(beforeBottom)}`,
+    `- beforeAnyStandingTouchRight: ${String(beforeRight)}`,
     `- columns: ${String(input.columns)}`,
     `- cellWidth: ${String(input.cellWidth)}`,
     `- cellHeight: ${String(input.cellHeight)}`,
     `- contactSheet: ${input.contactSheetRel}`,
     `- contactSheetBytes: ${String(input.contactSheetBytes)}`,
-    `- wallCenterPlasterFloor: ${WALL_CENTER_PLASTER_FLOOR.toFixed(2)} (sqrt(59.13 × 34.90))`,
-    `- doorPctCeiling: ${DOOR_PCT_CEILING.toFixed(2)} (sqrt(26.20 × 7.69))`,
-    `- standingSkinFloor: ${STANDING_SKIN_FLOOR.toFixed(2)} (sqrt(0.3 × 26.1))`,
-    `- knownGood: ${CLEAR_KNOWN_GOOD_CASE_IDS.join(", ")}`,
+    `- knownGood: ${WHOLE_KNOWN_GOOD_CASE_IDS.join(", ")}`,
+    `- namedFail: ${WHOLE_NAMED_FAIL_CASE_ID}`,
     `- canvas: x 0..0.68 y 0.08..0.88`,
     "",
-    "Count formula: cells = count(### `caseId` rows under ## Stations). framesClear",
-    "= unobstructed (not wallOccluded and not doorOccluded) AND largest standing",
-    "blob contained (!touchLeft). touchRight and touchBottom are reported, not",
-    "gated. Per-actor blobs, not a band percentage. Recumbent bed actors may",
-    "clip the left edge. HUD text overlay on the right of the 3D canvas is",
-    "named, not gated.",
+    "Count formula: cells = count(### `caseId` rows under ## Stations).",
+    "framesWhole = unobstructed AND largest skinned standing blob fourEdgeContained.",
+    "Residual with no four-edge camera found without moving actors:",
+    "adult_abdominal_pain_v1 (skinned standing blob absent or edge-clipped).",
+    "L/R/T/B = any standing blob touchLeft / touchRight / touchTop / touchBottom.",
+    "HUD overlay on the screenshot right of the 3D canvas is not a frame edge.",
     "",
-    `## Before (${BEFORE_CELLS_DIR_REL} at \`${BEFORE_TREE_SHA}\`)`,
+    `## Before (${CLEAR_CELLS_DIR_REL})`,
     "",
-    "Same instrument on the actor-frame PNGs this branch replaced. Named",
+    "Same four-edge instrument on the left-only CLEAR recapture. Named",
     "failures must stay failures here or the instrument does not bite.",
     "",
     ...beforeSections,
     "## Before / after",
     "",
-    comparisonTable(before, input.stations),
-    "",
-    "L/R/B = largest standing blob touchLeft / touchRight / touchBottom on the",
-    "3D canvas (x 0..0.68, y 0.08..0.88). anyR/anyB = any standing blob. Right",
-    "and bottom are reported only; they do not enter framesClear.",
+    comparisonTable(input.beforeStations, input.stations),
     "",
     "## Stations",
     "",
     ...sections,
-    "claimScope: native refined-interior captures of the fifteen shipped stations",
-    "plus one labelled contact sheet; per-actor standing-blob containment and",
-    "wall/door occlusion vs the 2026-09-12 actor-frame binding pair; before/after",
-    `on ${BEFORE_CELLS_DIR_REL}.`,
+    "claimScope: native four-edge recapture of the fifteen shipped stations",
+    "plus one labelled contact sheet; standing-blob L/R/T/B vs the 2026-09-12",
+    `CLEAR cells under ${CLEAR_CELLS_DIR_REL}.`,
     "notEvidenceFor: whether any room admits no camera position satisfying all",
-    "four measures; whether the rooms read as clinically plausible spaces; Quest readiness;",
-    "whether a sub-threshold sleeve at the canvas/HUD seam is a standing blob.",
+    "four measures; whether the rooms read as clinically plausible spaces; Quest readiness.",
     "",
-    `CLAIM: ${String(namedBeforeFail.length)} of ${String(namedBefore.length)} named before-frames fail framesClear; ${String(clearCount)} of ${String(input.stations.length)} after-frames pass framesClear (!touchLeft). touchRight/touchBottom reported, not gated.`,
+    `CLAIM: ${String(namedBeforeFail.length)} of ${String(namedBefore.length)} named before-frames fail framesWhole; ${String(beforeBottom)} of ${String(input.beforeStations.length)} before-frames anyStandingTouchBottom; ${String(beforeRight)} of ${String(input.beforeStations.length)} anyStandingTouchRight; ${String(wholeCount)} of ${String(input.stations.length)} after-frames pass framesWhole.`,
     "NOT TESTED: Whether any room admits no camera position satisfying all four measures; whether the rooms read as clinically plausible spaces; Quest readiness.",
     "",
   ].join("\n");
 }
 
-export async function assembleStationRoomClearSheet(): Promise<{
+export async function assembleStationRoomWholeSheet(): Promise<{
   contactSheetPath: string;
   reportPath: string;
   stations: ClearStationRow[];
@@ -239,10 +196,10 @@ export async function assembleStationRoomClearSheet(): Promise<{
   }
   const jobTmp = path.join(
     process.env.OPENCLINXR_JOB_TMP ?? tmpdir(),
-    `ocxr-station-clear-${process.pid}-${Date.now()}`,
+    `ocxr-station-whole-${process.pid}-${Date.now()}`,
   );
   mkdirSync(jobTmp, { recursive: true });
-  const reuseDir = process.env.OPENCLINXR_CLEAR_CAPTURE_DIR;
+  const reuseDir = process.env.OPENCLINXR_WHOLE_CAPTURE_DIR;
   const captureDir = reuseDir && reuseDir.length > 0 ? reuseDir : path.join(jobTmp, "capture");
   mkdirSync(captureDir, { recursive: true });
 
@@ -258,7 +215,7 @@ export async function assembleStationRoomClearSheet(): Promise<{
     );
   }
 
-  const cellsDir = path.join(REPO_ROOT, CLEAR_CELLS_DIR_REL);
+  const cellsDir = path.join(REPO_ROOT, WHOLE_CELLS_DIR_REL);
   mkdirSync(cellsDir, { recursive: true });
 
   const stations: ClearStationRow[] = [];
@@ -273,16 +230,16 @@ export async function assembleStationRoomClearSheet(): Promise<{
     const dest = path.join(cellsDir, destName);
     copyFileSync(src, dest);
     const bytes = statSync(dest).size;
-    const imageRel = `${CLEAR_CELLS_DIR_REL}/${destName}`;
+    const imageRel = `${WHOLE_CELLS_DIR_REL}/${destName}`;
     const png = new Uint8Array(readFileSync(dest));
     const metrics = measureOcclusionAndContainment(png);
     if (!metrics) {
-      throw new Error(`could not decode clear cell ${imageRel}`);
+      throw new Error(`could not decode whole cell ${imageRel}`);
     }
     const interior = measureInteriorCenter(png);
     if (!interior?.framesInterior) {
       throw new Error(
-        `${caseId} clear recapture lost interior framing (centerSd=${String(interior?.sd)} beigePct=${String(interior?.beigePct)}; floors ${String(INTERIOR_SD_FLOOR)}/${String(BEIGE_CEILING)})`,
+        `${caseId} whole recapture lost interior framing (centerSd=${String(interior?.sd)} beigePct=${String(interior?.beigePct)}; floors ${String(INTERIOR_SD_FLOOR)}/${String(BEIGE_CEILING)})`,
       );
     }
     stations.push(
@@ -294,7 +251,7 @@ export async function assembleStationRoomClearSheet(): Promise<{
     });
   }
 
-  const contactAbs = path.join(REPO_ROOT, CLEAR_CONTACT_SHEET_REL);
+  const contactAbs = path.join(REPO_ROOT, WHOLE_CONTACT_SHEET_REL);
   mkdirSync(path.dirname(contactAbs), { recursive: true });
   const browser = await chromium.launch({ headless: true });
   try {
@@ -317,13 +274,13 @@ export async function assembleStationRoomClearSheet(): Promise<{
   const contactSheetBytes = statSync(contactAbs).size;
   if (contactSheetBytes < CONTACT_SHEET_MIN_BYTES) {
     throw new Error(
-      `${CLEAR_CONTACT_SHEET_REL} is ${String(contactSheetBytes)} bytes, below card min-bytes ${String(CONTACT_SHEET_MIN_BYTES)}`,
+      `${WHOLE_CONTACT_SHEET_REL} is ${String(contactSheetBytes)} bytes, below card min-bytes ${String(CONTACT_SHEET_MIN_BYTES)}`,
     );
   }
 
   const beforeStations: ClearStationRow[] = [];
   for (const station of stations) {
-    const beforeRel = `${BEFORE_CELLS_DIR_REL}/${station.caseId}-room.png`;
+    const beforeRel = `${CLEAR_CELLS_DIR_REL}/${station.caseId}-room.png`;
     const beforeAbs = path.join(REPO_ROOT, beforeRel);
     const beforePng = new Uint8Array(readFileSync(beforeAbs));
     const beforeMetrics = measureOcclusionAndContainment(beforePng);
@@ -341,10 +298,10 @@ export async function assembleStationRoomClearSheet(): Promise<{
     );
   }
 
-  const report = renderClearReport({
+  const report = renderWholeReport({
     treeSha: gitSha(),
     generatedAt: manifest.generatedAt,
-    contactSheetRel: CLEAR_CONTACT_SHEET_REL,
+    contactSheetRel: WHOLE_CONTACT_SHEET_REL,
     contactSheetBytes,
     columns: CONTACT_SHEET_COLUMNS,
     cellWidth: CONTACT_SHEET_CELL_WIDTH,
@@ -352,21 +309,21 @@ export async function assembleStationRoomClearSheet(): Promise<{
     stations,
     beforeStations,
   });
-  const reportPath = path.join(REPO_ROOT, CLEAR_REPORT_REL);
+  const reportPath = path.join(REPO_ROOT, WHOLE_REPORT_REL);
   writeFileSync(reportPath, report, "utf8");
   process.stdout.write(
-    `wrote ${CLEAR_CONTACT_SHEET_REL} (${String(contactSheetBytes)} bytes)\nwrote ${CLEAR_REPORT_REL}\n`,
+    `wrote ${WHOLE_CONTACT_SHEET_REL} (${String(contactSheetBytes)} bytes)\nwrote ${WHOLE_REPORT_REL}\n`,
   );
   return { contactSheetPath: contactAbs, reportPath, stations };
 }
 
 const isDirectRun =
   typeof process.argv[1] === "string"
-  && (process.argv[1].endsWith("assemble-station-room-clear-sheet.ts")
-    || process.argv[1].endsWith("assemble-station-room-clear-sheet.js"));
+  && (process.argv[1].endsWith("assemble-station-room-whole-sheet.ts")
+    || process.argv[1].endsWith("assemble-station-room-whole-sheet.js"));
 
 if (isDirectRun) {
-  assembleStationRoomClearSheet().catch((error: unknown) => {
+  assembleStationRoomWholeSheet().catch((error: unknown) => {
     console.error(error instanceof Error ? error.stack ?? error.message : error);
     process.exitCode = 1;
   });
