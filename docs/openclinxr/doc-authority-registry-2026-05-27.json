@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 107,
-    "current-reference": 208,
+    "current-reference": 209,
     "archive-candidate": 92,
     "evidence": 128,
     "temporary": 54,
@@ -4958,6 +4958,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Committed clip-channel-deviation instrument BEFORE/AFTER tables for CC0 seated retarget expansion (tsk_28c5e7db43239b8f)."
+    },
+    {
+      "path": "docs/openclinxr/provider-empty-response-failover-2026-09-12.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Provider empty-response failover fix: measured outage, cooldown tier, two-direction probe."
     }
   ]
 }

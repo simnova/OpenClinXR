@@ -141,6 +141,21 @@ export function shouldFailover(status: number): boolean {
   return FAILOVER_STATUSES.has(status);
 }
 
+/**
+ * An HTTP 200 with no usable content is a provider failure, not a success.
+ * Detected after response parsing (not inside res.ok) so it applies to
+ * both OpenRouter and Go-converted payloads.
+ */
+export function isEmptyCompletion(body: unknown): boolean {
+  if (body === null || body === undefined || typeof body !== "object") return true;
+  const b = body as Record<string, unknown>;
+  if (b.error) return true;
+  if (!Array.isArray(b.choices) || b.choices.length === 0) return true;
+  const first = b.choices[0] as { message?: { content?: string } } | undefined;
+  const content = first?.message?.content;
+  return content === undefined || content === null || content === "";
+}
+
 function lastUserText(messages: unknown): string {
   if (!Array.isArray(messages)) return "";
   for (let i = messages.length - 1; i >= 0; i -= 1) {
@@ -234,8 +249,17 @@ export async function forwardChat(opts: {
         json = { error: { message: text.slice(0, 400) } };
       }
       if (res.ok) {
-        breaker.recordSuccess(up.name);
         if (useGoResponses) json = goResponsesToChat(json, up.model);
+        if (isEmptyCompletion(json)) {
+          // HTTP 200 with empty body — treat as transient failure, failover.
+          // Status 500 routes to TRANSIENT_COOLDOWN_MS (30 s) in cooldownMsFor:
+          // not a quota signal (402/429), not a region block (403), not a missing key (401).
+          breaker.recordFailure(up.name, 500);
+          last = { status: 200, json, via: up.name };
+          if (up === order[order.length - 1]) return last;
+          continue;
+        }
+        breaker.recordSuccess(up.name);
         return { status: 200, json, via: up.name };
       }
       breaker.recordFailure(up.name, res.status, res.headers.get("retry-after"));
