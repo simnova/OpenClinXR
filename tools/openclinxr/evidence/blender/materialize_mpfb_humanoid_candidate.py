@@ -4598,10 +4598,10 @@ def main():
     # library trouser with the body-derived cover shell, and #373's regularize_rim smooths
     # the band-cut zigzag this function measures. Both must precede it or the terminus is
     # derived from geometry that never exports. Wired, not re-authored (D1): the same
-    # function the library rail calls at body_param_stage.py:2579. Scrub actors are skipped
-    # (measured closed: kevin 0/36 gapped, min +2.64 mm) and a garment that already meets is
-    # a no-op inside the function anyway.
-    if pants is not None and garment is not None and _lower_kind != "scrub":
+    # function the library rail calls at body_param_stage.py:2579. Scrub skip withdrawn
+    # 2026-09-12: nurse live bytes gapped 2/36 at -2.6 mm; a garment that already meets
+    # (kevin) is a no-op inside the function.
+    if pants is not None and garment is not None:
         # Street: the shirt is the known-good column (ymin 1.0283). Raising the
         # cover-shell band_hi makes this function push the hem down onto the new
         # waist (measured this bake: 40 verts, 43.3 mm). That is forbidden.

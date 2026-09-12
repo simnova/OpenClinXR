@@ -35,9 +35,23 @@
  * slice, not a GLB vertex push.
  *
  * NOT TESTED: the other eight bodies; mhclo fit-parameter clipping.
+ *
+ * ## FIXED (#0)
+ *
+ * Withdrew the scrub skip on `fit_upper_hem_to_waistband` in
+ * materialize_mpfb_humanoid_candidate.py (the function is a no-op when the hem
+ * already meets — kevin stays). Bake log: pushedVertexCount 36, maxDeficit 7.65 mm
+ * (2.65 mm gap + 5 mm #320 margin). Same postopt ladder as the collar known-good
+ * (#695 r0.4 e0.001, #737 lash 0.12/0.005) → 38,958 tris / 8,396,376 B.
+ *
+ * Live measureWaistFit: gapped 0, minMm +5.0. Waist-box first-hits: shirt 30522 /
+ * pants 12700 / skin 0 / hidden 0 / skinRowCount 0. Report:
+ * nurse-waistband-hem-fit-2026-09-12.md. Diagnosis report is unchanged.
  */
 
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -57,6 +71,18 @@ const STRUCT = join(
   "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-front_structure.png",
 );
 const REPORT = join(HERE, "nurse-waistband-gap-2026-09-12.md");
+const FIT_REPORT = join(HERE, "nurse-waistband-hem-fit-2026-09-12.md");
+/** Pre-fix live bytes at plant (worktree HEAD before this hem-fit). */
+const PRE_FIX_REV = "20c575c8082772622e54baef7849df7e55dab939";
+const GLB_REV = `${PRE_FIX_REV}:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb`;
+
+function writePreFixGlb(): string {
+  const dir = join(tmpdir(), `adult-nurse-waist-prefix-${process.pid}`);
+  mkdirSync(dir, { recursive: true });
+  const glbPath = join(dir, "mpfb-clinical-nurse-adult.glb");
+  writeFileSync(glbPath, execFileSync("git", ["show", GLB_REV], { cwd: REPO_ROOT, maxBuffer: 64 * 1024 * 1024 }));
+  return glbPath;
+}
 
 describe("the adult nurse waistband shows a garment gap", () => {
   it("report exists and records the live diagnosis", () => {
@@ -71,19 +97,27 @@ describe("the adult nurse waistband shows a garment gap", () => {
     expect(text.includes("NOT TESTED"), "report has NOT TESTED").toBe(true);
   });
 
-  it("live measureWaistFit still has two front gapped buckets", async () => {
+  it("20c575c8 front buckets are the named defect", async () => {
+    const fit = await measureWaistFit(writePreFixGlb(), "mpfb-clinical-nurse-adult-prefix");
+    expect(fit.gapped, "pre-fix two front buckets gapped").toBe(2);
+    expect(Math.min(...fit.overlaps) * 1000, "pre-fix min overlap ≈ -2.6 mm").toBeCloseTo(-2.6, 1);
+  });
+
+  it("live measureWaistFit has no gapped buckets", async () => {
     expect(existsSync(GLB), `${GLB} exists`).toBe(true);
     const fit = await measureWaistFit(GLB, "mpfb-clinical-nurse-adult");
     expect(fit.upperName, "upper is scrub shirt").toMatch(/scrub_shirt/i);
     expect(fit.lowerName, "lower is scrub pants").toMatch(/scrub_pants/i);
     expect(fit.overlaps.length, "36 comparable buckets").toBe(36);
-    expect(fit.gapped, "two front buckets gapped").toBe(2);
+    expect(fit.gapped, "no angular bucket gapped").toBe(0);
     const minMm = Math.min(...fit.overlaps) * 1000;
-    expect(minMm, "min overlap ≈ -2.6 mm").toBeCloseTo(-2.6, 1);
+    expect(minMm, "min overlap is the #320 5 mm margin").toBeCloseTo(5.0, 1);
   });
 
-  it("waist-box first-hits are visible skin, not hide-mask", async () => {
+  it("waist-box first-hits are garment, not visible skin", async () => {
     expect(existsSync(LIT) && existsSync(STRUCT), "tracked front captures exist").toBe(true);
+    expect(existsSync(FIT_REPORT), `${FIT_REPORT} exists`).toBe(true);
+    expect(statSync(FIT_REPORT).size, "hem-fit report min-bytes 700").toBeGreaterThanOrEqual(700);
     const hits = await countFirstHitsInBox({
       glbPath: GLB,
       litPath: LIT,
@@ -91,10 +125,10 @@ describe("the adult nurse waistband shows a garment gap", () => {
       box: NURSE_WAISTBAND,
       classifyHit: classifyNurseWaistHit,
     });
-    expect(hits.counts.skin, "visible-skin first-hits in the waist box").toBe(308);
-    expect(hits.counts.hidden ?? 0, "hidden first-hits stay below skin").toBe(27);
-    expect(hits.counts.shirt, "shirt still occupies the box").toBe(29904);
-    expect(hits.counts.pants, "pants still occupy the box").toBe(12843);
-    expect(hits.skinRowCount, "skin band is 9 pixel rows").toBe(9);
+    expect(hits.counts.skin ?? 0, "visible-skin first-hits in the waist box").toBe(0);
+    expect(hits.counts.hidden ?? 0, "hidden first-hits stay at 0").toBe(0);
+    expect(hits.counts.shirt, "shirt still occupies the box").toBeGreaterThan(0);
+    expect(hits.counts.pants, "pants still occupy the box").toBeGreaterThan(0);
+    expect(hits.skinRowCount, "skin band is gone").toBe(0);
   }, 180_000);
 });
