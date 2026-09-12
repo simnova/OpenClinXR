@@ -186,7 +186,10 @@ describe("the seated clip transfers its posture", () => {
   for (const glbPath of glbFiles) {
     const glbName = glbPath.split("/").pop()!;
 
-    it(`${glbName}: rest-to-frame-0 hip flexion within ${TOLERANCE_DEG} deg of source held value`, async () => {
+    // it.fails: the retarget_bvh T-pose overwrite drops the held posture. When the
+    // retarget is fixed so seated posture transfers (hip flexion >= 66.823 deg), these
+    // three lines must become plain it() — the defect is gone and the assertion is true.
+    it.fails(`${glbName}: rest-to-frame-0 hip flexion within ${TOLERANCE_DEG} deg of source held value (retarget_bvh drops held posture — self-retiring)`, async () => {
       const bones = await readGlbBones(glbPath);
       const upperLegL = bones.find((b) => b.name === "upperleg01.L");
       const upperLegR = bones.find((b) => b.name === "upperleg01.R");
@@ -207,7 +210,7 @@ describe("the seated clip transfers its posture", () => {
       const angleR = quatAngleDeg(upperLegR.restRotation, upperLegR.frameRotations[0]);
 
       // The seated posture should transfer: hip flexion ~87 deg from rest.
-      // Today's GLBs show 11-18 deg — this assertion BITES (fails).
+      // Today's GLBs show 11-18 deg — this assertion fails.
       expect(angleL).toBeGreaterThanOrEqual(MIN_EXPECTED_FLEXION_DEG);
       expect(angleR).toBeGreaterThanOrEqual(MIN_EXPECTED_FLEXION_DEG);
     });

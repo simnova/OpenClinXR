@@ -117,7 +117,15 @@ source has 0 range; the right side has interpolated motion from the 11.839° ran
 
 This confirms per-side channels are not arriving intact through the retarget.
 
-## 5. Test output
+## 5. Test status
+
+The three per-GLB posture assertions are `it.fails` today (retarget drops held posture). They
+self-retire when the retarget is fixed: the moment hip flexion transfers at ≥66.823 deg, each
+`it.fails` becomes a failing test, signaling that the `.fails` wrapper must be removed and the
+assertion left as a plain `it(`. The source BVH assertion is a plain `it(` — it asserts a fact
+about the source that is true today and must stay true.
+
+## 6. Test output
 
 ```
  FAIL  the-seated-clip-transfers-its-posture.test.ts
