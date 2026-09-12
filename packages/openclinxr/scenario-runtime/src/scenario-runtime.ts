@@ -41,6 +41,10 @@ import { ACTOR_TURN_EXECUTED_EVENT_TYPE, executionFromFrozenPlan } from "./actor
 import { generateActorResponseFromContext } from "./actor-turn-generation.js";
 import { advanceMultiActorEnsemble as advanceTick, type MultiActorEnsembleTurn } from "./multi-actor-encounter/index.js";
 import {
+  appendNoteSubmittedReasoningEvent,
+  resolveLearnerEventRecording,
+} from "./reasoning-capture/capture.js";
+import {
   appendAssembledPhase,
   assembledDomainAtSecond,
   traceEvent,
@@ -198,21 +202,28 @@ export class ScenarioRuntime {
 
   appendLearnerEvent(stationRunId: string, input: LearnerEventInput): TraceEvent {
     const session = this.requireSession(stationRunId);
+    const recording = resolveLearnerEventRecording(
+      {
+        eventType: input.eventType,
+        sequence: session.nextSequence,
+        stationRunId,
+        ...(input.payload ? { payload: input.payload } : {}),
+      },
+      this.options.ledger.replay(stationRunId),
+    );
     const eventInput: TraceEventInput = {
       stationRunId,
       sequence: session.nextSequence,
-      eventType: input.eventType,
+      eventType: recording.eventType,
       atSecond: input.atSecond,
       source: "learner",
+      payload: recording.payload,
     };
     if (input.tag) {
       eventInput.tag = input.tag;
     }
     if (input.actorId) {
       eventInput.actorId = input.actorId;
-    }
-    if (input.payload) {
-      eventInput.payload = input.payload;
     }
 
     const event = traceEvent(eventInput);
@@ -494,8 +505,8 @@ export class ScenarioRuntime {
       atSecond: domainAtSecond,
       noteText: input.text,
     });
+    appendNoteSubmittedReasoningEvent(session, this.options.ledger, input);
     if (assembled) {
-      appendAssembledPhase(session, this.options.ledger, "note.submitted", "note", input.atSecond, assembled.formTiming.note);
       appendAssembledPhase(
         session,
         this.options.ledger,
@@ -505,18 +516,6 @@ export class ScenarioRuntime {
         assembled.formTiming.note,
         input.advanceReason ?? "patient_note_submitted_advancing",
       );
-    } else {
-      this.options.ledger.append(
-        traceEvent({
-          stationRunId,
-          sequence: session.nextSequence,
-          eventType: "note.submitted",
-          atSecond: input.atSecond,
-          source: "learner",
-          tag: "patient_note_submitted",
-        }),
-      );
-      session.nextSequence += 1;
     }
 
     return {

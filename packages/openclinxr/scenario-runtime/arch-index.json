@@ -53,6 +53,7 @@
     "src/context-channel/context-channels-open-and-acknowledge-through-the-runtime.test.ts",
     "src/deterministic-dialogue-runtime.test.ts",
     "src/exam-run-bridge.test.ts",
+    "src/reasoning-capture/hypotheses-link-to-events-and-the-note-carries-a-synthesis.test.ts",
     "src/scenario-runtime.test.ts",
     "src/the-assembled-exam-emits-replayable-phase-transitions.test.ts",
     "src/the-planner-stays-inside-its-boundary.test.ts",
