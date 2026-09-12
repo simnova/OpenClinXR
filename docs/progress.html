@@ -28,6 +28,38 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-12T1220">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 28 &middot; 2026-09-12 12:20 EDT</p>
+          <h2>The physician stops dragging his foot through the turn, and a test that only worked on one machine is fixed.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>The turn</h3>
+            <ul>
+              <li>Walking to the bedside and stopping were already clean: both feet measured zero slide. The final turn was not &mdash; a planted foot dragged 175 mm on one side and 211 mm on the other while the body rotated.</li>
+              <li>It now lifts one foot, turns, and puts it down again. All three intervals measure zero slide, and the contact windows are still counted &mdash; four while walking, three through the turn, one at the stop &mdash; so the improvement is not the figure floating.</li>
+              <li>No stepping animation exists in the cleared set for this figure, and none was invented. The fix poses the feet directly and leaves the walking correction untouched as the only thing allowed to move the body.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A check that only worked in one place</h3>
+            <ul>
+              <li>A test I accepted this morning read its reference garments from a folder that is never copied into the separate working copies each worker uses. It passed where the folder exists and failed everywhere else &mdash; and it failed on an unrelated piece of work rather than its own.</li>
+              <li>It now asks git where the main copy is, so every working copy gets the same answer. Proved both ways: the old version fails in a copy without the folder, the new one passes there and in the main copy.</li>
+              <li>Thirteen more tests have the same fault. They are recorded as their own task rather than swept into this fix.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Recorded, not claimed</h3>
+            <ul>
+              <li>The evidence checks for a future recorded encounter now tie a report to the exact code revision that produced it, and a file claiming to be video has to actually decode. Preparation only: nothing has been recorded, watched or accepted.</li>
+              <li>The street figure&rsquo;s waistband could not be fixed at the point where clothing is fitted &mdash; that route still leaves a 22 mm gap on him. The measurement was recorded and the worse figure was not shipped.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-12T1100">
         <div class="section-heading">
           <p class="eyebrow">Entry 27 &middot; 2026-09-12 11:00 EDT</p>
