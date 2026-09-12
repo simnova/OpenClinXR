@@ -49,6 +49,8 @@ export type SiteCount = {
   seeThrough: number;
   miss: number;
   hidden_upper: number;
+  /** First-hit hidden (MASK) among all subject pixels when classifySubject is set. */
+  hiddenSubject: number;
   visible_skin: number;
   visibleSkinSubject: number;
 };
@@ -171,6 +173,7 @@ function empty(): SiteCount {
     seeThrough: 0,
     miss: 0,
     hidden_upper: 0,
+    hiddenSubject: 0,
     visible_skin: 0,
     visibleSkinSubject: 0,
   };
@@ -182,6 +185,7 @@ function sampleBox(
   scene: { camera: PerspectiveCamera; model: Group },
   box: readonly number[],
   mode: "bg-only" | "subject",
+  classifySubject = false,
 ): SiteCount {
   const out = empty();
   const W = lit.w;
@@ -195,7 +199,7 @@ function sampleBox(
       if (struct.lum[i]! <= 40) continue;
       out.subject++;
       const isBg = Math.abs(lit.lum[i]! - BG_LUMA) < 0.01;
-      if (mode === "bg-only" && !isBg) continue;
+      if (mode === "bg-only" && !isBg && !classifySubject) continue;
       if (isBg) out.bg++;
       ndc.set(((x + 0.5) / W) * 2 - 1, -((y + 0.5) / lit.h) * 2 + 1);
       raycaster.setFromCamera(ndc, scene.camera);
@@ -211,7 +215,10 @@ function sampleBox(
         String(mesh.userData.matName ?? ""),
         String(mesh.userData.alphaMode ?? "OPAQUE"),
       );
-      if (cls === "hidden_upper" && isBg) out.hidden_upper++;
+      if (cls === "hidden_upper") {
+        if (isBg) out.hidden_upper++;
+        out.hiddenSubject++;
+      }
       if (cls === "visible_skin") {
         if (isBg) out.visible_skin++;
         out.visibleSkinSubject++;
@@ -225,18 +232,21 @@ export async function countSeeThrough(opts: {
   glbPath: string;
   litPath: string;
   structPath: string;
+  /** Raycast every subject pixel (not only exact-bg). Needed to count hiddenSubject. */
+  classifySubject?: boolean;
 }): Promise<SeeThroughReport> {
   const scene = await loadScene(opts.glbPath);
   const lit = decodePng(new Uint8Array(readFileSync(opts.litPath)));
   const struct = decodePng(new Uint8Array(readFileSync(opts.structPath)));
   if (lit === null || struct === null) throw new Error("PNG decode failed");
+  const classifySubject = opts.classifySubject === true;
   const sites: Record<string, SiteCount> = {};
   for (const [id, box] of Object.entries(SITES)) {
-    sites[id] = sampleBox(lit, struct, scene, box, "bg-only");
+    sites[id] = sampleBox(lit, struct, scene, box, "bg-only", classifySubject);
   }
   return {
     sites,
-    controlC: sampleBox(lit, struct, scene, CONTROL_C, "bg-only"),
-    torso: sampleBox(lit, struct, scene, TORSO, "subject"),
+    controlC: sampleBox(lit, struct, scene, CONTROL_C, "bg-only", classifySubject),
+    torso: sampleBox(lit, struct, scene, TORSO, "subject", classifySubject),
   };
 }
