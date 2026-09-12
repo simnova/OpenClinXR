@@ -26,6 +26,7 @@
     "@openclinxr/xr-scene"
   ],
   "tests": [
+    "src/learner-debrief/a-released-debrief-replays-the-timeline-and-fails-closed-when-withdrawn.test.ts",
     "src/store.test.ts"
   ],
   "commands": {

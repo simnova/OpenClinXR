@@ -57,11 +57,40 @@ export function buildExamFormRunEvidence(
   };
 }
 
+export type LearnerDebriefReleaseStatus = "active" | "superseded" | "withdrawn";
+
+export type LearnerDebriefRelease = {
+  releaseId: string;
+  examRunId: string;
+  releasedAt: string;
+  status: LearnerDebriefReleaseStatus;
+};
+
+export type LearnerDebriefObservationCite = {
+  sequence?: number;
+  eventType?: string;
+  tag?: string;
+  atFormSecond?: number;
+};
+
+export type LearnerDebriefObservationInput = {
+  observationId: string;
+  rubricItemId: string;
+  scenarioId: string;
+  scenarioIndex: number;
+  formativeText: string;
+  evidenceCites: readonly LearnerDebriefObservationCite[];
+};
+
 export function buildExamRunSummaryEvidence(args: {
   examRunId: string;
   totalScenarios: number;
   outcomes: ExamRunStationOutcome[];
   formRunState: ExamFormRunState | null;
+  learnerDebrief?: {
+    release: LearnerDebriefRelease;
+    observations: readonly LearnerDebriefObservationInput[];
+  };
 }): OpenClinXrExamRunSummaryEvidence {
   const formClock = args.formRunState ? formatExamFormRunClock(args.formRunState) : null;
   const evidence: OpenClinXrExamRunSummaryEvidence = {
@@ -79,7 +108,92 @@ export function buildExamRunSummaryEvidence(args: {
     evidence.examFormRunStatus = args.formRunState.status;
     evidence.notEvidenceFor = args.formRunState.notEvidenceFor;
   }
+  if (args.learnerDebrief) {
+    const { release } = args.learnerDebrief;
+    if (release.status !== "active" || release.examRunId !== args.examRunId) {
+      evidence.learnerDebriefRefusal = {
+        reason: release.examRunId !== args.examRunId
+          ? "feedback_release_exam_run_mismatch"
+          : "feedback_release_not_active",
+        status: release.status,
+        releaseId: release.releaseId,
+      };
+    } else {
+      const ordered = [...args.outcomes].sort(
+        (left, right) => (left.stationOrder ?? left.scenarioIndex + 1) - (right.stationOrder ?? right.scenarioIndex + 1),
+      );
+      const unalignedObservationIds: string[] = [];
+      evidence.learnerDebrief = {
+        source: "released_feedback_learner_debrief",
+        releaseId: release.releaseId,
+        examRunId: args.examRunId,
+        releasedAt: release.releasedAt,
+        stations: ordered.map((outcome) => ({
+          stationOrder: outcome.stationOrder ?? outcome.scenarioIndex + 1,
+          scenarioId: outcome.scenarioId,
+          ...(outcome.startedAtFormSecond === undefined ? {} : { startedAtFormSecond: outcome.startedAtFormSecond }),
+          ...(outcome.endedAtFormSecond === undefined ? {} : { endedAtFormSecond: outcome.endedAtFormSecond }),
+          noteSubmitted: outcome.noteSubmitted,
+          observations: (args.learnerDebrief?.observations ?? [])
+            .filter((observation) =>
+              observation.scenarioId === outcome.scenarioId && observation.scenarioIndex === outcome.scenarioIndex,
+            )
+            .map((observation) => {
+              const evidenceMoments = observation.evidenceCites
+                .filter((cite) => citeResolvesToOutcome(cite, outcome))
+                .map((cite) => ({
+                  ...(cite.sequence === undefined ? {} : { sequence: cite.sequence }),
+                  ...(cite.eventType === undefined ? {} : { eventType: cite.eventType }),
+                  ...(cite.tag === undefined ? {} : { tag: cite.tag }),
+                  ...(cite.atFormSecond === undefined ? {} : { atFormSecond: cite.atFormSecond }),
+                }));
+              return { observation, evidenceMoments };
+            })
+            .filter((entry) => {
+              if (entry.evidenceMoments.length !== entry.observation.evidenceCites.length) {
+                unalignedObservationIds.push(entry.observation.observationId);
+                return false;
+              }
+              return true;
+            })
+            .map((entry) => ({
+              observationId: entry.observation.observationId,
+              rubricItemId: entry.observation.rubricItemId,
+              formativeText: entry.observation.formativeText,
+              evidenceMoments: entry.evidenceMoments,
+            })),
+        })),
+        unalignedObservationIds,
+        claimBoundary: "learner_debrief_formative_not_score_use",
+        notEvidenceFor: [
+          "exam_equivalence",
+          "clinical_validity",
+          "scoring_validity",
+          "automated_scoring",
+          "credentialing",
+          "production_deployment",
+          "faculty_only_annotation",
+          "observation_rating",
+        ],
+        scoringValidityClaimed: false,
+        examEquivalenceGate: false,
+      };
+    }
+  }
   return evidence;
+}
+
+function citeResolvesToOutcome(
+  cite: LearnerDebriefObservationCite,
+  outcome: ExamRunStationOutcome,
+): boolean {
+  if (cite.atFormSecond === undefined) return true;
+  const start = outcome.startedAtFormSecond;
+  const end = outcome.endedAtFormSecond;
+  if (start === undefined) return false;
+  if (cite.atFormSecond < start) return false;
+  if (end === null || end === undefined) return true;
+  return cite.atFormSecond <= end;
 }
 
 export function buildExamFlowEvidence(args: {

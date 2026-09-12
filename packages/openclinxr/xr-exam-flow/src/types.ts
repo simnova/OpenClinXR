@@ -51,6 +51,40 @@ export type OpenClinXrExamRunSummaryEvidence = {
   examFormRunStatus?: ExamFormRunState["status"];
   examEquivalenceGate?: false;
   notEvidenceFor?: readonly string[];
+  learnerDebrief?: {
+    source: "released_feedback_learner_debrief";
+    releaseId: string;
+    examRunId: string;
+    releasedAt: string;
+    stations: {
+      stationOrder: number;
+      scenarioId: string;
+      startedAtFormSecond?: number;
+      endedAtFormSecond?: number | null;
+      noteSubmitted: boolean;
+      observations: {
+        observationId: string;
+        rubricItemId: string;
+        formativeText: string;
+        evidenceMoments: {
+          sequence?: number;
+          eventType?: string;
+          tag?: string;
+          atFormSecond?: number;
+        }[];
+      }[];
+    }[];
+    unalignedObservationIds: string[];
+    claimBoundary: "learner_debrief_formative_not_score_use";
+    notEvidenceFor: readonly string[];
+    scoringValidityClaimed: false;
+    examEquivalenceGate: false;
+  };
+  learnerDebriefRefusal?: {
+    reason: "feedback_release_not_active" | "feedback_release_exam_run_mismatch";
+    status: "active" | "superseded" | "withdrawn";
+    releaseId: string;
+  };
 };
 
 export type OpenClinXrExamFormRunEvidence = {
