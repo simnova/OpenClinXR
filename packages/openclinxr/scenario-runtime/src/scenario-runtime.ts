@@ -1,39 +1,32 @@
 import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import {
-  type ActorTurnInProgress,
   type ArbitrateTurnTakingInput,
-  type CaseEmotionPolicy,
   type ConversationPolicy,
   createDefaultConversationPolicy,
   EmotionEngine,
   type EmotionEventKind,
   type EmotionTransition,
-  type HistoryTakingCoverageSpec,
   type HistoryTakingCoverageState,
   type LearnerBargeInInput,
   type TurnTakingDecision,
 } from "@openclinxr/conversation-policy";
-import { createStationRun, type StationRun, transitionStation, getScheduledEventsDue, type ScheduledEvent } from "@openclinxr/domain";
-import type { ModelGateway } from "@openclinxr/model-gateway";
+import { createStationRun, transitionStation, type ScheduledEvent } from "@openclinxr/domain";
 import {
   buildReviewPacket,
   evaluateScenarioPublicationReadiness,
   type ScenarioPublicationReadiness,
 } from "@openclinxr/review-workflow";
 import {
-  type ActorModelContext,
   buildActorModelContext,
   createMultiActorClinicalSession,
-  type MultiActorClinicalSession,
   recordClinicalAction as recordSessionClinicalAction,
   routeActorInteraction,
 } from "@openclinxr/session-state";
-import type { ActorTurnPlan, InteractionEmotion, ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
+import type { ActorTurnPlan, InteractionEmotion, ReviewPacket, TraceEvent } from "@openclinxr/shared-schemas";
 import {
-  type AudioEvent,
   collectVoiceStream,
-  type VoiceGateway,
 } from "@openclinxr/voice-gateway";
+import { acknowledgeContextChannelOnSession, listAvailableContextChannels } from "./context-channel/runtime.js";
 import { admitEncounterOrThrow, advanceScheduledEffects, applyScheduledEffects, createEncounterAdmissionHost, type EncounterAdmissionHost, type EncounterAdmissionSnapshot, recordRequirementObservation, type SceneRequirementObservation, type ScheduledEffectResult } from "./encounter-admission-runtime.js";
 import { resolveCaseEmotionPolicy } from "./emotion-policy.js";
 import {
@@ -48,7 +41,6 @@ import { generateActorResponseFromContext } from "./actor-turn-generation.js";
 import { advanceMultiActorEnsemble as advanceTick, type MultiActorEnsembleTurn } from "./multi-actor-encounter/index.js";
 import {
   assertObservedFormTime,
-  durableEventRef,
   replayablePhaseTransitionEvent,
   traceEvent,
   validateAssembledStationContext,
@@ -57,7 +49,6 @@ import {
   withDurableEventRef,
 } from "./trace.js";
 import type {
-  AssembledStationContext,
   AssembledStationFormWindow,
   EndEncounterInput,
   GenerateActorResponseInput,
@@ -594,9 +585,15 @@ export class ScenarioRuntime {
     return this.options.assetRegistry.evaluateScenarioReadiness(this.options.scenario);
   }
 
-  /** Events newly due at or before `atSecond`, applied at the effect consumer when wired. */
   advanceScheduledEvents(stationRunId: string, atSecond: number): ScheduledEvent[] {
     return advanceScheduledEffects(this.admissionHost(), this.requireSession(stationRunId), atSecond);
+  }
+  availableContextChannels(stationRunId: string, atSecond: number) {
+    return listAvailableContextChannels(this.requireSession(stationRunId), this.options.scenario, atSecond);
+  }
+  acknowledgeContextChannel(stationRunId: string, input: { channelId: string; modality: "viewed" | "heard"; atSecond: number }) {
+    const session = this.requireSession(stationRunId);
+    return acknowledgeContextChannelOnSession(session, this.options.scenario, input, (eventInput) => this.appendTrace(session, eventInput));
   }
   advanceEnsemble(stationRunId: string, atSecond: number): MultiActorEnsembleTurn | null {
     const session = this.requireSession(stationRunId);
@@ -619,14 +616,12 @@ export class ScenarioRuntime {
   encounterAdmissionSnapshot(stationRunId: string): EncounterAdmissionSnapshot | undefined {
     return this.requireSession(stationRunId).encounterAdmission;
   }
-  /** Apply scheduled effects due at `atSecond` at the consumer, with retry and stop. */
   applyScheduledEffects(stationRunId: string, atSecond: number): ScheduledEffectResult {
     return applyScheduledEffects(this.admissionHost(), this.requireSession(stationRunId), atSecond);
   }
   private admissionHost(): EncounterAdmissionHost {
     return createEncounterAdmissionHost(this.options.scenario, this.options.encounterAdmission, this.appendTrace.bind(this));
   }
-
   scenarioPublicationReadiness(input: ScenarioPublicationReadinessInput): ScenarioPublicationReadiness {
     return evaluateScenarioPublicationReadiness({
       scenario: this.options.scenario,
@@ -639,9 +634,7 @@ export class ScenarioRuntime {
 
   private requireSession(stationRunId: string): SessionRecord {
     const session = this.sessions.get(stationRunId);
-    if (!session) {
-      throw new Error(`Session not found: ${stationRunId}`);
-    }
+    if (!session) throw new Error(`Session not found: ${stationRunId}`);
     return session;
   }
 
@@ -801,5 +794,3 @@ export class ScenarioRuntime {
   }
 }
 
-// Factory functions extracted to default-runtime-factory.ts to keep class file under freeze.
-export { createDefaultScenarioRuntime, createScenarioRuntimeWithPersistenceHooks } from "./default-runtime-factory.js";
