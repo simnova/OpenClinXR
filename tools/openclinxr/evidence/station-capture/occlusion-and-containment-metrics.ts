@@ -71,6 +71,9 @@ export const CLEAR_CONTACT_SHEET_REL =
   "docs/openclinxr/humanoid-vetting-captures/station-rooms-clear-contact-sheet-2026-09-12.png";
 export const CLEAR_REPORT_REL =
   "tools/openclinxr/evidence/station-capture/station-room-occlusion-and-containment-2026-09-12.md";
+/** Actor-frame recapture this branch replaced; tree fba57fb9. */
+export const BEFORE_CELLS_DIR_REL = ACTOR_CELLS_DIR_REL;
+export const BEFORE_TREE_SHA = "fba57fb91a507295bdafa847be5c0858d65c2831";
 
 export { ACTOR_CELLS_DIR_REL };
 
@@ -123,6 +126,8 @@ function isSkin(r: number, g: number, b: number, lum: number): boolean {
 export type StandingBlob = {
   samples: number;
   touchLeft: boolean;
+  touchRight: boolean;
+  touchBottom: boolean;
   skinInHeadBandPct: number;
   crownY: number;
   contained: boolean;
@@ -138,6 +143,10 @@ export type OcclusionContainmentMetrics = {
   unobstructed: boolean;
   standing: StandingBlob[];
   largestStandingContained: boolean;
+  largestStandingTouchRight: boolean;
+  largestStandingTouchBottom: boolean;
+  anyStandingTouchRight: boolean;
+  anyStandingTouchBottom: boolean;
   framesClear: boolean;
 };
 
@@ -246,9 +255,19 @@ export function measureOcclusionAndContainment(bytes: Uint8Array): OcclusionCont
     }
     const skinInHeadBandPct = headN === 0 ? 0 : (100 * skinN) / headN;
     const touchLeft = minX <= 1;
+    const touchRight = maxX >= gw - 2;
+    const touchBottom = maxY >= gh - 2;
     const crownY = (y0 + minY * STEP) / h;
     const contained = !touchLeft;
-    standing.push({ samples: n, touchLeft, skinInHeadBandPct, crownY, contained });
+    standing.push({
+      samples: n,
+      touchLeft,
+      touchRight,
+      touchBottom,
+      skinInHeadBandPct,
+      crownY,
+      contained,
+    });
   }
   standing.sort((left, right) => right.samples - left.samples);
   const centerFigPct = (100 * centerFig) / centerN;
@@ -259,6 +278,10 @@ export function measureOcclusionAndContainment(bytes: Uint8Array): OcclusionCont
   const unobstructed = !wallOccluded && !doorOccluded;
   const largest = standing[0];
   const largestStandingContained = largest?.contained === true;
+  const largestStandingTouchRight = largest?.touchRight === true;
+  const largestStandingTouchBottom = largest?.touchBottom === true;
+  const anyStandingTouchRight = standing.some((blob) => blob.touchRight);
+  const anyStandingTouchBottom = standing.some((blob) => blob.touchBottom);
   return {
     samples,
     centerFigPct,
@@ -269,6 +292,10 @@ export function measureOcclusionAndContainment(bytes: Uint8Array): OcclusionCont
     unobstructed,
     standing,
     largestStandingContained,
+    largestStandingTouchRight,
+    largestStandingTouchBottom,
+    anyStandingTouchRight,
+    anyStandingTouchBottom,
     framesClear: unobstructed && largestStandingContained,
   };
 }
@@ -287,6 +314,10 @@ export type ClearStationRow = {
   standingCount: number;
   largestStandingSkinPct: number;
   largestStandingTouchLeft: boolean;
+  largestStandingTouchRight: boolean;
+  largestStandingTouchBottom: boolean;
+  anyStandingTouchRight: boolean;
+  anyStandingTouchBottom: boolean;
   largestStandingContained: boolean;
   framesClear: boolean;
 };
@@ -297,7 +328,7 @@ export function parseClearHeadline(body: string): number | null {
   return Number(match[1]);
 }
 
-export function parseClearStations(body: string): ClearStationRow[] {
+function parseStationBlocks(body: string): ClearStationRow[] {
   const rows: ClearStationRow[] = [];
   const heading = /^### `([^`]+)`$/gm;
   const ids: Array<{ id: string; index: number }> = [];
@@ -324,6 +355,14 @@ export function parseClearStations(body: string): ClearStationRow[] {
     const largestStandingSkinPct = Number(block.match(/^- largestStandingSkinPct: ([0-9.]+)$/m)?.[1] ?? "NaN");
     const largestStandingTouchLeft =
       (block.match(/^- largestStandingTouchLeft: (true|false)$/m)?.[1] ?? "") === "true";
+    const largestStandingTouchRight =
+      (block.match(/^- largestStandingTouchRight: (true|false)$/m)?.[1] ?? "") === "true";
+    const largestStandingTouchBottom =
+      (block.match(/^- largestStandingTouchBottom: (true|false)$/m)?.[1] ?? "") === "true";
+    const anyStandingTouchRight =
+      (block.match(/^- anyStandingTouchRight: (true|false)$/m)?.[1] ?? "") === "true";
+    const anyStandingTouchBottom =
+      (block.match(/^- anyStandingTouchBottom: (true|false)$/m)?.[1] ?? "") === "true";
     const largestStandingContained =
       (block.match(/^- largestStandingContained: (true|false)$/m)?.[1] ?? "") === "true";
     const framesClear = (block.match(/^- framesClear: (true|false)$/m)?.[1] ?? "") === "true";
@@ -341,9 +380,31 @@ export function parseClearStations(body: string): ClearStationRow[] {
       standingCount,
       largestStandingSkinPct,
       largestStandingTouchLeft,
+      largestStandingTouchRight,
+      largestStandingTouchBottom,
+      anyStandingTouchRight,
+      anyStandingTouchBottom,
       largestStandingContained,
       framesClear,
     });
   }
   return rows;
+}
+
+/** After-state rows under `## Stations`. */
+export function parseClearStations(body: string): ClearStationRow[] {
+  const start = body.search(/^## Stations\s*$/m);
+  if (start < 0) return parseStationBlocks(body);
+  const end = body.slice(start + 1).search(/^## /m);
+  const section = end < 0 ? body.slice(start) : body.slice(start, start + 1 + end);
+  return parseStationBlocks(section);
+}
+
+/** Before-state rows under `## Before`. */
+export function parseBeforeStations(body: string): ClearStationRow[] {
+  const start = body.search(/^## Before\b/m);
+  if (start < 0) return [];
+  const end = body.slice(start + 1).search(/^## /m);
+  const section = end < 0 ? body.slice(start) : body.slice(start, start + 1 + end);
+  return parseStationBlocks(section);
 }

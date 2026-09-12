@@ -22,6 +22,8 @@ import {
   CONTACT_SHEET_MIN_BYTES,
 } from "./assemble-station-room-grade-set.js";
 import {
+  BEFORE_CELLS_DIR_REL,
+  BEFORE_TREE_SHA,
   CLEAR_CELLS_DIR_REL,
   CLEAR_CONTACT_SHEET_REL,
   CLEAR_KNOWN_GOOD_CASE_IDS,
@@ -29,8 +31,10 @@ import {
   DOOR_PCT_CEILING,
   STANDING_SKIN_FLOOR,
   WALL_CENTER_PLASTER_FLOOR,
+  WALL_OCCLUDED_CASE_ID,
   measureOcclusionAndContainment,
   type ClearStationRow,
+  type OcclusionContainmentMetrics,
 } from "./occlusion-and-containment-metrics.js";
 import { BEIGE_CEILING, INTERIOR_SD_FLOOR, measureInteriorCenter } from "./interior-frame-metrics.js";
 
@@ -46,6 +50,86 @@ function gitSha(): string {
   }).trim();
 }
 
+function yn(value: boolean): string {
+  return value ? "Y" : "n";
+}
+
+function stationBlock(station: ClearStationRow): string {
+  return [
+    `### \`${station.caseId}\``,
+    `- image: ${station.imageRel}`,
+    `- environmentId: ${station.environmentId}`,
+    `- bytes: ${String(station.bytes)}`,
+    `- centerFigPct: ${station.centerFigPct.toFixed(2)}`,
+    `- centerPlasterPct: ${station.centerPlasterPct.toFixed(2)}`,
+    `- doorPct: ${station.doorPct.toFixed(2)}`,
+    `- wallOccluded: ${String(station.wallOccluded)}`,
+    `- doorOccluded: ${String(station.doorOccluded)}`,
+    `- unobstructed: ${String(station.unobstructed)}`,
+    `- standingCount: ${String(station.standingCount)}`,
+    `- largestStandingSkinPct: ${station.largestStandingSkinPct.toFixed(2)}`,
+    `- largestStandingTouchLeft: ${String(station.largestStandingTouchLeft)}`,
+    `- largestStandingTouchRight: ${String(station.largestStandingTouchRight)}`,
+    `- largestStandingTouchBottom: ${String(station.largestStandingTouchBottom)}`,
+    `- anyStandingTouchRight: ${String(station.anyStandingTouchRight)}`,
+    `- anyStandingTouchBottom: ${String(station.anyStandingTouchBottom)}`,
+    `- largestStandingContained: ${String(station.largestStandingContained)}`,
+    `- framesClear: ${String(station.framesClear)}`,
+    "",
+  ].join("\n");
+}
+
+function comparisonTable(
+  before: readonly ClearStationRow[],
+  after: readonly ClearStationRow[],
+): string {
+  const header = [
+    "| case | before wall | after wall | before door | after door | before unob | after unob | before clear | after clear | before L/R/B | after L/R/B | after anyR/anyB |",
+    "|---|---|---|---|---|---|---|---|---|---|---|---|",
+  ];
+  const lines = after.map((aft) => {
+    const bef = before.find((row) => row.caseId === aft.caseId);
+    const bLRB = bef
+      ? `${yn(bef.largestStandingTouchLeft)}/${yn(bef.largestStandingTouchRight)}/${yn(bef.largestStandingTouchBottom)}`
+      : "—";
+    const aLRB = `${yn(aft.largestStandingTouchLeft)}/${yn(aft.largestStandingTouchRight)}/${yn(aft.largestStandingTouchBottom)}`;
+    const aAny = `${yn(aft.anyStandingTouchRight)}/${yn(aft.anyStandingTouchBottom)}`;
+    return `| ${aft.caseId} | ${String(bef?.wallOccluded ?? "—")} | ${String(aft.wallOccluded)} | ${String(bef?.doorOccluded ?? "—")} | ${String(aft.doorOccluded)} | ${String(bef?.unobstructed ?? "—")} | ${String(aft.unobstructed)} | ${String(bef?.framesClear ?? "—")} | ${String(aft.framesClear)} | ${bLRB} | ${aLRB} | ${aAny} |`;
+  });
+  return [...header, ...lines].join("\n");
+}
+
+export function rowFromMetrics(
+  caseId: string,
+  imageRel: string,
+  environmentId: string,
+  bytes: number,
+  metrics: OcclusionContainmentMetrics,
+): ClearStationRow {
+  const largest = metrics.standing[0];
+  return {
+    caseId,
+    imageRel,
+    environmentId,
+    bytes,
+    centerFigPct: metrics.centerFigPct,
+    centerPlasterPct: metrics.centerPlasterPct,
+    doorPct: metrics.doorPct,
+    wallOccluded: metrics.wallOccluded,
+    doorOccluded: metrics.doorOccluded,
+    unobstructed: metrics.unobstructed,
+    standingCount: metrics.standing.length,
+    largestStandingSkinPct: largest?.skinInHeadBandPct ?? 0,
+    largestStandingTouchLeft: largest?.touchLeft ?? false,
+    largestStandingTouchRight: metrics.largestStandingTouchRight,
+    largestStandingTouchBottom: metrics.largestStandingTouchBottom,
+    anyStandingTouchRight: metrics.anyStandingTouchRight,
+    anyStandingTouchBottom: metrics.anyStandingTouchBottom,
+    largestStandingContained: metrics.largestStandingContained,
+    framesClear: metrics.framesClear,
+  };
+}
+
 export function renderClearReport(input: {
   treeSha: string;
   generatedAt: string;
@@ -55,28 +139,18 @@ export function renderClearReport(input: {
   cellWidth: number;
   cellHeight: number;
   stations: readonly ClearStationRow[];
+  beforeStations?: readonly ClearStationRow[];
 }): string {
-  const sections = input.stations.map((station) => {
-    return [
-      `### \`${station.caseId}\``,
-      `- image: ${station.imageRel}`,
-      `- environmentId: ${station.environmentId}`,
-      `- bytes: ${String(station.bytes)}`,
-      `- centerFigPct: ${station.centerFigPct.toFixed(2)}`,
-      `- centerPlasterPct: ${station.centerPlasterPct.toFixed(2)}`,
-      `- doorPct: ${station.doorPct.toFixed(2)}`,
-      `- wallOccluded: ${String(station.wallOccluded)}`,
-      `- doorOccluded: ${String(station.doorOccluded)}`,
-      `- unobstructed: ${String(station.unobstructed)}`,
-      `- standingCount: ${String(station.standingCount)}`,
-      `- largestStandingSkinPct: ${station.largestStandingSkinPct.toFixed(2)}`,
-      `- largestStandingTouchLeft: ${String(station.largestStandingTouchLeft)}`,
-      `- largestStandingContained: ${String(station.largestStandingContained)}`,
-      `- framesClear: ${String(station.framesClear)}`,
-      "",
-    ].join("\n");
-  });
+  const sections = input.stations.map((station) => stationBlock(station));
+  const before = input.beforeStations ?? [];
+  const beforeSections = before.map((station) => stationBlock(station));
   const clearCount = input.stations.filter((row) => row.framesClear).length;
+  const beforeFailCount = before.filter((row) => !row.framesClear).length;
+  const namedBefore = before.filter(
+    (row) =>
+      row.caseId === WALL_OCCLUDED_CASE_ID || row.caseId.startsWith("ed_chest_pain_priority_"),
+  );
+  const namedBeforeFail = namedBefore.filter((row) => !row.framesClear);
   return [
     "# Station room occlusion and containment (2026-09-12)",
     "",
@@ -95,6 +169,9 @@ export function renderClearReport(input: {
     `- population: ${String(input.stations.length)}`,
     `- cells: ${String(input.stations.length)}`,
     `- clearCells: ${String(clearCount)}`,
+    `- beforeSource: ${BEFORE_CELLS_DIR_REL} at \`${BEFORE_TREE_SHA}\``,
+    `- beforeFailCount: ${String(beforeFailCount)}`,
+    `- namedBeforeFailCount: ${String(namedBeforeFail.length)} of ${String(namedBefore.length)}`,
     `- columns: ${String(input.columns)}`,
     `- cellWidth: ${String(input.cellWidth)}`,
     `- cellHeight: ${String(input.cellHeight)}`,
@@ -106,22 +183,39 @@ export function renderClearReport(input: {
     `- knownGood: ${CLEAR_KNOWN_GOOD_CASE_IDS.join(", ")}`,
     `- canvas: x 0..0.68 y 0.08..0.88`,
     "",
-    "Count formula: cells = count(### `caseId` rows). framesClear = unobstructed",
-    "(not wallOccluded and not doorOccluded) AND largest standing blob contained",
-    "(!touchLeft and skinInHeadBandPct > standingSkinFloor). Per-actor blobs, not",
-    "a band percentage. Recumbent bed actors may clip the left edge. HUD text",
-    "overlay on the right of the 3D canvas is named, not gated.",
+    "Count formula: cells = count(### `caseId` rows under ## Stations). framesClear",
+    "= unobstructed (not wallOccluded and not doorOccluded) AND largest standing",
+    "blob contained (!touchLeft). touchRight and touchBottom are reported, not",
+    "gated. Per-actor blobs, not a band percentage. Recumbent bed actors may",
+    "clip the left edge. HUD text overlay on the right of the 3D canvas is",
+    "named, not gated.",
+    "",
+    `## Before (${BEFORE_CELLS_DIR_REL} at \`${BEFORE_TREE_SHA}\`)`,
+    "",
+    "Same instrument on the actor-frame PNGs this branch replaced. Named",
+    "failures must stay failures here or the instrument does not bite.",
+    "",
+    ...beforeSections,
+    "## Before / after",
+    "",
+    comparisonTable(before, input.stations),
+    "",
+    "L/R/B = largest standing blob touchLeft / touchRight / touchBottom on the",
+    "3D canvas (x 0..0.68, y 0.08..0.88). anyR/anyB = any standing blob. Right",
+    "and bottom are reported only; they do not enter framesClear.",
     "",
     "## Stations",
     "",
     ...sections,
     "claimScope: native refined-interior captures of the fifteen shipped stations",
     "plus one labelled contact sheet; per-actor standing-blob containment and",
-    "wall/door occlusion vs the 2026-09-12 actor-frame binding pair.",
+    "wall/door occlusion vs the 2026-09-12 actor-frame binding pair; before/after",
+    `on ${BEFORE_CELLS_DIR_REL}.`,
     "notEvidenceFor: whether any room admits no camera position satisfying all",
-    "four measures; whether the rooms read as clinically plausible spaces; Quest readiness.",
+    "four measures; whether the rooms read as clinically plausible spaces; Quest readiness;",
+    "whether a sub-threshold sleeve at the canvas/HUD seam is a standing blob.",
     "",
-    `CLAIM: ${String(clearCount)} of ${String(input.stations.length)} shipped station captures have an unobstructed view of standing actors contained in the frame.`,
+    `CLAIM: ${String(namedBeforeFail.length)} of ${String(namedBefore.length)} named before-frames fail framesClear; ${String(clearCount)} of ${String(input.stations.length)} after-frames pass framesClear (!touchLeft). touchRight/touchBottom reported, not gated.`,
     "NOT TESTED: Whether any room admits no camera position satisfying all four measures; whether the rooms read as clinically plausible spaces; Quest readiness.",
     "",
   ].join("\n");
@@ -186,24 +280,9 @@ export async function assembleStationRoomClearSheet(): Promise<{
         `${caseId} clear recapture lost interior framing (centerSd=${String(interior?.sd)} beigePct=${String(interior?.beigePct)}; floors ${String(INTERIOR_SD_FLOOR)}/${String(BEIGE_CEILING)})`,
       );
     }
-    const largest = metrics.standing[0];
-    stations.push({
-      caseId,
-      imageRel,
-      environmentId: entry.liveShell.environmentId,
-      bytes,
-      centerFigPct: metrics.centerFigPct,
-      centerPlasterPct: metrics.centerPlasterPct,
-      doorPct: metrics.doorPct,
-      wallOccluded: metrics.wallOccluded,
-      doorOccluded: metrics.doorOccluded,
-      unobstructed: metrics.unobstructed,
-      standingCount: metrics.standing.length,
-      largestStandingSkinPct: largest?.skinInHeadBandPct ?? 0,
-      largestStandingTouchLeft: largest?.touchLeft ?? false,
-      largestStandingContained: metrics.largestStandingContained,
-      framesClear: metrics.framesClear,
-    });
+    stations.push(
+      rowFromMetrics(caseId, imageRel, entry.liveShell.environmentId, bytes, metrics),
+    );
     sheetCells.push({
       imagePath: dest,
       label: `${caseId}  ${entry.liveShell.environmentId}`,
@@ -237,6 +316,26 @@ export async function assembleStationRoomClearSheet(): Promise<{
     );
   }
 
+  const beforeStations: ClearStationRow[] = [];
+  for (const station of stations) {
+    const beforeRel = `${BEFORE_CELLS_DIR_REL}/${station.caseId}-room.png`;
+    const beforeAbs = path.join(REPO_ROOT, beforeRel);
+    const beforePng = new Uint8Array(readFileSync(beforeAbs));
+    const beforeMetrics = measureOcclusionAndContainment(beforePng);
+    if (!beforeMetrics) {
+      throw new Error(`could not decode before cell ${beforeRel}`);
+    }
+    beforeStations.push(
+      rowFromMetrics(
+        station.caseId,
+        beforeRel,
+        station.environmentId,
+        statSync(beforeAbs).size,
+        beforeMetrics,
+      ),
+    );
+  }
+
   const report = renderClearReport({
     treeSha: gitSha(),
     generatedAt: manifest.generatedAt,
@@ -246,6 +345,7 @@ export async function assembleStationRoomClearSheet(): Promise<{
     cellWidth: CONTACT_SHEET_CELL_WIDTH,
     cellHeight: CONTACT_SHEET_CELL_HEIGHT,
     stations,
+    beforeStations,
   });
   const reportPath = path.join(REPO_ROOT, CLEAR_REPORT_REL);
   writeFileSync(reportPath, report, "utf8");

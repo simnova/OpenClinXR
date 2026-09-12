@@ -23,6 +23,7 @@ import {
   WALL_CENTER_PLASTER_FLOOR,
   WALL_OCCLUDED_CASE_ID,
   measureOcclusionAndContainment,
+  parseBeforeStations,
   parseClearHeadline,
   parseClearStations,
 } from "./occlusion-and-containment-metrics.js";
@@ -190,6 +191,18 @@ describe("the station capture has an unobstructed contained actor", () => {
       ).toBe(true);
       expect(metrics?.framesClear, `${row.caseId} still fails framesClear`).toBe(true);
       expect(row.framesClear, `${row.caseId} report framesClear disagrees with pixels`).toBe(true);
+      expect(row.largestStandingTouchRight, `${row.caseId} missing touchRight in report`).toBe(
+        metrics?.largestStandingTouchRight === true,
+      );
+      expect(row.largestStandingTouchBottom, `${row.caseId} missing touchBottom in report`).toBe(
+        metrics?.largestStandingTouchBottom === true,
+      );
+      expect(row.anyStandingTouchRight, `${row.caseId} missing anyStandingTouchRight in report`).toBe(
+        metrics?.anyStandingTouchRight === true,
+      );
+      expect(row.anyStandingTouchBottom, `${row.caseId} missing anyStandingTouchBottom in report`).toBe(
+        metrics?.anyStandingTouchBottom === true,
+      );
       expect(row.environmentId.length, `${row.caseId} missing environmentId`).toBeGreaterThan(0);
     }
     expect(body, "report dropped CLAIM").toMatch(/^CLAIM:/m);
@@ -209,5 +222,39 @@ describe("the station capture has an unobstructed contained actor", () => {
     const gridRows = Math.ceil(cellCount / CONTACT_SHEET_COLUMNS);
     expect(decoded?.w).toBe(CONTACT_SHEET_COLUMNS * CONTACT_SHEET_CELL_WIDTH);
     expect(decoded?.h).toBe(gridRows * (CONTACT_SHEET_CELL_HEIGHT + CONTACT_SHEET_LABEL_HEIGHT));
+  });
+
+  it("(4) BEFORE/AFTER: named actor-frame PNGs fail the new instrument; after rows pass", () => {
+    const body = readFileSync(REPORT_PATH, "utf8");
+    expect(body, "report dropped ## Before").toMatch(/^## Before \(/m);
+    expect(body, "report dropped ## Before / after table").toMatch(/^## Before \/ after/m);
+    const before = parseBeforeStations(body);
+    const after = parseClearStations(body);
+    const population = shippedStationIds();
+    expect(before.map((row) => row.caseId)).toEqual(population);
+    expect(after.map((row) => row.caseId)).toEqual(population);
+
+    const adultBefore = before.find((row) => row.caseId === WALL_OCCLUDED_CASE_ID);
+    expect(adultBefore, "before table dropped adult_abdominal_pain_v1").toBeDefined();
+    expect(adultBefore?.wallOccluded, "adult before must stay a wall failure").toBe(true);
+    expect(adultBefore?.framesClear, "adult before measures CLEAN — instrument does not bite").toBe(
+      false,
+    );
+
+    const chestBefore = before.find((row) => row.caseId === "ed_chest_pain_priority_v1");
+    expect(chestBefore, "before table dropped ed_chest_pain_priority_v1").toBeDefined();
+    expect(chestBefore?.doorOccluded, "ed_chest v1 before must stay a door failure").toBe(true);
+    expect(chestBefore?.framesClear, "ed_chest v1 before measures CLEAN — instrument does not bite").toBe(
+      false,
+    );
+
+    expect(after.find((row) => row.caseId === WALL_OCCLUDED_CASE_ID)?.framesClear).toBe(true);
+    expect(after.find((row) => row.caseId === "ed_chest_pain_priority_v1")?.framesClear).toBe(true);
+
+    const psychAfter = after.find((row) => row.caseId === "psych_suicidal_ideation_safety_v1");
+    expect(
+      psychAfter?.largestStandingTouchBottom ?? psychAfter?.anyStandingTouchBottom,
+      "psych after should still report bottom clipping",
+    ).toBe(true);
   });
 });
