@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildExamRunSummaryEvidence } from "../index.js";
+// NOT TESTED: following a superseded release to its successor is not
+// implemented because the caller passes one release.
 
 const OUTCOMES = [
   {
@@ -111,7 +113,8 @@ describe("a released debrief replays the timeline and fails closed when withdraw
         ],
       },
     });
-    expect(evidence.learnerDebrief?.stations[0]?.observations[0]?.evidenceMoments).toEqual([]);
+    expect(evidence.learnerDebrief?.stations[0]?.observations.map((item) => item.observationId)).toEqual([]);
+    expect(evidence.learnerDebrief?.stations[0]?.observations.find((item) => item.observationId === "obs_ed_stray")).toBeUndefined();
     expect(evidence.learnerDebrief?.unalignedObservationIds).toEqual(["obs_ed_stray"]);
   });
 
@@ -145,5 +148,23 @@ describe("a released debrief replays the timeline and fails closed when withdraw
     );
     expect(evidence.learnerDebrief).toBeUndefined();
     expect(evidence.learnerDebriefRefusal?.reason).toBe("feedback_release_exam_run_mismatch");
+  });
+
+  it("returns the summary unchanged when no learner debrief is passed", () => {
+    const evidence = buildExamRunSummaryEvidence({
+      examRunId: "exam_run_local_001",
+      totalScenarios: 2,
+      outcomes: OUTCOMES,
+      formRunState: null,
+    });
+    expect(evidence.learnerDebrief).toBeUndefined();
+    expect(evidence.learnerDebriefRefusal).toBeUndefined();
+    expect(evidence).toEqual({
+      source: "local_exam_run_summary",
+      examRunId: "exam_run_local_001",
+      totalScenarios: 2,
+      stationOutcomes: OUTCOMES,
+      examEquivalenceGate: false,
+    });
   });
 });

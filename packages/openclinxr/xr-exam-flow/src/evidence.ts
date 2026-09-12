@@ -147,16 +147,21 @@ export function buildExamRunSummaryEvidence(args: {
                   ...(cite.tag === undefined ? {} : { tag: cite.tag }),
                   ...(cite.atFormSecond === undefined ? {} : { atFormSecond: cite.atFormSecond }),
                 }));
-              if (evidenceMoments.length !== observation.evidenceCites.length) {
-                unalignedObservationIds.push(observation.observationId);
+              return { observation, evidenceMoments };
+            })
+            .filter((entry) => {
+              if (entry.evidenceMoments.length !== entry.observation.evidenceCites.length) {
+                unalignedObservationIds.push(entry.observation.observationId);
+                return false;
               }
-              return {
-                observationId: observation.observationId,
-                rubricItemId: observation.rubricItemId,
-                formativeText: observation.formativeText,
-                evidenceMoments,
-              };
-            }),
+              return true;
+            })
+            .map((entry) => ({
+              observationId: entry.observation.observationId,
+              rubricItemId: entry.observation.rubricItemId,
+              formativeText: entry.observation.formativeText,
+              evidenceMoments: entry.evidenceMoments,
+            })),
         })),
         unalignedObservationIds,
         claimBoundary: "learner_debrief_formative_not_score_use",
