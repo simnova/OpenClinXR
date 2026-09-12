@@ -63,8 +63,23 @@
   "2026-09-10 tsk_2a6935fb4eb63f95: street/family lower slot is toigo_wool_pants (pants01 CC0, # license CC0, 1372 obj verts / 1337 quads / 2674 tris) via ClothesService, not the cargo cover shell. LOWER GATE verdict covers (raycast 0.9361); cargo still hits the cover-shell replacement if selected. Shirt ymin pin 1.0283. Pants ymin 0.0687. Isolated EEVEE still at tools/openclinxr/evidence/street-wool-pants/mpfb-street-adult-male-full-eevee.png \u2014 parent grades, not copied to docs/assets.",
   "2026-09-10 street jeans: patient/family lower slot is pants02 CC-BY punkduck_male_classic_jeans via ClothesService (pack page is the grant). 2614 obj verts / 2295 quads / 4590 tris. LOWER GATE covers (raycast 0.9785). Shirt ymin pin 1.0283. Pants ymin 0.0597. Isolated EEVEE bake uses grade-lighting.json worldBackgroundStrength 0.55.",
   "2026-09-10 look-good: balloon/jodhpur thighs on punkduck jeans. Lower slot is pants02 CC-BY elvs_jeans_straight_leg via ClothesService (pack page is the grant). 3109 obj verts / 2854 quads / 5708 tris. LOWER GATE covers (raycast 0.9886). Shirt ymin pin 1.0283. Pants material patch_factor=False (authored navy albedo, no 5.8x luminance wash). Isolated EEVEE bake uses grade-lighting.json worldBackgroundStrength 0.55.",
-  "2026-09-12 street waist-meet: withdrew the street skip of fit_upper_hem_to_waistband (cargo-era shirt ymin pin 1.0283). Cover-shell band_hi not raised. Applied the same algorithm in Y-up on the shipped jeans GLB: 38 hem verts, maxDeficit 21.83 mm (16.8 mm gap + 5 mm #320 margin). Live measureWaistFit gapped 0 / min +5.0 mm; lower still mat_makeclothes_library_straight_leg_jeans_pants. outputSha256 17d29247a336238e685eb8aa284b8f8eceb5a51797c257f40d9025b0e8e771e6 -> 252a214321eca8b56c07ecd00f98238387738a25e6e585cd25fd829a41cd23b0, outputBytes 15830960 -> 15720228."
+  "2026-09-12 street waist-meet: withdrew the street skip of fit_upper_hem_to_waistband (cargo-era shirt ymin pin 1.0283). Cover-shell band_hi not raised. Applied the same algorithm in Y-up on the shipped jeans GLB: 38 hem verts, maxDeficit 21.83 mm (16.8 mm gap + 5 mm #320 margin). Live measureWaistFit gapped 0 / min +5.0 mm; lower still mat_makeclothes_library_straight_leg_jeans_pants. outputSha256 17d29247a336238e685eb8aa284b8f8eceb5a51797c257f40d9025b0e8e771e6 -> 252a214321eca8b56c07ecd00f98238387738a25e6e585cd25fd829a41cd23b0, outputBytes 15830960 -> 15720228.",
+  "2026-09-12 street waist-meet bake-time: rebake through fit_upper_hem_to_waistband while hm08+mhclo were live (WAIST_MEET_UPPER pushedVertexCount 48, maxDeficitMeters 0.03139). Bake GLB triangles 115552 (exact HB-03) / jeans 5708. measureWaistFit WITHOUT apply-waist-meet-glb: gapped 1 / min -22.08 mm / 34 buckets. Shortfall not hidden by a post-export push; live bytes stay the 2026-09-12 GLB-stage ship. Report: tools/openclinxr/evidence/humanoid-vetting/street-waist-meet-at-bake-time-2026-09-12.md."
  ],
+ "waistMeet": {
+  "stage": "post_export_glb",
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/apply-waist-meet-glb.ts",
+  "bakeTimeMeasured": {
+   "gapped": 1,
+   "minMm": -22.08,
+   "buckets": 34,
+   "triangles": 115552,
+   "jeansTris": 5708,
+   "pushedVertexCount": 48,
+   "maxDeficitMeters": 0.03139
+  },
+  "note": "Live shipped bytes remain the post-export push. Bake-time 2026-09-12 did not reach 0 gapped / +5.0 mm and was not shipped."
+ },
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-10T21:58:00Z",
