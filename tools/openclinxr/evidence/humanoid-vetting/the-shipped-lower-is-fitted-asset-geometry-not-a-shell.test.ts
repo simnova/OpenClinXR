@@ -36,6 +36,7 @@
  * family-partner-library-lower-2026-09-12.md.
  */
 
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -45,22 +46,35 @@ import { describe, expect, it } from "vitest";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../../..");
 const HUMANOIDS = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
-const BOOTCUT_OBJ = join(
-  REPO_ROOT,
-  ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_jeans_bootcut/mens_elv_jeans1f.obj",
-);
-const CARGO_OBJ = join(
-  REPO_ROOT,
-  ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/cargo_pants.obj",
-);
-const STREET_OBJ = join(
-  REPO_ROOT,
-  ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_jeans_straight_leg/mens_elv_jeans2slf.obj",
-);
-const SCRUB_OBJ = join(
-  REPO_ROOT,
-  ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-pants/Scrub_Pants.obj",
-);
+/**
+ * The garment source assets live in `.openclinxr-local/provider-cache`, which is UNTRACKED —
+ * neither committed nor ignored. An untracked directory does not exist in a linked worktree, so
+ * resolving it from this file's own checkout made the discriminator pass in the main checkout and
+ * FAIL in every worktree. It failed an unrelated card's land on 2026-09-12 for exactly that reason.
+ *
+ * `resolveCoordinationRoot` returns the MAIN worktree via `git rev-parse --git-common-dir`, which
+ * every worktree computes identically, so the cache resolves to the one copy that exists.
+ * Tracked paths (the shipped GLBs above) stay on the local root: they are present everywhere.
+ */
+function mainWorktreeRoot(): string {
+  try {
+    const commonDir = execFileSync("git", ["rev-parse", "--path-format=absolute", "--git-common-dir"], {
+      cwd: REPO_ROOT,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    // <main-worktree>/.git -> <main-worktree>
+    return dirname(commonDir);
+  } catch {
+    return REPO_ROOT;
+  }
+}
+const CACHE_ROOT = mainWorktreeRoot();
+const GARMENT_SOURCES = join(CACHE_ROOT, ".openclinxr-local/provider-cache/garments/sources");
+const BOOTCUT_OBJ = join(GARMENT_SOURCES, "makehuman-pants02/clothes/elvs_jeans_bootcut/mens_elv_jeans1f.obj");
+const CARGO_OBJ = join(GARMENT_SOURCES, "makehuman-pants01/cortu_cargo_pants/cargo_pants.obj");
+const STREET_OBJ = join(GARMENT_SOURCES, "makehuman-pants02/clothes/elvs_jeans_straight_leg/mens_elv_jeans2slf.obj");
+const SCRUB_OBJ = join(GARMENT_SOURCES, "makehuman-community-scrub-pants/Scrub_Pants.obj");
 const FAMILY = join(HUMANOIDS, "mpfb-family-partner-adult.glb");
 const AISHA = join(HUMANOIDS, "mpfb-ob-patient-aisha.glb");
 const STREET = join(HUMANOIDS, "mpfb-street-adult-male.glb");
