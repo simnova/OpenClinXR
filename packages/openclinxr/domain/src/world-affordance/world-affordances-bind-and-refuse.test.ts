@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   authoredWorldAffordanceGraphFromCase,
   availableWorldAffordancesAt,
+  followedConsequence,
   requireExecutableAffordance,
 } from "./evaluate.js";
 
@@ -169,5 +170,25 @@ describe("world affordance graph binds identities and refuses stale actions", ()
         worldAffordances: [{ ...AFFORDANCES[1], actorId: "actor_unknown" }],
       }),
     ).toThrow(/stale affordance identity/);
+  });
+
+  it("observe-result followed is only the authored consequence keys", () => {
+    const authored = { eventType: "exam.result_observed", traceTag: "strip", detail: "rhythm strip shown" };
+    const graph = authoredWorldAffordanceGraphFromCase({
+      ...REVIEWED,
+      worldAffordances: [
+        {
+          ...AFFORDANCES[2],
+          requiresPriorAffordanceIds: undefined,
+          consequence: { ...authored, hiddenDiagnosis: "STEMI", resultPayload: { stElevation: true } },
+        },
+      ],
+    });
+    const followed = followedConsequence(graph.affordances[0]!);
+    expect(followed).toEqual(authored);
+    expect(Object.keys(followed).sort()).toEqual(["detail", "eventType", "traceTag"]);
+    expect(JSON.stringify(followed)).not.toContain("STEMI");
+    expect(JSON.stringify(followed)).not.toContain("stElevation");
+    expect(JSON.stringify(followed)).not.toContain("hiddenDiagnosis");
   });
 });

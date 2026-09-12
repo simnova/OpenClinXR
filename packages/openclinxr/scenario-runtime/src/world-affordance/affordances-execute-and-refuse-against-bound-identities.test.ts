@@ -15,7 +15,6 @@ const EQUIPMENT = "12_lead_ecg_machine_equipment";
 function scenarioWithAffordances(overrides: Record<string, unknown> = {}) {
   return {
     ...edChestPainScenario,
-    ...overrides,
     worldAffordances: [
       {
         affordanceId: "inspect_ecg",
@@ -92,6 +91,7 @@ function scenarioWithAffordances(overrides: Record<string, unknown> = {}) {
         },
       },
     ],
+    ...overrides,
   };
 }
 
@@ -276,9 +276,30 @@ describe("world affordances execute and refuse against bound identities", () => 
       }),
     ).toThrow(/affordance is not available/);
 
-    const refused = runtime.traceEvents(session.stationRunId).filter((event) => event.eventType === "world_affordance.refused");
-    expect(refused.length).toBeGreaterThan(0);
-    expect(refused[0]?.payload["followed"]).toMatchObject({ refused: true });
+    const events = runtime.traceEvents(session.stationRunId);
+    const refused = events.filter((event) => event.eventType === "world_affordance.refused");
+    expect(refused).toHaveLength(5);
+    expect(refused.map((event) => event.payload["followed"])).toEqual([
+      { refused: true, reason: "stale affordance identity" },
+      { refused: true, reason: "stale affordance identity" },
+      { refused: true, reason: "stale affordance identity" },
+      { refused: true, reason: "affordance is not available" },
+      { refused: true, reason: "affordance is not available" },
+    ]);
+    for (const event of refused) {
+      const prior = events.find((row) => row.sequence === event.sequence - 1);
+      expect(prior?.eventType).toBe("world_affordance.attempted");
+      expect(prior?.payload["affordanceId"]).toBe(event.payload["affordanceId"]);
+      expect(
+        events.filter(
+          (row) =>
+            row.eventType === "world_affordance.executed" &&
+            row.payload["affordanceId"] === event.payload["affordanceId"] &&
+            row.sequence === event.sequence,
+        ),
+      ).toHaveLength(0);
+    }
+    expect(events.filter((event) => event.eventType === "world_affordance.executed")).toHaveLength(1);
 
     const unreviewedRuntime = createDefaultScenarioRuntime({
       scenario: scenarioWithAffordances({ status: "draft" }),
@@ -297,5 +318,80 @@ describe("world affordances execute and refuse against bound identities", () => 
         equipmentId: EQUIPMENT,
       }),
     ).toThrow(/unreviewed clinical consequence/);
+    const unreviewedEvents = unreviewedRuntime.traceEvents(unreviewed.stationRunId);
+    expect(unreviewedEvents.filter((event) => event.eventType === "world_affordance.refused")).toHaveLength(1);
+    expect(unreviewedEvents.filter((event) => event.eventType === "world_affordance.executed")).toHaveLength(0);
+  });
+
+  it("observe-result followed is only the case-authored consequence and never hidden truth", async () => {
+    const hiddenFact = "Father died of myocardial infarction at 54";
+    const authored = {
+      eventType: "exam.result_observed",
+      traceTag: "rhythm_strip_shown",
+      detail: "rhythm strip shown",
+    };
+    const runtime = createDefaultScenarioRuntime({
+      scenario: scenarioWithAffordances({
+        worldAffordances: [
+          {
+            affordanceId: "request_ecg",
+            kind: "request-exam",
+            stationId: STATION,
+            bundleId: BUNDLE,
+            actorId: ACTOR,
+            equipmentId: EQUIPMENT,
+            opensAtSecond: 60,
+            availableInPhases: ["encounter"],
+            consequence: { eventType: "exam.requested", traceTag: "ecg_request", detail: "12-lead ordered" },
+          },
+          {
+            affordanceId: "observe_ecg",
+            kind: "observe-result",
+            stationId: STATION,
+            bundleId: BUNDLE,
+            actorId: ACTOR,
+            equipmentId: EQUIPMENT,
+            opensAtSecond: 60,
+            availableInPhases: ["encounter"],
+            requiresPriorAffordanceIds: ["request_ecg"],
+            consequence: { ...authored, hiddenDiagnosis: "STEMI", resultPayload: { stElevation: true, hiddenFact } },
+          },
+        ],
+      }),
+    });
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+    runtime.executeWorldAffordance(session.stationRunId, {
+      affordanceId: "request_ecg",
+      kind: "request-exam",
+      atSecond: 60,
+      stationId: STATION,
+      bundleId: BUNDLE,
+      actorId: ACTOR,
+      equipmentId: EQUIPMENT,
+    });
+    const observed = runtime.executeWorldAffordance(session.stationRunId, {
+      affordanceId: "observe_ecg",
+      kind: "observe-result",
+      atSecond: 61,
+      stationId: STATION,
+      bundleId: BUNDLE,
+      actorId: ACTOR,
+      equipmentId: EQUIPMENT,
+    });
+    expect(observed.payload["followed"]).toEqual(authored);
+    expect(Object.keys(observed.payload["followed"] as object).sort()).toEqual(["detail", "eventType", "traceTag"]);
+    const serialized = JSON.stringify(observed);
+    expect(serialized).not.toContain(hiddenFact);
+    expect(serialized).not.toContain("STEMI");
+    expect(serialized).not.toContain("stElevation");
+    expect(serialized).not.toContain("resultPayload");
+    expect(serialized).not.toContain("hiddenDiagnosis");
+    expect(serialized).not.toContain("myocardial");
+    for (const actor of edChestPainScenario.actors) {
+      for (const fact of actor.hiddenFacts ?? []) {
+        expect(serialized).not.toContain(fact);
+      }
+    }
   });
 });
