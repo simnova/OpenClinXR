@@ -81,10 +81,10 @@
   ],
   "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
   "promotionGates": false,
-  "outputSha256": "d987587239ee2e2bf1ae58feb52c395080eb29e851fa2ec1506c381bae6b938b",
-  "outputBytes": 8512436,
+  "outputSha256": "cfdcd5a3c2828daa5fa1a26d651271b1c46d89260c1d24693bc0ba1b17c0f31a",
+  "outputBytes": 17002120,
   "generatedAt": "2026-08-14T07:07:00Z",
   "method": "mpfb2_materializer_rebake_on_promoted_cast",
   "albedoBakeWrittenAt": "2026-09-11T05:16:52.409Z",
-  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.4 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts)."
+  "albedoBakeNote": "2026-09-12 female covering lower: rematerialize with pants02 punkduck_female_tight_jeans (4216 tris = 2108 faces x 2) via ClothesService; albedo bake; chest-anchor 0.085 m. Face-preserving 0.4 skipped — it simplified jeans 4216 -> ~1986 and broke faces x 2. Previous pin d987587239ee2e2b / 8512436. Report: tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-acquisition-2026-09-12.md."
 }
