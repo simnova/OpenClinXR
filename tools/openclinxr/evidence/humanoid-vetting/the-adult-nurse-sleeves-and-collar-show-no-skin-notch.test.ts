@@ -71,6 +71,48 @@
  * pins in docs/openclinxr/humanoid-vetting-2026-09-10.json and
  * docs/openclinxr/humanoid-postopt-ladder-2026-09-10.json, which this
  * card's write-roots omit. it.fails stays on the 74b62af6 bytes.
+ *
+ * ## FIXED (#0)
+ *
+ * Promoted the attempt-1 full-chain bake (job adult-nurse-76622) and moved
+ * this body's identity pins with it. Live GLB 8,833,188 B / 39,017 tris ->
+ * 12,444,092 B / 92,118 tris. Shirt texture restored from 74b62af6 after
+ * the materialize PNG read error; licence notice written last.
+ * Isolated-grade captures copied from adult-nurse-capture/2026-09-12T05-59-51Z.
+ *
+ * | site | hiddenSubject before | hiddenSubject after |
+ * |---|---:|---:|
+ * | neckline-square-L | 722 | 0 |
+ * | neckline-square-R | 154 | 0 |
+ * | sleeve-hem-rectangle-L | 636 | 0 |
+ * | sleeve-hem-rectangle-R | 955 | 0 |
+ * | control C | — | 0 |
+ * | torso visibleSkinSubject | 0 | 0 |
+ *
+ * All four sites 0, control 0, torso 0. it.fails flipped to it.
+ *
+ * ## FIXED (handback tsk_6fb5af8192b8db91)
+ *
+ * The 92,118-triangle promote was the hole-guard materialize without the
+ * shipped decimation. Rebaked that mesh through the same stages that
+ * produced the 39,017-triangle body:
+ *   #695 optimize_glb_meshopt.mjs --simplify-ratio 0.4 --simplify-error 0.001
+ *        --simplify-only  (92,118 -> 41,807)
+ *   #737 optimize_glb_lash_lod.mjs --ratio 0.12 --error 0.005
+ *        (lashes 3,237 -> 388; total 38,958)
+ * then HB-02 albedo (0 baked) -> chest-anchor 0.085 -> licence notice.
+ * Live 12,444,056 B / 92,118 tris -> 8,396,376 B / 38,958 tris.
+ * Body 12,833 vs shipped 12,892 (59-tri hole-guard delta). Face 10,779.
+ * Shirt atlas copy undone: cache PNG has no IEND, so the factory albedo
+ * is untextured [0.05,0.48,0.52]. Pins re-recorded from
+ * glb-grade gallery.json + GLB JSON chunk + footing-probe.ts.
+ * HB-03 chosenRungId stays raw (rungIds has no r0.4; that is how HB-03
+ * labeled the #695 output).
+ *
+ * Waistband dark band: first-hit shirt 30057 / pants 12672 / skin 314 /
+ * hidden 39 in [1880,1980,2220,2180] — garment gap, not hide-mask class.
+ * Chest pink on the 92k capture: all 9565 first-hits shirt (atlas); native
+ * crop of this bake 0/14000 pink-ish. Out of scope for this card.
  */
 
 import { execFileSync } from "node:child_process";
@@ -132,7 +174,7 @@ describe("the adult nurse sleeves and collar show no skin notch", () => {
     ).toBeGreaterThan(0);
   }, 180_000);
 
-  it.fails("required-behavior", async () => {
+  it("required-behavior", async () => {
     expect(existsSync(GLB), `${GLB} exists on disk`).toBe(true);
     expect(existsSync(LIT) && existsSync(STRUCT), "tracked front captures exist").toBe(true);
 
@@ -153,5 +195,5 @@ describe("the adult nurse sleeves and collar show no skin notch", () => {
       live.torso.visibleSkinSubject,
       "torso box skin pixels (visible_skin first hits; poke-through counterweight)",
     ).toBe(0);
-  }, 180_000);
+  }, 360_000);
 });

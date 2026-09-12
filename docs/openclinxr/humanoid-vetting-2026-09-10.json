@@ -12,34 +12,34 @@
     "horizontalExtent": 1.0744624137878418
    },
    "body": "mpfb-clinical-nurse-adult.glb",
-   "bytes": 8833188,
-   "capture": "manual studio route (window global): the --glb CLI errors on every body with ReferenceError: browserPageWindow is not defined (a9e2510f renamed window to the type-only alias browserPageWindow inside the page.waitForFunction closure; browser-dom.d.ts declares it as a type, never defines it in the page). Tool file UNCHANGED on this card. Images captured through the same studio route the tool stages.",
+   "bytes": 8396376,
+   "capture": "pnpm asset:model-vetting:glb-grade -- --glb apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb; gallery selfCheck agrees relErr 0.00043; images copied from that run to docs/openclinxr/humanoid-vetting-captures/",
    "captures": {
     "front_lit": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-front_lit.png",
-     "bytes": 836254,
-     "sha256": "84525eefbe23493941a4da466a5259b030bbc5cf31e1f7b495e54fb4ff1dccbe",
+     "bytes": 840849,
+     "sha256": "10a4930e18789627ae028a75c5d43ca4eb0d7fba654be172881a95f390706f76",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "front_structure": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-front_structure.png",
-     "bytes": 2959097,
-     "sha256": "c43a05588ba3c1f567df5deb7b4d8861f3e414bb588b5522a5b42c8d7082842e",
+     "bytes": 2966840,
+     "sha256": "5fbdb367eef0b939cd0cdf3c27d509663460425ed12e044df32d3072cd740d49",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "three_quarter_lit": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-three_quarter_lit.png",
-     "bytes": 876142,
-     "sha256": "25818f7aef42ced2e96ac4d336404fd8366ad872ef29c0442efa380c0c4ee2f9",
+     "bytes": 881565,
+     "sha256": "809ed79af777a5d0aa4e59ee9ff5f5aafdebd4d7cbd62e5fcbca8a8d0bb61340",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "three_quarter_structure": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-three_quarter_structure.png",
-     "bytes": 2858902,
-     "sha256": "319916afc7df2a3390e309b4e120e86cce8a7c344f374ade0d3ccdc2330d7820",
+     "bytes": 2865627,
+     "sha256": "8546d7a1c3144819accee38da0aa57dc1c65869f171d1428f4d07d0ec973c3fb",
      "pngWidth": 4096,
      "pngHeight": 4096
     }
@@ -65,10 +65,10 @@
      "height": 1.7604449348436901,
      "horizontalExtent": 1.0744624137878418
     },
-    "relativeError": 0.0004,
+    "relativeError": 0.0004303675790868913,
     "tolerance": 0.15
    },
-   "liveRung": "raw (HB-03: promoted true, no rewrite; chosenRungId raw)",
+   "liveRung": "raw (HB-03 chosenRungId raw; live mesh is #695 r0.4 e0.001 + #737 lash 0.12/0.005, 38958 tris)",
    "materials": [
     {
      "alpha": "OPAQUE",
@@ -105,13 +105,13 @@
     },
     {
      "alpha": "OPAQUE",
-     "decision": "white textured, carries its own look",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
      "factor": [
-      1,
-      1,
-      1
+      0.05,
+      0.48,
+      0.52
      ],
-     "hasTexture": true,
+     "hasTexture": false,
      "material": "mat_makeclothes_library_scrub_shirt"
     },
     {
@@ -127,7 +127,7 @@
     },
     {
      "alpha": "MASK",
-     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
      "factor": [
       0,
       0,
@@ -138,7 +138,7 @@
     },
     {
      "alpha": "MASK",
-     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
      "factor": [
       0,
       0,
@@ -149,7 +149,7 @@
     },
     {
      "alpha": "MASK",
-     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
      "factor": [
       0,
       0,
@@ -160,7 +160,7 @@
     },
     {
      "alpha": "MASK",
-     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
      "factor": [
       0,
       0,
@@ -171,7 +171,7 @@
     },
     {
      "alpha": "MASK",
-     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
      "factor": [
       0,
       0,
@@ -182,7 +182,7 @@
     },
     {
      "alpha": "MASK",
-     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
      "factor": [
       0,
       0,
@@ -193,7 +193,7 @@
     },
     {
      "alpha": "MASK",
-     "decision": "REMOVE-at-bake verdict; MASK shells render nothing, not graded as subject pixels",
+     "decision": "untextured flat colour, factor IS the albedo (no texture to multiply)",
      "factor": [
       0,
       0,
@@ -258,7 +258,7 @@
      "material": "mat_openclinxr_hm08_tongue_mpfb_ed_chest_pain_nurse_adult_mesh"
     }
    ],
-   "meshCount": 17,
+   "meshCount": 10,
    "meshes": [
     "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_nurse_adult_mesh",
     "makeclothes_library_hair_toigo_blunt_bob_mpfb_ed_chest_pain_nurse_adult_mesh",
@@ -273,13 +273,13 @@
    ],
    "nodeCount": 148,
    "refusalRule": "baseColorFactor != [1,1,1] on a material WITH baseColorTexture and no recorded reason = refusal (HB-00). Untextured flat colours are the albedo itself, not a tint.",
-   "sha256": "b744d3d5295e2d481c27851f6e58dc37b88963ee5b073a61a58502d0a23d5c3",
+   "sha256": "eec3da6d98aced2654ee957c34d87339a914f7bb21ce5191ef4d8806008d8a86",
    "sidecar": {
     "match": true,
-    "outputBytes": 8833188,
-    "outputSha256": "b744d3d5295e2d481c27851f6e58dc37b88963ee5b073a61a58502d0a23d5c3"
+    "outputBytes": 8396376,
+    "outputSha256": "eec3da6d98aced2654ee957c34d87339a914f7bb21ce5191ef4d8806008d8a86"
    },
-   "triangles": 39017
+   "triangles": 38958
   },
   {
    "aabbInPage": {
