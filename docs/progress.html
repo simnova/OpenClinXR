@@ -28,6 +28,40 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-12T0110">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 16 &middot; 2026-09-12 01:10 EDT</p>
+          <h2>A station that timed out for three minutes now renders in twenty seconds.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What was actually wrong</h3>
+            <ul>
+              <li>Every one of the fifteen dark-factory cases failed the same way: a three-minute wait, then a bare timeout with no reason attached. Nobody knew why, and guessing had already cost two attempts.</li>
+              <li>The capture now reports what it saw (<code>05a5e020</code>). Pointed at one real case, it named the first fault immediately: the wait was asking the page a question written in a name that only exists at compile time, so the page threw before answering.</li>
+              <li>With that fixed (<code>66fac833</code>), the same run reached the real fault and named it too: the learner page was loading a server-only piece of Node into the browser, and threw the moment it was used. The scene never got far enough to announce itself, so the wait sat there for its full three minutes.</li>
+              <li>That import is gone from the served page (<code>dc05792c</code>). The hashing it did is now done by a small self-contained routine, checked against three published reference values and against Node's own implementation, because a hash that is quietly different would invalidate every recorded fingerprint in the project.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The measurement</h3>
+            <ul>
+              <li>Before: the capture of <code>ed_chest_pain_priority_v2</code> ran 3 minutes 2 seconds and threw.</li>
+              <li>After: the same command finishes in 20 seconds, exit 0, and writes a room with its measured floor, depth of 3.45 m, wall thickness of 0.118 m and the nearest actor 1.06 m away.</li>
+              <li>One case, not fifteen. The full sweep has not been re-run, and this entry claims nothing about the other fourteen.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Also closed, and one thing found</h3>
+            <ul>
+              <li><strong>The bake-off report can no longer drift silently</strong> (<code>74b62af6</code>): it records fingerprints of the body and harness it measured, and those had gone stale twice without anyone noticing. A re-capture took three seconds, and a test now fails if they ever disagree again.</li>
+              <li>Looking at those re-captured images turned up a defect worth its own card: the adult nurse shows bare skin notched through both sleeve ends and its collar, the same fault fixed on the child patient earlier today.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="status-copy">Twenty-nine cards landed since 16:15 yesterday. The checks refused three of them on my own mistakes: a requirement that could never finish, one that could not be tested at all, and a missing check that let a new public name slip past a card while the ratchet caught it.</p>
+      </section>
+
       <section class="band" id="entry-2026-09-11T2335">
         <div class="section-heading">
           <p class="eyebrow">Entry 15 &middot; 2026-09-11 23:35 EDT</p>
