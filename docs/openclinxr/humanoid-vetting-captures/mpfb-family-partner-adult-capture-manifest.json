@@ -17,5 +17,9 @@
     "docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0070.png",
     "docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0089.png"
   ],
-  "resolution": 1600
+  "resolution": 1600,
+  "assertions": {
+    "motion_floor": 0.003,
+    "crop_margin_px": 20
+  }
 }

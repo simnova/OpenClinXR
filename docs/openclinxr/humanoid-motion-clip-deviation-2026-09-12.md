@@ -108,6 +108,45 @@ at the instrument's precision.
 | mpfb-ob-patient-aisha.motion-bind.glb | 411 | 90 | 87.24° | 3 (seated + 2 clinical) |
 | mpfb-family-partner-adult.motion-bind.glb | 411 | 90 | 87.24° | 3 (seated + 2 clinical) |
 
+### Hip flexion finding (measured 2026-09-12)
+
+**The clip does not seat the actor.** The headline 87.24° deviation is arm/finger
+gesture, not hip flexion. Per-bone analysis of the motion-bind GLBs:
+
+| Bone | Max excursion from frame 0 | Role |
+|---|---|---|
+| lowerarm01.L | 87.24° | arm gesture (headline number) |
+| lowerleg01.L | 85.32° | knee bend |
+| upperleg max | 15.18° | hip flexion (sitting requires ~90°) |
+| pelvis/spine | 11.64° | torso shift |
+| foot | 12.17° | ankle |
+
+Sitting requires roughly 90° of hip flexion. The retarget produced 15°.
+
+**Root cause: source clip limitation, not bone map error.** The bone map is correct:
+source `thigh_l` (MHX `thigh.L`) maps to target `upperleg01.L` (MHX `thigh.L`). The
+Mesh2Motion `Sitting_Talking` BVH has `thigh_l` Xrotation at constant -86.82° across
+all 88 frames — zero delta. The `retarget_bvh` addon skips bones with zero rotation
+delta, so the sitting pose (which is a static bind-pose offset, not animated motion)
+is not transferred. The upper body animation (fingers 76°, forearms 30°, upperarms 26°)
+transfers correctly because those bones have real per-frame rotation.
+
+This is a property of how Mesh2Motion extracted the Sitting_Talking clip from the
+`human-base-animations.glb` file: the sitting pose is baked as a constant bone rotation,
+not as animated motion. The retarget stage correctly transfers what is animated.
+
+**Measured per-bone rotation deltas in source BVH** (top animated bones):
+fingers (30-76°), forearms (11-30°), upperarms (15-26°), calf_r (12°),
+thigh_r (6°), spine_02/03 (3°). The LEFT leg and pelvis are completely static
+(zero delta across all frames). This asymmetry is from the source take.
+
+**This cannot be fixed in the bone map or the retarget stage.** The fix would require
+either: (a) a different source clip where hip flexion is animated, or (b) modifying
+the retarget addon to preserve constant rotations on key bones (which would be a
+pipeline change, not a clip change). Both are out of scope for this card. The clip
+name `openclinxr_retarget_seated_talking_cc0` is retained as-is — renaming it to
+hide the finding is explicitly refused.
+
 ### BEFORE vs AFTER
 
 | Metric | BEFORE | AFTER | Delta |
@@ -147,7 +186,41 @@ actor. The orchestrator grades the pixels; no visual verdict issued by this work
 - `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0070.png`
 - `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0089.png`
 
-## Regression test
+### Capture assertions
+
+The capture script (`render_seated_clip_frames.py`) runs two assertions after rendering:
+
+**4a — Motion floor (0.3%):** Consecutive frames must differ by >=0.3% of pixels
+at >8/255 per channel. Floor chosen above 0% (rest pose) but below the measured
+0.43-0.52% range for this subtly-gesturing clip. A clip that produces 0.00% pixel
+difference between frames shows no visible motion and fails at render time.
+
+Results: frame 20→45: 0.45%, 45→70: 0.46%, 70→89: 0.52% (actor 1);
+20→45: 0.43%, 45→70: 0.44%, 70→89: 0.50% (actor 2). Frame 0 is skipped
+(NLA strip starts at frame 1; frame 0 is the bind pose).
+
+**4b — Full figure visible:** Subject bounding box must not touch the frame edge.
+Uses a 20px margin. A crop that clips the head or torso cannot pass.
+
+Results: both actors pass ("full figure visible").
+
+## Regression test — prove it bites
+
+`the-learner-rail-clips-are-measured-not-quoted.test.ts` asserts per-actor:
+each of the 3 actors in `SEATED_REST_OUTPUT_STEMS` must have a motion-bind GLB
+in `candidates/` with a seated clip (name matching `/seat/i`) at >6° deviation
+and >100 channels.
+
+**Proving it bites on the BEFORE state:** the test for `mpfb-ob-patient-aisha`
+and `mpfb-family-partner-aust` would fail before the retarget stage ran because
+their motion-bind GLBs did not exist. The test asserts `statSync(motionBindGlb)
+isFile()` — this returns `false` when the file is absent, causing the expect
+to fail with "motion-bind GLB not found for {actor}". Verified by inspecting
+the test logic: the first assertion in each per-actor test block is the file
+existence check, which is the exact gate that would fire on a pre-retarget tree.
+
+**Test output (AFTER state):** 6 tests, 6 passed (was 4 tests, 4 passed before
+per-actor assertions were added).
 
 `tools/openclinxr/evidence/humanoid-motion/the-learner-rail-clips-are-measured-not-quoted.test.ts`
 asserts from the committed scan that the learner rail has clips with measurable motion,

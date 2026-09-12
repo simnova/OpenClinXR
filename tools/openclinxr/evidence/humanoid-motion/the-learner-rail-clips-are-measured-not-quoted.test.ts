@@ -1,22 +1,22 @@
 /**
  * The learner rail clips are measured, not quoted.
  *
- * This test runs the committed clip-channel-deviation instrument and asserts that
- * the learner rail (generated-humanoids/ + candidates/) contains clips with
- * MEASURED rotation deviation — not near-static bind-pose restatements.
+ * Per-actor assertions: each actor that is supposed to carry the seated retarget
+ * clip must have it in candidates/ with measurable rotation deviation (>6°).
  *
- * PROVING IT BITES: the test asserts that the seated retarget clip
- * (`openclinxr_retarget_seated_talking_cc0`) appears in the candidates group
- * with max deviation > 6°. Before the CC0 retarget stage runs on any actor,
- * this clip would NOT appear in candidates at all (it only exists after
- * seated_clip_bind_stage.py produces a motion-bind GLB). The test therefore
- * fails on the pre-retarget state and passes after.
+ * PROVING IT BITES (defect 3): the test asserts that specific actors have
+ * motion-bind GLBs with the seated clip. Before any retarget, no motion-bind
+ * GLB exists for the new actors, so these tests FAIL on the pre-retarget state.
+ * This was verified by running the test suite against a tree where only
+ * mpfb-peds-parent-aisha had a motion-bind GLB (the BEFORE state), and the
+ * per-actor tests for mpfb-ob-patient-aisha and mpfb-family-partner-adult
+ * failed with "motion-bind GLB not found".
  *
- * claimScope: learner-rail clip deviation floor
+ * claimScope: per-actor learner-rail clip deviation floor
  * notEvidenceFor: visual quality, clinical gait validity, Quest frame budget
  */
 
-import { type Dirent, readdirSync, statSync } from "node:fs";
+import { readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Document, NodeIO } from "@gltf-transform/core";
@@ -25,7 +25,7 @@ import { describe, expect, it } from "vitest";
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 const NEAR_STATIC_DEG = 6;
 
-// ── Shared instrument logic (mirrors clip-channel-deviation.ts) ────────
+// ── Shared instrument logic ────────────────────────────────────────────
 
 function quatDot(a: number[], b: number[]): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
@@ -113,7 +113,16 @@ async function analyzeGlb(glbPath: string): Promise<ClipInfo[]> {
   return results;
 }
 
-// ── Tests ──────────────────────────────────────────────────────────────
+// ── Per-actor assertions ───────────────────────────────────────────────
+
+/** Actors that must carry the seated retarget clip (SEATED_REST_OUTPUT_STEMS). */
+const REQUIRED_SEATED_ACTORS = [
+  "mpfb-peds-parent-aisha",
+  "mpfb-ob-patient-aisha",
+  "mpfb-family-partner-adult",
+];
+
+const CANDIDATES_DIR = path.join(REPO_ROOT, "apps/ui-xr/public/xr-assets/humanoids/candidates");
 
 describe("learner rail clips are measured not quoted", () => {
   const searchDirs = [
@@ -128,27 +137,35 @@ describe("learner rail clips are measured not quoted", () => {
     expect(glbPaths.length).toBeGreaterThan(0);
   });
 
-  it("has at least one seated retarget clip in candidates/ with >6° deviation", async () => {
-    // This asserts the CC0 retarget stage has run for at least one actor.
-    // Before any retarget, no motion-bind GLB exists in candidates/ with
-    // the seated clip name, so this test FAILS — proving it bites.
-    const candidateGlbs = glbPaths.filter((p) => p.includes("/candidates/"));
-    expect(candidateGlbs.length).toBeGreaterThan(0);
+  for (const actorStem of REQUIRED_SEATED_ACTORS) {
+    it(`${actorStem} has a motion-bind GLB with seated clip >${NEAR_STATIC_DEG}° deviation`, async () => {
+      const motionBindGlb = path.join(CANDIDATES_DIR, `${actorStem}.motion-bind.glb`);
 
-    const seatedClips: ClipInfo[] = [];
-    for (const glb of candidateGlbs) {
-      const clips = await analyzeGlb(glb);
-      for (const clip of clips) {
-        if (/seat/i.test(clip.clipName) && clip.maxDeviationDeg > 0) {
-          seatedClips.push(clip);
-        }
-      }
-    }
+      // Before retarget: this file does not exist → test FAILS (proves it bites)
+      expect(statSync(motionBindGlb, { throwIfNoEntry: false })?.isFile(), {
+        message: `motion-bind GLB not found for ${actorStem} — retarget stage has not run for this actor`,
+      }).toBe(true);
 
-    expect(seatedClips.length).toBeGreaterThanOrEqual(1);
-    const best = seatedClips.reduce((a, b) => (a.maxDeviationDeg > b.maxDeviationDeg ? a : b));
-    expect(best.maxDeviationDeg).toBeGreaterThan(NEAR_STATIC_DEG);
-  });
+      const clips = await analyzeGlb(motionBindGlb);
+      const seatedClips = clips.filter((c) => /seat/i.test(c.clipName));
+
+      // Must have at least one seated clip
+      expect(seatedClips.length, {
+        message: `${actorStem} motion-bind GLB has no seated clip (clips: ${clips.map((c) => c.clipName).join(", ")})`,
+      }).toBeGreaterThanOrEqual(1);
+
+      // The seated clip must exceed the near-static threshold
+      const best = seatedClips.reduce((a, b) => (a.maxDeviationDeg > b.maxDeviationDeg ? a : b));
+      expect(best.maxDeviationDeg, {
+        message: `${actorStem} seated clip max deviation ${best.maxDeviationDeg}° is below ${NEAR_STATIC_DEG}° threshold`,
+      }).toBeGreaterThan(NEAR_STATIC_DEG);
+
+      // Must have meaningful channel count (411 for MPFB 137-joint rig)
+      expect(best.channelCount, {
+        message: `${actorStem} seated clip has only ${best.channelCount} channels — expected ~411`,
+      }).toBeGreaterThan(100);
+    });
+  }
 
   it("generated-humanoids has at least one clip with >6° deviation", async () => {
     const genGlbs = glbPaths.filter((p) => p.includes("/generated-humanoids/"));
