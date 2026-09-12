@@ -211,16 +211,22 @@ each of the 3 actors in `SEATED_REST_OUTPUT_STEMS` must have a motion-bind GLB
 in `candidates/` with a seated clip (name matching `/seat/i`) at >6° deviation
 and >100 channels.
 
-**Proving it bites on the BEFORE state:** the test for `mpfb-ob-patient-aisha`
-and `mpfb-family-partner-aust` would fail before the retarget stage ran because
-their motion-bind GLBs did not exist. The test asserts `statSync(motionBindGlb)
-isFile()` — this returns `false` when the file is absent, causing the expect
-to fail with "motion-bind GLB not found for {actor}". Verified by inspecting
-the test logic: the first assertion in each per-actor test block is the file
-existence check, which is the exact gate that would fire on a pre-retarget tree.
+**Proving it bites — actual run, not reasoning:**
 
-**Test output (AFTER state):** 6 tests, 6 passed (was 4 tests, 4 passed before
-per-actor assertions were added).
+BEFORE (motion-bind GLBs moved aside, only mpfb-peds-parent-aisha present):
+```
+ FAIL  the-learner-rail-clips-are-measured-not-quoted.test.ts > mpfb-ob-patient-aisha
+ FAIL  the-learner-rail-clips-are-measured-not-quoted.test.ts > mpfb-family-partner-adult
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+```
+Both new actors fail: "motion-bind GLB not found for {actor} — retarget stage has not run for this actor".
+
+AFTER (motion-bind GLBs restored):
+```
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+```
 
 `tools/openclinxr/evidence/humanoid-motion/the-learner-rail-clips-are-measured-not-quoted.test.ts`
 asserts from the committed scan that the learner rail has clips with measurable motion,

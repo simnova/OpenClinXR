@@ -96,13 +96,16 @@ def setup_camera():
     lo, hi = aabb
     center = (lo + hi) / 2
     extent = max(hi.x - lo.x, hi.y - lo.y, hi.z - lo.z)
-    # Wider lens (50mm) and greater distance so full figure fits with margin
-    distance = extent * 2.8
+    # 50mm lens, distance sized so figure fills ~60% of frame height with margin.
+    # At 50mm on a 0.72-aspect sensor, vertical FOV ≈ 27°.  Generous margin so
+    # the figure never touches the edge even during animation-driven pose changes.
+    figure_height = hi.z - lo.z
+    distance = figure_height * 2.2
     cam = bpy.data.cameras.new("capture_cam")
     cam.lens = 50
     cam_obj = bpy.data.objects.new("capture_cam", cam)
     bpy.context.scene.collection.objects.link(cam_obj)
-    cam_obj.location = (center.x, center.y - distance, center.z + extent * 0.1)
+    cam_obj.location = (center.x, center.y - distance, center.z + figure_height * 0.05)
     direction = center - cam_obj.location
     rot_quat = direction.to_track_quat('-Z', 'Y')
     cam_obj.rotation_euler = rot_quat.to_euler()
