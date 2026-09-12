@@ -4446,7 +4446,6 @@ def main():
     from garment_coverage import (  # noqa: E402
         CLOTH_STANDOFF_M,
         build_cover_shell,
-        cloth_offset,
         cloth_outward_offset,
         coverage_report,
     )
@@ -4586,14 +4585,20 @@ def main():
         pants_verts_after = shell["vertexCount"]
         pants_tris = shell["faceCount"]
     else:
-        # #322 — a fit that covers ships at the 1.5 cm standoff (mirror the stage else).
-        pants_v_off = cloth_offset(pants_v, body_verts, body_faces, CLOTH_STANDOFF_M)
-        for i, v in enumerate(pants.data.vertices):
-            v.co = tuple(float(x) for x in pants_v_off[i])
-        bpy.context.view_layer.update()
+        # Covering-library lower: KEEP the ClothesService standoff distribution.
+        # cloth_offset SNAPS every vertex to nearest_body + CLOTH_STANDOFF_M (15 mm),
+        # which discards the mhclo drape (measured 2026-09-12 on this path:
+        # family-partner bootcut p5 14.464 / med 15.000 / p95 15.027 mm vs the
+        # same-body shirt that never takes this snap: p5 1.659 / med 5.527 /
+        # p95 11.019). Cover shells still build at CLOTH_STANDOFF_M above.
+        # Poke-through is the hide-mask lower channel (#326), same as the shirt.
         pants_mesh_name = pants.name
         pants_verts_after = len(pants.data.vertices)
         pants_tris = sum(max(len(p.vertices) - 2, 0) for p in pants.data.polygons)
+        print(
+            "LOWER_FIT_STANDOFF kept ClothesService positions "
+            f"(no cloth_offset snap; CLOTH_STANDOFF_M={CLOTH_STANDOFF_M})"
+        )
     # Bind the trousers to the armature too (same projection as the t-shirt).
     pants_weights = transfer_weights_body_to_garment(human, pants, armature)
     print(
