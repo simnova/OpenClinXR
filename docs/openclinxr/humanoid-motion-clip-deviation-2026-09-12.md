@@ -81,19 +81,71 @@ include the two new actors. The `replay_seated_rest_bind()` function (line ~3006
 re-runs the seated bind for every actor in the set during each future rebake, preventing
 the silent clip loss that #557/#372 were designed to refuse.
 
-## AFTER table (pending Blender run)
+## AFTER table (2026-09-12, after retarget on 2 new actors)
 
-TO BE FILLED after running the seated clip bind stage on the two new actors.
-The same `clip-channel-deviation.ts` instrument will be re-run to produce this table.
+Same instrument, same tree. 91 GLBs scanned (was 89), 57 with animations (was 55).
 
-Expected: total candidate clips increase from 22 to ~24 (one per new actor). The
-`openclinxr_retarget_seated_talking_cc0` clip should appear with slightly different
-max-deviation values reflecting the different body proportions of each actor.
+| Group | Total clips | Under 6° | Best (max dev) | Best clip name | Unique clip names |
+|---|---|---|---|---|---|
+| generated-humanoids/ | 63 | 58 | 178.32° | openclinxr_retarget_walk_formal_cc0 | 10 |
+| candidates/ | **28** | **17** | 87.24° | openclinxr_retarget_seated_talking_cc0 | **7** |
+| other | 123 | 112 | 60.92° | openclinxr_role_patient_guard_withdraw_rlq | 11 |
 
-## Captures (pending Blender run)
+**Total:** 91 GLBs scanned, 57 with animations.
 
-TO BE FILLED: front_lit captures at several frames for each newly retargeted actor.
-The orchestrator grades the pixels.
+### Per-actor seated clip details
+
+All three actors carry the same CC0 seated clip (`openclinxr_retarget_seated_talking_cc0`):
+411 channels, 90 frames, max deviation 87.24°. The identical max-deviation across actors
+reflects the shared rig topology (`mpfb2-default-no-toes`) — bone rotation values are
+structurally identical per channel; body proportions affect mesh deformation, not bone
+rotation. The deviation difference between actors is sub-degree and not distinguishable
+at the instrument's precision.
+
+| Actor GLB | Channels | Frames | Max dev | Unique clip names in GLB |
+|---|---|---|---|---|
+| mpfb-peds-parent-aisha.motion-bind.glb | 411 | 90 | 87.24° | 3 (seated + 2 clinical) |
+| mpfb-ob-patient-aisha.motion-bind.glb | 411 | 90 | 87.24° | 3 (seated + 2 clinical) |
+| mpfb-family-partner-adult.motion-bind.glb | 411 | 90 | 87.24° | 3 (seated + 2 clinical) |
+
+### BEFORE vs AFTER
+
+| Metric | BEFORE | AFTER | Delta |
+|---|---|---|---|
+| GLBs scanned | 89 | 91 | +2 |
+| GLBs with animations | 55 | 57 | +2 |
+| candidates/ total clips | 22 | 28 | +6 (2 actors × 3 clips) |
+| candidates/ clips under 6° | 13 | 17 | +4 |
+| Unique candidate clip names | 7 | 7 | 0 (same names, more instances) |
+| Seated retarget clips | 1 | 3 | +2 |
+
+### Distinct clip names and clip count
+
+Unique clip NAMES across all 28 candidate clips: 7 (unchanged from BEFORE).
+Total clip INSTANCES: 28 (was 22). The 6 new instances are the seated retarget clip
+plus 2 pre-existing clinical clips on each of the 2 new motion-bind GLBs. The card
+requires distinct clip NAMES alongside clip COUNT — both are reported. The same clip
+name appearing 3 times (once per actor) is the expected outcome when one CC0 clip
+is bound to 3 actors; distinct clip names would require additional source clips.
+
+## Captures (2026-09-12, Blender 5.1.1)
+
+Isolated front_lit renders at frames 0, 20, 45, 70, and 89 for each newly retargeted
+actor. The orchestrator grades the pixels; no visual verdict issued by this worker.
+
+**mpfb-ob-patient-aisha:**
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0000.png`
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0020.png`
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0045.png`
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0070.png`
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0089.png`
+
+**mpfb-family-partner-adult:**
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0000.png`
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0020.png`
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0045.png`
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0070.png`
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0089.png`
 
 ## Regression test
 

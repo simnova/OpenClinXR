@@ -2542,3 +2542,20 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/quest-manual-performance-template.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
 - `docs/openclinxr/quest-mixed-reality-manual-template.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
 - `docs/openclinxr/security-audit-policy-2026-08-02.json` - keep-template; keep; Reusable template/checklist/policy fixture.
+- `apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha.motion-bind.glb` - keep-current; keep; CC0 seated retarget output (tsk_28c5e7db43239b8f).
+- `apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha.motion-bind-report.json` - keep-current; keep; Provenance report for mpfb-ob-patient-aisha seated clip retarget.
+- `apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-family-partner-adult.motion-bind.glb` - keep-current; keep; CC0 seated retarget output (tsk_28c5e7db43239b8f).
+- `apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-family-partner-adult.motion-bind-report.json` - keep-current; keep; Provenance report for mpfb-family-partner-adult seated clip retarget.
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-capture-manifest.json` - keep-evidence; keep; Front_lit capture manifest for CC0 seated retarget grading.
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0000.png` - keep-evidence; keep; Front_lit capture frame 0 for mpfb-ob-patient-aisha.
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0020.png` - keep-evidence; keep; Front_lit capture frame 20 for mpfb-ob-patient-aisha.
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0045.png` - keep-evidence; keep; Front_lit capture frame 45 for mpfb-ob-patient-aisha.
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0070.png` - keep-evidence; keep; Front_lit capture frame 70 for mpfb-ob-patient-aisha.
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0089.png` - keep-evidence; keep; Front_lit capture frame 89 for mpfb-ob-patient-aisha.
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-capture-manifest.json` - keep-evidence; keep; Front_lit capture manifest for CC0 seated retarget grading.
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0000.png` - keep-evidence; keep; Front_lit capture frame 0 for mpfb-family-partner-adult.
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0020.png` - keep-evidence; keep; Front_lit capture frame 20 for mpfb-family-partner-adult.
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0045.png` - keep-evidence; keep; Front_lit capture frame 45 for mpfb-family-partner-adult.
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0070.png` - keep-evidence; keep; Front_lit capture frame 70 for mpfb-family-partner-adult.
+- `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0089.png` - keep-evidence; keep; Front_lit capture frame 89 for mpfb-family-partner-adult.
+- `tools/openclinxr/evidence/blender/render_seated_clip_frames.py` - keep-current; keep; Blender render script for capturing seated clip frames.

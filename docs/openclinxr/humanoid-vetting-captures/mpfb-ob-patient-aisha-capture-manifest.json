@@ -1,0 +1,21 @@
+{
+  "actor": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha.motion-bind.glb",
+  "stem": "mpfb-ob-patient-aisha",
+  "clipName": "openclinxr_retarget_seated_talking_cc0",
+  "frames": [
+    0,
+    20,
+    45,
+    70,
+    89
+  ],
+  "frameCount": 91,
+  "rendered": [
+    "docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0000.png",
+    "docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0020.png",
+    "docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0045.png",
+    "docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0070.png",
+    "docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0089.png"
+  ],
+  "resolution": 1600
+}

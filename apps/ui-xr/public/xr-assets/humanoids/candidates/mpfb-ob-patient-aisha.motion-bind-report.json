@@ -1,0 +1,259 @@
+{
+  "schemaVersion": "openclinxr.seated-clip-bind.v1",
+  "stageId": "seated_clip_bind_stage",
+  "verdict": "ok",
+  "generatedAt": "2026-09-12T20:01:22.259994+00:00",
+  "sourceClip": "tools/openclinxr/asset-pipeline/makeclothes/mesh2motion-sitting-talking-single-clip.bvh",
+  "targetRig": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+  "targetMap": "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json",
+  "sourceMap": "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mesh2motion-human-66.json",
+  "operator": "mcp.load_and_retarget",
+  "addonModule": "bl_ext.user_default.retarget_bvh",
+  "outputGlb": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha.motion-bind.glb",
+  "clipName": "openclinxr_retarget_seated_talking_cc0",
+  "drivenBones": [
+    {
+      "bone": "clavicle.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.07923511695111074
+    },
+    {
+      "bone": "clavicle.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.08732382464208399
+    },
+    {
+      "bone": "finger1-1.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.29820840805768967
+    },
+    {
+      "bone": "finger1-1.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.15083354135254012
+    },
+    {
+      "bone": "finger1-2.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.07867790999440771
+    },
+    {
+      "bone": "finger1-2.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.18126695281536165
+    },
+    {
+      "bone": "finger1-3.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.19019753934109218
+    },
+    {
+      "bone": "finger1-3.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.699274194252089
+    },
+    {
+      "bone": "finger2-1.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.060711410944350064
+    },
+    {
+      "bone": "finger2-1.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.42327911872416735
+    },
+    {
+      "bone": "finger2-2.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.02552638453198597
+    },
+    {
+      "bone": "finger2-2.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.3425284191616811
+    },
+    {
+      "bone": "finger2-3.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.18435472273331754
+    },
+    {
+      "bone": "finger3-1.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 1.047818884253502
+    },
+    {
+      "bone": "finger3-1.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.42665076861158013
+    },
+    {
+      "bone": "finger3-2.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.980548775754869
+    },
+    {
+      "bone": "finger3-2.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.6007731615100056
+    },
+    {
+      "bone": "finger3-3.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.9990278815531362
+    },
+    {
+      "bone": "finger3-3.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.33229780940030196
+    },
+    {
+      "bone": "finger4-1.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.9471717830747366
+    },
+    {
+      "bone": "finger4-1.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.6237737461924553
+    },
+    {
+      "bone": "finger4-2.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.9649634505622089
+    },
+    {
+      "bone": "finger4-2.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.4246148415841162
+    },
+    {
+      "bone": "finger4-3.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.9141183808606002
+    },
+    {
+      "bone": "finger4-3.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.30108970952277136
+    },
+    {
+      "bone": "finger5-1.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.9898063205182552
+    },
+    {
+      "bone": "finger5-1.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.6292018257081509
+    },
+    {
+      "bone": "finger5-2.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 1.0775186970786308
+    },
+    {
+      "bone": "finger5-2.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.4935680911949021
+    },
+    {
+      "bone": "finger5-3.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 1.0379509016055337
+    },
+    {
+      "bone": "finger5-3.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.3300562319198317
+    },
+    {
+      "bone": "foot.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.1800522201228869
+    },
+    {
+      "bone": "foot.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.2227089776424669
+    },
+    {
+      "bone": "lowerarm01.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 1.328899709507823
+    },
+    {
+      "bone": "lowerarm01.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 1.1729683429002762
+    },
+    {
+      "bone": "lowerleg01.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.967284012469463
+    },
+    {
+      "bone": "lowerleg01.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 1.0061137285083532
+    },
+    {
+      "bone": "neck01",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.11851219434174731
+    },
+    {
+      "bone": "spine03",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.11411533318445265
+    },
+    {
+      "bone": "spine04",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.11381449224327578
+    },
+    {
+      "bone": "upperarm01.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 1.101967231137678
+    },
+    {
+      "bone": "upperarm01.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 1.0704808963928372
+    },
+    {
+      "bone": "upperleg01.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.22028838971164078
+    },
+    {
+      "bone": "upperleg01.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 0.23069960990687832
+    },
+    {
+      "bone": "wrist.L",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 1.2839345885440707
+    },
+    {
+      "bone": "wrist.R",
+      "keyframes": 90,
+      "totalRotationDeltaRad": 1.0050954036414623
+    }
+  ],
+  "drivenBoneCount": 46,
+  "outputMeshCount": 11,
+  "totalRotationDeltaRad": 26.059303934662776,
+  "outputBytes": 14277160,
+  "reportPath": "/Users/patrick/.grok/worktrees/src-openclinxr/bothy-tsk_28c5e7db43239b8f/apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha.motion-bind-report.json",
+  "log": "actor_armature=mpfb_ob_patient_aisha_standard_rig pose_bones=137 actor_objects=13\nmodule=bl_ext.user_default.retarget_bvh load_and_retarget=True\nprefs_missing; using headless prefs stand-in\ninjected source_map=Mesh2Motion human-base-animations (Sitting_Talking) entries=52\nload_and_retarget message='BVH file(s) retargeted'\ndriven=52 real=46 action=openclinxr_retarget_seated_talking_cc0\nscene_meshes=11",
+  "claimScope": "one_actor_one_cc0_seated_clip_retarget_bind_not_a_motion_library",
+  "notEvidenceFor": [
+    "clinical_motion_realism",
+    "quest_readiness",
+    "visual_motion_quality",
+    "runtime_playback"
+  ]
+}
