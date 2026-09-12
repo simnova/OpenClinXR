@@ -81,10 +81,16 @@
   ],
   "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
   "promotionGates": false,
-  "outputSha256": "d987587239ee2e2bf1ae58feb52c395080eb29e851fa2ec1506c381bae6b938b",
-  "outputBytes": 8512436,
+  "outputSha256": "ab33bff8f56240e6b89c0de4dbc262eee1835dd32b439a0dcf46cfd815629b95",
+  "outputBytes": 13927908,
+  "fitTimeLower": {
+    "garment": "punkduck_female_tight_jeans",
+    "sourceObjFaces": 2108,
+    "fittedTris": 4216,
+    "lowerGateCoverage": 0.9875
+  },
   "generatedAt": "2026-08-14T07:07:00Z",
   "method": "mpfb2_materializer_rebake_on_promoted_cast",
   "albedoBakeWrittenAt": "2026-09-11T05:16:52.409Z",
-  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.4 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts)."
+  "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: ClothesService PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt iterate-optimize --face-preserving --face-preserving-ratio 0.4 then chest-anchor 0.085 m. Shipped 69093 tris / 13927908 B (jeans 1986). Fit-time faces x 2 lives in fitTimeLower; shipped shell-vs-fit is standoff spread. Previous raw pin cfdcd5a3c2828daa / 17002120. Report: female-covering-lower-acquisition-2026-09-12.md."
 }

@@ -42,6 +42,22 @@
  * remaining-cover-shell-lowers-2026-09-12.md. Aisha / parent / viseme stay
  * shells (tris !== cargo faces*2). Child HB-07 cargo key unchanged. Materializer
  * fail-closes those output stems instead of defaulting to menswear jeans.
+ *
+ * ## FIXED (#0 female-covering-lower-acquisition)
+ *
+ * pants02 `punkduck_female_tight_jeans` staged (`# license CC BY 3.0`, pack
+ * page CC-BY, tag Female/Pants/Jeans, max mhclo ref 13351, 2108 obj faces).
+ * Three adult-female stems keyed to it. Shipped lower tris == 2108 x 2 = 4216.
+ * Report: female-covering-lower-acquisition-2026-09-12.md.
+ *
+ * ## FIXED (#0 restore-fp-r0.4 discriminator re-point)
+ *
+ * Faces x 2 is a FIT-TIME invariant (PANTS_FIT 4216 == 2108 x 2 in
+ * female-covering-lower-fit-time.json). The shipped mesh is fp-r0.4 (~1900
+ * jeans tris) so exactness on shipped bytes forbids the postopt rung.
+ * Shipped shell-vs-fit is standoff spread: a cover-shell sits in a
+ * sub-millimetre band (child 0.983 mm at ~15 mm); a fit keeps drape
+ * (aisha/parent/viseme 11.0-11.6 mm after fp-r0.4). Child remains the bite.
  */
 
 import { execFileSync } from "node:child_process";
@@ -50,6 +66,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { readNamedMesh, standoffMm, standoffSpreadMm } from "./lower-standoff.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../../..");
@@ -83,6 +100,10 @@ const BOOTCUT_OBJ = join(GARMENT_SOURCES, "makehuman-pants02/clothes/elvs_jeans_
 const CARGO_OBJ = join(GARMENT_SOURCES, "makehuman-pants01/cortu_cargo_pants/cargo_pants.obj");
 const STREET_OBJ = join(GARMENT_SOURCES, "makehuman-pants02/clothes/elvs_jeans_straight_leg/mens_elv_jeans2slf.obj");
 const SCRUB_OBJ = join(GARMENT_SOURCES, "makehuman-community-scrub-pants/Scrub_Pants.obj");
+const FEMALE_JEANS_OBJ = join(
+  GARMENT_SOURCES,
+  "makehuman-pants02/clothes/punkduck_female_tight_jeans/tightjeans.obj",
+);
 const FAMILY = join(HUMANOIDS, "mpfb-family-partner-adult.glb");
 const AISHA = join(HUMANOIDS, "mpfb-ob-patient-aisha.glb");
 const PARENT = join(HUMANOIDS, "mpfb-peds-parent-aisha.glb");
@@ -91,9 +112,22 @@ const CHILD = join(HUMANOIDS, "mpfb-peds-patient-child.glb");
 const STREET = join(HUMANOIDS, "mpfb-street-adult-male.glb");
 const NURSE = join(HUMANOIDS, "mpfb-clinical-nurse-adult.glb");
 const REPORT = join(HERE, "remaining-cover-shell-lowers-2026-09-12.md");
+const ACQUISITION = join(HERE, "female-covering-lower-acquisition-2026-09-12.md");
+const FIT_TIME = join(HERE, "female-covering-lower-fit-time.json");
 const MATERIALIZER = join(HERE, "../blender/materialize_mpfb_humanoid_candidate.py");
 const LOWER_RE = /pants|jean|trouser|cargo/i;
 const FAMILY_LOWER_RE = /bootcut_jeans_pants|straight_leg_jeans_pants|cargo_pants/i;
+const FEMALE_JEANS_RE = /female_tight_jeans/i;
+/** Landed snapped-shell band 0.563 mm (family-partner pre-fix) and child 0.983 mm. */
+const SHELL_STANDOFF_SPREAD_MAX_MM = 2;
+/** Landed fitted drape 9.36 mm (shirt) / 10.2 mm (jeans); post-fp jeans 11.0-11.6 mm. */
+const FIT_STANDOFF_SPREAD_MIN_MM = 5;
+
+type FitTimeRecord = {
+  sourceObjFaces: number;
+  fittedTris: number;
+  actors: Record<string, { pantsFitTris: number }>;
+};
 
 function objFaceCount(path: string): number {
   const text = readFileSync(path, "utf8");
@@ -121,6 +155,7 @@ describe("the shipped lower is fitted asset geometry, not a shell", () => {
   it("source .obj files are present so the discriminator can run", () => {
     expect(existsSync(BOOTCUT_OBJ), BOOTCUT_OBJ).toBe(true);
     expect(existsSync(CARGO_OBJ), CARGO_OBJ).toBe(true);
+    expect(existsSync(FEMALE_JEANS_OBJ), FEMALE_JEANS_OBJ).toBe(true);
     expect(existsSync(FAMILY), FAMILY).toBe(true);
     expect(existsSync(AISHA), AISHA).toBe(true);
   });
@@ -148,22 +183,40 @@ describe("the shipped lower is fitted asset geometry, not a shell", () => {
     expect(tris, "family-partner lower is a shell if tris !== faces*2").toBe(faces * 2);
   });
 
-  it("the same arithmetic FAILS on a cover-shell actor (aisha cargo)", async () => {
-    const faces = objFaceCount(CARGO_OBJ);
-    const tris = await lowerTriangleCount(AISHA, LOWER_RE);
-    expect(faces, "cortu cargo_pants.obj face count").toBe(196);
-    expect(tris, "aisha lower must exist").toBeGreaterThan(0);
-    expect(tris, "bite: aisha 1075-tri shell is not cargo faces*2").not.toBe(faces * 2);
+  it("FIT-TIME faces x 2: PANTS_FIT 4216 == tightjeans.obj 2108 x 2", () => {
+    const faces = objFaceCount(FEMALE_JEANS_OBJ);
+    const rec = JSON.parse(readFileSync(FIT_TIME, "utf8")) as FitTimeRecord;
+    expect(faces, "punkduck tightjeans.obj face count").toBe(2108);
+    expect(rec.sourceObjFaces, "fit-time record sourceObjFaces").toBe(faces);
+    expect(rec.fittedTris, "fit-time faces x 2").toBe(faces * 2);
+    expect(rec.actors["mpfb-ob-patient-aisha"]?.pantsFitTris).toBe(faces * 2);
+    expect(rec.actors["mpfb-peds-parent-aisha"]?.pantsFitTris).toBe(faces * 2);
+    expect(rec.actors["mpfb-viseme-inspect"]?.pantsFitTris).toBe(faces * 2);
+    const src = readFileSync(MATERIALIZER, "utf8");
+    expect(src.includes("PANTS_FIT"), "materializer still logs PANTS_FIT").toBe(true);
   });
 
-  it("parent and viseme-inspect remain cover shells (no female covering mhclo)", async () => {
-    const faces = objFaceCount(CARGO_OBJ);
-    const parentTris = await lowerTriangleCount(PARENT, LOWER_RE);
-    const visemeTris = await lowerTriangleCount(VISEME, LOWER_RE);
-    expect(parentTris, "parent lower must exist").toBeGreaterThan(0);
-    expect(visemeTris, "viseme-inspect lower must exist").toBeGreaterThan(0);
-    expect(parentTris, "parent 1126-tri shell is not cargo faces*2").not.toBe(faces * 2);
-    expect(visemeTris, "viseme 1112-tri shell is not cargo faces*2").not.toBe(faces * 2);
+  it("SHIPPED standoff spread PASSES on the three fp-r0.4 fits", async () => {
+    for (const glb of [AISHA, PARENT, VISEME]) {
+      const body = await readNamedMesh(glb, /_body/i);
+      const pants = await readNamedMesh(glb, FEMALE_JEANS_RE);
+      const spread = standoffSpreadMm(standoffMm(body, pants)).spread;
+      expect(
+        spread,
+        `${glb} shipped jeans standoff spread must exceed the 5 mm fit floor (shells are <2 mm)`,
+      ).toBeGreaterThan(FIT_STANDOFF_SPREAD_MIN_MM);
+    }
+  });
+
+  it("SHIPPED standoff spread FAILS on the child cover-shell (bite)", async () => {
+    if (!existsSync(CHILD)) return;
+    const body = await readNamedMesh(CHILD, /_body/i);
+    const pants = await readNamedMesh(CHILD, LOWER_RE);
+    const spread = standoffSpreadMm(standoffMm(body, pants)).spread;
+    expect(
+      spread,
+      "child cargo-named shell is a sub-millimetre 15 mm snap band; a fit would exceed 5 mm",
+    ).toBeLessThan(SHELL_STANDOFF_SPREAD_MAX_MM);
   });
 
   it("HB-07 child remains the cargo-named shell (out of scope, not rebaked)", async () => {
@@ -177,13 +230,17 @@ describe("the shipped lower is fitted asset geometry, not a shell", () => {
   it("the remaining-cover-shell report exists and the materializer fail-closes female stems", () => {
     expect(existsSync(REPORT), REPORT).toBe(true);
     expect(statSync(REPORT).size, "report min-bytes 900").toBeGreaterThanOrEqual(900);
+    expect(existsSync(ACQUISITION), ACQUISITION).toBe(true);
+    expect(statSync(ACQUISITION).size, "acquisition report min-bytes 900").toBeGreaterThanOrEqual(900);
+    expect(existsSync(FEMALE_JEANS_OBJ), FEMALE_JEANS_OBJ).toBe(true);
     const src = readFileSync(MATERIALIZER, "utf8");
     expect(src.includes('MISSING_FEMALE_COVERING_LOWER = "missing_female_covering_lower"')).toBe(
       true,
     );
-    expect(src.includes('"mpfb-ob-patient-aisha": MISSING_FEMALE_COVERING_LOWER')).toBe(true);
-    expect(src.includes('"mpfb-peds-parent-aisha": MISSING_FEMALE_COVERING_LOWER')).toBe(true);
-    expect(src.includes('"mpfb-viseme-inspect": MISSING_FEMALE_COVERING_LOWER')).toBe(true);
+    expect(src.includes('FEMALE_COVERING_LOWER = "punkduck_female_tight_jeans"')).toBe(true);
+    expect(src.includes('"mpfb-ob-patient-aisha": FEMALE_COVERING_LOWER')).toBe(true);
+    expect(src.includes('"mpfb-peds-parent-aisha": FEMALE_COVERING_LOWER')).toBe(true);
+    expect(src.includes('"mpfb-viseme-inspect": FEMALE_COVERING_LOWER')).toBe(true);
     expect(src.includes("if _ref_lower == MISSING_FEMALE_COVERING_LOWER:")).toBe(true);
   });
 });

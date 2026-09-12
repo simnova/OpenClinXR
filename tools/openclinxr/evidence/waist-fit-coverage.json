@@ -59,10 +59,10 @@
     {
       "id": "mpfb-ob-patient-aisha",
       "source": "cast",
-      "overlapMm": 5,
-      "bucketCount": 25,
+      "skipped": true,
+      "skipReason": "lower garment present but fewer than 12 comparable hem/waistband buckets — not a silent pass",
       "upperName": "mat_makeclothes_library_toigo_t_shirt",
-      "lowerName": "mat_makeclothes_library_cargo_pants.001",
+      "lowerName": "mat_makeclothes_library_female_tight_jeans_pants",
       "gapped": 0
     },
     {

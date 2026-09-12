@@ -48,15 +48,17 @@ LOWER_GARMENT_BY_REFERENCE = {
 
 # Adult-female default-macro stems (aisha / peds parent / viseme inspect) cannot
 # key LOWER_GARMENT_BY_REFERENCE: their bakes omit --reference. Unkeyed falls
-# through to menswear straight-leg jeans. Staged covering lowers are all
-# tag male/menswear (or clinician unisex Scrub_Pants already on the nurse).
-# Fail closed until a covering female mhclo is staged. See
-# remaining-cover-shell-lowers-2026-09-12.md.
+# through to menswear straight-leg jeans. pants02 `punkduck_female_tight_jeans`
+# (`# license CC BY 3.0`, pack page CC-BY, tag Female/Pants/Jeans, max mhclo
+# ref 13351 < 13380, 2108 obj faces) is the covering civilian female lower.
+# MISSING_FEMALE_COVERING_LOWER remains the fail-closed token if a stem is
+# un-keyed. See female-covering-lower-acquisition-2026-09-12.md.
 MISSING_FEMALE_COVERING_LOWER = "missing_female_covering_lower"
+FEMALE_COVERING_LOWER = "punkduck_female_tight_jeans"
 LOWER_GARMENT_BY_OUTPUT_STEM = {
-    "mpfb-ob-patient-aisha": MISSING_FEMALE_COVERING_LOWER,
-    "mpfb-peds-parent-aisha": MISSING_FEMALE_COVERING_LOWER,
-    "mpfb-viseme-inspect": MISSING_FEMALE_COVERING_LOWER,
+    "mpfb-ob-patient-aisha": FEMALE_COVERING_LOWER,
+    "mpfb-peds-parent-aisha": FEMALE_COVERING_LOWER,
+    "mpfb-viseme-inspect": FEMALE_COVERING_LOWER,
 }
 
 SHOE_BY_REFERENCE = {
@@ -4272,6 +4274,14 @@ def main():
             pants_obj = _pants_dir / "mens_elv_jeans1f.obj"
             pants_mhclo = _pants_dir / "elvs_jeans_bootcut.mhclo"
             _lower_lib_name = "makeclothes_library_bootcut_jeans_pants"
+        elif _ref_lower == FEMALE_COVERING_LOWER:
+            _pants_dir = (
+                REPO_ROOT
+                / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/punkduck_female_tight_jeans"
+            )
+            pants_obj = _pants_dir / "tightjeans.obj"
+            pants_mhclo = _pants_dir / "punkduck_female_tight_jeans.mhclo"
+            _lower_lib_name = "makeclothes_library_female_tight_jeans_pants"
         else:
             _pants_dir = (
                 REPO_ROOT
@@ -4322,6 +4332,13 @@ def main():
                 "author=Elvaerwyn pack=pants02 "
                 "page=https://static.makehumancommunity.org/assets/assetpacks/pants02.html "
                 "license=CC-BY"
+            )
+        elif _lower_lib_name == "makeclothes_library_female_tight_jeans_pants":
+            print(
+                "LOWER_GARMENT_ATTRIBUTION makeclothes_library_female_tight_jeans_pants "
+                "author=punkduck pack=pants02 "
+                "page=https://static.makehumancommunity.org/assets/assetpacks/pants02.html "
+                "license=CC-BY mhclo='# license CC BY 3.0'"
             )
         else:
             print(
@@ -4512,6 +4529,7 @@ def main():
         "makeclothes_library_classic_jeans_pants",
         "makeclothes_library_straight_leg_jeans_pants",
         "makeclothes_library_bootcut_jeans_pants",
+        "makeclothes_library_female_tight_jeans_pants",
     }
     _sparse_open_shell = (
         lower_rep["verdict"] == "does_not_cover"
@@ -4521,12 +4539,14 @@ def main():
         )
     )
     if _sparse_open_shell:
-        if (args.reference or "") == "ed_chest_pain_spouse_adult":
+        if (args.reference or "") == "ed_chest_pain_spouse_adult" or pathlib.Path(
+            args.output
+        ).stem in LOWER_GARMENT_BY_OUTPUT_STEM:
             raise RuntimeError(
-                "family-partner lower did not cover with the staged pants02 mhclo "
-                f"(lib={_lower_lib_name} verdict={lower_rep.get('verdict')!r} "
-                f"boundaryEdges={lower_rep.get('garmentBoundaryEdges')}); "
-                "refusing build_cover_shell fallback — STOP, do not ship a body-derived shell"
+                "covering library lower did not cover; refusing build_cover_shell "
+                f"(stem={pathlib.Path(args.output).stem} lib={_lower_lib_name} "
+                f"verdict={lower_rep.get('verdict')!r} "
+                f"boundaryEdges={lower_rep.get('garmentBoundaryEdges')})"
             )
         # #295 — the leg shell must not wrap the hanging hands (measured 3,450
         # hand-dominant verts in the heavy-male lower fallback): exclude

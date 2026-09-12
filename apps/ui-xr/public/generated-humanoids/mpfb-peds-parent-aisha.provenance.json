@@ -68,12 +68,18 @@
   ],
   "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
   "promotionGates": false,
-  "outputSha256": "cef1e21b12c55437d98ef0a97db46a21fecf70cae3aad23033acbfd61d7f6eae",
-  "outputBytes": 8620932,
+  "outputSha256": "1e21a07a929600f72032e962814e1127ae1695786d60600a403881c3c081c1d8",
+  "outputBytes": 14017284,
+  "fitTimeLower": {
+    "garment": "punkduck_female_tight_jeans",
+    "sourceObjFaces": 2108,
+    "fittedTris": 4216,
+    "lowerGateCoverage": 0.9775
+  },
   "generatedAt": "2026-08-23T19:35:00.000Z",
   "method": "mpfb2_materializer_rebake_numeric_phenotype_macros_576",
   "runtimeRole": "intermediate_bake",
   "runtimeRoleWhy": "The runtime loads the .motion-bind DERIVATIVE of this base (humanoid-runtime-asset-url.ts:83), not this file. Contracts that measure this base and call it 'the shipped parent' are measuring the wrong asset - a latent false-green.",
   "albedoBakeWrittenAt": "2026-09-11T05:16:52.437Z",
-  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.4 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts)."
+  "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt fp-r0.4 then chest-anchor 0.085 m. Shipped 68898 tris / 14017284 B (jeans 1893). Previous raw pin 57fa9d91409408e0 / 17181156."
 }
