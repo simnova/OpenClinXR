@@ -34,7 +34,8 @@
     "src/claim-language.test.ts",
     "src/context-channel/context-channels-fail-closed.test.ts",
     "src/scenario-bank-lifecycle.test.ts",
-    "src/station-state.test.ts"
+    "src/station-state.test.ts",
+    "src/world-affordance/world-affordances-bind-and-refuse.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/domain test",

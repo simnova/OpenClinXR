@@ -1,5 +1,5 @@
 import type { TraceEvent } from "@openclinxr/shared-schemas";
-import type { AssembledStationContext, AssembledStationFormWindow } from "./runtime-types.js";
+import type { AssembledStationContext, AssembledStationFormWindow, SessionRecord } from "./runtime-types.js";
 
 /**
  * Deterministic trace-event construction for the scenario runtime.
@@ -197,6 +197,50 @@ export function assertObservedFormTime(window: AssembledStationFormWindow, obser
       `Cannot record assembled ${eventType} at form second ${observed} outside window ${window.startsAtSecond}-${window.endsAtSecond}`,
     );
   }
+}
+
+export function assembledDomainAtSecond(
+  session: SessionRecord,
+  observedFormAtSecond: number,
+  window: AssembledStationFormWindow | undefined,
+  eventType: string,
+): number {
+  if (!session.assembledStation || !window) {
+    return observedFormAtSecond;
+  }
+  assertObservedFormTime(window, observedFormAtSecond, eventType);
+  const doorwayStart = session.assembledStation.formTiming.doorway?.startsAtSecond ?? 0;
+  return Math.max(0, observedFormAtSecond - doorwayStart);
+}
+
+export function appendAssembledPhase(
+  session: SessionRecord,
+  ledger: { append: (event: TraceEvent) => void },
+  eventType: ReplayablePhaseTransitionType,
+  phase: "encounter" | "note" | "complete",
+  observedFormAtSecond: number,
+  window: AssembledStationFormWindow,
+  advanceReason?: string,
+): void {
+  const assembled = session.assembledStation;
+  if (!assembled) {
+    throw new Error("assembled-station context required for canonical phase event");
+  }
+  assertObservedFormTime(window, observedFormAtSecond, eventType);
+  const doorwayStart = assembled.formTiming.doorway?.startsAtSecond ?? 0;
+  ledger.append(replayablePhaseTransitionEvent({
+    stationRunId: session.run.stationRunId,
+    sequence: session.nextSequence,
+    eventType,
+    atSecond: Math.max(0, observedFormAtSecond - doorwayStart),
+    scenarioId: assembled.scenarioId,
+    examRunId: assembled.examRunId,
+    stationOrder: assembled.stationOrder,
+    phase,
+    formAtSecond: observedFormAtSecond,
+    ...(advanceReason ? { advanceReason } : {}),
+  }));
+  session.nextSequence += 1;
 }
 
 function isFormWindow(value: unknown): value is AssembledStationFormWindow {
