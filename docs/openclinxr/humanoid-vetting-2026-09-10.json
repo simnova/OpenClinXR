@@ -580,34 +580,34 @@
     "horizontalExtent": 1.1371712684631348
    },
    "body": "mpfb-street-adult-male.glb",
-   "bytes": 15830960,
-   "capture": "manual studio route (window global), same harness failure note as the nurse body",
+   "bytes": 15720228,
+   "capture": "pnpm asset:model-vetting:glb-grade -- --glb apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb; gallery selfCheck agrees relErr 0.00025; images copied to docs/openclinxr/humanoid-vetting-captures/",
    "captures": {
     "front_lit": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-front_lit.png",
-     "bytes": 2175308,
-     "sha256": "e2a566e75baf258254d003184b6ec219bfb714aa4e5e202599bdb0427883d8f3",
+     "bytes": 2175310,
+     "sha256": "cb2ba7106c099c076ec37236b4d9bedf887d19ff30287719e6b58478715c4e7f",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "front_structure": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-front_structure.png",
-     "bytes": 3030016,
-     "sha256": "163a33e44f858f1abef3e4264a7055d894f02fed03ea69f3fd1bf25900fdd71e",
+     "bytes": 3030915,
+     "sha256": "8f6d30a0f068348fc235f622b2e8624eb8a48b226fd93e53cacbaddfc199fa5b",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "three_quarter_lit": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-three_quarter_lit.png",
-     "bytes": 2108618,
-     "sha256": "54c66ccbcb31b67ab3e237fbe84c2ef3b3804c08bbb3adba0e9283e1ccde1d66",
+     "bytes": 2108304,
+     "sha256": "ac21a3e85dd719c390f2d943b1e2c13d622629cf28a7a66e3769ae547a2e1d5e",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "three_quarter_structure": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-street-adult-male-three_quarter_structure.png",
-     "bytes": 3121775,
-     "sha256": "0c8594f9087062d1aa4b37e94a439016cd2eba75ae4351a9dcb99e54e71ce01d",
+     "bytes": 3121961,
+     "sha256": "4f5cb6d0b2accfc324fc7868beb75cd88fb128298cba0c0ecc3da89d21213432",
      "pngWidth": 4096,
      "pngHeight": 4096
     }
@@ -842,11 +842,11 @@
    ],
    "nodeCount": 148,
    "refusalRule": "baseColorFactor != [1,1,1] on a material WITH baseColorTexture and no recorded reason = refusal (HB-00). Untextured flat colours are the albedo itself, not a tint.",
-   "sha256": "17d29247a336238ea7b0a82a2af491238e547a9d77f3666ba11c035ab9987",
+   "sha256": "252a214321eca8b56c07ecd00f98238387738a25e6e585cd25fd829a41cd23b0",
    "sidecar": {
     "match": true,
-    "outputBytes": 15830960,
-    "outputSha256": "17d29247a336238ea7b0a82a2af491238e547a9d77f3666ba11c035ab9987"
+    "outputBytes": 15720228,
+    "outputSha256": "252a214321eca8b56c07ecd00f98238387738a25e6e585cd25fd829a41cd23b0"
    },
    "triangles": 115552
   }

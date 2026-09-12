@@ -4602,19 +4602,12 @@ def main():
     # 2026-09-12: nurse live bytes gapped 2/36 at -2.6 mm; a garment that already meets
     # (kevin) is a no-op inside the function.
     if pants is not None and garment is not None:
-        # Street: the shirt is the known-good column (ymin 1.0283). Raising the
-        # cover-shell band_hi makes this function push the hem down onto the new
-        # waist (measured this bake: 40 verts, 43.3 mm). That is forbidden.
-        if (args.reference or "") == "adult_male_street_casual":
-            # Do not fit_upper_hem_to_waistband: the raised pants waist would pull
-            # the hem UP (this bake: fitted AABB min 1.0435 vs known-good 1.0283).
-            # Pin the hem BAND only, same taper as garment_ops.fit_upper_hem_to_waistband,
-            # terminus = the shipped known-good ymin. Shape of the hem is preserved;
-            # the shirt body above the band does not move.
-            print("WAIST_MEET_UPPER skipped — pinning shirt hem ymin to known-good 1.0283")
-            print("SHIRT_YMIN_PIN", pin_upper_hem_ymin(garment, 1.0283))
-        else:
-            print("WAIST_MEET_UPPER", fit_upper_hem_to_waistband(garment, pants))
+        # Street skip withdrawn 2026-09-12: jeans (covering library mesh, not the
+        # cargo cover-shell) sit 16.8 mm below the pinned shirt hem. Raising
+        # cover-shell band_hi stays forbidden (measured 43.3 mm). The same
+        # fit_upper_hem_to_waistband the nurse uses derives the terminus from the
+        # shipped jeans waistband; a garment that already meets is a no-op.
+        print("WAIST_MEET_UPPER", fit_upper_hem_to_waistband(garment, pants))
 
     # 2026-08-14 medical wardrobe — the physician's white lab coat as a THIRD layer
     # over the clinician scrub shirt + scrub pants. The coat is the CC0

@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import { isUpperGarmentName } from "../garment-slot.ts";
+import { measureWaistFit } from "../garments-meet-at-the-waist-measure.ts";
 import { isPantsName } from "../waistband-ring.ts";
 
 /**
@@ -124,6 +125,12 @@ import { isPantsName } from "../waistband-ring.ts";
  * `elvs_jeans_straight_leg` (`mens_elv_jeans2slf.obj` 3109/2854, 5708 tris,
  * `# license CC_by`, pack page pants02 CC-BY) via ClothesService. Slot name
  * `makeclothes_library_straight_leg_jeans_pants`. Shirt ymin pin unchanged.
+ *
+ * ## SUPERSEDED (street jeans waist-meet, 2026-09-12)
+ *
+ * Clause (2) pin is cargo-era. Jeans waistband sat 16.8 mm below the pin.
+ * Cover-shell band_hi stays unraised. Shirt hem now meets the jeans
+ * (gapped 0 / +5.0 mm). Clause (2) asserts that meet.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -147,9 +154,6 @@ const COVER_SHELL_TRIS = 2844;
 const CARGO_OBJ_VERTS = 211;
 const CARGO_OBJ_FACES = 196;
 
-/** Operator-measured shirt ymin on the shipped street GLB (metres, Y-up). */
-const SHIRT_YMIN_PIN_M = 1.0283;
-const SHIRT_YMIN_TOLERANCE_M = 0.002;
 /** Pants must still reach the ankle/boot. */
 const PANTS_YMIN_MAX_M = 0.12;
 
@@ -252,12 +256,13 @@ describe("the street pants are MakeClothes, not a cover shell", () => {
     },
   );
 
-  it("(2) COUNTERWEIGHT: shirt ymin stays within 2 mm of the known-good 1.0283 m (do not push the hem)", () => {
+  it("(2) COUNTERWEIGHT: shirt hem meets the jeans waistband (gapped 0, min +5.0 mm); pin superseded", async () => {
     expect(row.shirtName, "street GLB must carry an upper garment").toMatch(/t_shirt|shirt/i);
-    expect(
-      Math.abs(row.shirtYMin - SHIRT_YMIN_PIN_M),
-      `${row.actor} shirt ymin ${row.shirtYMin.toFixed(4)} m drifted more than ${SHIRT_YMIN_TOLERANCE_M * 1000} mm from pin ${SHIRT_YMIN_PIN_M}`,
-    ).toBeLessThanOrEqual(SHIRT_YMIN_TOLERANCE_M);
+    expect(row.pantsName, "shipped lower remains straight-leg jeans").toMatch(/straight_leg/i);
+    const fit = await measureWaistFit(STREET_GLB, STREET_ACTOR);
+    expect(fit.lowerName, "lower is mhclo jeans").toMatch(/straight_leg_jeans/i);
+    expect(fit.gapped, "no gapped waist buckets").toBe(0);
+    expect(Math.min(...fit.overlaps) * 1000, "min overlap is the #320 5 mm margin").toBeCloseTo(5.0, 1);
   });
 
   it("(3) COUNTERWEIGHT: pants ymin still reaches the ankle (<= 0.12 m)", () => {
