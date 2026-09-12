@@ -2559,3 +2559,5 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0070.png` - keep-evidence; keep; Front_lit capture frame 70 for mpfb-family-partner-adult.
 - `docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0089.png` - keep-evidence; keep; Front_lit capture frame 89 for mpfb-family-partner-adult.
 - `tools/openclinxr/evidence/blender/render_seated_clip_frames.py` - keep-current; keep; Blender render script for capturing seated clip frames.
+- `tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg` - keep-evidence; keep; Tightjeans texture resize candidate: JPEG q85 at 2048x2048, chosen over 1024/512 PNG on both byte saving (78.0%) and visual quality. Demonstrates the recommended recompression path for the 5.44 MB garment diffuse.
+- `tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py` - keep-current; keep; Blender EEVEE script that renders isolated texture candidates on a lit flat plane with a black-frame pixel-extrema guard. Produces comparable captures for the orchestrator's visual grade.

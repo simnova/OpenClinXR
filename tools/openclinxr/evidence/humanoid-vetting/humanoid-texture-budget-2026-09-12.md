@@ -162,6 +162,39 @@ Population proof the gate bites:
 - mpfb-peds-parent-aisha: max 5,441,511 / median 863,490 = 6.30x > 3.0x → **FAIL**
 - All 7 other multi-image bodies: max/median < 2.12x < 3.0x → PASS
 
+## Texture resize candidates: JPEG q85 at native resolution beats halving
+
+Four candidates were produced from the tightjeans texture (punkduck mhclo diffuse,
+5,441,503 bytes at 2048x2048 RGBA) and compared at native resolution on the same UV
+region. All four rendered through Blender 5.1.1 EEVEE onto a lit flat plane.
+
+| Candidate | Dimensions | Bytes | Saving vs original | Visual verdict |
+|---|---|---|---|---|
+| original PNG | 2048×2048 | 5,441,503 | — | baseline: twill weave readable, individual seam stitches resolved |
+| JPEG q85 | 2048×2048 | 1,196,954 | 4,244,557 B (78.0%) | **CHOSEN** — indistinguishable from baseline, weave and stitch dashes intact |
+| PNG | 1024×1024 | 1,353,594 | 4,087,909 B (75.1%) | rejected — weave grain gone, stitching softened to a continuous line |
+| PNG | 512×512 | 338,222 | 5,103,281 B (93.8%) | rejected — blurred, colour fringing along the seam |
+
+**Decision: JPEG q85 at 2048×2048.** It saves 78.0% per body against the original,
+and it is both smaller AND visually sharper than the 1024 PNG. Recompressing at full
+resolution beats halving the resolution on both bytes and detail.
+
+**Alpha channel is safe to drop.** The source PNG reports 48.07% non-opaque pixels,
+but that is unused UV background. The GLB material
+`mat_makeclothes_library_female_tight_jeans_pants` uses `alphaMode=OPAQUE`, so glTF
+ignores the alpha channel entirely. JPEG has no alpha — no functionality lost.
+
+**Per-body impact when applied (two bodies share this texture):**
+- mpfb-ob-patient-aisha: 9.57 MB → ~5.32 MB total texture (−4.24 MB, −44.3%)
+- mpfb-peds-parent-aisha: 9.59 MB → ~5.35 MB total texture (−4.24 MB, −44.2%)
+
+Both aisha bodies would drop below the non-aisha population ceiling. The 6.3x outlier
+ratio would fall to approximately 2.0x (tightjeans JPEG ~1.20 MB / median ~610 KB),
+and the EXCEPTION_MAP entries in the gate test would become stale (self-retiring).
+
+Re-baking the bodies with the chosen JPEG is a separate card. This card measures,
+decides, and records only.
+
 ## Factory step
 
 `clothing_consume` — the mhclo garment pipeline delivered a 5.44 MB diffuse that
