@@ -18,6 +18,7 @@ import {
 import {
   type AuthIdentity,
   canReadStationRun,
+  DEFAULT_DEV_AUTH_IDENTITY,
 } from "@openclinxr/auth";
 import type {
   AssetGenerationCapabilityId,
@@ -77,6 +78,12 @@ import type {
   RuntimeReviewPacket,
   RuntimeTraceEvents,
 } from "./api-types.js";
+import {
+  appendAssembledExamFacultyDispositionCommand,
+  facultyDispositionConflictBody,
+  facultyDispositionStores,
+  readAssembledExamFacultyDisposition,
+} from "./routes/faculty-disposition-service/index.js";
 import { bindScenarioReviewDecisionToAuthoredIdentity, persistAuthoredScenarioReviewPromotion } from "./scenario-review-promotion.js";
 
 /** Route-level helpers shared by the per-domain route modules (composition-root migration). */
@@ -829,6 +836,26 @@ export function createAdminGraphqlRoot(
       await persistence.saveReviewPacket?.(stationRunId, packet);
       return packet;
     },
+    assembledExamFacultyDisposition: async ({ examRunId }) =>
+      readAssembledExamFacultyDisposition(facultyDispositionStores(persistence), String(examRunId)),
+    appendAssembledExamFacultyDisposition: async ({ input }) => {
+      const result = await appendAssembledExamFacultyDispositionCommand(
+        facultyDispositionStores(persistence),
+        String(input.examRunId),
+        input as unknown as Record<string, unknown>,
+        DEFAULT_DEV_AUTH_IDENTITY,
+      );
+      if (result.kind === "ok") {
+        return result.trail;
+      }
+      if (result.kind === "conflict") {
+        return facultyDispositionConflictBody(result.error, result.reason);
+      }
+      if (result.kind === "not_found") {
+        throw new Error("assembled_exam_review_packet_not_found");
+      }
+      throw new Error(`${result.error}:${result.reason}`);
+    },
   };
 }
 
@@ -852,7 +879,10 @@ export function isFacultyOnlyGraphqlOperation(operationName: string, query: stri
     return true;
   }
   // Fallback when clients omit operationName: detect mutation field names.
-  return /\bsaveFacultyScoreDraft\b/.test(query) || /\bsubmitScenarioReview\b/.test(query);
+  return /\bsaveFacultyScoreDraft\b/.test(query)
+    || /\bsubmitScenarioReview\b/.test(query)
+    || /\bappendAssembledExamFacultyDisposition\b/.test(query)
+    || /\bassembledExamFacultyDisposition\b/.test(query);
 }
 
 export function isMaterializationInputReviewDecision(value: unknown): value is ApiMaterializationInputReviewDecision {
@@ -953,6 +983,8 @@ export async function recordGraphqlOperationSpan(
 export const FACULTY_ONLY_GRAPHQL_OPERATIONS = new Set([
   "SaveFacultyScoreDraft",
   "SubmitScenarioReview",
+  "AssembledExamFacultyDisposition",
+  "AppendAssembledExamFacultyDisposition",
 ]);
 
 export function applyScenarioReviewDecision(
