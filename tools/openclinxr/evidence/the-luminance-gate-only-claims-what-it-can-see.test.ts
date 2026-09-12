@@ -90,6 +90,12 @@ describe("the luminance gate only claims what it can see", () => {
     const dark = s["primary_care_dyslipidemia_joint_pain_v1"]?.median;
     const bright = s["ward_delirium_med_rec_v1"]?.median;
     expect(typeof dark === "number", "primary_care missing from the sweep").toBe(true);
+    expect(
+      typeof dark === "number" && dark > 0,
+      "primary_care recorded median is 0 — sampling artifact, not a missing station; "
+        + "do not divide by zero. See tools/openclinxr/evidence/primary-care-zero-median-2026-09-12.md "
+        + "(same station median 23, sd 60.3)",
+    ).toBe(true);
     expect(bright, "ward_delirium missing from the sweep").toBeTruthy();
     expect(
       bright! / dark!,
