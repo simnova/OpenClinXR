@@ -4,13 +4,13 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 289,
     "ignore-local-cache": 2112,
-    "keep-current": 160,
     "keep-compatibility-input": 24,
+    "keep-current": 161,
+    "keep-evidence": 290,
     "keep-template": 6,
-    "entries": 2591,
-    "total": 2591
+    "entries": 2593,
+    "total": 2593
   },
   "entries": [
     {
@@ -18030,23 +18030,139 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Tracked 2026-09-12 four-edge recapture of shipped station-environment frames plus labelled contact sheet; skinned standing-blob L/R/T/B vs left-only CLEAR cells; not a clinical grade."
+    },
+    {
+      "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tightjeans texture resize candidate: JPEG q85 at 2048x2048, chosen over 1024/512 PNG on both byte saving (78.0%) and visual quality."
+    },
+    {
+      "path": "tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Blender EEVEE script that renders isolated texture candidates on a lit flat plane with a black-frame pixel-extrema guard."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha.motion-bind.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "CC0 seated retarget output: skinned mesh + armature + openclinxr_retarget_seated_talking_cc0 bound onto mpfb-ob-patient-aisha via retarget_bvh."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha.motion-bind-report.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Provenance report for mpfb-ob-patient-aisha seated clip retarget."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-family-partner-adult.motion-bind.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "CC0 seated retarget output: skinned mesh + armature + openclinxr_retarget_seated_talking_cc0 bound onto mpfb-family-partner-adult via retarget_bvh."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-family-partner-adult.motion-bind-report.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Provenance report for mpfb-family-partner-adult seated clip retarget."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-capture-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Front_lit capture at multiple frames for CC0 seated retarget grading."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0000.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Front_lit capture at multiple frames for CC0 seated retarget grading."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0020.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Front_lit capture at multiple frames for CC0 seated retarget grading."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0045.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Front_lit capture at multiple frames for CC0 seated retarget grading."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0070.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Front_lit capture at multiple frames for CC0 seated retarget grading."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0089.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Front_lit capture at multiple frames for CC0 seated retarget grading."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-capture-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Front_lit capture at multiple frames for CC0 seated retarget grading."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0000.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Front_lit capture at multiple frames for CC0 seated retarget grading."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0020.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Front_lit capture at multiple frames for CC0 seated retarget grading."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0045.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Front_lit capture at multiple frames for CC0 seated retarget grading."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0070.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Front_lit capture at multiple frames for CC0 seated retarget grading."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0089.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Front_lit capture at multiple frames for CC0 seated retarget grading."
+    },
+    {
+      "path": "tools/openclinxr/evidence/blender/render_seated_clip_frames.py",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Blender render script for capturing seated clip frames at multiple timepoints."
     }
-,
-    {"path":"apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha.motion-bind.glb","authority":"keep-current","tracked":true,"action":"keep","rationale":"CC0 seated retarget output: skinned mesh + armature + openclinxr_retarget_seated_talking_cc0 bound onto mpfb-ob-patient-aisha via retarget_bvh."},
-    {"path":"apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha.motion-bind-report.json","authority":"keep-current","tracked":true,"action":"keep","rationale":"Provenance report for mpfb-ob-patient-aisha seated clip retarget."},
-    {"path":"apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-family-partner-adult.motion-bind.glb","authority":"keep-current","tracked":true,"action":"keep","rationale":"CC0 seated retarget output: skinned mesh + armature + openclinxr_retarget_seated_talking_cc0 bound onto mpfb-family-partner-adult via retarget_bvh."},
-    {"path":"apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-family-partner-adult.motion-bind-report.json","authority":"keep-current","tracked":true,"action":"keep","rationale":"Provenance report for mpfb-family-partner-adult seated clip retarget."},
-    {"path":"docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-capture-manifest.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Front_lit capture at multiple frames for CC0 seated retarget grading."},
-    {"path":"docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0000.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Front_lit capture at multiple frames for CC0 seated retarget grading."},
-    {"path":"docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0020.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Front_lit capture at multiple frames for CC0 seated retarget grading."},
-    {"path":"docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0045.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Front_lit capture at multiple frames for CC0 seated retarget grading."},
-    {"path":"docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0070.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Front_lit capture at multiple frames for CC0 seated retarget grading."},
-    {"path":"docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_lit-frame0089.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Front_lit capture at multiple frames for CC0 seated retarget grading."},
-    {"path":"docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-capture-manifest.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Front_lit capture at multiple frames for CC0 seated retarget grading."},
-    {"path":"docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0000.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Front_lit capture at multiple frames for CC0 seated retarget grading."},
-    {"path":"docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0020.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Front_lit capture at multiple frames for CC0 seated retarget grading."},
-    {"path":"docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0045.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Front_lit capture at multiple frames for CC0 seated retarget grading."},
-    {"path":"docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0070.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Front_lit capture at multiple frames for CC0 seated retarget grading."},
-    {"path":"docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit-frame0089.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Front_lit capture at multiple frames for CC0 seated retarget grading."},
-    {"path":"tools/openclinxr/evidence/blender/render_seated_clip_frames.py","authority":"keep-current","tracked":true,"action":"keep","rationale":"Blender render script for capturing seated clip frames at multiple timepoints."}  ]
+  ]
 }
