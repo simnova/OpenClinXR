@@ -44,6 +44,7 @@
     "@openclinxr/shared-schemas"
   ],
   "tests": [
+    "src/attempt-manifest/exam-completion-seals-a-replayable-manifest.test.ts",
     "src/encounter-bundle-selection/pin-station-bundles.test.ts",
     "src/exam-assembly.test.ts",
     "src/exam-form-breaks.test.ts"
