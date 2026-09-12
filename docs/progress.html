@@ -28,6 +28,37 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-11T2315">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 14 &middot; 2026-09-11 23:15 EDT</p>
+          <h2>Twenty-three cards landed today, and one is held back by a test requirement I wrote wrong.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Landed since 20:35</h3>
+            <ul>
+              <li><strong>World affordances</strong> (<code>6b388f87</code>): a case can define what a learner may inspect, use, move, request or observe, each bound to that station's own bundle, actor and equipment. An action aimed at the wrong station's equipment, or taken after its moment has passed, is refused and the refusal itself is recorded, so faculty see what was attempted as well as what happened.</li>
+              <li><strong>Blueprint sampling plan</strong> (<code>902fb11b</code>): an exam form cannot be activated until its coverage holds across all eight constructs, and the record pins the exact blueprint and scenario revisions the decision was made against. A substitution from a stale source, or a review that predates a content change, is refused.</li>
+              <li><strong>Reasoning capture</strong> (<code>a8a9f999</code>): a learner's working hypothesis is recorded as an event that cannot be altered, carrying the observations it rests on. Revising it records the change rather than erasing the original, and the note captures a summary that cites those hypotheses, which the debrief chain built earlier today reads.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Held back, and why</h3>
+            <ul>
+              <li>The capture-diagnostics card is finished and its own tests pass: the station capture now attaches page-error, console and failed-request listeners and tells apart a page exception, a failed request and an unresponsive page, with a guard proving the test cannot pass silently. It is not on the site's main line yet because one requirement I wrote demands running every probe in the evidence folder, which never finishes on this machine. The requirement is wrong, not the work; it is being narrowed to the files the card touches.</li>
+              <li>One correction is owed on the reasoning-capture tests. They reach into a neighbouring package's build output because my instruction claimed a function was published there, and it is not. No check can see that, which is why it passed. It will be replaced by a test on the reading side.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The machine pushed back</h3>
+            <ul>
+              <li>Two workers were stopped by the system running out of memory. One had already saved its work, so only its verification was lost; the other had changed nothing. Work now runs one heavy job at a time rather than three.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="status-copy">The board's queue is empty apart from two items deliberately parked: a lighting measurement whose earlier attempt is recorded as failed, and a stale bake-off report that blocks nothing.</p>
+      </section>
+
       <section class="band" id="entry-2026-09-11T2035">
         <div class="section-heading">
           <p class="eyebrow">Entry 13 &middot; 2026-09-11 20:35 EDT</p>
