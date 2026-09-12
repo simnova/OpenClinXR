@@ -4819,6 +4819,13 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
+      "path": "tools/openclinxr/evidence/humanoid-vetting/humanoid-texture-budget-2026-09-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
       "path": "tools/openclinxr/evidence/humanoid-vetting/nurse-trouser-shell-2026-09-12.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
