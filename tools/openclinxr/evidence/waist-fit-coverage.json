@@ -23,7 +23,7 @@
     {
       "id": "mpfb-clinical-nurse-adult",
       "source": "cast",
-      "overlapMm": 2.6,
+      "overlapMm": 5,
       "bucketCount": 36,
       "upperName": "mat_makeclothes_library_scrub_shirt",
       "lowerName": "mat_makeclothes_library_scrub_pants",
@@ -32,7 +32,7 @@
     {
       "id": "mpfb-clinical-physician-adult",
       "source": "cast",
-      "overlapMm": 2.6,
+      "overlapMm": 2.7,
       "bucketCount": 36,
       "upperName": "mat_makeclothes_library_scrub_shirt",
       "lowerName": "mat_makeclothes_library_scrub_pants",
@@ -42,7 +42,7 @@
       "id": "mpfb-family-partner-adult",
       "source": "cast",
       "overlapMm": 5,
-      "bucketCount": 35,
+      "bucketCount": 32,
       "upperName": "mat_makeclothes_library_toigo_t_shirt",
       "lowerName": "mat_makeclothes_library_cargo_pants.001",
       "gapped": 0
@@ -60,7 +60,7 @@
       "id": "mpfb-ob-patient-aisha",
       "source": "cast",
       "overlapMm": 5,
-      "bucketCount": 36,
+      "bucketCount": 25,
       "upperName": "mat_makeclothes_library_toigo_t_shirt",
       "lowerName": "mat_makeclothes_library_cargo_pants.001",
       "gapped": 0
@@ -68,7 +68,7 @@
     {
       "id": "mpfb-peds-nurse-kevin",
       "source": "cast",
-      "overlapMm": 2.6,
+      "overlapMm": 2.8,
       "bucketCount": 36,
       "upperName": "mat_makeclothes_library_scrub_shirt",
       "lowerName": "mat_makeclothes_library_scrub_pants",
@@ -78,7 +78,7 @@
       "id": "mpfb-peds-parent-aisha.motion-bind",
       "source": "cast",
       "overlapMm": 5,
-      "bucketCount": 36,
+      "bucketCount": 32,
       "upperName": "mat_makeclothes_library_toigo_t_shirt",
       "lowerName": "mat_makeclothes_library_cargo_pants.001",
       "gapped": 0
@@ -95,11 +95,11 @@
     {
       "id": "mpfb-street-adult-male",
       "source": "cast",
-      "overlapMm": 5,
-      "bucketCount": 34,
+      "overlapMm": -16.8,
+      "bucketCount": 31,
       "upperName": "mat_makeclothes_library_toigo_t_shirt",
-      "lowerName": "mat_makeclothes_library_cargo_pants.001",
-      "gapped": 0
+      "lowerName": "mat_makeclothes_library_straight_leg_jeans_pants",
+      "gapped": 4
     }
   ]
 }
