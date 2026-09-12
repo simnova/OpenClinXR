@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 208,
     "archive-candidate": 92,
-    "evidence": 122,
+    "evidence": 124,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -4833,14 +4833,14 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": "tools/openclinxr/evidence/humanoid-vetting/street-waistband-2026-09-12.md",
+      "path": "tools/openclinxr/evidence/humanoid-vetting/street-waist-meet-at-bake-time-2026-09-12.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": "tools/openclinxr/evidence/humanoid-vetting/street-waist-meet-at-bake-time-2026-09-12.md",
+      "path": "tools/openclinxr/evidence/humanoid-vetting/street-waistband-2026-09-12.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
@@ -4862,6 +4862,13 @@
     },
     {
       "path": "tools/openclinxr/evidence/primary-care-zero-median-2026-09-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-05/terminal-turn-foot-lock-2026-09-12.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",

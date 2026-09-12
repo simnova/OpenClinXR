@@ -11,6 +11,12 @@ import {
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
 import { AnimationMixer, Box3, type Object3D, PropertyBinding, Vector3 as ThreeVector3 } from "three";
 import {
+  applySettlingStepTurnPose,
+  createSettlingStepTurnState,
+  restoreSettlingRestToePose,
+  type SettlingStepTurnState,
+} from "./settling-step-turn-mod.js";
+import {
   applyStanceLockedGroundAdvance,
   createStanceLockState,
   type StanceLockState,
@@ -50,6 +56,8 @@ export type CaseOwnedBedsideApproach = {
   target: Vector3;
   /** False until a walking frame whose pose the clip has actually written; see the note on the lock. */
   lockArmed: boolean;
+  /** Alternating plant/swing during the terminal turn. Slot XZ is not written here. */
+  turnStep: SettlingStepTurnState;
   /** What the floor-band plant did to the physician before the walk, recorded for evidence. */
   floorBandPlant: ReturnType<typeof resolveFloorBandPlantLocalY>;
 };
@@ -276,6 +284,7 @@ export function createCaseOwnedBedsideApproach(input: {
     start: input.intent.start,
     target,
     lockArmed: false,
+    turnStep: createSettlingStepTurnState(),
     floorBandPlant,
   };
 }
@@ -422,6 +431,29 @@ export function sampleLocomotionStanceTrack(
  */
 export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | null): void {
   if (approach === null) return;
+  if (approach.execution.phase === "settling") {
+    approach.turnStep = applySettlingStepTurnPose({
+      headingRadians: approach.actorSlot.rotation.y,
+      targetHeadingRadians: approach.intent.target.headingRadians,
+      actorSlot: approach.actorSlot,
+      leftToe: approach.leftToe,
+      rightToe: approach.rightToe,
+      contactBandMeters: approach.contactBandMeters,
+      initialPlant: approach.lock.stanceFoot,
+      state: approach.turnStep,
+    });
+    return;
+  }
+  if (approach.turnStep.restLocal !== null) {
+    approach.turnStep = restoreSettlingRestToePose({
+      leftToe: approach.leftToe,
+      rightToe: approach.rightToe,
+      state: approach.turnStep,
+      contactBandMeters: approach.contactBandMeters,
+    });
+    approach.actorSlot.updateMatrixWorld(true);
+    if (approach.turnStep.closing) return;
+  }
   if (approach.execution.drive.locomotion <= 0 || !approach.lockArmed) return;
   approach.lock = applyStanceLockedGroundAdvance({
     actorSlot: approach.actorSlot,

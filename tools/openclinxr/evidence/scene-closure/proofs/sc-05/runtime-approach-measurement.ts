@@ -446,6 +446,14 @@ export function runApproach(input: {
       supportAccepted: override?.supportAccepted ?? true,
     });
     if (frame === null) throw new Error("advanceCaseOwnedBedsideApproach returned null for a live approach");
+    // Production `playLocomotionClip` settles on the clip rest frame when locomotion is zero. The
+    // first settling sample would otherwise still carry the last walk pose because this instrument
+    // advances clip time from the previous frame's drive.
+    if (frame.phase === "settling" || frame.phase === "arrived") {
+      toeL.position.set(input.decoded.restLeft.x, input.decoded.restLeft.y, input.decoded.restLeft.z);
+      toeR.position.set(input.decoded.restRight.x, input.decoded.restRight.y, input.decoded.restRight.z);
+      slot.updateMatrixWorld(true);
+    }
     // THE LOCK RUNS AFTER THE POSE, in the order `main.ts` runs it: the drive is produced before
     // `updateGeneratedHumanoidAnimations` consumes it, so a lock folded into the drive step reads
     // the previous frame's pose. Measured in a browser that way: 4.09996 m of total slide.

@@ -801,12 +801,14 @@ describe("the SC-05 evidence verifier accepts a complete control and rejects eve
     // measurement is of a standing physician whose floor contact `signed-floor-contact` and
     // `floor-penetration` do grade. Asserting the exact set rather than filtering it is deliberate.
     expect(grades.stop.failedMetrics.slice().sort()).toEqual(["support-contact", "support-penetration"]);
-    // The terminal turn FAILS, and it is asserted as failing rather than excluded. There is no
-    // turn-in-place take in the shipped clip set, so a planted toe drags while the body rotates.
-    expect(grades.settleTurnFootSlide.outcome).toBe("violated");
-    // And the whole-run grade carries that failure, so the interval split cannot be read as a way
-    // of hiding it.
-    expect(grades.wholeRun.failedMetrics).toContain("foot-slide");
+    // DIAGNOSIS (immutable). At a02f3b1b the terminal turn FAILED: toe1-1.L total 0.17512 m,
+    // toe1-1.R total 0.21127 m, right worst frame 0.03615 m. There was no turn-in-place take, so a
+    // planted toe dragged while the body rotated. Whole-run foot-slide failed from the turn alone.
+    //
+    // ## FIXED (tsk_acc431bda6914e71): the settle interval now releases and replants instead of
+    // dragging a planted foot. The clause still names the original defect; the outcome flipped.
+    expect(grades.settleTurnFootSlide.outcome).toBe("satisfied");
+    expect(grades.wholeRun.failedMetrics).not.toContain("foot-slide");
     // The acceptance-contract limits, on the shipped clip's own run.
     expect(grades.arrivalErrorMeters).toBeLessThanOrEqual(0.05);
     expect(grades.settledYawErrorDegrees).toBeLessThanOrEqual(10);
