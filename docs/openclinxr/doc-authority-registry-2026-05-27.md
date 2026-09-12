@@ -391,6 +391,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/evidence/humanoid-vetting/family-partner-library-lower-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
+- `tools/openclinxr/evidence/humanoid-vetting/remaining-cover-shell-lowers-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
 <<<<<<< HEAD
 - `tools/openclinxr/evidence/humanoid-vetting/lower-garment-cloth-offset-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
 =======
