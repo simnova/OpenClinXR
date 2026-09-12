@@ -71,6 +71,25 @@
  * pins in docs/openclinxr/humanoid-vetting-2026-09-10.json and
  * docs/openclinxr/humanoid-postopt-ladder-2026-09-10.json, which this
  * card's write-roots omit. it.fails stays on the 74b62af6 bytes.
+ *
+ * ## FIXED (#0)
+ *
+ * Promoted the attempt-1 full-chain bake (job adult-nurse-76622) and moved
+ * this body's identity pins with it. Live GLB 8,833,188 B / 39,017 tris ->
+ * 12,444,092 B / 92,118 tris. Shirt texture restored from 74b62af6 after
+ * the materialize PNG read error; licence notice written last.
+ * Isolated-grade captures copied from adult-nurse-capture/2026-09-12T05-59-51Z.
+ *
+ * | site | hiddenSubject before | hiddenSubject after |
+ * |---|---:|---:|
+ * | neckline-square-L | 722 | 0 |
+ * | neckline-square-R | 154 | 0 |
+ * | sleeve-hem-rectangle-L | 636 | 0 |
+ * | sleeve-hem-rectangle-R | 955 | 0 |
+ * | control C | — | 0 |
+ * | torso visibleSkinSubject | 0 | 0 |
+ *
+ * All four sites 0, control 0, torso 0. it.fails flipped to it.
  */
 
 import { execFileSync } from "node:child_process";
@@ -132,7 +151,7 @@ describe("the adult nurse sleeves and collar show no skin notch", () => {
     ).toBeGreaterThan(0);
   }, 180_000);
 
-  it.fails("required-behavior", async () => {
+  it("required-behavior", async () => {
     expect(existsSync(GLB), `${GLB} exists on disk`).toBe(true);
     expect(existsSync(LIT) && existsSync(STRUCT), "tracked front captures exist").toBe(true);
 

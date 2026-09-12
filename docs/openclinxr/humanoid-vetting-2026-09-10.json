@@ -12,36 +12,40 @@
     "horizontalExtent": 1.0744624137878418
    },
    "body": "mpfb-clinical-nurse-adult.glb",
-   "bytes": 8833188,
+   "bytes": 12444092,
    "capture": "manual studio route (window global): the --glb CLI errors on every body with ReferenceError: browserPageWindow is not defined (a9e2510f renamed window to the type-only alias browserPageWindow inside the page.waitForFunction closure; browser-dom.d.ts declares it as a type, never defines it in the page). Tool file UNCHANGED on this card. Images captured through the same studio route the tool stages.",
    "captures": {
     "front_lit": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-front_lit.png",
-     "bytes": 836254,
-     "sha256": "84525eefbe23493941a4da466a5259b030bbc5cf31e1f7b495e54fb4ff1dccbe",
+     "bytes": 825960,
+     "sha256": "6b6c03d7ea0c847a64688e9f3055ee8392e68e5bb173ec2d553e294fbc588400",
      "pngWidth": 4096,
-     "pngHeight": 4096
+     "pngHeight": 4096,
+     "hb07Note": "HB-07 nurse hole-guard promote: sha256 84525eefbe23493941a4da466a5259b030bbc5cf31e1f7b495e54fb4ff1dccbe -> 6b6c03d7ea0c847a64688e9f3055ee8392e68e5bb173ec2d553e294fbc588400, bytes 836254 -> 825960."
     },
     "front_structure": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-front_structure.png",
-     "bytes": 2959097,
-     "sha256": "c43a05588ba3c1f567df5deb7b4d8861f3e414bb588b5522a5b42c8d7082842e",
+     "bytes": 3052006,
+     "sha256": "300b9b27ec3fa4a4815d98e1d56d29a800bb682c8d6d18ffc3dc14a96cd2a9f3",
      "pngWidth": 4096,
-     "pngHeight": 4096
+     "pngHeight": 4096,
+     "hb07Note": "HB-07 nurse hole-guard promote: sha256 c43a05588ba3c1f567df5deb7b4d8861f3e414bb588b5522a5b42c8d7082842e -> 300b9b27ec3fa4a4815d98e1d56d29a800bb682c8d6d18ffc3dc14a96cd2a9f3, bytes 2959097 -> 3052006."
     },
     "three_quarter_lit": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-three_quarter_lit.png",
-     "bytes": 876142,
-     "sha256": "25818f7aef42ced2e96ac4d336404fd8366ad872ef29c0442efa380c0c4ee2f9",
+     "bytes": 873714,
+     "sha256": "f9ef4c983b876f894fa73e15af10b392bd20fa2717f470bdbb8a7dbb6fe5a99b",
      "pngWidth": 4096,
-     "pngHeight": 4096
+     "pngHeight": 4096,
+     "hb07Note": "HB-07 nurse hole-guard promote: sha256 25818f7aef42ced2e96ac4d336404fd8366ad872ef29c0442efa380c0c4ee2f9 -> f9ef4c983b876f894fa73e15af10b392bd20fa2717f470bdbb8a7dbb6fe5a99b, bytes 876142 -> 873714."
     },
     "three_quarter_structure": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-three_quarter_structure.png",
-     "bytes": 2858902,
-     "sha256": "319916afc7df2a3390e309b4e120e86cce8a7c344f374ade0d3ccdc2330d7820",
+     "bytes": 2957459,
+     "sha256": "1887a52a33c5cd10dc025226c623068dd012d19b99867a0287b2dd9b1dc79c3e",
      "pngWidth": 4096,
-     "pngHeight": 4096
+     "pngHeight": 4096,
+     "hb07Note": "HB-07 nurse hole-guard promote: sha256 319916afc7df2a3390e309b4e120e86cce8a7c344f374ade0d3ccdc2330d7820 -> 1887a52a33c5cd10dc025226c623068dd012d19b99867a0287b2dd9b1dc79c3e, bytes 2858902 -> 2957459."
     }
    },
    "claimScope": "browser three.js render with independent geometry self-check; not visual realism, readiness, or clinical claims",
@@ -273,13 +277,15 @@
    ],
    "nodeCount": 148,
    "refusalRule": "baseColorFactor != [1,1,1] on a material WITH baseColorTexture and no recorded reason = refusal (HB-00). Untextured flat colours are the albedo itself, not a tint.",
-   "sha256": "b744d3d5295e2d481c27851f6e58dc37b88963ee5b073a61a58502d0a23d5c3",
+   "sha256": "975e48dc6ee3b5581132ce745e81fea5f4f3243ab101ff5a9adce4058435061d",
    "sidecar": {
     "match": true,
-    "outputBytes": 8833188,
-    "outputSha256": "b744d3d5295e2d481c27851f6e58dc37b88963ee5b073a61a58502d0a23d5c3"
+    "outputBytes": 12444092,
+    "outputSha256": "975e48dc6ee3b5581132ce745e81fea5f4f3243ab101ff5a9adce4058435061d",
+    "hb07Note": "HB-07 nurse hole-guard promote: outputSha256 b744d3d5295e2d4840ceae586924727725667cb0260a5b1f3ee68dd2e72e136f -> 975e48dc6ee3b5581132ce745e81fea5f4f3243ab101ff5a9adce4058435061d, outputBytes 8833188 -> 12444092."
    },
-   "triangles": 39017
+   "triangles": 92118,
+   "hb07Note": "HB-07 nurse hole-guard promote (tsk_6fb5af8192b8db91): GLB sha b744d3d5295e2d4840ceae586924727725667cb0260a5b1f3ee68dd2e72e136f -> 975e48dc6ee3b5581132ce745e81fea5f4f3243ab101ff5a9adce4058435061d, bytes 8833188 -> 12444092, triangles 39017 -> 92118; front_lit sha 84525eefbe23493941a4da466a5259b030bbc5cf31e1f7b495e54fb4ff1dccbe -> 6b6c03d7ea0c847a64688e9f3055ee8392e68e5bb173ec2d553e294fbc588400."
   },
   {
    "aabbInPage": {
