@@ -44,6 +44,33 @@
  *
  * NOT TESTED: whether the nurse shares the child's cause (axis vs camera
  * hole); the other eight bodies; Blender-space millimetre match.
+ *
+ * ## REBAKE (attempt 1, 2026-09-12)
+ *
+ * Full chain materialize -> bake-humanoid-albedo.ts (0 baked, skin already
+ * in the materialize export) -> separate_chest_anchor_joints.mjs.
+ * Bake log: HOLE_GUARD_UNHIDE camera-hole faces 2;
+ * HOLE_GUARD_SCREENSPACE_UNHIDE faces 212;
+ * HOLE_GUARD_SCREENSPACE_UNHIDE_FINAL faces 313 polygons 175.
+ * Fresh isolated-grade capture of that tree, same instrument,
+ * classifySubject:
+ *
+ * | site | see-through | hiddenSubject before | hiddenSubject after |
+ * |---|---:|---:|---:|
+ * | neckline-square-L | 0 | 722 | 0 |
+ * | neckline-square-R | 0 | 154 | 0 |
+ * | sleeve-hem-rectangle-L | 0 | 636 | 0 |
+ * | sleeve-hem-rectangle-R | 0 | 955 | 0 |
+ * | control C | 0 | — | 0 |
+ * | torso visibleSkinSubject | 0 | 0 | 0 |
+ *
+ * Native 1:1 crops: sleeve hems clean; collar V filled with skin (the
+ * square teal bites gone). A T-shaped hide-mask remnant remains at the
+ * throat centre, outside the four HB-06 boxes.
+ * Live GLB NOT promoted: landing it moves bytes/captures off the HB-04
+ * pins in docs/openclinxr/humanoid-vetting-2026-09-10.json and
+ * docs/openclinxr/humanoid-postopt-ladder-2026-09-10.json, which this
+ * card's write-roots omit. it.fails stays on the 74b62af6 bytes.
  */
 
 import { execFileSync } from "node:child_process";
