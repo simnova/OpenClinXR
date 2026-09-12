@@ -42,6 +42,8 @@ export const SITES: Record<string, readonly [number, number, number, number]> = 
 export const CONTROL_C: readonly [number, number, number, number] = [1980, 1180, 2120, 1300];
 /** Chest box from the attempt-3 probe — poke-through counterweight. */
 export const TORSO: readonly [number, number, number, number] = [1980, 1680, 2120, 1880];
+/** Adult-nurse waistband box (collar-test header; garment-fit site, not hide-mask). */
+export const NURSE_WAISTBAND: readonly [number, number, number, number] = [1880, 1980, 2220, 2180];
 
 export type SiteCount = {
   subject: number;
@@ -97,7 +99,7 @@ function multiply(a: number[], b: number[]): number[] {
   return out;
 }
 
-async function loadScene(glbPath: string): Promise<{ camera: PerspectiveCamera; model: Group }> {
+export async function loadScene(glbPath: string): Promise<{ camera: PerspectiveCamera; model: Group }> {
   const doc = await new NodeIO().read(glbPath);
   const root = doc.getRoot();
   const nodes = root.listNodes() as unknown as GltfNode[];
@@ -226,6 +228,57 @@ function sampleBox(
     }
   }
   return out;
+}
+
+/** Slot-safe first-hit class for the adult-nurse waistband (scrub_pants is pants, not shirt). */
+export function classifyNurseWaistHit(name: string, matName: string, alphaMode: string): string {
+  const n = `${name} ${matName}`.toLowerCase();
+  if (/hidden/.test(n) || (alphaMode === "MASK" && /hidden|openclinxr_hidden/.test(n))) return "hidden";
+  if (/pants|trouser|cargo/.test(n)) return "pants";
+  if (/scrub_shirt|t[_-]?shirt|lab_coat/.test(n)) return "shirt";
+  if (/body|skin/.test(n)) return "skin";
+  return "other";
+}
+
+export async function countFirstHitsInBox(opts: {
+  glbPath: string;
+  litPath: string;
+  structPath: string;
+  box: readonly [number, number, number, number];
+  classifyHit: (name: string, matName: string, alphaMode: string) => string;
+}): Promise<{ subject: number; counts: Record<string, number>; skinRowCount: number }> {
+  const scene = await loadScene(opts.glbPath);
+  const lit = decodePng(new Uint8Array(readFileSync(opts.litPath)));
+  const struct = decodePng(new Uint8Array(readFileSync(opts.structPath)));
+  if (lit === null || struct === null) throw new Error("PNG decode failed");
+  const counts: Record<string, number> = {};
+  let subject = 0;
+  const skinRows = new Set<number>();
+  const raycaster = new Raycaster();
+  raycaster.far = 100;
+  raycaster.near = 0.01;
+  const ndc = new Vector2();
+  const box = opts.box;
+  for (let y = box[1]; y < box[3]; y++) {
+    for (let x = box[0]; x < box[2]; x++) {
+      const i = y * lit.w + x;
+      if (struct.lum[i]! <= 40) continue;
+      subject++;
+      ndc.set(((x + 0.5) / lit.w) * 2 - 1, -((y + 0.5) / lit.h) * 2 + 1);
+      raycaster.setFromCamera(ndc, scene.camera);
+      const hits = raycaster.intersectObject(scene.model, true);
+      if (hits.length === 0) continue;
+      const mesh = hits[0]!.object as Mesh;
+      const cls = opts.classifyHit(
+        mesh.name,
+        String(mesh.userData.matName ?? ""),
+        String(mesh.userData.alphaMode ?? "OPAQUE"),
+      );
+      counts[cls] = (counts[cls] ?? 0) + 1;
+      if (cls === "skin") skinRows.add(y);
+    }
+  }
+  return { subject, counts, skinRowCount: skinRows.size };
 }
 
 export async function countSeeThrough(opts: {
