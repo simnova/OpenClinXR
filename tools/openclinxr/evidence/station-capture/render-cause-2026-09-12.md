@@ -48,3 +48,24 @@ notEvidenceFor: the fix for that class; the other fourteen cases; wait budgets; 
 
 CLAIM: one live capture of ed_chest_pain_priority_v2 classified as wait-predicate reference error (browserPageWindow types-only alias) (wait=none).
 NOT TESTED: the fix; the other fourteen cases.
+
+## MEASURED AFTER THE FIX — 2026-09-12 (orchestrator, foreground run)
+
+- command: `pnpm exec tsx tools/openclinxr/evidence/ui-xr-environment-room-capture.ts --scenario ed_chest_pain_priority_v2`
+- tree: this branch at db5f2bbe (wait predicates on `globalThis`)
+- startedAt: 2026-09-12T04:08:44Z
+- finishedAt: 2026-09-12T04:11:46Z (3 m 02 s)
+- outcome: timed_out_at_budget
+- thrown: `station shell wait timed out: page.waitForFunction: Timeout 180000ms exceeded.`
+- pageDiagnostics classification: page exception
+- pageErrors: `Module "node:crypto" has been externalized for browser compatibility. Cannot access "node:crypto.createHash" in client code.`
+- console: (none)
+- failedRequests: (none)
+
+The ReferenceError is gone: the run reaches `goto` and then the page's own exception. The 180-second
+timeout is now DIAGNOSED rather than bare — the shell is never published because the page throws on
+`node:crypto.createHash` before it can publish.
+
+CLAIM: on this tree, one capture of ed_chest_pain_priority_v2 fails as a page exception naming
+`node:crypto.createHash`, and the wait then burns its full 180 s budget.
+NOT TESTED: the other fourteen cases; whether removing that import lets the shell publish; the rollup.
