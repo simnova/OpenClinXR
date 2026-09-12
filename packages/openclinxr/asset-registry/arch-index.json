@@ -70,6 +70,7 @@
     "src/object-store.test.ts",
     "src/runtime-asset-review.test.ts",
     "src/runtime-bundles.test.ts",
+    "src/sha256-hex.test.ts",
     "src/the-approach-path-stops-at-the-target.test.ts",
     "src/the-bedside-clearance-has-controls.test.ts",
     "src/the-bedside-heading-faces-the-patient.test.ts",

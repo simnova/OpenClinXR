@@ -10,3 +10,4 @@ export {
   stationIdForSceneClosureScenario,
   verifyCommittedScenePlanAgainstDisk,
 } from "./encounter-bundle-admission-mod.js";
+export { sha256Hex } from "./sha256-hex.js";
