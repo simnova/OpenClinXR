@@ -1,3 +1,4 @@
+import { inspectClosureEvidence, type ClosureInspection, type RetainedObject } from "./closure-inspection.js";
 import { createHash } from "node:crypto";
 import { lstatSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
@@ -142,6 +143,7 @@ export function resolveArtifactPath(
 
 export type VerifyInput = {
   report: unknown;
+  inspection?: ClosureInspection;
   suppliedScopes: readonly string[];
   registry: EvidenceRegistry | Error;
   registrySha256: string | Error;
@@ -290,6 +292,7 @@ export function verifyReport(input: VerifyInput): VerifyResult {
   // Artifacts: resolve every one through the registry and rehash its real bytes.
   const artifacts = Array.isArray(report.artifacts) ? report.artifacts : [];
   const artifactIds = new Set<string>();
+  const retainedObjects = new Map<string, RetainedObject>();
   if (artifacts.length === 0) fail("artifacts is empty");
   for (const artifact of artifacts) {
     if (!isRecord(artifact)) {
@@ -319,6 +322,7 @@ export function verifyReport(input: VerifyInput): VerifyResult {
       fail(`artifact ${artifactId}: byteCount ${String(artifact["byteCount"])} but ${bytes.byteLength} bytes on disk`);
     }
     const digest = sha256Hex(bytes);
+    retainedObjects.set(artifactId, { bytes, absolutePath: resolved, sha256: digest, runId: String(artifact["runId"]), mediaType: String(artifact["mediaType"]) });
     if (digest !== artifact["sha256"]) {
       fail(`artifact ${artifactId}: sha256 mismatch (report ${String(artifact["sha256"])}, disk ${digest})`);
     }
@@ -392,5 +396,6 @@ export function verifyReport(input: VerifyInput): VerifyResult {
 
   if (!isRecord(report.limits)) fail("missing limits section");
 
+  for (const problem of inspectClosureEvidence(input.report, retainedObjects, SC09_FROZEN_SCOPES, input.inspection)) fail(problem);
   return problems.length === 0 ? { ok: true } : { ok: false, problems };
 }

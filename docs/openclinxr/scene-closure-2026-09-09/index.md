@@ -26,6 +26,7 @@ demonstration and SC-09's independent acceptance. **The parent is NOT closed.** 
 worn-headset readiness are unproved. Twenty-eight open items are declared across the landed reports
 rather than hidden.
 
+- [Source/recording hardening and owner preflight (2026-09-12)](./closure-hardening-2026-09-12.md) — supplemental SC-07–09 context; frozen contracts unchanged; actual encounter/media acceptance still required.
 - [Board IDs and supersession map](./board-manifest.md)
 - [Acceptance contract](./acceptance-v2.md)
 - [Worker contracts and exact gates](./tasks-v2.md)

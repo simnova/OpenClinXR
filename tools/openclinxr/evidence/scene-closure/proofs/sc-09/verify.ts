@@ -1,3 +1,4 @@
+import { pinnedSourceReader, decodeRetainedVideo } from "./closure-inspection.js";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import {
@@ -122,6 +123,7 @@ function main(): void {
 
   const result = verifyReport({
     report,
+    inspection: { sourceReader: pinnedSourceReader(process.cwd()), decodeVideo: decodeRetainedVideo },
     suppliedScopes: parsed.scopes,
     registry: loadRegistry(),
     registrySha256: registryDigest(),

@@ -1,3 +1,4 @@
+import { unitControl } from "./unit-fixture.js";
 import { describe, expect, it } from "vitest";
 import { SCENE_CLOSURE_EVIDENCE_SCHEMA_VERSION } from "./report-schema.js";
 import { parseArgs } from "./verify.js";
@@ -58,7 +59,7 @@ const CONTRACT_DOCUMENTS = new Map<string, string>([
 ]);
 
 function goodReport(): Record<string, unknown> {
-  return {
+  const report: Record<string, unknown> = {
     schemaVersion: SCENE_CLOSURE_EVIDENCE_SCHEMA_VERSION,
     cardKey: "SC-08",
     contract: {
@@ -177,9 +178,32 @@ function goodReport(): Record<string, unknown> {
     },
     evidenceRegistrySha256: REGISTRY_SHA,
   };
+  const unit = unitControl();
+  const implementation = report["implementation"] as Record<string, unknown>;
+  report["implementation"] = {
+    ...implementation,
+    ...(unit.report["implementation"] as Record<string, unknown>),
+  };
+  report["recordingBinding"] = unit.report["recordingBinding"];
+  report["reviews"] = unit.report["reviews"];
+  const artifacts = report["artifacts"] as Array<Record<string, unknown>>;
+  for (const [artifactId, object] of unit.objects)
+    artifacts.push({
+      artifactId,
+      storeAlias: "sc-evidence",
+      objectKey: "UNIT/" + artifactId,
+      byteCount: object.bytes.length,
+      sha256: object.sha256,
+      mediaType: object.mediaType,
+      createdAtIso: "2026-09-09T18:00:00.000Z",
+      runId: object.runId,
+    });
+  return report;
 }
 
+const UNIT_OBJECTS = Object.fromEntries([...unitControl().objects].map(([id, object]) => [`/store/UNIT/${id}`, object.bytes]));
 const OBJECTS = {
+  ...UNIT_OBJECTS,
   "/store/sc-08/observations.jsonl": ARTIFACT_BYTES,
   "/store/sc-08/baseline.txt": BASELINE_BYTES,
   "/store/sc-08/fixed.txt": FIXED_BYTES,
@@ -188,6 +212,7 @@ const OBJECTS = {
 function verify(report: Record<string, unknown>, objects: Record<string, Buffer> = OBJECTS, links: Record<string, string> = {}) {
   return verifyReport({
     report,
+    inspection: unitControl().inspection,
     suppliedScopes: [...SC08_FROZEN_SCOPES],
     registry: REGISTRY,
     registrySha256: REGISTRY_SHA,
@@ -197,7 +222,7 @@ function verify(report: Record<string, unknown>, objects: Record<string, Buffer>
 }
 
 describe("the SC-08 evidence verifier accepts a complete control and rejects everything else", () => {
-  it("(1) a complete valid report with resolvable artifacts is accepted", () => {
+  it("(1) a fully bound synthetic UNIT report with source/media inspection is accepted", () => {
     const result = verify(goodReport());
     expect(result.ok, result.ok ? "" : result.problems.join("\n")).toBe(true);
   });

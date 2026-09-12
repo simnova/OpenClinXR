@@ -10,7 +10,8 @@
  * boundaries. Duplication is the cost of that boundary and the contract chose it.
  */
 
-export const SCENE_CLOSURE_EVIDENCE_SCHEMA_VERSION = "openclinxr.scene-closure-evidence.v1";
+export const SCENE_CLOSURE_EVIDENCE_SCHEMA_VERSION =
+  "openclinxr.scene-closure-evidence.v1";
 
 export type EvidenceArtifact = {
   /** Stable opaque id used by checks and controls to reference these bytes. */
@@ -84,7 +85,9 @@ export type SceneClosureEvidenceReport = {
       exitCode: number;
       startedAtIso: string;
       endedAtIso: string;
-      tests?: { passed: number; failed: number; skipped: number; todo: number } | undefined;
+      tests?:
+        | { passed: number; failed: number; skipped: number; todo: number }
+        | undefined;
       outputArtifactId?: string | undefined;
     }>;
   };
@@ -98,6 +101,22 @@ export type SceneClosureEvidenceReport = {
     observedAfterFix: string;
     baselineOutputArtifactId: string;
     fixedOutputArtifactId: string;
+  };
+  recordingBinding: {
+    executionSourceCommit: string;
+    executionInputs: Array<{ path: string; sha256: string }>;
+    claimMode: "historical" | "current-replay";
+    runId: string;
+    videoArtifactId: string;
+    traceArtifactId: string;
+    runReceiptArtifactId: string;
+    watchReceiptArtifactId: string;
+    bundleArtifactId: string;
+    acceptedPlanArtifactId: string;
+    caseArtifactId: string;
+    editedVideoArtifactId?: string;
+    editReceiptArtifactId?: string;
+    editedWatchReceiptArtifactId?: string;
   };
   encounter: Record<string, unknown>;
   observations: EvidenceObservation[];
@@ -122,4 +141,23 @@ export type SceneClosureEvidenceReport = {
   };
   /** Owner registry content hash, bound so a swapped registry is visible. */
   evidenceRegistrySha256: string;
+};
+
+/** Retained trace object: timestamps are offsets from the first recorded video frame. */
+export type RetainedRecordingTrace = {
+  runId: string;
+  clock: "video-relative-ms";
+  headingUnit: "radians";
+  identities: Record<string, unknown>;
+  measurements: {
+    recorderStartedAtMs: 0;
+    activationAtMs: number;
+    arrivalAtMs: number;
+    stopAtMs: number;
+    supportContactCount: number;
+    skinnedJointCount: number;
+    arrivalDistanceMeters: number;
+    headingErrorRadians: number;
+    stopSpeedMetersPerSecond: number;
+  };
 };
