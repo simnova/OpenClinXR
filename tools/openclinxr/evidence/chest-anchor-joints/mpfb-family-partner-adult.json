@@ -40,7 +40,7 @@
     "chest_anchor_height",
     "other_rigs"
   ],
-  "inputPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-  "outputPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-  "generatedAt": "2026-09-03T16:34:52.041Z"
+  "inputPath": "/var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-patrick-61625-family-partner-bootcut/family-partner-bake/after-simplify.glb",
+  "outputPath": "/var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-patrick-61625-family-partner-bootcut/family-partner-bake/after-anchor.glb",
+  "generatedAt": "2026-09-12T14:42:26.095Z"
 }

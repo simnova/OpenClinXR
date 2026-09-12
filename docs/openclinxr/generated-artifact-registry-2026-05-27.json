@@ -16562,6 +16562,13 @@
       "rationale": "Package public-surface reduction program artifact, read by pnpm arch:public-surface:verify gates; regenerate only through the command recorded in its evidence."
     },
     {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-front_lit.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Family-partner library-lower grade capture; orchestrator grades the pixels."
+    },
+    {
       "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-gown-inspect-front_fp.png",
       "authority": "keep-evidence",
       "tracked": true,

@@ -42,9 +42,9 @@
       "id": "mpfb-family-partner-adult",
       "source": "cast",
       "overlapMm": 5,
-      "bucketCount": 32,
+      "bucketCount": 31,
       "upperName": "mat_makeclothes_library_toigo_t_shirt",
-      "lowerName": "mat_makeclothes_library_cargo_pants.001",
+      "lowerName": "mat_makeclothes_library_bootcut_jeans_pants",
       "gapped": 0
     },
     {

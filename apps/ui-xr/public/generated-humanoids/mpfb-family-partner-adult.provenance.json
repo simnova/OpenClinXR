@@ -20,7 +20,7 @@
     "annyReference": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.anny_base.obj (tracked)",
     "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
     "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "derivationNote": "Issue #403 step 2: the shared Anny spouse mesh (9 cast slots) is replaced by this MPFB2 adult. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.66 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. Standard 137-joint rig; #317 face keys (32 targets / 13 mouth); #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris). Wardrobe: #180 closed_casual toigo t-shirt upper (family palette muted_rose 0.42,0.36,0.40), cortu_cargo_pants lower cover shell, toigo_mj_cloth_shoes footwear, #381 CC0 toigo_curled_under_bob fitted hair, #356 green iris (CC0 makehuman system-assets pack), #377 anatomical 24.0 mm eyes, #343 skin tone warm_light (0.78,0.62,0.52), #370 tangent-space normal map, #359 scalp region (0.898-1.000 H)."
+    "derivationNote": "Issue #403 step 2: the shared Anny spouse mesh (9 cast slots) is replaced by this MPFB2 adult. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.66 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. Standard 137-joint rig; #317 face keys (32 targets / 13 mouth); #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris). Wardrobe: #180 closed_casual toigo t-shirt upper (family palette muted_rose 0.42,0.36,0.40), elvs_jeans_bootcut fitted lower (5,708 tris), toigo_mj_cloth_shoes footwear, #381 CC0 toigo_curled_under_bob fitted hair, #356 green iris (CC0 makehuman system-assets pack), #377 anatomical 24.0 mm eyes, #343 skin tone warm_light (0.78,0.62,0.52), #370 tangent-space normal map, #359 scalp region (0.898-1.000 H)."
   },
   "licenseChain": {
     "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
@@ -54,13 +54,14 @@
     "Family-class body is a different bake from the nurse-class body: different reference (1.66 m vs 1.76 m), different macro height (0.5 vs 0.5827), different wardrobe/iris/hair — two distinct identities.",
     "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris).",
     "Rebaked 2026-08-14 (medical wardrobe): same reference/role, scalp RULE now fires — `scalp_placeholder_retired_for` suppresses the placeholder `openclinxr_mesh_native_scalp_hair_surface` shell wherever a fitted hair mesh exists (e4880c99). Same wardrobe: toigo t-shirt (muted_rose), cortu_cargo_pants (CC0 ledger row; named-uuid GARMENT_PAGE_CC0_OVERRIDE because its `.mhclo` declares CC0 on the author line, not a `# license` line), toigo_mj_cloth_shoes, toigo_curled_under_bob hair. scalpTris=0, hairTris=2852 measured on the exported GLB.",
-    "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-family-partner-adult.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed)."
+    "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-family-partner-adult.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed).",
+    "2026-09-12 clothing_consume: replaced the 2,789-tri body-derived cargo cover shell with pants02 elvs_jeans_bootcut fitted via ClothesService.fit_clothes_to_human on the live MPFB hm08 basemesh (macros live, mhclo vertex bindings). Source mens_elv_jeans1f.obj 2,854 faces; shipped lower 5,708 tris (exact x2). LOWER_GATE covers raycast 0.9362. Waist meet gapped 0 / min +5.0 mm. Nurse 2,704 and street 5,708 unchanged. outputSha256 0b1b9c991e11… / 8,151,256 B -> 354624a6c76c… / 10,414,636 B."
   ],
   "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
   "promotionGates": false,
-  "generatedAt": "2026-08-14T17:30:00Z",
-  "outputSha256": "0b1b9c991e1129d5328155080532d22e2897ab5b79cca5e6393a531f44190fcb",
-  "outputBytes": 8151256,
+  "generatedAt": "2026-09-12T14:42:00Z",
+  "outputSha256": "6da9bce8ebfef14f1d6c2ae46d68cbe85141f5e257ac1f2cf9dd7caf21b91604",
+  "outputBytes": 10414800,
   "byteLineage": {
     "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
     "correctedAt": "2026-09-09T20:55:55.787Z",
@@ -87,5 +88,7 @@
     "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte."
   },
   "albedoBakeWrittenAt": "2026-09-11T05:16:52.377Z",
-  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
+  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+  "licenceNoticeWrittenAt": "2026-09-12T15:02:16.049Z",
+  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here."
 }
