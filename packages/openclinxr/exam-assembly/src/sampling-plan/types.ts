@@ -175,3 +175,21 @@ export type SamplingPlanActivationRecord = {
   notEvidenceFor: typeof samplingPlanNotEvidenceFor;
   validityEvidenceGate: false;
 };
+
+export type SamplingPlanActivationPersistFailure = {
+  ok: false;
+  reason: string;
+};
+
+export type SamplingPlanActivationSink = {
+  saveActivationRecord: (
+    record: SamplingPlanActivationRecord,
+  ) =>
+    | Promise<SamplingPlanActivationPersistFailure | undefined>
+    | SamplingPlanActivationPersistFailure
+    | undefined;
+};
+
+export type SamplingPlanActivationPersistResult =
+  | { status: "persisted"; record: SamplingPlanActivationRecord }
+  | { status: "refused"; reason: string };

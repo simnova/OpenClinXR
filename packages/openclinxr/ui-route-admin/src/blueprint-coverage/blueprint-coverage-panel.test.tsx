@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type {
   BuildSamplingPlanInput,
+  SamplingPlanActivationRecord,
   SamplingPlanCoverage,
   SamplingPlanCoverageRequirement,
   SamplingPlanScenarioRevision,
@@ -139,6 +140,7 @@ describe("BlueprintCoveragePanel", () => {
   });
 
   it("does not claim persistence when the activation sink rejects", async () => {
+    const stored: SamplingPlanActivationRecord[] = [];
     render(
       <BlueprintCoveragePanel
         input={workflowInput(false)}
@@ -156,6 +158,31 @@ describe("BlueprintCoveragePanel", () => {
     expect(await within(panel).findByText("Activation decision was not persisted")).toBeInTheDocument();
     expect(panel).toHaveTextContent("review store unavailable");
     expect(panel).not.toHaveTextContent("Version-pinned form activation persisted");
+    expect(panel).not.toHaveTextContent("Activation refusal persisted");
+    expect(stored).toEqual([]);
+  });
+
+  it("does not publish an activation record when the sink returns a named failure", async () => {
+    const stored: SamplingPlanActivationRecord[] = [];
+    render(
+      <BlueprintCoveragePanel
+        input={workflowInput(false)}
+        reviewerId="faculty_blueprint_reviewer"
+        now={() => "2026-09-04T20:11:00.000Z"}
+        createDecisionId={() => "decision_error_002"}
+        onPersistActivation={() => ({ ok: false, reason: "review_store_rejected" })}
+      />,
+    );
+
+    const panel = screen.getByLabelText("Blueprint sampling-plan activation");
+    fireEvent.click(
+      within(panel).getByRole("button", { name: "Record blocked activation attempt" }),
+    );
+    expect(await within(panel).findByText("Activation decision was not persisted")).toBeInTheDocument();
+    expect(panel).toHaveTextContent("review_store_rejected");
+    expect(panel).not.toHaveTextContent("Version-pinned form activation persisted");
+    expect(panel).not.toHaveTextContent("Activation refusal persisted");
+    expect(stored).toEqual([]);
   });
 
   it("persists an explicit faculty rejection instead of only offering approval", async () => {

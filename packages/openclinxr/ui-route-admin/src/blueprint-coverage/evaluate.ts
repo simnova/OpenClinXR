@@ -19,6 +19,7 @@ import {
 } from "./sampling-plan-types.js";
 
 export * from "./sampling-plan-types.js";
+export { persistSamplingPlanActivation } from "./persist.js";
 
 export function buildSamplingPlan(input: BuildSamplingPlanInput): SamplingPlan {
   const blockers: string[] = [];
@@ -350,12 +351,20 @@ function normalizeRequirements(
 }
 
 function normalizeCoverage(coverage: SamplingPlanCoverage): SamplingPlanCoverage {
-  return Object.fromEntries(
-    samplingPlanCoverageDimensions.map((dimension) => [
-      dimension,
-      unique(coverage[dimension].map((value) => value.trim()).filter(Boolean)).sort(),
-    ]),
-  ) as unknown as SamplingPlanCoverage;
+  return {
+    specialty: normalizedValues(coverage.specialty),
+    environment: normalizedValues(coverage.environment),
+    actor_role: normalizedValues(coverage.actor_role),
+    safety_critical_event: normalizedValues(coverage.safety_critical_event),
+    communication: normalizedValues(coverage.communication),
+    reasoning: normalizedValues(coverage.reasoning),
+    synthesis: normalizedValues(coverage.synthesis),
+    pressure_profile: normalizedValues(coverage.pressure_profile),
+  };
+}
+
+function normalizedValues(values: readonly string[]): string[] {
+  return unique(values.map((value) => value.trim()).filter(Boolean)).sort();
 }
 
 function scenarioRevisionRef(

@@ -1,11 +1,18 @@
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { describe, expect, it } from "vitest";
-import { assembleExamForm, type ExamBlueprint } from "../index.js";
+import {
+  assembleExamForm,
+  createDefaultClinicalSkillsBlueprint,
+  type ExamBlueprint,
+} from "../index.js";
 import {
   type BuildSamplingPlanInput,
+  type SamplingPlanActivationRecord,
   buildSamplingPlan,
   createSamplingPlanActivationReview,
   decideSamplingPlanActivation,
+  persistSamplingPlanActivation,
   type SamplingPlanCoverage,
   type SamplingPlanCoverageRequirement,
   type SamplingPlanScenarioRevision,
@@ -288,6 +295,91 @@ describe("sampling-plan activation workflow", () => {
         "coverage_gap:safety_critical_event:sepsis_escalation:need_1:have_0",
       ]),
     );
+  });
+
+  it("does not publish an activation record when persistence refuses", async () => {
+    const input = completeInput();
+    const plan = buildSamplingPlan(input);
+    const record = decideSamplingPlanActivation(
+      plan,
+      createSamplingPlanActivationReview(plan, {
+        decisionId: "sampling_decision_persist",
+        decision: "approve_activation",
+        reviewerId: "faculty_reviewer_001",
+        decidedAt: "2026-09-04T19:38:00.000Z",
+      }),
+    );
+    expect(record.status).toBe("active");
+
+    const thrownStore: SamplingPlanActivationRecord[] = [];
+    const thrown = await persistSamplingPlanActivation(
+      {
+        saveActivationRecord: () => {
+          throw new Error("review_store_unavailable");
+        },
+      },
+      record,
+    );
+    expect(thrown).toEqual({
+      status: "refused",
+      reason: "review_store_unavailable",
+    });
+    expect(thrownStore).toEqual([]);
+
+    const rejectedStore: SamplingPlanActivationRecord[] = [];
+    const rejected = await persistSamplingPlanActivation(
+      {
+        saveActivationRecord: () => ({ ok: false, reason: "review_store_rejected" }),
+      },
+      record,
+    );
+    expect(rejected).toEqual({
+      status: "refused",
+      reason: "review_store_rejected",
+    });
+    expect(rejectedStore).toEqual([]);
+  });
+
+  it("assembles an existing blueprint unchanged when no sampling plan is supplied", () => {
+    const pilotBlueprint = createDefaultClinicalSkillsBlueprint([edChestPainScenario]);
+    const form = assembleExamForm({
+      examFormId: "form_openclinxr_pilot_001",
+      blueprint: pilotBlueprint,
+      scenarios: [edChestPainScenario],
+    });
+
+    expect(form).toEqual({
+      examFormId: "form_openclinxr_pilot_001",
+      blueprintId: pilotBlueprint.blueprintId,
+      title: pilotBlueprint.title,
+      stationRefs: [
+        {
+          order: 1,
+          scenarioId: "ed_chest_pain_priority_v1",
+          scenarioVersion: 1,
+          title: "ED Chest Pain With Nurse Interruption And Family Pressure",
+        },
+      ],
+      coverage: {
+        requiredTraceTags: pilotBlueprint.requiredTraceTags,
+        coveredTraceTags: edChestPainScenario.requiredTraceTags,
+        missingTraceTags: [],
+        requiredEnvironmentIds: pilotBlueprint.stationSlots.flatMap((slot) => slot.requiredEnvironmentIds),
+        coveredEnvironmentIds: edChestPainScenario.environment?.environmentId
+          ? [edChestPainScenario.environment.environmentId]
+          : [],
+        missingEnvironmentIds: [],
+        requiredSafetyCriticalTraceTags: pilotBlueprint.requiredSafetyCriticalTraceTags,
+        coveredSafetyCriticalTraceTags: edChestPainScenario.governance.safetyCriticalTraceTags,
+        missingSafetyCriticalTraceTags: [],
+        stationCount: { required: 1, actual: 1, ok: true },
+      },
+      assemblyIssues: [],
+      status: "ready_for_review",
+    });
+    expect(form).not.toHaveProperty("samplingPlan");
+    expect(form).not.toHaveProperty("activationStatus");
+    expect(form).not.toHaveProperty("validityEvidenceGate");
   });
 
   it("requires a configured constraint for every activation dimension", () => {

@@ -7,10 +7,13 @@ import {
   createSamplingPlanActivationReview,
   decideSamplingPlanActivation,
   type SamplingPlan,
+  type SamplingPlanActivationPersistFailure,
   type SamplingPlanActivationRecord,
+  type SamplingPlanCoverage,
   type SamplingPlanCoverageDimension,
   type SamplingPlanCoverageMatrixRow,
   type SamplingPlanSubstitution,
+  persistSamplingPlanActivation,
   samplingPlanCoverageDimensions,
 } from "./evaluate.js";
 import { assemblePlanForm } from "./assemble-plan-form.js";
@@ -20,7 +23,10 @@ export type BlueprintCoverageWorkflowProps = {
   reviewerId: string;
   onPersistActivation: (
     record: SamplingPlanActivationRecord,
-  ) => Promise<void> | void;
+  ) =>
+    | Promise<SamplingPlanActivationPersistFailure | undefined>
+    | SamplingPlanActivationPersistFailure
+    | undefined;
   now?: () => string;
   createDecisionId?: (plan: SamplingPlan, decidedAt: string) => string;
 };
@@ -98,15 +104,15 @@ function VersionPinnedBlueprintCoverageWorkflow({
     });
     const record = decideSamplingPlanActivation(plan, review);
     setPersistence({ status: "saving" });
-    try {
-      await onPersistActivation(record);
-      setPersistence({ status: "saved", record });
-    } catch (error) {
-      setPersistence({
-        status: "error",
-        message: error instanceof Error ? error.message : "Sampling-plan activation persistence failed",
-      });
+    const outcome = await persistSamplingPlanActivation(
+      { saveActivationRecord: onPersistActivation },
+      record,
+    );
+    if (outcome.status === "refused") {
+      setPersistence({ status: "error", message: outcome.reason });
+      return;
     }
+    setPersistence({ status: "saved", record: outcome.record });
   };
 
   return (
@@ -350,14 +356,22 @@ function copySubstitution(substitution: SamplingPlanSubstitution): SamplingPlanS
     fromScenarioRevision: { ...substitution.fromScenarioRevision },
     toScenario: {
       ...substitution.toScenario,
-      coverage: Object.fromEntries(
-        samplingPlanCoverageDimensions.map((dimension) => [
-          dimension,
-          [...substitution.toScenario.coverage[dimension]],
-        ]),
-      ) as unknown as SamplingPlanSubstitution["toScenario"]["coverage"],
+      coverage: cloneCoverage(substitution.toScenario.coverage),
     },
     review: { ...substitution.review },
+  };
+}
+
+function cloneCoverage(coverage: SamplingPlanCoverage): SamplingPlanCoverage {
+  return {
+    specialty: [...coverage.specialty],
+    environment: [...coverage.environment],
+    actor_role: [...coverage.actor_role],
+    safety_critical_event: [...coverage.safety_critical_event],
+    communication: [...coverage.communication],
+    reasoning: [...coverage.reasoning],
+    synthesis: [...coverage.synthesis],
+    pressure_profile: [...coverage.pressure_profile],
   };
 }
 
