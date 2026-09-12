@@ -663,17 +663,20 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
  * with an untextured exterior hull, so the same camera stood outside it and photographed the
  * hull: a flat grey viewport, while every probe field reported success.
  *
- * Derivation, all inputs measured live, no constants:
+ * Derivation, all inputs measured live, no constants except the elevated-overview
+ * eye/look that the parametric fallback in this file already uses:
  *   eyeZ  = interior max Z - 2×wall thickness,  where wall thickness = exteriorMaxZ - interiorMaxZ
- *   eyeY  = top Y of the actor bounds (standing eye height)
- *   look  = centre of the actor bounds
+ *   eyeY  = max(1.68 m standing-eye interior grade, 0.93×actors.maxY), capped 0.5 m below the ceiling
+ *           (2.05 m sat inside the Infinigen ceiling slab and rejected every candidate)
+ *   look  = (actor centre X, 1.0 m overview look-Y, actor centre Z)
  *   eyeX  = one of five doorway-side candidate Xs (interior corners + edge midpoints, each inset
  *           by 2×wall thickness) whose eye→look ray is NOT blocked by a room surface or door leaf,
- *           chosen to MAXIMISE the distance to the NEAREST actor box in the XZ plane; candidates
- *           scoring within one 0.05 m tie band (2× the measured near-tie gap, #638) resolve to
- *           the first in candidate order so the choice never depends on actor settle
+ *           chosen to MAXIMISE the distance to the NEAREST actor box in the XZ plane; a 2.0 m
+ *           readable floor (0.5 m above the 1.54 m fill distance recorded in this function) is
+ *           preferred when any candidate clears it; candidates scoring within one 0.05 m tie band
+ *           (#638) resolve to the first in candidate order so the choice never depends on actor settle
  * i.e. stand inside the room, backed against the doorway-side interior wall — the furthest
- * in-room viewpoint the geometry allows — and look at the encounter.
+ * in-room viewpoint the geometry allows — elevated so people land head-to-foot with floor visible.
  *
  * With no Infinigen room the parametric fallback is used; its camera x derives from the
  * environment's shell width and the door constants (#398) instead of the old literal.
@@ -753,6 +756,19 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       (actors.min[1] + actors.max[1]) / 2,
       (actors.min[2] + actors.max[2]) / 2
     ];
+    // Standing-eye 1.68 m is the orchestrator interior-wall grade
+    // (interior-wall-lighting-variants.ts). 2.05 m (parametric overview) sits
+    // inside the Infinigen ceiling slab, so every look-ray origin starts in a
+    // ceiling triangle, every candidate is rejected, and the fallback lands on
+    // the nearest actor (oncology recapture still shin-cropped at 0.53 m).
+    const standingEyeY = 1.68;
+    const overviewLookY = 1.0;
+    const ceilingY = interior.max[1] - 0.5;
+    let eyeY = standingEyeY;
+    if (actors.max[1] * 0.93 > eyeY) eyeY = actors.max[1] * 0.93;
+    if (eyeY > ceilingY) eyeY = ceilingY;
+    if (eyeY < 1.4) eyeY = 1.4;
+    look[1] = overviewLookY;
 
     // Candidate viewpoints: interior corners and edge midpoints on the DOORWAY side
     // (+Z), inset by TWICE the measured wall thickness. The interior AABB's face is
@@ -769,11 +785,16 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
     const standoff = Math.max(2 * wallThickness, 2 * knownGoodWallThickness);
     const zDoor = interior.max[2] - standoff;
     const zInside = Math.max(look[2] + 0.5, zDoor - 0.6);
-    const xLeft = interior.min[0] + standoff;
-    const xRight = interior.max[0] - standoff;
-    const xMid = (xLeft + xRight) / 2;
+    const zMid = (zDoor + look[2]) / 2;
+    const xMid = (interior.min[0] + interior.max[0]) / 2;
+    let xLeft = interior.min[0] + 2 * standoff;
+    let xRight = interior.max[0] - 2 * standoff;
+    if (!(xLeft < xMid && xRight > xMid)) {
+      xLeft = xMid;
+      xRight = xMid;
+    }
     const xValues = [xLeft, xRight, xMid, (xLeft + xMid) / 2, (xMid + xRight) / 2];
-    const zValues = [zDoor, zInside];
+    const zValues = [zDoor, zInside, zMid];
     const candidates = [];
     for (let zi = 0; zi < zValues.length; zi++) {
       for (let xi = 0; xi < xValues.length; xi++) {
@@ -833,6 +854,10 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       if (o.visible === false) return;
       const kind = roomSurfaceKind(o);
       if (!kind) return;
+      // Floor/ceiling tris from an in-room eye are false rejects: the look
+      // target is at y=1.0, so a downward ray never needs the ceiling, and a
+      // ceiling-slab origin (eyeY 2.05) made every candidate fail.
+      if (kind === "floor" || kind === "ceiling") return;
       if (kind === "wall") {
         const box = worldBoxOf(o);
         if (!box) return;
@@ -843,7 +868,7 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
         // perimeter shell, so it stays per-triangle and real openings stay passable.
         let containsCandidate = false;
         for (let ci = 0; ci < candidates.length; ci++) {
-          const cx = candidates[ci][0], cy = actors.max[1], cz = candidates[ci][1];
+          const cx = candidates[ci][0], cy = eyeY, cz = candidates[ci][1];
           if (cx >= box.min[0] && cx <= box.max[0]
             && cy >= box.min[1] && cy <= box.max[1]
             && cz >= box.min[2] && cz <= box.max[2]) {
@@ -907,7 +932,7 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       return false;
     };
     const lookRayHitsWall = function (x, z) {
-      const ox = x, oy = actors.max[1], oz = z;
+      const ox = x, oy = eyeY, oz = z;
       let dx = look[0] - ox, dy = look[1] - oy, dz = look[2] - oz;
       const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
       if (len < 1e-6) return false;
@@ -946,13 +971,24 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
     // (further inside) rather than the doorway-wall ring.
     const pool = accepted.length > 0 ? accepted : [];
     if (pool.length === 0) {
-      let fallback = candidates[0], bestD = Infinity;
-      for (let i = 0; i < candidates.length; i++) {
-        const dx = candidates[i][0] - look[0], dz = candidates[i][1] - look[2];
-        const d = Math.sqrt(dx * dx + dz * dz);
-        if (d < bestD) { bestD = d; fallback = candidates[i]; }
+      // Side-wall corners photograph the corridor (peds beige 100%).
+      // zDoor midline photographs the adult ED +X partition (beige 72).
+      // zInside midline is 0.6 m further into the room — the first interior
+      // recapture's adult eye sat here and cleared the wall/interior pair.
+      // Prefer a clear look-ray; if none, keep xMid/zInside.
+      const zs = [zInside, zMid, zDoor];
+      const offsets = [0, -0.8, 0.8, -1.4, 1.4];
+      let chosen = [xMid, zInside];
+      let found = false;
+      for (let zi = 0; zi < zs.length && !found; zi++) {
+        for (let oi = 0; oi < offsets.length; oi++) {
+          const x = xMid + offsets[oi];
+          const z = zs[zi];
+          if (x < interior.min[0] + standoff || x > interior.max[0] - standoff) continue;
+          if (!lookRayHitsWall(x, z)) { chosen = [x, z]; found = true; break; }
+        }
       }
-      pool.push(fallback);
+      pool.push(chosen);
     }
     // The score is a LIVE measurement of actor boxes, so a strict argmax is settle-order
     // sensitive: sub-centimetre load-to-load actor jitter made two near-symmetric viewpoints
@@ -964,13 +1000,22 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
     // 3.1523..3.1546), large enough to absorb actor settle and far below any standoff
     // difference that would change the frame.
     const scoreTieBandMeters = 0.05;
-    let eyeXZ = pool[0], bestScore = -1;
+    // 1.54 m filled the viewport with a standing nurse (this function's own
+    // comment). 2.0 m is the 0.5 m step above that fill distance — the same
+    // step as the zDoor-0.6 inner ring — not a number fitted to oncology.
+    const minReadableMeters = 2.0;
+    const readable = [];
     for (let i = 0; i < pool.length; i++) {
-      const s = nearestActorDistance(pool[i][0], pool[i][1]);
-      if (s > bestScore + scoreTieBandMeters) { bestScore = s; eyeXZ = pool[i]; }
+      if (nearestActorDistance(pool[i][0], pool[i][1]) >= minReadableMeters) readable.push(pool[i]);
+    }
+    const pickFrom = readable.length > 0 ? readable : pool;
+    let eyeXZ = pickFrom[0], bestScore = -1;
+    for (let i = 0; i < pickFrom.length; i++) {
+      const s = nearestActorDistance(pickFrom[i][0], pickFrom[i][1]);
+      if (s > bestScore + scoreTieBandMeters) { bestScore = s; eyeXZ = pickFrom[i]; }
     }
 
-    const eye = [eyeXZ[0], actors.max[1], eyeXZ[1]];
+    const eye = [eyeXZ[0], eyeY, eyeXZ[1]];
     return {
       eye: eye, look: look, wallThickness: wallThickness,
       nearestActorMeters: bestScore,
@@ -1028,7 +1073,7 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       }
       camera.lookAt(d.look[0], d.look[1], d.look[2]);
       if (typeof camera.fov === "number") {
-        camera.fov = 62;
+        camera.fov = 70;
         camera.updateProjectionMatrix?.();
       }
       if (camera.userData) {

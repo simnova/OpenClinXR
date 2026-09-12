@@ -12,6 +12,10 @@ export type DecodedPng = {
   w: number;
   h: number;
   lum: Float32Array;
+  /** Per-pixel R in 0..255. Greyscale images copy the single channel into r=g=b. */
+  r: Uint8Array;
+  g: Uint8Array;
+  b: Uint8Array;
   /**
    * True when every decoded pixel has R === G === B (or the image is single-channel).
    *
@@ -59,6 +63,9 @@ export function decodePng(bytes: Uint8Array): DecodedPng | null {
   if (raw.length < (stride + 1) * h) return null;
 
   const lum = new Float32Array(w * h);
+  const rCh = new Uint8Array(w * h);
+  const gCh = new Uint8Array(w * h);
+  const bCh = new Uint8Array(w * h);
   let greyscale = true;
   const prev = new Uint8Array(stride);
   const cur = new Uint8Array(stride);
@@ -86,10 +93,17 @@ export function decodePng(bytes: Uint8Array): DecodedPng | null {
     p += stride;
     for (let x = 0; x < w; x += 1) {
       const i = x * chans;
-      if (chans >= 3 && (cur[i]! !== cur[i + 1]! || cur[i]! !== cur[i + 2]!)) greyscale = false;
-      lum[y * w + x] = chans >= 3 ? 0.299 * cur[i]! + 0.587 * cur[i + 1]! + 0.114 * cur[i + 2]! : cur[i]!;
+      const R = chans >= 3 ? cur[i]! : cur[i]!;
+      const G = chans >= 3 ? cur[i + 1]! : cur[i]!;
+      const B = chans >= 3 ? cur[i + 2]! : cur[i]!;
+      if (chans >= 3 && (R !== G || R !== B)) greyscale = false;
+      const pix = y * w + x;
+      rCh[pix] = R;
+      gCh[pix] = G;
+      bCh[pix] = B;
+      lum[pix] = 0.299 * R + 0.587 * G + 0.114 * B;
     }
     prev.set(cur);
   }
-  return { w, h, lum, greyscale };
+  return { w, h, lum, r: rCh, g: gCh, b: bCh, greyscale };
 }
