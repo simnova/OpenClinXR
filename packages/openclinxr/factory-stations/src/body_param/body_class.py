@@ -522,10 +522,10 @@ def build_one_body_class(
                 if coverage_gate.get("note")
                 else ""
             ) + "library lower fit did not cover its region; replaced with body-derived cover shell"
-        else:
-            lgv_off = _gc.cloth_offset(lgv, body_verts, body_faces, _gc.CLOTH_STANDOFF_M)
-            for i, v in enumerate(lower_garment.data.vertices):
-                v.co = tuple(float(x) for x in lgv_off[i])
+        # Fitted covering lower: keep ClothesService positions. A post-fit
+        # cloth_offset snap flattens the mhclo drape onto a 15 mm shell
+        # (family-partner 2026-09-12: pants p95-p5 0.569 mm vs same-body
+        # shirt 9.079 mm). Cover shells still build at CLOTH_STANDOFF_M.
         coverage_gate["lower"] = lower_rep
     bpy.context.view_layer.update()
 
