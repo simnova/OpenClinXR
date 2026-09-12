@@ -69,3 +69,40 @@ timeout is now DIAGNOSED rather than bare — the shell is never published becau
 CLAIM: on this tree, one capture of ed_chest_pain_priority_v2 fails as a page exception naming
 `node:crypto.createHash`, and the wait then burns its full 180 s budget.
 NOT TESTED: the other fourteen cases; whether removing that import lets the shell publish; the rollup.
+
+## FIXED (#0) — 2026-09-12 (served client graph)
+
+The page exception names `node:crypto.createHash` because
+`packages/openclinxr/asset-registry/src/encounter-bundle-admission-mod.ts`
+value-imported `node:crypto` and `scene-plan-freeze-mod` (which imports
+`node:crypto` + `node:fs`). `apps/ui-xr/src/main.ts` imports
+`@openclinxr/asset-registry/encounter-bundle-admission`, so Vite served that
+graph to the learner client.
+
+The admission module now hashes through browser-safe `canonical-json.ts` and
+`sha256-hex.ts`. `verifyCommittedScenePlanAgainstDisk` remains a VALUE export
+of `./encounter-bundle-admission`. The freeze subpath still uses `node:crypto`.
+
+claimScope: the served ui-xr import graph no longer reaches a `node:` builtin.
+notEvidenceFor: the other fourteen cases; the 15-case rollup; wait budgets;
+that a capture now publishes a shell.
+
+CLAIM: the served client graph from apps/ui-xr/src/main.ts reaches no node: builtin.
+NOT TESTED: the other fourteen cases; whether the rollup's render lane clears once this is fixed.
+
+## MEASURED AFTER THE CLIENT-GRAPH FIX — 2026-09-12 (orchestrator, foreground run)
+
+- command: `pnpm exec tsx tools/openclinxr/evidence/ui-xr-environment-room-capture.ts --scenario ed_chest_pain_priority_v2`
+- startedAt: 2026-09-12T04:28:57Z
+- finishedAt: 2026-09-12T04:29:17Z (20 s)
+- exit code: 0
+- outcome: shell_wait_resolved
+- artifact: `.openclinxr/evidence/ui-xr-environment-room/latest/capture-manifest.json` (1 entry)
+- live line: `ed_chest_pain_priority_v2 live env=ed_exam_bay_v1 depth=3.45 floor=5858155 cam=roomCam(derived)=-1.26,1.71,1.87 nearestActor=1.06m interiorMaxZ=2.11 wallThickness=0.118`
+
+The same case that burned its full 180-second budget before this fix now completes in 20 seconds and
+writes a manifest. The shell publishes; the wait no longer fires.
+
+CLAIM: one capture of ed_chest_pain_priority_v2 resolves and writes one manifest entry on this tree.
+NOT TESTED: the other fourteen cases; the 15-case rollup's render lane; any judgement about how the
+captured room looks.

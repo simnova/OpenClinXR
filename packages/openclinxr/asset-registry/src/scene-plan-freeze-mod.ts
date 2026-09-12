@@ -4,6 +4,7 @@ import type {
   DurableAcceptedScenePlanRecord,
   ObservedScenePlanEvidence,
 } from "./accepted-scene-plan-evidence-mod.js";
+import { canonicalJson } from "./canonical-json.js";
 import { ACCEPTED_SCENE_PLAN_SCHEMA_VERSION } from "./frozen-scene-replay-mod.js";
 
 type AcceptedScenePlanEvent = DurableAcceptedScenePlanRecord["eventOrder"][number];
@@ -106,21 +107,7 @@ function sha256Hex(bytes: Buffer | string): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
-/**
- * A stable byte rendering of a JSON value: object keys sorted at every depth.
- *
- * `JSON.stringify` preserves insertion order, so two structurally identical bundles built by
- * different code paths hash differently and every reopen reports a bundle that did not change as
- * `changed`. Sorting makes the digest a function of the CONTENT.
- */
-export function canonicalJson(value: unknown): string {
-  if (value === null || typeof value !== "object") return JSON.stringify(value) ?? "null";
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
-  const entries = Object.entries(value as Record<string, unknown>)
-    .filter(([, entryValue]) => entryValue !== undefined)
-    .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0));
-  return `{${entries.map(([key, entryValue]) => `${JSON.stringify(key)}:${canonicalJson(entryValue)}`).join(",")}}`;
-}
+export { canonicalJson };
 
 /**
  * The digest that the acknowledgment binds.

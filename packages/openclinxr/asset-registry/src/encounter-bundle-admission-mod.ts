@@ -1,5 +1,5 @@
-import { createHash } from "node:crypto";
 import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evidence-mod.js";
+import { canonicalJson } from "./canonical-json.js";
 import { geometryRevisionDigest, type ObservedApproachGeometry } from "./case-approach-intent-mod.js";
 import { CASE_FROZEN_SCENE_PLANS } from "./case-frozen-scene-plans.js";
 import { resolveCaseOwnedScenePlan } from "./case-owned-scene-plan-mod.js";
@@ -14,7 +14,7 @@ import {
   evaluateEncounterRuntimeLearnerUseGate,
   type LearnerRuntimeAssetBundle,
 } from "./runtime-bundles.js";
-import { canonicalJson } from "./scene-plan-freeze-mod.js";
+import { sha256Hex } from "./sha256-hex.js";
 
 /**
  * WHAT THE SHIPPED RUNTIME CALLS to admit — or refuse — a frozen scene plan.
@@ -296,8 +296,6 @@ export function verifyCommittedScenePlanAgainstDisk(input: {
   readBytes: (repoRelativePath: string) => Buffer;
 }): CommittedScenePlanDiskCheck {
   const problems: string[] = [];
-  const sha256Hex = (bytes: Buffer | string): string =>
-    createHash("sha256").update(bytes).digest("hex");
   for (const instance of input.record.instances) {
     if (instance.assetPath === undefined || instance.assetSha256 === undefined) continue;
     let bytes: Buffer;
