@@ -393,8 +393,6 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/evidence/humanoid-vetting/family-partner-library-lower-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
 - `tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-acquisition-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
 - `tools/openclinxr/evidence/humanoid-vetting/remaining-cover-shell-lowers-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
-<<<<<<< HEAD
 - `tools/openclinxr/evidence/humanoid-vetting/lower-garment-cloth-offset-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
-=======
 - `tools/openclinxr/evidence/scene-closure/proofs/sc-05/terminal-turn-foot-lock-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
->>>>>>> e886c289 (fix(xr-humanoid-animation): replant physician feet during the terminal turn)
+- `docs/openclinxr/humanoid-motion-clip-deviation-2026-09-12.md` - evidence; treat-as-evidence; Committed clip-channel-deviation instrument BEFORE/AFTER tables for CC0 seated retarget expansion.

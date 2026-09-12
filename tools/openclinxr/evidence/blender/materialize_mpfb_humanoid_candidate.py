@@ -2971,10 +2971,13 @@ def tuck_trousers_into_boots(pants, shoe, margin_m=0.007, max_reach_m=0.15):
 # and restores the CONDITIONAL-licensed walk into the shipped bytes (the #0 incident:
 # f2e7552f had the seated clip, 8d7b3f19's rebake lost it, nothing noticed for eleven
 # days). A materialization whose output stem is listed here therefore re-runs the seated
-# bind as its LAST step, so every future rebake of this actor replays the clip. Only the
-# peds parent owns a seated rest today; other stems skip.
+# bind as its LAST step, so every future rebake of this actor replays the clip.
+# 2026-09-12: extended to OB patient and family partner (both MPFB rail, same
+# mpfb2-default-no-toes rig, seated in their scenario contexts).
 SEATED_REST_OUTPUT_STEMS = {
     "mpfb-peds-parent-aisha",
+    "mpfb-ob-patient-aisha",
+    "mpfb-family-partner-adult",
 }
 SEATED_REST_CLIP_REL = "tools/openclinxr/asset-pipeline/makeclothes/mesh2motion-sitting-talking-single-clip.bvh"
 SEATED_REST_STAGE_REL = "tools/openclinxr/asset-pipeline/makeclothes/seated_clip_bind_stage.py"
