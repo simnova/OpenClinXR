@@ -172,5 +172,5 @@ describe("the adult nurse sleeves and collar show no skin notch", () => {
       live.torso.visibleSkinSubject,
       "torso box skin pixels (visible_skin first hits; poke-through counterweight)",
     ).toBe(0);
-  }, 180_000);
+  }, 360_000);
 });

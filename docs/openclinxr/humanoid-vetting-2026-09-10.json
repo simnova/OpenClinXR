@@ -12,7 +12,7 @@
     "horizontalExtent": 1.0744624137878418
    },
    "body": "mpfb-clinical-nurse-adult.glb",
-   "bytes": 12444092,
+   "bytes": 12444056,
    "capture": "manual studio route (window global): the --glb CLI errors on every body with ReferenceError: browserPageWindow is not defined (a9e2510f renamed window to the type-only alias browserPageWindow inside the page.waitForFunction closure; browser-dom.d.ts declares it as a type, never defines it in the page). Tool file UNCHANGED on this card. Images captured through the same studio route the tool stages.",
    "captures": {
     "front_lit": {
@@ -277,15 +277,15 @@
    ],
    "nodeCount": 148,
    "refusalRule": "baseColorFactor != [1,1,1] on a material WITH baseColorTexture and no recorded reason = refusal (HB-00). Untextured flat colours are the albedo itself, not a tint.",
-   "sha256": "975e48dc6ee3b5581132ce745e81fea5f4f3243ab101ff5a9adce4058435061d",
+   "sha256": "8e176c18dd17dadf83b881d0f99912e63a5f176f59b67acd1019c4e4349f0ced",
    "sidecar": {
     "match": true,
-    "outputBytes": 12444092,
-    "outputSha256": "975e48dc6ee3b5581132ce745e81fea5f4f3243ab101ff5a9adce4058435061d",
-    "hb07Note": "HB-07 nurse hole-guard promote: outputSha256 b744d3d5295e2d4840ceae586924727725667cb0260a5b1f3ee68dd2e72e136f -> 975e48dc6ee3b5581132ce745e81fea5f4f3243ab101ff5a9adce4058435061d, outputBytes 8833188 -> 12444092."
+    "outputBytes": 12444056,
+    "outputSha256": "8e176c18dd17dadf83b881d0f99912e63a5f176f59b67acd1019c4e4349f0ced",
+    "hb07Note": "HB-07 nurse hole-guard promote: outputSha256 b744d3d5295e2d4840ceae586924727725667cb0260a5b1f3ee68dd2e72e136f -> 8e176c18dd17dadf83b881d0f99912e63a5f176f59b67acd1019c4e4349f0ced, outputBytes 8833188 -> 12444056."
    },
    "triangles": 92118,
-   "hb07Note": "HB-07 nurse hole-guard promote (tsk_6fb5af8192b8db91): GLB sha b744d3d5295e2d4840ceae586924727725667cb0260a5b1f3ee68dd2e72e136f -> 975e48dc6ee3b5581132ce745e81fea5f4f3243ab101ff5a9adce4058435061d, bytes 8833188 -> 12444092, triangles 39017 -> 92118; front_lit sha 84525eefbe23493941a4da466a5259b030bbc5cf31e1f7b495e54fb4ff1dccbe -> 6b6c03d7ea0c847a64688e9f3055ee8392e68e5bb173ec2d553e294fbc588400."
+   "hb07Note": "HB-07 nurse hole-guard promote (tsk_6fb5af8192b8db91): GLB sha b744d3d5295e2d4840ceae586924727725667cb0260a5b1f3ee68dd2e72e136f -> 8e176c18dd17dadf83b881d0f99912e63a5f176f59b67acd1019c4e4349f0ced, bytes 8833188 -> 12444056, triangles 39017 -> 92118; front_lit sha 84525eefbe23493941a4da466a5259b030bbc5cf31e1f7b495e54fb4ff1dccbe -> 6b6c03d7ea0c847a64688e9f3055ee8392e68e5bb173ec2d553e294fbc588400."
   },
   {
    "aabbInPage": {
