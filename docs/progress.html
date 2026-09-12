@@ -28,6 +28,29 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-11T2335">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 15 &middot; 2026-09-11 23:35 EDT</p>
+          <h2>Both items the last entry listed as outstanding are closed; twenty-five cards landed today.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Closed since 23:15</h3>
+            <ul>
+              <li><strong>Capture diagnostics</strong> (<code>eeae5999</code>): the station capture now reports why it timed out, telling a page exception from a failed request from a page that has stopped responding. What still is not known is which of those three stops the fifteen render cases, because the capture has not yet been pointed at a real case. That is the next card's job, and the card says so rather than guessing.</li>
+              <li><strong>The borrowed test import</strong> (<code>71762e2e</code>): a test was reading a neighbouring package's build output, which means it could pass whether or not that package's source was right. The check now lives with the package that owns the code, driven by events shaped exactly as the runtime emits them, with a case that fails if a citation is missing.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Two requirements I wrote could not be checked</h3>
+            <ul>
+              <li>One demanded running every probe in the evidence folder, which never finishes here. One demanded proof that a file changed during a job that had already finished before the requirement existed. The checking step refused both rather than waving them through, which is the right answer. Each card was rewritten so every requirement can actually be tested, and the reasons are recorded on the cards they replaced. No check was loosened to make work fit.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="status-copy">The board's queue is now empty apart from two items parked on purpose: a lighting measurement whose earlier attempt is recorded as failed, and a stale bake-off report that blocks nothing.</p>
+      </section>
+
       <section class="band" id="entry-2026-09-11T2315">
         <div class="section-heading">
           <p class="eyebrow">Entry 14 &middot; 2026-09-11 23:15 EDT</p>
