@@ -28,6 +28,39 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-12T0410">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 17 &middot; 2026-09-12 04:10 EDT</p>
+          <h2>The nurse's collar and sleeves are mended, and a measuring instrument that had been lying to us was fixed.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>The nurse</h3>
+            <ul>
+              <li>Looking at re-captured images of the adult nurse turned up bare skin showing through both sleeve ends and her collar — the same fault mended on the child patient yesterday.</li>
+              <li>It was not the same cause. Measured against the child's yardstick, the nurse scored zero on that fault; what was wrong was a different quantity entirely, counted at 722, 154, 636 and 955 pixels where the child scores zero (<code>8c010490</code>).</li>
+              <li>The mend is in and the body is on the shelf (<code>a6f8ba40</code>). I looked at the new render myself: the collar and sleeves are clean.</li>
+              <li>I refused the first attempt at that. It fixed the fault and shipped a body 2.36 times heavier than the one it replaced, rewriting the file that records what "correct" means, and it broke a test about replaying a frozen scene. The rebuild came back at 38,958 triangles against the shipped 39,017, through the same steps, with that test green.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>An instrument that could not tell nothing from zero</h3>
+            <ul>
+              <li>One station in the lighting sweep reads zero brightness while a graded capture of the same station reads 23. Zero would mean the room never drew at all.</li>
+              <li>It drew. The sweep keeps only a middle value and throws away the spread, so it cannot tell a black frame from a half-lit one: 34.77% of the sampled points are black on a frame whose spread is 60 and whose middle is 23. A small camera move flips the middle to zero while the room still renders (<code>f2466f45</code>).</li>
+              <li>Worse, the check that reads those numbers treated a recorded zero as a missing station, because zero counts as nothing in the language it is written in. That is fixed (<code>20958e9f</code>), and a companion check that had started passing by dividing by zero now refuses to.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Found and written down, not fixed</h3>
+            <ul>
+              <li>Skin shows at the nurse's waist, between the shirt hem and the trousers. That is a clothing fit question rather than the fault just mended: of the pixels in that band, 314 see through the body and 39 belong to the mended class. It has its own card with those numbers, and the worker was right to refuse to widen its fix into it.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="status-copy">Thirty-three cards landed since 16:15 yesterday. A sweep of all fifteen stations is running now to count how many render since the fix two entries ago; that number goes in the next entry, measured rather than assumed.</p>
+      </section>
+
       <section class="band" id="entry-2026-09-12T0110">
         <div class="section-heading">
           <p class="eyebrow">Entry 16 &middot; 2026-09-12 01:10 EDT</p>
