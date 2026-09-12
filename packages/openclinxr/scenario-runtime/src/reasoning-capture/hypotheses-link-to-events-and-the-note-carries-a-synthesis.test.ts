@@ -11,6 +11,7 @@
  * Drive through `createDefaultScenarioRuntime` (public entrypoint). No new exports.
  */
 import { describe, expect, it } from "vitest";
+import { projectFacultyCausalChain } from "../../../review-workflow/dist/faculty-causal-chain/index.js";
 import { createDefaultScenarioRuntime } from "../index.js";
 import type { ReviewPacket, TraceEvent } from "@openclinxr/shared-schemas";
 
@@ -36,6 +37,21 @@ async function startedRuntime() {
 function payloadString(event: TraceEvent, key: string): string {
   const value = event.payload[key];
   return typeof value === "string" ? value : "";
+}
+
+function recordedEventId(event: TraceEvent): string {
+  return payloadString(event, "eventId") || payloadString(event, "durableEventRef");
+}
+
+function idsInTrace(events: readonly TraceEvent[]): Set<string> {
+  const ids = new Set<string>();
+  for (const event of events) {
+    const eventId = recordedEventId(event);
+    if (eventId.length > 0) {
+      ids.add(eventId);
+    }
+  }
+  return ids;
 }
 
 function causalChainOf(packet: ReviewPacket): CausalChain {
@@ -185,5 +201,78 @@ describe("hypotheses link to events and the note carries a synthesis", () => {
       statement: "ECG requested; concern for ACS",
     });
     expect(chain.missingEvidence.filter((entry) => entry.kind === "missing_note")).toEqual([]);
+  });
+
+  it("feeds the captured trace to projectFacultyCausalChain so every link cites an event in that trace", async () => {
+    const { runtime, stationRunId } = await startedRuntime();
+    const resting = runtime.appendLearnerEvent(stationRunId, {
+      eventType: "learner.order",
+      atSecond: 120,
+      tag: "ecg_request",
+      payload: { order: "12-lead ECG" },
+    });
+    const hypothesis = runtime.appendLearnerEvent(stationRunId, {
+      eventType: "learner.hypothesis",
+      atSecond: 180,
+      payload: {
+        hypothesis: "reflux until proven otherwise",
+        citedEventIds: [payloadString(resting, "eventId")],
+      },
+    });
+    runtime.submitNote(stationRunId, {
+      atSecond: 1260,
+      text: "ECG requested; concern for ACS",
+    });
+
+    const trace = runtime.traceEvents(stationRunId);
+    const chain = projectFacultyCausalChain(trace);
+    const known = idsInTrace(trace);
+    const hypothesisId = payloadString(hypothesis, "eventId");
+
+    expect(chain.links.length).toBeGreaterThan(0);
+    for (const link of chain.links) {
+      expect(known.has(link.sourceEventId), link.sourceEventId).toBe(true);
+      for (const cited of link.citedEventIds) {
+        expect(known.has(cited), cited).toBe(true);
+      }
+    }
+    expect(chain.links.some((link) =>
+      link.kind === "hypothesis" && link.sourceEventId === hypothesisId
+    )).toBe(true);
+  });
+
+  it("leaves submitNote unchanged when the station records no hypothesis", async () => {
+    const { runtime, stationRunId } = await startedRuntime();
+    runtime.appendLearnerEvent(stationRunId, {
+      eventType: "learner.order",
+      atSecond: 480,
+      tag: "ecg_request",
+    });
+    runtime.submitNote(stationRunId, {
+      atSecond: 1260,
+      text: "Concern for ACS. ECG requested.",
+    });
+
+    const events = runtime.traceEvents(stationRunId);
+    expect(events.map((event) => event.eventType)).toEqual([
+      "station.started",
+      "consent.accepted",
+      "encounter.started",
+      "learner.order",
+      "encounter.ended",
+      "note.submitted",
+    ]);
+    const notes = events.filter((event) => event.eventType === "note.submitted");
+    expect(notes).toHaveLength(1);
+    const note = notes[0];
+    expect(note).toBeDefined();
+    if (!note) {
+      return;
+    }
+    expect(note.source).toBe("learner");
+    expect(note.tag).toBe("patient_note_submitted");
+    expect(note.payload).toEqual({});
+    expect(note.payload["synthesis"]).toBeUndefined();
+    expect(events.some((event) => event.eventType.includes("synthesis"))).toBe(false);
   });
 });

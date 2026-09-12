@@ -114,12 +114,16 @@ export function appendNoteSubmittedReasoningEvent(
 ): void {
   const stationRunId = session.run.stationRunId;
   const sequence = session.nextSequence;
-  const reasoning = noteSubmittedReasoningPayload({
-    stationRunId,
-    sequence,
-    noteText: input.text,
-    ledger: ledger.replay(stationRunId),
-  });
+  const ledgerEvents = ledger.replay(stationRunId);
+  const hasHypothesis = ledgerEvents.some((event) => HYPOTHESIS_EVENT_TYPES.has(event.eventType));
+  const reasoning = hasHypothesis
+    ? noteSubmittedReasoningPayload({
+      stationRunId,
+      sequence,
+      noteText: input.text,
+      ledger: ledgerEvents,
+    })
+    : undefined;
   const assembled = session.assembledStation;
   if (assembled) {
     const window = assembled.formTiming.note;
@@ -136,10 +140,9 @@ export function appendNoteSubmittedReasoningEvent(
       phase: "note",
       formAtSecond: input.atSecond,
     });
-    ledger.append({
-      ...event,
-      payload: Object.freeze({ ...event.payload, ...reasoning }),
-    });
+    ledger.append(reasoning
+      ? { ...event, payload: Object.freeze({ ...event.payload, ...reasoning }) }
+      : event);
   } else {
     ledger.append(traceEvent({
       stationRunId,
@@ -148,7 +151,7 @@ export function appendNoteSubmittedReasoningEvent(
       atSecond: input.atSecond,
       source: "learner",
       tag: "patient_note_submitted",
-      payload: Object.freeze(reasoning),
+      ...(reasoning ? { payload: Object.freeze(reasoning) } : {}),
     }));
   }
   session.nextSequence += 1;
