@@ -127,6 +127,8 @@ describe("the faculty adjudication workspace preserves assembled evidence", () =
     expect(recorded).toHaveTextContent("draft");
     expect(recorded).toHaveTextContent("scoringValidityClaimed false");
     expect(recorded).toHaveTextContent("examEquivalenceGate false");
+    expect(recorded).toHaveTextContent("clinicalValidityClaimed false");
+    expect(recorded).toHaveTextContent("faculty_adjudication_disposition_not_score_use_or_clinical_validity");
     expect(recorded).toHaveTextContent("assembled_exam_faculty_disposition_not_score_use");
 
     expect(workspace.textContent).not.toContain("Private learner utterance must stay out of exam packet summaries.");

@@ -1,9 +1,10 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import type { AdminGraphqlRootValue } from "@openclinxr/graphql";
-import { executeAdminGraphql } from "@openclinxr/graphql";
+import type { FacultyDispositionRefusalCode } from "@openclinxr/graphql/client";
+import { type AdminGraphqlRootValue, buildAdminGraphqlSchema, executeAdminGraphql } from "@openclinxr/graphql";
 import { assembledExamReviewNotEvidenceFor, buildAssembledExamReviewPacket } from "@openclinxr/review-workflow";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { REFUSAL_TITLE } from "./faculty-adjudication-graphql.js";
 import { FacultyAdjudicationWorkspace } from "./faculty-adjudication-workspace.js";
 
 vi.stubGlobal("ResizeObserver", class {
@@ -109,6 +110,10 @@ describe("the adjudication workspace persists dispositions through graphql", () 
   });
 
   it("renders each typed GraphQL refusal reason without mutating the evidence digest", async () => {
+    const schemaCodes = facultyDispositionRefusalCodesFromSchema();
+    expect(schemaCodes).toEqual(Object.keys(REFUSAL_TITLE).sort());
+    expect(schemaCodes).toEqual(Object.keys(REFUSAL_CASES).sort());
+
     const packet = buildAssembledExamReviewPacket({
       examRunId: EXAM_RUN_ID,
       learnerId: LEARNER_ID,
@@ -122,56 +127,36 @@ describe("the adjudication workspace persists dispositions through graphql", () 
         facultyScoreDraft: { reviewerId: PRODUCER_FACULTY_ID, status: "draft", comments: "" },
       }],
     });
-    const store = createDispositionStore();
-    const executeGraphql = trackedExecute(store, []);
 
-    render(
-      <FacultyAdjudicationWorkspace
-        examRunId={EXAM_RUN_ID}
-        loadPacket={async () => packet}
-        executeGraphql={executeGraphql}
-        now={() => ATTESTED_AT}
-      />,
-    );
-    const workspace = await screen.findByLabelText("Faculty adjudication workspace");
-    await screen.findByLabelText("Visible packet digest");
+    for (const code of schemaCodes) {
+      cleanup();
+      const driver = REFUSAL_CASES[code];
+      expect(REFUSAL_TITLE[code].trim().length, `untitled refusal ${code}`).toBeGreaterThan(0);
+      const store = createDispositionStore(driver.seed);
+      render(
+        <FacultyAdjudicationWorkspace
+          examRunId={EXAM_RUN_ID}
+          loadPacket={async () => packet}
+          executeGraphql={trackedExecute(store, [])}
+          now={() => ATTESTED_AT}
+        />,
+      );
+      const workspace = await screen.findByLabelText("Faculty adjudication workspace");
+      expect(await screen.findByLabelText("Visible packet digest")).toHaveTextContent(DIGEST);
 
-    await refuse(workspace, { reviewerId: LEARNER_ID, rationale: "producer" }, "Save disposition draft");
-    expect(await screen.findByLabelText("Faculty disposition refusal producer_self_review")).toHaveTextContent("FacultyDispositionProducerSelfReview");
-    expect(screen.getByLabelText("Faculty disposition refusal producer_self_review")).toHaveTextContent("producer_self_review");
-
-    await refuse(workspace, { reviewerId: PRODUCER_FACULTY_ID, rationale: "producer faculty" }, "Save disposition draft");
-    expect(await screen.findByLabelText("Faculty disposition refusal producer_self_review")).toHaveTextContent("reviewer_is_producer");
-
-    await refuse(workspace, { reviewerId: REVIEWER_ID, packetDigest: "not-the-digest", rationale: "stale" }, "Save disposition draft");
-    expect(await screen.findByLabelText("Faculty disposition refusal stale_packet_digest")).toHaveTextContent("FacultyDispositionStaleDigest");
-    expect(screen.getByLabelText("Faculty disposition refusal stale_packet_digest")).toHaveTextContent("stale_packet_digest");
-
-    await refuse(workspace, { reviewerId: REVIEWER_ID, packetDigest: DIGEST, rationale: "Hold for faculty debrief; no score use." }, "Save disposition draft");
-    expect(await within(workspace).findByLabelText("Disposition decision 1")).toHaveTextContent("draft hold");
-    const firstId = trailCurrentDecisionId(store);
-
-    await refuse(workspace, { reviewerId: "faculty_disposition_002", rationale: "identity" }, "Save disposition draft");
-    expect(await screen.findByLabelText("Faculty disposition refusal identity_mutation")).toHaveTextContent("FacultyDispositionIdentityMutation");
-    expect(screen.getByLabelText("Faculty disposition refusal identity_mutation")).toHaveTextContent("identity_mutation");
-
-    await refuse(workspace, { reviewerId: REVIEWER_ID, decisionId: firstId, rationale: "overwrite" }, "Save disposition draft");
-    expect(await screen.findByLabelText("Faculty disposition refusal overwrite_refused")).toHaveTextContent("FacultyDispositionOverwriteRefused");
-    expect(screen.getByLabelText("Faculty disposition refusal overwrite_refused")).toHaveTextContent("overwrite_refused");
-
-    await refuse(workspace, { reviewerId: REVIEWER_ID, rationale: "Close the trail." }, "Finalize disposition");
-    expect(await within(workspace).findByLabelText("Disposition decision 2")).toHaveTextContent("final hold");
-
-    await refuse(workspace, { reviewerId: REVIEWER_ID, rationale: "try again" }, "Save disposition draft");
-    expect(await screen.findByLabelText("Faculty disposition refusal finalized")).toHaveTextContent("FacultyDispositionPostFinalization");
-    expect(screen.getByLabelText("Faculty disposition refusal finalized")).toHaveTextContent("finalized");
-    expect(screen.getByLabelText("Faculty disposition refusal finalized")).toHaveTextContent("scoringValidityClaimed false");
-    expect(screen.getByLabelText("Faculty disposition refusal finalized")).toHaveTextContent("examEquivalenceGate false");
-
-    expect(within(workspace).getByLabelText("Visible packet digest")).toHaveTextContent(DIGEST);
-    expect(within(workspace).getByLabelText("Disposition decision 1")).toHaveTextContent("draft hold");
-    expect(within(workspace).getByLabelText("Disposition decision 2")).toHaveTextContent("final hold");
-    expect(within(workspace).queryByLabelText("Disposition decision 3")).not.toBeInTheDocument();
+      await refuse(workspace, driver.fields, driver.action);
+      const alert = await screen.findByLabelText(`Faculty disposition refusal ${code}`);
+      expect(alert).toHaveTextContent(REFUSAL_TITLE[code]);
+      expect(alert).toHaveTextContent(code);
+      expect(alert).toHaveTextContent(driver.typename);
+      expect(within(workspace).getByLabelText("Visible packet digest")).toHaveTextContent(DIGEST);
+      if (driver.seed.length === 0) {
+        expect(within(workspace).queryByLabelText("Disposition decision 1")).not.toBeInTheDocument();
+      } else {
+        expect(within(workspace).getByLabelText("Disposition decision 1")).toBeInTheDocument();
+        expect(within(workspace).queryByLabelText("Disposition decision 2")).not.toBeInTheDocument();
+      }
+    }
   });
 });
 
@@ -205,12 +190,71 @@ function trackedExecute(store: AdminGraphqlRootValue, operations: string[]): Fac
   };
 }
 
-function trailCurrentDecisionId(store: AdminGraphqlRootValue): string {
-  const trail = store.assembledExamFacultyDisposition?.({ examRunId: EXAM_RUN_ID }) as { current?: { decisionId?: string } };
-  return String(trail.current?.decisionId ?? "");
+function facultyDispositionRefusalCodesFromSchema(): FacultyDispositionRefusalCode[] {
+  const named = buildAdminGraphqlSchema().getType("FacultyDispositionRefusalCode") as unknown as {
+    getValues?: () => ReadonlyArray<{ name: string }>;
+  } | undefined;
+  return [...(named?.getValues?.().map((value) => value.name) ?? [])].sort() as FacultyDispositionRefusalCode[];
 }
 
-function createDispositionStore(): AdminGraphqlRootValue {
+const SEEDED_DECISION_ID = `assembled_exam_disposition:${EXAM_RUN_ID}:1`;
+
+function seededDecision(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    decisionId: SEEDED_DECISION_ID,
+    examRunId: EXAM_RUN_ID,
+    reviewerId: REVIEWER_ID,
+    packetDigest: DIGEST,
+    disposition: "hold",
+    status: "draft",
+    rationale: "seeded disposition",
+    attestedAt: ATTESTED_AT,
+    sequence: 1,
+    ...overrides,
+  };
+}
+
+type RefusalDriver = {
+  seed: Array<Record<string, unknown>>;
+  fields: { reviewerId: string; rationale: string; packetDigest?: string; decisionId?: string };
+  action: "Save disposition draft" | "Finalize disposition";
+  typename: string;
+};
+
+const REFUSAL_CASES: Record<FacultyDispositionRefusalCode, RefusalDriver> = {
+  stale_packet_digest: {
+    seed: [],
+    fields: { reviewerId: REVIEWER_ID, packetDigest: "not-the-digest", rationale: "stale" },
+    action: "Save disposition draft",
+    typename: "FacultyDispositionStaleDigest",
+  },
+  producer_self_review: {
+    seed: [],
+    fields: { reviewerId: LEARNER_ID, rationale: "producer" },
+    action: "Save disposition draft",
+    typename: "FacultyDispositionProducerSelfReview",
+  },
+  identity_mutation: {
+    seed: [seededDecision()],
+    fields: { reviewerId: "faculty_disposition_002", rationale: "identity" },
+    action: "Save disposition draft",
+    typename: "FacultyDispositionIdentityMutation",
+  },
+  overwrite_refused: {
+    seed: [seededDecision()],
+    fields: { reviewerId: REVIEWER_ID, decisionId: SEEDED_DECISION_ID, rationale: "overwrite" },
+    action: "Save disposition draft",
+    typename: "FacultyDispositionOverwriteRefused",
+  },
+  finalized: {
+    seed: [seededDecision({ status: "final", rationale: "Close the trail." })],
+    fields: { reviewerId: REVIEWER_ID, rationale: "try again" },
+    action: "Save disposition draft",
+    typename: "FacultyDispositionPostFinalization",
+  },
+};
+
+function createDispositionStore(seed: Array<Record<string, unknown>> = []): AdminGraphqlRootValue {
   const evidencePacket = {
     examRunId: EXAM_RUN_ID,
     learnerId: LEARNER_ID,
@@ -227,7 +271,7 @@ function createDispositionStore(): AdminGraphqlRootValue {
     notEvidenceFor: [...assembledExamReviewNotEvidenceFor],
     examEquivalenceGate: false,
   };
-  let decisions: Array<Record<string, unknown>> = [];
+  let decisions: Array<Record<string, unknown>> = [...seed];
 
   return {
     assembledExamFacultyDisposition: ({ examRunId }) => {

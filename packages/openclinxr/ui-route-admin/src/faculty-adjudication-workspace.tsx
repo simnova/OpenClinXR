@@ -505,6 +505,8 @@ export function FacultyAdjudicationWorkspace({
 
           <FacultyAdjudicationDispositionTrail
             examRunId={packet.examRunId}
+            clinicalValidityClaimed={false}
+            workspaceDispositionClaimBoundary={FACULTY_ADJUDICATION_DISPOSITION_CLAIM_BOUNDARY}
             {...(executeGraphql ? { executeGraphql } : {})}
             {...(now ? { now } : {})}
           />

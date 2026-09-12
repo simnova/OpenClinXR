@@ -18,6 +18,8 @@ export type FacultyAdjudicationDispositionProps = {
   examRunId: string;
   executeGraphql?: FacultyGraphqlExecute | undefined;
   now?: (() => string) | undefined;
+  clinicalValidityClaimed?: false;
+  workspaceDispositionClaimBoundary?: string;
 };
 
 type TrailState =
@@ -29,6 +31,8 @@ export function FacultyAdjudicationDispositionTrail({
   examRunId,
   executeGraphql = postAdminGraphql,
   now = () => new Date().toISOString(),
+  clinicalValidityClaimed = false,
+  workspaceDispositionClaimBoundary = "faculty_adjudication_disposition_not_score_use_or_clinical_validity",
 }: FacultyAdjudicationDispositionProps): ReactElement {
   const executeRef = useRef(executeGraphql);
   executeRef.current = executeGraphql;
@@ -164,7 +168,7 @@ export function FacultyAdjudicationDispositionTrail({
           )}
           {trail.current ? (
             <Typography.Paragraph aria-label="Recorded faculty disposition">
-              {`${trail.current.disposition}; ${trail.current.status}; scoringValidityClaimed ${String(trail.scoringValidityClaimed)}; examEquivalenceGate ${String(trail.examEquivalenceGate)}; ${trail.claimBoundary}`}
+              {`${trail.current.disposition}; ${trail.current.status}; scoringValidityClaimed ${String(trail.scoringValidityClaimed)}; examEquivalenceGate ${String(trail.examEquivalenceGate)}; clinicalValidityClaimed ${String(clinicalValidityClaimed)}; ${trail.claimBoundary}; ${workspaceDispositionClaimBoundary}`}
             </Typography.Paragraph>
           ) : null}
         </>
