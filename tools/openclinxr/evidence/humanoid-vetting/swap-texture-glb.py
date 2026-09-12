@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Swap the tightjeans PNG texture with the JPEG q85 in GLB files.
+Swap a garment texture (e.g. tightjeans PNG → JPEG) in GLB files.
 
-Reads the GLB JSON chunk to find the tightjeans image, replaces its
-buffer data with the JPEG, and writes the modified GLB. Triangle counts,
-mesh data, and all other textures are untouched.
+Reads the GLB JSON chunk to find the target image, replaces its
+buffer data with the new texture, updates mimeType to match the new
+format, and writes the modified GLB. Triangle counts, mesh data, and
+all other textures are untouched.
 
 This is a programmatic texture swap through the glTF spec — it replaces
 exactly one buffer view's data and updates the bufferView.byteLength.
@@ -31,6 +32,22 @@ def find_tightjeans_image(gltf: dict) -> int | None:
         if "tightjeans" in name.lower() or "tight_jeans" in name.lower():
             return i
     return None
+
+
+def _mime_for_texture(path: Path) -> str:
+    """Detect MIME type from file extension or magic bytes."""
+    ext = path.suffix.lower()
+    if ext in (".jpg", ".jpeg"):
+        return "image/jpeg"
+    if ext == ".png":
+        return "image/png"
+    # Fall back to magic bytes
+    header = path.read_bytes()[:8]
+    if header[:3] == b"\xff\xd8\xff":
+        return "image/jpeg"
+    if header[:4] == b"\x89PNG":
+        return "image/png"
+    raise ValueError(f"Cannot detect MIME type for {path}")
 
 
 def swap_texture(input_glb: Path, new_tex: Path, output_glb: Path) -> None:
@@ -95,6 +112,13 @@ def swap_texture(input_glb: Path, new_tex: Path, output_glb: Path) -> None:
 
     # Update the bufferView byteLength for the replaced image
     bv["byteLength"] = new_length
+
+    # Update mimeType to match the new texture format (Defect 1 fix)
+    new_mime = _mime_for_texture(new_tex)
+    old_mime = img.get("mimeType", "?")
+    if old_mime != new_mime:
+        print(f"  mimeType: {old_mime} -> {new_mime}")
+        img["mimeType"] = new_mime
 
     # Shift all bufferView byteOffsets that come AFTER the replaced texture
     # (the binary data after old_offset shifts by new_length - old_length)

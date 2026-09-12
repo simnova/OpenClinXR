@@ -2,16 +2,17 @@
  * No shipped garment texture dwarfs its body's other images (gate).
  *
  * FIXED (#0) — tightjeans re-bake 2026-09-12: both aisha bodies re-baked
- * with the graded JPEG q85 (1,196,954 B) replacing the 5,441,511-byte PNG.
- * Post-bake max/median: mpfb-ob-patient-aisha 1.66x, mpfb-peds-parent-aisha
- * 1.64x — both below 3.0x threshold. EXCEPTION_MAP entries deleted.
+ * through the materializer bake path with --texture-overrides mapping
+ * "tightjeans" to the graded JPEG q85 (1,196,954 B). Post-bake max/median:
+ * mpfb-ob-patient-aisha 1.63x, mpfb-peds-parent-aisha 1.63x — both below
+ * 3.0x threshold. EXCEPTION_MAP entries deleted.
  *
  * Diagnosis (measured 2026-09-12, GLB JSON chunks, 17 bodies in
  * apps/ui-xr/public/generated-humanoids/):
  *
  * The punkduck mhclo tightjeans now ships a 1,196,954-byte (JPEG q85)
- * diffuse on two aisha bodies where it is 22.4–22.5% of total texture
- * and 1.64–1.66x the body's median image. The next-largest garment diffuse
+ * diffuse on two aisha bodies where it is 21.2–21.4% of total texture
+ * and 1.63x the body's median image. The next-largest garment diffuse
  * in the fleet is jeanstex1 at 1,589,579 bytes (26–30% of body).
  * Per-body max/median for the full population tops out at 2.12x
  * (street male, jeanstex1).
@@ -157,7 +158,9 @@ describe("no shipped garment texture dwarfs its body's other images", () => {
     // The actual shipped aisha bodies now PASS
     const aisha = bodies.find((b) => b.file === "mpfb-ob-patient-aisha.glb");
     expect(aisha).toBeDefined();
-    const aishaTj = aisha!.images.find((i) => i.name === "tightjeans");
+    // FIXED (#0) 2026-09-12: image name is now "tightjeans-2048-q85" (from
+    // the JPEG filename baked through the materializer), not "tightjeans".
+    const aishaTj = aisha!.images.find((i) => i.name.toLowerCase().includes("tightjeans"));
     expect(aishaTj).toBeDefined();
     expect(aishaTj!.imgBytes).toBe(1_196_954);
     const aishaMed = median(aisha!.images.map((i) => i.imgBytes));

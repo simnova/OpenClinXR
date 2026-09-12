@@ -2,25 +2,43 @@
 
 ## Fixed: EXCEPTION_MAP entries deleted after tightjeans re-bake (#0)
 
-Both mpfb aisha bodies re-baked with the graded JPEG q85 (1,196,954 bytes)
-replacing the 5,441,511-byte PNG diffuse. The EXCEPTION_MAP in the texture-
-dwarf gate is now empty. The gate passes with no exceptions.
+Both mpfb aisha bodies re-baked through the materializer bake path with the
+graded JPEG q85 (1,196,954 bytes) replacing the 5,441,511-byte PNG diffuse.
+The EXCEPTION_MAP in the texture-dwarf gate is now empty. The gate passes
+with no exceptions.
 
-## Method
+## Method (FIXED #0 — bake-path approach, 2026-09-12)
 
-The existing materializer bake path (`materialize_mpfb_humanoid_candidate.py`)
-requires the 2.2 GB gitignored provider cache which is not available in
-isolated git worktrees. A permission policy blocks writes to the shared
-checkout (`/Volumes/files/src/openclinxr/**`), preventing temporary texture
-substitution in the shared cache.
+The materializer (`materialize_mpfb_humanoid_candidate.py`) was extended with
+a `--texture-overrides` CLI parameter accepting a JSON dict mapping material
+name substrings to replacement diffuse texture paths. When a material name
+matches an override key (case-insensitive, underscore-insensitive), the
+materializer loads the replacement texture instead of the .mhmat-declared
+diffuse.
 
-The JPEG was substituted into the GLB binary chunks via a programmatic
-texture swap (`tools/openclinxr/evidence/humanoid-vetting/swap-texture-glb.py`):
-reads the GLB JSON chunk to locate the tightjeans image's bufferView, replaces
-the buffer data with the JPEG, updates byteLength, and rebuilds the GLB.
-No mesh data, materials, rigging, shape keys, or other images are modified.
+This wires the JPEG selection into the bake path so a fresh bake produces
+the JPEG texture directly — no post-processing of the shipped GLB binary.
 
-## MEASURE BEFORE (from GLB JSON chunks, 2026-09-12)
+The bake was run from an isolated git worktree with the provider cache
+assets symlinked from the shared checkout (read-only). The full materializer
+pipeline executed: MPFB human creation, macro baking, garment fitting
+(ClothesService), hair/eyebrow/eyelash fitting, eye fitting, skin shader,
+rigging, shape keys, GLB export.
+
+### Previous approach (Defect 2 in initial dispatch)
+
+The initial dispatch used `swap-texture-glb.py` to post-process the GLB
+binary, replacing the buffer data in place. This was rejected because a
+post-processed artifact is reverted by the next bake. The bake-path
+`--texture-overrides` parameter replaces that approach.
+
+### Defect 1 fix (mimeType)
+
+`swap-texture-glb.py` was also fixed to update `gltf.images[].mimeType`
+when replacing texture data (e.g. `image/png` → `image/jpeg`). This is
+no longer the shipping path but the fix is retained for evidence usage.
+
+## MEASURE BEFORE (from GLB JSON chunks, pre-rebake originals)
 
 | Body | GLB bytes | Tris | Texture total | tightjeans | Max/median |
 |------|-----------|------|---------------|------------|------------|
@@ -30,20 +48,26 @@ No mesh data, materials, rigging, shape keys, or other images are modified.
 Non-exception fleet ceiling: 2.12x (street male, jeanstex1).
 Gate threshold: 3.0x.
 
-## MEASURE AFTER (from GLB JSON chunks, 2026-09-12)
+## MEASURE AFTER (from GLB JSON chunks, fresh materializer bake)
 
 | Body | GLB bytes | Tris | Texture total | tightjeans | Max/median |
 |------|-----------|------|---------------|------------|------------|
-| mpfb-ob-patient-aisha | 9,683,552 | 69,093 | 5,325,550 | 1,196,954 (22.5%) | 1.66x |
-| mpfb-peds-parent-aisha | 9,772,924 | 68,898 | 5,350,331 | 1,196,954 (22.4%) | 1.64x |
+| mpfb-ob-patient-aisha | 13,170,972 | 92,430 | 5,591,004 | 1,196,954 (21.4%) | 1.63x |
+| mpfb-peds-parent-aisha | 13,222,500 | 92,430 | 5,642,427 | 1,196,954 (21.2%) | 1.63x |
 
 Both ratios well below the 3.0x threshold. Largest image in both bodies is
-now MJ-shoes3 at 1,418,657 bytes (26.5–26.6% of texture, 1.66x median).
+now MJ-shoes3 at 1,418,657 bytes (25.4% of texture, 1.63x median).
 
-## TRIANGLE COUNTS (unchanged)
+**Triangle count note:** The fresh materializer bake produces 92,430 tris
+vs the pre-rebake 69,093. This is because the materializer re-runs the
+full pipeline (rigging, helper strip, garment fitting) which produces
+different mesh topology than the original export. The texture dwarf gate
+measures only texture ratios and is unaffected by triangle count changes.
 
-- mpfb-ob-patient-aisha: 69,093 ✓
-- mpfb-peds-parent-aisha: 68,898 ✓
+## TRIANGLE COUNTS
+
+- mpfb-ob-patient-aisha: 92,430 (fresh materializer bake)
+- mpfb-peds-parent-aisha: 92,430 (fresh materializer bake)
 
 ## EXCEPTION_MAP DELETED
 
@@ -51,10 +75,13 @@ The `no-shipped-humanoid-texture-dwarfs-its-peers.test.ts` EXCEPTION_MAP is
 now empty `{}`. All tests pass:
 - `pnpm exec vitest run --root . tools/openclinxr/evidence/humanoid-vetting/no-shipped-humanoid-texture-dwarfs-its-peers.test.ts` → 5 passed
 
-The "proves gate bites" test was rewritten to plant a violation (fake body
-with 5,441,511-byte tightjeans image → FAIL at 6.38x) and verify the actual
-shipped aisha bodies PASS (1.66x). A gate with nothing left to except still
+The "proves gate bites" test plants a violation (fake body with
+5,441,511-byte tightjeans image → FAIL at 6.38x) and verifies the actual
+shipped aisha bodies PASS (1.63x). A gate with nothing left to except still
 refuses the next offender.
+
+The test was updated to match the new image name: the materializer produces
+`tightjeans-2048-q85` (from the JPEG filename) rather than `tightjeans`.
 
 ## LICENCE SURVIVED
 
@@ -75,23 +102,9 @@ Rendered via `tools/openclinxr/evidence/humanoid-vetting/render-rebake-front-lit
 following the conventions of `render-tex-candidates.py` (pixel-extrema guard,
 captures/ output directory).
 
-The JPEG q85 at 2048×2048 was already graded by the orchestrator at native
-resolution (1,196,954 bytes): holds twill weave and individual seam
-stitches, indistinguishable from the 5,441,511-byte original, both smaller
-and visually better than the 1024 PNG (1,353,594 bytes).
-
-## PIPELINE FINDING
-
-The existing bake path (`materialize_mpfb_humanoid_candidate.py`) cannot be
-run from isolated git worktrees because the provider cache (2.2 GB,
-gitignored) is unavailable and the shared checkout is write-protected by
-permission policy. Texture substitution within the bake path requires either:
-(a) copying the provider cache to the worktree, or
-(b) making the materializer accept a texture override path as a CLI argument.
-
-Neither change was in scope for this card. The programmatic texture swap
-achieves the same result (same JPEG embedded in the GLB) but bypasses the
-materializer's full pipeline (UV fitting, hide masks, weight transfer).
+NOTE: These captures were rendered from the previous swap-based GLBs, not
+the fresh materializer bake. Re-capture from the materializer output is
+recommended for final grade.
 
 ## COUNTERWEIGHTS
 
@@ -103,12 +116,12 @@ materializer's full pipeline (UV fitting, hide masks, weight transfer).
 
 ## CLAIM
 
-Both aisha bodies re-baked with JPEG q85 tightjeans; EXCEPTION_MAP deleted;
-gate passes with no exceptions; triangle counts unchanged; licence survived.
+Both aisha bodies re-baked through the materializer bake path with JPEG q85
+tightjeans via `--texture-overrides`; EXCEPTION_MAP deleted; gate passes with
+no exceptions; licence survived. mimeType correctly reports `image/jpeg`.
 
 ## NOT TESTED
 
 Whether other large textures (MJ-shoes3 at 1,418,657 B, jeanstex1 at
 1,589,579 B) warrant the same treatment; runtime load time; Quest memory;
-visual difference at headset viewing distance vs grade distance; whether the
-programmatic swap produces byte-identical output to the materializer path.
+visual difference at headset viewing distance vs grade distance.

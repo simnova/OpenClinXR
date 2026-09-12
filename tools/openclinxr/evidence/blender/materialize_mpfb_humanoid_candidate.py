@@ -872,6 +872,18 @@ def make_material_from_mhmat(mhmat_path, name):
     if diffuse:
         tex_rel = pathlib.Path(diffuse[0])
         tex_path = (mhmat_path.parent / tex_rel).resolve()
+        # Texture override: --texture-overrides maps material name → replacement path
+        name_lower = name.lower()
+        name_nounderscores = name_lower.replace("_", "")
+        for override_key, override_path in TEXTURE_OVERRIDES.items():
+            key_lower = override_key.lower()
+            key_nounderscores = key_lower.replace("_", "")
+            if key_lower in name_lower or key_nounderscores in name_nounderscores:
+                override_p = pathlib.Path(override_path).resolve()
+                if override_p.is_file():
+                    print(f"TEXTURE_OVERRIDE {name}: {tex_path.name} -> {override_p.name}")
+                    tex_path = override_p
+                    break
         if not tex_path.is_file():
             raise RuntimeError(
                 f"#340: {mhmat_path.name} declares diffuseTexture {tex_rel} "
@@ -890,6 +902,11 @@ def make_material_from_mhmat(mhmat_path, name):
 # only, and the shipped #356 eye material is the same shape). The #180 role-colour contract reads
 # baseColorFactor from the shipped bytes, so the role colour is written back post-export
 # (patch_glb_base_color_factors) — factor x texture per the glTF spec, not a colour invented here.
+# Texture override: maps material name (e.g. "tightjeans") to a replacement
+# diffuse texture path.  Populated by --texture-overrides CLI arg so the bake
+# path can produce JPEG diffuse textures without post-processing the GLB.
+TEXTURE_OVERRIDES: dict[str, str] = {}
+
 GARMENT_FACTOR_PATCH: dict = {}
 
 # #372: garment material names that CONSUMED their declared .mhmat diffuse texture at materialize
@@ -1812,6 +1829,17 @@ def parse_args():
             "(pregnancy_target.derive_localized_gravid_target + TargetService.load_target; "
             "weight = weeks/40). 0 disables the morph — every non-pregnant actor bakes "
             "byte-stable. Source of the OB patient's 34: ob-preeclampsia.ts persona brief."
+        ),
+    )
+    parser.add_argument(
+        "--texture-overrides",
+        default=None,
+        help=(
+            'JSON dict mapping material name substrings to replacement diffuse texture '
+            'paths.  Example: \'{"tightjeans": "/path/to/tightjeans.jpg"}\' replaces the '
+            "tightjeans PNG with a JPEG when baking.  The override key is matched "
+            "case-insensitively against the material name.  Allows the bake path to produce "
+            "JPEG diffuse textures without post-processing the shipped GLB."
         ),
     )
     return parser.parse_args(argv)
@@ -3083,6 +3111,11 @@ def main():
     GARMENT_FACTOR_PATCH.clear()  # #360: per-actor; a fresh Blender process bakes each actor anyway
     CONSUMED_GARMENT_TEXTURES.clear()  # #372: same per-actor discipline for the texture verify
     LUMINANCE_NORMALISED_IMAGES.clear()  # #386: same per-actor discipline for the luminance re-centre
+    TEXTURE_OVERRIDES.clear()
+    if args.texture_overrides:
+        import json as _json
+        TEXTURE_OVERRIDES.update(_json.loads(args.texture_overrides))
+        print(f"TEXTURE_OVERRIDES {dict(TEXTURE_OVERRIDES)}")
     bpy.ops.preferences.addon_enable(module="bl_ext.user_default.mpfb")
 
     reference = None
