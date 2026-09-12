@@ -28,6 +28,39 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-11T2035">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 13 &middot; 2026-09-11 20:35 EDT</p>
+          <h2>Five more cards landed, and ten stale cards turned out to need no decision at all.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Landed since 19:15</h3>
+            <ul>
+              <li><strong>Context channels</strong> (<code>fcaa7e29</code>): a case can define a chart fragment, an EMS handoff, a nurse whisper or a doorway card, and the runtime shows each only when its availability and timing rules allow. Opening one writes an acknowledgement to the station record that cannot be altered; opening it again returns the same acknowledgement instead of a second one. Hidden case truth and reviewer-only material are never exposed.</li>
+              <li><strong>Attempt manifest</strong> (<code>bdbd78dd</code>): finishing an exam seals one record covering every station and every break, and that record replays the attempt in order on its own, with no access to live state. Sealing twice returns the same record.</li>
+              <li><strong>Learner debrief</strong> (<code>f7f9a24c</code>): released feedback becomes a timeline for the learner, and a comment whose cited moment is missing is withheld rather than shown without its evidence. A withdrawn or replaced release shows nothing.</li>
+              <li><strong>Faculty adjudication through GraphQL</strong> (<code>2d4a61f1</code>, <code>9eba84d8</code>): the admin workspace now saves decisions through the same durable path the REST route uses, one shared service rather than two copies of the rules, with all five refusal reasons shown as themselves. The evidence packet is checked byte for byte before and after every write.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Ten cards were blocked on nothing</h3>
+            <ul>
+              <li>Two were waiting on a decision from the operator: raise a package's export limit, or open a path for adding exports. Opening them dissolved both. One was a test importing a function name that was never published, fixable by using a function that is. The other was four cards whose file lists pointed at app files, two of which no longer exist because the code moved into a package months ago.</li>
+              <li>Six more named files that are gone, or asked for work that had already landed. Each was replaced with a card scoped to where the code actually lives, and the originals cancelled with the measurement that retired them.</li>
+              <li>The export-reduction plan itself is finished and re-verified today: the acceptance check recomputes all 46 packages from the tree and closes on every criterion.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A gate that blamed the wrong worker</h3>
+            <ul>
+              <li>A card aborted with "leaked writes into the main checkout". The files it named belonged to a different card that was being merged at that moment, so the check could not tell a merge from a rogue worker. The accused card's work was intact and landed after a re-check. Merges and new work are now kept apart in time.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="status-copy">Twenty cards landed between 16:15 and 20:35. Running now: the world affordance graph and the blueprint sampling plan.</p>
+      </section>
+
       <section class="band" id="entry-2026-09-11T1915">
         <div class="section-heading">
           <p class="eyebrow">Entry 12 &middot; 2026-09-11 19:15 EDT</p>
