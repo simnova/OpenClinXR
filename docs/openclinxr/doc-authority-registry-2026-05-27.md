@@ -12,14 +12,14 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 107
-- archive-candidate: 90
+- archive-candidate: 69
 - current-reference: 208
 - decision-record: 44
-- evidence: 110
+- evidence: 88
 - generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
-- temporary: 54
+- temporary: 3
 
 ## Highest-Value Current Navigation
 
@@ -247,94 +247,11 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/factory/equipment-catalog-report.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/handoffs/adult-abdominal-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/aisha-parent-identity-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/asset-index-and-store-plan-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/asset-plans-c-and-d-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/behavioral-health-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/campaign-close-dark-factory-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/decision-388-colour-collision-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/decision-388-v2-second-glb-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/delegator-to-product-owner-2026-08-26.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/direction-mpfb2-throughout-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/door-leaf-scorer-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/ed-stroke-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/equipment-lane-ack-381-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/family-partner-scalp-grade-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/heads-up-patient-gown-is-their-lane-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/heads-up-poke-guard-touches-staff-rebakes-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/inpatient-ward-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/kevin-hair-not-procurement-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/kevin-mhair02-landed-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/kevin-scrubs-pixel-grade-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/medical-clothing-options-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/mpfb-human-realism-peer-from-equipment-lane-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/nurse-adult-scrubs-grade-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/ob-triage-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/oncology-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/parent-midriff-parked-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/pediatric-fever-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/peds-black-frame-grade-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/peds-interior-frame-grade-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/physician-adult-coat-grade-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/primary-care-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/question-388-colour-collision-for-superagent-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/refresh-for-human-realism-peer-2026-08-14-0915.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/reply-2-to-equipment-lane-peer-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/reply-decision-388-collision-moves-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/reply-to-equipment-lane-peer-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/reply-to-four-questions-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/review-dark-factory-multi-case-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/rooms-campaign-closed-for-other-agent-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/stand-down-dark-factory-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/state-for-superagent-planning-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/stepdown-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/stills-provenance-381-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/successor-hem-sawtooth-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
 - `.openclinxr/handoffs/superagent-dark-factory-multi-case-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
 - `.openclinxr/handoffs/superagent-medical-wardrobe-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/superagent-plan-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/superagent-portfolio-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
 - `.openclinxr/handoffs/superagent-rooms-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/superagent-rooms-DOOR-LEAF-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/surgical-ward-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/telehealth-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/the-plan-rooms-and-asset-reuse-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/handoffs/urgent-care-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.openclinxr/openclaw/superagent-loop-prompt.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/openclaw/task-cost-latest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/plans/equipment-three-lane-factory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scene-layout-reds/RED-AUTHORING-CONTRACT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scene-layout-reds/REPAIR-NOTES.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scene-layout-reds/s1-heading.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scene-layout-reds/s10-scene-spec.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scene-layout-reds/s12-frozen-control.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scene-layout-reds/s2-authored-vector.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scene-layout-reds/s3-readiness.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scene-layout-reds/s4-equipment-binding.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scene-layout-reds/s5-event-dispatcher.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scene-layout-reds/s6-factory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scene-layout-reds/s7-transform.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scene-layout-reds/s8-identity.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scene-layout-reds/s9-motion.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scratch/SC-00-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scratch/SC-02-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scratch/SC-03-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scratch/SC-04-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scratch/SC-05-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scratch/SC-06-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scratch/SC-07-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scratch/SC-08-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scratch/SC-09-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scratch/SC-10-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/scratch/sc01-context.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/slices/dark-factory-multi-case/STATE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slices/dispatch-chokepoint/EVIDENCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/slices/trellis-escape-hatch/LOOP.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/slices/trellis-escape-hatch/log.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/slices/trellis-imagine-black/PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `CLAUDE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `LICENSE-CLASHES.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -353,8 +270,10 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/humanoid-glb-bake-and-vetting-2026-09-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-ENTRYPOINT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-clip-deviation-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-full-design-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-scene-layout-research-brief-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-vetting-2026-09-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/kimodo-soma-rp-v11-cagematch-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -364,11 +283,19 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/owner-memory/decisions.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/measurements.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/package-public-surface-reduction-plan-2026-09-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/approvals/psr-01c.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/approvals/psr-01d.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/approvals/psr-01e.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/baseline.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-08-residual.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-residual.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/raw-inventory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/acceptance.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/board-manifest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/scene-closure-2026-09-09/closure-hardening-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/delegation-v2.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/index.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/proof-contract-v2.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -390,11 +317,4 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-GUIDE-2026-08-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `tools/openclinxr/evidence/humanoid-vetting/family-partner-library-lower-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
-- `tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-acquisition-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
-- `tools/openclinxr/evidence/humanoid-vetting/remaining-cover-shell-lowers-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
-<<<<<<< HEAD
-- `tools/openclinxr/evidence/humanoid-vetting/lower-garment-cloth-offset-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
-=======
-- `tools/openclinxr/evidence/scene-closure/proofs/sc-05/terminal-turn-foot-lock-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
->>>>>>> e886c289 (fix(xr-humanoid-animation): replant physician feet during the terminal turn)
+- `tools/openclinxr/openclaw/fixtures/superagent-loop-prompt.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
