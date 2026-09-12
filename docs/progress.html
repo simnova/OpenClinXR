@@ -28,6 +28,37 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-12T1400">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 30 &middot; 2026-09-12 14:00 EDT</p>
+          <h2>Three figures are still wearing a stand-in, and the honest answer was to say so rather than dress them badly.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What the wardrobe actually contains</h3>
+            <ul>
+              <li>Three women in the cast wear trousers copied from their own bodies rather than a real garment. The task was to fit them properly. Every trouser we have on disk was checked and none of them can be used: seven are men&rsquo;s, one is the medical scrubs already refused on civilians, one is too small to cover a leg, and one does not fit the body the factory uses.</li>
+              <li>So nothing was changed on those figures (<code>3fb6fd1c</code>). Instead the factory now refuses to build them at all rather than quietly reaching for men&rsquo;s jeans, which is what it would have done, because their build does not pass a name it can key on.</li>
+              <li>That turns &ldquo;no women&rsquo;s trousers are set up&rdquo; into a specific shopping list: a properly licensed women&rsquo;s garment that fits the base body and covers a leg. A follow-up is open to find one, and it is allowed to come back and say none exists.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A test that only worked on one machine, times eleven</h3>
+            <ul>
+              <li>Eleven more checks read their reference clothing from a folder that only exists in the main copy of the repository. They passed there and failed in every working copy (<code>a28a64ed</code>).</li>
+              <li>All eleven now ask git where the main copy is. Proved by running them where the folder is missing: three failed by naming that copy&rsquo;s own absent path, then passed. A new check refuses any future test that reintroduces the habit, and it was tested by deliberately writing one.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Counting the day</h3>
+            <ul>
+              <li>Eight pieces of work landed this afternoon. Three of them changed nothing about the product on purpose: one recorded a shortfall instead of shipping a worse figure, one refused to dress people in the wrong clothes, and one declined to invent an animation that does not exist in the cleared set.</li>
+              <li>The rooms, the clothing and the walk all improved on measurements rather than impressions, and three of my own conclusions were overturned by those measurements along the way.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-12T1300">
         <div class="section-heading">
           <p class="eyebrow">Entry 29 &middot; 2026-09-12 13:00 EDT</p>
