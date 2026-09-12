@@ -37,10 +37,11 @@ import { dirname, join, resolve as pathResolve, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readHairLicenceLine } from "../asset-pipeline/makeclothes/hair-licence-classify.js";
 import { HELPER_STRIP_VERTEX, maxBodyVertexRef } from "./lib/mhclo-topology.js";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const CACHE = join(REPO_ROOT, ".openclinxr-local/provider-cache/hair/sources");
+const CACHE = join(mainWorktreeRoot(REPO_ROOT), ".openclinxr-local/provider-cache/hair/sources");
 const OUT = join(HERE, "hair-pack-licence-inventory.json");
 
 /** Cached hair .mhclo files — pinned by the plant contract (clause 1). */

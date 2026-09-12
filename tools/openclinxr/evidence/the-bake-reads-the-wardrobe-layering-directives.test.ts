@@ -47,10 +47,13 @@
  * tools/openclinxr/evidence/wardrobe-layering-read-report.json.
  */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join, resolve as pathResolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
-const CACHE = ".openclinxr-local/provider-cache/garments";
+const HERE = dirname(fileURLToPath(import.meta.url));
+const CACHE = join(mainWorktreeRoot(pathResolve(HERE, "../../..")), ".openclinxr-local/provider-cache/garments");
 
 function cachedMhclo(): string[] {
   const out: string[] = [];

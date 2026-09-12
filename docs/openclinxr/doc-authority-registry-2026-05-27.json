@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 208,
     "archive-candidate": 92,
-    "evidence": 124,
+    "evidence": 125,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -4869,6 +4869,13 @@
     },
     {
       "path": "tools/openclinxr/evidence/primary-care-zero-median-2026-09-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/evidence/provider-cache-root-is-worktree-independent-2026-09-12.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",

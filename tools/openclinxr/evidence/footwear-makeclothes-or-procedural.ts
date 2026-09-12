@@ -17,6 +17,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { NodeIO, type Mesh } from "@gltf-transform/core";
 import { isPermittedGarmentLicense, readMhcloLicense } from "../asset-pipeline/makeclothes/fit-cli.js";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
@@ -265,13 +266,8 @@ export function examineShoeCandidates(repoRoot: string = REPO_ROOT): ShoeCandida
   const searchRoots = [
     path.join(repoRoot, ".openclinxr/evidence/issue-151/staging"),
     path.join(repoRoot, ".openclinxr/evidence/issue-212/staging"),
-    path.join(repoRoot, ".openclinxr-local/provider-cache/garments"),
-    // Main-repo sibling cache (worktree often lacks provider cache)
-    path.resolve(repoRoot, "../../../.."), // noop guard — real path below
+    path.join(mainWorktreeRoot(repoRoot), ".openclinxr-local/provider-cache/garments"),
   ];
-  // Also probe known main checkout cache when worktree is under .grok/worktrees
-  const mainCache = "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments";
-  if (existsSync(mainCache)) searchRoots.push(mainCache);
 
   const found: ShoeCandidate[] = [];
   const seen = new Set<string>();

@@ -3,6 +3,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { enumerateCachedGarments } from "./cached-garment-population.ts";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 /**
  * E1 slice 1 of the superagent portfolio, 2026-08-18 — CLASS, THE FOURTH QUESTION.
@@ -83,7 +84,7 @@ import { enumerateCachedGarments } from "./cached-garment-population.ts";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const INVENTORY = join(REPO_ROOT, "tools/openclinxr/evidence/garment-class-inventory.json");
-const CACHE = join(REPO_ROOT, ".openclinxr-local/provider-cache");
+const CACHE = join(mainWorktreeRoot(REPO_ROOT), ".openclinxr-local/provider-cache");
 
 /** The three garments whose class is not in dispute — the calibration column (§9h). */
 const KNOWN_GOOD: Readonly<Record<string, string>> = {

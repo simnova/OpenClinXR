@@ -3,6 +3,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { HELPER_STRIP_VERTEX } from "./lib/mhclo-topology.js";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 /**
  * # THE GAP, MEASURED 2026-08-19 on main 41cb8231 — do not re-derive these rows
@@ -135,7 +136,7 @@ import { HELPER_STRIP_VERTEX } from "./lib/mhclo-topology.js";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const INVENTORY = join(HERE, "hair-pack-licence-inventory.json");
-const CACHE = join(REPO_ROOT, ".openclinxr-local/provider-cache/hair/sources");
+const CACHE = join(mainWorktreeRoot(REPO_ROOT), ".openclinxr-local/provider-cache/hair/sources");
 const MAPPING = join(REPO_ROOT, "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py");
 
 /** Cached hair .mhclo files, counted from disk at plant time. */

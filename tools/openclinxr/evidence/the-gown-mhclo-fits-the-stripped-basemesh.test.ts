@@ -3,6 +3,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { HELPER_STRIP_VERTEX, maxBodyVertexRef } from "./lib/mhclo-topology.js";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 /**
  * S0 of the superagent plan, 2026-08-18 — GOWN HELPER-REF PREFLIGHT.
@@ -68,7 +69,7 @@ import { HELPER_STRIP_VERTEX, maxBodyVertexRef } from "./lib/mhclo-topology.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const CACHE = join(REPO_ROOT, ".openclinxr-local/provider-cache/garments/sources");
+const CACHE = join(mainWorktreeRoot(REPO_ROOT), ".openclinxr-local/provider-cache/garments/sources");
 const GOWN_MHCLO = join(CACHE, "makehuman-community-crude-gown/crudegown.mhclo");
 const TOIGO_MHCLO = join(CACHE, "makehuman-shirts01/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo");
 /**
