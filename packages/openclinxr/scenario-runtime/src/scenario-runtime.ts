@@ -27,6 +27,7 @@ import {
   collectVoiceStream,
 } from "@openclinxr/voice-gateway";
 import { acknowledgeContextChannelOnSession, listAvailableContextChannels } from "./context-channel/runtime.js";
+import { executeWorldAffordanceOnSession, listAvailableWorldAffordances } from "./world-affordance/runtime.js";
 import { admitEncounterOrThrow, advanceScheduledEffects, applyScheduledEffects, createEncounterAdmissionHost, type EncounterAdmissionHost, type EncounterAdmissionSnapshot, recordRequirementObservation, type SceneRequirementObservation, type ScheduledEffectResult } from "./encounter-admission-runtime.js";
 import { resolveCaseEmotionPolicy } from "./emotion-policy.js";
 import {
@@ -596,6 +597,12 @@ export class ScenarioRuntime {
     const session = this.requireSession(stationRunId);
     return acknowledgeContextChannelOnSession(session, this.options.scenario, input, (eventInput) => this.appendTrace(session, eventInput));
   }
+  availableWorldAffordances(stationRunId: string, atSecond: number) {
+    return listAvailableWorldAffordances(this.requireSession(stationRunId), this.options.scenario, atSecond);
+  }
+  executeWorldAffordance(stationRunId: string, input: { affordanceId: string; kind: "inspect" | "use" | "move" | "request-exam" | "observe-result"; atSecond: number; stationId: string; bundleId: string; actorId?: string; equipmentId?: string; examRunId?: string; stationOrder?: number }) {
+    return executeWorldAffordanceOnSession(this.requireSession(stationRunId), this.options.scenario, input, this.appendTrace.bind(this));
+  }
   advanceEnsemble(stationRunId: string, atSecond: number): MultiActorEnsembleTurn | null {
     const session = this.requireSession(stationRunId);
     return advanceTick(
@@ -795,7 +802,4 @@ export class ScenarioRuntime {
     };
   }
 }
-
-// Factory functions extracted to default-runtime-factory.ts to keep class file under freeze.
-export { createDefaultScenarioRuntime, createScenarioRuntimeWithPersistenceHooks } from "./default-runtime-factory.js";
 

@@ -57,7 +57,8 @@
     "src/the-assembled-exam-emits-replayable-phase-transitions.test.ts",
     "src/the-planner-stays-inside-its-boundary.test.ts",
     "src/the-scene-spec-gates-promotion.test.ts",
-    "src/the-scene-spec-reports-an-absent-required-asset.test.ts"
+    "src/the-scene-spec-reports-an-absent-required-asset.test.ts",
+    "src/world-affordance/affordances-execute-and-refuse-against-bound-identities.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/scenario-runtime test",
