@@ -754,19 +754,32 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       (actors.min[2] + actors.max[2]) / 2
     ];
 
-    // Candidate viewpoints: the interior corners and edge midpoints on the DOORWAY side
-    // (+Z, the side a learner enters from), inset by TWICE the measured wall thickness.
-    // The interior AABB's face is the wall's OUTER surface, so one thickness only reaches the
-    // inner surface and leaves the camera coplanar with it — measured at attempt 2, that
-    // grazed the west wall and exposed a fixture standing outside the room. Two clears both
-    // faces. The multiplier is the wall's own two surfaces, not a tuned stand-off.
-    const zEye = interior.max[2] - 2 * wallThickness;
-    const xLeft = interior.min[0] + 2 * wallThickness;
-    const xRight = interior.max[0] - 2 * wallThickness;
-    const candidates = [
-      [xLeft, zEye], [xRight, zEye], [(xLeft + xRight) / 2, zEye],
-      [(xLeft + (xLeft + xRight) / 2) / 2, zEye], [((xLeft + xRight) / 2 + xRight) / 2, zEye]
-    ];
+    // Candidate viewpoints: interior corners and edge midpoints on the DOORWAY side
+    // (+Z), inset by TWICE the measured wall thickness. The interior AABB's face is
+    // the wall's OUTER surface, so one thickness only reaches the inner surface and
+    // leaves the camera coplanar with it. Two clears both faces when thickness > 0.
+    //
+    // When thickness is 0 the 2× rule collapses (peds_asthma + stepdown, 2026-09-12:
+    // native frames are flat beige plaster, Pre-Encounter board still in view). Floor
+    // the stand-off at twice the known-good ED bay +Z thickness 0.1245 m (measured in
+    // a-generated-room-gives-the-interior-camera-a-standoff.test.ts). A second z ring
+    // sits further inside so a doorway-side AABB that still includes the hull does not
+    // force every candidate onto the plaster.
+    const knownGoodWallThickness = 0.1245;
+    const standoff = Math.max(2 * wallThickness, 2 * knownGoodWallThickness);
+    const zDoor = interior.max[2] - standoff;
+    const zInside = Math.max(look[2] + 0.5, zDoor - 0.6);
+    const xLeft = interior.min[0] + standoff;
+    const xRight = interior.max[0] - standoff;
+    const xMid = (xLeft + xRight) / 2;
+    const xValues = [xLeft, xRight, xMid, (xLeft + xMid) / 2, (xMid + xRight) / 2];
+    const zValues = [zDoor, zInside];
+    const candidates = [];
+    for (let zi = 0; zi < zValues.length; zi++) {
+      for (let xi = 0; xi < xValues.length; xi++) {
+        candidates.push([xValues[xi], zValues[zi]]);
+      }
+    }
 
     // Score = distance to the CLOSEST actor box in the XZ plane. Maximising it is exactly
     // "no single actor dominates the frame"; it is a selection rule over measured geometry,
@@ -926,9 +939,21 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       if (lookRayHitsWall(candidates[i][0], candidates[i][1])) rejectedCandidates.push(candidates[i]);
       else accepted.push(candidates[i]);
     }
-    // Fall back to the full set if the ray test rejects everything — selection must never
-    // produce no camera, and a scene with no open view is better photographed than refused.
-    const pool = accepted.length > 0 ? accepted : candidates;
+    // Do not photograph a rejected (wall-blocked) viewpoint. That fallback is how
+    // peds_asthma and stepdown shipped as flat beige: every doorway-side eye sat
+    // on the hull, all rays hit plaster, and the pool became the wall set.
+    // If every candidate is blocked, take the one closest to the look point
+    // (further inside) rather than the doorway-wall ring.
+    const pool = accepted.length > 0 ? accepted : [];
+    if (pool.length === 0) {
+      let fallback = candidates[0], bestD = Infinity;
+      for (let i = 0; i < candidates.length; i++) {
+        const dx = candidates[i][0] - look[0], dz = candidates[i][1] - look[2];
+        const d = Math.sqrt(dx * dx + dz * dz);
+        if (d < bestD) { bestD = d; fallback = candidates[i]; }
+      }
+      pool.push(fallback);
+    }
     // The score is a LIVE measurement of actor boxes, so a strict argmax is settle-order
     // sensitive: sub-centimetre load-to-load actor jitter made two near-symmetric viewpoints
     // swap the winner run to run (#638 — primary_care's two extremes tie within ~0.7%, and
@@ -1024,6 +1049,8 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
   // legacy framing is kept unchanged — a doorless shell cannot put the camera behind its door.
   const verdict = deriveDoorwayOverviewCameraForEnvironment(environmentId);
   const camera = verdict?.camera ?? { x: 1.35, y: 2.05, z: 3.15 };
+  const leaf = verdict?.doorLeafXSpan;
+  const lookX = leaf ? (leaf[0] + leaf[1]) / 2 : 0;
   return page.evaluate((cam) => {
     type Cam = {
       position: { set: (x: number, y: number, z: number) => void; x: number; y: number; z: number };
@@ -1052,9 +1079,11 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
     });
     if (!foundCamera) return "no-camera";
 
-    // Doorway-side elevated overview looking into the encounter (negative Z).
+    // Doorway-side elevated overview looking through the leaf opening (negative Z).
+    // lookX is the leaf-band centre so a camera parked beside the door (x=1.35 vs
+    // leaf [1.64, 2.52] on stepdown) does not aim at the plaster to its left.
     foundCamera.position.set(cam.x, cam.y, cam.z);
-    foundCamera.lookAt(0, 1.0, -1.35);
+    foundCamera.lookAt(cam.lookX, 1.0, -1.35);
     if (typeof foundCamera.fov === "number") {
       foundCamera.fov = 62;
       foundCamera.updateProjectionMatrix?.();
@@ -1062,8 +1091,8 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
     if (foundCamera.userData) {
       foundCamera.userData.openClinXrCameraFraming = "environment_room_capture_doorway_elevated_overview_#398";
     }
-    return `roomCam=${foundCamera.position.x.toFixed(2)},${foundCamera.position.y.toFixed(2)},${foundCamera.position.z.toFixed(2)}`;
-  }, camera);
+    return `roomCam=${foundCamera.position.x.toFixed(2)},${foundCamera.position.y.toFixed(2)},${foundCamera.position.z.toFixed(2)} lookX=${cam.lookX.toFixed(2)}`;
+  }, { ...camera, lookX });
 }
 
 /**
