@@ -17,29 +17,29 @@
    "captures": {
     "front_lit": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-front_lit.png",
-     "bytes": 840849,
-     "sha256": "10a4930e18789627ae028a75c5d43ca4eb0d7fba654be172881a95f390706f76",
+     "bytes": 840815,
+     "sha256": "7ce43db824aa7f9f86f4ca4b00658d6a2211aeb4659b2ff02476984303f5bc85",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "front_structure": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-front_structure.png",
-     "bytes": 2966840,
-     "sha256": "5fbdb367eef0b939cd0cdf3c27d509663460425ed12e044df32d3072cd740d49",
+     "bytes": 2967934,
+     "sha256": "c1b59af3bcfdd18fd55fb97dbc977ad8b2b16173af46396ffc74228bd4b8b5e1",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "three_quarter_lit": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-three_quarter_lit.png",
-     "bytes": 881565,
-     "sha256": "809ed79af777a5d0aa4e59ee9ff5f5aafdebd4d7cbd62e5fcbca8a8d0bb61340",
+     "bytes": 881407,
+     "sha256": "748ea7c1cb387b2653466eb45b5475cfdb97539f4be9f286ccb90f5e371b8599",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "three_quarter_structure": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-three_quarter_structure.png",
-     "bytes": 2865627,
-     "sha256": "8546d7a1c3144819accee38da0aa57dc1c65869f171d1428f4d07d0ec973c3fb",
+     "bytes": 2866607,
+     "sha256": "c62408730582a8c6cc547082444d3f88285472c7be34b4da1a82a97e0ecfcdbe",
      "pngWidth": 4096,
      "pngHeight": 4096
     }
@@ -273,11 +273,11 @@
    ],
    "nodeCount": 148,
    "refusalRule": "baseColorFactor != [1,1,1] on a material WITH baseColorTexture and no recorded reason = refusal (HB-00). Untextured flat colours are the albedo itself, not a tint.",
-   "sha256": "eec3da6d98aced2654ee957c34d87339a914f7bb21ce5191ef4d8806008d8a86",
+   "sha256": "8409334c30861e07d7bb180b2b8f7e5d48c277bc91c4a5df8f0cb0475869c541",
    "sidecar": {
     "match": true,
     "outputBytes": 8396376,
-    "outputSha256": "eec3da6d98aced2654ee957c34d87339a914f7bb21ce5191ef4d8806008d8a86"
+    "outputSha256": "8409334c30861e07d7bb180b2b8f7e5d48c277bc91c4a5df8f0cb0475869c541"
    },
    "triangles": 38958
   },
