@@ -12,7 +12,8 @@ import {
   assembledExamReviewNotEvidenceFor,
   type AssembledExamReviewPacket,
 } from "@openclinxr/review-workflow";
-
+import { FacultyAdjudicationDispositionTrail } from "./faculty-adjudication-disposition.js";
+import type { FacultyGraphqlExecute } from "./faculty-adjudication-graphql.js";
 
 export type AdminAssembledExamReviewPacket = AssembledExamReviewPacket;
 
@@ -46,15 +47,11 @@ export const FACULTY_ADJUDICATION_CLAIM_BOUNDARY =
 export const FACULTY_ADJUDICATION_DISPOSITION_CLAIM_BOUNDARY =
   "faculty_adjudication_disposition_not_score_use_or_clinical_validity" as const;
 
-const DISPOSITION_LABEL: Record<FacultyAdjudicationDisposition, string> = {
-  hold_for_debrief: "Hold for debrief",
-  ready_for_debrief: "Ready for debrief",
-  needs_station_evidence: "Needs station evidence",
-};
-
 export type FacultyAdjudicationWorkspaceProps = {
   examRunId?: string;
   loadPacket?: (examRunId: string) => Promise<unknown>;
+  executeGraphql?: FacultyGraphqlExecute;
+  now?: () => string;
   onLoadExamRun?: (examRunId: string) => void;
 };
 
@@ -300,12 +297,13 @@ export async function fetchAssembledExamReviewPacket(
 export function FacultyAdjudicationWorkspace({
   examRunId = "",
   loadPacket,
+  executeGraphql,
+  now,
   onLoadExamRun,
 }: FacultyAdjudicationWorkspaceProps): ReactElement {
   const [examRunIdInput, setExamRunIdInput] = useState(examRunId);
   const [requestedExamRunId, setRequestedExamRunId] = useState(examRunId.trim());
   const [state, setState] = useState<WorkspaceState>(examRunId.trim() ? { status: "loading", examRunId: examRunId.trim() } : { status: "idle" });
-  const [disposition, setDisposition] = useState<AdminFacultyAdjudicationDispositionRecord | null>(null);
   const loadPacketRef = useRef(loadPacket);
   loadPacketRef.current = loadPacket;
 
@@ -318,7 +316,6 @@ export function FacultyAdjudicationWorkspace({
 
   useEffect(() => {
     const trimmed = requestedExamRunId.trim();
-    setDisposition(null);
     if (!trimmed) {
       setState({ status: "idle" });
       return;
@@ -357,21 +354,6 @@ export function FacultyAdjudicationWorkspace({
     }
     onLoadExamRun?.(trimmed);
     setRequestedExamRunId(trimmed);
-  };
-
-  const recordDisposition = (next: FacultyAdjudicationDisposition) => {
-    if (state.status !== "ready") {
-      return;
-    }
-    setDisposition({
-      examRunId: state.packet.examRunId,
-      disposition: next,
-      scoringValidityClaimed: false,
-      examEquivalenceGate: false,
-      clinicalValidityClaimed: false,
-      claimBoundary: FACULTY_ADJUDICATION_DISPOSITION_CLAIM_BOUNDARY,
-      notEvidenceFor: state.packet.notEvidenceFor,
-    });
   };
 
   const packet = state.status === "ready" ? state.packet : null;
@@ -521,30 +503,13 @@ export function FacultyAdjudicationWorkspace({
             )}
           </ul>
 
-          <section aria-label="Faculty review disposition">
-            <Typography.Text strong>Faculty review disposition</Typography.Text>
-            <Typography.Paragraph type="secondary">
-              Local faculty adjudication only. scoringValidityClaimed remains false. examEquivalenceGate remains false.
-              This is not score use, clinical validity, or exam equivalence.
-            </Typography.Paragraph>
-            <Space wrap>
-              {FACULTY_ADJUDICATION_DISPOSITIONS.map((value) => (
-                <Button
-                  key={value}
-                  aria-label={`Record disposition ${value}`}
-                  type={disposition?.disposition === value ? "primary" : "default"}
-                  onClick={() => recordDisposition(value)}
-                >
-                  {DISPOSITION_LABEL[value]}
-                </Button>
-              ))}
-            </Space>
-            {disposition ? (
-              <Typography.Paragraph aria-label="Recorded faculty disposition">
-                {`${disposition.disposition}; scoringValidityClaimed ${String(disposition.scoringValidityClaimed)}; examEquivalenceGate ${String(disposition.examEquivalenceGate)}; clinicalValidityClaimed ${String(disposition.clinicalValidityClaimed)}; ${disposition.claimBoundary}`}
-              </Typography.Paragraph>
-            ) : null}
-          </section>
+          <FacultyAdjudicationDispositionTrail
+            examRunId={packet.examRunId}
+            clinicalValidityClaimed={false}
+            workspaceDispositionClaimBoundary={FACULTY_ADJUDICATION_DISPOSITION_CLAIM_BOUNDARY}
+            {...(executeGraphql ? { executeGraphql } : {})}
+            {...(now ? { now } : {})}
+          />
         </>
       ) : null}
     </section>
