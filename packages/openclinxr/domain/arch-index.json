@@ -32,6 +32,7 @@
   "tests": [
     "src/authored-content-identity.test.ts",
     "src/claim-language.test.ts",
+    "src/context-channel/context-channels-fail-closed.test.ts",
     "src/scenario-bank-lifecycle.test.ts",
     "src/station-state.test.ts"
   ],
