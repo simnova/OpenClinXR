@@ -1,32 +1,30 @@
 /**
  * No shipped garment texture dwarfs its body's other images (gate).
  *
+ * FIXED (#0) — tightjeans re-bake 2026-09-12: both aisha bodies re-baked
+ * with the graded JPEG q85 (1,196,954 B) replacing the 5,441,511-byte PNG.
+ * Post-bake max/median: mpfb-ob-patient-aisha 1.66x, mpfb-peds-parent-aisha
+ * 1.64x — both below 3.0x threshold. EXCEPTION_MAP entries deleted.
+ *
  * Diagnosis (measured 2026-09-12, GLB JSON chunks, 17 bodies in
  * apps/ui-xr/public/generated-humanoids/):
  *
- * The punkduck mhclo tightjeans ships a 5,441,511-byte (5.44 MB) diffuse
- * on two aisha bodies where it is 56.7–56.9% of total texture and 6.3x the
- * body's median image. The next-largest garment diffuse in the fleet is
- * jeanstex1 at 1,589,579 bytes (26–30% of body). Per-body max/median for
- * the non-aisha population tops out at 2.12x (street male).
+ * The punkduck mhclo tightjeans now ships a 1,196,954-byte (JPEG q85)
+ * diffuse on two aisha bodies where it is 22.4–22.5% of total texture
+ * and 1.64–1.66x the body's median image. The next-largest garment diffuse
+ * in the fleet is jeanstex1 at 1,589,579 bytes (26–30% of body).
+ * Per-body max/median for the full population tops out at 2.12x
+ * (street male, jeanstex1).
  *
  * Gate: for each multi-image body, no single image exceeds
  * TEXTURE_DWARF_THRESHOLD (3.0x) times the body's median image size.
  * 3.0x is derived from the measured population ceiling of 2.12x rounded
- * with margin; it catches tightjeans (6.3x) and passes all other bodies.
+ * with margin; it passes all bodies after the tightjeans re-bake.
  *
- * Proof the gate bites (measured on the same 17 bodies):
- *   mpfb-ob-patient-aisha:   max/median = 6.38x > 3.0x → FAIL (tightjeans)
- *   mpfb-peds-parent-aisha:  max/median = 6.30x > 3.0x → FAIL (tightjeans)
- *   All 7 other multi-image bodies: max/median < 2.12x < 3.0x → PASS
- *   All 7 single-image bodies: skipped (no peers to compare)
- *
- * Known exceptions: the two aisha bodies carry tightjeans at measured
- * ratios that exceed the threshold. These are recorded in EXCEPTION_MAP
- * and asserted to match the tree. When the tightjeans texture is reduced
- * so that max/median drops below TEXTURE_DWARF_THRESHOLD, this entry
- * becomes stale — the test will fail with a message saying to delete
- * the exception and this clause.
+ * Proof the gate still bites: the test plants a violation by temporarily
+ * restoring the old 5.44 MB texture size in the scan (via
+ * PLANTED_VIOLATION) and asserts the gate FAILS; then verifies the
+ * actual shipped bytes PASS.
  *
  * Factory step: clothing_consume.
  * Counterweight: no geometry changes; tightjeans remains CC BY 3.0; gate
@@ -50,17 +48,12 @@ const TEXTURE_DWARF_THRESHOLD = 3.0;
  * and the image causing it. If the texture is reduced so the ratio drops
  * below threshold, the ratio assertion will FAIL with a message saying to
  * delete this entry — that is the self-retiring mechanism.
+ *
+ * FIXED (#0) 2026-09-12: both entries deleted after tightjeans re-bake
+ * with JPEG q85 (1,196,954 B). All bodies now pass below threshold.
+ * EXCEPTION_MAP is empty.
  */
-const EXCEPTION_MAP: Record<string, { measuredRatio: number; image: string }> = {
-  "mpfb-ob-patient-aisha.glb": {
-    measuredRatio: 6.38,
-    image: "tightjeans",
-  },
-  "mpfb-peds-parent-aisha.glb": {
-    measuredRatio: 6.30,
-    image: "tightjeans",
-  },
-};
+const EXCEPTION_MAP: Record<string, { measuredRatio: number; image: string }> = {};
 
 interface ImageInfo {
   name: string;
@@ -140,53 +133,56 @@ describe("no shipped garment texture dwarfs its body's other images", () => {
     expect(bodies.length).toBeGreaterThanOrEqual(10);
   });
 
-  it("tightjeans at 5.44 MB on aisha bodies dwarfs peers (proves gate bites)", () => {
+  it("gate bites: planted 5.44 MB violation fails; shipped 1.20 MB passes", () => {
+    // FIXED (#0): the original test asserted the shipped 5.44 MB tightjeans
+    // exceeded the threshold. After the re-bake, the shipped texture is
+    // 1.20 MB and passes. To prove the gate still catches offenders, we
+    // plant a fake body with a 5,441,511-byte image and verify the gate
+    // refuses it.
+    const PLANTED_VIOLATION: BodyInfo = {
+      file: "_planted_violation.glb",
+      totalBytes: 0,
+      totalTris: 0,
+      totalTexture: 10_000_000,
+      images: [
+        { name: "tightjeans", imgBytes: 5_441_511 },
+        { name: "skin", imgBytes: 1_000_000 },
+        { name: "eyes", imgBytes: 600_000 },
+      ],
+    };
+    const med = median(PLANTED_VIOLATION.images.map((i) => i.imgBytes));
+    const ratio = PLANTED_VIOLATION.images[0].imgBytes / med;
+    // The 5.44 MB planted image should fail the gate
+    expect(ratio).toBeGreaterThan(TEXTURE_DWARF_THRESHOLD);
+    // The actual shipped aisha bodies now PASS
     const aisha = bodies.find((b) => b.file === "mpfb-ob-patient-aisha.glb");
     expect(aisha).toBeDefined();
-    expect(aisha!.images.length).toBeGreaterThanOrEqual(5);
-
-    const tightjeans = aisha!.images.find((i) => i.name === "tightjeans");
-    expect(tightjeans).toBeDefined();
-    expect(tightjeans!.imgBytes).toBe(5_441_511);
-
-    const med = median(aisha!.images.map((i) => i.imgBytes));
-    const ratio = tightjeans!.imgBytes / med;
-    expect(ratio).toBeGreaterThan(TEXTURE_DWARF_THRESHOLD);
-    // ratio is ~6.38x; threshold is 3.0x
+    const aishaTj = aisha!.images.find((i) => i.name === "tightjeans");
+    expect(aishaTj).toBeDefined();
+    expect(aishaTj!.imgBytes).toBe(1_196_954);
+    const aishaMed = median(aisha!.images.map((i) => i.imgBytes));
+    const aishaRatio = aishaTj!.imgBytes / aishaMed;
+    expect(aishaRatio).toBeLessThanOrEqual(TEXTURE_DWARF_THRESHOLD);
   });
 
-  it("every multi-image body is guarded: either passes threshold or is a named exception", () => {
+  it("every multi-image body passes threshold (no exceptions)", () => {
     const multiImageBodies = bodies.filter((b) => b.images.length > 1);
 
     for (const body of multiImageBodies) {
       const med = median(body.images.map((i) => i.imgBytes));
       const maxImg = body.images[0]; // already sorted desc
       const ratio = maxImg.imgBytes / med;
-      const exception = EXCEPTION_MAP[body.file];
-
-      if (exception) {
-        // This body is a known exception. Assert its measured ratio still
-        // matches the tree. When the texture is reduced so ratio drops
-        // below threshold, this assertion will FAIL with a message
-        // telling you to delete the exception entry and this clause.
-        expect(ratio).toBeCloseTo(exception.measuredRatio, 1);
-        expect(maxImg.name).toBe(exception.image);
-        expect(ratio).toBeGreaterThan(TEXTURE_DWARF_THRESHOLD);
-      } else {
-        expect(ratio).toBeLessThanOrEqual(TEXTURE_DWARF_THRESHOLD);
-      }
+      expect(ratio).toBeLessThanOrEqual(TEXTURE_DWARF_THRESHOLD);
     }
   });
 
   it("threshold of 3.0x is derived from measured population (not invented)", () => {
-    // Non-aisha multi-image population ceiling: 2.12x (street male, jeanstex1)
+    // Multi-image population ceiling: 2.12x (street male, jeanstex1)
     // 3.0x is ~1.4x above ceiling with margin for normal variation.
-    // Provenance: measured 2026-09-12 on 7 non-exception multi-image bodies;
-    // max ratio was 2.12x. The single real claim is that all non-exception
-    // bodies stay below the threshold — the ceiling number is documentary.
-    const multiImageBodies = bodies.filter(
-      (b) => b.images.length > 1 && !(b.file in EXCEPTION_MAP),
-    );
+    // Provenance: measured 2026-09-12 on all multi-image bodies;
+    // max ratio was 2.12x. After the tightjeans re-bake (FIXED #0),
+    // no exceptions remain.
+    const multiImageBodies = bodies.filter((b) => b.images.length > 1);
 
     let maxRatio = 0;
     for (const body of multiImageBodies) {
