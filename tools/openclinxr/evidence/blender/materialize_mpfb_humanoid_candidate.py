@@ -34,10 +34,16 @@ from garment_coverage import _orient_outward, _ray_tri_hits  # noqa: E402
 # so each fits the #318 helper-stripped 13,380-vert basemesh like the t-shirt/pants.
 # HB-07: the child shipped `makeclothes_library_cargo_pants` (2,628 tris — the
 # LOWER GATE cover shell over cortu_cargo_pants). Default non-clinician lower is
-# Elvaerwyn jeans (5,708 tris). Attempt 2 rebaked this body in jeans and landed
-# 80,404 = 77,324 + 3,080. Override only this reference; other bodies keep jeans.
+# Elvaerwyn straight-leg jeans (5,708 tris). Attempt 2 rebaked this body in jeans
+# and landed 80,404 = 77,324 + 3,080. Override only keyed references; street
+# (`adult_male_street_casual`) keeps the default straight-leg jeans.
+# Family-partner (`ed_chest_pain_spouse_adult`) currently ships a 2,789-tri
+# body-derived cover shell named cargo_pants; pants02 Elvaerwyn bootcut jeans
+# (mens_elv_jeans1f.obj 2,854 faces / 5,708 tris expected, max mhclo ref 13351,
+# `# license CC_by`) are the covering unconsumed sibling of the street lower.
 LOWER_GARMENT_BY_REFERENCE = {
     "peds_patient_child": "cortu_cargo_pants",
+    "ed_chest_pain_spouse_adult": "elvs_jeans_bootcut",
 }
 
 SHOE_BY_REFERENCE = {
@@ -4222,7 +4228,8 @@ def main():
     # HB-07: peds_patient_child is keyed to cargo so a rebake keeps the shipped
     # 2,628-tri cover shell (LOWER_GARMENT_BY_REFERENCE).
     if pants is None:
-        if LOWER_GARMENT_BY_REFERENCE.get(args.reference or "") == "cortu_cargo_pants":
+        _ref_lower = LOWER_GARMENT_BY_REFERENCE.get(args.reference or "")
+        if _ref_lower == "cortu_cargo_pants":
             _pants_dir = (
                 REPO_ROOT
                 / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants"
@@ -4230,6 +4237,14 @@ def main():
             pants_obj = _pants_dir / "cargo_pants.obj"
             pants_mhclo = _pants_dir / "cargo_pants.mhclo"
             _lower_lib_name = "makeclothes_library_cargo_pants"
+        elif _ref_lower == "elvs_jeans_bootcut":
+            _pants_dir = (
+                REPO_ROOT
+                / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_jeans_bootcut"
+            )
+            pants_obj = _pants_dir / "mens_elv_jeans1f.obj"
+            pants_mhclo = _pants_dir / "elvs_jeans_bootcut.mhclo"
+            _lower_lib_name = "makeclothes_library_bootcut_jeans_pants"
         else:
             _pants_dir = (
                 REPO_ROOT
@@ -4273,6 +4288,13 @@ def main():
                 "author=Cortu Johnstone pack=pants01 "
                 "page=https://static.makehumancommunity.org/assets/assetpacks/pants01.html "
                 "license=CC0"
+            )
+        elif _lower_lib_name == "makeclothes_library_bootcut_jeans_pants":
+            print(
+                "LOWER_GARMENT_ATTRIBUTION makeclothes_library_bootcut_jeans_pants "
+                "author=Elvaerwyn pack=pants02 "
+                "page=https://static.makehumancommunity.org/assets/assetpacks/pants02.html "
+                "license=CC-BY"
             )
         else:
             print(
@@ -4463,6 +4485,7 @@ def main():
         "makeclothes_library_wool_pants",
         "makeclothes_library_classic_jeans_pants",
         "makeclothes_library_straight_leg_jeans_pants",
+        "makeclothes_library_bootcut_jeans_pants",
     }
     _sparse_open_shell = (
         lower_rep["verdict"] == "does_not_cover"
@@ -4472,6 +4495,13 @@ def main():
         )
     )
     if _sparse_open_shell:
+        if (args.reference or "") == "ed_chest_pain_spouse_adult":
+            raise RuntimeError(
+                "family-partner lower did not cover with the staged pants02 mhclo "
+                f"(lib={_lower_lib_name} verdict={lower_rep.get('verdict')!r} "
+                f"boundaryEdges={lower_rep.get('garmentBoundaryEdges')}); "
+                "refusing build_cover_shell fallback — STOP, do not ship a body-derived shell"
+            )
         # #295 — the leg shell must not wrap the hanging hands (measured 3,450
         # hand-dominant verts in the heavy-male lower fallback): exclude
         # arm/forearm/hand-dominant body faces from the shell band selection.

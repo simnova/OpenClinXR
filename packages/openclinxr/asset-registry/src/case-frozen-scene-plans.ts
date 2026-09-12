@@ -83,8 +83,8 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "daughter_lena_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-          "assetSha256": "0b1b9c991e1129d5328155080532d22e2897ab5b79cca5e6393a531f44190fcb",
-          "byteCount": 8151256
+          "assetSha256": "6da9bce8ebfef14f1d6c2ae46d68cbe85141f5e257ac1f2cf9dd7caf21b91604",
+          "byteCount": 10414800
         }
       ],
       "revisions": {

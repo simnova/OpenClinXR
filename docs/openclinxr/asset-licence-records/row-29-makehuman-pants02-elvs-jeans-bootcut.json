@@ -1,0 +1,13 @@
+{
+  "id": "row-29-makehuman-pants02-elvs-jeans-bootcut",
+  "section": "Acquired",
+  "rowIndex": 29,
+  "cells": [
+    " `makehuman-pants02` / `elvs_jeans_bootcut` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/pants02.html), author Elvaerwyn, `mens_elv_jeans1f.obj`)",
+    "**CC-BY** — `.mhclo` header `# license CC_by`; pack page lists the pants02 clothes as CC-BY. Attribution: `Elvaerwyn, pants02 elvs_jeans_bootcut, CC-BY`.",
+    "`elvs_jeans_bootcut.mhclo` + `mens_elv_jeans1f.obj` + `mens_elv_jeans1f.mhmat` + `jeanstex1.png`, cached under `.openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_jeans_bootcut/`. 2,854 faces; max hm08 ref 13,351.",
+    "2026-09-12",
+    "`materialize_mpfb_humanoid_candidate.py` LOWER_GARMENT_BY_REFERENCE[`ed_chest_pain_spouse_adult`] = `elvs_jeans_bootcut` → `makeclothes_library_bootcut_jeans_pants` on `mpfb-family-partner-adult.glb` (5,708 tris = 2,854 faces × 2). ClothesService.fit_clothes_to_human on the live helper-stripped hm08 basemesh. Bake-time licence re-read via `read_hair_mhclo_licence` (`# license CC_by`).",
+    "**Keep.** CC-BY attribution must survive into shipped builds."
+  ]
+}

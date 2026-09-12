@@ -15,7 +15,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - archive-candidate: 90
 - current-reference: 208
 - decision-record: 44
-- evidence: 109
+- evidence: 110
 - generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
@@ -390,3 +390,4 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-GUIDE-2026-08-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/evidence/humanoid-vetting/family-partner-library-lower-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.

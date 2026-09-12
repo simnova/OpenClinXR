@@ -279,6 +279,16 @@ export const SUBCOMPONENT_CLEARANCE: readonly SubcomponentClearance[] = [
     publicRenderCleared: false,
   },
   {
+    meshMatch: "makeclothes_library_bootcut_jeans_pants",
+    component: "Elvaerwyn bootcut jeans (pants02)",
+    licenceRecordPath: "docs/openclinxr/asset-licence-records/row-29-makehuman-pants02-elvs-jeans-bootcut.json",
+    requiredRecordPhrases: ["CC-BY"],
+    rights: "cc-by",
+    attribution: "Elvaerwyn, pants02 elvs_jeans_bootcut, CC-BY",
+    redistributable: true,
+    publicRenderCleared: true,
+  },
+  {
     meshMatch: "makeclothes_library_lab_coat",
     component: "makehuman-community crude lab coat",
     licenceRecordPath:

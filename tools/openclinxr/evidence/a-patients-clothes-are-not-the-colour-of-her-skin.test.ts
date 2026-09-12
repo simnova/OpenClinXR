@@ -31,6 +31,13 @@
  * claimScope: whether a patient's garments are visually distinguishable from her own skin.
  * notEvidenceFor: whether street clothes are clinically appropriate for this station at all —
  *                 that is the hospital_gown-NOT-FOUND question (E1 / #499) and is NOT this.
+ *
+ * ## FIXED (#0)
+ *
+ * Family-partner lower is now fitted `elvs_jeans_bootcut` (5,708 tris); aisha still
+ * wears the cargo shell. Both still ship two garments. The garment matcher includes
+ * `bootcut_jeans_pants` so the control pair stays countable. Diagnosis table above
+ * is unchanged.
  */
 import { createHash } from "node:crypto";
 import { NodeIO } from "@gltf-transform/core";
@@ -53,7 +60,7 @@ async function readActor(file: string): Promise<Actor> {
     const n = m.getName();
     const p = m.listPrimitives()[0];
     const verts = m.listPrimitives().reduce((t, q) => t + (q.getAttribute("POSITION")?.getCount() ?? 0), 0);
-    if (/cargo_pants|toigo_t_shirt/.test(n)) {
+    if (/cargo_pants|bootcut_jeans_pants|toigo_t_shirt/.test(n)) {
       const f = p?.getMaterial()?.getBaseColorFactor();
       if (f) garments.push({ name: n, rgb: [f[0]! * 255, f[1]! * 255, f[2]! * 255], verts });
     }
@@ -78,7 +85,7 @@ describe("#506 a patient's clothes are distinguishable from her skin", () => {
     const ob = await readActor("mpfb-ob-patient-aisha.glb");
     const fam = await readActor("mpfb-family-partner-adult.glb");
     expect(ob.garments.length, "OB patient cargo_pants + toigo_t_shirt").toBe(2);
-    expect(fam.garments.length, "family partner cargo_pants + toigo_t_shirt").toBe(2);
+    expect(fam.garments.length, "family partner bootcut_jeans_pants + toigo_t_shirt").toBe(2);
   });
 
   it("(1) the OB patient's garments contrast with her own skin", async () => {
