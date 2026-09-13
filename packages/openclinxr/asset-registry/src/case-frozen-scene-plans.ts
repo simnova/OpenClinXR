@@ -12,8 +12,10 @@ import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evide
  * has something to reopen without a server round trip.
  *
  * IT IS A REAL FREEZE OUTPUT. The generator reads the case document and the four selected humanoid
- * GLBs off disk and hashes their bytes with `node:crypto`; nothing here was typed. The browser
- * cannot produce this — it hashes — which is the server/browser split required behavior 4 asks for.
+ * GLBs off disk and hashes their bytes with `node:crypto`; nothing here was typed. Geometry is
+ * captured from the shipped UI-XR entry after Infinigen hull load and hull_inset reanchor — the
+ * room a learner sees — then observed with the production observer. The browser cannot produce the
+ * asset hashes, which is the server/browser split required behavior 4 asks for.
  *
  * A CASE ABSENT FROM THIS MAP HAS NO FROZEN PLAN, and `admitFrozenScenePlan` returns
  * `no_plan_carried` for it. That is the honest answer, not a failure: most encounters have never
@@ -91,7 +93,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
         "solverVersion": "openclinxr.bedside-layout-solver.v1",
         "rigRevision": "mpfb2_standard_137_joint",
         "clipRevision": "openclinxr_retarget_walk_formal_cc0",
-        "geometryRevision": "geom-v1-c45e274d-7",
+        "geometryRevision": "geom-v1-cdaa4a22-7",
         "rubricVersion": "openclinxr.scene-closure-arrival-rubric.v1"
       },
       "variation": {
@@ -146,11 +148,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-1dae6c6f3878d792b57cdacfe7cfd0de",
+      "planRevision": "plan-v1-201f605d19bce90ca52e098c3951c0e6",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-1dae6c6f3878d792b57cdacfe7cfd0de"
+        "acknowledgedPlanRevision": "plan-v1-201f605d19bce90ca52e098c3951c0e6"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);

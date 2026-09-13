@@ -54,6 +54,18 @@ import {
  * `observedGeometryRevision` names that live value. Restoring wall anchors at
  * admission re-opens #342c and is not the fix. Re-freeze is a follow-on card.
  *
+ * ## FIXED
+ * SC-06 producer `freeze-case-scene-plan.ts` now boots the shipped UI-XR entry
+ * (spawnPortlessDevServer + bundle fulfill, same path as sc-05 /
+ * displayed-walk-on-the-loaded-physician.ts), reads live `hull_inset`
+ * `movedMeters` after the generated room loads, applies those slides onto the
+ * node shell, and `freezeAcceptedScenePlan` writes `geom-v1-cdaa4a22-7`.
+ * `parametricDigest` stays `geom-v1-c45e274d-7` and no longer equals the freeze.
+ * Admission of the reanchored scene is `admitted`. Restoring wall anchors at
+ * admission is still refused by the clause below. First-frame
+ * `observedGeometryRevision` can still be the parametric digest when admission
+ * runs before the hull lands; that is recorded, not repaired here.
+ *
  * claimScope: geometryRevisionDigest of the inpatient ward fixtures the
  * admission observes, versus the committed freeze.
  * notEvidenceFor: clinical validity, worn-headset, scoring, exam equivalence.
@@ -107,14 +119,17 @@ describe("the runtime reproduces the frozen room digest", () => {
     const scene = new Scene();
     scene.add(buildStationEnvironment({ environmentId: WARD }) as never);
     const parametricDigest = digestOf(scene);
-    expect(parametricDigest, "node parametric shell drifted from the freeze").toBe(frozenDigest);
+    expect(parametricDigest, "node parametric shell drifted from the original measured freeze").toBe(
+      "geom-v1-c45e274d-7",
+    );
+    expect(parametricDigest, "freeze still describes the pre-hull parametric shell").not.toBe(frozenDigest);
 
     applyMeasuredInfinigenReanchor(scene);
     const reanchoredDigest = digestOf(scene);
     expect(reanchoredDigest, "the measured Infinigen slide no longer produces the live digest").toBe(
       REANCHORED_DIGEST,
     );
-    expect(reanchoredDigest).not.toBe(frozenDigest);
+    expect(reanchoredDigest, "freeze must bind the post-reanchor room").toBe(frozenDigest);
 
     const caseDocument = sceneClosureCaseDocument();
     const placements = createEdChestPainRuntimeSceneManifest({
@@ -159,9 +174,10 @@ describe("the runtime reproduces the frozen room digest", () => {
       patientWorldPosition: patientWorld,
       start,
     });
-    expect(admission.status, "hull-loaded scene must refuse a pre-hull freeze").toBe("refused");
-    if (admission.status !== "refused") return;
+    expect(admission.status, "hull-loaded scene must reproduce the post-reanchor freeze").toBe("admitted");
+    if (admission.status !== "admitted") return;
     expect(admission.observedGeometryRevision).toBe(REANCHORED_DIGEST);
+    expect(admission.reproduced, "admission returned without re-solving the frozen layout").not.toBeNull();
     expect(digestOf(scene)).toBe(REANCHORED_DIGEST);
     const admissionSource = readFileSync(
       nodePath.join(REPO_ROOT, "packages/openclinxr/asset-registry/src/encounter-bundle-admission-mod.ts"),
