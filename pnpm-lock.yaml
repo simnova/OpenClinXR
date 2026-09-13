@@ -493,6 +493,9 @@ importers:
       '@openclinxr/exam-assembly':
         specifier: workspace:*
         version: link:../../packages/openclinxr/exam-assembly
+      '@openclinxr/review-workflow':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/review-workflow
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../../packages/openclinxr/scenario-fixtures
