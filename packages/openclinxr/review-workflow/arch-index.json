@@ -45,6 +45,7 @@
     "src/assembled-exam-review-packet.test.ts",
     "src/attempt-replay-manifest/the-assembled-review-packet-binds-stations-to-pinned-bundles.test.ts",
     "src/branch-replay/branch-replay.test.ts",
+    "src/counterfactual-debrief/counterfactual-debrief.test.ts",
     "src/faculty-causal-chain/faculty-causal-chain.test.ts",
     "src/faculty-causal-chain/the-chain-reads-the-events-the-runtime-emits.test.ts",
     "src/faculty-review-path.test.ts",
