@@ -54,6 +54,7 @@ export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> =
   "packages/openclinxr/rest/src/routes/assembled-exam-run-routes.ts": { maxLines: 589, reason: "assembled-exam run routes; moved from apps/api in the composition-root migration — split by handler" },
   "packages/openclinxr/rest/src/scenario-review-promotion.ts": { maxLines: 510, reason: "scenario review promotion; moved from apps/api in the composition-root migration — split read/write" },
   "packages/openclinxr/asset-registry/src/index.ts": { maxLines: 2843, reason: "barrel god-file — split registry/query/store concerns; #44 spatial zones extract" },
+  "packages/openclinxr/asset-registry/src/encounter-bundle-admission-mod.ts": { maxLines: 540, reason: "frozen scene admission + failed load handling — split admission/reopen/verify next" },
   "packages/openclinxr/scenario-fixtures/src/scenario-bank-maturity.ts": { maxLines: 822, reason: "residual: maturity/exam-sequence/factory-planning analytics — split report builders by projection next (bank arrays + 11 scenarios + builders already extracted)" },
   "packages/openclinxr/arena/iwsdk-spike/src/index.ts": { maxLines: 2398, reason: "arena spike barrel — split by concern" },
   "packages/openclinxr/capability-gateway/src/asset-generation-jobs.ts": { maxLines: 2107, reason: "job orchestration — split by job kind" },

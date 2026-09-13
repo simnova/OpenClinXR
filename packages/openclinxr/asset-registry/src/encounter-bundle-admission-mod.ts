@@ -479,6 +479,48 @@ export function admitFrozenScenePlanForObservedScene<TScene>(input: {
     publishFrozenScenePlanAdmission(admission);
     return admission;
   }
+  // If the generated room load failed, the procedural box is not the room the plan was frozen against.
+  // The hull-reanchored room is what the freeze captured. We must refuse with a specific reason
+  // so the runtime can surface this rather than silently failing on a geometry mismatch.
+  // Check this BEFORE observedRoomIsReadyToJudge, because that function now returns false for failed.
+  let failedError: string | undefined;
+  // Traverse the scene to find the Infinigen status (same pattern as observedRoomIsReadyToJudge)
+  function visitForFailedStatus(scene: unknown, visit: (userData: Record<string, unknown>) => void): void {
+    const seen = new Set<Record<string, unknown>>();
+    const take = (node: unknown): void => {
+      if (node === null || typeof node !== "object") return;
+      const userData = (node as { userData?: unknown }).userData;
+      if (userData === null || typeof userData !== "object" || Array.isArray(userData)) return;
+      const bag = userData as Record<string, unknown>;
+      if (seen.has(bag)) return;
+      seen.add(bag);
+      visit(bag);
+    };
+    take(scene);
+    const traverse = (scene as { traverse?: (callback: (node: unknown) => void) => void }).traverse;
+    if (typeof traverse === "function") {
+      traverse.call(scene, take);
+    }
+  }
+  visitForFailedStatus(input.scene, (userData) => {
+    const infinigenStatus = userData["openClinXrInfinigenEnvironmentStatus"];
+    if (infinigenStatus !== null && typeof infinigenStatus === "object" && !Array.isArray(infinigenStatus)) {
+      const state = (infinigenStatus as { state?: unknown; error?: string }).state;
+      if (state === "failed") {
+        failedError = (infinigenStatus as { error?: string }).error;
+      }
+    }
+  });
+  if (failedError !== undefined) {
+    const refused: ScenePlanAdmission = {
+      status: "refused",
+      reason: "generated_room_load_failed",
+      detail: `Infinigen room load failed: ${failedError ?? "unknown error"}. The procedural box is not the room the freeze captured.`,
+      observedGeometryRevision: geometryRevisionDigest(input.observeGeometry(input.scene, { supportInstanceId: `${input.environmentId}:stretcher` })),
+    };
+    publishFrozenScenePlanAdmission(refused);
+    return refused;
+  }
   if (!observedRoomIsReadyToJudge(input.scene)) {
     publishFrozenScenePlanAdmission(admission);
     return admission;

@@ -435,4 +435,35 @@ describe("the runtime reproduces the frozen room digest", () => {
       "a hull refusal is terminal; a later matching frame must not retry-until-pass",
     ).toBe("refused");
   });
+
+  it("a failed hull load refuses with generated_room_load_failed instead of judging the box", () => {
+    const staged = stageAdmissionScene({ reanchor: false });
+    // Mark as failed instead of loaded
+    staged.scene.userData["openClinXrInfinigenEnvironmentStatus"] = {
+      environmentId: WARD,
+      state: "failed",
+      assetPath: "/xr-assets/environments/infinigen-inpatient-ward.glb",
+      error: "network timeout",
+    };
+    // Ensure no generated room source stamp
+    delete staged.scene.userData["openClinXrEnvironmentSource"];
+    // The fixtures were never reanchored because the load failed
+
+    const failed = admitFrozenScenePlanForObservedScene({
+      admission: { status: "no_plan_carried" },
+      bundle: staged.bundle,
+      scene: staged.scene,
+      environmentId: WARD,
+      observeGeometry: observeMountedApproachGeometry,
+      patientWorldPosition: staged.patientWorld,
+      start: staged.start,
+    });
+    expect(failed.status, "a failed hull load must refuse with generated_room_load_failed, not judge the box").toBe("refused");
+    if (failed.status !== "refused") return;
+    expect(failed.reason).toBe("generated_room_load_failed");
+    expect(failed.detail).toContain("network timeout");
+    expect(failed.detail).toContain("procedural box is not the room the freeze captured");
+    // The observed geometry revision should be the parametric shell (since the hull never loaded)
+    expect(failed.observedGeometryRevision).toBe("geom-v1-c45e274d-7");
+  });
 });
