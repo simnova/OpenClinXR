@@ -11,7 +11,7 @@ derived from --output (<stem>.motion-bind-report.json beside the GLB) unless
 --report is passed explicitly. Writing the default into tools/evidence left
 the shipped asset's provenance describing a superseded bake.
 """
-import argparse, json, os, sys, traceback
+import argparse, json, os, shutil, subprocess, sys, tempfile, traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -130,6 +130,57 @@ def _iter_action_fcurves(action):
             for bag in getattr(strip, "channelbags", []) or []:
                 yield from getattr(bag, "fcurves", []) or []
 
+def _repo_root():
+    # makeclothes/ -> asset-pipeline/ -> openclinxr/ -> tools/ -> repo
+    return Path(__file__).resolve().parents[4]
+
+
+def _node_bin():
+    for cand in (
+        os.environ.get("OPENCLINXR_NODE"),
+        os.environ.get("NODE"),
+        shutil.which("node"),
+        "/opt/homebrew/bin/node",
+        "/usr/local/bin/node",
+    ):
+        if cand and Path(cand).is_file():
+            return cand
+    raise RuntimeError("node_not_found_for_held_posture_correction")
+
+
+def _correct_held_posture(output_glb, clip_path, log_lines):
+    """Restore the source clip's held hip/knee flexion after retarget export.
+
+    load_and_retarget's putInTPoses() overwrites source frame 0 with the T-pose,
+    so aMatrix transfers ~3 deg of relative offset instead of ~87 deg of seated
+    flexion. The GLB-level correction (postprocess-seated-glbs.mjs) sets
+    q_anim[i] = q_rest @ q_source_global on the four leg bones for every frame.
+    Invoked from this stage so a re-bake reproduces the sit with no manual step.
+    """
+    script = Path(__file__).resolve().parent / "postprocess-seated-glbs.mjs"
+    if not script.is_file():
+        raise RuntimeError(f"missing_postprocess:{script}")
+    if not os.path.isfile(output_glb):
+        raise RuntimeError(f"missing_output_glb:{output_glb}")
+    node = _node_bin()
+    cmd = [node, str(script), "--bvh", os.path.abspath(clip_path), os.path.abspath(output_glb)]
+    proc = subprocess.run(
+        cmd,
+        cwd=str(_repo_root()),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    log_lines.append(
+        f"held_posture_postprocess code={proc.returncode} stdout={(proc.stdout or '')[-1500:]!r}"
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"held_posture_postprocess_failed:{proc.stderr[-2000:] if proc.stderr else proc.stdout}"
+        )
+    log_lines.append("held_posture_corrected=true")
+
+
 def _driven_bones(arm):
     ad = arm.animation_data
     action = ad.action if ad else None
@@ -245,10 +296,31 @@ def main(argv):
         return _reject(args.report, "zero_meshes", "\n".join(log_lines), extra={"realDrivenCount": len(real)})
 
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+    job_tmp = Path(
+        os.environ.get("OPENCLINXR_JOB_TMP")
+        or tempfile.mkdtemp(prefix=f"openclinxr-seated-{os.getpid()}-")
+    )
+    job_tmp.mkdir(parents=True, exist_ok=True)
+    tmp_glb = job_tmp / f"{Path(args.output).stem}_{os.getpid()}_export.glb"
     try:
-        bpy.ops.export_scene.gltf(filepath=args.output, export_format="GLB", export_animations=True)
+        bpy.ops.export_scene.gltf(filepath=str(tmp_glb), export_format="GLB", export_animations=True)
     except Exception as exc:
         return _reject(args.report, "export_failed", "\n".join(log_lines) + f"\n{exc!r}\n{traceback.format_exc()}")
+
+    try:
+        _correct_held_posture(str(tmp_glb), args.clip, log_lines)
+        shutil.copy2(tmp_glb, args.output)
+    except Exception as exc:
+        return _reject(
+            args.report,
+            "held_posture_correction_failed",
+            "\n".join(log_lines) + f"\n{exc!r}\n{traceback.format_exc()}",
+        )
+    finally:
+        try:
+            tmp_glb.unlink(missing_ok=True)
+        except OSError:
+            pass
 
     payload = {
         "schemaVersion": "openclinxr.seated-clip-bind.v1",
@@ -260,6 +332,7 @@ def main(argv):
         "targetMap": args.map,
         "sourceMap": args.source_map,
         "operator": "mcp.load_and_retarget",
+        "heldPostureCorrected": True,
         "addonModule": ADDON_MODULE,
         "outputGlb": args.output,
         "clipName": CLIP_NAME,

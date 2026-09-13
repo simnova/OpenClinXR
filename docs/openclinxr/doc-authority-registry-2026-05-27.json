@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 209,
     "archive-candidate": 92,
-    "evidence": 131,
+    "evidence": 132,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -4978,6 +4978,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; tightjeans JPEG re-bake report documenting materializer bake path with texture overrides, fp-r0.4 decimation, EXCEPTION_MAP deletion, and licence survival."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-seated-pose-restored-2026-09-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Seated pose restored: post-retarget correction copies frame 1 fcurve to frame 0; GLB post-processor sets q_anim=q_rest@q_source_global for ~87 deg hip flexion."
     }
   ]
 }

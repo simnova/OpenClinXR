@@ -22,7 +22,9 @@
  * claimScope: whether the seated posture (hip flexion) transfers from source to target.
  * notEvidenceFor: visual quality, runtime playback, Quest readiness, clinical realism.
  *
- * ## FIXED (#0) — pass criteria documented; test currently BITES (fails) as designed.
+ * ## FIXED (#0) — seated_clip_bind_stage._correct_held_posture() runs
+ * postprocess-seated-glbs.mjs after export so rest-to-frame-0 hip flexion is
+ * ≥ MIN_EXPECTED_FLEXION_DEG. The three clauses below are plain it().
  */
 import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
@@ -159,6 +161,16 @@ async function readGlbBones(glbPath: string): Promise<BoneData[]> {
 // ── Tests ───────────────────────────────────────────────────────────────────
 
 describe("the seated clip transfers its posture", () => {
+  it("seated_clip_bind_stage invokes postprocess-seated-glbs after export", () => {
+    const stage = readFileSync(
+      "tools/openclinxr/asset-pipeline/makeclothes/seated_clip_bind_stage.py",
+      "utf-8",
+    );
+    expect(stage).toContain("def _correct_held_posture");
+    expect(stage).toContain("postprocess-seated-glbs.mjs");
+    expect(stage).toMatch(/_correct_held_posture\(.*args\.clip/);
+  });
+
   const bvh = parseBvh(BVH_PATH);
 
   it("source BVH has the expected held hip flexion", () => {
@@ -186,10 +198,9 @@ describe("the seated clip transfers its posture", () => {
   for (const glbPath of glbFiles) {
     const glbName = glbPath.split("/").pop()!;
 
-    // it.fails: the retarget_bvh T-pose overwrite drops the held posture. When the
-    // retarget is fixed so seated posture transfers (hip flexion >= 66.823 deg), these
-    // three lines must become plain it() — the defect is gone and the assertion is true.
-    it.fails(`${glbName}: rest-to-frame-0 hip flexion within ${TOLERANCE_DEG} deg of source held value (retarget_bvh drops held posture — self-retiring)`, async () => {
+    // FIXED (#0): seated_clip_bind_stage._correct_held_posture() invokes
+    // postprocess-seated-glbs.mjs after export (q_anim = q_rest @ q_source_global).
+    it(`${glbName}: rest-to-frame-0 hip flexion within ${TOLERANCE_DEG} deg of source held value`, async () => {
       const bones = await readGlbBones(glbPath);
       const upperLegL = bones.find((b) => b.name === "upperleg01.L");
       const upperLegR = bones.find((b) => b.name === "upperleg01.R");
@@ -210,7 +221,6 @@ describe("the seated clip transfers its posture", () => {
       const angleR = quatAngleDeg(upperLegR.restRotation, upperLegR.frameRotations[0]);
 
       // The seated posture should transfer: hip flexion ~87 deg from rest.
-      // Today's GLBs show 11-18 deg — this assertion fails.
       expect(angleL).toBeGreaterThanOrEqual(MIN_EXPECTED_FLEXION_DEG);
       expect(angleR).toBeGreaterThanOrEqual(MIN_EXPECTED_FLEXION_DEG);
     });
