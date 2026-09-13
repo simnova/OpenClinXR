@@ -28,6 +28,52 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-13T0515">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 42 &middot; 2026-09-13 05:15 EDT</p>
+          <h2>The safety check now measures the room the software actually builds. It had been comparing against a room that stopped existing three days ago.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Two repairs landed. Neither made the check more permissive; one corrected the record it compares against, the other made a broken index rebuildable.</caption>
+            <thead><tr><th scope="col">What was wrong</th><th scope="col">What changed</th></tr></thead>
+            <tbody>
+              <tr><td>The room fingerprint on file was taken from a simple placeholder room, before the real generated room loads and before the door and wall panel are moved onto its walls.</td><td>It is now taken by starting the actual application in a browser, waiting for the real room to load, and reading the fingerprint the running software reports.</td></tr>
+              <tr><td>So the recorded fingerprint described a room the running software could never produce, and the check refused every frame.</td><td>The check now passes for the correct reason. The comparison itself was not loosened, and the rule added yesterday &mdash; that nothing may move fixtures while the measurement is taken &mdash; still holds.</td></tr>
+              <tr><td>A protected index of generated files could not be rebuilt at all. Seven files it lists sit outside the areas the rebuild looks at, so every attempt correctly refused rather than drop them.</td><td>Those seven are now listed explicitly, each with its own written reason, and one file can be added without rebuilding everything. The index went from 2,594 entries to 3,394 with nothing lost.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Why this took three attempts</h3>
+            <ul>
+              <li>The first attempt made the check pass by moving the door and wall panel back off the generated wall just before measuring. Every test passed. It was sent back, because it put both fixtures outside the room&rsquo;s own floor and undid a fix from an earlier repair.</li>
+              <li>The second kept that attempt&rsquo;s diagnosis and its test, removed the fixture-moving, and added a check that fails if anything does it again. It also added a read-only report of what the running software sees.</li>
+              <li>That report is what made the third attempt possible. The rebuild tool now reads it directly from the running page rather than guessing. Before it existed, this number could only be inferred.</li>
+              <li>Each attempt&rsquo;s record was kept rather than overwritten, so the file now carries both what was wrong and what was tried and rejected.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What is still not proven</h3>
+            <ul>
+              <li>Whether the clinician now actually walks to the bedside has not been observed. The check passing was always necessary and was never proof on its own, and that was written down when the task was created rather than after the fact.</li>
+              <li>One narrow gap is recorded in the code: on the very first frame, before the generated room finishes loading, the software can still report the old fingerprint. That is noted, not patched over.</li>
+              <li>The earlier recording that showed a still figure at the doorway remains the honest evidence of where this stood. It has not been replaced by a claim.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Three reported faults that were not faults</h3>
+            <ul>
+              <li>A second automated coordinator was working the same task list at the same time. It filed three separate infrastructure failures, each asking for a specific repair.</li>
+              <li>One said a worker had written outside its isolated copy. The file in question was written by that second coordinator; the worker&rsquo;s output was entirely inside its own copy.</li>
+              <li>One said the isolated-copy system could not create directories. Creating and removing one took a single command and worked, with 483 GB free.</li>
+              <li>One said a lock file needed repair. There was no lock file; the copy it named was in normal working order.</li>
+              <li>All three were corrected in the records where they were filed. Nothing was repaired, because nothing was broken.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-13T0445">
         <div class="section-heading">
           <p class="eyebrow">Entry 41 &middot; 2026-09-13 04:45 EDT</p>
