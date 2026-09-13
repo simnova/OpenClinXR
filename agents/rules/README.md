@@ -26,16 +26,32 @@ day.
 Promote only when the need is genuinely shared **and** no harness already has its own answer.
 
 ## Grok core tier (every session)
+
+Measured 2026-09-13: `.grok/rules/` holds exactly these SIX symlinks, and
+`scripts/sync-harness-agent-files.sh:12-19` (`CORE_RULES`) is the source of truth. This list
+previously named ten; four of them were never linked, and that was correct rather than an oversight.
+
 - `LEX_AGENTIC.md` — authoritative glossary + orchestrator protocol
 - `GUARD_BLUEPRINT.md` — protected files + Q1/Q4/Q5 gate
 - `GUARD_DRIFT.md` — anti-toil + model-work guard
 - `MANDATE_VISIBILITY.md` — sizable collaborative vertical slices + noticeability
 - `PROTO_SUBAGENT.md` — coordinator-first delegation
-- `PROTO_VERIFY_DELEGATION.md` — trusting what a delegate returns; probes, claims, retros
-- `PROTO_CURIOUS_RESEARCHER.md` — standing background scout; find the proven tool before hand-rolling
-- `PROTO_BOARD_LOOP.md` — board → brief → dispatch → contract → integrate gate
 - `EXEC_AUTONOMY.md` — platform override, stop conditions, post-slice loop
-- `orchestrator-only-main.md` — **main session = CEO / orchestrator only** (symlink in `.grok/rules/`)
+
+### Deliberately NOT in the Grok core tier
+
+These are ORCHESTRATOR-facing and reach a dispatched worker only as harm or noise. A worker runs one
+carded slice inside its own worktree; it does not dequeue, delegate, verify delegates or scout.
+`orchestrator-only-main.md` in particular tells its reader "you are a CEO, not an IC, do not write
+product code" — the opposite of a worker's job. Claude and Cursor still receive all rules
+(`.claude/rules/`, `.cursor/rules/` link every file), so nothing is lost to the coordinator.
+
+- `PROTO_VERIFY_DELEGATION.md` — trusting what a delegate returns; probes, claims, retros
+- `PROTO_CURIOUS_RESEARCHER.md` — standing background scout
+- `PROTO_BOARD_LOOP.md` — board → brief → dispatch → contract → integrate gate
+- `orchestrator-only-main.md` — main session = CEO / orchestrator only
+
+**If you add a file here, add it to `CORE_RULES` in the sync script too, or this list lies again.**
 
 ## Supplemental (grep/spawn on demand)
 - `EXEC_REHYDRATE.md` — LOW_TOKEN rehydration, lease, guards, token saving
