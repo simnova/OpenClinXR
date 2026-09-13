@@ -60,7 +60,7 @@ Orchestration coordinator uses lowest-cost first (deepseek-v4-flash explore for 
 
 ## Efficiency and Autonomy
 
-**LOW_TOKEN targeted rehydration**: After session start, compaction, conversation-summary handoff, or heartbeat: read **only** the first ~60-80 lines (Current State Snapshot blocks) of PROJECT_STATUS.md + docs/openclinxr/worker-backlog-and-validation-matrix.md + AGENTS.md top. Then use targeted `grep`, `read_file` (offset+limit), or `tail -N | grep`. Full history/audit reads only for rare broad synthesis. Durable state exclusively in PROJECT_STATUS.md + worker-backlog + registered artifacts + `agents/**` memory + `.agent-factory/` reports. No chat-only ledgers or summaries.
+**LOW_TOKEN targeted rehydration**: After session start, compaction, conversation-summary handoff, or heartbeat: read **only** the first ~60-80 lines (WAKE BLUF blocks) of PROJECT_STATUS.md + docs/openclinxr/worker-backlog-and-validation-matrix.md + AGENTS.md top. Then use targeted `grep`, `read_file` (offset+limit), or `tail -N | grep`. Full history/audit reads only for rare broad synthesis. Durable state exclusively in PROJECT_STATUS.md + worker-backlog + registered artifacts + `agents/**` memory + `.agent-factory/` reports. No chat-only ledgers or summaries.
 
 **Tiered routing with self-escalation (Grok harness)**: 
 - Tier 1 (scout/consult, read-only): `explore` + deepseek-v4-flash.
@@ -114,7 +114,7 @@ After any edit to AGENTS.md, agents/rules/*, coordination MDs, or Persona-bearin
 
 **Orchestrator High-Level View Protocol** (mandatory for chief-coordinator / Composer main thread): On every rehydrate (start, compaction, heartbeat, post-slice), read *exactly* these for the forest view:
 - AGENTS.md top (contract + Guidance Stability Rule + AI-First declaration)
-- First ~60-80 lines (Current State Snapshot block only) of PROJECT_STATUS.md + docs/openclinxr/worker-backlog-and-validation-matrix.md
+- First ~60-80 lines (WAKE BLUF block only) of PROJECT_STATUS.md + docs/openclinxr/worker-backlog-and-validation-matrix.md
 - agents/rules/LEX_AGENTIC.md (full – the single source of truth for all stable terms, mandates, principles, and AI-First Foundational with ai_parse/drift metrics + refinement loop)
 - docs/openclinxr/worker-backlog-and-validation-matrix.md (the matrix itself for slice selection)
 - agents/coordinator/chief-coordinator/charter.md + .grok/personas/terse-bluf.toml (tone) + charter ## Persona (duties + AI-First bake)
