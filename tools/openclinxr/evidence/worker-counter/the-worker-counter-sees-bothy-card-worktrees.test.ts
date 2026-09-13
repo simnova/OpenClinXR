@@ -33,6 +33,11 @@ import { countLiveWorkers } from "../../openclaw/openclaw-sweep.js";
  * Diagnosis header IMMUTABLE. Flip `it.fails` to `it` and append a `## FIXED` block below; do not
  * rewrite the paths or numbers above.
  *
+ * ## FIXED (#0)
+ * `openclaw-sweep.ts:391` predicate widened from `/%2Fissue-\d+$/u` to
+ * `/%2F(?:issue-\d+|bothy-tsk_[a-f0-9]+)$/u`. Both `issue-<n>` and `bothy-tsk_<id>` now
+ * satisfy the worktree filter; the main checkout still does not.
+ *
  * claimScope: what `countLiveWorkers` returns for a controlled sessions fixture whose worktree
  *   directories are named the way the board dispatcher names them.
  * notEvidenceFor: whether WORKER_FLOOR is the right floor, whether any sweep BREACH was correct,
@@ -71,13 +76,13 @@ const ISSUE_DIR = "%2FUsers%2Fp%2F.grok%2Fworktrees%2Fsrc-openclinxr%2Fissue-593
 const MAIN_CHECKOUT_DIR = "%2FVolumes%2Ffiles%2Fsrc%2Fopenclinxr";
 
 describe("the worker counter sees bothy card worktrees", () => {
-  it.fails("(1) RED: a live worker in a bothy-tsk_ worktree is one live worker", () => {
+  it("(1) RED: a live worker in a bothy-tsk_ worktree is one live worker", () => {
     // Today: the regex rejects the directory outright, so this reads 0 with a worker running.
     const base = sessionsFixture({ [BOTHY_DIR]: [LIVE] });
     expect(countLiveWorkers(base, NOW), "a dispatched board worker is a live worker").toBe(1);
   });
 
-  it.fails("(2) RED: two live sessions in ONE bothy worktree are ONE worker", () => {
+  it("(2) RED: two live sessions in ONE bothy worktree are ONE worker", () => {
     // Pairs with (1) so the cheapest repair -- counting sessions rather than worktrees -- cannot
     // satisfy the RED. A retried worker whose abandoned attempt is also recent must read as 1.
     const base = sessionsFixture({ [BOTHY_DIR]: [ALSO_LIVE, LIVE] });

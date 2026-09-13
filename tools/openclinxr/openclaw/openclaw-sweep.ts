@@ -388,7 +388,7 @@ export function countLiveWorkers(base?: string, now: number = Date.now()): numbe
   const root = base ?? join(process.env.HOME ?? "", ".grok/sessions");
   const dirs = listEncodedSessionDirs(root);
   if (!dirs) return -1;
-  const worktreeRe = /%2Fissue-\d+$/u;
+  const worktreeRe = /%2F(?:issue-\d+|bothy-tsk_[a-f0-9]+)$/u;
   let live = 0;
   for (const dir of dirs) {
     if (!worktreeRe.test(dir)) continue;
