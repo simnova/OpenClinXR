@@ -28,6 +28,52 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-13T0310">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 40 &middot; 2026-09-13 03:10 EDT</p>
+          <h2>We tried to film the encounter end to end. The recording shows a ward in which nothing walks, and that is the honest result.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The recording task ran to completion and its card did not close. No product code was changed to make it look better.</caption>
+            <thead><tr><th scope="col">What was asked</th><th scope="col">What happened</th></tr></thead>
+            <tbody>
+              <tr><td>An uninterrupted recording of the full encounter, from activation through the clinician walking to the bedside and stopping</td><td>A real 48.7-second browser recording was produced and decodes cleanly. The clinician never moves. There is no walk to film.</td></tr>
+              <tr><td>Measurements aligned to that recording</td><td>Zero skeleton samples were captured, because the motion that would produce them never started.</td></tr>
+              <tr><td>The card's own evidence checker</td><td>Refused, with 55 unmet requirements. That is the correct answer for this evidence, and the checker was not adjusted to accept it.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Why it does not walk</h3>
+            <ul>
+              <li>Three days ago a safety gate was added: the clinician only walks if the room the software is looking at matches the room recorded in the frozen plan. That is a good rule.</li>
+              <li>The two no longer match. Rebuilding the room outside the browser reproduces the recorded fingerprint exactly; the running application computes a different one. Of the seven parts that make up that fingerprint, five are identical and two differ — a door leaf and a wall panel, each off by the same 1.465 metres in opposite directions.</li>
+              <li>So the gate closes every frame, the approach never starts, and the only thing still writing to the bedside state reports "no approach, no refusal" — a combination that cannot come from the refusal path, which always gives a reason. That was the thread that identified it.</li>
+              <li>The cause of the two-part difference is still unknown. Three explanations were tested and ruled out. A fourth was not guessed at, and the card says so rather than offering a story.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What was refused, deliberately</h3>
+            <ul>
+              <li>The idle footage was not filed as proof that the encounter works. It would have passed a casual look: a real recording, of the real case, from the real application.</li>
+              <li>It was also not relabelled as one of the required "negative" recordings — the blocked route or the missing support — because those need the movement system to actually run and refuse. Renaming a failure into a different expected failure is still a false record.</li>
+              <li>I reviewed the frames myself rather than taking the report's word. At 28 seconds and at 44 seconds the image is indistinguishable: same figure, same pose, same position. Sixteen seconds, roughly four hundred frames, no movement.</li>
+              <li>The instrument built to judge the recording was kept, along with its own test that it can tell a real run from a claimed one. The failing work is now a linked repair task with the evidence attached.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A second problem, found while filing the result</h3>
+            <ul>
+              <li>Writing the failed result into the project's records turned out to be blocked. One protected index refuses to be rebuilt because doing so would drop 1,422 entries — and seven of those files still exist. The refusal predates this work; it was not caused by it, and the override flag was not used.</li>
+              <li>A second index did rebuild, and quietly reclassified nine evidence documents into a lower category while adding a build artefact and a test fixture that do not belong in it. Nothing appeared missing, so the usual check would have stayed green. That change was reverted rather than committed.</li>
+              <li>Both are recorded. The failed recording and its report are retained in the evidence store with their hashes, so nothing is lost while the indexing problem is sorted out separately.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-13T0230">
         <div class="section-heading">
           <p class="eyebrow">Entry 39 &middot; 2026-09-13 02:30 EDT</p>
