@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 209,
     "archive-candidate": 92,
-    "evidence": 130,
+    "evidence": 131,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -4971,6 +4971,13 @@
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
       "rationale": "Seated pose transfer diagnosis: retarget_bvh drops held hip flexion via T-pose overwrite. Rest-to-frame-0, asymmetry, 85-deg knee artefact measured."
+    },
+    {
+      "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; tightjeans JPEG re-bake report documenting materializer bake path with texture overrides, fp-r0.4 decimation, EXCEPTION_MAP deletion, and licence survival."
     }
   ]
 }
