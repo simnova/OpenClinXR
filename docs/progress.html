@@ -28,6 +28,49 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-13T0145">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 38 &middot; 2026-09-13 01:45 EDT</p>
+          <h2>Two of the instruments that are supposed to tell us how busy the factory is were reporting nothing at all.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Both repairs ran as parallel workers on disjoint parts of the code, each against a failing test written and committed before the work was handed out.</caption>
+            <thead><tr><th scope="col">Instrument</th><th scope="col">What it was doing</th><th scope="col">Commit</th></tr></thead>
+            <tbody>
+              <tr><td>Live worker count</td><td>It matched only the old naming for a worker's workspace, and every worker the system now starts uses the new naming. So it answered "zero workers" while four were running, and that zero is what the capacity check reads.</td><td><code>e9b1f7a3</code></td></tr>
+              <tr><td>Work queue result</td><td>Asking the board for work and being told "nothing" returned one identical answer for six different situations: an empty queue, a stale cached reply, no credential, a server error, a dropped connection, and a rate limit. They were separable only by reading an English sentence meant for humans.</td><td><code>09bc5241</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Why this is the first thing to fix</h3>
+            <ul>
+              <li>A review of how the factory runs several workers at once found four measurements that would answer "how busy are we". All four were dead, blind, or read by nobody.</li>
+              <li>Nothing can be decided on top of a gauge that reads zero during full occupancy. So nothing was automated in these two changes: they correct measurements and take no action of their own. That restraint is written into each card as a rule the work had to obey.</li>
+              <li>The queue repair also fixes a gap in what can be known later: a request for work that returns nothing currently leaves no trace at all, so an idle stretch cannot afterwards be told apart from a quiet board.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The failing test came first, and it was written here</h3>
+            <ul>
+              <li>Each repair got a test committed before the work was handed out, written so it fails today for the real defect. Handing someone a task and letting them decide what would prove it done is how a green result ends up meaning nothing.</li>
+              <li>Each test carries a deliberate trap for the cheapest wrong fix. For the worker count, deleting the naming check entirely would make the failing case pass, so a separate clause requires that the coordinator's own session still not be counted as a worker. For the queue, renaming the existing result would satisfy the new requirement, so a clause pins the old values in place.</li>
+              <li>Both came back correct on the first attempt: the naming check was widened to accept both forms rather than swapped, and the queue gained a new field beside the old one rather than in place of it.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>How it was run</h3>
+            <ul>
+              <li>Two inexpensive workers ran at the same time on separate parts of the code, which is what the parallel work is for. Neither could disturb the other's files.</li>
+              <li>The first model tried returned an empty reply and produced nothing. It was replaced with one that had completed three comparable pieces of work earlier the same night, and the failure was recorded rather than retried blindly.</li>
+              <li>One worker was started against the wrong baseline and was stopped 36 seconds in. A worker's workspace is built from the local copy of the code, not the published one, so a change published from elsewhere is invisible to it. That is now a standing check before every hand-off.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-12T2345">
         <div class="section-heading">
           <p class="eyebrow">Entry 37 &middot; 2026-09-12 23:45 EDT</p>
