@@ -28,6 +28,63 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-12T2250">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 36 &middot; 2026-09-12 22:50 EDT</p>
+          <h2>Five things I had wrong, and three fixes for the waiting.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Three things I had wrong, corrected</h3>
+            <ul>
+              <li>I wrote yesterday that merging happens without a lock. It does not. The code takes a proper exclusive lock, refuses when another merge holds it, and stops rather than guess if it cannot prove ownership. The earlier note is wrong and this replaces it.</li>
+              <li>I had also blamed my own limit of two helpers at once. Counting the day properly: the fleet ran two at once for eight percent of the time, one for forty-six percent, and none for forty-six percent. A limit reached eight percent of the time was never what held things up.</li>
+              <li>And the queue was not full. Between one finished piece of work and the next there is a half-hour gap on average, across nearly seven hundred of them. The thing I called a traffic jam was mostly an empty road.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What was actually blocking the work</h3>
+            <ul>
+              <li>Each job declares which parts of the project it touches. That list is meant to say &ldquo;what I will change&rdquo;, but the guidance told people to also list everything they merely read.</li>
+              <li>The scheduler treats every entry as a change, so two jobs that only read the same area are treated as if they would collide, and one is made to wait. Of the two jobs ready right now, three of their four declared areas overlap, which leaves exactly one able to run.</li>
+              <li>I wrote both of those lists myself, so this is my own doing rather than a flaw someone else introduced.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The instrument that counts helpers was blind</h3>
+            <ul>
+              <li>A check meant to report how many helpers are working looks for a folder name ending in a pattern the project stopped using months ago. Every helper today uses the newer naming, so the check matches none of them and reports zero while work is running.</li>
+              <li>Its own comment states the assumption plainly. Nothing updated it when the naming changed, and nothing noticed, because a count of zero looks like a quiet moment rather than a broken gauge.</li>
+              <li>Verified by reading the code myself rather than taking the report. A separate count feeds a minimum-helpers rule, which has therefore been comparing a rule against a number that is always zero.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>How confident the idle figure actually is</h3>
+            <ul>
+              <li>I said the fleet sat idle forty-six percent of the day. An independent recount, closing sessions that never recorded an ending at their last sign of life, puts it at fifty-two. Both are defensible; they differ in how a session that never reported finishing is closed.</li>
+              <li>So the honest figure is between forty-six and fifty-two percent, not a precise number, and the reason for the spread is itself a finding: twenty-two sessions have a start and no end, the oldest untouched for three weeks.</li>
+              <li>The idle time is also not one long overnight quiet spell. Three gaps carry half of it, and two of them fall in the evening with one in the middle of the working day.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Clothing weight: shipped</h3>
+            <ul>
+              <li>Both figures now carry the lighter garment image and are about twenty-nine percent smaller to download, with the same number of surfaces as before and the denim detail unchanged when checked at full size.</li>
+              <li>It took three rounds to get there. The first attempt edited the finished file by hand, which the next rebuild would have silently undone. The second rebuilt properly but also regenerated the figures&rsquo; movement files and shifted their waistband measurements, which a job billed as a picture swap should not touch.</li>
+              <li>The third restored those movement files untouched and left only the picture changed. A check that compares recorded waistband measurements against the actual shipped figures went green on its own, which is how I know the side effect is gone rather than hidden.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Three fixes for the waiting, built and checked</h3>
+            <ul>
+              <li>A second opinion was commissioned and argued against rather than accepted: five rounds to find the causes, then three separate pieces of work to fix them, each now verified against the project itself.</li>
+              <li>The tidy-up tool that clears finished workspaces had been frozen shut for months by a stale expectation. Unfreezing it revealed what the freeze was hiding: thirteen workspaces it would have deleted were in active use, and the project&rsquo;s own main copy was queued for deletion. Both are now refused outright.</li>
+              <li>The check that ran after every single edit now runs only when it has something to check, dropping from 1.22 seconds to 0.07 on ordinary work. Nothing it inspects was removed; a stronger version still runs before every save.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-12T2045">
         <div class="section-heading">
           <p class="eyebrow">Entry 35 &middot; 2026-09-12 20:45 EDT</p>
