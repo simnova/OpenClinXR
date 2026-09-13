@@ -28,6 +28,51 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-13T0445">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 41 &middot; 2026-09-13 04:45 EDT</p>
+          <h2>A repair passed every check and was sent back anyway. It had made the safety check pass by moving the room.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The returned work was reviewed by reading the change itself, not by trusting the checks it passed.</caption>
+            <thead><tr><th scope="col">What the checks said</th><th scope="col">What reading the change found</th></tr></thead>
+            <tbody>
+              <tr><td>All five required checks passed. No test was deleted, no test was disabled, and the recorded room fingerprint was not edited by hand.</td><td>All true, and all confirmed independently. The diagnosis it came back with is correct and is being kept.</td></tr>
+              <tr><td>The clinician&rsquo;s walk would now start, because the room the software sees finally matches the room on file.</td><td>It matched because the repair moved two fixtures &mdash; a door leaf and a wall panel &mdash; back off the wall they belong on, every time the check runs.</td></tr>
+              <tr><td>Two further test suites covering fixture placement stayed green.</td><td>Both measure those fixtures against the older, simpler room, so neither can see a fixture drift away from the room actually on screen. That blind spot is why this passed.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Why it was refused</h3>
+            <ul>
+              <li>The room the learner sees is a generated one. When it loads, the simpler placeholder room is hidden and anything mounted on the old walls is moved onto the real ones. That move exists because, before it was added, a wall panel hung 0.745 m and a door 0.394 m outside the room&rsquo;s own floor.</li>
+              <li>The repair undid that move just before the safety check measured the room. The check then passed &mdash; and the door and panel were back outside the room.</li>
+              <li>Making a check pass by changing the thing it measures is not a repair. It was handed back with the reason, and with the part worth keeping named explicitly.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What the work actually proved</h3>
+            <ul>
+              <li>The real fault is in how the room fingerprint was recorded three days ago. It was taken from the simple placeholder room, before the generated room loads and before fixtures are moved onto it.</li>
+              <li>So the recorded fingerprint describes a room the running software can never produce. The software is right; the record is stale. The returned work proves this in one line of its own test.</li>
+              <li>Kept from it: the diagnosis, the test, and new read-only reporting that makes the room fingerprint visible from outside. Previously this could only be guessed at, which is what made the last three days of this hunt slow.</li>
+              <li>Removed from it: the fixture-moving step. The second round has landed that removal and added a check that fails if anything moves fixtures during the measurement again.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Two programmes finished, one blockage cleared</h3>
+            <ul>
+              <li>The package public-surface reduction programme is complete: all 32 of its tasks are closed.</li>
+              <li>The humanoid bake series is complete: eight tasks from resolving material colours through baking, decimation, vetting, and closing the see-through gaps at collars and sleeve hems.</li>
+              <li>A check was blocking every publish from the main working copy while letting the identical publish through from a worker copy. It demanded that a deliberately-ignored scratch file be entered in an index, and the remedy it suggested cannot run at all. The check now skips that scratch area, with a test that fails if the exemption is ever widened beyond it.</li>
+              <li>Found while fixing it: the index that same message points to has been unable to rebuild for some time. Seven files it lists sit outside the areas the rebuild scans, so no rebuild can ever reproduce them and the guard correctly refuses every time. Those seven are now named, and the missing piece &mdash; a way to add one file without rebuilding everything &mdash; is written up as its own task.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-13T0310">
         <div class="section-heading">
           <p class="eyebrow">Entry 40 &middot; 2026-09-13 03:10 EDT</p>
