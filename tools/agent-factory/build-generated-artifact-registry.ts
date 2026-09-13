@@ -5,9 +5,12 @@ import { pathToFileURL } from "node:url";
 
 import {
   decideRegistryShrink,
-  loadRegisteredPaths,
+  loadRegisteredEntries,
   parseAllowShrink,
+  parseRegistryAppend,
   worktreeNote,
+  type LoadedRegistryEntry,
+  type PreservedRegistryEntry,
 } from "./registry-shrink-guard.ts";
 
 export type GeneratedArtifactAuthority =
@@ -37,7 +40,67 @@ export type BuildGeneratedArtifactRegistryOptions = {
   pathListOverride?: readonly string[];
   /** Capture stderr-style messages (tests); defaults to console.error. */
   logError?: (message: string) => void;
+  /**
+   * Register one existing path without a wholesale scan. Growth-only: the
+   * shrink guard still refuses if the result would drop a registered path.
+   */
+  appendPath?: string;
+  /** Override the production preserved list (tests). */
+  preservedEntries?: readonly PreservedRegistryEntry[];
+  /**
+   * When true, previous registered paths whose files are gone stay in the
+   * written registry until `--allow-shrink`. Present-but-unscannable paths
+   * are NOT carried — those need an explicit preserved entry (clause 3).
+   * Default: production CLI on (no pathListOverride, no allowShrink); tests off.
+   */
+  carryForwardMissingPrevious?: boolean;
 };
+
+/**
+ * Paths the scan cannot reproduce. Each reason is path-specific; a single
+ * sentence covering all of them is the failure mode this list exists to avoid.
+ *
+ * Not a scan-root widen: `public/generated-humanoids` would add 81 files (measured
+ * 2026-09-13); `.webm` would add 4 videos under `docs/openclinxr/videos`; `tools/`
+ * would sweep source; `.md` collides with the doc-authority registry.
+ */
+export const GENERATED_ARTIFACT_PRESERVED_ENTRIES: readonly PreservedRegistryEntry[] = [
+  {
+    path: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    reason:
+      "Promoted MPFB2 runtime cast under public/generated-humanoids, which scannedRoots does not walk (only public/xr-assets).",
+  },
+  {
+    path: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+    reason:
+      "Lineage sidecar for the same promoted cast; same directory miss as the GLB, not a generic JSON keep.",
+  },
+  {
+    path: "docs/openclinxr/model-vetting-captures/mpfb-peds-parent-aisha_motion-bind_body_motion_probe_2026-08-22.webm",
+    reason:
+      "Motion-bind body_motion probe already under scannedRoot docs/openclinxr; generatedExtensions omits .webm and must not gain it (other docs videos would batch-enter).",
+  },
+  {
+    path: "tools/openclinxr/evidence/blender/render_seated_clip_frames.py",
+    reason:
+      "Hand-authored Blender producer for seated-clip frames, not generated output; tools/ is not a scan root.",
+  },
+  {
+    path: "tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py",
+    reason:
+      "EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script.",
+  },
+  {
+    path: "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
+    reason:
+      "Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/.",
+  },
+  {
+    path: "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
+    reason:
+      "Dated tightjeans rebake evidence note; .md must not join generatedExtensions (doc-authority collision).",
+  },
+];
 
 export type BuildGeneratedArtifactRegistryResult = {
   ok: boolean;
@@ -207,12 +270,131 @@ function classify(file: string, tracked: boolean): GeneratedArtifactEntry {
   return { path: file, authority: "keep-current", tracked, action: "keep", rationale: "Generated-looking artifact retained by conservative default after explicit stale/cache/template rules." };
 }
 
+function countByAuthority(entries: readonly GeneratedArtifactEntry[]): Record<string, number> {
+  return entries.reduce<Record<string, number>>((acc, entry) => {
+    acc[entry.authority] = (acc[entry.authority] ?? 0) + 1;
+    return acc;
+  }, {});
+}
+
+function asGeneratedEntry(raw: LoadedRegistryEntry): GeneratedArtifactEntry {
+  const tracked = raw.tracked === true;
+  const rationale = typeof raw.rationale === "string" ? raw.rationale : "Carried-forward registered path; kept until --allow-shrink.";
+  const authority = raw.authority;
+  const action = raw.action;
+  const knownAuthority: GeneratedArtifactAuthority[] = [
+    "keep-current",
+    "keep-template",
+    "keep-evidence",
+    "keep-compatibility-input",
+    "prune-stale",
+    "ignore-local-cache",
+    "needs-human-review",
+  ];
+  const knownAction: GeneratedArtifactEntry["action"][] = [
+    "keep",
+    "delete-if-untracked",
+    "ignore",
+    "review-before-change",
+  ];
+  return {
+    path: raw.path,
+    authority: knownAuthority.includes(authority as GeneratedArtifactAuthority)
+      ? (authority as GeneratedArtifactAuthority)
+      : "keep-evidence",
+    tracked,
+    action: knownAction.includes(action as GeneratedArtifactEntry["action"])
+      ? (action as GeneratedArtifactEntry["action"])
+      : "keep",
+    rationale,
+  };
+}
+
+function assembleEntries(input: {
+  scanned: readonly string[];
+  preservedEntries: readonly PreservedRegistryEntry[];
+  previousEntries: readonly LoadedRegistryEntry[];
+  trackedFiles: Set<string>;
+  pathExists: (registeredPath: string) => boolean;
+  carryForwardMissing: boolean;
+}): GeneratedArtifactEntry[] {
+  const byPath = new Map<string, GeneratedArtifactEntry>();
+  for (const file of input.scanned) {
+    byPath.set(file, classify(file, input.trackedFiles.has(file)));
+  }
+  for (const preserved of input.preservedEntries) {
+    if (input.pathExists(preserved.path)) {
+      const classified = classify(preserved.path, input.trackedFiles.has(preserved.path));
+      byPath.set(preserved.path, { ...classified, action: "keep", rationale: preserved.reason });
+      continue;
+    }
+    byPath.set(preserved.path, {
+      path: preserved.path,
+      authority: "keep-evidence",
+      tracked: input.trackedFiles.has(preserved.path),
+      action: "keep",
+      rationale: preserved.reason,
+    });
+  }
+  if (input.carryForwardMissing) {
+    for (const previous of input.previousEntries) {
+      if (byPath.has(previous.path)) continue;
+      if (input.pathExists(previous.path)) continue;
+      byPath.set(previous.path, asGeneratedEntry(previous));
+    }
+  }
+  return [...byPath.values()].sort((a, b) => a.path.localeCompare(b.path));
+}
+
+function writeRegistryFiles(
+  cwd: string,
+  entries: readonly GeneratedArtifactEntry[],
+  preservedEntries: readonly PreservedRegistryEntry[],
+): Record<string, number> {
+  const counts = countByAuthority(entries);
+  const registry = {
+    schemaVersion: "2026-05-27",
+    claimBoundary:
+      "generated artifact navigation registry for cleanup only; not product, clinical, Quest, scoring, or production readiness evidence",
+    protectedRule:
+      "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
+    usageRule:
+      "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
+    preservedEntries,
+    counts,
+    entries,
+  };
+  mkdirSync(path.dirname(path.resolve(cwd, outputJson)), { recursive: true });
+  writeFileSync(path.resolve(cwd, outputJson), `${JSON.stringify(registry, null, 2)}\n`);
+  const byAuthority = [...entries].sort(
+    (a, b) => a.authority.localeCompare(b.authority) || a.path.localeCompare(b.path),
+  );
+  const preservedMd = preservedEntries
+    .map((entry) => `- \`${entry.path}\` — ${entry.reason}`)
+    .join("\n");
+  const md = `# Generated Artifact Registry\n\nDate: 2026-05-27\n\nThis generated registry complements the Markdown authority registry. It classifies non-Markdown artifacts so cleanup agents can prune stale evidence and local cache files without touching protected OpenClaw-style / OpenClaw-inspired control surfaces or product assets.\n\n## Protected Rule\n\nDo not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.\n\n## Preserved entries\n\nThese paths stay registered across regeneration even though no scannedRoot+generatedExtensions pair reproduces them. Each has its own reason. Removing one means deleting it from this list, not passing \`--allow-shrink\`.\n\n${preservedMd || "- (none)"}\n\n## Counts\n\n${Object.entries(counts)
+    .sort()
+    .map(([key, value]) => `- ${key}: ${value}`)
+    .join("\n")}\n\n## Cleanup Actions\n\n${byAuthority
+    .map((entry) => `- \`${entry.path}\` - ${entry.authority}; ${entry.action}; ${entry.rationale}`)
+    .join("\n")}\n`;
+  writeFileSync(path.resolve(cwd, outputMd), md);
+  return counts;
+}
+
 export function buildGeneratedArtifactRegistry(
   options: BuildGeneratedArtifactRegistryOptions = {},
 ): BuildGeneratedArtifactRegistryResult {
   const cwd = options.cwd ?? defaultRoot;
   const allowShrink = options.allowShrink ?? parseAllowShrink();
   const logError = options.logError ?? ((message: string) => console.error(message));
+  const appendPath = options.appendPath;
+  const preservedEntries =
+    options.preservedEntries ??
+    (options.pathListOverride !== undefined ? [] : GENERATED_ARTIFACT_PRESERVED_ENTRIES);
+  const carryForwardMissing =
+    options.carryForwardMissingPrevious ??
+    (options.pathListOverride === undefined && !allowShrink && appendPath === undefined);
 
   const stderrParts: string[] = [];
   const note = worktreeNote(cwd);
@@ -222,17 +404,84 @@ export function buildGeneratedArtifactRegistry(
   }
 
   const trackedFiles = loadTrackedFiles(cwd);
-  const files =
+  const jsonAbs = path.resolve(cwd, outputJson);
+  const previousEntries = loadRegisteredEntries(jsonAbs);
+  const previousPaths = previousEntries.map((entry) => entry.path);
+  const pathExists = (registeredPath: string) => existsSync(path.resolve(cwd, registeredPath));
+
+  if (appendPath !== undefined) {
+    if (!pathExists(appendPath)) {
+      const message = `[${REGISTRY_LABEL}] REFUSED: ${appendPath} does not exist on disk — cannot append a missing path.`;
+      stderrParts.push(message);
+      logError(message);
+      return {
+        ok: false,
+        exitCode: 2,
+        wrote: false,
+        removedPaths: [],
+        stderr: stderrParts.join("\n"),
+        outputJson,
+        outputMd,
+        total: previousEntries.length,
+        counts: {},
+      };
+    }
+    const appended = classify(appendPath, trackedFiles.has(appendPath));
+    const byPath = new Map(previousEntries.map((entry) => [entry.path, asGeneratedEntry(entry)]));
+    byPath.set(appendPath, appended);
+    const entries = [...byPath.values()].sort((a, b) => a.path.localeCompare(b.path));
+    const nextPaths = entries.map((entry) => entry.path);
+    const decision = decideRegistryShrink({
+      registryLabel: REGISTRY_LABEL,
+      previousPaths,
+      nextPaths,
+      allowShrink: false,
+      pathExists,
+    });
+    if (decision.message) {
+      stderrParts.push(decision.message);
+      logError(decision.message);
+    }
+    if (!decision.allowWrite) {
+      return {
+        ok: false,
+        exitCode: 2,
+        wrote: false,
+        removedPaths: decision.removedPaths,
+        stderr: stderrParts.join("\n"),
+        outputJson,
+        outputMd,
+        total: entries.length,
+        counts: countByAuthority(entries),
+      };
+    }
+    const counts = writeRegistryFiles(cwd, entries, preservedEntries);
+    return {
+      ok: true,
+      exitCode: 0,
+      wrote: true,
+      removedPaths: decision.removedPaths,
+      stderr: stderrParts.join("\n"),
+      outputJson,
+      outputMd,
+      total: entries.length,
+      counts,
+    };
+  }
+
+  const scanned =
     options.pathListOverride !== undefined
       ? [...options.pathListOverride].sort()
       : scannedRoots.flatMap((scanRoot) => walk(path.resolve(cwd, scanRoot), cwd)).sort();
-  const entries = files.map((file) => classify(file, trackedFiles.has(file)));
-  const counts = entries.reduce<Record<string, number>>((acc, entry) => {
-    acc[entry.authority] = (acc[entry.authority] ?? 0) + 1;
-    return acc;
-  }, {});
-
-  const previousPaths = loadRegisteredPaths(path.resolve(cwd, outputJson));
+  const entries = assembleEntries({
+    scanned,
+    preservedEntries,
+    previousEntries,
+    trackedFiles,
+    pathExists,
+    carryForwardMissing,
+  });
+  const counts = countByAuthority(entries);
   const nextPaths = entries.map((entry) => entry.path);
   const decision = decideRegistryShrink({
     registryLabel: REGISTRY_LABEL,
@@ -240,7 +489,7 @@ export function buildGeneratedArtifactRegistry(
     nextPaths,
     allowShrink,
     // #580: existence is judged against the tree being regenerated, not process cwd.
-    pathExists: (registeredPath) => existsSync(path.resolve(cwd, registeredPath)),
+    pathExists,
   });
 
   if (decision.message) {
@@ -262,31 +511,7 @@ export function buildGeneratedArtifactRegistry(
     };
   }
 
-  const registry = {
-    schemaVersion: "2026-05-27",
-    claimBoundary:
-      "generated artifact navigation registry for cleanup only; not product, clinical, Quest, scoring, or production readiness evidence",
-    protectedRule:
-      "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
-    usageRule:
-      "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
-    counts,
-    entries,
-  };
-
-  mkdirSync(path.dirname(path.resolve(cwd, outputJson)), { recursive: true });
-  writeFileSync(path.resolve(cwd, outputJson), `${JSON.stringify(registry, null, 2)}\n`);
-
-  const byAuthority = [...entries].sort(
-    (a, b) => a.authority.localeCompare(b.authority) || a.path.localeCompare(b.path),
-  );
-  const md = `# Generated Artifact Registry\n\nDate: 2026-05-27\n\nThis generated registry complements the Markdown authority registry. It classifies non-Markdown artifacts so cleanup agents can prune stale evidence and local cache files without touching protected OpenClaw-style / OpenClaw-inspired control surfaces or product assets.\n\n## Protected Rule\n\nDo not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.\n\n## Counts\n\n${Object.entries(counts)
-    .sort()
-    .map(([key, value]) => `- ${key}: ${value}`)
-    .join("\n")}\n\n## Cleanup Actions\n\n${byAuthority
-    .map((entry) => `- \`${entry.path}\` - ${entry.authority}; ${entry.action}; ${entry.rationale}`)
-    .join("\n")}\n`;
-  writeFileSync(path.resolve(cwd, outputMd), md);
+  writeRegistryFiles(cwd, entries, preservedEntries);
 
   return {
     ok: true,
@@ -304,6 +529,7 @@ export function buildGeneratedArtifactRegistry(
 async function main(): Promise<void> {
   const result = buildGeneratedArtifactRegistry({
     allowShrink: parseAllowShrink(),
+    appendPath: parseRegistryAppend(),
   });
   if (!result.ok) {
     process.exitCode = result.exitCode;

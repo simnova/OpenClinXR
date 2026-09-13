@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { decideRegistryShrink } from "../../agent-factory/registry-shrink-guard.ts";
+import {
+  decideRegistryShrink,
+  parseRegistryAppend,
+  withPreservedPaths,
+} from "../../agent-factory/registry-shrink-guard.ts";
 
 /**
  * **`pnpm docs:authority` cannot succeed in main today, and the escape hatch it advertises would drop
@@ -119,6 +123,17 @@ import { decideRegistryShrink } from "../../agent-factory/registry-shrink-guard.
  * (suspicious)"), so an operator can see the judgement they are being asked for.
  */
 
+/**
+ * ## FIXED (generated-artifact preserved-entries)
+ *
+ * The open question under "DECISIONS THAT ARE YOURS" — what authorizes keeping /
+ * not removing a path that still exists — is now an explicit per-path preserve
+ * list with a written reason each (`withPreservedPaths` +
+ * `GENERATED_ARTIFACT_PRESERVED_ENTRIES`). `--allow-shrink` still does not
+ * clear an unpreserved present-file removal (clauses 1–4 below unchanged).
+ * No second flag. Targeted `--append` registers one existing path as growth.
+ */
+
 /** Measured on main 2026-08-14: three registered paths whose files are gone. */
 const MISSING = [
   ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/body-rig-appendage-motion-cagematch.md",
@@ -182,5 +197,42 @@ describe("the shrink opt-in does not authorize removing a file that exists", () 
     expect(PRESENT.length, "removals whose files still exist").toBeGreaterThan(0);
     expect(PRESENT.every((p) => pathExists(p)), "the injected predicate reports PRESENT as existing").toBe(true);
     expect(MISSING.some((p) => pathExists(p)), "the injected predicate reports MISSING as absent").toBe(false);
+  });
+
+  it("(5) preserving a present path removes it from the removal set without shrinking missing-clearance", () => {
+    // Scan kept only (NEXT_ALL); PRESENT would be unscannable removals without the list.
+    const next = withPreservedPaths(NEXT_ALL, PRESENT);
+    const d = decideRegistryShrink({
+      registryLabel: "doc-authority-registry",
+      previousPaths: REGISTERED,
+      nextPaths: next,
+      allowShrink: true,
+      pathExists,
+    });
+    expect(d.allowWrite, "preserved present paths plus missing-only removals must write under --allow-shrink").toBe(
+      true,
+    );
+    expect(d.removedPaths.sort()).toEqual([...MISSING].sort());
+  });
+
+  it("(6) COUNTERWEIGHT: an unpreserved present path is still refused even when another path is preserved", () => {
+    const next = withPreservedPaths(NEXT_ALL, PRESENT.slice(0, 1));
+    const d = decideRegistryShrink({
+      registryLabel: "doc-authority-registry",
+      previousPaths: REGISTERED,
+      nextPaths: next,
+      allowShrink: true,
+      pathExists,
+    });
+    expect(
+      d.allowWrite,
+      "preserving one present path must not authorize dropping a different present path",
+    ).toBe(false);
+  });
+
+  it("(7) --append requires a path token", () => {
+    expect(parseRegistryAppend(["node", "cli.js"])).toBeUndefined();
+    expect(parseRegistryAppend(["node", "cli.js", "--append", "docs/a.json"])).toBe("docs/a.json");
+    expect(() => parseRegistryAppend(["node", "cli.js", "--append"])).toThrow(/requires a repo-relative path/);
   });
 });
