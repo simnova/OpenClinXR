@@ -54,6 +54,19 @@ export type BuildGeneratedArtifactRegistryOptions = {
    * Default: production CLI on (no pathListOverride, no allowShrink); tests off.
    */
   carryForwardMissingPrevious?: boolean;
+  /**
+   * Test seam: existence probe for shrink + carry-forward. Production uses
+   * existsSync against cwd. Injectable so a complete-checkout vs worktree
+   * comparison needs no `.openclinxr/` fixtures in the shared checkout.
+   */
+  pathExists?: (registeredPath: string) => boolean;
+  /**
+   * Test seam: which discovered paths git would ignore. Production uses
+   * `git check-ignore --stdin` (tracked force-adds are NOT reported).
+   * When pathListOverride is set and this is omitted, nothing is ignored
+   * so existing shrink-refusal fixtures keep their abstract paths.
+   */
+  pathIsIgnored?: (registeredPath: string) => boolean;
 };
 
 /**
@@ -119,6 +132,39 @@ const outputJson = "docs/openclinxr/generated-artifact-registry-2026-05-27.json"
 const outputMd = "docs/openclinxr/generated-artifact-registry-2026-05-27.md";
 const REGISTRY_LABEL = "generated-artifact-registry";
 
+/**
+ * What this registry is a record OF (per class; measured 2026-09-13 at
+ * fa4cd0f4: committed 3,394 vs main-checkout regen 10,633).
+ *
+ * The registry records generated artifacts a complete git checkout can
+ * reproduce — plus previously registered paths the shrink guard will not
+ * drop while their files still exist. It is NOT a dump of one machine's
+ * gitignored disk. `scannedRoots` still names where to look; eligibility
+ * (`selectEligibleGeneratedArtifactScanPaths`) decides what from that walk
+ * may enter.
+ *
+ * - gitignored local operational state (`.openclinxr/slices`, `openclaw`,
+ *   `staging`, `scratch`, `tmp`): NOT a repo record. `.gitignore:9` ignores
+ *   `.openclinxr/` wholesale. New paths must not enter. A worktree has none.
+ * - gitignored local evidence (untracked `.openclinxr/evidence`,
+ *   `.agent-factory/browser-evidence`): NOT a repo record. Same ignore.
+ *   Force-added (tracked) evidence stays — `git check-ignore` does not
+ *   report tracked files, and ~692 `.openclinxr/evidence` paths are in HEAD
+ *   by force-add convention.
+ * - the 2,770 `.openclinxr/` entries already committed (664 tracked, 2,106
+ *   untracked): tracked ones stay because they are in git. Untracked ones
+ *   stay ONLY if already registered (grandfather). Dropping a present-file
+ *   record is the shrink-guard refuse; they are `ignore-local-cache` and
+ *   are not a reason to scan siblings. They leave when the file is gone
+ *   and `--allow-shrink` clears bookkeeping. Do not `--allow-shrink` a
+ *   present-file tightening through.
+ * - tracked generated artifacts under `docs/openclinxr` and
+ *   `apps/ui-xr/public`: YES — this is the registry's job. Untracked but
+ *   NOT gitignored growth under those roots still enters (same teeth as
+ *   doc-authority: a file someone just wrote is still scanned).
+ * - `apps/ui-xr/dist/xr-assets`: gitignored build output. New dist files
+ *   do not enter; previously registered dist paths grandfather until missing.
+ */
 const scannedRoots = [
   ".agent-factory",
   ".openclinxr",
@@ -212,6 +258,54 @@ function loadTrackedFiles(cwd: string): Set<string> {
   } catch {
     return new Set();
   }
+}
+
+/**
+ * Paths git IGNORES are not checkout-reproducible. Same helper shape as
+ * `build-doc-authority-registry.ts` `ignoredPaths`: `git check-ignore --stdin`
+ * exits 1 when nothing matched (clean), and does not report tracked files
+ * (force-added `.openclinxr/evidence` stays eligible).
+ */
+function loadGitIgnoredPaths(root: string, candidates: readonly string[]): Set<string> {
+  if (candidates.length === 0) return new Set();
+  try {
+    const out = execFileSync("git", ["check-ignore", "--stdin"], {
+      cwd: root,
+      input: candidates.join("\n"),
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    return new Set(out.split("\n").filter((line: string) => line.trim() !== ""));
+  } catch (error) {
+    const status = (error as { status?: number }).status;
+    if (status === 1) return new Set();
+    const stdout = (error as { stdout?: string }).stdout ?? "";
+    return new Set(stdout.split("\n").filter((line: string) => line.trim() !== ""));
+  }
+}
+
+/**
+ * Filter a walk (or pathListOverride) so a complete checkout and a worktree
+ * produce the same entry set.
+ *
+ * Keep: not-ignored discovered paths (tracked + untracked-not-ignored growth).
+ * Keep: ignored discovered paths that are ALREADY registered (grandfather;
+ *   present-file removal would refuse).
+ * Drop: ignored discovered paths that were never registered (the 7,239 class).
+ *
+ * Does NOT union previous paths that were not in the discovered list — that
+ * cheap pass (`next = discovered ∪ previous`) makes tightening "just work"
+ * and removes the shrink guard (preserved-entries clause 3).
+ */
+export function selectEligibleGeneratedArtifactScanPaths(input: {
+  discovered: readonly string[];
+  previousPaths: readonly string[];
+  ignoredPaths: ReadonlySet<string>;
+}): string[] {
+  const previous = new Set(input.previousPaths);
+  return [...input.discovered]
+    .filter((candidate) => !input.ignoredPaths.has(candidate) || previous.has(candidate))
+    .sort((left, right) => left.localeCompare(right));
 }
 
 function classify(file: string, tracked: boolean): GeneratedArtifactEntry {
@@ -407,7 +501,8 @@ export function buildGeneratedArtifactRegistry(
   const jsonAbs = path.resolve(cwd, outputJson);
   const previousEntries = loadRegisteredEntries(jsonAbs);
   const previousPaths = previousEntries.map((entry) => entry.path);
-  const pathExists = (registeredPath: string) => existsSync(path.resolve(cwd, registeredPath));
+  const pathExists =
+    options.pathExists ?? ((registeredPath: string) => existsSync(path.resolve(cwd, registeredPath)));
 
   if (appendPath !== undefined) {
     if (!pathExists(appendPath)) {
@@ -469,10 +564,21 @@ export function buildGeneratedArtifactRegistry(
     };
   }
 
-  const scanned =
+  const discovered =
     options.pathListOverride !== undefined
-      ? [...options.pathListOverride].sort()
-      : scannedRoots.flatMap((scanRoot) => walk(path.resolve(cwd, scanRoot), cwd)).sort();
+      ? [...options.pathListOverride]
+      : scannedRoots.flatMap((scanRoot) => walk(path.resolve(cwd, scanRoot), cwd));
+  const ignored =
+    options.pathIsIgnored !== undefined
+      ? new Set(discovered.filter((candidate) => options.pathIsIgnored?.(candidate) === true))
+      : options.pathListOverride !== undefined
+        ? new Set<string>()
+        : loadGitIgnoredPaths(cwd, discovered);
+  const scanned = selectEligibleGeneratedArtifactScanPaths({
+    discovered,
+    previousPaths,
+    ignoredPaths: ignored,
+  });
   const entries = assembleEntries({
     scanned,
     preservedEntries,
