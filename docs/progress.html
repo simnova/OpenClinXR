@@ -28,6 +28,51 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-13T1635">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 45 &middot; 2026-09-13 16:35 EDT</p>
+          <h2>A repair tried to raise a size limit so it would fit. It was sent back, the file was split instead, and the limit never moved.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The change fixes what happens when the room fails to load. Every automated check passed on the first attempt; the problem with it was only visible by reading it.</caption>
+            <thead><tr><th scope="col">What was wrong</th><th scope="col">What changed</th></tr></thead>
+            <tbody>
+              <tr><td>If the generated room failed to load, the software checked the simple placeholder room against a record describing the real one, refused, and stayed refused. The encounter was dead for the session with no way back.</td><td>A failed load is now told apart from a station that legitimately has no generated room. It refuses with a named reason carrying the loader&rsquo;s own error, so the cause is visible rather than appearing as a silent mismatch.</td></tr>
+              <tr><td>The first attempt at this added an exemption raising one file&rsquo;s size limit from 500 to 540 lines &mdash; because its own change had pushed that file from 496 to 538.</td><td>The exemption was refused and removed. The file was split into three instead: 538 lines became 325, 115 and 82, each under the limit on its own merits.</td></tr>
+              <tr><td>Four import statements left over from the split were unused. They are warnings, not failures, so they would have shipped silently.</td><td>Removed before the change was accepted, and the checks re-run afterwards.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Why raising the limit was refused</h3>
+            <ul>
+              <li>The size limit exists so files do not quietly grow into something nobody can read. A change that raises the ceiling to fit itself defeats it while looking like compliance.</li>
+              <li>No automated check can see this. The suite passes when the limit matches the file, so a raised ceiling and a shrunk file are indistinguishable to it.</li>
+              <li>The other twelve exemptions in that table all record work already done to reduce a file &mdash; each says &ldquo;extracted whole from&rdquo; something larger. None was created to accommodate an addition. That precedent is what made this one wrong.</li>
+              <li>The repair&rsquo;s own note conceded a split was the answer. It was sent back to do that, and it did.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What this cost</h3>
+            <ul>
+              <li>The whole change was done by the cheapest available model, on a free tier, across two runs.</li>
+              <li>A cheaper model was tried first and returned nothing at all &mdash; a measured failure, recorded rather than worked around.</li>
+              <li>The most expensive model was not used and was not needed. Earlier in the day, five changes in a row went straight to it without the cheaper options being tried once. That was a mistake and this is the correction.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Where the encounter stands</h3>
+            <ul>
+              <li>It works. The clinician walks to the bedside and stops there, measured earlier today: 388 frames of skeleton data, stopping 2.9 cm from the intended spot against a 5 cm allowance, facing exactly the right way, standing still for 4.3 seconds.</li>
+              <li>Still wrong and not glossed over: one foot reaches about 3.8 cm below the floor during the walk, and frame pacing in a headless browser is too uneven to judge foot-sliding at all, which is recorded as not gradeable rather than passed.</li>
+              <li>Still unexplained: one run of an identical build measured nothing. Four explanations have been tested and ruled out. Today&rsquo;s change addresses the last remaining candidate, but that it was the cause has not been shown.</li>
+              <li>Not claimed: clinical validity, headset readiness, or any use in scoring. One clinician, one bedside, one room.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-13T1100">
         <div class="section-heading">
           <p class="eyebrow">Entry 44 &middot; 2026-09-13 11:00 EDT</p>
