@@ -49,7 +49,7 @@ type Card = {
 };
 
 export type BoardGraphFinding = {
-  kind: "dangling_dep" | "cycle" | "planted_red_absent" | "committed_red_idle" | "write_root_unproven";
+  kind: "dangling_dep" | "cycle" | "planted_red_absent" | "committed_red_idle" | "write_root_is_read_only";
   cardId: string;
   title: string;
   detail: string;
@@ -109,19 +109,77 @@ export function auditBoardGraph(cards: readonly Card[], repoRoot: string): Board
       findings.push({ ...at(c), kind: "committed_red_idle", detail: `${red} is committed but the card is ${c.factory}` });
     }
 
-    // A write root with no proof naming it is a surface a worker may touch and nothing checks. Only
-    // meaningful on multi-root cards: a single-root card's proofs are self-evidently about that root.
+    // A write root with no write target underneath it is read-only; it belongs in a read-closure
+    // section, not in writeRoots. Only meaningful on multi-root cards.
     const roots = c.writeRoots ?? [];
     if (roots.length > 1) {
-      const proofs = (c.doneWhen ?? []).join(" ");
+      const doneWhen = c.doneWhen ?? [];
       for (const root of roots) {
-        if (!proofs.includes(root)) {
-          findings.push({ ...at(c), kind: "write_root_unproven", detail: `write root ${root} appears in no done_when rule` });
+        if (!rootHasWriteTarget(root, doneWhen)) {
+          findings.push({
+            ...at(c),
+            kind: "write_root_is_read_only",
+            detail: `write root ${root} has no write target — move it to ## read-closure:; a run: mention does not make it a write root`,
+          });
         }
       }
     }
   }
   return findings;
+}
+
+/** Paths of write targets in done_when rules. `run:` is NOT a write. */
+export function writeTargetsOf(doneWhen: readonly string[]): string[] {
+  const targets: string[] = [];
+  for (const rule of doneWhen) {
+    const trimmed = rule.trim();
+    if (trimmed.startsWith("changed:")) {
+      targets.push(trimmed.slice("changed:".length).trim());
+    } else if (trimmed.startsWith("live:")) {
+      targets.push(trimmed.slice("live:".length).trim());
+    } else if (trimmed.startsWith("exists:")) {
+      targets.push(trimmed.slice("exists:".length).trim());
+    } else if (trimmed.startsWith("min-bytes:")) {
+      const rest = trimmed.slice("min-bytes:".length).trim();
+      const target = rest.replace(/:\d+$/, "");
+      targets.push(target);
+    }
+  }
+  return targets;
+}
+
+/** True when any write target is at or under `root`. */
+export function rootHasWriteTarget(root: string, doneWhen: readonly string[]): boolean {
+  const normalizedRoot = root.replace(/\/$/, "");
+  return writeTargetsOf(doneWhen).some((t) => t === normalizedRoot || t.startsWith(`${normalizedRoot}/`));
+}
+
+/**
+ * Path-segment-aware prefix overlap. `docs/openclinxr` overlaps `docs/openclinxr/sub` and itself;
+ * it must NOT overlap `docs/openclinxr-other`. Handles trailing slashes and leading `./`.
+ */
+export function writeRootsOverlap(a: readonly string[], b: readonly string[]): boolean {
+  const normalize = (p: string) => p.replace(/\/$/, "").replace(/^\.\//, "");
+  for (const left of a) {
+    for (const right of b) {
+      const l = normalize(left);
+      const r = normalize(right);
+      if (l === r) return true;
+      if (l.startsWith(`${r}/`) || r.startsWith(`${l}/`)) return true;
+    }
+  }
+  return false;
+}
+
+/** Greedy lane selection: accept a card when its writeRoots overlap no already-accepted card's. */
+export function greedyDisjointLanes(cards: readonly Card[]): { accepted: Card[]; k: number } {
+  const accepted: Card[] = [];
+  for (const card of cards) {
+    const roots = card.writeRoots ?? [];
+    const overlapsAccepted = accepted.some((a) => writeRootsOverlap(roots, a.writeRoots ?? []));
+    if (!overlapsAccepted) accepted.push(card);
+  }
+  return { accepted, k: accepted.length };
 }
 
 async function main(): Promise<void> {
@@ -147,6 +205,20 @@ async function main(): Promise<void> {
   console.log(`board audit under ${parent}: ${live.length} live, ${children.length - live.length} cancelled`);
   for (const f of findings) console.log(`  ${f.kind.padEnd(22)} ${f.cardId.slice(4, 12)}  ${f.detail}\n${" ".repeat(26)}${f.title}`);
   console.log(`\n${findings.length} finding(s).`);
+
+  const ready = live.filter((c) => c.factory === "Planted" && c.status === "ready");
+  if (ready.length >= 2) {
+    const { accepted, k } = greedyDisjointLanes(ready);
+    if (k < ready.length) {
+      const collisions = ready
+        .filter((c) => !accepted.includes(c))
+        .map((c) => c.id?.slice(4, 12) ?? "?");
+      console.log(`lanes: greedy disjoint set = ${k} of ${ready.length} ready cards (roots collide: ${collisions.join(", ")})`);
+    } else {
+      console.log(`lanes: greedy disjoint set = ${k} of ${ready.length} ready cards (no root collisions)`);
+    }
+  }
+
   process.exit(findings.length === 0 ? 0 : 1);
 }
 
