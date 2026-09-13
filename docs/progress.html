@@ -28,6 +28,53 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-12T2345">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 37 &middot; 2026-09-12 23:45 EDT</p>
+          <h2>One card landed, and a gate caught a new test that was corrupting the repository every other agent shares.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>State of the four cards worked since entry 36, each verified by the orchestrator rather than taken from the worker's report.</caption>
+            <thead><tr><th scope="col">Card</th><th scope="col">What changed</th><th scope="col">State</th></tr></thead>
+            <tbody>
+              <tr><td>Worktree pruner</td><td>The pruner had been frozen by a count-gate expecting 275 registered worktrees against 816 actually present, so its safety condition could never be true and it never ran. The decayed gate is retired; the rule that main and the current worktree are never removed is kept.</td><td>landed <code>1ce9791b</code></td></tr>
+              <tr><td>CEO hook scope</td><td>The coordination guard ran a 1.22 s pair of checks after every matching tool call; it now reads the tree first in 0.03 s and runs the full pair whenever any coordination file is dirty. Its own new test turned out to corrupt the shared repository, so the card is not finished.</td><td>defect found, held</td></tr>
+              <tr><td>Write-roots audit</td><td>A read-only path listed as a write root was counted as a lane, which overstates how many cards can run at once. The audit now counts writes.</td><td>verified, waiting</td></tr>
+              <tr><td>Seated posture</td><td>Three humanoid clips regenerated so the held seated pose survives retargeting. Sent back; see below.</td><td>handed back</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>A test that corrupted the shared checkout</h3>
+            <ul>
+              <li>Every git command in the shared working copy began failing with "this operation must be run in a work tree", which breaks every agent in that copy at the same moment. It had been recorded twice before and the cause was never identified.</li>
+              <li>Cause, now measured: git hands a running hook the location of the real repository through the environment. A new test builds throwaway repositories in temporary folders, and under a hook those commands were reaching the real repository instead, flipping it to a bare configuration and staging 5,824 deletions.</li>
+              <li>It passes when run on its own, which is why it looked innocent: the environment that misdirects it only exists during a commit. That is also why two earlier controlled attempts to reproduce it found nothing.</li>
+              <li>An existing guard caught it. The commit hook photographs the repository's state either side of that test run and refuses the commit on any difference, so the corruption became a blocked commit instead of a silent bad merge. The repair for the test already exists in the codebase as a shared helper that strips the inherited location.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A gate that reads the confession</h3>
+            <ul>
+              <li>Three branches were committed with the commit checks skipped, for one measured reason: a fresh working copy has nothing built, so the type-error count gate cannot evaluate at all.</li>
+              <li>Two of the three said so plainly in their commit messages. The merge gate searches commit text for that admission and refused both. The third never mentioned it and landed cleanly.</li>
+              <li>The gate therefore rewards silence and punishes disclosure, which is the reverse of its purpose. The fix is not to reword the message: building the workspace first makes the count gate evaluate and pass, which removes the skip rather than hiding it. That change alone then exposed the corrupting test above.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Caught before landing</h3>
+            <ul>
+              <li>The seated-posture card's write-up states the correction was added to the bake stage. That file is byte-identical to the shipped version and the named function exists in no source file.</li>
+              <li>What it shipped instead is a separate 233-line script that edits the exported files afterwards, and nothing in the pipeline calls it. The three assets were corrected by hand, so the next rebuild reproduces the original defect and overwrites them.</li>
+              <li>Its own tests pass because they measure the corrected files. The asset-quality gate also passes, 50 of 50, so the assets are sound and the objection is confined to where the fix lives.</li>
+              <li>Sent back with both options stated: put the correction in the bake stage, or make the pipeline call the script. Either way the rebuild must reproduce it with no human step.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-12T2250">
         <div class="section-heading">
           <p class="eyebrow">Entry 36 &middot; 2026-09-12 22:50 EDT</p>
