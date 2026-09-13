@@ -201,3 +201,28 @@ point of writing it down is that it has never been a decision, only a side effec
 bank scenario (the machinery is wired and unit-tested; I did not drive it live); whether the two bank
 scenarios outside the 12-station blueprint (`adult_abdominal_pain_v1`, `peds_fever_v1`) are excluded
 deliberately or incidentally.
+
+## 2026-09-13 — BothyBoard worker dispatch: CORRECTED, no operator action needed
+
+An entry here reported that Grok's worktree hub could not create a destination directory, that no
+worker ran, and that the hub needed repair. All three are wrong, and the correction matters because
+the entry asked for a repair to something that is not broken.
+
+Measured at 9abbc911 from the main checkout: `git worktree add --detach` into
+`/Users/patrick/.grok/worktrees/src-openclinxr/` created a probe worktree and removed it cleanly.
+The hub is writable, holds 870 entries, and the volume has 483 GiB free. Three workers have since
+run from that hub; one landed as 9abbc911 and one committed 15fb89e4.
+
+`tsk_4e4e5a0179dd93da` did dispatch, and its worker committed 15fb89e4 in its own worktree.
+
+What actually blocked the earlier attempt was a card field, not the hub. Its predecessor card was
+created with `unblocks: instrument`, which the dispatch gate refuses as circular ("Measuring is not
+building. Name the non-instrument station this unblocks"). Correcting the field post-create does not
+regenerate the card body the gate reads, so the card had to be superseded and cancelled rather than
+edited. Recorded on the board at cmt_96f1ded0772571d1.
+
+One real finding survives, and it is about attribution rather than the hub: this note was written
+into the shared main checkout while a worktree-bound worker was in flight, so `dispatch-worker.ts`
+reported it as that worker leaking writes past the path deny and declared the dispatch failed. The
+worker was innocent; its work is in its own worktree. A concurrent writer to shared main is
+indistinguishable from a leak to that guard.
