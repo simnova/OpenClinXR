@@ -132,3 +132,36 @@ gate passes with no exceptions; licence survived. mimeType correctly reports
 Whether other large textures (MJ-shoes3 at 1,418,657 B, jeanstex1 at
 1,589,579 B) warrant the same treatment; runtime load time; Quest memory;
 visual difference at headset viewing distance vs grade distance.
+
+## MOTION-BIND ASSETS RESTORED (HANDBACK 3)
+
+The full materializer run also regenerated motion-bind GLBs and reports as
+an unintended side effect. This changed waistband geometry and broke the
+waist-fit-coverage gate (mpfb-peds-parent-aisha.motion-bind: 28 buckets
+vs recorded 32).
+
+Fix: all 4 motion-bind files restored from origin/main, constraining the
+slice to a texture swap only:
+
+- `mpfb-ob-patient-aisha.motion-bind.glb` (13,371,932 → 14,277,160 bytes)
+- `mpfb-peds-parent-aisha.motion-bind.glb` (13,423,464 → 12,268,860 bytes)
+- Both `.motion-bind-report.json` restored (absolute worktree paths → relative)
+
+Record-versus-live table (every subject, all OK):
+
+| subject | source | overlapMm (record) | buckets (record) | gapped (record) | upper (record) | lower (record) | match |
+|---------|--------|--------------------|------------------|-----------------|----------------|----------------|-------|
+| body-param-adult_heavy_male-library | library | 5 (5) | 16 (16) | 0 (0) | scrub_shirt_heavy_male | cargo_pants_heavy_male.001 | OK |
+| body-param-adult_lean_female-library | library | 5 (5) | 12 (12) | 0 (0) | toigo_tucked_t_shirt_lean_female | cargo_pants_lean_female.001 | OK |
+| mpfb-clinical-nurse-adult | cast | 5 (5) | 36 (36) | 0 (0) | scrub_shirt | scrub_pants | OK |
+| mpfb-clinical-physician-adult | cast | 2.7 (2.7) | 36 (36) | 0 (0) | scrub_shirt | scrub_pants | OK |
+| mpfb-family-partner-adult | cast | 5 (5) | 32 (32) | 0 (0) | toigo_t_shirt | bootcut_jeans_pants | OK |
+| mpfb-gown-adult-patient | cast | SKIP | - | - | - | - | skipped |
+| mpfb-ob-patient-aisha | cast | SKIP | - | - | - | - | skipped |
+| mpfb-peds-nurse-kevin | cast | 2.8 (2.8) | 36 (36) | 0 (0) | scrub_shirt | scrub_pants | OK |
+| mpfb-peds-parent-aisha.motion-bind | cast | 5 (5) | 32 (32) | 0 (0) | toigo_t_shirt | cargo_pants.001 | OK |
+| mpfb-peds-patient-child | cast | 5 (5) | 36 (36) | 0 (0) | toigo_t_shirt | cargo_pants.001 | OK |
+| mpfb-street-adult-male | cast | 5 (5) | 31 (31) | 0 (0) | toigo_t_shirt | straight_leg_jeans_pants | OK |
+
+Gates: waist-fit 3/3, texture-dwarf 5/5 (EXCEPTION_MAP {}), licence 23/23,
+drift-check clean (515 MD, 455 artifacts), pre-commit 10/10.
