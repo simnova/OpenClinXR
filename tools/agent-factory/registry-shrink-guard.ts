@@ -22,6 +22,15 @@ export const ALLOW_SHRINK_FLAG = "--allow-shrink";
 /** Env opt-in (same semantics as the flag). */
 export const ALLOW_SHRINK_ENV = "OPENCLINXR_REGISTRY_ALLOW_SHRINK";
 
+/** Targeted-append flag: register one path without a wholesale scan. */
+export const APPEND_FLAG = "--append";
+
+/** A registered path the scan cannot reproduce, kept with a written reason. */
+export type PreservedRegistryEntry = {
+  path: string;
+  reason: string;
+};
+
 /** Paths shown in refusal / cleanup messages (full dumps are unusable). */
 export const REMOVAL_SAMPLE_LIMIT = 20;
 
@@ -66,6 +75,33 @@ export function parseAllowShrink(
 }
 
 /**
+ * Parse `--append <repo-relative-path>` from argv.
+ * Returns undefined when the flag is absent. Throws when the flag is present
+ * without a path (or the next token is another flag).
+ */
+export function parseRegistryAppend(argv: readonly string[] = process.argv): string | undefined {
+  const index = argv.indexOf(APPEND_FLAG);
+  if (index < 0) return undefined;
+  const value = argv[index + 1];
+  if (value === undefined || value.length === 0 || value.startsWith("-")) {
+    throw new Error(`${APPEND_FLAG} requires a repo-relative path`);
+  }
+  return value.replaceAll("\\", "/");
+}
+
+/** Union scan paths with explicit preserved paths (sorted, unique). */
+export function withPreservedPaths(
+  nextPaths: readonly string[],
+  preservedPaths: readonly string[],
+): string[] {
+  const merged = new Set(nextPaths);
+  for (const preservedPath of preservedPaths) {
+    merged.add(preservedPath);
+  }
+  return [...merged].sort((a, b) => a.localeCompare(b));
+}
+
+/**
  * Detect a git worktree (`.git` is a file pointing at gitdir). Informational only —
  * never a gate; a complete worktree is legitimate.
  */
@@ -88,19 +124,28 @@ export function worktreeNote(cwd: string): string | null {
   );
 }
 
-/** Read `entries[].path` from an existing registry JSON; empty if missing/unreadable. */
-export function loadRegisteredPaths(registryJsonAbsPath: string): string[] {
+export type LoadedRegistryEntry = { path: string } & Record<string, unknown>;
+
+function readRegistryEntries(registryJsonAbsPath: string): LoadedRegistryEntry[] {
   if (!existsSync(registryJsonAbsPath)) return [];
   try {
     const raw = readFileSync(registryJsonAbsPath, "utf8");
     const data = JSON.parse(raw) as { entries?: Array<{ path?: unknown }> };
     if (!Array.isArray(data.entries)) return [];
-    return data.entries
-      .map((entry) => (typeof entry.path === "string" ? entry.path : null))
-      .filter((p): p is string => p !== null);
+    return data.entries.filter((entry): entry is LoadedRegistryEntry => typeof entry.path === "string");
   } catch {
     return [];
   }
+}
+
+/** Read `entries[].path` from an existing registry JSON; empty if missing/unreadable. */
+export function loadRegisteredPaths(registryJsonAbsPath: string): string[] {
+  return readRegistryEntries(registryJsonAbsPath).map((entry) => entry.path);
+}
+
+/** Read full `entries[]` so missing records can be carried forward without re-walking disk. */
+export function loadRegisteredEntries(registryJsonAbsPath: string): LoadedRegistryEntry[] {
+  return readRegistryEntries(registryJsonAbsPath);
 }
 
 export function findRemovedPaths(previousPaths: readonly string[], nextPaths: readonly string[]): string[] {
