@@ -3,6 +3,7 @@ import { canonicalJson } from "./canonical-json.js";
 import { geometryRevisionDigest, type ObservedApproachGeometry } from "./case-approach-intent-mod.js";
 import { CASE_FROZEN_SCENE_PLANS } from "./case-frozen-scene-plans.js";
 import { resolveCaseOwnedScenePlan } from "./case-owned-scene-plan-mod.js";
+import { observedRoomIsReadyToJudge } from "./encounter-bundle-admission-observed-room-mod.js";
 import {
   type FrozenSceneReopen,
   type FrozenSceneReproduction,
@@ -448,6 +449,8 @@ function runtimeBundleAssets(bundle: LearnerRuntimeAssetBundle): EncounterRuntim
  *
  * It returns the admission unchanged unless there is work to do: a plan that is not admitted, or one
  * already reproduced, is passed straight back, so the re-solve happens once and not every frame.
+ * A pending generated hull is not work: the parametric shell is not the room yet, and judging it
+ * would refuse a freeze that the hull would reproduce. A `refused` value stays terminal.
  */
 export function admitFrozenScenePlanForObservedScene<TScene>(input: {
   /** Last frame's admission. `no_plan_carried` means the bundle has not been consulted yet. */
@@ -473,6 +476,10 @@ export function admitFrozenScenePlanForObservedScene<TScene>(input: {
     return admission;
   }
   if (input.environmentId === null || input.environmentId === "") {
+    publishFrozenScenePlanAdmission(admission);
+    return admission;
+  }
+  if (!observedRoomIsReadyToJudge(input.scene)) {
     publishFrozenScenePlanAdmission(admission);
     return admission;
   }

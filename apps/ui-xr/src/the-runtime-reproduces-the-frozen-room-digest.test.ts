@@ -66,6 +66,15 @@ import {
  * `observedGeometryRevision` can still be the parametric digest when admission
  * runs before the hull lands; that is recorded, not repaired here.
  *
+ * ## FIXED
+ * Admission no longer compares the observed room while Infinigen status is
+ * `pending`. The parametric shell is not judged, so it cannot refuse and latch
+ * before `openClinXrEnvironmentSource === "infinigen-generated-room"` is
+ * stamped. Once the hull is present the geometry comparison is unchanged: a
+ * matching digest admits with `reproduced !== null`; a mismatch refuses and
+ * that refusal stays terminal. Unmapped/failed/compiled-room paths never enter
+ * `pending` and are judged immediately (the procedural box is then the room).
+ *
  * claimScope: geometryRevisionDigest of the inpatient ward fixtures the
  * admission observes, versus the committed freeze.
  * notEvidenceFor: clinical validity, worn-headset, scoring, exam equivalence.
@@ -108,6 +117,76 @@ function applyMeasuredInfinigenReanchor(scene: Scene): void {
     movedMeters: BOARD_REANCHOR_METERS,
   };
   scene.updateMatrixWorld(true);
+}
+
+function markInfinigenPending(scene: Scene): void {
+  scene.userData["openClinXrInfinigenEnvironmentStatus"] = {
+    environmentId: WARD,
+    state: "pending",
+    assetPath: "/xr-assets/environments/infinigen-inpatient-ward.glb",
+  };
+}
+
+function markGeneratedHullPresent(scene: Scene): void {
+  scene.userData["openClinXrInfinigenEnvironmentStatus"] = {
+    environmentId: WARD,
+    state: "loaded",
+    assetPath: "/xr-assets/environments/infinigen-inpatient-ward.glb",
+  };
+  const roomRoot = fixtureRoot(scene, "door_leaf");
+  roomRoot.userData["openClinXrEnvironmentSource"] = "infinigen-generated-room";
+}
+
+function stageAdmissionScene(options?: { reanchor?: boolean }): {
+  scene: Scene;
+  patientWorld: { x: number; y: number; z: number };
+  start: { x: number; y: number; z: number };
+  bundle: ReturnType<typeof createEdChestPainLocalLearnerRuntimeAssetBundle>;
+} {
+  const frozen = CASE_FROZEN_SCENE_PLANS[CASE_ID];
+  if (frozen === undefined) throw new Error("the scene-closure case has no committed freeze");
+  const scene = new Scene();
+  scene.add(buildStationEnvironment({ environmentId: WARD }) as never);
+  if (options?.reanchor === true) applyMeasuredInfinigenReanchor(scene);
+  const caseDocument = sceneClosureCaseDocument();
+  const placements = createEdChestPainRuntimeSceneManifest({
+    scenarioId: caseDocument.scenarioId,
+    stationId: SCENE_CLOSURE_STATION_ID,
+    scenario: caseDocument as never,
+    environmentId: WARD,
+  }).actorPlacements;
+  const patientPlacement = placements[SCENE_CLOSURE_PINNED_CAST.patient];
+  const patientWorld = composeSupportedActorWorldPosition({
+    posture: "supine",
+    fixtureAnchor: supineActorWorldPosition({}),
+    ...(patientPlacement?.plantOffsetMeters
+      ? { authoredOffsetMeters: patientPlacement.plantOffsetMeters }
+      : {}),
+    resolvedPosition: patientPlacement?.position ?? { x: 0, y: 0, z: 0 },
+  });
+  const physicianPlacement = placements[SCENE_CLOSURE_PINNED_CAST.physician];
+  const geometry = observeMountedApproachGeometry(scene, { supportInstanceId: SUPPORT });
+  const start = composeSupportedActorWorldPosition({
+    posture: "standing",
+    fixtureAnchor: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
+    ...(physicianPlacement?.plantOffsetMeters
+      ? { authoredOffsetMeters: physicianPlacement.plantOffsetMeters }
+      : {}),
+    resolvedPosition: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
+    ...(geometry.floorFrame ? { floorFrame: geometry.floorFrame } : {}),
+  });
+  if ("refused" in patientWorld || "refused" in start) {
+    throw new Error("the ward staging refused to compose a patient or physician position");
+  }
+  return {
+    scene,
+    patientWorld,
+    start,
+    bundle: createEdChestPainLocalLearnerRuntimeAssetBundle({
+      scenarioId: CASE_ID,
+      stationId: frozen.case.stationId,
+    }),
+  };
 }
 
 describe("the runtime reproduces the frozen room digest", () => {
@@ -248,5 +327,112 @@ describe("the runtime reproduces the frozen room digest", () => {
       fixtureRoot(scene, "wall_board").position.x,
       "admission restored wall_board — that re-opens #342c (board 0.745 m and door 0.394 m beyond the generated floor footprint)",
     ).toBe(boardX);
+  });
+
+  it("a refused admission stays refused when a later frame would reproduce", () => {
+    const staged = stageAdmissionScene({ reanchor: true });
+    markGeneratedHullPresent(staged.scene);
+    const refused = admitFrozenScenePlanForObservedScene({
+      admission: {
+        status: "refused",
+        reason: "evidence_changed",
+        detail: "parametric shell judged before the hull landed",
+      },
+      bundle: staged.bundle,
+      scene: staged.scene,
+      environmentId: WARD,
+      observeGeometry: observeMountedApproachGeometry,
+      patientWorldPosition: staged.patientWorld,
+      start: staged.start,
+    });
+    expect(refused.status, "a genuine refusal must stay terminal; retry-until-match is the SC-06 cheap path").toBe(
+      "refused",
+    );
+    if (refused.status !== "refused") return;
+    expect(refused.reason).toBe("evidence_changed");
+  });
+
+  it("does not judge the parametric shell while the generated hull is still pending", () => {
+    const staged = stageAdmissionScene();
+    markInfinigenPending(staged.scene);
+    const deferred = admitFrozenScenePlanForObservedScene({
+      admission: { status: "no_plan_carried" },
+      bundle: staged.bundle,
+      scene: staged.scene,
+      environmentId: WARD,
+      observeGeometry: observeMountedApproachGeometry,
+      patientWorldPosition: staged.patientWorld,
+      start: staged.start,
+    });
+    expect(
+      deferred.status,
+      deferred.status === "refused"
+        ? `judged the pending parametric shell: ${deferred.detail}`
+        : "boot admission of the carried plan must still succeed",
+    ).toBe("admitted");
+    if (deferred.status !== "admitted") return;
+    expect(deferred.reproduced, "pending hull must not re-solve against the parametric shell").toBeNull();
+
+    applyMeasuredInfinigenReanchor(staged.scene);
+    markGeneratedHullPresent(staged.scene);
+    const afterHull = admitFrozenScenePlanForObservedScene({
+      admission: deferred,
+      bundle: staged.bundle,
+      scene: staged.scene,
+      environmentId: WARD,
+      observeGeometry: observeMountedApproachGeometry,
+      patientWorldPosition: staged.patientWorld,
+      start: staged.start,
+    });
+    expect(afterHull.status, afterHull.status === "refused" ? afterHull.detail : "").toBe("admitted");
+    if (afterHull.status !== "admitted") return;
+    expect(afterHull.reproduced, "hull-present matching digest must re-solve").not.toBeNull();
+    expect(afterHull.observedGeometryRevision).toBe(REANCHORED_DIGEST);
+  });
+
+  it("a generated hull that does not match still refuses", () => {
+    const staged = stageAdmissionScene();
+    markInfinigenPending(staged.scene);
+    const deferred = admitFrozenScenePlanForObservedScene({
+      admission: { status: "no_plan_carried" },
+      bundle: staged.bundle,
+      scene: staged.scene,
+      environmentId: WARD,
+      observeGeometry: observeMountedApproachGeometry,
+      patientWorldPosition: staged.patientWorld,
+      start: staged.start,
+    });
+    expect(deferred.status).toBe("admitted");
+    if (deferred.status !== "admitted") return;
+    expect(deferred.reproduced).toBeNull();
+
+    markGeneratedHullPresent(staged.scene);
+    const mismatched = admitFrozenScenePlanForObservedScene({
+      admission: deferred,
+      bundle: staged.bundle,
+      scene: staged.scene,
+      environmentId: WARD,
+      observeGeometry: observeMountedApproachGeometry,
+      patientWorldPosition: staged.patientWorld,
+      start: staged.start,
+    });
+    expect(mismatched.status, "a hull whose digest is not the freeze must refuse").toBe("refused");
+    if (mismatched.status !== "refused") return;
+    expect(mismatched.observedGeometryRevision).toBe("geom-v1-c45e274d-7");
+
+    applyMeasuredInfinigenReanchor(staged.scene);
+    const afterMatchWouldSucceed = admitFrozenScenePlanForObservedScene({
+      admission: mismatched,
+      bundle: staged.bundle,
+      scene: staged.scene,
+      environmentId: WARD,
+      observeGeometry: observeMountedApproachGeometry,
+      patientWorldPosition: staged.patientWorld,
+      start: staged.start,
+    });
+    expect(
+      afterMatchWouldSucceed.status,
+      "a hull refusal is terminal; a later matching frame must not retry-until-pass",
+    ).toBe("refused");
   });
 });
