@@ -28,6 +28,53 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-13T1100">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 44 &middot; 2026-09-13 11:00 EDT</p>
+          <h2>The clinician walks to the bedside and stops there. Measured in the running application, after six repairs and one repair that was sent back.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>A headless run of the real application against today&rsquo;s build. The recording tool waits for the software to report that it has stopped; this time it did, rather than timing out.</caption>
+            <thead><tr><th scope="col">What was measured</th><th scope="col">Result</th><th scope="col">Allowed</th></tr></thead>
+            <tbody>
+              <tr><td>Frames carrying skeleton data</td><td>388, of which 178 walking and 145 stopped</td><td>0 in every run until now</td></tr>
+              <tr><td>How close the clinician stopped to the intended spot</td><td>2.9 cm</td><td>5 cm</td></tr>
+              <tr><td>Which way they were facing when settled</td><td>0 degrees off</td><td>10 degrees</td></tr>
+              <tr><td>How long they stood still at the bedside</td><td>4.3 seconds</td><td>at least 2</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What it took</h3>
+            <ul>
+              <li>A safety check compares the room the software is looking at against the room recorded when the encounter was approved. It had been refusing on every frame for three days, and nothing reported why.</li>
+              <li>First repair: read-only reporting, so the refusal could be read instead of guessed at. Everything after this depended on it.</li>
+              <li>Second: the recorded room fingerprint was re-taken by starting the real application in a browser and reading what it builds, rather than from a simplified stand-in outside it.</li>
+              <li>Third: the check was running before the real room finished loading, roughly a second too early, and its refusal was permanent. It now waits until the room it is judging is the room.</li>
+              <li>A fourth repair was sent back. It passed every check by moving a door and a wall panel off the wall just before measuring, which would have put both outside the room. Reading the change caught it; no automated check would have.</li>
+              <li>Two further repairs fixed a protected index that could not be rebuilt and was blocking every publish from the main working copy.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What is still wrong</h3>
+            <ul>
+              <li>Frame pacing is uneven: the longest gap between frames is 11 times the typical one. This is a limit of running the 3D scene in a headless browser on this machine, not a fault in the walk, and it means foot-sliding cannot be judged from this recording. It is recorded as not gradeable rather than quietly passed.</li>
+              <li>One foot reaches about 3.8 cm below the floor during the walk. That is a real defect in the movement and is not excused by the frame pacing.</li>
+              <li>An earlier run of this same build, forty minutes before, measured nothing at all. Three explanations were tested and ruled out. What does vary is how long the room takes to load, between 1.1 and 4.7 seconds across runs, and a room that fails to load entirely is still handled wrongly. That is written up as its own task rather than left as a good result.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What is not being claimed</h3>
+            <ul>
+              <li>Not that the encounter is finished. One clinician walking to one bedside in one room is what was measured, and that is all.</li>
+              <li>Not that any of this is clinically valid, suitable for a headset, or usable for scoring. Those are separate claims needing separate evidence, and none was gathered here.</li>
+              <li>The side panel in the captured image still names a different case than the one actually loaded. The loaded case was verified correct, so this is display text drawn from elsewhere, and it remains unfixed and recorded.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-13T0555">
         <div class="section-heading">
           <p class="eyebrow">Entry 43 &middot; 2026-09-13 05:55 EDT</p>
