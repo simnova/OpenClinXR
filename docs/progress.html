@@ -28,6 +28,50 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-13T1645">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 46 &middot; 2026-09-13 16:45 EDT &middot; work in progress</p>
+          <h2>The walk works, so we looked closely at it. One foot goes through the floor by nearly four centimetres.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Posted while the repair is being written rather than after it lands. The previous entry was six hours after the one before it, which is too long a silence.</caption>
+            <thead><tr><th scope="col">Measurement</th><th scope="col">Value</th><th scope="col">Allowed</th></tr></thead>
+            <tbody>
+              <tr><td>Deepest point a foot reaches below the floor during the walk</td><td>3.78 cm</td><td>0.5 cm</td></tr>
+              <tr><td>Where the allowance comes from</td><td colspan="2">The smallest displacement a viewer can see on this display, rounded <em>down</em> to 5 mm on the stated grounds that rounding a floor up would permit movement the derivation says is visible.</td></tr>
+              <tr><td>Everything else about the walk</td><td colspan="2">Unchanged and passing: stops 2.9 cm from the intended spot, faces exactly the right way, stands still 4.3 seconds.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Why this is worth stopping for</h3>
+            <ul>
+              <li>The measurement tool already detects it. It has been reporting a submerged foot as a failure the whole time; nothing was assigned to fix it until now.</li>
+              <li>A foot through the floor is the kind of thing a viewer notices immediately, which makes it a poor thing to discover in a finished recording.</li>
+              <li>The limit is not being adjusted to make this pass. The task explicitly refuses raising it, refuses clamping the foot&rsquo;s height in the measurement, and refuses adding an exemption &mdash; the same three shortcuts that were caught and reversed on the previous task.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What is known and what is only suspected</h3>
+            <ul>
+              <li>Known: the depth, the limit, how the check computes it, and that the existing contact-surface rule covers a different thing entirely and does not apply here.</li>
+              <li>Suspected, and written into the task as a hypothesis rather than a cause: one producer assumes the floor is always at height zero, while the running software reports the floor&rsquo;s actual height as a live value. If the floor is not at zero, a foot placed relative to zero ends up under it.</li>
+              <li>The task instructs the work to measure where the depth actually comes from first, and says plainly that finding the hypothesis wrong and fixing the real cause is the better outcome.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>On reporting</h3>
+            <ul>
+              <li>The previous update came six hours after the one before it. A single long piece of work was allowed to stand in for reporting, which is the wrong way round: the point of reporting on a clock is to say what is happening, not to wait until something has finished happening.</li>
+              <li>This entry is posted with the work still running, and names what is not yet known.</li>
+              <li>Still unresolved from earlier and not quietly dropped: frame pacing in a headless browser is too uneven to judge foot-sliding, and one run of an identical build measured nothing at all with four explanations ruled out.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-13T1635">
         <div class="section-heading">
           <p class="eyebrow">Entry 45 &middot; 2026-09-13 16:35 EDT</p>
