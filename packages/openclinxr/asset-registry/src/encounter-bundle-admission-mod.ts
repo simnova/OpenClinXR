@@ -1,8 +1,4 @@
 import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evidence-mod.js";
-import {
-  prepareObservedSceneForAdmission,
-  publishFrozenScenePlanAdmission,
-} from "./encounter-bundle-admission-geometry-mod.js";
 import { canonicalJson } from "./canonical-json.js";
 import { geometryRevisionDigest, type ObservedApproachGeometry } from "./case-approach-intent-mod.js";
 import { CASE_FROZEN_SCENE_PLANS } from "./case-frozen-scene-plans.js";
@@ -113,6 +109,21 @@ export function carriedAcceptedScenePlan(bundle: BundleCarryingAcceptedScenePlan
 
 function isRecordObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** Read-only page telemetry. Does not write scene state. */
+export function publishFrozenScenePlanAdmission(admission: ScenePlanAdmission): void {
+  const host = (globalThis as unknown as { window?: Record<string, unknown> }).window
+    ?? (globalThis as unknown as Record<string, unknown>);
+  host["__openClinXrFrozenScenePlanAdmission"] = {
+    source: "window.__openClinXrFrozenScenePlanAdmission",
+    status: admission.status,
+    reproduced: admission.status === "admitted" && admission.reproduced !== null,
+    reason: admission.status === "refused" ? admission.reason : null,
+    detail: admission.status === "refused" ? admission.detail : null,
+    observedGeometryRevision:
+      admission.status === "no_plan_carried" ? null : (admission.observedGeometryRevision ?? null),
+  };
 }
 
 /**
@@ -449,9 +460,6 @@ export function admitFrozenScenePlanForObservedScene<TScene>(input: {
   patientWorldPosition: { x: number; y: number; z: number };
   start: { x: number; y: number; z: number };
 }): ScenePlanAdmission {
-  // The freeze captured parametric wall-anchor positions. Infinigen reanchor slides door_leaf /
-  // wall_board after boot; undo that before measuring so the comparison stays strict.
-  prepareObservedSceneForAdmission(input.scene);
   // FIRST FRAME: consult the bundle. Round 2 initialised the runtime's variable to
   // `no_plan_carried` and only ever assigned this function's return, and this function returned its
   // input unchanged unless it was already `admitted` — so nothing ever admitted anything and the

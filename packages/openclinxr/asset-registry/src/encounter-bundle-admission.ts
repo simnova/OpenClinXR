@@ -1,15 +1,12 @@
 /** Public subpath entry: keep-only re-exports. Implementation: ./encounter-bundle-admission-mod.js */
 
 export {
-  publishFrozenScenePlanAdmission,
-  restoreWallAnchorsMovedByGeneratedRoom,
-} from "./encounter-bundle-admission-geometry-mod.js";
-export {
   admitFrozenScenePlan,
   admitFrozenScenePlanForObservedScene,
   carriedAcceptedScenePlan,
   inspectBundleEligibility,
   inspectPinnedBundleIdentity,
+  publishFrozenScenePlanAdmission,
   type ScenePlanAdmission,
   stationIdForSceneClosureScenario,
   verifyCommittedScenePlanAgainstDisk,

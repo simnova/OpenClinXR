@@ -7,10 +7,7 @@ import {
 } from "@openclinxr/asset-registry/actor-posture";
 import { geometryRevisionDigest } from "@openclinxr/asset-registry/case-approach-intent";
 import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-scene-plans";
-import {
-  admitFrozenScenePlanForObservedScene,
-  restoreWallAnchorsMovedByGeneratedRoom,
-} from "@openclinxr/asset-registry/encounter-bundle-admission";
+import { admitFrozenScenePlanForObservedScene } from "@openclinxr/asset-registry/encounter-bundle-admission";
 import {
   createEdChestPainLocalLearnerRuntimeAssetBundle,
   createEdChestPainRuntimeSceneManifest,
@@ -51,9 +48,11 @@ import {
  * assertion and append a ## FIXED block. Do not rewrite the original numbers.
  *
  * ## FIXED
- * `admitFrozenScenePlanForObservedScene` calls `prepareObservedSceneForAdmission`,
- * which undoes `reanchorWallFixturesToRoom` before measuring. Admission then
- * reproduces `geom-v1-c45e274d-7`. Comparison unchanged.
+ * The freeze predates the hull. `parametricDigest === frozenDigest` because SC-06
+ * froze `buildStationEnvironment` in node before Infinigen loaded. The live digest
+ * `geom-v1-cdaa4a22-7` is the hull-reanchored room; admission refuses it and
+ * `observedGeometryRevision` names that live value. Restoring wall anchors at
+ * admission re-opens #342c and is not the fix. Re-freeze is a follow-on card.
  *
  * claimScope: geometryRevisionDigest of the inpatient ward fixtures the
  * admission observes, versus the committed freeze.
@@ -117,11 +116,6 @@ describe("the runtime reproduces the frozen room digest", () => {
     );
     expect(reanchoredDigest).not.toBe(frozenDigest);
 
-    restoreWallAnchorsMovedByGeneratedRoom(scene);
-    expect(digestOf(scene), "the restore helper did not recover the freeze").toBe(frozenDigest);
-    applyMeasuredInfinigenReanchor(scene);
-    expect(digestOf(scene)).toBe(REANCHORED_DIGEST);
-
     const caseDocument = sceneClosureCaseDocument();
     const placements = createEdChestPainRuntimeSceneManifest({
       scenarioId: caseDocument.scenarioId,
@@ -165,24 +159,78 @@ describe("the runtime reproduces the frozen room digest", () => {
       patientWorldPosition: patientWorld,
       start,
     });
-    expect(admission.status, admission.status === "refused" ? admission.detail : "").toBe("admitted");
-    if (admission.status !== "admitted") return;
-    expect(admission.reproduced, "admission did not reproduce after restore").not.toBeNull();
-    expect(admission.observedGeometryRevision).toBe(frozenDigest);
-
-    expect(digestOf(scene), "admission did not restore the Infinigen slide before measuring").toBe(
-      frozenDigest,
-    );
+    expect(admission.status, "hull-loaded scene must refuse a pre-hull freeze").toBe("refused");
+    if (admission.status !== "refused") return;
+    expect(admission.observedGeometryRevision).toBe(REANCHORED_DIGEST);
+    expect(digestOf(scene)).toBe(REANCHORED_DIGEST);
     const admissionSource = readFileSync(
       nodePath.join(REPO_ROOT, "packages/openclinxr/asset-registry/src/encounter-bundle-admission-mod.ts"),
       "utf8",
     );
-    const restoreAt = admissionSource.search(/prepareObservedSceneForAdmission\(input\.scene\)/u);
-    const observeAt = admissionSource.search(/input\.observeGeometry\(input\.scene/u);
-    expect(restoreAt).toBeGreaterThanOrEqual(0);
-    expect(observeAt).toBeGreaterThan(restoreAt);
+    expect(admissionSource).not.toMatch(/prepareObservedSceneForAdmission/u);
+    expect(admissionSource).not.toMatch(/restoreWallAnchorsMovedByGeneratedRoom/u);
     expect(admissionSource).toMatch(/publishFrozenScenePlanAdmission\(/u);
     const mainSource = readFileSync(nodePath.join(REPO_ROOT, "apps/ui-xr/src/main.ts"), "utf8");
     expect(mainSource).toMatch(/admitFrozenScenePlanForObservedScene\(\{/u);
+  });
+
+  it("admission does not restore wall anchors — that re-opens #342c", () => {
+    const frozen = CASE_FROZEN_SCENE_PLANS[CASE_ID];
+    expect(frozen).toBeTruthy();
+    const scene = new Scene();
+    scene.add(buildStationEnvironment({ environmentId: WARD }) as never);
+    applyMeasuredInfinigenReanchor(scene);
+    const doorX = fixtureRoot(scene, "door_leaf").position.x;
+    const boardX = fixtureRoot(scene, "wall_board").position.x;
+    const caseDocument = sceneClosureCaseDocument();
+    const placements = createEdChestPainRuntimeSceneManifest({
+      scenarioId: caseDocument.scenarioId,
+      stationId: SCENE_CLOSURE_STATION_ID,
+      scenario: caseDocument as never,
+      environmentId: WARD,
+    }).actorPlacements;
+    const patientPlacement = placements[SCENE_CLOSURE_PINNED_CAST.patient];
+    const patientWorld = composeSupportedActorWorldPosition({
+      posture: "supine",
+      fixtureAnchor: supineActorWorldPosition({}),
+      ...(patientPlacement?.plantOffsetMeters
+        ? { authoredOffsetMeters: patientPlacement.plantOffsetMeters }
+        : {}),
+      resolvedPosition: patientPlacement?.position ?? { x: 0, y: 0, z: 0 },
+    });
+    const physicianPlacement = placements[SCENE_CLOSURE_PINNED_CAST.physician];
+    const geometry = observeMountedApproachGeometry(scene, { supportInstanceId: SUPPORT });
+    const start = composeSupportedActorWorldPosition({
+      posture: "standing",
+      fixtureAnchor: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
+      ...(physicianPlacement?.plantOffsetMeters
+        ? { authoredOffsetMeters: physicianPlacement.plantOffsetMeters }
+        : {}),
+      resolvedPosition: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
+      ...(geometry.floorFrame ? { floorFrame: geometry.floorFrame } : {}),
+    });
+    if ("refused" in patientWorld || "refused" in start) {
+      throw new Error("the ward staging refused to compose a patient or physician position");
+    }
+    admitFrozenScenePlanForObservedScene({
+      admission: { status: "no_plan_carried" },
+      bundle: createEdChestPainLocalLearnerRuntimeAssetBundle({
+        scenarioId: CASE_ID,
+        stationId: frozen!.case.stationId,
+      }),
+      scene,
+      environmentId: WARD,
+      observeGeometry: observeMountedApproachGeometry,
+      patientWorldPosition: patientWorld,
+      start,
+    });
+    expect(
+      fixtureRoot(scene, "door_leaf").position.x,
+      "admission restored door_leaf — that re-opens #342c (board 0.745 m and door 0.394 m beyond the generated floor footprint)",
+    ).toBe(doorX);
+    expect(
+      fixtureRoot(scene, "wall_board").position.x,
+      "admission restored wall_board — that re-opens #342c (board 0.745 m and door 0.394 m beyond the generated floor footprint)",
+    ).toBe(boardX);
   });
 });

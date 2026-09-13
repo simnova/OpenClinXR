@@ -3448,7 +3448,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       }
     }
     updateVrPanels(inputEvidence);
-    // Admission restores the Infinigen wall-anchor slide, then gates the walk on freeze reproduction.
+    // A hull-reanchored room that does not match the freeze refuses; the walk stays gated.
     frozenScenePlanAdmission = admitFrozenScenePlanForObservedScene({
       admission: frozenScenePlanAdmission, bundle: encounterRuntimeAssetBundle,
       scene,
