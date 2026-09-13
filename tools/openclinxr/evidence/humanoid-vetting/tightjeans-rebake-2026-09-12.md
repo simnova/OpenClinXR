@@ -23,7 +23,10 @@ The bake was run from an isolated git worktree with the provider cache
 assets symlinked from the shared checkout (read-only). The full materializer
 pipeline executed: MPFB human creation, macro baking, garment fitting
 (ClothesService), hair/eyebrow/eyelash fitting, eye fitting, skin shader,
-rigging, shape keys, GLB export.
+rigging, shape keys, GLB export. After export, `iterate-optimize.ts
+--face-preserving --face-preserving-ratio 0.4` applied the fp-r0.4 rung
+to decimate non-face primitives (body, garments, hair, footwear) while
+preserving face meshes (eyes, brows, lashes, teeth, tongue).
 
 ### Previous approach (Defect 2 in initial dispatch)
 
@@ -48,26 +51,32 @@ no longer the shipping path but the fix is retained for evidence usage.
 Non-exception fleet ceiling: 2.12x (street male, jeanstex1).
 Gate threshold: 3.0x.
 
-## MEASURE AFTER (from GLB JSON chunks, fresh materializer bake)
+## MEASURE AFTER (from GLB JSON chunks, materializer bake + fp-r0.4)
 
 | Body | GLB bytes | Tris | Texture total | tightjeans | Max/median |
 |------|-----------|------|---------------|------------|------------|
-| mpfb-ob-patient-aisha | 13,170,972 | 92,430 | 5,591,004 | 1,196,954 (21.4%) | 1.63x |
-| mpfb-peds-parent-aisha | 13,222,500 | 92,430 | 5,642,427 | 1,196,954 (21.2%) | 1.63x |
+| mpfb-ob-patient-aisha | 9,952,284 | 69,067 | 4,510,848 | 1,196,954 (26.5%) | 2.16x |
+| mpfb-peds-parent-aisha | 10,003,808 | 69,067 | 4,562,272 | 1,196,954 (26.2%) | 2.14x |
 
 Both ratios well below the 3.0x threshold. Largest image in both bodies is
-now MJ-shoes3 at 1,418,657 bytes (25.4% of texture, 1.63x median).
+MJ-shoes3 at 1,418,657 bytes. Triangle counts are within 0.25% of baseline
+(69,093 / 68,898) — the fresh materializer produces identical topology for
+both bodies; the original baseline bodies diverged slightly because they were
+baked in separate pipeline runs.
 
-**Triangle count note:** The fresh materializer bake produces 92,430 tris
-vs the pre-rebake 69,093. This is because the materializer re-runs the
-full pipeline (rigging, helper strip, garment fitting) which produces
-different mesh topology than the original export. The texture dwarf gate
-measures only texture ratios and is unaffected by triangle count changes.
+**FP-R0.4 DECIMATION:** After the materializer exports the raw GLB (92,430
+tris), `iterate-optimize.ts --face-preserving --face-preserving-ratio 0.4`
+applies meshopt simplify on all NON-face primitives (body, garments, hair,
+footwear) with error 0.01. Face meshes (eyes, brows, lashes, teeth, tongue)
+are excluded by name regex. This is the same rung that produced the baseline
+shipped bodies (HB-05 face-preserving ladder, ratio 0.4 chosen for both
+aisha and parent). The fp-r0.4 rung reduced 92,430 → 69,067 tris (25.3%
+reduction) and 13.17/13.22 MB → 9.95/10.0 MB (24.4% reduction).
 
 ## TRIANGLE COUNTS
 
-- mpfb-ob-patient-aisha: 92,430 (fresh materializer bake)
-- mpfb-peds-parent-aisha: 92,430 (fresh materializer bake)
+- mpfb-ob-patient-aisha: 69,067 (materializer bake + fp-r0.4; baseline 69,093, delta 26)
+- mpfb-peds-parent-aisha: 69,067 (materializer bake + fp-r0.4; baseline 68,898, delta 169)
 
 ## EXCEPTION_MAP DELETED
 
@@ -100,11 +109,7 @@ Render captures for orchestrator pixel grade (isolated front_lit, EEVEE,
 
 Rendered via `tools/openclinxr/evidence/humanoid-vetting/render-rebake-front-lit.py`
 following the conventions of `render-tex-candidates.py` (pixel-extrema guard,
-captures/ output directory).
-
-NOTE: These captures were rendered from the previous swap-based GLBs, not
-the fresh materializer bake. Re-capture from the materializer output is
-recommended for final grade.
+captures/ output directory). Re-rendered from fp-r0.4 decimated GLBs.
 
 ## COUNTERWEIGHTS
 
@@ -117,8 +122,10 @@ recommended for final grade.
 ## CLAIM
 
 Both aisha bodies re-baked through the materializer bake path with JPEG q85
-tightjeans via `--texture-overrides`; EXCEPTION_MAP deleted; gate passes with
-no exceptions; licence survived. mimeType correctly reports `image/jpeg`.
+tightjeans via `--texture-overrides`, then decimated with fp-r0.4
+(face-preserving meshopt ratio 0.4, error 0.01). EXCEPTION_MAP deleted;
+gate passes with no exceptions; licence survived. mimeType correctly reports
+`image/jpeg`.
 
 ## NOT TESTED
 

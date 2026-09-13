@@ -4,13 +4,13 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
+    "keep-evidence": 291,
     "ignore-local-cache": 2112,
-    "keep-compatibility-input": 24,
     "keep-current": 161,
-    "keep-evidence": 290,
+    "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2593,
-    "total": 2593
+    "total": 2594,
+    "entries": 2594
   },
   "entries": [
     {
@@ -18163,6 +18163,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Blender render script for capturing seated clip frames at multiple timepoints."
+    },
+    {
+      "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tightjeans JPEG re-bake evidence report: materializer bake path with texture overrides, fp-r0.4 face-preserving decimation, EXCEPTION_MAP deletion, licence survival."
     }
   ]
 }
