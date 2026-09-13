@@ -28,6 +28,52 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-13T0555">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 43 &middot; 2026-09-13 05:55 EDT</p>
+          <h2>The room record is now correct and the clinician still does not walk. We ran the encounter and measured why, to the millisecond.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>A four-minute headless run of the real application against today&rsquo;s repaired build. Nothing was staged and no movement was injected.</caption>
+            <thead><tr><th scope="col">What was measured</th><th scope="col">Result</th></tr></thead>
+            <tbody>
+              <tr><td>Did the clinician walk to the bedside?</td><td>No. Zero frames carried any skeleton data across a full 240-second wait, so the movement system never started.</td></tr>
+              <tr><td>Was this a real attempt, or a recording that gave up early?</td><td>Real. The tool waits for the runtime to report that it stopped, and waited the entire four minutes before giving up. The case it loaded was confirmed to be the right one.</td></tr>
+              <tr><td>Is the room record still the problem?</td><td>No. That was today&rsquo;s repair and it holds. The record now matches the room the software builds.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What the measurement found, exactly</h3>
+            <ul>
+              <li>The safety check runs on every frame from the moment the scene starts drawing, at 157 milliseconds after load.</li>
+              <li>The real generated room does not finish loading until 1,094 milliseconds. For roughly the first second, the check is therefore looking at a simple placeholder room.</li>
+              <li>The placeholder does not match the record &mdash; correctly, because the record now describes the real room. So the check refuses.</li>
+              <li>And the refusal is permanent. Reading the code confirms it: once refused, the answer is handed back unchanged on every later frame and never re-examined. The real room arrives at 1,094 milliseconds and is never looked at.</li>
+              <li>So today&rsquo;s repair did not fail. It moved the failure a second earlier, into a window nobody had measured, and made it visible.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Why the fix is narrow, and what it must not be</h3>
+            <ul>
+              <li>The tempting fix is to let the check keep retrying until it passes. That is refused: a room that genuinely does not match must still be rejected, and retry-until-success would delete the only thing standing between a mismatched room and a clinical walkthrough.</li>
+              <li>The correct fix is to wait until the room being checked is the actual room, then check it exactly as strictly as now. The software already publishes a signal saying the generated room has loaded; nothing currently reads it at this point.</li>
+              <li>The task carries that requirement as a mandatory second test: after the change, a room that really is wrong must still be refused. That test has to be seen failing before it is made to pass.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Landed today, and what is still not claimed</h3>
+            <ul>
+              <li>Four separate repairs landed: the diagnosis and reporting that made this measurement possible at all; the room record re-taken from the running application; and two fixes to a protected index that could not be rebuilt and was blocking every publish.</li>
+              <li>The reporting added this morning is what let us read the failure instead of guessing at it. Three days ago the same symptom could only be inferred.</li>
+              <li>Not claimed: that the encounter works. It does not. One measured blocker has been removed and one more is precisely located, and whether anything further stands behind it is unknown until the next run.</li>
+              <li>Also unresolved and recorded rather than quietly fixed: the side panel in the captured frame names a different case than the one actually loaded. The loaded case was verified correct, so this is display text drawn from somewhere else.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-13T0515">
         <div class="section-heading">
           <p class="eyebrow">Entry 42 &middot; 2026-09-13 05:15 EDT</p>
