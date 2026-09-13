@@ -41,8 +41,23 @@ export const CHURN_EXACT_PATHS = [
 /** Churn paths: directory prefixes the SessionStart docs-hygiene hook writes under. */
 export const CHURN_PATH_PREFIXES = ["docs/_archive/", "docs/agent-ops/"] as const;
 
-/** Issue #367 expected totals (measured 2026-08-14 09:2x). Drift from these → STOP. */
-export const ISSUE_367_EXPECTED_TOTALS: Record<string, number> = {
+/**
+ * Issue #367's measured snapshot of this fleet, taken 2026-08-14 09:2x.
+ *
+ * THIS IS A BASELINE FOR REPORTING, NOT A GATE — and it used to be the gate. `safeToRemove`
+ * required every bucket to equal these counts exactly ("Drift from these → STOP"). A worktree
+ * fleet grows every time a worker spawns, so the equality decayed within days and the tool froze
+ * shut: measured 2026-09-12, 816 registered against the 275 below, with five of six buckets
+ * drifted and 667 prunable trees it could not touch.
+ *
+ * A gate that can never open protects nothing. It only guarantees that whoever next needs the
+ * tool deletes the check outright, which is how a real counterweight gets lost.
+ *
+ * Drift against these numbers is still computed and still printed, because "the fleet looks
+ * nothing like it did" is worth knowing. What GATES removal is now `prunePlanSafety()`, whose
+ * every blocker names a way this tool could destroy work, rather than a count that ages.
+ */
+export const ISSUE_367_BASELINE_TOTALS: Record<string, number> = {
   registered: 275,
   clean: 187,
   churn_only: 65,
@@ -158,14 +173,24 @@ export type PrunePlan = {
   prunableMissing: string[];
   subagentClones: SubagentClone[];
   liveServers: LiveServer[];
+  /** Prunable trees deliberately withheld from `wouldRemove`, each with its reason. */
+  skippedLive: Array<{ path: string; reason: string }>;
+  /** Live-process-by-cwd scan. `determined: false` refuses removal outright. */
+  liveProcessScan: LiveProcessScan;
   counterweight: {
-    /** issue-100 must classify has_work — the issue's known-good on real data. */
+    /** issue-100 must classify has_work — the issue's known-good, when that tree still exists. */
     issue100Path: string;
     issue100Classification: PruneClassification | null;
+    /** False once that worktree is gone; absence must not be read as a pass OR as a failure. */
+    issue100Present: boolean;
+    /** The non-decaying half: the discriminator's own known-good table. */
+    discriminatorSelfTestFailures: string[];
     passes: boolean;
   };
   expectedTotals: Record<string, number>;
   drift: PruneDrift[];
+  /** Every reason removal is refused. Empty is the only state `--apply` accepts. */
+  safetyBlockers: string[];
   safeToRemove: boolean;
   grokRootSizeBytes: number | null;
   note: string;
@@ -263,7 +288,11 @@ export function computeTotals(records: WorktreeRecord[]): PruneTotals {
   return totals;
 }
 
-/** Drift vs the issue's measured counts; any mismatch marks the plan unsafe to apply. */
+/**
+ * Drift vs the issue's 2026-08-14 baseline. ADVISORY — reported, never gating.
+ *
+ * It gated once, and froze the tool shut (see ISSUE_367_BASELINE_TOTALS).
+ */
 export function computeDrift(totals: PruneTotals): PruneDrift[] {
   const buckets: Array<{ bucket: keyof PruneTotals; label: string }> = [
     { bucket: "clean", label: "clean" },
@@ -274,11 +303,11 @@ export function computeDrift(totals: PruneTotals): PruneDrift[] {
   ];
   const drift: PruneDrift[] = [];
   for (const { bucket, label } of buckets) {
-    const expected = ISSUE_367_EXPECTED_TOTALS[label] ?? 0;
+    const expected = ISSUE_367_BASELINE_TOTALS[label] ?? 0;
     const actual = totals[bucket];
     drift.push({ bucket: label, expected, actual, matches: expected === actual });
   }
-  const registered = ISSUE_367_EXPECTED_TOTALS["registered"] ?? 0;
+  const registered = ISSUE_367_BASELINE_TOTALS["registered"] ?? 0;
   drift.push({
     bucket: "registered",
     expected: registered,
@@ -297,10 +326,196 @@ export function verifyPlanArithmetic(plan: PrunePlan): string[] {
   if (totals.prunable !== totals.clean + totals.churn_only) {
     problems.push("prunable != clean + churn_only");
   }
-  if (plan.wouldRemove.length !== totals.clean + totals.churn_only) {
-    problems.push("wouldRemove length != clean + churn_only");
+  // wouldRemove is the prunable set MINUS the trees withheld for being live (or main/current),
+  // so the identity is over both halves. Plans built before skippedLive existed carry none.
+  const skipped = plan.skippedLive?.length ?? 0;
+  if (plan.wouldRemove.length + skipped !== totals.clean + totals.churn_only) {
+    problems.push("wouldRemove + skippedLive != clean + churn_only");
   }
   return problems;
+}
+
+/**
+ * The discriminator's known-good table, re-asserted every time a plan is built.
+ *
+ * THIS REPLACES A COUNTERWEIGHT THAT WENT MISSING. Issue #367's was "the worktree named
+ * issue-100 must classify has_work" — a genuine known-good on real data, and gone: measured
+ * 2026-09-12, no such worktree exists among the 816 registered, so `passes` was false for that
+ * reason ALONE and would have kept the tool frozen even after the stale totals were retired.
+ * A counterweight anchored to one disposable directory expires with it.
+ *
+ * A fabricated table cannot go missing. Each row is a way the classifier could silently invert;
+ * if any row stops holding, the classifier is wrong and nothing may be removed. The issue-100
+ * check is kept alongside it and still fails the plan when that tree exists and misclassifies.
+ */
+export const DISCRIMINATOR_SELF_TEST: ReadonlyArray<{
+  label: string;
+  input: Parameters<typeof classifyWorktree>[0];
+  expected: PruneClassification;
+}> = [
+  {
+    label: "merged and clean is prunable",
+    input: { isMain: false, isCurrent: false, dirExists: true, merged: true, dirtyPaths: [], dirtyFileCount: 0 },
+    expected: "clean",
+  },
+  {
+    label: "dirty only within the hook's churn set is prunable",
+    input: {
+      isMain: false, isCurrent: false, dirExists: true, merged: true,
+      dirtyPaths: ["PROJECT_STATUS.md", "docs/_archive/x.md"], dirtyFileCount: 2,
+    },
+    expected: "churn_only",
+  },
+  {
+    label: "one dirty path outside the churn set preserves the tree",
+    input: {
+      isMain: false, isCurrent: false, dirExists: true, merged: true,
+      dirtyPaths: ["PROJECT_STATUS.md", "apps/ui-xr/src/main.ts"], dirtyFileCount: 2,
+    },
+    expected: "has_work",
+  },
+  {
+    label: "unmerged is preserved even when clean",
+    input: { isMain: false, isCurrent: false, dirExists: true, merged: false, dirtyPaths: [], dirtyFileCount: 0 },
+    expected: "unmerged",
+  },
+  {
+    label: "an unresolvable tree is never prunable",
+    input: { isMain: false, isCurrent: false, dirExists: false, merged: true, dirtyPaths: [], dirtyFileCount: 0 },
+    expected: "missing",
+  },
+];
+
+export function discriminatorSelfTestFailures(): string[] {
+  const failures: string[] = [];
+  for (const c of DISCRIMINATOR_SELF_TEST) {
+    const got = classifyWorktree(c.input);
+    if (got !== c.expected) failures.push(`${c.label}: expected ${c.expected}, got ${got}`);
+  }
+  return failures;
+}
+
+export type LiveProcessWorktree = { worktreePath: string; cwdPaths: string[] };
+
+export type LiveProcessScan = {
+  live: LiveProcessWorktree[];
+  /** False means "could not tell" — which refuses removal; it must never read as "nothing runs". */
+  determined: boolean;
+  detail: string;
+};
+
+/**
+ * Worktrees a live process is sitting inside, found by working directory.
+ *
+ * MEASURED 2026-09-12: 13 of the 667 removal targets held a live process cwd, while the existing
+ * `scanLiveServers` counterweight saw 2 — because that one only finds processes LISTENING on a
+ * port. A Blender bake, a test run, a worker's shell: none hold a port. And `git worktree remove`
+ * without --force refuses only a DIRTY tree, so a bake writing gitignored outputs leaves its tree
+ * classified clean and nothing else in this tool would have stopped the directory being pulled
+ * out from under it.
+ *
+ * FAILS CLOSED. If lsof is missing, times out, or returns nothing parseable, `determined` is
+ * false and `prunePlanSafety` refuses the whole plan.
+ */
+export function worktreesWithLiveProcessCwd(
+  worktreePaths: readonly string[],
+  opts?: { lsof?: () => { status: number; stdout: string } },
+): LiveProcessScan {
+  const runLsof =
+    opts?.lsof ??
+    ((): { status: number; stdout: string } => {
+      const r = spawnSync("lsof", ["-d", "cwd", "-Fn"], {
+        encoding: "utf8",
+        timeout: 60_000,
+        maxBuffer: 64 * 1024 * 1024,
+      });
+      return { status: typeof r.status === "number" ? r.status : 1, stdout: r.stdout ?? "" };
+    });
+
+  let out: { status: number; stdout: string };
+  try {
+    out = runLsof();
+  } catch (err) {
+    return { live: [], determined: false, detail: `lsof failed: ${String(err).slice(0, 160)}` };
+  }
+
+  // -Fn emits one field per line; cwd paths are the lines prefixed "n". lsof exits non-zero when
+  // it cannot stat some processes, which is normal and not a reason to distrust what it did print.
+  const cwds = out.stdout
+    .split("\n")
+    .filter((l) => l.startsWith("n/"))
+    .map((l) => l.slice(1));
+  if (cwds.length === 0) {
+    return {
+      live: [],
+      determined: false,
+      detail: `lsof produced no cwd lines (exit ${out.status}) — cannot show that no process is inside a worktree`,
+    };
+  }
+
+  const unique = [...new Set(cwds)];
+  const live: LiveProcessWorktree[] = [];
+  for (const wt of worktreePaths) {
+    const inside = unique.filter((c) => c === wt || c.startsWith(`${wt}${path.sep}`)).sort();
+    if (inside.length > 0) live.push({ worktreePath: wt, cwdPaths: inside });
+  }
+  return {
+    live,
+    determined: true,
+    detail: `${live.length} worktree(s) hold a live process cwd (${unique.length} distinct cwds scanned)`,
+  };
+}
+
+/**
+ * Every reason this plan must not be applied. Empty means safe.
+ *
+ * Each blocker is tied to a way removal could destroy work — not to a count that ages. The live
+ * sets are EXCLUDED from `wouldRemove` when the plan is built, so their appearance here means the
+ * exclusion itself failed, and that is worth refusing over.
+ */
+export function prunePlanSafety(plan: PrunePlan): { safe: boolean; blockers: string[] } {
+  const blockers: string[] = [];
+
+  const selfTest = discriminatorSelfTestFailures();
+  if (selfTest.length > 0) blockers.push(`discriminator self-test failed: ${selfTest.join("; ")}`);
+
+  const arithmetic = verifyPlanArithmetic(plan);
+  if (arithmetic.length > 0) blockers.push(`plan arithmetic: ${arithmetic.join("; ")}`);
+
+  const byPath = new Map(plan.worktrees.map((r) => [r.path, r]));
+  for (const p of plan.wouldRemove) {
+    const rec = byPath.get(p);
+    if (!rec) {
+      blockers.push(`${p} is queued for removal but carries no classified record`);
+      continue;
+    }
+    if (rec.classification !== "clean" && rec.classification !== "churn_only") {
+      blockers.push(`${p} is queued for removal while classified ${rec.classification}`);
+    }
+    if (rec.isMain) blockers.push(`${p} is the main worktree and is queued for removal`);
+    if (rec.isCurrent) blockers.push(`${p} is the current worktree and is queued for removal`);
+  }
+
+  if (!plan.liveProcessScan?.determined) {
+    blockers.push(
+      `live-process scan undetermined (${plan.liveProcessScan?.detail ?? "no scan"}) — refusing rather than assuming nothing is running`,
+    );
+  }
+  const removeSet = new Set(plan.wouldRemove);
+  for (const l of plan.liveProcessScan?.live ?? []) {
+    if (removeSet.has(l.worktreePath)) blockers.push(`${l.worktreePath} holds a live process cwd and is queued for removal`);
+  }
+  for (const s of plan.liveServers) {
+    if (removeSet.has(s.worktreePath)) blockers.push(`${s.worktreePath} has a live listening server and is queued for removal`);
+  }
+
+  if (plan.counterweight.issue100Present && !(plan.counterweight.issue100Classification === "has_work")) {
+    blockers.push(
+      `counterweight worktree issue-100 classifies ${String(plan.counterweight.issue100Classification)} — expected has_work`,
+    );
+  }
+
+  return { safe: blockers.length === 0, blockers };
 }
 
 export type GitRunOptions = {
@@ -461,6 +676,8 @@ export type BuildPrunePlanOptions = {
   cwd: string;
   /** Set to measure sizes (grok root du + per-worktree du). Slow; off by default. */
   withSizes?: boolean;
+  /** Injected by tests so the live-process counterweight can be exercised without lsof. */
+  liveProcessScan?: LiveProcessScan;
 };
 
 export function buildPrunePlan(opts: BuildPrunePlanOptions): PrunePlan {
@@ -522,10 +739,6 @@ export function buildPrunePlan(opts: BuildPrunePlanOptions): PrunePlan {
 
   const totals = computeTotals(records);
   const drift = computeDrift(totals);
-  const wouldRemove = records
-    .filter((r) => r.classification === "clean" || r.classification === "churn_only")
-    .map((r) => r.path)
-    .sort();
   const prunableMissing = records.filter((r) => r.classification === "missing").map((r) => r.path).sort();
 
   const grokRoot = detectGrokRoot(records.map((r) => r.path));
@@ -533,36 +746,44 @@ export function buildPrunePlan(opts: BuildPrunePlanOptions): PrunePlan {
   const subagentClones = grokRoot ? scanSubagentClones(grokRoot, registeredPaths) : [];
 
   const liveServers = scanLiveServers(records.map((r) => r.path));
+  const liveProcessScan = opts.liveProcessScan ?? worktreesWithLiveProcessCwd(records.map((r) => r.path));
+
+  // Prunable, THEN withheld. A live tree is skipped rather than blocking the whole plan: on a
+  // fleet this size some worker is always running, so refusing the plan outright would leave the
+  // tool exactly as frozen as the stale totals did.
+  const withheld = new Map<string, string>();
+  for (const s of liveServers) withheld.set(s.worktreePath, `live listening server (${s.pids.map((p) => p.port).join(",")})`);
+  for (const l of liveProcessScan.live) {
+    if (!withheld.has(l.worktreePath)) withheld.set(l.worktreePath, `live process cwd (${l.cwdPaths.length})`);
+  }
+  const prunableRecords = records.filter((r) => r.classification === "clean" || r.classification === "churn_only");
+  for (const r of prunableRecords) {
+    if (r.isMain) withheld.set(r.path, "main worktree");
+    else if (r.isCurrent) withheld.set(r.path, "current worktree");
+  }
+  const prunablePathSet = new Set(prunableRecords.map((r) => r.path));
+  const wouldRemove = prunableRecords.map((r) => r.path).filter((p) => !withheld.has(p)).sort();
+  const skippedLive = [...withheld]
+    .filter(([p]) => prunablePathSet.has(p))
+    .map(([withheldPath, reason]) => ({ path: withheldPath, reason }))
+    .sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
 
   const issue100 = records.find((r) => r.path.endsWith(`${path.sep}issue-100`));
+  const selfTestFailures = discriminatorSelfTestFailures();
   const counterweight = {
     issue100Path: issue100?.path ?? "",
     issue100Classification: issue100?.classification ?? null,
-    passes: issue100?.classification === "has_work",
+    issue100Present: issue100 !== undefined,
+    discriminatorSelfTestFailures: selfTestFailures,
+    passes: selfTestFailures.length === 0 && (issue100 === undefined || issue100.classification === "has_work"),
   };
 
   const driftNote =
     drift.some((d) => !d.matches)
-      ? "DRIFT vs issue #367 measured totals (2026-08-14 09:2x) — per the issue's STOP rule this plan must not be applied until reconciled."
+      ? `drift vs the #367 baseline (2026-08-14): ${drift.filter((d) => !d.matches).map((d) => `${d.bucket} ${d.expected}->${d.actual}`).join(", ")} — advisory, not a gate`
       : "";
 
-  const note = [
-    `registered=${totals.registered} clean=${totals.clean} churn_only=${totals.churn_only} has_work=${totals.has_work} unmerged=${totals.unmerged} missing=${totals.missing} (prunable=${totals.prunable}, preserved=${totals.preserved})`,
-    counterweight.passes
-      ? `counterweight OK: issue-100 classifies ${counterweight.issue100Classification} (not prunable)`
-      : `counterweight FAILED: issue-100 classifies ${String(counterweight.issue100Classification)} — expected has_work`,
-    driftNote,
-    subagentClones.length > 0
-      ? `${subagentClones.length} subagent-* full clones in grok root (not worktrees; git worktree prune cannot see them; ~${formatBytes(subagentClones.reduce((s, c) => s + c.sizeBytes, 0))}) — reported, not removed`
-      : "no subagent-* clones found",
-    liveServers.length > 0
-      ? `${liveServers.length} worktree(s) with live listening server(s): ${liveServers.map((s) => `${path.basename(s.worktreePath)}:${s.pids.map((p) => p.port).join(",")}`).join(" ")} — removal skips these`
-      : "no live listening servers in any registered worktree",
-    `missing-dir entries (${prunableMissing.length}) are handled by \`git worktree prune\` (admin entries only)`,
-    "Removal is opt-in: `--apply --yes`. Branches of removed worktrees are left in place (not part of this slice).",
-  ].filter((l) => l.length > 0).join("\n");
-
-  return {
+  const draft: PrunePlan = {
     schemaVersion: "openclinxr.worktree-prune-plan.v1",
     generatedAt: new Date().toISOString(),
     repoRoot,
@@ -575,13 +796,43 @@ export function buildPrunePlan(opts: BuildPrunePlanOptions): PrunePlan {
     prunableMissing,
     subagentClones,
     liveServers,
+    skippedLive,
+    liveProcessScan,
     counterweight,
-    expectedTotals: { ...ISSUE_367_EXPECTED_TOTALS },
+    expectedTotals: { ...ISSUE_367_BASELINE_TOTALS },
     drift,
-    safeToRemove: drift.every((d) => d.matches) && counterweight.passes,
+    safetyBlockers: [],
+    safeToRemove: false,
     grokRootSizeBytes: opts.withSizes && grokRoot ? duBytes(grokRoot) : null,
-    note,
+    note: "",
   };
+  const safety = prunePlanSafety(draft);
+
+  const note = [
+    `registered=${totals.registered} clean=${totals.clean} churn_only=${totals.churn_only} has_work=${totals.has_work} unmerged=${totals.unmerged} missing=${totals.missing} (prunable=${totals.prunable}, preserved=${totals.preserved})`,
+    `wouldRemove=${wouldRemove.length} withheld=${skippedLive.length}`,
+    counterweight.discriminatorSelfTestFailures.length === 0
+      ? `counterweight OK: discriminator self-test ${DISCRIMINATOR_SELF_TEST.length}/${DISCRIMINATOR_SELF_TEST.length}`
+      : `counterweight FAILED: ${counterweight.discriminatorSelfTestFailures.join("; ")}`,
+    counterweight.issue100Present
+      ? `issue-100 classifies ${String(counterweight.issue100Classification)} (expected has_work)`
+      : "issue-100 worktree no longer exists — its check is inert, the self-test carries the counterweight",
+    driftNote,
+    subagentClones.length > 0
+      ? `${subagentClones.length} subagent-* full clones in grok root (not worktrees; git worktree prune cannot see them; ~${formatBytes(subagentClones.reduce((s, c) => s + c.sizeBytes, 0))}) — reported, not removed`
+      : "no subagent-* clones found",
+    liveServers.length > 0
+      ? `${liveServers.length} worktree(s) with live listening server(s): ${liveServers.map((s) => `${path.basename(s.worktreePath)}:${s.pids.map((p) => p.port).join(",")}`).join(" ")} — removal skips these`
+      : "no live listening servers in any registered worktree",
+    liveProcessScan.determined
+      ? `live-process scan: ${liveProcessScan.detail} — removal skips these`
+      : `live-process scan UNDETERMINED (${liveProcessScan.detail}) — removal refused`,
+    `missing-dir entries (${prunableMissing.length}) are handled by \`git worktree prune\` (admin entries only)`,
+    safety.safe ? "safeToRemove: yes" : `safeToRemove: NO — ${safety.blockers.length} blocker(s): ${safety.blockers.slice(0, 5).join(" | ")}`,
+    "Removal is opt-in: `--apply --yes`. Branches of removed worktrees are left in place (not part of this slice).",
+  ].filter((l) => l.length > 0).join("\n");
+
+  return { ...draft, safetyBlockers: safety.blockers, safeToRemove: safety.safe, note };
 }
 
 export function formatBytes(bytes: number): string {
@@ -634,12 +885,21 @@ export function applyPrunePlan(
     }
     return outcomes;
   }
-  const livePaths = new Set(plan.liveServers.map((s) => s.worktreePath));
+  // Belt and braces: the plan already withholds these from wouldRemove. If one is present here
+  // anyway, prunePlanSafety has refused the plan — and this skip still holds if that is bypassed.
+  const livePaths = new Set([
+    ...plan.liveServers.map((s) => s.worktreePath),
+    ...(plan.liveProcessScan?.live ?? []).map((l) => l.worktreePath),
+  ]);
   for (const p of plan.wouldRemove) {
-    const rec = plan.worktrees.find((r) => r.path === p);
+    const rec = plan.worktrees.find((w) => w.path === p);
     if (!rec) continue;
     if (livePaths.has(p)) {
-      outcomes.push({ path: p, action: "skip", ok: false, detail: "live server in worktree — skipped" });
+      outcomes.push({ path: p, action: "skip", ok: false, detail: "live server or live process cwd in worktree — skipped" });
+      continue;
+    }
+    if (rec.isMain || rec.isCurrent) {
+      outcomes.push({ path: p, action: "skip", ok: false, detail: "main or current worktree — never removed" });
       continue;
     }
     if (rec.classification === "churn_only") {

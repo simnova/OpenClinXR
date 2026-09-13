@@ -13,11 +13,14 @@ import {
   computeDrift,
   computeTotals,
   detectGrokRoot,
+  discriminatorSelfTestFailures,
   isChurnPath,
-  ISSUE_367_EXPECTED_TOTALS,
+  ISSUE_367_BASELINE_TOTALS,
   parseWorktreeListPorcelain,
   pathsFromPorcelainLine,
+  prunePlanSafety,
   verifyPlanArithmetic,
+  worktreesWithLiveProcessCwd,
   type PrunePlan,
   type WorktreeRecord,
 } from "./worktree-prune.js";
@@ -215,11 +218,11 @@ describe("totals, drift and arithmetic", () => {
     const drift = computeDrift(computeTotals(records));
     expect(drift.some((d) => !d.matches)).toBe(true);
     const cleanDrift = drift.find((d) => d.bucket === "clean");
-    expect(cleanDrift).toMatchObject({ expected: ISSUE_367_EXPECTED_TOTALS["clean"], actual: 2 });
+    expect(cleanDrift).toMatchObject({ expected: ISSUE_367_BASELINE_TOTALS["clean"], actual: 2 });
   });
 
   it("is clean of drift at the issue's measured totals", () => {
-    const counts = ISSUE_367_EXPECTED_TOTALS;
+    const counts = ISSUE_367_BASELINE_TOTALS;
     const records: WorktreeRecord[] = [];
     for (let i = 0; i < (counts["clean"] ?? 0); i += 1) records.push(record(`/clean-${i}`, "clean"));
     for (let i = 0; i < (counts["churn_only"] ?? 0); i += 1) records.push(record(`/churn-${i}`, "churn_only"));
@@ -236,6 +239,192 @@ describe("totals, drift and arithmetic", () => {
       wouldRemove: ["/a"],
     } as unknown as PrunePlan;
     expect(verifyPlanArithmetic(plan).length).toBeGreaterThan(0);
+  });
+
+  it("counts withheld trees toward the prunable identity", () => {
+    const plan = {
+      totals: { registered: 2, clean: 1, churn_only: 1, has_work: 0, unmerged: 0, missing: 0, prunable: 2, preserved: 0 },
+      wouldRemove: ["/a"],
+      skippedLive: [{ path: "/b", reason: "live process cwd (1)" }],
+    } as unknown as PrunePlan;
+    expect(verifyPlanArithmetic(plan)).toEqual([]);
+  });
+
+  /**
+   * The gate that replaced the frozen totals.
+   *
+   * MEASURED 2026-09-12 before this change: 816 registered worktrees against a baseline of 275,
+   * five of six buckets drifted, `issue-100` gone so the counterweight could not pass either, and
+   * `safeToRemove: false` on 667 prunable trees. Both halves of the old gate were stuck closed.
+   */
+  describe("prunePlanSafety", () => {
+    function planOf(
+      records: WorktreeRecord[],
+      wouldRemove: string[],
+      over: Partial<PrunePlan> = {},
+    ): PrunePlan {
+      const totals = computeTotals(records);
+      return {
+        schemaVersion: "openclinxr.worktree-prune-plan.v1",
+        generatedAt: "2026-09-12T00:00:00.000Z",
+        repoRoot: "/main",
+        grokRoot: "/grok",
+        mainTip: "abc",
+        mainBranch: "main",
+        totals,
+        worktrees: records,
+        wouldRemove,
+        prunableMissing: [],
+        subagentClones: [],
+        liveServers: [],
+        skippedLive: records
+          .filter((r) => (r.classification === "clean" || r.classification === "churn_only") && !wouldRemove.includes(r.path))
+          .map((r) => ({ path: r.path, reason: "withheld" })),
+        liveProcessScan: { live: [], determined: true, detail: "0 worktree(s) hold a live process cwd" },
+        counterweight: {
+          issue100Path: "",
+          issue100Classification: null,
+          issue100Present: false,
+          discriminatorSelfTestFailures: [],
+          passes: true,
+        },
+        expectedTotals: { ...ISSUE_367_BASELINE_TOTALS },
+        drift: computeDrift(totals),
+        safetyBlockers: [],
+        safeToRemove: false,
+        grokRootSizeBytes: null,
+        note: "",
+        ...over,
+      };
+    }
+
+    function fleet(): WorktreeRecord[] {
+      const out: WorktreeRecord[] = [];
+      for (let i = 0; i < 10; i += 1) out.push(record(`/clean-${i}`, "clean"));
+      for (let i = 0; i < 2; i += 1) out.push(record(`/churn-${i}`, "churn_only"));
+      for (let i = 0; i < 3; i += 1) out.push(record(`/work-${i}`, "has_work"));
+      for (let i = 0; i < 4; i += 1) out.push(record(`/unmerged-${i}`, "unmerged"));
+      return out;
+    }
+    const prunablePaths = (records: WorktreeRecord[]): string[] =>
+      records.filter((r) => r.classification === "clean" || r.classification === "churn_only").map((r) => r.path).sort();
+
+    it("holds the discriminator's known-good table on the shipped classifier", () => {
+      expect(discriminatorSelfTestFailures()).toEqual([]);
+    });
+
+    it("is safe on a fleet that drifts from the baseline — the freeze itself", () => {
+      const records = fleet();
+      const plan = planOf(records, prunablePaths(records));
+      expect(plan.drift.some((d) => !d.matches)).toBe(true); // the old gate's refusal condition
+      expect(prunePlanSafety(plan)).toEqual({ safe: true, blockers: [] });
+    });
+
+    it("refuses when a preserved tree is queued for removal", () => {
+      const records = fleet();
+      const plan = planOf(records, [...prunablePaths(records), "/work-0"]);
+      const safety = prunePlanSafety(plan);
+      expect(safety.safe).toBe(false);
+      expect(safety.blockers.some((b) => b.includes("/work-0") && b.includes("has_work"))).toBe(true);
+    });
+
+    it("refuses when a tree holding a live process cwd is queued for removal", () => {
+      const records = fleet();
+      const plan = planOf(records, prunablePaths(records), {
+        liveProcessScan: {
+          live: [{ worktreePath: "/clean-3", cwdPaths: ["/clean-3/apps/ui-xr"] }],
+          determined: true,
+          detail: "1 worktree(s) hold a live process cwd",
+        },
+      });
+      const safety = prunePlanSafety(plan);
+      expect(safety.safe).toBe(false);
+      expect(safety.blockers.some((b) => b.includes("/clean-3") && b.includes("live process"))).toBe(true);
+    });
+
+    it("refuses when the live-process scan could not be determined", () => {
+      const records = fleet();
+      const plan = planOf(records, prunablePaths(records), {
+        liveProcessScan: { live: [], determined: false, detail: "lsof produced no cwd lines (exit 1)" },
+      });
+      const safety = prunePlanSafety(plan);
+      expect(safety.safe).toBe(false);
+      expect(safety.blockers.some((b) => b.includes("undetermined"))).toBe(true);
+    });
+
+    it("refuses main or the current worktree even when clean", () => {
+      // The shared `record()` helper takes two arguments; passing flags to it silently does
+      // nothing, which is how this assertion first passed a plan with neither flag set.
+      const mainRec: WorktreeRecord = { ...record("/main", "clean"), isMain: true };
+      const hereRec: WorktreeRecord = { ...record("/here", "clean"), isCurrent: true };
+      const records = [...fleet(), mainRec, hereRec];
+      const plan = planOf(records, [...prunablePaths(fleet()), "/main", "/here"]);
+      const safety = prunePlanSafety(plan);
+      expect(safety.blockers.some((b) => b.includes("/main") && b.includes("main worktree"))).toBe(true);
+      expect(safety.blockers.some((b) => b.includes("/here") && b.includes("current worktree"))).toBe(true);
+    });
+
+    it("does not gate on issue-100 being absent, but does gate on it being wrong", () => {
+      const records = fleet();
+      const absent = planOf(records, prunablePaths(records));
+      expect(prunePlanSafety(absent).safe).toBe(true);
+
+      const present = planOf(records, prunablePaths(records), {
+        counterweight: {
+          issue100Path: "/issue-100",
+          issue100Classification: "clean",
+          issue100Present: true,
+          discriminatorSelfTestFailures: [],
+          passes: false,
+        },
+      });
+      const safety = prunePlanSafety(present);
+      expect(safety.safe).toBe(false);
+      expect(safety.blockers.some((b) => b.includes("issue-100"))).toBe(true);
+    });
+
+    it("refuses when the discriminator self-test itself fails", () => {
+      const records = fleet();
+      const plan = planOf(records, prunablePaths(records));
+      // The plan's own copy is advisory; prunePlanSafety re-runs the table, so this asserts the
+      // live classifier rather than a field a caller could set to anything.
+      expect(prunePlanSafety(plan).blockers.filter((b) => b.includes("self-test"))).toEqual([]);
+      expect(discriminatorSelfTestFailures()).toEqual([]);
+    });
+  });
+
+  describe("worktreesWithLiveProcessCwd", () => {
+    const lsofOut = (paths: string[]): string => paths.map((p) => `p1\nn${p}`).join("\n");
+
+    it("attributes a nested cwd to the worktree that contains it", () => {
+      const scan = worktreesWithLiveProcessCwd(["/wt/a", "/wt/b"], {
+        lsof: () => ({ status: 0, stdout: lsofOut(["/wt/a/tools/openclinxr", "/somewhere/else"]) }),
+      });
+      expect(scan.determined).toBe(true);
+      expect(scan.live).toEqual([{ worktreePath: "/wt/a", cwdPaths: ["/wt/a/tools/openclinxr"] }]);
+    });
+
+    it("does not match a worktree whose path is a string prefix of another", () => {
+      const scan = worktreesWithLiveProcessCwd(["/wt/a"], {
+        lsof: () => ({ status: 0, stdout: lsofOut(["/wt/abc/src"]) }),
+      });
+      expect(scan.live).toEqual([]);
+    });
+
+    it("fails closed when lsof yields nothing parseable", () => {
+      const scan = worktreesWithLiveProcessCwd(["/wt/a"], { lsof: () => ({ status: 1, stdout: "" }) });
+      expect(scan.determined).toBe(false);
+      expect(scan.live).toEqual([]);
+    });
+
+    it("fails closed when lsof throws", () => {
+      const scan = worktreesWithLiveProcessCwd(["/wt/a"], {
+        lsof: () => {
+          throw new Error("lsof: command not found");
+        },
+      });
+      expect(scan.determined).toBe(false);
+    });
   });
 });
 
