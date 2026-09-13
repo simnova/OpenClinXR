@@ -76,7 +76,10 @@ Usage:
   --apply --yes        opt-in removal: git worktree remove (no --force) for clean and
                        churn-only sets after reverting churn; git worktree prune for
                        missing-dir admin entries. Refuses when the plan is not
-                       safeToRemove (drift vs issue #367 totals, or counterweight fail).
+                       safeToRemove — every blocker is printed, and each names a way
+                       removal could destroy work (a preserved tree queued for removal,
+                       a live process inside one, an undetermined live scan, a failed
+                       discriminator self-test). Baseline drift is advisory, not a gate.
   --output <path>      plan artifact path (default .openclinxr/evidence/issue-367/
                        worktree-prune-plan.json, resolved against cwd).
   --with-sizes         measure grok-root and per-worktree sizes (slow).
@@ -125,16 +128,28 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<numb
           .join(" ")}`,
       );
     }
+    console.log(`wouldRemove=${plan.wouldRemove.length}  withheld=${plan.skippedLive.length}`);
+    if (plan.skippedLive.length > 0) {
+      const byReason = new Map<string, number>();
+      for (const s of plan.skippedLive) {
+        const key = s.reason.replace(/\s*\(.*\)$/u, "");
+        byReason.set(key, (byReason.get(key) ?? 0) + 1);
+      }
+      console.log(`withheld: ${[...byReason].map(([r, n]) => `${r} x${n}`).join(", ")}`);
+    }
+    console.log(`live-process scan: ${plan.liveProcessScan.determined ? plan.liveProcessScan.detail : `UNDETERMINED — ${plan.liveProcessScan.detail}`}`);
     console.log(
-      `counterweight: issue-100 = ${String(plan.counterweight.issue100Classification)} ` +
-        `(${plan.counterweight.passes ? "PASS" : "FAIL"})`,
+      `counterweight: discriminator self-test ${plan.counterweight.discriminatorSelfTestFailures.length === 0 ? "PASS" : `FAIL (${plan.counterweight.discriminatorSelfTestFailures.join("; ")})`}` +
+        `; issue-100 ${plan.counterweight.issue100Present ? String(plan.counterweight.issue100Classification) : "absent (check inert)"}`,
     );
-    console.log(`safeToRemove: ${plan.safeToRemove}`);
-    if (!plan.safeToRemove) {
+    const staleDrift = plan.drift.filter((d) => !d.matches);
+    if (staleDrift.length > 0) {
       console.log(
-        `DRIFT: ${plan.drift.filter((d) => !d.matches).map((d) => `${d.bucket} expected=${d.expected} actual=${d.actual}`).join("; ")}`,
+        `drift vs #367 baseline (advisory): ${staleDrift.map((d) => `${d.bucket} ${d.expected}->${d.actual}`).join("; ")}`,
       );
     }
+    console.log(`safeToRemove: ${plan.safeToRemove}`);
+    for (const b of plan.safetyBlockers) console.log(`  BLOCKER: ${b}`);
   };
 
   if (!flags.apply) {
@@ -145,11 +160,15 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<numb
           {
             planPath,
             totals: plan.totals,
+            wouldRemove: plan.wouldRemove.length,
+            withheld: plan.skippedLive.length,
             safeToRemove: plan.safeToRemove,
+            safetyBlockers: plan.safetyBlockers,
             counterweight: plan.counterweight,
             drift: plan.drift.filter((d) => !d.matches),
             subagentClones: plan.subagentClones.length,
             liveServers: plan.liveServers.length,
+            liveProcessWorktrees: plan.liveProcessScan.live.length,
           },
           null,
           2,
@@ -165,7 +184,8 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<numb
     return 2;
   }
   if (!plan.safeToRemove) {
-    console.error("error: plan is not safe to apply — classification drift or counterweight failure");
+    console.error("error: plan is not safe to apply:");
+    for (const b of plan.safetyBlockers) console.error(`  - ${b}`);
     console.error(`plan: ${planPath}`);
     return 2;
   }
