@@ -28,6 +28,53 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-13T0230">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 39 &middot; 2026-09-13 02:30 EDT</p>
+          <h2>A test that had been quietly failing on the main branch was blocking every piece of work that touched the viewer.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Landed since entry 38. Each was checked against its own contract and read line by line before merging.</caption>
+            <thead><tr><th scope="col">Change</th><th scope="col">What it does</th><th scope="col">Commit</th></tr></thead>
+            <tbody>
+              <tr><td>Provenance repair</td><td>Two shipped human models had been re-generated without updating the records that state which bytes they are. The records were corrected by re-running the original process and reproducing the files exactly, not by copying whatever was on disk.</td><td><code>b0990981</code></td></tr>
+              <tr><td>Work-queue record</td><td>Asking the board for work and being told "nothing" now leaves a trace naming who asked and which kind of nothing it was. Previously that left no record at all, so an idle stretch could not afterwards be told apart from an empty queue.</td><td><code>ac76a6ac</code></td></tr>
+              <tr><td>Counterfactual debrief</td><td>A learner's debrief can now replay faculty-reviewed alternatives at a checkpoint — what a different choice would have led to — while the learner's own recorded attempt stays untouched. Three tests enforce that it is never modified.</td><td><code>aeb254c7</code></td></tr>
+              <tr><td>Rehydration pointer</td><td>The instruction every agent follows on waking told it to read a section of the status file by a name that appears nowhere in this repository. It now names the section that exists, so an agent finds the state instead of searching for a heading that had been renamed.</td><td><code>fb52ed99</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>The failure was ours, and it was five hours old</h3>
+            <ul>
+              <li>A re-bake earlier in the night shrank two character models and did not update the sidecar files that record their identity. Every test suite for the viewer then failed, for a reason unrelated to whatever anyone was working on. One worker burned a full run against it before the cause was traced.</li>
+              <li>The rule for repairing this is strict and it is there for a good reason: a recorded fingerprint may never be replaced simply to agree with the file sitting on disk, because then it records nothing. The first repair attempt did exactly that and was correctly blocked.</li>
+              <li>The proper path reproduced both files byte for byte from the committed earlier version, so the corrected record is a derivation rather than an observation. Each record now carries the previous value, the source it was rebuilt from, and the command, so anyone can repeat the check.</li>
+              <li>A second, older instance of the same fault surfaced while doing this and is recorded rather than quietly fixed: another model's bytes no longer match what its recorded process produces.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Where the context budget actually goes</h3>
+            <ul>
+              <li>A question was put to a second model over five rounds: each step of reasoning ships an enormous amount of repeated background to produce a few hundred words. Is that the waste it appears to be?</li>
+              <li>Measured here, the repetition is real and larger than assumed — the background is over 99% of each request. But between 98% and 99.5% of it is served from cache, so the volume is not the cost. The standing instructions that looked like the obvious thing to trim are under 7% of a typical request; halving them would save about 3%.</li>
+              <li>The finding that survived was unglamorous: the cache expires after exactly one hour, so long idle gaps are what actually cost money, and one instruction file has grown against its own written freeze and needs an automated cap.</li>
+              <li>The second model changed the first one's mind by insisting the ranking be done in billed terms rather than word counts, which eliminated its own top three proposals. Ten of its own figures were corrected during the work.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Caught in review, and a gap in what workers are told</h3>
+            <ul>
+              <li>The debrief work first came back having added fourteen new names to a package's public interface and raised the ceiling that limits them, to make it fit. That ceiling is the exact number a fifteen-card programme spent weeks reducing. It was sent back and returned correct: one narrow entry point, the ceiling untouched at its original value.</li>
+              <li>The same review restored two deleted lines recording how a checked number was independently derived. Losing the evidence for a number is worse than the number moving.</li>
+              <li>Separately: the written documentation describes ten baseline rules loaded by every automated worker. Six are actually loaded. The four missing include the delegation protocol and the work-loop rules. Whether to load them or correct the documentation is a real decision with a real cost, so it is being put forward rather than settled quietly.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-13T0145">
         <div class="section-heading">
           <p class="eyebrow">Entry 38 &middot; 2026-09-13 01:45 EDT</p>
