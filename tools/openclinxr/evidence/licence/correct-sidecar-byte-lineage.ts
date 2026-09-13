@@ -96,7 +96,51 @@ const CHEST_ANCHOR_WHY =
   + "hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image "
   + "reproduces the shipped file byte for byte.";
 
+const TIGHTJEANS_FP_RUNG_WHY =
+  "2803b774 applied the face-preserving decimation rung (iterate-optimize.ts --face-preserving "
+  + "--face-preserving-ratio 0.4) to the tightjeans re-baked bodies and touched no provenance file, "
+  + "so both sidecars kept naming the pre-decimation bytes. The commit records the rung in "
+  + "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md but no output hash. "
+  + "Re-running that rung on the pre-image reproduces the shipped file byte for byte; the digest "
+  + "below is therefore a derivation, not a reading taken off disk.";
+
 const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory">[] = [
+  {
+    assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+    preImageRevision: "2803b774^:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    derivationArgv: [
+      "pnpm",
+      "exec",
+      "tsx",
+      "tools/openclinxr/evidence/licence/fp-rung-rederive.ts",
+      "--input",
+      "{pre}",
+      "--out",
+      "{out}",
+      "--face-preserving-ratio",
+      "0.4",
+    ],
+    why: TIGHTJEANS_FP_RUNG_WHY,
+  },
+  {
+    assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+    provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+    preImageRevision: "2803b774^:apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+    derivationArgv: [
+      "pnpm",
+      "exec",
+      "tsx",
+      "tools/openclinxr/evidence/licence/fp-rung-rederive.ts",
+      "--input",
+      "{pre}",
+      "--out",
+      "{out}",
+      "--face-preserving-ratio",
+      "0.4",
+    ],
+    why: TIGHTJEANS_FP_RUNG_WHY,
+  },
   {
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.provenance.json",

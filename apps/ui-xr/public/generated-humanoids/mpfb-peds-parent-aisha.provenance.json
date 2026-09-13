@@ -1,85 +1,110 @@
 {
-  "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
-  "derivationMode": "mpfb2_promoted_default_cast",
-  "scenarioId": "peds_asthma_parent_anxiety_v1",
+ "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+ "derivationMode": "mpfb2_promoted_default_cast",
+ "scenarioId": "peds_asthma_parent_anxiety_v1",
+ "actorId": "parent_tara_johnson_v1",
+ "actorRole": "parent",
+ "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+ "sourceManifestPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
+ "generatorMode": "mpfb2_makehuman_basemesh_materialized_locally_in_blender_v1",
+ "sourceKind": "mpfb2_makehuman_basemesh",
+ "usesRealAnnyForwardPass": false,
+ "realAnnyWeightsUsed": false,
+ "textureMode": "authored_or_baked",
+ "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+ "optimizationMode": "face_preserving_selective_decimated_fp_rung_2026_09_11",
+ "realismGrade": "not_graded",
+ "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
+ "sourceOriginChain": {
+  "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
+  "materializedFrom": "same default-macro adult-female body as mpfb-ob-patient-aisha (no --reference); dedicated family-palette variant so peds parent and OB patient are not one GLB",
+  "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+  "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+  "derivationNote": "Issue #388 (2026-08-14): second aisha-body variant for peds parent_tara_johnson_v1. Recolouring mpfb-ob-patient-aisha.glb would collide with Omar (muted rose already on ed_chest_pain_spouse_adult) and the OB patient must stay cream. Bake: blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb --actor-role parent (no --reference — the aisha default-macro path). garment_shell_color maps closed_casual + role=parent to muted_rose_and_neutral; exported upper+lower baseColorFactor (0.42, 0.36, 0.40). Fitted hair is the same toigo_blunt_bob_with_bangs CC0 bob #381 proved on aisha. Iris was family green via eye_iris_colour until #519 rebake selected case brown via --eye-colour-reference peds_anxious_parent. Anatomical eye target 24.0 mm (same adult as aisha). Placeholder scalp paint retired. Child cream, kevin teal, OB aisha cream unchanged."
+ },
+ "licenseChain": {
+  "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
+  "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+  "sourceRecordClaimsSupported": [
+   "MPFB2 2.0.15 from Blender Extensions; MPFB declares SPDX:GPL-3.0-or-later for its own code (installed 2.0.15, blender_manifest.toml sha256 b7e1d0732e67cc18955f91b91ff9049b9f0bc868f05eb074e4ea3cf38fa3ddd5; corrected 2026-09-09 from a stale AGPLv3 label) with bundled assets CC0 1.0 per LICENSE.ASSETS.md and a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
+  ],
+  "notRun": [
+   "licence_text_reenumeration",
+   "makehuman_license_review",
+   "production_asset_readiness"
+  ],
+  "explicitUnknown": [
+   "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a runtime cast candidate for evidence only.",
+   "This promotion does NOT claim license approval for commercial/production use."
+  ],
+  "notes": "MPFB rail is first-class per operator direction D11; license review remains an open gate. Same lineage as mpfb-ob-patient-aisha.glb."
+ },
+ "derivativeLineage": {
+  "status": "mpfb2_family_palette_variant_of_aisha_default_macro_body",
+  "caseId": "peds_asthma_parent_anxiety_v1",
   "actorId": "parent_tara_johnson_v1",
   "actorRole": "parent",
-  "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
-  "sourceManifestPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
-  "generatorMode": "mpfb2_makehuman_basemesh_materialized_locally_in_blender_v1",
-  "sourceKind": "mpfb2_makehuman_basemesh",
-  "usesRealAnnyForwardPass": false,
-  "realAnnyWeightsUsed": false,
-  "textureMode": "authored_or_baked",
-  "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
-  "optimizationMode": "face_preserving_selective_decimated_fp_rung_2026_09_11",
-  "realismGrade": "not_graded",
-  "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
-  "sourceOriginChain": {
-    "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
-    "materializedFrom": "same default-macro adult-female body as mpfb-ob-patient-aisha (no --reference); dedicated family-palette variant so peds parent and OB patient are not one GLB",
-    "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
-    "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "derivationNote": "Issue #388 (2026-08-14): second aisha-body variant for peds parent_tara_johnson_v1. Recolouring mpfb-ob-patient-aisha.glb would collide with Omar (muted rose already on ed_chest_pain_spouse_adult) and the OB patient must stay cream. Bake: blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb --actor-role parent (no --reference \u2014 the aisha default-macro path). garment_shell_color maps closed_casual + role=parent to muted_rose_and_neutral; exported upper+lower baseColorFactor (0.42, 0.36, 0.40). Fitted hair is the same toigo_blunt_bob_with_bangs CC0 bob #381 proved on aisha. Iris was family green via eye_iris_colour until #519 rebake selected case brown via --eye-colour-reference peds_anxious_parent. Anatomical eye target 24.0 mm (same adult as aisha). Placeholder scalp paint retired. Child cream, kevin teal, OB aisha cream unchanged."
+  "reuseKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:mpfb2",
+  "baseAsset": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+  "promotionPath": "dedicated_family_palette_rebake_not_recolour_of_ob_patient",
+  "method": "mpfb2_standard_rig_137_joints_numeric_phenotype_macros_adult_female_closed_casual_muted_rose"
+ },
+ "toolVersion": "openclinxr-mpfb2-promotion-v1",
+ "promptOrCaseParameterHash": "issue_388_peds_parent_family_palette_2026-08-14",
+ "notEvidenceFor": [
+  "b_plus_visual_realism_gate",
+  "production_asset_readiness",
+  "quest_readiness",
+  "learner_readiness",
+  "clinical_validity",
+  "scoring_validity",
+  "scene_placement_readiness"
+ ],
+ "sourceNotes": [
+  "Issue #388: dedicated peds-parent variant. Same adult-female default-macro body as OB aisha; --actor-role parent so shirt and cargo take muted_rose_and_neutral. Do not recolour mpfb-ob-patient-aisha.glb. Do not gown anyone. Do not runtime-recolour. Do not orchestrate_character.",
+  "Issue #519 (2026-08-21): rebaked via materialize_mpfb_humanoid_candidate.py --actor-role parent --eye-colour-reference peds_anxious_parent so eye_iris_colour selects case brown (not family green). Colour came through the #518 selector, not a hand-swapped iris. Maya unrebaked. Garment .mhmat+diffuse (Shoe.png, T-shirt_basic.png) must be staged or footwear/t-shirt textures drop.",
+  "Issue #576 (2026-08-23): REBAKED with the case-authored numeric identity reaching the macros. Same invocation (--actor-role parent --eye-colour-reference peds_anxious_parent, no --reference) but materialize now reads the manifest's numeric block (height_cm 166, bmi 24.0, build average_parent, gender_presentation adult_female_parent, age 34) through phenotype_numeric_block + the proven #329 mapping (body_param_stage.derive_macro_dict_from_authored_phenotype): gender 0.0, age 0.6191, weight 0.5024, muscle 0.5; height solved against the DECLARED 1.66 m by the bake-measure-interpolate solver (tol 0.005, every return probe-verified). Measured on the shipped body: stature 1.6527 m (7.3 mm under declared — the footwear grounding lift; the top vertex is the solved 1.6599). Body differs from OB aisha on the profile signature (band-10 delta 0.405 vs the 0.006 floor). Eye stays case brown via the #519 seam; fitted hair/scalp/visemes/FACS unchanged. body_profile remains authored data (maps to no macro).",
+  "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-peds-parent-aisha.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed)."
+ ],
+ "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
+ "promotionGates": false,
+ "outputSha256": "a668be32a5f6de035af071255962f43001812e278656cfe1affa2cf0202a4ae9",
+ "outputBytes": 10003808,
+ "fitTimeLower": {
+  "garment": "punkduck_female_tight_jeans",
+  "sourceObjFaces": 2108,
+  "fittedTris": 4216,
+  "lowerGateCoverage": 0.9775
+ },
+ "generatedAt": "2026-08-23T19:35:00.000Z",
+ "method": "mpfb2_materializer_rebake_numeric_phenotype_macros_576",
+ "runtimeRole": "intermediate_bake",
+ "runtimeRoleWhy": "The runtime loads the .motion-bind DERIVATIVE of this base (humanoid-runtime-asset-url.ts:83), not this file. Contracts that measure this base and call it 'the shipped parent' are measuring the wrong asset - a latent false-green.",
+ "albedoBakeWrittenAt": "2026-09-11T05:16:52.437Z",
+ "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt fp-r0.4 then chest-anchor 0.085 m. Shipped 68898 tris / 14017284 B (jeans 1893). Previous raw pin 57fa9d91409408e0 / 17181156.",
+ "byteLineage": {
+  "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+  "correctedAt": "2026-09-13T05:47:32.744Z",
+  "recordedBefore": {
+   "outputSha256": "1e21a07a929600f72032e962814e1127ae1695786d60600a403881c3c081c1d8",
+   "outputBytes": 14017284
   },
-  "licenseChain": {
-    "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
-    "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
-    "sourceRecordClaimsSupported": [
-      "MPFB2 2.0.15 from Blender Extensions; MPFB declares SPDX:GPL-3.0-or-later for its own code (installed 2.0.15, blender_manifest.toml sha256 b7e1d0732e67cc18955f91b91ff9049b9f0bc868f05eb074e4ea3cf38fa3ddd5; corrected 2026-09-09 from a stale AGPLv3 label) with bundled assets CC0 1.0 per LICENSE.ASSETS.md and a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
-    ],
-    "notRun": [
-      "licence_text_reenumeration",
-      "makehuman_license_review",
-      "production_asset_readiness"
-    ],
-    "explicitUnknown": [
-      "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a runtime cast candidate for evidence only.",
-      "This promotion does NOT claim license approval for commercial/production use."
-    ],
-    "notes": "MPFB rail is first-class per operator direction D11; license review remains an open gate. Same lineage as mpfb-ob-patient-aisha.glb."
-  },
-  "derivativeLineage": {
-    "status": "mpfb2_family_palette_variant_of_aisha_default_macro_body",
-    "caseId": "peds_asthma_parent_anxiety_v1",
-    "actorId": "parent_tara_johnson_v1",
-    "actorRole": "parent",
-    "reuseKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:mpfb2",
-    "baseAsset": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-    "promotionPath": "dedicated_family_palette_rebake_not_recolour_of_ob_patient",
-    "method": "mpfb2_standard_rig_137_joints_numeric_phenotype_macros_adult_female_closed_casual_muted_rose"
-  },
-  "toolVersion": "openclinxr-mpfb2-promotion-v1",
-  "promptOrCaseParameterHash": "issue_388_peds_parent_family_palette_2026-08-14",
-  "notEvidenceFor": [
-    "b_plus_visual_realism_gate",
-    "production_asset_readiness",
-    "quest_readiness",
-    "learner_readiness",
-    "clinical_validity",
-    "scoring_validity",
-    "scene_placement_readiness"
+  "preImageRevision": "2803b774^:apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+  "preImageSha256": "6cae49b961c7ae727bc60ebcff79a80ddb40b7b0922bf3bc1157e33771678daa",
+  "preImageBytes": 13222500,
+  "derivationArgv": [
+   "pnpm",
+   "exec",
+   "tsx",
+   "tools/openclinxr/evidence/licence/fp-rung-rederive.ts",
+   "--input",
+   "{pre}",
+   "--out",
+   "{out}",
+   "--face-preserving-ratio",
+   "0.4"
   ],
-  "sourceNotes": [
-    "Issue #388: dedicated peds-parent variant. Same adult-female default-macro body as OB aisha; --actor-role parent so shirt and cargo take muted_rose_and_neutral. Do not recolour mpfb-ob-patient-aisha.glb. Do not gown anyone. Do not runtime-recolour. Do not orchestrate_character.",
-    "Issue #519 (2026-08-21): rebaked via materialize_mpfb_humanoid_candidate.py --actor-role parent --eye-colour-reference peds_anxious_parent so eye_iris_colour selects case brown (not family green). Colour came through the #518 selector, not a hand-swapped iris. Maya unrebaked. Garment .mhmat+diffuse (Shoe.png, T-shirt_basic.png) must be staged or footwear/t-shirt textures drop.",
-    "Issue #576 (2026-08-23): REBAKED with the case-authored numeric identity reaching the macros. Same invocation (--actor-role parent --eye-colour-reference peds_anxious_parent, no --reference) but materialize now reads the manifest's numeric block (height_cm 166, bmi 24.0, build average_parent, gender_presentation adult_female_parent, age 34) through phenotype_numeric_block + the proven #329 mapping (body_param_stage.derive_macro_dict_from_authored_phenotype): gender 0.0, age 0.6191, weight 0.5024, muscle 0.5; height solved against the DECLARED 1.66 m by the bake-measure-interpolate solver (tol 0.005, every return probe-verified). Measured on the shipped body: stature 1.6527 m (7.3 mm under declared \u2014 the footwear grounding lift; the top vertex is the solved 1.6599). Body differs from OB aisha on the profile signature (band-10 delta 0.405 vs the 0.006 floor). Eye stays case brown via the #519 seam; fitted hair/scalp/visemes/FACS unchanged. body_profile remains authored data (maps to no macro).",
-    "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-peds-parent-aisha.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed)."
-  ],
-  "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
-  "promotionGates": false,
-  "outputSha256": "1e21a07a929600f72032e962814e1127ae1695786d60600a403881c3c081c1d8",
-  "outputBytes": 14017284,
-  "fitTimeLower": {
-    "garment": "punkduck_female_tight_jeans",
-    "sourceObjFaces": 2108,
-    "fittedTris": 4216,
-    "lowerGateCoverage": 0.9775
-  },
-  "generatedAt": "2026-08-23T19:35:00.000Z",
-  "method": "mpfb2_materializer_rebake_numeric_phenotype_macros_576",
-  "runtimeRole": "intermediate_bake",
-  "runtimeRoleWhy": "The runtime loads the .motion-bind DERIVATIVE of this base (humanoid-runtime-asset-url.ts:83), not this file. Contracts that measure this base and call it 'the shipped parent' are measuring the wrong asset - a latent false-green.",
-  "albedoBakeWrittenAt": "2026-09-11T05:16:52.437Z",
-  "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt fp-r0.4 then chest-anchor 0.085 m. Shipped 68898 tris / 14017284 B (jeans 1893). Previous raw pin 57fa9d91409408e0 / 17181156."
+  "reproduction": "byte-identical to the shipped file",
+  "why": "2803b774 applied the face-preserving decimation rung (iterate-optimize.ts --face-preserving --face-preserving-ratio 0.4) to the tightjeans re-baked bodies and touched no provenance file, so both sidecars kept naming the pre-decimation bytes. The commit records the rung in tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md but no output hash. Re-running that rung on the pre-image reproduces the shipped file byte for byte; the digest below is therefore a derivation, not a reading taken off disk."
+ }
 }
