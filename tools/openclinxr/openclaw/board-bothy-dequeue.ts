@@ -61,9 +61,18 @@ export type BothyNextOk = {
   cacheToken?: string;
 };
 
+export type BothyNextClass =
+  | "fresh_null"
+  | "unchanged_replay"
+  | "no_pat"
+  | "http_error"
+  | "fetch_threw"
+  | "rate_limited";
+
 export type BothyNextFail = {
   ok: false;
   reason: "incomplete-read" | "no-candidate";
+  nextClass: BothyNextClass;
   detail: string;
   fetched: number;
   totalCount: number;
@@ -171,6 +180,7 @@ export async function selectNextBothyCard(opts: {
     return {
       ok: false,
       reason: "incomplete-read",
+      nextClass: "no_pat",
       fetched: 0,
       totalCount: -1,
       detail:
@@ -192,6 +202,7 @@ export async function selectNextBothyCard(opts: {
       return {
         ok: false,
         reason: "incomplete-read",
+        nextClass: "http_error",
         fetched: 0,
         totalCount: -1,
         detail: `bothy-board.tasks.next HTTP ${next.httpStatus}`,
@@ -202,6 +213,7 @@ export async function selectNextBothyCard(opts: {
     return {
       ok: false,
       reason: "incomplete-read",
+      nextClass: "fetch_threw",
       fetched: 0,
       totalCount: -1,
       detail: `bothy-board.tasks.next failed: ${String(cause).slice(0, 160)}`,
@@ -213,6 +225,7 @@ export async function selectNextBothyCard(opts: {
     return {
       ok: false,
       reason: "incomplete-read",
+      nextClass: "rate_limited",
       fetched: 0,
       totalCount: -1,
       detail: `bothy-board rate_limited retryAfterSec=${String(rl.retryAfterSec ?? "?")}`,
@@ -227,6 +240,7 @@ export async function selectNextBothyCard(opts: {
       return {
         ok: false,
         reason: "no-candidate",
+        nextClass: "unchanged_replay",
         fetched: 0,
         totalCount: 0,
         detail: "BothyBoard ready set unchanged and empty — success, not a failure",
@@ -242,6 +256,7 @@ export async function selectNextBothyCard(opts: {
     return {
       ok: false,
       reason: "no-candidate",
+      nextClass: "fresh_null",
       fetched: 0,
       totalCount: 0,
       detail: "BothyBoard ready set is empty — {task:null} is success, not a failure",

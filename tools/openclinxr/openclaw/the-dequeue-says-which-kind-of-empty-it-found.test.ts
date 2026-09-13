@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { selectNextBothyCard } from "./board-bothy-dequeue.js";
-import type { BothyNextSnapshot } from "./board-bothy-dequeue.js";
+import type { BothyNextFail, BothyNextSnapshot } from "./board-bothy-dequeue.js";
 
 /**
  * A dequeue that returns nothing cannot say WHY it returned nothing, and the difference is the
@@ -36,11 +36,15 @@ import type { BothyNextSnapshot } from "./board-bothy-dequeue.js";
  * claimScope: what `selectNextBothyCard` returns for controlled fetch/store fixtures.
  * notEvidenceFor: whether any journal should be written, where it should live, what the fleet's
  *   idle time actually decomposes to, or any admission/scaling policy.
+ *
+ * ## FIXED (#0)
+ * Added `nextClass: BothyNextClass` to `BothyNextFail` (`board-bothy-dequeue.ts:72-80`). Six values:
+ * `fresh_null`, `unchanged_replay`, `no_pat`, `http_error`, `fetch_threw`, `rate_limited`. Each return
+ * point in `selectNextBothyCard` now sets `nextClass` alongside `reason`. `reason` values unchanged
+ * (clause 4). Unchanged replay holding a task still returns `ok: true` (clause 5).
  */
-
-/** The field does not exist yet, so read it without asserting a type that would not compile. */
 function classOf(v: unknown): string | undefined {
-  return (v as { nextClass?: string } | null)?.nextClass;
+  return (v as BothyNextFail | null)?.nextClass;
 }
 
 const KEPT: BothyNextSnapshot = {
@@ -50,7 +54,7 @@ const KEPT: BothyNextSnapshot = {
 };
 
 describe("the dequeue says which kind of empty it found", () => {
-  it.fails("(1) RED: a genuinely empty board is classed fresh_null", async () => {
+  it("(1) RED: a genuinely empty board is classed fresh_null", async () => {
     const v = await selectNextBothyCard({
       pat: "bb_pat_test",
       machineName: "box",
@@ -63,7 +67,7 @@ describe("the dequeue says which kind of empty it found", () => {
     );
   });
 
-  it.fails("(2) RED: an unchanged replay that holds no task is classed unchanged_replay", async () => {
+  it("(2) RED: an unchanged replay that holds no task is classed unchanged_replay", async () => {
     // Same reason, same counts, different world. Today only the prose of `detail` separates them.
     const v = await selectNextBothyCard({
       pat: "bb_pat_test",
@@ -77,7 +81,7 @@ describe("the dequeue says which kind of empty it found", () => {
     );
   });
 
-  it.fails("(3) RED: the four incomplete-read causes are four classes", async () => {
+  it("(3) RED: the four incomplete-read causes are four classes", async () => {
     // One `reason` today for four unrelated faults: no credential, a bad status, a thrown call, and
     // a throttle. A caller cannot tell "I am not allowed to read" from "the board is rate limited".
     const noPat = await selectNextBothyCard({ pat: "", env: {} });
