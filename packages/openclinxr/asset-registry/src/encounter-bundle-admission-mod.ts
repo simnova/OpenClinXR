@@ -1,4 +1,8 @@
 import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evidence-mod.js";
+import {
+  prepareObservedSceneForAdmission,
+  publishFrozenScenePlanAdmission,
+} from "./encounter-bundle-admission-geometry-mod.js";
 import { canonicalJson } from "./canonical-json.js";
 import { geometryRevisionDigest, type ObservedApproachGeometry } from "./case-approach-intent-mod.js";
 import { CASE_FROZEN_SCENE_PLANS } from "./case-frozen-scene-plans.js";
@@ -79,8 +83,10 @@ export type ScenePlanAdmission =
       record: DurableAcceptedScenePlanRecord;
       /** Present only once a room has been observed and the layout re-solved. */
       reproduced: FrozenSceneReproduction | null;
+      /** Digest measured off the live scene when this admission observed a room. */
+      observedGeometryRevision?: string;
     }
-  | { status: "refused"; reason: string; detail: string };
+  | { status: "refused"; reason: string; detail: string; observedGeometryRevision?: string };
 
 /**
  * The frozen plan this bundle should be reopened against, from the bundle or from the case.
@@ -206,9 +212,19 @@ export function admitFrozenScenePlanForObservedRoom(input: {
     ...(input.intent === undefined ? {} : { intent: input.intent }),
   });
   if (reopened.status === "refused") {
-    return { status: "refused", reason: reopened.reason, detail: reopened.detail };
+    return {
+      status: "refused",
+      reason: reopened.reason,
+      detail: reopened.detail,
+      observedGeometryRevision,
+    };
   }
-  return { status: "admitted", record: reopened.record, reproduced: reopened.reproduced };
+  return {
+    status: "admitted",
+    record: reopened.record,
+    reproduced: reopened.reproduced,
+    observedGeometryRevision,
+  };
 }
 
 // ── Bundle inspection, moved here from apps/ui-xr/src/encounter-bundle-boot/index.ts ─────────────
@@ -433,6 +449,9 @@ export function admitFrozenScenePlanForObservedScene<TScene>(input: {
   patientWorldPosition: { x: number; y: number; z: number };
   start: { x: number; y: number; z: number };
 }): ScenePlanAdmission {
+  // The freeze captured parametric wall-anchor positions. Infinigen reanchor slides door_leaf /
+  // wall_board after boot; undo that before measuring so the comparison stays strict.
+  prepareObservedSceneForAdmission(input.scene);
   // FIRST FRAME: consult the bundle. Round 2 initialised the runtime's variable to
   // `no_plan_carried` and only ever assigned this function's return, and this function returned its
   // input unchanged unless it was already `admitted` — so nothing ever admitted anything and the
@@ -441,9 +460,15 @@ export function admitFrozenScenePlanForObservedScene<TScene>(input: {
     input.admission.status === "no_plan_carried"
       ? admitFrozenScenePlan({ bundle: input.bundle })
       : input.admission;
-  if (admission.status !== "admitted" || admission.reproduced !== null) return admission;
-  if (input.environmentId === null || input.environmentId === "") return admission;
-  return admitFrozenScenePlanForObservedRoom({
+  if (admission.status !== "admitted" || admission.reproduced !== null) {
+    publishFrozenScenePlanAdmission(admission);
+    return admission;
+  }
+  if (input.environmentId === null || input.environmentId === "") {
+    publishFrozenScenePlanAdmission(admission);
+    return admission;
+  }
+  const observed = admitFrozenScenePlanForObservedRoom({
     record: admission.record,
     geometry: input.observeGeometry(input.scene, {
       supportInstanceId: `${input.environmentId}:stretcher`,
@@ -451,4 +476,6 @@ export function admitFrozenScenePlanForObservedScene<TScene>(input: {
     patientWorldPosition: input.patientWorldPosition,
     start: input.start,
   });
+  publishFrozenScenePlanAdmission(observed);
+  return observed;
 }

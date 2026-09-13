@@ -3448,7 +3448,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       }
     }
     updateVrPanels(inputEvidence);
-    // While the frozen plan is not reproduced the live bedside approach is not stepped.
+    // Admission restores the Infinigen wall-anchor slide, then gates the walk on freeze reproduction.
     frozenScenePlanAdmission = admitFrozenScenePlanForObservedScene({
       admission: frozenScenePlanAdmission, bundle: encounterRuntimeAssetBundle,
       scene,
