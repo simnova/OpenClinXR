@@ -15,8 +15,9 @@ This removes paraphrase surface to zero for instructions.
 ```
 ## factory_step: <enum>            # existing requirement; instrument needs unblocks:
 ## lane: A|B                       # A=learner/XR+assets  B=API/admin/review
-## write-roots: <full consumer closure>   # grep transitive reads of entry files;
-                                   # name resolver/constants/helpers main.ts reads
+## write-roots: <writes only>             # paths the worker will EDIT or CREATE;
+                                   # whatever is here IS the concurrency exclusion set
+## read-closure: <full consumer closure>   # grep transitive reads; read-only dirs belong here
 ## objective: <one sentence>
 ## known-good: <in-tree reference, path:line>
 ## failed-treatments: <named rows with what each produced>
@@ -27,6 +28,10 @@ This removes paraphrase surface to zero for instructions.
 
 A card enters Factory=Planted only when its RED + contract are committed to main.
 Dispatch order follows the parent card's child list, adjusted for lane disjointness.
+
+`writeRoots` IS the concurrency exclusion set — `tasks.next` skips any card whose roots overlap
+those of a card already in flight. A read-only entry costs a lane; put it in `read-closure:` instead.
+`run:` is not a write.
 
 ## Mid-run steering: the dispatcher reads the BODY, never the comments
 
