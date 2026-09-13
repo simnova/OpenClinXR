@@ -6,6 +6,7 @@ export {
   carriedAcceptedScenePlan,
   inspectBundleEligibility,
   inspectPinnedBundleIdentity,
+  publishFrozenScenePlanAdmission,
   type ScenePlanAdmission,
   stationIdForSceneClosureScenario,
   verifyCommittedScenePlanAgainstDisk,

@@ -3448,7 +3448,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       }
     }
     updateVrPanels(inputEvidence);
-    // While the frozen plan is not reproduced the live bedside approach is not stepped.
+    // A hull-reanchored room that does not match the freeze refuses; the walk stays gated.
     frozenScenePlanAdmission = admitFrozenScenePlanForObservedScene({
       admission: frozenScenePlanAdmission, bundle: encounterRuntimeAssetBundle,
       scene,

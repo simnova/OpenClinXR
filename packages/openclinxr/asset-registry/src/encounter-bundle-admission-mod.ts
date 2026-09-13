@@ -79,8 +79,10 @@ export type ScenePlanAdmission =
       record: DurableAcceptedScenePlanRecord;
       /** Present only once a room has been observed and the layout re-solved. */
       reproduced: FrozenSceneReproduction | null;
+      /** Digest measured off the live scene when this admission observed a room. */
+      observedGeometryRevision?: string;
     }
-  | { status: "refused"; reason: string; detail: string };
+  | { status: "refused"; reason: string; detail: string; observedGeometryRevision?: string };
 
 /**
  * The frozen plan this bundle should be reopened against, from the bundle or from the case.
@@ -107,6 +109,21 @@ export function carriedAcceptedScenePlan(bundle: BundleCarryingAcceptedScenePlan
 
 function isRecordObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** Read-only page telemetry. Does not write scene state. */
+export function publishFrozenScenePlanAdmission(admission: ScenePlanAdmission): void {
+  const host = (globalThis as unknown as { window?: Record<string, unknown> }).window
+    ?? (globalThis as unknown as Record<string, unknown>);
+  host["__openClinXrFrozenScenePlanAdmission"] = {
+    source: "window.__openClinXrFrozenScenePlanAdmission",
+    status: admission.status,
+    reproduced: admission.status === "admitted" && admission.reproduced !== null,
+    reason: admission.status === "refused" ? admission.reason : null,
+    detail: admission.status === "refused" ? admission.detail : null,
+    observedGeometryRevision:
+      admission.status === "no_plan_carried" ? null : (admission.observedGeometryRevision ?? null),
+  };
 }
 
 /**
@@ -206,9 +223,19 @@ export function admitFrozenScenePlanForObservedRoom(input: {
     ...(input.intent === undefined ? {} : { intent: input.intent }),
   });
   if (reopened.status === "refused") {
-    return { status: "refused", reason: reopened.reason, detail: reopened.detail };
+    return {
+      status: "refused",
+      reason: reopened.reason,
+      detail: reopened.detail,
+      observedGeometryRevision,
+    };
   }
-  return { status: "admitted", record: reopened.record, reproduced: reopened.reproduced };
+  return {
+    status: "admitted",
+    record: reopened.record,
+    reproduced: reopened.reproduced,
+    observedGeometryRevision,
+  };
 }
 
 // ── Bundle inspection, moved here from apps/ui-xr/src/encounter-bundle-boot/index.ts ─────────────
@@ -441,9 +468,15 @@ export function admitFrozenScenePlanForObservedScene<TScene>(input: {
     input.admission.status === "no_plan_carried"
       ? admitFrozenScenePlan({ bundle: input.bundle })
       : input.admission;
-  if (admission.status !== "admitted" || admission.reproduced !== null) return admission;
-  if (input.environmentId === null || input.environmentId === "") return admission;
-  return admitFrozenScenePlanForObservedRoom({
+  if (admission.status !== "admitted" || admission.reproduced !== null) {
+    publishFrozenScenePlanAdmission(admission);
+    return admission;
+  }
+  if (input.environmentId === null || input.environmentId === "") {
+    publishFrozenScenePlanAdmission(admission);
+    return admission;
+  }
+  const observed = admitFrozenScenePlanForObservedRoom({
     record: admission.record,
     geometry: input.observeGeometry(input.scene, {
       supportInstanceId: `${input.environmentId}:stretcher`,
@@ -451,4 +484,6 @@ export function admitFrozenScenePlanForObservedScene<TScene>(input: {
     patientWorldPosition: input.patientWorldPosition,
     start: input.start,
   });
+  publishFrozenScenePlanAdmission(observed);
+  return observed;
 }
