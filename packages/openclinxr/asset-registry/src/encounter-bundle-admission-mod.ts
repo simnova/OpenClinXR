@@ -1,21 +1,14 @@
 import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evidence-mod.js";
-import { canonicalJson } from "./canonical-json.js";
 import { geometryRevisionDigest, type ObservedApproachGeometry } from "./case-approach-intent-mod.js";
 import { CASE_FROZEN_SCENE_PLANS } from "./case-frozen-scene-plans.js";
-import { resolveCaseOwnedScenePlan } from "./case-owned-scene-plan-mod.js";
-import { observedRoomIsReadyToJudge } from "./encounter-bundle-admission-observed-room-mod.js";
+import { observedRoomIsReadyToJudge, observedRoomLoadFailure } from "./encounter-bundle-admission-observed-room-mod.js";
 import {
   type FrozenSceneReopen,
   type FrozenSceneReproduction,
   reopenFrozenScene,
 } from "./frozen-scene-replay-mod.js";
 import type { BedsideLayoutIntent } from "./layout-solve-mod.js";
-import {
-  type EncounterRuntimeAsset,
-  evaluateEncounterRuntimeLearnerUseGate,
-  type LearnerRuntimeAssetBundle,
-} from "./runtime-bundles.js";
-import { sha256Hex } from "./sha256-hex.js";
+import type { LearnerRuntimeAssetBundle } from "./runtime-bundles.js";
 
 /**
  * WHAT THE SHIPPED RUNTIME CALLS to admit — or refuse — a frozen scene plan.
@@ -239,199 +232,20 @@ export function admitFrozenScenePlanForObservedRoom(input: {
   };
 }
 
-// ── Bundle inspection, moved here from apps/ui-xr/src/encounter-bundle-boot/index.ts ─────────────
+// ── Re-exports from extracted modules ────────────────────────────────────────────────────────────
 
-/**
- * THE SCENE-CLOSURE STATION, and it is DATA rather than a second parameter.
- *
- * No resolver in the tree maps a scenario id to its station: scenarios carry no station field,
- * the producer takes `stationId` as a caller parameter with an ED default, and the case source is
- * authoring input nothing under packages/ or apps/ may import. This table binds the case whose
- * frozen plan `CASE_FROZEN_SCENE_PLANS` carries to the bundle the runtime must build, and
- * `stationIdForSceneClosureScenario` is the resolution the app call site and this card's behavior
- * test both use — so the ordinary path and the tested path cannot disagree about which station a
- * scenario stages.
- *
- * A scenario with no frozen plan has no entry and resolves to undefined; the caller keeps its own
- * default, which is the honest answer for every encounter that has never been frozen.
- */
-export const SCENE_CLOSURE_SCENARIO_STATION_ID: Readonly<Record<string, string>> = Object.freeze({
-  "scene_closure_supine_bedside_v1": "scene_closure_supine_bedside_station_v1",
-});
+export {
+  SCENE_CLOSURE_SCENARIO_STATION_ID,
+  stationIdForSceneClosureScenario,
+  type PinnedStationSelection,
+  inspectPinnedBundleIdentity,
+  inspectBundleEligibility,
+} from "./bundle-inspection.js";
 
-export function stationIdForSceneClosureScenario(scenarioId: string): string | undefined {
-  return SCENE_CLOSURE_SCENARIO_STATION_ID[scenarioId];
-}
-
-/**
- * DOES THE COMMITTED RECORD STILL DESCRIBE THE FILES ON DISK. Runs in node: it rehashes bytes.
- *
- * The browser admission above cannot rehash an 11 MB GLB, so it carries the record's own digests
- * instead and answers geometry only (stated in the module header). The verifier CLI and
- * `observeScenePlanEvidence` DO rehash from the filesystem. This is the same check, callable
- * without a report: it compares the committed record's four asset digests, the
- * case document digest, the bundle digest and the re-derived route length against disk.
- *
- * `readBytes` is injected so the behavior test can drive it without touching disk. The record is
- * passed in rather than imported, so the clause fails on a drifted record, not a drifted import.
- */
-export type CommittedScenePlanDiskCheck = {
-  ok: boolean;
-  problems: string[];
-};
-
-/**
- * Re-derive the route length from the persisted seed against the ward geometry, so the committed
- * record's `routeLengthMeters` is compared with a re-execution rather than trusted. Returns null
- * when the seed will not resolve here; the reopen owns that refusal, not this check.
- */
-function rederiveRouteLengthMeters(input: {
-  record: DurableAcceptedScenePlanRecord;
-  geometry: ObservedApproachGeometry;
-  patientWorldPosition: { x: number; y: number; z: number };
-  start: { x: number; y: number; z: number };
-}): number | null {
-  let resolved: ReturnType<typeof resolveCaseOwnedScenePlan>;
-  try {
-    resolved = resolveCaseOwnedScenePlan({
-      seed: input.record.variation.seed,
-      variationIndex: input.record.variation.variationIndex,
-      patientWorldPosition: input.patientWorldPosition,
-      start: input.start,
-      geometry: input.geometry,
-    });
-  } catch {
-    return null;
-  }
-  if (!resolved.resolved) return null;
-  let total = 0;
-  for (let index = 1; index < resolved.plan.waypoints.length; index += 1) {
-    const from = resolved.plan.waypoints[index - 1]?.position;
-    const to = resolved.plan.waypoints[index]?.position;
-    if (from === undefined || to === undefined) continue;
-    total += Math.hypot(to.x - from.x, to.z - from.z);
-  }
-  return total;
-}
-
-export function verifyCommittedScenePlanAgainstDisk(input: {
-  record: DurableAcceptedScenePlanRecord;
-  caseSourcePath: string;
-  bundleContent: unknown;
-  geometry: ObservedApproachGeometry;
-  patientWorldPosition: { x: number; y: number; z: number };
-  start: { x: number; y: number; z: number };
-  readBytes: (repoRelativePath: string) => Buffer;
-}): CommittedScenePlanDiskCheck {
-  const problems: string[] = [];
-  for (const instance of input.record.instances) {
-    if (instance.assetPath === undefined || instance.assetSha256 === undefined) continue;
-    let bytes: Buffer;
-    try {
-      bytes = input.readBytes(instance.assetPath);
-    } catch {
-      problems.push(`instance ${instance.instanceId} names ${instance.assetPath}, which cannot be read`);
-      continue;
-    }
-    const actual = sha256Hex(bytes);
-    if (actual !== instance.assetSha256) {
-      problems.push(
-        `instance ${instance.instanceId} hashes to ${actual.slice(0, 12)} on disk, `
-          + `the committed record binds ${instance.assetSha256.slice(0, 12)}`,
-      );
-    }
-  }
-  try {
-    const actual = sha256Hex(input.readBytes(input.caseSourcePath));
-    if (actual !== input.record.case.caseContentSha256) {
-      problems.push(
-        `case document hashes to ${actual.slice(0, 12)} on disk, `
-          + `the committed record binds ${input.record.case.caseContentSha256.slice(0, 12)}`,
-      );
-    }
-  } catch {
-    problems.push(`case document ${input.caseSourcePath} cannot be read`);
-  }
-  const bundleActual = sha256Hex(canonicalJson(input.bundleContent));
-  if (bundleActual !== input.record.bundle.bundleSha256) {
-    problems.push(
-      `bundle content hashes to ${bundleActual.slice(0, 12)} on disk, `
-        + `the committed record binds ${input.record.bundle.bundleSha256.slice(0, 12)}`,
-    );
-  }
-  const resolved = rederiveRouteLengthMeters({
-    record: input.record,
-    geometry: input.geometry,
-    patientWorldPosition: input.patientWorldPosition,
-    start: input.start,
-  });
-  if (resolved !== null && resolved !== input.record.resolvedLayout.routeLengthMeters) {
-    problems.push(
-      `route length re-derives to ${String(resolved)} m, `
-        + `the committed record binds ${String(input.record.resolvedLayout.routeLengthMeters)} m`,
-    );
-  }
-  return { ok: problems.length === 0, problems };
-}
-
-/** The station fields an identity check needs. Structural so the app keeps owning its own type. */
-export type PinnedStationSelection = {
-  stationId: string;
-  scenarioId: string;
-};
-
-export function inspectPinnedBundleIdentity(
-  bundle: LearnerRuntimeAssetBundle,
-  station: PinnedStationSelection,
-  pinnedBundleId: string,
-): string[] {
-  const blockers: string[] = [];
-  if (bundle.identityScope !== "learner_runtime_opaque_bundle") {
-    blockers.push("identity_scope_mismatch");
-  }
-  if (bundle.bundleId !== pinnedBundleId) {
-    blockers.push("pinned_bundle_id_mismatch");
-  }
-  if (bundle.stationId !== station.stationId) {
-    blockers.push("station_id_mismatch");
-  }
-  if (bundle.scenarioId !== station.scenarioId) {
-    blockers.push("scenario_id_mismatch");
-  }
-  return blockers;
-}
-
-export function inspectBundleEligibility(bundle: LearnerRuntimeAssetBundle): string[] {
-  if (bundleUsesOnlyApprovedLocalFixtureAssets(bundle)) {
-    return [];
-  }
-  const gate = evaluateEncounterRuntimeLearnerUseGate(bundle);
-  if (gate.canUseGeneratedBundleForLearnerRuntime) {
-    return [];
-  }
-  return gate.blockers.length > 0 ? [...gate.blockers] : ["learner_runtime_use_blocked"];
-}
-
-function bundleUsesOnlyApprovedLocalFixtureAssets(bundle: LearnerRuntimeAssetBundle): boolean {
-  return runtimeBundleAssets(bundle).every((asset) =>
-    asset.blob.storeKind === "app_public_fixture"
-      && asset.reviewStatus !== "blocked"
-      && (asset.reviewStatus === "fixture_approved_for_local_runtime"
-        || asset.reviewStatus === "approved_for_local_runtime"),
-  );
-}
-
-function runtimeBundleAssets(bundle: LearnerRuntimeAssetBundle): EncounterRuntimeAsset[] {
-  return [
-    bundle.environment,
-    ...bundle.actors.map((actor) => actor.model),
-    ...bundle.actors.flatMap((actor) => actor.animationClips),
-    ...bundle.actors
-      .map((actor) => actor.phonemeMap)
-      .filter((asset): asset is EncounterRuntimeAsset => Boolean(asset)),
-    ...bundle.equipment.map((equipment) => equipment.model),
-  ];
-}
+export {
+  verifyCommittedScenePlanAgainstDisk,
+  type CommittedScenePlanDiskCheck,
+} from "./scene-plan-disk-verification.js";
 
 /**
  * The call the SHIPPED FRAME LOOP makes, once per unresolved plan.
@@ -478,6 +292,21 @@ export function admitFrozenScenePlanForObservedScene<TScene>(input: {
   if (input.environmentId === null || input.environmentId === "") {
     publishFrozenScenePlanAdmission(admission);
     return admission;
+  }
+  // If the generated room load failed, the procedural box is not the room the plan was frozen against.
+  // The hull-reanchored room is what the freeze captured. We must refuse with a specific reason
+  // so the runtime can surface this rather than silently failing on a geometry mismatch.
+  // Check this BEFORE observedRoomIsReadyToJudge, because that function now returns false for failed.
+  const loadFailure = observedRoomLoadFailure(input.scene);
+  if (loadFailure) {
+    const refused: ScenePlanAdmission = {
+      status: "refused",
+      reason: "generated_room_load_failed",
+      detail: `Infinigen room load failed: ${loadFailure.error ?? "unknown error"}. The procedural box is not the room the freeze captured.`,
+      observedGeometryRevision: geometryRevisionDigest(input.observeGeometry(input.scene, { supportInstanceId: `${input.environmentId}:stretcher` })),
+    };
+    publishFrozenScenePlanAdmission(refused);
+    return refused;
   }
   if (!observedRoomIsReadyToJudge(input.scene)) {
     publishFrozenScenePlanAdmission(admission);
