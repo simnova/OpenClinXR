@@ -173,10 +173,15 @@ export async function selectNextBothyCard(opts: {
   machineName?: string | undefined;
   store?: BothyTokenStore | undefined;
   repoRoot?: string | undefined;
+  caller?: string | undefined;
+  journal?: (row: { caller: string; nextClass: BothyNextClass; result: string | null }) => void;
 }): Promise<BothyNextOk | BothyNextFail> {
   const env = opts.env ?? (typeof process === "undefined" ? {} : process.env);
   const pat = opts.pat ?? env.BOTHY_BOARD_PAT ?? "";
+  const record = (r: { nextClass: BothyNextClass; result: string | null }) =>
+    opts.journal?.({ caller: opts.caller ?? "", nextClass: r.nextClass, result: r.result });
   if (!pat.startsWith("bb_pat_")) {
+    record({ nextClass: "no_pat", result: null });
     return {
       ok: false,
       reason: "incomplete-read",
@@ -187,6 +192,7 @@ export async function selectNextBothyCard(opts: {
         "BothyBoard is the dequeue SSOT and BOTHY_BOARD_PAT is missing — refusing rather than ranking GitHub project 7 (dual-dequeue is refused)",
     };
   }
+
   const machineName = opts.machineName ?? env.BOTHY_MACHINE_NAME ?? hostname();
   const store =
     opts.store ?? (opts.repoRoot ? fileTokenStore(opts.repoRoot) : undefined);
@@ -199,6 +205,7 @@ export async function selectNextBothyCard(opts: {
     if (prior?.cacheToken && asTask(prior)?.id) args.cacheToken = prior.cacheToken;
     const next = await fetchFn({ tool: "bothy-board.tasks.next", arguments: args });
     if (next.httpStatus !== 200) {
+      record({ nextClass: "http_error", result: null });
       return {
         ok: false,
         reason: "incomplete-read",
@@ -210,6 +217,7 @@ export async function selectNextBothyCard(opts: {
     }
     nextRaw = next.structuredContent;
   } catch (cause) {
+    record({ nextClass: "fetch_threw", result: null });
     return {
       ok: false,
       reason: "incomplete-read",
@@ -222,6 +230,7 @@ export async function selectNextBothyCard(opts: {
   const rec = asSnapshot(nextRaw) ?? {};
   if ((nextRaw as Record<string, unknown> | null)?.code === "rate_limited") {
     const rl = nextRaw as Record<string, unknown>;
+    record({ nextClass: "rate_limited", result: null });
     return {
       ok: false,
       reason: "incomplete-read",
@@ -237,6 +246,7 @@ export async function selectNextBothyCard(opts: {
     store?.write({ ...replay, cacheToken: rec.cacheToken ?? prior?.cacheToken ?? null });
     const task = asTask(replay);
     if (!task?.id) {
+      record({ nextClass: "unchanged_replay", result: null });
       return {
         ok: false,
         reason: "no-candidate",
@@ -247,12 +257,14 @@ export async function selectNextBothyCard(opts: {
       };
     }
     const body = typeof task.body === "string" ? task.body : "";
+    record({ nextClass: "unchanged_replay", result: task.id ?? null });
     return mapTask(task, { ...replay, ...rec }, body);
   }
 
   store?.write(rec);
   const task = asTask(rec);
   if (!task?.id) {
+    record({ nextClass: "fresh_null", result: null });
     return {
       ok: false,
       reason: "no-candidate",
@@ -275,6 +287,7 @@ export async function selectNextBothyCard(opts: {
       body = "";
     }
   }
+  record({ nextClass: "fresh_null", result: task.id ?? null });
   return mapTask(task, rec, body);
 }
 

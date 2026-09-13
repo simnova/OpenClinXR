@@ -37,18 +37,24 @@ import type { BothyNextSnapshot } from "./board-bothy-dequeue.js";
  *   injected sink, for controlled fetch/store fixtures.
  * notEvidenceFor: where the journal is stored, its retention, whether anything reads it, what the
  *   fleet's idle time actually decomposes to, or any admission, scaling or wake policy.
+ *
+ * ## FIXED (#0)
+ * Added optional `journal` sink and `caller` identifier to `selectNextBothyCard`
+ * (`board-bothy-dequeue.ts:169-178`). The function now calls the sink exactly once per invocation
+ * before each return point (8 total), carrying `caller`, `nextClass`, and `result` (the taskId or
+ * null). When no sink is injected the function behaves identically (clause 4 stays green).
+ * `nextClass` is recorded from the value already computed at each return; `result` is the taskId
+ * when one is handed out and null otherwise. The `withJournal` cast helper in the test was the
+ * compilation bridge before the options existed and is now a direct pass-through.
  */
 
 type Row = Record<string, unknown>;
 
-/** The option does not exist yet; the cast keeps this compiling while the sink stays unused. */
 function withJournal(
   base: Record<string, unknown>,
   rows: Row[],
 ): Parameters<typeof selectNextBothyCard>[0] {
-  return { ...base, journal: (row: Row) => rows.push(row) } as Parameters<
-    typeof selectNextBothyCard
-  >[0];
+  return { ...base, journal: (row: Row) => rows.push(row) };
 }
 
 const EMPTY_FETCH = async () => ({ structuredContent: { task: null }, httpStatus: 200 });
@@ -61,7 +67,7 @@ const KEPT: BothyNextSnapshot = {
 };
 
 describe("the dequeue records every attempt and who made it", () => {
-  it.fails("(1) RED: an attempt that finds nothing is still recorded, with its class", async () => {
+  it("(1) RED: an attempt that finds nothing is still recorded, with its class", async () => {
     const rows: Row[] = [];
     await selectNextBothyCard(
       withJournal({ pat: "bb_pat_test", machineName: "box", store: NO_STORE, fetch: EMPTY_FETCH }, rows),
@@ -70,7 +76,7 @@ describe("the dequeue records every attempt and who made it", () => {
     expect(rows[0]?.nextClass, "the row carries the class the call resolved to").toBe("fresh_null");
   });
 
-  it.fails("(2) RED: the row says WHO called, so a sweep probe cannot forge an orchestrator attempt", async () => {
+  it("(2) RED: the row says WHO called, so a sweep probe cannot forge an orchestrator attempt", async () => {
     const runner: Row[] = [];
     await selectNextBothyCard(
       withJournal(
@@ -89,7 +95,7 @@ describe("the dequeue records every attempt and who made it", () => {
     expect(probe[0]?.caller, "a read-only probe must not be counted as a dequeue attempt").toBe("sweep");
   });
 
-  it.fails("(3) RED: a SUCCESSFUL dequeue is recorded too, not only the empties", async () => {
+  it("(3) RED: a SUCCESSFUL dequeue is recorded too, not only the empties", async () => {
     // Without the successes the denominator is missing: "3 attempts, 3 empty" and "3 attempts, 3
     // dispatched" would both be read as three rows of nothing.
     const rows: Row[] = [];
@@ -125,7 +131,7 @@ describe("the dequeue records every attempt and who made it", () => {
     expect(v.nextClass).toBe("fresh_null");
   });
 
-  it.fails("(5) COUNTERWEIGHT: exactly ONE row per call, however many hops it makes internally", async () => {
+  it("(5) COUNTERWEIGHT: exactly ONE row per call, however many hops it makes internally", async () => {
     // Refuses a writer that logs per retry or per inner `tasks.get` hop. Attempt counts are the
     // whole point of the record; a call that writes twice inflates "how often did we ask" and every
     // rate derived from it. The body-less task path below makes a SECOND fetch internally.
