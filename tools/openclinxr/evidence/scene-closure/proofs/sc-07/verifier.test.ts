@@ -1,5 +1,6 @@
 import { unitControl } from "./unit-fixture.js";
 import { describe, expect, it } from "vitest";
+import { certifyOnDeclaredStateOnly, certifyRecordedWorkflow } from "./normal-workflow-recording.js";
 import { SCENE_CLOSURE_EVIDENCE_SCHEMA_VERSION } from "./report-schema.js";
 import { parseArgs } from "./verify.js";
 import {
@@ -386,5 +387,88 @@ describe("the SC-07 evidence verifier accepts a complete control and rejects eve
     expect(parseArgs(["bare"])).toMatchObject({ error: expect.stringContaining("unknown argument") });
     expect(parseArgs(["--report", "x", "--report", "z", "--scope", "y"]))
       .toMatchObject({ error: expect.stringContaining("more than once") });
+  });
+
+  /**
+   * (16)-(18) were added by the SC-07 execution pass, and each exists because the run this card
+   * actually observed could have been written up as a success by a report nobody checked against its
+   * own measurements. The encounter never activated, so the tempting report is the one that marks
+   * the arrival check satisfied and lets the numbers disagree quietly underneath it.
+   */
+
+  it("(16) a report cannot declare an arrival its own measurements contradict", () => {
+    const control = unitControl();
+    expect(control.verify()).toEqual([]);
+
+    // Zero skinned joints and zero support contacts is precisely what a run that never activated
+    // reports. The trace AND the receipt binding its hash are both re-put, so the failure is the
+    // measured contradiction rather than an incidentally broken receipt.
+    const measurements = { ...control.measurements, skinnedJointCount: 0, supportContactCount: 0 };
+    const trace = control.put("trace", {
+      runId: "unit-run",
+      clock: "video-relative-ms",
+      headingUnit: "radians",
+      identities: control.identities,
+      measurements,
+    });
+    control.put("receipt", {
+      runId: "unit-run",
+      sourceCommit: "1".repeat(40),
+      inputs: control.executionInputs,
+      videoSha256: control.objects.get("video")?.sha256,
+      traceSha256: trace.sha256,
+      identities: control.identities,
+    });
+
+    expect(control.verify().join("\n")).toMatch(/no measured support contacts or skinned joints/u);
+  });
+
+  it("(17) a trace whose activation follows its arrival is refused on the ordering", () => {
+    const control = unitControl();
+    const measurements = { ...control.measurements, activationAtMs: 1600, arrivalAtMs: 1500 };
+    const trace = control.put("trace", {
+      runId: "unit-run",
+      clock: "video-relative-ms",
+      headingUnit: "radians",
+      identities: control.identities,
+      measurements,
+    });
+    control.put("receipt", {
+      runId: "unit-run",
+      sourceCommit: "1".repeat(40),
+      inputs: control.executionInputs,
+      videoSha256: control.objects.get("video")?.sha256,
+      traceSha256: trace.sha256,
+      identities: control.identities,
+    });
+
+    expect(control.verify().join("\n")).toMatch(/timestamps are not ordered/u);
+  });
+
+  it("(18) the recording instrument refuses a declared arrival with no sampled body", () => {
+    // The same contradiction one boundary earlier: a run that SAYS it arrived and sampled nothing is
+    // refused, while grading declared state alone accepts it. Identical input, opposite verdict.
+    const declaredArrival = {
+      driveSource: "case_owned_bedside_approach",
+      refusal: null,
+      phase: "arrived",
+      physicianActorId: "senior_resident_ward_v1",
+      toeBonesResolved: false,
+      skeletonSampleCount: 0,
+      samples: [],
+      targetWorld: null,
+      targetHeadingRadians: null,
+      stoppedSeconds: 4.8,
+      observedObstacleIds: [],
+    };
+
+    const measured = certifyRecordedWorkflow({ telemetry: declaredArrival });
+    expect(measured.certified).toBe(false);
+    expect(measured.reasons.some((reason) => /skeleton samples/u.test(reason))).toBe(true);
+    expect(measured.measured.arrivalErrorMeters).toBeNull();
+
+    const declared = certifyOnDeclaredStateOnly({ telemetry: declaredArrival });
+    expect(declared.certified).toBe(true);
+    expect(declared.certified).not.toBe(measured.certified);
   });
 });
