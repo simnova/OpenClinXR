@@ -73,6 +73,31 @@ describe("OpenClaw drift checker", () => {
     });
   });
 
+  it("does not demand registration of gitignored browser-evidence scratch", () => {
+    const report = buildOpenClawDriftReport(alignedInput({
+      generatedArtifactFiles: [
+        ".agent-factory/browser-evidence/scene-closure/run-2026-09-13/telemetry.json",
+      ],
+    }));
+
+    expect(report.ok).toBe(true);
+    expect(report.failures).toEqual([]);
+  });
+
+  // Counterweight for the exemption above: it must cover browser-evidence ONLY, not the whole
+  // of .agent-factory. Widen the prefix and this clause goes red.
+  it("still demands registration of other generated artifacts under .agent-factory", () => {
+    const report = buildOpenClawDriftReport(alignedInput({
+      generatedArtifactFiles: [".agent-factory/memory-index.json"],
+    }));
+
+    expect(report.ok).toBe(false);
+    expect(report.failures).toContainEqual({
+      file: ".agent-factory/memory-index.json",
+      message: "generated artifact is not registered in the generated artifact registry; run pnpm docs:artifacts or ignore/delete the local artifact",
+    });
+  });
+
   it("fails when canonical files stop linking the runbook and drift checker", () => {
     const input = alignedInput();
     input.files["AGENTS.md"] = "openclaw-runbook-2026-05-27.md";

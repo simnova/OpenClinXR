@@ -185,6 +185,14 @@ function sectionBefore(text: string, marker: string): string {
 
 function isGeneratedOutputPolicyIgnoredPath(file: string): boolean {
   return file.startsWith(".openclinxr/")
+    // Browser-evidence runs are gitignored scratch (`.gitignore:11`), so an unregistered file
+    // here can never scatter into the repo — the thing this check exists to prevent. The
+    // canonical copy of any run worth keeping is written to the scene-closure evidence store
+    // and hashed there. Registering the scratch tree would demand a shared registry edit per
+    // browser run, and `pnpm docs:artifacts` currently refuses to regenerate at all, so this
+    // failure had no remedy: it blocked every push from the main checkout while the identical
+    // push from a worktree passed, because the ignored path only exists in main.
+    || file.startsWith(".agent-factory/browser-evidence/")
     // Per-asset licence records are SOURCE, not generated output: the ledger Markdown is
     // rendered FROM them. Registering each one would put every new asset acquisition back
     // through a shared registry edit, which is the contention the records exist to remove.
