@@ -25,6 +25,7 @@
     "src/the-compiler-surface-carries-region-and-effector.test.ts",
     "src/the-contact-constraint-holds-across-its-window.test.ts",
     "src/the-contact-surface-bounds-penetration-and-orientation.test.ts",
+    "src/the-entrypoint-publishes-only-what-a-consumer-imports.test.ts",
     "src/the-four-response-kinds-are-four-behaviours.test.ts",
     "src/the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
     "src/the-joint-limits-refuse-a-clinical-claim.test.ts",
