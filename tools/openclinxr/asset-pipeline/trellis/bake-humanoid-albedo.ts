@@ -375,7 +375,8 @@ function main(): void {
         notEvidenceFor: [
           "decimation or packing (HB-03)",
           "any lighting change to finished_figure_grade.py",
-          "how a regenerated body gets baked: no caller wires this station after materialize yet",
+          "rendered appearance of a rebaked body",
+          "whether the generation path runs under automation",
         ],
       },
       null,
