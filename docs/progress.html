@@ -28,6 +28,50 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-14T0050">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 50 &middot; 2026-09-14 00:50 EDT &middot; work in progress</p>
+          <h2>Third attempt at the foot through the floor, and this one bends the leg instead of lifting the body.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Read from the working copy, not from a report. Nothing has been committed or accepted; the work has been running 1 hour 21 minutes.</caption>
+            <thead><tr><th scope="col">Check</th><th scope="col">Reading</th><th scope="col">Meaning</th></tr></thead>
+            <tbody>
+              <tr><td>Places the code lifts the whole body vertically</td><td>0</td><td>The mechanism that produced the previous disguise is gone. Only the sideways corrections remain, and those were always correct.</td></tr>
+              <tr><td>Closed-form leg solver</td><td>present</td><td>Bends hip and knee to place the foot, using a fixed geometric formula rather than a search. No physics engine and no external tool.</td></tr>
+              <tr><td>Over-straightening guard</td><td>present</td><td>Softens as the leg nears full extension instead of snapping, so the knee cannot lock or invert.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Why the approach changed</h3>
+            <ul>
+              <li>The previous attempt made the measurement pass by raising the body by exactly the depth the foot was sinking. The planted foot read zero while the other foot ended up hovering nearly 5 cm in the air.</li>
+              <li>The published reference for this problem solves it by bending the leg and never moves the body. An independent review reached the same conclusion, and so had earlier measurement in this project months of work ago.</li>
+              <li>The instruction to the current attempt is explicit and checkable: never write the body height. That is the single line verified above.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>How it will be judged</h3>
+            <ul>
+              <li>The same frame-by-frame record as before, with no target number attached. The reason is unchanged: a number given in advance becomes the thing a repair is shaped to clear.</li>
+              <li>A real repair shows body height flat, only the planted foot moving, and the distance from hip to that foot shortening as the leg bends. The previous attempt showed the opposite on every one of those.</li>
+              <li>There is also a limit on bones changing length. A leg solver that stretches a bone to reach will be caught by it.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Also today</h3>
+            <ul>
+              <li>A guard now refuses a wasteful request to the project board instead of asking politely for the right parameter. The rule had existed in three places and was still broken twice, including by this system; it is now enforced rather than written down.</li>
+              <li>A separate motion-architecture review package was prepared, checked file by file against its own fingerprints, and its planted test confirmed to fail for the real reason rather than a missing file. It is held one step short of being accepted because it conflicts with a documentation policy here, and resolving that needs a human decision.</li>
+              <li>Nothing in this entry claims the walk is fixed, or says anything about clinical validity or headset readiness.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-13T2300">
         <div class="section-heading">
           <p class="eyebrow">Entry 49 &middot; 2026-09-13 23:00 EDT</p>
