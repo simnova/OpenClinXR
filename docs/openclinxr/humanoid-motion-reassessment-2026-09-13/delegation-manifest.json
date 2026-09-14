@@ -61,12 +61,17 @@
     "flip owner-acceptance clause (7) from the worker session"
   ],
   "independentSemanticReview": {
-    "status": "pending-owner-review",
-    "reviewerName": null,
-    "reviewerSessionId": null,
-    "reviewRecord": null,
-    "reviewedAt": null,
-    "outputSha256": {}
+    "status": "accepted",
+    "reviewerName": "bind-audit",
+    "reviewerSessionId": "01a0a16d-e575-77b3-8d5c-95ad1be694c7",
+    "reviewRecord": "Two rounds, read-only, reviewer session distinct from worker session 27ec8e94-3780-4be4-8933-0ee13ddb9968. ROUND 1 at worker commit 0893ddc9: VERDICT rejected. 26 claims checked claim-by-claim against the files they cite, 20 VERIFIED, 5 source-binding defects. (1) open-decision-cooperation-provenance cited architecture-brief-2026-09-02.md, which contains no provenance-path open decision. (2) open-decision-ik-blend cited harness.html, which only applies blend 1 at :370. (3) ik-blend-vs-target-distance cited the same harness.html, which lacks the slerp/not-percent-of-reach assertion. (4) pass-order-bone-ownership labelled caller.kind=production on apps/ui-xr/src/main.ts bedside approach/stance, a nearby consumer of a different mechanism rather than the claimed support/IK/contact/gaze controller. (5) ENTRYPOINT.md:70-77 presented as current that the shim has exactly two live admin consumers and that repointing them is the cheapest break, when live admin cards already import @openclinxr/factory-stations/catalog. ROUND 2 at worker commit 6fcd2f1e: VERDICT accepted. All five FIXED by repointing or qualifying the citation, none by deleting a row: (1) and (2) and (3) now cite full-design-2026-09-02.md at :209/:328-329, :107-110/:327 and :102-105 respectively, with harness.html recorded as the call site rather than the assertion; (4) caller.kind is now none with evidence stating the claimed controller has no production consumer; (5) live ENTRYPOINT text matches the catalog imports and the historical wording sits in a labelled blockquote at :77-86. REGRESSIONS: none. Reviewer NOT TESTED: sha256 of cited files versus ledger hashes, a planted vitest run, CCDIKSolver.js internals, actor GLB bytes, bake-off PNG pixels, and whether any previously unverified non-defect topic still binds. Full record in BothyBoard comments cmt_5664105f7b327338 on task tsk_7177631409c3d441.",
+    "reviewedAt": "2026-09-14T19:57:22Z",
+    "outputSha256": {
+      "docs/openclinxr/humanoid-motion-ENTRYPOINT.md": "1288fff4c72ff4ca158c31a7757e17999d8bf1f4db006a8b4449b8bef5993802",
+      "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.json": "24a9299910caec6c94b8215a0ab11324d17c3c36781a364101b35631c905e638",
+      "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.md": "9662ae364820190bee5a2a2915deb835dd7cae84fe7f3d7fc6c3ca732660f63b",
+      "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/comparison-proposal.md": "e6be31bc925a0206794b1a6b3cd9fa5a28a6cc87a660b9c6c9d24d573d81b3db"
+    }
   },
   "worker": {
     "sessionId": "27ec8e94-3780-4be4-8933-0ee13ddb9968",
