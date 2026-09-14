@@ -55,6 +55,10 @@ export type StanceLockState = {
   toeHeightMeters: { left: number; right: number };
   /** True when both toes were inside the band: the frame the other foot is NOT pinned. */
   doubleSupport: boolean;
+  /** Previous stance foot for detecting switches and blending. */
+  prevStanceFoot: StanceFoot | null;
+  /** Blend factor for Y correction during stance switches (0 = no correction, 1 = full correction). */
+  yBlend: number;
 };
 
 export function createStanceLockState(): StanceLockState {
@@ -66,6 +70,8 @@ export function createStanceLockState(): StanceLockState {
     correctionMeters: { x: 0, y: 0, z: 0 },
     toeHeightMeters: { left: Number.NaN, right: Number.NaN },
     doubleSupport: false,
+    prevStanceFoot: null,
+    yBlend: 1,
   };
 }
 
@@ -133,29 +139,63 @@ export function applyStanceLockedGroundAdvance(input: {
       correctionMeters: { x: 0, y: 0, z: 0 },
       toeHeightMeters,
       doubleSupport,
+      prevStanceFoot: state.prevStanceFoot,
+      yBlend: state.yBlend,
     };
   }
   const toe = stanceFoot === "left" ? left : right;
   const anchorXz = state.stanceFoot === stanceFoot ? state.anchorWorldXz : null;
   const anchorY = state.stanceFoot === stanceFoot ? state.anchorWorldY : null;
-  if (anchorXz === null || anchorY === null) {
-    // A NEW window: take the anchor where the clip actually put the foot and apply nothing. Forcing
-    // the first frame back to the previous window's anchor would teleport the body a stride.
-    // For Y, we pin to the FLOOR PLANE (floorOriginY), not to where the clip put it, because
-    // the clip may drive the toe below the floor.
+  const isNewWindow = anchorXz === null || anchorY === null;
+
+  // Blend factor for smooth transitions at stance SWITCHES only.
+  // 0 = no correction, 1 = full correction. Ramp up over a few frames.
+  // The FIRST stance window ever gets full correction immediately (no blend).
+  const BLEND_FRAMES = 3;
+  let yBlend = state.yBlend;
+  const isFirstWindow = state.prevStanceFoot === null;
+  const isStanceSwitch = !isFirstWindow && state.prevStanceFoot !== stanceFoot;
+  if (isNewWindow && isStanceSwitch) {
+    // Stance switch: start blend from 0
+    yBlend = 0;
+  } else if (isNewWindow && isFirstWindow) {
+    // First window ever: full correction immediately
+    yBlend = 1;
+  } else if (yBlend < 1) {
+    // Ramp up blend at stance switch
+    yBlend = Math.min(1, yBlend + 1 / BLEND_FRAMES);
+  }
+
+  if (isNewWindow) {
+    // A NEW window: take the anchor where the clip actually put the foot.
+    // For XZ, apply nothing on frame 1 to avoid teleporting the body a stride.
+    // For Y, the plant frame is exactly where a walk clip drives the toe deepest,
+    // so we MUST apply the Y correction on frame 1. The Y target is the floor plane,
+    // not a previous window's anchor, so no teleport occurs.
+    const rawYCorrection = input.floorOriginY - toe.y;
+    const yCorrection = Math.max(0, rawYCorrection);
     return {
       stanceFoot,
       anchorWorldXz: { x: toe.x, z: toe.z },
       anchorWorldY: input.floorOriginY, // Pin Y to the floor plane
       windowFrames: 1,
-      correctionMeters: { x: 0, y: 0, z: 0 },
+      correctionMeters: { x: 0, y: yCorrection, z: 0 },
       toeHeightMeters,
       doubleSupport,
+      prevStanceFoot: stanceFoot,
+      yBlend,
     };
   }
+
+  // ONE-SIDED Y CLAMP: only prevent penetration BELOW the floor plane.
+  // When the toe is ABOVE the plane (heel raise, or toe1-1 joint above sole),
+  // correction would be negative and drag the body DOWN. The contact height is a floor, not a weld.
+  const rawYCorrection = anchorY - toe.y;
+  const yCorrection = Math.max(0, rawYCorrection);
+
   const correctionMeters = {
     x: anchorXz.x - toe.x,
-    y: anchorY - toe.y,
+    y: yCorrection * yBlend, // Apply blended Y correction
     z: anchorXz.z - toe.z,
   };
   actorSlot.position.x += correctionMeters.x;
@@ -170,5 +210,7 @@ export function applyStanceLockedGroundAdvance(input: {
     correctionMeters,
     toeHeightMeters,
     doubleSupport,
+    prevStanceFoot: stanceFoot,
+    yBlend,
   };
 }

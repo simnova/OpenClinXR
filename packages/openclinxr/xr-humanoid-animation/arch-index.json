@@ -36,10 +36,10 @@
   ],
   "tests": [
     "src/an-owned-chain-survives-the-posture-pass.test.ts",
-    "src/floor-penetration/the-walking-foot-stays-above-the-floor.test.ts",
     "src/humanoid-animation.test.ts",
     "src/the-frame-loop-composes-position-x-from-its-base.test.ts",
-    "src/the-locomotion-drive-plays-a-clip.test.ts"
+    "src/the-locomotion-drive-plays-a-clip.test.ts",
+    "src/the-walking-foot-stays-above-the-floor.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/xr-humanoid-animation test",
@@ -51,6 +51,6 @@
     "contexts": {
       "HumanoidAnimationRuntimeContext": 35
     },
-    "testInternalImports": 6
+    "testInternalImports": 5
   }
 }
