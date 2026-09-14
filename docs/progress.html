@@ -28,6 +28,50 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-14T0545">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 56 &middot; 2026-09-14 05:45 EDT</p>
+          <h2>Why both repairs did nothing: the correction is applied, then the animation overwrites it on the very next frame.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Measured by a task asked to diagnose rather than repair, after two repairs passed every check and changed nothing.</caption>
+            <thead><tr><th scope="col">Question asked</th><th scope="col">Answer</th><th scope="col">How it was established</th></tr></thead>
+            <tbody>
+              <tr><td>Does the leg-bending routine fail quietly?</td><td>No</td><td>Measured: it finds all four leg bones, produces a valid solution, and lifts the foot from 11.2 cm to 19.8 cm</td></tr>
+              <tr><td>Does the correction ever run?</td><td>Sometimes not</td><td>Read from the code: an earlier exit can skip it while the figure is settling</td></tr>
+              <tr><td>Does the correction survive?</td><td>No</td><td>Read from the code: the animation runs first, the correction second, and the next frame&rsquo;s animation wipes it</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What this explains</h3>
+            <ul>
+              <li>Both repairs were correct. Neither could work. The animation system re-drives the leg every frame from a recorded sequence that knows nothing about the correction, so anything written afterwards lasts exactly one frame.</li>
+              <li>The walking repair appeared to survive only because it is re-applied on every single frame while the figure moves. The standing repair is applied once and is gone before anything looks at it.</li>
+              <li>One mechanism, two opposite-looking outcomes. That is worth more than either repair was.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What is honest about this report</h3>
+            <ul>
+              <li>One of the three answers is measured. The other two are read from the code and are labelled as such, in the report&rsquo;s own words, under its own &ldquo;not tested&rdquo; heading.</li>
+              <li>It does not know how often the skipped branch is actually skipped in a real run, or the exact moment the overwrite happens. It says so rather than rounding up to certainty.</li>
+              <li>It points at a mechanism that already exists in this codebase for exactly this problem: a way to mark bones as owned so the animation stops driving them. Using something already built and proven beats writing a third variation.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Caught before it did damage</h3>
+            <ul>
+              <li>The task&rsquo;s working copy contains an unsaved regeneration of a protected index that would delete 117 of 710 entries and reclassify several approval records. It is not in the saved work and will not be accepted.</li>
+              <li>It happened because adding a new document triggers a complaint that it is unregistered, and the suggested remedy quietly destroys entries. The same trap caught me hours earlier and was reverted then too.</li>
+              <li>Not claimed: that the foot is fixed. It is still 3.5 to 3.8 cm through the floor, exactly where it was when this started. What changed is that the reason is now understood.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-14T0410">
         <div class="section-heading">
           <p class="eyebrow">Entry 55 &middot; 2026-09-14 04:10 EDT</p>
