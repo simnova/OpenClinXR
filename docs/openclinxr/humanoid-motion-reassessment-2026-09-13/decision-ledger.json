@@ -1,0 +1,384 @@
+{
+  "schemaVersion": "openclinxr.humanoid-motion-decision-ledger.v1",
+  "baselineMain": "dd074568b410d7d34df9e4fdd47db6b7d9fa5f94",
+  "registryPath": "docs/openclinxr/doc-authority-registry-2026-05-27.json",
+  "registrySha256": "7099cfc649999e9d91dad68081dd5ca0e36cb50975d828ed342274e03bed49bb",
+  "authorityNote": "ENTRYPOINT, full design, and superseded brief are archive-candidate / agentInstructionWeight none. Owner may approve factual ENTRYPOINT edits without reclassifying the registry. Full design stays read-only in MR-01.",
+  "inputIdentity": {
+    "actorPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+    "reportActorSha256": "b744d3d5295e2d4840ceae586924727725667cb0260a5b1f3ee68dd2e72e136f",
+    "diskActorSha256": "8409334c30861e07d7bb180b2b8f7e5d48c277bc91c4a5df8f0cb0475869c541",
+    "classification": "identity-stale"
+  },
+  "phaseRelease": {
+    "mr01": "idle_until_owner_plant",
+    "mr02": "blocked_until_owner_after_mr01_review",
+    "mr03": "blocked_until_owner_after_mr02"
+  },
+  "topics": [
+    {
+      "id": "ik-blend-vs-target-distance",
+      "claim": "three.js CCDIKSolver blendFactor slerps joint rotations; it is not percent of reach distance. Reach completion belongs on the target/path quantity.",
+      "class": "math",
+      "status": "retained",
+      "currentSource": {
+        "path": "tools/openclinxr/evidence/motion-backend-bakeoff/harness.html",
+        "sha256": "18bffc2e664c6c361fab3aa5f61d289653e91a4c16b6221e9029d3bd4f821e99"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "CCDIKSolver is imported in the isolated bake-off harness only; apps/ui-xr has no CCDIKSolver import as of dd074568."
+      },
+      "claimScope": "blendFactor meaning in three.js CCDIKSolver used by the harness",
+      "notEvidenceFor": "clinical ROM, a ban on all weighted IK, or production learner-hand IK",
+      "ownerDecision": "Keep solver-blend-1 as an engineering choice for this harness interpretation; do not treat it as a universal prohibition.",
+      "phaseReleaseOwnerGate": "mr01_ledger"
+    },
+    {
+      "id": "expression-vs-cooperation",
+      "claim": "Protective expression magnitude and examiner-demand cooperation are different authored facts.",
+      "class": "authoring",
+      "status": "superseded",
+      "currentSource": {
+        "path": "docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md",
+        "sha256": "38b757624f325aad20a261dbc29a731114636876ba64018b004e90ec0bcd7bf0"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "Superseded brief is a historical clinical-source ledger; no production schema consumer implements its magnitude model."
+      },
+      "claimScope": "rejection of the brief\u2019s magnitude-drives-both model",
+      "notEvidenceFor": "new clinical enums or ROM thresholds",
+      "ownerDecision": "No new clinical vocabulary in MR-01. Qualified authoring remains an owner/clinical review later.",
+      "phaseReleaseOwnerGate": "owner_before_any_schema_card"
+    },
+    {
+      "id": "schema-validation",
+      "claim": "Grouped pattern/on-demand schema does not cover rocking, clutching, and examination responses; each needs its own required parameters. Neither historical schema is approved clinical vocabulary.",
+      "class": "authoring",
+      "status": "superseded",
+      "currentSource": {
+        "path": "docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md",
+        "sha256": "38b757624f325aad20a261dbc29a731114636876ba64018b004e90ec0bcd7bf0"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "No production caller of the rejected onDemand block; do not implement from the brief."
+      },
+      "claimScope": "supersession of the 2026-09-02 brief schema",
+      "notEvidenceFor": "runtime quality of either bake-off arm",
+      "ownerDecision": "Do not revive the superseded schema.",
+      "phaseReleaseOwnerGate": "mr01_ledger"
+    },
+    {
+      "id": "pass-order-bone-ownership",
+      "claim": "Support and body-facing change the effector frame; contact and gaze also write poses. Evaluation order and chain/root authority must be explicit. Pose-then-IK is not a complete runtime spec.",
+      "class": "engineering",
+      "status": "reopened",
+      "currentSource": {
+        "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
+        "sha256": "94b8c4e8a22874e3d0b9d2fed11f6e20c7e786213ea01c194e3d9e704132df91"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "This historical controller proposal is not established by this seed. Current xr-humanoid-animation approach/stance/settling mods DO have ui-xr and asset-registry consumers. Trace actual pass order and bone/root authority; no CCDIK import must not be generalized to no production motion."
+      },
+      "claimScope": "specified pass order in the full design",
+      "notEvidenceFor": "measured production pass order or grasp lifecycle",
+      "ownerDecision": "Do not silently archive or rewrite the full design. Factual ENTRYPOINT links only.",
+      "phaseReleaseOwnerGate": "owner_before_mr02"
+    },
+    {
+      "id": "seated-rest-transfer",
+      "claim": "postprocess-seated-glbs.mjs stamps one frame-1 quaternion onto every key of four leg channels. Held posture restore is not per-frame transfer or seat contact. A constant additive rest can be valid.",
+      "class": "observed",
+      "status": "retained",
+      "currentSource": {
+        "path": "tools/openclinxr/asset-pipeline/makeclothes/postprocess-seated-glbs.mjs",
+        "sha256": "8a58d9e50d55878c36133f9dde9da167875076273c772dcb19e03b309f18c5a1"
+      },
+      "caller": {
+        "kind": "production",
+        "path": "tools/openclinxr/asset-pipeline/makeclothes/seated_clip_bind_stage.py",
+        "evidence": "Factory binding stage invokes the postprocessor at lines 156\u2013164; this is a factory caller, not a UI-XR runtime consumer."
+      },
+      "claimScope": "constant-key seated correction mechanism",
+      "notEvidenceFor": "chair support, clinical sitting quality, or a ban on constant rests",
+      "ownerDecision": "Do not ban constant rests. Suitability needs intended rest/support check in a later comparison, not MR-01.",
+      "phaseReleaseOwnerGate": "owner_before_mr02"
+    },
+    {
+      "id": "rig-capability-identity",
+      "claim": "JSON goals cannot survive topology, proportions, rest frames, joint limits, or geometry changes merely because no GLB was rebaked. Bind actor bytes, rig, rest, limits, harness, descriptor.",
+      "class": "engineering",
+      "status": "retained",
+      "currentSource": {
+        "path": "tools/openclinxr/evidence/motion-backend-bakeoff/report.json",
+        "sha256": "051db578810c4b0378ecdd55b64ba5460e08c468db1f254a6538e0548776b0b7"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "Bake-off report is an evidence artifact, not a production runtime descriptor consumer."
+      },
+      "claimScope": "identity/invalidation rules for comparison inputs",
+      "notEvidenceFor": "today\u2019s visual grade of retained stills",
+      "ownerDecision": "MR-02, if released, must rebind live hashes; no hash-edit repair.",
+      "phaseReleaseOwnerGate": "owner_before_mr02"
+    },
+    {
+      "id": "catalog-transitions",
+      "claim": "Committed clip-deviation instrument shows a small unique-name catalog and many near-static clips. Motion-matching benefit is unproven. Deterministic clip selection plus controlled transitions is the first baseline.",
+      "class": "observed",
+      "status": "retained",
+      "currentSource": {
+        "path": "tools/openclinxr/evidence/humanoid-motion/clip-channel-deviation.ts",
+        "sha256": "5fd095875a14cfa2dd85888e7694c961730ac135d9d7ff0347f24304d2a37be6"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "Inventory instrument and its report; not a runtime matcher. No production motion-matching caller."
+      },
+      "claimScope": "clip name/channel deviation inventory",
+      "notEvidenceFor": "clinical fitness of clips or transition quality in UI-XR",
+      "ownerDecision": "Do not adopt matching databases (LaFAN1 NC/ND) in MR-01.",
+      "phaseReleaseOwnerGate": "owner_before_mr03"
+    },
+    {
+      "id": "package-station-boundary",
+      "claim": "shared-schemas still re-exports factory-stations via a compat shim. Admin FactoryStationCards now import @openclinxr/factory-stations/catalog directly. motion_retarget plan still strings adapter @openclinxr/motion-compiler. Cycle/adapter remain owner package-boundary decisions.",
+      "class": "engineering",
+      "status": "reopened",
+      "currentSource": {
+        "path": "packages/openclinxr/shared-schemas/src/factory-stations.ts",
+        "sha256": "11fa459152e676ed3cb2bc42b349d296e9df745d388a16b3e1531534fc7ecc7c"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "The shared-schemas shim/barrel edge persists; admin FactoryStationCards and its test already import factory-stations/catalog directly. None here means no completed consumer closure in seed, not a proof of no consumer. MR-01 must identify real factory/CLI/admin consumers and dependency edges."
+      },
+      "claimScope": "package graph and station adapter string",
+      "notEvidenceFor": "permission to add factory-stations -> motion-compiler as a JS import",
+      "ownerDecision": "Do not delete the shim or change station topology in MR-01.",
+      "phaseReleaseOwnerGate": "owner_package_boundary"
+    },
+    {
+      "id": "evidence-vs-obsolete-failures",
+      "claim": "Bake-off task landed with report.verdict other: neither arm produced the requested clutch; pulse descriptor had no pulse goal. That is completed-inconclusive, not a current-actor quality grade. ENTRYPOINT current instruction still says nothing is built / run bake-off first. Actor bytes vs report actor digest are classified live in inputIdentity (identity-stale at dd074568; if they later match, classification must follow the live compare).",
+      "class": "observed",
+      "status": "reopened",
+      "currentSource": {
+        "path": "docs/openclinxr/humanoid-motion-ENTRYPOINT.md",
+        "sha256": "4ddcc2e0fc2cda2d186f0406629c9ff910762aaaf4fc3c0ddded1459d037c5ca"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "ENTRYPOINT is documentation. Bake-off landed as tsk_37785faf55d16dc6. Digest test on main compares report vs disk; do not green it by editing hashes."
+      },
+      "claimScope": "factual landed/inconclusive vs stale current instruction",
+      "notEvidenceFor": "today\u2019s clutch/skin quality, a backend winner, or Quest",
+      "ownerDecision": "Approve factual ENTRYPOINT correction without registry reclassification. Independent semantic grade after worker review.",
+      "phaseReleaseOwnerGate": "mr01_plant"
+    },
+    {
+      "id": "physics-touch-fence",
+      "claim": "ui-xr static-assets test enforces physics-touch pre-production fence: no rapier/physics-touch-contract deps. Single select listener is a tap, not grasp lifecycle. Fence is policy.",
+      "class": "policy",
+      "status": "retained",
+      "currentSource": {
+        "path": "apps/ui-xr/src/static-assets.test.ts",
+        "sha256": "5e9a70e32868ec1a975837f9179c32736146b44df073e9acaa9255112bd39047"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "static-assets.test.ts is an engineering/policy guard, not a production interaction consumer. main.ts select listener is not the proposed grasp lifecycle; verify full closure in MR-01."
+      },
+      "claimScope": "runtime dependency fence and input lifecycle absence",
+      "notEvidenceFor": "a card to wire grasp; lifting the fence is an owner decision",
+      "ownerDecision": "Do not lift the fence in MR-01\u2013MR-03 unless separately approved.",
+      "phaseReleaseOwnerGate": "owner_policy"
+    },
+    {
+      "id": "provider-eligibility",
+      "claim": "Holden IK/foot-lock and motion-matching code are MIT; demo/data licenses are separate. LaFAN1 includes NC/ND. GMR/Kimodo/ARDY were not executed on this M1 Max 64GB. First-party repo presence is not full-stack clearance.",
+      "class": "policy",
+      "status": "unknown",
+      "currentSource": {
+        "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
+        "sha256": "94b8c4e8a22874e3d0b9d2fed11f6e20c7e786213ea01c194e3d9e704132df91"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "No in-repo production import of GMR, Kimodo, ARDY, or Holden matcher."
+      },
+      "claimScope": "licence/eligibility screening notes",
+      "notEvidenceFor": "local MPS support, memory-capacity-as-runtime, or adoption",
+      "ownerDecision": "Permissive/non-copyleft across code, deps, weights, data, assets, output required before any provider card.",
+      "phaseReleaseOwnerGate": "owner_before_mr03"
+    },
+    {
+      "id": "open-decision-posture-field",
+      "claim": "Full design lists posture\u2019s canonical field as an open decision a worker may not make.",
+      "class": "engineering",
+      "status": "unknown",
+      "currentSource": {
+        "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
+        "sha256": "94b8c4e8a22874e3d0b9d2fed11f6e20c7e786213ea01c194e3d9e704132df91"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "Open decision in the full design; no production posture-field schema owner chosen."
+      },
+      "claimScope": "unresolved design decision list",
+      "notEvidenceFor": "a default field name",
+      "ownerDecision": "Owner names the field before any authoring schema card.",
+      "phaseReleaseOwnerGate": "owner_open_decisions"
+    },
+    {
+      "id": "open-decision-station-topology",
+      "claim": "Eleventh terminal station vs world_compile consuming motion is undecided; they are different architectures.",
+      "class": "engineering",
+      "status": "unknown",
+      "currentSource": {
+        "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
+        "sha256": "94b8c4e8a22874e3d0b9d2fed11f6e20c7e786213ea01c194e3d9e704132df91"
+      },
+      "caller": {
+        "kind": "production",
+        "path": "packages/openclinxr/factory-stations/src/motion_retarget/run.ts",
+        "evidence": "motion_retarget station exists and strings the compiler adapter; D9 multi-case-runner is a separate hardcoded chain."
+      },
+      "claimScope": "station graph topology",
+      "notEvidenceFor": "implementing either option in MR-01",
+      "ownerDecision": "Owner picks topology before any packing card.",
+      "phaseReleaseOwnerGate": "owner_open_decisions"
+    },
+    {
+      "id": "open-decision-package-adapter",
+      "claim": "Adapter home (CLI/subprocess vs other package) is an open decision. planMotionRetarget currently sets adapter to the string @openclinxr/motion-compiler with processIsolation fresh_subprocess.",
+      "class": "engineering",
+      "status": "unknown",
+      "currentSource": {
+        "path": "packages/openclinxr/factory-stations/src/motion_retarget/run.ts",
+        "sha256": "9209cd6c72a43d53005067ae790e1055f85a8839e201450767e5ba0168838411"
+      },
+      "caller": {
+        "kind": "production",
+        "path": "packages/openclinxr/factory-stations/src/motion_retarget/run.ts",
+        "evidence": "planMotionRetarget writes adapter and stageScript; it does not import motion-compiler as a JS module."
+      },
+      "claimScope": "adapter isolation string vs JS import",
+      "notEvidenceFor": "closing the shared-schemas cycle by adding a back-edge",
+      "ownerDecision": "Owner picks adapter home; MR-01 must not introduce the JS back-edge.",
+      "phaseReleaseOwnerGate": "owner_open_decisions"
+    },
+    {
+      "id": "open-decision-rock-frame",
+      "claim": "Rock amplitude and axis frame are unset engineering choices, not clinical measurements.",
+      "class": "engineering",
+      "status": "unknown",
+      "currentSource": {
+        "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
+        "sha256": "94b8c4e8a22874e3d0b9d2fed11f6e20c7e786213ea01c194e3d9e704132df91"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "Harness pelvis oscillator exists in bake-off evidence only."
+      },
+      "claimScope": "unspecified rock frame/amplitude",
+      "notEvidenceFor": "clinical rocking magnitude",
+      "ownerDecision": "Predeclare engineering limits in MR-02 brief if that phase is released.",
+      "phaseReleaseOwnerGate": "owner_before_mr02"
+    },
+    {
+      "id": "open-decision-cooperation-join",
+      "claim": "Cooperation key join is an open decision. Sample numeric completion limits in consultation notes are not clinical evidence.",
+      "class": "authoring",
+      "status": "unknown",
+      "currentSource": {
+        "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
+        "sha256": "94b8c4e8a22874e3d0b9d2fed11f6e20c7e786213ea01c194e3d9e704132df91"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "No production cooperation-join field."
+      },
+      "claimScope": "unresolved join key",
+      "notEvidenceFor": "maxCompletion 0.35 or any ROM number",
+      "ownerDecision": "No invented clinical thresholds.",
+      "phaseReleaseOwnerGate": "owner_open_decisions"
+    },
+    {
+      "id": "open-decision-ik-blend",
+      "claim": "Whether IK output blends against the pre-IK pose is an open design decision; harness currently documents blend 1.",
+      "class": "engineering",
+      "status": "unknown",
+      "currentSource": {
+        "path": "tools/openclinxr/evidence/motion-backend-bakeoff/harness.html",
+        "sha256": "18bffc2e664c6c361fab3aa5f61d289653e91a4c16b6221e9029d3bd4f821e99"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "Harness-only CCDIK apply path."
+      },
+      "claimScope": "IK vs pre-IK blend policy",
+      "notEvidenceFor": "joint interior-angle clinical limits",
+      "ownerDecision": "Do not encode unsupported joint thresholds in MR-01 tests.",
+      "phaseReleaseOwnerGate": "owner_before_mr02"
+    },
+    {
+      "id": "open-decision-station-schema",
+      "claim": "Station output schema is an open decision.",
+      "class": "engineering",
+      "status": "unknown",
+      "currentSource": {
+        "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
+        "sha256": "94b8c4e8a22874e3d0b9d2fed11f6e20c7e786213ea01c194e3d9e704132df91"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "No packed per-encounter motion station output schema in production."
+      },
+      "claimScope": "unset station output schema",
+      "notEvidenceFor": "authorizing the rest of the ~48-slice pipeline",
+      "ownerDecision": "Do not release the old motion child list from this ledger.",
+      "phaseReleaseOwnerGate": "owner_open_decisions"
+    },
+    {
+      "id": "open-decision-tolerance-authority",
+      "claim": "Threshold and tolerance values are not stated in the full design on purpose; a worker choosing them is the failure mode.",
+      "class": "policy",
+      "status": "unknown",
+      "currentSource": {
+        "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
+        "sha256": "94b8c4e8a22874e3d0b9d2fed11f6e20c7e786213ea01c194e3d9e704132df91"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "Design explicitly withholds numbers."
+      },
+      "claimScope": "who may set engineering tolerances",
+      "notEvidenceFor": "standing-foot thresholds applied to arm contact",
+      "ownerDecision": "Owner/authoring brief sets any MR-02 numbers with provenance; tests here set none.",
+      "phaseReleaseOwnerGate": "owner_before_mr02"
+    },
+    {
+      "id": "open-decision-cooperation-provenance",
+      "claim": "Provenance path for authored cooperation limits is an open decision.",
+      "class": "authoring",
+      "status": "unknown",
+      "currentSource": {
+        "path": "docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md",
+        "sha256": "38b757624f325aad20a261dbc29a731114636876ba64018b004e90ec0bcd7bf0"
+      },
+      "caller": {
+        "kind": "none",
+        "evidence": "Brief remains historical clinical-source ledger only."
+      },
+      "claimScope": "unset provenance path",
+      "notEvidenceFor": "adopting consultation sample limits as clinical evidence",
+      "ownerDecision": "Qualified review required before any cooperation numeric card.",
+      "phaseReleaseOwnerGate": "owner_open_decisions"
+    }
+  ],
+  "seedStatus": "unreviewed-baseline; caller statements require MR-01 closure verification"
+}

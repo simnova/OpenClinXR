@@ -1,0 +1,26 @@
+
+ RUN  v4.1.5 /Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo
+
+ ❯ tools/openclinxr/evidence/motion-architecture-reassessment/ordinary-red-control.test.ts (8 tests | 1 failed) 18ms
+     × (7) OWNER ACCEPTANCE: independent review is accepted and binds final output identities 3ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  22:26:37
+   Duration  156ms (transform 22ms, setup 0ms, import 31ms, tests 18ms, environment 0ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/openclinxr/evidence/motion-architecture-reassessment/ordinary-red-control.test.ts > the entrypoint current state matches landed evidence > (7) OWNER ACCEPTANCE: independent review is accepted and binds final output identities
+TypeError: .toMatch() expects to receive a string, but got object
+ ❯ tools/openclinxr/evidence/motion-architecture-reassessment/ordinary-red-control.test.ts:276:98
+    274|     const review = manifest.independentSemanticReview;
+    275|     const nativeSessionId = /^[A-Za-z0-9][A-Za-z0-9_.:-]{7,199}$/u;
+    276|     expect(manifest.worker?.sessionId, "owner cross-checks actual work…
+       |                                                                                                  ^
+    277|     expect(review?.status, "owner records accepted review after worker…
+    278|     expect(review?.reviewerName?.trim().length, "named independent rev…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

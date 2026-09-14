@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 226
-- keep-evidence: 367
+- keep-evidence: 380
 - keep-template: 6
 
 ## Cleanup Actions
@@ -3205,6 +3205,19 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/humanoid-albedo-bake-2026-09-10.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-basecolorfactor-audit-2026-09-10.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-lowest-vertex-audit-2026-09-10.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/board-manifest.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/board-task-snapshot.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/card-contract.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/card-mr-01.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/delegation-manifest.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/final-accepted-metadata-control-validation.txt` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/final-baseline-validation.txt` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/final-ordinary-negative-control-validation.txt` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/final-pending-review-control-validation.txt` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/final-self-review-rejected-control-validation.txt` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/final-stale-review-binding-control-validation.txt` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-validation-runs.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-postopt-ladder-2026-09-10.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-postopt-ladder-face-preserving-2026-09-11.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-source-bplus-scorecard-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.

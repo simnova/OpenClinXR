@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "openclinxr.humanoid-motion-delegation-manifest.v1",
+  "note": "Do not put this file\u2019s own sha256 inside this file. Hash it from the commit after copy.",
+  "preparationBaseline": {
+    "main": "dd074568b410d7d34df9e4fdd47db6b7d9fa5f94",
+    "boardRevisionWhenInspected": 4676,
+    "openClinXrProjectId": "prj_9b390b99b443a964"
+  },
+  "registry": {
+    "path": "docs/openclinxr/doc-authority-registry-2026-05-27.json",
+    "sha256AtBaseline": "7099cfc649999e9d91dad68081dd5ca0e36cb50975d828ed342274e03bed49bb",
+    "entrypointAuthority": "archive-candidate",
+    "factualEntrypointEditWithoutReclassify": "owner_gate"
+  },
+  "inputsAtBaseline": {
+    "entrypoint": {
+      "path": "docs/openclinxr/humanoid-motion-ENTRYPOINT.md",
+      "sha256": "4ddcc2e0fc2cda2d186f0406629c9ff910762aaaf4fc3c0ddded1459d037c5ca"
+    },
+    "fullDesignReadOnly": {
+      "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
+      "sha256": "94b8c4e8a22874e3d0b9d2fed11f6e20c7e786213ea01c194e3d9e704132df91"
+    },
+    "bakeoffReport": {
+      "path": "tools/openclinxr/evidence/motion-backend-bakeoff/report.json",
+      "sha256": "051db578810c4b0378ecdd55b64ba5460e08c468db1f254a6538e0548776b0b7",
+      "verdictField": "other",
+      "actorAssetSha256": "b744d3d5295e2d4840ceae586924727725667cb0260a5b1f3ee68dd2e72e136f"
+    },
+    "actorGlb": {
+      "path": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+      "sha256": "8409334c30861e07d7bb180b2b8f7e5d48c277bc91c4a5df8f0cb0475869c541"
+    }
+  },
+  "plantedInstrument": {
+    "test": "tools/openclinxr/evidence/motion-architecture-reassessment/the-entrypoint-current-state-matches-landed-evidence.test.ts",
+    "retainedControl": "tools/openclinxr/evidence/motion-architecture-reassessment/fixtures/stale-current-instruction-control.md",
+    "expectedBeforeEntrypointEdit": {
+      "vacuityAndControlAndLedgerShape": "pass",
+      "currentInstructionReds": "expected failures clauses (2)\u2013(3), including explicit registry precedence",
+      "ownerAcceptance": "expected failure clause (7) while independentSemanticReview is pending-owner-review",
+      "counts": "5 ordinary passes plus 3 expected failures; suite exit 0 is not completion"
+    },
+    "run": "pnpm exec vitest run --root . tools/openclinxr/evidence/motion-architecture-reassessment/the-entrypoint-current-state-matches-landed-evidence.test.ts"
+  },
+  "doNot": [
+    "edit report.json or actor hashes to claim capture success",
+    "reclassify doc-authority-registry in MR-01",
+    "write full design",
+    "lift physics-touch fence",
+    "create MR-02/MR-03 cards",
+    "duplicate floor tsk_a775eb9e466328a0 or SC-07 tsk_93b6e2aa66b6c3fa write-roots"
+  ],
+  "independentSemanticReview": {
+    "status": "pending-owner-review",
+    "reviewerName": null,
+    "reviewerSessionId": null,
+    "reviewRecord": null,
+    "reviewedAt": null,
+    "outputSha256": {}
+  },
+  "worker": {
+    "sessionId": null,
+    "taskId": null
+  },
+  "ownerAcceptanceLifecycle": "Worker leaves clause (7) planted and review pending. After worker returns review, owner verifies actual worker session against board and reviewer identity against retained independent session output, conducts independent claim-by-claim review, records accepted output hashes and flips owner clause only then. live plus actual suite must pass before proofs.set; forged labels are not identity proof."
+}

@@ -1,0 +1,9 @@
+
+ RUN  v4.1.5 /Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed | 3 expected fail (8)
+   Start at  22:26:35
+   Duration  165ms (transform 24ms, setup 0ms, import 36ms, tests 22ms, environment 0ms)
+

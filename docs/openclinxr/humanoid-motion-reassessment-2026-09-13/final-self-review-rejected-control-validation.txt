@@ -1,0 +1,26 @@
+
+ RUN  v4.1.5 /Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo
+
+ ❯ tools/openclinxr/evidence/motion-architecture-reassessment/ordinary-red-control.test.ts (8 tests | 1 failed) 20ms
+     × (7) OWNER ACCEPTANCE: independent review is accepted and binds final output identities 5ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  22:26:38
+   Duration  170ms (transform 25ms, setup 0ms, import 37ms, tests 20ms, environment 0ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/openclinxr/evidence/motion-architecture-reassessment/ordinary-red-control.test.ts > the entrypoint current state matches landed evidence > (7) OWNER ACCEPTANCE: independent review is accepted and binds final output identities
+AssertionError: reviewer must differ from actual worker: expected '00000000-0000-4000-8000-000000000001' not to be '00000000-0000-4000-8000-000000000001' // Object.is equality
+ ❯ tools/openclinxr/evidence/motion-architecture-reassessment/ordinary-red-control.test.ts:280:86
+    278|     expect(review?.reviewerName?.trim().length, "named independent rev…
+    279|     expect(review?.reviewerSessionId, "reviewer session identity").toM…
+    280|     expect(review?.reviewerSessionId, "reviewer must differ from actua…
+       |                                                                                      ^
+    281|     expect(review?.reviewRecord?.trim().length, "owner links claim-by-…
+    282|     expect(Number.isFinite(Date.parse(String(review?.reviewedAt))), "r…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
