@@ -4,11 +4,17 @@
 2026-09-02 for a session that has none of the conversation that produced it, possibly on a different
 model.
 
-The doc-authority-registry-2026-05-27.json takes precedence over this ENTRYPOINT's "Read this first" and historical "AUTHORITATIVE" wording.
+The doc-authority-registry-2026-05-27.json takes precedence over this ENTRYPOINT’s “Read this first” and historical “AUTHORITATIVE” wording.
 
 ## The one-line state
 
-A bake-off task (tsk_37785faf55d16dc6) has landed with report.json verdict `other`: neither baked-tracks nor runtime-goals backend produced the requested clutch on the seated MPFB actor. The runtime-goals arm solved the rock-plus-clutch wrist target (residual 0.0000 m) but the pulse-presentation descriptor declares no pulse goal, so it fell back to a twoBoneToward reach. The baked-tracks arm rendered both behaviours intact but neither hand reached the chest. No architecture winner is declared.
+A bake-off task (tsk_37785faf55d16dc6) has landed with report.json verdict `other`: neither baked-tracks nor runtime-goals backend produced the requested clutch on the seated MPFB actor. The runtime-goals arm solved the rock-plus-clutch wrist target (residual 0.0000 m) but the pulse-presentation descriptor declares no pulse goal, so it fell back to a twoBoneToward reach. The baked-tracks arm rendered both behaviours intact but neither hand reached the chest. No architecture winner is declared. The doc-authority-registry-2026-05-27.json takes precedence over this ENTRYPOINT’s “Read this first” and historical “AUTHORITATIVE” wording. Current bindings: `humanoid-motion-reassessment-2026-09-13/decision-ledger`.
+
+Historical 2026-09-02 one-line, retained as qualified history (not live instruction):
+
+> A complete design exists for case-driven humanoid motion, nothing is built, and **the design's own
+> headline says do not build it yet** — run a bake-off first, because roughly 48 slices depend on an
+> architectural choice nobody has measured.
 
 ## What the product needs, in the operator's words
 
@@ -26,16 +32,26 @@ pre-record; per-encounter compiled behaviour for case-specific idiosyncrasy.
 
 | # | file | status |
 |---|---|---|
-| 1 | `humanoid-motion-full-design-2026-09-02.md` | **AUTHORITATIVE.** The design, four review iterations, commit `7608ffb3` |
+| 1 | `humanoid-motion-full-design-2026-09-02.md` | Historical **AUTHORITATIVE** wording. Registry classifies this file archive-candidate with no agent instruction weight. Read-only in MR-01. Four review iterations, commit `7608ffb3`. |
 | 2 | `humanoid-motion-architecture-brief-2026-09-02.md` | **SUPERSEDED** except as the source ledger for clinical anchors. Its schema, its `magnitude` model, its `onDemand` block and its weighted IK alpha were all rejected. Do not implement from it |
 | 3 | `motion-dsl-consumer-path-2026-09-02.md` | Historical. Its "park the compiler" recommendation was overturned when the operator supplied the requirement above |
 | 4 | `blocked-card-unlock-plan-2026-08-31.md` | Unrelated subject, same session. Carries the `planted()` versus `live:` trap that applies to any motion-compiler card |
+| 5 | `humanoid-motion-reassessment-2026-09-13/decision-ledger.md` | Current claim-to-consumer ledger (evidence; not instruction authority). |
 
 ## Do this, in this order
 
-1. Review `humanoid-motion-reassessment-2026-09-13/decision-ledger` for current source bindings and open owner decisions. The ledger maps every consequential claim to live code, production consumers (or explicitly none), and phase-release gates.
+The doc-authority-registry-2026-05-27.json takes precedence over this ENTRYPOINT’s “Read this first” and historical “AUTHORITATIVE” wording.
+
+1. Review `humanoid-motion-reassessment-2026-09-13/decision-ledger` for current source bindings and open owner decisions. The ledger maps every consequential claim to live code, production consumers (or explicitly none), and phase-release gates. Cite live report.json verdict `other`: landed, inconclusive, no backend winner.
 2. Settle the nine open decisions listed in the ledger (ids: open-decision-*). A worker may not make them.
-3. If MR-02 is released by the owner after review, run the conditional per-job comparison on the current MPFB actor with real behaviour/goal definitions and valid seat/rest/support.
+3. Do not create MR-02 unless the owner releases it after independent review of this ledger and the comparison proposal. A missing pulse goal, identity-stale actor, or unresolved posture/schema/contact/tolerance authority is not a fair experiment.
+
+Historical 2026-09-02 execution order, retained as qualified history (not live order):
+
+> 1. **Run the bake-off.** Board card below. Baked tracks versus a deterministic runtime-goal backend,
+>    on one seated MPFB actor, on rock-plus-clutch and pulse presentation. A negative result closes it.
+> 2. **Settle the nine open decisions** listed at the end of the design. A worker may not make them.
+> 3. **Then card A**, factory to final GLB to Model Vetting, per the design's Execution section.
 
 ## Five measurements that will change your design if you forget them
 

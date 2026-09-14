@@ -21,6 +21,14 @@ import { describe, expect, it } from "vitest";
  * pretend capture is current.
  *
  * live: is valid here (raw it.fails, not motion-compiler planted()).
+ *
+ * ## FIXED (MR-01 / tsk_7177631409c3d441)
+ * (2) Current one-line cites landed bake-off verdict `other` and no longer presents
+ *     “nothing is built” as live instruction. Historical stale one-line is a blockquote.
+ * (3) Current execution order cites the reassessment ledger, live report verdict `other`,
+ *     and the required registry-precedence sentence. It no longer says run the bake-off
+ *     first as if it had not landed. Historical bake-off-first order is a blockquote.
+ * (7) LEFT PLANTED. Owner acceptance gate; worker must not self-certify.
  */
 
 const REPO = join(import.meta.dirname, "../../../..");
@@ -165,7 +173,7 @@ describe("the entrypoint current state matches landed evidence", () => {
     ).toBe(true);
   });
 
-  it.fails("(2) RED: ENTRYPOINT current one-line is not the unsupported “nothing is built” instruction", () => {
+  it("(2) RED: ENTRYPOINT current one-line is not the unsupported “nothing is built” instruction", () => {
     const md = read(ENTRYPOINT);
     const oneLine = currentProse(section(md, "The one-line state"));
     expect(oneLine.length, "ENTRYPOINT missing ## The one-line state").toBeGreaterThan(20);
@@ -175,7 +183,7 @@ describe("the entrypoint current state matches landed evidence", () => {
     ).toBe(false);
   });
 
-  it.fails("(3) RED: ENTRYPOINT current order is not “run the bake-off first”; it cites live report verdict and the ledger", () => {
+  it("(3) RED: ENTRYPOINT current order is not “run the bake-off first”; it cites live report verdict and the ledger", () => {
     const md = read(ENTRYPOINT);
     const doThis = currentProse(section(md, "Do this, in this order"));
     const oneLine = currentProse(section(md, "The one-line state"));
