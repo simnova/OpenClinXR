@@ -52,20 +52,40 @@ describe("the worker brief carries the board protocol", () => {
     expect(result.prompt).toContain("bothy-board_sessions_bind");
   });
 
-  it("says the tool names are literal, which cost the first worker four of its five calls", () => {
-    // MEASURED 2026-09-14 on tsk_7177631409c3d441 (session 27ec8e94), the first worker ever to call
-    // the board here. Its five calls, in order:
-    //   bothy-board__bothy_board_sessions_bind   x2   invented
-    //   bothy-board__bothy-board_sessions_bind   x2   invented
-    //   bothy-board_sessions_bind                 1   registered — allowed: true, bound to the card
-    // The block listed the names but never said they were literal, so it guessed a prefix first.
+  it("gives the registered tool names literally, without inventing a cost for guessing them", () => {
+    // CORRECTED 2026-09-14, same day. This clause previously asserted that the first worker "spent
+    // FOUR of its five calls inventing prefixed variants" and that "those four turns bought
+    // nothing", and board-brief.ts shipped that sentence to every dispatched worker. IT WAS FALSE,
+    // and it was false because of how I counted rather than what happened.
+    //
+    // The session log emits SEVERAL events per tool call (tool_call, tool_call_update, ...), each
+    // carrying the tool name, so a grep over tool_name double- and triple-counts. Recounting by
+    // DISTINCT toolCallId across every worker that touched the board that day:
+    //
+    //   session    distinctCalls  carriedBothNames  onlyDoubledPrefix  statuses
+    //   2c870428        12              12                  0          12 completed
+    //   27ec8e94        19              18                  1          17 completed, 1 failed
+    //   4f214c20        10              10                  0          10 completed
+    //
+    // 41 distinct board calls, ONE failure. Every other call carries BOTH the `<server>__`-prefixed
+    // name the model emitted and the registered name, because the harness resolves the prefixed
+    // form transparently. So guessing a prefix costs nothing, no turns were wasted, and the premise
+    // behind the deleted sentence never existed.
+    //
+    // What survives is the plain instruction: the names below are the registered ones, copy them as
+    // written. That is harmless and correct on its own, and needs no invented measurement to justify
+    // it. A fabricated number in a prompt every worker reads is worse than no number.
     const result = briefFromIssue(card("tsk_4c0f66ebb0453372"));
     if (!result.dispatchable) throw new Error("expected dispatchable brief");
     expect(result.prompt).toMatch(/LITERAL/u);
     expect(result.prompt).toMatch(/no added prefix/iu);
-    // COUNTERWEIGHT: the block must never MODEL the malformed shape it warns against. Quoting the
-    // invented names as examples would teach the next reader the exact thing that wasted four turns.
+    // COUNTERWEIGHT, and it still holds for a different reason: the block must not MODEL the
+    // doubled shape. Not because it is costly — it is not — but because quoting a malformed
+    // example teaches it, and the prompt should carry only names that are correct as written.
     expect(result.prompt).not.toContain("bothy-board__");
+    // The deleted claim must not come back: no turn-cost assertion about prefix guessing.
+    expect(result.prompt).not.toMatch(/bought nothing/iu);
+    expect(result.prompt).not.toMatch(/of its five calls/iu);
   });
 
   it("instructs the four calls a worker needs to stay steerable and alive", () => {
