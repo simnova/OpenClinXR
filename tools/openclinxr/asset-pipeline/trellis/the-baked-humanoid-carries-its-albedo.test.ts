@@ -63,7 +63,49 @@ function baseColorTextureBytes(json: Record<string, unknown>, bin: Buffer, mater
   return bin.subarray(off, off + (bv["byteLength"] as number));
 }
 
-type PngScan = { w: number; h: number; chans: number; raw: Buffer };
+function baseColorTextureMimeType(json: Record<string, unknown>, materialName: string): string {
+  const materials = (json["materials"] as Array<Record<string, unknown>> | undefined) ?? [];
+  const mat = materials.find((m) => m["name"] === materialName);
+  if (!mat) throw new Error(`material ${materialName} not found`);
+  const pbr = mat["pbrMetallicRoughness"] as Record<string, unknown>;
+  const texRef = pbr["baseColorTexture"] as Record<string, unknown>;
+  const textures = json["textures"] as Array<Record<string, unknown>>;
+  const images = json["images"] as Array<Record<string, unknown>>;
+  const img = images[(textures[texRef["index"] as number] as Record<string, unknown>)["source"] as number] as Record<string, unknown>;
+  return String(img["mimeType"] ?? "");
+}
+
+/** JPEG integrity: SOI present, EOI present, and a SOF segment with non-zero dimensions. */
+function assertJpegIntegrity(bytes: Buffer, materialName: string): { w: number; h: number } {
+  if (bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8) {
+    throw new Error(`${materialName}: not a JPEG (missing SOI)`);
+  }
+  if (bytes[bytes.length - 2] !== 0xff || bytes[bytes.length - 1] !== 0xd9) {
+    throw new Error(`${materialName}: JPEG truncated (missing EOI)`);
+  }
+  let off = 2;
+  while (off + 4 <= bytes.length) {
+    if (bytes[off] !== 0xff) throw new Error(`${materialName}: JPEG marker sync lost at offset ${off}`);
+    const marker = bytes[off + 1]!;
+    if (marker === 0xd9) break;
+    if (marker === 0xd8 || (marker >= 0xd0 && marker <= 0xd7) || marker === 0x01) {
+      off += 2;
+      continue;
+    }
+    const segLen = bytes.readUInt16BE(off + 2);
+    if (segLen < 2 || off + 2 + segLen > bytes.length) {
+      throw new Error(`${materialName}: JPEG segment 0x${marker.toString(16)} overruns the buffer`);
+    }
+    if (marker === 0xc0 || marker === 0xc1 || marker === 0xc2) {
+      const h = bytes.readUInt16BE(off + 5);
+      const w = bytes.readUInt16BE(off + 7);
+      if (w === 0 || h === 0) throw new Error(`${materialName}: JPEG SOF has zero dimensions`);
+      return { w, h };
+    }
+    off += 2 + segLen;
+  }
+  throw new Error(`${materialName}: JPEG carries no SOF segment with dimensions`);
+}
 
 function inflatePng(bytes: Buffer): PngScan {
   if (bytes.length < 8 || bytes[0] !== 0x89 || bytes[1] !== 0x50) throw new Error("not a PNG");
@@ -207,7 +249,8 @@ describe("the baked humanoid carries its albedo", () => {
   });
 
   it("every PNG baseColorTexture in every baked GLB carries valid CRCs and inflates to its declared size", () => {
-    let checked = 0;
+    let checkedPng = 0;
+    let checkedJpeg = 0;
     for (const row of report.bodies) {
       const { json, bytes } = readGlbJson(path.join(HUMANOIDS, row.body));
       const bin = binSlice(bytes, json);
@@ -215,11 +258,21 @@ describe("the baked humanoid carries its albedo", () => {
       for (const mat of materials) {
         const pbr = mat["pbrMetallicRoughness"] as Record<string, unknown> | undefined;
         if (pbr?.["baseColorTexture"] === undefined) continue;
+        // The 2803b774 tightjeans postopt ships a valid image/jpeg for
+        // mat_makeclothes_library_female_tight_jeans_pants; it is not a PNG and
+        // must not reach inflatePng. Its integrity is asserted separately (SOI +
+        // EOI + SOF dimensions), never by deletion.
+        if (baseColorTextureMimeType(json, mat["name"] as string) === "image/jpeg") {
+          assertJpegIntegrity(baseColorTextureBytes(json, bin, mat["name"] as string), mat["name"] as string);
+          checkedJpeg += 1;
+          continue;
+        }
         inflatePng(baseColorTextureBytes(json, bin, mat["name"] as string));
-        checked += 1;
+        checkedPng += 1;
       }
     }
-    expect(checked).toBeGreaterThan(0);
+    expect(checkedPng).toBeGreaterThan(0);
+    expect(checkedJpeg).toBeGreaterThan(0);
   });
 
   it("each sampled texel in the shipped texture equals round(before x factor) within 1", () => {

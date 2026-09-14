@@ -13,7 +13,7 @@
       "reason": "Owned by another agent's street-clothing card (tsk_2a6935fb4eb63f95); not baked on this card."
     }
   ],
-  "texelBudgetTotal": 41943040,
+  "texelBudgetTotal": 37748736,
   "bodies": [
     {
       "body": "mpfb-clinical-nurse-adult.glb",
@@ -21,8 +21,8 @@
       "meshCountAfter": 10,
       "nodeCountBefore": 148,
       "nodeCountAfter": 148,
-      "byteLengthBefore": 11112244,
-      "byteLengthAfter": 8833188,
+      "byteLengthBefore": 8396376,
+      "byteLengthAfter": 8396376,
       "materials": [
         {
           "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
@@ -45,471 +45,22 @@
         },
         {
           "material": "mat_makeclothes_library_scrub_shirt",
-          "decision": "baked: per-texel texture x factor folded into the texture, factor reset to white",
-          "sourceResolution": "2048x2048",
-          "bakedResolution": "2048x2048",
-          "ladderRungId": "bake-resolution-ladder.res2048",
-          "texelBudget": 4194304,
+          "decision": "skipped: untextured role colour [0.05,0.48,0.52] is the albedo — no texture to fold (HB-07 handback: cache PNG truncated, no IEND; re-measured 2026-09-14 tsk_2cdb306c4e7069af)",
+          "sourceResolution": "n/a",
+          "bakedResolution": "n/a",
+          "ladderRungId": "n/a",
+          "texelBudget": 0,
           "factorBefore": [
             0.05,
             0.48,
             0.52
           ],
           "factorAfter": [
-            1,
-            1,
-            1
+            0.05,
+            0.48,
+            0.52
           ],
-          "samples": [
-            {
-              "x": 7,
-              "y": 13,
-              "before": [
-                161,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 408,
-              "y": 746,
-              "before": [
-                170,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 809,
-              "y": 1479,
-              "before": [
-                173,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1210,
-              "y": 164,
-              "before": [
-                168,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1611,
-              "y": 897,
-              "before": [
-                181,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 2012,
-              "y": 1630,
-              "before": [
-                164,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 365,
-              "y": 315,
-              "before": [
-                175,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 766,
-              "y": 1048,
-              "before": [
-                179,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1167,
-              "y": 1781,
-              "before": [
-                177,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1568,
-              "y": 466,
-              "before": [
-                170,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1969,
-              "y": 1199,
-              "before": [
-                172,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 322,
-              "y": 1932,
-              "before": [
-                175,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 723,
-              "y": 617,
-              "before": [
-                173,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1124,
-              "y": 1350,
-              "before": [
-                177,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1525,
-              "y": 35,
-              "before": [
-                168,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1926,
-              "y": 768,
-              "before": [
-                188,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 279,
-              "y": 1501,
-              "before": [
-                168,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 680,
-              "y": 186,
-              "before": [
-                170,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1081,
-              "y": 919,
-              "before": [
-                177,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1482,
-              "y": 1652,
-              "before": [
-                170,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1883,
-              "y": 337,
-              "before": [
-                173,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 236,
-              "y": 1070,
-              "before": [
-                177,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 637,
-              "y": 1803,
-              "before": [
-                177,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1038,
-              "y": 488,
-              "before": [
-                170,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1439,
-              "y": 1221,
-              "before": [
-                173,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1840,
-              "y": 1954,
-              "before": [
-                166,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 193,
-              "y": 639,
-              "before": [
-                177,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 594,
-              "y": 1372,
-              "before": [
-                172,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 995,
-              "y": 57,
-              "before": [
-                179,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1396,
-              "y": 790,
-              "before": [
-                175,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 1797,
-              "y": 1523,
-              "before": [
-                173,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            },
-            {
-              "x": 150,
-              "y": 208,
-              "before": [
-                168,
-                255,
-                255
-              ],
-              "factor": [
-                0.05,
-                0.48,
-                0.52
-              ]
-            }
-          ]
+          "samples": []
         },
         {
           "material": "mpfb_skin_ed_chest_pain_nurse_adult",
@@ -1093,9 +644,28 @@
       "meshCountAfter": 10,
       "nodeCountBefore": 148,
       "nodeCountAfter": 148,
-      "byteLengthBefore": 8411080,
-      "byteLengthAfter": 8151256,
+      "byteLengthBefore": 10409540,
+      "byteLengthAfter": 10149716,
       "materials": [
+        {
+          "material": "mat_makeclothes_library_bootcut_jeans_pants",
+          "decision": "skipped: factor already white, texture carries the look",
+          "sourceResolution": "1024x1024",
+          "bakedResolution": "1024x1024",
+          "ladderRungId": "n/a",
+          "texelBudget": 0,
+          "factorBefore": [
+            1,
+            1,
+            1
+          ],
+          "factorAfter": [
+            1,
+            1,
+            1
+          ],
+          "samples": []
+        },
         {
           "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
           "decision": "skipped: factor already white, texture carries the look",
@@ -2701,9 +2271,28 @@
       "meshCountAfter": 10,
       "nodeCountBefore": 148,
       "nodeCountAfter": 148,
-      "byteLengthBefore": 11941468,
-      "byteLengthAfter": 11677568,
+      "byteLengthBefore": 9952284,
+      "byteLengthAfter": 9688376,
       "materials": [
+        {
+          "material": "mat_makeclothes_library_female_tight_jeans_pants",
+          "decision": "skipped: factor already white, texture carries the look",
+          "sourceResolution": "n/a",
+          "bakedResolution": "n/a",
+          "ladderRungId": "n/a",
+          "texelBudget": 0,
+          "factorBefore": [
+            1,
+            1,
+            1
+          ],
+          "factorAfter": [
+            1,
+            1,
+            1
+          ],
+          "samples": []
+        },
         {
           "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
           "decision": "skipped: factor already white, texture carries the look",
@@ -3192,7 +2781,7 @@
           ]
         },
         {
-          "material": "mpfb_skin_ob_patient_aisha",
+          "material": "mpfb_skin_ob_patient_aisha_v1",
           "decision": "skipped: factor already white, texture carries the look",
           "sourceResolution": "1024x1024",
           "bakedResolution": "1024x1024",
@@ -3211,7 +2800,7 @@
           "samples": []
         },
         {
-          "material": "mat_makeclothes_library_eyes_ob_patient_aisha",
+          "material": "mat_makeclothes_library_eyes_ob_patient_aisha_v1",
           "decision": "skipped: factor already white, texture carries the look",
           "sourceResolution": "1024x1024",
           "bakedResolution": "1024x1024",
@@ -3773,9 +3362,28 @@
       "meshCountAfter": 10,
       "nodeCountBefore": 148,
       "nodeCountAfter": 148,
-      "byteLengthBefore": 12116932,
-      "byteLengthAfter": 11857108,
+      "byteLengthBefore": 10003808,
+      "byteLengthAfter": 9743976,
       "materials": [
+        {
+          "material": "mat_makeclothes_library_female_tight_jeans_pants",
+          "decision": "skipped: factor already white, texture carries the look",
+          "sourceResolution": "n/a",
+          "bakedResolution": "n/a",
+          "ladderRungId": "n/a",
+          "texelBudget": 0,
+          "factorBefore": [
+            1,
+            1,
+            1
+          ],
+          "factorAfter": [
+            1,
+            1,
+            1
+          ],
+          "samples": []
+        },
         {
           "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
           "decision": "skipped: factor already white, texture carries the look",
@@ -4264,7 +3872,7 @@
           ]
         },
         {
-          "material": "mpfb_skin_peds_anxious_parent",
+          "material": "mpfb_skin_parent_tara_johnson_v1",
           "decision": "skipped: factor already white, texture carries the look",
           "sourceResolution": "1024x1024",
           "bakedResolution": "1024x1024",
@@ -4283,7 +3891,7 @@
           "samples": []
         },
         {
-          "material": "mat_makeclothes_library_eyes_peds_anxious_parent",
+          "material": "mat_makeclothes_library_eyes_parent_tara_johnson_v1",
           "decision": "skipped: factor already white, texture carries the look",
           "sourceResolution": "1024x1024",
           "bakedResolution": "1024x1024",
