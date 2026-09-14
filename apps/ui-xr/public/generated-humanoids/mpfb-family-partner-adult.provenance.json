@@ -61,8 +61,8 @@
   "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
   "promotionGates": false,
   "generatedAt": "2026-09-12T16:29:00Z",
-  "outputSha256": "11276ac2d0d895cfc3f9ccd9f11d6735e782107b9c2f66167da70090fe52463d",
-  "outputBytes": 10409540,
+  "outputSha256": "ef2a4c0794d470fd649a18bf374f11778877693956b6cb0f12b7209a31ca6eb2",
+  "outputBytes": 10149716,
   "byteLineage": {
     "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
     "correctedAt": "2026-09-09T20:55:55.787Z",
@@ -88,8 +88,8 @@
     "reproduction": "byte-identical to the shipped file",
     "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte."
   },
-  "albedoBakeWrittenAt": "2026-09-11T05:16:52.377Z",
-  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+  "albedoBakeWrittenAt": "2026-09-14T22:26:38.349Z",
+  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. 2026-09-14 tsk_2cdb306c4e7069af: targeted rebake through the producer-path station (bakeProducedHumanoidAlbedo on the shipped bytes, no re-fit): toigo t-shirt factor folded into its 2048x2048 texture and reset to white. Geometry, rig and animations unchanged; outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
   "licenceNoticeWrittenAt": "2026-09-12T15:02:16.049Z",
   "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here."
 }

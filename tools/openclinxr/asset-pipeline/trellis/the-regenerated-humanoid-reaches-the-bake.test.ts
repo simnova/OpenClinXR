@@ -1,4 +1,5 @@
-import { copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -165,9 +166,18 @@ describe("the regenerated humanoid reaches the bake", () => {
    * after destDisk is finished (footwear + hair), before sha256/catalog stamp.
    * Import closure now includes bake-humanoid-albedo.ts. Not a composite pnpm script:
    * a second command is what humans forget, which is the defect.
+   *
+   * ## FIXED (tsk_2cdb306c4e7069af)
+   * The three measured bodies are baked: mpfb-family-partner-adult.glb,
+   * mpfb-peds-parent-aisha.glb and mpfb-ob-patient-aisha.glb each ran through
+   * the producer-path station (bakeProducedHumanoidAlbedo on the shipped bytes),
+   * and their toigo t-shirt factors now read [1,1,1] with the colour folded into
+   * the 2048x2048 texture. Clause (2) is re-pointed at the new evidence: it
+   * asserts the three bodies are baked (zero textured non-white materials) and
+   * the station entry point is still whole.
    */
 
-  it("(2) COUNTERWEIGHT: the three measured bodies are still unbaked, and the station is still whole", () => {
+  it("(2) COUNTERWEIGHT: the three measured bodies are baked, and the station is still whole", () => {
     // This passes TODAY and states what must remain true of the FIX. It exists so clause (1) cannot
     // be satisfied destructively: deleting the station, gutting bakeGlbAlbedo, or deleting the three
     // bodies would each make a naive wiring assertion pass while destroying the capability.
@@ -179,23 +189,42 @@ describe("the regenerated humanoid reaches the bake", () => {
     for (const body of UNBAKED_BODIES) totalNonWhite += texturedNonWhite(path.join(HUMANOIDS, body));
     expect(
       totalNonWhite,
-      "the three measured bodies no longer carry non-white textured factors. If a real bake fixed " +
-        "them, flip clause (1), append ## FIXED and re-point this clause at the new evidence.",
-    ).toBeGreaterThan(0);
+      "the three measured bodies carry non-white textured factors again — the 2026-09-12 " +
+        "overwrite has recurred, or a re-fit shipped without the producer-path bake.",
+    ).toBe(0);
+    for (const body of UNBAKED_BODIES) {
+      expect(
+        namedTexturedFactor(path.join(HUMANOIDS, body), SHIRT),
+        `${body} ${SHIRT} should carry a white factor after the tsk_2cdb306c4e7069af bake`,
+      ).toEqual([1, 1, 1]);
+    }
   });
 
-  it("(3) COUNTERWEIGHT RUNS: producer-path bake on a copy of family-partner whites the t-shirt factor", () => {
+  it("(3) COUNTERWEIGHT RUNS: the station still bakes a non-white t-shirt factor to white on a copy", () => {
+    // Re-pointed by tsk_2cdb306c4e7069af: family-partner is baked now, so the run-proof
+    // restores the pre-fix bytes into a temp copy and bakes the COPY. The shipped body
+    // is never dirtied; the station entry point and the fold are still exercised on
+    // every run.
+    // The pre-fix bytes come from main at 92faf9b8, pinned explicitly. HEAD is the
+    // wrong source: the tsk_2cdb306c4e7069af rebake landed there, so HEAD now holds
+    // baked bytes and the vacuity guard below would fire on a copy with nothing to
+    // fold. A later rebake must not break this clause again, hence the pinned commit.
+    const PRE_FIX_COMMIT = "92faf9b8";
     const src = path.join(HUMANOIDS, COUNTERWEIGHT_BODY);
-    const before = namedTexturedFactor(src, SHIRT);
-    expect(before, `${COUNTERWEIGHT_BODY} ${SHIRT} has no textured factor`).toBeDefined();
-    expect(
-      texturedNonWhite(src),
-      `${COUNTERWEIGHT_BODY} has zero textured non-white materials — would pass on an untextured body`,
-    ).toBeGreaterThan(0);
     const tmp = mkdtempSync(path.join(os.tmpdir(), "openclinxr-bake-caller-"));
     const dest = path.join(tmp, COUNTERWEIGHT_BODY);
     try {
-      copyFileSync(src, dest);
+      const preFix = execFileSync("git", ["show", `${PRE_FIX_COMMIT}:${path.relative(REPO, src)}`], {
+        cwd: REPO,
+        maxBuffer: 64 * 1024 * 1024,
+      });
+      writeFileSync(dest, preFix);
+      const before = namedTexturedFactor(dest, SHIRT);
+      expect(before, `${COUNTERWEIGHT_BODY} ${SHIRT} has no textured factor`).toBeDefined();
+      expect(
+        texturedNonWhite(dest),
+        `${COUNTERWEIGHT_BODY} pre-fix copy has zero textured non-white materials — would pass on an untextured body`,
+      ).toBeGreaterThan(0);
       const row = bakeProducedHumanoidAlbedo(dest);
       const after = namedTexturedFactor(dest, SHIRT);
       const bakedShirt = row.materials.find((m) => m.material === SHIRT);
