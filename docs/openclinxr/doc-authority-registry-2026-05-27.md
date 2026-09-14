@@ -399,3 +399,4 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/evidence/scene-closure/proofs/sc-05/terminal-turn-foot-lock-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
 - `docs/openclinxr/humanoid-motion-clip-deviation-2026-09-12.md` - evidence; treat-as-evidence; Committed clip-channel-deviation instrument BEFORE/AFTER tables for CC0 seated retarget expansion.
 - `docs/openclinxr/humanoid-motion-seated-pose-restored-2026-09-12.md` - evidence; treat-as-evidence; Seated pose restored: post-retarget fcurve copy + GLB post-processor q_rest@q_source_global for ~87 deg hip flexion.
+- `tools/openclinxr/evidence/settled-posture-diagnosis/settled-correction-execution-report.md` - evidence; treat-as-evidence; Evidence or gate artifact; measurement of why the settled-posture correction has no runtime effect.
