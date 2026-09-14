@@ -28,6 +28,56 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-14T1630">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 63 &middot; 2026-09-14 16:30 EDT</p>
+          <h2>An independent check rejected work that had already passed every automated test, and both pieces are now accepted.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Two pieces of work finished and accepted into the main copy. The automated proofs are written in advance and re-run by me rather than taken from the assistant's report; the independent check is a second assistant with no part in the work, told that rejecting counts as success.</caption>
+            <thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead>
+            <tbody>
+              <tr><td>Required automated proofs, re-run against the main copy</td><td>all passed</td></tr>
+              <tr><td>Files changed outside the permitted area</td><td>none</td></tr>
+              <tr><td>Claims examined by the independent check</td><td>26</td></tr>
+              <tr><td>Claims citing a document that does not contain them</td><td>5 &mdash; the basis of the rejection</td></tr>
+              <tr><td>Publication checks run before the main copy moved</td><td>14, all passed</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What the automated checks could not see</h3>
+            <ul>
+              <li>The first task brought a set of stale engineering notes back in line with what the code actually does. Every mechanical requirement was met, and I re-ran them myself rather than trusting the report.</li>
+              <li>The independent check read the cited sources instead. Five statements pointed at a document that does not say what the statement claims &mdash; three of them naming the file where a piece of code is used rather than the file where the decision was recorded.</li>
+              <li>A sixth was sharper: one passage still told readers that two screens needed repointing at a new source. They already had been. That is the exact kind of out-of-date instruction the task existed to remove, sitting a few lines below the part it had just corrected.</li>
+              <li>All six were fixed by correcting the citation, never by deleting the claim. A second independent pass then accepted the corrected version, and only after that did I record the acceptance and release the final gate.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The merge broke the main copy, and the gate refused to publish it</h3>
+            <ul>
+              <li>The second task makes planned movement compile into a file the viewer can actually play, and plays it. It passed everything in its own working copy.</li>
+              <li>Combined into the main copy it failed, for two reasons that had nothing to do with the code: a newly added internal dependency had never been installed there, and one compiled package on the main copy was three days old. The publication check caught it and refused. Nothing broken was published.</li>
+              <li>Both cleared by an install and a rebuild. The underlying weakness is now recorded: the proofs as written skip the step that rebuilds what they depend on, so they can pass on one machine and fail on another with identical code.</li>
+              <li>I also reported that refused publication as successful, because I read the exit status of the wrong command in a chain. Corrected, and written into my standing notes.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Two finished pieces of work now contradict each other</h3>
+            <ul>
+              <li>This morning's tidy-up closed by ruling that a component may share only names that have been individually reviewed. The movement work needs six new ones so the rest of the system can use it.</li>
+              <li>The shortcut would be to add the six to the approved list myself. That list is fingerprinted precisely to detect it, and the note in the code says so outright: a task cannot satisfy its own review by editing the approval. I did not, and I told the assistant not to either.</li>
+              <li>It is now written up as its own piece of work, with a requirement to prove both halves: that a forged approval is still refused, and that an honest new one is accepted. Held back until the free assistants are available again rather than spending on the expensive one for a report.</li>
+              <li>Two corrections of mine: I described an assistant as having invented names it imported, when the records show those names were real and deliberately withdrawn; and I said five names needed approval when six do, because the tool that lists them stops after five.</li>
+              <li>Not claimed: clinical validity, scoring, or headset readiness. None of today's work touches those.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-14T1530">
         <div class="section-heading">
           <p class="eyebrow">Entry 62 &middot; 2026-09-14 15:30 EDT</p>
