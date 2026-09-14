@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { evaluateAcceptance } from "../../checks/public-surface/acceptance-criteria.js";
-import { measureSurface, workspaceRoot } from "../../checks/public-surface/resolve.js";
+import { workspaceRoot } from "../../checks/public-surface/resolve.js";
 
 /**
  * Commit-time gate: the reviewed surface (psr-01d and psr-01e) must hold at commit time.
