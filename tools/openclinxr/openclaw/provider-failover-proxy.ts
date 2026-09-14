@@ -198,18 +198,71 @@ export function goResponsesToChat(raw: unknown, model: string): Record<string, u
   };
 }
 
+/**
+ * True when the response body carries Server-Sent Events rather than one JSON document.
+ * Judged from the upstream content-type, not from the request flag, so a client that
+ * asked for a stream and a client that did not both get a correct verdict.
+ */
+function isSseResponse(res: Response): boolean {
+  return (res.headers.get("content-type") ?? "").includes("text/event-stream");
+}
+
+/** Accumulates content deltas (and message content) across one completed event stream. */
+export function accumulateStreamContent(text: string): string {
+  let acc = "";
+  for (const line of text.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("data:")) continue;
+    const data = trimmed.slice(5).trim();
+    if (data === "" || data === "[DONE]") continue;
+    let evt: unknown;
+    try {
+      evt = JSON.parse(data) as unknown;
+    } catch {
+      continue;
+    }
+    const choices = (evt as { choices?: Array<unknown> })?.choices;
+    if (!Array.isArray(choices)) continue;
+    for (const c of choices) {
+      const choice = c as { delta?: { content?: unknown }; message?: { content?: unknown } };
+      const delta = choice?.delta?.content;
+      if (typeof delta === "string") acc += delta;
+      const message = choice?.message?.content;
+      if (typeof message === "string") acc += message;
+    }
+  }
+  return acc;
+}
+
+/** Renders one whole completion as an event stream for a client that asked for streaming. */
+function sseFromContent(content: string): string {
+  const chunk = (delta: unknown): string =>
+    `data: ${JSON.stringify({ id: "failover-stream", object: "chat.completion.chunk", choices: [{ index: 0, delta }] })}\n\n`;
+  return `${chunk({ role: "assistant" })}${chunk({ content })}data: [DONE]\n\n`;
+}
+
 export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
+
+export type ForwardResult = {
+  status: number;
+  json: unknown;
+  via: string;
+  /** Raw event-stream bytes when the winning upstream answered as SSE. */
+  sse?: string;
+  contentType?: string;
+};
 
 export async function forwardChat(opts: {
   body: Record<string, unknown>;
   route: { primary: Upstream; secondary: Upstream };
   fetchImpl?: FetchLike;
   breaker?: CircuitBreaker;
-}): Promise<{ status: number; json: unknown; via: string }> {
+}): Promise<ForwardResult> {
   const fetchImpl = opts.fetchImpl ?? fetch;
   const breaker = opts.breaker ?? defaultBreaker;
   const order = [opts.route.primary, opts.route.secondary];
-  let last: { status: number; json: unknown; via: string } | undefined;
+  const wantStream = opts.body.stream === true;
+  let last: ForwardResult | undefined;
   for (const up of order) {
     if (!breaker.allow(up.name)) {
       last = {
@@ -228,7 +281,7 @@ export async function forwardChat(opts: {
     const path = useGoResponses ? "/responses" : "/chat/completions";
     const payload = useGoResponses
       ? chatToGoResponses(opts.body, up.model)
-      : { ...opts.body, model: up.model, stream: false };
+      : { ...opts.body, model: up.model, stream: wantStream };
     const headers: Record<string, string> = {
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
@@ -242,6 +295,26 @@ export async function forwardChat(opts: {
         body: JSON.stringify(payload),
       });
       const text = await res.text();
+      if (res.ok && isSseResponse(res)) {
+        const content = accumulateStreamContent(text);
+        if (content === "") {
+          // Completed event stream with no content delta — same empty-completion
+          // failure as a whole JSON body, same transient failover.
+          breaker.recordFailure(up.name, 500);
+          last = {
+            status: 200,
+            json: { error: { message: "empty streamed completion" } },
+            via: up.name,
+          };
+          if (up === order[order.length - 1]) return last;
+          continue;
+        }
+        const json = {
+          choices: [{ index: 0, message: { role: "assistant", content } }],
+        };
+        breaker.recordSuccess(up.name);
+        return { status: 200, json, via: up.name, sse: text, contentType: "text/event-stream" };
+      }
       let json: unknown = text;
       try {
         json = JSON.parse(text) as unknown;
@@ -260,6 +333,19 @@ export async function forwardChat(opts: {
           continue;
         }
         breaker.recordSuccess(up.name);
+        if (wantStream) {
+          const first = (json as { choices?: Array<{ message?: { content?: unknown } }> })?.choices?.[0];
+          const content = first?.message?.content;
+          if (typeof content === "string" && content !== "") {
+            return {
+              status: 200,
+              json,
+              via: up.name,
+              sse: sseFromContent(content),
+              contentType: "text/event-stream",
+            };
+          }
+        }
         return { status: 200, json, via: up.name };
       }
       breaker.recordFailure(up.name, res.status, res.headers.get("retry-after"));
@@ -311,6 +397,14 @@ export function createServer(fetchImpl?: FetchLike, breaker: CircuitBreaker = de
           return;
         }
         const out = await forwardChat({ body, route, fetchImpl, breaker });
+        if (body.stream === true && out.sse !== undefined) {
+          res.writeHead(out.status, {
+            "content-type": out.contentType ?? "text/event-stream",
+            "x-openclinxr-via": out.via,
+          });
+          res.end(out.sse);
+          return;
+        }
         res.writeHead(out.status, {
           "content-type": "application/json",
           "x-openclinxr-via": out.via,
