@@ -13,7 +13,39 @@ import { AnimationClip, Group, Object3D, VectorKeyframeTrack } from "three";
  *
  * Card tsk_4c0f66ebb0453372 exists because three fixes landed (or were built) on the
  * settled-foot defect and all three moved the SC-05 numbers by less than run-to-run noise:
- * settling 0.037747 -> 0.037598 -> 0.037578 m against a 0.005 m limit. The discriminator this
+ * settling 0.037747 -> 0.037598 -> 0.037578 m against a 0.005 m limit.   <-- SEE CORRECTION BELOW
+ *
+ * ## CORRECTION (orchestrator, 2026-09-14, after this file landed)
+ *
+ * THE SERIES ON THE LINE ABOVE IS WRONG AND THE NUMBERS ARE LEFT IN PLACE DELIBERATELY, because
+ * rewriting them would erase the evidence that the error occurred. It came from a card table I
+ * assembled, and the worker that wrote this file copied it in good faith.
+ *
+ * The one recorded artifact is tools/openclinxr/evidence/settled-posture-diagnosis/
+ * settled-correction-execution-report.md (commit e3d9ccde), which reads:
+ *
+ *   "settling: 0.037747m -> 0.037172m -> 0.037598m; arrived: 0.035685m -> 0.036384m -> 0.034778m"
+ *
+ * So the true settling series is 0.037747 -> 0.037172 -> 0.037598. The line above drops the
+ * middle measurement and ends with 0.037578, which appears in NO artifact: `git log -S 0.037578
+ * --all` returns only this file, the both-toes measurement that quotes this card, and two
+ * unrelated .obj vertex coordinates from June and August.
+ *
+ * MEASURED LATER, and it removes the premise entirely (tsk_7a70fe19156af6a8, commit eea23523):
+ * over the SHIPPED physician GLB and shipped walk clip, 101 settled + 432 arrived frames, ZERO
+ * below-floor samples on either toe, deepest -0.013571 m (i.e. 13.6 mm ABOVE the floor), rubric
+ * floor-penetration satisfied with observed 0 on both intervals. The SC-05 figures do not
+ * reproduce through the production node harness at all.
+ *
+ * WHAT STILL STANDS from this file's own work: the branch executes on 119 of 120 arrived frames
+ * and corrected:true fired on exactly 1. Those are this test's first-hand measurements and are
+ * unaffected. What falls is the framing sentence above, which was never measured here.
+ *
+ * DO NOT write another fix for the settled-foot defect until it is established which measurement
+ * path the SC-05 verdict should read: the browser capture and the node harness disagree by more
+ * than run-to-run noise on the same tree.
+ *
+ * The discriminator this
  * card measures is whether `case-owned-approach-runtime-mod.ts:477` — the arrived-phase
  * `applySettledPostureCorrection` call — executes at all in a run that reaches arrived, and on
  * how many frames. It sits after `return` at :464 (settling block) and after
