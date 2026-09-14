@@ -202,18 +202,19 @@ describe("the regenerated humanoid reaches the bake", () => {
 
   it("(3) COUNTERWEIGHT RUNS: the station still bakes a non-white t-shirt factor to white on a copy", () => {
     // Re-pointed by tsk_2cdb306c4e7069af: family-partner is baked now, so the run-proof
-    // restores the pre-fix bytes into a temp copy (from git HEAD, which still carries
-    // [0.62,0.28,0.38]) and bakes the COPY. The shipped body is never dirtied; the
-    // station entry point and the fold are still exercised on every run.
+    // restores the pre-fix bytes into a temp copy and bakes the COPY. The shipped body
+    // is never dirtied; the station entry point and the fold are still exercised on
+    // every run.
+    // The pre-fix bytes come from main at 92faf9b8, pinned explicitly. HEAD is the
+    // wrong source: the tsk_2cdb306c4e7069af rebake landed there, so HEAD now holds
+    // baked bytes and the vacuity guard below would fire on a copy with nothing to
+    // fold. A later rebake must not break this clause again, hence the pinned commit.
+    const PRE_FIX_COMMIT = "92faf9b8";
     const src = path.join(HUMANOIDS, COUNTERWEIGHT_BODY);
-    // The shipped body is baked now, so the run-proof restores the pre-fix bytes
-    // (git HEAD still carries the 2026-09-12 producer output with the
-    // [0.62,0.28,0.38] t-shirt factor) into a temp COPY and bakes that.
-    // The shipped body is never dirtied.
     const tmp = mkdtempSync(path.join(os.tmpdir(), "openclinxr-bake-caller-"));
     const dest = path.join(tmp, COUNTERWEIGHT_BODY);
     try {
-      const preFix = execFileSync("git", ["show", `HEAD:${path.relative(REPO, src)}`], {
+      const preFix = execFileSync("git", ["show", `${PRE_FIX_COMMIT}:${path.relative(REPO, src)}`], {
         cwd: REPO,
         maxBuffer: 64 * 1024 * 1024,
       });
