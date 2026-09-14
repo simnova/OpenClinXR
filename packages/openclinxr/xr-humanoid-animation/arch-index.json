@@ -36,6 +36,7 @@
   ],
   "tests": [
     "src/an-owned-chain-survives-the-posture-pass.test.ts",
+    "src/floor-penetration/the-walking-foot-stays-above-the-floor.test.ts",
     "src/humanoid-animation.test.ts",
     "src/the-frame-loop-composes-position-x-from-its-base.test.ts",
     "src/the-locomotion-drive-plays-a-clip.test.ts"
@@ -50,6 +51,6 @@
     "contexts": {
       "HumanoidAnimationRuntimeContext": 35
     },
-    "testInternalImports": 3
+    "testInternalImports": 6
   }
 }

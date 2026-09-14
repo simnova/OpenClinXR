@@ -215,7 +215,7 @@ export function resolveStationBedsideApproach(
     contactBandMeters: FOOT_CONTACT_HEIGHT_METERS,
     clipAdvance: measureStanceGroundAdvance(sampled.samples, {
       contactBandMeters: FOOT_CONTACT_HEIGHT_METERS,
-      floorOriginY: 0,
+      floorOriginY: geometry.floorFrame?.originY ?? 0,
     }),
     clipCycleSeconds: sampled.cycleSeconds,
     routeHeadingRadians: headingRadiansToward(intent.start, intent.target.position),

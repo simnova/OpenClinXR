@@ -45,10 +45,12 @@ export type StanceLockState = {
   stanceFoot: StanceFoot | null;
   /** World XZ the stance toe is pinned to, taken on the first frame of the window. */
   anchorWorldXz: { x: number; z: number } | null;
+  /** World Y the stance toe is pinned to (the floor plane), taken on the first frame of the window. */
+  anchorWorldY: number | null;
   /** How many consecutive frames the current window has run. */
   windowFrames: number;
   /** This frame's applied correction, in metres. Zero on a window seam. */
-  correctionMeters: { x: number; z: number };
+  correctionMeters: { x: number; y: number; z: number };
   /** Both toes' signed height above the floor frame this frame, for the record. */
   toeHeightMeters: { left: number; right: number };
   /** True when both toes were inside the band: the frame the other foot is NOT pinned. */
@@ -59,8 +61,9 @@ export function createStanceLockState(): StanceLockState {
   return {
     stanceFoot: null,
     anchorWorldXz: null,
+    anchorWorldY: null,
     windowFrames: 0,
-    correctionMeters: { x: 0, z: 0 },
+    correctionMeters: { x: 0, y: 0, z: 0 },
     toeHeightMeters: { left: Number.NaN, right: Number.NaN },
     doubleSupport: false,
   };
@@ -125,33 +128,44 @@ export function applyStanceLockedGroundAdvance(input: {
     return {
       stanceFoot: null,
       anchorWorldXz: null,
+      anchorWorldY: null,
       windowFrames: 0,
-      correctionMeters: { x: 0, z: 0 },
+      correctionMeters: { x: 0, y: 0, z: 0 },
       toeHeightMeters,
       doubleSupport,
     };
   }
   const toe = stanceFoot === "left" ? left : right;
-  const anchor = state.stanceFoot === stanceFoot ? state.anchorWorldXz : null;
-  if (anchor === null) {
+  const anchorXz = state.stanceFoot === stanceFoot ? state.anchorWorldXz : null;
+  const anchorY = state.stanceFoot === stanceFoot ? state.anchorWorldY : null;
+  if (anchorXz === null || anchorY === null) {
     // A NEW window: take the anchor where the clip actually put the foot and apply nothing. Forcing
     // the first frame back to the previous window's anchor would teleport the body a stride.
+    // For Y, we pin to the FLOOR PLANE (floorOriginY), not to where the clip put it, because
+    // the clip may drive the toe below the floor.
     return {
       stanceFoot,
       anchorWorldXz: { x: toe.x, z: toe.z },
+      anchorWorldY: input.floorOriginY, // Pin Y to the floor plane
       windowFrames: 1,
-      correctionMeters: { x: 0, z: 0 },
+      correctionMeters: { x: 0, y: 0, z: 0 },
       toeHeightMeters,
       doubleSupport,
     };
   }
-  const correctionMeters = { x: anchor.x - toe.x, z: anchor.z - toe.z };
+  const correctionMeters = {
+    x: anchorXz.x - toe.x,
+    y: anchorY - toe.y,
+    z: anchorXz.z - toe.z,
+  };
   actorSlot.position.x += correctionMeters.x;
+  actorSlot.position.y += correctionMeters.y;
   actorSlot.position.z += correctionMeters.z;
   actorSlot.updateMatrixWorld(true);
   return {
     stanceFoot,
-    anchorWorldXz: anchor,
+    anchorWorldXz: anchorXz,
+    anchorWorldY: anchorY,
     windowFrames: state.windowFrames + 1,
     correctionMeters,
     toeHeightMeters,
