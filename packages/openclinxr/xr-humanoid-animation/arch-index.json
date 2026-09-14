@@ -39,6 +39,7 @@
     "src/humanoid-animation.test.ts",
     "src/the-frame-loop-composes-position-x-from-its-base.test.ts",
     "src/the-locomotion-drive-plays-a-clip.test.ts",
+    "src/the-standing-foot-stays-above-the-floor.test.ts",
     "src/the-walking-foot-stays-above-the-floor.test.ts"
   ],
   "commands": {
@@ -51,6 +52,6 @@
     "contexts": {
       "HumanoidAnimationRuntimeContext": 35
     },
-    "testInternalImports": 4
+    "testInternalImports": 5
   }
 }
