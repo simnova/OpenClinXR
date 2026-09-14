@@ -1,4 +1,4 @@
-import { describe, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { planMotionProgram } from "./index.js";
 import { planted } from "./planted.js";
@@ -140,7 +140,7 @@ function recordingPrimitives(): Record<string, (r: PrimitiveRequestLike) => Frag
 }
 
 describe("the bake produces a GLB the runtime loads", () => {
-  planted("(1) RED: the compiled clip bakes to deterministic GLB bytes that read back its exact clipId", async () => {
+  it("(1) RED: the compiled clip bakes to deterministic GLB bytes that read back its exact clipId", async () => {
     const program = planMotionProgram({
       scenarioId: "adult_abdominal_pain_v1",
       actorId: "patient_elena_vasquez_v1",
@@ -180,6 +180,19 @@ describe("the bake produces a GLB the runtime loads", () => {
     expect(clip.compileIdentity.deterministicSeed.length).toBeGreaterThan(0);
   });
 });
+
+/**
+ * ## FIXED (2026-09-14) — BothyBoard card tsk_c0d67f74a7891719
+ *
+ * Implemented packages/openclinxr/motion-compiler/src/bake/motion-glb-bake.ts with:
+ *   - bakeMotionProgramToGlb(clip): Uint8Array — deterministic GLB with animation tracks
+ *   - readMotionGlbClipId(bytes): string — reads clipId from asset.extras.openclinxrClipId
+ * Re-exported from packages/openclinxr/motion-compiler/src/motion-glb-bake.ts and
+ * packages/openclinxr/motion-compiler/src/index.ts.
+ *
+ * Verified: GLB magic (0x46546c67), readback clipId matches compiled clipId, byte-identical
+ * across two bakes of the same clip, deterministicSeed populated.
+ */
 
 // NOT TESTED: whether the baked GLB renders plausible motion on any rig; whether the GLB
 // carries animation channels a three.js loader accepts; gateway publication; mixer playback.

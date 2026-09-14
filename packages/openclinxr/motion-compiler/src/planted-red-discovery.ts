@@ -128,19 +128,6 @@ export function derivePlantedEntries(srcDir: string = HERE): DerivedPlantedEntry
  * A discovered clause with no entry here is UNPROBED — reported, never silently green.
  */
 export const RESIDUAL_FINGERPRINTS: readonly { file: string; select: string; expected: RegExp }[] = [
-  {
-    // MEASURED 2026-09-14 in probe mode, not guessed:
-    //   AssertionError: ./motion-glb-bake.js must export bakeMotionProgramToGlb:
-    //   expected 'undefined' to be 'function'
-    //
-    // The pattern names the REASON — the absent bake module the clause's header records as
-    // ABSENT — rather than incidental wording. That is deliberate: when motion-glb-bake.js
-    // lands, this clause's failure MOVES to a real assertion (GLB magic, readback identity,
-    // byte determinism), this pattern stops matching, and probe:reds reports "failed for the
-    // WRONG reason". That report is the contract transition the manifest header asks for, and
-    // whoever lands the module updates this entry or removes it deliberately.
-    file: "the-bake-produces-a-glb-the-runtime-loads.test.ts",
-    select: "(1) RED: the compiled clip bakes to deterministic GLB bytes that read back its exact clipId",
-    expected: /motion-glb-bake\.js must export bakeMotionProgramToGlb/,
-  },
+  // The bake clause has been flipped from planted -> it (2026-09-14); fingerprint removed per
+  // contract transition requirement. The module now exists and the test passes.
 ];
