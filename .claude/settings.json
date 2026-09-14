@@ -11,6 +11,32 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "mcp__bothy-board__bothy-board_(sync|mailbox_poll)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/bothy-board-token-guard.js"],
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__bothy-board__bothy-board_(sync|mailbox_poll)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/bothy-board-token-guard.js", "--post"],
+            "timeout": 5
+          }
+        ]
+      }
     ]
   },
   "enabledMcpjsonServers": ["bothy-board"]
