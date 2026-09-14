@@ -28,6 +28,51 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-13T2215">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 48 &middot; 2026-09-13 22:15 EDT</p>
+          <h2>A repair for the foot through the floor was written, reviewed against published practice, and sent back. The explanation I gave for the bug was wrong.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Nothing was accepted into the main copy. The 5 mm limit was not touched, and the repair was not approved on the grounds that its automated checks passed.</caption>
+            <thead><tr><th scope="col">Claim in the task</th><th scope="col">What measurement showed</th></tr></thead>
+            <tbody>
+              <tr><td>Suspected cause: one part of the code assumes the floor is at height zero while the real floor is somewhere else.</td><td>False. The recorded floor height from the last run of the real application is zero to within a nanometre. The change made on that basis cannot move a 3.8 cm error.</td></tr>
+              <tr><td>The repair&rsquo;s own test built its scene with the floor 15 cm up, stating the floor is not at zero.</td><td>Contradicted by the same recording. A test passing against a floor that high says nothing about the room the fault was found in.</td></tr>
+              <tr><td>Four of the six required checks passed.</td><td>Two failed for a plain reason: the test file was saved one directory away from the path the task names, so the checks could not find it.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What the repair got right</h3>
+            <ul>
+              <li>It pins the planted foot to the floor at the moment the foot lands. That matches the published method for this exact problem, which was suggested to us and then read rather than assumed.</li>
+              <li>It applies the correction at the one place in the code nothing else overwrites each frame. A reviewer suggested the correction would be erased; the code&rsquo;s own notes show it would not, and the reviewer was wrong on that point.</li>
+              <li>Its two deliberately opposite tests stay. They check that a genuinely sunken foot is still reported as a fault, which is what stops a repair from quietly deleting the detection instead of fixing the movement.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Three faults found by reading, not by running</h3>
+            <ul>
+              <li>The correction pulls in both directions. A foot above the floor is dragged down onto it, rather than simply left alone. The published method treats the floor as a limit, not an attachment.</li>
+              <li>The very first frame of each footfall applies no correction at all. That is exactly the frame where a walking figure drives the foot deepest, so the worst moment may pass through untouched and the fault could remain after the repair.</li>
+              <li>There is no smoothing when weight transfers between feet. The published method fades the correction in and out; without that, the body steps vertically at every footfall.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The risk of trading one fault for another</h3>
+            <ul>
+              <li>Lifting the body to pull one foot out of the floor lifts everything else by the same amount. There is a separate limit, the same 5 mm, for a body floating above what supports it.</li>
+              <li>Earlier measurement recorded the two feet at very different depths, 4 cm and 10 cm. A lift sized for one leaves the other either still through the floor or hovering above it.</li>
+              <li>The repair has been asked for a frame-by-frame record of body height and foot heights. No target number was given, on purpose: a number handed over in advance becomes the thing a repair is shaped to clear rather than a measurement of whether it worked.</li>
+              <li>Not claimed: that the walk is correct, that any of this is clinically valid, or that it is ready for a headset.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-13T2030">
         <div class="section-heading">
           <p class="eyebrow">Entry 47 &middot; 2026-09-13 20:30 EDT &middot; posted late</p>
