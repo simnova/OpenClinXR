@@ -23,6 +23,11 @@ export {
   orientHumanoidTowardGazeTarget,
   resolveHumanoidGazeTargetWorld,
 } from "./gaze-evidence.js";
+export {
+  applySettledPostureCorrection,
+  applyStanceLockedGroundAdvance,
+  SETTLED_POSTURE_CORRECTION_OWNER_ID,
+} from "./stance-lock-mod.js";
 export type {
   MouthGazePoseComparatorEvidenceRecord,
   RuntimeHumanoidActingCueEvidenceRecord,

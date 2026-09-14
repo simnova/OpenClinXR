@@ -1,5 +1,9 @@
 import type { Object3D } from "three";
 import * as THREE from "three";
+import type { OwnedChain } from "@openclinxr/xr-pose";
+
+/** Owner ID for the settled posture correction — declares ownership so the mixer doesn't overwrite the corrected hip/knee. */
+export const SETTLED_POSTURE_CORRECTION_OWNER_ID = "openclinxr.settled-posture-correction";
 
 /**
  * The stance constraint SC-00 named as the remedy, applied to the actor slot rather than the root.
@@ -462,6 +466,19 @@ export function applySettledPostureCorrection(input: {
     knee.updateMatrixWorld(true);
     // Force toe to update
     toeBone.updateMatrixWorld(true);
+
+    // DECLARE OWNERSHIP of the stance leg chain so the mixer doesn't overwrite the corrected pose.
+    // The chain names are resolved against THIS rig's actual bone names (ownership is declared, never inferred).
+    const stanceChainNames = [hip.name, knee.name, heel.name, toeBone.name];
+    const host = actorSlot; // ownership rides on the actor slot
+    const existing = (host.userData["openClinXrOwnedBoneChains"] as OwnedChain[] | undefined) ?? [];
+    // Remove any previous settled posture correction claim
+    const filtered = existing.filter((ownedChain) => ownedChain.ownerId !== SETTLED_POSTURE_CORRECTION_OWNER_ID);
+    host.userData["openClinXrOwnedBoneChains"] = [
+      ...filtered,
+      { ownerId: SETTLED_POSTURE_CORRECTION_OWNER_ID, boneNames: stanceChainNames },
+    ];
+
     return { corrected: true, stanceFoot, toeHeightMeters };
   }
 

@@ -15,7 +15,10 @@
     "HumanoidSpeechPlayback",
     "MouthGazePoseComparatorEvidenceRecord",
     "RuntimeHumanoidActingCueEvidenceRecord",
+    "SETTLED_POSTURE_CORRECTION_OWNER_ID",
     "applyHumanoidMorphTargetCue",
+    "applySettledPostureCorrection",
+    "applyStanceLockedGroundAdvance",
     "buildHumanoidSpeechEvidence",
     "createHumanoidEmotionExpressionState",
     "humanoidDialogueDurationMs",
@@ -39,6 +42,7 @@
     "src/humanoid-animation.test.ts",
     "src/the-frame-loop-composes-position-x-from-its-base.test.ts",
     "src/the-locomotion-drive-plays-a-clip.test.ts",
+    "src/the-settled-correction-survives-the-mixer.test.ts",
     "src/the-standing-foot-stays-above-the-floor.test.ts",
     "src/the-walking-foot-stays-above-the-floor.test.ts"
   ],
