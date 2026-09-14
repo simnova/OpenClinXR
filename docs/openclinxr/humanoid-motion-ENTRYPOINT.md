@@ -4,11 +4,11 @@
 2026-09-02 for a session that has none of the conversation that produced it, possibly on a different
 model.
 
+The doc-authority-registry-2026-05-27.json takes precedence over this ENTRYPOINT's "Read this first" and historical "AUTHORITATIVE" wording.
+
 ## The one-line state
 
-A complete design exists for case-driven humanoid motion, nothing is built, and **the design's own
-headline says do not build it yet** — run a bake-off first, because roughly 48 slices depend on an
-architectural choice nobody has measured.
+A bake-off task (tsk_37785faf55d16dc6) has landed with report.json verdict `other`: neither baked-tracks nor runtime-goals backend produced the requested clutch on the seated MPFB actor. The runtime-goals arm solved the rock-plus-clutch wrist target (residual 0.0000 m) but the pulse-presentation descriptor declares no pulse goal, so it fell back to a twoBoneToward reach. The baked-tracks arm rendered both behaviours intact but neither hand reached the chest. No architecture winner is declared.
 
 ## What the product needs, in the operator's words
 
@@ -33,10 +33,9 @@ pre-record; per-encounter compiled behaviour for case-specific idiosyncrasy.
 
 ## Do this, in this order
 
-1. **Run the bake-off.** Board card below. Baked tracks versus a deterministic runtime-goal backend,
-   on one seated MPFB actor, on rock-plus-clutch and pulse presentation. A negative result closes it.
-2. **Settle the nine open decisions** listed at the end of the design. A worker may not make them.
-3. **Then card A**, factory to final GLB to Model Vetting, per the design's Execution section.
+1. Review `humanoid-motion-reassessment-2026-09-13/decision-ledger` for current source bindings and open owner decisions. The ledger maps every consequential claim to live code, production consumers (or explicitly none), and phase-release gates.
+2. Settle the nine open decisions listed in the ledger (ids: open-decision-*). A worker may not make them.
+3. If MR-02 is released by the owner after review, run the conditional per-job comparison on the current MPFB actor with real behaviour/goal definitions and valid seat/rest/support.
 
 ## Five measurements that will change your design if you forget them
 
