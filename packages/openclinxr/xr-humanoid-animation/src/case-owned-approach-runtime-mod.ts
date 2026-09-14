@@ -18,6 +18,7 @@ import {
 } from "./settling-step-turn-mod.js";
 import {
   applyStanceLockedGroundAdvance,
+  applySettledPostureCorrection,
   createStanceLockState,
   type StanceLockState,
 } from "./stance-lock-mod.js";
@@ -428,6 +429,13 @@ export function sampleLocomotionStanceTrack(
  * out, it runs after the mixer has posed the skeleton and cancels the same frame's drift.
  *
  * It is a no-op until `lockArmed`, which the drive step sets on the second walking frame.
+ *
+ * SETTLED POSTURE CORRECTION: During settling (after turn completes) and arrived phases,
+ * the figure stands still with locomotion = 0, so the stance lock does not run. This leaves
+ * the standing foot penetrating the floor (SC-05 measured 0.037172 m settling, 0.036384 m arrived).
+ * The settled posture correction reuses the same two-bone IK solve (solveTwoBoneIK) to lift
+ * the stance toe to at or above floorOriginY without moving actorSlot Y. This is a NEW call
+ * site with its own gate, NOT a deletion of the locomotion gate.
  */
 export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | null): void {
   if (approach === null) return;
@@ -442,6 +450,17 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
       initialPlant: approach.lock.stanceFoot,
       state: approach.turnStep,
     });
+    // After the settling turn completes, apply settled posture correction
+    // The turnStep.closing flag indicates the rest pose is being restored
+    if (approach.turnStep.closing && approach.turnStep.restLocal !== null) {
+      applySettledPostureCorrection({
+        actorSlot: approach.actorSlot,
+        leftToe: approach.leftToe,
+        rightToe: approach.rightToe,
+        floorOriginY: approach.floorOriginY,
+        contactBandMeters: approach.contactBandMeters,
+      });
+    }
     return;
   }
   if (approach.turnStep.restLocal !== null) {
@@ -453,6 +472,17 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
     });
     approach.actorSlot.updateMatrixWorld(true);
     if (approach.turnStep.closing) return;
+  }
+  // Settled/arrived phase: apply posture correction when not walking
+  if (approach.execution.phase === "arrived" && approach.execution.drive.locomotion <= 0) {
+    applySettledPostureCorrection({
+      actorSlot: approach.actorSlot,
+      leftToe: approach.leftToe,
+      rightToe: approach.rightToe,
+      floorOriginY: approach.floorOriginY,
+      contactBandMeters: approach.contactBandMeters,
+    });
+    return;
   }
   if (approach.execution.drive.locomotion <= 0 || !approach.lockArmed) return;
   approach.lock = applyStanceLockedGroundAdvance({
