@@ -109,14 +109,14 @@ function writeGroup(
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 46 roots and 115 declared entrypoints", () => {
+  it("(1) the live tree discovers 46 roots and 114 declared entrypoints", () => {
     const report = measureSurface();
     expect(report.totals.roots).toBe(46);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 46 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
-    // 115 after counterfactual-debrief subpath added for review-workflow.
-    expect(report.totals.entrypoints).toBe(115);
+    // counterfactual-debrief subpath was removed (unpublished post-review entrypoint).
+    expect(report.totals.entrypoints).toBe(114);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {

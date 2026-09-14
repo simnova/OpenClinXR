@@ -7,7 +7,7 @@ import {
   type CounterfactualReleaseGate,
   type LearnerAttemptRecord,
   type ReviewedAlternative,
-} from "@openclinxr/review-workflow/counterfactual-debrief";
+} from "../../../../../packages/openclinxr/review-workflow/src/counterfactual-debrief/counterfactual-debrief.js";
 
 /**
  * Consumer-side tests for counterfactual replay in the learner debrief context.

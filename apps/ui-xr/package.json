@@ -16,7 +16,6 @@
     "@openclinxr/conversation-policy": "workspace:*",
     "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
-    "@openclinxr/review-workflow": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
     "@openclinxr/xr-asset-loading": "workspace:*",
     "@openclinxr/xr-actor-dialogue": "workspace:*",
