@@ -1,0 +1,92 @@
+[
+  {
+    "run": "final-baseline",
+    "exitCode": 0,
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "--root",
+      "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo",
+      "--config",
+      "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo/vitest.config.ts",
+      "tools/openclinxr/evidence/motion-architecture-reassessment/the-entrypoint-current-state-matches-landed-evidence.test.ts"
+    ]
+  },
+  {
+    "run": "final-ordinary-negative-control",
+    "exitCode": 1,
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "--root",
+      "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo",
+      "--config",
+      "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo/vitest.config.ts",
+      "tools/openclinxr/evidence/motion-architecture-reassessment/ordinary-red-control.test.ts"
+    ]
+  },
+  {
+    "run": "final-pending-review-control",
+    "exitCode": 1,
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "--root",
+      "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo",
+      "--config",
+      "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo/vitest.config.ts",
+      "tools/openclinxr/evidence/motion-architecture-reassessment/ordinary-red-control.test.ts"
+    ]
+  },
+  {
+    "run": "final-accepted-metadata-control",
+    "exitCode": 0,
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "--root",
+      "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo",
+      "--config",
+      "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo/vitest.config.ts",
+      "tools/openclinxr/evidence/motion-architecture-reassessment/ordinary-red-control.test.ts"
+    ]
+  },
+  {
+    "run": "final-self-review-rejected-control",
+    "exitCode": 1,
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "--root",
+      "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo",
+      "--config",
+      "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo/vitest.config.ts",
+      "tools/openclinxr/evidence/motion-architecture-reassessment/ordinary-red-control.test.ts"
+    ]
+  },
+  {
+    "run": "final-stale-review-binding-control",
+    "exitCode": 1,
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "--root",
+      "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo",
+      "--config",
+      "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/work/motion-architecture-handoff/validation-repo/vitest.config.ts",
+      "tools/openclinxr/evidence/motion-architecture-reassessment/ordinary-red-control.test.ts"
+    ]
+  }
+]

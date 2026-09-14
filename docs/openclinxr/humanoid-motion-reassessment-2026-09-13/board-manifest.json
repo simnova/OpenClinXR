@@ -1,0 +1,21 @@
+{
+  "preparedTaskId": "tsk_7177631409c3d441",
+  "projectId": "prj_9b390b99b443a964",
+  "parentId": "tsk_e8ac84dd9cb6ac06",
+  "status": "backlog",
+  "factory": "Idle",
+  "supersededIncompleteCardId": "tsk_09d3ca349f40f120",
+  "supersededStatus": "cancelled",
+  "readbackVerification": "Every structured contract field equals create payload; all ingestion/staging/deliverable/proof/failed-treatment/read-closure paragraphs survived normalized body.",
+  "bodyNormalizationLesson": "Use supported deliverables/read_closure sections. Unsupported custom headings were lost in the cancelled draft. Commit both exact create payload and actual normalized task snapshot.",
+  "ingestionRequiredBeforePlant": true,
+  "doNotCreateDuplicate": true,
+  "conditionalPhases": "MR-02/MR-03 are handoff specifications only; no placeholder cards created",
+  "snapshotSha256": "76033589fe12ae9996d01791334640b0a9e4009ac797231218aa3099aba06f4b",
+  "mainAtPreparation": "dd074568b410d7d34df9e4fdd47db6b7d9fa5f94",
+  "cancelledRedundantFormattingProbeId": "tsk_eb589addabbf353d",
+  "nativeBodyNote": "Native formatter supplies standard sections. Prior-failure context remains fully preserved as named facts in deliverables; structured failedTreatments is empty because no worker treatment was attempted on this card.",
+  "supersededCurrentStatusVerified": "cancelled",
+  "cancelledRedundantFormattingProbeCurrentStatusVerified": "cancelled",
+  "independentPreparationReview": "Fresh Grok fetched live canonical task and confirmed ready for agent ingestion; no Plant/dispatch."
+}
