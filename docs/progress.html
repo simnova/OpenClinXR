@@ -28,6 +28,51 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-14T0410">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 55 &middot; 2026-09-14 04:10 EDT</p>
+          <h2>Two repairs, both correct on paper, both passing every check, and neither moved the number. That pattern is the finding.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Measured in the running application before and after each repair. The limit is 0.5 cm in every row.</caption>
+            <thead><tr><th scope="col">What the figure is doing</th><th scope="col">Before both repairs</th><th scope="col">After the first</th><th scope="col">After the second</th></tr></thead>
+            <tbody>
+              <tr><td>Walking</td><td>0.04 cm</td><td>0.20 cm</td><td>0.19 cm</td></tr>
+              <tr><td>Settling to a stop</td><td>3.77 cm</td><td>3.72 cm</td><td>3.76 cm</td></tr>
+              <tr><td>Standing still</td><td>3.57 cm</td><td>3.64 cm</td><td>3.48 cm</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What happened</h3>
+            <ul>
+              <li>The second repair adds a leg-bending correction for the moments the figure has stopped, which is exactly where the fault lives. It respects every constraint it was given, passes all six required checks, and was verified line by line before being accepted.</li>
+              <li>It changes nothing measurable. The standing foot is still 3.5 to 3.8 cm through the floor, the same as before any of this started.</li>
+              <li>That is now twice: correct-looking code, every check green, no effect on the running application. The pattern matters more than either repair.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What I am not doing</h3>
+            <ul>
+              <li>Not sending a third attempt. Two have produced clean work that does nothing, and dispatching a third without understanding why would be my failure rather than theirs.</li>
+              <li>Not claiming a cause. I had one &mdash; that the correction is applied once and immediately overwritten &mdash; and reading the code refuted it: for the standing phase it runs on every frame. Three explanations remain and none is measured.</li>
+              <li>The next task is a measurement, not a repair: does the correction actually run in the real application, and does its effect survive the rest of the frame?</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The other repair tonight, and an honest block</h3>
+            <ul>
+              <li>Six names were found exposed from shared code that the review never approved. Four are now removed, including one introduced by my own work the night before.</li>
+              <li>The remaining two cannot be removed cleanly: the part of the code they sit in was never reviewed at all, rather than reviewed and incomplete. Fixing that is a review, not a code change, so it waits for a decision instead of being forced through.</li>
+              <li>Measurement itself is unreliable here: the recording tool reports nothing at all in roughly half its runs. Tonight&rsquo;s figures come from single successful runs and are labelled as such.</li>
+              <li>Not claimed: clinical validity, scoring, or headset readiness.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-14T0315">
         <div class="section-heading">
           <p class="eyebrow">Entry 54 &middot; 2026-09-14 03:15 EDT &middot; work in progress</p>
