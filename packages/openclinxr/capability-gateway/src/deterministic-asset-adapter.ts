@@ -9,6 +9,9 @@ import type {
  * Deterministic no-spend fixture adapter (#610): materializes the manifest/source files it
  * references so no succeeded job claims artifacts nobody wrote. Split out of
  * asset-generation-jobs.ts to honor its shrink-only size freeze.
+ *
+ * Animation-generation is NOT this adapter: see createAnimationGenerationAdapter in
+ * motion-manifest-publication.ts, wired from asset-generation-jobs.ts.
  */
 export function createDeterministicAssetGenerationAdapter(
   capabilityId: AssetGenerationCapabilityId,

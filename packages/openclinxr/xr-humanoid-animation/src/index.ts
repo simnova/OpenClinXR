@@ -10,6 +10,9 @@ export {
   updateGeneratedHumanoidAnimations,
 } from "./animation-loop.js";
 export {
+  playManifestMotionClip,
+} from "./play-manifest-motion-clip.js";
+export {
   applyHumanoidMorphTargetCue,
   createHumanoidEmotionExpressionState,
   startHumanoidEmotionTransition,

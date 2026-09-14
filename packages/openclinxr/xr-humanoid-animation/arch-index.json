@@ -22,6 +22,7 @@
     "isGeneratedRuntimeDrive",
     "orientHumanoidEyeFocusCue",
     "orientHumanoidTowardGazeTarget",
+    "playManifestMotionClip",
     "resolveHumanoidGazeTargetWorld",
     "startHumanoidEmotionTransition",
     "updateGeneratedHumanoidAnimations",

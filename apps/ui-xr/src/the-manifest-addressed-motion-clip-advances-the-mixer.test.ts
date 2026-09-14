@@ -68,7 +68,7 @@ async function loadAddress(): Promise<
 }
 
 describe("the manifest-addressed motion clip advances the mixer", () => {
-  it.fails("(1) RED: the mixer advances the manifest clip and no other clip", async () => {
+  it("(1) RED: the mixer advances the manifest clip and no other clip", async () => {
     const address = await loadAddress();
     expect(typeof address?.playManifestMotionClip, `${ADDRESS_MODULE} must export playManifestMotionClip`).toBe(
       "function",
@@ -96,6 +96,14 @@ describe("the manifest-addressed motion clip advances the mixer", () => {
     expect(otherAction === null || !otherAction.isRunning()).toBe(true);
   });
 });
+
+/**
+ * ## FIXED (2026-09-14) — BothyBoard card tsk_c0d67f74a7891719
+ *
+ * Added apps/ui-xr/src/motion-manifest-motion-address.ts exporting
+ * playManifestMotionClip, re-exported from main.ts. The addressed clip is the
+ * one the mixer advances; a different clip is not running.
+ */
 
 // NOT TESTED: whether the manifest address resolves from a persisted gateway manifest; whether
 // the GLB bytes decode to these tracks; gateway publication.

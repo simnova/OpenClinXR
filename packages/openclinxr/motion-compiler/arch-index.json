@@ -4,8 +4,14 @@
   "entrypoint": "packages/openclinxr/motion-compiler/src/index.ts",
   "purpose": "Deterministic motion planner entry, documented in docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md.",
   "exports": [
+    "MotionGlbBakeClip",
+    "MotionGlbBakeTrack",
+    "MotionGlbReadback",
     "ScenarioMotionCompileInput",
-    "planMotionProgram"
+    "bakeMotionProgramToGlb",
+    "planMotionProgram",
+    "readMotionGlb",
+    "readMotionGlbClipId"
   ],
   "workspaceDependencies": [
     "@openclinxr/asset-registry"
