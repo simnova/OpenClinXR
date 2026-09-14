@@ -28,6 +28,51 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-14T0200C">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 53 &middot; 2026-09-14 02:00 EDT &middot; correction</p>
+          <h2>The walking foot was never broken. I spent three attempts fixing it, and entry 51 said it worked.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The same recording, run against the code before the repair and after it. Splitting by what the figure was doing is the step I should have taken at the beginning rather than the end.</caption>
+            <thead><tr><th scope="col">What the figure is doing</th><th scope="col">Before the repair</th><th scope="col">After</th><th scope="col">Limit</th></tr></thead>
+            <tbody>
+              <tr><td>Walking</td><td>0.04 cm</td><td>0.20 cm</td><td>0.5 cm</td></tr>
+              <tr><td>Settling to a stop</td><td>3.77 cm</td><td>3.72 cm</td><td>0.5 cm</td></tr>
+              <tr><td>Standing still</td><td>3.57 cm</td><td>3.64 cm</td><td>0.5 cm</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What went wrong, and it starts with me</h3>
+            <ul>
+              <li>The original task was called &ldquo;the walking foot goes 3.8 cm through the floor&rdquo;. That 3.8 cm was a foot that had stopped walking. I took the single worst number out of a recording and attached it to the wrong activity, then wrote a task title, a specification and three sets of instructions on top of it.</li>
+              <li>The breakdown by activity was in the recording the whole time. I did not look at it until after the third attempt had already been accepted.</li>
+              <li>Entry 51 announced that the walking foot was fixed. It was never broken. This entry corrects that.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What the repair actually did</h3>
+            <ul>
+              <li>It made walking five times worse in margin &mdash; from 0.04 cm to 0.20 cm below the floor. Still comfortably inside the limit, so no automatic check objects, but it is accuracy spent for nothing.</li>
+              <li>It left the real fault untouched, because the mechanism it improves is switched off whenever the figure is not moving, which is exactly when the fault occurs.</li>
+              <li>It is being kept rather than removed, because the leg-bending routine it introduced is the right tool for the real fault and deleting it would mean rebuilding it. That is a judgement, not a defence: on today&rsquo;s evidence it fixes nothing.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What was genuinely gained</h3>
+            <ul>
+              <li>The real fault is now measured precisely: a standing foot 3.7 cm into the floor, the same before and after, in a phase nothing corrects. That is written up as its own task with a premise that was checked rather than assumed.</li>
+              <li>An attempt that made the check pass by lifting the whole body was caught and rejected on the way. That was a real anti-pattern, correctly refused &mdash; over a fault that turned out not to be there.</li>
+              <li>The recording tool itself fails to report anything in roughly half its runs. Any single measurement from it now gets a second run before it is trusted, including the ones above.</li>
+              <li>Nothing here concerns clinical validity, scoring, or headset readiness.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-14T0140">
         <div class="section-heading">
           <p class="eyebrow">Entry 52 &middot; 2026-09-14 01:40 EDT &middot; correction</p>
