@@ -4,11 +4,17 @@
 2026-09-02 for a session that has none of the conversation that produced it, possibly on a different
 model.
 
+The doc-authority-registry-2026-05-27.json takes precedence over this ENTRYPOINT’s “Read this first” and historical “AUTHORITATIVE” wording.
+
 ## The one-line state
 
-A complete design exists for case-driven humanoid motion, nothing is built, and **the design's own
-headline says do not build it yet** — run a bake-off first, because roughly 48 slices depend on an
-architectural choice nobody has measured.
+A bake-off task (tsk_37785faf55d16dc6) has landed with report.json verdict `other`: neither baked-tracks nor runtime-goals backend produced the requested clutch on the seated MPFB actor. The runtime-goals arm solved the rock-plus-clutch wrist target (residual 0.0000 m) but the pulse-presentation descriptor declares no pulse goal, so it fell back to a twoBoneToward reach. The baked-tracks arm rendered both behaviours intact but neither hand reached the chest. No architecture winner is declared. The doc-authority-registry-2026-05-27.json takes precedence over this ENTRYPOINT’s “Read this first” and historical “AUTHORITATIVE” wording. Current bindings: `humanoid-motion-reassessment-2026-09-13/decision-ledger`.
+
+Historical 2026-09-02 one-line, retained as qualified history (not live instruction):
+
+> A complete design exists for case-driven humanoid motion, nothing is built, and **the design's own
+> headline says do not build it yet** — run a bake-off first, because roughly 48 slices depend on an
+> architectural choice nobody has measured.
 
 ## What the product needs, in the operator's words
 
@@ -26,17 +32,26 @@ pre-record; per-encounter compiled behaviour for case-specific idiosyncrasy.
 
 | # | file | status |
 |---|---|---|
-| 1 | `humanoid-motion-full-design-2026-09-02.md` | **AUTHORITATIVE.** The design, four review iterations, commit `7608ffb3` |
+| 1 | `humanoid-motion-full-design-2026-09-02.md` | Historical **AUTHORITATIVE** wording. Registry classifies this file archive-candidate with no agent instruction weight. Read-only in MR-01. Four review iterations, commit `7608ffb3`. |
 | 2 | `humanoid-motion-architecture-brief-2026-09-02.md` | **SUPERSEDED** except as the source ledger for clinical anchors. Its schema, its `magnitude` model, its `onDemand` block and its weighted IK alpha were all rejected. Do not implement from it |
 | 3 | `motion-dsl-consumer-path-2026-09-02.md` | Historical. Its "park the compiler" recommendation was overturned when the operator supplied the requirement above |
 | 4 | `blocked-card-unlock-plan-2026-08-31.md` | Unrelated subject, same session. Carries the `planted()` versus `live:` trap that applies to any motion-compiler card |
+| 5 | `humanoid-motion-reassessment-2026-09-13/decision-ledger.md` | Current claim-to-consumer ledger (evidence; not instruction authority). |
 
 ## Do this, in this order
 
-1. **Run the bake-off.** Board card below. Baked tracks versus a deterministic runtime-goal backend,
-   on one seated MPFB actor, on rock-plus-clutch and pulse presentation. A negative result closes it.
-2. **Settle the nine open decisions** listed at the end of the design. A worker may not make them.
-3. **Then card A**, factory to final GLB to Model Vetting, per the design's Execution section.
+The doc-authority-registry-2026-05-27.json takes precedence over this ENTRYPOINT’s “Read this first” and historical “AUTHORITATIVE” wording.
+
+1. Review `humanoid-motion-reassessment-2026-09-13/decision-ledger` for current source bindings and open owner decisions. The ledger maps every consequential claim to live code, production consumers (or explicitly none), and phase-release gates. Cite live report.json verdict `other`: landed, inconclusive, no backend winner.
+2. Settle the nine open decisions listed in the ledger (ids: open-decision-*). A worker may not make them.
+3. Do not create MR-02 unless the owner releases it after independent review of this ledger and the comparison proposal. A missing pulse goal, identity-stale actor, or unresolved posture/schema/contact/tolerance authority is not a fair experiment.
+
+Historical 2026-09-02 execution order, retained as qualified history (not live order):
+
+> 1. **Run the bake-off.** Board card below. Baked tracks versus a deterministic runtime-goal backend,
+>    on one seated MPFB actor, on rock-plus-clutch and pulse presentation. A negative result closes it.
+> 2. **Settle the nine open decisions** listed at the end of the design. A worker may not make them.
+> 3. **Then card A**, factory to final GLB to Model Vetting, per the design's Execution section.
 
 ## Five measurements that will change your design if you forget them
 
@@ -52,16 +67,26 @@ pre-record; per-encounter compiled behaviour for case-specific idiosyncrasy.
    `@openclinxr/factory-stations`. Admin cards may keep this import for one cycle."* It is the ONLY
    thing making `shared-schemas` depend on `factory-stations` (2 import lines, one file), and
    `factory-stations` itself has no `@openclinxr` dependencies at all.
-   It has exactly TWO live consumers, both the admin cards it named:
-   `apps/ui-admin/.../FactoryStationCards.tsx` and
-   `the-factory-station-cards-derive-from-schema.test.tsx`. A third consumer,
-   `plan-equipment-would-invoke.ts`, already imports from `@openclinxr/factory-stations` directly, so
-   the target pattern is in the tree.
-   **So the cheapest break is: repoint those two admin files at `@openclinxr/factory-stations`, delete
-   the shim, and the cycle is gone** — no subprocess, no CLI boundary, no re-homing the adapter. The
-   shim declared its own expiry of "one cycle" and outlived it.
-   This stays an operator decision (it is a package boundary, listed under Open decisions), but it is
-   now a three-way choice with a measured cheapest option rather than a two-way one.
+   Live admin cards no longer import the shim: `packages/openclinxr/ui-shared/src/admin-factory-station-cards-mod.tsx:5`
+   and `apps/ui-admin/src/the-factory-station-cards-derive-from-schema.test.tsx` import
+   `@openclinxr/factory-stations/catalog` directly. `shared-schemas/src/index.ts:16-18` re-exports
+   type-only `ProductionStationId` from the shim, not a value consumer. The cycle remains via
+   `shared-schemas/package.json` depending on `@openclinxr/factory-stations`. Deleting the unused
+   shim (and that workspace dependency) is still an owner package-boundary decision.
+
+   Historical 2026-09-03 current instruction, retained as qualified history (not live):
+
+   > It has exactly TWO live consumers, both the admin cards it named:
+   > `apps/ui-admin/.../FactoryStationCards.tsx` and
+   > `the-factory-station-cards-derive-from-schema.test.tsx`. A third consumer,
+   > `plan-equipment-would-invoke.ts`, already imports from `@openclinxr/factory-stations` directly, so
+   > the target pattern is in the tree.
+   > **So the cheapest break is: repoint those two admin files at `@openclinxr/factory-stations`, delete
+   > the shim, and the cycle is gone** — no subprocess, no CLI boundary, no re-homing the adapter. The
+   > shim declared its own expiry of "one cycle" and outlived it.
+
+   This stays an operator decision (it is a package boundary, listed under Open decisions). The
+   2026-09-03 "repoint two admin files" cheapest-break is already done for those files.
 2. `CCDIKSolver` solves the full target then slerps each joint (`CCDIKSolver.js:248`), so
    `blendFactor` is **not** fractional reach. Limit the target and solve at blend 1.
 3. `AnimationMixer` in `three@0.184.0` has zero occurrences of `mask`. Partial-body masking is

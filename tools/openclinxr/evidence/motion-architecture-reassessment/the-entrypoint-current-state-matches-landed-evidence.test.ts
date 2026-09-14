@@ -21,6 +21,23 @@ import { describe, expect, it } from "vitest";
  * pretend capture is current.
  *
  * live: is valid here (raw it.fails, not motion-compiler planted()).
+ *
+ * ## FIXED (MR-01 / tsk_7177631409c3d441)
+ * (2) Current one-line cites landed bake-off verdict `other` and no longer presents
+ *     “nothing is built” as live instruction. Historical stale one-line is a blockquote.
+ * (3) Current execution order cites the reassessment ledger, live report verdict `other`,
+ *     and the required registry-precedence sentence. It no longer says run the bake-off
+ *     first as if it had not landed. Historical bake-off-first order is a blockquote.
+ * (7) LEFT PLANTED BY THE WORKER, then FLIPPED BY THE OWNER after an independent review.
+ *     The worker was right not to touch it: a worker cannot satisfy this clause, which requires a
+ *     reviewer session id differing from its own. Two rounds by reviewer `bind-audit`, session
+ *     01a0a16d-e575-77b3-8d5c-95ad1be694c7, read-only, told that rejecting counts as success.
+ *     ROUND 1 at 0893ddc9 REJECTED: 26 claims checked, 20 verified, 5 source-binding defects —
+ *     three claims citing a file that does not contain them, one caller.kind=production on a
+ *     nearby consumer of a different mechanism, and ENTRYPOINT:70-77 still presenting a completed
+ *     repointing as the cheapest break. Every contract proof was green at that commit.
+ *     ROUND 2 at 6fcd2f1e ACCEPTED: all five fixed by repointing or qualifying, none by deleting a
+ *     row; regressions none. Record and output hashes in delegation-manifest.json.
  */
 
 const REPO = join(import.meta.dirname, "../../../..");
@@ -165,7 +182,7 @@ describe("the entrypoint current state matches landed evidence", () => {
     ).toBe(true);
   });
 
-  it.fails("(2) RED: ENTRYPOINT current one-line is not the unsupported “nothing is built” instruction", () => {
+  it("(2) RED: ENTRYPOINT current one-line is not the unsupported “nothing is built” instruction", () => {
     const md = read(ENTRYPOINT);
     const oneLine = currentProse(section(md, "The one-line state"));
     expect(oneLine.length, "ENTRYPOINT missing ## The one-line state").toBeGreaterThan(20);
@@ -175,7 +192,7 @@ describe("the entrypoint current state matches landed evidence", () => {
     ).toBe(false);
   });
 
-  it.fails("(3) RED: ENTRYPOINT current order is not “run the bake-off first”; it cites live report verdict and the ledger", () => {
+  it("(3) RED: ENTRYPOINT current order is not “run the bake-off first”; it cites live report verdict and the ledger", () => {
     const md = read(ENTRYPOINT);
     const doThis = currentProse(section(md, "Do this, in this order"));
     const oneLine = currentProse(section(md, "The one-line state"));
@@ -259,7 +276,7 @@ describe("the entrypoint current state matches landed evidence", () => {
     );
   });
 
-  it.fails("(7) OWNER ACCEPTANCE: independent review is accepted and binds final output identities", () => {
+  it("(7) OWNER ACCEPTANCE: independent review is accepted and binds final output identities", () => {
     const manifest = JSON.parse(read(MANIFEST)) as {
       worker?: { sessionId?: string };
       independentSemanticReview?: {

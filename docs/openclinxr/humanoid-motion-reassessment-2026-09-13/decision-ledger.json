@@ -11,7 +11,7 @@
     "classification": "identity-stale"
   },
   "phaseRelease": {
-    "mr01": "idle_until_owner_plant",
+    "mr01": "worker_review_clause_7_planted_owner_acceptance_blocked",
     "mr02": "blocked_until_owner_after_mr01_review",
     "mr03": "blocked_until_owner_after_mr02"
   },
@@ -22,12 +22,12 @@
       "class": "math",
       "status": "retained",
       "currentSource": {
-        "path": "tools/openclinxr/evidence/motion-backend-bakeoff/harness.html",
-        "sha256": "18bffc2e664c6c361fab3aa5f61d289653e91a4c16b6221e9029d3bd4f821e99"
+        "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
+        "sha256": "94b8c4e8a22874e3d0b9d2fed11f6e20c7e786213ea01c194e3d9e704132df91"
       },
       "caller": {
         "kind": "none",
-        "evidence": "CCDIKSolver is imported in the isolated bake-off harness only; apps/ui-xr has no CCDIKSolver import as of dd074568."
+        "evidence": "Math assertion is full-design-2026-09-02.md:102-105 (CCDIKSolver.js:248 slerp; blend is not percent of reach). harness.html:370 is the call site (solver.updateOne(..., 1)), not the assertion. apps/ui-xr has no CCDIKSolver import."
       },
       "claimScope": "blendFactor meaning in three.js CCDIKSolver used by the harness",
       "notEvidenceFor": "clinical ROM, a ban on all weighted IK, or production learner-hand IK",
@@ -81,7 +81,7 @@
       },
       "caller": {
         "kind": "none",
-        "evidence": "This historical controller proposal is not established by this seed. Current xr-humanoid-animation approach/stance/settling mods DO have ui-xr and asset-registry consumers. Trace actual pass order and bone/root authority; no CCDIK import must not be generalized to no production motion."
+        "evidence": "The claimed support-then-IK-then-contact-then-gaze controller is specified in the full design and has no production consumer. apps/ui-xr/src/main.ts:143/:3462/:3484 consumes station-bedside-approach (createStationBedsideApproachState, updateStationBedsideApproach, applyStationBedsideStanceLock) for approach/stance/locomotion lock — a nearby production consumer of a different mechanism, not the claimed pass order. apps/ui-xr has no CCDIKSolver import."
       },
       "claimScope": "specified pass order in the full design",
       "notEvidenceFor": "measured production pass order or grasp lifecycle",
@@ -154,7 +154,7 @@
       },
       "caller": {
         "kind": "none",
-        "evidence": "The shared-schemas shim/barrel edge persists; admin FactoryStationCards and its test already import factory-stations/catalog directly. None here means no completed consumer closure in seed, not a proof of no consumer. MR-01 must identify real factory/CLI/admin consumers and dependency edges."
+        "evidence": "Compat shim remains: shared-schemas/src/factory-stations.ts re-exports @openclinxr/factory-stations; shared-schemas/package.json still lists that workspace dependency. shared-schemas/src/index.ts:16-18 is a type-only re-export of ProductionStationId, not a value re-export of the shim. Live admin cards do not use the shim: packages/openclinxr/ui-shared/src/admin-factory-station-cards-mod.tsx:5 and apps/ui-admin/src/the-factory-station-cards-derive-from-schema.test.tsx import @openclinxr/factory-stations/catalog. No remaining from '@openclinxr/shared-schemas' factory-stations value consumer found. factory-stations/src/station-runners.ts:18 registers motion_retarget; motion_retarget/run.ts:19 adapter is the string @openclinxr/motion-compiler with processIsolation fresh_subprocess, not a JS import."
       },
       "claimScope": "package graph and station adapter string",
       "notEvidenceFor": "permission to add factory-stations -> motion-compiler as a JS import",
@@ -163,16 +163,16 @@
     },
     {
       "id": "evidence-vs-obsolete-failures",
-      "claim": "Bake-off task landed with report.verdict other: neither arm produced the requested clutch; pulse descriptor had no pulse goal. That is completed-inconclusive, not a current-actor quality grade. ENTRYPOINT current instruction still says nothing is built / run bake-off first. Actor bytes vs report actor digest are classified live in inputIdentity (identity-stale at dd074568; if they later match, classification must follow the live compare).",
+      "claim": "Bake-off task tsk_37785faf55d16dc6 landed with report.verdict other: neither arm produced the requested clutch; pulse descriptor had no pulse goal. That is completed-inconclusive, not a current-actor quality grade and not an architecture winner. Current ENTRYPOINT instruction now cites that verdict, the reassessment ledger, and registry precedence; historical stale one-line and bake-off-first order are retained as blockquotes only. Actor bytes vs report actor digest remain identity-stale (report b744d3d5 vs disk 8409334c); classification follows the live compare and must not be greened by editing hashes.",
       "class": "observed",
-      "status": "reopened",
+      "status": "retained",
       "currentSource": {
         "path": "docs/openclinxr/humanoid-motion-ENTRYPOINT.md",
-        "sha256": "4ddcc2e0fc2cda2d186f0406629c9ff910762aaaf4fc3c0ddded1459d037c5ca"
+        "sha256": "1288fff4c72ff4ca158c31a7757e17999d8bf1f4db006a8b4449b8bef5993802"
       },
       "caller": {
         "kind": "none",
-        "evidence": "ENTRYPOINT is documentation. Bake-off landed as tsk_37785faf55d16dc6. Digest test on main compares report vs disk; do not green it by editing hashes."
+        "evidence": "ENTRYPOINT is documentation (archive-candidate, no instruction weight). Bake-off landed as tsk_37785faf55d16dc6 with verdict other. Digest test tools/openclinxr/evidence/motion-backend-bakeoff/the-bakeoff-report-digests-match-the-files-on-disk.test.ts compares report vs disk; do not green it by editing hashes."
       },
       "claimScope": "factual landed/inconclusive vs stale current instruction",
       "notEvidenceFor": "today\u2019s clutch/skin quality, a backend winner, or Quest",
@@ -190,7 +190,7 @@
       },
       "caller": {
         "kind": "none",
-        "evidence": "static-assets.test.ts is an engineering/policy guard, not a production interaction consumer. main.ts select listener is not the proposed grasp lifecycle; verify full closure in MR-01."
+        "evidence": "static-assets.test.ts:1310 is a live passing guard forbidding @dimforge/rapier and @openclinxr/physics-touch-contract in ui-xr deps. It is an engineering/policy fence, not a production interaction consumer. apps/ui-xr/src has no grasp/hold/release/aborted/squeeze/selectstart/selectend; the single select listener remains a tap. Lifting the fence is an owner decision."
       },
       "claimScope": "runtime dependency fence and input lifecycle absence",
       "notEvidenceFor": "a card to wire grasp; lifting the fence is an owner decision",
@@ -313,12 +313,12 @@
       "class": "engineering",
       "status": "unknown",
       "currentSource": {
-        "path": "tools/openclinxr/evidence/motion-backend-bakeoff/harness.html",
-        "sha256": "18bffc2e664c6c361fab3aa5f61d289653e91a4c16b6221e9029d3bd4f821e99"
+        "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
+        "sha256": "94b8c4e8a22874e3d0b9d2fed11f6e20c7e786213ea01c194e3d9e704132df91"
       },
       "caller": {
         "kind": "none",
-        "evidence": "Harness-only CCDIK apply path."
+        "evidence": "Open decision is full-design-2026-09-02.md:107-110 and :327. harness.html:370 applies blend 1 (solver.updateOne(..., 1)); that is an engineering apply-site, not the unresolved IK-versus-pre-IK policy."
       },
       "claimScope": "IK vs pre-IK blend policy",
       "notEvidenceFor": "joint interior-angle clinical limits",
@@ -367,12 +367,12 @@
       "class": "authoring",
       "status": "unknown",
       "currentSource": {
-        "path": "docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md",
-        "sha256": "38b757624f325aad20a261dbc29a731114636876ba64018b004e90ec0bcd7bf0"
+        "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
+        "sha256": "94b8c4e8a22874e3d0b9d2fed11f6e20c7e786213ea01c194e3d9e704132df91"
       },
       "caller": {
         "kind": "none",
-        "evidence": "Brief remains historical clinical-source ledger only."
+        "evidence": "Open decision is full-design-2026-09-02.md:209 (maxCompletion 0.35 has no approved provenance) and :328-329 (provenance path for authored cooperation limits). architecture-brief-2026-09-02.md contains no provenance-path open decision; it remains the historical clinical-source ledger only."
       },
       "claimScope": "unset provenance path",
       "notEvidenceFor": "adopting consultation sample limits as clinical evidence",
@@ -380,5 +380,7 @@
       "phaseReleaseOwnerGate": "owner_open_decisions"
     }
   ],
-  "seedStatus": "unreviewed-baseline; caller statements require MR-01 closure verification"
+  "seedStatus": "worker-corrected-after-bind-audit-reject; independent claim-to-consumer grade remains owner work",
+  "workerSessionId": "27ec8e94-3780-4be4-8933-0ee13ddb9968",
+  "ingestionRevision": "7066a99cea07f1b41728a560e605f0e98b2623c4"
 }

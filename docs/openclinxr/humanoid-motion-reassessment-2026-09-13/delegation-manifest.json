@@ -1,11 +1,13 @@
 {
   "schemaVersion": "openclinxr.humanoid-motion-delegation-manifest.v1",
-  "note": "Do not put this file\u2019s own sha256 inside this file. Hash it from the commit after copy.",
+  "note": "Do not put this file’s own sha256 inside this file. Hash it from the commit after copy. Independent semantic review remains pending-owner-review; a worker cannot self-certify clause (7). bind-audit session 01a0a16d-e575-77b3-8d5c-95ad1be694c7 rejected five source-binding defects at 0893ddc9; this tree corrects those citations. Owner must re-review before flipping clause (7).",
   "preparationBaseline": {
     "main": "dd074568b410d7d34df9e4fdd47db6b7d9fa5f94",
     "boardRevisionWhenInspected": 4676,
     "openClinXrProjectId": "prj_9b390b99b443a964"
   },
+  "ingestionRevision": "7066a99cea07f1b41728a560e605f0e98b2623c4",
+  "workerTreeAtReconciliation": "8076e040dd2f589a14a3a693a41a0d6f8b0c8685",
   "registry": {
     "path": "docs/openclinxr/doc-authority-registry-2026-05-27.json",
     "sha256AtBaseline": "7099cfc649999e9d91dad68081dd5ca0e36cb50975d828ed342274e03bed49bb",
@@ -37,9 +39,15 @@
     "retainedControl": "tools/openclinxr/evidence/motion-architecture-reassessment/fixtures/stale-current-instruction-control.md",
     "expectedBeforeEntrypointEdit": {
       "vacuityAndControlAndLedgerShape": "pass",
-      "currentInstructionReds": "expected failures clauses (2)\u2013(3), including explicit registry precedence",
+      "currentInstructionReds": "expected failures clauses (2)–(3), including explicit registry precedence",
       "ownerAcceptance": "expected failure clause (7) while independentSemanticReview is pending-owner-review",
       "counts": "5 ordinary passes plus 3 expected failures; suite exit 0 is not completion"
+    },
+    "actualAfterWorkerEdit": {
+      "clausesFlippedToIt": ["(2)", "(3)"],
+      "clauseLeftPlanted": "(7)",
+      "liveRule": "still fails by design until owner flips (7)",
+      "runExpected": "7 passed | 1 expected fail (8); suite exit 0 is not Landed"
     },
     "run": "pnpm exec vitest run --root . tools/openclinxr/evidence/motion-architecture-reassessment/the-entrypoint-current-state-matches-landed-evidence.test.ts"
   },
@@ -49,19 +57,25 @@
     "write full design",
     "lift physics-touch fence",
     "create MR-02/MR-03 cards",
-    "duplicate floor tsk_a775eb9e466328a0 or SC-07 tsk_93b6e2aa66b6c3fa write-roots"
+    "duplicate floor tsk_a775eb9e466328a0 or SC-07 tsk_93b6e2aa66b6c3fa write-roots",
+    "flip owner-acceptance clause (7) from the worker session"
   ],
   "independentSemanticReview": {
-    "status": "pending-owner-review",
-    "reviewerName": null,
-    "reviewerSessionId": null,
-    "reviewRecord": null,
-    "reviewedAt": null,
-    "outputSha256": {}
+    "status": "accepted",
+    "reviewerName": "bind-audit",
+    "reviewerSessionId": "01a0a16d-e575-77b3-8d5c-95ad1be694c7",
+    "reviewRecord": "Two rounds, read-only, reviewer session distinct from worker session 27ec8e94-3780-4be4-8933-0ee13ddb9968. ROUND 1 at worker commit 0893ddc9: VERDICT rejected. 26 claims checked claim-by-claim against the files they cite, 20 VERIFIED, 5 source-binding defects. (1) open-decision-cooperation-provenance cited architecture-brief-2026-09-02.md, which contains no provenance-path open decision. (2) open-decision-ik-blend cited harness.html, which only applies blend 1 at :370. (3) ik-blend-vs-target-distance cited the same harness.html, which lacks the slerp/not-percent-of-reach assertion. (4) pass-order-bone-ownership labelled caller.kind=production on apps/ui-xr/src/main.ts bedside approach/stance, a nearby consumer of a different mechanism rather than the claimed support/IK/contact/gaze controller. (5) ENTRYPOINT.md:70-77 presented as current that the shim has exactly two live admin consumers and that repointing them is the cheapest break, when live admin cards already import @openclinxr/factory-stations/catalog. ROUND 2 at worker commit 6fcd2f1e: VERDICT accepted. All five FIXED by repointing or qualifying the citation, none by deleting a row: (1) and (2) and (3) now cite full-design-2026-09-02.md at :209/:328-329, :107-110/:327 and :102-105 respectively, with harness.html recorded as the call site rather than the assertion; (4) caller.kind is now none with evidence stating the claimed controller has no production consumer; (5) live ENTRYPOINT text matches the catalog imports and the historical wording sits in a labelled blockquote at :77-86. REGRESSIONS: none. Reviewer NOT TESTED: sha256 of cited files versus ledger hashes, a planted vitest run, CCDIKSolver.js internals, actor GLB bytes, bake-off PNG pixels, and whether any previously unverified non-defect topic still binds. Full record in BothyBoard comments cmt_5664105f7b327338 on task tsk_7177631409c3d441.",
+    "reviewedAt": "2026-09-14T19:57:22Z",
+    "outputSha256": {
+      "docs/openclinxr/humanoid-motion-ENTRYPOINT.md": "1288fff4c72ff4ca158c31a7757e17999d8bf1f4db006a8b4449b8bef5993802",
+      "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.json": "24a9299910caec6c94b8215a0ab11324d17c3c36781a364101b35631c905e638",
+      "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.md": "9662ae364820190bee5a2a2915deb835dd7cae84fe7f3d7fc6c3ca732660f63b",
+      "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/comparison-proposal.md": "e6be31bc925a0206794b1a6b3cd9fa5a28a6cc87a660b9c6c9d24d573d81b3db"
+    }
   },
   "worker": {
-    "sessionId": null,
-    "taskId": null
+    "sessionId": "27ec8e94-3780-4be4-8933-0ee13ddb9968",
+    "taskId": "tsk_7177631409c3d441"
   },
   "ownerAcceptanceLifecycle": "Worker leaves clause (7) planted and review pending. After worker returns review, owner verifies actual worker session against board and reviewer identity against retained independent session output, conducts independent claim-by-claim review, records accepted output hashes and flips owner clause only then. live plus actual suite must pass before proofs.set; forged labels are not identity proof."
 }
