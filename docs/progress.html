@@ -28,6 +28,50 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-14T0200">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 51 &middot; 2026-09-14 02:00 EDT</p>
+          <h2>The walking foot now stays on the floor. The standing foot still sinks, and that turns out to be a different fault entirely.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Measured in the running application after the repair landed. Splitting the measurement by what the figure was doing at the time is what separated one fault into two.</caption>
+            <thead><tr><th scope="col">What the figure is doing</th><th scope="col">Deepest the foot goes below the floor</th><th scope="col">Is the corrector allowed to run?</th></tr></thead>
+            <tbody>
+              <tr><td>Walking</td><td>0.2 cm &mdash; within the 0.5 cm limit</td><td>Yes</td></tr>
+              <tr><td>Settling to a stop</td><td>3.7 cm</td><td>No</td></tr>
+              <tr><td>Standing still</td><td>3.6 cm</td><td>No</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What this means</h3>
+            <ul>
+              <li>The repair bends the leg to keep the planted foot on the floor, and on every frame it is permitted to act it works, with more than twice the margin the limit requires.</li>
+              <li>The corrector is switched off whenever the figure is not moving. That is by design and predates this work. So the frames that fail the check are frames it never touches.</li>
+              <li>The task was written about a walking foot. The walking foot is fixed. What remains is a standing foot, which is a different problem and will get its own task rather than another round of patching this one.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Two wrong explanations, each killed by a measurement</h3>
+            <ul>
+              <li>Suspected the repair was looking for leg bones by names the character&rsquo;s skeleton does not use. Read the character file directly: all eight names are present. The repair does run.</li>
+              <li>An earlier run of the check recorded nothing at all and showed a completely different room. Re-running on the same build worked. That intermittent failure now has an explanation: the check supplies the room description itself, because no such file is shipped, and when that substitution does not take effect the page quietly loads a different encounter instead.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What is not claimed, and one thing I lost</h3>
+            <ul>
+              <li>It is not established that the walking figure was worse before this change. The earlier good recording was overwritten by re-running the check into the same place without saving it first. That was my mistake, and recovering the comparison means re-running against the older version.</li>
+              <li>Foot-sliding still cannot be judged: frame timing in a headless browser varies by more than nine times between frames, far outside what the measurement needs.</li>
+              <li>The repair was accepted on structure and measurement, not on its author&rsquo;s report, which had claimed all checks passing when two were failing.</li>
+              <li>Nothing here concerns clinical validity, scoring, or headset readiness.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-14T0050">
         <div class="section-heading">
           <p class="eyebrow">Entry 50 &middot; 2026-09-14 00:50 EDT &middot; work in progress</p>
