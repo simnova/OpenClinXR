@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import { planMotionProgram } from "./index.js";
-import { planted } from "./planted.js";
 
 /**
  * PLANTED RED — BothyBoard card tsk_c0d67f74a7891719 (instrument stage). IMMUTABLE HEADER.
@@ -97,12 +96,25 @@ async function loadCompileEntry(): Promise<
 }
 
 async function loadBake(): Promise<
-  { bakeMotionProgramToGlb: (clip: ClipLike) => Uint8Array; readMotionGlbClipId: (bytes: Uint8Array) => string } | undefined
+  {
+    bakeMotionProgramToGlb: (clip: ClipLike) => Uint8Array;
+    readMotionGlbClipId: (bytes: Uint8Array) => string;
+    readMotionGlb: (bytes: Uint8Array) => {
+      channels: unknown[];
+      samplers: Array<{ interpolation: string }>;
+      rotations: Array<{ values: Array<readonly [number, number, number, number]> }>;
+    };
+  } | undefined
 > {
   try {
     return (await import(/* @vite-ignore */ plantModule(BAKE_MODULE))) as {
       bakeMotionProgramToGlb: (clip: ClipLike) => Uint8Array;
       readMotionGlbClipId: (bytes: Uint8Array) => string;
+      readMotionGlb: (bytes: Uint8Array) => {
+        channels: unknown[];
+        samplers: Array<{ interpolation: string }>;
+        rotations: Array<{ values: Array<readonly [number, number, number, number]> }>;
+      };
     };
   } catch {
     return undefined;
@@ -178,6 +190,23 @@ describe("the bake produces a GLB the runtime loads", () => {
     // Deterministic: the same clip bakes to byte-identical output.
     expect(second).toEqual(first);
     expect(clip.compileIdentity.deterministicSeed.length).toBeGreaterThan(0);
+
+    const readback = bake!.readMotionGlb(first);
+    expect(readback.channels.length, "readback must prove animation channels").toBeGreaterThan(0);
+    expect(readback.samplers.every((s) => s.interpolation === "LINEAR")).toBe(true);
+    for (const rotation of readback.rotations) {
+      for (const q of rotation.values) {
+        expect(Math.hypot(q[0], q[1], q[2], q[3])).toBeCloseTo(1, 5);
+      }
+    }
+
+    const seedMutated = bake!.bakeMotionProgramToGlb({
+      ...clip,
+      compileIdentity: { ...clip.compileIdentity, deterministicSeed: `${clip.compileIdentity.deterministicSeed}::mutated` },
+    });
+    expect(seedMutated).not.toEqual(first);
+    const clipMutated = bake!.bakeMotionProgramToGlb({ ...clip, clipId: `${clip.clipId}::other` });
+    expect(clipMutated).not.toEqual(first);
   });
 });
 

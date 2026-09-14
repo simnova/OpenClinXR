@@ -139,6 +139,7 @@ import {
   updateGeneratedHumanoidAnimations as updatePackageGeneratedHumanoidAnimations,
   updateHumanoidEmotionExpression as updatePackageHumanoidEmotionExpression,
 } from "@openclinxr/xr-humanoid-animation";
+import { playManifestMotionClip } from "./motion-manifest-motion-address.js";
 import { observeMountedApproachGeometry } from "@openclinxr/xr-humanoid-animation/mounted-approach-geometry";
 import { applyStationBedsideStanceLock, createStationBedsideApproachState, updateStationBedsideApproach } from "@openclinxr/xr-humanoid-animation/station-bedside-approach";
 import {
@@ -4148,9 +4149,9 @@ function playOneShotResponseClip(actorId: string, clipName: string): boolean {
   const clip = slot.responseClips.find((candidate) => candidate.name === clipName);
   if (!clip) return false;
   const mixer = slot.mixer;
-  const action = mixer.clipAction(clip);
-  action.stop();
-  action.reset();
+  playManifestMotionClip({ mixer, manifestAddress: { clipId: clipName }, clips: slot.responseClips });
+  const action = mixer.existingAction(clip);
+  if (!action) return false;
   action.setLoop(LoopOnce, 1);
   action.clampWhenFinished = true;
   action.enabled = true;

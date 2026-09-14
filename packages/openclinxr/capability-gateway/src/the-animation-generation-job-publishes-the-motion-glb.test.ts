@@ -44,7 +44,7 @@ function sandbox(): string {
 }
 
 describe("the animation-generation job publishes the motion GLB", () => {
-  it.fails("(1) RED: the succeeded job artifacts include the motion GLB addressed by clipId", async () => {
+  it("(1) RED: the succeeded job artifacts include the motion GLB addressed by clipId", async () => {
     const facade = new AssetGenerationCapabilityFacade({ now: () => "2026-09-11T00:00:00.000Z" });
     const record = await facade.submit({
       profile: "local-development",
@@ -65,7 +65,7 @@ describe("the animation-generation job publishes the motion GLB", () => {
     expect(record.manifest?.outputs ?? []).toContain(glb?.path);
   });
 
-  it.fails("(2) RED: the publication carries motion license provenance with zero egress and zero spend", async () => {
+  it("(2) RED: the publication carries motion license provenance with zero egress and zero spend", async () => {
     const facade = new AssetGenerationCapabilityFacade({ now: () => "2026-09-11T00:00:00.000Z" });
     const record = await facade.submit({
       profile: "local-development",
@@ -81,6 +81,17 @@ describe("the animation-generation job publishes the motion GLB", () => {
     expect(record.policy.allowExternalNetwork).toBe(false);
   });
 });
+
+/**
+ * ## FIXED (2026-09-14) — BothyBoard card tsk_c0d67f74a7891719
+ *
+ * Wired createAnimationGenerationAdapter() from asset-generation-jobs.ts so
+ * animation-generation publishes `<clipId>.glb` (model/gltf-binary) under the
+ * clip identity, with license containing "motion", externalNetworkUsed=false,
+ * spendCents=0. Publication lives in motion-manifest-publication.ts and bakes
+ * through bakeMotionProgramToGlb / readMotionGlbClipId (no compileMotionProgram
+ * import — that symbol is not on the motion-compiler public surface).
+ */
 
 // NOT TESTED: whether the published GLB bytes decode to the compiled clip; whether the manifest
 // address resolves from a learner runtime; mixer playback.

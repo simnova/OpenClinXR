@@ -1,20 +1,20 @@
 /**
  * Motion asset pipeline — deterministic GLB bake and manifest publication.
  *
- * This module provides the bridge between the motion-compiler bake output and the
- * capability-gateway animation-generation job. It reads the compiled clip, bakes
- * it to GLB bytes, and prepares the manifest with license provenance.
+ * Bridge between the motion-compiler bake output and the capability-gateway
+ * animation-generation job. Bakes a clip to GLB bytes and prepares a local
+ * zero-egress, zero-spend manifest.
  */
 
 import { createHash } from "node:crypto";
-import { writeFileSync, mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 
-import { bakeMotionProgramToGlb, readMotionGlbClipId } from "@openclinxr/motion-compiler";
-import type { CompiledMotionClipV1 } from "@openclinxr/motion-compiler";
+import { bakeMotionProgramToGlb, readMotionGlbClipId } from "../../../../packages/openclinxr/motion-compiler/src/index.ts";
+import type { MotionGlbBakeClip } from "../../../../packages/openclinxr/motion-compiler/src/index.ts";
 
 export interface MotionAssetPipelineInput {
-  clip: CompiledMotionClipV1;
+  clip: MotionGlbBakeClip;
   jobId: string;
   sandboxWorkdir: string;
 }
@@ -43,37 +43,22 @@ export interface MotionAssetProvenance {
   externalNetworkUsed: false;
 }
 
-/**
- * Runs the motion asset pipeline: bakes the clip to GLB, writes artifacts, and returns manifest.
- */
 export async function runMotionAssetPipeline(input: MotionAssetPipelineInput): Promise<MotionAssetPipelineOutput> {
   const { clip, jobId, sandboxWorkdir } = input;
-
-  // Bake the clip to GLB
   const glbBytes = bakeMotionProgramToGlb(clip);
-
-  // Verify readback
   const readbackClipId = readMotionGlbClipId(glbBytes);
   if (readbackClipId !== clip.clipId) {
     throw new Error(`GLB readback clipId mismatch: expected ${clip.clipId}, got ${readbackClipId}`);
   }
 
-  // Compute GLB hash
   const glbSha256 = createHash("sha256").update(glbBytes).digest("hex");
-
-  // Prepare output paths
   const baseDir = resolve(sandboxWorkdir, jobId);
   const glbFileName = `${clip.clipId}.glb`;
   const glbPath = resolve(baseDir, glbFileName);
   const manifestPath = resolve(baseDir, "animation-generation-manifest.json");
-
-  // Ensure directory exists
   mkdirSync(baseDir, { recursive: true });
-
-  // Write GLB
   writeFileSync(glbPath, glbBytes);
 
-  // Build manifest
   const manifest: MotionAssetManifest = {
     schemaVersion: "openclinxr.motion-asset-manifest.v1",
     capabilityId: "animation-generation",
@@ -82,22 +67,18 @@ export async function runMotionAssetPipeline(input: MotionAssetPipelineInput): P
     glbByteLength: glbBytes.length,
     glbSha256,
   };
-
-  // Write manifest
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-
-  const provenance: MotionAssetProvenance = {
-    generator: "openclinxr-motion-compiler",
-    license: "openclinxr-motion-clip-v1",
-    spendCents: 0,
-    externalNetworkUsed: false,
-  };
 
   return {
     glbPath,
     glbBytes,
     manifestPath,
     manifest,
-    provenance,
+    provenance: {
+      generator: "openclinxr-motion-compiler",
+      license: "openclinxr-motion-clip-v1",
+      spendCents: 0,
+      externalNetworkUsed: false,
+    },
   };
 }

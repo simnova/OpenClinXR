@@ -34,6 +34,7 @@
  * deliberately, not to discover later.
  */
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -118,6 +119,21 @@ if (unregistered.length > 0 || stale.length > 0) {
   for (const e of stale) console.log(`FAIL ${e.file} :: ${e.select}\n      in the manifest but no such planted clause - stale entry, or the title changed`);
   console.log(`\nManifest covers ${PLANTED_REDS.length} of ${discovered.length} planted clauses. Coverage must be exact before any probe runs.`);
   process.exit(1);
+}
+
+if (discovered.length === 0) {
+  // Empty planted set after flipping the last RED is vacuous unless the contract
+  // transition is still recorded on the bake plant (FIXED block, no planted() call).
+  const bakePlant = readFileSync(join(SRC, "the-bake-produces-a-glb-the-runtime-loads.test.ts"), "utf8");
+  const hasFixed = /## FIXED/.test(bakePlant);
+  const stillPlantedCall = /\bplanted\s*\(\s*["']/.test(bakePlant);
+  if (!hasFixed || stillPlantedCall) {
+    console.log("FAIL empty planted-RED manifest — a check that cannot fail is worse than no check");
+    process.exit(1);
+  }
+  console.log("ok   the-bake-produces-a-glb-the-runtime-loads.test.ts :: recorded bake contract-transition (FIXED block; no planted() call)");
+  console.log("\n1/1 recorded bake contract-transition remains (manifest covers all 0 discovered planted clauses).");
+  process.exit(0);
 }
 
 const results = PLANTED_REDS.map(probe);

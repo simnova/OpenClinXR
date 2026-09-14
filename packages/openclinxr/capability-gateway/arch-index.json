@@ -39,7 +39,8 @@
     "resolveDeterministicActorTurnPlan"
   ],
   "workspaceDependencies": [
-    "@cellix/provider-contracts"
+    "@cellix/provider-contracts",
+    "@openclinxr/motion-compiler"
   ],
   "tests": [
     "src/asset-generation-jobs.test.ts",

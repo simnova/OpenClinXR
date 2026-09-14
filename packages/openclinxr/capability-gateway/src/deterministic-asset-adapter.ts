@@ -5,12 +5,13 @@ import type {
   AssetGenerationCapabilityId,
 } from "./asset-generation-jobs.js";
 
-import { publishMotionManifest } from "./motion-manifest-publication.js";
-
 /**
  * Deterministic no-spend fixture adapter (#610): materializes the manifest/source files it
  * references so no succeeded job claims artifacts nobody wrote. Split out of
  * asset-generation-jobs.ts to honor its shrink-only size freeze.
+ *
+ * Animation-generation is NOT this adapter: see createAnimationGenerationAdapter in
+ * motion-manifest-publication.ts, wired from asset-generation-jobs.ts.
  */
 export function createDeterministicAssetGenerationAdapter(
   capabilityId: AssetGenerationCapabilityId,
@@ -21,35 +22,11 @@ export function createDeterministicAssetGenerationAdapter(
     providerKind: "deterministic-mock",
     implementationLanguage: "typescript",
     transport: "in-process",
-    async run(request, policy, context) {
+    async run(_request, policy, context) {
       const basePath = `${policy.sandboxWorkdir}/${context.jobId}`;
       // #610: the artifacts this adapter references must exist on disk. A succeeded job that
       // hands back paths nobody wrote is the defect this adapter used to ship — write the
       // deterministic fixture files before reporting them.
-      
-      // Special handling for animation-generation: publish actual motion GLB
-      if (capabilityId === "animation-generation") {
-        const payload = request.payload as {
-          clipId: string;
-          motionProgramHash: string;
-          deterministicSeed: string;
-        };
-        
-        const result = publishMotionManifest({
-          clipId: payload.clipId,
-          motionProgramHash: payload.motionProgramHash,
-          deterministicSeed: payload.deterministicSeed,
-          jobId: context.jobId,
-          sandboxWorkdir: policy.sandboxWorkdir,
-        });
-        
-        return {
-          artifacts: [result.glbArtifact, result.manifestArtifact],
-          manifest: result.manifest,
-          provenance: result.provenance,
-        };
-      }
-
       const manifestArtifact = {
         kind: "manifest" as const,
         path: `${basePath}/${capabilityId}-manifest.json`,

@@ -20,6 +20,9 @@
   "references": [
     {
       "path": "../../cellix/provider-contracts"
+    },
+    {
+      "path": "../motion-compiler"
     }
   ]
 }

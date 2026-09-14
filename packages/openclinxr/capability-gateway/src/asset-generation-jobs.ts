@@ -5,6 +5,7 @@ import {
   createDeterministicAssetGenerationAdapter,
   resolveRepositoryArtifactPath,
 } from "./deterministic-asset-adapter.js";
+import { createAnimationGenerationAdapter } from "./motion-manifest-publication.js";
 import {
   buildSharedAssetLibraryLookupKey,
   buildSharedAssetLibraryReusePolicy,
@@ -646,7 +647,7 @@ export class AssetGenerationCapabilityFacade {
       createDeterministicAssetGenerationAdapter("character-generation"),
       createDeterministicAssetGenerationAdapter("medical-equipment-generation"),
       createDeterministicAssetGenerationAdapter("voice-asset-generation"),
-      createDeterministicAssetGenerationAdapter("animation-generation"),
+      createAnimationGenerationAdapter(),
       createDeterministicAssetGenerationAdapter("asset-bake"),
     ];
     this.store = options.store ?? new InMemoryAssetGenerationJobStore();
