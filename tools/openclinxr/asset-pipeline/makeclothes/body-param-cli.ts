@@ -54,6 +54,10 @@ import {
   resolveScenarioActorCast,
 } from "../../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { planBodyParam, runBodyParam } from "@openclinxr/factory-stations";
+import {
+  BAKE_FINISH_STEP,
+  bakeProducedHumanoidAlbedo,
+} from "../trellis/bake-produced-humanoid.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
@@ -1201,6 +1205,12 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       hairSkippedReason = hairResolved.skipReason ?? "no hair candidate declared";
       finishStepsRun.push("embed_library_hair:recorded_skip");
     }
+
+    // Albedo bake is part of produce, not a second command. destDisk is the finished
+    // figure (stage + footwear + hair); materials are final. JPEG textures with no
+    // palette factor are skipped by the station (not transcoded).
+    bakeProducedHumanoidAlbedo(destDisk);
+    finishStepsRun.push(BAKE_FINISH_STEP);
 
     const phenotype = (sc["phenotype"] as Record<string, number | string>) ?? {};
     const annyReferenceAsset =

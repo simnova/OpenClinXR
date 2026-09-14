@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "openclinxr.humanoid-bake-wiring.v1",
+  "generated": "2026-09-14",
+  "slice": "bothy-tsk_7be8f259400354d3",
+  "wiring": {
+    "kind": "producer_path_call",
+    "why": "body-param-cli already writes destDisk after footwear and hair. Calling bakeGlbAlbedo there makes a regenerated humanoid carry its albedo without a second command. A composite pnpm script would still be a command humans forget, which is the defect.",
+    "caller": "tools/openclinxr/asset-pipeline/makeclothes/body-param-cli.ts",
+    "callSite": "bakeProducedHumanoidAlbedo(destDisk) after hair, before sha256/catalog",
+    "wrapper": "tools/openclinxr/asset-pipeline/trellis/bake-produced-humanoid.ts",
+    "station": "tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts",
+    "stationExport": "bakeGlbAlbedo(input: string, output: string)",
+    "finishStep": "bake_humanoid_albedo",
+    "notACompositeScript": true
+  },
+  "counterweight": {
+    "body": "mpfb-family-partner-adult.glb",
+    "whyThisBody": "PNG t-shirt (T-shirt_basic.png). The aisha pair carry tightjeans-2048-q85 (mimeType image/jpeg, magic ffd8ffe0) which this card must not transcode. family-partner is one of the three measured-unbaked bodies.",
+    "material": "mat_makeclothes_library_toigo_t_shirt",
+    "factorBefore": [0.62, 0.28, 0.38],
+    "factorAfter": [1, 1, 1],
+    "how": "copy the shipped GLB to a temp path, run bakeProducedHumanoidAlbedo (the function body-param-cli calls), read the t-shirt factor. Shipped bytes left unbaked so the seven clean bodies and the two JPEG-bearing aisha files were not rewritten.",
+    "texturedNonWhitePopulationBefore": 1,
+    "test": "tools/openclinxr/asset-pipeline/trellis/the-regenerated-humanoid-reaches-the-bake.test.ts clause (3)"
+  },
+  "stationInvokedNotRewritten": true,
+  "notBakedInPlaceOnThisCard": [
+    "mpfb-ob-patient-aisha.glb",
+    "mpfb-peds-parent-aisha.glb",
+    "mpfb-family-partner-adult.glb (shipped copy; a temp copy was baked)",
+    "the seven already-clean baked bodies",
+    "the 8 untextured legacy bodies"
+  ],
+  "claimScope": [
+    "body-param-cli import closure reaches bake-humanoid-albedo via bake-produced-humanoid.ts",
+    "bakeProducedHumanoidAlbedo run on a copy of mpfb-family-partner-adult.glb sets mat_makeclothes_library_toigo_t_shirt baseColorFactor from [0.62, 0.28, 0.38] to [1, 1, 1]"
+  ],
+  "notEvidenceFor": [
+    "whether the generation path runs under automation (measured 2026-09-14: it does not)",
+    "whether the vr-postopt decimation station HB-03 landed has the same unwired gap",
+    "whether the PNG-only CRC clause should be taught about JPEG",
+    "rendered appearance of any rebaked body"
+  ]
+}

@@ -1,6 +1,8 @@
-import { existsSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { bakeProducedHumanoidAlbedo } from "./bake-produced-humanoid.js";
 
 /**
  * The albedo bake station has no caller, so any re-fit ships unbaked.
@@ -112,6 +114,23 @@ function texturedNonWhite(glb: string): number {
   return n;
 }
 
+function namedTexturedFactor(glb: string, materialName: string): number[] | undefined {
+  const b = readFileSync(glb);
+  const len = b.readUInt32LE(12);
+  const json = JSON.parse(b.subarray(20, 20 + len).toString("utf8")) as {
+    materials?: Array<{ name?: string; pbrMetallicRoughness?: { baseColorTexture?: unknown; baseColorFactor?: unknown } }>;
+  };
+  const mat = (json.materials ?? []).find((m) => m.name === materialName);
+  const pbr = mat?.pbrMetallicRoughness;
+  if (pbr?.baseColorTexture === undefined) return undefined;
+  const f = pbr.baseColorFactor;
+  return Array.isArray(f) ? (f as number[]).slice(0, 3) : undefined;
+}
+
+const SHIRT = "mat_makeclothes_library_toigo_t_shirt";
+/** PNG t-shirt, no JPEG; the aisha pair carry tightjeans-2048-q85 (image/jpeg) which this card must not transcode. */
+const COUNTERWEIGHT_BODY = "mpfb-family-partner-adult.glb";
+
 describe("the regenerated humanoid reaches the bake", () => {
   it("(0) VACUITY: the generator, the station and the measured bodies all exist", () => {
     expect(existsSync(GENERATOR), `missing generator: ${GENERATOR}`).toBe(true);
@@ -124,7 +143,7 @@ describe("the regenerated humanoid reaches the bake", () => {
     }
   });
 
-  it.fails("(1) RED: the producing path reaches the bake station, by import closure OR by its declared command", () => {
+  it("(1) RED: the producing path reaches the bake station, by import closure OR by its declared command", () => {
     const closure = importClosure(GENERATOR);
     const byImport = [...closure].some((f) => path.basename(f).startsWith(STATION_MODULE));
     // body-param-cli.ts:71 declares PRODUCED_BY_COMMAND = "pnpm asset:body-param:fit -- --once".
@@ -138,6 +157,15 @@ describe("the regenerated humanoid reaches the bake", () => {
         `non-white palette factors today.`,
     ).toBe(true);
   });
+
+  /*
+   * ## FIXED (tsk_7be8f259400354d3)
+   * Wiring chosen: direct call from the generation path.
+   * body-param-cli.ts imports bake-produced-humanoid.ts, which calls bakeGlbAlbedo
+   * after destDisk is finished (footwear + hair), before sha256/catalog stamp.
+   * Import closure now includes bake-humanoid-albedo.ts. Not a composite pnpm script:
+   * a second command is what humans forget, which is the defect.
+   */
 
   it("(2) COUNTERWEIGHT: the three measured bodies are still unbaked, and the station is still whole", () => {
     // This passes TODAY and states what must remain true of the FIX. It exists so clause (1) cannot
@@ -155,4 +183,32 @@ describe("the regenerated humanoid reaches the bake", () => {
         "them, flip clause (1), append ## FIXED and re-point this clause at the new evidence.",
     ).toBeGreaterThan(0);
   });
+
+  it("(3) COUNTERWEIGHT RUNS: producer-path bake on a copy of family-partner whites the t-shirt factor", () => {
+    const src = path.join(HUMANOIDS, COUNTERWEIGHT_BODY);
+    const before = namedTexturedFactor(src, SHIRT);
+    expect(before, `${COUNTERWEIGHT_BODY} ${SHIRT} has no textured factor`).toBeDefined();
+    expect(
+      texturedNonWhite(src),
+      `${COUNTERWEIGHT_BODY} has zero textured non-white materials — would pass on an untextured body`,
+    ).toBeGreaterThan(0);
+    const tmp = mkdtempSync(path.join(os.tmpdir(), "openclinxr-bake-caller-"));
+    const dest = path.join(tmp, COUNTERWEIGHT_BODY);
+    try {
+      copyFileSync(src, dest);
+      const row = bakeProducedHumanoidAlbedo(dest);
+      const after = namedTexturedFactor(dest, SHIRT);
+      const bakedShirt = row.materials.find((m) => m.material === SHIRT);
+      expect(bakedShirt?.decision.startsWith("baked"), `station did not bake ${SHIRT}: ${bakedShirt?.decision}`).toBe(
+        true,
+      );
+      expect(
+        after,
+        `${SHIRT} factor after bake. before=${JSON.stringify(before)} after=${JSON.stringify(after)}`,
+      ).toEqual([1, 1, 1]);
+      expect(before, "before factor must stay non-white so this is not a no-op").not.toEqual([1, 1, 1]);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  }, 120_000);
 });
