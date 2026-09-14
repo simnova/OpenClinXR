@@ -11,10 +11,6 @@
     "./accepted-scene-plan-review": {
       "types": "./dist/accepted-scene-plan-review.d.ts",
       "default": "./dist/accepted-scene-plan-review.js"
-    },
-    "./counterfactual-debrief": {
-      "types": "./dist/counterfactual-debrief/index.d.ts",
-      "default": "./dist/counterfactual-debrief/index.js"
     }
   },
   "scripts": {

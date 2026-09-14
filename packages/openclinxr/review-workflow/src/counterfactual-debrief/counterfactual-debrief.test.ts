@@ -7,7 +7,7 @@ import {
   type CounterfactualReleaseGate,
   type LearnerAttemptRecord,
   type ReviewedAlternative,
-} from "@openclinxr/review-workflow/counterfactual-debrief";
+} from "./counterfactual-debrief.js";
 
 function attempt(): LearnerAttemptRecord {
   return {
