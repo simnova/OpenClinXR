@@ -1,5 +1,6 @@
 /**
  * Counterfactual debrief barrel — re-exports the implementation.
+ * Only exports symbols with confirmed external consumers (apps/ui-xr test).
  */
 
 export {
@@ -9,14 +10,7 @@ export {
   COUNTERFACTUAL_DEBRIEF_NOT_EVIDENCE_FOR,
 } from "./counterfactual-debrief.js";
 export type {
-  ActualPathSnapshot,
-  BuildCounterfactualCheckpointInput,
-  BuildCounterfactualDebriefInput,
-  CounterfactualCheckpoint,
-  CounterfactualDebriefResult,
-  CounterfactualRefusal,
   CounterfactualReleaseGate,
-  HypotheticalAlternativePath,
   LearnerAttemptRecord,
   ReviewedAlternative,
 } from "./counterfactual-debrief.js";
