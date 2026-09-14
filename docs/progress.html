@@ -28,6 +28,57 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-14T1845">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 66 &middot; 2026-09-14 18:45 EDT</p>
+          <h2>Three repairs to a sinking foot all worked. The measurement was reading the other foot.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>What we learned by watching the code run instead of repairing it a fourth time. Every figure below was produced by an inexpensive assistant and then re-checked independently.</caption>
+            <thead><tr><th scope="col">Question</th><th scope="col">Answer</th></tr></thead>
+            <tbody>
+              <tr><td>Does the correction actually run?</td><td>Yes &mdash; on 119 of the 120 frames where the character has arrived</td></tr>
+              <tr><td>How often did it need to correct anything?</td><td>Once</td></tr>
+              <tr><td>Did that correction work?</td><td>Yes &mdash; the foot moved from 8 mm below the floor to 48 mm above it</td></tr>
+              <tr><td>So why is the published figure still 38 mm below the floor?</td><td>It is reporting the <em>other</em> foot, which nothing ever corrected</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Why three correct repairs changed nothing</h3>
+            <ul>
+              <li>A character walks to a bedside and stops. One foot was sinking slightly through the floor. Three separate repairs were written for it. Each passed every automated check, and the published number moved by less than the noise between runs.</li>
+              <li>Rather than write a fourth, we had an assistant watch the code execute and report numbers. It found the repair runs, fires when needed, and lifts the foot exactly as intended.</li>
+              <li>The repair handles one foot. The measurement scans both feet and reports whichever is deeper. Both feet were below the floor, so fixing one simply handed the report the other.</li>
+              <li>That explains why every repair looked successful in isolation and invisible in the result. The next piece of work is queued with that named as the defect and with an instruction to measure both feet before changing a line.</li>
+              <li>One caution I owe the record: the assistant's conclusion was right and its explanation was not. It blamed the airborne foot; the measurement actually reports the deepest one. Had I written the next task from its wording, it would have sent someone chasing something that cannot happen.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Two pieces of work landed on the inexpensive assistants</h3>
+            <ul>
+              <li>The relay fault from the last entry is routed around, and the cheap option now completes real work end to end. Five commits landed tonight.</li>
+              <li>The foot observation ran 135 steps with no retries, and stayed strictly inside what it was asked to touch: no product code, no thresholds, and a single targeted registry entry rather than a regeneration that would have dropped 117 records.</li>
+              <li>Three characters were re-clothed properly. Their shirt colour had been left as a separate tint rather than folded into the fabric texture, because a step added only today had not existed when they were last rebuilt. All three are corrected, their record files updated, and the textures genuinely re-encoded rather than the value edited by hand.</li>
+              <li>That work also fixed a checking tool that could not read one of its own image formats, and corrected a record describing a texture that no longer existed. It returned one clause short, I handed back a one-line correction, and it fixed that in a single follow-up.</li>
+              <li>I re-ran every check myself instead of trusting the reports, and read the complete set of changes against what had been asked.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>One task came back unfinished, and the fault was in how I wrote it</h3>
+            <ul>
+              <li>A third task asked for a way to approve genuinely new shared code without forging an existing approval. It returned incomplete, and correctly so.</li>
+              <li>The reason is a dependency I never wrote down. Approvals are checked against a frozen inventory of the code base, and that inventory predates the new code entirely &mdash; it contains none of the names being approved. Nothing could be approved honestly until the inventory is re-measured, which is a separate piece of work.</li>
+              <li>The assistant withdrew its own approval file rather than force it through. That was the right call and I have recorded it as my error, not its.</li>
+              <li>It had also signed its own approval as an independent reviewer. I obtained a genuine independent review instead, which rejected three of the seven items as unused and found the supporting citations wrong on six. The task is being rewritten with all of that built in.</li>
+              <li>Not claimed: clinical validity, scoring, or headset readiness. None of today's work touches those.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-14T1730">
         <div class="section-heading">
           <p class="eyebrow">Entry 65 &middot; 2026-09-14 17:30 EDT</p>
