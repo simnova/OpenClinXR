@@ -41,6 +41,12 @@ import { CircuitBreaker, createServer, forwardChat, routeFor } from "./provider-
  *
  * Clauses (3) and (4) pass today and MUST STILL PASS after the fix. They are what refuses the
  * cheap change. Do not delete this header; append a `## FIXED` block below it.
+ *
+ * ## FIXED (tsk_1050a76f3dd27799)
+ * forwardChat forwards the client's own stream flag, judges a completed event stream from
+ * accumulated content deltas (empty stream fails over with the same transient circuit entry),
+ * and returns the upstream bytes plus content-type for createServer to emit. Non-streaming
+ * callers keep the single JSON body path unchanged.
  */
 
 /** A well-formed SSE completion carrying exactly one content delta. */
@@ -109,7 +115,7 @@ describe("the proxy streams, and still fails over", () => {
   });
 
   // (1) RED — the client's streaming request must reach the upstream AS a streaming request.
-  it.fails("forwards the client's stream flag instead of forcing stream:false", async () => {
+  it("forwards the client's stream flag instead of forcing stream:false", async () => {
     process.env.OPENROUTER_API_KEY = "or-test";
     process.env.OPENCODE_API_KEY = "go-test";
     const { fetchImpl, sent } = recordingFetch(() => sse(SSE_WITH_CONTENT));
@@ -131,7 +137,7 @@ describe("the proxy streams, and still fails over", () => {
   });
 
   // (2) RED — and the content deltas must reach the client as an event stream.
-  it.fails("returns content deltas to a streaming client", async () => {
+  it("returns content deltas to a streaming client", async () => {
     process.env.OPENROUTER_API_KEY = "or-test";
     process.env.OPENCODE_API_KEY = "go-test";
     const { fetchImpl } = recordingFetch(() => sse(SSE_WITH_CONTENT));
