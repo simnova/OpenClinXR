@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.humanoid-motion-delegation-manifest.v1",
-  "note": "Do not put this file’s own sha256 inside this file. Hash it from the commit after copy. Independent semantic review remains pending-owner-review; a worker cannot self-certify clause (7).",
+  "note": "Do not put this file’s own sha256 inside this file. Hash it from the commit after copy. Independent semantic review remains pending-owner-review; a worker cannot self-certify clause (7). bind-audit session 01a0a16d-e575-77b3-8d5c-95ad1be694c7 rejected five source-binding defects at 0893ddc9; this tree corrects those citations. Owner must re-review before flipping clause (7).",
   "preparationBaseline": {
     "main": "dd074568b410d7d34df9e4fdd47db6b7d9fa5f94",
     "boardRevisionWhenInspected": 4676,

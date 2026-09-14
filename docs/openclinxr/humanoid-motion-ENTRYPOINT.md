@@ -67,16 +67,26 @@ Historical 2026-09-02 execution order, retained as qualified history (not live o
    `@openclinxr/factory-stations`. Admin cards may keep this import for one cycle."* It is the ONLY
    thing making `shared-schemas` depend on `factory-stations` (2 import lines, one file), and
    `factory-stations` itself has no `@openclinxr` dependencies at all.
-   It has exactly TWO live consumers, both the admin cards it named:
-   `apps/ui-admin/.../FactoryStationCards.tsx` and
-   `the-factory-station-cards-derive-from-schema.test.tsx`. A third consumer,
-   `plan-equipment-would-invoke.ts`, already imports from `@openclinxr/factory-stations` directly, so
-   the target pattern is in the tree.
-   **So the cheapest break is: repoint those two admin files at `@openclinxr/factory-stations`, delete
-   the shim, and the cycle is gone** — no subprocess, no CLI boundary, no re-homing the adapter. The
-   shim declared its own expiry of "one cycle" and outlived it.
-   This stays an operator decision (it is a package boundary, listed under Open decisions), but it is
-   now a three-way choice with a measured cheapest option rather than a two-way one.
+   Live admin cards no longer import the shim: `packages/openclinxr/ui-shared/src/admin-factory-station-cards-mod.tsx:5`
+   and `apps/ui-admin/src/the-factory-station-cards-derive-from-schema.test.tsx` import
+   `@openclinxr/factory-stations/catalog` directly. `shared-schemas/src/index.ts:16-18` re-exports
+   type-only `ProductionStationId` from the shim, not a value consumer. The cycle remains via
+   `shared-schemas/package.json` depending on `@openclinxr/factory-stations`. Deleting the unused
+   shim (and that workspace dependency) is still an owner package-boundary decision.
+
+   Historical 2026-09-03 current instruction, retained as qualified history (not live):
+
+   > It has exactly TWO live consumers, both the admin cards it named:
+   > `apps/ui-admin/.../FactoryStationCards.tsx` and
+   > `the-factory-station-cards-derive-from-schema.test.tsx`. A third consumer,
+   > `plan-equipment-would-invoke.ts`, already imports from `@openclinxr/factory-stations` directly, so
+   > the target pattern is in the tree.
+   > **So the cheapest break is: repoint those two admin files at `@openclinxr/factory-stations`, delete
+   > the shim, and the cycle is gone** — no subprocess, no CLI boundary, no re-homing the adapter. The
+   > shim declared its own expiry of "one cycle" and outlived it.
+
+   This stays an operator decision (it is a package boundary, listed under Open decisions). The
+   2026-09-03 "repoint two admin files" cheapest-break is already done for those files.
 2. `CCDIKSolver` solves the full target then slerps each joint (`CCDIKSolver.js:248`), so
    `blendFactor` is **not** fractional reach. Limit the target and solve at blend 1.
 3. `AnimationMixer` in `three@0.184.0` has zero occurrences of `mask`. Partial-body masking is
