@@ -13,7 +13,83 @@ import { parseRunArgv, partitionDoneWhen } from "../../../packages/openclinxr/ag
  * dispatchable. Saying so is the correct output, not a failure of this function.
  */
 
-export type BoardIssue = { number: number; title: string; body: string };
+export type BoardIssue = {
+  number: number;
+  title: string;
+  body: string;
+  /**
+   * BothyBoard card id (`tsk_…`) when this brief came from a card rather than a GitHub issue.
+   * `bothyBriefFromSlice` already returns it alongside title/body; passing the object straight
+   * through is what lights up `boardProtocolSection`. Absent for GitHub-issue dispatches.
+   */
+  taskId?: string;
+};
+
+/**
+ * Tell the worker the board exists.
+ *
+ * MEASURED 2026-09-14 on slice `bothy-tsk_34afd6c6670236b9` (session fb925961, nemotron-ultra, two
+ * hours): 26 BothyBoard tools registered in the session, ZERO board calls in its transcript, against
+ * 28 `run_terminal_command`, 18 `search_replace` and 4 `write`. Its system prompt named the board
+ * zero times, and every `bothy` string in its prompt was the slice id.
+ *
+ * So access was never the gap — the PAT inherits through `dispatch()`'s `{ ...process.env }`, the
+ * server is enabled in user config, and the tools are loaded. The gap was that no brief has ever
+ * said the board is there. `announceBothyDispatchPresence` registers the claim from the PARENT,
+ * which is exactly why the board looked connected while the worker was deaf to it.
+ *
+ * What that cost, concretely: mid-run the orchestrator posted a mailbox note saying the worker's new
+ * test sat at the wrong path and it had modified a file outside every write root. The worker could
+ * not read it, kept both defects, and earned a full round-trip. `mailbox.poll` is the ONLY channel
+ * that reaches a live child; `tasks.comment` is an audit log and reaches nobody.
+ *
+ * Emitted ONLY when a card id is present. A GitHub-issue worker told to bind would spend turns on a
+ * row that does not exist, and the likeliest way to "succeed" at that is to invent a task id.
+ */
+export function boardProtocolSection(taskId: string | undefined): string[] {
+  if (typeof taskId !== "string" || taskId.trim() === "") return [];
+  const id = taskId.trim();
+  return [
+    `## BothyBoard — this slice is a card, and the card is LIVE`,
+    ``,
+    `Your card is \`${id}\`. Your slice id is that with a \`bothy-\` prefix.`,
+    ``,
+    `AT THE START:`,
+    `  bothy-board_sessions_bind { grokSessionId, taskId: "${id}", machineName }`,
+    `  bothy-board_tasks_get { taskId: "${id}" }`,
+    `The CARD is the contract, not this prompt. This prompt is a snapshot taken at dispatch and the`,
+    `card may have moved since. Read its knownGood and failedTreatments — failedTreatments is`,
+    `append-only and lists approaches already measured as dead. Retrying one is the most expensive`,
+    `mistake available to you.`,
+    ``,
+    `EVERY FEW TURNS:`,
+    `  bothy-board_mailbox_poll { taskId: "${id}", since: <your last poll timestamp> }`,
+    `  bothy-board_agents_heartbeat`,
+    `ALWAYS pass \`since\`: without it the response is ~339 KB instead of ~308 bytes. The mailbox is`,
+    `the ONLY channel that reaches you while you run — card comments are an audit log and you will`,
+    `not see them. If the orchestrator has spotted that you are writing to the wrong path or outside`,
+    `your write roots, the correction arrives there and nowhere else. A worker that never polls burns`,
+    `a full round-trip on a defect someone already saw. Heartbeat matters too: a silent worker is`,
+    `reaped at ~10 minutes and its uncommitted tree is discarded.`,
+    ``,
+    `WHEN SOMETHING GOES WRONG:`,
+    `  bothy-board_tasks_treatments_fail { name, produced }   an approach you measured as dead`,
+    `  bothy-board_tasks_release                              you cannot finish; returns it to ready`,
+    `Release rather than waiting to be reaped — a reap loses your work.`,
+    ``,
+    `AT THE END: bothy-board_tasks_update { status=review }. Then stop.`,
+    ``,
+    `YOU MAY NOT set status done, or factory Landed or Graded, and you may not rewrite doneWhen,`,
+    `writeRoots or depIds — those are create-only and frozen once planted. Landing is an orchestrator`,
+    `attestation made after re-running every proof against your tree. If the contract names a path you`,
+    `believe is wrong, satisfy it anyway and say so in your report: a passing contract plus your`,
+    `written objection beats a green-looking failure. The contract cannot move to meet your file.`,
+    ``,
+    `If the board is unreachable, say so in one line and carry on with the slice. The code is the`,
+    `deliverable and the board is coordination; never let a board error cost you turns.`,
+    ``,
+  ];
+}
 
 export type BriefResult =
   | { dispatchable: false; reason: string }
@@ -706,6 +782,7 @@ export function briefFromIssue(issue: BoardIssue, treeRoot?: string): BriefResul
       ...(treeRoot === undefined
         ? []
         : packageIndexBriefSection(packagesNamedInIssue(issue, rules, treeRoot), treeRoot)),
+      ...boardProtocolSection(issue.taskId),
       `VERIFY (stop at first failure): pnpm packages:typecheck:agent && pnpm architecture, then the`,
       `test task for every package you touched: pnpm exec turbo run test --filter <pkg> --force.`,
       ``,
