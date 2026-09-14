@@ -1,0 +1,106 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+import { REVIEW_GROUPS, resolveApplyId } from "./apply-map.js";
+import { workspaceRoot } from "./resolve.js";
+
+/**
+ * A package that legitimately needs new public API has no route that is not forgery.
+ *
+ * MEASURED 2026-09-14 on origin/main at a896db48. The bake vertical landed and necessarily
+ * publishes six names its own contract requires, because the gateway and UI-XR halves consume the
+ * bake module and the plant's BAKE_MODULE = "./motion-glb-bake.js" must resolve:
+ *
+ *   psr-01c  packages/openclinxr/motion-compiler        MotionGlbBakeClip, MotionGlbBakeTrack,
+ *                                                       MotionGlbReadback, bakeMotionProgramToGlb,
+ *                                                       readMotionGlb
+ *   psr-01e  packages/openclinxr/xr-humanoid-animation  playManifestMotionClip
+ *
+ * `pnpm arch:public-surface:acceptance` therefore returns `verdict: refuse` on criterion 5, where
+ * hours earlier at 0517a635 it returned `verdict: close`. Two landed programmes collide: the
+ * reduction programme admits only names carrying an approval keep row, and the factory needs new
+ * API to wire a new capability.
+ *
+ * THE OBVIOUS FIX IS FORGERY, AND THIS MACHINERY EXISTS TO CATCH IT. gates.ts:14-22 states it:
+ * "an implementation card cannot satisfy its semantic proof by editing an approval manifest or
+ * setting a completion flag. Every gate recomputes the compiler-derived current surface and
+ * compares it against immutable approved dispositions." Appending six rows to psr-01c and
+ * recomputing its groupHash defeats exactly the control it implements. It was not done.
+ *
+ * THE REAL DEFECT is that the legal counterpart does not exist. A new reviewed group is not
+ * admissible at all, and the group set is declared THREE times rather than once:
+ *
+ *   apply-map.ts:12        export const REVIEW_GROUPS = ["psr-01b","psr-01c","psr-01d","psr-01e"]
+ *   gates.ts:448           const groups = ["psr-01b","psr-01c","psr-01d","psr-01e"]   (local literal)
+ *   gates.ts:456           const groups = ["psr-01b","psr-01c","psr-01d","psr-01e"]   (local literal)
+ *
+ * acceptance-criteria.ts imports the exported constant (:161, :211, :225). requireAllReviewed does
+ * not. So adding a fifth id to REVIEW_GROUPS would be iterated by criterion 4 and criterion 5's
+ * apply loop while requireAllReviewed silently kept checking four — a new group that is half
+ * admitted is worse than one that is refused outright.
+ *
+ * Diagnosis IMMUTABLE. Flip `it.fails` -> `it` and append ## FIXED. Do not rewrite this header's
+ * measured paths, line numbers or symbol lists.
+ *
+ * live: is valid here (raw it.fails, no helper indirection).
+ *
+ * WHAT THIS TEST IS NOT. It does not assert that acceptance returns `close`. A verdict in a
+ * contract becomes the design target, and the two cheapest routes to `close` are both destructive:
+ * forge a closed group's hash, or delete the six exports the bake vertical needs. Clause (3) is the
+ * counterweight and must keep passing after any fix.
+ */
+
+const ROOT = workspaceRoot();
+const GATES = join(ROOT, "packages/openclinxr-verification/architecture-rules/src/checks/public-surface/gates.ts");
+const APPLY_MAP = join(ROOT, "packages/openclinxr-verification/architecture-rules/src/checks/public-surface/apply-map.ts");
+
+/** Any array literal of psr group ids, e.g. ["psr-01b", "psr-01c", "psr-01d", "psr-01e"]. */
+const GROUP_ID_ARRAY_LITERAL = /\[\s*"psr-[^"]+"(?:\s*,\s*"psr-[^"]+")*\s*,?\s*\]/gu;
+
+describe("a new reviewed group is admitted without forging a closed one", () => {
+  it("(0) VACUITY: the sources this test reads exist, so a failure below is never a missing file", () => {
+    expect(readFileSync(GATES, "utf8").length, `unreadable: ${GATES}`).toBeGreaterThan(1000);
+    expect(readFileSync(APPLY_MAP, "utf8").length, `unreadable: ${APPLY_MAP}`).toBeGreaterThan(200);
+    expect(REVIEW_GROUPS.length, "REVIEW_GROUPS is empty").toBeGreaterThan(0);
+  });
+
+  it.fails("(1) RED: the group set is declared once, not re-literalled inside gates.ts", () => {
+    const source = readFileSync(GATES, "utf8");
+    const literals = source.match(GROUP_ID_ARRAY_LITERAL) ?? [];
+    expect(
+      literals,
+      `gates.ts re-declares the review-group set ${literals.length} time(s) instead of importing ` +
+        `REVIEW_GROUPS from apply-map.ts. A fifth group added to the exported constant would be ` +
+        `iterated by acceptance-criteria.ts (:161, :211) and silently ignored by requireAllReviewed.`,
+    ).toEqual([]);
+  });
+
+  it.fails("(2) RED: a well-formed new reviewed group id is resolvable", () => {
+    // A new group must be admissible the way the existing four are, under the SAME rigour:
+    // rows resolved, rawInventoryHash equal to the checked-in raw inventory, groupHash fresh at
+    // review time, no self-attested completion flag. Today nothing reads the approvals directory,
+    // so any id outside the hardcoded constant resolves to undefined by construction.
+    const resolution = resolveApplyId("psr-01f");
+    expect(
+      resolution,
+      "resolveApplyId returns undefined for every id outside the hardcoded REVIEW_GROUPS and " +
+        "APPLY_TARGETS, so a genuinely reviewed new group cannot be admitted at all",
+    ).toBeDefined();
+  });
+
+  it("(3) COUNTERWEIGHT: a closed group is still keyed to its reviewed rows, and must stay that way", () => {
+    // This passes today and MUST keep passing after any fix. If admitting a new group is bought by
+    // relaxing how an existing one is verified, the control is gone and the fix is worse than the
+    // defect. Restoration: requireAllReviewed must keep comparing each group's stored groupHash
+    // against groupHash(rawInventory.rows, approvalPackages(rows)) and its rawInventoryHash against
+    // the checked-in raw inventory. Widening or deleting this clause is wrong.
+    const source = readFileSync(GATES, "utf8");
+    expect(source, "requireAllReviewed no longer compares groupHash against the raw inventory rows").toMatch(
+      /groupHash\(raw\.rows \?\? \[\], approvalPackages\(read\.rows\)\) !== read\.value\.groupHash/u,
+    );
+    expect(source, "requireAllReviewed no longer refuses a group whose rawInventoryHash has moved").toMatch(
+      /is stale: raw inventory hash moved/u,
+    );
+    expect(source, "the self-attestation refusal was removed").toMatch(/completionFlag/u);
+  });
+});
