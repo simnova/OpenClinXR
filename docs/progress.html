@@ -28,6 +28,53 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-14T0140">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 52 &middot; 2026-09-14 01:40 EDT &middot; correction</p>
+          <h2>Entry 47 said a programme was verified complete. I had not run the check. Running it, it refuses.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The check recomputes 46 packages from the source and reads no completion marker, which is what makes it worth running rather than quoting.</caption>
+            <thead><tr><th scope="col">Criterion</th><th scope="col">Result</th></tr></thead>
+            <tbody>
+              <tr><td>No wildcard publication from supported entry points</td><td>passes</td></tr>
+              <tr><td>Every one of 3,588 symbols classified</td><td>passes</td></tr>
+              <tr><td>Only reviewed names are published</td><td><strong>fails</strong> &mdash; six names leaked</td></tr>
+              <tr><td>Numeric targets, with their recorded shortfall</td><td>passes</td></tr>
+              <tr><td>Independent recomputation from the tree</td><td>passes</td></tr>
+              <tr><td>Overall</td><td><strong>refuses</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What I did wrong</h3>
+            <ul>
+              <li>I wrote that the programme was &ldquo;verified against the source, not just the task board&rdquo;, and quoted what the verification command prints. I had not run it. I had read that sentence inside the programme&rsquo;s own closing document and repeated it as though it were my own result.</li>
+              <li>Quoting a document that describes a check is not performing the check. That distinction is the whole point of having a command that recomputes from source.</li>
+              <li>Entry 47 remains published with that claim in it. This entry corrects it rather than editing it away.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What is actually true</h3>
+            <ul>
+              <li>The programme did finish. It has since been re-opened by work done the same day &mdash; six names are now exposed from shared code that the independent review never approved.</li>
+              <li>One of those six comes from my own work last night, added while fixing how the encounter checks the room it is in. The other five come from separate feature work.</li>
+              <li>Everything else the check measures still holds: the count target, the classification of all 3,588 symbols, and the independent recomputation.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Why nothing caught it, and what happens now</h3>
+            <ul>
+              <li>The automatic guard that runs on every change protects the total count of exposed names. Nothing checks the approved list itself at that moment. The list is only checked by the acceptance command, which nothing runs automatically.</li>
+              <li>A task is now written to remove the leaked names rather than to widen the approved list. Widening it to admit an accidental leak would invert the control.</li>
+              <li>Five of the six have no code depending on them and can simply stop being exposed. The sixth has three dependents, so it needs a decision rather than a deletion.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-14T0200">
         <div class="section-heading">
           <p class="eyebrow">Entry 51 &middot; 2026-09-14 02:00 EDT</p>
