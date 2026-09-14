@@ -21,15 +21,38 @@ import { AnimationClip, Group, Object3D, VectorKeyframeTrack } from "three";
  * rewriting them would erase the evidence that the error occurred. It came from a card table I
  * assembled, and the worker that wrote this file copied it in good faith.
  *
- * The one recorded artifact is tools/openclinxr/evidence/settled-posture-diagnosis/
- * settled-correction-execution-report.md (commit e3d9ccde), which reads:
+ * AMENDED AGAIN after an independent review, because the correction above was itself wrong in
+ * three ways. Recorded rather than rewritten, for the same reason.
  *
- *   "settling: 0.037747m -> 0.037172m -> 0.037598m; arrived: 0.035685m -> 0.036384m -> 0.034778m"
+ * (a) I cited settled-posture-diagnosis/settled-correction-execution-report.md (e3d9ccde) as
+ *     "the one recorded artifact", quoting its series. That report is NOT a source: the series
+ *     sits in its Summary as inherited prose, and its own measurements are 0.112 m and 0.1975 m.
+ *     I appealed to a quotation as if it were a measurement.
+ * (b) My quotation was not literal. The file uses U+2192 arrows, not ASCII "->".
+ * (c) I wrote that `git log -S 0.037578 --all` returns four things. It returns five — I omitted
+ *     my own correction commit, which is itself the point: once an invented figure lands, the
+ *     pickaxe reports it "sourced" forever.
  *
- * So the true settling series is 0.037747 -> 0.037172 -> 0.037598. The line above drops the
- * middle measurement and ends with 0.037578, which appears in NO artifact: `git log -S 0.037578
- * --all` returns only this file, the both-toes measurement that quotes this card, and two
- * unrelated .obj vertex coordinates from June and August.
+ * THE ACTUAL SOURCE is a capture store excluded from version control, which is why no git search
+ * could ever have found it, under .openclinxr/evidence/ in three sibling directories named
+ * sc-05-bedside-approach, sc-05-after-standing-1 and sc-05-after-standing-2, each holding
+ * sc-05-bedside-approach-inspection.json.
+ * Recomputed from rawEvidence.samples (floorOriginY = -8.940696724635266e-10), depth below floor:
+ *
+ *   capture           samples   walking     settling    arrived
+ *   01:17               371     0.001995    0.037172    0.036384
+ *   04:01               371     0.001871    0.037598    0.034778
+ *   04:05                 0     — grade.problems: "the drive came from null"
+ *
+ * So 0.037172 and 0.037598 are real and reproducible. 0.037578 is not, and the THIRD capture it
+ * was supposed to describe produced ZERO SAMPLES: a failed run written up as a data row.
+ * 0.037747 and 0.035685 — the "before any fix" baseline — appear in NO capture either; captures
+ * are overwritten in place, so whether they ever had a source is NOT KNOWN.
+ *
+ * AND THE GRADED RECORD DISAGREES WITH ALL OF IT. docs/openclinxr/scene-closure-2026-09-09/
+ * evidence/sc-05.md:116 records `floor-penetration | 0.005 m | 0.000432 m | 11.6x` — passing —
+ * and neither 0.0377 nor 0.0376 appears anywhere in it. Two measurement paths disagree by far
+ * more than run-to-run noise on the same defect.
  *
  * MEASURED LATER, and it removes the premise entirely (tsk_7a70fe19156af6a8, commit eea23523):
  * over the SHIPPED physician GLB and shipped walk clip, 101 settled + 432 arrived frames, ZERO
