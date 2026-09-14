@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect } from "vitest";
 
 import { planMotionProgram } from "./index.js";
+import { planted } from "./planted.js";
 
 /**
  * PLANTED RED — BothyBoard card tsk_c0d67f74a7891719 (instrument stage). IMMUTABLE HEADER.
@@ -31,6 +32,25 @@ import { planMotionProgram } from "./index.js";
  *   with the exact clip identity, byte-identical across runs.
  * notEvidenceFor: clinical_validity, scoring_validity, production_asset_readiness,
  *   quest_readiness, animation quality, or that any actor visibly moves.
+ */
+
+/**
+ * ## CONVENTION CORRECTION 2026-09-14 — the header above is unchanged and still authoritative.
+ *
+ * The header says "Flip `it.fails` -> `it`". The clause below now reads `planted`, which IS
+ * `it.fails` normally and `it` under `OPENCLINXR_PROBE_REDS=1` (src/planted.ts:34). So the flip
+ * the header asks for is `planted` -> `it`, and nothing else about it changes.
+ *
+ * WHY, measured: written as a raw `it.fails`, this clause made `pnpm probe:reds` exit 1 on main.
+ * Vitest summarises an expected-fail as "Tests 1 expected fail" — a line carrying neither "passed"
+ * nor "failed" — so both counts in probe-planted-reds.ts parse as 0 and it reported "the clause
+ * PASSED. If the module landed, this is a contract transition." The clause had not landed; the
+ * probe simply cannot read the raw form, because only `planted` becomes a real `it` in probe mode.
+ * Every other plant file in this package already uses `planted`; this one did not.
+ *
+ * Probe mode now fails for its own recorded reason:
+ *   AssertionError: ./motion-glb-bake.js must export bakeMotionProgramToGlb: expected 'undefined' to be 'function'
+ * which is the absent module the header names. Normal mode is unchanged: 1 expected fail.
  */
 
 const ENTRY_MODULE = "./compile-motion-program.js";
@@ -120,7 +140,7 @@ function recordingPrimitives(): Record<string, (r: PrimitiveRequestLike) => Frag
 }
 
 describe("the bake produces a GLB the runtime loads", () => {
-  it.fails("(1) RED: the compiled clip bakes to deterministic GLB bytes that read back its exact clipId", async () => {
+  planted("(1) RED: the compiled clip bakes to deterministic GLB bytes that read back its exact clipId", async () => {
     const program = planMotionProgram({
       scenarioId: "adult_abdominal_pain_v1",
       actorId: "patient_elena_vasquez_v1",
