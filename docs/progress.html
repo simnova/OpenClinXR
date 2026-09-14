@@ -28,6 +28,53 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-14T1730">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 65 &middot; 2026-09-14 17:30 EDT</p>
+          <h2>The cheap assistants were never broken. A piece of our own plumbing was dropping their answers.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The same question asked four ways. Only the last two match how our tools actually ask it, and the difference is one setting in a local relay we wrote ourselves.</caption>
+            <thead><tr><th scope="col">How the question was asked</th><th scope="col">Answer received</th></tr></thead>
+            <tbody>
+              <tr><td>Through our relay, tiny answer budget</td><td>nothing</td></tr>
+              <tr><td>Through our relay, generous budget</td><td>"ALIVE"</td></tr>
+              <tr><td>Through our relay, asking for a live feed</td><td>nothing usable &mdash; the feed was silently turned off</td></tr>
+              <tr><td>Straight to the provider, asking for a live feed</td><td>"ALIVE", delivered as a proper feed</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Six hours of wrong conclusions, and what actually settled it</h3>
+            <ul>
+              <li>All day the inexpensive assistants returned empty answers. I recorded them as unavailable three separate times, and twice sent work to the expensive assistant instead, at real cost.</li>
+              <li>I tested three explanations in turn and each was wrong: that the answer budget was too small, that a timeout was firing, and that the assistant spent its whole allowance thinking before speaking. None survived measurement.</li>
+              <li>What settled it was asking the question on the wire rather than through our tools. A local relay we wrote sits between the assistants and everything else, and it silently turns off the live feed on every request passing through it.</li>
+              <li>Our tools always ask for a live feed. They receive an answer in the wrong shape, conclude nothing was said, and retry fourteen times before giving up. That is the "empty response" I had been reading all day as an outage.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Why the relay does it, which makes this a design problem rather than a typo</h3>
+            <ul>
+              <li>The relay's job is to notice an empty answer and switch to a backup provider. To judge emptiness it needs the whole answer in hand, so it turns the live feed off to get one.</li>
+              <li>So the feature that makes it useful is the same thing that makes it unusable to a live-feed client. Deleting the single line would restore answers and break the switching; both halves need rethinking together.</li>
+              <li>The work is unblocked meanwhile: assistants now go straight to the provider, and two queued pieces of work are running on the inexpensive option as this is written.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Also today</h3>
+            <ul>
+              <li>A step that folds a garment's colour into a character's texture had been built, proven, and connected to nothing. It is now part of the character-building command, so re-clothing a character no longer silently discards it.</li>
+              <li>An independent check rejected work that had passed every automated test, on five claims citing documents that did not contain them. All five were corrected, and the work was then accepted.</li>
+              <li>I also published a measurement that was simply wrong &mdash; a count of wasted effort built by counting log lines instead of actions &mdash; into the instructions every assistant reads. It is deleted, and a check now prevents it returning.</li>
+              <li>Not claimed: clinical validity, scoring, or headset readiness. None of today's work touches those.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-14T1715">
         <div class="section-heading">
           <p class="eyebrow">Entry 64 &middot; 2026-09-14 17:15 EDT</p>
