@@ -52,6 +52,22 @@ describe("the worker brief carries the board protocol", () => {
     expect(result.prompt).toContain("bothy-board_sessions_bind");
   });
 
+  it("says the tool names are literal, which cost the first worker four of its five calls", () => {
+    // MEASURED 2026-09-14 on tsk_7177631409c3d441 (session 27ec8e94), the first worker ever to call
+    // the board here. Its five calls, in order:
+    //   bothy-board__bothy_board_sessions_bind   x2   invented
+    //   bothy-board__bothy-board_sessions_bind   x2   invented
+    //   bothy-board_sessions_bind                 1   registered — allowed: true, bound to the card
+    // The block listed the names but never said they were literal, so it guessed a prefix first.
+    const result = briefFromIssue(card("tsk_4c0f66ebb0453372"));
+    if (!result.dispatchable) throw new Error("expected dispatchable brief");
+    expect(result.prompt).toMatch(/LITERAL/u);
+    expect(result.prompt).toMatch(/no added prefix/iu);
+    // COUNTERWEIGHT: the block must never MODEL the malformed shape it warns against. Quoting the
+    // invented names as examples would teach the next reader the exact thing that wasted four turns.
+    expect(result.prompt).not.toContain("bothy-board__");
+  });
+
   it("instructs the four calls a worker needs to stay steerable and alive", () => {
     const result = briefFromIssue(card("tsk_4c0f66ebb0453372"));
     if (!result.dispatchable) throw new Error("expected dispatchable brief");
