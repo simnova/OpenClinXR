@@ -28,6 +28,53 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-14T1530">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 62 &middot; 2026-09-14 15:30 EDT</p>
+          <h2>The tidy-up of what the code shares between its parts is finished and accepted into the main copy.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The five independent checks that decide whether that programme is complete, run against the main copy itself rather than a working copy.</caption>
+            <thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead>
+            <tbody>
+              <tr><td>Nothing shared by wildcard</td><td>passes</td></tr>
+              <tr><td>All 3,588 shared names classified</td><td>passes</td></tr>
+              <tr><td>Only reviewed names are shared</td><td>passes &mdash; the one that had been failing</td></tr>
+              <tr><td>Size targets, with reviewed exceptions</td><td>passes</td></tr>
+              <tr><td>Recomputed independently from the code</td><td>passes</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What it took to accept it</h3>
+            <ul>
+              <li>The assistant reached the goal but deleted a 190-line test rather than moving what it checked, on the belief that the alternative was disallowed. It was not: three examples of that exact pattern already sit in the same folder, and the full checks pass with it in place.</li>
+              <li>Restored the test, changed one line in it, renamed a variable that the linter refuses because it hid the meaning of another, and re-ran every required check myself rather than accepting the report.</li>
+              <li>One of those three fixes was correcting me, not the assistant. I put back a dependency it had removed, reasoning the returning test needed it, without checking how that test now reaches the code. It does not need it. The tool caught me and was right.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Then I broke every new task, and found it by reproducing the failure</h3>
+            <ul>
+              <li>Removing that dependency left the project's lock record out of step with the file listing it. Every twelve checks passed, because not one of them installs from that lock record.</li>
+              <li>The next task start failed in a way that reads like broken infrastructure. I spent several minutes treating it as a network stall and a broken launcher before reproducing the install and reading the actual error.</li>
+              <li>Fixed in three deleted lines. The hole it came through is now written up as its own task, with a check that must be shown failing before it is accepted.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Two assistants now working at once</h3>
+            <ul>
+              <li>One is building the step that turns planned movement into a file the viewer can actually play. It has just produced the module that work was waiting on.</li>
+              <li>The other is reconciling the movement documentation against what the code actually does, using a package that was reviewed in detail and had been stuck for twelve hours on a cataloguing rule.</li>
+              <li>A third correction of mine: I twice reported a task as unusable when it was not, and once nearly rejected correct work. Both came from trusting a summary instead of measuring.</li>
+              <li>Not claimed: clinical validity, scoring, or headset readiness. The figure's foot is still through the floor.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-14T1330">
         <div class="section-heading">
           <p class="eyebrow">Entry 61 &middot; 2026-09-14 13:30 EDT</p>
