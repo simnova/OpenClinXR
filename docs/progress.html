@@ -28,6 +28,53 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-14T1330">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 61 &middot; 2026-09-14 13:30 EDT</p>
+          <h2>The long-running tidy-up of what the code shares between its parts now passes its own closing check.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The five independent criteria that decide whether that programme is finished. Measured on a working copy, re-run by me rather than taken on trust; not yet accepted into the main copy.</caption>
+            <thead><tr><th scope="col">Criterion</th><th scope="col">Result</th></tr></thead>
+            <tbody>
+              <tr><td>Nothing shared by wildcard</td><td>passes</td></tr>
+              <tr><td>Every one of 3,588 names classified</td><td>passes</td></tr>
+              <tr><td>Only reviewed names are shared</td><td>passes &mdash; the one that had been failing</td></tr>
+              <tr><td>Size targets, with reviewed exceptions</td><td>passes</td></tr>
+              <tr><td>Recomputed independently from the code</td><td>passes</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Why it is not accepted yet</h3>
+            <ul>
+              <li>The work deleted a 190-line test rather than moving what it checked. Deleting a test to make a check pass is refused here automatically, and rightly: the coverage is simply gone.</li>
+              <li>Two of its six required proofs failed for one reason &mdash; the new test was written one folder away from where the task specified. It re-ran that test six times against a location nothing would ever read.</li>
+              <li>Both are now handed back with the reasoning, and the rest of the work is kept. It is preserved and pushed, not discarded.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>My own error, which cost the most</h3>
+            <ul>
+              <li>I sized the task from an error message that stops listing after five items per group. So the task I wrote described a smaller problem than the real one and drew its boundaries too narrowly.</li>
+              <li>The consequence: the work correctly changed a file my task had placed out of bounds, and I nearly rejected it for that. Checking the approval records showed every name that file shared was either approved for removal or had never been reviewed at all.</li>
+              <li>I had even warned the worker that the message truncates and to measure the real set &mdash; then constrained it to the message anyway.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A two-hour silence explained, and fixed permanently</h3>
+            <ul>
+              <li>Assistants doing work here have a shared task board. Measured today: one had all 26 board tools available and called none of them, across a three-hour run.</li>
+              <li>Nothing was broken. No instruction had ever told them the board exists, so a correction sent to it mid-run reached nobody, and the two faults above went uncorrected for two hours.</li>
+              <li>That instruction now ships with every task automatically, with a test that fails if it disappears and refuses to send it when there is no board task to attach to.</li>
+              <li>Not claimed: clinical validity, scoring, or headset readiness. The figure's foot is still through the floor.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-14T1045">
         <div class="section-heading">
           <p class="eyebrow">Entry 60 &middot; 2026-09-14 10:45 EDT</p>
