@@ -27,6 +27,59 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-15T0412">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 79 &middot; 2026-09-15 04:12 EDT</p>
+          <h2>Six changes shipped in one stretch, and the two that had to ship first were faults nobody had filed.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Every change below passed the full pre-publish and pre-ship checks. None was forced through.</caption>
+            <thead><tr><th scope="col">Change</th><th scope="col">What it fixes</th><th scope="col">Size</th></tr></thead>
+            <tbody>
+              <tr><td>Supine patient responses</td><td>A patient lying down can now react to being touched &mdash; safely</td><td>33 lines</td></tr>
+              <tr><td>Two blockers, found first</td><td>Neither was filed; both would have refused the work above</td><td>29 lines</td></tr>
+              <tr><td>A deleted safeguard becomes visible</td><td>Removing a file&rsquo;s fingerprint used to read as &ldquo;all clear&rdquo;</td><td>256 lines</td></tr>
+              <tr><td>Dependency-list drift</td><td>Refused at the change that causes it, not in the next person&rsquo;s workspace</td><td>69 lines</td></tr>
+              <tr><td>A test checking the wrong body</td><td>Compared a re-run against figures for a different character</td><td>97 lines</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>The headline: a patient lying down can now respond</h3>
+            <ul>
+              <li>A patient in bed was previously given no animation system at all. The reason was sound: the available movements are authored for someone standing, and applying them would drag a recumbent figure off the bed. So the safe choice was to give them nothing, and a patient who is touched during an examination could not react.</li>
+              <li>They now get one, but only after the system measures the specific reaction being requested. It inspects each selected movement for any instruction that would <em>move</em> a bone through space rather than rotate it, and admits the animation system only when every selected reaction is free of them. A reaction that would shift the hips, a leg, or an unclassified part is refused.</li>
+              <li>Nothing plays on its own. The system is created so a touch can trigger a one-off response, and no walking, standing or idle movement starts by itself. Four existing checks that refuse the unsafe cases were left untouched and still pass &mdash; they are what stops this being satisfied by simply allowing everything.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Two blockers found before the work, not after</h3>
+            <ul>
+              <li>Before dispatching the change above, the checks that run before anything ships were traced by hand to see whether they would accept it. They would not: two unrelated failures already sat on the shared trunk, and both were in the set of checks this change would trigger.</li>
+              <li>Finding them cost about twenty minutes. Discovering them afterwards would have meant a completed, correct piece of work that the shared gate refuses &mdash; which happened once earlier the same night and blocked every other assistant until it was rolled back.</li>
+              <li>Both were repaired first, as separate one-file changes: a bundling rule that had been quietly broken by an import style, and a stored record describing a character file that had since been legitimately rebuilt. Each was verified independently by the team that owns the area before the main work started.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A safeguard that was blind to its own deletion</h3>
+            <ul>
+              <li>One check compares stored fingerprints of character files against the files actually on disk. It was added after someone found that replacing all four fingerprints with obvious nonsense left the tests passing. That hole was closed for a <em>wrong</em> fingerprint.</li>
+              <li>It stayed open for a <em>missing</em> one: an entry with its fingerprint removed was skipped in silence, so a record whose safeguards had been deleted looked identical to one where every safeguard passed. The cheaper mistake, and the likelier accident.</li>
+              <li>Now a half-removed entry is reported by name, while a legitimately unbound item &mdash; a stretcher, which has no file to fingerprint &mdash; is still accepted. That third case is the one that matters: without it the fix would have passed by making the check stricter in general, and broken a correct record.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What was checked, and what was deliberately not claimed</h3>
+            <ul>
+              <li>Each piece of work was reviewed by reading the change itself rather than the report describing it. That caught a reviewer error of our own: a count of leftover references was taken from the wrong copy of a file and briefly suggested the work was incomplete. It was not; the correction is recorded alongside the change.</li>
+              <li>One claim was deliberately withheld. The recommended practice is to watch a new check fail before writing the fix, so nobody ships a test that cannot fail. The finished work proves the checks are real, but a finished change cannot prove the <em>order</em> in which it was written &mdash; so that was reported as the author&rsquo;s account rather than as verified fact.</li>
+              <li>A third correction: an assistant was suspected of having caused a fault it was reporting. That was tested against the record before the accusation was sent, found false, and the suspicion was recorded as withdrawn rather than left unsaid.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-15T0206">
         <div class="section-heading">
           <p class="eyebrow">Entry 78 &middot; 2026-09-15 02:06 EDT</p>
