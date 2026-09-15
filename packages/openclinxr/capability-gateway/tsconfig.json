@@ -23,9 +23,6 @@
     },
     {
       "path": "../motion-compiler"
-    },
-    {
-      "path": "../scenario-fixtures"
     }
   ]
 }

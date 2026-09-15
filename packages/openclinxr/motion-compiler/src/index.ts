@@ -5,8 +5,3 @@ export type { ScenarioMotionCompileInput } from "./deterministic-scenario-motion
 /** Motion GLB bake entry — deterministic GLB with exact clip identity. */
 export { bakeMotionProgramToGlb, readMotionGlbClipId } from "./motion-glb-bake.js";
 export type { MotionGlbBakeClip } from "./motion-glb-bake.js";
-
-/** Canonical compile entry + loaded-actor skeleton profile (MSC-C1 gateway path). */
-export { compileMotionProgram } from "./compile-motion-program.js";
-export type { CompiledMotionClipV1 } from "./compile-motion-program.js";
-export { deriveSkeletonProfileFromRigAsset } from "./derive-skeleton-profile.js";

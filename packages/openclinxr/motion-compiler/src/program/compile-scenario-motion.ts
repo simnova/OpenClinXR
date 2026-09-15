@@ -300,7 +300,7 @@ export function compileScenarioMotion(input: ScenarioMotionCompileInput): Motion
     actorId: input.actorId,
     provenance: {
       sourceKind: "deterministic_case_compiler",
-      sourceRefs: [input.scenarioId, ...input.touchResponses.map((row) => `touch:${row.region}`)],
+      sourceRefs: [input.scenarioId],
     },
     baseline: {
       posture,

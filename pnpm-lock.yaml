@@ -810,9 +810,6 @@ importers:
       '@openclinxr/motion-compiler':
         specifier: workspace:*
         version: link:../motion-compiler
-      '@openclinxr/scenario-fixtures':
-        specifier: workspace:*
-        version: link:../scenario-fixtures
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
