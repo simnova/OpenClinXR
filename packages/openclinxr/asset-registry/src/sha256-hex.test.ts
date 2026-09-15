@@ -175,4 +175,234 @@ describe("sha256Hex matches FIPS 180-4 and node:crypto", () => {
     }
     expect(mismatches).toEqual([]);
   });
+
+  describe("partial instance binding detection", () => {
+    const baseBoundDigest = NIST[1][1]; // "abc" digest
+
+    it("fails when assetPath present but assetSha256 absent", () => {
+      const record: AdmissionInput["record"] = {
+        schemaVersion: "accepted-scene-plan/v1",
+        planId: "plan",
+        planRevision: "rev",
+        durableStore: "database_source_of_truth",
+        run: { stationRunId: "run", sessionId: "session", acceptedAtIso: "2026-01-01T00:00:00.000Z" },
+        case: {
+          caseId: "case",
+          caseVersion: 1,
+          caseSourceVersion: "v1",
+          caseContentSha256: NIST[0][1],
+          stationId: "station",
+          environmentId: "env",
+        },
+        bundle: { bundleId: "bundle", bundleSha256: nodeSha256Hex("null") },
+        instances: [
+          {
+            instanceId: "probe-missing-sha256",
+            kind: "equipment",
+            contentId: "probe",
+            assetPath: "probe.bin",
+            // assetSha256 deliberately omitted
+            byteCount: 3,
+          },
+        ],
+        revisions: {
+          solverVersion: "s",
+          rigRevision: "r",
+          clipRevision: "c",
+          geometryRevision: "g",
+          rubricVersion: "u",
+        },
+        variation: { seed: "not-a-digest", variationIndex: 0 },
+        resolvedLayout: {
+          approachSide: "patient_left",
+          standoffMeters: 0.7,
+          targetPosition: { x: 0, y: 0, z: 0 },
+          targetHeadingRadians: 0,
+          floorFrameId: "floor",
+          observedObstacleIds: [],
+          waypointCount: 0,
+          routeLengthMeters: 0,
+        },
+        arrival: {
+          arrivalErrorMeters: 0,
+          settledHeadingErrorDegrees: 0,
+          stoppedSeconds: 0,
+          stoppedRootTravelMeters: 0,
+        },
+        acknowledgment: {
+          acknowledgedBy: "test",
+          acknowledgedAtIso: "2026-01-01T00:00:00.000Z",
+          acknowledgedPlanRevision: "rev",
+        },
+        eventOrder: [],
+        dialogueTurnIds: [],
+      };
+      const result = verifyCommittedScenePlanAgainstDisk({
+        record,
+        caseSourcePath: "empty.case",
+        bundleContent: null,
+        geometry: GEOMETRY,
+        patientWorldPosition: { x: 0, y: 0, z: 0 },
+        start: { x: 0, y: 0, z: 0 },
+        readBytes: (path) => {
+          if (path === "probe.bin") return bytesFor("abc");
+          if (path === "empty.case") return EMPTY;
+          throw new Error(path);
+        },
+      });
+      expect(result.ok).toBe(false);
+      expect(result.problems).toContain(
+        "instance probe-missing-sha256 has assetPath but no assetSha256",
+      );
+    });
+
+    it("fails when assetSha256 present but assetPath absent", () => {
+      const record: AdmissionInput["record"] = {
+        schemaVersion: "accepted-scene-plan/v1",
+        planId: "plan",
+        planRevision: "rev",
+        durableStore: "database_source_of_truth",
+        run: { stationRunId: "run", sessionId: "session", acceptedAtIso: "2026-01-01T00:00:00.000Z" },
+        case: {
+          caseId: "case",
+          caseVersion: 1,
+          caseSourceVersion: "v1",
+          caseContentSha256: NIST[0][1],
+          stationId: "station",
+          environmentId: "env",
+        },
+        bundle: { bundleId: "bundle", bundleSha256: nodeSha256Hex("null") },
+        instances: [
+          {
+            instanceId: "probe-missing-path",
+            kind: "equipment",
+            contentId: "probe",
+            // assetPath deliberately omitted
+            assetSha256: baseBoundDigest,
+            byteCount: 3,
+          },
+        ],
+        revisions: {
+          solverVersion: "s",
+          rigRevision: "r",
+          clipRevision: "c",
+          geometryRevision: "g",
+          rubricVersion: "u",
+        },
+        variation: { seed: "not-a-digest", variationIndex: 0 },
+        resolvedLayout: {
+          approachSide: "patient_left",
+          standoffMeters: 0.7,
+          targetPosition: { x: 0, y: 0, z: 0 },
+          targetHeadingRadians: 0,
+          floorFrameId: "floor",
+          observedObstacleIds: [],
+          waypointCount: 0,
+          routeLengthMeters: 0,
+        },
+        arrival: {
+          arrivalErrorMeters: 0,
+          settledHeadingErrorDegrees: 0,
+          stoppedSeconds: 0,
+          stoppedRootTravelMeters: 0,
+        },
+        acknowledgment: {
+          acknowledgedBy: "test",
+          acknowledgedAtIso: "2026-01-01T00:00:00.000Z",
+          acknowledgedPlanRevision: "rev",
+        },
+        eventOrder: [],
+        dialogueTurnIds: [],
+      };
+      const result = verifyCommittedScenePlanAgainstDisk({
+        record,
+        caseSourcePath: "empty.case",
+        bundleContent: null,
+        geometry: GEOMETRY,
+        patientWorldPosition: { x: 0, y: 0, z: 0 },
+        start: { x: 0, y: 0, z: 0 },
+        readBytes: (path) => {
+          if (path === "empty.case") return EMPTY;
+          throw new Error(path);
+        },
+      });
+      expect(result.ok).toBe(false);
+      expect(result.problems).toContain(
+        "instance probe-missing-path has assetSha256 but no assetPath",
+      );
+    });
+
+    it("passes when both assetPath and assetSha256 absent (fully unbound instance)", () => {
+      const record: AdmissionInput["record"] = {
+        schemaVersion: "accepted-scene-plan/v1",
+        planId: "plan",
+        planRevision: "rev",
+        durableStore: "database_source_of_truth",
+        run: { stationRunId: "run", sessionId: "session", acceptedAtIso: "2026-01-01T00:00:00.000Z" },
+        case: {
+          caseId: "case",
+          caseVersion: 1,
+          caseSourceVersion: "v1",
+          caseContentSha256: NIST[0][1],
+          stationId: "station",
+          environmentId: "env",
+        },
+        bundle: { bundleId: "bundle", bundleSha256: nodeSha256Hex("null") },
+        instances: [
+          {
+            instanceId: "probe-fully-unbound",
+            kind: "equipment",
+            contentId: "probe",
+            // both assetPath and assetSha256 deliberately omitted
+            byteCount: 0,
+          },
+        ],
+        revisions: {
+          solverVersion: "s",
+          rigRevision: "r",
+          clipRevision: "c",
+          geometryRevision: "g",
+          rubricVersion: "u",
+        },
+        variation: { seed: "not-a-digest", variationIndex: 0 },
+        resolvedLayout: {
+          approachSide: "patient_left",
+          standoffMeters: 0.7,
+          targetPosition: { x: 0, y: 0, z: 0 },
+          targetHeadingRadians: 0,
+          floorFrameId: "floor",
+          observedObstacleIds: [],
+          waypointCount: 0,
+          routeLengthMeters: 0,
+        },
+        arrival: {
+          arrivalErrorMeters: 0,
+          settledHeadingErrorDegrees: 0,
+          stoppedSeconds: 0,
+          stoppedRootTravelMeters: 0,
+        },
+        acknowledgment: {
+          acknowledgedBy: "test",
+          acknowledgedAtIso: "2026-01-01T00:00:00.000Z",
+          acknowledgedPlanRevision: "rev",
+        },
+        eventOrder: [],
+        dialogueTurnIds: [],
+      };
+      const result = verifyCommittedScenePlanAgainstDisk({
+        record,
+        caseSourcePath: "empty.case",
+        bundleContent: null,
+        geometry: GEOMETRY,
+        patientWorldPosition: { x: 0, y: 0, z: 0 },
+        start: { x: 0, y: 0, z: 0 },
+        readBytes: (path) => {
+          if (path === "empty.case") return EMPTY;
+          throw new Error(path);
+        },
+      });
+      expect(result.ok).toBe(true);
+      expect(result.problems).toEqual([]);
+    });
+  });
 });

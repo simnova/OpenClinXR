@@ -66,19 +66,40 @@ export function verifyCommittedScenePlanAgainstDisk(input: {
 }): CommittedScenePlanDiskCheck {
   const problems: string[] = [];
   for (const instance of input.record.instances) {
-    if (instance.assetPath === undefined || instance.assetSha256 === undefined) continue;
+    const hasAssetPath = instance.assetPath !== undefined;
+    const hasAssetSha256 = instance.assetSha256 !== undefined;
+    if (!hasAssetPath && !hasAssetSha256) {
+      // fully unbound instance: legitimate procedural shape, skip silently
+      continue;
+    }
+    if (hasAssetPath && !hasAssetSha256) {
+      problems.push(
+        `instance ${instance.instanceId} has assetPath but no assetSha256`,
+      );
+      continue;
+    }
+    if (!hasAssetPath && hasAssetSha256) {
+      problems.push(
+        `instance ${instance.instanceId} has assetSha256 but no assetPath`,
+      );
+      continue;
+    }
+    // both present: proceed with byte-hash check
+    // TypeScript narrowing: after the guards above, both are guaranteed defined
+    const assetPath = instance.assetPath as string;
+    const assetSha256 = instance.assetSha256 as string;
     let bytes: Buffer;
     try {
-      bytes = input.readBytes(instance.assetPath);
+      bytes = input.readBytes(assetPath);
     } catch {
-      problems.push(`instance ${instance.instanceId} names ${instance.assetPath}, which cannot be read`);
+      problems.push(`instance ${instance.instanceId} names ${assetPath}, which cannot be read`);
       continue;
     }
     const actual = sha256Hex(bytes);
-    if (actual !== instance.assetSha256) {
+    if (actual !== assetSha256) {
       problems.push(
         `instance ${instance.instanceId} hashes to ${actual.slice(0, 12)} on disk, `
-          + `the committed record binds ${instance.assetSha256.slice(0, 12)}`,
+          + `the committed record binds ${assetSha256.slice(0, 12)}`,
       );
     }
   }
