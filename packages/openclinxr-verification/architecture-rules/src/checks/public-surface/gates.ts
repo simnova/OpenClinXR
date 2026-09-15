@@ -343,8 +343,13 @@ export function expectedSurface(
     if (row.disposition === "remove") {
       out.get(row.package)?.get(row.entrypoint)?.delete(row.symbol);
     } else if (row.disposition === "migrate") {
-      out.get(row.package)?.get(row.entrypoint)?.delete(row.symbol);
-      put(row.package, row.route ?? "", row.symbol, row.kind ?? "runtime");
+      const deleted = out.get(row.package)?.get(row.entrypoint)?.delete(row.symbol) ?? false;
+      // A migrate relocates a symbol the raw inventory already lists at this
+      // package/entrypoint. When the delete found nothing the row names an
+      // absent symbol, so it must not introduce it onto the expected surface.
+      if (deleted) {
+        put(row.package, row.route ?? "", row.symbol, row.kind ?? "runtime");
+      }
     }
   }
   return out;
