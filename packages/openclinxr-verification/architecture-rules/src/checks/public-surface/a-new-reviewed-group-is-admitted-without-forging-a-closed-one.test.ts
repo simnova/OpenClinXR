@@ -64,7 +64,7 @@ describe("a new reviewed group is admitted without forging a closed one", () => 
     expect(REVIEW_GROUPS.length, "REVIEW_GROUPS is empty").toBeGreaterThan(0);
   });
 
-  it.fails("(1) RED: the group set is declared once, not re-literalled inside gates.ts", () => {
+  it("(1) RED: the group set is declared once, not re-literalled inside gates.ts", () => {
     const source = readFileSync(GATES, "utf8");
     const literals = source.match(GROUP_ID_ARRAY_LITERAL) ?? [];
     expect(
@@ -75,7 +75,7 @@ describe("a new reviewed group is admitted without forging a closed one", () => 
     ).toEqual([]);
   });
 
-  it.fails("(2) RED: a well-formed new reviewed group id is resolvable", () => {
+  it("(2) RED: a well-formed new reviewed group id is resolvable", () => {
     // A new group must be admissible the way the existing four are, under the SAME rigour:
     // rows resolved, rawInventoryHash equal to the checked-in raw inventory, groupHash fresh at
     // review time, no self-attested completion flag. Today nothing reads the approvals directory,
@@ -104,3 +104,18 @@ describe("a new reviewed group is admitted without forging a closed one", () => 
     expect(source, "the self-attestation refusal was removed").toMatch(/completionFlag/u);
   });
 });
+
+/**
+ * ## FIXED (tsk_140554d3e5e30d4e)
+ *
+ * Clauses (1) and (2) flipped from `it.fails` to `it`; header untouched.
+ * gates.ts now imports REVIEW_GROUPS from apply-map.ts and both
+ * requireAllReviewed branches iterate `[...REVIEW_GROUPS]` (zero psr-group
+ * array literals remain). resolveApplyId gained a LAST-branch
+ * well-formedness route (/^psr-\d{2}[a-z]$/) returning a whole-group scope,
+ * after REVIEW_GROUPS, psr-08, and APPLY_TARGETS, so psr-02/psr-08 keep
+ * their subset/complement scope and psr-01f resolves without a manifest.
+ * Header staleness noted, not corrected: it lists six motion-compiler
+ * symbols, but MotionGlbBakeTrack, MotionGlbReadback and readMotionGlb were
+ * removed by tsk_e133db2e0e13d261, leaving four unapproved symbols.
+ */

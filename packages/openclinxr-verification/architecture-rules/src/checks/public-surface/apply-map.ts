@@ -74,6 +74,13 @@ export function resolveApplyId(id: string): ApplyResolution | undefined {
     return { group: "psr-01e", scope: { kind: "complement", exclude: PSR_07_PACKAGES } };
   }
   const target = APPLY_TARGETS[id];
-  if (target === undefined) return undefined;
-  return { group: target.group, scope: { kind: "packages", packages: target.packages } };
+  if (target !== undefined) {
+    return { group: target.group, scope: { kind: "packages", packages: target.packages } };
+  }
+  // Well-formedness routing LAST: after REVIEW_GROUPS, psr-08, and APPLY_TARGETS.
+  // Anchored to a trailing letter so psr-02/psr-08 never match as whole-group checks.
+  if (/^psr-\d{2}[a-z]$/.test(id)) {
+    return { group: id, scope: { kind: "group" } };
+  }
+  return undefined;
 }
