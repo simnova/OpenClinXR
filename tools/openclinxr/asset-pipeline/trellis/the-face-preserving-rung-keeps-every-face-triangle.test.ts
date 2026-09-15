@@ -173,8 +173,9 @@ describe("the face-preserving rung keeps every face triangle", () => {
     expect(row!.promoted).toBe(true);
     const ratio = Number(row!.chosenRungId.replace("fp-r", ""));
     expect(Number.isFinite(ratio)).toBe(true);
+    expect(ratio).toBe(0.4);
     const sweep = ((row as unknown as { sweep?: { rungId: string; triangleCount: number; faceTriangles: number; inputLineage?: string }[] }).sweep ?? [])
-      .find((entry) => entry.rungId === "fp-r0.4-jeans-lineage" && entry.inputLineage?.includes("tightjeans"));
+      .find((entry) => entry.rungId === row!.chosenRungId && entry.inputLineage?.includes("tightjeans"));
     expect(sweep, `report records the ${row!.chosenRungId} sweep row for viseme-inspect on the tightjeans lineage`).toBeDefined();
 
     const dir = mkdtempSync(path.join(tmpdir(), "hb05-falsifier-"));

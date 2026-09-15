@@ -23966,6 +23966,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Dated tightjeans rebake evidence note; .md must not join generatedExtensions (doc-authority collision)."
+    },
+    {
+      "path": "docs/openclinxr/viseme-chosen-rung-label-2026-09-15.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Decision artifact for tsk_68499a16e3ea6c09: resolves label/lookup mismatch in viseme row by renaming sweep entry fp-r0.4-jeans-lineage to fp-r0.4 (rungId names technique, inputLineage carries lineage) and restoring derived lookup in falsifier test."
     }
   ]
 }
