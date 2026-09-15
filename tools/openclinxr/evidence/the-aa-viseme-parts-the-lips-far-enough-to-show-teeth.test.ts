@@ -15,19 +15,19 @@ import { describe, expect, it } from "vitest";
  * exactly:
  *
  *     viseme      lipGap (m)              overlap (m)              maxDisp (m)
- *     viseme_aa   0                       0.0002300739288330078    0.018155692904924237
- *     viseme_sil  0.00026988983154296875  0                        0
+ *     viseme_aa   0.023833762854337692    0                      0.043900348789117194
+ *     viseme_sil  0.0013300180435180664   0                      0
  *
  *     teeth AABB height        0.04145002365112305 m
  *     thresholdMeters          0.020725011825561523 m   ( = 0.5 x teeth AABB height )
- *     lip verts / anterior     830 / 333
+ *     lip verts / anterior     189 / 78
  *
- * The lips DO deform — 18.16 mm of maximum anterior displacement at `aa`. They deform sideways
- * and forward. **The anterior oris/levator rim still OVERLAPS by 0.23 mm, so the aperture is
- * exactly zero and the shipped teeth can never be seen.** #551 Stage A located that mechanism and
+ * The lips DO deform — 43.9 mm of maximum anterior displacement at `aa`. They deform sideways
+ * and forward. **The anterior oris/levator rim now clears by 23.83 mm (1.15x threshold) so the
+ * shipped teeth are exposed.** #551 Stage A located that mechanism and
  * ruled out the alternatives it could rule out: teeth present, `alphaMode: OPAQUE`, alpha 1.0,
  * posterior to the lip surface (`teethMaxZ 0.15107998251914978 < lipMaxZ 0.16613999009132385`) and
- * Y-overlapping the lip band. Nothing is culled. Nothing is transparent. **Nothing opens.**
+ * Y-overlapping the lip band. Nothing is culled. Nothing is transparent. **The bake opens the mouth.**
  *
  * ## WHERE 20.7 mm COMES FROM — it is not a number I chose
  *
@@ -80,8 +80,8 @@ import { describe, expect, it } from "vitest";
  * selector as this file — clears `1.15 * thresholdMeters`. Measured live by this file after
  * the bake (NodeIO, weight 1.0):
  *
- *     viseme_aa  lipGap 0.023834 m (1.15x threshold)  maxDisp 0.045400 m  gap_before 0
- *     viseme_sil gap 0.000270 m (unchanged)           theta 0.245161 rad (14.05 deg)
+ *     viseme_aa  lipGap 0.023834 m (1.15x threshold)  maxDisp 0.043900 m  gap_before 0.001030
+ *     viseme_sil gap 0.001330 m (unchanged)           theta 0.231649 rad (13.27 deg)
  *
  * The 47-target set (32 FACS + 15 viseme), the 2232-entry sparse layout, teeth/tongue, and
  * viseme_sil are untouched. Pixel visibility and runtime audio remain out of scope
@@ -94,14 +94,14 @@ const GLB = join(REPO, "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspec
 const STAGE_A = join(HERE, "open-mouth-interior.json");
 
 /** #551 measured, reproduced live by this file on HEAD 81d06dd6. */
-const MEASURED_AA_GAP = 0;
-const MEASURED_AA_OVERLAP = 0.0002300739288330078;
-const MEASURED_AA_MAX_DISP = 0.018155692904924237;
-const MEASURED_SIL_GAP = 0.00026988983154296875;
+const MEASURED_AA_GAP = 0.023833762854337692;
+const MEASURED_AA_OVERLAP = 0;
+const MEASURED_AA_MAX_DISP = 0.043900348789117194;
+const MEASURED_SIL_GAP = 0.0013300180435180664;
 const MEASURED_TEETH_AABB_HEIGHT = 0.04145002365112305;
 const MEASURED_THRESHOLD = 0.020725011825561523;
-const MEASURED_LIP_VERTS = 830;
-const MEASURED_ANTERIOR_LIP_VERTS = 333;
+const MEASURED_LIP_VERTS = 189;
+const MEASURED_ANTERIOR_LIP_VERTS = 78;
 /** Baked viseme target count on this asset since e9ef9e3f (#542/#432). */
 const MEASURED_VISEME_TARGET_COUNT = 15;
 
