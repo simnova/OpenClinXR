@@ -164,16 +164,32 @@ export async function pollForeignMailbox(
   // best-effort history and rotate through the remaining budget. The former
   // `slice(0, 64)` shape permanently starved newer looked-at cards once the
   // union crossed the cap and generated 64 requests every pass while idle.
-  const priorityIds = loadMailboxWatchTaskIds(opts.repoRoot).slice(0, maxTasks);
+  const allPriorityIds = loadMailboxWatchTaskIds(opts.repoRoot);
+  // If the explicit watch list fills the entire pass, reserve one slot for
+  // the remaining union. Otherwise the first maxTasks priority ids turn every
+  // later explicit/history/extra card into a permanently starved tail.
+  const hasOverflow = taskIds.length > Math.min(allPriorityIds.length, maxTasks);
+  const priorityLimit = hasOverflow ? Math.max(0, maxTasks - 1) : maxTasks;
+  const priorityIds = allPriorityIds.slice(0, priorityLimit);
   const prioritySet = new Set(priorityIds);
-  const rotatingIds = taskIds.filter((id) => !prioritySet.has(id));
+  // A value-stable order lets the cursor survive removal from the current
+  // membership. Insertion order cannot locate the cursor's former position.
+  const rotatingIds = taskIds.filter((id) => !prioritySet.has(id)).sort();
   const rotatingBudget = Math.max(0, maxTasks - priorityIds.length);
-  const previousIndex = opts.pollAfterTaskId
-    ? rotatingIds.indexOf(opts.pollAfterTaskId)
+  const pollAfterTaskId = opts.pollAfterTaskId ?? null;
+  const previousIndex = pollAfterTaskId
+    ? rotatingIds.indexOf(pollAfterTaskId)
     : -1;
-  const start = rotatingIds.length > 0 && previousIndex >= 0
-    ? (previousIndex + 1) % rotatingIds.length
-    : 0;
+  const successorIndex = pollAfterTaskId
+    ? rotatingIds.findIndex((id) => id > pollAfterTaskId)
+    : -1;
+  const start = rotatingIds.length === 0
+    ? 0
+    : previousIndex >= 0
+      ? (previousIndex + 1) % rotatingIds.length
+      : successorIndex >= 0
+        ? successorIndex
+        : 0;
   const rotated = rotatingIds.length > 0
     ? [...rotatingIds.slice(start), ...rotatingIds.slice(0, start)].slice(0, rotatingBudget)
     : [];

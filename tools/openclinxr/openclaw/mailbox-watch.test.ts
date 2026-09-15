@@ -160,6 +160,65 @@ describe("mailbox-watch", () => {
     expect(second.polledTaskIds).toEqual(["tsk_priority", "tsk_c", "tsk_d"]);
   });
 
+  it("resumes by value after the cursor card is evicted", async () => {
+    const root = join(tmpdir(), `ocxr-mailbox-watch-evicted-cursor-${Date.now()}`);
+    mkdirSync(join(root, "tools/openclinxr/openclaw"), { recursive: true });
+    mkdirSync(join(root, ".openclinxr/openclaw"), { recursive: true });
+    writeFileSync(
+      join(root, "tools/openclinxr/openclaw/mailbox-watch.json"),
+      JSON.stringify({ taskIds: ["tsk_priority"] }),
+    );
+    writeFileSync(
+      join(root, ".openclinxr/openclaw/mailbox-looked-at.json"),
+      JSON.stringify({ taskIds: ["tsk_a", "tsk_b", "tsk_c", "tsk_d"] }),
+    );
+    const fetch: BothyFetch = async () => ({ structuredContent: { comments: [] }, httpStatus: 200 });
+    const first = await pollForeignMailbox({ repoRoot: root, pat: "bb_pat_test", fetch, maxTasks: 3 });
+    expect(first.nextPollAfterTaskId).toBe("tsk_b");
+    writeFileSync(
+      join(root, ".openclinxr/openclaw/mailbox-looked-at.json"),
+      JSON.stringify({ taskIds: ["tsk_a", "tsk_c", "tsk_d", "tsk_e"] }),
+    );
+    const second = await pollForeignMailbox({
+      repoRoot: root,
+      pat: "bb_pat_test",
+      fetch,
+      maxTasks: 3,
+      pollAfterTaskId: first.nextPollAfterTaskId,
+    });
+    expect(second.polledTaskIds).toEqual(["tsk_priority", "tsk_c", "tsk_d"]);
+  });
+
+  it("reserves a rotating slot when priority cards fill the pass", async () => {
+    const root = join(tmpdir(), `ocxr-mailbox-watch-priority-overflow-${Date.now()}`);
+    mkdirSync(join(root, "tools/openclinxr/openclaw"), { recursive: true });
+    mkdirSync(join(root, ".openclinxr/openclaw"), { recursive: true });
+    writeFileSync(
+      join(root, "tools/openclinxr/openclaw/mailbox-watch.json"),
+      JSON.stringify({ taskIds: ["tsk_priority_a", "tsk_priority_b", "tsk_priority_c"] }),
+    );
+    writeFileSync(
+      join(root, ".openclinxr/openclaw/mailbox-looked-at.json"),
+      JSON.stringify({ taskIds: ["tsk_history_a", "tsk_history_b"] }),
+    );
+    const fetch: BothyFetch = async () => ({ structuredContent: { comments: [] }, httpStatus: 200 });
+    let cursor: string | null = null;
+    const rotated: string[] = [];
+    for (let pass = 0; pass < 3; pass += 1) {
+      const result = await pollForeignMailbox({
+        repoRoot: root,
+        pat: "bb_pat_test",
+        fetch,
+        maxTasks: 3,
+        pollAfterTaskId: cursor,
+      });
+      expect(result.polledTaskIds.slice(0, 2)).toEqual(["tsk_priority_a", "tsk_priority_b"]);
+      rotated.push(result.polledTaskIds[2] ?? "missing");
+      cursor = result.nextPollAfterTaskId;
+    }
+    expect(rotated).toEqual(["tsk_history_a", "tsk_history_b", "tsk_priority_c"]);
+  });
+
   it("skips the live poll when BOTHY_BOARD_PAT is unset", async () => {
     const root = join(tmpdir(), `ocxr-mailbox-watch-nopat-${Date.now()}`);
     mkdirSync(join(root, "tools/openclinxr/openclaw"), { recursive: true });

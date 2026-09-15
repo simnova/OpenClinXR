@@ -167,24 +167,24 @@ describe("the face-preserving rung keeps every face triangle", () => {
     expect(report.budgets.acceptableSingleProp).toBe(120000);
   });
 
-  it("the committed mode reproduces the viseme-inspect rung from HB-02 bytes (minimal falsifier)", async () => {
+  it("the committed mode reproduces the viseme-inspect rung from the promoted (tightjeans) lineage (minimal falsifier)", async () => {
     const row = report.bodies.find((candidate) => candidate.body === "mpfb-viseme-inspect.glb");
     expect(row, "viseme-inspect row exists in the report").toBeDefined();
     expect(row!.promoted).toBe(true);
     const ratio = Number(row!.chosenRungId.replace("fp-r", ""));
     expect(Number.isFinite(ratio)).toBe(true);
-    const sweep = ((row as unknown as { sweep?: { rungId: string; triangleCount: number; faceTriangles: number }[] }).sweep ?? [])
-      .find((entry) => entry.rungId === row!.chosenRungId);
-    expect(sweep, `report records the ${row!.chosenRungId} sweep row for viseme-inspect`).toBeDefined();
+    const sweep = ((row as unknown as { sweep?: { rungId: string; triangleCount: number; faceTriangles: number; inputLineage?: string }[] }).sweep ?? [])
+      .find((entry) => entry.rungId === "fp-r0.4-jeans-lineage" && entry.inputLineage?.includes("tightjeans"));
+    expect(sweep, `report records the ${row!.chosenRungId} sweep row for viseme-inspect on the tightjeans lineage`).toBeDefined();
 
     const dir = mkdtempSync(path.join(tmpdir(), "hb05-falsifier-"));
     try {
-      const hb02 = execFileSync("git", ["show", `37d4460d:apps/ui-xr/public/generated-humanoids/${row!.body}`], {
+      const tightjeans = execFileSync("git", ["show", `57e27730:apps/ui-xr/public/generated-humanoids/${row!.body}`], {
         cwd: ROOT,
         maxBuffer: 64 * 1024 * 1024,
       }) as unknown as Uint8Array;
       const inputPath = path.join(dir, row!.body);
-      writeFileSync(inputPath, hb02);
+      writeFileSync(inputPath, tightjeans);
       const outDir = path.join(dir, "out");
       execFileSync(
         "pnpm",

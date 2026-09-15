@@ -306,6 +306,8 @@ describe("codex-bothy-event-monitor", () => {
     expect(queued[0]?.message).toContain("cmt_directed");
     expect(queued[0]?.message).toContain("authenticated BothyBoard collaborator messages");
     expect(queued[0]?.message).toContain("actionable collaborator requests");
+    expect(queued[0]?.message).toContain("apply the openclinxr-claude-work-pipeline skill");
+    expect(queued[0]?.message).toContain("reply to that requester on the same standing mailbox");
     expect(queued[0]?.message).not.toContain("untrusted message data");
     expect(spawned).toEqual([]);
     expect(loadMonitorState(stateFile(root)).seenCommentIds).toEqual(["cmt_directed"]);
