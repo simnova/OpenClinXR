@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "openclinxr.c0r-land-gates.v1",
+  "baselineHead": "326bf9fb",
+  "c0rTaskId": "tsk_dc73f1f39c3a116f",
+  "policy": "Keep C0R Idle until both gates are Landed; its immutable depIds are empty, so ordering is owner-enforced and recorded in the mailbox.",
+  "grokSessionId": "5b86da4f-a9c6-437b-987c-41e3d21a7e6d",
+  "grokFinding": "G1 and G2 are disjoint. run proofs may read outside writeRoots; live proofs were removed because their files are outside the roots and contain no it.fails. The freeze generator is treatment, not a repeated harvest proof.",
+  "cards": [
+    "cards/g1.json",
+    "cards/g2.json"
+  ],
+  "taskIds": {
+    "g1": "tsk_1b5ff504c0bd6143",
+    "g2": "tsk_10f1bb2f0e7df20d"
+  }
+}

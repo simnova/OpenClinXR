@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "openclinxr.bothy-card-artifact.v1",
+  "role": "C2R",
+  "taskId": null,
+  "status": "DRAFT — DO NOT CREATE UNTIL A COMMITTED C2R RED EXISTS",
+  "createAfterC0R": false,
+  "createPayloadTemplate": {
+    "projectId": "prj_9b390b99b443a964",
+    "title": "MSC-C2R \u2014 Bind safe compiled motion without losing the supine plant",
+    "objective": "Bind the published compiled response to the already loaded supine patient and compose owned upper-body motion with the per-frame supine posture/support pass while preserving actor identity and world transform.",
+    "lane": "A",
+    "priority": "1",
+    "kind": "task",
+    "parentId": "tsk_e8ac84dd9cb6ac06",
+    "depIds": [
+      "<C0R_TASK_ID>",
+      "tsk_8d3e55209b513362"
+    ],
+    "fields": {
+      "lane": "A",
+      "factory_step": "motion_retarget"
+    },
+    "writeRoots": [
+      "packages/openclinxr/xr-humanoid-animation/src",
+      "packages/openclinxr/xr-pose/src"
+    ],
+    "doneWhen": [
+      "exists:packages/openclinxr/xr-humanoid-animation/src/a-compiled-sidecar-binds-to-the-loaded-patient.test.ts",
+      "run:pnpm exec vitest run --root . packages/openclinxr/xr-humanoid-animation/src/a-compiled-sidecar-binds-to-the-loaded-patient.test.ts",
+      "live:packages/openclinxr/xr-humanoid-animation/src/a-compiled-sidecar-binds-to-the-loaded-patient.test.ts",
+      "changed:packages/openclinxr/xr-humanoid-animation/src/compiled-motion-clip.ts",
+      "changed:packages/openclinxr/xr-pose/src/supine-pose.ts"
+    ],
+    "knownGood": "Read the 2026-09-15 supine-mixer replacement handoff and cards/c2r.json. Create only after C0R id is known. Keep Idle until C0R and C1 are Landed. Bind CompiledMotionClipV1 to the existing patient mixer/root. The supine pose pass must preserve explicitly owned upper-body bones while support binding and root world transform remain fixed. Exact clip identity, property binding, driven-bone delta, no added root/SkinnedMesh, and refusal on profile/identity mismatch are required. Stop at review.",
+    "outOfScope": "No sidecar GLB parenting, second actor/mixer root, dummy skeleton, physician stand-in, broad posture-policy removal, UI-XR touch wiring, public-surface approval, clinical-validity or Quest claim.",
+    "notTested": "Visible normal-path touch response and final pixel grade; those remain C3."
+  }
+}

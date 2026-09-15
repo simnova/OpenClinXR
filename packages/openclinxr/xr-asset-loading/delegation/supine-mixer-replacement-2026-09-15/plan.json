@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "openclinxr.humanoid-motion-supine-replacement.v1",
+  "baselineHead": "0569c47e",
+  "oldC0": "tsk_39f312183e2f4e14",
+  "oldC2": "tsk_d75de2abac9494d0",
+  "blockedC1": "tsk_8d3e55209b513362",
+  "startRole": "C0R",
+  "startTaskId": "tsk_dc73f1f39c3a116f",
+  "replacementC2TaskId": null,
+  "allocation": "exact tasks.claim; pass returned assigneeAgentId as dispatch.bothyAgentId; never tasks.next",
+  "order": [
+    "commit C0R RED and packet",
+    "create C0R Idle",
+    "Claude ACK",
+    "owner Plant C0R",
+    "Claude exact-claims C0R",
+    "sessions.mint",
+    "dispatch with slice=C0R task id and bothyAgentId=claim assignee",
+    "sessions.bind and worktrees.register",
+    "verify renewal after two minutes",
+    "land C0R",
+    "resolve and land C1",
+    "plant a separate C2R RED",
+    "create and later Plant C2R"
+  ],
+  "redPlantCommit": "7185186e"
+}

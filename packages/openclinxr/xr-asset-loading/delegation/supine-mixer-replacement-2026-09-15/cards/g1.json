@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "openclinxr.bothy-card-artifact.v1",
+  "taskId": "tsk_1b5ff504c0bd6143",
+  "role": "G1",
+  "createPayload": {
+    "projectId": "prj_9b390b99b443a964",
+    "title": "MSC-G1 \u2014 Restore explicit Three.js imports for the affected UI-XR gate",
+    "objective": "Restore the shipped XR runtime tree-shaking contract by replacing the production Three.js namespace import in stance-lock-mod.ts with the exact named imports it uses, without changing stance-lock behavior.",
+    "lane": "A",
+    "priority": "0",
+    "kind": "task",
+    "parentId": "tsk_e8ac84dd9cb6ac06",
+    "depIds": [],
+    "fields": {
+      "lane": "A",
+      "factory_step": "staging"
+    },
+    "writeRoots": [
+      "packages/openclinxr/xr-humanoid-animation/src/stance-lock-mod.ts"
+    ],
+    "doneWhen": [
+      "changed:packages/openclinxr/xr-humanoid-animation/src/stance-lock-mod.ts",
+      "run:pnpm exec vitest run --root . apps/ui-xr/src/static-assets.test.ts"
+    ],
+    "knownGood": "Baseline main 326bf9fb fails apps/ui-xr/src/static-assets.test.ts:96 because shippedXrRuntimeSource finds import * as THREE from three in packages/openclinxr/xr-humanoid-animation/src/stance-lock-mod.ts. That production file uses only MathUtils, Quaternion, Vector3, and type Object3D. Replace the namespace import and THREE. prefixes with named imports. Preserve the existing source fence and all stance/settled behavior. Stop at review.",
+    "outOfScope": "No static-assets.test.ts edit or exclusion; no stance algorithm, thresholds, IK, animation-loop, public export, docs, asset, C0R, or Board protocol change.",
+    "notTested": "Browser frame rate, gait quality, clinical validity, headset behavior, or whether C0R itself is correct."
+  }
+}
