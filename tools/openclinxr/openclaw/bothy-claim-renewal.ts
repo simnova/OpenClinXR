@@ -42,9 +42,9 @@ export async function announceBothyClaimPresence(
         (result.structuredContent as { error: string }).error,
       );
     }
-  } catch {
+  } catch (error) {
     // board visibility is not a dispatch contract
-    console.warn("[bothy-claim-renewal] worktrees.register transport failure");
+    console.warn("[bothy-claim-renewal] worktrees.register transport failure:", error);
   }
   try {
     const result = await bothyMcpCall(pat, "bothy-board.agents.heartbeat", {
@@ -67,9 +67,9 @@ export async function announceBothyClaimPresence(
         (result.structuredContent as { error: string }).error,
       );
     }
-  } catch {
+  } catch (error) {
     // board visibility is not a dispatch contract
-    console.warn("[bothy-claim-renewal] agents.heartbeat transport failure");
+    console.warn("[bothy-claim-renewal] agents.heartbeat transport failure:", error);
   }
 }
 

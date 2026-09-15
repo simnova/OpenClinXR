@@ -72,7 +72,6 @@ export {
   type BothyClaimPresence,
   type ClaimRenewalHooks,
 } from "./bothy-claim-renewal.js";
-export { bothyTaskIdFromSliceId } from "./board-bothy-dequeue.js";
 
 /**
  * INCIDENT: a worker was capped at 50 turns and died at exactly turn 50; another survived by one

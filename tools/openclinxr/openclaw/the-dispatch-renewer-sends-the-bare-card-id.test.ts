@@ -40,8 +40,8 @@ afterEach(() => {
 });
 
 describe("the dispatch renewer sends the bare card id to BothyBoard", () => {
-  describe("CLAUSE 1 — BOARD REFUSAL IS AUDIBLE (both shapes)", () => {
-    it("(a) RESOLVED refusal: model the real return — HTTP 200 with structuredContent.error", async () => {
+  describe("CLAUSE 1 — BOARD REFUSAL IS AUDIBLE (both shapes, both operations)", () => {
+    it("(a) RESOLVED refusal: model the real return — HTTP 200 with structuredContent.error on both operations", async () => {
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
@@ -56,7 +56,7 @@ describe("the dispatch renewer sends the bare card id to BothyBoard", () => {
       });
       globalThis.fetch = mockFetch;
 
-      // Test the worktrees.register call path
+      // Test both board-facing call paths
       await announceBothyClaimPresence({
         path: "/test/path",
         branch: "test-branch",
@@ -65,8 +65,9 @@ describe("the dispatch renewer sends the bare card id to BothyBoard", () => {
         agentId: "agent-456",
       });
 
-      // Verify the mock was called with the correct tool
+      // Verify the mock was called with both tools
       expect(mockFetch).toHaveBeenCalledTimes(2); // worktrees.register + agents.heartbeat
+      
       const firstCall = mockFetch.mock.calls[0];
       expect(firstCall[0]).toBe("https://bothyboard.com/api/mcp");
       const firstBody = JSON.parse(firstCall[1]?.body as string);
@@ -74,14 +75,23 @@ describe("the dispatch renewer sends the bare card id to BothyBoard", () => {
       expect(firstBody.params.name).toBe("bothy-board.worktrees.register");
       expect(firstBody.params.arguments.taskId).toBe("bothy-tsk_badid");
 
-      // Verify the warning was emitted for the refusal
+      const secondCall = mockFetch.mock.calls[1];
+      const secondBody = JSON.parse(secondCall[1]?.body as string);
+      expect(secondBody.params.name).toBe("bothy-board.agents.heartbeat");
+      expect(secondBody.params.arguments.currentTaskId).toBe("bothy-tsk_badid");
+
+      // Verify BOTH warnings were emitted for the refusal
       expect(console.warn).toHaveBeenCalledWith(
         "[bothy-claim-renewal] worktrees.register board refusal:",
         "This token is not scoped to that project.",
       );
+      expect(console.warn).toHaveBeenCalledWith(
+        "[bothy-claim-renewal] agents.heartbeat board refusal:",
+        "This token is not scoped to that project.",
+      );
     });
 
-    it("(b) REJECTED transport: the call rejects, and that is audible too, still non-fatal", async () => {
+    it("(b) REJECTED transport: both operations reject, each warns with operation name and ACTUAL Error, non-fatal", async () => {
       const mockFetch = vi.fn().mockRejectedValue(new Error("network error"));
       globalThis.fetch = mockFetch;
 
@@ -93,10 +103,21 @@ describe("the dispatch renewer sends the bare card id to BothyBoard", () => {
         agentId: "agent-456",
       });
 
-      // Verify the warning was emitted for the transport failure
-      expect(console.warn).toHaveBeenCalledWith(
-        "[bothy-claim-renewal] worktrees.register transport failure",
-      );
+      // Verify BOTH transport failure warnings were emitted with the actual Error object
+      const warnCalls = (console.warn as ReturnType<typeof vi.fn>).mock.calls;
+      const registerWarn = warnCalls.find((call) => call[0]?.includes("worktrees.register transport failure"));
+      const heartbeatWarn = warnCalls.find((call) => call[0]?.includes("agents.heartbeat transport failure"));
+      
+      expect(registerWarn).toBeDefined();
+      expect(registerWarn?.[0]).toContain("worktrees.register transport failure:");
+      expect(registerWarn?.[1]).toBeInstanceOf(Error);
+      expect((registerWarn?.[1] as Error).message).toBe("network error");
+      
+      expect(heartbeatWarn).toBeDefined();
+      expect(heartbeatWarn?.[0]).toContain("agents.heartbeat transport failure:");
+      expect(heartbeatWarn?.[1]).toBeInstanceOf(Error);
+      expect((heartbeatWarn?.[1] as Error).message).toBe("network error");
+
       // The promise should still resolve (not throw)
     });
   });
@@ -163,7 +184,7 @@ describe("the dispatch renewer sends the bare card id to BothyBoard", () => {
       expect(boardTaskIdForSlice("bothy-tsk_abc")).not.toBe("abc");
     });
 
-    it("board calls receive bare taskId while worktree path and branch retain slice-scoped values", () => {
+    it("board calls receive bare taskId while worktree path, branch, and LEDGER retain slice-scoped values", () => {
       // Source-text assertions: verify the call sites pass taskIdForBoard to board-facing calls
       // while path and branch receive worktreePath/branch (not the slice)
       const DISPATCH = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "dispatch-worker.ts"), "utf8");
@@ -185,6 +206,14 @@ describe("the dispatch renewer sends the bare card id to BothyBoard", () => {
 
       // options.slice is never rewritten in dispatch (no assignment to options.slice)
       expect(DISPATCH).not.toContain("options.slice =");
+
+      // LEDGER: ledgerIdentity records options.slice (the PREFIXED form), NOT taskIdForBoard
+      const ledgerIdentityIdx = DISPATCH.indexOf("function ledgerIdentity(");
+      expect(ledgerIdentityIdx).toBeGreaterThan(-1);
+      const ledgerIdentityBlock = DISPATCH.slice(ledgerIdentityIdx, DISPATCH.indexOf("};", ledgerIdentityIdx) + 2);
+      expect(ledgerIdentityBlock).toContain("options.slice ? { slice: options.slice } : {}");
+      // The ledger entry does NOT use taskIdForBoard
+      expect(ledgerIdentityBlock).not.toContain("taskIdForBoard");
     });
   });
 });
@@ -193,6 +222,6 @@ describe("the dispatch renewer sends the bare card id to BothyBoard", () => {
 // 1. FAIL against unfixed source (the test above will fail because dispatch-worker.ts doesn't use the converter)
 // 2. PASS after fixes are applied
 // The three clauses correspond to:
-// - CLAUSE 1: Board refusal observability (both resolved and rejected shapes)
+// - CLAUSE 1: Board refusal observability (both resolved and rejected shapes, BOTH operations)
 // - CLAUSE 2: Renewal continuity (rejection on one beat doesn't stop later beats)
 // - CLAUSE 3: Dispatch normalization (bare taskId to board, prefixed retained internally for worktree/branch/ledger)
