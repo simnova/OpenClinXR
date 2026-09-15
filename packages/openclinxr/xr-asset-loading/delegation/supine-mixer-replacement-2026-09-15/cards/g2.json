@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "openclinxr.bothy-card-artifact.v1",
+  "taskId": "tsk_10f1bb2f0e7df20d",
+  "role": "G2",
+  "createPayload": {
+    "projectId": "prj_9b390b99b443a964",
+    "title": "MSC-G2 \u2014 Regenerate the SC-06 freeze after the family asset rebake",
+    "objective": "Regenerate the durable SC-06 scene freeze through its existing browser-backed generator so the daughter actor binds the current provenance-backed asset bytes and the four-actor disk/tamper gate is green.",
+    "lane": "B",
+    "priority": "0",
+    "kind": "task",
+    "parentId": "tsk_e8ac84dd9cb6ac06",
+    "depIds": [],
+    "fields": {
+      "lane": "B",
+      "factory_step": "staging"
+    },
+    "writeRoots": [
+      "packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts"
+    ],
+    "doneWhen": [
+      "changed:packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts",
+      "run:pnpm exec vitest run --root . apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts"
+    ],
+    "knownGood": "Baseline main 326bf9fb fails SC-06-required-behavior at apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts:1020: daughter_lena_ellis_v1 is ef2a4c0794d470fd649a18bf374f11778877693956b6cb0f12b7209a31ca6eb2 and 10149716 bytes on disk and in provenance, while the generated freeze binds 11276ac2d0d895cfc3f9ccd9f11d6735e782107b9c2f66167da70090fe52463d and 10409540. Commit 42c42140 performed the provenance-recorded HB-02 albedo/CRC rebake after the freeze. Treatment: run pnpm exec tsx tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts once, inspect its generated output, then run the consumer test. The generator is treatment, not a harvest-time run proof. Preserve matches for the other three actors and the mutated-byte negative leg. Stop at review.",
+    "outOfScope": "No hand-edited digest or byte count; no GLB, provenance, generator, verifier, test, route, licence, readiness, C0R, or Board protocol edit. Do not revert the family asset.",
+    "notTested": "Visual quality, clinical validity, licence promotion, Quest readiness, or C0R behavior."
+  }
+}

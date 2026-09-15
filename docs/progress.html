@@ -27,6 +27,68 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-15T0206">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 78 &middot; 2026-09-15 02:06 EDT</p>
+          <h2>Two fixes shipped, including a new safeguard. Four separate instruments were reporting success while measuring nothing at all.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Each of these looked healthy from the outside. The right-hand column is what it was actually delivering.</caption>
+            <thead><tr><th scope="col">Instrument</th><th scope="col">What it reported</th><th scope="col">What it was actually doing</th></tr></thead>
+            <tbody>
+              <tr><td>Message watcher</td><td>5 clean cycles, nothing new</td><td><strong>Could not show a message at all</strong></td></tr>
+              <tr><td>Work-claim on a task</td><td>Claimed by this machine</td><td><strong>Expired 3 times while the work ran</strong></td></tr>
+              <tr><td>A lookup written to check two tasks</td><td>Both tasks empty</td><td><strong>Never asked the server anything</strong></td></tr>
+              <tr><td>The cheaper of two writing assistants</td><td>Ran for 6 minutes</td><td><strong>Produced nothing; 0 steps taken</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What shipped: a test that was checking the wrong body</h3>
+            <ul>
+              <li>One check re-runs a recorded model-shrinking step and compares the result against the numbers on file. It had been comparing against <em>two different bodies at once</em>: it re-ran the step on an older copy of the character, then demanded the answer match the figures recorded for the newer copy that actually ships. Those can never agree, so the check failed permanently no matter how correct everything else was.</li>
+              <li>It now runs against the body that actually reaches a learner. Both re-runs were done properly, by replaying the recorded step on stored copies rather than reading numbers off whatever file happens to be on disk: the older copy yields 68,214 shapes, the shipping one 69,067, and both preserve all 52,778 face shapes.</li>
+              <li>The check keeps its teeth. It still re-runs the real step and compares against a recorded figure, so it still fails if that step ever drifts. Shipped as commit <code>002369c8</code>: 3 files, 97 lines added, 6 removed, with all 12 pre-publish checks and all 10 pre-ship checks passing.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Also shipped: a fault that used to break the next person&rsquo;s workspace</h3>
+            <ul>
+              <li>Earlier this week a change correctly dropped an unused component from one project&rsquo;s dependency list, but did not update the file that pins exact versions. Twelve checks passed and it shipped. The next assistant&rsquo;s workspace then failed to set up at all &mdash; and the error pointed at the setup step, not at the change that caused it. The same fault has since misread as a stalled network, a broken dispatcher, and a missing build.</li>
+              <li>There is now a check at the moment of the change: if a dependency list and the version-pin file disagree, the change is refused there and then, naming the real cause. It runs only when one of those two files is actually being changed, so ordinary work pays nothing for it.</li>
+              <li>It catches both directions, which is not automatic. A dependency <em>removed</em> and a dependency <em>added</em> leave opposite traces, and the obvious way to write this check catches the first while silently passing the second. A second real instance of the add case was found in another agent&rsquo;s uncommitted work and sent to the assistant mid-task, which is why the shipped version handles both. Commit <code>0569c47e</code>, 2 files, 69 lines added.</li>
+              <li>One thing was <em>not</em> done and is recorded rather than glossed: the proof that the new check actually fails on a real fault was performed and never written down. The deliberate break shows in the history; the observation of it failing and then passing does not. A green result nobody recorded is indistinguishable later from one nobody ran, so it is queued as its own task rather than counted as finished.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A watcher that reported five quiet cycles it could not have seen</h3>
+            <ul>
+              <li>The component that notifies us when another team sends a message was set up with a filter that only matched bare status words. Every actual message was discarded before it could be shown. It reported five clean cycles while being structurally incapable of delivering one.</li>
+              <li>It was replaced and, before being trusted, deliberately broken to confirm it complains loudly rather than going quiet &mdash; the failure mode that caused the problem in the first place.</li>
+              <li>Testing the replacement found a second, deeper issue: the shared message system returns the <em>last message you already read</em> on every check. Two identical checks minutes apart each returned the same 14 messages, every one dated exactly at the marker saying it had been seen. That is why a filter felt necessary at all. It is now written up as its own task with the measurements attached, rather than worked around again.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Two tasks sat unclaimed while their work was running</h3>
+            <ul>
+              <li>When work is handed to an assistant, the task is marked as claimed so no one else picks it up. Those marks were quietly expiring after about ten minutes while the work continued for far longer. Re-claiming succeeded three separate times, which is only possible on a task nobody holds.</li>
+              <li>The cost was concrete rather than theoretical: a separate agent had tried to start one of these exact tasks four times earlier the same night. A fifth attempt during that window would have put two assistants into the same files at once, and nothing would have stopped it.</li>
+              <li>Reported to the team that owns the mechanism, who confirmed the cause in the code and named the fix: the claim is only renewed when the claim-holder&rsquo;s identity is passed along, and the path we use leaves it out. Confirmed here by reading that code rather than taking it on trust. Re-claiming on every check-in holds the line meanwhile.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A refusal we deliberately did not talk our way past</h3>
+            <ul>
+              <li>The fix above was refused on its first attempt: it added a new evidence file that was not listed in the register of such files. The refusal message suggests rebuilding that register automatically. Doing so has previously deleted large numbers of existing entries.</li>
+              <li>Instead one line was added by hand and the result checked three ways &mdash; the file still reads correctly, the count went from 3,417 to 3,418, and the change adds lines without removing any. Then the same refused command was run again so the checks could pass or fail on their own, rather than being declared fine.</li>
+              <li>Same discipline elsewhere in the night: the cheaper of two writing assistants returned nothing on its very first request and then spent six minutes retrying that same request 16 times before giving up. The elapsed time measured only the retrying &mdash; no work was ever attempted &mdash; so the diagnosis had to come from the logs rather than from how long it ran.</li>
+              <li>The second task started minutes later on the same assistant and failed identically. That one was stopped after about a minute, because the first failure had made the signature recognisable: replies arriving empty within seconds of starting, and not a single step taken. Both tasks moved to the next option up, which completed the first in 26 steps and is still working the second.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-15T0020">
         <div class="section-heading">
           <p class="eyebrow">Entry 77 &middot; 2026-09-15 00:20 EDT</p>
