@@ -62,5 +62,30 @@
       "blockedReason": "OWNER DECISION 2026-09-15: this planted card is superseded in design and must not dispatch. Replace it with (1) an independent group-scoped inventory-anchor prerequisite and (2) a combined C1 candidate plus additive admission card based on preserve/c1-land-a8ceb88c. The replacement removes the dependency cycle and avoids invalidating psr-01b through psr-01e. Criterion 6 remains a separately reviewed exception/closure decision.",
       "updatedAt": "2026-09-15T17:15:59.165Z"
     }
-  ]
+  ],
+  "packetLanding": {
+    "mainCommit": "107025ad",
+    "packetCommit": "fd8598d3",
+    "landedAt": "2026-09-15T18:07:00Z"
+  },
+  "createdTask": {
+    "id": "tsk_08f0dac7bc052d20",
+    "status": "backlog",
+    "factory": "Idle",
+    "assigneeAgentId": null,
+    "parentId": "tsk_36cf3c2473ac953f",
+    "depIds": [
+      "tsk_c1a0aa430750e5d5"
+    ],
+    "writeRoots": [
+      "packages/openclinxr-verification/architecture-rules/src/checks/public-surface",
+      "packages/openclinxr-verification/architecture-rules/src/archunit-tests/public-surface"
+    ],
+    "fields": {
+      "lane": "B",
+      "unblocks": "motion_retarget",
+      "factory_step": "instrument"
+    },
+    "createdAt": "2026-09-15T18:07:47.690Z"
+  }
 }
