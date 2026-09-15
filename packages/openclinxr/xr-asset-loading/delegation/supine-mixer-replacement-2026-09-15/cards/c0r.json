@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "openclinxr.bothy-card-artifact.v1",
+  "role": "C0R",
+  "taskId": null,
+  "createPayload": {
+    "projectId": "prj_9b390b99b443a964",
+    "title": "MSC-C0R \u2014 Admit only translation-safe supine response mixers",
+    "objective": "Admit a mixer on a supine actor only when an explicitly selected touch-response clip is translation-safe by track inspection, while creating no response, locomotion, or standing-idle action at registration.",
+    "lane": "A",
+    "priority": "1",
+    "kind": "task",
+    "parentId": "tsk_e8ac84dd9cb6ac06",
+    "depIds": [],
+    "fields": {
+      "lane": "A",
+      "factory_step": "motion_retarget"
+    },
+    "writeRoots": [
+      "packages/openclinxr/xr-asset-loading/src"
+    ],
+    "doneWhen": [
+      "exists:packages/openclinxr/xr-asset-loading/src/a-supine-patient-mixes-only-posture-safe-one-shots.test.ts",
+      "run:pnpm exec vitest run --root . packages/openclinxr/xr-asset-loading/src/a-supine-patient-mixes-only-posture-safe-one-shots.test.ts",
+      "live:packages/openclinxr/xr-asset-loading/src/a-supine-patient-mixes-only-posture-safe-one-shots.test.ts",
+      "changed:packages/openclinxr/xr-asset-loading/src/humanoid-animation.ts"
+    ],
+    "knownGood": "Read packages/openclinxr/xr-asset-loading/delegation/supine-mixer-replacement-2026-09-15/handoff.json and cards/c0r.json. Baseline 0569c47e. The committed first clause is an honest it.fails plant: changing only it.fails to it fails because the safe supine actor has no mixer. Preserve RED evidence before product edits, then flip it. Admit from posture + selected response + measured translation tracks; no actor-id string. Registration creates no action for response, walk, or standing idle. Any measured bone translation refuses admission. The implementation must call ctx.translationBoneNames for each selected loaded response. Plant remains active. No index.ts export. Stop at review. MANAGER ALLOCATION: exact tasks.claim; read back assigneeAgentId; sessions.mint; dispatch with worktree=true, slice=<raw tsk id>, sessionId=<minted id>, bothyAgentId=<assignee>; sessions.bind {grokSessionId,grokSubagentId,taskId,machineName}; worktrees.register returned path+branch on the same machine; verify exact claim after two minutes. Never tasks.next.",
+    "outOfScope": "No compiler, gateway, UI-XR main.ts, xr-humanoid-animation loop, support/world-transform-during-playback claim, public export, actor-specific exception, second actor, docs, trellis, or OpenClaw edit.",
+    "notTested": "Actual touch playback, compiled-sidecar binding, animated-bone survival through the supine loop, visual quality, clinical validity, or Quest readiness."
+  }
+}
