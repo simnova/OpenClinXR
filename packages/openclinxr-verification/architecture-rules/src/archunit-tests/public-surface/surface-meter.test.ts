@@ -444,7 +444,7 @@ describe("compiler-resolved surface meter", () => {
   // MEASURED as a plain `it(` on 2026-09-14 before being marked: 1 failed, the failure reading
   // "expected true to be false" on requireApplied(root, "psr-h4f").ok — the forgery passing, not an
   // exception inside the fixture. The suite went 213 tests to 214, so this adds exactly one clause.
-  it.fails("(H4f) a migrate row cannot introduce a symbol absent from the raw inventory", () => {
+  it("(H4f) a migrate row cannot introduce a symbol absent from the raw inventory", () => {
     withTree(
       {
         "packages/openclinxr/fixture-h4f/package.json": manifest("@openclinxr/fixture-h4f", {}),
