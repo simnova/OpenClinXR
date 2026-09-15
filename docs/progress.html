@@ -27,6 +27,51 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-14T2128">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 74 &middot; 2026-09-14 21:28 EDT</p>
+          <h2>The check built to stop approvals being faked could be bypassed by editing an approval. Found, proven, closed.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>A failing test was written and committed before the fix, and every figure below was produced by running it rather than reading a report.</caption>
+            <thead><tr><th scope="col">Check</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+            <tbody>
+              <tr><td>The bypass, exercised by a test</td><td><strong>succeeded</strong></td><td><strong>refused</strong></td></tr>
+              <tr><td>Legitimate relocations still work</td><td>yes</td><td>yes</td></tr>
+              <tr><td>Verification suite</td><td>213 passing, 1 known failure</td><td>214 passing, none</td></tr>
+              <tr><td>Programme's own verdict</td><td>refuses</td><td>refuses, identically</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What the hole was</h3>
+            <ul>
+              <li>The review system says in its own comments that a task cannot satisfy its checks by editing the approval paperwork &mdash; every check recomputes what the code actually publishes and compares it against approvals that are supposed to be fixed.</li>
+              <li>One kind of approval row says &ldquo;this item moved from here to there&rdquo;. The move was implemented as a removal followed by an addition, and the removal quietly did nothing when the item was not there to begin with, while the addition always ran. So a row claiming to move something that never existed simply invented it.</li>
+              <li>The consequence: adding one such row to a finished group&rsquo;s paperwork makes an unapproved item disappear from the failure list, and every fingerprint check still passes, because those fingerprints are computed from the original snapshot and not from the paperwork. The four items currently blocking the programme could have been cleared this way with no code change at all.</li>
+              <li>No approval file in the repository uses this, and nothing that ships was affected. It is a gap in an internal review tool, and it is now shut.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>How it was found, and why it had stayed hidden</h3>
+            <ul>
+              <li>It was not found by looking for it. A reviewer asked to attack an unrelated change mentioned it in passing. I then read the code myself and built a test that performs the bypass, so the claim became a measurement rather than a report.</li>
+              <li>The reason it survived is worth more than the bug: a test sitting directly beside it already covered moves, and looked like coverage of this. That test exercises an honest move, where the item really does exist. Nothing anywhere asserted the dishonest case.</li>
+              <li>Adjacent coverage is what made it invisible. A reader scanning for &ldquo;is this handled?&rdquo; sees a test about moves and stops.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What changed, and what did not</h3>
+            <ul>
+              <li>One guard: the addition now happens only when the removal actually removed something. A move must relocate an item the snapshot already lists; a row naming an absent item introduces nothing.</li>
+              <li>Checked on the assistant&rsquo;s copy before merging: the whole verification suite passes with nothing marked as an expected failure, honest moves still work, and the programme&rsquo;s verdict is the same refusal naming the same four items. A fix that changed those figures would have changed more than it should.</li>
+              <li>Thirty-two turns on the inexpensive assistant, two files, eight lines added. The contract checks were re-run three times before merging, because a check that passes twice and fails once is a flake and merging on a flake is how a failure reaches shared code.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-14T2110">
         <div class="section-heading">
           <p class="eyebrow">Entry 73 &middot; 2026-09-14 21:10 EDT</p>
