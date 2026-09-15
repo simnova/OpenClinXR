@@ -248,7 +248,7 @@
           "inputLineage": "HB-02 bytes (37d4460d, triangleCountBefore 90996)"
         },
         {
-          "rungId": "fp-r0.4-jeans-lineage",
+          "rungId": "fp-r0.4",
           "ratio": 0.4,
           "error": 0.01,
           "triangleCount": 69067,

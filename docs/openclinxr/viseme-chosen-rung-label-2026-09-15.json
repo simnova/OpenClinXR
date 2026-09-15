@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "openclinxr.viseme-chosen-rung-label.v1",
+  "generated": "2026-09-15",
+  "card": "tsk_68499a16e3ea6c09",
+  "decision": "ENTRY_NAMING_WAS_WRONG",
+  "summary": "The sweep entry 'fp-r0.4-jeans-lineage' carried lineage in its rungId, which no other sweep entry does. rungId names the technique (face-preserving ratio); inputLineage carries the lineage. The promoted row's chosenRungId='fp-r0.4' was correct. The fix renames the sweep entry to 'fp-r0.4' distinguished by inputLineage='tightjeans fit output...', and restores the derived lookup in the test.",
+  "evidence": {
+    "rungIdSemanticsInIterateOptimize": {
+      "file": "tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts",
+      "line": 89,
+      "function": "facePreservingRungIds()",
+      "returns": "['fp-r0.4', 'fp-r0.3', 'fp-r0.15']",
+      "note": "Rung ids are pure technique names derived from FACE_PRESERVING_RATIOS constants; no lineage suffix anywhere in the source."
+    },
+    "sweepEntriesInOtherRows": {
+      "file": "docs/openclinxr/humanoid-postopt-ladder-face-preserving-2026-09-11.json",
+      "bodiesChecked": [
+        "mpfb-gown-inspect.glb",
+        "mpfb-ob-patient-aisha.glb",
+        "mpfb-peds-nurse-kevin.glb",
+        "mpfb-peds-parent-aisha.glb"
+      ],
+      "finding": "None of the other four promoted bodies have a 'sweep' array at all. The viseme-inspect row is the only one with a sweep, added by rederive-evidence-drift-2026-09-14.ts to document the two lineages measured. The anomaly was naming one entry with a lineage suffix."
+    },
+    "testRatioParse": {
+      "file": "tools/openclinxr/asset-pipeline/trellis/the-face-preserving-rung-keeps-every-face-triangle.test.ts",
+      "line": 174,
+      "code": "const ratio = Number(row!.chosenRungId.replace('fp-r', ''))",
+      "behavior": "Parses 0.4 from 'fp-r0.4'. Would yield NaN on 'fp-r0.4-jeans-lineage', breaking the station run."
+    },
+    "chosenRungIdConsumers": {
+      "file": "tools/openclinxr/asset-pipeline/trellis/the-decimated-humanoid-keeps-its-face-and-rig.test.ts",
+      "lines": "115, 132, 134",
+      "behavior": "All consumers expect chosenRungId to be a rung id present in the source's ratio list (fp-r0.4, fp-r0.3, fp-r0.15). No consumer expects a lineage suffix."
+    }
+  },
+  "rejectedOption": {
+    "option": "LABEL_IS_WRONG",
+    "reason": "Changing chosenRungId to 'fp-r0.4-jeans-lineage' would: (1) break the ratio parse in the test (NaN), requiring a separate fix; (2) break the rung-id counterweight in both test files which validate chosenRungId against the source's FACE_PRESERVING_RATIOS; (3) contradict iterate-optimize.ts where rung ids are pure technique names without lineage; (4) create a precedent where rungId encodes lineage, forcing every future sweep to duplicate rungIds per lineage rather than using inputLineage as designed."
+  },
+  "changesMade": [
+    "docs/openclinxr/humanoid-postopt-ladder-face-preserving-2026-09-11.json: sweep[3].rungId changed from 'fp-r0.4-jeans-lineage' to 'fp-r0.4' (inputLineage unchanged, carries 'tightjeans fit output...')",
+    "tools/openclinxr/asset-pipeline/trellis/the-face-preserving-rung-keeps-every-face-triangle.test.ts:176-178: lookup changed from literal 'fp-r0.4-jeans-lineage' to derived entry.rungId === row.chosenRungId && entry.inputLineage?.includes('tightjeans')"
+  ],
+  "verification": {
+    "test": "pnpm exec vitest run tools/openclinxr/asset-pipeline/trellis/the-face-preserving-rung-keeps-every-face-triangle.test.ts",
+    "expected": "All assertions pass; falsifier derives comparison target from report's chosenRungId + inputLineage, not a hardcoded literal"
+  },
+  "residuals": {
+    "dualSweepEntryHazard": {
+      "description": "Two sweep entries now share rungId 'fp-r0.4' (HB-02 lineage: 68214 tris, tightjeans lineage: 69067 tris). Any consumer doing a bare .find(e => e.rungId === 'fp-r0.4') will silently take the FIRST match (HB-02), which is the wrong body for the promoted row (tightjeans).",
+      "currentState": "Measured: the test at the-face-preserving-rung-keeps-every-face-triangle.test.ts is currently the ONLY consumer of this sweep array (grep for 'sweep' in tools/openclinxr/asset-pipeline/trellis/*.test.ts returns only that file). The hazard is latent, not live.",
+      "mitigation": "The test correctly uses the compound key entry.rungId === row.chosenRungId && entry.inputLineage?.includes('tightjeans'). Future consumers must do the same; a bare rungId lookup is insufficient when multiple lineages share a technique."
+    }
+  },
+  "notEvidenceFor": [
+    "Whether the promoted viseme row's chosen rung is the right rung for the tightjeans lineage",
+    "Whether the tightjeans lineage should be the promoted one at all",
+    "Whether any other row in the report has the same label/number mismatch",
+    "Rendered appearance of any body"
+  ]
+}
