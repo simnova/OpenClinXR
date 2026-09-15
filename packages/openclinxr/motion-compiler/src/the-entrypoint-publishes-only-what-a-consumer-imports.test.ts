@@ -74,12 +74,16 @@ function publishes(source: string, symbol: string): boolean {
 
 describe("the entrypoint publishes only what a consumer imports", () => {
   // (0) VACUITY GUARD. If index.ts were empty or unreadable, clause (1) would pass for the wrong
-  // reason. This pins that all eight symbols are named there TODAY, so a later failure of (1) is
-  // about the cut and never about a missing file.
-  it("(0) the entrypoint exists and names all eight symbols today", () => {
+  // reason. This pins that the five kept symbols are named there, so a pass of (1) is about the
+  // cut and never about a missing file.
+  // ## FIXED (bothy-tsk_e133db2e0e13d261): this guard originally pinned all EIGHT symbols named in
+  // index.ts (CUT + KEEP) as the pre-fix inventory. The cut removed the three CUT symbols from the
+  // entrypoint, so the guard now pins the five KEEP symbols — same anti-vacuity strength, updated
+  // inventory. Clause (1) below asserts the CUT absence.
+  it("(0) the entrypoint exists and names the five kept symbols", () => {
     const src = entrypointSource();
     expect(src.length, "index.ts is empty — clause (1) would pass vacuously").toBeGreaterThan(100);
-    for (const symbol of [...CUT, ...KEEP]) {
+    for (const symbol of KEEP) {
       expect(publishes(src, symbol), `${symbol} is not named in index.ts — this guard is stale`).toBe(true);
     }
   });
@@ -90,7 +94,7 @@ describe("the entrypoint publishes only what a consumer imports", () => {
   // Marked it.fails so the suite is green while the defect stands. THE FIX MUST CONVERT IT BACK
   // TO `it(` — the card's live: rule fails while any it.fails clause remains, so a green run here
   // is not evidence of repair.
-  it.fails("(1) does not publish the three symbols nothing outside this package imports", () => {
+  it("(1) does not publish the three symbols nothing outside this package imports", () => {
     const src = entrypointSource();
     for (const symbol of CUT) {
       expect(publishes(src, symbol), `index.ts still publishes ${symbol}, which has no consumer outside this package`).toBe(false);
@@ -113,3 +117,16 @@ describe("the entrypoint publishes only what a consumer imports", () => {
     expect(typeof mod["planMotionProgram"], "planMotionProgram must stay callable").toBe("function");
   });
 });
+
+/**
+ * ## FIXED (bothy-tsk_e133db2e0e13d261) — removed MotionGlbBakeTrack, MotionGlbReadback and
+ * readMotionGlb from src/index.ts (value re-export drops readMotionGlb; type re-export keeps
+ * only MotionGlbBakeClip). KEEP set untouched: planMotionProgram, ScenarioMotionCompileInput,
+ * bakeMotionProgramToGlb, readMotionGlbClipId and MotionGlbBakeClip still publish through the
+ * entrypoint. Clause (0) guard re-pinned from the eight-symbol pre-fix inventory to the five
+ * KEEP symbols (same anti-vacuity strength); clause (2) pins the KEEP presence and clause (3)
+ * the KEEP callability. Internal shim src/motion-glb-bake.ts and src/bake/motion-glb-bake.ts
+ * unchanged — bake test loads ./motion-glb-bake.js directly, so readMotionGlb stays reachable
+ * there. Four unapproved symbols remain (three KEEPs + playManifestMotionClip) and criterion 6
+ * (rootExportsAtMost 1227 > 1000) is not addressed; acceptance still returns refuse.
+ */
