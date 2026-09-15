@@ -1905,7 +1905,7 @@ Operator asked for a multi-turn Codex + Grok 4.6 analysis and at least one drivi
 
 ## 2026-09-02 checkpoint — merge accepted dialogue/voice amendments
 
-Operator asked to update as recommended after review of `/Users/patrick/Downloads/runtime-dialogue-voice-direction-response-2026-09-02.md`.
+Operator asked to update as recommended after review of `docs/openclinxr/runtime-dialogue-voice-direction-response-2026-09-02.md` (reviewed from a copy outside the repo; the in-repo document is the same file).
 
 **OUTCOME.** Sequence owner updated. Three corrections applied: DeepSeek peak stays Mon–Fri; `$15/1M` TTS kept (`$4.20` was not in the landed file); slice 1 `done_when` is types + plan/execution split only.
 

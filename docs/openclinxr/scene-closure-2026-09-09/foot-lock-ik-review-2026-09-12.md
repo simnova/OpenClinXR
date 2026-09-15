@@ -70,7 +70,7 @@ Final Grok native inventory found no active terminal-turn/foot-lock duplicate. E
 - [Approach execution and settling](/Volumes/files/src/openclinxr/packages/openclinxr/xr-runtime-state/src/bedside-approach-execution-mod.ts)
 - [Playback and ownership integration](/Volumes/files/src/openclinxr/packages/openclinxr/xr-humanoid-animation/src/locomotion-clip-playback-mod.ts)
 - [Existing arm solver](/Volumes/files/src/openclinxr/packages/openclinxr/motion-compiler/src/ik/solve-chain.ts)
-- [Retained SC-05 findings](/Volumes/files/src/openclinxr/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-05.md)
+- [Retained SC-05 findings](evidence/sc-05.md)
 - [Actual shipped measurement consumer](/Volumes/files/src/openclinxr/tools/openclinxr/evidence/scene-closure/proofs/sc-05/runtime-approach-measurement.ts)
 - [Browser recorder and cadence instrument](/Volumes/files/src/openclinxr/tools/openclinxr/evidence/scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.ts)
 - [Pinned capture input coverage](/Volumes/files/src/openclinxr/tools/openclinxr/evidence/scene-closure/proofs/sc-09/closure-inspection.ts)
