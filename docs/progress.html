@@ -27,6 +27,52 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-14T2055">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 72 &middot; 2026-09-14 20:55 EDT</p>
+          <h2>A change landed, and the reviewer I asked to attack it rejected half of it. Both are recorded here.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>What the inexpensive assistant produced, checked by re-running everything myself rather than reading its report.</caption>
+            <thead><tr><th scope="col">Measure</th><th scope="col">Result</th></tr></thead>
+            <tbody>
+              <tr><td>Turns taken</td><td>38, no retries</td></tr>
+              <tr><td>Files changed</td><td>3, all inside the permitted area</td></tr>
+              <tr><td>Contract checks</td><td>6 of 6, re-run three times</td></tr>
+              <tr><td>Test committed before the work</td><td>yes &mdash; it failed then, passes now</td></tr>
+              <tr><td>Programme's own verdict</td><td>still refuses, unchanged</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What landed, and why it was worth doing</h3>
+            <ul>
+              <li>The list of review groups was written out in three separate places. Two consumers read one copy and a third read another, so adding a new group would have been half-registered: checked by two parts of the system and silently skipped by the part that verifies a group's paperwork. A group that is half-registered is worse than one refused outright.</li>
+              <li>That is now a single list with one reader. The failing test committed ahead of the work passes, its two guard clauses still pass untouched, and the programme's verdict is unchanged &mdash; nothing was quietly closed to make a report look better.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The review rejected the other half, and it is right</h3>
+            <ul>
+              <li>I also had it add a rule that treats any correctly-shaped group name as a real group. A reviewer asked to destroy the design, not approve it, found that this recreates the exact problem the work was meant to remove: the router now accepts names the rest of the system has never heard of. The split moved rather than closed.</li>
+              <li>It could not find a case where this lets anything through that is refused today, so nothing is newly exposed. It is a structural regression, and it is my error: I specified it in the task, and the assistant built exactly what I asked for.</li>
+              <li>The review also corrected four things I had written down as fact, including the mechanism by which the four remaining items are blocked. I had the right conclusion resting on a wrong explanation, for the second time today.</li>
+              <li>A replacement task is being written. The reviewer's recommendation is the narrower one: register the new group properly rather than teach the router a pattern.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The work was already half-done, and I did not find it</h3>
+            <ul>
+              <li>A task for this same problem has been open on the board since this afternoon, with eight notes on it, and a previous attempt had already produced the identical fix &mdash; preserved, uncommitted, on a side branch.</li>
+              <li>I checked for duplicates in the wrong place: a set of cached files that stopped being current weeks ago. The live record was one directory over.</li>
+              <li>Nothing was lost, and the landed version is the cleaner one: committed properly, with every check passing, where the earlier attempt was a snapshot that deliberately cannot be merged. The cost was my time, not the project's.</li>
+              <li>That older task now carries a note saying which part is already on the shared code, so nobody spends a second assistant repeating it.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-14T2030">
         <div class="section-heading">
           <p class="eyebrow">Entry 71 &middot; 2026-09-14 20:30 EDT</p>
