@@ -27,6 +27,51 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-14T2110">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 73 &middot; 2026-09-14 21:10 EDT</p>
+          <h2>The regression named in the entry below is removed, and a second check caught my paperwork error before any assistant started work.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Checked by running each one myself on the assistant's copy before merging, not by reading its report.</caption>
+            <thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead>
+            <tbody>
+              <tr><td>Names that should not resolve</td><td>both now refused</td></tr>
+              <tr><td>Names that should resolve</td><td>all unchanged</td></tr>
+              <tr><td>Test file</td><td>5 of 5 passing, none marked as expected-to-fail</td></tr>
+              <tr><td>Contract checks</td><td>5 of 5, re-run three times</td></tr>
+              <tr><td>Programme's own verdict</td><td>still refuses, unchanged</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What changed</h3>
+            <ul>
+              <li>Five lines removed. The rule that treated any correctly-shaped name as a real review group is gone, so an unknown name is refused again and the function's own description of itself is true once more.</li>
+              <li>The useful half of the earlier change stayed: the list of review groups still has one declaration and one reader. Reverting the whole thing would have thrown that away.</li>
+              <li>Two files, thirty turns on the inexpensive assistant, no retries. I re-ran every check on its copy before merging: the two names that should be refused are refused, the four that should resolve are unchanged, and the programme's verdict is the same refusal as before with the same items named.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>An assertion was inverted rather than deleted</h3>
+            <ul>
+              <li>One existing check asserted that a new group name resolves &mdash; which was only ever satisfied by the rule just removed. Deleting it would have quietly erased the record that this capability is missing.</li>
+              <li>So it was turned around: it now asserts that no such path exists, and its comment states exactly what would restore the original assertion, and that widening or removing it instead is the wrong move.</li>
+              <li>That keeps a known gap visible in the code rather than in someone's memory. The gap itself is real and remains open: genuinely new shared interfaces still have no approved route in, which is a design question the programme has not answered.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>My first attempt at the task was refused before it started</h3>
+            <ul>
+              <li>The first version of this task had checks that would have passed on untouched code &mdash; the test framework counts an expected failure as a pass, so the check could not tell finished from not started.</li>
+              <li>I had noticed that weakness, written it into the task, argued it was acceptable because I review the changes myself, and moved on. The automatic check disagreed and refused to start an assistant. It was right: a check that passes before the work begins is not a check, and leaning on my own later reading to cover the difference is the thing these checks exist to replace.</li>
+              <li>The task was rewritten so the before and after states are genuinely distinguishable, and the refused version is recorded rather than quietly replaced. No assistant ran, nothing was touched, and the cost was one automated check.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-14T2055">
         <div class="section-heading">
           <p class="eyebrow">Entry 72 &middot; 2026-09-14 20:55 EDT</p>
