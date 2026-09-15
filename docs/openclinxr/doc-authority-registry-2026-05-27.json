@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 209,
     "archive-candidate": 92,
-    "evidence": 146,
+    "evidence": 147,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5083,6 +5083,13 @@
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
       "rationale": "RETAINED NEGATIVE CONTROL. Holds deliberately stale guidance so the planted clauses fail on a genuine instruction contradiction rather than a missing file. Never read as instruction; weight must stay none."
+    },
+    {
+      "path": "tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Delegation handoff for the additive public-surface admission prerequisite. Subordinate to protected policy and the live BothyBoard card, which overrides it on conflict."
     }
   ]
 }
