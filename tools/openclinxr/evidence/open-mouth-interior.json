@@ -2,14 +2,14 @@
   "schemaVersion": "openclinxr.open-mouth-interior.v1",
   "issue": "551",
   "factoryStep": "instrument",
-  "generatedAt": "2026-08-29T03:03:56.319Z",
+  "generatedAt": "2026-09-15T13:47:24.710Z",
   "method": "NodeIO on mpfb-viseme-inspect.glb. Lip verts = dominant JOINTS_0 on oris*/levator* (#425). Anterior rim = lip verts with rest Z >= 60th percentile. lipGapMeters = max(0, min(upper-anterior Y) - max(lower-anterior Y)) after morph POSITION delta @ weight 1.0. thresholdMeters = 0.5 * teeth mesh AABB height (teeth input only).",
   "subject": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
   "bodyMeshName": "mpfb_ob_patient_aisha_body",
-  "lipVertexCount": 830,
-  "anteriorLipVertexCount": 333,
-  "anteriorZCutMeters": 0.15093998610973358,
-  "lipRestMidYMeters": 1.4875749981546977,
+  "lipVertexCount": 189,
+  "anteriorLipVertexCount": 78,
+  "anteriorZCutMeters": 0.15104998648166656,
+  "lipRestMidYMeters": 1.4878296278141163,
   "mechanism": "lip_gap_clears_teeth_threshold_and_teeth_visible",
   "thresholdMeters": 0.020725011825561523,
   "thresholdDerivation": "thresholdMeters = 0.5 * aabbHeight(openclinxr_hm08_teeth POSITION) = 0.5 * 0.04145002365112305 = 0.020725011825561523 m. Measured with NodeIO on mesh \"openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh\" (min=[-0.031080005690455437,1.459662914276123,0.09414997696876526], max=[0.031080005690455437,1.501112937927246,0.15107998251914978]). Half the dental-arcade height is the minimum lip aperture that can expose teeth; derived from the teeth mesh (input), never from observed lipGap (effect).",
@@ -17,20 +17,20 @@
     {
       "name": "viseme_aa",
       "lipGapMeters": 0.023833762854337692,
-      "lipSpanMeters": 0.09339140355587006,
+      "lipSpanMeters": 0.09077287837862968,
       "lipOverlapMeters": 0,
-      "upperLipMinY": 1.4857428073883057,
-      "lowerLipMaxY": 1.461909044533968,
-      "maxDisplacementMeters": 0.04540028597033416,
+      "upperLipMinY": 1.486872911453247,
+      "lowerLipMaxY": 1.4630391485989094,
+      "maxDisplacementMeters": 0.043900348789117194,
       "interiorRevealed": true
     },
     {
       "name": "viseme_sil",
-      "lipGapMeters": 0.00026988983154296875,
-      "lipSpanMeters": 0.05568993091583252,
+      "lipGapMeters": 0.0013300180435180664,
+      "lipSpanMeters": 0.05410003662109375,
       "lipOverlapMeters": 0,
-      "upperLipMinY": 1.4878427982330322,
-      "lowerLipMaxY": 1.4875729084014893,
+      "upperLipMinY": 1.4886728525161743,
+      "lowerLipMaxY": 1.4873428344726562,
       "maxDisplacementMeters": 0,
       "interiorRevealed": false
     }
@@ -76,17 +76,17 @@
       "lipBandOverlapsTeethY": true,
       "lipRestAabb": {
         "min": [
-          -0.042030010372400284,
-          1.4593628644943237,
-          0.12827998399734497
+          -0.0382700078189373,
+          1.4632928371429443,
+          0.13133998215198517
         ],
         "max": [
           0.042030010372400284,
-          1.5218428373336792,
-          0.16613999009132385
+          1.5202529430389404,
+          0.16585998237133026
         ]
       },
-      "deltaZLipsMinusTeethMax": 0.015060007572174072
+      "deltaZLipsMinusTeethMax": 0.014779999852180481
     }
   },
   "tongue": {
@@ -106,85 +106,85 @@
   },
   "meshInventory": [
     {
-      "name": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh.001",
-      "verts": 8262,
-      "mat": "mat_makeclothes_library_cargo_pants.001",
+      "name": "makeclothes_library_female_tight_jeans_pants_mpfb_ob_patient_aisha_mesh",
+      "verts": 2906,
+      "mat": "mat_makeclothes_library_female_tight_jeans_pants",
       "alpha": 1,
       "alphaMode": "OPAQUE"
     },
     {
       "name": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
-      "verts": 2008,
+      "verts": 768,
       "mat": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
       "alpha": 1,
       "alphaMode": "OPAQUE"
     },
     {
       "name": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
-      "verts": 3085,
+      "verts": 1414,
       "mat": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat",
       "alpha": 1,
       "alphaMode": "OPAQUE"
     },
     {
       "name": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
-      "verts": 5400,
+      "verts": 1192,
       "mat": "mat_makeclothes_library_toigo_t_shirt",
       "alpha": 1,
       "alphaMode": "OPAQUE"
     },
     {
       "name": "mpfb_ob_patient_aisha_body",
-      "verts": 11207,
+      "verts": 4331,
       "mat": "mpfb_skin_ob_patient_aisha",
       "alpha": 1,
       "alphaMode": "OPAQUE"
     },
     {
       "name": "mpfb_ob_patient_aisha_body",
-      "verts": 1565,
+      "verts": 693,
       "mat": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
       "alpha": 0,
       "alphaMode": "MASK"
     },
     {
       "name": "mpfb_ob_patient_aisha_body",
-      "verts": 334,
+      "verts": 641,
       "mat": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
       "alpha": 0,
       "alphaMode": "MASK"
     },
     {
       "name": "mpfb_ob_patient_aisha_body",
-      "verts": 1908,
+      "verts": 881,
       "mat": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
       "alpha": 0,
       "alphaMode": "MASK"
     },
     {
       "name": "mpfb_ob_patient_aisha_body",
-      "verts": 155,
+      "verts": 26,
       "mat": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
       "alpha": 0,
       "alphaMode": "MASK"
     },
     {
       "name": "mpfb_ob_patient_aisha_body",
-      "verts": 102,
+      "verts": 85,
       "mat": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
       "alpha": 0,
       "alphaMode": "MASK"
     },
     {
       "name": "mpfb_ob_patient_aisha_body",
-      "verts": 572,
+      "verts": 284,
       "mat": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
       "alpha": 0,
       "alphaMode": "MASK"
     },
     {
       "name": "mpfb_ob_patient_aisha_body",
-      "verts": 116,
+      "verts": 65,
       "mat": "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
       "alpha": 0,
       "alphaMode": "MASK"

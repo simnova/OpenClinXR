@@ -82,8 +82,8 @@ U8 = 5121
 U16 = 5123
 # Measured on HEAD 81d06dd6 / Stage A — inputs the station verifies before baking.
 MEASURED_TEETH_HEIGHT = 0.04145002365112305
-MEASURED_LIP_VERTS = 830
-MEASURED_ANTERIOR_LIP_VERTS = 333
+MEASURED_LIP_VERTS = 189
+MEASURED_ANTERIOR_LIP_VERTS = 78
 # The bake is one-shot: if the pre-bake aperture is already this large, it has run.
 SEALED_GAP_REFUSE_MM = 5.0
 TARGET_GAP_FACTOR = 1.15

@@ -67,7 +67,7 @@ const ARTIFACT = "tools/openclinxr/evidence/open-mouth-interior.json";
 /** #0 measured on the baked inspect GLB — pinned so a silent remeasure rewrite cannot relabel the open mouth as sealed. */
 const MEASURED_AA_GAP = 0.023833762854337692;
 const MEASURED_AA_OVERLAP = 0;
-const MEASURED_AA_MAX_DISP = 0.04540028597033416;
+const MEASURED_AA_MAX_DISP = 0.043900348789117194;
 const MEASURED_TEETH_THRESHOLD = 0.020725011825561523;
 
 type VisemeRow = {

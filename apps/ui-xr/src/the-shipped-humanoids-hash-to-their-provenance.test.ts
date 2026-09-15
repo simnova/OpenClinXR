@@ -167,4 +167,16 @@ describe("shipped humanoids hash to their provenance", () => {
     ).toBeDefined();
     expect(retired.reason).toMatch(/CONDITIONAL/u);
   });
+
+  it("(5) NON-VACUITY: mpfb-viseme-inspect.provenance.json enters provenanceRows and matches its GLB", () => {
+    // The sidecar is declarationOnly and carried outputSha256 without assetPath for over a year.
+    // A record with half its binding missing reads exactly like one that passed every check.
+    // This clause asserts the sidecar ENTERS provenanceRows() and its recorded hash MATCHES its GLB.
+    // If you can delete this clause and the suite still goes green on a mismatched sidecar, it is not doing its job.
+    const rows = provenanceRows();
+    const visemeRow = rows.find((r) => r.file === "mpfb-viseme-inspect.provenance.json");
+    expect(visemeRow, "mpfb-viseme-inspect.provenance.json must enter provenanceRows — assetPath must be present").toBeDefined();
+    expect(visemeRow!.assetPath, "assetPath must name the tracked GLB").toBe("apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb");
+    expect(visemeRow!.matches, `declared ${visemeRow!.declaredSha256.slice(0, 12)}… but ${visemeRow!.assetPath} is ${visemeRow!.actualSha256.slice(0, 12)}… — re-derive the hash from the produced bytes`).toBe(true);
+  });
 });
