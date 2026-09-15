@@ -1,0 +1,161 @@
+{
+  "schemaVersion": "openclinxr.a1-browser-foot-truth.v1",
+  "cardKey": "MSC-A1",
+  "taskId": "tsk_3f01d5bd55a00505",
+  "headSha": "9c0e8ff5d5c8d453c44816aa24b1bb61f7c87d61",
+  "treeClean": false,
+  "treeDirtyPaths": [
+    "docs/openclinxr/owner-memory/pulse.jsonl"
+  ],
+  "treeDirtyAssessment": "One modified file, written by another agent's owner-memory pulse, not by this card. It is a coordination ledger under docs/ and is not read by the runtime, the scene, the actor, or the capture instrument, so it cannot affect a toe position. Recorded rather than suppressed: the card requires SHA-bound measurements and a reader is entitled to know the tree was not pristine.",
+  "instrument": {
+    "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.ts",
+    "argv": [
+      "pnpm",
+      "exec",
+      "tsx",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.ts",
+      "--output-dir",
+      "<per-run>"
+    ],
+    "defaultsUsed": {
+      "waitMs": 4000,
+      "timeoutMs": 240000,
+      "viewportWidth": 480,
+      "viewportHeight": 320
+    },
+    "recordsCommit": false,
+    "recordsCommitNote": "The instrument writes no commit into its inspection.json. headSha above is supplied by this harness, which is why the card requires the report to bind it."
+  },
+  "signConvention": {
+    "formula": "penetrationMeters = floorOriginY - toe.y",
+    "positiveMeans": "below the floor plane (submerged)",
+    "negativeMeans": "above the floor plane (clear)",
+    "note": "Stated because the two instruments report the quantity with opposite intuitions. Node's -0.013571 m is 13.6 mm ABOVE the floor."
+  },
+  "nodeKnownGood": {
+    "deepestMeters": -0.013571,
+    "settledFrames": 101,
+    "arrivedFrames": 432,
+    "belowFloorFrames": 0,
+    "source": "A1 card (tsk_3f01d5bd55a00505) immutable knownGood; shipped MPFB physician plus openclinxr_retarget_walk_formal_cc0"
+  },
+  "runs": [
+    {
+      "runId": "a1-run1-2026-09-14T22:35:04Z",
+      "outputDir": ".openclinxr/evidence/sc-05-a1-run1",
+      "driveSource": "case_owned_bedside_approach",
+      "sampleCount": 357,
+      "waitTimedOut": false,
+      "floorOriginY": -8.940696724635266e-10,
+      "toeBonesResolved": true,
+      "physicianActorId": "senior_resident_ward_v1",
+      "observedObstacleIds": [
+        "inpatient_ward_room_v1:stretcher",
+        "inpatient_ward_room_v1:overbed_surface",
+        "inpatient_ward_room_v1:door_leaf",
+        "inpatient_ward_room_v1:wall_board"
+      ],
+      "aggregateDeepestFloorPenetrationMeters": 0.03780312848097111,
+      "phases": [
+        {
+          "phase": "walking",
+          "sampleCount": 153,
+          "leftToeDeepestMeters": 0.000652,
+          "rightToeDeepestMeters": -0.000147
+        },
+        {
+          "phase": "settling",
+          "sampleCount": 62,
+          "leftToeDeepestMeters": 0.03573,
+          "rightToeDeepestMeters": 0.037803
+        },
+        {
+          "phase": "arrived",
+          "sampleCount": 142,
+          "leftToeDeepestMeters": 0.033043,
+          "rightToeDeepestMeters": 0.03599
+        }
+      ],
+      "instrumentProblems": [
+        "foot-slide is NOT GRADEABLE from this capture: frame intervals vary by 2.62x (max 358 ms over median 137 ms), over SC-00's frozen maxFrameGapRatio of 2; identifying a contact window needs about 132 Hz",
+        "a foot reached 0.03780 m below the floor frame; a submerged foot is not a stance"
+      ],
+      "artifacts": [
+        {
+          "objectKey": "sc-05-a1-run1/sc-05-bedside-approach-inspection.json",
+          "sha256": "10a40683c83f65840dca72adc0432cf8be51c492e10f34437f5f49a3bb3b53dc",
+          "byteCount": 208166,
+          "mediaType": "application/json",
+          "retrieval": "Gitignored local scratch on Patricks-MacBook-Pro.local at .openclinxr/evidence/sc-05-a1-run1/. Reproduce by running the instrument at headSha 9c0e8ff5 with --output-dir .openclinxr/evidence/sc-05-a1-run1; the sha256 above binds the exact bytes this report was computed from."
+        },
+        {
+          "objectKey": "sc-05-a1-run1/sc-05-bedside-approach-arrived.png",
+          "sha256": "b476dec908ccc1bf573c508526295613d806d5e70874801696415c78aee6af40",
+          "byteCount": 59544,
+          "mediaType": "image/png",
+          "retrieval": "Gitignored local scratch, same directory. Illustration only: this card grades no pixels."
+        }
+      ]
+    },
+    {
+      "runId": "a1-run2-2026-09-14T22:36:29Z",
+      "outputDir": ".openclinxr/evidence/sc-05-a1-run2",
+      "driveSource": null,
+      "sampleCount": 0,
+      "waitTimedOut": true,
+      "floorOriginY": null,
+      "toeBonesResolved": false,
+      "physicianActorId": null,
+      "observedObstacleIds": [],
+      "aggregateDeepestFloorPenetrationMeters": null,
+      "phases": [],
+      "instrumentProblems": [
+        "foot-slide is NOT GRADEABLE from this capture: only 0 usable interval(s); a first difference needs at least two",
+        "the runtime observed no obstacle geometry; an empty list cannot establish a clear route"
+      ],
+      "artifacts": [
+        {
+          "objectKey": "sc-05-a1-run2/sc-05-bedside-approach-inspection.json",
+          "sha256": "852a5f22e9f3213843ea8a4f42be45edb6cccf6f207722fb9b5ca51caf55e2ad",
+          "byteCount": 6980,
+          "mediaType": "application/json",
+          "retrieval": "Gitignored local scratch at .openclinxr/evidence/sc-05-a1-run2/. 6,980 bytes against run 1's 208,166 is itself the signature of the null capture."
+        },
+        {
+          "objectKey": "sc-05-a1-run2/sc-05-bedside-approach-arrived.png",
+          "sha256": "b2cabb152e83b7d5b3091719efe780141233a1fb39a90fec91e14e723eeb7d80",
+          "byteCount": 59599,
+          "mediaType": "image/png",
+          "retrieval": "Gitignored local scratch, same directory. NOTE: the screenshot is 59,599 bytes and looks like a scene, while the run captured zero skeleton samples. A byte floor on this PNG would have passed a capture that measured nothing."
+        }
+      ]
+    }
+  ],
+  "priorRunsSameInstrument": [
+    { "runId": "2026-09-14T01:17Z", "outputDir": ".openclinxr/evidence/sc-05-bedside-approach", "sampleCount": 371, "driveSource": "case_owned_bedside_approach", "waitTimedOut": false },
+    { "runId": "2026-09-14T04:01Z", "outputDir": ".openclinxr/evidence/sc-05-after-standing-1", "sampleCount": 371, "driveSource": "case_owned_bedside_approach", "waitTimedOut": false },
+    { "runId": "2026-09-14T04:05Z", "outputDir": ".openclinxr/evidence/sc-05-after-standing-2", "sampleCount": 0, "driveSource": null, "waitTimedOut": true }
+  ],
+  "nullRate": {
+    "nullRuns": 2,
+    "totalRuns": 5,
+    "note": "All five runs of this instrument on this machine today, reported together. The pair required by the card (a1-run1, a1-run2) is NOT a selected subset: it is the first two runs made under the card, and the second was null. No run was discarded or re-rolled to obtain a different verdict."
+  },
+  "verdict": "capture_null",
+  "verdictRationale": "The card requires TWO SHA-bound NON-NULL browser measurements before the browser figure can be set against Node's. At 9c0e8ff5 the instrument produced one (357 samples, driveSource case_owned_bedside_approach) and one null (0 samples, driveSource null, waitTimedOut true, no obstacles resolved, no toe bones resolved). Two of five runs today failed the same way, so the null mode is reproducible rather than incidental. A single good run cannot adjudicate a disagreement with a third instrument, and re-running until two happened to succeed would select the runs that suit a verdict. Therefore capture_null: SC-07 stays blocked, A1b is NOT authorised, and the instrument requires repair before the browser-versus-Node question can be answered. Recorded but deliberately NOT ruled on: run 1's non-null data disagrees with Node in a phase-localised way, walking at 0.000652 / -0.000147 m (consistent with Node's above-floor reading) and settling/arrived near 0.0358 / 0.0378 m. That pattern is the hypothesis the repaired instrument should be pointed at; it is not a finding this report is entitled to make on one run.",
+  "instrumentRepairLeads": [
+    "The null runs set driveSource null AND waitTimedOut true AND observedObstacleIds empty AND toeBonesResolved false together, i.e. the scene never reached a state the recorder could read, rather than the recorder failing on a good scene.",
+    "Both null runs followed a successful run within minutes on the same machine and SHA, so the cause is not the tree.",
+    "The instrument still exits 0 and still writes a plausible 59 KB screenshot on a null capture. An exists:/min-bytes: proof over that PNG would pass on a run that measured nothing."
+  ],
+  "claimScope": "What two headless chromium runs of ui-xr-bedside-approach-capture.ts, at pinned commit 9c0e8ff5, measured about physician toe height against the named floor frame, and whether that pair is sufficient to adjudicate the recorded browser-versus-Node disagreement. It claims nothing about the cause of either instrument's reading.",
+  "notEvidenceFor": [
+    "clinical validity of the approach, the posture, or the encounter",
+    "scoring validity or any exam-equivalence claim",
+    "worn-headset or Quest readiness, or any performance claim",
+    "visual quality of the rendered scene; this card grades no pixels",
+    "whether the physician approach has a real floor-contact defect, which is precisely the question this instrument could not answer at this commit",
+    "whether any corrective treatment, IK or foot-lock work would be sufficient"
+  ]
+}
