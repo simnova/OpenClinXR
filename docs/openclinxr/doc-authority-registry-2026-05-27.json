@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 209,
     "archive-candidate": 92,
-    "evidence": 145,
+    "evidence": 146,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5006,6 +5006,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; per-toe settled/arrived measurement on the shipped physician bytes (neither toe below the floor; card premise false, no fix). Use only when it verifies touched behavior."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Delegation handoff for the motion-to-scene-closure card chain. Subordinate to protected policy and each live BothyBoard card, which override it on conflict."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/handoff.md",

@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 226
-- keep-evidence: 381
+- keep-evidence: 388
 - keep-template: 6
 
 ## Cleanup Actions
@@ -3206,6 +3206,13 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/humanoid-bake-wiring-2026-09-14.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-basecolorfactor-audit-2026-09-10.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-lowest-vertex-audit-2026-09-10.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a3.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c0.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c2.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c3.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-motion-delegation-2026-09-14/plan.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/board-manifest.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/board-task-snapshot.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/card-contract.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.

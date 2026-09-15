@@ -1,0 +1,119 @@
+{
+  "schemaVersion": "openclinxr.humanoid-motion-delegation.v1",
+  "preparedAt": "2026-09-14",
+  "baselineHead": "ea0e50c3",
+  "consultation": {
+    "provider": "Grok",
+    "model": "grok-4.6-build",
+    "sessionId": "01a0a285-c2aa-7870-81ef-2e5c447729d7",
+    "rounds": 4
+  },
+  "laws": [
+    "responseClipForBodyRegion is the sole clip-name authority.",
+    "Tracks name joints derived from the pinned loaded actor GLB.",
+    "The GLB is a sidecar; runtime binds a THREE.AnimationClip to the existing humanoid.",
+    "Supine playback is limited to translation-safe posture-compatible one-shots.",
+    "Evidence binds SHA, case, actor, asset, program, profile, seed, clip, bones, units, and raw-artifact hashes.",
+    "Visual review never substitutes for machine measurement.",
+    "No external network or unverified-license dependency.",
+    "No wholesale docs-authority regeneration.",
+    "No weakening of posture, scene admission, support binding, surface ceilings, or criterion 6."
+  ],
+  "pinnedCase": {
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "actorId": "patient_robert_hayes_v1",
+    "region": "abdomen_rlq",
+    "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+    "posture": "supine",
+    "actorAsset": "MPFB_GOWN_ADULT_PATIENT_GLB"
+  },
+  "existingBoard": {
+    "sceneClosurePointer": "tsk_a472e9e65c9bb214",
+    "motionPointer": "tsk_e8ac84dd9cb6ac06",
+    "sc07": "tsk_93b6e2aa66b6c3fa",
+    "standingFoot": "tsk_560ff7627adfecf5",
+    "supersededPublicSurface": "tsk_7c2a05ec168cedc5",
+    "landedReviewGroupResolver": "tsk_c1a0aa430750e5d5"
+  },
+  "boardPolicy": {
+    "startRole": "A1",
+    "parallelStartRole": "C1",
+    "holdSc07Until": "A1 verdict",
+    "neverDispatch": [
+      "tsk_560ff7627adfecf5",
+      "tsk_7c2a05ec168cedc5"
+    ],
+    "conditionalA1b": "Create only for browser_submerged from the conditional contract below.",
+    "maxLaneAInFlight": 1
+  },
+  "graph": {
+    "A1": [],
+    "C0": [],
+    "C1": [
+      "tsk_c1a0aa430750e5d5"
+    ],
+    "C2": [
+      "C0",
+      "C1"
+    ],
+    "C3": [
+      "C2"
+    ],
+    "A3": [
+      "tsk_c1a0aa430750e5d5",
+      "C1",
+      "C2"
+    ]
+  },
+  "cards": {
+    "a1": {
+      "taskId": null,
+      "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a1.json"
+    },
+    "c0": {
+      "taskId": null,
+      "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c0.json"
+    },
+    "c1": {
+      "taskId": null,
+      "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c1.json"
+    },
+    "c2": {
+      "taskId": null,
+      "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c2.json"
+    },
+    "c3": {
+      "taskId": null,
+      "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c3.json"
+    },
+    "a3": {
+      "taskId": null,
+      "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a3.json"
+    }
+  },
+  "conditionalA1b": {
+    "createOnlyWhen": "A1 verdict == browser_submerged",
+    "writeRoots": [
+      "packages/openclinxr/xr-humanoid-animation/src"
+    ],
+    "mustProve": [
+      "mixer overwrite causes the discrepancy",
+      "correction applies after mixer and before render",
+      "walking remains <= 0.005 m",
+      "settled and arrived remain <= 0.005 m",
+      "unsupported rigs refuse"
+    ],
+    "mustNot": [
+      "create before A1 verdict",
+      "edit SC-07 immutable contract",
+      "apply generic IK without diagnosed mixer ownership"
+    ]
+  },
+  "notCards": [
+    "D9 broad motion research",
+    "intent schema expansion",
+    "criterion 6 closure",
+    "new provider integration",
+    "Quest or clinical validation"
+  ]
+}

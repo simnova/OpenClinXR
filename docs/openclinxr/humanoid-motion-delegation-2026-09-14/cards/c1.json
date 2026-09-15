@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "openclinxr.bothy-card-artifact.v1",
+  "role": "C1",
+  "taskId": null,
+  "createPayload": {
+    "projectId": "prj_9b390b99b443a964",
+    "title": "MSC-C1 \u2014 Compile and publish one real authored touch response",
+    "objective": "Route the real ED RLQ touch row through planning, the exact loaded-actor skeleton profile, canonical compile, deterministic bake, and zero-egress publication with one stable clip identity.",
+    "lane": "B",
+    "priority": "1",
+    "kind": "task",
+    "parentId": "tsk_e8ac84dd9cb6ac06",
+    "depIds": [
+      "tsk_c1a0aa430750e5d5"
+    ],
+    "fields": {
+      "lane": "B",
+      "factory_step": "motion_retarget"
+    },
+    "writeRoots": [
+      "packages/openclinxr/motion-compiler/src",
+      "packages/openclinxr/capability-gateway/src"
+    ],
+    "doneWhen": [
+      "exists:packages/openclinxr/capability-gateway/src/the-real-touch-row-publishes-a-compiled-motion-sidecar.test.ts",
+      "run:pnpm exec vitest run --root . packages/openclinxr/capability-gateway/src/the-real-touch-row-publishes-a-compiled-motion-sidecar.test.ts",
+      "live:packages/openclinxr/capability-gateway/src/the-real-touch-row-publishes-a-compiled-motion-sidecar.test.ts",
+      "run:pnpm exec vitest run --root . packages/openclinxr/motion-compiler/src/the-resolved-clip-id-is-what-the-compiler-produces.test.ts",
+      "changed:packages/openclinxr/motion-compiler/src/program/compile-scenario-motion.ts",
+      "changed:packages/openclinxr/capability-gateway/src/motion-manifest-publication.ts"
+    ],
+    "knownGood": "Pinned input: ed_chest_pain_priority_v1 / patient_robert_hayes_v1 / abdomen_rlq; actor GLB is the promoted MPFB gown adult patient. The fixture responseClip is openclinxr_role_patient_guard_withdraw_rlq. Today compileScenarioMotion uses sourceRefs [scenarioId], so requestedClipIdForProgram falls back to a hash, and gateway publication bakes payload-authored synthetic upper_armR tracks. The real proof requires sourceRefs touch:abdomen_rlq (or the same namer passed once), profile derived from the pinned GLB, emitted bone subset of that profile, sidecar GLB plus CompiledMotionClipV1 JSON, exact clipId/readback equality, deterministic bytes, mutation sensitivity, and externalNetworkUsed=false/spendCents=0.",
+    "outOfScope": "No runtime mixer, UI-XR, second alias map, constructed Mixamo profile, public-surface approval, model download, or external generation provider.",
+    "notTested": "Visible deformation, clinical validity, Quest readiness, or other scenarios/regions.",
+    "body": "Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. The sidecar GLB is interchange and must never be staged as a humanoid. Add only a compiler export demonstrably required by the gateway. Missing program/profile/landmarks refuses. A payload that merely supplies the expected clip id is a failed treatment."
+  }
+}

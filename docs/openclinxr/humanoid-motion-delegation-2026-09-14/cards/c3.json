@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "openclinxr.bothy-card-artifact.v1",
+  "role": "C3",
+  "taskId": null,
+  "createPayload": {
+    "projectId": "prj_9b390b99b443a964",
+    "title": "MSC-C3 \u2014 Prove one authored patient response through the normal rendered encounter",
+    "objective": "Drive the pinned RLQ touch through the normal UI-XR consumer and capture machine and isolated visual evidence that the loaded supine patient plays the compiled response without moving off the bed.",
+    "lane": "A",
+    "priority": "1",
+    "kind": "task",
+    "parentId": "tsk_e8ac84dd9cb6ac06",
+    "depIds": [],
+    "fields": {
+      "lane": "A",
+      "factory_step": "staging"
+    },
+    "writeRoots": [
+      "apps/ui-xr/src",
+      "tools/openclinxr/evidence/humanoid-motion-closure/c3"
+    ],
+    "doneWhen": [
+      "exists:apps/ui-xr/src/the-real-authored-touch-plays-the-compiled-patient-response.test.ts",
+      "run:pnpm exec vitest run --root . apps/ui-xr/src/the-real-authored-touch-plays-the-compiled-patient-response.test.ts",
+      "live:apps/ui-xr/src/the-real-authored-touch-plays-the-compiled-patient-response.test.ts",
+      "exists:tools/openclinxr/evidence/humanoid-motion-closure/c3/measurement.json",
+      "changed:apps/ui-xr/src/main.ts",
+      "changed:tools/openclinxr/evidence/humanoid-motion-closure/c3/measurement.json"
+    ],
+    "knownGood": "Production route is handleClinicalTouch -> respondToTouch -> playOneShotResponseClip. Today dialogue/emotion/trace can proceed while clipPlayed is false. The pinned row is ed_chest_pain_priority_v1 / patient_robert_hayes_v1 / abdomen_rlq. Proof requires clipPlayed=true, slot contains the exact authored responseClip, mixer root identity is the loaded patient, a named driven upper-body bone moves against a no-touch control, support/world transform remains fixed, and scene child/SkinnedMesh counts do not increase. The tracked measurement binds SHA and hashes for isolated front, three-quarter, and motion-probe media in the authorised artifact store.",
+    "outOfScope": "No synthetic direct player harness as sole proof, no physician stand-in, no second skeleton, no byte-size-only visual verdict, and no clinical/Quest/production claim.",
+    "notTested": "Clinical correctness of the guarding motion, scoring validity, production asset grade, or device performance.",
+    "body": "Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. Owner performs the pixel grade after worker review. The TREE gate is the measurement plane: clipPlayed, identity, bone delta, support stability, and no added actor. Raw video need not be committed when the tracked report contains content hashes and retrieval refs."
+  }
+}
