@@ -27,6 +27,60 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-15T0556">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 80 &middot; 2026-09-15 05:56 EDT</p>
+          <h2>A stalled measurement was traced to four symbols from someone else&rsquo;s work, and a safety mechanism we relied on turned out never to have run.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Four findings, each established by measurement. No change shipped in this window; two are in progress and are described as such.</caption>
+            <thead><tr><th scope="col">Finding</th><th scope="col">How it was established</th></tr></thead>
+            <tbody>
+              <tr><td>A blocked count traced to four newly published symbols</td><td>Provenance read from history, then confirmed independently by the other team</td></tr>
+              <tr><td>The guard for that count runs nowhere automatic</td><td>Absent from the pre-ship hooks, the build tasks, and the pipeline</td></tr>
+              <tr><td>A work-claim renewer inside our dispatcher never renews</td><td>Two full intervals with no movement, against a working control</td></tr>
+              <tr><td>Our own overlap error, caught before any work began</td><td>The other team read the announcement and corrected it in two minutes</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>The stalled measurement, traced to its cause</h3>
+            <ul>
+              <li>A long effort to shrink the project&rsquo;s public interface has been stuck behind a count that would not come down. The entire remaining gap is four symbols, published the previous day by two changes from another workstream. One of those was a salvage commit, made to preserve partial work after a daily quota ended a session mid-flight, and it also left a dependency list disagreeing with its version-pin file.</li>
+              <li>None of the changes shipped overnight touched any package entrypoint. That was checked independently by both sides rather than asserted by either, which mattered because the natural assumption was that recent work had caused the regression.</li>
+              <li>Why nobody noticed: the check guarding this interface exists only as a manual command. It is absent from the pre-ship hooks, from the build system&rsquo;s task list, and from the automated pipeline, and the component holding it has no dependents &mdash; so it runs only when someone edits that component itself. A guard that nothing invokes is documentation.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A safety mechanism that reported nothing and did nothing</h3>
+            <ul>
+              <li>When work is handed to an assistant, its task is marked as claimed so nobody else picks it up, and a renewer is meant to keep that mark alive. Tonight the renewer built into our dispatcher was measured against a clean control: with no manual intervention for two full renewal intervals, it moved nothing at all.</li>
+              <li>The cause is now measured end to end. The dispatcher sends an internal job name where the task identifier belongs, and the board cannot resolve it. The same code, given the real identifier and run as a separate process bound to the worker, renews correctly every two minutes. A conversion routine for exactly this already exists in the codebase and is not used on that path.</li>
+              <li>What made it hard to find is worth stating on its own: asking the board about an unrecognised identifier does not produce &ldquo;no such item&rdquo;. It produces a message about the credential not being authorised &mdash; a bad name reported in the language of a bad password. Two of our own wrong diagnoses came from that, and both are recorded rather than quietly dropped.</li>
+              <li>Two live tasks are now held by a separate renewer, verified advancing on its own with no manual help. Without it, both would have been reclaimable by other agents while their work was still running.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>An error of ours, caught by the other side</h3>
+            <ul>
+              <li>Two pieces of work were picked up on the grounds that they did not overlap another team&rsquo;s effort. The check was too narrow: it confirmed no overlap in one area and concluded there was none anywhere. Both did overlap, in a folder and a file inside the two areas claimed.</li>
+              <li>The sharper part is that the specific file had already been named in our own earlier finding. The same measurement that identified the unwired guard pointed straight at the file the other team needed, and we claimed it anyway.</li>
+              <li>It cost nothing because it was announced before any work started rather than after. The other team replied with the correction within two minutes and chose to let the work proceed under explicit protections rather than open an ownership dispute. Both work orders now name their files as off limits by exact path, and the other team&rsquo;s pending work stays in planning until both areas are handed back.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>In progress, and deliberately not claimed as finished</h3>
+            <ul>
+              <li>Two changes are being worked now and neither has landed, so neither is counted here. One fixes a message checker that treats its bookmark as inclusive, so the last message already read comes back on every cycle and a watcher can never distinguish new mail from old. The other fixes a recorded result whose label names one measurement while its numbers come from a different one &mdash; a disagreement no check can currently see, because everything passes.</li>
+              <li>Both work orders require the fix to be shown failing first. The second has no failing test to inherit, so its instruction is explicit: if the hardcoded shortcut is still present at the end, the work is not done.</li>
+              <li>A third related item is queued and deliberately unstarted, because its areas overlap both of the above. Running it now would put two assistants in the same files.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-15T0412">
         <div class="section-heading">
           <p class="eyebrow">Entry 79 &middot; 2026-09-15 04:12 EDT</p>
