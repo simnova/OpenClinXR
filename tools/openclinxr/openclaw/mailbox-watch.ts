@@ -226,7 +226,24 @@ export async function pollForeignMailbox(
       const addressed = (sc.comments ?? []).map((comment) =>
         typeof comment.taskId === "string" ? comment : { ...comment, taskId },
       );
-      for (const comment of addressed) {
+      const sinceCursor = opts.sinceByTaskId?.[taskId];
+      const foreign = addressed.filter((comment) => {
+        // Filter out self comments first
+        if (isSelfComment(comment, markers, opts.selfAuthorNames)) {
+          return false;
+        }
+        // Filter out comments at or before the since cursor for this taskId
+        // A card with no stored cursor has no basis to filter: everything is new
+        if (sinceCursor && typeof comment.createdAt === "string") {
+          if (comment.createdAt <= sinceCursor) {
+            return false;
+          }
+        }
+        // A comment with no createdAt cannot be compared and must be reported
+        // rather than silently dropped, because dropping it loses mail
+        return true;
+      });
+      for (const comment of foreign) {
         if (
           typeof comment.createdAt === "string" &&
           comment.createdAt > (latestCreatedAtByTaskId[taskId] ?? "")
@@ -234,9 +251,6 @@ export async function pollForeignMailbox(
           latestCreatedAtByTaskId[taskId] = comment.createdAt;
         }
       }
-      const foreign = addressed.filter(
-        (comment) => !isSelfComment(comment, markers, opts.selfAuthorNames),
-      );
       comments.push(...foreign);
     } catch (error) {
       const reason = error instanceof Error ? error.message : "poll_failed";
