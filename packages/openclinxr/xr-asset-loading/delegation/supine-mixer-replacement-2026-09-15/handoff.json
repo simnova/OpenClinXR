@@ -16,5 +16,6 @@
     "roundsThisReplacement": 8,
     "finalCleanPasses": 2
   },
-  "reservationSnapshot": "2026-09-15T06:05:04-04:00: zero workers; old C0 blocked; docs+trellis separate ready card not assigned"
+  "reservationSnapshot": "2026-09-15T06:05:04-04:00: zero workers; old C0 blocked; docs+trellis separate ready card not assigned",
+  "redPlantCommit": "ee23d281"
 }
