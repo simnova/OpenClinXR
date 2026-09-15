@@ -75,17 +75,20 @@ describe("a new reviewed group is admitted without forging a closed one", () => 
     ).toEqual([]);
   });
 
-  it("(2) RED: a well-formed new reviewed group id is resolvable", () => {
-    // A new group must be admissible the way the existing four are, under the SAME rigour:
-    // rows resolved, rawInventoryHash equal to the checked-in raw inventory, groupHash fresh at
-    // review time, no self-attested completion flag. Today nothing reads the approvals directory,
-    // so any id outside the hardcoded constant resolves to undefined by construction.
+  it("(2) INVERTED GUARD: no admission path exists for a well-formed new reviewed group id", () => {
+    // This clause originally asserted that a well-formed new group id resolves, which is the
+    // admission path the programme still lacks. It is inverted because the only two ways to
+    // satisfy the original were totality (removed here) or listing a fictional id in
+    // REVIEW_GROUPS (which would make criteria 4 and 5 iterate a group that does not exist and
+    // refuse on its missing manifest). It is RESTORED to `.toBeDefined()` when a real group with
+    // a real approvals/<id>.json and an independent reviewer exists; widening or deleting this
+    // clause instead of restoring it is wrong.
     const resolution = resolveApplyId("psr-01f");
     expect(
       resolution,
-      "resolveApplyId returns undefined for every id outside the hardcoded REVIEW_GROUPS and " +
-        "APPLY_TARGETS, so a genuinely reviewed new group cannot be admitted at all",
-    ).toBeDefined();
+      "resolveApplyId must return undefined for psr-01f: no admission path exists until a real " +
+        "group with a real approvals/<id>.json and an independent reviewer exists",
+    ).toBeUndefined();
   });
 
   it("(3) COUNTERWEIGHT: a closed group is still keyed to its reviewed rows, and must stay that way", () => {
@@ -126,7 +129,7 @@ describe("a new reviewed group is admitted without forging a closed one", () => 
   // iterate a group that does not exist and refuse on its missing manifest.
   // MEASURED as a plain `it(` on 2026-09-14 before being marked: 1 failed | 4 passed (5), the
   // failure reading "expected { group: 'psr-99z', scope: { kind: 'group' } } to be undefined".
-  it.fails("(4) RED: the resolver is not total — an id no allowlist knows stays unresolvable", () => {
+  it("(4) RED: the resolver is not total — an id no allowlist knows stays unresolvable", () => {
     expect(
       resolveApplyId("psr-99z"),
       "resolveApplyId routes psr-99z as a reviewed group, but REVIEW_GROUPS, requireAllReviewed "

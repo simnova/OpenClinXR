@@ -77,10 +77,5 @@ export function resolveApplyId(id: string): ApplyResolution | undefined {
   if (target !== undefined) {
     return { group: target.group, scope: { kind: "packages", packages: target.packages } };
   }
-  // Well-formedness routing LAST: after REVIEW_GROUPS, psr-08, and APPLY_TARGETS.
-  // Anchored to a trailing letter so psr-02/psr-08 never match as whole-group checks.
-  if (/^psr-\d{2}[a-z]$/.test(id)) {
-    return { group: id, scope: { kind: "group" } };
-  }
   return undefined;
 }
