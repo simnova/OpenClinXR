@@ -53,10 +53,10 @@
       "body": "mpfb-ob-patient-aisha.glb",
       "chosenRungId": "fp-r0.4",
       "rungTechnique": "selective weld+simplifyPrimitive ratio 0.4 error 0.01 on every non-face mesh (face meshes /eye|brow|lash|teeth|tongue/i untouched); 1-triangle gown marker never simplified",
-      "triangleCountBefore": 90906,
-      "triangleCountAfter": 68178,
-      "bytesBefore": 11677568,
-      "bytesAfter": 8512436,
+      "triangleCountBefore": 92430,
+      "triangleCountAfter": 69067,
+      "bytesBefore": 13170972,
+      "bytesAfter": 9688376,
       "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
       "faceBefore": 52778,
       "faceAfter": 52778,
@@ -73,8 +73,8 @@
       "zeroTriangleMeshes": [],
       "featureSurvival": "ok",
       "promoted": true,
-      "promotionNote": "face-preserving rung 68178 <= 120000 acceptableSingleProp with every face triangle and every joint kept (face 52778/52778 = 1, joints 137/137); live GLB rewritten by this card",
-      "outputSha256": "d987587239ee2e2bf1ae58feb52c395080eb29e851fa2ec1506c381bae6b938b",
+      "promotionNote": "face-preserving rung 69067 <= 120000 acceptableSingleProp with every face triangle and every joint kept (face 52778/52778 = 1, joints 137/137); live GLB rewritten by the Sep-12 clothing cards + 42c42140 albedo bake; row re-derived 2026-09-14 from the recorded rung (see rederivedFrom).",
+      "outputSha256": "45c78d4732d57f444aa5d83ab9867aa35f2b0ef21d219e6f63ceb15b7d5375f3",
       "captures": {
         "front_fp_lit_eevee": {
           "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-ob-patient-aisha-front_fp.png",
@@ -82,7 +82,24 @@
           "bytes": 709652,
           "engine": "Blender EEVEE headless (baked Principled base colour, not Workbench)"
         }
-      }
+      },
+      "supersededRecord": {
+        "triangleCountBefore": 90906,
+        "triangleCountAfter": 68178,
+        "bytesBefore": 11677568,
+        "bytesAfter": 8512436,
+        "faceBefore": 52778,
+        "faceAfter": 52778,
+        "outputSha256": "d987587239ee2e2bf1ae58feb52c395080eb29e851fa2ec1506c381bae6b938b",
+        "supersededBecause": "input lineage replaced by the Sep-12 tightjeans refit (57e27730); re-derived below from the recorded rung on the committed pre-image"
+      },
+      "rederivedFrom": "2803b774^:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "rederivedStations": [
+        "iterate-optimize.ts --face-preserving --face-preserving-ratio 0.4",
+        "bake-humanoid-albedo.ts bakeGlbAlbedo"
+      ],
+      "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
+      "lineageNote": "tightjeans re-bake output; second fp-r0.4 pass (2803b774) then albedo bake (42c42140)"
     },
     {
       "body": "mpfb-peds-nurse-kevin.glb",
@@ -123,10 +140,10 @@
       "body": "mpfb-peds-parent-aisha.glb",
       "chosenRungId": "fp-r0.4",
       "rungTechnique": "selective weld+simplifyPrimitive ratio 0.4 error 0.01 on every non-face mesh (face meshes /eye|brow|lash|teeth|tongue/i untouched); 1-triangle gown marker never simplified",
-      "triangleCountBefore": 91032,
-      "triangleCountAfter": 68129,
-      "bytesBefore": 11857108,
-      "bytesAfter": 8620932,
+      "triangleCountBefore": 92430,
+      "triangleCountAfter": 69067,
+      "bytesBefore": 13222500,
+      "bytesAfter": 9743976,
       "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
       "faceBefore": 52778,
       "faceAfter": 52778,
@@ -143,8 +160,8 @@
       "zeroTriangleMeshes": [],
       "featureSurvival": "ok",
       "promoted": true,
-      "promotionNote": "face-preserving rung 68129 <= 120000 acceptableSingleProp with every face triangle and every joint kept (face 52778/52778 = 1, joints 137/137); live GLB rewritten by this card",
-      "outputSha256": "cef1e21b12c55437d98ef0a97db46a21fecf70cae3aad23033acbfd61d7f6eae",
+      "promotionNote": "face-preserving rung 69067 <= 120000 acceptableSingleProp with every face triangle and every joint kept (face 52778/52778 = 1, joints 137/137); live GLB rewritten by the Sep-12 clothing cards + 42c42140 albedo bake; row re-derived 2026-09-14 from the recorded rung (see rederivedFrom).",
+      "outputSha256": "d063c5431f5588ddfb6a38826e95a905e910fa7d5b34c803f563e8c27a1fca48",
       "captures": {
         "front_fp_lit_eevee": {
           "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-parent-aisha-front_fp.png",
@@ -152,16 +169,33 @@
           "bytes": 708709,
           "engine": "Blender EEVEE headless (baked Principled base colour, not Workbench)"
         }
-      }
+      },
+      "supersededRecord": {
+        "triangleCountBefore": 91032,
+        "triangleCountAfter": 68129,
+        "bytesBefore": 11857108,
+        "bytesAfter": 8620932,
+        "faceBefore": 52778,
+        "faceAfter": 52778,
+        "outputSha256": "cef1e21b12c55437d98ef0a97db46a21fecf70cae3aad23033acbfd61d7f6eae",
+        "supersededBecause": "input lineage replaced by the Sep-12 tightjeans refit (57e27730); re-derived below from the recorded rung on the committed pre-image"
+      },
+      "rederivedFrom": "2803b774^:apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+      "rederivedStations": [
+        "iterate-optimize.ts --face-preserving --face-preserving-ratio 0.4",
+        "bake-humanoid-albedo.ts bakeGlbAlbedo"
+      ],
+      "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
+      "lineageNote": "tightjeans re-bake output; second fp-r0.4 pass (2803b774) then albedo bake (42c42140)"
     },
     {
       "body": "mpfb-viseme-inspect.glb",
       "chosenRungId": "fp-r0.4",
       "rungTechnique": "selective weld+simplifyPrimitive ratio 0.4 error 0.01 on every non-face mesh (face meshes /eye|brow|lash|teeth|tongue/i untouched); 1-triangle gown marker never simplified",
-      "triangleCountBefore": 90996,
-      "triangleCountAfter": 68214,
-      "bytesBefore": 11738220,
-      "bytesAfter": 8560664,
+      "triangleCountBefore": 92430,
+      "triangleCountAfter": 69067,
+      "bytesBefore": 17035784,
+      "bytesAfter": 13932816,
       "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
       "faceBefore": 52778,
       "faceAfter": 52778,
@@ -178,8 +212,8 @@
       "zeroTriangleMeshes": [],
       "featureSurvival": "ok",
       "promoted": true,
-      "promotionNote": "face-preserving rung 68214 <= 120000 acceptableSingleProp with every face triangle and every joint kept (face 52778/52778 = 1, joints 137/137); live GLB rewritten by this card",
-      "outputSha256": "98c8ec0bbc494890737e708b2cd9321c00c6fc06dc03a86e1aa28c792b1083f1",
+      "promotionNote": "face-preserving rung 69067 <= 120000 acceptableSingleProp with every face triangle and every joint kept (face 52778/52778 = 1, joints 137/137); live GLB rewritten by the Sep-12 clothing cards (57e27730 fit + d1d4b123 fp-r0.4 restore); row re-derived 2026-09-14 from the recorded rung (see rederivedFrom).",
+      "outputSha256": "dd99697c3d6e0d0f6aac15d88e48ac1d2a1b7e7c6e7fe5ee35e79b00fcfa5fc9",
       "captures": {
         "front_fp_lit_eevee": {
           "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-viseme-inspect-front_fp.png",
@@ -194,24 +228,54 @@
           "ratio": 0.4,
           "error": 0.01,
           "triangleCount": 68214,
-          "faceTriangles": 52778
+          "faceTriangles": 52778,
+          "inputLineage": "HB-02 bytes (37d4460d, triangleCountBefore 90996)"
         },
         {
           "rungId": "fp-r0.3",
           "ratio": 0.3,
           "error": 0.01,
           "triangleCount": 64514,
-          "faceTriangles": 52778
+          "faceTriangles": 52778,
+          "inputLineage": "HB-02 bytes (37d4460d, triangleCountBefore 90996)"
         },
         {
           "rungId": "fp-r0.15",
           "ratio": 0.15,
           "error": 0.01,
           "triangleCount": 59775,
-          "faceTriangles": 52778
+          "faceTriangles": 52778,
+          "inputLineage": "HB-02 bytes (37d4460d, triangleCountBefore 90996)"
+        },
+        {
+          "rungId": "fp-r0.4-jeans-lineage",
+          "ratio": 0.4,
+          "error": 0.01,
+          "triangleCount": 69067,
+          "faceTriangles": 52778,
+          "inputLineage": "tightjeans fit output (57e27730, triangleCountBefore 92430)"
         }
       ],
-      "falsifierRatio": 0.4
+      "falsifierRatio": 0.4,
+      "supersededRecord": {
+        "triangleCountBefore": 90996,
+        "triangleCountAfter": 68214,
+        "bytesBefore": 11738220,
+        "bytesAfter": 8560664,
+        "faceBefore": 52778,
+        "faceAfter": 52778,
+        "outputSha256": "98c8ec0bbc494890737e708b2cd9321c00c6fc06dc03a86e1aa28c792b1083f1",
+        "supersededBecause": "input lineage replaced by the Sep-12 tightjeans refit (57e27730) plus the d1d4b123 fp-r0.4 restore; re-derived below from the recorded rung on the committed pre-image"
+      },
+      "rederivedFrom": "57e27730:apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
+      "rederivedStations": [
+        "iterate-optimize.ts --face-preserving --face-preserving-ratio 0.4",
+        "bake-humanoid-albedo.ts bakeGlbAlbedo"
+      ],
+      "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
+      "lineageNote": "tightjeans fit output (57e27730); fp-r0.4 restore (d1d4b123) then bake-skip (factor already white)",
+      "sweepNote": "fp-r0.4/fp-r0.3/fp-r0.15 entries were measured on the HB-02 input bytes (37d4460d); the fp-r0.4-jeans-lineage entry was measured on the current tightjeans lineage (57e27730) by rederive-evidence-drift-2026-09-14.ts. The promoted triangleCountAfter/bytesAfter above track the tightjeans lineage.",
+      "falsifierStatus": "STALE PIN: re-running the recorded fp-r0.4 rung on the pinned HB-02 bytes (37d4460d) yields 68214/52778 and matches the fp-r0.4 sweep entry, but the promoted row tracks the tightjeans lineage (69067/13932816, rederivedFrom 57e27730). The rerun-vs-promoted-row comparison fails by construction until the pin is retargeted to the current lineage input. See rederive-evidence-drift-2026-09-14.ts, which re-runs the same recorded rung on 57e27730 and reproduces 69067/52778."
     }
   ],
   "exceptions": [

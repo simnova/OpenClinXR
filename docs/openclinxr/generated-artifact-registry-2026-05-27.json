@@ -22323,6 +22323,13 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/humanoid-evidence-byte-drift-2026-09-14.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "tsk_d6874d507ef8e3d7 verdict artifact: ROWS STALE / BYTES LEGITIMATE, per-body rewrite chains and row before/afters for the decimation evidence drift."
+    },
+    {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-animated-2026-05-23.json",
       "authority": "keep-compatibility-input",
       "tracked": true,

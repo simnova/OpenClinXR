@@ -1,0 +1,353 @@
+{
+  "schemaVersion": "openclinxr.humanoid-evidence-byte-drift.v1",
+  "generated": "2026-09-14",
+  "card": "tsk_d6874d507ef8e3d7",
+  "verdict": "ROWS STALE; BYTES LEGITIMATE (all four bodies)",
+  "method": "Re-ran the recorded stations (iterate-optimize.ts --face-preserving --face-preserving-ratio 0.4; bake-humanoid-albedo.ts bakeGlbAlbedo) on committed pre-images via tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts. The re-run's own output, not a reading off the live bytes, is the source for every corrected row. Contract-test falsifier pins were re-verified against the same pre-images. No shipped GLB was rewritten by this card.",
+  "claimScope": [
+    "which side (rows vs bytes) was wrong for each drifting body, with the evidence",
+    "what rewrote each body and when, from provenance sidecars and git history",
+    "the before/after of every evidence row changed on this card"
+  ],
+  "bodies": {
+    "mpfb-ob-patient-aisha.glb": {
+      "verdict": "ROWS STALE (HB-05 row); BYTES LEGITIMATE",
+      "glbCommits": [
+        "f6b33539",
+        "57e27730",
+        "d1d4b123",
+        "2803b774",
+        "42c42140"
+      ],
+      "rewrites": [
+        {
+          "commit": "f6b33539",
+          "date": "2026-09-11",
+          "did": "HB-05 face-preserving decimated rung fp-r0.4 (90906 -> 68178 tris); HB-05 row records this lineage",
+          "evidenceRowUpdated": true
+        },
+        {
+          "commit": "57e27730",
+          "date": "2026-09-12",
+          "did": "staged punkduck female tight jeans (fitted 4216 tris); 8512436 -> 17002120 bytes; input lineage replaced",
+          "evidenceRowUpdated": "HB-03 row only (raw 92430); HB-05 row left stale"
+        },
+        {
+          "commit": "d1d4b123",
+          "date": "2026-09-12",
+          "did": "fp-r0.4 restore on the jeans bytes + chest-anchor 0.085 m (-> 69093 tris); provenance re-recorded in the same change",
+          "evidenceRowUpdated": "HB-03 row only; HB-05 row left stale"
+        },
+        {
+          "commit": "2803b774",
+          "date": "2026-09-12",
+          "did": "second fp-r0.4 pass on the tightjeans re-baked bodies (69093 -> 69067 tris); provenance sidecars NOT re-recorded (left behind, later fixed by b0990981)",
+          "evidenceRowUpdated": false
+        },
+        {
+          "commit": "42c42140",
+          "date": "2026-09-14",
+          "did": "HB-02 albedo rebake through the producer-path station on the shipped bytes (t-shirt factor folded into its 2048x2048 texture, reset to white); provenance + HB-02 bake report re-recorded in the same change",
+          "evidenceRowUpdated": "HB-02 bake report + provenance only; HB-05 row left stale"
+        }
+      ],
+      "evidence": {
+        "outputBytes": 9688376,
+        "sidecarCommits": [
+          "f6b33539",
+          "b564e159",
+          "57e27730",
+          "d1d4b123",
+          "b0990981",
+          "42c42140"
+        ]
+      },
+      "rederived": {
+        "preImageRevision": "2803b774^",
+        "stations": [
+          "iterate-optimize.ts --face-preserving --face-preserving-ratio 0.4",
+          "bake-humanoid-albedo.ts bakeGlbAlbedo"
+        ],
+        "tris": 69067,
+        "face": 52778,
+        "bytes": 9688376,
+        "sha256": "45c78d4732d57f444aa5d83ab9867aa35f2b0ef21d219e6f63ceb15b7d5375f3",
+        "byteIdenticalToLive": true
+      }
+    },
+    "mpfb-peds-parent-aisha.glb": {
+      "verdict": "ROWS STALE (HB-05 row); BYTES LEGITIMATE",
+      "glbCommits": [
+        "f6b33539",
+        "57e27730",
+        "d1d4b123",
+        "2803b774",
+        "42c42140"
+      ],
+      "rewrites": [
+        {
+          "commit": "f6b33539",
+          "date": "2026-09-11",
+          "did": "HB-05 face-preserving decimated rung fp-r0.4 (91032 -> 68129 tris); HB-05 row records this lineage",
+          "evidenceRowUpdated": true
+        },
+        {
+          "commit": "57e27730",
+          "date": "2026-09-12",
+          "did": "staged punkduck female tight jeans (fitted 4216 tris); 8620932 -> 17181156 bytes; input lineage replaced",
+          "evidenceRowUpdated": "HB-03 row only (raw 92430); HB-05 row left stale"
+        },
+        {
+          "commit": "d1d4b123",
+          "date": "2026-09-12",
+          "did": "fp-r0.4 restore on the jeans bytes + chest-anchor 0.085 m (-> 68898 tris); provenance re-recorded in the same change",
+          "evidenceRowUpdated": "HB-03 row only; HB-05 row left stale"
+        },
+        {
+          "commit": "2803b774",
+          "date": "2026-09-12",
+          "did": "second fp-r0.4 pass on the tightjeans re-baked bodies (68898 -> 69067 tris); provenance sidecars NOT re-recorded (left behind, later fixed by b0990981)",
+          "evidenceRowUpdated": false
+        },
+        {
+          "commit": "42c42140",
+          "date": "2026-09-14",
+          "did": "HB-02 albedo rebake through the producer-path station on the shipped bytes (t-shirt factor folded into its 2048x2048 texture, reset to white); provenance + HB-02 bake report re-recorded in the same change",
+          "evidenceRowUpdated": "HB-02 bake report + provenance only; HB-05 row left stale"
+        }
+      ],
+      "evidence": {
+        "outputBytes": 9743976,
+        "sidecarCommits": [
+          "f6b33539",
+          "b564e159",
+          "57e27730",
+          "d1d4b123",
+          "b0990981",
+          "42c42140"
+        ]
+      },
+      "rederived": {
+        "preImageRevision": "2803b774^",
+        "stations": [
+          "iterate-optimize.ts --face-preserving --face-preserving-ratio 0.4",
+          "bake-humanoid-albedo.ts bakeGlbAlbedo"
+        ],
+        "tris": 69067,
+        "face": 52778,
+        "bytes": 9743976,
+        "sha256": "d063c5431f5588ddfb6a38826e95a905e910fa7d5b34c803f563e8c27a1fca48",
+        "byteIdenticalToLive": true
+      }
+    },
+    "mpfb-viseme-inspect.glb": {
+      "verdict": "ROWS STALE (HB-05 row); BYTES LEGITIMATE",
+      "glbCommits": [
+        "f6b33539",
+        "57e27730",
+        "d1d4b123"
+      ],
+      "rewrites": [
+        {
+          "commit": "f6b33539",
+          "date": "2026-09-11",
+          "did": "HB-05 face-preserving decimated rung fp-r0.4 (90996 -> 68214 tris); HB-05 row records this lineage",
+          "evidenceRowUpdated": true
+        },
+        {
+          "commit": "57e27730",
+          "date": "2026-09-12",
+          "did": "staged punkduck female tight jeans (fitted 4216 tris); 8560664 -> 17035784 bytes; input lineage replaced",
+          "evidenceRowUpdated": "HB-03 row only (raw 92430); HB-05 row left stale"
+        },
+        {
+          "commit": "d1d4b123",
+          "date": "2026-09-12",
+          "did": "fp-r0.4 restore on the jeans bytes + chest-anchor 0.085 m (-> 69067 tris / 13932816 B, jeans 1958); provenance re-recorded in the same change (outputSha256 407272baf7bcc4969218028448470eb6472dd9ea2069db5f6d2580683614e078)",
+          "evidenceRowUpdated": "HB-03 row only; HB-05 row left stale"
+        }
+      ],
+      "evidence": {
+        "outputBytes": 13932816,
+        "outputSha256": "407272baf7bcc4969218028448470eb6472dd9ea2069db5f6d2580683614e078",
+        "sidecarCommits": [
+          "22ec335a",
+          "435d8531",
+          "f6b33539",
+          "b564e159",
+          "57e27730",
+          "d1d4b123"
+        ],
+        "albedoBakeWrittenAt": "2026-09-11T05:16:52.463Z",
+        "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt fp-r0.4 then chest-anchor 0.085 m. Shipped 69067 tris / 13932816 B (jeans 1958). Previous raw pin 7abbbac74220bba7 / 17035784.",
+        "fitTimeLower": {
+          "garment": "punkduck_female_tight_jeans",
+          "sourceObjFaces": 2108,
+          "fittedTris": 4216,
+          "lowerGateCoverage": 0.98
+        }
+      },
+      "rederived": {
+        "preImageRevision": "57e27730",
+        "stations": [
+          "iterate-optimize.ts --face-preserving --face-preserving-ratio 0.4",
+          "bake-humanoid-albedo.ts bakeGlbAlbedo"
+        ],
+        "tris": 69067,
+        "face": 52778,
+        "bytes": 13932816,
+        "sha256": "dd99697c3d6e0d0f6aac15d88e48ac1d2a1b7e7c6e7fe5ee35e79b00fcfa5fc9",
+        "byteIdenticalToLive": false,
+        "byteIdentityNote": "Counts (69067/52778), byte size (13932816), mesh/node/material inventories and per-mesh triangle censuses are identical to live; the 20-byte JSON-chunk difference is gltf-transform accessor/bufferView emission order (MAT4 inverse-bind-matrices first in the d1d4b123 write, index SCALARs first in a fresh write). Re-running the recorded rung on the committed pre-image reproduces the recorded numbers exactly, which is what the corrected row claims."
+      }
+    },
+    "mpfb-family-partner-adult.glb": {
+      "verdict": "ROWS STALE (HB-03 row); BYTES LEGITIMATE",
+      "glbCommits": [
+        "a55067d1",
+        "404c723a",
+        "91b12607",
+        "22ec335a",
+        "435d8531",
+        "13a94960",
+        "0f460d09",
+        "42c42140"
+      ],
+      "rewrites": [
+        {
+          "commit": "13a94960",
+          "date": "2026-09-12",
+          "did": "fit family-partner lower from pants02 bootcut mhclo (elvs_jeans_bootcut, 2854 faces -> 5708 tris); replaced the cargo cover shell; 8151256 -> 10414800 bytes",
+          "evidenceRowUpdated": true
+        },
+        {
+          "commit": "0f460d09",
+          "date": "2026-09-12",
+          "did": "standoff rebake (keep covering-library lower standoff from the mhclo fit); 10414800 -> 10409540 bytes",
+          "evidenceRowUpdated": false
+        },
+        {
+          "commit": "42c42140",
+          "date": "2026-09-14",
+          "did": "HB-02 albedo rebake through the producer-path station on the shipped bytes (toigo t-shirt factor folded into its 2048x2048 texture, reset to white); provenance + HB-02 bake report re-recorded in the same change",
+          "evidenceRowUpdated": "HB-02 bake report + provenance only; HB-03 row left stale"
+        }
+      ],
+      "evidence": {
+        "outputBytes": 10149716,
+        "sidecarCommits": [
+          "6e36be72",
+          "22ec335a",
+          "435d8531",
+          "13a94960",
+          "0f460d09",
+          "42c42140"
+        ]
+      },
+      "rederived": {
+        "preImageRevision": "42c42140^",
+        "stations": [
+          "bake-humanoid-albedo.ts bakeGlbAlbedo"
+        ],
+        "tris": 39974,
+        "face": 14945,
+        "bytes": 10149716,
+        "sha256": "ef2a4c0794d470fd649a18bf374f11778877693956b6cb0f12b7209a31ca6eb2",
+        "byteIdenticalToLive": true
+      }
+    }
+  },
+  "rowChanges": {
+    "docs/openclinxr/humanoid-postopt-ladder-face-preserving-2026-09-11.json": {
+      "mpfb-ob-patient-aisha.glb": {
+        "before": {
+          "bytesAfter": 8512436,
+          "outputSha256": "d987587239ee2e2bf1ae58feb52c395080eb29e851fa2ec1506c381bae6b938b",
+          "triangleCountAfter": 68178,
+          "triangleCountBefore": 90906
+        },
+        "after": {
+          "bytesAfter": 9688376,
+          "bytesBefore": 13170972,
+          "outputSha256": "45c78d4732d57f444aa5d83ab9867aa35f2b0ef21d219e6f63ceb15b7d5375f3",
+          "triangleCountAfter": 69067,
+          "triangleCountBefore": 92430
+        }
+      },
+      "mpfb-peds-parent-aisha.glb": {
+        "before": {
+          "bytesAfter": 8620932,
+          "outputSha256": "cef1e21b12c55437d98ef0a97db46a21fecf70cae3aad23033acbfd61d7f6eae",
+          "triangleCountAfter": 68129,
+          "triangleCountBefore": 91032
+        },
+        "after": {
+          "bytesAfter": 9743976,
+          "bytesBefore": 13222500,
+          "outputSha256": "d063c5431f5588ddfb6a38826e95a905e910fa7d5b34c803f563e8c27a1fca48",
+          "triangleCountAfter": 69067,
+          "triangleCountBefore": 92430
+        }
+      },
+      "mpfb-viseme-inspect.glb": {
+        "before": {
+          "bytesAfter": 8560664,
+          "outputSha256": "98c8ec0bbc494890737e708b2cd9321c00c6fc06dc03a86e1aa28c792b1083f1",
+          "triangleCountAfter": 68214,
+          "triangleCountBefore": 90996
+        },
+        "after": {
+          "bytesAfter": 13932816,
+          "bytesBefore": 17035784,
+          "outputSha256": "dd99697c3d6e0d0f6aac15d88e48ac1d2a1b7e7c6e7fe5ee35e79b00fcfa5fc9",
+          "triangleCountAfter": 69067,
+          "triangleCountBefore": 92430
+        }
+      }
+    },
+    "docs/openclinxr/humanoid-postopt-ladder-2026-09-10.json": {
+      "mpfb-family-partner-adult.glb": {
+        "before": {
+          "bytesAfter": 10414800,
+          "bytesBefore": 8151256,
+          "faceAfter": 11797,
+          "faceBefore": 12093,
+          "triangleCountAfter": 38657,
+          "triangleCountBefore": 33730
+        },
+        "after": {
+          "bytesAfter": 10149716,
+          "bytesBefore": 10409540,
+          "faceAfter": 14945,
+          "faceBefore": 14945,
+          "triangleCountAfter": 39974,
+          "triangleCountBefore": 39974
+        }
+      }
+    },
+    "docs/openclinxr/humanoid-basecolorfactor-audit-2026-09-10.json": {
+      "before": {
+        "materialRowCount": 249,
+        "rows": 249
+      },
+      "after": {
+        "materialRowCount": 249,
+        "rows": 249
+      },
+      "note": "249 rows before and after: 32 superseded material rows (pre-refit garment/lower names) replaced by 32 current-name rows; 37 rows corrected in place (baked-white factors, texture flags, moved origin literals). Net row count unchanged by construction; the suite passes 6/6."
+    }
+  },
+  "notEvidenceFor": [
+    "rendered appearance of any body, before or after (no pixels graded)",
+    "whether the per-body rungs HB-05 chose are still the right ones",
+    "whether decimation should be budget-conditional rather than unconditional",
+    "whether the same recorded-versus-live drift exists for any evidence report outside the three named in the contract",
+    "whether the newly wired producing-path decimation will itself drift the rows on its next run (follow-on; this card makes that answerable by naming the lineage mechanism)"
+  ],
+  "conclusion": "ROWS STALE on all four bodies; BYTES LEGITIMATE on all four. No shipped GLB was rewritten by this card. The three named suites are green because the records now describe the bytes the recorded stations produce, not because numbers were pasted off the live files: every corrected value came out of rederive-evidence-drift-2026-09-14.ts run against a committed pre-image.",
+  "falsifierPin": {
+    "test": "tools/openclinxr/asset-pipeline/trellis/the-face-preserving-rung-keeps-every-face-triangle.test.ts > the committed mode reproduces the viseme-inspect rung from HB-02 bytes (minimal falsifier)",
+    "status": "STALE PIN (known, recorded, not hidden)",
+    "detail": "The falsifier re-runs the recorded fp-r0.4 rung on the pinned HB-02 bytes (37d4460d) and gets 68214/52778, matching the fp-r0.4 sweep entry. The promoted viseme row tracks the tightjeans lineage (69067/13932816, rederivedFrom 57e27730). The rerun-vs-promoted-row comparison therefore fails by construction. The station is proven on BOTH lineages: the HB-02 rerun reproduces the sweep entry, and rederive-evidence-drift-2026-09-14.ts re-runs the same recorded rung on the committed 57e27730 pre-image and reproduces 69067/52778. Retargeting the pin to the current lineage input requires editing the test, which this card forbids; recorded here so the next card can decide with the evidence in hand."
+  }
+}

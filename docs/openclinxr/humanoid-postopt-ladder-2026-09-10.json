@@ -45,11 +45,11 @@
   {
    "body": "mpfb-family-partner-adult.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 10414800,
-   "bytesBefore": 8151256,
+   "bytesAfter": 10149716,
+   "bytesBefore": 10409540,
    "chosenRungId": "raw",
-   "faceAfter": 11797,
-   "faceBefore": 12093,
+   "faceAfter": 14945,
+   "faceBefore": 14945,
    "faceRetentionRatio": 1,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "featureSurvival": "raw (no featureSurvival field on the un-decimated entry; not collapsed)",
@@ -59,9 +59,23 @@
    "jointCountBefore": 137,
    "jointCountExpected": 137,
    "promoted": true,
-   "promotionNote": "2026-09-12 family-partner library lower: rematerialize with elvs_jeans_bootcut (5708 tris = 2854 faces x 2) via ClothesService; lash LOD 0.12/0.005 then body 0.48 and brow 0.31 simplifyPrimitive (jeans/shirt/shoes locked); chest-anchor 0.085 m. triangleCountAfter 38657 <= budgets.propShare 40000. budgets unchanged.",
-   "triangleCountAfter": 38657,
-   "triangleCountBefore": 33730
+   "promotionNote": "2026-09-12 family-partner library lower: rematerialize with elvs_jeans_bootcut (5708 tris = 2854 faces x 2) via ClothesService; lash LOD 0.12/0.005 then body 0.48 and brow 0.31 simplifyPrimitive (jeans/shirt/shoes locked); chest-anchor 0.085 m. triangleCountAfter 39974 <= budgets.propShare 40000. budgets unchanged. Row re-derived 2026-09-14 from the recorded HB-02 bake station (see rederivedFrom); face counts re-measured with the station instrument.",
+   "triangleCountAfter": 39974,
+   "triangleCountBefore": 39974,
+   "supersededRecord": {
+    "triangleCountBefore": 33730,
+    "triangleCountAfter": 38657,
+    "bytesBefore": 8151256,
+    "bytesAfter": 10414800,
+    "faceBefore": 12093,
+    "faceAfter": 11797,
+    "supersededBecause": "0f460d09 standoff rebake + 42c42140 albedo bake rewrote the bytes without updating this row; re-derived below from the recorded bake station on the committed pre-image"
+   },
+   "rederivedFrom": "42c42140^:apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+   "rederivedStations": [
+    "bake-humanoid-albedo.ts bakeGlbAlbedo"
+   ],
+   "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
