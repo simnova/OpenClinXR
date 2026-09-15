@@ -45,10 +45,10 @@
     ],
     "conditionalA1b": "Create only for browser_submerged from the conditional contract below.",
     "maxLaneAInFlight": 1,
-    "startTaskId": "tsk_b46579b95775acb9",
-    "parallelStartTaskId": "tsk_ace7ecc78aafe6b8",
     "sc07Status": "blocked pending A1 verdict",
-    "supersededPublicSurfaceStatus": "cancelled"
+    "supersededPublicSurfaceStatus": "cancelled",
+    "startTaskId": "tsk_3f01d5bd55a00505",
+    "parallelStartTaskId": "tsk_8d3e55209b513362"
   },
   "graph": {
     "A1": [],
@@ -57,41 +57,41 @@
       "tsk_c1a0aa430750e5d5"
     ],
     "C2": [
-      "tsk_055c9e002cac1b27",
-      "tsk_ace7ecc78aafe6b8"
+      "tsk_39f312183e2f4e14",
+      "tsk_8d3e55209b513362"
     ],
     "C3": [
-      "tsk_3abda6be67fe9ed5"
+      "tsk_d75de2abac9494d0"
     ],
     "A3": [
+      "tsk_8d3e55209b513362",
       "tsk_c1a0aa430750e5d5",
-      "tsk_ace7ecc78aafe6b8",
-      "tsk_3abda6be67fe9ed5"
+      "tsk_d75de2abac9494d0"
     ]
   },
   "cards": {
     "a1": {
-      "taskId": "tsk_b46579b95775acb9",
+      "taskId": "tsk_3f01d5bd55a00505",
       "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a1.json"
     },
     "c0": {
-      "taskId": "tsk_055c9e002cac1b27",
+      "taskId": "tsk_39f312183e2f4e14",
       "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c0.json"
     },
     "c1": {
-      "taskId": "tsk_ace7ecc78aafe6b8",
+      "taskId": "tsk_8d3e55209b513362",
       "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c1.json"
     },
     "c2": {
-      "taskId": "tsk_3abda6be67fe9ed5",
+      "taskId": "tsk_d75de2abac9494d0",
       "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c2.json"
     },
     "c3": {
-      "taskId": "tsk_9045da4192061aa1",
+      "taskId": "tsk_824bec9be5642bb6",
       "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c3.json"
     },
     "a3": {
-      "taskId": "tsk_59b71ffb601bc818",
+      "taskId": "tsk_216a587551a42e2e",
       "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a3.json"
     }
   },
@@ -119,5 +119,13 @@
     "criterion 6 closure",
     "new provider integration",
     "Quest or clinical validation"
+  ],
+  "supersededCardIds": [
+    "tsk_b46579b95775acb9",
+    "tsk_055c9e002cac1b27",
+    "tsk_ace7ecc78aafe6b8",
+    "tsk_3abda6be67fe9ed5",
+    "tsk_9045da4192061aa1",
+    "tsk_59b71ffb601bc818"
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.bothy-card-artifact.v1",
   "role": "A3",
-  "taskId": "tsk_59b71ffb601bc818",
+  "taskId": "tsk_216a587551a42e2e",
   "createPayload": {
     "projectId": "prj_9b390b99b443a964",
     "title": "MSC-A3 \u2014 Admit only the final motion consumer surface through a new reviewed group",
@@ -11,9 +11,9 @@
     "kind": "task",
     "parentId": "tsk_36cf3c2473ac953f",
     "depIds": [
-      "tsk_3abda6be67fe9ed5",
-      "tsk_ace7ecc78aafe6b8",
-      "tsk_c1a0aa430750e5d5"
+      "tsk_8d3e55209b513362",
+      "tsk_c1a0aa430750e5d5",
+      "tsk_d75de2abac9494d0"
     ],
     "fields": {
       "lane": "B",
@@ -32,9 +32,8 @@
       "changed:docs/openclinxr/package-public-surface-reduction/approvals/psr-01f.json",
       "changed:packages/openclinxr-verification/architecture-rules/src/checks/public-surface/apply-map.ts"
     ],
-    "knownGood": "The resolver-totality fix is landed as tsk_c1a0aa430750e5d5: unknown group ids resolve undefined while explicit reviewed groups remain reachable. Inventory the live barrels after C1/C2 rather than copying an earlier six-symbol estimate. Criterion 5 should stop naming the admitted symbols; criterion 6 may remain red and overall acceptance may still refuse. Forged edit of a closed group remains refused.",
+    "knownGood": "EXECUTION PACKAGE: Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a3.json before editing. The live BothyBoard card overrides either artifact on conflict. The resolver-totality fix is landed as tsk_c1a0aa430750e5d5: unknown group ids resolve undefined while explicit reviewed groups remain reachable. Inventory the live barrels after C1/C2 rather than copying an earlier six-symbol estimate. Criterion 5 should stop naming the admitted symbols; criterion 6 may remain red and overall acceptance may still refuse. Forged edit of a closed group remains refused. Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. A second real session distinct from the worker must review the new group before owner landing. Worker stops at review. This card supersedes tsk_7c2a05ec168cedc5, which must remain undispatched.",
     "outOfScope": "No edit to psr-01b through psr-01e, no fabricated groupHash, no deletion of required exports, no criterion-6 change, and no overall verdict close requirement.",
-    "notTested": "Whether the separate 1000-root-export target is achievable or whether future APIs deserve admission.",
-    "body": "Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. A second real session distinct from the worker must review the new group before owner landing. Worker stops at review. This card supersedes tsk_7c2a05ec168cedc5, which must remain undispatched."
+    "notTested": "Whether the separate 1000-root-export target is achievable or whether future APIs deserve admission."
   }
 }

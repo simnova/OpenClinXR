@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.bothy-card-artifact.v1",
   "role": "C3",
-  "taskId": "tsk_9045da4192061aa1",
+  "taskId": "tsk_824bec9be5642bb6",
   "createPayload": {
     "projectId": "prj_9b390b99b443a964",
     "title": "MSC-C3 \u2014 Prove one authored patient response through the normal rendered encounter",
@@ -11,7 +11,7 @@
     "kind": "task",
     "parentId": "tsk_e8ac84dd9cb6ac06",
     "depIds": [
-      "tsk_3abda6be67fe9ed5"
+      "tsk_d75de2abac9494d0"
     ],
     "fields": {
       "lane": "A",
@@ -29,9 +29,8 @@
       "changed:apps/ui-xr/src/main.ts",
       "changed:tools/openclinxr/evidence/humanoid-motion-closure/c3/measurement.json"
     ],
-    "knownGood": "Production route is handleClinicalTouch -> respondToTouch -> playOneShotResponseClip. Today dialogue/emotion/trace can proceed while clipPlayed is false. The pinned row is ed_chest_pain_priority_v1 / patient_robert_hayes_v1 / abdomen_rlq. Proof requires clipPlayed=true, slot contains the exact authored responseClip, mixer root identity is the loaded patient, a named driven upper-body bone moves against a no-touch control, support/world transform remains fixed, and scene child/SkinnedMesh counts do not increase. The tracked measurement binds SHA and hashes for isolated front, three-quarter, and motion-probe media in the authorised artifact store.",
+    "knownGood": "EXECUTION PACKAGE: Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c3.json before editing. The live BothyBoard card overrides either artifact on conflict. Production route is handleClinicalTouch -> respondToTouch -> playOneShotResponseClip. Today dialogue/emotion/trace can proceed while clipPlayed is false. The pinned row is ed_chest_pain_priority_v1 / patient_robert_hayes_v1 / abdomen_rlq. Proof requires clipPlayed=true, slot contains the exact authored responseClip, mixer root identity is the loaded patient, a named driven upper-body bone moves against a no-touch control, support/world transform remains fixed, and scene child/SkinnedMesh counts do not increase. The tracked measurement binds SHA and hashes for isolated front, three-quarter, and motion-probe media in the authorised artifact store. Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. Owner performs the pixel grade after worker review. The TREE gate is the measurement plane: clipPlayed, identity, bone delta, support stability, and no added actor. Raw video need not be committed when the tracked report contains content hashes and retrieval refs.",
     "outOfScope": "No synthetic direct player harness as sole proof, no physician stand-in, no second skeleton, no byte-size-only visual verdict, and no clinical/Quest/production claim.",
-    "notTested": "Clinical correctness of the guarding motion, scoring validity, production asset grade, or device performance.",
-    "body": "Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. Owner performs the pixel grade after worker review. The TREE gate is the measurement plane: clipPlayed, identity, bone delta, support stability, and no added actor. Raw video need not be committed when the tracked report contains content hashes and retrieval refs."
+    "notTested": "Clinical correctness of the guarding motion, scoring validity, production asset grade, or device performance."
   }
 }

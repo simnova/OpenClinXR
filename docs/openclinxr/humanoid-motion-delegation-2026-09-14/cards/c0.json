@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.bothy-card-artifact.v1",
   "role": "C0",
-  "taskId": "tsk_055c9e002cac1b27",
+  "taskId": "tsk_39f312183e2f4e14",
   "createPayload": {
     "projectId": "prj_9b390b99b443a964",
     "title": "MSC-C0 \u2014 Permit only posture-safe one-shot motion on the supine patient",
@@ -24,9 +24,8 @@
       "live:packages/openclinxr/xr-asset-loading/src/a-supine-patient-mixes-only-posture-safe-one-shots.test.ts",
       "changed:packages/openclinxr/xr-asset-loading/src/humanoid-animation.ts"
     ],
-    "knownGood": "Current main deliberately creates no mixer when openClinXrActorPosture is supine, protecting the recumbent plant. The pinned target is ed_chest_pain_priority_v1 / patient_robert_hayes_v1 using the promoted MPFB gown GLB. The counterweight must prove the same world transform and support binding before, during, and after a selected upper-body response; locomotion, standing role/idle, root translation, and leg translation remain unplayed.",
+    "knownGood": "EXECUTION PACKAGE: Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c0.json before editing. The live BothyBoard card overrides either artifact on conflict. Current main deliberately creates no mixer when openClinXrActorPosture is supine, protecting the recumbent plant. The pinned target is ed_chest_pain_priority_v1 / patient_robert_hayes_v1 using the promoted MPFB gown GLB. The counterweight must prove the same world transform and support binding before, during, and after a selected upper-body response; locomotion, standing role/idle, root translation, and leg translation remain unplayed. Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. Stop and report if compatibility cannot be decided from posture plus clip metadata/track inspection without matching patient_robert_hayes_v1 in product logic. A mixer existing is insufficient: the negative clips must remain unplayed and the support/world transform must remain stable.",
     "outOfScope": "No compiler, gateway, UI-XR main.ts, actor-specific string exception, second actor, or broad removal of the supine guard.",
-    "notTested": "Visual quality, clinical validity, Quest performance, or arbitrary future clip compatibility.",
-    "body": "Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. Stop and report if compatibility cannot be decided from posture plus clip metadata/track inspection without matching patient_robert_hayes_v1 in product logic. A mixer existing is insufficient: the negative clips must remain unplayed and the support/world transform must remain stable."
+    "notTested": "Visual quality, clinical validity, Quest performance, or arbitrary future clip compatibility."
   }
 }

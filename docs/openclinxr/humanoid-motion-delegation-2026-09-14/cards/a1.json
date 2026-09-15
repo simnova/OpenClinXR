@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.bothy-card-artifact.v1",
   "role": "A1",
-  "taskId": "tsk_b46579b95775acb9",
+  "taskId": "tsk_3f01d5bd55a00505",
   "createPayload": {
     "projectId": "prj_9b390b99b443a964",
     "title": "MSC-A1 \u2014 Establish browser foot truth before SC-07",
@@ -26,9 +26,8 @@
       "live:tools/openclinxr/evidence/scene-closure/proofs/sc-05/current-main-browser-foot-truth/the-current-main-browser-foot-truth.test.ts",
       "changed:tools/openclinxr/evidence/scene-closure/proofs/sc-05/current-main-browser-foot-truth/report.json"
     ],
-    "knownGood": "Node known-good on the shipped MPFB physician plus openclinxr_retarget_walk_formal_cc0 recorded 101 settled and 432 arrived frames, zero below-floor frames, deepest signed depth -0.013571 m (13.6 mm above). Earlier browser evidence disagreed near 0.037 m and also exhibited a 0-sample mode. The test must require two non-null runs, both toes, per-phase samples, driveSource, headSha, raw-artifact hashes/retrieval refs, and exactly one verdict: instruments_agree | browser_submerged | capture_null.",
+    "knownGood": "EXECUTION PACKAGE: Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a1.json before editing. The live BothyBoard card overrides either artifact on conflict. Node known-good on the shipped MPFB physician plus openclinxr_retarget_walk_formal_cc0 recorded 101 settled and 432 arrived frames, zero below-floor frames, deepest signed depth -0.013571 m (13.6 mm above). Earlier browser evidence disagreed near 0.037 m and also exhibited a 0-sample mode. The test must require two non-null runs, both toes, per-phase samples, driveSource, headSha, raw-artifact hashes/retrieval refs, and exactly one verdict: instruments_agree | browser_submerged | capture_null. Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. This is an instrument card. Record one stopEnum verdict. instruments_agree releases SC-07 and forbids A1b; browser_submerged holds SC-07 and authorises owner creation of A1b; capture_null holds SC-07 and requires instrument repair. Raw media may stay external only if the tracked report binds hashes and retrieval references.",
     "outOfScope": "No IK, foot correction, animation-source edit, pixel grading, SC-07 contract edit, or claim of Quest/clinical readiness.",
-    "notTested": "Visual quality or whether any later corrective treatment is sufficient.",
-    "body": "Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. This is an instrument card. Record one stopEnum verdict. instruments_agree releases SC-07 and forbids A1b; browser_submerged holds SC-07 and authorises owner creation of A1b; capture_null holds SC-07 and requires instrument repair. Raw media may stay external only if the tracked report binds hashes and retrieval references."
+    "notTested": "Visual quality or whether any later corrective treatment is sufficient."
   }
 }

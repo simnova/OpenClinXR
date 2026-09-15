@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.bothy-card-artifact.v1",
   "role": "C1",
-  "taskId": "tsk_ace7ecc78aafe6b8",
+  "taskId": "tsk_8d3e55209b513362",
   "createPayload": {
     "projectId": "prj_9b390b99b443a964",
     "title": "MSC-C1 \u2014 Compile and publish one real authored touch response",
@@ -29,9 +29,8 @@
       "changed:packages/openclinxr/motion-compiler/src/program/compile-scenario-motion.ts",
       "changed:packages/openclinxr/capability-gateway/src/motion-manifest-publication.ts"
     ],
-    "knownGood": "Pinned input: ed_chest_pain_priority_v1 / patient_robert_hayes_v1 / abdomen_rlq; actor GLB is the promoted MPFB gown adult patient. The fixture responseClip is openclinxr_role_patient_guard_withdraw_rlq. Today compileScenarioMotion uses sourceRefs [scenarioId], so requestedClipIdForProgram falls back to a hash, and gateway publication bakes payload-authored synthetic upper_armR tracks. The real proof requires sourceRefs touch:abdomen_rlq (or the same namer passed once), profile derived from the pinned GLB, emitted bone subset of that profile, sidecar GLB plus CompiledMotionClipV1 JSON, exact clipId/readback equality, deterministic bytes, mutation sensitivity, and externalNetworkUsed=false/spendCents=0.",
+    "knownGood": "EXECUTION PACKAGE: Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c1.json before editing. The live BothyBoard card overrides either artifact on conflict. Pinned input: ed_chest_pain_priority_v1 / patient_robert_hayes_v1 / abdomen_rlq; actor GLB is the promoted MPFB gown adult patient. The fixture responseClip is openclinxr_role_patient_guard_withdraw_rlq. Today compileScenarioMotion uses sourceRefs [scenarioId], so requestedClipIdForProgram falls back to a hash, and gateway publication bakes payload-authored synthetic upper_armR tracks. The real proof requires sourceRefs touch:abdomen_rlq (or the same namer passed once), profile derived from the pinned GLB, emitted bone subset of that profile, sidecar GLB plus CompiledMotionClipV1 JSON, exact clipId/readback equality, deterministic bytes, mutation sensitivity, and externalNetworkUsed=false/spendCents=0. Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. The sidecar GLB is interchange and must never be staged as a humanoid. Add only a compiler export demonstrably required by the gateway. Missing program/profile/landmarks refuses. A payload that merely supplies the expected clip id is a failed treatment.",
     "outOfScope": "No runtime mixer, UI-XR, second alias map, constructed Mixamo profile, public-surface approval, model download, or external generation provider.",
-    "notTested": "Visible deformation, clinical validity, Quest readiness, or other scenarios/regions.",
-    "body": "Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. The sidecar GLB is interchange and must never be staged as a humanoid. Add only a compiler export demonstrably required by the gateway. Missing program/profile/landmarks refuses. A payload that merely supplies the expected clip id is a failed treatment."
+    "notTested": "Visible deformation, clinical validity, Quest readiness, or other scenarios/regions."
   }
 }

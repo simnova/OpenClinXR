@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.bothy-card-artifact.v1",
   "role": "C2",
-  "taskId": "tsk_3abda6be67fe9ed5",
+  "taskId": "tsk_d75de2abac9494d0",
   "createPayload": {
     "projectId": "prj_9b390b99b443a964",
     "title": "MSC-C2 \u2014 Bind compiled tracks to the already loaded MPFB patient",
@@ -11,8 +11,8 @@
     "kind": "task",
     "parentId": "tsk_e8ac84dd9cb6ac06",
     "depIds": [
-      "tsk_055c9e002cac1b27",
-      "tsk_ace7ecc78aafe6b8"
+      "tsk_39f312183e2f4e14",
+      "tsk_8d3e55209b513362"
     ],
     "fields": {
       "lane": "A",
@@ -28,9 +28,8 @@
       "live:packages/openclinxr/xr-humanoid-animation/src/a-compiled-sidecar-binds-to-the-loaded-patient.test.ts",
       "changed:packages/openclinxr/xr-humanoid-animation/src/compiled-motion-clip.ts"
     ],
-    "knownGood": "The existing playManifestMotionClip can select a named clip on a mixer, but no path converts CompiledMotionClipV1 tracks onto the loaded MPFB graph. The target mixer root is the already loaded patient_robert_hayes_v1 humanoid. At a pinned mid-clip time, at least one named upper-body bone must differ from bind pose by the contract epsilon; property bindings resolve; clip name equals authored responseClip; scene root and SkinnedMesh counts do not increase.",
+    "knownGood": "EXECUTION PACKAGE: Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c2.json before editing. The live BothyBoard card overrides either artifact on conflict. The existing playManifestMotionClip can select a named clip on a mixer, but no path converts CompiledMotionClipV1 tracks onto the loaded MPFB graph. The target mixer root is the already loaded patient_robert_hayes_v1 humanoid. At a pinned mid-clip time, at least one named upper-body bone must differ from bind pose by the contract epsilon; property bindings resolve; clip name equals authored responseClip; scene root and SkinnedMesh counts do not increase. Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. Primary runtime input is CompiledMotionClipV1; read back the sidecar GLB to cross-check clip identity and driven-bone set. Loading the bake GLB as a second figure is an explicit failed treatment.",
     "outOfScope": "No sidecar GLB parenting, second mixer/root, dummy skeleton, physician stand-in, UI-XR touch wiring, or broad posture policy change.",
-    "notTested": "Visual quality, clinical validity, Quest readiness, or all motion primitives.",
-    "body": "Read docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md and this card JSON before editing. The live card is authoritative. Preserve all nine laws in the handoff. Primary runtime input is CompiledMotionClipV1; read back the sidecar GLB to cross-check clip identity and driven-bone set. Loading the bake GLB as a second figure is an explicit failed treatment."
+    "notTested": "Visual quality, clinical validity, Quest readiness, or all motion primitives."
   }
 }
