@@ -70,7 +70,7 @@ export type GrokMonitorBoardState = {
   lastReadyTaskId: string | null;
   cacheToken: string | null;
   lastUpdatedAtByTaskId: Record<string, string>;
-  mailboxPollOffset: number;
+  mailboxPollAfterTaskId: string | null;
   baselinedMailboxTaskIds: string[];
 };
 
@@ -79,7 +79,7 @@ export function emptyGrokMonitorBoardState(): GrokMonitorBoardState {
     lastReadyTaskId: null,
     cacheToken: null,
     lastUpdatedAtByTaskId: {},
-    mailboxPollOffset: 0,
+    mailboxPollAfterTaskId: null,
     baselinedMailboxTaskIds: [],
   };
 }
@@ -96,8 +96,8 @@ export function loadGrokMonitorBoardState(repoRoot: string): GrokMonitorBoardSta
         parsed.lastUpdatedAtByTaskId && typeof parsed.lastUpdatedAtByTaskId === "object"
           ? parsed.lastUpdatedAtByTaskId
           : {},
-      mailboxPollOffset:
-        typeof parsed.mailboxPollOffset === "number" ? parsed.mailboxPollOffset : 0,
+      mailboxPollAfterTaskId:
+        typeof parsed.mailboxPollAfterTaskId === "string" ? parsed.mailboxPollAfterTaskId : null,
       baselinedMailboxTaskIds: Array.isArray(parsed.baselinedMailboxTaskIds)
         ? parsed.baselinedMailboxTaskIds.filter((id): id is string => typeof id === "string")
         : [],
@@ -136,6 +136,12 @@ export function grokMailboxSelfMarkers(sessionId = process.env.GROK_SESSION_ID ?
   const markers = [GROK_MAILBOX_SELF_PREFIX];
   if (sessionId) markers.push(`[grok-orchestrator:${sessionId}]`);
   return markers;
+}
+
+export function grokMailboxSelfAuthorNames(
+  value = process.env.BOTHY_MAILBOX_SELF_AUTHORS ?? "",
+): string[] {
+  return value.split(",").map((name) => name.trim()).filter(Boolean);
 }
 
 type SinceFile = Record<string, string>;
@@ -246,7 +252,7 @@ export async function pollBoardDeltas(opts: {
     lastReadyTaskId: nextId,
     cacheToken,
     lastUpdatedAtByTaskId: updatedAtByTaskId,
-    mailboxPollOffset: opts.previous.mailboxPollOffset,
+    mailboxPollAfterTaskId: opts.previous.mailboxPollAfterTaskId,
     baselinedMailboxTaskIds: opts.previous.baselinedMailboxTaskIds,
   };
   return {
@@ -272,8 +278,9 @@ export async function runMailboxMonitorPass(
   const result = await pollForeignMailbox({
     ...opts,
     selfMarkers: opts.selfMarkers ?? grokMailboxSelfMarkers(),
+    selfAuthorNames: opts.selfAuthorNames ?? grokMailboxSelfAuthorNames(),
     sinceByTaskId: opts.sinceByTaskId ?? loadSinceByTaskId(opts.repoRoot),
-    pollOffset: opts.pollOffset ?? previous.mailboxPollOffset,
+    pollAfterTaskId: opts.pollAfterTaskId ?? previous.mailboxPollAfterTaskId,
     pollTimeoutMs: opts.pollTimeoutMs ?? 5_000,
   });
   const permanent = result.permanentPollErrors.length;
@@ -297,23 +304,13 @@ export async function runMailboxMonitorPass(
     fetch: opts.fetch,
     previous,
   });
-  if (opts.isSeed) {
-    writeGrokMonitorBoardState(opts.repoRoot, {
-      ...board.nextState,
-      mailboxPollOffset: result.nextPollOffset,
-      baselinedMailboxTaskIds: [
-        ...new Set([...previous.baselinedMailboxTaskIds, ...result.successfulTaskIds]),
-      ].filter((taskId) => result.watchedTaskIds.includes(taskId)),
-    });
-  } else {
-    writeGrokMonitorBoardState(opts.repoRoot, {
-      ...board.nextState,
-      mailboxPollOffset: result.nextPollOffset,
-      baselinedMailboxTaskIds: [
-        ...new Set([...previous.baselinedMailboxTaskIds, ...result.successfulTaskIds]),
-      ].filter((taskId) => result.watchedTaskIds.includes(taskId)),
-    });
-  }
+  writeGrokMonitorBoardState(opts.repoRoot, {
+    ...board.nextState,
+    mailboxPollAfterTaskId: result.nextPollAfterTaskId,
+    baselinedMailboxTaskIds: [
+      ...new Set([...previous.baselinedMailboxTaskIds, ...result.successfulTaskIds]),
+    ].filter((taskId) => result.watchedTaskIds.includes(taskId)),
+  });
 
   const decision = decideMailboxMonitorTick({
     isSeed: opts.isSeed,

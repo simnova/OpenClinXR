@@ -5,7 +5,9 @@ import { type BothyFetch, bothyMcpCall } from "./board-bothy-dequeue.js";
 
 export const MAILBOX_WATCH_REL = "tools/openclinxr/openclaw/mailbox-watch.json";
 export const MAILBOX_LOOKED_AT_REL = ".openclinxr/openclaw/mailbox-looked-at.json";
+export const MAILBOX_DIGEST_SINCE_REL = ".openclinxr/openclaw/mailbox-digest-since.json";
 export const DEFAULT_MAX_MAILBOX_TASKS_PER_PASS = 16;
+export const MAX_LOOKED_AT_MAILBOX_TASKS = 32;
 
 /** Other Grok CEOs share authorName "grok-orchestrator". Never treat that name as self. */
 
@@ -34,7 +36,7 @@ export function loadMailboxWatchTaskIds(repoRoot: string): string[] {
 }
 
 export function loadLookedAtTaskIds(repoRoot: string): string[] {
-  return readTaskIdFile(join(repoRoot, MAILBOX_LOOKED_AT_REL));
+  return readTaskIdFile(join(repoRoot, MAILBOX_LOOKED_AT_REL)).slice(-MAX_LOOKED_AT_MAILBOX_TASKS);
 }
 
 /** Union of the static watch file and cards this session has gotten/claimed. */
@@ -51,12 +53,14 @@ export function resolveMailboxWatchTaskIds(
 }
 
 export function rememberLookedAtTaskIds(repoRoot: string, taskIds: string[]): void {
-  const looked = [
-    ...new Set([
-      ...loadLookedAtTaskIds(repoRoot),
-      ...taskIds.filter((id) => typeof id === "string" && id.startsWith("tsk_")),
-    ]),
+  const incoming = [
+    ...new Set(taskIds.filter((id) => typeof id === "string" && id.startsWith("tsk_"))),
   ];
+  const incomingSet = new Set(incoming);
+  const looked = [
+    ...loadLookedAtTaskIds(repoRoot).filter((id) => !incomingSet.has(id)),
+    ...incoming,
+  ].slice(-MAX_LOOKED_AT_MAILBOX_TASKS);
   const path = join(repoRoot, MAILBOX_LOOKED_AT_REL);
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, `${JSON.stringify({ taskIds: looked }, null, 2)}\n`);
@@ -66,11 +70,19 @@ export function rememberLookedAtTaskIds(repoRoot: string, taskIds: string[]): vo
  * Comments carry no agentId and foreign agents' posts arrive as
  * authorName "member", so author-name filtering alone cannot tell self from
  * foreign. Self posts are additionally identified by a body marker
- * (`[codex-agent:…]`) embedded by the authoring agent.
+ * (`[codex-agent:…]`) embedded by the authoring agent. Harnesses that cannot
+ * stamp bodies may additionally provide an exact self author name.
  */
-export function isSelfComment(comment: PollComment, selfMarkers: string[] = []): boolean {
+export function isSelfComment(
+  comment: PollComment,
+  selfMarkers: string[] = [],
+  selfAuthorNames: string[] = [],
+): boolean {
   const body = comment.body ?? "";
-  return selfMarkers.some((marker) => marker.length > 0 && body.includes(marker));
+  return (
+    selfMarkers.some((marker) => marker.length > 0 && body.includes(marker)) ||
+    selfAuthorNames.some((author) => author.length > 0 && comment.authorName === author)
+  );
 }
 
 function formatComment(taskId: string, comment: PollComment): string {
@@ -89,17 +101,18 @@ export type ForeignMailboxResult = {
   watchedTaskIds: string[];
   polledTaskIds: string[];
   successfulTaskIds: string[];
-  nextPollOffset: number;
+  nextPollAfterTaskId: string | null;
 };
 
 export type MailboxPollOptions = {
   repoRoot: string;
   pat?: string;
   selfMarkers?: string[];
+  selfAuthorNames?: string[];
   fetch?: BothyFetch;
   pollTimeoutMs?: number;
   maxTasks?: number;
-  pollOffset?: number;
+  pollAfterTaskId?: string | null;
   sinceByTaskId?: Record<string, string>;
   extraTaskIds?: string[];
 };
@@ -124,7 +137,7 @@ export async function pollForeignMailbox(
       watchedTaskIds: [],
       polledTaskIds: [],
       successfulTaskIds: [],
-      nextPollOffset: 0,
+      nextPollAfterTaskId: null,
     };
   }
   const pat = opts.pat ?? process.env.BOTHY_BOARD_PAT ?? "";
@@ -139,7 +152,7 @@ export async function pollForeignMailbox(
       watchedTaskIds: taskIds,
       polledTaskIds: [],
       successfulTaskIds: [],
-      nextPollOffset: opts.pollOffset ?? 0,
+      nextPollAfterTaskId: opts.pollAfterTaskId ?? null,
     };
   }
   const markers = opts.selfMarkers ?? [];
@@ -155,16 +168,17 @@ export async function pollForeignMailbox(
   const prioritySet = new Set(priorityIds);
   const rotatingIds = taskIds.filter((id) => !prioritySet.has(id));
   const rotatingBudget = Math.max(0, maxTasks - priorityIds.length);
-  const start = rotatingIds.length > 0
-    ? Math.max(0, opts.pollOffset ?? 0) % rotatingIds.length
+  const previousIndex = opts.pollAfterTaskId
+    ? rotatingIds.indexOf(opts.pollAfterTaskId)
+    : -1;
+  const start = rotatingIds.length > 0 && previousIndex >= 0
+    ? (previousIndex + 1) % rotatingIds.length
     : 0;
   const rotated = rotatingIds.length > 0
     ? [...rotatingIds.slice(start), ...rotatingIds.slice(0, start)].slice(0, rotatingBudget)
     : [];
   const polledTaskIds = [...priorityIds, ...rotated];
-  const nextPollOffset = rotatingIds.length > 0
-    ? (start + rotated.length) % rotatingIds.length
-    : 0;
+  const nextPollAfterTaskId = rotated.at(-1) ?? opts.pollAfterTaskId ?? null;
   const comments: PollComment[] = [];
   const pollErrors: string[] = [];
   const permanentPollErrors: string[] = [];
@@ -204,8 +218,9 @@ export async function pollForeignMailbox(
           latestCreatedAtByTaskId[taskId] = comment.createdAt;
         }
       }
-      const foreign = addressed
-        .filter((comment) => !isSelfComment(comment, markers));
+      const foreign = addressed.filter(
+        (comment) => !isSelfComment(comment, markers, opts.selfAuthorNames),
+      );
       comments.push(...foreign);
     } catch (error) {
       const reason = error instanceof Error ? error.message : "poll_failed";
@@ -222,8 +237,34 @@ export async function pollForeignMailbox(
     watchedTaskIds: taskIds,
     polledTaskIds,
     successfulTaskIds,
-    nextPollOffset,
+    nextPollAfterTaskId,
   };
+}
+
+export function loadDigestSinceByTaskId(repoRoot: string): Record<string, string> {
+  try {
+    const parsed = JSON.parse(
+      readFileSync(join(repoRoot, MAILBOX_DIGEST_SINCE_REL), "utf8"),
+    ) as Record<string, unknown>;
+    return Object.fromEntries(
+      Object.entries(parsed).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+    );
+  } catch {
+    return {};
+  }
+}
+
+export function writeDigestSinceByTaskId(
+  repoRoot: string,
+  latest: Record<string, string>,
+  watchedTaskIds: string[],
+): void {
+  const watched = new Set(watchedTaskIds);
+  const merged = { ...loadDigestSinceByTaskId(repoRoot), ...latest };
+  const next = Object.fromEntries(Object.entries(merged).filter(([taskId]) => watched.has(taskId)));
+  const path = join(repoRoot, MAILBOX_DIGEST_SINCE_REL);
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, `${JSON.stringify(next, null, 2)}\n`);
 }
 
 /**
@@ -234,6 +275,7 @@ export async function pollWatchedMailboxes(
   repoRoot: string,
   pat = process.env.BOTHY_BOARD_PAT ?? "",
   selfMarkers: string[] = [],
+  fetch?: BothyFetch,
 ): Promise<string> {
   const taskIds = loadMailboxWatchTaskIds(repoRoot);
   if (taskIds.length === 0) {
@@ -242,7 +284,19 @@ export async function pollWatchedMailboxes(
   if (!pat) {
     return "MAILBOX: BOTHY_BOARD_PAT unset — skipped poll.";
   }
-  const { comments, pollErrors } = await pollForeignMailbox({ repoRoot, pat, selfMarkers });
+  const result = await pollForeignMailbox({
+    repoRoot,
+    pat,
+    selfMarkers,
+    fetch,
+    sinceByTaskId: loadDigestSinceByTaskId(repoRoot),
+  });
+  writeDigestSinceByTaskId(
+    repoRoot,
+    result.latestCreatedAtByTaskId,
+    result.watchedTaskIds,
+  );
+  const { comments, pollErrors } = result;
   const lastByTask = new Map<string, PollComment>();
   for (const comment of comments) {
     lastByTask.set(comment.taskId ?? "?", comment);

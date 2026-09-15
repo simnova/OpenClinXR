@@ -96,7 +96,7 @@ export type MonitorState = {
   lastReadyTaskIds: string[];
   cacheToken: string | null;
   consecutiveFailures: number;
-  mailboxPollOffset: number;
+  mailboxPollAfterTaskId: string | null;
   lastCycleAt: string | null;
   lastSuccessfulAt: string | null;
   lastFailureAt: string | null;
@@ -128,7 +128,7 @@ export function emptyMonitorState(): MonitorState {
     lastReadyTaskIds: [],
     cacheToken: null,
     consecutiveFailures: 0,
-    mailboxPollOffset: 0,
+    mailboxPollAfterTaskId: null,
     lastCycleAt: null,
     lastSuccessfulAt: null,
     lastFailureAt: null,
@@ -164,8 +164,8 @@ export function loadMonitorState(stateFile: string): MonitorState {
       cacheToken: typeof parsed.cacheToken === "string" ? parsed.cacheToken : null,
       consecutiveFailures:
         typeof parsed.consecutiveFailures === "number" ? parsed.consecutiveFailures : 0,
-      mailboxPollOffset:
-        typeof parsed.mailboxPollOffset === "number" ? parsed.mailboxPollOffset : 0,
+      mailboxPollAfterTaskId:
+        typeof parsed.mailboxPollAfterTaskId === "string" ? parsed.mailboxPollAfterTaskId : null,
       lastCycleAt: typeof parsed.lastCycleAt === "string" ? parsed.lastCycleAt : null,
       lastSuccessfulAt:
         typeof parsed.lastSuccessfulAt === "string" ? parsed.lastSuccessfulAt : null,
@@ -452,7 +452,7 @@ export async function runMonitorCycle(config: MonitorConfig): Promise<MonitorCyc
     selfMarkers: [config.selfMarker],
     fetch: config.fetch,
     sinceByTaskId: state.mailboxSinceByTaskId,
-    pollOffset: state.mailboxPollOffset,
+    pollAfterTaskId: state.mailboxPollAfterTaskId,
     // The product-owner mailbox is intentionally long-lived and can exceed
     // mailbox-watch's interactive 2.5 s default. One tail-latency timeout must
     // not drive an otherwise healthy out-of-process monitor into STOP/restart.
@@ -460,7 +460,7 @@ export async function runMonitorCycle(config: MonitorConfig): Promise<MonitorCyc
   });
   if (mailbox.pollErrors.length > 0) cycleFailed = true;
   if (mailbox.permanentPollErrors.length > 0) permanentFailure = true;
-  state.mailboxPollOffset = mailbox.nextPollOffset;
+  state.mailboxPollAfterTaskId = mailbox.nextPollAfterTaskId;
   state.watchedMailboxCount = mailbox.watchedTaskCount;
   state.polledMailboxCount = mailbox.polledTaskCount;
   const watchedMailboxSet = new Set(mailbox.watchedTaskIds);
