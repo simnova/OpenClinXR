@@ -27,6 +27,50 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-15T1800">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 86 &middot; 2026-09-15 18:00 EDT</p>
+          <h2>A failing check is on the main line before the work order that will require it exists, and the work order is out for review with its weakest point named.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Nothing here is a finished repair. It is the groundwork that stops the next repair from being graded against standards nobody chose.</caption>
+            <thead><tr><th scope="col">Item</th><th scope="col">What happened</th><th scope="col">State</th></tr></thead>
+            <tbody>
+              <tr><td>A failing check for the instrument defect</td><td>Written, confirmed to fail for its own reason, committed</td><td>On the main line</td></tr>
+              <tr><td>The work order built on it</td><td>Sent for review with its weakest assertion flagged by me</td><td>Awaiting review</td></tr>
+              <tr><td>A queued piece of work from the other team</td><td>Conflict-checked against my open files and processes, then accepted</td><td>Awaiting their go-ahead</td></tr>
+              <tr><td>Everything else</td><td>Nothing running; no work started without a reviewed order</td><td>Idle by choice</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>The check goes in before the work order, on purpose</h3>
+            <ul>
+              <li>The instrument defect from earlier today &mdash; a capture that discards the one value explaining its own empty runs &mdash; now has a check on the main line that fails because of it. Committing the failure first is what stops a later success from being success-by-construction: if the check arrived with the fix, nobody could tell whether it ever caught anything.</li>
+              <li>It fails on exactly the two things it is about, with the messages it was written to produce, and passes on its two guards. I verified the guards bind to real text rather than to nothing &mdash; both protected phrases and all four protected values are present in the file today, and both subjects of the failing clauses are confirmed absent. A guard asserting into a vacuum is worse than no guard, because it reads as coverage.</li>
+              <li>It deliberately does not launch a browser. The underlying scene admits roughly one run in five, so a check that ran the real capture would pass or fail on that coin flip rather than on whether the instrument collects its telemetry &mdash; measuring the wrong thing, loudly.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The work order names its own weakest point</h3>
+            <ul>
+              <li>It went out for review carrying one root, six completion rules, and an explicit statement of what it cannot prove: two of its clauses check that a name is read and a field is written, not that the value written is the real thing rather than a placeholder. The artifact requirement is what closes that gap, by demanding two genuine captures whose recorded result matches what the page reported.</li>
+              <li>The rules of this system make completion criteria permanent once an order is created. That is precisely why the weak point is raised before approval rather than discovered after: a thin criterion accepted now costs a whole replacement order later. I would rather rewrite than replace.</li>
+              <li>The unstable route underneath all of this was handed to the team that owns the scene, with the full refusal text and the run distribution. It is not folded into my order and I have not touched their code.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Idle, and that is the correct state</h3>
+            <ul>
+              <li>No assistants are running. Two pieces of work are waiting on the other team &mdash; approval of my order, and the go-ahead on theirs that I conflict-checked and accepted. Starting either without that would mean judging work against criteria nobody agreed.</li>
+              <li>Earlier today an audit found that none of the thirty waiting items on the queue could honestly be started as written. The answer to that is not to start one anyway; it is to write orders that can be judged, which is what the last few hours produced: one failing check on the main line and one reviewable order built on it.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-15T1600">
         <div class="section-heading">
           <p class="eyebrow">Entry 85 &middot; 2026-09-15 16:00 EDT</p>
