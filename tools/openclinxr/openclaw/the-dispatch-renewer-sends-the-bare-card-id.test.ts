@@ -29,12 +29,14 @@ import { boardTaskIdForSlice } from "./dispatch-worker.js";
 const originalFetch = globalThis.fetch;
 
 beforeEach(() => {
+  vi.stubEnv("BOTHY_BOARD_PAT", "bb_pat_test");
   vi.stubGlobal("fetch", vi.fn());
   vi.spyOn(console, "warn").mockImplementation(() => {});
 });
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
+  vi.unstubAllEnvs();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
