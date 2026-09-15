@@ -1,0 +1,34 @@
+{
+  "projectId": "prj_9b390b99b443a964",
+  "title": "Restore the viseme-aa mouth aperture on the current inspection GLB and bind its byte provenance",
+  "kind": "bug",
+  "priority": 1,
+  "objective": "Read the reviewed handoff at tools/openclinxr/evidence/delegation/viseme-aa-restoration-2026-09-15/handoff.json before editing. At baseline d806cab5, the tracked mpfb-viseme-inspect.glb has a real geometry regression: viseme_aa opens 0.0010300874710083008 m against the unchanged teeth-derived 0.020725011825561523 m threshold, while open-mouth-interior.json still claims the former 0.023833762854337692 m aperture. Restore the existing jaw-open augmentation on the current face-preserving, tight-jeans inspection asset by updating only the bake station's stale topology guards, running that station on the tracked GLB, regenerating the measured JSON with the unchanged instrument, updating the two tests' stale topology/post-bake pins, and recording the new output SHA-256 and byte count in the declaration-only sidecar. Add assetPath to that sidecar and add a named non-vacuity clause to the existing shipped-humanoid provenance suite proving mpfb-viseme-inspect.provenance.json enters provenanceRows() and matches its GLB. Preserve an honest RED from the unchanged live-aa suite before product edits; do not convert it to it.fails. The disposable prototype at cdb4032d augmented 114 existing lower-lip sparse entries, solved 0.23164898561492572 rad, produced a 0.02383376359939593 m gap, SHA-256 053e161d441a2b140ef02e926297aeabb5ecebc3dfb5a4c10edda036930c2691, and 13,933,000 bytes. Derive those results by running the station and probe; do not type binary output or copy the prototype if rebase measurements differ. This card restores a Q5 inspection fixture only. It makes no learner-facing cast or reusable-factory claim.",
+  "doneWhen": [
+    "run:pnpm exec vitest run --root . tools/openclinxr/evidence/the-aa-viseme-parts-the-lips-far-enough-to-show-teeth.test.ts tools/openclinxr/evidence/the-open-mouth-reveals-its-interior.test.ts apps/ui-xr/src/the-shipped-humanoids-hash-to-their-provenance.test.ts",
+    "changed:apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
+    "changed:apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.provenance.json",
+    "changed:apps/ui-xr/src/the-shipped-humanoids-hash-to-their-provenance.test.ts",
+    "changed:tools/openclinxr/evidence/bake-aa-jaw-open-into-viseme-inspect.py",
+    "changed:tools/openclinxr/evidence/open-mouth-interior.json",
+    "changed:tools/openclinxr/evidence/the-aa-viseme-parts-the-lips-far-enough-to-show-teeth.test.ts",
+    "changed:tools/openclinxr/evidence/the-open-mouth-reveals-its-interior.test.ts"
+  ],
+  "writeRoots": [
+    "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
+    "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.provenance.json",
+    "apps/ui-xr/src/the-shipped-humanoids-hash-to-their-provenance.test.ts",
+    "tools/openclinxr/evidence/bake-aa-jaw-open-into-viseme-inspect.py",
+    "tools/openclinxr/evidence/open-mouth-interior.json",
+    "tools/openclinxr/evidence/the-aa-viseme-parts-the-lips-far-enough-to-show-teeth.test.ts",
+    "tools/openclinxr/evidence/the-open-mouth-reveals-its-interior.test.ts"
+  ],
+  "depIds": [],
+  "fields": {
+    "factory_step": "lip_sync",
+    "lane": "A"
+  },
+  "knownGood": "Reviewed handoff: tools/openclinxr/evidence/delegation/viseme-aa-restoration-2026-09-15/handoff.json at d806cab5. Grok 4.6 conversation f2af1d48-e1ea-49b9-b6b2-de66346e05c9 completed seven adaptive rounds and two consecutive clean passes. briefFromIssue returned dispatchable:true with exactly the run proof and seven changed proofs stored here. Current GLB body primitive mpfb_ob_patient_aisha_body has 4,331 vertices; the dominant oris/levator selector finds 189 lip vertices and 78 anterior vertices. All 189 selected lip vertices already occur in the existing 740-entry sparse viseme_aa accessor, so the station mutates values in place and does not add topology. Teeth height and threshold are unchanged. The Python station already owns the TRS-composed jaw pivot, binary search to 1.15 times the teeth threshold, sparse accessor rewrite, and 5 mm double-bake refusal. open-mouth-interior-measure.ts is the read-only generator for the measured JSON. The existing provenance suite skips this declaration-only sidecar today because it has outputSha256 but no assetPath; the new named clause must make that impossible. The two mouth suites plus the original provenance suite passed 11 clauses in the disposable prototype; the worker adds and passes the twelfth named-sidecar clause.",
+  "outOfScope": "Do not edit tools/openclinxr/evidence/open-mouth-interior-measure.ts, any materializer, decimator, clothing pipeline, runtime viseme driver, cast asset, still image, historical post-optimization report, historical byte-drift report, docs/progress.html, or tools/openclinxr/openclaw/**. Do not add a bake-lineage or station claim to the declaration-only sidecar; preserve schemaVersion, declarationOnly, declarationNote, and runtimeRole=inspection_fixture. Do not weaken the teeth-derived threshold, closed viseme_sil control, teeth/tongue presence, opaque-teeth check, 15-viseme floor, sparse count, teeth-height guard, idempotency refusal, or topology floors. Do not make a test pass by trusting the stale JSON instead of reading the GLB, by deleting the provenance non-vacuity clause, by adding this asset to a mismatch freeze, or by typing GLB bytes. Do not claim pixel visibility, audio-driven runtime lip sync, linguistic adequacy, learner-facing cast improvement, Quest readiness, or clinical validity. No paid service, new dependency, copyleft code, ceiling change, gate weakening, --no-verify, tasks.next, or landing by the worker. If the baseline inputs differ after rebase, stop and report rather than fabricating any changed proof.",
+  "notTested": "Whether the restored morph is visibly attractive in rendered pixels; stills are deliberately excluded. Whether applying the runtime jaw channel on top of this baked inspection morph double-opens the mouth; the fixture is not loaded by ui-xr and that interaction needs a separate visible-runtime card. Whether a learner-facing cast actor has an adequate aa aperture. Whether the reusable materializer/factory orders the jaw-open station after decimation and clothing; it currently does not, and a separate sequencing card is required. Broader humanoid suites currently contain unrelated cast-hash and teeth-placement failures and are not repair scope for this card. Historical revision-bound evidence remains historical and is not re-certified for the new HEAD. The worker should report any newly discovered coupled artifact rather than widening the roots."
+}
