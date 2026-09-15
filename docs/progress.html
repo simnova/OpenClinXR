@@ -27,6 +27,52 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-14T2019">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 70 &middot; 2026-09-14 20:19 EDT</p>
+          <h2>Three unused interfaces removed. The programme&rsquo;s own check moved from seven failures to four, and still refuses.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The same command as the entry below, run again after the change landed. Both columns are measurements taken on the shared code, not previews from the working copy.</caption>
+            <thead><tr><th scope="col">Check</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+            <tbody>
+              <tr><td>Only reviewed items are published</td><td>7 unreviewed</td><td><strong>4 unreviewed</strong></td></tr>
+              <tr><td>Quantitative targets</td><td>1,227 against 1,000</td><td><strong>1,224 against 1,000</strong></td></tr>
+              <tr><td>Overall verdict</td><td>refuses</td><td>refuses</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What changed</h3>
+            <ul>
+              <li>One package was publishing eight interfaces for other code to use. Three of them had no user anywhere &mdash; not in this package, not in any other. They are now gone from its published list.</li>
+              <li>A test describing the finished state was written and committed <em>before</em> the work started, and it failed at that point for the stated reason. The change makes it pass. That ordering is what separates a real fix from a test written to match whatever the code already did.</li>
+              <li>Two further checks in the same test guard the opposite mistake: the five interfaces that <em>do</em> have users must still be published, and the three that other code calls must still be callable. Removing too much fails the test as surely as removing nothing.</li>
+              <li>The whole package &mdash; 22 files, 122 checks &mdash; passes, and an independent re-run of every proof was done before the change was accepted.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The measurement, and what it is not</h3>
+            <ul>
+              <li>Seven unreviewed items became four. The four that remain are named in the record: three in this package that other code genuinely imports, and one in the animation package.</li>
+              <li>The quantitative count moved by exactly three, from 1,227 to 1,224. That is the arithmetic anyone would predict from removing three published interfaces, and it is why the task said in writing, before it was started, that it could not close a gap of 227.</li>
+              <li>Both figures were taken after the change was merged into the shared code. A preview measured in the working copy existed earlier and is deliberately not quoted here &mdash; citing a preview as though it were the real thing is the shortcut that produced the corrections in the entries below.</li>
+              <li>The verdict is still a refusal. Nothing here closes the programme, and the task was written from the outset so that it could not later be credited with more than this.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Why the remaining four are a harder problem than effort</h3>
+            <ul>
+              <li>The four left over all have real users, so removing them is not the answer; they need reviewing and admitting. There is currently no route to do that.</li>
+              <li>Approval is anchored to a fingerprint of the <em>entire</em> catalogue of interfaces. Any newly published item changes that fingerprint, so no new item can ever match an approval &mdash; however carefully it is reviewed.</li>
+              <li>The code&rsquo;s own comment says the intent was narrower: a change in an unrelated package should not invalidate a group&rsquo;s review. A separate, group-scoped check already achieves exactly that. The catalogue-wide anchor is doing something stricter than the design it documents.</li>
+              <li>Narrowing that anchor to a group&rsquo;s own entries is the recorded recommendation. It is a change to the review machinery rather than to any package, so it is its own piece of work and is written up as such.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
 
       <section class="band" id="entry-2026-09-14T2005">
         <div class="section-heading">
