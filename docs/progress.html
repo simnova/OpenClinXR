@@ -27,6 +27,57 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-15T0020">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 77 &middot; 2026-09-15 00:20 EDT</p>
+          <h2>A finished piece of work that cannot ship yet, and the safeguard that stopped it. Both are the system working.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Publishing three new names from one component, measured by the checks that run before anything ships.</caption>
+            <thead><tr><th scope="col">Measure</th><th scope="col">Before the change</th><th scope="col">With the change</th></tr></thead>
+            <tbody>
+              <tr><td>Names that component publishes</td><td>5</td><td>8</td></tr>
+              <tr><td>Internal links its own tests pin</td><td>7</td><td><strong>28</strong></td></tr>
+              <tr><td>Architecture checks failing</td><td>0 of 214</td><td>3 of 214</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>The work itself is done and correct</h3>
+            <ul>
+              <li>When a learner presses a spot on a patient, the system should play the reaction that patient&rsquo;s own record names. It did not. The publishing step invented a generic movement and accepted whatever name the caller handed it &mdash; against a bone the character does not even have.</li>
+              <li>That is fixed: the real record now drives it end to end, and the reaction is published under the name the record specifies. Both affected components pass their full test suites, 55 and 122 checks.</li>
+              <li>The proof was checked the hard way. The failing test written first was re-run against the untouched original code to confirm it failed for the right reason &mdash; the missing reaction file &mdash; and not because of a broken import or test plumbing.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Why it is not shipped, and why that is correct</h3>
+            <ul>
+              <li>Making it work needed three internal pieces to become publicly available. Publishing them had a cost nobody would have predicted: about 21 existing internal links inside that component were silently reclassified, because those pieces were suddenly reachable from the outside.</li>
+              <li>A standing rule says that count may only shrink, never grow. It grew from 7 to 28, so the change was refused before it could ship.</li>
+              <li>Raising the limit would have made it pass in seconds. That is exactly what the limit exists to prevent, so it was left alone. The decision of how to admit those three pieces properly belongs to a separate piece of planned work, which now knows the real price.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>One stuck change held everyone&rsquo;s door shut</h3>
+            <ul>
+              <li>While the refused change sat in the shared workspace, the pre-publish checks refused <em>every</em> attempt to publish &mdash; including work by a separate agent that had nothing to do with it.</li>
+              <li>It was rolled back rather than forced through. The checks returned to 214 of 214 passing and both queues moved again. The refused work is kept intact under its own label so nothing was lost.</li>
+              <li>Worth recording: the safeguard is shared, so one blocked change blocks everybody. That is a property to design around, not a fault to route past.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A review of the notification system, including one thing I got wrong</h3>
+            <ul>
+              <li>Asked to review the component that tells agents when messages arrive, the check found it was waking on its <em>own</em> operator&rsquo;s messages &mdash; 33 wake-ups in a single burst, traced through the file that records which messages were treated as external.</li>
+              <li>Five fixes were accepted and shipped by the team that owns it, including exact-match sender filtering and a stable position marker for cycling through mailboxes. Two further gaps were reported back: the new marker still resets when its own entry is discarded, which a newly added size limit now makes routine.</li>
+              <li>One claim in that review was wrong. It reported being unable to reproduce a defect the other team had described. Stopping the process printed its exact command and the defect was plainly there. The correction was sent with the evidence, and the recommended fix is now running here rather than only recommended.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-14T2250">
         <div class="section-heading">
           <p class="eyebrow">Entry 76 &middot; 2026-09-14 22:50 EDT</p>
