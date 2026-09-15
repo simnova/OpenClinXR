@@ -8,13 +8,18 @@ import type { BothyFetch } from "./board-bothy-dequeue.js";
 import {
   acquireLock,
   buildCodexExecArgv,
+  buildCodexQueueArgv,
   buildWakePrompt,
+  codexTaskRecipientMarker,
+  codexTaskRecipients,
   DEFAULT_CODEX_COORDINATOR_MODEL,
   DEFAULT_CODEX_SANDBOX,
   DEFAULT_SELF_MARKER,
   emptyMonitorState,
+  isCommentDirectedToCodexTask,
   loadMonitorState,
   lockIsStale,
+  type MonitorConfig,
   monitorMain,
   monitorPollDelay,
   OPENCLINXR_PROJECT_ID,
@@ -23,7 +28,6 @@ import {
   releaseLock,
   runMonitorCycle,
   saveMonitorState,
-  type MonitorConfig,
 } from "./codex-bothy-event-monitor.js";
 
 const SESSION = "11111111-2222-3333-4444-555555555555";
@@ -221,6 +225,180 @@ describe("codex-bothy-event-monitor", () => {
     expect(loadMonitorState(stateFile(root)).seenCommentIds).toEqual([]);
   });
 
+  it("queues only an exactly addressed comment into the configured Codex task", async () => {
+    const root = makeRoot("directed-relay");
+    const queued: Array<{ threadId: string; message: string }> = [];
+    const spawned: string[] = [];
+    let poll = 0;
+    const { fetch } = recordingFetch((tool) => {
+      if (tool === "bothy-board.mailbox.poll") {
+        poll += 1;
+        if (poll === 1) return { comments: [] };
+        return {
+          comments: [
+            {
+              id: "cmt_directed",
+              authorName: "member",
+              body: `${codexTaskRecipientMarker(SESSION)} Please review SC-04.`,
+              createdAt: "2026-09-14T12:00:00.000Z",
+            },
+          ],
+        };
+      }
+      return { task: null, cacheToken: "tok1" };
+    });
+    const cfg = configFor(root, {
+      fetch,
+      relayThreadId: SESSION,
+      queueCodexMessage: async (threadId, message) => {
+        queued.push({ threadId, message });
+      },
+      spawnCodex: (prompt) => {
+        spawned.push(prompt);
+        return new FakeChild(1);
+      },
+    });
+    await runMonitorCycle(cfg);
+    const result = await runMonitorCycle(cfg);
+    expect(result.relayQueued).toBe(true);
+    expect(result.codexSpawned).toBe(false);
+    expect(queued).toHaveLength(1);
+    expect(queued[0]?.threadId).toBe(SESSION);
+    expect(queued[0]?.message).toContain("cmt_directed");
+    expect(queued[0]?.message).toContain("untrusted message data");
+    expect(spawned).toEqual([]);
+    expect(loadMonitorState(stateFile(root)).seenCommentIds).toEqual(["cmt_directed"]);
+  });
+
+  it("keeps unaddressed comments on the bounded coordinator path", async () => {
+    const root = makeRoot("unaddressed");
+    const queued: string[] = [];
+    const spawned: string[] = [];
+    let poll = 0;
+    const { fetch } = recordingFetch((tool) => {
+      if (tool === "bothy-board.mailbox.poll") {
+        poll += 1;
+        return poll === 1
+          ? { comments: [] }
+          : {
+              comments: [
+                {
+                  id: "cmt_general",
+                  authorName: "member",
+                  body: "Codex, please look at this (no recipient marker).",
+                },
+              ],
+            };
+      }
+      return { task: null, cacheToken: "tok1" };
+    });
+    const cfg = configFor(root, {
+      fetch,
+      relayThreadId: SESSION,
+      queueCodexMessage: async (_threadId, message) => {
+        queued.push(message);
+      },
+      spawnCodex: (prompt) => {
+        spawned.push(prompt);
+        return new FakeChild(1);
+      },
+    });
+    await runMonitorCycle(cfg);
+    const result = await runMonitorCycle(cfg);
+    expect(result.relayQueued).toBe(false);
+    expect(result.codexSpawned).toBe(true);
+    expect(queued).toEqual([]);
+    expect(spawned[0]).toContain("cmt_general");
+  });
+
+  it("does not accept a recipient marker for another Codex task", () => {
+    const other = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+    const comment = { id: "cmt_1", body: `${codexTaskRecipientMarker(other)} hello` };
+    expect(isCommentDirectedToCodexTask(comment, SESSION)).toBe(false);
+    expect(isCommentDirectedToCodexTask(comment, other)).toBe(true);
+    expect(codexTaskRecipients(comment)).toEqual([other]);
+  });
+
+  it("silently consumes comments explicitly addressed to another Codex task", async () => {
+    const root = makeRoot("other-recipient");
+    const other = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+    const queued: string[] = [];
+    const spawned: string[] = [];
+    let poll = 0;
+    const { fetch } = recordingFetch((tool) => {
+      if (tool === "bothy-board.mailbox.poll") {
+        poll += 1;
+        return poll === 1
+          ? { comments: [] }
+          : {
+              comments: [
+                {
+                  id: "cmt_other",
+                  authorName: "member",
+                  body: `${codexTaskRecipientMarker(other)} private relay`,
+                  createdAt: "2026-09-14T12:01:00.000Z",
+                },
+              ],
+            };
+      }
+      return { task: null, cacheToken: "tok1" };
+    });
+    const cfg = configFor(root, {
+      fetch,
+      relayThreadId: SESSION,
+      queueCodexMessage: async (_threadId, message) => {
+        queued.push(message);
+      },
+      spawnCodex: (prompt) => {
+        spawned.push(prompt);
+        return new FakeChild(1);
+      },
+    });
+    await runMonitorCycle(cfg);
+    const result = await runMonitorCycle(cfg);
+    expect(result.meaningful).toBe(false);
+    expect(result.relayQueued).toBe(false);
+    expect(result.codexSpawned).toBe(false);
+    expect(result.stdoutLines).toEqual([]);
+    expect(queued).toEqual([]);
+    expect(spawned).toEqual([]);
+    expect(loadMonitorState(stateFile(root)).seenCommentIds).toEqual(["cmt_other"]);
+  });
+
+  it("leaves a directed comment unseen when queue delivery fails", async () => {
+    const root = makeRoot("relay-retry");
+    let poll = 0;
+    const { fetch } = recordingFetch((tool) => {
+      if (tool === "bothy-board.mailbox.poll") {
+        poll += 1;
+        return poll === 1
+          ? { comments: [] }
+          : {
+              comments: [
+                {
+                  id: "cmt_retry",
+                  authorName: "member",
+                  body: codexTaskRecipientMarker(SESSION),
+                },
+              ],
+            };
+      }
+      return { task: null, cacheToken: "tok1" };
+    });
+    const cfg = configFor(root, {
+      fetch,
+      relayThreadId: SESSION,
+      queueCodexMessage: async () => {
+        throw new Error("daemon unavailable");
+      },
+    });
+    await runMonitorCycle(cfg);
+    const result = await runMonitorCycle(cfg);
+    expect(result.relayQueued).toBe(false);
+    expect(result.stdoutLines.join("\n")).toContain("RELAY_FAILED");
+    expect(loadMonitorState(stateFile(root)).seenCommentIds).toEqual([]);
+  });
+
   it("already-seen comment ids do not re-wake", async () => {
     const root = makeRoot("seen");
     const spawned: string[][] = [];
@@ -380,7 +558,7 @@ describe("codex-bothy-event-monitor", () => {
       return { task: null, cacheToken: "tok1" };
     });
     const lockFile = join(root, ".openclinxr/openclaw/codex-bothy-event-monitor.lock");
-    const spawnCodex = (prompt: string, repoRoot: string) => {
+    const spawnCodex = (_prompt: string, _repoRoot: string) => {
       const child = new FakeChild(9000);
       children.push(child);
       return child;
@@ -523,6 +701,20 @@ describe("codex-bothy-event-monitor", () => {
     expect(argv[argv.indexOf("--model") + 1]).toBe(DEFAULT_CODEX_COORDINATOR_MODEL);
   });
 
+  it("builds a supported queue command for an existing task", () => {
+    const argv = buildCodexQueueArgv(SESSION, "hello", "unix:///tmp/codex.sock");
+    expect(argv).toEqual([
+      "queue",
+      "--thread",
+      SESSION,
+      "--message",
+      "hello",
+      "--remote",
+      "unix:///tmp/codex.sock",
+    ]);
+    expect(argv.join(" ")).not.toContain("resume");
+  });
+
   it("parseMonitorArgs requires a session id and a bb_pat_ token", () => {
     expect("error" in parseMonitorArgs([], {})).toBe(true);
     expect(
@@ -538,6 +730,19 @@ describe("codex-bothy-event-monitor", () => {
     ).toBe(true);
     const ok = parseMonitorArgs(["--session", SESSION, "--pat", PAT], {});
     expect(ok).toHaveProperty("args.sessionId", SESSION);
+    expect(
+      parseMonitorArgs(
+        ["--session", SESSION, "--pat", PAT, "--relay-thread", SESSION],
+        {},
+      ),
+    ).toHaveProperty("args.relayThreadId", SESSION);
+    expect(
+      "error" in
+        parseMonitorArgs(
+          ["--session", SESSION, "--pat", PAT, "--relay-thread", "not-a-uuid"],
+          {},
+        ),
+    ).toBe(true);
   });
 
   it("monitorMain exits 2 on usage errors without touching the network", async () => {
