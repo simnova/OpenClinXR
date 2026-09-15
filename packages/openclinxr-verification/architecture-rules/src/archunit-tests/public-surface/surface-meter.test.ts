@@ -425,6 +425,54 @@ describe("compiler-resolved surface meter", () => {
     );
   });
 
+  // (H4f) RED — A MIGRATE ROW MUST NOT INTRODUCE A SYMBOL THE INVENTORY NEVER LISTED.
+  //
+  // MEASURED 2026-09-14 on main at ea0e50c3 by reading gates.ts:337-349. For a migrate row the
+  // delete of the old symbol is `?.`-guarded, so it is a NO-OP when that symbol was never in the
+  // raw inventory, while `put(row.package, row.route ?? "", row.symbol, ...)` creates the entry map
+  // and sets the symbol UNCONDITIONALLY. groupHash is computed from raw.rows (gates.ts:403), not
+  // from approval rows, so such a row moves neither groupHash nor rawInventoryHash. And criterion 4
+  // only requires every INVENTORY row to be classified (acceptance-criteria.ts:177), so an extra
+  // approval row is invisible to it.
+  //
+  // The consequence is a working forgery route through the control that exists to refuse forgery:
+  // appending a migrate row to a closed group's manifest makes an unapproved published symbol
+  // disappear from criterion 5's `extra:` list while every hash check still passes. H4c covers a
+  // LEGITIMATE migrate whose symbol is in the inventory, which is why this sat unnoticed beside it.
+  //
+  // Marked it.fails so the suite is green while the defect stands. THE FIX MUST CONVERT IT TO `it(`.
+  // MEASURED as a plain `it(` on 2026-09-14 before being marked: 1 failed, the failure reading
+  // "expected true to be false" on requireApplied(root, "psr-h4f").ok — the forgery passing, not an
+  // exception inside the fixture. The suite went 213 tests to 214, so this adds exactly one clause.
+  it.fails("(H4f) a migrate row cannot introduce a symbol absent from the raw inventory", () => {
+    withTree(
+      {
+        "packages/openclinxr/fixture-h4f/package.json": manifest("@openclinxr/fixture-h4f", {}),
+        "packages/openclinxr/fixture-h4f/src/index.ts": "export const known = 1;\n",
+      },
+      (root) => {
+        // Inventory and group are both written against the ORIGINAL tree, so every hash matches.
+        writeRawInventory(root);
+        writeGroup(root, "psr-h4f", [
+          { package: "packages/openclinxr/fixture-h4f", entrypoint: ".", symbol: "known", kind: "runtime", disposition: "keep" },
+          // `ghost` is in NO inventory row. The delete is a no-op; the put is not.
+          { package: "packages/openclinxr/fixture-h4f", entrypoint: ".", symbol: "ghost", kind: "runtime", disposition: "migrate", route: "." },
+        ]);
+        // The package now publishes an unapproved symbol, exactly as motion-compiler does on main.
+        writeFileSync(
+          join(root, "packages/openclinxr/fixture-h4f/src/index.ts"),
+          "export const known = 1;\nexport const ghost = 1;\n",
+        );
+        expect(
+          requireApplied(root, "psr-h4f").ok,
+          "a migrate row for a symbol absent from the raw inventory put it onto the expected "
+            + "surface, so an unapproved published symbol passed --require-applied: that is the "
+            + "forgery gates.ts:14-22 exists to refuse, reachable by editing an approval manifest",
+        ).toBe(false);
+      },
+    );
+  });
+
   it("(H4d) a package publishing a symbol with no row fails", () => {
     withTree(
       {
