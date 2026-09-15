@@ -147,6 +147,45 @@ describe("codex-bothy-event-monitor", () => {
     expect(state.consecutiveFailures).toBe(1);
   });
 
+  it("baselines newly rotated mailboxes without replaying their history as fresh work", async () => {
+    const root = makeRoot("rotating-bootstrap");
+    const historyIds = Array.from({ length: 17 }, (_, index) => `tsk_history_${index}`);
+    writeFileSync(
+      join(root, ".openclinxr/openclaw/mailbox-looked-at.json"),
+      JSON.stringify({ taskIds: historyIds }),
+    );
+    const spawned: string[] = [];
+    const { fetch } = recordingFetch((tool, args) => {
+      if (tool === "bothy-board.mailbox.poll") {
+        const taskId = String(args.taskId);
+        return {
+          comments: [
+            {
+              id: `cmt_${taskId}`,
+              authorName: "member",
+              body: "historical",
+              createdAt: "2026-09-14T20:00:00.000Z",
+            },
+          ],
+        };
+      }
+      return { tasks: [], readyIds: [], cacheToken: "tok-rotation" };
+    });
+    const spawnCodex = (prompt: string) => {
+      spawned.push(prompt);
+      return new FakeChild(1);
+    };
+    const first = await runMonitorCycle(configFor(root, { fetch, spawnCodex }));
+    const second = await runMonitorCycle(configFor(root, { fetch, spawnCodex }));
+    expect(first.codexSpawned).toBe(false);
+    expect(second.codexSpawned).toBe(false);
+    expect(spawned).toEqual([]);
+    const state = loadMonitorState(stateFile(root));
+    expect(state.baselinedMailboxTaskIds).toHaveLength(18);
+    expect(state.watchedMailboxCount).toBe(18);
+    expect(state.polledMailboxCount).toBe(16);
+  });
+
   it("wakes on a later run only for a new foreign comment", async () => {
     const root = makeRoot("delta");
     const spawned: string[][] = [];

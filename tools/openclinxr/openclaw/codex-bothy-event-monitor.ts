@@ -96,6 +96,14 @@ export type MonitorState = {
   lastReadyTaskIds: string[];
   cacheToken: string | null;
   consecutiveFailures: number;
+  mailboxPollOffset: number;
+  lastCycleAt: string | null;
+  lastSuccessfulAt: string | null;
+  lastFailureAt: string | null;
+  lastFailureReason: string | null;
+  watchedMailboxCount: number;
+  polledMailboxCount: number;
+  baselinedMailboxTaskIds: string[];
 };
 
 export type MonitorCycleResult = {
@@ -120,6 +128,14 @@ export function emptyMonitorState(): MonitorState {
     lastReadyTaskIds: [],
     cacheToken: null,
     consecutiveFailures: 0,
+    mailboxPollOffset: 0,
+    lastCycleAt: null,
+    lastSuccessfulAt: null,
+    lastFailureAt: null,
+    lastFailureReason: null,
+    watchedMailboxCount: 0,
+    polledMailboxCount: 0,
+    baselinedMailboxTaskIds: [],
   };
 }
 
@@ -148,6 +164,23 @@ export function loadMonitorState(stateFile: string): MonitorState {
       cacheToken: typeof parsed.cacheToken === "string" ? parsed.cacheToken : null,
       consecutiveFailures:
         typeof parsed.consecutiveFailures === "number" ? parsed.consecutiveFailures : 0,
+      mailboxPollOffset:
+        typeof parsed.mailboxPollOffset === "number" ? parsed.mailboxPollOffset : 0,
+      lastCycleAt: typeof parsed.lastCycleAt === "string" ? parsed.lastCycleAt : null,
+      lastSuccessfulAt:
+        typeof parsed.lastSuccessfulAt === "string" ? parsed.lastSuccessfulAt : null,
+      lastFailureAt: typeof parsed.lastFailureAt === "string" ? parsed.lastFailureAt : null,
+      lastFailureReason:
+        typeof parsed.lastFailureReason === "string" ? parsed.lastFailureReason : null,
+      watchedMailboxCount:
+        typeof parsed.watchedMailboxCount === "number" ? parsed.watchedMailboxCount : 0,
+      polledMailboxCount:
+        typeof parsed.polledMailboxCount === "number" ? parsed.polledMailboxCount : 0,
+      baselinedMailboxTaskIds: Array.isArray(parsed.baselinedMailboxTaskIds)
+        ? parsed.baselinedMailboxTaskIds.filter((id): id is string => typeof id === "string")
+        : parsed.mailboxSinceByTaskId && typeof parsed.mailboxSinceByTaskId === "object"
+          ? Object.keys(parsed.mailboxSinceByTaskId)
+          : [],
     };
   } catch {
     return emptyMonitorState();
@@ -419,6 +452,7 @@ export async function runMonitorCycle(config: MonitorConfig): Promise<MonitorCyc
     selfMarkers: [config.selfMarker],
     fetch: config.fetch,
     sinceByTaskId: state.mailboxSinceByTaskId,
+    pollOffset: state.mailboxPollOffset,
     // The product-owner mailbox is intentionally long-lived and can exceed
     // mailbox-watch's interactive 2.5 s default. One tail-latency timeout must
     // not drive an otherwise healthy out-of-process monitor into STOP/restart.
@@ -426,11 +460,23 @@ export async function runMonitorCycle(config: MonitorConfig): Promise<MonitorCyc
   });
   if (mailbox.pollErrors.length > 0) cycleFailed = true;
   if (mailbox.permanentPollErrors.length > 0) permanentFailure = true;
+  state.mailboxPollOffset = mailbox.nextPollOffset;
+  state.watchedMailboxCount = mailbox.watchedTaskCount;
+  state.polledMailboxCount = mailbox.polledTaskCount;
+  const baselinedAtCycleStart = new Set(state.baselinedMailboxTaskIds);
+  const baselineOnlyCommentIds = mailbox.comments
+    .filter((comment) => !comment.taskId || !baselinedAtCycleStart.has(comment.taskId))
+    .map((comment) => comment.id)
+    .filter((id): id is string => typeof id === "string" && id.length > 0);
+  const baselineOnlySet = new Set(baselineOnlyCommentIds);
   const newCommentIds = mailbox.comments
     .map((comment) => comment.id)
     .filter(
       (id): id is string =>
-        typeof id === "string" && id.length > 0 && !state.seenCommentIds.includes(id),
+        typeof id === "string" &&
+        id.length > 0 &&
+        !baselineOnlySet.has(id) &&
+        !state.seenCommentIds.includes(id),
     );
   const newComments = mailbox.comments.filter(
     (comment): comment is PollComment & { id: string } =>
@@ -483,10 +529,11 @@ export async function runMonitorCycle(config: MonitorConfig): Promise<MonitorCyc
   // Messages explicitly addressed to another Codex task are terminally
   // ignored by this monitor. Recording them prevents a retry loop without
   // waking either this full-history task or the generic coordinator.
-  const handledCommentIds: string[] = [...otherDirectedCommentIds];
+  const handledCommentIds: string[] = [...baselineOnlyCommentIds, ...otherDirectedCommentIds];
   if (firstRun) {
     if (!cycleFailed) {
-      state.seenCommentIds = [...new Set(newCommentIds)];
+      state.seenCommentIds = [...new Set([...newCommentIds, ...baselineOnlyCommentIds])];
+      state.baselinedMailboxTaskIds = [...new Set(mailbox.successfulTaskIds)];
       state.mailboxSinceByTaskId = {
         ...state.mailboxSinceByTaskId,
         ...mailbox.latestCreatedAtByTaskId,
@@ -567,6 +614,14 @@ export async function runMonitorCycle(config: MonitorConfig): Promise<MonitorCyc
     }
   }
 
+  // A newly watched mailbox is baselined on its first successful read. This
+  // keeps round-robin expansion from replaying historical comments as fresh
+  // events while still allowing every later comment through its `since`
+  // cursor. Failed reads remain unbaselined and retry on the next rotation.
+  state.baselinedMailboxTaskIds = [
+    ...new Set([...state.baselinedMailboxTaskIds, ...mailbox.successfulTaskIds]),
+  ];
+
   // Mark events handled ONLY when the wake fired (or there was no delta). A
   // refused or failed wake leaves events unseen so the next cycle retries.
   const allNewCommentsHandled = newCommentIds.every((id) => handledCommentIds.includes(id));
@@ -596,6 +651,15 @@ export async function runMonitorCycle(config: MonitorConfig): Promise<MonitorCyc
     state.consecutiveFailures += 1;
   } else {
     state.consecutiveFailures = 0;
+  }
+  const cycleAt = new Date(now()).toISOString();
+  state.lastCycleAt = cycleAt;
+  if (cycleFailed) {
+    state.lastFailureAt = cycleAt;
+    state.lastFailureReason = mailbox.pollErrors[0] ?? (sync.ok ? "delivery_failed" : "sync_failed");
+  } else {
+    state.lastSuccessfulAt = cycleAt;
+    state.lastFailureReason = null;
   }
   const degraded = state.consecutiveFailures >= degradedThreshold;
   // Authentication/configuration failures require operator repair. Network,

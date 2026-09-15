@@ -10,15 +10,14 @@
  * Transient poll faults back off and never abort. Permanent faults print FAILED.
  */
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { hostname } from "node:os";
 import { dirname, join } from "node:path";
 
-import { hostname } from "node:os";
-
-import { bothyMcpCall, type BothyFetch } from "./board-bothy-dequeue.js";
+import { type BothyFetch, bothyMcpCall } from "./board-bothy-dequeue.js";
 import {
   loadMailboxWatchTaskIds,
-  pollForeignMailbox,
   type MailboxPollOptions,
+  pollForeignMailbox,
 } from "./mailbox-watch.js";
 
 export const GROK_MAILBOX_SELF_PREFIX = "[grok-orchestrator:";
@@ -71,10 +70,18 @@ export type GrokMonitorBoardState = {
   lastReadyTaskId: string | null;
   cacheToken: string | null;
   lastUpdatedAtByTaskId: Record<string, string>;
+  mailboxPollOffset: number;
+  baselinedMailboxTaskIds: string[];
 };
 
 export function emptyGrokMonitorBoardState(): GrokMonitorBoardState {
-  return { lastReadyTaskId: null, cacheToken: null, lastUpdatedAtByTaskId: {} };
+  return {
+    lastReadyTaskId: null,
+    cacheToken: null,
+    lastUpdatedAtByTaskId: {},
+    mailboxPollOffset: 0,
+    baselinedMailboxTaskIds: [],
+  };
 }
 
 export function loadGrokMonitorBoardState(repoRoot: string): GrokMonitorBoardState {
@@ -89,6 +96,11 @@ export function loadGrokMonitorBoardState(repoRoot: string): GrokMonitorBoardSta
         parsed.lastUpdatedAtByTaskId && typeof parsed.lastUpdatedAtByTaskId === "object"
           ? parsed.lastUpdatedAtByTaskId
           : {},
+      mailboxPollOffset:
+        typeof parsed.mailboxPollOffset === "number" ? parsed.mailboxPollOffset : 0,
+      baselinedMailboxTaskIds: Array.isArray(parsed.baselinedMailboxTaskIds)
+        ? parsed.baselinedMailboxTaskIds.filter((id): id is string => typeof id === "string")
+        : [],
     };
   } catch {
     return emptyGrokMonitorBoardState();
@@ -225,6 +237,8 @@ export async function pollBoardDeltas(opts: {
     lastReadyTaskId: nextId,
     cacheToken,
     lastUpdatedAtByTaskId: updatedAtByTaskId,
+    mailboxPollOffset: opts.previous.mailboxPollOffset,
+    baselinedMailboxTaskIds: opts.previous.baselinedMailboxTaskIds,
   };
   return {
     nextId,
@@ -245,24 +259,29 @@ export async function runMailboxMonitorPass(
     return { emit: "FAILED", abort: true, newIds: [] };
   }
   const pat = opts.pat ?? process.env.BOTHY_BOARD_PAT ?? "";
+  const previous = loadGrokMonitorBoardState(opts.repoRoot);
   const result = await pollForeignMailbox({
     ...opts,
     selfMarkers: opts.selfMarkers ?? grokMailboxSelfMarkers(),
     sinceByTaskId: opts.sinceByTaskId ?? loadSinceByTaskId(opts.repoRoot),
+    pollOffset: opts.pollOffset ?? previous.mailboxPollOffset,
     pollTimeoutMs: opts.pollTimeoutMs ?? 5_000,
   });
   const permanent = result.permanentPollErrors.length;
   const newIds: string[] = [];
+  const observedIds: string[] = [];
+  const baselinedAtPassStart = new Set(previous.baselinedMailboxTaskIds);
   for (const comment of result.comments) {
     const id = comment.id ?? "";
     if (!id || opts.seen.has(id)) continue;
     opts.seen.add(id);
+    observedIds.push(id);
+    if (opts.isSeed || !comment.taskId || !baselinedAtPassStart.has(comment.taskId)) continue;
     newIds.push(id);
   }
   writeSinceByTaskId(opts.repoRoot, result.latestCreatedAtByTaskId);
-  rememberCommentIds(opts.repoRoot, newIds);
+  rememberCommentIds(opts.repoRoot, observedIds);
 
-  const previous = loadGrokMonitorBoardState(opts.repoRoot);
   const board = await pollBoardDeltas({
     repoRoot: opts.repoRoot,
     pat,
@@ -270,9 +289,21 @@ export async function runMailboxMonitorPass(
     previous,
   });
   if (opts.isSeed) {
-    writeGrokMonitorBoardState(opts.repoRoot, board.nextState);
+    writeGrokMonitorBoardState(opts.repoRoot, {
+      ...board.nextState,
+      mailboxPollOffset: result.nextPollOffset,
+      baselinedMailboxTaskIds: [
+        ...new Set([...previous.baselinedMailboxTaskIds, ...result.successfulTaskIds]),
+      ],
+    });
   } else {
-    writeGrokMonitorBoardState(opts.repoRoot, board.nextState);
+    writeGrokMonitorBoardState(opts.repoRoot, {
+      ...board.nextState,
+      mailboxPollOffset: result.nextPollOffset,
+      baselinedMailboxTaskIds: [
+        ...new Set([...previous.baselinedMailboxTaskIds, ...result.successfulTaskIds]),
+      ],
+    });
   }
 
   const decision = decideMailboxMonitorTick({

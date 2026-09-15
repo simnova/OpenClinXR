@@ -1,10 +1,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { bothyMcpCall, type BothyFetch } from "./board-bothy-dequeue.js";
+import { type BothyFetch, bothyMcpCall } from "./board-bothy-dequeue.js";
 
 export const MAILBOX_WATCH_REL = "tools/openclinxr/openclaw/mailbox-watch.json";
 export const MAILBOX_LOOKED_AT_REL = ".openclinxr/openclaw/mailbox-looked-at.json";
+export const DEFAULT_MAX_MAILBOX_TASKS_PER_PASS = 16;
 
 /** Other Grok CEOs share authorName "grok-orchestrator". Never treat that name as self. */
 
@@ -84,6 +85,10 @@ export type ForeignMailboxResult = {
   permanentPollErrors: string[];
   latestCreatedAtByTaskId: Record<string, string>;
   polledTaskCount: number;
+  watchedTaskCount: number;
+  polledTaskIds: string[];
+  successfulTaskIds: string[];
+  nextPollOffset: number;
 };
 
 export type MailboxPollOptions = {
@@ -93,6 +98,7 @@ export type MailboxPollOptions = {
   fetch?: BothyFetch;
   pollTimeoutMs?: number;
   maxTasks?: number;
+  pollOffset?: number;
   sinceByTaskId?: Record<string, string>;
   extraTaskIds?: string[];
 };
@@ -113,6 +119,10 @@ export async function pollForeignMailbox(
       permanentPollErrors: [],
       latestCreatedAtByTaskId: {},
       polledTaskCount: 0,
+      watchedTaskCount: 0,
+      polledTaskIds: [],
+      successfulTaskIds: [],
+      nextPollOffset: 0,
     };
   }
   const pat = opts.pat ?? process.env.BOTHY_BOARD_PAT ?? "";
@@ -123,17 +133,41 @@ export async function pollForeignMailbox(
       permanentPollErrors: ["BOTHY_BOARD_PAT unset — skipped poll."],
       latestCreatedAtByTaskId: {},
       polledTaskCount: 0,
+      watchedTaskCount: taskIds.length,
+      polledTaskIds: [],
+      successfulTaskIds: [],
+      nextPollOffset: opts.pollOffset ?? 0,
     };
   }
   const markers = opts.selfMarkers ?? [];
   const fetchFn = opts.fetch ?? ((args) => bothyMcpCall(pat, args.tool, args.arguments));
   const timeoutMs = opts.pollTimeoutMs ?? 2500;
-  const maxTasks = opts.maxTasks ?? 64;
+  const maxTasks = Math.max(1, opts.maxTasks ?? DEFAULT_MAX_MAILBOX_TASKS_PER_PASS);
+  // The checked-in watch file is the small, explicit priority set. Always
+  // poll it first. Cards accumulated in the session-local looked-at file are
+  // best-effort history and rotate through the remaining budget. The former
+  // `slice(0, 64)` shape permanently starved newer looked-at cards once the
+  // union crossed the cap and generated 64 requests every pass while idle.
+  const priorityIds = loadMailboxWatchTaskIds(opts.repoRoot).slice(0, maxTasks);
+  const prioritySet = new Set(priorityIds);
+  const rotatingIds = taskIds.filter((id) => !prioritySet.has(id));
+  const rotatingBudget = Math.max(0, maxTasks - priorityIds.length);
+  const start = rotatingIds.length > 0
+    ? Math.max(0, opts.pollOffset ?? 0) % rotatingIds.length
+    : 0;
+  const rotated = rotatingIds.length > 0
+    ? [...rotatingIds.slice(start), ...rotatingIds.slice(0, start)].slice(0, rotatingBudget)
+    : [];
+  const polledTaskIds = [...priorityIds, ...rotated];
+  const nextPollOffset = rotatingIds.length > 0
+    ? (start + rotated.length) % rotatingIds.length
+    : 0;
   const comments: PollComment[] = [];
   const pollErrors: string[] = [];
   const permanentPollErrors: string[] = [];
   const latestCreatedAtByTaskId: Record<string, string> = {};
-  for (const taskId of taskIds.slice(0, maxTasks)) {
+  const successfulTaskIds: string[] = [];
+  for (const taskId of polledTaskIds) {
     try {
       const args: Record<string, unknown> = { taskId };
       const since = opts.sinceByTaskId?.[taskId];
@@ -154,6 +188,7 @@ export async function pollForeignMailbox(
         pollErrors.push(`${taskId} poll_error:http_${httpStatus}`);
         continue;
       }
+      successfulTaskIds.push(taskId);
       const sc = (structuredContent ?? {}) as { comments?: PollComment[]; unread?: number };
       const addressed = (sc.comments ?? []).map((comment) =>
         typeof comment.taskId === "string" ? comment : { ...comment, taskId },
@@ -179,7 +214,11 @@ export async function pollForeignMailbox(
     pollErrors,
     permanentPollErrors,
     latestCreatedAtByTaskId,
-    polledTaskCount: Math.min(taskIds.length, maxTasks),
+    polledTaskCount: polledTaskIds.length,
+    watchedTaskCount: taskIds.length,
+    polledTaskIds,
+    successfulTaskIds,
+    nextPollOffset,
   };
 }
 
