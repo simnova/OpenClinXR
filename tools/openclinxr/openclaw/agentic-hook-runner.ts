@@ -153,6 +153,9 @@ const KNIP_MANIFEST_PATH =
 const E18E_MANIFEST_PATH =
   /^(?:package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|apps\/.+\/package\.json|packages\/.+\/package\.json)$/u;
 
+/** Staged paths that indicate a manifest/lockfile drift check is needed. */
+export const LOCKFILE_DRIFT_RELEVANT_PATH = /^(?:pnpm-lock\.yaml|package\.json|apps\/.+\/package\.json|packages\/.+\/package\.json)$/u;
+
 /** Knip is whole-repo; skip coordination-only commits the way biome skips non-source paths. */
 export function buildKnipStep(changedFiles: string[]): HookStep | null {
   if (!changedFiles.some((file) => KNIP_RELEVANT_PATH.test(file) || KNIP_MANIFEST_PATH.test(file))) {
@@ -174,6 +177,23 @@ export function buildE18eStep(changedFiles: string[]): HookStep | null {
     label: "E18e analyze",
     command: pnpm("hygiene:e18e:analyze"),
     reason: "dependency-hygiene errors fail closed when package manifests or the lockfile change",
+  };
+}
+
+/**
+ * Build the lockfile drift detection step.
+ * Runs `pnpm install --frozen-lockfile --lockfile-only` which fails if any package.json
+ * disagrees with pnpm-lock.yaml (removals, additions, version changes, workspace packages).
+ * Only fires when a package.json or pnpm-lock.yaml is staged to avoid latency on unrelated commits.
+ */
+export function buildLockfileDriftStep(changedFiles: string[]): HookStep | null {
+  if (!changedFiles.some((file) => LOCKFILE_DRIFT_RELEVANT_PATH.test(file))) {
+    return null;
+  }
+  return {
+    label: "Lockfile matches manifests",
+    command: ["pnpm", "install", "--frozen-lockfile", "--lockfile-only"],
+    reason: "any package.json or pnpm-lock.yaml change must keep the lockfile in sync; catches removals, additions, version changes, and workspace package drift at commit time",
   };
 }
 
@@ -540,6 +560,11 @@ function buildBaseOpenClawSteps(profile: HookProfile, changedFiles: string[]): H
   const typecheckBaselineStep = buildTypecheckBaselineStep(profile, changedFiles);
   if (typecheckBaselineStep) {
     steps.push(typecheckBaselineStep);
+  }
+
+  const lockfileDriftStep = buildLockfileDriftStep(changedFiles);
+  if (lockfileDriftStep) {
+    steps.push(lockfileDriftStep);
   }
 
   steps.push({
