@@ -103,6 +103,36 @@ describe("a new reviewed group is admitted without forging a closed one", () => 
     );
     expect(source, "the self-attestation refusal was removed").toMatch(/completionFlag/u);
   });
+
+  // (4) RED — THE RESOLVER MUST NOT BE TOTAL OVER A GRAMMAR.
+  //
+  // Added 2026-09-14 after an independent grok-4.6 review of the tsk_140554d3e5e30d4e land returned
+  // "unsafe-as-specified-but-fixable: keep the single-source fix, reject the totality branch".
+  //
+  // MEASURED on main at b66a94ba by CALLING resolveApplyId, not by reading it:
+  //   psr-99z  -> { group: "psr-99z", scope: { kind: "group" } }
+  //   psr-01f  -> { group: "psr-01f", scope: { kind: "group" } }
+  //   nonsense -> undefined
+  // An id for a group that has never existed resolves as a REVIEWED GROUP, while REVIEW_GROUPS
+  // (apply-map.ts:12), requireAllReviewed and acceptance-criteria.ts:161/:211 still know only four.
+  // That is the same split clause (1) exists to close, relocated from "two literals" to "resolver
+  // grammar versus allowlist" — and clause (2) cannot see it, because toBeDefined() is satisfied by
+  // totality. apply-map.ts:67 still documents "Unknown ids resolve to undefined", now false.
+  //
+  // THE FIX: delete the /^psr-\d{2}[a-z]$/ branch at apply-map.ts:82. That makes clause (2) fail,
+  // and clause (2) is then SUPERSEDED rather than deleted: mark it `it.fails` and record that it is
+  // unsatisfiable until a REAL group with a manifest exists, because the only ways to satisfy it
+  // are totality or listing a fictional id in REVIEW_GROUPS, which would make criteria 4 and 5
+  // iterate a group that does not exist and refuse on its missing manifest.
+  // MEASURED as a plain `it(` on 2026-09-14 before being marked: 1 failed | 4 passed (5), the
+  // failure reading "expected { group: 'psr-99z', scope: { kind: 'group' } } to be undefined".
+  it.fails("(4) RED: the resolver is not total — an id no allowlist knows stays unresolvable", () => {
+    expect(
+      resolveApplyId("psr-99z"),
+      "resolveApplyId routes psr-99z as a reviewed group, but REVIEW_GROUPS, requireAllReviewed "
+        + "and criteria 4 and 5 have never heard of it: routing admits what the allowlist refuses",
+    ).toBeUndefined();
+  });
 });
 
 /**
