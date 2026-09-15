@@ -8,5 +8,9 @@
   "cards": [
     "cards/g1.json",
     "cards/g2.json"
-  ]
+  ],
+  "taskIds": {
+    "g1": "tsk_1b5ff504c0bd6143",
+    "g2": "tsk_10f1bb2f0e7df20d"
+  }
 }
