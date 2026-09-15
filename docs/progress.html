@@ -27,6 +27,60 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-15T0940">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 82 &middot; 2026-09-15 09:40 EDT</p>
+          <h2>The work-claim that expired mid-task is fixed and checked line by line. A second item we had been asking permission to close had cleared its own condition eight hours earlier.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Every check was re-run by us rather than taken from the assistant&rsquo;s own report. Nothing was forced through, and nothing below is claimed as finished unless its state says so.</caption>
+            <thead><tr><th scope="col">Item</th><th scope="col">What it fixes</th><th scope="col">State</th></tr></thead>
+            <tbody>
+              <tr><td>A work-claim that expired ten minutes in</td><td>Assistants silently lost their claim while still working</td><td>Fixed and verified, awaiting review</td></tr>
+              <tr><td>Records that disagreed with the files they described</td><td>Three groups of checks failing on the main line</td><td>Closed and verified</td></tr>
+              <tr><td>A saved verification recording a failure</td><td>The obvious record to cite predated the fix</td><td>Found and refused, not cited</td></tr>
+              <tr><td>An inspection model&rsquo;s open-mouth shape</td><td>A mouth that had flattened to near-closed</td><td>In progress, not claimed</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Fixed: the claim that expired while the work carried on</h3>
+            <ul>
+              <li>Entry 81 listed this as in progress. It is now complete on all four outstanding points, and each was confirmed by reading the actual change rather than the assistant&rsquo;s summary of it. On this project, summaries have been right about what was attempted and wrong about what landed often enough that the summary is not evidence.</li>
+              <li>The repair is narrow on purpose: the identifier correction sits in one file, and the ability to hear the server refusing sits in another. A refusal arrives as a success code carrying an error message, so a check that only watches for outright failures never sees it. The new checks now require both shapes, on both of the two calls involved.</li>
+              <li>One point deserves naming because it is the kind of check that usually goes missing: the record we keep of each dispatch must keep the longer internal name, while only the two server-facing calls get the short one. That is now asserted directly &mdash; the record must contain the internal form and must not contain the server-facing one.</li>
+              <li>Both groups of checks pass in our own run, the change is on a published branch, and it stops short of being merged. Another team reads it before it lands.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>We spent three requests asking the wrong party for the wrong thing</h3>
+            <ul>
+              <li>A second item had been sitting blocked since the early hours, and three times we asked another team to release it. It was never waiting on anyone&rsquo;s permission. Its own record stated the exact condition that would clear it, and that condition had been satisfied at twenty past one by a different piece of work.</li>
+              <li>We had read every field on that item except the one that said so. This is the same mistake several times over today: reporting from one field while the answer sits in the adjacent one. Recording it here is the only thing that makes it cost something.</li>
+              <li>The item is now closed with all four of its checks passing, measured against the current state of the main line rather than quoted from an earlier report. Closing it also released a shared area that three other items were queued behind.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A saved verification that would have certified a failure</h3>
+            <ul>
+              <li>Closing that item needed a verification record. One existed, its internal reference matched the item exactly, and it was the obvious file to cite. It recorded two failing checks, because it had been written before the fix was applied.</li>
+              <li>Citing it would have attested a failure as a success, and nothing mechanical would have objected: the reference matched, the file existed, and the format was valid. Opening it was the only thing that caught it.</li>
+              <li>A fresh verification was run against the current state instead, which reported all checks passing. Both facts are recorded on the item &mdash; the one that was used and the one that was refused &mdash; because a rejected piece of evidence is worth as much to the next reader as the accepted one.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>What is running, and one lane deliberately left empty</h3>
+            <ul>
+              <li>The mouth-shape restoration is under way and is not claimed as finished. Before it started we confirmed the fault was real on the untouched file, and confirmed that the existing record for that model carries a checksum with no file path beside it &mdash; which is why the check that should have caught this skips the file entirely. Closing that gap is part of the task.</li>
+              <li>Two of the checks currently failing on that task are not faults. They are recorded values pinned to a version from three weeks ago, and the task explicitly authorises updating them. We nearly reported the task as impossible on that basis and checked first.</li>
+              <li>One work lane is free and is staying empty. The only available item writes to the same area as the fix awaiting review above, and starting it would create a collision at merge time. An idle lane with a stated reason is better than two assistants editing the same files.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-15T0759">
         <div class="section-heading">
           <p class="eyebrow">Entry 81 &middot; 2026-09-15 07:59 EDT</p>
