@@ -1,0 +1,63 @@
+{
+  "schema": "openclinxr.delegation-review.v1",
+  "baseSha": "4d5a93194071d34bbaa7c4930212452b1a4af2a3",
+  "grokSessionId": "01a0a61b-b3dc-73d1-a0a0-20aca5b9f254",
+  "rounds": [
+    {
+      "round": 1,
+      "verdict": "REVISE",
+      "materialDefects": [
+        "Full per-group inventories permit implicit KEEP and mix-and-match omission.",
+        "C1 symbols are closed-remove readmissions; a new snapshot does not change psr-01c extra detection.",
+        "requireApplied accepts arbitrary approvals files outside the allowlist."
+      ],
+      "adopted": "Frozen global inventory plus narrow admission overlay and conflict matrix."
+    },
+    {
+      "round": 2,
+      "verdict": "REVISE",
+      "materialDefects": [
+        "Card vitest --root . plus package arch.config include collected zero files (Vitest 4.1.5, measured on surface-meter.test.ts).",
+        "requireApplied third arg is already SurfaceReport; options-bag injection is a type smash and a readdir of admissions/ relocates totality.",
+        "admissionHash omitted owner and reviewedBy, so reviewer substitution did not stale the hash.",
+        "Overlay-success it.fails clauses could not be planted against current exports without missing-import or extra-arg typecheck failure.",
+        "Production extra-subtraction was not required to consult empty ADMISSION_GROUPS, so activation would have needed a second resolver rewrite."
+      ],
+      "adopted": "Model B side-table; requireAppliedWith; hash preimage includes owner+reviewedBy; plant split; filter-relative vitest; production requireApplied already subtracts from empty ADMISSION_GROUPS.",
+      "packetPatched": true
+    },
+    {
+      "round": 3,
+      "verdict": "REVISE",
+      "materialDefects": [
+        "Plant clause imported ADMISSION_GROUPS before that symbol exists.",
+        "Superseded blocked A3 owns the replacement root and must be cancelled only after the replacement task exists.",
+        "C1 must remain blocked so it cannot dequeue alone."
+      ],
+      "adopted": "Plant asserts only resolver unknown IDs; packet now includes the owner readiness sequence and keeps C1 blocked."
+    },
+    {
+      "round": 4,
+      "verdict": "CLEAN_ROUND_1",
+      "materialDefects": [],
+      "confirmed": [
+        "Base and frozen pins unchanged.",
+        "Plant and implementation phases are compatible with live proof.",
+        "A3 cancellation/C1 hold/Claude ACK sequence is explicit.",
+        "Immutable Board fields and write-root separation are complete."
+      ]
+    },
+    {
+      "round": 5,
+      "verdict": "CLEAN_ROUND_2",
+      "materialDefects": [],
+      "confirmed": [
+        "Current fallback keeps the planted RED honest.",
+        "Proofs cannot blanket-suppress omitted extras.",
+        "All proof and write paths remain contained.",
+        "Owner sequence is complete and acyclic."
+      ]
+    }
+  ],
+  "finalVerdict": "READY_FOR_IDLE_CARD"
+}

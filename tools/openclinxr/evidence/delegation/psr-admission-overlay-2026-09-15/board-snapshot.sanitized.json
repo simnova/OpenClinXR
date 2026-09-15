@@ -1,0 +1,66 @@
+{
+  "capturedAt": "2026-09-15T17:23:24.734Z",
+  "revision": 5196,
+  "cacheToken": "bb-r5196-f26ff332",
+  "project": {
+    "id": "prj_9b390b99b443a964",
+    "maxInFlight": 2,
+    "maxIntegrating": 1
+  },
+  "requester": {
+    "authorName": "sc-04-worker",
+    "agentId": "agt_22e0234bfce08ecc",
+    "mailboxTaskId": "tsk_3f01d5bd55a00505",
+    "replyMarker": "[to:codex-task:01a083da-42c5-7741-b8c3-2944adf9daea]"
+  },
+  "reservations": {
+    "claudeDeclared": [
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-05",
+      "scenario-runtime scheduler packet (planning only)",
+      "docs/progress.html"
+    ],
+    "codexPlanning": [
+      "tools/openclinxr/evidence/delegation/psr-scoped-admission-2026-09-15"
+    ],
+    "sharedMainDirty": [
+      "docs/openclinxr/owner-memory/pulse.jsonl"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "tsk_8d3e55209b513362",
+      "title": "MSC-C1 — Compile and publish one real authored touch response",
+      "status": "blocked",
+      "factory": "Planted",
+      "lane": "B",
+      "writeRoots": [
+        "packages/openclinxr/motion-compiler/src",
+        "packages/openclinxr/capability-gateway/src"
+      ],
+      "depIds": [
+        "tsk_c1a0aa430750e5d5"
+      ],
+      "blockedReason": "OWNER DECISION 2026-09-15: keep the verified C1 candidate preserved; do not dispatch or land this card alone. The C1/A3 cycle will be replaced by an acyclic recovery sequence: first make public-surface inventory anchoring group-scoped without touching C1; then operationalize a combined candidate/admission card that consumes preserve/c1-land-a8ceb88c, routes motion-compiler tests through the supported entrypoint so the internal-import ceiling does not rise, regenerates arch-index, and receives independent review before one combined land. No ceiling increase, deep import, closed-approval rewrite, or deletion of required exports.",
+      "updatedAt": "2026-09-15T17:15:58.897Z"
+    },
+    {
+      "id": "tsk_216a587551a42e2e",
+      "title": "MSC-A3 — Admit only the final motion consumer surface through a new reviewed group",
+      "status": "blocked",
+      "factory": "Planted",
+      "lane": "B",
+      "writeRoots": [
+        "docs/openclinxr/package-public-surface-reduction/raw-inventory.json",
+        "docs/openclinxr/package-public-surface-reduction/approvals",
+        "packages/openclinxr-verification/architecture-rules/src/checks/public-surface"
+      ],
+      "depIds": [
+        "tsk_c1a0aa430750e5d5",
+        "tsk_8d3e55209b513362",
+        "tsk_d75de2abac9494d0"
+      ],
+      "blockedReason": "OWNER DECISION 2026-09-15: this planted card is superseded in design and must not dispatch. Replace it with (1) an independent group-scoped inventory-anchor prerequisite and (2) a combined C1 candidate plus additive admission card based on preserve/c1-land-a8ceb88c. The replacement removes the dependency cycle and avoids invalidating psr-01b through psr-01e. Criterion 6 remains a separately reviewed exception/closure decision.",
+      "updatedAt": "2026-09-15T17:15:59.165Z"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "projectId": "prj_9b390b99b443a964",
+  "parentId": "tsk_36cf3c2473ac953f",
+  "title": "PSR admission overlays preserve closed reviews while allowing explicit API readmission",
+  "kind": "task",
+  "priority": 0,
+  "objective": "Implement the acyclic public-surface prerequisite in tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md. Delete requireApplied's approvals-file fallback. Add empty ADMISSION_GROUPS as a side table, not as apply ids. Production requireApplied(root, id, report?) keeps that signature and subtracts overlay extras only for ids in ADMISSION_GROUPS (empty means identity; never readdir admissions/). Fixtures use same-module requireAppliedWith; do not overload the third argument (it is SurfaceReport). Overlay hash preimage is (package, entrypoint, symbol, kind, disposition, owner, reviewedBy) plus document-level reviewedBy. Plant only the unknown-id RED against today's exports; add overlay clauses in the implementation commit. Leave psr-01f inactive. Do not modify product packages or reviewed artifacts.",
+  "doneWhen": [
+    "exists:packages/openclinxr-verification/architecture-rules/src/archunit-tests/public-surface/admission-overlays-do-not-launder-closed-removes.test.ts",
+    "live:packages/openclinxr-verification/architecture-rules/src/archunit-tests/public-surface/admission-overlays-do-not-launder-closed-removes.test.ts",
+    "run:pnpm --filter @openclinxr/architecture-rules exec vitest run --config vitest.arch.config.ts --root . src/archunit-tests/public-surface/admission-overlays-do-not-launder-closed-removes.test.ts",
+    "run:pnpm --filter @openclinxr/architecture-rules exec vitest run --root . src/checks/public-surface/a-new-reviewed-group-is-admitted-without-forging-a-closed-one.test.ts",
+    "run:pnpm architecture",
+    "changed:packages/openclinxr-verification/architecture-rules/src/checks/public-surface/gates.ts",
+    "changed:packages/openclinxr-verification/architecture-rules/src/checks/public-surface/apply-map.ts"
+  ],
+  "writeRoots": [
+    "packages/openclinxr-verification/architecture-rules/src/checks/public-surface",
+    "packages/openclinxr-verification/architecture-rules/src/archunit-tests/public-surface"
+  ],
+  "depIds": [
+    "tsk_c1a0aa430750e5d5"
+  ],
+  "knownGood": "READ FIRST: tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md. Base 4d5a9319; live card wins on conflict. C1 candidate is preserve/c1-land-a8ceb88c and is not touched. requireApplied(root, id, report?: SurfaceReport) already uses the third arg as the compiler report (gates.ts:383, acceptance-criteria.ts:211); fixture injection is requireAppliedWith, not that third arg. File-existence fallback is gates.ts:384-387. Closed groups pin rawInventoryHash e43ee9c... . C1 names are psr-01c remove rows (readmission). Frozen SHA-256: raw c37bea4199168cb11094db343e449e9da887e43d5c01e2c85fc24c16265446b6; psr-01b 74e4fb9a76a42899212b79988668ba396e07314b31d0620518430200af37e335; psr-01c dfa31d1b9f37d5b54d34c3d2ecdd22abd97e6ddec808e48c4d307c2ee9afe1b1; psr-01d bd4d89908a9e5f64d7a29d3b13b2ba2b285de0ece210d41482cb9eee5073019a; psr-01e 59b530c7490e2e6b095e42e47af160176964cb2594fa5952746d7477c542a228. Plant imports only requireApplied/resolveApplyId/REVIEW_GROUPS. Vitest arch include is package-relative src/archunit-tests/**/*.test.ts; use pnpm --filter @openclinxr/architecture-rules exec. Overlay file not in ADMISSION_GROUPS must not admit. Two extras plus one overlay keep leaves the omitted extra failing. Closed keep cannot be overlaid. resolveApplyId never learns admission ids on this card.",
+  "outOfScope": "No edits to docs/openclinxr/package-public-surface-reduction/raw-inventory.json, approvals/psr-01b.json through psr-01e.json, baseline or exceptions. No psr-01f artifact, no ADMISSION_GROUPS entry, no resolveApplyId admission-id branch. No C1/C2/C3 product code, preserved-ref edits, package index export, arch-index regeneration, ceiling change, criterion-6 change, acceptance-close claim, docs/progress.html, SC-05 evidence, or scenario-runtime scheduler work. Do not replace the frozen global inventory with per-group full snapshots. Do not readdir admissions/, overload requireApplied's third argument, accept arbitrary approval files, absolute/traversal paths, owner-as-reviewer, stored hashes without recomputation, implicit keeps, or blanket extra suppression. STOP and report if any is required.",
+  "notTested": "The real psr-01f review and activation; landing preserve/c1-land-a8ceb88c; motion-compiler test-import refactor; capability-gateway arch-index regeneration; criterion 6/root-export exception review; visual motion, clinical validity, and Quest readiness.",
+  "fields": {
+    "lane": "B",
+    "factory_step": "instrument",
+    "unblocks": "motion_retarget"
+  }
+}
