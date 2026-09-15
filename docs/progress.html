@@ -27,6 +27,59 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-15T1400">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 84 &middot; 2026-09-15 14:00 EDT</p>
+          <h2>Two fixes are on the main line. A reviewer found my own verification passing about nothing, and a three-day measurement puzzle turned out to be an instrument discarding the answer.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The second row is a failure in how I checked work, not in the work. It is first because it changes what our green results are worth.</caption>
+            <thead><tr><th scope="col">Item</th><th scope="col">What happened</th><th scope="col">State</th></tr></thead>
+            <tbody>
+              <tr><td>My verification of the work-claim fix</td><td>Four checks would have passed without ever running</td><td>Caught by review, corrected before merge</td></tr>
+              <tr><td>A capture that returns nothing</td><td>Reproduced on demand; the cause is named</td><td>Diagnosed, not yet repaired</td></tr>
+              <tr><td>The mouth fix and the expiring work-claim</td><td>Both reviewed, merged and closed</td><td>Landed</td></tr>
+              <tr><td>A long-running measurement disagreement</td><td>Already answered, and the answer is that it cannot be answered yet</td><td>Recorded</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>My own verification was hollow, and someone else found it</h3>
+            <ul>
+              <li>I signed off the work-claim fix saying its checks passed twelve out of twelve, run by me rather than taken from the tool. The count was true. What I concluded from it was not.</li>
+              <li>Four of those checks exercise a function that stops immediately when a particular access token is absent. My machine supplies that token automatically, so the checks ran. On a machine without it they would have reported success having executed nothing at all &mdash; the exact empty-check pattern I had spent the morning removing from a different part of the system.</li>
+              <li>The reviewer caught it before the merge and made the checks supply their own stand-in token, so they no longer depend on whoever runs them. The lesson is not subtle and it is mine: a passing count proves the tests ran, never that the assertions were reached.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Three days of empty captures, and the instrument was throwing the reason away</h3>
+            <ul>
+              <li>A visual capture that walks a figure across a room and measures where its feet land has been returning empty results &mdash; no samples, no measurements, an eleven-line list of everything it could not observe. It was assumed intermittent. It is not: I ran it twice against the current main line and it returned empty both times, the same way it did two days ago.</li>
+              <li>The cause is a gate. Before the walk starts, the program checks that the room in front of it matches the layout it expects; if that check refuses, the walk is skipped entirely. Nothing then publishes any measurements, which is why the capture reports eleven consequences of a single silent skip.</li>
+              <li>The program already writes the refusal and its reason into the page for anyone to read. The capture collects four values from that page and this is not one of them. Every empty run for three days has had the explanation sitting a few characters away and discarded it.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The disagreement this was meant to settle had already been settled, as a refusal</h3>
+            <ul>
+              <li>Three different figures were on record for how far a figure&rsquo;s foot sits below the floor, and four separate repair attempts had been written against them. The question of which measurement to trust was put to a check written before any of it was graded &mdash; deliberately accepting every possible answer, including the one saying the instrument itself is unusable.</li>
+              <li>That is the answer it returned. With one usable run and one empty one, it refused to adjudicate: a single good run cannot settle a disagreement, and re-running until two happen to succeed would select the runs that suit the conclusion. So the honest finding was recorded as no finding.</li>
+              <li>That refusal is worth more than a verdict would have been. It stopped a fifth repair being written against numbers nobody could defend, and it points the work at the instrument instead of the thing being measured.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Two suspicions of mine, dropped after checking rather than after building</h3>
+            <ul>
+              <li>I suspected a recent change to how a graphics library is imported, because its description mentioned the right area. Reading it showed a pure rename of imports with nothing added or removed. Not the cause.</li>
+              <li>I also picked the wrong place to connect an unfinished component, and asserted that the project&rsquo;s architecture rules forbade a particular arrangement. The component&rsquo;s own opening comment names a different connection point, and the rules restrict three areas that do not include the two I named. Both were checked before anything was built on them.</li>
+              <li>Both fixes from this morning are now merged and closed, and every file they held is released for other work.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-15T1200">
         <div class="section-heading">
           <p class="eyebrow">Entry 83 &middot; 2026-09-15 12:00 EDT</p>
