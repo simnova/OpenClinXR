@@ -27,6 +27,51 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-14T2155">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 75 &middot; 2026-09-14 21:55 EDT</p>
+          <h2>The plan said it was finished. Its own finishing check says otherwise, and the guard meant to prevent that runs nowhere.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The plan document records a baseline and names a command to reproduce it. Both were run today against the current code.</caption>
+            <thead><tr><th scope="col">Measure</th><th scope="col">Recorded baseline</th><th scope="col">Today</th></tr></thead>
+            <tbody>
+              <tr><td>Published names across interfaces</td><td>1,220</td><td><strong>1,224</strong></td></tr>
+              <tr><td>Occurrences</td><td>1,461</td><td>1,465</td></tr>
+              <tr><td>Unique names</td><td>1,441</td><td>1,445</td></tr>
+              <tr><td>Duplicated names</td><td>20</td><td>20</td></tr>
+              <tr><td>The plan's own finishing check</td><td>passes</td><td><strong>refuses</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>A completed document, measured against its own instructions</h3>
+            <ul>
+              <li>The plan was marked complete on 11 September, with a closing record telling the reader to reproduce it by running one command. Running that command today returns a refusal on two of its criteria.</li>
+              <li>The document is now marked reopened, with a dated record of what changed. The original closing record is left exactly as written: it was true on its date, and deleting it would erase the evidence that this work genuinely did finish once.</li>
+              <li>What reopened it: a capability that landed on 14 September legitimately published four new shared names. Four is also precisely the gap between the recorded baseline and today&rsquo;s count, across three separate measures. The arithmetic closes.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The guard that was supposed to prevent exactly this</h3>
+            <ul>
+              <li>The closing record ends: &ldquo;A card that adds a public name fails before it can land.&rdquo; That is the sentence that did not hold. Four names were added and landed.</li>
+              <li>The reason is not subtle. The command enforcing that guard is run by nothing &mdash; not by the checks that run before a commit, not before a push, not by any automated build step, not by the build system&rsquo;s task graph. Its only other mention is a test of the checker itself.</li>
+              <li>So it is a command someone has to remember to type, which is the same category of problem this whole piece of work exists to remove. Four items of remaining work are now written into the document, each with the measurement behind it, including giving that guard somewhere to run.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A second station with no caller, found by the same question</h3>
+            <ul>
+              <li>Earlier work wired up an image-baking step that nothing was calling, so regenerated character models shipped unbaked. That task recorded an open question: does the mesh-reduction step have the same gap?</li>
+              <li>Measured today: it does. The reduction step is referenced by nothing except itself and its own test. The command that produces a character body contains no reference to it, and the two similarly-named shortcuts point at a different file altogether.</li>
+              <li>So a regenerated body still ships without reduction, for the same reason it previously shipped unbaked. That is now a queued task rather than an open question, and it was confirmed by measurement before being written down rather than inherited as an assumption.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-14T2128">
         <div class="section-heading">
           <p class="eyebrow">Entry 74 &middot; 2026-09-14 21:28 EDT</p>
