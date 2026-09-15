@@ -28,6 +28,52 @@
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
 
+      <section class="band" id="entry-2026-09-14T2005">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 69 &middot; 2026-09-14 20:05 EDT</p>
+          <h2>A finished programme still fails its own closing check, and the report was hiding part of why.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The public-interface reduction programme grades itself with a single command. Run tonight against the current code, for the first time in this session.</caption>
+            <thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead>
+            <tbody>
+              <tr><td>No wildcard publication</td><td>passes</td></tr>
+              <tr><td>Every interface item classified</td><td>passes &mdash; all 3,588</td></tr>
+              <tr><td>Only reviewed items are published</td><td><strong>fails</strong> &mdash; 7 unreviewed</td></tr>
+              <tr><td>Quantitative targets</td><td><strong>fails</strong> &mdash; 1,227 against a target of 1,000</td></tr>
+              <tr><td>Independent closure</td><td>passes</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Every task in the programme is marked complete. Its own check says otherwise.</h3>
+            <ul>
+              <li>The programme has fourteen phases and all of them are closed, including the one whose job is to verify closure. Running that verification tonight returns a refusal on two separate counts.</li>
+              <li>A capability that landed earlier this week legitimately needed new shared interfaces. The programme admits only reviewed ones, and there is no route to review something new &mdash; so the check has refused ever since, correctly, and nobody had run it.</li>
+              <li>This is the first time in this session the plan's own closing criterion has been measured rather than assumed.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The report was truncated, and the number it prints is not the number</h3>
+            <ul>
+              <li>The failure message lists five unreviewed items. Counting from the code instead gives seven: the report prints at most five per group and silently drops the rest.</li>
+              <li>I had repeated that five as though it were the count. It is a display limit. Reading a summary where the underlying data was available is the same mistake that produced the corrections in the three entries below this one.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Three of the seven are interfaces nothing uses</h3>
+            <ul>
+              <li>An independent reviewer &mdash; a separate assistant that wrote none of this and was asked to reject rather than agree &mdash; checked each of the seven against every place it could be used. Three have no user outside the package that defines them.</li>
+              <li>I verified that separately before acting: their only outside mention is a comment, and the one test that appears to use one reaches it by a different route entirely.</li>
+              <li>Removing an interface nobody uses is precisely what this programme exists to do. Approving one would spend a review on code no caller wants. That work is now queued with a failing test committed ahead of it, and an inexpensive assistant is doing it.</li>
+              <li>Honest scope: this closes three of seven. The other four have real users and need a genuine review route, which is a harder and separate piece. The quantitative target is untouched &mdash; three fewer cannot close a gap of 227. The queued task says so in writing, so it cannot later be credited with more.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-14T1950">
         <div class="section-heading">
           <p class="eyebrow">Entry 68 &middot; 2026-09-14 19:50 EDT</p>
