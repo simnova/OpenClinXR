@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "openclinxr.humanoid-falsifier-pin-lineage.v1",
+  "generated": "2026-09-15",
+  "card": "tsk_1902d6e67383ea2a",
+  "decision": "PIN_PROMOTED_LINEAGE",
+  "pinnedLineage": {
+    "name": "tightjeans",
+    "preImageRevision": "57e27730",
+    "description": "Sep-12 punkduck female tight jeans fit output; fp-r0.4 restore (d1d4b123) then albedo bake (42c42140)",
+    "rerunResult": {
+      "tris": 69067,
+      "face": 52778,
+      "bytes": 13932816,
+      "sha256": "dd99697c3d6e0d0f6aac15d88e48ac1d2a1b7e7c6e7fe5ee35e79b00fcfa5fc9"
+    },
+    "sweepEntry": {
+      "rungId": "fp-r0.4-jeans-lineage",
+      "triangleCount": 69067,
+      "faceTriangles": 52778,
+      "inputLineage": "tightjeans fit output (57e27730, triangleCountBefore 92430)"
+    },
+    "promotedRow": {
+      "triangleCountAfter": 69067,
+      "faceAfter": 52778,
+      "bytesAfter": 13932816,
+      "outputSha256": "dd99697c3d6e0d0f6aac15d88e48ac1d2a1b7e7c6e7fe5ee35e79b00fcfa5fc9"
+    }
+  },
+  "rejectedAlternative": {
+    "name": "HB-02",
+    "preImageRevision": "37d4460d",
+    "description": "Original HB-02 bytes before the Sep-12 tightjeans refit",
+    "rerunResult": {
+      "tris": 68214,
+      "face": 52778
+    },
+    "sweepEntry": {
+      "rungId": "fp-r0.4",
+      "triangleCount": 68214,
+      "faceTriangles": 52778,
+      "inputLineage": "HB-02 bytes (37d4460d, triangleCountBefore 90996)"
+    },
+    "whatItWouldFailToCatch": "Keeping the HB-02 pin would make the falsifier track a lineage that no longer ships. The promoted row in the report tracks the tightjeans lineage (69067 tris), which is the actual shipped body. A broken station on the tightjeans lineage would go undetected because the falsifier would still compare against the HB-02 baseline (68214 tris). The test would pass even if the tightjeans decimation produced wrong results."
+  },
+  "rationale": "The falsifier must track the lineage that actually ships to learners. The promoted row in the evidence report (humanoid-postopt-ladder-face-preserving-2026-09-11.json) tracks the tightjeans lineage (69067 tris, rederivedFrom 57e27730). The test now re-runs the recorded fp-r0.4 rung on the committed tightjeans pre-image (57e27730) and asserts equality against both the fp-r0.4-jeans-lineage sweep entry AND the promoted row. Both assertions now pass because they describe the same lineage.",
+  "whatTheRetargetedClauseStillFalsifies": [
+    "A broken face-preserving station on the tightjeans lineage: if iterate-optimize.ts --face-preserving --face-preserving-ratio 0.4 on the 57e27730 pre-image produces a triangle count != 69067 or face count != 52778, the test fails",
+    "A regression in the rung technique (selective weld+simplifyPrimitive at ratio 0.4, error 0.01 on non-face meshes) that alters face triangle count or total triangle count on the tightjeans input",
+    "A silent change to the tightjeans pre-image that would cause the recorded rung to produce different output",
+    "The promoted row drifting from what the recorded station actually produces on the committed pre-image"
+  ],
+  "measurements": {
+    "hb02Lineage": {
+      "preImageRevision": "37d4460d",
+      "station": "iterate-optimize.ts --face-preserving --face-preserving-ratio 0.4",
+      "tris": 68214,
+      "face": 52778,
+      "matches": "fp-r0.4 sweep entry"
+    },
+    "tightjeansLineage": {
+      "preImageRevision": "57e27730",
+      "station": "iterate-optimize.ts --face-preserving --face-preserving-ratio 0.4",
+      "tris": 69067,
+      "face": 52778,
+      "matches": "fp-r0.4-jeans-lineage sweep entry AND promoted row"
+    },
+    "source": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts run on 2026-09-15"
+  },
+  "notEvidenceFor": [
+    "Whether the promoted viseme row's chosen rung (fp-r0.4) is the right rung for the tightjeans lineage",
+    "Whether the tightjeans lineage should be the promoted one at all",
+    "Whether any other falsifier in the asset-pipeline suites pins a stale lineage",
+    "Rendered appearance of any body (no pixels graded)"
+  ],
+  "testChange": {
+    "file": "tools/openclinxr/asset-pipeline/trellis/the-face-preserving-rung-keeps-every-face-triangle.test.ts",
+    "testName": "the committed mode reproduces the viseme-inspect rung from the promoted (tightjeans) lineage (minimal falsifier)",
+    "changes": [
+      "Pinned pre-image changed from 37d4460d (HB-02) to 57e27730 (tightjeans fit output)",
+      "Sweep entry comparison changed from fp-r0.4 (HB-02 input) to fp-r0.4-jeans-lineage (tightjeans input)",
+      "All four assertions now verify against the same lineage that the promoted row tracks"
+    ]
+  }
+}

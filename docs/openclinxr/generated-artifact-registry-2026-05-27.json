@@ -22330,6 +22330,13 @@
       "rationale": "tsk_d6874d507ef8e3d7 verdict artifact: ROWS STALE / BYTES LEGITIMATE, per-body rewrite chains and row before/afters for the decimation evidence drift."
     },
     {
+      "path": "docs/openclinxr/humanoid-falsifier-pin-lineage-2026-09-15.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "tsk_1902d6e67383ea2a decision artifact: PIN_PROMOTED_LINEAGE, the rejected HB-02 alternative and what it would fail to catch, both station re-runs with their committed pre-image shas, and what the retargeted falsifier still falsifies."
+    },
+    {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-animated-2026-05-23.json",
       "authority": "keep-compatibility-input",
       "tracked": true,
