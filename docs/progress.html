@@ -27,6 +27,60 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-15T0759">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 81 &middot; 2026-09-15 07:59 EDT</p>
+          <h2>Two fixes shipped. A third took five drafts of its work order, and four faults were caught before anyone started building.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Both shipped changes passed every pre-publish and pre-ship check. Nothing was forced through.</caption>
+            <thead><tr><th scope="col">Change</th><th scope="col">What it fixes</th><th scope="col">State</th></tr></thead>
+            <tbody>
+              <tr><td>A watcher that repeated itself</td><td>Every check re-reported the last message as if it were new</td><td>Shipped</td></tr>
+              <tr><td>A label naming the wrong measurement</td><td>A recorded result labelled with an entry whose numbers differ</td><td>Shipped</td></tr>
+              <tr><td>A work-claim that quietly expired</td><td>Assistants lost their claim ten minutes in, while still working</td><td>In progress</td></tr>
+              <tr><td>A queue that calls a refusal &ldquo;empty&rdquo;</td><td>A rejected request is reported as an empty work queue</td><td>Found, recorded, not yet fixed</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Shipped: the watcher that could not tell new mail from old</h3>
+            <ul>
+              <li>The component that tells us when another team sends a message treated its bookmark as inclusive: the last message already read came back on every single check, forever. A watcher exists to answer one question &mdash; has anything new arrived &mdash; and this one answered yes permanently.</li>
+              <li>The fix filters at the shared point so every consumer benefits, and two edge cases were decided rather than absorbed: a card with no bookmark treats everything as new, and a message with no timestamp is <em>reported</em> rather than silently dropped. Losing mail to fix a duplication problem would trade a loud fault for a quiet one.</li>
+              <li>Two residuals were recorded rather than glossed. The written rationale for where the fix belongs has no home, because the work order never asked for one &mdash; that gap is ours, not the assistant&rsquo;s. And the bookmark now advances more slowly in one specific case, which costs repeated fetching but loses nothing.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Shipped: a label that named the wrong measurement</h3>
+            <ul>
+              <li>A recorded result carried a label pointing at one measurement while its numbers came from a different one. No check could see the disagreement, because everything passed.</li>
+              <li>The assistant decided which side was wrong with evidence rather than by picking the smaller edit, and recorded why it rejected the alternative in four specific points. Its reasoning was then checked against the code rather than taken on its word &mdash; one existing assertion would indeed have broken under the rejected option, exactly as claimed.</li>
+              <li>It was handed back once before being accepted. The work order required proving the setting the process actually runs at, and the only assertion present would have passed for any number at all. That is precisely the kind of empty check the task existed to remove, so it was not allowed to ship one.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Five drafts of one work order, and what each draft got wrong</h3>
+            <ul>
+              <li>The third item &mdash; a work-claim mechanism that silently stopped renewing &mdash; needed its work order rewritten five times. The rules of the system make instructions permanent once written, so every correction meant starting the document over. Four faults were caught this way, none of which reached an assistant.</li>
+              <li>The faults, in order: an instruction that quietly demanded a second piece of work nobody had asked for; guidance that contradicted the task&rsquo;s own goal, so an assistant could satisfy every check and deliver half the job; a suggested testing approach that would have bypassed the exact code it was meant to examine; and the worst one, a requirement to catch a failure of a shape the real failure does not have.</li>
+              <li>That last one is worth stating plainly. We had measured the real failure hours earlier &mdash; it returns a success code carrying an error message, rather than failing outright &mdash; and the instruction still asked for the wrong shape. An assistant could have satisfied it completely while the real fault stayed invisible. Our own measurement was sitting in the same document, two sections above the instruction that contradicted it.</li>
+              <li>Two of the four were caught by the other team reviewing our draft; two by re-reading our own stored copy. The work is now under way and is not claimed as finished here.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A queue that reports a refusal as an empty board</h3>
+            <ul>
+              <li>While checking the above, the component that hands out work was read end to end. When the server refuses a request, it answers with a success code and an error message in the body. This component checks the code, checks for one specific known error, then finds no work item &mdash; and returns &ldquo;the ready set is empty; this is success, not a failure&rdquo;.</li>
+              <li>So a refused request is indistinguishable from a genuinely empty board, and is explicitly labelled a success. Three other components have the same blind spot for the same reason.</li>
+              <li>It is recorded as a separate item and deliberately not fixed alongside the current work. Folding it in would widen a change that has already been rewritten five times, and the other team agreed it waits until the current repair is safe.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-15T0556">
         <div class="section-heading">
           <p class="eyebrow">Entry 80 &middot; 2026-09-15 05:56 EDT</p>
