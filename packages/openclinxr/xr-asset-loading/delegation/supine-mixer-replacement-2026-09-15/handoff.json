@@ -17,5 +17,6 @@
     "finalCleanPasses": 2
   },
   "reservationSnapshot": "2026-09-15T06:05:04-04:00: zero workers; old C0 blocked; docs+trellis separate ready card not assigned",
-  "redPlantCommit": "7185186e"
+  "redPlantCommit": "7185186e",
+  "startTaskId": "tsk_dc73f1f39c3a116f"
 }

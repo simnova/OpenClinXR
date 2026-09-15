@@ -5,7 +5,7 @@
   "oldC2": "tsk_d75de2abac9494d0",
   "blockedC1": "tsk_8d3e55209b513362",
   "startRole": "C0R",
-  "startTaskId": null,
+  "startTaskId": "tsk_dc73f1f39c3a116f",
   "replacementC2TaskId": null,
   "allocation": "exact tasks.claim; pass returned assigneeAgentId as dispatch.bothyAgentId; never tasks.next",
   "order": [
