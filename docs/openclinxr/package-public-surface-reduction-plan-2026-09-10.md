@@ -433,3 +433,50 @@ None of that reopens closure, and none of it is claimed to. The remaining work i
    signature.
 4. The ratchet needs a gate. Until `arch:public-surface:verify` runs on the land path, this record
    can go stale again without anyone noticing, which is exactly how it went stale this time.
+
+### Correction and additions — 2026-09-14, later the same day
+
+**Item 3 above named the wrong file, and this corrects it rather than rewriting it.** It said
+criterion 6 needs `exceptions/psr-08-residual.json` reshaped with `measured` at 1,224. Measured
+today: that file's `program-root-export-count` entry was a RETIRED-shape duplicate of a target
+`exceptions/psr-c6-residual.json` already covers in the current shape, with a named independent
+reviewer (two grok-4.6 sessions, 2026-09-11). Reshaping the duplicate was never the route.
+
+That entry has been retired as superseded, with its original values preserved in a
+`supersededEntries` block in the same file. The effect was measured in both directions:
+
+| criterion 6 message | before | after |
+|---|---|---|
+| reported blocker | `psr-08-residual.json uses the retired kind shape` | `exception measured differs from the tree` |
+
+`acceptance-criteria.ts` checks the retired shape BEFORE the measured/threshold comparison, so the
+duplicate was masking the real blocker behind a shape complaint. Criterion 6 still refuses; what
+changed is that it now names the thing actually in the way.
+
+**The real criterion 6 blocker, and why it is not a field edit.** `psr-c6-residual.json` records
+`measured: 1220`, reviewed by named sessions on 2026-09-11. The tree is 1,224. The validator checks
+only that `reviewedBy` differs from `owner` as a string, so editing 1220 to 1224 would pass — and
+would attach a reviewer's name to four symbols they never saw. That is the forgery shape this
+programme exists to refuse, so the number stays until a genuine re-review happens. The re-review
+should follow the motion work rather than precede it: `measured` will move again when the motion
+cards settle the surface.
+
+**A collision in MSC-A3 (`tsk_216a587551a42e2e`), recorded because that card is parented here.**
+A3's write roots include `raw-inventory.json` while its out-of-scope forbids editing psr-01b
+through psr-01e. Those cannot both hold. Measured: all four approvals pin the SAME
+`rawInventoryHash` `e43ee9c249ee7469` (5, 5, 3 and 33 packages), and `gates.ts:249-251` requires
+that hash to equal the checked-in inventory's. One regeneration breaks all four at once.
+
+This also re-derives item 1's mechanism from the code rather than from item 1: apply scope is
+PACKAGE-level, not symbol-level (`gates.ts:413` filters rows by `scoped.has(row.package)`;
+`420-421` add every scoped package to the comparison; `422-433` compare every published name), and
+`expectedSurface` seeds only from raw-inventory rows. So no new group can admit a symbol the
+inventory lacks, whatever its scope. Item 1 was right about the mechanism.
+
+**A fourth gate fails for the same cause, and it was not previously recorded here.**
+`src/checks/public-surface/the-reviewed-surface-holds-at-commit-time.test.ts` fails its
+"integrated tree (real repo) for psr-01d and psr-01e" clause. Measured with the exceptions edit
+applied and with the file restored to HEAD: identical failure both times, so it is pre-existing and
+unrelated to the exceptions work. `playManifestMotionClip` is a psr-01e symbol, which places this
+with criterion 5, criterion 6 and the verify ratchet as the fourth symptom of one cause — four
+symbols reached the public surface without passing surface review.

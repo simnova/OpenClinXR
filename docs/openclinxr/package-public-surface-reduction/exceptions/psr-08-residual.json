@@ -11,13 +11,6 @@
   },
   "exceptions": [
     {
-      "kind": "program-root-export-count",
-      "measuredAfterPsr08": 1243,
-      "target": 1000,
-      "reason": "PSR-01E keep rows plus prior-group keeps still exceed the 1,000-root review target after the 26-package complement is applied. Counts are review signals, not a force. Residual lives in keep names, not unpublished ones.",
-      "owner": "PSR-09"
-    },
-    {
       "kind": "experimental-source-publish",
       "package": "packages/openclinxr/arena/physics-touch-contract",
       "exportsMap": "./src/index.ts",
@@ -42,6 +35,22 @@
       "kind": "arena-index-gate-scope",
       "reason": "pnpm arch:index now writes packages/openclinxr/arena/*/arch-index.json. architecture-rules indexedPackages() still lists only direct children of packages/openclinxr; that check is outside this card's write roots.",
       "owner": "packages/openclinxr-verification/architecture-rules"
+    }
+  ],
+  "supersededEntries": [
+    {
+      "kind": "program-root-export-count",
+      "retiredOn": "2026-09-14",
+      "supersededBy": "exceptions/psr-c6-residual.json, its rootExportsAtMost entry",
+      "why": "This entry used the retired kind/measuredAfterPsr08 shape and recorded measured 1243 from the PSR-08 era. It duplicated a review target that psr-c6-residual already covers in the current target/measured/threshold/reviewedBy shape WITH a named independent reviewer. Because acceptance-criteria.ts checks the retired shape BEFORE the measured/threshold checks, this entry masked criterion 6 real blocker behind a shape complaint. Retired rather than converted: converting would require a reviewedBy, and inventing one is the forgery this programme refuses. The original values are preserved here.",
+      "originalEntry": {
+        "kind": "program-root-export-count",
+        "measuredAfterPsr08": 1243,
+        "target": 1000,
+        "reason": "PSR-01E keep rows plus prior-group keeps still exceed the 1,000-root review target after the 26-package complement is applied. Counts are review signals, not a force. Residual lives in keep names, not unpublished ones.",
+        "owner": "PSR-09"
+      },
+      "doesNotClose": "Criterion 6 still refuses. Retiring this entry changes WHICH refusal is reported, not whether the criterion passes."
     }
   ]
 }
