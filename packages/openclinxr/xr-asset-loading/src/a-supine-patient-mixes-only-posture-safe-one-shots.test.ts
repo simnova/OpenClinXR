@@ -93,7 +93,7 @@ function register(
 }
 
 describe("a supine patient mixes only posture-safe one-shots", () => {
-  it.fails("admits a safe response mixer without auto-playing response, walk, or standing idle", () => {
+  it("admits a safe response mixer without auto-playing response, walk, or standing idle", () => {
     const first = register("supine", [SAFE_RESPONSE, WALK, STANDING_IDLE], { actorId: "supine_actor_a" });
     const second = register("supine", [SAFE_RESPONSE], { actorId: "supine_actor_b" });
     const { slot, planted } = first;
@@ -105,7 +105,7 @@ describe("a supine patient mixes only posture-safe one-shots", () => {
     expect(planted, "supine deck planting remains active").toBe(1);
   });
 
-  it.fails("consults the production translation classifier for selected supine responses", () => {
+  it("consults the production translation classifier for selected supine responses", () => {
     expect(register("supine", [SAFE_RESPONSE]).translationInspections).toBeGreaterThan(0);
     expect(register("supine", [ROOT_TRANSLATING_RESPONSE]).translationInspections).toBeGreaterThan(0);
   });

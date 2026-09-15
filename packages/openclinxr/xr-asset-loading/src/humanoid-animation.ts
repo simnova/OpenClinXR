@@ -54,8 +54,25 @@ export function registerGeneratedHumanoidAnimation(ctx: AssetLoadingContext, inp
       { translationBoneNames: ctx.translationBoneNames(clip.tracks as unknown[]) },
     ));
   // #150: no mixer for supine — standing tracks undo the recumbent plant.
-  // #83 invariant intact for every other seated actor: no mixer without the carve-out.
-  const mixer = input.playbackEnabled && input.animationClips.length > 0 && (!isSeated || seatedRoleClipPlayable) && !isSupine
+  // #MSC-C0R: supine admits a mixer only when explicitly selected touch-response clips
+  // are translation-safe (no .position tracks on root, legs, or unclassified bones).
+  // Registration creates no action for response, walk, or standing idle.
+  const supineResponseClips = isSupine
+    ? input.animationClips.filter((clip: unknown): clip is AnimationClip =>
+        clip instanceof AnimationClip && ctx.touchResponseClipNames(input.actorId).includes(clip.name))
+    : [];
+
+  let supineResponseTranslationSafe = false;
+  if (isSupine && supineResponseClips.length > 0) {
+    supineResponseTranslationSafe = supineResponseClips.every((clip) => {
+      const translationBones = ctx.translationBoneNames(clip.tracks as unknown[]);
+      return translationBones.length === 0;
+    });
+  }
+
+  const mixer = input.playbackEnabled && input.animationClips.length > 0 &&
+    (!isSeated || seatedRoleClipPlayable) &&
+    (!isSupine || supineResponseTranslationSafe)
     ? new AnimationMixer(input.humanoid)
     : undefined;
   // Response clips are registered on roleAnimationClipNames for discoverability but must not
@@ -64,15 +81,18 @@ export function registerGeneratedHumanoidAnimation(ctx: AssetLoadingContext, inp
     clip instanceof AnimationClip && input.gazeProbeAnimationClipNames.includes(clip.name),
   );
   // Never fall back to "play every clip" for seated/supine — neutral armatureAction is standing.
-  const clipsToPlay = selectedRoleClips.length > 0
-    ? [...selectedRoleClips, ...selectedGazeProbeClips]
-    : isSeated || isSupine
-      ? []
-      // The fallback plays EVERY clip, so a locomotion take added to a shipped actor would loop
-      // under an actor nobody selected it for. See isDeliberateSelectionOnlyClip.
-      : input.animationClips.filter((clip: unknown): clip is AnimationClip =>
-          clip instanceof AnimationClip && !isDeliberateSelectionOnlyClip(clip.name),
-        );
+  // For supine with translation-safe response clips: mixer admitted but NO auto-play (one-shots only).
+  const clipsToPlay = isSupine
+    ? []
+    : selectedRoleClips.length > 0
+      ? [...selectedRoleClips, ...selectedGazeProbeClips]
+      : isSeated
+        ? []
+        // The fallback plays EVERY clip, so a locomotion take added to a shipped actor would loop
+        // under an actor nobody selected it for. See isDeliberateSelectionOnlyClip.
+        : input.animationClips.filter((clip: unknown): clip is AnimationClip =>
+            clip instanceof AnimationClip && !isDeliberateSelectionOnlyClip(clip.name),
+          );
   const fixedSourcePoseClip = selectedRoleClips[0] ?? input.animationClips.find((clip: unknown): clip is AnimationClip => clip instanceof AnimationClip);
   if (!input.playbackEnabled && fixedSourcePoseClip && input.fixedSourcePoseSampleSeconds !== null) {
     const fixedPoseMixer = new AnimationMixer(input.humanoid);
