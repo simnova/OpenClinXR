@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { resolveApplyId } from "./apply-map.js";
+import { REVIEW_GROUPS, resolveApplyId } from "./apply-map.js";
 import { discoverConsumers } from "./consumers.js";
 import { manifestHash, measureSurface } from "./resolve.js";
 import type { SurfaceReport } from "./resolve.js";
@@ -445,7 +445,7 @@ export function requireApplied(root: string, id: string, report?: SurfaceReport)
 export function requireAllReviewed(root: string): GateResult {
   const { raw, error } = readRawInventory(root);
   if (raw === undefined) {
-    const groups = ["psr-01b", "psr-01c", "psr-01d", "psr-01e"];
+    const groups = [...REVIEW_GROUPS];
     for (const group of groups) {
       const read = readResolvedApproval(root, group);
       if (read.value === undefined) return { ok: false, detail: read.error ?? `approval manifest for ${group} is unreadable` };
@@ -453,7 +453,7 @@ export function requireAllReviewed(root: string): GateResult {
     return { ok: false, detail: error ?? "raw inventory unreadable" };
   }
   const rawHash = raw.inventoryHash;
-  const groups = ["psr-01b", "psr-01c", "psr-01d", "psr-01e"];
+  const groups = [...REVIEW_GROUPS];
   for (const group of groups) {
     const read = readResolvedApproval(root, group);
     if (read.value === undefined || read.rows === undefined) {
