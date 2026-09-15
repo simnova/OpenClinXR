@@ -86,6 +86,7 @@ export type ForeignMailboxResult = {
   latestCreatedAtByTaskId: Record<string, string>;
   polledTaskCount: number;
   watchedTaskCount: number;
+  watchedTaskIds: string[];
   polledTaskIds: string[];
   successfulTaskIds: string[];
   nextPollOffset: number;
@@ -120,6 +121,7 @@ export async function pollForeignMailbox(
       latestCreatedAtByTaskId: {},
       polledTaskCount: 0,
       watchedTaskCount: 0,
+      watchedTaskIds: [],
       polledTaskIds: [],
       successfulTaskIds: [],
       nextPollOffset: 0,
@@ -134,6 +136,7 @@ export async function pollForeignMailbox(
       latestCreatedAtByTaskId: {},
       polledTaskCount: 0,
       watchedTaskCount: taskIds.length,
+      watchedTaskIds: taskIds,
       polledTaskIds: [],
       successfulTaskIds: [],
       nextPollOffset: opts.pollOffset ?? 0,
@@ -216,6 +219,7 @@ export async function pollForeignMailbox(
     latestCreatedAtByTaskId,
     polledTaskCount: polledTaskIds.length,
     watchedTaskCount: taskIds.length,
+    watchedTaskIds: taskIds,
     polledTaskIds,
     successfulTaskIds,
     nextPollOffset,

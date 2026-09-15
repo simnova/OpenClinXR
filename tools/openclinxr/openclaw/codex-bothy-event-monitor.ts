@@ -463,6 +463,10 @@ export async function runMonitorCycle(config: MonitorConfig): Promise<MonitorCyc
   state.mailboxPollOffset = mailbox.nextPollOffset;
   state.watchedMailboxCount = mailbox.watchedTaskCount;
   state.polledMailboxCount = mailbox.polledTaskCount;
+  const watchedMailboxSet = new Set(mailbox.watchedTaskIds);
+  state.mailboxSinceByTaskId = Object.fromEntries(
+    Object.entries(state.mailboxSinceByTaskId).filter(([taskId]) => watchedMailboxSet.has(taskId)),
+  );
   const baselinedAtCycleStart = new Set(state.baselinedMailboxTaskIds);
   const baselineOnlyCommentIds = mailbox.comments
     .filter((comment) => !comment.taskId || !baselinedAtCycleStart.has(comment.taskId))
@@ -620,7 +624,7 @@ export async function runMonitorCycle(config: MonitorConfig): Promise<MonitorCyc
   // cursor. Failed reads remain unbaselined and retry on the next rotation.
   state.baselinedMailboxTaskIds = [
     ...new Set([...state.baselinedMailboxTaskIds, ...mailbox.successfulTaskIds]),
-  ];
+  ].filter((taskId) => watchedMailboxSet.has(taskId));
 
   // Mark events handled ONLY when the wake fired (or there was no delta). A
   // refused or failed wake leaves events unseen so the next cycle retries.

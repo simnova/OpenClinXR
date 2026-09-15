@@ -104,6 +104,14 @@ describe("mailbox-watch", () => {
       "tsk_history_3",
     ]);
     expect(first.watchedTaskCount).toBe(6);
+    expect(first.watchedTaskIds).toEqual([
+      "tsk_priority_a",
+      "tsk_priority_b",
+      "tsk_history_0",
+      "tsk_history_1",
+      "tsk_history_2",
+      "tsk_history_3",
+    ]);
     expect(second.nextPollOffset).toBe(0);
   });
 

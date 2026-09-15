@@ -151,11 +151,20 @@ export function loadSinceByTaskId(repoRoot: string): Record<string, string> {
   }
 }
 
-export function writeSinceByTaskId(repoRoot: string, latest: Record<string, string>): void {
+export function writeSinceByTaskId(
+  repoRoot: string,
+  latest: Record<string, string>,
+  watchedTaskIds?: string[],
+): void {
   const path = join(repoRoot, MAILBOX_SINCE_REL);
   mkdirSync(dirname(path), { recursive: true });
   const prev = loadSinceByTaskId(repoRoot);
-  writeFileSync(path, `${JSON.stringify({ ...prev, ...latest }, null, 2)}\n`);
+  const merged = { ...prev, ...latest };
+  const watched = watchedTaskIds ? new Set(watchedTaskIds) : null;
+  const next = watched
+    ? Object.fromEntries(Object.entries(merged).filter(([taskId]) => watched.has(taskId)))
+    : merged;
+  writeFileSync(path, `${JSON.stringify(next, null, 2)}\n`);
 }
 
 export function loadSeenCommentIds(repoRoot: string): Set<string> {
@@ -279,7 +288,7 @@ export async function runMailboxMonitorPass(
     if (opts.isSeed || !comment.taskId || !baselinedAtPassStart.has(comment.taskId)) continue;
     newIds.push(id);
   }
-  writeSinceByTaskId(opts.repoRoot, result.latestCreatedAtByTaskId);
+  writeSinceByTaskId(opts.repoRoot, result.latestCreatedAtByTaskId, result.watchedTaskIds);
   rememberCommentIds(opts.repoRoot, observedIds);
 
   const board = await pollBoardDeltas({
@@ -294,7 +303,7 @@ export async function runMailboxMonitorPass(
       mailboxPollOffset: result.nextPollOffset,
       baselinedMailboxTaskIds: [
         ...new Set([...previous.baselinedMailboxTaskIds, ...result.successfulTaskIds]),
-      ],
+      ].filter((taskId) => result.watchedTaskIds.includes(taskId)),
     });
   } else {
     writeGrokMonitorBoardState(opts.repoRoot, {
@@ -302,7 +311,7 @@ export async function runMailboxMonitorPass(
       mailboxPollOffset: result.nextPollOffset,
       baselinedMailboxTaskIds: [
         ...new Set([...previous.baselinedMailboxTaskIds, ...result.successfulTaskIds]),
-      ],
+      ].filter((taskId) => result.watchedTaskIds.includes(taskId)),
     });
   }
 
