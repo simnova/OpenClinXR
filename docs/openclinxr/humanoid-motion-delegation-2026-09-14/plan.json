@@ -44,7 +44,11 @@
       "tsk_7c2a05ec168cedc5"
     ],
     "conditionalA1b": "Create only for browser_submerged from the conditional contract below.",
-    "maxLaneAInFlight": 1
+    "maxLaneAInFlight": 1,
+    "startTaskId": "tsk_b46579b95775acb9",
+    "parallelStartTaskId": "tsk_ace7ecc78aafe6b8",
+    "sc07Status": "blocked pending A1 verdict",
+    "supersededPublicSurfaceStatus": "cancelled"
   },
   "graph": {
     "A1": [],
@@ -53,41 +57,41 @@
       "tsk_c1a0aa430750e5d5"
     ],
     "C2": [
-      "C0",
-      "C1"
+      "tsk_055c9e002cac1b27",
+      "tsk_ace7ecc78aafe6b8"
     ],
     "C3": [
-      "C2"
+      "tsk_3abda6be67fe9ed5"
     ],
     "A3": [
       "tsk_c1a0aa430750e5d5",
-      "C1",
-      "C2"
+      "tsk_ace7ecc78aafe6b8",
+      "tsk_3abda6be67fe9ed5"
     ]
   },
   "cards": {
     "a1": {
-      "taskId": null,
+      "taskId": "tsk_b46579b95775acb9",
       "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a1.json"
     },
     "c0": {
-      "taskId": null,
+      "taskId": "tsk_055c9e002cac1b27",
       "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c0.json"
     },
     "c1": {
-      "taskId": null,
+      "taskId": "tsk_ace7ecc78aafe6b8",
       "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c1.json"
     },
     "c2": {
-      "taskId": null,
+      "taskId": "tsk_3abda6be67fe9ed5",
       "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c2.json"
     },
     "c3": {
-      "taskId": null,
+      "taskId": "tsk_9045da4192061aa1",
       "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c3.json"
     },
     "a3": {
-      "taskId": null,
+      "taskId": "tsk_59b71ffb601bc818",
       "artifact": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a3.json"
     }
   },

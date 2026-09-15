@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.bothy-card-artifact.v1",
   "role": "C1",
-  "taskId": null,
+  "taskId": "tsk_ace7ecc78aafe6b8",
   "createPayload": {
     "projectId": "prj_9b390b99b443a964",
     "title": "MSC-C1 \u2014 Compile and publish one real authored touch response",

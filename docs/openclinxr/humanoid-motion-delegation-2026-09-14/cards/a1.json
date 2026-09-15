@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.bothy-card-artifact.v1",
   "role": "A1",
-  "taskId": null,
+  "taskId": "tsk_b46579b95775acb9",
   "createPayload": {
     "projectId": "prj_9b390b99b443a964",
     "title": "MSC-A1 \u2014 Establish browser foot truth before SC-07",

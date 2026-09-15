@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.bothy-card-artifact.v1",
   "role": "C3",
-  "taskId": null,
+  "taskId": "tsk_9045da4192061aa1",
   "createPayload": {
     "projectId": "prj_9b390b99b443a964",
     "title": "MSC-C3 \u2014 Prove one authored patient response through the normal rendered encounter",
@@ -10,7 +10,9 @@
     "priority": "1",
     "kind": "task",
     "parentId": "tsk_e8ac84dd9cb6ac06",
-    "depIds": [],
+    "depIds": [
+      "tsk_3abda6be67fe9ed5"
+    ],
     "fields": {
       "lane": "A",
       "factory_step": "staging"

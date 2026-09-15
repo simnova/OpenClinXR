@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.bothy-card-artifact.v1",
   "role": "A3",
-  "taskId": null,
+  "taskId": "tsk_59b71ffb601bc818",
   "createPayload": {
     "projectId": "prj_9b390b99b443a964",
     "title": "MSC-A3 \u2014 Admit only the final motion consumer surface through a new reviewed group",
@@ -11,6 +11,8 @@
     "kind": "task",
     "parentId": "tsk_36cf3c2473ac953f",
     "depIds": [
+      "tsk_3abda6be67fe9ed5",
+      "tsk_ace7ecc78aafe6b8",
       "tsk_c1a0aa430750e5d5"
     ],
     "fields": {

@@ -22164,49 +22164,49 @@
     {
       "path": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a1.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a3.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c0.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c1.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c2.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/c3.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/plan.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },

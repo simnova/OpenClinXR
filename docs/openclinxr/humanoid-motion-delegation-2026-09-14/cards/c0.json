@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.bothy-card-artifact.v1",
   "role": "C0",
-  "taskId": null,
+  "taskId": "tsk_055c9e002cac1b27",
   "createPayload": {
     "projectId": "prj_9b390b99b443a964",
     "title": "MSC-C0 \u2014 Permit only posture-safe one-shot motion on the supine patient",

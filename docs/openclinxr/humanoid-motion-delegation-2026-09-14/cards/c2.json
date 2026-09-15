@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.bothy-card-artifact.v1",
   "role": "C2",
-  "taskId": null,
+  "taskId": "tsk_3abda6be67fe9ed5",
   "createPayload": {
     "projectId": "prj_9b390b99b443a964",
     "title": "MSC-C2 \u2014 Bind compiled tracks to the already loaded MPFB patient",
@@ -10,7 +10,10 @@
     "priority": "1",
     "kind": "task",
     "parentId": "tsk_e8ac84dd9cb6ac06",
-    "depIds": [],
+    "depIds": [
+      "tsk_055c9e002cac1b27",
+      "tsk_ace7ecc78aafe6b8"
+    ],
     "fields": {
       "lane": "A",
       "factory_step": "motion_retarget"
