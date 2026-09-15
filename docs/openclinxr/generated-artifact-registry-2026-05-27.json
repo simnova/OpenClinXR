@@ -22134,6 +22134,13 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/humanoid-decimation-wiring-2026-09-14.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/humanoid-basecolorfactor-audit-2026-09-10.json",
       "authority": "keep-evidence",
       "tracked": true,

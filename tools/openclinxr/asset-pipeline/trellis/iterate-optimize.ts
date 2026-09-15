@@ -689,7 +689,13 @@ async function main() {
   console.log(JSON.stringify(report.champion, null, 2));
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+const invokedAsCli =
+  process.argv[1] !== undefined &&
+  (path.resolve(process.argv[1]).endsWith("iterate-optimize.ts") ||
+    path.basename(process.argv[1] ?? "").startsWith("iterate-optimize"));
+if (invokedAsCli) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

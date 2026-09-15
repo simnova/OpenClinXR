@@ -58,6 +58,10 @@ import {
   BAKE_FINISH_STEP,
   bakeProducedHumanoidAlbedo,
 } from "../trellis/bake-produced-humanoid.js";
+import {
+  DECIMATE_FINISH_STEP,
+  decimateProducedHumanoid,
+} from "../trellis/decimate-produced-humanoid.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
@@ -1211,6 +1215,16 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     // palette factor are skipped by the station (not transcoded).
     bakeProducedHumanoidAlbedo(destDisk);
     finishStepsRun.push(BAKE_FINISH_STEP);
+
+    // Decimation is part of produce, not a second command. destDisk is the baked
+    // figure; HB-05's reproduceCommands take `--input <hb02-bytes>` (post-bake
+    // input), so the rung runs after the bake, before the sha256/catalog stamp.
+    const decimated = await decimateProducedHumanoid(destDisk);
+    finishStepsRun.push(DECIMATE_FINISH_STEP);
+    console.log(
+      `[body-param] decimated ${bodyClassId}: rung ${decimated.rungId} ` +
+        `${decimated.trisBefore} -> ${decimated.trisAfter} tris`,
+    );
 
     const phenotype = (sc["phenotype"] as Record<string, number | string>) ?? {};
     const annyReferenceAsset =

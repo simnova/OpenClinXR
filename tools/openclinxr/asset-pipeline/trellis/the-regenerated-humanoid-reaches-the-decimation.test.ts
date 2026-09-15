@@ -124,7 +124,13 @@ describe("the regenerated humanoid reaches the decimation", () => {
   // iterate-optimize" — the defect itself, not a missing file and not an import error. The closure
   // is 9 rather than the 7 tsk_7be8f259400354d3 recorded because its own albedo wiring now sits
   // inside it; the decimation station still does not.
-  it.fails("(1) RED: the producing path reaches the decimation station, by import closure OR by its declared command", () => {
+  //
+  // ## FIXED (bothy-tsk_a5fd3338ced67133): wired as a direct producer-path call —
+  // body-param-cli.ts imports decimateProducedHumanoid from
+  // decimate-produced-humanoid.ts (which invokes writeFacePreservingRung from
+  // iterate-optimize.ts) and awaits it immediately after bakeProducedHumanoidAlbedo,
+  // before the sha256/catalog stamp. Import closure now reaches the station.
+  it("(1) RED: the producing path reaches the decimation station, by import closure OR by its declared command", () => {
     const closure = importClosure(GENERATOR);
     const byImport = [...closure].some((f) => path.basename(f).startsWith(STATION_MODULE));
     // body-param-cli.ts declares PRODUCED_BY_COMMAND = "pnpm asset:body-param:fit -- --once".
