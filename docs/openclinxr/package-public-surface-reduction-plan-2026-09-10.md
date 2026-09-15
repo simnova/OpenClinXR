@@ -2,7 +2,7 @@
 
 Date: 2026-09-10
 
-Status: COMPLETE, 2026-09-11 — the acceptance verifier closes on the recomputed tree. See "Closing record" at the end of this document.
+Status: REOPENED, 2026-09-14. It closed on 2026-09-11 and the acceptance verifier now returns `refuse`. New public API landed on 2026-09-14 and four names are published without an approved row. See "Closing record — 2026-09-11", which stands as written for its date, and the "Reopening record — 2026-09-14" that follows it.
 
 Scope: `packages/openclinxr/**` supported package imports
 
@@ -365,3 +365,71 @@ The ratchet that keeps this true is `docs/openclinxr/package-public-surface-redu
 at 1,220, enforced on every run of `pnpm arch:public-surface:verify`, plus per-package
 `arch-ceiling.json` files that only ever shrink. A card that adds a public name fails before it can
 land.
+
+## Reopening record — 2026-09-14
+
+The sentence immediately above is the one that did not hold. A card added four public names and
+landed. Everything in the 2026-09-11 record was true on its date and is left unedited; this section
+records what changed afterwards, measured by running the commands rather than by reading a status.
+
+**The closing criterion now refuses.** `pnpm arch:public-surface:acceptance`, the command the
+Closing record names for reproduction, returns `verdict: refuse` on two criteria:
+
+| criterion | at 2026-09-11 | 2026-09-14 |
+|---|---|---|
+| 5 reviewed-execution | applied | FAIL — 4 symbols published with no approved row |
+| 6 quantitative-review-targets | carried by a reviewed exception | FAIL — rootExportsAtMost 1224 > 1000, and `exceptions/psr-08-residual.json` uses the retired `kind` shape rather than `target`/`measured`/`threshold`/`reviewedBy` |
+
+The four symbols, named by the gate itself:
+
+    psr-01c  packages/openclinxr/motion-compiler        MotionGlbBakeClip
+    psr-01c  packages/openclinxr/motion-compiler        bakeMotionProgramToGlb
+    psr-01c  packages/openclinxr/motion-compiler        readMotionGlbClipId
+    psr-01e  packages/openclinxr/xr-humanoid-animation  playManifestMotionClip
+
+All four have real consumers, so deleting them is not available: `capability-gateway` imports three
+through the package root.
+
+**The ratchet is breached, and the arithmetic matches exactly.** `pnpm arch:public-surface:verify`
+fails against `baseline.json`:
+
+| measure | baseline.json | 2026-09-14 | delta |
+|---|---:|---:|---:|
+| root symbols | 1,220 | 1,224 | +4 |
+| occurrences | 1,461 | 1,465 | +4 |
+| unique symbols | 1,441 | 1,445 | +4 |
+| duplicate names | 20 | 20 | 0 |
+
+Per package, the gate names `motion-compiler` at 5 against a baseline of 2 and
+`xr-humanoid-animation` at 23 against 22. Three plus one is the four symbols above.
+
+**Why it landed anyway: nothing runs the ratchet.** `arch:public-surface:verify` is invoked by no
+gate — not `agentic-hook-runner.ts` (pre-commit or pre-push), not any workflow in `.github/workflows`,
+not any turbo task. The only reference outside its own CLI is a fixture-level test of the runner.
+The Closing record calls the ratchet load-bearing; it is a command a human must remember to type,
+which is the same defect class this programme exists to remove.
+
+**What changed on 2026-09-14, and what did not.** Three cards landed and are attested:
+`tsk_e133db2e0e13d261` cut three motion-compiler symbols that no consumer imported, taking criterion
+5 from seven unapproved names to four; `tsk_140554d3e5e30d4e` and `tsk_c1a0aa430750e5d5` collapsed
+the review-group set to one declaration and removed a resolver branch that admitted unknown group
+ids. A fourth, `tsk_255cb565914f1443`, closed a route by which a `migrate` row could introduce a
+symbol the inventory never listed — a way to clear criterion 5 by editing an approval manifest, with
+no hash movement, which is precisely the forgery `gates.ts:14-22` claims to refuse.
+
+None of that reopens closure, and none of it is claimed to. The remaining work is stated plainly:
+
+1. The four symbols need an admission route. Admitting a NEW review group does not provide one:
+   `psr-01c` already owns `motion-compiler`, and a whole-group apply compares every published name on
+   that package against the expected surface, so the `extra:` lines persist regardless of any new
+   group. The only honest route measured so far is re-running PSR-01A so the inventory contains the
+   four, which re-anchors all four closed groups at once — hence the second item.
+2. Every approval is pinned to one frozen inventory snapshot, so regenerating it invalidates all four
+   groups together. Scoping that anchor per group is a prerequisite for item 1 rather than an
+   alternative to it.
+3. Criterion 6 needs `exceptions/psr-08-residual.json` reshaped to the current field set, with
+   `measured` at the current 1,224 rather than the recorded 1,243, and a `reviewedBy` that is not the
+   owner. That is a documented, supported path; it requires a genuine independent review, not a
+   signature.
+4. The ratchet needs a gate. Until `arch:public-surface:verify` runs on the land path, this record
+   can go stale again without anyone noticing, which is exactly how it went stale this time.
