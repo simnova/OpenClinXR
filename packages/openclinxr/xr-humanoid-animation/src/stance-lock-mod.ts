@@ -1,5 +1,5 @@
 import type { Object3D } from "three";
-import * as THREE from "three";
+import { MathUtils, Quaternion, Vector3 } from "three";
 
 /**
  * The stance constraint SC-00 named as the remedy, applied to the actor slot rather than the root.
@@ -112,17 +112,17 @@ export function solveTwoBoneIK(
   targetWorld: { x: number; y: number; z: number },
   maxExtension: number,
   softening: number
-): { hipQuat: THREE.Quaternion; kneeQuat: THREE.Quaternion } | null {
+): { hipQuat: Quaternion; kneeQuat: Quaternion } | null {
   // Get world positions
   hip.updateMatrixWorld(true);
   knee.updateMatrixWorld(true);
   heel.updateMatrixWorld(true);
 
-  const hipWorld = new THREE.Vector3().setFromMatrixPosition(hip.matrixWorld);
-  const kneeWorld = new THREE.Vector3().setFromMatrixPosition(knee.matrixWorld);
-  const heelWorld = new THREE.Vector3().setFromMatrixPosition(heel.matrixWorld);
+  const hipWorld = new Vector3().setFromMatrixPosition(hip.matrixWorld);
+  const kneeWorld = new Vector3().setFromMatrixPosition(knee.matrixWorld);
+  const heelWorld = new Vector3().setFromMatrixPosition(heel.matrixWorld);
 
-  const target = new THREE.Vector3(targetWorld.x, targetWorld.y, targetWorld.z);
+  const target = new Vector3(targetWorld.x, targetWorld.y, targetWorld.z);
 
   // Bone lengths (hip->knee, knee->heel)
   const upperLen = hipWorld.distanceTo(kneeWorld);
@@ -135,18 +135,18 @@ export function solveTwoBoneIK(
   // Clamp distance to reachable range with softening near max extension
   const minDist = Math.abs(upperLen - lowerLen);
   const maxDist = maxExtension - softening;
-  let clampedDist = THREE.MathUtils.clamp(dist, minDist, maxDist);
+  let clampedDist = MathUtils.clamp(dist, minDist, maxDist);
 
   // If we're in the softening zone, approach exponentially
   if (dist > maxDist - softening && dist < maxDist + softening) {
     const t = (dist - (maxDist - softening)) / (2 * softening);
-    clampedDist = THREE.MathUtils.lerp(dist, maxDist, t * t * (3 - 2 * t)); // smoothstep
+    clampedDist = MathUtils.lerp(dist, maxDist, t * t * (3 - 2 * t)); // smoothstep
   }
 
   // Cosine rule for knee INTERNAL angle (angle between upper and lower leg in the triangle)
   // cos(kneeInternal) = (upper^2 + lower^2 - dist^2) / (2 * upper * lower)
   const cosKneeInternal = (upperLen * upperLen + lowerLen * lowerLen - clampedDist * clampedDist) / (2 * upperLen * lowerLen);
-  const kneeInternalAngle = Math.acos(THREE.MathUtils.clamp(cosKneeInternal, -1, 1));
+  const kneeInternalAngle = Math.acos(MathUtils.clamp(cosKneeInternal, -1, 1));
 
   // Knee joint bends by the SUPPLEMENT of the internal angle
   // Straight leg: internal = PI, bend = 0. Fully bent: internal = 0, bend = PI.
@@ -155,49 +155,49 @@ export function solveTwoBoneIK(
   // Cosine rule for hip angle (angle between current upper leg and desired hip->target vector)
   // cos(hip) = (upper^2 + dist^2 - lower^2) / (2 * upper * dist)
   const cosHip = (upperLen * upperLen + clampedDist * clampedDist - lowerLen * lowerLen) / (2 * upperLen * clampedDist);
-  const hipAngle = Math.acos(THREE.MathUtils.clamp(cosHip, -1, 1));
+  const hipAngle = Math.acos(MathUtils.clamp(cosHip, -1, 1));
 
   // Build rotation axis: perpendicular to the plane containing hip, knee, and target
   // Use a pole vector (character forward) to define the bend plane when collinear
-  const hipToKnee = new THREE.Vector3().subVectors(kneeWorld, hipWorld).normalize();
+  const hipToKnee = new Vector3().subVectors(kneeWorld, hipWorld).normalize();
   const hipToTarget = toTarget.clone().normalize();
 
   // Hinge axis = cross(hipToKnee, hipToTarget) - the axis the leg rotates around
-  let hingeAxis = new THREE.Vector3().crossVectors(hipToKnee, hipToTarget).normalize();
+  let hingeAxis = new Vector3().crossVectors(hipToKnee, hipToTarget).normalize();
 
   // If collinear (hinge axis near zero), use character's right vector as pole
   // This defines the sagittal bend plane (knee bends forward/backward)
   if (hingeAxis.lengthSq() < 1e-6) {
     // Get actorSlot's world right vector (X axis) as pole
     const actorSlot = hip.parent;
-    let poleVector: THREE.Vector3;
+    let poleVector: Vector3;
     if (actorSlot) {
       actorSlot.updateMatrixWorld(true);
-      poleVector = new THREE.Vector3(1, 0, 0).applyMatrix4(actorSlot.matrixWorld).normalize();
+      poleVector = new Vector3(1, 0, 0).applyMatrix4(actorSlot.matrixWorld).normalize();
     } else {
-      poleVector = new THREE.Vector3(1, 0, 0);
+      poleVector = new Vector3(1, 0, 0);
     }
     // Hinge axis = cross(legDirection, poleVector) - perpendicular to both
-    hingeAxis = new THREE.Vector3().crossVectors(hipToKnee, poleVector).normalize();
+    hingeAxis = new Vector3().crossVectors(hipToKnee, poleVector).normalize();
     // If still degenerate (leg parallel to pole), use up vector
     if (hingeAxis.lengthSq() < 1e-6) {
-      hingeAxis = new THREE.Vector3().crossVectors(hipToKnee, new THREE.Vector3(0, 1, 0)).normalize();
+      hingeAxis = new Vector3().crossVectors(hipToKnee, new Vector3(0, 1, 0)).normalize();
     }
   }
 
   // Convert world hinge axis to hip local space
-  const hipWorldQuat = new THREE.Quaternion().setFromRotationMatrix(hip.matrixWorld);
+  const hipWorldQuat = new Quaternion().setFromRotationMatrix(hip.matrixWorld);
   const hipLocalAxis = hingeAxis.clone().applyQuaternion(hipWorldQuat.clone().invert());
 
   // Knee rotates around same hinge axis (in knee local space)
-  const kneeWorldQuat = new THREE.Quaternion().setFromRotationMatrix(knee.matrixWorld);
+  const kneeWorldQuat = new Quaternion().setFromRotationMatrix(knee.matrixWorld);
   const kneeLocalAxis = hingeAxis.clone().applyQuaternion(kneeWorldQuat.clone().invert());
 
   // Create local rotations
   // Hip rotates by hipAngle around hinge axis
-  const hipQuat = new THREE.Quaternion().setFromAxisAngle(hipLocalAxis, hipAngle);
+  const hipQuat = new Quaternion().setFromAxisAngle(hipLocalAxis, hipAngle);
   // Knee bends by kneeBendAngle around hinge axis (supplement of internal angle)
-  const kneeQuat = new THREE.Quaternion().setFromAxisAngle(kneeLocalAxis, kneeBendAngle);
+  const kneeQuat = new Quaternion().setFromAxisAngle(kneeLocalAxis, kneeBendAngle);
 
   return { hipQuat, kneeQuat };
 }
@@ -329,8 +329,8 @@ export function applyStanceLockedGroundAdvance(input: {
   // Current hip->heel distance (max extension for softening)
   hip.updateMatrixWorld(true);
   heel.updateMatrixWorld(true);
-  const hipWorld = new THREE.Vector3().setFromMatrixPosition(hip.matrixWorld);
-  const heelWorldPos = new THREE.Vector3().setFromMatrixPosition(heel.matrixWorld);
+  const hipWorld = new Vector3().setFromMatrixPosition(hip.matrixWorld);
+  const heelWorldPos = new Vector3().setFromMatrixPosition(heel.matrixWorld);
   const maxExtension = hipWorld.distanceTo(heelWorldPos);
   const softening = 0.005; // 5 mm softening zone
 
@@ -446,8 +446,8 @@ export function applySettledPostureCorrection(input: {
   // Current hip->heel distance (max extension for softening)
   hip.updateMatrixWorld(true);
   heel.updateMatrixWorld(true);
-  const hipWorld = new THREE.Vector3().setFromMatrixPosition(hip.matrixWorld);
-  const heelWorldPos = new THREE.Vector3().setFromMatrixPosition(heel.matrixWorld);
+  const hipWorld = new Vector3().setFromMatrixPosition(hip.matrixWorld);
+  const heelWorldPos = new Vector3().setFromMatrixPosition(heel.matrixWorld);
   const maxExtension = hipWorld.distanceTo(heelWorldPos);
   const softening = 0.005; // 5 mm softening zone
 
