@@ -27,6 +27,60 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-15T1200">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 83 &middot; 2026-09-15 12:00 EDT</p>
+          <h2>The mouth fix is on the main line. An audit of thirty waiting items found none of them ready to start, and one item marked finished never did the job it was written for.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Checks were re-run against the main line after the change landed, not against the working copy that produced it. Two of the four rows below are problems rather than wins.</caption>
+            <thead><tr><th scope="col">Item</th><th scope="col">What changed</th><th scope="col">State</th></tr></thead>
+            <tbody>
+              <tr><td>An inspection model&rsquo;s closed mouth</td><td>The opening is restored and the file is now bound to the record describing it</td><td>Landed</td></tr>
+              <tr><td>The work-claim that expired mid-task</td><td>Checked line by line and published for review</td><td>Awaiting review</td></tr>
+              <tr><td>Thirty waiting items</td><td>Audited for whether any could actually be started</td><td>None ready as written</td></tr>
+              <tr><td>A finished item&rsquo;s central requirement</td><td>It was never carried out, and its checks could not tell</td><td>Found, recorded, not fixed</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Landed: the mouth that would not open</h3>
+            <ul>
+              <li>An inspection model used to check mouth shapes had flattened to nearly shut &mdash; an opening of about one millimetre where the measurement requires at least twenty-one. The figure is derived from the height of the model&rsquo;s own teeth, so it is a property of the subject rather than a number anyone picked. It now opens to roughly twenty-four millimetres, clearing that bar with a small margin.</li>
+              <li>The control held. A second mouth shape that is supposed to stay closed is still closed, an order of magnitude below the same bar. A change that simply opened everything would have failed there, which is the point of keeping it in the checks.</li>
+              <li>The stronger result is a record that now describes its own file. The model&rsquo;s provenance record carried a fingerprint but never said which file it belonged to, so the check meant to catch mismatches skipped it entirely and reported success about nothing. It now names the file, and a new check requires the record to be read and its fingerprint to match the bytes &mdash; not merely that a record exists.</li>
+              <li>Verified after landing by re-running all three groups of checks against the main line and recomputing the fingerprint from the file itself: twelve of twelve, and the numbers agree.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Thirty waiting items, and not one ready to start</h3>
+            <ul>
+              <li>Asked whether any waiting item could be handed to an assistant, the answer came back none, for four different reasons. Seventeen carry no verifiable completion rules at all, and those rules cannot be added after an item is created &mdash; each needs a replacement rather than an edit. Twelve name test files that do not exist, and a rule requiring an existing test to pass can never be satisfied by one nobody wrote.</li>
+              <li>Of the last two, one is excluded by standing instruction and one is a stub whose only prerequisite was cancelled. Its stated goal is a copy of its own title, and its rules require only that some file changed in each of four directories &mdash; satisfied by editing anything at all.</li>
+              <li>The queue is not short of items. It is short of items anyone has decided how to prove. Starting one anyway would mean judging an assistant against standards nobody chose, which is worse than an empty queue because it looks like a standard.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>An item marked finished whose main requirement was never carried out</h3>
+            <ul>
+              <li>A component that decides how a case unfolds in response to what a learner does was built, tested and recorded as complete. Its own written goal required it to be connected into one real running path. It is connected to nothing: no caller anywhere, not published from its package, and none of the case data it needs was ever authored.</li>
+              <li>Its completion checks were three confirmations that files exist and three runs of the package&rsquo;s own tests. All six pass. None of them can see whether the thing was connected to anything, so the record says finished and the work is half absent. Two neighbouring pieces built in the same batch are stranded the same way.</li>
+              <li>This is the same defect closed on the mouth model this morning, in a different place: a check that reads as coverage while asserting nothing about the property it was written for. No replacement work has been started &mdash; a proposal was put through an adversarial review first, and that review rejected the approach.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Two of my own errors, caught before they reached anyone</h3>
+            <ul>
+              <li>I chose the wrong place to connect that component. The module&rsquo;s own opening comment names a different connection point, which I had not read. The reviewer found it in one pass and the proposal was rewritten rather than built.</li>
+              <li>I then claimed the project&rsquo;s architecture rules forbade a particular connection. They do not &mdash; they restrict three other areas and say nothing about the two I named. I had asserted a constraint without testing it, which is the error I most often make.</li>
+              <li>The reviewer was also wrong about one thing, and checking caught that too: it cited two files as callers of the connection point, and neither contains the call. Right about the structure, wrong about the mechanism. Every claim here was checked against the code rather than accepted.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="band" id="entry-2026-09-15T0940">
         <div class="section-heading">
           <p class="eyebrow">Entry 82 &middot; 2026-09-15 09:40 EDT</p>
