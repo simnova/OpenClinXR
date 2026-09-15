@@ -27,6 +27,57 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-14T2250">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 76 &middot; 2026-09-14 22:50 EDT</p>
+          <h2>Asked to settle a disagreement between two measuring tools, we found the tool itself fails two runs in five. The honest answer was to say so.</h2>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Two recordings of the same walk-to-the-bedside sequence, made minutes apart from identical code. The task required two usable ones.</caption>
+            <thead><tr><th scope="col">Recording</th><th scope="col">Frames captured</th><th scope="col">Knew what was driving the scene</th><th scope="col">Timed out waiting</th></tr></thead>
+            <tbody>
+              <tr><td>First</td><td>357</td><td>yes</td><td>no</td></tr>
+              <tr><td>Second</td><td><strong>0</strong></td><td><strong>no</strong></td><td><strong>yes</strong></td></tr>
+              <tr><td>All recordings made today</td><td colspan="3"><strong>2 of 5 produced nothing at all</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>The question, and why it was not answered</h3>
+            <ul>
+              <li>Two separate tools measure whether a walking character&rsquo;s feet reach the floor properly. They disagree: one says the feet stop about 14&nbsp;mm above the floor, the other says a foot passes roughly 38&nbsp;mm through it. Something downstream was waiting on which is right.</li>
+              <li>The task asked for two usable recordings from the browser tool before that comparison could be made. One arrived. The other captured nothing &mdash; no frames, no idea what was driving the scene, and it gave up waiting.</li>
+              <li>Recorded outcome: the instrument cannot be trusted to answer yet. The downstream work stays blocked, and the follow-up task that would only make sense if the feet were genuinely sinking was explicitly <em>not</em> created. Repairing the recorder comes first.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Why we did not simply record again until it worked</h3>
+            <ul>
+              <li>Re-running until two recordings happen to succeed, then reporting those two, would have produced a cleaner-looking result by choosing the evidence that suited it. Every recording made today is listed in the published record, not a selected pair.</li>
+              <li>The failure rate is the finding. Two of five is not a fluke to be retried past; it is the reason the comparison cannot be made.</li>
+              <li>One detail worth naming: a failed recording still finishes successfully and still writes a normal-looking 59&nbsp;KB screenshot. Any check that asked only &ldquo;was an image produced, and is it big enough&rdquo; would have passed a run that measured nothing.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A measuring stick corrected before it graded anything</h3>
+            <ul>
+              <li>The first draft of the pass/fail rule reused an existing 6&nbsp;cm tolerance. That tolerance answers &ldquo;is this foot planted&rdquo;, measured upward from the floor &mdash; it does not answer &ldquo;do the two tools agree which side of the floor the foot is on&rdquo;.</li>
+              <li>Used as written, it would have marked a foot 38&nbsp;mm <em>through</em> the floor as agreement, while the recorder&rsquo;s own report calls that same reading a fault. It was replaced with a 5&nbsp;mm tolerance around the floor itself, taken from the natural jitter in frames where the two tools already agree rather than from the number being judged.</li>
+              <li>The check was written before the recordings were graded and accepts every possible outcome, including the one saying the instrument is broken. It fails only when a stated conclusion contradicts the numbers printed beside it.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Also landed: a mesh-reduction step that nothing was calling</h3>
+            <ul>
+              <li>Entry 75 recorded that regenerated character bodies skip the step that reduces their complexity, because nothing in the production path called it. That is now wired: producing a body reduces it in the same pass, with a measured 94,887 &rarr; 57,077 triangle reduction on a test copy. No shipped model was altered.</li>
+              <li>An incidental fault was fixed with it: merely referencing that reduction tool used to launch its entire command-line program. Without that fix, wiring it in would have run the whole optimiser every time a body was made.</li>
+              <li>Checking the surrounding tests surfaced a separate problem, now written up as its own task: for three of five characters, the recorded description of what was produced no longer matches the files on disk. The recorded and actual facial detail agree exactly; the totals do not.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-14T2155">
         <div class="section-heading">
           <p class="eyebrow">Entry 75 &middot; 2026-09-14 21:55 EDT</p>
