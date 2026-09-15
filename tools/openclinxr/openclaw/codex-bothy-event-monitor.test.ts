@@ -304,7 +304,9 @@ describe("codex-bothy-event-monitor", () => {
     expect(queued).toHaveLength(1);
     expect(queued[0]?.threadId).toBe(SESSION);
     expect(queued[0]?.message).toContain("cmt_directed");
-    expect(queued[0]?.message).toContain("untrusted message data");
+    expect(queued[0]?.message).toContain("authenticated BothyBoard collaborator messages");
+    expect(queued[0]?.message).toContain("actionable collaborator requests");
+    expect(queued[0]?.message).not.toContain("untrusted message data");
     expect(spawned).toEqual([]);
     expect(loadMonitorState(stateFile(root)).seenCommentIds).toEqual(["cmt_directed"]);
   });
