@@ -52,12 +52,27 @@ import {
   announceBothyClaimPresence as announceBothyDispatchPresence,
   startBothyClaimRenewal,
 } from "./bothy-claim-renewal.js";
+import { bothyTaskIdFromSliceId } from "./board-bothy-dequeue.js";
+
+/**
+ * Derives the bare taskId for BothyBoard calls from a slice id.
+ * - If slice starts with "bothy-", strips only that prefix (preserves "tsk_")
+ * - If slice is already bare (doesn't start with "bothy-"), passes through unchanged
+ * - If slice is undefined, returns "unscoped"
+ */
+export function boardTaskIdForSlice(slice: string | undefined): string {
+  if (!slice) return "unscoped";
+  const converted = bothyTaskIdFromSliceId(slice);
+  return converted ?? slice;
+}
+
 export {
   announceBothyClaimPresence,
   BOTHY_CLAIM_INTERVAL_MS,
   type BothyClaimPresence,
   type ClaimRenewalHooks,
 } from "./bothy-claim-renewal.js";
+export { bothyTaskIdFromSliceId } from "./board-bothy-dequeue.js";
 
 /**
  * INCIDENT: a worker was capped at 50 turns and died at exactly turn 50; another survived by one
@@ -1706,10 +1721,12 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   // Claim-gap (tsk_ba0bf4ba7fa9af29): a live dispatch used to be invisible on Bothy
   // (assigneeAgentId None while the process ran). Register + heartbeat are best-effort —
   // missing PAT or a board error must not kill the worker.
+  const taskIdForBoard = boardTaskIdForSlice(options.slice);
+
   void announceBothyDispatchPresence({
     path: worktreePath ?? repoRoot,
     branch: options.branch ?? "main",
-    taskId: options.slice ?? "unscoped",
+    taskId: taskIdForBoard,
     grokSessionId: chosenSessionId,
     agentId: options.bothyAgentId,
   });
@@ -1719,7 +1736,7 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   const stopBothyRenewal = startBothyClaimRenewal({
     path: worktreePath ?? repoRoot,
     branch: options.branch ?? "main",
-    taskId: options.slice ?? "unscoped",
+    taskId: taskIdForBoard,
     grokSessionId: chosenSessionId,
     agentId: options.bothyAgentId,
   });

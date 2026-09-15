@@ -24,17 +24,30 @@ export async function announceBothyClaimPresence(
   if (!pat) return;
   const machineName = hostname();
   try {
-    await bothyMcpCall(pat, "bothy-board.worktrees.register", {
+    const result = await bothyMcpCall(pat, "bothy-board.worktrees.register", {
       path: input.path,
       branch: input.branch,
       machineName,
       taskId: input.taskId,
     });
+    if (
+      result.structuredContent &&
+      typeof result.structuredContent === "object" &&
+      "error" in result.structuredContent &&
+      typeof (result.structuredContent as { error?: unknown }).error === "string" &&
+      (result.structuredContent as { error: string }).error.length > 0
+    ) {
+      console.warn(
+        "[bothy-claim-renewal] worktrees.register board refusal:",
+        (result.structuredContent as { error: string }).error,
+      );
+    }
   } catch {
     // board visibility is not a dispatch contract
+    console.warn("[bothy-claim-renewal] worktrees.register transport failure");
   }
   try {
-    await bothyMcpCall(pat, "bothy-board.agents.heartbeat", {
+    const result = await bothyMcpCall(pat, "bothy-board.agents.heartbeat", {
       name: "dispatch-worker",
       machineName,
       currentTaskId: input.taskId,
@@ -42,8 +55,21 @@ export async function announceBothyClaimPresence(
       ...(input.grokSessionId ? { grokSessionId: input.grokSessionId } : {}),
       ...(input.agentId ? { agentId: input.agentId } : {}),
     });
+    if (
+      result.structuredContent &&
+      typeof result.structuredContent === "object" &&
+      "error" in result.structuredContent &&
+      typeof (result.structuredContent as { error?: unknown }).error === "string" &&
+      (result.structuredContent as { error: string }).error.length > 0
+    ) {
+      console.warn(
+        "[bothy-claim-renewal] agents.heartbeat board refusal:",
+        (result.structuredContent as { error: string }).error,
+      );
+    }
   } catch {
     // board visibility is not a dispatch contract
+    console.warn("[bothy-claim-renewal] agents.heartbeat transport failure");
   }
 }
 
