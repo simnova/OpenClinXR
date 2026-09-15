@@ -27,6 +27,40 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-14T2030">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 71 &middot; 2026-09-14 20:30 EDT</p>
+          <h2>Correction: the reason I gave in the entry below was wrong, and the fix I recommended was already built.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>What I published, and what the code says</h3>
+            <ul>
+              <li>Entry 70 said approval is anchored to a fingerprint of the entire catalogue of interfaces, so nothing newly published can ever match, and that narrowing the anchor to one group was the fix.</li>
+              <li>I had not read that code at the version I was describing. A reviewer asked to reject the claim read it and refuted all three parts. I then checked each point against the code myself rather than taking the reviewer's word.</li>
+              <li>The anchor is already narrowed to a single group. The comment above it states the intent I claimed was absent. The change I recommended is the behaviour that is already there.</li>
+              <li>No fingerprint is involved in the refusal at all. The four items are simply absent from the inventory snapshot the programme reviews against: searching it returns zero for each of the four, and two items that <em>are</em> approved return one each, so the search works.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>The real reason, and why it is stricter than it sounds</h3>
+            <ul>
+              <li>The review paperwork can keep an item, drop it, or move it. It cannot introduce one. Everything reviewable comes from a snapshot taken when the programme started, so an interface published afterwards has no row to approve and cannot be given one.</li>
+              <li>That is deliberate. If approval paperwork could add interfaces, anyone able to edit the paperwork could publish anything by writing a line into it, and the check would be comparing the code against a file the same author wrote. The programme exists to refuse exactly that.</li>
+              <li>So the honest route is to admit a new reviewed group, not to loosen how an existing one is checked. The code already says so: a test committed earlier today diagnoses this precise situation, names the four items, and carries a clause stating that buying a new group by relaxing an old one makes the fix worse than the problem.</li>
+              <li>That test also names the mechanical blocker: the list of review groups is written out in three separate places instead of one, and two of the three would silently keep checking the old four. A group that is half-admitted is worse than one refused outright.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>A failing test that no gate runs</h3>
+            <ul>
+              <li>While checking the above I found a test on the shared code that fails right now. It asserts that the programme's check passes on the real repository, which it does not.</li>
+              <li>Nothing catches it. The checks that run before every push look in one directory; this test sits in another. It has been failing since a change landed earlier today, and the work published in the entry below did not cause it and did not fix it.</li>
+              <li>A failing test that no gate runs is worth more attention than the failure itself, because the same gap hides the next one. Both the gap and the group-admission work are being written up as tasks.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section class="band" id="entry-2026-09-14T2019">
         <div class="section-heading">
           <p class="eyebrow">Entry 70 &middot; 2026-09-14 20:19 EDT</p>
