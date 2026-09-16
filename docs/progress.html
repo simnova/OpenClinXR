@@ -27,6 +27,75 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-16T0656">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 93 &middot; 2026-09-16 06:56 EDT</p>
+          <h2>The checker approved a report it had never really checked. Rewriting only the summary, and nothing else, got past it.</h2>
+        </div>
+        <p>
+          An instrument records what happens when the clinical scene is started five times in a row.
+          Each start writes a raw file and a screenshot to disk, and the instrument then writes a
+          summary saying how each start turned out. A separate checker exists to prove that summary is
+          honest. It recomputed every file hash, confirmed the files were unmodified, and passed.
+        </p>
+        <p>
+          The test that found the hole changed nothing on disk. Every raw file, every screenshot and
+          every hash was left exactly as recorded. Only the summary was rewritten, to claim that all
+          five starts had been refused for a reason that never occurred. The checker passed that too.
+          The honest report and the fabricated one both came back clean.
+        </p>
+        <p>
+          The cause is a single confusion worth stating plainly: hashing a file proves the file has not
+          been altered. It proves nothing about whether the summary beside it describes that file. The
+          checker was reading its verdict out of the summary it was supposed to be auditing.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Seven forgeries attempted against the corrected checker, each leaving the underlying evidence untouched.</caption>
+            <thead><tr><th scope="col">What was falsified</th><th scope="col">Result</th></tr></thead>
+            <tbody>
+              <tr><td>Summary claims five refusals that never happened</td><td>rejected, 41 named errors</td></tr>
+              <tr><td>A recorded position moved, and the start time rewritten</td><td>rejected</td></tr>
+              <tr><td>A file path pointed somewhere else</td><td>rejected</td></tr>
+              <tr><td>The checker's own recorded fingerprint tampered with</td><td>rejected</td></tr>
+              <tr><td>The checker's history claimed to come from an unrelated revision</td><td>rejected</td></tr>
+              <tr><td>The checker's stored identity missing entirely</td><td>rejected</td></tr>
+              <tr><td>The checker's current bytes not matching the committed ones</td><td>rejected</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>The first correction quietly exempted the checker from its own rule</h3>
+        <p>
+          The instrument records a fingerprint of each piece of source code it depends on, including
+          the checker itself, and refuses if any of them has changed unexpectedly. Correcting the
+          checker necessarily changes the checker, so the first attempt added a line skipping that one
+          comparison. Every test passed. The exemption was found only by reading the complete change
+          line by line, because reading the list of changed files shows the right two files and tells
+          you nothing about what the lines inside them do.
+        </p>
+        <p>
+          The replacement keeps both facts instead of dropping one. The checker now confirms its
+          recorded historical fingerprint against the actual committed version it came from, requires
+          that version to be a genuine ancestor of the one under review, and separately confirms the
+          bytes running right now match the bytes that were committed. When the two differ, as they
+          must after a correction, it says so explicitly rather than hiding it.
+        </p>
+        <h3>What this does not establish</h3>
+        <p>
+          This is a repair to an instrument, not to the product. The underlying observation remains
+          five starts on one machine, one build and one scene revision against an already-running
+          server. That is a bounded observation, not a reliability rate, and nothing here is evidence
+          about foot placement or contact with the floor. One known limitation is recorded rather than
+          smoothed over: the evidence files are deliberately not stored in the repository, so the
+          checker cannot run on a fresh copy that lacks them. It reports that absence as a failure,
+          which is the correct behaviour for a checker and was deliberately not softened.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
+          claim is made here. This entry reports a correction to a verification tool and the forgeries it now
+          refuses. It makes no claim about repeated browser behaviour, reliability, or foot contact.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-16T0421">
         <div class="section-heading">
           <p class="eyebrow">Entry 92 &middot; 2026-09-16 04:21 EDT</p>
