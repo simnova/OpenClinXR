@@ -811,7 +811,7 @@ export async function captureIsolatedFootGrounder(
     }
   }
 
-  process.stdout.write(`${reportPath}\n`);
+  process.stdout.write(`${finalReportPath}\n`);
   process.stdout.write(`grade: ${grade.ok ? "ok" : "fail"} — ${grade.problems.join("; ") || "none"}\n`);
 
   return report;

@@ -10,7 +10,11 @@ function sha256Hex(bytes: Buffer): string {
 describe("isolated-foot-grounder capture", () => {
   it("samples both feet and produces a not-gradeable report with named refusals", async () => {
     const outputDir = ".openclinxr/evidence/isolated-foot-grounder/test-run";
-    const report = await captureIsolatedFootGrounder(outputDir);
+    // Pass the report path explicitly. Without it the capture writes the TRACKED report and this
+    // test reads a ${outputDir}/report.json nobody wrote — it passed only while a stale test-run
+    // directory from an earlier run happened to hold one, and failed ENOENT on a clean checkout
+    // (integrate #717 caught exactly that against the merged tree).
+    const report = await captureIsolatedFootGrounder(outputDir, `${outputDir}/report.json`);
 
     // Verify the report exists and has the required schema
     expect(report.schemaVersion).toBe("openclinxr.isolated-foot-grounder.v1");
