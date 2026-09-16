@@ -1,4 +1,7 @@
-import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AnimationClip, AnimationMixer, Group, LoopOnce, Object3D, PropertyBinding, QuaternionKeyframeTrack } from "three";
 import { describe, expect, it } from "vitest";
@@ -33,6 +36,12 @@ describe("the shipped ED patient has a playable RLQ response",()=>{
  it("pins the promoted patient and retains its existing animations",()=>{
   const s=subject();expect(s.gltf.animations.find(a=>a.name==="ClinicalIdleConversation")!.channels).toHaveLength(411);expect(s.gltf.animations.find(a=>a.name==="ClinicalExpressionMicroTransition")!.channels).toHaveLength(1);expect(s.gltf.animations.find(a=>a.name==="ClinicalExpressionMicroTransition")!.channels[0]!.target.path).toBe("weights");expect(s.gltf.animations.map(a=>a.name)).toEqual(expect.arrayContaining(["ClinicalIdleConversation","ClinicalExpressionMicroTransition"]));
  });
+ it.fails("the materializer refuses a missing required right-arm joint without publishing output",()=>{
+  const s=subject();const missing=s.gltf.nodes.find(n=>n.name==="upperarm01.R")!;expect(missing).toBeDefined();missing.name="removed_required_right_arm";
+  const json=Buffer.from(JSON.stringify(s.gltf));const padded=Buffer.alloc(Math.ceil(json.length/4)*4,0x20);json.copy(padded);const jsonHeader=Buffer.alloc(8);jsonHeader.writeUInt32LE(padded.length,0);jsonHeader.writeUInt32LE(0x4e4f534a,4);const tail=s.bytes.subarray(20+s.bytes.readUInt32LE(12));const header=Buffer.from(s.bytes.subarray(0,12));header.writeUInt32LE(12+8+padded.length+tail.length,8);
+  const directory=mkdtempSync(join(tmpdir(),"rlq-required-joint-"));const input=join(directory,"input.glb"),output=join(directory,"output.glb");
+  try {writeFileSync(input,Buffer.concat([header,jsonHeader,padded,tail]));const result=spawnSync("pnpm",["exec","tsx",fileURLToPath(new URL("../materialize-guard-withdraw-clip.ts",import.meta.url)),"--glb",input,"--out",output,"--backup",join(directory,"backup.glb"),"--report",join(directory,"report.json")],{cwd:fileURLToPath(new URL("../../../../",import.meta.url)),encoding:"utf8",timeout:60000});expect(result.error).toBeUndefined();expect(result.status).not.toBe(0);expect(result.stderr).toMatch(/upperarm01[.]?R|upper_armR/);expect(existsSync(output)).toBe(false);}finally{rmSync(directory,{recursive:true,force:true});}
+ },70000);
  it.fails("the selected response moves the MPFB right arm then settles without moving supine support",()=>{
   const s=subject();const candidates=s.gltf.animations.filter(a=>a.name===s.selected);expect(candidates,`authored ${s.selected} absent from bound patient`).toHaveLength(1);
   const clip=candidates[0]!;const names=clip.channels.map(c=>s.gltf.nodes[c.target.node]!.name!);
