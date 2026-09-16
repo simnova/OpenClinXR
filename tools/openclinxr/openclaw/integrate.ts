@@ -16,6 +16,7 @@ import {
 } from "./board-cli.js";
 import { stagedTreeHash, writeGateReport } from "./integrate-gate.js";
 import { runMergeKill, type KillFinding, type MergeKillReport } from "./merge-kill.js";
+import { classifyDiff } from "./diff-class-policy.js";
 import { parseRunArgv } from "../../../packages/openclinxr/agent-loop/src/done-when-rules.js";
 
 /**
@@ -556,6 +557,7 @@ export function integrate(input: IntegrateInput): IntegrateResult {
     base: input.base,
     head: input.head,
     ...(input.contract !== undefined ? { contract: input.contract } : {}),
+    classifyForbidden: (paths) => classifyDiff(paths).forbidden,
     // #217 opt-out: the trusted brief may state that a gitignored proof target is deliberately
     // machine-local (capture trees, provider caches). merge-kill refuses such a target unless
     // it is listed here — so the decision is explicit, never an accident.
