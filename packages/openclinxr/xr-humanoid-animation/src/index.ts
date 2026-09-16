@@ -26,9 +26,6 @@ export {
   orientHumanoidTowardGazeTarget,
   resolveHumanoidGazeTargetWorld,
 } from "./gaze-evidence.js";
-export {
-  resolveToeBones,
-} from "./resolve-toe-bones.js";
 export type {
   MouthGazePoseComparatorEvidenceRecord,
   RuntimeHumanoidActingCueEvidenceRecord,

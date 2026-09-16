@@ -24,7 +24,6 @@
     "orientHumanoidTowardGazeTarget",
     "playManifestMotionClip",
     "resolveHumanoidGazeTargetWorld",
-    "resolveToeBones",
     "startHumanoidEmotionTransition",
     "updateGeneratedHumanoidAnimations",
     "updateHumanoidEmotionExpression"
