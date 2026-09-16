@@ -215,6 +215,7 @@ function buildStagingContext(input: {
       ({
         selectedScenarioId: () => input.scenarioId,
         activeEnvironmentId: () => input.environmentId,
+        setActorSlotByActor: vi.fn(),
       }) as AssetLoadingContext,
     // main.ts:840 — the live caller. The arguments it supplies are the subject of clause (4).
     actorPlacement: (actorId, fallback, mounted) => {

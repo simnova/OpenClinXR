@@ -161,7 +161,11 @@ function buildStagingContext(input: {
       additionalActorId: input.actors.additional_cast,
     }),
     assetLoadingContext: () =>
-      ({ selectedScenarioId: () => CASE.scenarioId, activeEnvironmentId: () => WARD_ENVIRONMENT_ID }) as AssetLoadingContext,
+      ({
+        selectedScenarioId: () => CASE.scenarioId,
+        activeEnvironmentId: () => WARD_ENVIRONMENT_ID,
+        setActorSlotByActor: vi.fn(),
+      }) as AssetLoadingContext,
     actorPlacement: (actorId, fallback, mounted) => {
       const placement = input.placements[actorId];
       const posture = placement?.posture ?? fallback.posture ?? "standing";

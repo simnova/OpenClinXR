@@ -1,15 +1,14 @@
 import type { EncounterRuntimeAsset, LearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import type { AssetLoadingContext } from "@openclinxr/xr-asset-loading";
-import { Mesh, MeshBasicMaterial, PlaneGeometry, Scene } from "three";
-import { Group } from "three";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as assetLoading from "@openclinxr/xr-asset-loading";
+import { Group, Mesh, MeshBasicMaterial, PlaneGeometry, Scene } from "three";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   actorNameplateLabel,
   runtimeGeneratedSceneObjectName,
-  stageStationActors,
   type StationActorSlotKind,
   type StationActorStagingContext,
+  stageStationActors,
 } from "./actor-staging.js";
 
 function asset(assetId: string): EncounterRuntimeAsset {
@@ -97,6 +96,7 @@ function buildCtx(overrides: Partial<{
       clinicalIdleClipPresent: () => false,
       roleClipNames: () => [],
       gazeProbeClipNames: () => [],
+      setActorSlotByActor: () => {},
       affordanceMarker: () => new Group(),
       detailCues: () => new Group(),
       collisionCues: () => new Group(),
@@ -174,6 +174,78 @@ describe("stageStationActors", () => {
       expect(root!.visible).toBe(true);
       expect(root!.children.length).toBeGreaterThan(2);
     }
+  });
+
+  it.fails("publishes every staged actor slot before an asynchronous humanoid load can finish", () => {
+    const scene = new Scene();
+    const ctx = buildCtx({
+      applyActorFraming: (actor) => {
+        actor.position.x += 0.123;
+      },
+    });
+    const snapshots = new Map<string, { inScene: boolean; position: [number, number, number]; supportReadiness: unknown }>();
+    const setActorSlotByActor = vi.fn();
+    setActorSlotByActor.mockImplementation((actorId: string, root: Group) => {
+      snapshots.set(actorId, {
+        inScene: scene.children.includes(root),
+        position: root.position.toArray(),
+        supportReadiness: root.userData["openClinXrSupportReadiness"],
+      });
+    });
+    const loading = ctx.assetLoadingContext();
+    vi.spyOn(ctx, "assetLoadingContext").mockReturnValue({
+      ...(loading as unknown as Record<string, unknown>),
+      setActorSlotByActor,
+    } as unknown as AssetLoadingContext);
+    vi.mocked(assetLoading.loadGeneratedHumanoidIntoActorSlot).mockImplementation((_loading, root, input) => {
+      expect(setActorSlotByActor, `${input.actorId} must be published before its loader starts`).toHaveBeenCalledWith(
+        input.actorId,
+        root,
+      );
+    });
+
+    // beforeEach deliberately replaces the GLB loader with a no-op. The slot map therefore has to
+    // be complete from synchronous scene staging; waiting for a successful asset callback makes
+    // frozen-plan admission race network/decode order and fall back to the world origin.
+    stageStationActors(ctx, scene);
+
+    const roots = rootsByKind(scene);
+    expect(assetLoading.loadGeneratedHumanoidIntoActorSlot).toHaveBeenCalledTimes(4);
+    expect(setActorSlotByActor).toHaveBeenCalledTimes(4);
+    for (const [kind, actorId] of Object.entries(SLOT_ACTORS) as Array<[StationActorSlotKind, string]>) {
+      const root = roots.get(kind);
+      expect(root, kind).toBeInstanceOf(Group);
+      expect(scene.children).toContain(root);
+      expect(root!.position.length(), `${kind} must be framed away from the origin`).toBeGreaterThan(0);
+      expect(setActorSlotByActor).toHaveBeenCalledWith(actorId, root);
+      expect(snapshots.get(actorId)).toEqual({
+        inScene: true,
+        position: root!.position.toArray(),
+        supportReadiness: "unobserved",
+      });
+    }
+  });
+
+  it.fails("does not publish an empty actor id for an unfilled staged slot", () => {
+    const scene = new Scene();
+    const actors = { ...SLOT_ACTORS, additional_cast: "" };
+    const ctx = buildCtx({ actors });
+    const setActorSlotByActor = vi.fn();
+    const loading = ctx.assetLoadingContext();
+    vi.spyOn(ctx, "assetLoadingContext").mockReturnValue({
+      ...(loading as unknown as Record<string, unknown>),
+      setActorSlotByActor,
+    } as unknown as AssetLoadingContext);
+
+    stageStationActors(ctx, scene);
+
+    const roots = rootsByKind(scene);
+    expect(assetLoading.loadGeneratedHumanoidIntoActorSlot).toHaveBeenCalledTimes(3);
+    expect(setActorSlotByActor).toHaveBeenCalledTimes(3);
+    for (const kind of ["primary_patient", "clinical_team", "family_or_observer"] as const) {
+      expect(setActorSlotByActor).toHaveBeenCalledWith(actors[kind], roots.get(kind));
+    }
+    expect(setActorSlotByActor).not.toHaveBeenCalledWith("", expect.anything());
   });
 
   it("hides unfilled slots with empty actorId and an unfilled reason", () => {
