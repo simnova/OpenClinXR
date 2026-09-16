@@ -10,7 +10,7 @@ import {
   type LearnerBargeInInput,
   type TurnTakingDecision,
 } from "@openclinxr/conversation-policy";
-import { createStationRun, transitionStation, type ScheduledEvent } from "@openclinxr/domain";
+import { createStationRun, type ScheduledEvent, transitionStation } from "@openclinxr/domain";
 import {
   buildReviewPacket,
   evaluateScenarioPublicationReadiness,
@@ -26,10 +26,17 @@ import type { ActorTurnPlan, InteractionEmotion, ReviewPacket, TraceEvent } from
 import {
   collectVoiceStream,
 } from "@openclinxr/voice-gateway";
+import { generateActorResponseFromContext } from "./actor-turn-generation.js";
+import { ACTOR_TURN_EXECUTED_EVENT_TYPE, executionFromFrozenPlan } from "./actor-turn-plan.js";
+import {
+  type AdmittedLearnerEvent,
+  evaluateBranchScheduler,
+  initialBranchState,
+} from "./branch-scheduler/index.js";
 import { acknowledgeContextChannelOnSession, listAvailableContextChannels } from "./context-channel/runtime.js";
-import { executeWorldAffordanceOnSession, listAvailableWorldAffordances } from "./world-affordance/runtime.js";
-import { admitEncounterOrThrow, advanceScheduledEffects, applyScheduledEffects, createEncounterAdmissionHost, type EncounterAdmissionHost, type EncounterAdmissionSnapshot, recordRequirementObservation, type SceneRequirementObservation, type ScheduledEffectResult } from "./encounter-admission-runtime.js";
 import { resolveCaseEmotionPolicy } from "./emotion-policy.js";
+import { admitEncounterOrThrow, advanceScheduledEffects, applyScheduledEffects, createEncounterAdmissionHost, type EncounterAdmissionHost, type EncounterAdmissionSnapshot, recordRequirementObservation, type SceneRequirementObservation, type ScheduledEffectResult } from "./encounter-admission-runtime.js";
+import { advanceMultiActorEnsemble as advanceTick, type MultiActorEnsembleTurn } from "./multi-actor-encounter/index.js";
 import {
   actorInteractionRoutePayload,
   buildProviderHealthSnapshot,
@@ -37,21 +44,10 @@ import {
   voiceSynthesisPolicy,
   voiceSynthesisRequestId,
 } from "./provider-support.js";
-import { ACTOR_TURN_EXECUTED_EVENT_TYPE, executionFromFrozenPlan } from "./actor-turn-plan.js";
-import { generateActorResponseFromContext } from "./actor-turn-generation.js";
-import { advanceMultiActorEnsemble as advanceTick, type MultiActorEnsembleTurn } from "./multi-actor-encounter/index.js";
 import {
   appendNoteSubmittedReasoningEvent,
   resolveLearnerEventRecording,
 } from "./reasoning-capture/capture.js";
-import {
-  appendAssembledPhase,
-  assembledDomainAtSecond,
-  traceEvent,
-  validateAssembledStationContext,
-  type TraceEventInput,
-  withDurableEventRef,
-} from "./trace.js";
 import type {
   EndEncounterInput,
   GenerateActorResponseInput,
@@ -77,6 +73,15 @@ import type {
   SynthesizeActorSpeechInput,
   SynthesizeActorSpeechResult,
 } from "./runtime-types.js";
+import {
+  appendAssembledPhase,
+  assembledDomainAtSecond,
+  type TraceEventInput,
+  traceEvent,
+  validateAssembledStationContext,
+  withDurableEventRef,
+} from "./trace.js";
+import { executeWorldAffordanceOnSession, listAvailableWorldAffordances } from "./world-affordance/runtime.js";
 
 export class ScenarioRuntime {
   private readonly sessions = new Map<string, SessionRecord>();
@@ -95,6 +100,15 @@ export class ScenarioRuntime {
       ? validateAssembledStationContext(input.assembledStation, this.options.scenario.scenarioId)
       : undefined;
     const run = createStationRun(this.options.scenario.scenarioId, input.learnerId);
+    const identity = { stationRunId: run.stationRunId, scenarioId: this.options.scenario.scenarioId };
+    const frozenBranchSeed = this.options.branchScheduling?.seedForSession(identity);
+    if (frozenBranchSeed) {
+      for (const key of ["stationRunId", "scenarioId"] as const) {
+        if (frozenBranchSeed[key] !== identity[key]) {
+          throw new Error(`FrozenCaseSeed ${key} ${frozenBranchSeed[key]} ≠ session ${identity[key]}`);
+        }
+      }
+    }
     this.options.ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 0, eventType: "station.started", atSecond: 0, source: "system" }));
     this.options.ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 1, eventType: "consent.accepted", atSecond: 0, source: "learner" }));
     const historyTakingCoverageSpec = this.conversationPolicy.buildHistoryTakingCoverageSpec(this.options.scenario);
@@ -123,6 +137,11 @@ export class ScenarioRuntime {
     };
     if (assembledStation) {
       sessionRecord.assembledStation = assembledStation;
+    }
+    if (frozenBranchSeed) {
+      sessionRecord.frozenBranchSeed = frozenBranchSeed;
+      sessionRecord.branchState = initialBranchState(frozenBranchSeed);
+      sessionRecord.branchAdmittedPrefix = [];
     }
     this.sessions.set(run.stationRunId, sessionRecord);
 
@@ -225,9 +244,34 @@ export class ScenarioRuntime {
     if (input.actorId) {
       eventInput.actorId = input.actorId;
     }
-
+    const scheduling = this.options.branchScheduling;
+    const seed = session.frozenBranchSeed;
+    const current = session.branchState;
+    let commitBranch: (() => void) | undefined;
+    if (scheduling && seed && current && session.run.phase === "encounter") {
+      const { sequence, atSecond, eventType, source, tag } = eventInput;
+      const admitted: AdmittedLearnerEvent = { stationRunId, sequence, atSecond, eventType, source, ...(tag ? { tag } : {}) };
+      const prefix = [...(session.branchAdmittedPrefix ?? []), admitted];
+      const result = evaluateBranchScheduler({
+        seed,
+        admittedLearnerEvents: prefix,
+        current,
+        policyVersion: scheduling.policyVersion,
+      });
+      const branchScheduling = result.ok
+        ? { ok: true as const, decision: result.decision }
+        : { ok: false as const, reason: result.reason, detail: result.detail };
+      eventInput.payload = { ...(eventInput.payload ?? {}), branchScheduling };
+      if (result.ok) {
+        commitBranch = () => {
+          session.branchAdmittedPrefix = prefix;
+          session.branchState = result.nextState;
+        };
+      }
+    }
     const event = traceEvent(eventInput);
     this.options.ledger.append(event);
+    commitBranch?.();
     session.nextSequence += 1;
     return event;
   }
@@ -759,4 +803,3 @@ export class ScenarioRuntime {
 
 // Factory functions extracted to default-runtime-factory.ts to keep class file under freeze.
 export { createDefaultScenarioRuntime, createScenarioRuntimeWithPersistenceHooks } from "./default-runtime-factory.js";
-
