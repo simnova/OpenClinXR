@@ -215,6 +215,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   stampSupportAcceptance(patient, patientPlacement);
   consumeAuthoredHeading(patient, patientPlacement, patientActorId);
   if (patientActorId) {
+    ctx.assetLoadingContext().setActorSlotByActor(patientActorId, patient);
     loadGeneratedHumanoidIntoActorSlot(ctx.assetLoadingContext(), patient, {
       assetPath: ctx.resolveAssetUrl(patientRuntimeHumanoidAsset),
       assetId: patientRuntimeHumanoidAsset.assetId,
@@ -262,6 +263,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   stampSupportAcceptance(nurse, nursePlacement);
   consumeAuthoredHeading(nurse, nursePlacement, clinicalActorId);
   if (clinicalActorId) {
+    ctx.assetLoadingContext().setActorSlotByActor(clinicalActorId, nurse);
     loadGeneratedHumanoidIntoActorSlot(ctx.assetLoadingContext(), nurse, {
       assetPath: ctx.resolveAssetUrl(nurseRuntimeHumanoidAsset),
       assetId: nurseRuntimeHumanoidAsset.assetId,
@@ -326,6 +328,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   }
   scene.add(spouse);
   if (familyActorId) {
+    ctx.assetLoadingContext().setActorSlotByActor(familyActorId, spouse);
     loadGeneratedHumanoidIntoActorSlot(ctx.assetLoadingContext(), spouse, {
       assetPath: ctx.resolveAssetUrl(spouseRuntimeHumanoidAsset),
       assetId: spouseRuntimeHumanoidAsset.assetId,
@@ -372,6 +375,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   }
   scene.add(additional);
   if (additionalActorId) {
+    ctx.assetLoadingContext().setActorSlotByActor(additionalActorId, additional);
     loadGeneratedHumanoidIntoActorSlot(ctx.assetLoadingContext(), additional, {
       assetPath: ctx.resolveAssetUrl(additionalRuntimeHumanoidAsset),
       assetId: additionalRuntimeHumanoidAsset.assetId,
