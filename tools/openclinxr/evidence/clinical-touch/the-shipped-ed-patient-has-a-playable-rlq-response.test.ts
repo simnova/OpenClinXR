@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { AnimationClip, AnimationMixer, Group, LoopOnce, Object3D, PropertyBinding, QuaternionKeyframeTrack } from "three";
+import { AnimationClip, AnimationMixer, Bone, Group, LoopOnce, Object3D, PropertyBinding, QuaternionKeyframeTrack } from "three";
 import { describe, expect, it } from "vitest";
 import { findRuntimeActorAsset } from "../../../../packages/openclinxr/asset-registry/src/runtime-bundle-lookups.js";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "../../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
@@ -31,10 +31,16 @@ function floats(s:ReturnType<typeof subject>, index:number, width:number) {
  const v=s.gltf.bufferViews[a.bufferView]!;const offset=s.binStart+(v.byteOffset??0)+(a.byteOffset??0);const stride=v.byteStride??width*4;
  return Array.from({length:a.count*width},(_,i)=>s.bytes.readFloatLE(offset+Math.floor(i/width)*stride+(i%width)*4));
 }
+function buildRig(s:ReturnType<typeof subject>){
+  const root=new Group();const jointNodes=new Set(s.gltf.skins.flatMap(skin=>skin.joints));const objects=s.gltf.nodes.map((n,i)=>{const o=jointNodes.has(i)?new Bone():new Object3D();o.name=PropertyBinding.sanitizeNodeName(n.name??"");if(n.translation)o.position.fromArray(n.translation);if(n.rotation)o.quaternion.fromArray(n.rotation);if(n.scale)o.scale.fromArray(n.scale);return o;});
+  s.gltf.nodes.forEach((n,i)=>{n.children?.forEach(j=>{objects[i]!.add(objects[j]!);});});
+  s.gltf.scenes[s.gltf.scene??0]!.nodes.forEach(i=>{root.add(objects[i]!);});
+ return {root,objects,jointNodes};
+}
 // The ordinary form must first fail on the missing authored clip; expected-failure form is the committed plant.
 describe("the shipped ED patient has a playable RLQ response",()=>{
  it("pins the promoted patient and retains its existing animations",()=>{
-  const s=subject();expect(s.gltf.animations.find(a=>a.name==="ClinicalIdleConversation")!.channels).toHaveLength(411);expect(s.gltf.animations.find(a=>a.name==="ClinicalExpressionMicroTransition")!.channels).toHaveLength(1);expect(s.gltf.animations.find(a=>a.name==="ClinicalExpressionMicroTransition")!.channels[0]!.target.path).toBe("weights");expect(s.gltf.animations.map(a=>a.name)).toEqual(expect.arrayContaining(["ClinicalIdleConversation","ClinicalExpressionMicroTransition"]));
+  const s=subject();const rig=buildRig(s);expect(rig.jointNodes.size).toBeGreaterThan(0);expect(applySupinePoseHoldingIncline(rig.root).bonesTouched).toHaveLength(0);expect(s.gltf.animations.find(a=>a.name==="ClinicalIdleConversation")!.channels).toHaveLength(411);expect(s.gltf.animations.find(a=>a.name==="ClinicalExpressionMicroTransition")!.channels).toHaveLength(1);expect(s.gltf.animations.find(a=>a.name==="ClinicalExpressionMicroTransition")!.channels[0]!.target.path).toBe("weights");expect(s.gltf.animations.map(a=>a.name)).toEqual(expect.arrayContaining(["ClinicalIdleConversation","ClinicalExpressionMicroTransition"]));
  });
  it.fails("the materializer refuses a missing required right-arm joint without publishing output",()=>{
   const s=subject();const missing=s.gltf.nodes.find(n=>n.name==="upperarm01.R")!;expect(missing).toBeDefined();missing.name="removed_required_right_arm";
@@ -48,10 +54,8 @@ describe("the shipped ED patient has a playable RLQ response",()=>{
   expect(names).toEqual(expect.arrayContaining(["upperarm01.R","lowerarm01.R","spine03","spine01","head"]));
   expect(new Set(names).size).toBe(names.length);
   for(const c of clip.channels) {expect(c.target.path).toBe("rotation");expect(s.gltf.nodes[c.target.node]!.name).not.toMatch(/root|pelvis|leg|foot|toe/i);}
-  const root=new Group();const jointNodes=new Set(s.gltf.skins.flatMap(skin=>skin.joints));const objects=s.gltf.nodes.map((n,i)=>{const o=jointNodes.has(i)?new Bone():new Object3D();o.name=PropertyBinding.sanitizeNodeName(n.name??"");if(n.translation)o.position.fromArray(n.translation);if(n.rotation)o.quaternion.fromArray(n.rotation);if(n.scale)o.scale.fromArray(n.scale);return o;});
-  s.gltf.nodes.forEach((n,i)=>{n.children?.forEach(j=>{objects[i]!.add(objects[j]!);});});
-  s.gltf.scenes[s.gltf.scene??0]!.nodes.forEach(i=>{root.add(objects[i]!);});
-  root.userData.openClinXrActorPosture="supine";expect(jointNodes.size).toBeGreaterThan(0);const pose=applySupinePoseHoldingIncline(root);expect(pose.bonesTouched).toHaveLength(0);root.updateMatrixWorld(true);
+  const {root,objects}=buildRig(s);
+  root.userData.openClinXrActorPosture="supine";expect(objects.filter(o=>o instanceof Bone).length).toBeGreaterThan(0);const pose=applySupinePoseHoldingIncline(root);expect(pose.bonesTouched).toHaveLength(0);root.updateMatrixWorld(true);
   const baseRoot=root.matrixWorld.clone();const legs=objects.filter(o=>/upperleg|lowerleg|foot|toe/i.test(o.name));const baseLegs=legs.map(o=>o.quaternion.clone());
   const tracks=clip.channels.map(c=>{const sampler=clip.samplers[c.sampler]!;const times=floats(s,sampler.input,1);const values=floats(s,sampler.output,4);expect(times).toEqual([0,expect.closeTo(0.28,5),expect.closeTo(0.85,5)]);for(let i=0;i<values.length;i+=4){expect(Math.hypot(...values.slice(i,i+4))).toBeCloseTo(1,5);}return new QuaternionKeyframeTrack(`${objects[c.target.node]!.name}.quaternion`,times,values);});
   const arm=objects[names.includes("upperarm01.R")?clip.channels[names.indexOf("upperarm01.R")]!.target.node:-1]!;const baseline=arm.quaternion.clone();
