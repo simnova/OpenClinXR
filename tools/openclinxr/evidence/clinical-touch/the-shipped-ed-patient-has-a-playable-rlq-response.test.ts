@@ -103,3 +103,82 @@ describe("the shipped ED patient has a playable RLQ response",()=>{
   }
  });
 });
+
+// APPEND-ONLY successor draft. Existing five clause bodies and preceding bytes are immutable.
+async function supportFrameFixture(transformedParent=false) {
+ const {Vector3}=await import("three");
+ const {applyAndPlantSupineOnDeck,holdSupinePlantFrame,reapplySupineHeadToStoredPillow}=await import("../../../../packages/openclinxr/xr-pose/src/index.js");
+ const {alignSupineHeadToPillow}=await import("../../../../packages/openclinxr/xr-pose/src/supine-deck-plant.js");
+ const {buildPatientStretcher,setStretcherInclineDegrees,STRETCHER_DECK_TOP_METERS}=await import("../../../../packages/openclinxr/xr-station/src/index.js");
+ const s=subject(),rig=buildRig(s),parent=new Group();
+ if(transformedParent){parent.position.set(2,.4,-3);parent.rotation.set(.15,.6,-.1);parent.scale.set(1.3,.8,1.1);}
+ parent.add(rig.root);parent.updateMatrixWorld(true);
+ const stretcher=buildPatientStretcher({slotId:"stretcher",position:{x:0,y:0,z:0},trimColor:0x445566,inclineDegrees:0});
+ const plant=(inclineDegrees=0,supportedStretcher=false)=>{if(supportedStretcher){setStretcherInclineDegrees(stretcher,inclineDegrees);parent.add(stretcher);parent.updateMatrixWorld(true);}return applyAndPlantSupineOnDeck(rig.root,{deckTopWorldY:supportedStretcher?STRETCHER_DECK_TOP_METERS:0,deckCenter:{x:0,z:0},...(supportedStretcher?{stretcher}:{inclineDegrees}),applyJointEulers:false});};
+ plant();rig.root.updateMatrixWorld(true);
+ const head=rig.objects.find(o=>o.name==="head")!;expect(head).toBeDefined();
+ const reference=rig.root.worldToLocal(head.getWorldPosition(new Vector3()));
+ const restingTarget=rig.root.localToWorld(reference.clone());rig.root.userData.openClinXrSupinePillowWorld={x:restingTarget.x,z:restingTarget.z};
+ const base=()=>({x:rig.root.position.x,y:rig.root.position.y,z:rig.root.position.z,scaleX:rig.root.scale.x,scaleY:rig.root.scale.y,scaleZ:rig.root.scale.z});
+ const selected=s.gltf.animations.find(a=>a.name===s.selected)!;expect(selected).toBeDefined();
+ const tracks=selected.channels.map(c=>{const sampler=selected.samplers[c.sampler]!;return new QuaternionKeyframeTrack(`${rig.objects[c.target.node]!.name}.quaternion`,floats(s,sampler.input,1),floats(s,sampler.output,4));});
+ const mixer=new AnimationMixer(rig.root),clip=new AnimationClip(s.selected,-1,tracks),action=mixer.clipAction(clip);action.setLoop(LoopOnce,1);action.clampWhenFinished=true;action.play();
+ const support=rig.objects.filter(o=>/^(pelvis|foot|toe)/i.test(o.name));expect(support.length).toBeGreaterThan(3);
+ const arm=rig.objects.find(o=>o.name==="upperarm01R")!;expect(arm).toBeDefined();
+ const frame=(time:number,captured=base(),breathing=0)=>{mixer.setTime(time);applySupinePoseHoldingIncline(rig.root);holdSupinePlantFrame(rig.root,captured,breathing);reapplySupineHeadToStoredPillow(rig.root);rig.root.updateMatrixWorld(true);};
+ const world=()=>support.map(o=>o.matrixWorld.elements.slice()),local=()=>support.map(o=>({q:o.quaternion.toArray(),t:o.position.toArray()}));
+ const assertWorld=(before:number[][])=>world().forEach((after,i)=>expect(Math.max(...after.map((v,j)=>Math.abs(v-before[i]![j]!)))).toBeLessThan(1e-12));
+ const assertAnchor=(anchor:import("three").Vector3,target:import("three").Vector3)=>{const actual=rig.root.localToWorld(anchor.clone());expect(actual.x).toBeCloseTo(target.x,12);expect(actual.z).toBeCloseTo(target.z,12);};
+ return{...rig,parent,plant,head,reference,restingTarget,base,mixer,clip,arm,frame,world,local,assertWorld,assertAnchor,Vector3,alignSupineHeadToPillow,reapplySupineHeadToStoredPillow};
+}
+describe("the shipped supine response retains its staged world support frame",()=>{
+ it.fails("full plant stages the resting reference before playback; peak and settle retain world support while the arm moves",async()=>{
+  const f=await supportFrameFixture(),base=f.base();f.frame(0,base);const before=f.world(),local=f.local(),arm=f.arm.quaternion.clone();
+  for(let i=0;i<3;i++){f.frame(0,base);f.assertWorld(before);expect(f.local()).toEqual(local);}
+  f.frame(.28,base);expect(f.arm.quaternion.angleTo(arm)).toBeGreaterThan(.05);f.assertWorld(before);expect(f.local()).toEqual(local);
+  f.frame(f.clip.duration,base);expect(f.arm.quaternion.angleTo(arm)).toBeLessThan(.01);f.assertWorld(before);expect(f.local()).toEqual(local);
+ });
+ it.fails("resting staging alignment reaches world XZ without moving world Y under a nonidentity parent",async()=>{
+  const f=await supportFrameFixture(true),before=f.head.getWorldPosition(new f.Vector3()),target={x:before.x+.1,z:before.z-.04};
+  f.alignSupineHeadToPillow(f.root,target);const after=f.head.getWorldPosition(new f.Vector3());expect(after.x).toBeCloseTo(target.x,12);expect(after.z).toBeCloseTo(target.z,12);expect(after.y).toBeCloseTo(before.y,12);
+ });
+ it.fails("a changed pillow aligns the staged rest reference rather than the animated head under a transformed parent",async()=>{
+  const f=await supportFrameFixture(true),base=f.base();f.frame(0,base);const arm=f.arm.quaternion.clone();
+  const target=f.restingTarget.clone().add(new f.Vector3(.06,0,.02));f.root.userData.openClinXrSupinePillowWorld={x:target.x,z:target.z};f.frame(.28,base);
+  expect(f.arm.quaternion.angleTo(arm)).toBeGreaterThan(.05);f.assertAnchor(f.reference,target);
+ });
+ it.fails("full replant with a changed resting head and incline replaces the staged reference before subsequent motion",async()=>{
+  const f=await supportFrameFixture();f.mixer.stopAllAction();f.head.position.x+=.02;f.plant(15,true);
+  expect(f.root.userData.openClinXrPlantSteps.map((step:{step:string})=>step.step)).toEqual(expect.arrayContaining(["head_flex","final"]));
+  expect(f.root.userData.openClinXrSupineHeadFlexJoints.length).toBeGreaterThan(1);
+  expect(f.root.userData.openClinXrSupineHeadFlexRad).toBeGreaterThan(0);f.root.updateMatrixWorld(true);
+  const newReference=f.root.worldToLocal(f.head.getWorldPosition(new f.Vector3()));expect(newReference.distanceTo(f.reference)).toBeGreaterThan(.01);
+  const target=f.root.localToWorld(newReference.clone()).add(new f.Vector3(.06,0,.02));f.root.userData.openClinXrSupinePillowWorld={x:target.x,z:target.z};const base=f.base();f.mixer.clipAction(f.clip).reset().play();f.frame(.28,base);f.assertAnchor(newReference,target);
+ });
+ it("keeps missing and nonfinite pillow inputs as baseline no-ops",async()=>{
+  const f=await supportFrameFixture();const before={position:f.root.position.toArray(),quaternion:f.root.quaternion.toArray(),scale:f.root.scale.toArray()};
+  delete f.root.userData.openClinXrSupinePillowWorld;f.reapplySupineHeadToStoredPillow(f.root);expect(f.root.position.toArray()).toEqual(before.position);expect(f.root.quaternion.toArray()).toEqual(before.quaternion);expect(f.root.scale.toArray()).toEqual(before.scale);
+  f.root.userData.openClinXrSupinePillowWorld={x:NaN,z:0};f.reapplySupineHeadToStoredPillow(f.root);expect(f.root.position.toArray()).toEqual(before.position);expect(f.root.quaternion.toArray()).toEqual(before.quaternion);expect(f.root.scale.toArray()).toEqual(before.scale);
+ });
+ it.fails("missing or nonfinite pillow and absent or malformed rest cache cannot move the root",async()=>{
+  const f=await supportFrameFixture();const cache=f.root.userData.openClinXrSupineRestHeadRoot;expect(cache).toBeDefined();const snapshot=()=>({position:f.root.position.toArray(),quaternion:f.root.quaternion.toArray(),scale:f.root.scale.toArray()});
+  const pillow=f.root.userData.openClinXrSupinePillowWorld;delete f.root.userData.openClinXrSupinePillowWorld;let before=snapshot();f.reapplySupineHeadToStoredPillow(f.root);expect(snapshot()).toEqual(before);
+  f.root.userData.openClinXrSupinePillowWorld={x:NaN,z:0};before=snapshot();f.reapplySupineHeadToStoredPillow(f.root);expect(snapshot()).toEqual(before);
+  // Private cache field name/shape is fixed by this owner design; no public export is added.
+  f.root.userData.openClinXrSupinePillowWorld=pillow;delete f.root.userData.openClinXrSupineRestHeadRoot;f.mixer.setTime(.28);before=snapshot();f.reapplySupineHeadToStoredPillow(f.root);expect(snapshot()).toEqual(before);
+  f.root.userData.openClinXrSupineRestHeadRoot={x:NaN,y:0,z:0};before=snapshot();f.reapplySupineHeadToStoredPillow(f.root);expect(snapshot()).toEqual(before);
+  f.root.userData.openClinXrSupineRestHeadRoot=cache;f.root.userData.openClinXrSupineInclineDegrees=45;before=snapshot();f.reapplySupineHeadToStoredPillow(f.root);expect(snapshot()).toEqual(before);
+ });
+ it("preserves nonzero intentional breathing instead of freezing the entire supine body",async()=>{
+  const f=await supportFrameFixture(),base=f.base();f.frame(0,base,.7);
+  expect(f.root.position.y).toBeCloseTo(base.y+.7*.006,12);expect(f.root.scale.y).toBeCloseTo(base.scaleY+.7*.006,12);
+  expect(f.root.position.y).not.toBe(base.y);expect(f.root.scale.y).not.toBe(base.scaleY);
+ });
+ it.fails("rejects stale planted-root quaternion identity independently of unchanged incline",async()=>{
+  const f=await supportFrameFixture();expect(f.root.userData.openClinXrSupineRestHeadRoot).toBeDefined();
+  const incline=f.root.userData.openClinXrSupineInclineDegrees;f.root.userData.openClinXrSupineRootQuat={x:0,y:.1,z:0,w:Math.sqrt(.99)};
+  f.mixer.setTime(.28);const before=f.root.position.toArray();f.reapplySupineHeadToStoredPillow(f.root);
+  expect(f.root.userData.openClinXrSupineInclineDegrees).toBe(incline);expect(f.root.position.toArray()).toEqual(before);
+ });
+
+});
