@@ -76,6 +76,7 @@ export type MonitorConfig = {
   fetch?: BothyFetch;
   spawnCodex?: (prompt: string, repoRoot: string) => CodexChild;
   relayThreadId?: string;
+  relayAliases?: string[];
   queueCodexMessage?: (threadId: string, message: string) => Promise<void>;
   codexRemote?: string;
   stateFile?: string;
@@ -303,11 +304,21 @@ export function codexTaskRecipientMarker(threadId: string): string {
   return `[${CODEX_TASK_RECIPIENT_PREFIX}:${threadId}]`;
 }
 
+export function codexRelayAliasMarker(alias: string): string {
+  return `[to:${alias}]`;
+}
+
 export function isCommentDirectedToCodexTask(
   comment: PollComment,
   threadId: string,
+  relayAliases: string[] = [],
 ): boolean {
-  return threadId.length > 0 && (comment.body ?? "").includes(codexTaskRecipientMarker(threadId));
+  if (threadId.length === 0) return false;
+  const body = comment.body ?? "";
+  return (
+    body.includes(codexTaskRecipientMarker(threadId)) ||
+    relayAliases.some((alias) => body.includes(codexRelayAliasMarker(alias)))
+  );
 }
 
 export function codexTaskRecipients(comment: PollComment): string[] {
@@ -488,7 +499,11 @@ export async function runMonitorCycle(config: MonitorConfig): Promise<MonitorCyc
   );
   const directedComments = config.relayThreadId
     ? newComments.filter((comment) =>
-        isCommentDirectedToCodexTask(comment, config.relayThreadId as string),
+        isCommentDirectedToCodexTask(
+          comment,
+          config.relayThreadId as string,
+          config.relayAliases,
+        ),
       )
     : [];
   const directedCommentIds = new Set(directedComments.map((comment) => comment.id));
@@ -706,6 +721,7 @@ export type MonitorCliArgs = {
   selfMarker: string;
   machineName: string;
   relayThreadId?: string;
+  relayAliases: string[];
   codexRemote?: string;
   once: boolean;
 };
@@ -718,6 +734,10 @@ export function parseMonitorArgs(
     const index = argv.indexOf(name);
     return index >= 0 && index + 1 < argv.length ? argv[index + 1] : undefined;
   };
+  const values = (name: string): string[] =>
+    argv.flatMap((arg, index) =>
+      arg === name && index + 1 < argv.length ? [argv[index + 1] as string] : [],
+    );
   const has = (name: string): boolean => argv.includes(name);
   const sessionId = value("--session") ?? env.CODEX_BOTHY_SESSION_ID ?? "";
   const pat = value("--pat") ?? env.BOTHY_BOARD_PAT ?? "";
@@ -726,6 +746,17 @@ export function parseMonitorArgs(
   const selfMarker = value("--self-marker") ?? DEFAULT_SELF_MARKER;
   const machineName = value("--machine-name") ?? env.BOTHY_MACHINE_NAME ?? hostname();
   const relayThreadId = value("--relay-thread") ?? env.CODEX_BOTHY_RELAY_THREAD_ID;
+  const relayAliasIndexes = argv.flatMap((arg, index) =>
+    arg === "--relay-alias" ? [index] : [],
+  );
+  if (
+    relayAliasIndexes.some(
+      (index) => index + 1 >= argv.length || argv[index + 1]?.startsWith("--"),
+    )
+  ) {
+    return { error: "--relay-alias requires a token" };
+  }
+  const relayAliases = values("--relay-alias");
   const codexRemote = value("--codex-remote") ?? env.CODEX_BOTHY_REMOTE;
   const once = has("--once");
   if (!sessionId) {
@@ -740,6 +771,14 @@ export function parseMonitorArgs(
   if (relayThreadId && !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(relayThreadId)) {
     return { error: "--relay-thread must be a UUID" };
   }
+  if (relayAliases.some((alias) => !/^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/.test(alias))) {
+    return {
+      error: "--relay-alias must be a 1-64 character lowercase alphanumeric/hyphen token",
+    };
+  }
+  if (new Set(relayAliases).size !== relayAliases.length) {
+    return { error: "--relay-alias values must be unique" };
+  }
   return {
     args: {
       sessionId,
@@ -749,6 +788,7 @@ export function parseMonitorArgs(
       selfMarker,
       machineName,
       relayThreadId,
+      relayAliases,
       codexRemote,
       once,
     },
@@ -769,6 +809,7 @@ export async function monitorMain(argv: string[] = process.argv.slice(2)): Promi
     selfMarker,
     machineName,
     relayThreadId,
+    relayAliases,
     codexRemote,
     once,
   } = parsed.args;
@@ -779,6 +820,7 @@ export async function monitorMain(argv: string[] = process.argv.slice(2)): Promi
     selfMarker,
     machineName,
     relayThreadId,
+    relayAliases,
     codexRemote,
   };
   if (once) {

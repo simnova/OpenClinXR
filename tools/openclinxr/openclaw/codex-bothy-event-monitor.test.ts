@@ -10,6 +10,7 @@ import {
   buildCodexExecArgv,
   buildCodexQueueArgv,
   buildWakePrompt,
+  codexRelayAliasMarker,
   codexTaskRecipientMarker,
   codexTaskRecipients,
   DEFAULT_CODEX_COORDINATOR_MODEL,
@@ -311,6 +312,62 @@ describe("codex-bothy-event-monitor", () => {
     expect(queued[0]?.message).not.toContain("untrusted message data");
     expect(spawned).toEqual([]);
     expect(loadMonitorState(stateFile(root)).seenCommentIds).toEqual(["cmt_directed"]);
+  });
+
+  it("queues an exact configured alias without waking the generic coordinator", async () => {
+    const root = makeRoot("alias-relay");
+    const queued: string[] = [];
+    const spawned: string[] = [];
+    let poll = 0;
+    const { fetch } = recordingFetch((tool) => {
+      if (tool === "bothy-board.mailbox.poll") {
+        poll += 1;
+        return poll === 1
+          ? { comments: [] }
+          : {
+              comments: [
+                {
+                  id: "cmt_alias",
+                  authorName: "sc-04-worker",
+                  body: `${codexRelayAliasMarker("codex-motion-scene-delegation-owner")} ready`,
+                },
+              ],
+            };
+      }
+      return { task: null, cacheToken: "tok1" };
+    });
+    const cfg = configFor(root, {
+      fetch,
+      relayThreadId: SESSION,
+      relayAliases: ["codex-motion-scene-delegation-owner"],
+      queueCodexMessage: async (_threadId, message) => queued.push(message),
+      spawnCodex: (prompt) => {
+        spawned.push(prompt);
+        return new FakeChild(1);
+      },
+    });
+    await runMonitorCycle(cfg);
+    const result = await runMonitorCycle(cfg);
+    expect(result.relayQueued).toBe(true);
+    expect(result.codexSpawned).toBe(false);
+    expect(queued[0]).toContain("cmt_alias");
+    expect(spawned).toEqual([]);
+  });
+
+  it("matches configured aliases exactly and case-sensitively", () => {
+    const alias = "ab";
+    expect(
+      isCommentDirectedToCodexTask(
+        { id: "cmt_exact", body: codexRelayAliasMarker(alias) },
+        SESSION,
+        [alias],
+      ),
+    ).toBe(true);
+    for (const body of ["[to:AB]", "[to:ab-extra]", "[to:xab]", "to:ab", "[to:ab"]) {
+      expect(
+        isCommentDirectedToCodexTask({ id: "cmt_near", body }, SESSION, [alias]),
+      ).toBe(false);
+    }
   });
 
   it("keeps unaddressed comments on the bounded coordinator path", async () => {
@@ -773,16 +830,68 @@ describe("codex-bothy-event-monitor", () => {
     ).toBe(true);
     const ok = parseMonitorArgs(["--session", SESSION, "--pat", PAT], {});
     expect(ok).toHaveProperty("args.sessionId", SESSION);
+    const withAliases = parseMonitorArgs(
+        [
+          "--session",
+          SESSION,
+          "--pat",
+          PAT,
+          "--relay-thread",
+          SESSION,
+          "--relay-alias",
+          "ab",
+          "--relay-alias",
+          "codex-motion-scene-delegation-owner",
+        ],
+        {},
+      );
+    expect(withAliases).toHaveProperty("args.relayThreadId", SESSION);
+    expect(withAliases).toHaveProperty("args.relayAliases", [
+      "ab",
+      "codex-motion-scene-delegation-owner",
+    ]);
     expect(
       parseMonitorArgs(
-        ["--session", SESSION, "--pat", PAT, "--relay-thread", SESSION],
+        ["--session", SESSION, "--pat", PAT, "--relay-alias", "ab"],
         {},
       ),
-    ).toHaveProperty("args.relayThreadId", SESSION);
+    ).toHaveProperty("args.relayAliases", ["ab"]);
     expect(
       "error" in
         parseMonitorArgs(
           ["--session", SESSION, "--pat", PAT, "--relay-thread", "not-a-uuid"],
+          {},
+        ),
+    ).toBe(true);
+    expect(
+      "error" in
+        parseMonitorArgs(
+          ["--session", SESSION, "--pat", PAT, "--relay-alias"],
+          {},
+        ),
+    ).toBe(true);
+    for (const alias of ["A", "bad alias", "bad:alias", "[bad]", "-bad", "bad-"]) {
+      expect(
+        "error" in
+          parseMonitorArgs(
+            ["--session", SESSION, "--pat", PAT, "--relay-alias", alias],
+            {},
+          ),
+      ).toBe(true);
+    }
+    expect(
+      "error" in
+        parseMonitorArgs(
+          [
+            "--session",
+            SESSION,
+            "--pat",
+            PAT,
+            "--relay-alias",
+            "duplicate",
+            "--relay-alias",
+            "duplicate",
+          ],
           {},
         ),
     ).toBe(true);
