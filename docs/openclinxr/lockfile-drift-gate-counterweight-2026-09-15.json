@@ -1,0 +1,98 @@
+{
+  "counterweight": "lockfile-drift-gate",
+  "recorded": "2026-09-15",
+  "recordedBy": "bothy-tsk_8d7b00a78f1760ed",
+  "observations": [
+    {
+      "case": "removal",
+      "description": "Removed @openclinxr/xr-station-room from apps/ui-xr/package.json with no pnpm-lock.yaml change",
+      "command": "pnpm hooks:pre-commit",
+      "stagedFiles": ["apps/ui-xr/package.json"],
+      "result": "FAIL",
+      "exitCode": 1,
+      "lockfileDriftStepElapsedMs": 500,
+      "lockfileDriftStepOutput": "Scope: all 61 workspace projects\n✓ Lockfile passes supply-chain policies (verified 1d ago)\n[ERR_PNPM_OUTDATED_LOCKFILE] Cannot install with \"frozen-lockfile\" because pnpm-lock.yaml is not up to date with <ROOT>/apps/ui-xr/package.json\n\nNote that in CI environments this setting is true by default. If you still need to run install in such cases, use \"pnpm install --no-frozen-lockfile\"\n\n  Failure reason:\n  specifiers in the lockfile don't match specifiers in package.json:\n* 1 dependencies were removed: @openclinxr/xr-station-room@workspace:*",
+      "notes": "Reproduces 85f8d792 which dropped @openclinxr/review-workflow from apps/ui-xr/package.json with no lockfile change. The next dispatch died in worktree prep with ERR_PNPM_OUTDATED_LOCKFILE. Repaired at a1cc2e2b by pnpm install --lockfile-only (3 deletions)."
+    },
+    {
+      "case": "removal",
+      "description": "Same removal after lockfile was synced to match package.json",
+      "command": "pnpm hooks:pre-commit",
+      "stagedFiles": ["apps/ui-xr/package.json"],
+      "result": "PASS",
+      "exitCode": 0,
+      "lockfileDriftStepElapsedMs": 89,
+      "lockfileDriftStepOutput": "Scope: all 61 workspace projects\nAlready up to date\nDone in 89ms using pnpm v11.18.0",
+      "notes": "After running pnpm install --no-frozen-lockfile to sync the lockfile, the lockfile drift step passes in 89ms."
+    },
+    {
+      "case": "addition",
+      "description": "Added @openclinxr/review-workflow: workspace:* to packages/openclinxr/capability-gateway/package.json with no pnpm-lock.yaml change",
+      "command": "pnpm hooks:pre-commit",
+      "stagedFiles": ["packages/openclinxr/capability-gateway/package.json"],
+      "result": "FAIL",
+      "exitCode": 1,
+      "lockfileDriftStepElapsedMs": 600,
+      "lockfileDriftStepOutput": "Scope: all 61 workspace projects\n✓ Lockfile passes supply-chain policies (verified 1d ago)\n[ERR_PNPM_OUTDATED_LOCKFILE] Cannot install with \"frozen-lockfile\" because pnpm-lock.yaml is not up to date with <ROOT>/packages/openclinxr/capability-gateway/package.json\n\nNote that in CI environments this setting is true by default. If you still need to run install in such cases, use \"pnpm install --no-frozen-lockfile\"\n\n  Failure reason:\n  specifiers in the lockfile don't match specifiers in package.json:\n* 1 dependencies were added: @openclinxr/review-workflow@workspace:*",
+      "notes": "Reproduces e46b7660 which added @openclinxr/motion-compiler to capability-gateway/package.json with no lockfile change. Running pnpm install --prefer-offline there wrote 3 insertions into pnpm-lock.yaml. The addition case produced three TS2307 \"Cannot find module '@openclinxr/motion-compiler'\" errors because the dependency was in package.json with no install having run. Those read as a missing build or a peer regression."
+    },
+    {
+      "case": "addition",
+      "description": "Same addition after lockfile was synced to match package.json",
+      "command": "pnpm hooks:pre-commit",
+      "stagedFiles": ["packages/openclinxr/capability-gateway/package.json"],
+      "result": "PASS",
+      "exitCode": 0,
+      "lockfileDriftStepElapsedMs": 79,
+      "lockfileDriftStepOutput": "Scope: all 61 workspace projects\nAlready up to date\nDone in 79ms using pnpm v11.18.0",
+      "notes": "After running pnpm install --no-frozen-lockfile to sync the lockfile, the lockfile drift step passes in 79ms. Confirms the addition shape behaves symmetrically to the removal shape when the lockfile is in sync."
+    }
+  ],
+  "costMeasurements": [
+    {
+      "scenario": "coordination-only commit (no manifest/lockfile staged)",
+      "command": "pnpm hooks:pre-commit",
+      "stagedFiles": ["PROJECT_STATUS.md"],
+      "totalElapsedSeconds": 8.3,
+      "lockfileDriftStepIncluded": false,
+      "notes": "Architecture invocation: omit (staged files: 1). Lockfile drift step is not in the step list at all - it correctly skips when no package.json or pnpm-lock.yaml is staged."
+    },
+    {
+      "scenario": "manifest change staged (package.json), lockfile in sync",
+      "command": "pnpm hooks:pre-commit",
+      "stagedFiles": ["apps/ui-xr/package.json"],
+      "totalElapsedSeconds": 41.3,
+      "lockfileDriftStepIncluded": true,
+      "lockfileDriftStepElapsedMs": 89,
+      "notes": "Lockfile drift step runs and passes in 89ms. The 'few seconds' bar from the card is met (89ms << few seconds)."
+    }
+  ],
+  "uncoveredDriftShapes": [
+    "changed version specifier",
+    "moved workspace package",
+    "changed peer range"
+  ],
+  "verification": {
+    "testSuiteRuns": [
+      "pnpm exec vitest run tools/openclinxr/openclaw/the-lockfile-cannot-drift-from-a-manifest.test.ts",
+      "pnpm exec vitest run tools/openclinxr/openclaw/agentic-hook-runner.test.ts"
+    ],
+    "bothGreen": true
+  },
+  "assertionJustification": {
+    "removedAssertions": [
+      "expect(step?.reason).toContain(\"package.json\")",
+      "expect(step?.reason).toContain(\"pnpm-lock.yaml\")"
+    ],
+    "reasonForRemoval": "These assertions test the wording of a human-readable reason string (prose), not the step's behaviour. Rewording the sentence makes the suite fail with no behaviour change; breaking the step's behaviour while keeping the sentence leaves them green. They protect nothing and punish editing a comment.",
+    "survivingClauses": [
+      "expect(step).not.toBeNull() — step is created when relevant paths are staged",
+      "expect(step?.label).toBe(\"Lockfile matches manifests\") — correct label",
+      "expect(step?.command).toEqual([\"pnpm\", \"install\", \"--frozen-lockfile\", \"--lockfile-only\"]) — exact command emission (behavioural)",
+      "expect(buildLockfileDriftStep([\"apps/ui-xr/src/main.ts\"])).toBeNull() — step correctly omitted for non-manifest paths",
+      "expect(buildLockfileDriftStep([\"PROJECT_STATUS.md\"])).toBeNull() — step correctly omitted for coordination-only paths",
+      "expect(buildLockfileDriftStep([])).toBeNull() — step correctly omitted for empty staged set"
+    ],
+    "whatNowFailsIfBehaviourChanges": "If the step's firing condition changes (LOCKFILE_DRIFT_RELEVANT_PATH), the four path-scope clauses fail. If the emitted command changes, the command clause fails. If the step is emitted for non-manifest paths, the null-return clauses fail. The step's identity (when it fires and what it runs) is fully covered."
+  }
+}
