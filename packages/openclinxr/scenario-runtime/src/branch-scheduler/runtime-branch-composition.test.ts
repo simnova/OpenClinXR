@@ -12,8 +12,10 @@ import {
   MockVoiceProviderAdapter,
 } from "@openclinxr/voice-gateway";
 import { beforeEach, describe, expect, it } from "vitest";
-import type { ScenarioRuntimeOptions } from "../runtime-types.js";
-import { ScenarioRuntime } from "../scenario-runtime.js";
+import { ScenarioRuntime } from "../index.js";
+
+type ScenarioRuntimeOptions = ConstructorParameters<typeof ScenarioRuntime>[0];
+
 import {
   BRANCH_SCHEDULER_CLAIM_SCOPE,
   BRANCH_SCHEDULER_NOT_EVIDENCE_FOR,
