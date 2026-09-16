@@ -166,10 +166,9 @@ export function alignSupineHeadToPillowSoft(
   if (Math.abs(deltaX) < 1e-4 && Math.abs(deltaY) < 1e-4 && Math.abs(deltaZ) < 1e-4) {
     return { deltaX: 0, deltaY: 0, deltaZ: 0 };
   }
-  humanoidRoot.position.x += deltaX;
-  humanoidRoot.position.y += deltaY;
-  humanoidRoot.position.z += deltaZ;
-  humanoidRoot.updateMatrixWorld?.(true);
+  if (!applyWorldDisplacement(humanoidRoot, new Vector3(deltaX, deltaY, deltaZ))) {
+    return { deltaX: 0, deltaY: 0, deltaZ: 0 };
+  }
   return { deltaX, deltaY, deltaZ };
 }
 
@@ -268,4 +267,73 @@ export function centerSupineBodyOnDeck(
   humanoidRoot.position.z += deltaZ;
   humanoidRoot.updateMatrixWorld?.(true);
   return { deltaX, deltaZ };
+}
+
+/** Private staged anchor: captured only by full plant, before animation-slot base capture. */
+type SupineRestHead = {
+  point: { x: number; y: number; z: number };
+  incline: number;
+  quaternion: { x: number; y: number; z: number; w: number };
+};
+
+function finitePoint(value: unknown): value is { x: number; y: number; z: number } {
+  if (!value || typeof value !== "object") return false;
+  const point = value as { x?: unknown; y?: unknown; z?: unknown };
+  return [point.x, point.y, point.z].every((n) => typeof n === "number" && Number.isFinite(n));
+}
+
+function finiteQuaternion(value: unknown): value is SupineRestHead["quaternion"] {
+  return finitePoint(value) && typeof (value as { w?: unknown }).w === "number"
+    && Number.isFinite((value as { w: number }).w);
+}
+
+function applyWorldDisplacement(root: Object3D, delta: Vector3): boolean {
+  if (!finitePoint(delta)) return false;
+  root.updateWorldMatrix(true, false);
+  if (root.parent) {
+    const determinant = root.parent.matrixWorld.determinant();
+    if (!Number.isFinite(determinant) || Math.abs(determinant) < 1e-12) return false;
+    const origin = root.getWorldPosition(new Vector3());
+    const destination = origin.clone().add(delta);
+    delta = root.parent.worldToLocal(destination).sub(root.parent.worldToLocal(origin));
+  }
+  if (!finitePoint(delta)) return false;
+  root.position.add(delta);
+  root.updateMatrixWorld(true);
+  return true;
+}
+
+export function clearSupineRestHeadReference(root: Object3D): void {
+  delete root.userData.openClinXrSupineRestHeadRoot;
+}
+
+export function captureSupineRestHeadReference(root: Object3D): void {
+  const head = readHeadWorld(root);
+  const incline = root.userData.openClinXrSupineInclineDegrees;
+  const quaternion: unknown = root.userData.openClinXrSupineRootQuat;
+  root.updateWorldMatrix(true, false);
+  const determinant = root.matrixWorld.determinant();
+  if (!head || !finitePoint(head) || !Number.isFinite(incline) || !finiteQuaternion(quaternion)
+    || !Number.isFinite(determinant) || Math.abs(determinant) < 1e-12) return;
+  const point = root.worldToLocal(new Vector3(head.x, head.y, head.z));
+  if (!finitePoint(point)) return;
+  root.userData.openClinXrSupineRestHeadRoot = {
+    point: { x: point.x, y: point.y, z: point.z }, incline, quaternion: { ...quaternion },
+  } satisfies SupineRestHead;
+}
+
+export function reapplySupineRestHeadToStoredPillow(root: Object3D): void {
+  const cache = root.userData.openClinXrSupineRestHeadRoot as SupineRestHead | undefined;
+  const pillow = root.userData.openClinXrSupinePillowWorld as { x?: unknown; z?: unknown } | undefined;
+  const quaternion: unknown = root.userData.openClinXrSupineRootQuat;
+  if (!cache || !finitePoint(cache.point) || !finiteQuaternion(cache.quaternion)
+    || !Number.isFinite(cache.incline) || cache.incline !== root.userData.openClinXrSupineInclineDegrees
+    || !finiteQuaternion(quaternion) || !pillow
+    || typeof pillow.x !== "number" || !Number.isFinite(pillow.x)
+    || typeof pillow.z !== "number" || !Number.isFinite(pillow.z)) return;
+  if (["x", "y", "z", "w"].some((key) => cache.quaternion[key as keyof typeof quaternion]
+    !== quaternion[key as keyof typeof quaternion])) return;
+  root.updateWorldMatrix(true, false);
+  const anchor = root.localToWorld(new Vector3(cache.point.x, cache.point.y, cache.point.z));
+  applyWorldDisplacement(root, new Vector3(pillow.x - anchor.x, 0, pillow.z - anchor.z));
 }

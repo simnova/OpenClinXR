@@ -132,22 +132,22 @@ async function supportFrameFixture(transformedParent=false) {
  return{...rig,parent,plant,head,reference,restingTarget,base,mixer,clip,arm,frame,world,local,assertWorld,assertAnchor,Vector3,alignSupineHeadToPillow,reapplySupineHeadToStoredPillow};
 }
 describe("the shipped supine response retains its staged world support frame",()=>{
- it.fails("full plant stages the resting reference before playback; peak and settle retain world support while the arm moves",async()=>{
+ it("full plant stages the resting reference before playback; peak and settle retain world support while the arm moves",async()=>{
   const f=await supportFrameFixture(),base=f.base();f.frame(0,base);const before=f.world(),local=f.local(),arm=f.arm.quaternion.clone();
   for(let i=0;i<3;i++){f.frame(0,base);f.assertWorld(before);expect(f.local()).toEqual(local);}
   f.frame(.28,base);expect(f.arm.quaternion.angleTo(arm)).toBeGreaterThan(.05);f.assertWorld(before);expect(f.local()).toEqual(local);
   f.frame(f.clip.duration,base);expect(f.arm.quaternion.angleTo(arm)).toBeLessThan(.01);f.assertWorld(before);expect(f.local()).toEqual(local);
  });
- it.fails("resting staging alignment reaches world XZ without moving world Y under a nonidentity parent",async()=>{
+ it("resting staging alignment reaches world XZ without moving world Y under a nonidentity parent",async()=>{
   const f=await supportFrameFixture(true),before=f.head.getWorldPosition(new f.Vector3()),target={x:before.x+.1,z:before.z-.04};
   f.alignSupineHeadToPillow(f.root,target);const after=f.head.getWorldPosition(new f.Vector3());expect(after.x).toBeCloseTo(target.x,12);expect(after.z).toBeCloseTo(target.z,12);expect(after.y).toBeCloseTo(before.y,12);
  });
- it.fails("a changed pillow aligns the staged rest reference rather than the animated head under a transformed parent",async()=>{
+ it("a changed pillow aligns the staged rest reference rather than the animated head under a transformed parent",async()=>{
   const f=await supportFrameFixture(true),base=f.base();f.frame(0,base);const arm=f.arm.quaternion.clone();
   const target=f.restingTarget.clone().add(new f.Vector3(.06,0,.02));f.root.userData.openClinXrSupinePillowWorld={x:target.x,z:target.z};f.frame(.28,base);
   expect(f.arm.quaternion.angleTo(arm)).toBeGreaterThan(.05);f.assertAnchor(f.reference,target);
  });
- it.fails("full replant with a changed resting head and incline replaces the staged reference before subsequent motion",async()=>{
+ it("full replant with a changed resting head and incline replaces the staged reference before subsequent motion",async()=>{
   const f=await supportFrameFixture();f.mixer.stopAllAction();f.head.position.x+=.02;f.plant(15,true);
   expect(f.root.userData.openClinXrPlantSteps.map((step:{step:string})=>step.step)).toEqual(expect.arrayContaining(["head_flex","final"]));
   expect(f.root.userData.openClinXrSupineHeadFlexJoints.length).toBeGreaterThan(1);
@@ -160,7 +160,7 @@ describe("the shipped supine response retains its staged world support frame",()
   delete f.root.userData.openClinXrSupinePillowWorld;f.reapplySupineHeadToStoredPillow(f.root);expect(f.root.position.toArray()).toEqual(before.position);expect(f.root.quaternion.toArray()).toEqual(before.quaternion);expect(f.root.scale.toArray()).toEqual(before.scale);
   f.root.userData.openClinXrSupinePillowWorld={x:NaN,z:0};f.reapplySupineHeadToStoredPillow(f.root);expect(f.root.position.toArray()).toEqual(before.position);expect(f.root.quaternion.toArray()).toEqual(before.quaternion);expect(f.root.scale.toArray()).toEqual(before.scale);
  });
- it.fails("missing or nonfinite pillow and absent or malformed rest cache cannot move the root",async()=>{
+ it("missing or nonfinite pillow and absent or malformed rest cache cannot move the root",async()=>{
   const f=await supportFrameFixture();const cache=f.root.userData.openClinXrSupineRestHeadRoot;expect(cache).toBeDefined();const snapshot=()=>({position:f.root.position.toArray(),quaternion:f.root.quaternion.toArray(),scale:f.root.scale.toArray()});
   const pillow=f.root.userData.openClinXrSupinePillowWorld;delete f.root.userData.openClinXrSupinePillowWorld;let before=snapshot();f.reapplySupineHeadToStoredPillow(f.root);expect(snapshot()).toEqual(before);
   f.root.userData.openClinXrSupinePillowWorld={x:NaN,z:0};before=snapshot();f.reapplySupineHeadToStoredPillow(f.root);expect(snapshot()).toEqual(before);
@@ -174,7 +174,7 @@ describe("the shipped supine response retains its staged world support frame",()
   expect(f.root.position.y).toBeCloseTo(base.y+.7*.006,12);expect(f.root.scale.y).toBeCloseTo(base.scaleY+.7*.006,12);
   expect(f.root.position.y).not.toBe(base.y);expect(f.root.scale.y).not.toBe(base.scaleY);
  });
- it.fails("rejects stale planted-root quaternion identity independently of unchanged incline",async()=>{
+ it("rejects stale planted-root quaternion identity independently of unchanged incline",async()=>{
   const f=await supportFrameFixture();expect(f.root.userData.openClinXrSupineRestHeadRoot).toBeDefined();
   const incline=f.root.userData.openClinXrSupineInclineDegrees;f.root.userData.openClinXrSupineRootQuat={x:0,y:.1,z:0,w:Math.sqrt(.99)};
   f.mixer.setTime(.28);const before=f.root.position.toArray();f.reapplySupineHeadToStoredPillow(f.root);
