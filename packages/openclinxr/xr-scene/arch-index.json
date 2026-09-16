@@ -56,6 +56,7 @@
     "src/compiled-room-readiness.test.ts",
     "src/encounter-actor-framing.test.ts",
     "src/infinigen-station-environment.test.ts",
+    "src/interior-preview-camera-occlusion.test.ts",
     "src/learner-exam-form-boot.test.ts",
     "src/learner-exam-scenario-source.test.ts",
     "src/learner-phase-trace-source.test.ts",

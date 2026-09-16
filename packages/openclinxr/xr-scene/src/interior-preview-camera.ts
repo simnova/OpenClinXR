@@ -116,6 +116,9 @@ function lookRayHitsDoorLeaf(
  * generated room. Stand on the doorway side (+Z), inset by twice the measured wall
  * thickness; among candidates, take the one maximising distance to the nearest actor,
  * after rejecting any whose eye→look ray hits a door-leaf AABB before the look point.
+ * If every doorway-row eye is rejected, search a finite set of deeper interior depth
+ * rows derived from the measured room bounds (same x samples, same door AABBs, same
+ * 2× wall clearance). Never restore a rejected candidate; return null if none clear.
  */
 export function deriveInteriorPreviewCamera(input: {
   roomRoot: Object3D;
@@ -172,31 +175,70 @@ export function deriveInteriorPreviewCamera(input: {
   const occluderRoot = input.roomRoot.parent ?? input.roomRoot;
   const doorBoxes = collectDoorLeafWorldBoxes(occluderRoot);
 
-  const accepted: number[] = [];
+  const xMinClear = room.min.x + 2 * wallThicknessMeters;
+  const xMaxClear = room.max.x - 2 * wallThicknessMeters;
+  const zMinClear = room.min.z + 2 * wallThicknessMeters;
+  const zMaxClear = room.max.z - 2 * wallThicknessMeters;
+  const withinWallClearance = (x: number, z: number): boolean =>
+    x >= xMinClear && x <= xMaxClear && z >= zMinClear && z <= zMaxClear;
+
+  type EyeCandidate = { readonly x: number; readonly z: number };
+  const doorwayAccepted: EyeCandidate[] = [];
   for (const candidateX of candidateXs) {
+    if (!withinWallClearance(candidateX, eyeZ)) continue;
     const origin: Vec3Tuple = [candidateX, eyeY, eyeZ];
     if (lookRayHitsDoorLeaf(origin, look, doorBoxes)) continue;
-    accepted.push(candidateX);
+    doorwayAccepted.push({ x: candidateX, z: eyeZ });
   }
-  const pool = accepted.length > 0 ? accepted : [...candidateXs];
 
-  let bestX = pool[0]!;
-  let bestScore = -1;
-  for (const candidateX of pool) {
-    const score = nearestActorMeters(candidateX, eyeZ);
-    if (score > bestScore) {
-      bestScore = score;
-      bestX = candidateX;
+  const pickFarthestFromActors = (
+    pool: readonly EyeCandidate[],
+  ): { readonly x: number; readonly z: number; readonly score: number } | null => {
+    if (pool.length === 0) return null;
+    let best = pool[0]!;
+    let bestScore = -1;
+    for (const candidate of pool) {
+      const score = nearestActorMeters(candidate.x, candidate.z);
+      if (score > bestScore) {
+        bestScore = score;
+        best = candidate;
+      }
     }
+    return { x: best.x, z: best.z, score: bestScore };
+  };
+
+  let chosen = pickFarthestFromActors(doorwayAccepted);
+  if (chosen === null) {
+    const zBack = zMinClear;
+    const zMid = (eyeZ + zBack) / 2;
+    const deeperZs: readonly number[] = [
+      (eyeZ + zMid) / 2,
+      zMid,
+      (zMid + zBack) / 2,
+      zBack,
+    ];
+    const deeperAccepted: EyeCandidate[] = [];
+    for (const candidateZ of deeperZs) {
+      if (!(candidateZ < eyeZ) || !Number.isFinite(candidateZ)) continue;
+      for (const candidateX of candidateXs) {
+        if (!withinWallClearance(candidateX, candidateZ)) continue;
+        const origin: Vec3Tuple = [candidateX, eyeY, candidateZ];
+        if (lookRayHitsDoorLeaf(origin, look, doorBoxes)) continue;
+        deeperAccepted.push({ x: candidateX, z: candidateZ });
+      }
+    }
+    chosen = pickFarthestFromActors(deeperAccepted);
   }
+
+  if (chosen === null) return null;
 
   return {
-    eye: new Vector3(bestX, eyeY, eyeZ),
+    eye: new Vector3(chosen.x, eyeY, chosen.z),
     lookAt: centre,
     interiorMin: room.min.clone(),
     interiorMax: room.max.clone(),
     wallThicknessMeters,
-    nearestActorMeters: bestScore,
+    nearestActorMeters: chosen.score,
   };
 }
 
