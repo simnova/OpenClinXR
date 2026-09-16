@@ -1,11 +1,15 @@
-import type { CompiledMotionFragment, CompiledMotionTrack, PrimitiveRequest } from "../canonical-motion-contract.js";
-import { REGION_ANCHOR_SPACE } from "../plant-motion-regions.js";
 import { resolvePoseBone } from "../../../asset-registry/src/pose-bone-resolver.js";
-import { requestedEffector } from "../requested-effector.js";
-import { solveArmChain, type ChainJoint, type Quat } from "../ik/solve-chain.js";
-import { seededScale } from "../trajectory.js";
+import {
+  type ContactPoint,
+  type ContactWindowInput,
+  planContactWindowKeys,
+} from "../contact/contact-window-schedule.js";
 import { orientWristToSurfaceNormal, resolveSurfaceContactTargets } from "../contact.js";
-import { scaleRotation, signCanonical, signMatch } from "./quaternion-scale.js";
+import { type ChainJoint, type Quat, solveArmChain } from "../ik/solve-chain.js";
+import type { CompiledMotionFragment, CompiledMotionTrack, PrimitiveRequest } from "../motion-wire-format.js";
+import { REGION_ANCHOR_SPACE } from "../regions/region-anchor-space.js";
+import { requestedEffector } from "../requested-effector.js";
+import { seededScale } from "../trajectory.js";
 import { contactKeyValues } from "./contact-keys.js";
 import {
   CONTACT_VARIATION_JITTER,
@@ -14,11 +18,7 @@ import {
   planContactReleaseKeys,
   prevOf,
 } from "./contact-release.js";
-import {
-  planContactWindowKeys,
-  type ContactPoint,
-  type ContactWindowInput,
-} from "../contact/contact-window-schedule.js";
+import { scaleRotation, signCanonical, signMatch } from "./quaternion-scale.js";
 
 /**
  * `guard_body_region` — the arm chain drives the effector hand to a MOTION REGION anchor and
@@ -120,6 +120,24 @@ function readTarget(action: unknown): { kind: "body_region"; id: string } {
 }
 
 /**
+ * Nearest ancestor of `bone` that can flex: skips MakeHuman/MPFB `*02` twist helpers while walking
+ * parents. Same walk the solver seam owns in `src/ik/solve-chain.ts` (`flexingParent`); on rails
+ * without them this is exactly the direct parent — the two-hop chain is unchanged.
+ */
+const MPFB_TWIST_HELPER = /^(?:upperarm|lowerarm|upperleg|lowerleg)02[./]?/u;
+
+function flexingParentOf(
+  byName: ReadonlyMap<string, ChainJoint>,
+  bone: ChainJoint | undefined,
+): ChainJoint | undefined {
+  let parent = bone?.parentBoneName === undefined ? undefined : byName.get(bone.parentBoneName);
+  while (parent !== undefined && MPFB_TWIST_HELPER.test(parent.boneName)) {
+    parent = parent.parentBoneName === undefined ? undefined : byName.get(parent.parentBoneName);
+  }
+  return parent;
+}
+
+/**
  * Resolve the effector's arm chain on this rig: the requested effector (the action's, falling back
  * to the profile's legacy `effectorBone`), alias-resolved to the bone THIS rig carries, then the
  * chain walked parent-first from that wrist. The chain's side is read from the rig itself — which
@@ -143,8 +161,8 @@ function resolveArmChain(profile: ProfileView, request: PrimitiveRequest): { sho
   }
   const byName = new Map(joints.map((j) => [j.boneName, j]));
   const wrist = byName.get(wristName);
-  const elbow = wrist?.parentBoneName === undefined ? undefined : byName.get(wrist.parentBoneName);
-  const shoulder = elbow?.parentBoneName === undefined ? undefined : byName.get(elbow.parentBoneName);
+  const elbow = flexingParentOf(byName, wrist);
+  const shoulder = flexingParentOf(byName, elbow);
   if (!wrist || !elbow || !shoulder) {
     throw new Error(`guard_body_region: arm chain broken above ${wristName} — a guard needs shoulder -> elbow -> wrist`);
   }

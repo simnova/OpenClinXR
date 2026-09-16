@@ -27,7 +27,7 @@
 import { readFileSync } from "node:fs";
 
 import { resolvePoseBone } from "@openclinxr/asset-registry";
-import { REGION_ANCHOR_SPACE } from "./plant-motion-regions.js";
+import { REGION_ANCHOR_SPACE } from "./regions/region-anchor-space.js";
 
 export type Vec3 = { x: number; y: number; z: number };
 export type Quat = { x: number; y: number; z: number; w: number };

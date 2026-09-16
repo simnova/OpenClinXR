@@ -1,0 +1,85 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "psr-01f",
+  "reviewedBy": "Codex independent subagent /root/c1_boundary_review; exact source review a979fc5fd4616ae5be8f3d54c6cc706bd94f523d; 2026-09-16",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "6a4df1fedee5ad0fae42e026eaf6e77c2f1a4155c117a1e3e0c9679f74f90d11",
+  "packages": [
+    "packages/openclinxr/motion-compiler",
+    "packages/openclinxr/xr-humanoid-animation"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "CompiledMotionClipV1",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "codex-motion-scene-delegation-owner",
+      "rationale": "Gateway production return type and compiled sidecar writer use the canonical compiler clip representation; prevents a copied interchange dialect.",
+      "reviewedBy": "Codex independent subagent /root/c1_boundary_review; exact source review a979fc5fd4616ae5be8f3d54c6cc706bd94f523d; 2026-09-16"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "MotionGlbBakeClip",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "codex-motion-scene-delegation-owner",
+      "rationale": "Gateway legacy publication and payload adapter are typed against the public deterministic bake input contract.",
+      "reviewedBy": "Codex independent subagent /root/c1_boundary_review; exact source review a979fc5fd4616ae5be8f3d54c6cc706bd94f523d; 2026-09-16"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "bakeMotionProgramToGlb",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "codex-motion-scene-delegation-owner",
+      "rationale": "Gateway real and legacy production paths invoke deterministic bake on compiled tracks and publish the returned binary.",
+      "reviewedBy": "Codex independent subagent /root/c1_boundary_review; exact source review a979fc5fd4616ae5be8f3d54c6cc706bd94f523d; 2026-09-16"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "compileMotionProgram",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "codex-motion-scene-delegation-owner",
+      "rationale": "Gateway real authored ED row passes the planned program and current actor profile through canonical orchestration, rather than reconstructing compiler output.",
+      "reviewedBy": "Codex independent subagent /root/c1_boundary_review; exact source review a979fc5fd4616ae5be8f3d54c6cc706bd94f523d; 2026-09-16"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "deriveSkeletonProfileFromRigAsset",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "codex-motion-scene-delegation-owner",
+      "rationale": "Gateway production derives the current promoted MPFB rig profile from the actual bound GLB before canonical compile.",
+      "reviewedBy": "Codex independent subagent /root/c1_boundary_review; exact source review a979fc5fd4616ae5be8f3d54c6cc706bd94f523d; 2026-09-16"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": ".",
+      "symbol": "readMotionGlbClipId",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "codex-motion-scene-delegation-owner",
+      "rationale": "Both production publication paths read back the generated binary clip identity and refuse mismatch before publishing.",
+      "reviewedBy": "Codex independent subagent /root/c1_boundary_review; exact source review a979fc5fd4616ae5be8f3d54c6cc706bd94f523d; 2026-09-16"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "playManifestMotionClip",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "codex-motion-scene-delegation-owner",
+      "rationale": "ui-xr main production playOneShotResponseClip invokes the package entrypoint via motion-manifest-motion-address.ts to select and start only the addressed loaded clip.",
+      "reviewedBy": "Codex independent subagent /root/c1_boundary_review; exact source review a979fc5fd4616ae5be8f3d54c6cc706bd94f523d; 2026-09-16"
+    }
+  ],
+  "reviewedSourceCandidate": "a979fc5fd4616ae5be8f3d54c6cc706bd94f523d",
+  "reviewRecordSha256": "da59803b3093fceca91ebdb8bc9f1f991b8b4aaa67e84ecb333b7faa71477afd"
+}

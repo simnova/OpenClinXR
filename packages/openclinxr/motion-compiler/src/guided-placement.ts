@@ -1,7 +1,6 @@
-import type { CompiledMotionFragment, CompiledMotionTrack, PrimitiveRequest } from "./canonical-motion-contract.js";
-
-import { minimumJerkSample, seededScale } from "./trajectory.js";
+import type { CompiledMotionFragment, CompiledMotionTrack, PrimitiveRequest } from "./motion-wire-format.js";
 import { effectorBoneOnRig, isLeftSideBone, requestedEffector } from "./requested-effector.js";
+import { minimumJerkSample, seededScale } from "./trajectory.js";
 
 /**
  * `guided_placement` — the effector is GUIDED to a placed position, dwells there, and releases

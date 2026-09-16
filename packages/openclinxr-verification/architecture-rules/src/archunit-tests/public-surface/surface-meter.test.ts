@@ -110,7 +110,7 @@ function writeGroup(
 }
 
 function fixtureRequireApplied(root: string, id: string) {
-  return requireAppliedWith(root, id, { resolution: { group: id, scope: { kind: "group" } } });
+  return requireAppliedWith(root, id, { admissionGroups: [], resolution: { group: id, scope: { kind: "group" } } });
 }
 
 describe("compiler-resolved surface meter", () => {
@@ -690,8 +690,8 @@ describe("compiler-resolved surface meter", () => {
           ),
         );
         writeFileSync(join(root, "packages/openclinxr/rest/src/index.ts"), "export const steady = 2;\n");
-        expect(requireApplied(root, "psr-04").ok, requireApplied(root, "psr-04").detail).toBe(true);
-        expect(requireApplied(root, "psr-05").ok).toBe(false);
+        expect(requireAppliedWith(root, "psr-04", { admissionGroups: [] }).ok, requireAppliedWith(root, "psr-04", { admissionGroups: [] }).detail).toBe(true);
+        expect(requireAppliedWith(root, "psr-05", { admissionGroups: [] }).ok).toBe(false);
       },
     );
   });
@@ -704,7 +704,7 @@ describe("compiler-resolved surface meter", () => {
       },
       (root) => {
         writeRawInventory(root);
-        const result = requireApplied(root, "psr-02");
+        const result = requireAppliedWith(root, "psr-02", { admissionGroups: [] });
         expect(result.ok).toBe(false);
         expect(result.detail).toContain("psr-01b");
       },

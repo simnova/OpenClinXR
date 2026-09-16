@@ -19,13 +19,14 @@
   "dependencies": {
     "@azure/storage-queue": "^12.29.0",
     "@cellix/provider-contracts": "workspace:*",
-    "@openclinxr/motion-compiler": "workspace:*"
+    "@openclinxr/motion-compiler": "workspace:*",
+    "@openclinxr/scenario-fixtures": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "catalog:",
-    "vitest": "catalog:",
+    "@cellix/config-typescript": "workspace:*",
     "@cellix/config-vitest": "workspace:*",
-    "@cellix/config-typescript": "workspace:*"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "files": [
     "dist"
