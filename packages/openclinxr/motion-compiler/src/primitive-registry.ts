@@ -1,12 +1,11 @@
-import type { CompiledMotionFragment, PrimitiveRequest } from "./canonical-motion-contract.js";
-
-import { compile as compileGuardBodyRegion } from "./guard-body-region.js";
 import { compile as compileClutchBodyRegion } from "./clutch-body-region.js";
-import { compile as compileReachTarget } from "./reach-target.js";
-import { compile as compileLookAt } from "./look-at.js";
 import { compile as compileCoughRecoil } from "./cough-recoil.js";
-import { compile as compileImposedLimbArc } from "./imposed-limb-arc.js";
+import { compile as compileGuardBodyRegion } from "./guard-body-region.js";
 import { compile as compileGuidedPlacement } from "./guided-placement.js";
+import { compile as compileImposedLimbArc } from "./imposed-limb-arc.js";
+import { compile as compileLookAt } from "./look-at.js";
+import type { CompiledMotionFragment, PrimitiveRequest } from "./motion-wire-format.js";
+import { compile as compileReachTarget } from "./reach-target.js";
 
 /**
  * THE PRIMITIVE REGISTRY — one seam, owned once.

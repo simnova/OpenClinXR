@@ -30,7 +30,7 @@
  */
 import { resolvePoseBone } from "../../../asset-registry/src/pose-bone-resolver.js";
 import type { MotionBodyRegion } from "../motion-body-region.js";
-import { REGION_ANCHOR_SPACE } from "../plant-motion-regions.js";
+import { REGION_ANCHOR_SPACE } from "../regions/region-anchor-space.js";
 
 export type Vec3 = { x: number; y: number; z: number };
 export type Quat = { x: number; y: number; z: number; w: number };

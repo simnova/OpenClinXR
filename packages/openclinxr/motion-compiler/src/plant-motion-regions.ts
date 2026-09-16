@@ -72,6 +72,17 @@ export const COMPLIANCE_TO_MOTION_REGION = [
 export const COMPLIANCE_REGION_RLQ = "abdomen_rlq";
 export const COMPLIANCE_REGION_CHEST_L = "chest_L";
 
+
+/**
+ * The space TRAVELS WITH THE DATA, as `SkeletonProfile.regionAnchorSpace`.
+ *
+ * A constant declared nearby and referenced only in prose is a marker check: a worker can read the
+ * numbers as chest-relative, leave this unused, and satisfy every shape. The discriminator has to be
+ * on the profile so a primitive can REFUSE a space it does not implement, which is what
+ * `rotationAbsoluteNodeLocal` does for rotations — the meaning is in the field name, not in a comment
+ * beside it.
+ */
+export type { RegionAnchorSpace } from "./regions/region-anchor-space.js";
 /**
  * THE SPACE A REGION ANCHOR IS EXPRESSED IN, named here because the last unnamed space cost a round.
  *
@@ -95,15 +106,4 @@ export const COMPLIANCE_REGION_CHEST_L = "chest_L";
  * card (tsk_67cafb96802a06bc), which was wrong: that card owns what a SURFACE adds — normals,
  * closest-point, penetration, orientation — not how an anchor is derived at all.
  */
-export const REGION_ANCHOR_SPACE = "bind_world_metres";
-
-/**
- * The space TRAVELS WITH THE DATA, as `SkeletonProfile.regionAnchorSpace`.
- *
- * A constant declared nearby and referenced only in prose is a marker check: a worker can read the
- * numbers as chest-relative, leave this unused, and satisfy every shape. The discriminator has to be
- * on the profile so a primitive can REFUSE a space it does not implement, which is what
- * `rotationAbsoluteNodeLocal` does for rotations — the meaning is in the field name, not in a comment
- * beside it.
- */
-export type RegionAnchorSpace = typeof REGION_ANCHOR_SPACE;
+export { REGION_ANCHOR_SPACE } from "./regions/region-anchor-space.js";

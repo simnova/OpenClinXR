@@ -40,7 +40,9 @@ import { AssetGenerationCapabilityFacade } from "./index.js";
  *   zero-egress publication with one stable clip identity.
  * notEvidenceFor: production_asset_readiness, quest_readiness, clinical_validity,
  *   scoring_validity, visible deformation, or that any actor visibly moves.
- *
+ */
+
+/**
  * ## CURRENT RUN (2026-09-16, worktree /private/tmp/openclinxr-c1-recovery-implementation-20260916)
  * Independently re-derived from the pinned actor GLB BEFORE product source edits
  * via deriveSkeletonProfileFromRigAsset on
@@ -48,6 +50,14 @@ import { AssetGenerationCapabilityFacade } from "./index.js";
  *   rigFingerprint rig-12ce9026, bindSpace bind_world_metres, 138 joints.
  *   upper_armR/forearmR/handR absent; resolved landmarks upperarm01R / lowerarm01R / wristR.
  * Packet current-mpfb-profile-evidence.json matches this fingerprint.
+ *
+ * ## FIXED (tsk_a339e482c0ee7617) — BothyBoard MSC-C1 recovery implementation
+ * Real ED scenario/actor/region payload routes through planMotionProgram, the
+ * derived current promoted MPFB profile (rig-12ce9026 / 138 joints),
+ * compileMotionProgram, deterministic bake, and zero-egress sidecar publication
+ * under the authored responseClip. Legacy bare clipId still publishes a GLB
+ * without the compiled sidecar. Three compiler public additions remain pending
+ * final independent API review.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
