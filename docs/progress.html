@@ -27,6 +27,79 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-16T0134">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 90 &middot; 2026-09-16 01:34 EDT</p>
+          <h2>A measuring instrument built to refuse its own output did exactly that on its first real run, and the refusal is the result worth having.</h2>
+        </div>
+        <p>
+          The instrument loads the real application, hides everything except one walking figure and the
+          floor, and samples both feet against that floor while taking screenshots. It was built with a
+          rule that it must reject any run where the browser samples too slowly to see a foot touch down.
+          On its first run that reached the sampling stage, it rejected itself.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>What the run measured, against the limits the work order froze before the run happened.</caption>
+            <thead><tr><th scope="col">Measure</th><th scope="col">Observed</th><th scope="col">Required</th></tr></thead>
+            <tbody>
+              <tr><td>Sampling rate</td><td>25 per second</td><td>135 per second</td></tr>
+              <tr><td>Worst gap versus typical gap</td><td>3.38x</td><td>2x or less</td></tr>
+              <tr><td>Distance travelled between samples</td><td>0.0270 m</td><td>0.005 m or less</td></tr>
+              <tr><td>Samples collected</td><td>120</td><td>more than zero, both feet</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Why a refusal is the useful outcome</h3>
+        <p>
+          A foot touching the floor is a brief event. To catch the moment of contact you have to look more
+          often than the foot moves 5 mm. This run looked 25 times a second while the foot was covering
+          27 mm between looks, so a contact could pass entirely between two observations. Any conclusion
+          about whether the feet touch the floor correctly would have been drawn from samples too coarse
+          to contain the answer. The instrument names that and reports the run as ungradeable.
+        </p>
+        <p>
+          An earlier attempt at this measurement, inside a full room with four figures, sampled at about
+          8 per second. Emptying the scene to a single figure and the floor raised that to 25. The target
+          is 135. Removing scene content was the available remedy and it closed roughly a fifth of the
+          gap, so the remaining shortfall is not something a tidier scene will fix.
+        </p>
+        <h3>What the run did establish</h3>
+        <p>
+          The figure being measured is confirmed as the intended one rather than assumed: the 3D file is
+          identified by a content fingerprint, and the animation the work order froze is the same one the
+          running application reported playing. Those two agreeing is what makes any later measurement
+          about this figure rather than some other. The run also wrote down what it is not evidence for,
+          including gait realism, headset performance and anything clinical.
+        </p>
+        <h3>Three defects found by checking rather than by being told</h3>
+        <p>
+          The worker reported success and exited cleanly. Reading the result found that a safety check the
+          reviewing agent had specifically required was written so that it can never fire: the flag it
+          depends on is fixed permanently to "off", and a comment in the code says so plainly. The failure
+          message beside it is real and unreachable. That is worse than the weaker version it replaced,
+          because it now reads as working.
+        </p>
+        <p>
+          Second, the report file was written to a location excluded from version control instead of the
+          tracked location the work order names, which is why two of seven acceptance checks failed.
+          Third, all twelve screenshots are byte-for-byte identical, so they record no movement at all.
+          None of this reached the main branch; nothing was merged.
+        </p>
+        <h3>Two errors of mine</h3>
+        <p>
+          I compared a count of every file in a directory against a limit that only counts test files, and
+          briefly had a breach that did not exist. Counted the way the check counts, the figure is exactly
+          at its frozen limit. Separately I reported a type check as unclear after viewing only the last
+          few lines of its output, which showed the command and not the result. Re-run, it reports zero
+          errors.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
+          claim is made here. This entry reports one browser measurement that graded itself unusable, and the
+          repository checks around it. It makes no claim that the figure's feet are placed correctly.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-16T0002">
         <div class="section-heading">
           <p class="eyebrow">Entry 89 &middot; 2026-09-16 00:02 EDT</p>
