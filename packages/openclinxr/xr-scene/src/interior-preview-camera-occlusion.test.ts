@@ -4,6 +4,10 @@
  * [-2.5999999,1.8,2.5999999] whose ray intersects the leaf. A deeper eye z=1
  * is inside room bounds and has a clear ray. This does not identify the red/grey
  * foreground in the retained browser observation as this synthetic door.
+ *
+ * ## FIXED (tsk_e7dffd251d07d6e2)
+ * Selector no longer restores the rejected doorway-row pool. Deeper room-derived
+ * rows are searched only when every first-row eye is blocked; null if none clear.
  */
 import {BoxGeometry,Group,Mesh,MeshStandardMaterial} from "three";
 import {describe,expect,it} from "vitest";
@@ -18,7 +22,7 @@ function fixture(door?:{size:[number,number,number];position:[number,number,numb
  return{station,room};
 }
 describe("the default interior camera does not restore a blocked candidate pool",()=>{
- it.fails("finds a deeper clear interior eye when every doorway-row eye is occluded",()=>{
+ it("finds a deeper clear interior eye when every doorway-row eye is occluded",()=>{
   const{station,room}=fixture({size:[6,3,0.2],position:[0,1.5,2]});
   const result=deriveInteriorPreviewCamera({roomRoot:room,actorWorldBoxes:actors});
   expect(result).not.toBeNull();if(!result)throw new Error("a clear measured interior eye exists");
@@ -26,7 +30,7 @@ describe("the default interior camera does not restore a blocked candidate pool"
   expect(result.eye.z).toBeLessThan(1.9);expect(result.eye.z).toBeGreaterThan(result.interiorMin.z+result.wallThicknessMeters);
   expect(result.eye.x).toBeGreaterThanOrEqual(result.interiorMin.x+result.wallThicknessMeters);expect(result.eye.x).toBeLessThanOrEqual(result.interiorMax.x-result.wallThicknessMeters);
  });
- it.fails("returns null when no bounded interior candidate has a clear door ray",()=>{
+ it("returns null when no bounded interior candidate has a clear door ray",()=>{
   const{room}=fixture({size:[10,10,10],position:[0,1.5,0]});
   expect(deriveInteriorPreviewCamera({roomRoot:room,actorWorldBoxes:actors})).toBeNull();
  });
