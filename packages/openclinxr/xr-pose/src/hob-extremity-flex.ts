@@ -157,7 +157,10 @@ export function reapplyStoredSupineFootFlex(humanoidRoot: Object3D): void {
     const previous = appliedFootFlex.get(bone);
     const current = bone.rotation[spec.axis];
     if (!Number.isFinite(current)) continue;
-    if (previous?.axis === spec.axis && previous.delta === spec.delta && previous.value === current) continue;
+    // Quaternion/Euler round trips can round the corrected angle by a few ulps.
+    // This is numerical identity, independent of floor/contact tolerances.
+    const roundingAllowance = 32 * Number.EPSILON * Math.max(1, Math.abs(current), Math.abs(previous?.value ?? current));
+    if (previous?.axis === spec.axis && previous.delta === spec.delta && Math.abs(previous.value - current) <= roundingAllowance) continue;
     bone.rotation[spec.axis] = current + spec.delta;
     appliedFootFlex.set(bone, { axis: spec.axis, delta: spec.delta, value: bone.rotation[spec.axis] });
   }
