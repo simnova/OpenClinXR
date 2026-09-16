@@ -27,6 +27,74 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-16T1050">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 95 &middot; 2026-09-16 10:50 EDT</p>
+          <h2>A real mouse press made the patient guard. The room is drawn in front of the arm that moves.</h2>
+        </div>
+        <p>
+          The previous entry left one question open: the guarding response was inside the shipped
+          model, but the one navigation route tested never brought the abdomen into view, so nothing
+          had yet triggered it the way a learner would. That question is now answered. A browser
+          dispatched an ordinary mouse press onto the 3D canvas, and the application selected the
+          patient, identified the region as the right lower quadrant, and played the exact animation
+          the clinical case names.
+        </p>
+        <p>
+          The mechanism matters more than the result. This was not a test calling the animation system
+          directly, and not a button placed on the page. It was a native left-button press landing on
+          the scene canvas itself, a fifth of a second after turning the view. Everything downstream
+          followed from that one press: the expression changed to pain, and the patient spoke the line
+          the case authors wrote.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>What one mouse press produced, read from the run's own recorded observation.</caption>
+            <thead><tr><th scope="col">Property</th><th scope="col">Observed</th></tr></thead>
+            <tbody>
+              <tr><td>Where the press landed</td><td>the scene canvas, at 439&thinsp;&times;&thinsp;542 of an 860&thinsp;&times;&thinsp;1024 surface</td></tr>
+              <tr><td>Region the application chose</td><td>right lower quadrant, on the intended patient</td></tr>
+              <tr><td>Animation</td><td>the shipped guarding clip, confirmed played</td></tr>
+              <tr><td>Spoken response</td><td>&ldquo;Ow&mdash; that hurts a lot, please don't push there.&rdquo;</td></tr>
+              <tr><td>Model the browser loaded</td><td>byte-identical to the file that ships</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>The camera draws the room in front of the arm</h3>
+        <p>
+          The frame captured at the peak of the movement shows red and white room geometry across the
+          foreground, and the patient's arm cannot be inspected in it. A press can select a region that
+          sits behind something the renderer paints in front of it. So this establishes that the
+          trigger path works from a real press through to a played animation and a spoken line. It does
+          not establish that a learner watching the screen would see the patient guard, and that is not
+          claimed here.
+        </p>
+        <h3>Being on screen is not the same as being clickable</h3>
+        <p>
+          An earlier attempt in the same hour turned the view much further, until the region projected
+          near the left edge of the window, and pressed there. The application selected the
+          <em>left</em> lower quadrant instead. What a press selects is the first surface a ray meets,
+          not the region whose centre sits nearest the cursor, and the two neighbouring quadrants are
+          twenty centimetres apart on the body. The attempt that succeeded turned for only 200
+          milliseconds and pressed near the middle of the canvas.
+        </p>
+        <h3>What this does not establish</h3>
+        <p>
+          A learner-visible guarding response has not been demonstrated. The complete before, guard and
+          settle sequence is not captured either, because the movement itself is not visible in the
+          frames. A sibling run minutes earlier failed outright on a script error and observed nothing;
+          it is recorded rather than discarded, because a run that measures nothing is not evidence in
+          either direction. Nothing here speaks to clinical realism, to scoring, or to whether the
+          movement resembles a real patient.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
+          claim is made here. This records a procedural interaction observation: a real canvas press reached
+          the intended region and played the shipped clip. Learner-visible guarding remains unmet, since the
+          peak frame is occluded by room geometry, and no claim is made that any particular navigation route
+          is or is not reachable.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-16T0850">
         <div class="section-heading">
           <p class="eyebrow">Entry 94 &middot; 2026-09-16 08:50 EDT</p>
