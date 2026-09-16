@@ -11,6 +11,12 @@ import type { ApplyScope } from "./gates.js";
 
 export const REVIEW_GROUPS = ["psr-01b", "psr-01c", "psr-01d", "psr-01e"] as const;
 
+/**
+ * Additive admission overlay allowlist. Side table, not apply ids.
+ * Empty means identity extra-subtraction. resolveApplyId does not consult this.
+ */
+export const ADMISSION_GROUPS: readonly string[] = [];
+
 /** The seven PSR-07 XR packages: facade work owned by the XR lane. */
 export const PSR_07_PACKAGES: readonly string[] = [
   "packages/openclinxr/xr-runtime-state",
