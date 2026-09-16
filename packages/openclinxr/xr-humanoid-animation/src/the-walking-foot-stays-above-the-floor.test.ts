@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { describe, expect, it } from "vitest";
 import { applyStanceLockedGroundAdvance, createStanceLockState } from "./stance-lock-mod.js";
+import { findBonesBySanitisedName, sanitiseBoneName } from "@openclinxr/xr-pose";
 
 /**
  * The walking foot must not penetrate the selected floor plane.
@@ -32,46 +33,43 @@ function makeToeChain(hipY: number, kneeY: number, heelY: number, toeY: number):
   actorSlot.scale.set(1, 1, 1);
 
   const hip = new THREE.Object3D();
-  hip.name = "upperleg01.L";
+  hip.name = "upperleg01L";
   hip.position.set(0, hipY, 0);
   actorSlot.add(hip);
 
   const knee = new THREE.Object3D();
-  knee.name = "lowerleg01.L";
+  knee.name = "lowerleg01L";
   knee.position.set(0, kneeY - hipY, 0);
   hip.add(knee);
 
   const heel = new THREE.Object3D();
-  heel.name = "foot.L";
+  heel.name = "footL";
   heel.position.set(0, heelY - kneeY, 0);
   knee.add(heel);
 
   const toe = new THREE.Object3D();
-  toe.name = "toe1-1.L";
+  toe.name = "toe1-1L";
   toe.position.set(0, toeY - heelY, 0);
   heel.add(toe);
 
   const rightToe = new THREE.Object3D();
-  rightToe.name = "toe1-1.R";
-  rightToe.position.set(0.1, 0.2, 0); // Well above floor (0.15) so it's NOT in contact (0.2 - 0.15 = 0.05 > 0.06 band? No, 0.2 > 0.15 + 0.06 = 0.21... 0.2 is within 0.15+0.06=0.21, so it IS in contact. Need > 0.21)
-  // Actually: contactBandMeters = 0.06, floor = 0.15, so band is up to 0.21. Right toe at 0.2 is in contact.
-  // Let's put it at 0.25 to be well above
+  rightToe.name = "toe1-1R";
   rightToe.position.set(0.1, 0.25, 0);
   actorSlot.add(rightToe);
 
   // Add right leg chain for completeness
   const rightHip = new THREE.Object3D();
-  rightHip.name = "upperleg01.R";
+  rightHip.name = "upperleg01R";
   rightHip.position.set(0.1, hipY, 0);
   actorSlot.add(rightHip);
 
   const rightKnee = new THREE.Object3D();
-  rightKnee.name = "lowerleg01.R";
+  rightKnee.name = "lowerleg01R";
   rightKnee.position.set(0, kneeY - hipY, 0);
   rightHip.add(rightKnee);
 
   const rightHeel = new THREE.Object3D();
-  rightHeel.name = "foot.R";
+  rightHeel.name = "footR";
   rightHeel.position.set(0, heelY - kneeY, 0);
   rightKnee.add(rightHeel);
 
@@ -213,5 +211,112 @@ describe("the walking foot stays above the floor (floor-penetration-required-beh
     expect(result2.doubleSupport).toBe(false);
     // The lock should correct the stance foot XZ (anchor X=0, toe moved to X=0.05, so correction should be -0.05)
     expect(Math.abs(result2.correctionMeters.x)).toBeGreaterThan(0.01);
+  });
+
+  it("walking suite uses sanitised upperleg01L, footL and toe1-1L names", () => {
+    const { actorSlot, rightToe } = makeToeChain(
+      0.9,
+      0.45,
+      0.03,
+      -0.02
+    );
+    rightToe.position.y = 0.25;
+    rightToe.updateMatrixWorld(true);
+
+    // Verify the sanitised names work with findBonesBySanitisedName
+    const hipResults = findBonesBySanitisedName(actorSlot, sanitiseBoneName("upperleg01.L"));
+    const kneeResults = findBonesBySanitisedName(actorSlot, sanitiseBoneName("lowerleg01.L"));
+    const heelResults = findBonesBySanitisedName(actorSlot, sanitiseBoneName("foot.L"));
+    const toeResults = findBonesBySanitisedName(actorSlot, sanitiseBoneName("toe1-1.L"));
+
+    expect(hipResults.length).toBeGreaterThan(0);
+    expect(kneeResults.length).toBeGreaterThan(0);
+    expect(heelResults.length).toBeGreaterThan(0);
+    expect(toeResults.length).toBeGreaterThan(0);
+
+    // Verify the names match
+    expect(hipResults[0]!.name).toBe("upperleg01L");
+    expect(kneeResults[0]!.name).toBe("lowerleg01L");
+    expect(heelResults[0]!.name).toBe("footL");
+    expect(toeResults[0]!.name).toBe("toe1-1L");
+  });
+
+  it("left and right support selection works correctly", () => {
+    const floorOriginY = 0;
+    const contactBandMeters = 0.06;
+
+    // Test left foot as stance
+    const { actorSlot: actorSlotL, leftToe: leftToeL, rightToe: rightToeL } = makeToeChain(
+      0.9, 0.45, 0.03, -0.02
+    );
+    rightToeL.position.y = 0.25;
+    rightToeL.updateMatrixWorld(true);
+
+    const state1 = createStanceLockState();
+    const result1L = applyStanceLockedGroundAdvance({
+      actorSlot: actorSlotL,
+      leftToe: leftToeL,
+      rightToe: rightToeL,
+      floorOriginY,
+      contactBandMeters,
+      state: state1,
+    });
+    expect(result1L.stanceFoot).toBe("left");
+
+    // Test right foot as stance (create mirrored chain)
+    const actorSlotR = new THREE.Group();
+    actorSlotR.position.set(0, 0, 0);
+    actorSlotR.scale.set(1, 1, 1);
+
+    const rightHip = new THREE.Object3D();
+    rightHip.name = "upperleg01R";
+    rightHip.position.set(0.1, 0.9, 0);
+    actorSlotR.add(rightHip);
+
+    const rightKnee = new THREE.Object3D();
+    rightKnee.name = "lowerleg01R";
+    rightKnee.position.set(0, -0.45, 0);
+    rightHip.add(rightKnee);
+
+    const rightHeel = new THREE.Object3D();
+    rightHeel.name = "footR";
+    rightHeel.position.set(0, -0.33, 0);
+    rightKnee.add(rightHeel);
+
+    const rightToeTest = new THREE.Object3D();
+    rightToeTest.name = "toe1-1R";
+    rightToeTest.position.set(0, -0.05, 0); // 5 cm below floor
+    rightHeel.add(rightToeTest);
+
+    // Left toe well above floor
+    const leftToeTest = new THREE.Object3D();
+    leftToeTest.name = "toe1-1L";
+    leftToeTest.position.set(-0.1, 0.25, 0);
+    actorSlotR.add(leftToeTest);
+
+    // Add right leg toe for the chain detection
+    const rightToeForChain = new THREE.Object3D();
+    rightToeForChain.name = "toe1-1R";
+    rightToeForChain.position.set(0.1, -0.05, 0); // Match rightToeTest position
+    actorSlotR.add(rightToeForChain);
+
+    actorSlotR.updateMatrixWorld(true);
+    rightHip.updateMatrixWorld(true);
+    rightKnee.updateMatrixWorld(true);
+    rightHeel.updateMatrixWorld(true);
+    rightToeTest.updateMatrixWorld(true);
+    leftToeTest.updateMatrixWorld(true);
+    rightToeForChain.updateMatrixWorld(true);
+
+    const state2 = createStanceLockState();
+    const result2R = applyStanceLockedGroundAdvance({
+      actorSlot: actorSlotR,
+      leftToe: leftToeTest,
+      rightToe: rightToeForChain,
+      floorOriginY,
+      contactBandMeters,
+      state: state2,
+    });
+    expect(result2R.stanceFoot).toBe("right");
   });
 });

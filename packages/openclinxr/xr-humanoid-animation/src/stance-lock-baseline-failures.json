@@ -1,0 +1,64 @@
+{
+  "baseline": "32b11a380e78b7868f530134c5af82d6442c27c9",
+  "timestamp": "2026-09-16T02:57:41.526Z",
+  "package": "@openclinxr/xr-humanoid-animation",
+  "failingTests": [
+    {
+      "testName": "standing-foot-penetration-required-behavior",
+      "suite": "the standing foot stays above the floor (standing-foot-penetration-required-behavior)",
+      "file": "the-standing-foot-stays-above-the-floor.test.ts",
+      "expected": "depth <= 0.005001",
+      "actual": "depth = 0.039",
+      "defect": "applyStanceLockedGroundAdvance does not correct settled posture; applySettledPostureCorrection not called during settled phase"
+    },
+    {
+      "testName": "counterweight: a submerged toe is reported as violating before correction",
+      "suite": "the standing foot stays above the floor (standing-foot-penetration-required-behavior)",
+      "file": "the-standing-foot-stays-above-the-floor.test.ts",
+      "expected": "depthAfter <= 0.005001",
+      "actual": "depthAfter = 0.021",
+      "defect": "Second frame of applyStanceLockedGroundAdvance does not correct toe penetration"
+    },
+    {
+      "testName": "applySettledPostureCorrection is called directly and corrects standing toe",
+      "suite": "the standing foot stays above the floor (standing-foot-penetration-required-behavior)",
+      "file": "the-standing-foot-stays-above-the-floor.test.ts",
+      "expected": "result.corrected === true",
+      "actual": "result.corrected === false",
+      "defect": "applySettledPostureCorrection returns corrected: false because findStanceChain fails with sanitised MPFB names"
+    },
+    {
+      "testName": "non-zero heel-to-toe XZ offset has correct sign",
+      "suite": "the standing foot stays above the floor (standing-foot-penetration-required-behavior)",
+      "file": "the-standing-foot-stays-above-the-floor.test.ts",
+      "expected": "result.corrected === true",
+      "actual": "result.corrected === false",
+      "defect": "findStanceChain fails with sanitised names; heel target sign incorrect"
+    },
+    {
+      "testName": "translated actorSlot in collinear fixture cannot contaminate pole direction",
+      "suite": "the standing foot stays above the floor (standing-foot-penetration-required-behavior)",
+      "file": "the-standing-foot-stays-above-the-floor.test.ts",
+      "expected": "result.corrected === true",
+      "actual": "result.corrected === false",
+      "defect": "findStanceChain fails with sanitised names; collinear fallback uses hip.parent instead of actorSlot"
+    },
+    {
+      "testName": "non-identity hip local after correction equals pre-correction pose composed with hip delta",
+      "suite": "the standing foot stays above the floor (standing-foot-penetration-required-behavior)",
+      "file": "the-standing-foot-stays-above-the-floor.test.ts",
+      "expected": "result.corrected === true",
+      "actual": "result.corrected === false",
+      "defect": "findStanceChain fails with sanitised names; solveTwoBoneIK returns from-identity quaternions that replace instead of compose with animated pose"
+    }
+  ],
+  "defectsSummary": [
+    "1. findStanceChain looks up dotted names (upperleg01.L) but Three.js sanitises to upperleg01L",
+    "2. Heel target sign: code adds heelToToe to desired toe; correct is desiredToe - heelToToe",
+    "3. solveTwoBoneIK returns from-identity quaternions; hip must compose with animated pose, knee must become absolute local bend",
+    "4. Collinear fallback uses hip.parent as actor frame and applyMatrix4 on direction (includes translation); must use caller-supplied actorSlot as direction-only frame",
+    "5. Max extension uses current hip-to-heel distance; must use upperLen + lowerLen",
+    "6. First arrived frame: restLocal present, closing begins false; restoreSettlingRestToePose restores rest locals, sets closing true, but wrapper returns before settled correction",
+    "7. Existing tests use identity rotations, zero heel-to-toe XZ offset, dotted names, and never import applySettledPostureCorrection directly"
+  ]
+}
