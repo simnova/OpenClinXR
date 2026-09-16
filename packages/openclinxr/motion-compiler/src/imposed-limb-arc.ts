@@ -1,7 +1,6 @@
-import type { CompiledMotionFragment, CompiledMotionTrack, PrimitiveRequest } from "./canonical-motion-contract.js";
-
-import { axisAngleQuaternion, minimumJerkSample, seededScale } from "./trajectory.js";
+import type { CompiledMotionFragment, CompiledMotionTrack, PrimitiveRequest } from "./motion-wire-format.js";
 import { isLeftSideBone, requestedEffector } from "./requested-effector.js";
+import { axisAngleQuaternion, minimumJerkSample, seededScale } from "./trajectory.js";
 
 /**
  * `imposed_limb_arc` — the limb is CARRIED through an out-and-back arc by an examiner's grasp.

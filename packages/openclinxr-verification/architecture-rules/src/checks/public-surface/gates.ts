@@ -1,8 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { REVIEW_GROUPS, resolveApplyId } from "./apply-map.js";
+import { isAbsolute, join, relative } from "node:path";
+import { ADMISSION_GROUPS, REVIEW_GROUPS, resolveApplyId } from "./apply-map.js";
 import { discoverConsumers } from "./consumers.js";
 import { manifestHash, measureSurface } from "./resolve.js";
 import type { SurfaceReport } from "./resolve.js";
@@ -62,8 +62,10 @@ export type RawInventory = {
 
 export const RAW_INVENTORY_REL = "docs/openclinxr/package-public-surface-reduction/raw-inventory.json";
 export const APPROVALS_DIR_REL = "docs/openclinxr/package-public-surface-reduction/approvals";
+export const ADMISSIONS_DIR_REL = "docs/openclinxr/package-public-surface-reduction/admissions";
 export const EVIDENCE_DIR_REL = "docs/openclinxr/package-public-surface-reduction/evidence";
 export const BASELINE_REL = "docs/openclinxr/package-public-surface-reduction/baseline.json";
+const ADMISSION_SCHEMA = "openclinxr.psr-admission.v1";
 
 function tableKeys(rows: { package: string; entrypoint: string; symbol: string; kind: string }[]): string[] {
   return rows.map((row) => `${row.package}\t${row.entrypoint}\t${row.symbol}\t${row.kind}`).sort();
@@ -374,6 +376,168 @@ function scopePackages(
   return out;
 }
 
+type OverlayRow = {
+  package: string;
+  entrypoint: string;
+  symbol: string;
+  kind: string;
+  disposition: string;
+  owner: string;
+  rationale: string;
+  reviewedBy: string;
+};
+
+type OverlayDoc = {
+  schema: string;
+  id: string;
+  reviewedBy: string;
+  baseRawInventoryHash: string;
+  admissionHash: string;
+  packages: string[];
+  rows: OverlayRow[];
+};
+
+function surfaceRowKey(pkg: string, entry: string, symbol: string, kind: string): string {
+  return `${pkg}\t${entry}\t${symbol}\t${kind}`;
+}
+
+function overlayRowPreimage(row: OverlayRow): string {
+  return `${row.package}\t${row.entrypoint}\t${row.symbol}\t${row.kind}\t${row.disposition}\t${row.owner}\t${row.reviewedBy}`;
+}
+
+function computeAdmissionHash(reviewedBy: string, rows: OverlayRow[]): string {
+  const lines = [...rows]
+    .sort((a, b) => surfaceRowKey(a.package, a.entrypoint, a.symbol, a.kind).localeCompare(surfaceRowKey(b.package, b.entrypoint, b.symbol, b.kind)))
+    .map(overlayRowPreimage);
+  return createHash("sha256").update([reviewedBy, ...lines].join("\n")).digest("hex");
+}
+
+function overlayRelOrRefuse(root: string, id: string): { rel?: string; error?: string } {
+  if (
+    id === "" ||
+    id.includes("\0") ||
+    id.includes("\\") ||
+    id.includes("/") ||
+    id.includes("..") ||
+    isAbsolute(id)
+  ) {
+    return { error: "overlay path refused" };
+  }
+  const admissionsRoot = join(root, ADMISSIONS_DIR_REL);
+  const full = join(admissionsRoot, `${id}.json`);
+  const fromAdmissions = relative(admissionsRoot, full);
+  if (fromAdmissions.startsWith("..") || isAbsolute(fromAdmissions)) {
+    return { error: "overlay path refused" };
+  }
+  return { rel: `${ADMISSIONS_DIR_REL}/${id}.json` };
+}
+
+function isOverlayRow(value: unknown): value is OverlayRow {
+  if (value === null || typeof value !== "object") return false;
+  const row = value as OverlayRow;
+  return (
+    typeof row.package === "string" &&
+    row.package !== "" &&
+    typeof row.entrypoint === "string" &&
+    row.entrypoint !== "" &&
+    typeof row.symbol === "string" &&
+    row.symbol !== "" &&
+    (row.kind === "runtime" || row.kind === "type") &&
+    (row.disposition === "keep" || row.disposition === "remove" || row.disposition === "migrate") &&
+    typeof row.owner === "string" &&
+    row.owner !== "" &&
+    typeof row.rationale === "string" &&
+    row.rationale !== "" &&
+    typeof row.reviewedBy === "string" &&
+    row.reviewedBy !== ""
+  );
+}
+
+function parseOverlay(value: unknown): OverlayDoc | undefined {
+  if (value === null || typeof value !== "object") return undefined;
+  const doc = value as Record<string, unknown>;
+  const schema = doc["schema"];
+  const overlayId = doc["id"];
+  const reviewedBy = doc["reviewedBy"];
+  const baseRawInventoryHash = doc["baseRawInventoryHash"];
+  const admissionHash = doc["admissionHash"];
+  const packages = doc["packages"];
+  const rows = doc["rows"];
+  if (typeof schema !== "string" || typeof overlayId !== "string" || typeof reviewedBy !== "string") return undefined;
+  if (typeof baseRawInventoryHash !== "string" || typeof admissionHash !== "string") return undefined;
+  if (!Array.isArray(packages) || !packages.every((entry) => typeof entry === "string")) return undefined;
+  if (!Array.isArray(rows) || !rows.every(isOverlayRow)) return undefined;
+  return {
+    schema,
+    id: overlayId,
+    reviewedBy,
+    baseRawInventoryHash,
+    admissionHash,
+    packages,
+    rows,
+  };
+}
+
+function loadOverlay(root: string, id: string, rawHash: string | undefined): { overlay?: OverlayDoc; error?: string } {
+  const located = overlayRelOrRefuse(root, id);
+  if (located.rel === undefined) return { error: located.error ?? "overlay path refused" };
+  const value = readJson(root, located.rel);
+  if (value === undefined) return { error: `overlay ${id} is absent` };
+  const overlay = parseOverlay(value);
+  if (overlay === undefined) return { error: "malformed overlay" };
+  if (overlay.schema !== ADMISSION_SCHEMA) return { error: "overlay schema refused" };
+  if (overlay.id !== id) return { error: "overlay id/filename mismatch" };
+  if (overlay.reviewedBy === "") return { error: "malformed overlay" };
+  if (overlay.rows.length === 0) return { error: "malformed overlay" };
+  for (const row of overlay.rows) {
+    if (row.owner === overlay.reviewedBy) return { error: "overlay owner equals reviewer" };
+    if (row.reviewedBy !== overlay.reviewedBy) return { error: "overlay row reviewedBy disagrees" };
+  }
+  const fromRows = [...new Set(overlay.rows.map((row) => row.package))].sort();
+  const listed = [...new Set(overlay.packages)].sort();
+  if (listed.length !== overlay.packages.length || listed.join("\n") !== fromRows.join("\n")) {
+    return { error: "overlay packages disagree with rows" };
+  }
+  if (overlay.baseRawInventoryHash !== rawHash) return { error: "overlay baseRawInventoryHash does not match" };
+  if (overlay.admissionHash !== computeAdmissionHash(overlay.reviewedBy, overlay.rows)) {
+    return { error: "overlay admissionHash does not match" };
+  }
+  return { overlay };
+}
+
+function loadAdmittedKeepKeys(
+  root: string,
+  admissionGroups: readonly string[],
+  frozenRows: ApprovalRow[],
+  rawHash: string | undefined,
+): { keys?: Set<string>; error?: string } {
+  if (admissionGroups.length === 0) return { keys: new Set() };
+  const frozen = new Map<string, string>();
+  for (const row of frozenRows) {
+    frozen.set(surfaceRowKey(row.package, row.entrypoint, row.symbol, row.kind ?? ""), row.disposition ?? "");
+  }
+  const keys = new Set<string>();
+  for (const admissionId of admissionGroups) {
+    const loaded = loadOverlay(root, admissionId, rawHash);
+    if (loaded.overlay === undefined) return { error: loaded.error ?? "malformed overlay" };
+    for (const row of loaded.overlay.rows) {
+      const key = surfaceRowKey(row.package, row.entrypoint, row.symbol, row.kind);
+      const frozenDisp = frozen.get(key);
+      if (frozenDisp === "keep") return { error: "closed keep cannot be overlaid" };
+      if (frozenDisp === "migrate") return { error: "overlay over frozen migrate" };
+      if (row.disposition !== "keep") return { error: "overlay disposition refused" };
+      keys.add(key);
+    }
+  }
+  return { keys };
+}
+
+export type RequireAppliedOptions = {
+  report?: SurfaceReport;
+  admissionGroups?: readonly string[];
+  resolution?: { group: string; scope: ApplyScope };
+};
+
 /**
  * --require-applied: resolves apply ids through the apply map, then requires exact
  * expected-surface equality on the in-scope packages. Compares the approval's
@@ -381,11 +545,41 @@ function scopePackages(
  * tree: applying a disposition moves the surface by design).
  */
 export function requireApplied(root: string, id: string, report?: SurfaceReport): GateResult {
-  const direct = readJson(root, `${APPROVALS_DIR_REL}/${id}.json`);
-  const resolution = resolveApplyId(id) ?? (direct !== undefined ? { group: id, scope: { kind: "group" as const } } : undefined);
-  if (resolution === undefined) {
-    return { ok: false, detail: `unknown apply id ${id}` };
-  }  const read = readResolvedApproval(root, resolution.group);
+  const options: RequireAppliedOptions = { admissionGroups: ADMISSION_GROUPS };
+  if (report !== undefined) options.report = report;
+  return requireAppliedWith(root, id, options);
+}
+
+/**
+ * Same-module fixture/production engine. Production requireApplied is this helper
+ * with canonical resolveApplyId and ADMISSION_GROUPS. Fixture resolution, when
+ * supplied, must be whole-group with group===id.
+ */
+export function requireAppliedWith(root: string, id: string, options: RequireAppliedOptions = {}): GateResult {
+  const admissionGroups = options.admissionGroups ?? ADMISSION_GROUPS;
+  let resolution: { group: string; scope: ApplyScope } | undefined;
+  if (options.resolution !== undefined) {
+    if (options.resolution.group !== id || options.resolution.scope.kind !== "group") {
+      return { ok: false, detail: "invalid fixture resolution" };
+    }
+    resolution = { group: id, scope: { kind: "group" } };
+  } else {
+    resolution = resolveApplyId(id);
+    if (resolution === undefined) {
+      return { ok: false, detail: `unknown apply id ${id}` };
+    }
+  }
+  return applyResolved(root, id, resolution, options.report, admissionGroups);
+}
+
+function applyResolved(
+  root: string,
+  id: string,
+  resolution: { group: string; scope: ApplyScope },
+  report: SurfaceReport | undefined,
+  admissionGroups: readonly string[],
+): GateResult {
+  const read = readResolvedApproval(root, resolution.group);
   if (read.value === undefined || read.rows === undefined) {
     const detail = (read.error ?? `approval manifest for ${resolution.group} is unreadable`).replace(
       resolution.group,
@@ -414,9 +608,14 @@ export function requireApplied(root: string, id: string, report?: SurfaceReport)
   if (resolution.scope.kind !== "group" && scopedRows.length === 0) {
     return { ok: false, detail: `group ${id} rejected: no approval rows in this apply card's package scope` };
   }
+  const admitted = loadAdmittedKeepKeys(root, admissionGroups, read.rows, raw.inventoryHash);
+  const admittedKeys = admitted.keys;
+  if (admittedKeys === undefined) {
+    return { ok: false, detail: admitted.error ?? "malformed overlay" };
+  }
   const expected = expectedSurface(raw.rows ?? [], scopedRows, scoped);
   const current = entrypointSymbols(measured);
-  const failures: string[] = [];
+  const failures: { message: string; extraKey?: string }[] = [];
   const expectedPackages = new Set([...expected.keys()].filter((dir) => scoped.has(dir)));
   for (const packageDir of scoped) expectedPackages.add(packageDir);
   for (const packageDir of [...expectedPackages].sort()) {
@@ -427,15 +626,21 @@ export function requireApplied(root: string, id: string, report?: SurfaceReport)
       const want = wantEntries.get(specifier) ?? new Map<string, string>();
       const have = haveEntries.get(specifier) ?? new Map<string, string>();
       for (const name of [...want.keys()].sort()) {
-        if (!have.has(name)) failures.push(`missing: ${packageDir}${specifier} should publish ${name}`);
+        if (!have.has(name)) failures.push({ message: `missing: ${packageDir}${specifier} should publish ${name}` });
       }
       for (const name of [...have.keys()].sort()) {
-        if (!want.has(name)) failures.push(`extra: ${packageDir}${specifier} publishes unapproved ${name}`);
+        if (!want.has(name)) {
+          failures.push({
+            message: `extra: ${packageDir}${specifier} publishes unapproved ${name}`,
+            extraKey: surfaceRowKey(packageDir, specifier, name, have.get(name) ?? ""),
+          });
+        }
       }
     }
   }
-  if (failures.length > 0) {
-    return { ok: false, detail: `group ${id} not applied: ${failures.slice(0, 5).join("; ")}` };
+  const remaining = failures.filter((failure) => failure.extraKey === undefined || !admittedKeys.has(failure.extraKey));
+  if (remaining.length > 0) {
+    return { ok: false, detail: `group ${id} not applied: ${remaining.slice(0, 5).map((failure) => failure.message).join("; ")}` };
   }
   const removes = scopedRows.filter((row) => row.disposition === "remove").length;
   const migrates = scopedRows.filter((row) => row.disposition === "migrate").length;

@@ -29,21 +29,20 @@
  */
 
 import { createHash } from "node:crypto";
-
+import { responseClipForBodyRegion } from "../../scenario-fixtures/src/touch-response-clip.js";
+import { COMPLIANCE_TO_MOTION_REGION } from "./motion-body-region.js";
+import { MOTION_PLAN_CLAIM_BOUNDARY, type MotionProgram } from "./motion-program.js";
 import {
   CLIP_SCHEMA_VERSION,
   type CompiledMotionFragment,
   type CompiledMotionTrack,
   type PrimitiveRequest,
-} from "./canonical-motion-contract.js";
-import { COMPLIANCE_TO_MOTION_REGION } from "./motion-body-region.js";
+} from "./motion-wire-format.js";
 import { resolvePrimitive } from "./primitive-registry.js";
-import { MOTION_PLAN_CLAIM_BOUNDARY, type MotionProgram } from "./motion-program.js";
 import {
   canonicalMotionProgramHash,
   deterministicCompileIdentity,
 } from "./program/compile-scenario-motion.js";
-import { responseClipForBodyRegion } from "../../scenario-fixtures/src/touch-response-clip.js";
 
 /** The exact clip shape the keystone freezes — one representation, imported by consumers. */
 export type CompiledMotionClipV1 = {

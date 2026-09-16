@@ -1,12 +1,11 @@
-import type { CompiledMotionFragment, CompiledMotionTrack, PrimitiveRequest } from "./canonical-motion-contract.js";
-
-import { approachHoldRelease, seededScale } from "./trajectory.js";
 import {
   isMotionBodyRegion,
-  motionBodyRegionForComplianceRegion,
   type MotionBodyRegion,
+  motionBodyRegionForComplianceRegion,
 } from "./motion-body-region.js";
+import type { CompiledMotionFragment, CompiledMotionTrack, PrimitiveRequest } from "./motion-wire-format.js";
 import { effectorBoneOnRig, isLeftSideBone, requestedEffector } from "./requested-effector.js";
+import { approachHoldRelease, seededScale } from "./trajectory.js";
 
 /**
  * `clutch_body_region` — the effector hand clamps onto a body region and HOLDS contact there.

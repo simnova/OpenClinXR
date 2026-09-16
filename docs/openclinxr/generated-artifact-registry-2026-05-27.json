@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 388,
+    "keep-evidence": 395,
     "ignore-local-cache": 2771,
     "keep-current": 226,
     "keep-compatibility-input": 24,
@@ -22134,13 +22134,6 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
-      "path": "docs/openclinxr/humanoid-decimation-wiring-2026-09-14.json",
-      "authority": "keep-evidence",
-      "tracked": false,
-      "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
       "path": "docs/openclinxr/humanoid-basecolorfactor-audit-2026-09-10.json",
       "authority": "keep-evidence",
       "tracked": true,
@@ -22160,6 +22153,27 @@
       "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-decimation-wiring-2026-09-14.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-evidence-byte-drift-2026-09-14.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "tsk_d6874d507ef8e3d7 verdict artifact: ROWS STALE / BYTES LEGITIMATE, per-body rewrite chains and row before/afters for the decimation evidence drift."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-falsifier-pin-lineage-2026-09-15.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "tsk_1902d6e67383ea2a decision artifact: PIN_PROMOTED_LINEAGE, the rejected HB-02 alternative and what it would fail to catch, both station re-runs with their committed pre-image shas, and what the retargeted falsifier still falsifies."
     },
     {
       "path": "docs/openclinxr/humanoid-lowest-vertex-audit-2026-09-10.json",
@@ -22321,20 +22335,6 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-evidence-byte-drift-2026-09-14.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "tsk_d6874d507ef8e3d7 verdict artifact: ROWS STALE / BYTES LEGITIMATE, per-body rewrite chains and row before/afters for the decimation evidence drift."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-falsifier-pin-lineage-2026-09-15.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "tsk_1902d6e67383ea2a decision artifact: PIN_PROMOTED_LINEAGE, the rejected HB-02 alternative and what it would fail to catch, both station re-runs with their committed pre-image shas, and what the retargeted falsifier still falsifies."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-animated-2026-05-23.json",
@@ -23233,6 +23233,13 @@
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
+      "path": "docs/openclinxr/lockfile-drift-gate-counterweight-2026-09-15.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Measured lockfile-drift counterweight for tsk_8d7b00a78f1760ed: preserves four removal/addition observations and two hook cost measurements. Registration classifies this artifact; it grants no policy exception or product completion."
+    },
+    {
       "path": "docs/openclinxr/materialize-clinical-idle-pose-clip-2026-05-23.json",
       "authority": "keep-compatibility-input",
       "tracked": true,
@@ -23443,6 +23450,13 @@
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/psr-01f.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/approvals/psr-01b.json",
       "authority": "keep-evidence",
       "tracked": true,
@@ -23591,6 +23605,13 @@
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-08-residual.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-motion-admission-2026-09-16.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -23940,6 +23961,13 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/viseme-chosen-rung-label-2026-09-15.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Decision artifact for tsk_68499a16e3ea6c09: resolves label/lookup mismatch in viseme row by renaming sweep entry fp-r0.4-jeans-lineage to fp-r0.4 (rungId names technique, inputLineage carries lineage) and restoring derived lookup in falsifier test."
+    },
+    {
       "path": "tools/openclinxr/evidence/blender/render_seated_clip_frames.py",
       "authority": "keep-current",
       "tracked": true,
@@ -23966,13 +23994,6 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Dated tightjeans rebake evidence note; .md must not join generatedExtensions (doc-authority collision)."
-    },
-    {
-      "path": "docs/openclinxr/viseme-chosen-rung-label-2026-09-15.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Decision artifact for tsk_68499a16e3ea6c09: resolves label/lookup mismatch in viseme row by renaming sweep entry fp-r0.4-jeans-lineage to fp-r0.4 (rungId names technique, inputLineage carries lineage) and restoring derived lookup in falsifier test."
     }
   ]
 }

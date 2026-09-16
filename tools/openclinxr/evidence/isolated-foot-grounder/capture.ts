@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
@@ -113,6 +113,7 @@ interface IsolatedFootGrounderReport {
     gradeable: boolean;
     reason: string | null;
   };
+  prerequisites: { driveSourceTimedOut: boolean; environmentTimedOut: boolean };
   grade: {
     ok: boolean;
     problems: string[];
@@ -414,7 +415,7 @@ function measureCadence(
   };
 }
 
-function gradeReport(
+export function gradeReport(
   samples: HeelToeSample[],
   cadence: IsolatedFootGrounderReport["cadence"],
   clipIdentity: ClipIdentity,
@@ -461,6 +462,11 @@ function gradeReport(
   for (const _screenshot of screenshots) {
     // The hash in the report must match the file
     // (We verify this by recomputing after writing)
+  }
+
+  // Non-finite metrics must refuse; comparisons against NaN otherwise silently pass.
+  if (![cadence.maxOverMedian, cadence.medianStrideMeters, cadence.hz].every(Number.isFinite)) {
+    problems.push("non-finite cadence metrics; contact sampling is not gradeable");
   }
 
   // Check cadence
@@ -513,12 +519,18 @@ function gradeReport(
   };
 }
 
+export function resolveFootCapturePaths(outputDir?: string, reportPath?: string): { outputDir: string; reportPath: string } {
+  const directory = outputDir ?? path.join(".openclinxr", "evidence", "isolated-foot-grounder", "runs", `${new Date().toISOString().replaceAll(":", "-")}-${randomUUID()}`);
+  return { outputDir: directory, reportPath: reportPath ?? path.join(directory, "report.json") };
+}
+
 export async function captureIsolatedFootGrounder(
-  outputDir: string = ".openclinxr/evidence/isolated-foot-grounder",
+  requestedOutputDir?: string,
   reportPath?: string
 ): Promise<IsolatedFootGrounderReport> {
+  const { outputDir, reportPath: finalReportPath } = resolveFootCapturePaths(requestedOutputDir, reportPath);
   await mkdir(outputDir, { recursive: true });
-  const finalReportPath = reportPath ?? path.join("tools", "openclinxr", "evidence", "isolated-foot-grounder", "report.json");
+  await mkdir(path.dirname(finalReportPath), { recursive: true });
 
   // Read asset identity
   const assetIdentity = await readAssetSha256(PHYSICIAN_GLB_PATH);
@@ -785,6 +797,7 @@ export async function captureIsolatedFootGrounder(
     samples,
     screenshots,
     cadence,
+    prerequisites: { driveSourceTimedOut: waitTimedOut, environmentTimedOut: environmentWaitTimedOut },
     grade,
     claimScope:
       "sanitised left/right heel and toe world matrices from the production ui-xr path under the case-owned bedside approach drive, with clip identity bound to the case-frozen clipRevision and matching live clip stamp",
@@ -818,7 +831,7 @@ export async function captureIsolatedFootGrounder(
 }
 
 async function main(): Promise<void> {
-  const outputDir = process.argv[2] ?? ".openclinxr/evidence/isolated-foot-grounder";
+  const outputDir = process.argv[2];
   await captureIsolatedFootGrounder(outputDir);
 }
 

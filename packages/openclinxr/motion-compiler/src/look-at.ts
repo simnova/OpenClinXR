@@ -1,4 +1,4 @@
-import type { CompiledMotionFragment, CompiledMotionTrack, PrimitiveRequest } from "./canonical-motion-contract.js";
+import type { CompiledMotionFragment, CompiledMotionTrack, PrimitiveRequest } from "./motion-wire-format.js";
 
 import { approachHoldRelease, axisAngleQuaternion, seededScale } from "./trajectory.js";
 

@@ -1,7 +1,7 @@
-import { scaleRotation, signCanonical, signMatch } from "./quaternion-scale.js";
-import type { Quat } from "../ik/solve-chain.js";
 import type { ContactKey } from "../contact/contact-window-schedule.js";
-import type { QuatTuple } from "../canonical-motion-contract.js";
+import type { Quat } from "../ik/solve-chain.js";
+import type { QuatTuple } from "../motion-wire-format.js";
+import { scaleRotation, signCanonical, signMatch } from "./quaternion-scale.js";
 
 /**
  * Values for one bone across a CONTACT schedule: the identical solved pose across each hold

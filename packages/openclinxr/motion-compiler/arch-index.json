@@ -4,9 +4,12 @@
   "entrypoint": "packages/openclinxr/motion-compiler/src/index.ts",
   "purpose": "Deterministic motion planner entry, documented in docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md.",
   "exports": [
+    "CompiledMotionClipV1",
     "MotionGlbBakeClip",
     "ScenarioMotionCompileInput",
     "bakeMotionProgramToGlb",
+    "compileMotionProgram",
+    "deriveSkeletonProfileFromRigAsset",
     "planMotionProgram",
     "readMotionGlbClipId"
   ],
@@ -34,6 +37,7 @@
     "src/the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
     "src/the-region-anchors-come-from-a-real-asset.test.ts",
     "src/the-resolved-clip-id-is-what-the-compiler-produces.test.ts",
+    "src/the-runtime-graph-does-not-import-plant-or-oracle.test.ts",
     "src/the-seed-is-derived-from-five-case-inputs.test.ts",
     "src/the-skeleton-profile-comes-from-a-real-rig.test.ts"
   ],
@@ -42,6 +46,6 @@
     "typecheck": "pnpm --filter @openclinxr/motion-compiler typecheck"
   },
   "ceilings": {
-    "testInternalImports": 7
+    "testInternalImports": 6
   }
 }

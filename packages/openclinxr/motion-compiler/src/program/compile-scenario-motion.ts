@@ -33,14 +33,13 @@
  */
 
 import { createHash } from "node:crypto";
-
-import { deriveDeterministicVariationSeed, HASH_DIGEST } from "../trajectory/deterministic-variation.js";
 import { motionBodyRegionForComplianceRegion } from "../motion-body-region.js";
-import { MOTION_PROGRAM_SCHEMA_VERSION, MOTION_PLAN_CLAIM_BOUNDARY, type MotionAction, type MotionEffector, type MotionProgram, type MotionTargetKind } from "../motion-program.js";
+import { MOTION_PLAN_CLAIM_BOUNDARY, MOTION_PROGRAM_SCHEMA_VERSION, type MotionAction, type MotionEffector, type MotionProgram, type MotionTargetKind } from "../motion-program.js";
+import { deriveDeterministicVariationSeed, HASH_DIGEST } from "../trajectory/deterministic-variation.js";
 import {
-  validateAuthoredSourceBinding,
   type AuthoredSourceFacts,
   type VisibleAuthoredSource,
+  validateAuthoredSourceBinding,
 } from "./authored-source-binding.js";
 import {
   RESPONSE_KIND_TO_BASE_DURATION_MS,
@@ -300,7 +299,7 @@ export function compileScenarioMotion(input: ScenarioMotionCompileInput): Motion
     actorId: input.actorId,
     provenance: {
       sourceKind: "deterministic_case_compiler",
-      sourceRefs: [input.scenarioId],
+      sourceRefs: [input.scenarioId, ...input.touchResponses.map((row) => `touch:${row.region}`)],
     },
     baseline: {
       posture,

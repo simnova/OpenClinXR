@@ -39,8 +39,8 @@
  * consumer), and per-surface tolerance values are deliberately outside this module.
  */
 
-import { REGION_ANCHOR_SPACE } from "./plant-motion-regions.js";
 import type { ChainJoint, Quat, SolvedArmPose, Vec3 } from "./ik/solve-chain.js";
+import { REGION_ANCHOR_SPACE } from "./regions/region-anchor-space.js";
 
 const IDENTITY: Quat = { x: 0, y: 0, z: 0, w: 1 };
 /** The effector's own axis in its local frame at bind — the axis the fixture orients to the normal. */

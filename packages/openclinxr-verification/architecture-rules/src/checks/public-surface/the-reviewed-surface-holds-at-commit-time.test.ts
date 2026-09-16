@@ -1,9 +1,10 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { evaluateAcceptance } from "../../checks/public-surface/acceptance-criteria.js";
+import { ADMISSION_GROUPS } from "../../checks/public-surface/apply-map.js";
 import { workspaceRoot } from "../../checks/public-surface/resolve.js";
 
 /**
@@ -62,6 +63,17 @@ function writeFrozenRawInventory(root: string, frozenRows: { package: string; en
     .update(frozenRows.map(r => `${r.package}\t${r.entrypoint}\t${r.symbol}\t${r.kind}`).sort().join("\n"))
     .digest("hex");
   writeFileSync(join(root, rawInventoryRel), JSON.stringify({ inventoryHash: hash, rows: frozenRows }, null, 2));
+  // Keep production's configured overlay prerequisites in this temporary tree;
+  // only the synthetic raw hash differs from the actual reviewed document.
+  const admissionsDir = "docs/openclinxr/package-public-surface-reduction/admissions";
+  for (const id of ADMISSION_GROUPS) {
+    const admission = JSON.parse(readFileSync(join(workspaceRoot(), admissionsDir, `${id}.json`), "utf8"));
+    if (admission.rows.some((row: { package: string }) => frozenRows.some((fixture) => fixture.package === row.package))) {
+      throw new Error("configured admission unexpectedly overlaps synthetic fixture packages");
+    }
+    mkdirSync(join(root, admissionsDir), { recursive: true });
+    writeFileSync(join(root, admissionsDir, `${id}.json`), JSON.stringify({ ...admission, baseRawInventoryHash: hash }));
+  }
 }
 
 function writeApproval(root: string, group: string, dir: string, rows: { symbol: string; disposition: string }[], frozenRawRows: { package: string; entrypoint: string; symbol: string; kind: string }[]): void {

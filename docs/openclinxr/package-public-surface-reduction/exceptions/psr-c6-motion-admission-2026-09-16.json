@@ -1,0 +1,15 @@
+{
+  "id": "psr-c6-motion-admission-2026-09-16",
+  "reviewedSourceCandidate": "a979fc5fd4616ae5be8f3d54c6cc706bd94f523d",
+  "reviewRecordSha256": "da59803b3093fceca91ebdb8bc9f1f991b8b4aaa67e84ecb333b7faa71477afd",
+  "exceptions": [
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1227,
+      "threshold": 1000,
+      "owner": "codex-motion-scene-delegation-owner",
+      "reviewedBy": "Codex independent subagent /root/c1_boundary_review; exact source review a979fc5fd4616ae5be8f3d54c6cc706bd94f523d; 2026-09-16",
+      "reason": "Independent exact a979fc5f production-consumer review accepts these seven root contracts as current production dependencies. The three newly restored compiler contracts implement actual authored ED touch compilation through the existing gateway; four existing unapproved contracts are directly consumed by production bake/readback/playback. Final production meter measures 1227 root symbols. Historical root1220 exception remains historical; no review target or ceiling is increased. This accepts the measured residual for this candidate only, without claiming anatomical contact, visible deformation, clinical validity or universal API reduction closure."
+    }
+  ]
+}

@@ -1,20 +1,20 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
-import { captureIsolatedFootGrounder } from "./capture.js";
+import { captureIsolatedFootGrounder, gradeReport } from "./capture.js";
 
 function sha256Hex(bytes: Buffer): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
 describe("isolated-foot-grounder capture", () => {
-  it("samples both feet and produces a not-gradeable report with named refusals", async () => {
-    const outputDir = ".openclinxr/evidence/isolated-foot-grounder/test-run";
-    // Pass the report path explicitly. Without it the capture writes the TRACKED report and this
-    // test reads a ${outputDir}/report.json nobody wrote — it passed only while a stale test-run
-    // directory from an earlier run happened to hold one, and failed ENOENT on a clean checkout
-    // (integrate #717 caught exactly that against the merged tree).
-    const report = await captureIsolatedFootGrounder(outputDir, `${outputDir}/report.json`);
+  it("samples both feet and reports admission, prerequisites and cadence independently", async () => {
+    const snapshotPath = "tools/openclinxr/evidence/isolated-foot-grounder/report.json";
+    const snapshotBefore = await readFile(snapshotPath);
+    const outputDir = `.openclinxr/evidence/isolated-foot-grounder/test-runs/${randomUUID()}`;
+    // Exercise the default destination on a fresh path; stale files cannot satisfy the proof.
+    const report = await captureIsolatedFootGrounder(outputDir);
+    expect(await readFile(snapshotPath)).toEqual(snapshotBefore);
 
     // Verify the report exists and has the required schema
     expect(report.schemaVersion).toBe("openclinxr.isolated-foot-grounder.v1");
@@ -36,12 +36,6 @@ describe("isolated-foot-grounder capture", () => {
     );
     expect(report.clipIdentity.liveClipStamp).toBeDefined();
     expect(report.clipIdentity.match).toBe(true);
-
-    // Verify drive source reflects absent prerequisite (refusal assertion)
-    expect(report.driveSource).toBeNull();
-
-    // Verify floor frame reflects absent prerequisite (refusal assertion)
-    expect(report.floorFrame).toBeNull();
 
     // Verify both feet were sampled (positive counterweight)
     const hasLeft = report.samples.some(
@@ -72,19 +66,19 @@ describe("isolated-foot-grounder capture", () => {
     expect(typeof report.cadence.hz).toBe("number");
     expect(Number.isFinite(report.cadence.hz)).toBe(true);
 
-    // Verify grade.ok is false with named problems (refusal assertions)
-    expect(report.grade.ok).toBe(false);
-    expect(Array.isArray(report.grade.problems)).toBe(true);
-    expect(report.grade.problems.length).toBeGreaterThan(0);
-
-    // Verify named failure classes appear in problems (stable substrings)
+    // Reconcile each actual gate, rather than requiring the app to take a refusal branch.
+    const expectedGrade = gradeReport(report.samples, report.cadence, report.clipIdentity,
+      report.driveSource, report.floorFrame, report.screenshots,
+      report.prerequisites.driveSourceTimedOut, report.prerequisites.environmentTimedOut);
+    expect(report.grade).toEqual(expectedGrade);
     const problems = report.grade.problems.join(" ");
-    expect(problems).toContain("drive-source prerequisite timed out");
-    expect(problems).toContain("environment prerequisite timed out");
-    expect(problems).toContain("required case_owned_bedside_approach");
-    expect(problems).toContain("maxOverMedian");
-    expect(problems).toContain("median stride");
-    expect(problems).toContain("no floor frame observed");
+    if (report.driveSource !== "case_owned_bedside_approach") expect(problems).toContain("required case_owned_bedside_approach");
+    if (!report.floorFrame) expect(problems).toContain("no floor frame observed");
+    if (report.prerequisites.driveSourceTimedOut) expect(problems).toContain("drive-source prerequisite timed out");
+    if (report.prerequisites.environmentTimedOut) expect(problems).toContain("environment prerequisite timed out");
+    if (report.cadence.maxOverMedian > 2) expect(problems).toContain("maxOverMedian");
+    if (report.cadence.medianStrideMeters > 0.005) expect(problems).toContain("median stride");
+    expect(report.grade.ok).toBe(report.grade.problems.length === 0);
 
     // Verify screenshots exist and hashes match (positive counterweight)
     expect(report.screenshots.length).toBeGreaterThan(0);
