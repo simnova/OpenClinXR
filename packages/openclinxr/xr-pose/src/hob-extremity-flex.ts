@@ -12,6 +12,10 @@ import type { Object3D } from "three";
 import { measureSeatClearanceMeters } from "./hob-contact-metrics.js";
 import { collectJointNames, sanitiseBoneName } from "./pose-bone-runtime.js";
 
+// Remember the output of this additive correction, not a fixed animation pose.
+// Absolute pose/mixer writes remain new inputs; unchanged MPFB frames must not replay it.
+const appliedFootFlex = new WeakMap<Object3D, { axis: "x" | "y" | "z"; delta: number; value: number }>();
+
 /** Bone names: GLB has dots; three.js may sanitize to undotted. Match both. */
 export function findSupineBone(humanoidRoot: Object3D, ...names: string[]): Object3D | null {
   // #306: the shin/thigh landmarks resolve to `lowerleg01L` / `upperleg01L` on MPFB2 rigs, so
@@ -129,6 +133,12 @@ export function raiseSupineFeetOntoSeat(humanoidRoot: Object3D, deckTopY: number
     thighL: { axis: bestAxis, delta: thighTotal },
     thighR: { axis: bestAxis, delta: thighTotal },
   };
+  // Plant-time probing already applied these deltas; the first holding frame must not double them.
+  for (const [name, bone] of Object.entries(bones)) {
+    if (!bone) continue;
+    const delta = name.startsWith("shin") ? shinTotal : thighTotal;
+    appliedFootFlex.set(bone, { axis: bestAxis, delta, value: bone.rotation[bestAxis] });
+  }
   humanoidRoot.userData.openClinXrSupineFootFlexRad = totalFlex;
   humanoidRoot.userData.openClinXrSupineFootFlexAxis = `${bestSign < 0 ? "-" : "+"}${bestAxis}`;
   return totalFlex;
@@ -141,9 +151,14 @@ export function reapplyStoredSupineFootFlex(humanoidRoot: Object3D): void {
     | undefined;
   if (!stored) return;
   for (const [name, spec] of Object.entries(stored)) {
-    if (!spec || !Number.isFinite(spec.delta) || Math.abs(spec.delta) < 1e-5) continue;
+    if (!spec || !["x", "y", "z"].includes(spec.axis) || !Number.isFinite(spec.delta) || Math.abs(spec.delta) < 1e-5) continue;
     const bone = findSupineBone(humanoidRoot, name, name.replace("L", ".L").replace("R", ".R"));
     if (!bone) continue;
-    bone.rotation[spec.axis] += spec.delta;
+    const previous = appliedFootFlex.get(bone);
+    const current = bone.rotation[spec.axis];
+    if (!Number.isFinite(current)) continue;
+    if (previous?.axis === spec.axis && previous.delta === spec.delta && previous.value === current) continue;
+    bone.rotation[spec.axis] = current + spec.delta;
+    appliedFootFlex.set(bone, { axis: spec.axis, delta: spec.delta, value: bone.rotation[spec.axis] });
   }
 }
