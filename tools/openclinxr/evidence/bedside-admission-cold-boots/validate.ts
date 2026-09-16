@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -154,11 +155,51 @@ export type BedsideAdmissionColdBootsReport = {
   notEvidenceFor: string[];
 };
 
+export type ValidatorIdentity = {
+  snapshotValidatorSha256: string | null;
+  snapshotValidatorProvenanceRevision: string | null;
+  executingValidatorSha256: string | null;
+  candidateRevision: string | null;
+  validatorIdentityDivergence: boolean;
+  validatorIdentityNote: string | null;
+};
+
 export type ValidatorResult = {
   ok: boolean;
   errors: string[];
   outcome: CollectorOutcome | null;
+} & ValidatorIdentity;
+
+export type GitObjectStore = {
+  candidateRevision(): Promise<string | null>;
+  blobSha256(revision: string, gitPath: string): Promise<string | null>;
+  isAncestor(ancestor: string, descendant: string): Promise<boolean>;
+  listRevisions(gitPath: string, throughRevision?: string): Promise<string[]>;
 };
+
+export type ValidateReportOptions = {
+  root: string;
+  git?: GitObjectStore;
+};
+
+const EMPTY_IDENTITY: ValidatorIdentity = {
+  snapshotValidatorSha256: null,
+  snapshotValidatorProvenanceRevision: null,
+  executingValidatorSha256: null,
+  candidateRevision: null,
+  validatorIdentityDivergence: false,
+  validatorIdentityNote: null,
+};
+
+const DERIVED_FINAL_FIELDS = [
+  "finalStatus",
+  "finalReason",
+  "finalDetail",
+  "finalReproduced",
+  "observedGeometryRevision",
+] as const;
+
+const VALIDATOR_GIT_PATH = SOURCE_PATHS.validator;
 
 const PRODUCTION_STATUSES = new Set(["admitted", "refused", "no_plan_carried"]);
 
@@ -173,6 +214,104 @@ export async function sha256File(filePath: string): Promise<string> {
 
 export function repoRootFromHere(hereUrl: string = import.meta.url): string {
   return path.resolve(path.dirname(fileURLToPath(hereUrl)), "../../../..");
+}
+
+function runGit(root: string, args: string[]): { status: number; stdout: Buffer } {
+  const result = spawnSync("git", args, {
+    cwd: root,
+    maxBuffer: 20 * 1024 * 1024,
+    windowsHide: true,
+  });
+  const stdout = result.stdout;
+  return {
+    status: result.status ?? 1,
+    stdout: Buffer.isBuffer(stdout)
+      ? stdout
+      : typeof stdout === "string"
+        ? Buffer.from(stdout)
+        : Buffer.alloc(0),
+  };
+}
+
+function uniquePreserve(items: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const item of items) {
+    if (seen.has(item) || item.length === 0) continue;
+    seen.add(item);
+    out.push(item);
+  }
+  return out;
+}
+
+export function createGitObjectStore(root: string): GitObjectStore {
+  return {
+    async candidateRevision() {
+      const result = runGit(root, ["rev-parse", "HEAD"]);
+      if (result.status !== 0) return null;
+      const rev = result.stdout.toString("utf8").trim();
+      return rev.length > 0 ? rev : null;
+    },
+    async blobSha256(revision: string, gitPath: string) {
+      const result = runGit(root, ["cat-file", "blob", `${revision}:${gitPath}`]);
+      if (result.status !== 0) return null;
+      return sha256Hex(result.stdout);
+    },
+    async isAncestor(ancestor: string, descendant: string) {
+      const result = runGit(root, ["merge-base", "--is-ancestor", ancestor, descendant]);
+      return result.status === 0;
+    },
+    async listRevisions(gitPath: string, throughRevision?: string) {
+      const args = throughRevision
+        ? ["log", "--pretty=format:%H", throughRevision, "--", gitPath]
+        : ["log", "--pretty=format:%H", "--all", "--", gitPath];
+      const result = runGit(root, args);
+      if (result.status !== 0) return [];
+      return result.stdout
+        .toString("utf8")
+        .split("\n")
+        .map((line: string) => line.trim())
+        .filter((line: string) => line.length > 0);
+    },
+  };
+}
+
+function toResult(
+  errors: string[],
+  outcome: CollectorOutcome | null,
+  identity: ValidatorIdentity = EMPTY_IDENTITY,
+): ValidatorResult {
+  return {
+    ok: errors.length === 0,
+    errors,
+    outcome,
+    ...identity,
+  };
+}
+
+export function formatValidatorIdentity(identity: ValidatorIdentity): string {
+  return [
+    "validatorIdentity:",
+    `  snapshotValidatorSha256=${identity.snapshotValidatorSha256 ?? ""}`,
+    `  snapshotValidatorProvenanceRevision=${identity.snapshotValidatorProvenanceRevision ?? ""}`,
+    `  executingValidatorSha256=${identity.executingValidatorSha256 ?? ""}`,
+    `  candidateRevision=${identity.candidateRevision ?? ""}`,
+    `  validatorIdentityDivergence=${identity.validatorIdentityDivergence ? "true" : "false"}`,
+    `  validatorIdentityNote=${identity.validatorIdentityNote ?? ""}`,
+  ].join("\n");
+}
+
+function validatorIdentityNote(identity: Omit<ValidatorIdentity, "validatorIdentityNote" | "validatorIdentityDivergence"> & {
+  validatorIdentityDivergence: boolean;
+}): string {
+  const historical = identity.snapshotValidatorSha256 ?? "";
+  const provenance = identity.snapshotValidatorProvenanceRevision ?? "";
+  const executing = identity.executingValidatorSha256 ?? "";
+  const candidate = identity.candidateRevision ?? "";
+  if (identity.validatorIdentityDivergence) {
+    return `historical snapshot validator ${historical} at revision ${provenance} diverges from executing validator ${executing} at candidate ${candidate}`;
+  }
+  return `historical snapshot validator ${historical} at revision ${provenance} matches executing validator ${executing} at candidate ${candidate}`;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -229,55 +368,43 @@ function sameValue(left: unknown, right: unknown): boolean {
   return false;
 }
 
-const ATTEMPT_BIND_FIELDS = [
-  "attemptId",
-  "finalStatus",
-  "finalReason",
-  "finalDetail",
-  "finalReproduced",
-  "observedGeometryRevision",
-  "driveSource",
-  "environmentState",
-  "publishCount",
-  "namedTimeout",
-] as const;
+const INTENTIONAL_RAW_SHA256_PATH = "raw.sha256";
 
-const SNAPSHOT_BIND_FIELDS = [
-  "atIso",
-  "atMs",
-  "status",
-  "reason",
-  "detail",
-  "reproduced",
-  "observedGeometryRevision",
-  "source",
-] as const;
-
-const ERROR_COLLECTION_FIELDS = ["consoleErrors", "pageErrors", "requestErrors"] as const;
+function collectDivergences(
+  left: unknown,
+  right: unknown,
+  fieldPath: string,
+  attemptId: string,
+  errors: string[],
+): void {
+  if (fieldPath === INTENTIONAL_RAW_SHA256_PATH) {
+    return;
+  }
+  if (isRecord(left) && isRecord(right)) {
+    const keys = new Set([...Object.keys(left), ...Object.keys(right)]);
+    for (const key of keys) {
+      const next = fieldPath ? `${fieldPath}.${key}` : key;
+      collectDivergences(left[key], right[key], next, attemptId, errors);
+    }
+    return;
+  }
+  if (Array.isArray(left) && Array.isArray(right)) {
+    if (left.length !== right.length) {
+      errors.push(`attempt ${attemptId} field ${fieldPath} diverges from raw`);
+      return;
+    }
+    for (let index = 0; index < left.length; index += 1) {
+      collectDivergences(left[index], right[index], `${fieldPath}[${index}]`, attemptId, errors);
+    }
+    return;
+  }
+  if (left !== right) {
+    errors.push(`attempt ${attemptId} field ${fieldPath} diverges from raw`);
+  }
+}
 
 function bindAttemptToRaw(report: AttemptRecord, raw: AttemptRecord, errors: string[]): void {
-  const attemptId = report.attemptId;
-  for (const field of ATTEMPT_BIND_FIELDS) {
-    if (!sameValue(report[field], raw[field])) {
-      errors.push(`attempt ${attemptId} field ${field} diverges from raw`);
-    }
-  }
-  if (report.snapshots.length !== raw.snapshots.length) {
-    errors.push(`attempt ${attemptId} field snapshots diverges from raw`);
-  } else {
-    for (const [index, snap] of report.snapshots.entries()) {
-      for (const field of SNAPSHOT_BIND_FIELDS) {
-        if (!sameValue(snap[field], raw.snapshots[index]![field])) {
-          errors.push(`attempt ${attemptId} field snapshots[${index}].${field} diverges from raw`);
-        }
-      }
-    }
-  }
-  for (const field of ERROR_COLLECTION_FIELDS) {
-    if (!sameValue(report[field], raw[field])) {
-      errors.push(`attempt ${attemptId} field ${field} diverges from raw`);
-    }
-  }
+  collectDivergences(report, raw, "", report.attemptId, errors);
 }
 
 export function recomputeCollectorOutcome(attempts: AttemptRecord[]): {
@@ -464,13 +591,86 @@ function asAttempt(value: unknown, index: number, errors: string[]): AttemptReco
   };
 }
 
+async function verifyValidatorSourceIdentity(input: {
+  root: string;
+  git: GitObjectStore;
+  recordedSha256: string | null;
+  errors: string[];
+}): Promise<ValidatorIdentity> {
+  const { root, git, recordedSha256, errors } = input;
+  const candidate = await git.candidateRevision();
+  let executingSha256: string | null = null;
+  const abs = path.resolve(root, VALIDATOR_GIT_PATH);
+  try {
+    executingSha256 = await sha256File(abs);
+  } catch (err) {
+    errors.push(
+      `source file missing: ${VALIDATOR_GIT_PATH} (${err instanceof Error ? err.message : String(err)})`,
+    );
+  }
+
+  if (!candidate) {
+    errors.push(`missing git blob for validator at HEAD:${VALIDATOR_GIT_PATH}`);
+  } else {
+    const headBlob = await git.blobSha256(candidate, VALIDATOR_GIT_PATH);
+    if (headBlob === null) {
+      errors.push(`missing git blob for validator at ${candidate}:${VALIDATOR_GIT_PATH}`);
+    } else if (executingSha256 !== null && executingSha256 !== headBlob) {
+      errors.push(
+        `executing validator bytes differ from candidate blob at ${candidate}: disk=${executingSha256} blob=${headBlob}`,
+      );
+    }
+  }
+
+  let provenanceRevision: string | null = null;
+  if (recordedSha256 === null) {
+    // Missing hash entry is named by the sourceSha256 loop.
+  } else if (candidate) {
+    const ancestorRevs = await git.listRevisions(VALIDATOR_GIT_PATH, candidate);
+    const allRevs = await git.listRevisions(VALIDATOR_GIT_PATH);
+    const revisions = uniquePreserve([candidate, ...ancestorRevs, ...allRevs]);
+    for (const rev of revisions) {
+      const blobHash = await git.blobSha256(rev, VALIDATOR_GIT_PATH);
+      if (blobHash === null) {
+        continue;
+      }
+      if (blobHash === recordedSha256) {
+        provenanceRevision = rev;
+        break;
+      }
+    }
+    if (provenanceRevision === null) {
+      errors.push(`historical validator hash does not match git blob: recorded=${recordedSha256}`);
+    } else if (!(await git.isAncestor(provenanceRevision, candidate))) {
+      errors.push(
+        `provenance revision ${provenanceRevision} is not an ancestor of candidate ${candidate}`,
+      );
+    }
+  }
+
+  const diverged = Boolean(
+    recordedSha256 && executingSha256 && recordedSha256 !== executingSha256,
+  );
+  const identity: ValidatorIdentity = {
+    snapshotValidatorSha256: recordedSha256,
+    snapshotValidatorProvenanceRevision: provenanceRevision,
+    executingValidatorSha256: executingSha256,
+    candidateRevision: candidate,
+    validatorIdentityDivergence: diverged,
+    validatorIdentityNote: null,
+  };
+  identity.validatorIdentityNote = validatorIdentityNote(identity);
+  return identity;
+}
+
 export async function validateBedsideAdmissionColdBootsReport(
   value: unknown,
-  options: { root: string },
+  options: ValidateReportOptions,
 ): Promise<ValidatorResult> {
   const errors: string[] = [];
+  const git = options.git ?? createGitObjectStore(options.root);
   if (!isRecord(value)) {
-    return { ok: false, errors: ["report is not an object"], outcome: null };
+    return toResult(["report is not an object"], null);
   }
   if (value.schemaVersion !== SCHEMA_VERSION) {
     errors.push(`schemaVersion ${String(value.schemaVersion)} !== ${SCHEMA_VERSION}`);
@@ -480,7 +680,7 @@ export async function validateBedsideAdmissionColdBootsReport(
   }
   if (!isRecord(value.identity)) {
     errors.push("identity missing");
-    return { ok: false, errors, outcome: null };
+    return toResult(errors, null);
   }
   const identity = value.identity;
   const requiredIdentity = [
@@ -504,7 +704,7 @@ export async function validateBedsideAdmissionColdBootsReport(
   }
   if (!Array.isArray(value.attempts)) {
     errors.push("attempts is not an array");
-    return { ok: false, errors, outcome: null };
+    return toResult(errors, null);
   }
   if (value.attempts.length !== 5) {
     errors.push(`attempt count ${value.attempts.length} !== 5`);
@@ -611,7 +811,16 @@ export async function validateBedsideAdmissionColdBootsReport(
     const rawAbs = attempt.raw.path ? resolveMaybePath(attempt.raw.path, options.root) : "";
     if (!rawAbs) continue;
     try {
-      const rawJson = JSON.parse(await readFile(rawAbs, "utf8")) as unknown;
+      const rawText = await readFile(rawAbs, "utf8");
+      let rawJson: unknown;
+      try {
+        rawJson = JSON.parse(rawText) as unknown;
+      } catch (err) {
+        errors.push(
+          `attempt ${attempt.attemptId} raw JSON malformed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        continue;
+      }
       if (!isRecord(rawJson)) {
         errors.push(`attempt ${attempt.attemptId} raw is not an object`);
         continue;
@@ -628,25 +837,36 @@ export async function validateBedsideAdmissionColdBootsReport(
       }
       const rawLocalErrors: string[] = [];
       const rawAttempt = asAttempt(rawJson, 0, rawLocalErrors);
-      if (!rawAttempt) {
+      if (rawLocalErrors.length > 0) {
         errors.push(
-          `attempt ${attempt.attemptId} raw is not a valid attempt record: ${rawLocalErrors.join("; ")}`,
+          `attempt ${attempt.attemptId} raw parse error: ${rawLocalErrors.join("; ")}`,
         );
+      }
+      if (!rawAttempt) {
         continue;
       }
       bindAttemptToRaw(attempt, rawAttempt, errors);
       evidenceAttempts[attemptIndex] = rawAttempt;
-    } catch {
-      // missing raw already reported
+    } catch (err) {
+      const alreadyMissing = errors.some((e) =>
+        e.includes(`raw file missing for attempt ${attempt.attemptId}`),
+      );
+      if (!alreadyMissing) {
+        errors.push(
+          `attempt ${attempt.attemptId} raw unreadable: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
     }
   }
 
   for (const [attemptIndex, attempt] of attempts.entries()) {
     const evidence = evidenceAttempts[attemptIndex] ?? attempt;
     const last = lastObservedSnapshot(evidence.snapshots);
-    const lastStatus = last ? String(last.status) : "unknown";
-    if (String(attempt.finalStatus) !== lastStatus) {
-      errors.push(`attempt ${attempt.attemptId}: finalStatus inconsistent with last snapshot`);
+    const derived = deriveFinalsFromLastSnapshot(evidence.snapshots);
+    for (const field of DERIVED_FINAL_FIELDS) {
+      if (!sameValue(evidence[field], derived[field]) || !sameValue(attempt[field], derived[field])) {
+        errors.push(`attempt ${attempt.attemptId}: ${field} inconsistent with last snapshot`);
+      }
     }
     if (String(attempt.finalStatus) === "admitted") {
       if (!last || !PRODUCTION_STATUSES.has(String(last.status))) {
@@ -672,27 +892,43 @@ export async function validateBedsideAdmissionColdBootsReport(
     );
   }
 
+  let validatorIdentity: ValidatorIdentity = EMPTY_IDENTITY;
   if (!isRecord(value.sourceSha256)) {
     errors.push("sourceSha256 missing");
+    validatorIdentity = await verifyValidatorSourceIdentity({
+      root: options.root,
+      git,
+      recordedSha256: null,
+      errors,
+    });
   } else {
     for (const [key, rel] of Object.entries(SOURCE_PATHS) as Array<
       [keyof typeof SOURCE_PATHS, string]
     >) {
       const recorded = value.sourceSha256[key];
-      if (!isRecord(recorded) || typeof recorded.sha256 !== "string") {
+      const recordedSha =
+        isRecord(recorded) && typeof recorded.sha256 === "string" ? recorded.sha256 : null;
+      if (recordedSha === null) {
         errors.push(`sourceSha256.${key} missing`);
-        continue;
       }
       if (key === "validator") {
-        // Checker bytes change on a validator correction; observation snapshots stay bound to collector + production hashes.
+        validatorIdentity = await verifyValidatorSourceIdentity({
+          root: options.root,
+          git,
+          recordedSha256: recordedSha,
+          errors,
+        });
+        continue;
+      }
+      if (recordedSha === null) {
         continue;
       }
       const abs = path.resolve(options.root, rel);
       try {
         const actual = await sha256File(abs);
-        if (actual !== recorded.sha256) {
+        if (actual !== recordedSha) {
           errors.push(
-            `source hash mismatch for ${rel}: recorded=${recorded.sha256} actual=${actual}`,
+            `source hash mismatch for ${rel}: recorded=${recordedSha} actual=${actual}`,
           );
         }
       } catch (err) {
@@ -703,11 +939,7 @@ export async function validateBedsideAdmissionColdBootsReport(
     }
   }
 
-  return {
-    ok: errors.length === 0,
-    errors,
-    outcome: recomputed.outcome,
-  };
+  return toResult(errors, recomputed.outcome, validatorIdentity);
 }
 
 export async function validateTrackedReport(
@@ -718,13 +950,12 @@ export async function validateTrackedReport(
   try {
     parsed = JSON.parse(await readFile(reportPath, "utf8")) as unknown;
   } catch (err) {
-    return {
-      ok: false,
-      errors: [
+    return toResult(
+      [
         `tracked report unreadable: ${reportPath} (${err instanceof Error ? err.message : String(err)})`,
       ],
-      outcome: null,
-    };
+      null,
+    );
   }
   return validateBedsideAdmissionColdBootsReport(parsed, { root });
 }
@@ -734,10 +965,12 @@ async function main(): Promise<void> {
   const result = await validateTrackedReport(root);
   if (!result.ok) {
     process.stderr.write(`${result.errors.join("\n")}\n`);
+    process.stdout.write(`${formatValidatorIdentity(result)}\n`);
     process.exitCode = 1;
     return;
   }
   process.stdout.write(`ok outcome=${result.outcome}\n`);
+  process.stdout.write(`${formatValidatorIdentity(result)}\n`);
 }
 
 const invoked = process.argv[1] ? path.resolve(process.argv[1]) : "";

@@ -6,6 +6,7 @@ import {
   type AttemptRecord,
   type BedsideAdmissionColdBootsReport,
   type CollectorIdentity,
+  type GitObjectStore,
   SOURCE_PATHS,
   recomputeCollectorOutcome,
   repoRootFromHere,
@@ -171,11 +172,51 @@ async function wellFormedReport(
   };
 }
 
+function stubGit(opts: {
+  candidateRevision?: string;
+  blobs: Record<string, string>;
+  ancestor?: boolean;
+  revisions?: string[];
+}): GitObjectStore {
+  const candidate = opts.candidateRevision ?? "TESTHEAD";
+  const revisions = opts.revisions ?? Object.keys(opts.blobs);
+  return {
+    async candidateRevision() {
+      return candidate;
+    },
+    async blobSha256(revision: string, gitPath: string) {
+      if (gitPath !== SOURCE_PATHS.validator) return null;
+      return opts.blobs[revision] ?? null;
+    },
+    async isAncestor() {
+      return opts.ancestor ?? true;
+    },
+    async listRevisions() {
+      return revisions;
+    },
+  };
+}
+
+async function fixtureGit(): Promise<GitObjectStore> {
+  const disk = await sha256File(path.join(ROOT, SOURCE_PATHS.validator));
+  return stubGit({ blobs: { TESTHEAD: disk }, revisions: ["TESTHEAD"] });
+}
+
+async function validateFixture(
+  report: BedsideAdmissionColdBootsReport,
+  git?: GitObjectStore,
+) {
+  return validateBedsideAdmissionColdBootsReport(report, {
+    root: ROOT,
+    git: git ?? (await fixtureGit()),
+  });
+}
+
 describe("bedside admission cold-boots validator", () => {
   it("accepts a well-formed five-attempt fixture", async () => {
     const dir = await tempDir();
     const report = await wellFormedReport(dir);
-    const result = await validateBedsideAdmissionColdBootsReport(report, { root: ROOT });
+    const result = await validateFixture(report);
     expect(result.errors).toEqual([]);
     expect(result.ok).toBe(true);
     expect(result.outcome).toBe("all_admitted");
@@ -186,7 +227,7 @@ describe("bedside admission cold-boots validator", () => {
     const report = await wellFormedReport(dir);
     const missing = report.attempts[2]!;
     await rm(missing.raw.path);
-    const result = await validateBedsideAdmissionColdBootsReport(report, { root: ROOT });
+    const result = await validateFixture(report);
     expect(result.ok).toBe(false);
     expect(result.errors.some((e) => e.includes("raw file missing") && e.includes(missing.attemptId))).toBe(
       true,
@@ -198,7 +239,7 @@ describe("bedside admission cold-boots validator", () => {
     const report = await wellFormedReport(dir, (attempt, index) => {
       if (index === 4) attempt.attemptId = "1";
     });
-    const result = await validateBedsideAdmissionColdBootsReport(report, { root: ROOT });
+    const result = await validateFixture(report);
     expect(result.ok).toBe(false);
     expect(result.errors.some((e) => e.includes("duplicate attempt id"))).toBe(true);
   });
@@ -207,7 +248,7 @@ describe("bedside admission cold-boots validator", () => {
     const dir = await tempDir();
     const report = await wellFormedReport(dir);
     report.attempts[0]!.raw.sha256 = "0".repeat(64);
-    const result = await validateBedsideAdmissionColdBootsReport(report, { root: ROOT });
+    const result = await validateFixture(report);
     expect(result.ok).toBe(false);
     expect(result.errors.some((e) => e.includes("raw hash mismatch"))).toBe(true);
   });
@@ -216,7 +257,7 @@ describe("bedside admission cold-boots validator", () => {
     const dir = await tempDir();
     const report = await wellFormedReport(dir);
     report.attempts[1]!.screenshot.sha256 = "1".repeat(64);
-    const result = await validateBedsideAdmissionColdBootsReport(report, { root: ROOT });
+    const result = await validateFixture(report);
     expect(result.ok).toBe(false);
     expect(result.errors.some((e) => e.includes("screenshot hash mismatch"))).toBe(true);
   });
@@ -226,7 +267,7 @@ describe("bedside admission cold-boots validator", () => {
     const report = await wellFormedReport(dir, (attempt, index) => {
       if (index === 2) attempt.bundleSha256 = "d".repeat(64);
     });
-    const result = await validateBedsideAdmissionColdBootsReport(report, { root: ROOT });
+    const result = await validateFixture(report);
     expect(result.ok).toBe(false);
     expect(result.errors.some((e) => e.includes("identity mismatch") && e.includes("bundleSha256"))).toBe(
       true,
@@ -242,7 +283,7 @@ describe("bedside admission cold-boots validator", () => {
         attempt.finalStatus = "admitted";
       }
     });
-    const result = await validateBedsideAdmissionColdBootsReport(report, { root: ROOT });
+    const result = await validateFixture(report);
     expect(result.ok).toBe(false);
     expect(result.errors.some((e) => e.includes("admitted attempt 1 has no admission snapshot"))).toBe(
       true,
@@ -269,7 +310,7 @@ describe("bedside admission cold-boots validator", () => {
     expect(report.outcome).toBe("mixed_outcomes");
     expect(report.geometryVariation?.preventsStableRefusal).toBe(true);
     report.outcome = "stable_refusal";
-    const result = await validateBedsideAdmissionColdBootsReport(report, { root: ROOT });
+    const result = await validateFixture(report);
     expect(result.ok).toBe(false);
     expect(result.errors.some((e) => e.includes("prevents stable_refusal") || e.includes("!== recomputed"))).toBe(
       true,
@@ -286,7 +327,7 @@ describe("bedside admission cold-boots validator", () => {
       attempt.finalReproduced = false;
     }
     admittedReport.outcome = "stable_refusal";
-    const forgedRefusal = await validateBedsideAdmissionColdBootsReport(admittedReport, { root: ROOT });
+    const forgedRefusal = await validateFixture(admittedReport);
     expect(forgedRefusal.ok).toBe(false);
     expect(
       forgedRefusal.errors.some(
@@ -304,7 +345,7 @@ describe("bedside admission cold-boots validator", () => {
       attempt.finalReproduced = true;
     }
     refusedReport.outcome = "all_admitted";
-    const forgedAdmission = await validateBedsideAdmissionColdBootsReport(refusedReport, { root: ROOT });
+    const forgedAdmission = await validateFixture(refusedReport);
     expect(forgedAdmission.ok).toBe(false);
     expect(
       forgedAdmission.errors.some(
@@ -322,12 +363,96 @@ describe("bedside admission cold-boots validator", () => {
         attempt.finalReason = "layout_not_reproduced";
         attempt.finalDetail = "offset";
         attempt.finalReproduced = false;
+        attempt.observedGeometryRevision = "geom-forged";
       }
     });
-    const result = await validateBedsideAdmissionColdBootsReport(report, { root: ROOT });
+    const result = await validateFixture(report);
     expect(result.ok).toBe(false);
     expect(
       result.errors.some((e) => e.includes("attempt 1") && e.includes("finalStatus inconsistent with last snapshot")),
+    ).toBe(true);
+    expect(
+      result.errors.some((e) => e.includes("attempt 1") && e.includes("finalReason inconsistent with last snapshot")),
+    ).toBe(true);
+    expect(
+      result.errors.some((e) => e.includes("attempt 1") && e.includes("finalDetail inconsistent with last snapshot")),
+    ).toBe(true);
+    expect(
+      result.errors.some((e) => e.includes("attempt 1") && e.includes("finalReproduced inconsistent with last snapshot")),
+    ).toBe(true);
+    expect(
+      result.errors.some(
+        (e) => e.includes("attempt 1") && e.includes("observedGeometryRevision inconsistent with last snapshot"),
+      ),
+    ).toBe(true);
+  });
+
+  it("rejects a tampered historical validator hash that does not match the git blob", async () => {
+    const dir = await tempDir();
+    const report = await wellFormedReport(dir);
+    const disk = await sha256File(path.join(ROOT, SOURCE_PATHS.validator));
+    report.sourceSha256.validator.sha256 = "0".repeat(64);
+    const result = await validateFixture(
+      report,
+      stubGit({ blobs: { TESTHEAD: disk }, revisions: ["TESTHEAD"] }),
+    );
+    expect(result.ok).toBe(false);
+    expect(
+      result.errors.some(
+        (e) => e.includes("historical validator hash") && e.includes("does not match git blob"),
+      ),
+    ).toBe(true);
+  });
+
+  it("rejects executing validator bytes that differ from the candidate blob", async () => {
+    const dir = await tempDir();
+    const report = await wellFormedReport(dir);
+    const disk = await sha256File(path.join(ROOT, SOURCE_PATHS.validator));
+    const result = await validateFixture(
+      report,
+      stubGit({
+        candidateRevision: "TESTHEAD",
+        blobs: { TESTHEAD: "e".repeat(64), TESTPROV: disk },
+        revisions: ["TESTHEAD", "TESTPROV"],
+      }),
+    );
+    expect(result.ok).toBe(false);
+    expect(
+      result.errors.some((e) => e.includes("executing validator bytes differ from candidate blob")),
+    ).toBe(true);
+  });
+
+  it("rejects a report-only actor-position or identity mutation over unchanged raw evidence", async () => {
+    const dir = await tempDir();
+    const report = await wellFormedReport(dir);
+    report.attempts[0]!.actorWorldPositions[0]!.x = 99;
+    report.attempts[0]!.browser.launchedAtIso = "2099-01-01T00:00:00.000Z";
+    report.attempts[0]!.frozenPlanSha256 = "f".repeat(64);
+    const result = await validateFixture(report);
+    expect(result.ok).toBe(false);
+    expect(
+      result.errors.some(
+        (e) =>
+          e.includes("attempt 1") &&
+          e.includes("actorWorldPositions[0].x") &&
+          e.includes("diverges from raw"),
+      ),
+    ).toBe(true);
+    expect(
+      result.errors.some(
+        (e) =>
+          e.includes("attempt 1") &&
+          e.includes("browser.launchedAtIso") &&
+          e.includes("diverges from raw"),
+      ),
+    ).toBe(true);
+    expect(
+      result.errors.some(
+        (e) =>
+          e.includes("attempt 1") &&
+          e.includes("frozenPlanSha256") &&
+          e.includes("diverges from raw"),
+      ),
     ).toBe(true);
   });
 });
