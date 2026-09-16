@@ -27,6 +27,218 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-16T1400">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 96 &middot; 2026-09-16 14:00 EDT</p>
+          <h2>A safety check had been proven to work exactly once, in a conversation nobody kept. It is now written down.</h2>
+        </div>
+        <p>
+          This project runs an automatic check before every change is saved: if someone edits the list
+          of software libraries the project depends on but forgets to update the matching lock file,
+          the check refuses the change. That check was installed weeks ago and it works. Someone did
+          deliberately break it once to confirm it would catch the mistake, watched it fail, fixed the
+          break, and watched it pass again. None of that was recorded anywhere. The only trace was a
+          transcript of a conversation.
+        </p>
+        <p>
+          A check whose ability to fail was demonstrated once, unrecorded, is indistinguishable a month
+          later from one that was never tested at all. Both look identical: green. So the check was
+          deliberately broken again, in both directions this time, and all four results were written to
+          a permanent record with the real command output and real timings.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The four observations now on the record, each one run rather than reasoned about.</caption>
+            <thead><tr><th scope="col">What was broken</th><th scope="col">Expected</th><th scope="col">Observed</th></tr></thead>
+            <tbody>
+              <tr><td>A dependency removed, lock file untouched</td><td>refuse</td><td>refused &mdash; &ldquo;1 dependencies were removed&rdquo;</td></tr>
+              <tr><td>Same, after the lock file was corrected</td><td>allow</td><td>allowed, 89&thinsp;ms</td></tr>
+              <tr><td>A dependency added, lock file untouched</td><td>refuse</td><td>refused &mdash; &ldquo;1 dependencies were added&rdquo;</td></tr>
+              <tr><td>Same, after the lock file was corrected</td><td>allow</td><td>allowed, 79&thinsp;ms</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          The two failures print different messages, which is the point of testing both. Nobody had
+          ever observed the &ldquo;added&rdquo; case here; an earlier attempt at this work simply
+          asserted it would behave like the &ldquo;removed&rdquo; case and was sent back for it.
+        </p>
+        <h3>Two tests were checking the wording of a sentence</h3>
+        <p>
+          Alongside the check sat two assertions that compared a human-readable explanation string
+          against expected words. Rewording that sentence would have turned the tests red with nothing
+          actually broken, and breaking the check while leaving the sentence alone would have left them
+          green. They were removed, and the removal is justified in writing: six other clauses cover
+          what the check actually does, and the record names which of them fails if its behaviour
+          changes.
+        </p>
+        <h3>Two correct rules contradicted each other, and that is why this took a day</h3>
+        <p>
+          The finished work sat finished but unlandable for a day. Saving it required registering the
+          new record in an index, because an unregistered document is refused at commit time. But that
+          index is a protected file, and the merge policy refuses any change that touches one. Each
+          rule is right on its own and together they formed a deadlock that no amount of retrying would
+          break. It was resolved by a person registering the document separately and deliberately, after
+          which the automated work could land while touching no protected file at all.
+        </p>
+        <h3>What this does not establish</h3>
+        <p>
+          This is record-keeping and test hygiene. It adds no capability, changes no behaviour the check
+          already had, and says nothing about the patient, the scene, or anything a learner would see.
+          The check&rsquo;s cost was measured at the same time: it adds nothing to changes that touch no
+          dependency list, and 89&thinsp;ms when it runs. Three other ways the check could theoretically
+          be evaded were named as untested rather than implied to be covered.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
+          claim is made here. This entry describes internal verification hygiene: evidence that an existing
+          automated check can fail when it should, the measured cost of running it, and the removal of two
+          assertions that tested prose rather than behaviour. No product capability changed.
+        </p>
+      </section>
+      <section class="band" id="entry-2026-09-16T1050">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 95 &middot; 2026-09-16 10:50 EDT</p>
+          <h2>A real mouse press made the patient guard. The room is drawn in front of the arm that moves.</h2>
+        </div>
+        <p>
+          The previous entry left one question open: the guarding response was inside the shipped
+          model, but the one navigation route tested never brought the abdomen into view, so nothing
+          had yet triggered it the way a learner would. That question is now answered. A browser
+          dispatched an ordinary mouse press onto the 3D canvas, and the application selected the
+          patient, identified the region as the right lower quadrant, and played the exact animation
+          the clinical case names.
+        </p>
+        <p>
+          The mechanism matters more than the result. This was not a test calling the animation system
+          directly, and not a button placed on the page. It was a native left-button press landing on
+          the scene canvas itself, a fifth of a second after turning the view. Everything downstream
+          followed from that one press: the expression changed to pain, and the patient spoke the line
+          the case authors wrote.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>What one mouse press produced, read from the run's own recorded observation.</caption>
+            <thead><tr><th scope="col">Property</th><th scope="col">Observed</th></tr></thead>
+            <tbody>
+              <tr><td>Where the press landed</td><td>the scene canvas, at 439&thinsp;&times;&thinsp;542 of an 860&thinsp;&times;&thinsp;1024 surface</td></tr>
+              <tr><td>Region the application chose</td><td>right lower quadrant, on the intended patient</td></tr>
+              <tr><td>Animation</td><td>the shipped guarding clip, confirmed played</td></tr>
+              <tr><td>Spoken response</td><td>&ldquo;Ow&mdash; that hurts a lot, please don't push there.&rdquo;</td></tr>
+              <tr><td>Model the browser loaded</td><td>byte-identical to the file that ships</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>The camera draws the room in front of the arm</h3>
+        <p>
+          The frame captured at the peak of the movement shows red and white room geometry across the
+          foreground, and the patient's arm cannot be inspected in it. A press can select a region that
+          sits behind something the renderer paints in front of it. So this establishes that the
+          trigger path works from a real press through to a played animation and a spoken line. It does
+          not establish that a learner watching the screen would see the patient guard, and that is not
+          claimed here.
+        </p>
+        <h3>Being on screen is not the same as being clickable</h3>
+        <p>
+          An earlier attempt in the same hour turned the view much further, until the region projected
+          near the left edge of the window, and pressed there. The application selected the
+          <em>left</em> lower quadrant instead. What a press selects is the first surface a ray meets,
+          not the region whose centre sits nearest the cursor, and the two neighbouring quadrants are
+          twenty centimetres apart on the body. The attempt that succeeded turned for only 200
+          milliseconds and pressed near the middle of the canvas.
+        </p>
+        <h3>What this does not establish</h3>
+        <p>
+          A learner-visible guarding response has not been demonstrated. The complete before, guard and
+          settle sequence is not captured either, because the movement itself is not visible in the
+          frames. A sibling run minutes earlier failed outright on a script error and observed nothing;
+          it is recorded rather than discarded, because a run that measures nothing is not evidence in
+          either direction. Nothing here speaks to clinical realism, to scoring, or to whether the
+          movement resembles a real patient.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
+          claim is made here. This records a procedural interaction observation: a real canvas press reached
+          the intended region and played the shipped clip. Learner-visible guarding remains unmet, since the
+          peak frame is occluded by room geometry, and no claim is made that any particular navigation route
+          is or is not reachable.
+        </p>
+      </section>
+      <section class="band" id="entry-2026-09-16T0850">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 94 &middot; 2026-09-16 08:50 EDT</p>
+          <h2>The patient can now flinch when the abdomen is pressed. The route we tested never brought it into view.</h2>
+        </div>
+        <p>
+          The clinical case has always described what should happen when a learner presses the patient's
+          lower right abdomen: the patient guards, withdraws the arm, and says it hurts. The case named
+          an animation to play. The 3D model that actually ships did not contain that animation, so the
+          application looked it up, found nothing, and quietly did nothing &mdash; while still recording
+          in the transcript that a clinical touch had occurred. A learner pressed, the notes said they
+          pressed, and the figure never moved.
+        </p>
+        <p>
+          The animation did exist, but in a preview file built for an older body with different bone
+          names. Of the nine bones it drives, eight do not exist on the model that ships. Copying it
+          across would have produced a correctly-named animation that moved one bone out of nine and
+          looked, from every automated check, like success.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>What changed in the shipped patient model, measured by parsing the file itself.</caption>
+            <thead><tr><th scope="col">Property</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+            <tbody>
+              <tr><td>Animations in the model</td><td>2</td><td>3</td></tr>
+              <tr><td>Guard response present</td><td>no</td><td>yes &mdash; 9 channels, rotation only</td></tr>
+              <tr><td>Existing idle animation</td><td>411 channels</td><td>411 channels, unchanged</td></tr>
+              <tr><td>Resting pose of every other bone</td><td>&mdash;</td><td>byte-for-byte identical</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>The first attempt moved 131 bones it had no business touching</h3>
+        <p>
+          A helper in the first version rewrote the resting rotation of every bone in the file, on the
+          stated grounds that some of those values were not normalised. They all were. It corrected
+          nothing and shifted 131 of 150 resting poses by about a billionth of a unit &mdash; including
+          the hips, legs and feet that hold the figure on the bed. The change was far too small to see,
+          and far too small for the test that was supposed to catch it: that test allowed a thousand
+          times more movement than actually occurred. The work was sent back, the helper deleted, the
+          animation rebuilt from the original file, and a new check added that compares every bone's
+          resting position exactly, with no allowance at all.
+        </p>
+        <h3>A browser was actually opened, and that is what found the remaining problem</h3>
+        <p>
+          The earlier round claimed the region was off-screen after reading the camera settings. That is
+          not an observation. This round launched a real browser against the running application, loaded
+          the shipping model, and measured where the abdomen region actually lands on screen. On the
+          route it tested &mdash; the starting viewpoint, then eight seconds of walking forward &mdash;
+          the region sat 579 pixels to the left of the window at load and 2,904 pixels to the left after
+          walking. The response is in the model and plays correctly in a test that drives the real
+          animation system; the navigation this run tried did not reach it.
+        </p>
+        <p>
+          That is a statement about one tested route, not about every route. The application's other look
+          and movement controls were not exhausted, so this does not show that a learner cannot reach the
+          region, nor that changing the camera is the fix. Establishing either would need those controls
+          tried against this same shipped figure first.
+        </p>
+        <h3>What this does not establish</h3>
+        <p>
+          A learner-triggered, visible response has not been demonstrated and is not claimed. What landed
+          is the animation inside the shipped model and a test that plays it through the real animation
+          machinery. It is equally not established that no reachable route exists, or that a camera change
+          is required &mdash; one route was measured, and the remaining controls are untried. That work is
+          recorded separately rather than folded into this change. Nothing here says anything about
+          clinical realism or about whether the movement resembles a real patient.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
+          claim is made here. A procedural first-party animation demonstrates interaction wiring only. In-browser
+          playback triggered by a learner remains unmet: on the one navigation route tested, the region measured
+          579 px and then 2,904 px outside the window. Other look and movement controls were not tried, so no
+          claim is made that the region is unreachable.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-16T0656">
         <div class="section-heading">
           <p class="eyebrow">Entry 93 &middot; 2026-09-16 06:56 EDT</p>

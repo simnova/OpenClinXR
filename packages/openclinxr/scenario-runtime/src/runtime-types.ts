@@ -1,3 +1,4 @@
+import type { InMemoryTraceLedger } from "@cellix/trace-ledger";
 import type { InMemoryAssetRegistry } from "@openclinxr/asset-registry";
 import type {
   ActorTurnInProgress,
@@ -28,10 +29,10 @@ import type {
   Scenario,
   TraceEvent,
 } from "@openclinxr/shared-schemas";
+import type { AudioEvent, VoiceGateway } from "@openclinxr/voice-gateway";
+import type { AdmittedLearnerEvent, BranchState, FrozenCaseSeed } from "./branch-scheduler/index.js";
 import type { SceneRequirementObservation } from "./encounter-admission.js";
 import type { EncounterAdmissionSnapshot } from "./encounter-admission-runtime.js";
-import type { InMemoryTraceLedger } from "@cellix/trace-ledger";
-import type { AudioEvent, VoiceGateway } from "@openclinxr/voice-gateway";
 
 /**
  * Public + internal type surface for the scenario runtime. Split out of index.ts so the
@@ -224,6 +225,12 @@ export type SessionRecord = {
   /** Written by startEncounter BEFORE the transition, so it precedes any due-zero effect. */
   encounterAdmission?: EncounterAdmissionSnapshot;
   assembledStation?: AssembledStationContext;
+  /** Session-owned scheduler fold. Absent when `branchScheduling` was not injected. */
+  branchState?: BranchState;
+  /** Prior successfully folded admitted learner events for this session. */
+  branchAdmittedPrefix?: AdmittedLearnerEvent[];
+  /** Frozen seed captured at session start after identity validation. */
+  frozenBranchSeed?: FrozenCaseSeed;
 };
 
 export type GenerateActorResponseFromContextInput = {
@@ -300,6 +307,15 @@ export type EncounterAdmissionOptions = {
   scheduledEffectConsumer?: ScheduledEffectConsumer;
 };
 
+/**
+ * Composition-root injection for the private branch scheduler.
+ * Uses the scheduler's canonical types without adding a public entrypoint export.
+ */
+type BranchSchedulingComposition = {
+  seedForSession(input: { stationRunId: string; scenarioId: string }): FrozenCaseSeed;
+  policyVersion: string;
+};
+
 export type ScenarioRuntimeOptions = {
   scenario: Scenario;
   ledger: InMemoryTraceLedger;
@@ -315,6 +331,7 @@ export type ScenarioRuntimeOptions = {
   conversationPolicy?: ConversationPolicy;
   /** Starting-predicate admission policy and the effect consumer scheduled events are applied to. */
   encounterAdmission?: EncounterAdmissionOptions;
+  branchScheduling?: BranchSchedulingComposition;
 };
 
 export type CreateDefaultScenarioRuntimeOptions = {
