@@ -690,6 +690,7 @@ export async function captureBedsideApproach(options: CliOptions): Promise<Brows
         recorderGlobalPresent: host["__openClinXrPedsDrive"] !== undefined,
         bootPhases: (host["__openClinXrBootEvidence"] ?? null) as unknown,
         bundleSource: (host["__openClinXrRuntimeBundleScenarioMatch"] ?? null) as unknown,
+        scenePlanAdmission: (host["__openClinXrFrozenScenePlanAdmission"] ?? null) as unknown,
       };
     });
     const grade = gradeBrowserApproach({
@@ -727,6 +728,7 @@ export async function captureBedsideApproach(options: CliOptions): Promise<Brows
           pageErrors,
           bootPhases: observed.bootPhases,
           bundleScenarioMatch: observed.bundleSource,
+          scenePlanAdmission: observed.scenePlanAdmission,
           grade,
           rawEvidence: observed.evidence,
         },
