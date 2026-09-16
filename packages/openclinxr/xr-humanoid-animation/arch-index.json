@@ -38,6 +38,7 @@
   "tests": [
     "src/an-owned-chain-survives-the-posture-pass.test.ts",
     "src/humanoid-animation.test.ts",
+    "src/natural-blink-and-emotion.test.ts",
     "src/the-frame-loop-composes-position-x-from-its-base.test.ts",
     "src/the-locomotion-drive-plays-a-clip.test.ts",
     "src/the-standing-foot-stays-above-the-floor.test.ts",
