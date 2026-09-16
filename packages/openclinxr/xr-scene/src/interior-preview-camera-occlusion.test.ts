@@ -10,9 +10,26 @@
  * Selector no longer restores the rejected doorway-row pool. Deeper room-derived
  * rows are searched only when every first-row eye is blocked; null if none clear.
  */
-import {BoxGeometry,Group,Mesh,MeshStandardMaterial} from "three";
+import {Box3,BoxGeometry,Group,Mesh,MeshStandardMaterial,Ray,Vector3} from "three";
 import {describe,expect,it} from "vitest";
-import {collectDoorLeafWorldBoxes,deriveInteriorPreviewCamera,lookRayHitsAabb} from "./interior-preview-camera.js";
+import {deriveInteriorPreviewCamera} from "./index.js";
+
+// Independent geometry oracle: never call the selector's own rejection helpers.
+function collectDoorLeafWorldBoxes(station:Group){
+ const leaf=station.getObjectByName("fixture-slot.door_leaf");
+ if(!leaf)throw new Error("expected measured fixture door leaf missing");
+ station.updateMatrixWorld(true);
+ const box=new Box3().setFromObject(leaf);
+ if(box.isEmpty())throw new Error("measured fixture door box empty");
+ return [box];
+}
+function lookRayHitsAabb(eye:number[],lookAt:number[],box:Box3){
+ const origin=new Vector3().fromArray(eye),target=new Vector3().fromArray(lookAt);
+ const delta=target.clone().sub(origin),length=delta.length();
+ if(!Number.isFinite(length)||length===0)throw new Error("invalid fixture eye-to-target segment");
+ const hit=new Ray(origin,delta.normalize()).intersectBox(box,new Vector3());
+ return hit!==null&&origin.distanceTo(hit)<=length;
+}
 
 const actors=[{min:[-0.4,0,-1] as const,max:[0.4,1.8,-0.5] as const}];
 function fixture(door?:{size:[number,number,number];position:[number,number,number]}){
@@ -23,6 +40,12 @@ function fixture(door?:{size:[number,number,number];position:[number,number,numb
  return{station,room};
 }
 describe("the default interior camera does not restore a blocked candidate pool",()=>{
+ it("independently rejects the measured prior blocked eye and accepts the known clear deeper eye",()=>{
+  const{station}=fixture({size:[6,3,0.2],position:[0,1.5,2]});
+  const boxes=collectDoorLeafWorldBoxes(station);expect(boxes).toHaveLength(1);
+  expect(lookRayHitsAabb([-2.6,1.8,2.6],[0,0.9,-0.75],boxes[0]!)).toBe(true);
+  expect(lookRayHitsAabb([0,1.8,1],[0,0.9,-0.75],boxes[0]!)).toBe(false);
+ });
  it("finds a deeper clear interior eye when every doorway-row eye is occluded",()=>{
   const{station,room}=fixture({size:[6,3,0.2],position:[0,1.5,2]});
   const result=deriveInteriorPreviewCamera({roomRoot:room,actorWorldBoxes:actors});
