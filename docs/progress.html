@@ -27,6 +27,75 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-16T1400">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 96 &middot; 2026-09-16 14:00 EDT</p>
+          <h2>A safety check had been proven to work exactly once, in a conversation nobody kept. It is now written down.</h2>
+        </div>
+        <p>
+          This project runs an automatic check before every change is saved: if someone edits the list
+          of software libraries the project depends on but forgets to update the matching lock file,
+          the check refuses the change. That check was installed weeks ago and it works. Someone did
+          deliberately break it once to confirm it would catch the mistake, watched it fail, fixed the
+          break, and watched it pass again. None of that was recorded anywhere. The only trace was a
+          transcript of a conversation.
+        </p>
+        <p>
+          A check whose ability to fail was demonstrated once, unrecorded, is indistinguishable a month
+          later from one that was never tested at all. Both look identical: green. So the check was
+          deliberately broken again, in both directions this time, and all four results were written to
+          a permanent record with the real command output and real timings.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The four observations now on the record, each one run rather than reasoned about.</caption>
+            <thead><tr><th scope="col">What was broken</th><th scope="col">Expected</th><th scope="col">Observed</th></tr></thead>
+            <tbody>
+              <tr><td>A dependency removed, lock file untouched</td><td>refuse</td><td>refused &mdash; &ldquo;1 dependencies were removed&rdquo;</td></tr>
+              <tr><td>Same, after the lock file was corrected</td><td>allow</td><td>allowed, 89&thinsp;ms</td></tr>
+              <tr><td>A dependency added, lock file untouched</td><td>refuse</td><td>refused &mdash; &ldquo;1 dependencies were added&rdquo;</td></tr>
+              <tr><td>Same, after the lock file was corrected</td><td>allow</td><td>allowed, 79&thinsp;ms</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          The two failures print different messages, which is the point of testing both. Nobody had
+          ever observed the &ldquo;added&rdquo; case here; an earlier attempt at this work simply
+          asserted it would behave like the &ldquo;removed&rdquo; case and was sent back for it.
+        </p>
+        <h3>Two tests were checking the wording of a sentence</h3>
+        <p>
+          Alongside the check sat two assertions that compared a human-readable explanation string
+          against expected words. Rewording that sentence would have turned the tests red with nothing
+          actually broken, and breaking the check while leaving the sentence alone would have left them
+          green. They were removed, and the removal is justified in writing: six other clauses cover
+          what the check actually does, and the record names which of them fails if its behaviour
+          changes.
+        </p>
+        <h3>Two correct rules contradicted each other, and that is why this took a day</h3>
+        <p>
+          The finished work sat finished but unlandable for a day. Saving it required registering the
+          new record in an index, because an unregistered document is refused at commit time. But that
+          index is a protected file, and the merge policy refuses any change that touches one. Each
+          rule is right on its own and together they formed a deadlock that no amount of retrying would
+          break. It was resolved by a person registering the document separately and deliberately, after
+          which the automated work could land while touching no protected file at all.
+        </p>
+        <h3>What this does not establish</h3>
+        <p>
+          This is record-keeping and test hygiene. It adds no capability, changes no behaviour the check
+          already had, and says nothing about the patient, the scene, or anything a learner would see.
+          The check&rsquo;s cost was measured at the same time: it adds nothing to changes that touch no
+          dependency list, and 89&thinsp;ms when it runs. Three other ways the check could theoretically
+          be evaded were named as untested rather than implied to be covered.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
+          claim is made here. This entry describes internal verification hygiene: evidence that an existing
+          automated check can fail when it should, the measured cost of running it, and the removal of two
+          assertions that tested prose rather than behaviour. No product capability changed.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-16T1050">
         <div class="section-heading">
           <p class="eyebrow">Entry 95 &middot; 2026-09-16 10:50 EDT</p>
