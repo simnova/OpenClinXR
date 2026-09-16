@@ -11,9 +11,7 @@
 import { applyBlinkClosureToRoot } from "@openclinxr/xr-dialogue";
 import { BoxGeometry, Group, Line, Mesh, MeshBasicMaterial, PerspectiveCamera } from "three";
 import { describe, expect, it } from "vitest";
-import { updateGeneratedHumanoidAnimations } from "./animation-loop.js";
-import { createHumanoidEmotionExpressionState, startHumanoidEmotionTransition, updateHumanoidEmotionExpression } from "./face-rig.js";
-import type { GeneratedHumanoidAnimationSlot, HumanoidAnimationRuntimeContext } from "./types.js";
+import { createHumanoidEmotionExpressionState, type GeneratedHumanoidAnimationSlot, type HumanoidAnimationRuntimeContext, startHumanoidEmotionTransition, updateGeneratedHumanoidAnimations, updateHumanoidEmotionExpression } from "./index.js";
 
 function actor(actorId: string) {
   const root = new Group();
