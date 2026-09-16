@@ -27,6 +27,81 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-16T0850">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 94 &middot; 2026-09-16 08:50 EDT</p>
+          <h2>The patient can now flinch when the abdomen is pressed. The route we tested never brought it into view.</h2>
+        </div>
+        <p>
+          The clinical case has always described what should happen when a learner presses the patient's
+          lower right abdomen: the patient guards, withdraws the arm, and says it hurts. The case named
+          an animation to play. The 3D model that actually ships did not contain that animation, so the
+          application looked it up, found nothing, and quietly did nothing &mdash; while still recording
+          in the transcript that a clinical touch had occurred. A learner pressed, the notes said they
+          pressed, and the figure never moved.
+        </p>
+        <p>
+          The animation did exist, but in a preview file built for an older body with different bone
+          names. Of the nine bones it drives, eight do not exist on the model that ships. Copying it
+          across would have produced a correctly-named animation that moved one bone out of nine and
+          looked, from every automated check, like success.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>What changed in the shipped patient model, measured by parsing the file itself.</caption>
+            <thead><tr><th scope="col">Property</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+            <tbody>
+              <tr><td>Animations in the model</td><td>2</td><td>3</td></tr>
+              <tr><td>Guard response present</td><td>no</td><td>yes &mdash; 9 channels, rotation only</td></tr>
+              <tr><td>Existing idle animation</td><td>411 channels</td><td>411 channels, unchanged</td></tr>
+              <tr><td>Resting pose of every other bone</td><td>&mdash;</td><td>byte-for-byte identical</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>The first attempt moved 131 bones it had no business touching</h3>
+        <p>
+          A helper in the first version rewrote the resting rotation of every bone in the file, on the
+          stated grounds that some of those values were not normalised. They all were. It corrected
+          nothing and shifted 131 of 150 resting poses by about a billionth of a unit &mdash; including
+          the hips, legs and feet that hold the figure on the bed. The change was far too small to see,
+          and far too small for the test that was supposed to catch it: that test allowed a thousand
+          times more movement than actually occurred. The work was sent back, the helper deleted, the
+          animation rebuilt from the original file, and a new check added that compares every bone's
+          resting position exactly, with no allowance at all.
+        </p>
+        <h3>A browser was actually opened, and that is what found the remaining problem</h3>
+        <p>
+          The earlier round claimed the region was off-screen after reading the camera settings. That is
+          not an observation. This round launched a real browser against the running application, loaded
+          the shipping model, and measured where the abdomen region actually lands on screen. On the
+          route it tested &mdash; the starting viewpoint, then eight seconds of walking forward &mdash;
+          the region sat 579 pixels to the left of the window at load and 2,904 pixels to the left after
+          walking. The response is in the model and plays correctly in a test that drives the real
+          animation system; the navigation this run tried did not reach it.
+        </p>
+        <p>
+          That is a statement about one tested route, not about every route. The application's other look
+          and movement controls were not exhausted, so this does not show that a learner cannot reach the
+          region, nor that changing the camera is the fix. Establishing either would need those controls
+          tried against this same shipped figure first.
+        </p>
+        <h3>What this does not establish</h3>
+        <p>
+          A learner-triggered, visible response has not been demonstrated and is not claimed. What landed
+          is the animation inside the shipped model and a test that plays it through the real animation
+          machinery. It is equally not established that no reachable route exists, or that a camera change
+          is required &mdash; one route was measured, and the remaining controls are untried. That work is
+          recorded separately rather than folded into this change. Nothing here says anything about
+          clinical realism or about whether the movement resembles a real patient.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
+          claim is made here. A procedural first-party animation demonstrates interaction wiring only. In-browser
+          playback triggered by a learner remains unmet: on the one navigation route tested, the region measured
+          579 px and then 2,904 px outside the window. Other look and movement controls were not tried, so no
+          claim is made that the region is unreachable.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-16T0656">
         <div class="section-heading">
           <p class="eyebrow">Entry 93 &middot; 2026-09-16 06:56 EDT</p>
