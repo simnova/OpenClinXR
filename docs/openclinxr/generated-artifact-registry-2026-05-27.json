@@ -23973,6 +23973,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Decision artifact for tsk_68499a16e3ea6c09: resolves label/lookup mismatch in viseme row by renaming sweep entry fp-r0.4-jeans-lineage to fp-r0.4 (rungId names technique, inputLineage carries lineage) and restoring derived lookup in falsifier test."
+    },
+    {
+      "path": "docs/openclinxr/lockfile-drift-gate-counterweight-2026-09-15.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Measured lockfile-drift counterweight for tsk_8d7b00a78f1760ed: preserves four removal/addition observations and two hook cost measurements. Registration classifies this artifact; it grants no policy exception or product completion."
     }
   ]
 }

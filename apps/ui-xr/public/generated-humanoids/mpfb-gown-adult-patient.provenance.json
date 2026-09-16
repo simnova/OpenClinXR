@@ -22,51 +22,51 @@
     "derivationCommits": [
       {
         "commit": "af1fed4e",
-        "did": "#490 L5 — bake cast-eligible gowned MPFB adult patient off the mpfb-viseme-inspect base; declare MPFB_GOWN_ADULT_PATIENT_GLB"
+        "did": "#490 L5 \u2014 bake cast-eligible gowned MPFB adult patient off the mpfb-viseme-inspect base; declare MPFB_GOWN_ADULT_PATIENT_GLB"
       },
       {
         "commit": "e9ef9e3f",
-        "did": "#542 — CC0 brows/lashes/teeth/tongue across all eleven MPFB actors"
+        "did": "#542 \u2014 CC0 brows/lashes/teeth/tongue across all eleven MPFB actors"
       },
       {
         "commit": "99c56fd5",
-        "did": "#598 — swap toigo_flats for the plain CC0 cloth shoes"
+        "did": "#598 \u2014 swap toigo_flats for the plain CC0 cloth shoes"
       },
       {
         "commit": "f3bf8d13",
-        "did": "#651 — body height driven by the case declaration"
+        "did": "#651 \u2014 body height driven by the case declaration"
       },
       {
         "commit": "e0d36c44",
-        "did": "#684 — restore the hospital gown without giving back the #651 height"
+        "did": "#684 \u2014 restore the hospital gown without giving back the #651 height"
       },
       {
         "commit": "e59dc492",
-        "did": "#686 — give the gown bodice its own drape"
+        "did": "#686 \u2014 give the gown bodice its own drape"
       },
       {
         "commit": "0f1d0b9c",
-        "did": "#695 — meshopt decimation wired into the humanoid pipeline"
+        "did": "#695 \u2014 meshopt decimation wired into the humanoid pipeline"
       },
       {
         "commit": "f82e1cc2",
-        "did": "#683 — fitted CC0 eyelashes01 replace the hm08 helper stubs"
+        "did": "#683 \u2014 fitted CC0 eyelashes01 replace the hm08 helper stubs"
       },
       {
         "commit": "de57fc4d",
-        "did": "#739 — per-asset teeth retreat"
+        "did": "#739 \u2014 per-asset teeth retreat"
       },
       {
         "commit": "a55067d1",
-        "did": "#740 — re-materialize the fleet with garment textures restored"
+        "did": "#740 \u2014 re-materialize the fleet with garment textures restored"
       },
       {
         "commit": "404c723a",
-        "did": "#737 — lash-only LOD; restore the gown UVs #714 dropped"
+        "did": "#737 \u2014 lash-only LOD; restore the gown UVs #714 dropped"
       },
       {
         "commit": "aa64d2ea",
-        "did": "#746 — gown shell clears the body at armpit and sleeve root"
+        "did": "#746 \u2014 gown shell clears the body at armpit and sleeve root"
       },
       {
         "commit": "91b12607",
@@ -81,7 +81,7 @@
       {
         "mesh": "mpfb_robert_reference_body",
         "record": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json",
-        "standing": "CONTRADICTED UPSTREAM — a stale 2016 README asserts AGPL against a 2020 LICENSE.md saying CC0, with no dated relicensing announcement. Unresolved, and it is the mesh under every body this project generates. SC-04 records it rather than clearing it."
+        "standing": "CONTRADICTED UPSTREAM \u2014 a stale 2016 README asserts AGPL against a 2020 LICENSE.md saying CC0, with no dated relicensing announcement. Unresolved, and it is the mesh under every body this project generates. SC-04 records it rather than clearing it."
       },
       {
         "mesh": "makeclothes_library_eyes_low_poly_*",
@@ -138,10 +138,10 @@
     "castEligible": true,
     "realismGraded": false,
     "publicRenderCleared": false,
-    "publicRenderBlockedBy": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json — the hm08 basemesh AGPL/CC0 contradiction is unresolved upstream"
+    "publicRenderBlockedBy": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json \u2014 the hm08 basemesh AGPL/CC0 contradiction is unresolved upstream"
   },
-  "outputSha256": "2e9a9615fa2034675eab9b2634139a74b3918c9698e97b6a1cb65bd8076ed588",
-  "outputBytes": 18576544,
+  "outputSha256": "8da37c5707958d7a4f8f8a89222d76ea6c0d3c2f18eb903d56c7f4d8727befcf",
+  "outputBytes": 18581616,
   "byteLineage": {
     "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
     "correctedAt": "2026-09-09T20:55:55.570Z",
@@ -165,5 +165,39 @@
     "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte. This asset had no sidecar at all until SC-04 authored one; the pin below is the first it has ever carried."
   },
   "albedoBakeWrittenAt": "2026-09-11T05:16:52.392Z",
-  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
+  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+  "operations": [
+    {
+      "kind": "materialize_guard_withdraw_rlq",
+      "tool": "tools/openclinxr/evidence/materialize-guard-withdraw-clip.ts",
+      "at": "2026-09-16T12:29:49.265Z",
+      "argv": [
+        "--glb",
+        ".openclinxr/asset-production/rlq-guard-staging-handback/input.glb",
+        "--out",
+        ".openclinxr/asset-production/rlq-guard-staging-handback/output.glb",
+        "--backup",
+        ".openclinxr/asset-production/rlq-guard-staging-handback/backup.glb",
+        "--report",
+        ".openclinxr/asset-production/rlq-guard-staging-handback/report.json"
+      ],
+      "animationName": "openclinxr_role_patient_guard_withdraw_rlq",
+      "appliedNodes": [
+        "spine03",
+        "spine01",
+        "head",
+        "upperarm01.L",
+        "upperarm01.R",
+        "lowerarm01.L",
+        "lowerarm01.R",
+        "wrist.L",
+        "wrist.R"
+      ],
+      "inputSha256": "2e9a9615fa2034675eab9b2634139a74b3918c9698e97b6a1cb65bd8076ed588",
+      "inputBytes": 18576544,
+      "inputRevision": "71954173549f55cea2b3cfa4c206b365c838678e:apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+      "outputSha256": "8da37c5707958d7a4f8f8a89222d76ea6c0d3c2f18eb903d56c7f4d8727befcf",
+      "outputBytes": 18581616
+    }
+  ]
 }

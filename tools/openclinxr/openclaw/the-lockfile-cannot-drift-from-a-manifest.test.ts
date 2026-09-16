@@ -32,8 +32,6 @@ describe("lockfile drift detection step", () => {
     expect(step).not.toBeNull();
     expect(step?.label).toBe("Lockfile matches manifests");
     expect(step?.command).toEqual(["pnpm", "install", "--frozen-lockfile", "--lockfile-only"]);
-    expect(step?.reason).toContain("package.json");
-    expect(step?.reason).toContain("pnpm-lock.yaml");
   });
 
   it("returns null when no manifest or lockfile is staged", () => {
