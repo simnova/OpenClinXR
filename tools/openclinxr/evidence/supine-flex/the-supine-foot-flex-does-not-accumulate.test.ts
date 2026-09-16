@@ -1,8 +1,8 @@
 import { Bone, Group } from "three";
 import { describe, expect, it, vi } from "vitest";
-import * as metrics from "./hob-contact-metrics.js";
-import { raiseSupineFeetOntoSeat, reapplyStoredSupineFootFlex } from "./hob-extremity-flex.js";
-import { applySupinePoseHoldingIncline } from "./supine-deck-plant.js";
+import * as metrics from "../../../../packages/openclinxr/xr-pose/src/hob-contact-metrics.js";
+import { raiseSupineFeetOntoSeat, reapplyStoredSupineFootFlex } from "../../../../packages/openclinxr/xr-pose/src/hob-extremity-flex.js";
+import { applySupinePoseHoldingIncline } from "../../../../packages/openclinxr/xr-pose/src/supine-deck-plant.js";
 
 function rig(){
  const root=new Group(); const shin=new Bone();shin.name="lowerleg01L";shin.rotation.set(.1,.2,.3);root.add(shin);
