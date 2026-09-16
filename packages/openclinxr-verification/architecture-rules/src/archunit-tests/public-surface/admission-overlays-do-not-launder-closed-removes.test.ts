@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { REVIEW_GROUPS, resolveApplyId } from "../../checks/public-surface/apply-map.js";
+import { ADMISSION_GROUPS, REVIEW_GROUPS, resolveApplyId } from "../../checks/public-surface/apply-map.js";
 import { groupHash, inventoryHash, requireApplied, requireAppliedWith } from "../../checks/public-surface/gates.js";
 import { measureSurface, workspaceRoot } from "../../checks/public-surface/resolve.js";
 
@@ -248,7 +248,7 @@ describe("admission overlays do not launder closed removes", () => {
             disposition: "remove",
           },
         ]);
-        const result = requireApplied(root, "psr-01c");
+        const result = requireAppliedWith(root, "psr-01c", { admissionGroups: [] });
         expect(result.ok).toBe(false);
         expect(result.detail).toMatch(/extra:.*stray/u);
       },
@@ -270,7 +270,7 @@ describe("admission overlays do not launder closed removes", () => {
     withTree(closedRemoveTree(), (root) => {
       writeClosedRemoveGroup(root);
       writeAdmission(root, "psr-ghost", [STRAY_KEEP]);
-      const production = requireApplied(root, "psr-01c");
+      const production = requireAppliedWith(root, "psr-01c", { admissionGroups: [] });
       expect(production.ok).toBe(false);
       expect(production.detail).toMatch(/extra:.*stray/u);
       const admitted = requireAppliedWith(root, "psr-01c", { admissionGroups: ["psr-ghost"] });
@@ -368,7 +368,7 @@ describe("admission overlays do not launder closed removes", () => {
     withTree(closedRemoveTree(), (root) => {
       writeClosedRemoveGroup(root);
       writeAdmission(root, "psr-ghost", [STRAY_KEEP]);
-      const production = requireApplied(root, "psr-01c");
+      const production = requireAppliedWith(root, "psr-01c", { admissionGroups: [] });
       expect(production.ok).toBe(false);
       expect(production.detail).toMatch(/extra:.*stray/u);
       const unknown = requireApplied(root, "psr-ghost");
@@ -441,7 +441,9 @@ describe("admission overlays do not launder closed removes", () => {
     expect(readFileSync(join(ROOT, ACCEPTANCE_REL), "utf8")).not.toMatch(/requireAppliedWith/u);
     const applyMap = readFileSync(join(ROOT, APPLY_MAP_REL), "utf8");
     expect(applyMap).not.toMatch(/requireAppliedWith/u);
-    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \[\]/u);
+    // Initial empty allowlist was the PSR implementation prerequisite. The later
+    // independently reviewed activation is exact, not an arbitrary admission id.
+    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f"\]/u);
     const resolveStart = applyMap.indexOf("export function resolveApplyId");
     const resolveBody = applyMap.slice(resolveStart);
     expect(resolveBody).not.toMatch(/ADMISSION_GROUPS/u);
@@ -451,5 +453,73 @@ describe("admission overlays do not launder closed removes", () => {
     expect(gates).toMatch(
       /export function requireApplied\(root: string, id: string, report\?: SurfaceReport\): GateResult/u,
     );
+  });
+});
+
+describe("the independently reviewed seven-row production activation", () => {
+  it("binds the exact allowlist and reviewed admission row hash", () => {
+    expect(ADMISSION_GROUPS).toEqual(["psr-01f"]);
+    const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8"));
+    expect(admission.rows).toHaveLength(7);
+    expect(admission.admissionHash).toBe("6a4df1fedee5ad0fae42e026eaf6e77c2f1a4155c117a1e3e0c9679f74f90d11");
+    expect(overlayAdmissionHash(admission.reviewedBy, admission.rows)).toBe(admission.admissionHash);
+    expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
+  });
+
+  it("production applies every frozen group on the real tree while the admission id stays unknown", () => {
+    const report = measureSurface(ROOT);
+    for (const group of REVIEW_GROUPS) {
+      const result = requireApplied(ROOT, group, report);
+      expect(result.ok, result.detail).toBe(true);
+    }
+    expect(requireApplied(ROOT, "psr-01f", report)).toEqual({ ok: false, detail: "unknown apply id psr-01f" });
+  });
+
+  function withActualEvidence(run: (root: string, admission: { reviewedBy: string; admissionHash: string; rows: OverlayRow[] }) => void): void {
+    const admissionBody = readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8");
+    const files: Record<string, string> = {
+      [RAW_INVENTORY_REL]: readFileSync(join(ROOT, RAW_INVENTORY_REL), "utf8"),
+      [`${ADMISSIONS_DIR}/psr-01f.json`]: admissionBody,
+    };
+    for (const group of REVIEW_GROUPS) files[`${APPROVALS_DIR}/${group}.json`] = readFileSync(join(ROOT, APPROVALS_DIR, `${group}.json`), "utf8");
+    withTree(files, (root) => run(root, JSON.parse(admissionBody)));
+  }
+
+  it("omitting a genuinely admitted row leaves its published symbol as a named extra", () => {
+    withActualEvidence((root, admission) => {
+      const rows = admission.rows.filter((row) => row.symbol !== "compileMotionProgram");
+      writeAdmission(root, "psr-01f", rows, { reviewedBy: admission.reviewedBy });
+      const result = requireApplied(root, "psr-01c", measureSurface(ROOT));
+      expect(result.ok).toBe(false);
+      expect(result.detail).toMatch(/extra:.*compileMotionProgram/u);
+    });
+  });
+
+  it("adding an unreviewed row cannot reuse the actual admission hash", () => {
+    withActualEvidence((root, admission) => {
+      writeAdmission(root, "psr-01f", [...admission.rows, { ...admission.rows[0]!, symbol: "unreviewedExtra" }], { reviewedBy: admission.reviewedBy, admissionHash: admission.admissionHash });
+      const result = requireApplied(root, "psr-01c", measureSurface(ROOT));
+      expect(result.ok).toBe(false);
+      expect(result.detail).toBe("overlay admissionHash does not match");
+    });
+  });
+
+  it("a row whose owner is its reviewer is refused by name", () => {
+    withActualEvidence((root, admission) => {
+      const rows = admission.rows.map((row) => ({ ...row, owner: admission.reviewedBy }));
+      writeAdmission(root, "psr-01f", rows, { reviewedBy: admission.reviewedBy });
+      const result = requireApplied(root, "psr-01c", measureSurface(ROOT));
+      expect(result.ok).toBe(false);
+      expect(result.detail).toBe("overlay owner equals reviewer");
+    });
+  });
+
+  it("a changed admission hash is refused even with all seven real rows intact", () => {
+    withActualEvidence((root, admission) => {
+      writeAdmission(root, "psr-01f", admission.rows, { reviewedBy: admission.reviewedBy, admissionHash: "0".repeat(64) });
+      const result = requireApplied(root, "psr-01c", measureSurface(ROOT));
+      expect(result.ok).toBe(false);
+      expect(result.detail).toBe("overlay admissionHash does not match");
+    });
   });
 });
