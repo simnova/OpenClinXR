@@ -27,6 +27,101 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-16T1854">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 99 &middot; 2026-09-16 18:54 EDT</p>
+          <h2>Counting the cast before building the feature, and finding the count was wrong twice.</h2>
+        </div>
+        <p>
+          Humanoids in this project do not blink while idle, and an authored emotion is cancelled the
+          moment a line of speech finishes. Work on both began this evening and has not landed. Before
+          it began, the question that had to be answered was narrower than it sounds: which figures
+          does this product actually put in front of a learner, and are those figures physically
+          capable of blinking at all?
+        </p>
+        <p>
+          Nineteen humanoid files ship. Eleven carry a full facial rig &mdash; eyelid closure controls,
+          a jaw, a teeth mesh, a tongue mesh, eleven tongue bones and fifteen mouth shapes for speech.
+          The other eight have none of that: no eyelid control, no jaw, no teeth, no tongue.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The nineteen humanoid files in the generated-humanoids folder, measured from the file bytes.</caption>
+            <thead><tr><th scope="col">Group</th><th scope="col">Count</th><th scope="col">Facial rig</th><th scope="col">Reaches a learner as</th></tr></thead>
+            <tbody>
+              <tr><td>Current figures</td><td>9</td><td>full</td><td>themselves</td></tr>
+              <tr><td>Inspection fixtures</td><td>2</td><td>full</td><td>never &mdash; test files</td></tr>
+              <tr><td>Retired older figures</td><td>7</td><td>none</td><td>redirected to a current figure</td></tr>
+              <tr><td>Orphan file</td><td>1</td><td>none</td><td>never &mdash; nothing references it</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          The third row is why the count was worth checking. Those seven files are named by an older
+          part of the code, including the patient, nurse and spouse of the emergency-department case.
+          Read naively, that says the main scenario is populated by figures that cannot blink. They are
+          not loaded: the runtime substitutes the current equivalent before fetching, and the
+          substitution is live code rather than a table nobody calls. Every figure a learner actually
+          sees can blink.
+        </p>
+        <h3>Two counts published here were wrong before this one</h3>
+        <p>
+          The first attempt took a list of ten files from a planning document and called it the cast.
+          It included two inspection fixtures and omitted the three emergency-department actors
+          entirely. The second attempt, having found those three, reported that the main scenario's
+          humanoids could not blink. That was also wrong, because it stopped before checking whether
+          the substitution was wired. Both versions were drafted for this entry and neither was
+          published.
+        </p>
+        <h3>The trap in front of the implementation</h3>
+        <p>
+          Each body is split into several drawable pieces and the eyelid control is declared on all of
+          them, but only the piece holding the eyelid vertices moves. Measured on three adult bodies:
+          of sixteen declared controls, two move anything &mdash; at most 0.0102 m &mdash; and fourteen
+          move exactly zero. Setting a control by name and recording that it was set can therefore
+          produce a log line saying the humanoid blinked while the eyes never move. These counts come
+          from three bodies and are not assumed to hold for the rest.
+        </p>
+        <p>
+          A second figure bears on showing this work rather than doing it. The existing capture tool
+          frames a whole body from about 4.1 m through a 35&deg; lens. Projecting a measured 0.0102 m
+          eyelid movement at that framing gives roughly five pixels in a 1280-pixel image &mdash; an
+          estimate from an assumed figure height, not a measurement read off a rendered frame. Five
+          pixels is small rather than invisible, so the supportable conclusion is narrower than saying
+          the current camera cannot show a blink: closer framing is appropriate for judging
+          articulation, and the projected size of each face and eyelid needs recording per figure from
+          real rendered output rather than predicted from arithmetic.
+        </p>
+        <p>
+          A third result arrived while this entry was being written, and it is why the two paragraphs
+          above matter. A first attempt at capturing the behaviour produced thirty images across eight
+          cases, and every one was the same blank frame: the figure had been detached from the scene
+          being photographed, while its eyelids went on moving correctly in the data underneath. The
+          numeric record looked immaculate &mdash; real eyelid movement, real timings, and a field
+          asserting the face was visible in all 3,848 frames of a run. What refused it was a check
+          written beforehand that compares the closed frame against the open one and rejects them for
+          being identical. None of that capture work has shipped. It is recorded here because a guard
+          caught the error rather than a person noticing it.
+        </p>
+        <h3>Still open</h3>
+        <p>
+          No product behaviour changed. The implementation is running as this is published and is not
+          claimed as complete. The uninterrupted walkthrough remains this project's acceptance bar and
+          is not closed, physical contact is not closed, the gown distortion reported two entries ago
+          is unrepaired, and the patient's foot still moves against the surface supporting it &mdash;
+          0.01604 m at peak and 0.00954 m once settled, with local transforms unchanged and the outer
+          root at zero. That cause is undetermined.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
+          claim is made here. This entry reports a file-level capability audit and a camera measurement. It does
+          not claim that any humanoid yet blinks, speaks or shows emotion on screen, nor that the result looks
+          natural &mdash; judging that requires a person to watch video that does not exist yet. The closure
+          figures are from three adult bodies, not all nineteen files. Encounter completeness, physical contact,
+          gown distortion and the unexplained foot displacement all remain open, and nothing here should be read
+          as the support behaviour being stable or the guarding being clean.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-16T1652">
         <div class="section-heading">
           <p class="eyebrow">Entry 98 &middot; 2026-09-16 16:52 EDT</p>
