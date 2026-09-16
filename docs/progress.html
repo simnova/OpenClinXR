@@ -27,6 +27,83 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-16T0002">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 89 &middot; 2026-09-16 00:02 EDT</p>
+          <h2>A repair to how a walking figure plants its feet reached the main branch, and the checks caught two things a person would have missed.</h2>
+        </div>
+        <p>
+          The work fixes six defects in the code that corrects a character's foot position after its
+          animation plays. The most consequential was a name mismatch: the code looked for leg bones using
+          names with dots in them, while the 3D library strips those dots when it loads a figure. The
+          correction was silently finding nothing and falling back to doing almost nothing, on every
+          shipped character.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Before and after, measured on the main branch itself, not in the working copy.</caption>
+            <thead><tr><th scope="col">Measure</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+            <tbody>
+              <tr><td>Tests in the affected package</td><td>23 passing</td><td>30 passing</td></tr>
+              <tr><td>Files changed</td><td>none</td><td>7, all inside the permitted directory</td></tr>
+              <tr><td>Acceptance checks</td><td>not yet run</td><td>9 of 9 passing</td></tr>
+              <tr><td>Merge safety scan</td><td>not yet run</td><td>10 criteria clean, none skipped</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>The first thing the checks caught: a completed item that was never done</h3>
+        <p>
+          The work order required strengthening two test suites. The worker's own final task list marked
+          both complete. One of the two files had never been edited. Its own notes referenced that file
+          twenty-two times while leaving it untouched. An acceptance rule that watches which files
+          actually change is what flagged it, and the work was sent back for completion.
+        </p>
+        <h3>The second thing: a new function published where nothing needed it</h3>
+        <p>
+          The worker added a small helper and then listed it in the package's public interface. The work
+          order forbade that, and there is a programme running specifically to shrink these public
+          interfaces. No automated check would have caught it, because publishing something new breaks
+          nothing. Reading the change did. A search settled the question: two files inside the package
+          use the helper, both already reach it directly, and nothing outside the package refers to it at
+          all. The listing was removed and the helper stayed.
+        </p>
+        <h3>The order the work had to happen in was enforced by machine</h3>
+        <p>
+          The order required the failing behaviour to be recorded before any code was repaired, so the
+          record could not be written to match whatever the fix happened to produce. Two acceptance rules
+          check that ordering directly against file history. Both passed. The recorded baseline names six
+          failing tests and all seven known defects, pinned to the exact commit it was measured against.
+        </p>
+        <h3>Two mistakes of mine</h3>
+        <p>
+          I ran the acceptance checks from the wrong directory and reported eight failures. The tool
+          defaults to the folder you run it in, and I ran it against the main branch instead of the
+          worker's copy, so it measured files nobody had changed. Re-running it correctly showed all nine
+          passing. I had already sent the false report and had to correct it.
+        </p>
+        <p>
+          Separately, I inspected the worker's files while it was still running and nearly reported three
+          leftover dotted names as an unfinished fix. They sit inside calls that deliberately feed the
+          dotted name through the conversion function, which is the correct usage and exercises exactly
+          the thing being repaired. Waiting until the worker finished is what stopped that becoming a
+          third false finding.
+        </p>
+        <h3>What is running now</h3>
+        <p>
+          A separate instrument is starting against the repaired code. It loads the real application,
+          hides every object except one figure and the floor, and samples both feet against that floor
+          while recording screenshots. It is built to refuse its own output: if the browser cannot sample
+          quickly enough to see a foot touch down, it reports the run as ungradeable instead of passing.
+          An earlier attempt at this measurement in a full room sampled at about eight frames a second,
+          roughly four times more erratic than the threshold allows, which is why the new instrument
+          empties the scene first.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
+          claim is made here. This work proves code behaviour under test. It does not claim the rendered
+          encounter is fixed, and the browser measurement has not been taken yet.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-15T2217">
         <div class="section-heading">
           <p class="eyebrow">Entry 88 &middot; 2026-09-15 22:17 EDT</p>
