@@ -1,6 +1,7 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, normalize, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
 
 /**
  * Test import surface (ArchUnit-style; "a package's own tests use its public entrypoint").
@@ -95,6 +96,22 @@ function walkTests(dir: string, out: string[]): string[] {
   return out;
 }
 
+/** Static module declarations, excluding comments and quoted source fixtures.
+ * Literal dynamic imports were not included in this metric and remain unchanged.
+ */
+function relativeModuleDeclarations(text: string): string[] {
+  const source = ts.createSourceFile("module.ts", text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const specifiers: string[] = [];
+  for (const statement of source.statements) {
+    if (!ts.isImportDeclaration(statement) && !ts.isExportDeclaration(statement)) continue;
+    const specifier = statement.moduleSpecifier;
+    if (specifier && ts.isStringLiteral(specifier) && specifier.text.startsWith(".")) {
+      specifiers.push(specifier.text);
+    }
+  }
+  return specifiers;
+}
+
 /**
  * Every module reachable from a package's declared entrypoints, as absolute .ts paths. A test
  * importing one of these could have used the public path; a test importing anything else is
@@ -109,8 +126,8 @@ export function entrypointReachableModules(src: string, entrypoints: ReadonlySet
       const current = stack.pop();
       if (current === undefined || reachable.has(current) || !existsSync(current)) continue;
       reachable.add(current);
-      for (const match of readFileSync(current, "utf8").matchAll(/from "(\.[^"]+)"/gu)) {
-        stack.push(normalize(join(dirname(current), (match[1] ?? "").replace(/\.js$/u, ".ts"))));
+      for (const specifier of relativeModuleDeclarations(readFileSync(current, "utf8"))) {
+        stack.push(normalize(join(dirname(current), specifier.replace(/\.js$/u, ".ts"))));
       }
     }
   }
@@ -133,8 +150,7 @@ export function measureTestImports(): TestImportMeasurement[] {
     let publicCount = 0;
     for (const test of walkTests(src, [])) {
       const text = readFileSync(test, "utf8");
-      for (const match of text.matchAll(/from "(\.[^"]+)"/gu)) {
-        const spec = match[1] ?? "";
+      for (const spec of relativeModuleDeclarations(text)) {
         const target = normalize(join(dirname(test), spec));
         const rel = `./${relative(src, target).replaceAll("\\", "/")}`;
         if (entrypoints.has(rel)) {
