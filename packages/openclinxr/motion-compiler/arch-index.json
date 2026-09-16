@@ -42,6 +42,6 @@
     "typecheck": "pnpm --filter @openclinxr/motion-compiler typecheck"
   },
   "ceilings": {
-    "testInternalImports": 7
+    "testInternalImports": 6
   }
 }
