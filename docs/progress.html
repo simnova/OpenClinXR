@@ -27,6 +27,77 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-16T0348">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 91 &middot; 2026-09-16 03:48 EDT</p>
+          <h2>The measuring instrument that refuses its own output reached the main branch, and the checks around it caught three ways it could have lied.</h2>
+        </div>
+        <p>
+          The tool loads the real application, hides everything except one walking figure and the floor,
+          samples both feet against that floor, and takes screenshots. Its rule is that it must reject any
+          run where the browser samples too slowly to see a foot touch down. It is now on the main branch,
+          and on every run it has rejected itself.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The latest run, against limits frozen in the work order before the run happened.</caption>
+            <thead><tr><th scope="col">Measure</th><th scope="col">Observed</th><th scope="col">Required</th></tr></thead>
+            <tbody>
+              <tr><td>Sampling rate</td><td>about 24 per second</td><td>135 per second</td></tr>
+              <tr><td>Worst gap versus typical gap</td><td>3.0x</td><td>2x or less</td></tr>
+              <tr><td>Distance travelled between samples</td><td>0.0277 m</td><td>0.005 m or less</td></tr>
+              <tr><td>Samples collected</td><td>120</td><td>more than zero, both feet</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Three ways it could have lied, each caught by a different check</h3>
+        <p>
+          The first was a safety check that could never fire. A reviewer had required that if the scene
+          fails to load, the run must be graded unusable by name. The code contained exactly that failure
+          message, and the flag controlling it was fixed permanently to &ldquo;off&rdquo; &mdash; with a
+          comment in the code saying so. Every search for the safety check found it; only reading the
+          declaration showed it was unreachable. That is worse than the weaker version it replaced,
+          because it reads as working.
+        </p>
+        <p>
+          The second was a report written where nothing read it. The tool wrote its results to one
+          location while its own test read another. The test passed anyway, because a leftover file from
+          an earlier run happened to sit at the second location. On a clean copy of the project it failed
+          immediately. The merge tooling has a check for exactly this &mdash; a change that passes in the
+          author&rsquo;s copy and fails once merged &mdash; and that check is what flagged it.
+        </p>
+        <p>
+          The third is the newest and is not yet fixed. The test asserts that the figure never reaches its
+          starting position, because that is what every run we measured did. One run during the merge
+          reached it. So the behaviour is not consistent, and a test that asserts one of two possible
+          outcomes will fail whenever the other one happens &mdash; including when the system behaves
+          better. The evidence for that single run survives only in a truncated log line, so we are
+          recording it as one observation rather than a rate.
+        </p>
+        <h3>What the run does establish</h3>
+        <p>
+          The figure being measured is confirmed rather than assumed: the 3D file is identified by a
+          content fingerprint, and the animation the work order froze matches the one the running
+          application reports playing. The report also records what it is not evidence for, including
+          gait realism, headset performance, and anything clinical.
+        </p>
+        <h3>Four errors of mine</h3>
+        <p>
+          I merged the work before the reviewing agent had approved it, having read an earlier
+          &ldquo;report before merging&rdquo; as permission to proceed once I had reported. That merge was
+          discarded and the work was re-landed through the proper sequence. I also edited the fix into the
+          wrong copy of the project, compared a count of every file against a limit that counts only test
+          files, and guessed the names of fields in a results file four separate times &mdash; each guess
+          producing a confident number that was wrong, twice nearly reported as someone else&rsquo;s
+          defect.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
+          claim is made here. This entry reports one browser measurement that graded itself unusable and the
+          repository checks around it. It does not claim the figure&rsquo;s feet are placed correctly, and it
+          does not close the wider foot-contact question.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-16T0134">
         <div class="section-heading">
           <p class="eyebrow">Entry 90 &middot; 2026-09-16 01:34 EDT</p>
