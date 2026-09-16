@@ -7,6 +7,7 @@ import {
   groupHash,
   inventoryHash,
   requireApplied,
+  requireAppliedWith,
   requireInventory,
   requireReviewedGroup,
 } from "../../checks/public-surface/gates.js";
@@ -106,6 +107,10 @@ function writeGroup(
       2,
     ),
   );
+}
+
+function fixtureRequireApplied(root: string, id: string) {
+  return requireAppliedWith(root, id, { resolution: { group: id, scope: { kind: "group" } } });
 }
 
 describe("compiler-resolved surface meter", () => {
@@ -369,14 +374,14 @@ describe("compiler-resolved surface meter", () => {
           { package: "packages/openclinxr/fixture-keep", entrypoint: ".", symbol: "shared", kind: "runtime", disposition: "keep" },
           { package: "packages/openclinxr/fixture-cut", entrypoint: ".", symbol: "gone", kind: "runtime", disposition: "remove" },
         ]);
-        expect(requireApplied(root, "psr-h4a").ok).toBe(false);
+        expect(fixtureRequireApplied(root, "psr-h4a").ok).toBe(false);
         writeFileSync(join(root, "packages/openclinxr/fixture-cut/src/index.ts"), "export const filler = 1;\n");
         writeRawInventory(root);
         writeGroup(root, "psr-h4a", [
           { package: "packages/openclinxr/fixture-keep", entrypoint: ".", symbol: "shared", kind: "runtime", disposition: "keep" },
           { package: "packages/openclinxr/fixture-cut", entrypoint: ".", symbol: "filler", kind: "runtime", disposition: "keep" },
         ]);
-        expect(requireApplied(root, "psr-h4a").ok).toBe(true);
+        expect(fixtureRequireApplied(root, "psr-h4a").ok).toBe(true);
       },
     );
   });
@@ -392,9 +397,9 @@ describe("compiler-resolved surface meter", () => {
         writeGroup(root, "psr-h4b", [
           { package: "packages/openclinxr/fixture-h4b", entrypoint: ".", symbol: "kept", kind: "runtime", disposition: "keep" },
         ]);
-        expect(requireApplied(root, "psr-h4b").ok).toBe(true);
+        expect(fixtureRequireApplied(root, "psr-h4b").ok).toBe(true);
         writeFileSync(join(root, "packages/openclinxr/fixture-h4b/src/index.ts"), "export const other = 1;\n");
-        expect(requireApplied(root, "psr-h4b").ok).toBe(false);
+        expect(fixtureRequireApplied(root, "psr-h4b").ok).toBe(false);
       },
     );
   });
@@ -414,13 +419,13 @@ describe("compiler-resolved surface meter", () => {
           { package: "packages/openclinxr/fixture-h4c", entrypoint: ".", symbol: "moving", kind: "runtime", disposition: "migrate", route: "./next" },
           { package: "packages/openclinxr/fixture-h4c", entrypoint: "./next", symbol: "settled", kind: "runtime", disposition: "keep" },
         ]);
-        expect(requireApplied(root, "psr-h4c").ok).toBe(false);
+        expect(fixtureRequireApplied(root, "psr-h4c").ok).toBe(false);
         writeFileSync(join(root, "packages/openclinxr/fixture-h4c/src/index.ts"), "export {};\n");
         writeFileSync(
           join(root, "packages/openclinxr/fixture-h4c/src/next.ts"),
           "export const settled = 1;\nexport const moving = 1;\n",
         );
-        expect(requireApplied(root, "psr-h4c").ok).toBe(true);
+        expect(fixtureRequireApplied(root, "psr-h4c").ok).toBe(true);
       },
     );
   });
@@ -463,12 +468,15 @@ describe("compiler-resolved surface meter", () => {
           join(root, "packages/openclinxr/fixture-h4f/src/index.ts"),
           "export const known = 1;\nexport const ghost = 1;\n",
         );
+        const h4f = fixtureRequireApplied(root, "psr-h4f");
         expect(
-          requireApplied(root, "psr-h4f").ok,
+          h4f.ok,
           "a migrate row for a symbol absent from the raw inventory put it onto the expected "
             + "surface, so an unapproved published symbol passed --require-applied: that is the "
             + "forgery gates.ts:14-22 exists to refuse, reachable by editing an approval manifest",
         ).toBe(false);
+        expect(h4f.detail).toMatch(/extra:.*ghost/u);
+        expect(h4f.detail).not.toMatch(/unknown apply id/u);
       },
     );
   });
@@ -484,9 +492,9 @@ describe("compiler-resolved surface meter", () => {
         writeGroup(root, "psr-h4d", [
           { package: "packages/openclinxr/fixture-h4d", entrypoint: ".", symbol: "listed", kind: "runtime", disposition: "keep" },
         ]);
-        expect(requireApplied(root, "psr-h4d").ok).toBe(true);
+        expect(fixtureRequireApplied(root, "psr-h4d").ok).toBe(true);
         writeFileSync(join(root, "packages/openclinxr/fixture-h4d/src/index.ts"), "export const listed = 1;\nexport const stray = 2;\n");
-        expect(requireApplied(root, "psr-h4d").ok).toBe(false);
+        expect(fixtureRequireApplied(root, "psr-h4d").ok).toBe(false);
       },
     );
   });
@@ -502,10 +510,10 @@ describe("compiler-resolved surface meter", () => {
         writeGroup(root, "psr-h4e", [
           { package: "packages/openclinxr/fixture-h4e", entrypoint: ".", symbol: "kept", kind: "runtime", disposition: "keep" },
         ]);
-        expect(requireApplied(root, "psr-h4e").ok).toBe(true);
+        expect(fixtureRequireApplied(root, "psr-h4e").ok).toBe(true);
         mkdirSync(join(root, evidenceDir), { recursive: true });
         writeFileSync(join(root, `${evidenceDir}/psr-h4e.json`), JSON.stringify({ migrated: true }));
-        expect(requireApplied(root, "psr-h4e").ok).toBe(false);
+        expect(fixtureRequireApplied(root, "psr-h4e").ok).toBe(false);
       },
     );
   });
@@ -522,7 +530,10 @@ describe("compiler-resolved surface meter", () => {
           { package: "packages/openclinxr/fixture-h5", entrypoint: ".", symbol: "doomed", kind: "runtime", disposition: "remove" },
         ]);
         expect(requireReviewedGroup(root, "psr-h5").ok).toBe(true);
-        expect(requireApplied(root, "psr-h5").ok).toBe(false);
+        const h5 = fixtureRequireApplied(root, "psr-h5");
+        expect(h5.ok).toBe(false);
+        expect(h5.detail).toMatch(/extra:.*doomed/u);
+        expect(h5.detail).not.toMatch(/unknown apply id/u);
       },
     );
   });
@@ -541,7 +552,7 @@ describe("compiler-resolved surface meter", () => {
         ]);
         expect(requireReviewedGroup(root, "psr-h7a").ok).toBe(true);
         writeFileSync(join(root, "packages/openclinxr/pkg-a/src/index.ts"), "export const steady = 2;\n");
-        expect(requireApplied(root, "psr-h7a").ok, requireApplied(root, "psr-h7a").detail).toBe(true);
+        expect(fixtureRequireApplied(root, "psr-h7a").ok, fixtureRequireApplied(root, "psr-h7a").detail).toBe(true);
       },
     );
   });
@@ -563,7 +574,10 @@ describe("compiler-resolved surface meter", () => {
           join(root, "packages/openclinxr/pkg-b/src/index.ts"),
           "export const beta = 2;\nexport const steady = 3;\n",
         );
-        expect(requireApplied(root, "psr-h7b").ok).toBe(false);
+        const h7b = fixtureRequireApplied(root, "psr-h7b");
+        expect(h7b.ok).toBe(false);
+        expect(h7b.detail).toMatch(/extra:.*beta/u);
+        expect(h7b.detail).not.toMatch(/unknown apply id/u);
       },
     );
   });
@@ -579,12 +593,12 @@ describe("compiler-resolved surface meter", () => {
         writeGroup(root, "psr-h7c", [
           { package: "packages/openclinxr/pkg-c", entrypoint: ".", symbol: "steady", kind: "runtime", disposition: "keep" },
         ]);
-        expect(requireApplied(root, "psr-h7c").ok).toBe(true);
+        expect(fixtureRequireApplied(root, "psr-h7c").ok).toBe(true);
         writeFileSync(
           join(root, "packages/openclinxr/pkg-c/src/index.ts"),
           "export const steady = 1;\nexport const sneaky = 2;\n",
         );
-        expect(requireApplied(root, "psr-h7c").ok).toBe(false);
+        expect(fixtureRequireApplied(root, "psr-h7c").ok).toBe(false);
       },
     );
   });
@@ -607,7 +621,7 @@ describe("compiler-resolved surface meter", () => {
           "export const far = 1;\nexport const more = 2;\n",
         );
         expect(requireReviewedGroup(root, "psr-h7d").ok).toBe(true);
-        expect(requireApplied(root, "psr-h7d").ok).toBe(true);
+        expect(fixtureRequireApplied(root, "psr-h7d").ok).toBe(true);
       },
     );
   });
@@ -628,7 +642,10 @@ describe("compiler-resolved surface meter", () => {
         approval.groupHash = "0".repeat(64);
         writeFileSync(path, JSON.stringify(approval, null, 2));
         expect(requireReviewedGroup(root, "psr-h7e").ok).toBe(false);
-        expect(requireApplied(root, "psr-h7e").ok).toBe(false);
+        const h7e = fixtureRequireApplied(root, "psr-h7e");
+        expect(h7e.ok).toBe(false);
+        expect(h7e.detail).toMatch(/groupHash does not match/u);
+        expect(h7e.detail).not.toMatch(/unknown apply id/u);
       },
     );
   });
