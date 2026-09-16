@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve, relative } from "node:path";
@@ -14,7 +15,7 @@ export function validateFacialReport(report, repoRoot = process.cwd()) {
   const require = (condition, message) => { if (!condition) errors.push(message); };
   const readBound = (record, label) => {
     try {
-      require(typeof record?.path === "string" && record.path.startsWith("tools/openclinxr/evidence/natural-blink-emotion/runs/"), `${label}: portable tracked run path required`);
+      if (typeof record?.path !== "string" || !record.path.startsWith("tools/openclinxr/evidence/natural-blink-emotion/runs/") || record.path.split("/").includes("..")) throw new Error("invalid portable path");
       const path = resolve(repoRoot, record.path);
       require(!relative(repoRoot, path).startsWith(".."), `${label}: path escapes repository`);
       const bytes = readFileSync(path);
@@ -30,8 +31,11 @@ export function validateFacialReport(report, repoRoot = process.cwd()) {
     try {
       const bytes = readFileSync(resolve(repoRoot, "packages/openclinxr/xr-humanoid-animation/src", source));
       require(report.sourceSha256?.[source] === hash(bytes), `source identity mismatch: ${source}`);
+      const historical = execFileSync("git", ["show", `${report.captureHead}:packages/openclinxr/xr-humanoid-animation/src/${source}`], { cwd: repoRoot, stdio: ["ignore", "pipe", "ignore"] });
+      require(hash(historical) === report.sourceSha256?.[source], `execution source provenance mismatch: ${source}`);
     } catch { errors.push(`source missing: ${source}`); }
   }
+  try { execFileSync("git", ["merge-base", "--is-ancestor", report.captureHead, "HEAD"], { cwd: repoRoot, stdio: "ignore" }); } catch { errors.push("capture head is not an ancestor of candidate"); }
   const cases = Array.isArray(report?.cases) ? report.cases : [];
   require(cases.length === 9, "exactly nine actor/context cases required");
   const keys = new Set();
@@ -46,6 +50,8 @@ export function validateFacialReport(report, repoRoot = process.cwd()) {
     try { raw = JSON.parse(bytes?.toString() ?? "null"); } catch { errors.push(`raw malformed: ${key}`); }
     if (!raw) continue;
     require(raw.runId === report.runId && raw.captureHead === report.captureHead && raw.asset === c.asset && raw.assetSha256 === assetHashes[c.asset] && raw.context === c.context, `raw identity mismatch: ${key}`);
+    require(JSON.stringify(Object.entries(raw.sourceSha256 ?? {}).sort()) === JSON.stringify(Object.entries(report.sourceSha256 ?? {}).sort()), `raw source identity mismatch: ${key}`);
+    require(JSON.stringify(raw.images) === JSON.stringify(c.images), `image manifest diverges from raw: ${key}`);
     require(raw.productionLoop === true && raw.syntheticClock === false, `synthetic or missing production observation: ${key}`);
     require(typeof raw.geometryRevision === "string" && raw.geometryRevision.length > 0, `geometry identity missing: ${key}`);
     const frames = Array.isArray(raw.frames) ? raw.frames : [];
@@ -73,7 +79,15 @@ export function validateFacialReport(report, repoRoot = process.cwd()) {
       require(frames.at(-1)?.emotion === "neutral", `bounded emotion recovery absent: ${key}`);
     }
     require(Array.isArray(c.images) && c.images.length >= 3, `open/closed/reopened images required: ${key}`);
-    for (const image of c.images ?? []) readBound(image, `image ${key}`);
+    for (const image of c.images ?? []) {
+      const png = readBound(image, `image ${key}`);
+      require(png?.length >= 24 && png.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && png.readUInt32BE(16) >= 256 && png.readUInt32BE(20) >= 256, `valid framed PNG required: ${key}`);
+      const frame = frames.find((f) => f.timeMs === image.frameTimeMs);
+      require(Boolean(frame), `image frame not in raw timeline: ${key}`);
+      if (frame) require(image.phase === "closed" ? frame.leftClosure >= 0.8 && frame.rightClosure >= 0.8 : frame.leftClosure <= 0.05 && frame.rightClosure <= 0.05, `image phase contradicts measured closure: ${key}`);
+    }
+    const times = ["open", "closed", "reopened"].map((phase) => c.images?.find((image) => image.phase === phase)?.frameTimeMs);
+    require(times.every(Number.isFinite) && times[0] < times[1] && times[1] < times[2], `ordered image triple required: ${key}`);
     require(["open", "closed", "reopened"].every((phase) => c.images?.some((i) => i.phase === phase)), `image phases missing: ${key}`);
   }
   for (const asset of Object.keys(assetHashes)) for (const context of ["idle", "speech", "authored-emotion"]) require(keys.has(`${asset}:${context}`), `missing actor/context: ${asset}:${context}`);
