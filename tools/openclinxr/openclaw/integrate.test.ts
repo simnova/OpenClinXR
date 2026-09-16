@@ -566,7 +566,7 @@ function withChangedPath(path: string, run: (root: string, base: string, head: s
 const contract = { proofsOk: true, proofs: [{ rule: "run:true", passed: true, detail: "fixture proof passes" }] };
 describe("integrate applies the existing forbidden-path classifier", () => {
   for (const path of ["AGENTS.md", "docs/openclinxr/generated-artifact-registry-2026-05-27.json"]) {
-    it.fails(`refuses ${path} through the actual integrate path before landing`, () => {
+    it(`refuses ${path} through the actual integrate path before landing`, () => {
       withChangedPath(path, (root, base, head) => {
         const standaloneComposition = runMergeKill({ repoRoot: root, base, head, contract, classifyForbidden: paths => classifyDiff(paths).forbidden });
         expect(standaloneComposition.findings.some(f => f.id === "forbidden-class")).toBe(true);
@@ -580,7 +580,7 @@ describe("integrate applies the existing forbidden-path classifier", () => {
       });
     });
   }
-  it.fails("permits an ordinary allowed path with no checks skipped", () => {
+  it("permits an ordinary allowed path with no checks skipped", () => {
     withChangedPath("README.md", (root, base, head) => {
       const result = integrate({ repoRoot: root, base, head, slice: "parity-probe", contract, dryRun: true });
       expect(result.landed).toBe(false);
