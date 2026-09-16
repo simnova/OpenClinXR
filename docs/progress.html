@@ -27,6 +27,68 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-16T0421">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 92 &middot; 2026-09-16 04:21 EDT</p>
+          <h2>Five identical starts of the same scene produced three different outcomes. The cause was a list that was still empty when something read it.</h2>
+        </div>
+        <p>
+          When the clinical scene starts, it places four figures &mdash; patient, clinician, family
+          member, and one more &mdash; and then loads a detailed 3D model for each one over the network.
+          A separate part of the application decides whether the encounter can be staged at all, and to
+          decide it reads where the patient is standing. It read that from a list that was only filled in
+          once each model finished loading. Until then the list was empty and the code substituted the
+          origin of the world.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Five cold starts on one build, one commit, and an identical scene fingerprint.</caption>
+            <thead><tr><th scope="col">Outcome</th><th scope="col">Count</th><th scope="col">What it meant</th></tr></thead>
+            <tbody>
+              <tr><td>Staged successfully</td><td>1</td><td>the model happened to finish loading first</td></tr>
+              <tr><td>Refused, target off by 0.78 m</td><td>3</td><td>the patient's position read as the world origin</td></tr>
+              <tr><td>Refused, route blocked</td><td>1</td><td>the substituted position collided with furniture</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          The 0.78 m is not an approximation. The intended patient position is 0.78 m to one side of the
+          origin, so reading an empty list produced a target displaced by exactly that distance. A number
+          that lands exactly on a known constant is what turned a flaky-looking symptom into a located
+          cause.
+        </p>
+        <h3>The repair is four lines</h3>
+        <p>
+          The figures are already built, positioned and oriented before any model loading begins. The fix
+          publishes each one to the shared list at that moment, immediately before its model load starts,
+          for each of the four figures. Nothing waits on the network any more. The later registration that
+          happens when a model finishes loading was deliberately left in place: it now confirms what is
+          already recorded rather than being the only thing that records it.
+        </p>
+        <h3>The tests were written before the fix, and deliberately failed</h3>
+        <p>
+          Two tests were committed ahead of this work in a state that marks them as expected to fail. They
+          assert that all four figures are published before any load can complete, and that a slot with no
+          assigned figure is never published under an empty name. The work converted both to ordinary
+          passing tests. It did not delete or skip them, which matters: the acceptance rule only checks
+          that no expected-failure markers remain, so removing the tests entirely would also have
+          satisfied it. The reviewing agent and I both read the complete change: nine test cases before,
+          nine after, both original test names still present, and not one assertion altered.
+        </p>
+        <h3>What this does not establish</h3>
+        <p>
+          This removes one timing race. It does not show that every cold start now stages successfully,
+          and it is not evidence about foot placement or contact with the floor. The next measurement is
+          repeated cold starts recording every outcome, including any mismatch that persists for a
+          different reason. A separate instrument that observes feet remains unable to sample quickly
+          enough to judge contact, and that limitation is unchanged by this work.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
+          claim is made here. This entry reports a unit-level repair to load ordering and the tests covering
+          it. It makes no claim about repeated browser behaviour, foot contact, or the wider staging question.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-16T0348">
         <div class="section-heading">
           <p class="eyebrow">Entry 91 &middot; 2026-09-16 03:48 EDT</p>
