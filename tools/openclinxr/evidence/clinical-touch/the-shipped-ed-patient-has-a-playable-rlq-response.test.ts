@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -10,7 +11,7 @@ import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "../../../../pac
 import { edChestPainScenario } from "../../../../packages/openclinxr/scenario-fixtures/src/ed-chest-pain.js";
 import { applySupinePoseHoldingIncline } from "../../../../packages/openclinxr/xr-pose/src/supine-deck-plant.js";
 
-type Node = { name?: string; children?: number[]; translation?: number[]; rotation?: number[]; scale?: number[] };
+type Node = { name?: string; children?: number[]; translation?: number[]; rotation?: number[]; scale?: number[]; extras?: Record<string, unknown> };
 type Accessor = { bufferView: number; byteOffset?: number; componentType: number; count: number; type: string };
 type Channel = { target: { node: number; path: string }; sampler: number };
 type Gltf = { nodes: Node[]; skins: {joints:number[]}[]; scenes: {nodes:number[]}[]; scene?:number; accessors:Accessor[]; bufferViews:{byteOffset?:number; byteLength:number; byteStride?:number}[]; animations:{name:string;channels:Channel[];samplers:{input:number;output:number;interpolation?:string}[]}[] };
@@ -32,7 +33,7 @@ function floats(s:ReturnType<typeof subject>, index:number, width:number) {
  return Array.from({length:a.count*width},(_,i)=>s.bytes.readFloatLE(offset+Math.floor(i/width)*stride+(i%width)*4));
 }
 function buildRig(s:ReturnType<typeof subject>){
-  const root=new Group();const jointNodes=new Set(s.gltf.skins.flatMap(skin=>skin.joints));const objects=s.gltf.nodes.map((n,i)=>{const o=jointNodes.has(i)?new Bone():new Object3D();o.name=PropertyBinding.sanitizeNodeName(n.name??"");if(n.translation)o.position.fromArray(n.translation);if(n.rotation)o.quaternion.fromArray(n.rotation);if(n.scale)o.scale.fromArray(n.scale);return o;});
+  const root=new Group();const jointNodes=new Set(s.gltf.skins.flatMap(skin=>skin.joints));const objects=s.gltf.nodes.map((n,i)=>{const o=jointNodes.has(i)?new Bone():new Object3D();o.name=PropertyBinding.sanitizeNodeName(n.name??"");if(n.translation)o.position.fromArray(n.translation);if(n.rotation)o.quaternion.fromArray(n.rotation).normalize();if(n.scale)o.scale.fromArray(n.scale);return o;});
   s.gltf.nodes.forEach((n,i)=>{n.children?.forEach(j=>{objects[i]!.add(objects[j]!);});});
   s.gltf.scenes[s.gltf.scene??0]!.nodes.forEach(i=>{root.add(objects[i]!);});
  return {root,objects,jointNodes};
@@ -76,4 +77,29 @@ describe("the shipped ED patient has a playable RLQ response",()=>{
   const directory=mkdtempSync(join(tmpdir(),"rlq-required-forearm-"));const input=join(directory,"input.glb"),output=join(directory,"output.glb");
   try {writeFileSync(input,Buffer.concat([header,jsonHeader,padded,tail]));const result=produceGuardWithdrawClip(input,output,directory);expect(result.error).toBeUndefined();expect(result.status).not.toBe(0);expect(`${result.stderr}${result.stdout}`).toMatch(/lowerarm01[.]?R|forearmR/);expect(existsSync(output)).toBe(false);}finally{rmSync(directory,{recursive:true,force:true});}
  },70000);
+ it("preserves every pre-existing node TRS byte-exact against the plant GLB",()=>{
+  const plantPath="apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb";
+  const shown=spawnSync("git",["show","71954173549f55cea2b3cfa4c206b365c838678e:"+plantPath],{cwd:REPO_ROOT,maxBuffer:30_000_000,encoding:"buffer"});
+  expect(shown.status).toBe(0);
+  const plantBytes=Buffer.from(shown.stdout);
+  expect(createHash("sha256").update(plantBytes).digest("hex")).toBe("2e9a9615fa2034675eab9b2634139a74b3918c9698e97b6a1cb65bd8076ed588");
+  expect(plantBytes.length).toBe(18576544);
+  const plantJsonSize=plantBytes.readUInt32LE(12);
+  const plant=JSON.parse(plantBytes.subarray(20,20+plantJsonSize).toString()) as Gltf;
+  const output=subject();
+  expect(output.gltf.nodes).toHaveLength(plant.nodes.length);
+  for(let i=0;i<plant.nodes.length;i+=1){
+    const before=plant.nodes[i]!;
+    const after=output.gltf.nodes[i]!;
+    expect(after.name).toBe(before.name);
+    expect(after.translation).toEqual(before.translation);
+    expect(after.rotation).toEqual(before.rotation);
+    expect(after.scale).toEqual(before.scale);
+    const {openClinXrGuardWithdrawClip,...restExtras}=(after.extras??{}) as {openClinXrGuardWithdrawClip?:unknown};
+    expect(restExtras).toEqual(before.extras??{});
+    if(openClinXrGuardWithdrawClip!==undefined){
+      expect(openClinXrGuardWithdrawClip).toBe("openclinxr_role_patient_guard_withdraw_rlq");
+    }
+  }
+ });
 });

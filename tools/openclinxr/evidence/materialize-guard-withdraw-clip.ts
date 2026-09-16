@@ -123,22 +123,13 @@ function sanitiseBoneName(name: string): string {
 function restRotation(node: GltfNode): [number, number, number, number] {
   const rotation = node.getRotation();
   if (!rotation || rotation.length < 4) return [0, 0, 0, 1];
-  return unitQuat([rotation[0] ?? 0, rotation[1] ?? 0, rotation[2] ?? 0, rotation[3] ?? 1]);
+  return [rotation[0] ?? 0, rotation[1] ?? 0, rotation[2] ?? 0, rotation[3] ?? 1];
 }
 
 function unitQuat(q: readonly [number, number, number, number]): [number, number, number, number] {
   const mag = Math.hypot(q[0], q[1], q[2], q[3]);
   if (!(mag > 0)) return [0, 0, 0, 1];
   return [q[0] / mag, q[1] / mag, q[2] / mag, q[3] / mag];
-}
-
-function normalizeNodeRestRotations(nodes: readonly GltfNode[]): void {
-  for (const node of nodes) {
-    const rotation = node.getRotation();
-    if (!rotation || rotation.length < 4) continue;
-    const unit = unitQuat([rotation[0] ?? 0, rotation[1] ?? 0, rotation[2] ?? 0, rotation[3] ?? 1]);
-    node.setRotation(unit);
-  }
 }
 
 function multiplyQuat(
@@ -199,8 +190,6 @@ async function materializeGuardWithdrawClip(options: CliOptions): Promise<Record
   const document = await io.read(options.inputPath);
   const root = document.getRoot();
   const nodes = root.listNodes();
-  // Unit rest quats so THREE.Quaternion.angleTo on an unchanged joint is 0, not 2*acos(|q|^2).
-  normalizeNodeRestRotations(nodes);
   const index = indexNodesBySanitisedName(nodes);
   const jointNames = new Set(index.keys());
 
@@ -273,7 +262,7 @@ async function materializeGuardWithdrawClip(options: CliOptions): Promise<Record
   for (const { track, node, actualName } of resolvedTracks) {
     const rest = restRotation(node);
     const quats = track.eulerFrames.flatMap((e) =>
-      multiplyQuat(rest, eulerXyzToQuaternion(e.x, e.y, e.z)),
+      unitQuat(multiplyQuat(rest, eulerXyzToQuaternion(e.x, e.y, e.z))),
     );
     const outputAccessor = document
       .createAccessor(`${ANIMATION_NAME}_${actualName}_rotation`)

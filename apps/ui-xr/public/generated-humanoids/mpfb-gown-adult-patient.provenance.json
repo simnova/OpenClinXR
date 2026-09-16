@@ -140,8 +140,8 @@
     "publicRenderCleared": false,
     "publicRenderBlockedBy": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json \u2014 the hm08 basemesh AGPL/CC0 contradiction is unresolved upstream"
   },
-  "outputSha256": "170bd5552111df4feda2fa84f953ef1e173a5d3fa2b6dc1add8fe958526d85cc",
-  "outputBytes": 18581600,
+  "outputSha256": "8da37c5707958d7a4f8f8a89222d76ea6c0d3c2f18eb903d56c7f4d8727befcf",
+  "outputBytes": 18581616,
   "byteLineage": {
     "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
     "correctedAt": "2026-09-09T20:55:55.570Z",
@@ -170,16 +170,16 @@
     {
       "kind": "materialize_guard_withdraw_rlq",
       "tool": "tools/openclinxr/evidence/materialize-guard-withdraw-clip.ts",
-      "at": "2026-09-16T12:08:14.806Z",
+      "at": "2026-09-16T12:29:49.265Z",
       "argv": [
         "--glb",
-        "staging/input.glb",
+        ".openclinxr/asset-production/rlq-guard-staging-handback/input.glb",
         "--out",
-        "staging/output.glb",
+        ".openclinxr/asset-production/rlq-guard-staging-handback/output.glb",
         "--backup",
-        "staging/backup.glb",
+        ".openclinxr/asset-production/rlq-guard-staging-handback/backup.glb",
         "--report",
-        "staging/report.json"
+        ".openclinxr/asset-production/rlq-guard-staging-handback/report.json"
       ],
       "animationName": "openclinxr_role_patient_guard_withdraw_rlq",
       "appliedNodes": [
@@ -195,9 +195,9 @@
       ],
       "inputSha256": "2e9a9615fa2034675eab9b2634139a74b3918c9698e97b6a1cb65bd8076ed588",
       "inputBytes": 18576544,
-      "outputSha256": "170bd5552111df4feda2fa84f953ef1e173a5d3fa2b6dc1add8fe958526d85cc",
-      "outputBytes": 18581600,
-      "restRotationsUnitNormalized": true
+      "inputRevision": "71954173549f55cea2b3cfa4c206b365c838678e:apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+      "outputSha256": "8da37c5707958d7a4f8f8a89222d76ea6c0d3c2f18eb903d56c7f4d8727befcf",
+      "outputBytes": 18581616
     }
   ]
 }
