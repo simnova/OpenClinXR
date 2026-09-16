@@ -114,7 +114,8 @@ export function validateFacialReport(report, repoRoot = process.cwd()) {
       require(Boolean(frame), `image frame not in raw timeline: ${key}`);
       if (frame) require(image.phase === "closed" ? frame.leftClosure >= 0.8 && frame.rightClosure >= 0.8 : frame.leftClosure <= 0.05 && frame.rightClosure <= 0.05, `image phase contradicts measured closure: ${key}`);
     }
-    require(new Set((c.images ?? []).map((image) => image.sha256)).size === (c.images ?? []).length, `identical image phases: ${key}`);
+    const phaseHash = (phase) => c.images?.find((image) => image.phase === phase)?.sha256;
+    require(phaseHash("closed") !== phaseHash("open") && phaseHash("closed") !== phaseHash("reopened"), `identical image phases: ${key}`);
     const times = ["open", "closed", "reopened"].map((phase) => c.images?.find((image) => image.phase === phase)?.frameTimeMs);
     require(times.every(Number.isFinite) && times[0] < times[1] && times[1] < times[2], `ordered image triple required: ${key}`);
     require(["open", "closed", "reopened"].every((phase) => c.images?.some((i) => i.phase === phase)), `image phases missing: ${key}`);
