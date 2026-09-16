@@ -283,8 +283,9 @@ function finitePoint(value: unknown): value is { x: number; y: number; z: number
 }
 
 function finiteQuaternion(value: unknown): value is SupineRestHead["quaternion"] {
-  return finitePoint(value) && typeof (value as { w?: unknown }).w === "number"
-    && Number.isFinite((value as { w: number }).w);
+  if (!finitePoint(value)) return false;
+  const w = (value as { w?: unknown }).w;
+  return typeof w === "number" && Number.isFinite(w);
 }
 
 function applyWorldDisplacement(root: Object3D, delta: Vector3): boolean {
