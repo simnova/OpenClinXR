@@ -1,12 +1,14 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, chmodSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { FACTORY_FIELD_ID } from "./board-cli.js";
+import { classifyDiff } from "./diff-class-policy.js";
 import { integrate, integrationEvents } from "./integrate.js";
 import { acquireIntegrationLock, releaseIntegrationLock } from "./integration-lock.js";
+import { runMergeKill } from "./merge-kill.js";
 import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
-import { FACTORY_FIELD_ID } from "./board-cli.js";
 
 /**
  * Merge is the last enforceable choke point, and merge-kill was the only mechanism that failed
@@ -535,5 +537,58 @@ describe("integration mutex — concurrent integrates refuse and lock is release
     expect(secondResult.landed).toBe(true);
     expect(secondResult.exitCode).toBe(0);
     expect(integrationEvents(root2)).toHaveLength(1);
+  });
+});
+
+function withChangedPath(path: string, run: (root: string, base: string, head: string) => void) {
+  const root = mkdtempSync(join(tmpdir(), "integrate-classifier-"));
+  const fixtureGit = (args: string[]) => execFileSync("git", args, { cwd: root, encoding: "utf8", env: gitEnvWithoutInheritedRepoVars(), stdio: ["ignore", "pipe", "pipe"] }).trim();
+  try {
+    fixtureGit(["init", "-q", "-b", "main"]);
+    fixtureGit(["config", "user.email", "parity@example.com"]);
+    fixtureGit(["config", "user.name", "parity"]);
+    mkdirSync(dirname(join(root, path)), { recursive: true });
+    writeFileSync(join(root, path), "original\n");
+    fixtureGit(["add", "-A"]); fixtureGit(["commit", "-q", "-m", "base"]);
+    const base = fixtureGit(["rev-parse", "HEAD"]);
+    fixtureGit(["checkout", "-q", "-b", "wt/parity"]);
+    writeFileSync(join(root, path), "original\nchanged\n");
+    fixtureGit(["add", "-A"]); fixtureGit(["commit", "-q", "-m", "candidate"]);
+    const head = fixtureGit(["rev-parse", "HEAD"]);
+    fixtureGit(["checkout", "-q", "main"]);
+    try { run(root, base, head); } finally {
+    expect(fixtureGit(["rev-parse", "HEAD"])).toBe(base);
+    expect(fixtureGit(["status", "--porcelain"])).toBe("");
+    expect(integrationEvents(root)).toHaveLength(0);
+    }
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+const contract = { proofsOk: true, proofs: [{ rule: "run:true", passed: true, detail: "fixture proof passes" }] };
+describe("integrate applies the existing forbidden-path classifier", () => {
+  for (const path of ["AGENTS.md", "docs/openclinxr/generated-artifact-registry-2026-05-27.json"]) {
+    it(`refuses ${path} through the actual integrate path before landing`, () => {
+      withChangedPath(path, (root, base, head) => {
+        const standaloneComposition = runMergeKill({ repoRoot: root, base, head, contract, classifyForbidden: paths => classifyDiff(paths).forbidden });
+        expect(standaloneComposition.findings.some(f => f.id === "forbidden-class")).toBe(true);
+        const result = integrate({ repoRoot: root, base, head, slice: "parity-probe", contract, dryRun: true });
+        console.info(JSON.stringify({ path, exitCode: result.exitCode, killed: result.killReport.killed, findings: result.killReport.findings.map(f => f.id), skippedChecks: result.killReport.skippedChecks }));
+        expect(result.landed).toBe(false);
+        expect(result.killReport.findings.some(f => f.id === "forbidden-class")).toBe(true);
+        expect(result.killReport.killed).toBe(true);
+        expect(result.exitCode).toBe(2);
+        expect(result.killReport.skippedChecks).toEqual([]);
+      });
+    });
+  }
+  it("permits an ordinary allowed path with no checks skipped", () => {
+    withChangedPath("README.md", (root, base, head) => {
+      const result = integrate({ repoRoot: root, base, head, slice: "parity-probe", contract, dryRun: true });
+      expect(result.landed).toBe(false);
+      console.info(JSON.stringify({ path: "README.md", exitCode: result.exitCode, killed: result.killReport.killed, findings: result.killReport.findings.map(f => f.id), skippedChecks: result.killReport.skippedChecks }));
+      expect(result.exitCode).toBe(0);
+      expect(result.killReport.killed).toBe(false);
+      expect(result.killReport.findings).toEqual([]);
+      expect(result.killReport.skippedChecks).toEqual([]);
+    });
   });
 });
