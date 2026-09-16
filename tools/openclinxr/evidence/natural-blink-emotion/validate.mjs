@@ -1,3 +1,4 @@
+import { inflateSync } from "node:zlib";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -10,6 +11,32 @@ export const assetHashes = {
 };
 const sources = ["face-rig.ts", "animation-loop.ts", "natural-blink-controller.ts"];
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
+
+function crc32(bytes) {
+  let crc = 0xffffffff;
+  for (const value of bytes) { crc ^= value; for (let i=0;i<8;i++) crc=(crc>>>1)^((crc&1)?0xedb88320:0); }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+function validPng(bytes) {
+  try {
+    if (!bytes || bytes.length < 2048 || !bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))) return false;
+    let offset=8, width=0, height=0, channels=0, end=false, seenHeader=false; const data=[];
+    while(offset+12<=bytes.length) {
+      const length=bytes.readUInt32BE(offset), type=bytes.toString("ascii",offset+4,offset+8); if(offset+12+length>bytes.length) return false;
+      const chunk=bytes.subarray(offset+4,offset+8+length); if(crc32(chunk)!==bytes.readUInt32BE(offset+8+length)) return false;
+      if(offset===8 && (type!=="IHDR" || length!==13)) return false;
+      if(type==="IHDR") { if(seenHeader) return false; seenHeader=true; width=bytes.readUInt32BE(offset+8); height=bytes.readUInt32BE(offset+12); const depth=bytes[offset+16], color=bytes[offset+17]; channels=color===6?4:color===2?3:0; if(depth!==8 || !channels || width<256 || height<256 || width>2048 || height>2048 || bytes[offset+18]!==0 || bytes[offset+19]!==0 || bytes[offset+20]!==0) return false; }
+      if(type==="IDAT") data.push(bytes.subarray(offset+8,offset+8+length));
+      offset+=length+12;
+      if(type==="IEND") { if(length!==0 || offset!==bytes.length) return false; end=true; break; }
+    }
+    if(!end || !data.length || !width) return false;
+    const size=(width*channels+1)*height; const decoded=inflateSync(Buffer.concat(data),{maxOutputLength:size}); if(decoded.length!==size) return false;
+    for(let i=0;i<height;i++) if(decoded[i*(width*channels+1)]>4) return false;
+    return true;
+  } catch { return false; }
+}
+
 export function validateFacialReport(report, repoRoot = process.cwd()) {
   const errors = [];
   const require = (condition, message) => { if (!condition) errors.push(message); };
@@ -58,34 +85,36 @@ export function validateFacialReport(report, repoRoot = process.cwd()) {
     require(frames.length >= 300, `insufficient measured frames: ${key}`);
     let previous = -Infinity, cycles = 0, closedAt = null;
     for (const f of frames) {
-      require(Number.isFinite(f.timeMs) && f.timeMs > previous, `non-monotonic frame time: ${key}`); previous = f.timeMs;
+      require(Number.isFinite(f.timeMs) && f.timeMs > previous && (previous === -Infinity || f.timeMs - previous <= 50), `non-monotonic frame time: ${key}`); previous = f.timeMs;
       require([f.leftClosure, f.rightClosure].every((v) => Number.isFinite(v) && v >= 0 && v <= 1), `closure bounds: ${key}`);
+      require(["neutral","anxious","concerned","reassured","pain"].includes(f.emotion) && Number.isFinite(f.browDelta) && f.browDelta >= 0 && f.browDelta <= 1 && Number.isFinite(f.visemeAmplitude) && f.visemeAmplitude >= 0 && f.visemeAmplitude <= 1, `invalid facial composition measurement: ${key}`);
       require(f.faceVisible === true, `face occluded or cropped: ${key}`);
       require(Number.isFinite(f.rootTransformDelta) && f.rootTransformDelta <= 1e-6, `facial root transform changed: ${key}`);
       if (f.leftClosure >= 0.8 && f.rightClosure >= 0.8 && closedAt === null) {
         closedAt = f.timeMs;
-        require(f.leftLidVertexDelta > 0 && f.rightLidVertexDelta > 0, `no actual lid displacement: ${key}`);
+        require([f.leftLidVertexDelta,f.rightLidVertexDelta].every((value) => Number.isFinite(value) && value >= 0.001), `no actual lid displacement: ${key}`);
       }
       if (closedAt !== null && f.leftClosure <= 0.05 && f.rightClosure <= 0.05) {
         require(f.timeMs - closedAt <= 500, `lid did not promptly reopen: ${key}`); cycles++; closedAt = null;
       }
     }
     require(frames.length > 1 && frames.at(-1).timeMs - frames[0].timeMs >= 30000, `thirty-second observation required: ${key}`);
-    require(cycles >= 3 && cycles <= 25, `measured blink cycle bounds: ${key}`);
+    require(cycles >= 3 && cycles <= 12, `measured blink cycle bounds: ${key}`);
     require(closedAt === null, `observation ends with closed lids: ${key}`);
-    if (c.context === "speech") require(frames.some((f) => f.visemeAmplitude > 0), `speech articulation absent: ${key}`);
+    if (c.context === "speech") require(frames.some((f) => f.visemeAmplitude > 0 && f.leftClosure <= 0.05 && f.rightClosure <= 0.05), `speech articulation absent: ${key}`);
     if (c.context === "authored-emotion") {
       require(frames.some((f) => f.emotion !== "neutral" && f.browDelta > 0), `authored emotion absent: ${key}`);
-      require(frames.at(-1)?.emotion === "neutral", `bounded emotion recovery absent: ${key}`);
+      require(frames.at(-1)?.emotion === "neutral" && frames.at(-1)?.browDelta <= 0.001, `bounded emotion recovery absent: ${key}`);
     }
     require(Array.isArray(c.images) && c.images.length >= 3, `open/closed/reopened images required: ${key}`);
     for (const image of c.images ?? []) {
       const png = readBound(image, `image ${key}`);
-      require(png?.length >= 24 && png.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && png.readUInt32BE(16) >= 256 && png.readUInt32BE(20) >= 256, `valid framed PNG required: ${key}`);
+      require(validPng(png), `valid framed PNG required: ${key}`);
       const frame = frames.find((f) => f.timeMs === image.frameTimeMs);
       require(Boolean(frame), `image frame not in raw timeline: ${key}`);
       if (frame) require(image.phase === "closed" ? frame.leftClosure >= 0.8 && frame.rightClosure >= 0.8 : frame.leftClosure <= 0.05 && frame.rightClosure <= 0.05, `image phase contradicts measured closure: ${key}`);
     }
+    require(new Set((c.images ?? []).map((image) => image.sha256)).size === (c.images ?? []).length, `identical image phases: ${key}`);
     const times = ["open", "closed", "reopened"].map((phase) => c.images?.find((image) => image.phase === phase)?.frameTimeMs);
     require(times.every(Number.isFinite) && times[0] < times[1] && times[1] < times[2], `ordered image triple required: ${key}`);
     require(["open", "closed", "reopened"].every((phase) => c.images?.some((i) => i.phase === phase)), `image phases missing: ${key}`);
