@@ -1,5 +1,6 @@
 import type { Object3D } from "three";
 import { MathUtils, Quaternion, Vector3 } from "three";
+import { findBonesBySanitisedName, sanitiseBoneName } from "@openclinxr/xr-pose";
 
 /**
  * The stance constraint SC-00 named as the remedy, applied to the actor slot rather than the root.
@@ -78,7 +79,7 @@ function worldXyz(node: Object3D): { x: number; y: number; z: number } {
 }
 
 /**
- * Find the hip and knee bones for a given stance foot.
+ * Find the hip and knee bones for a given stance foot using sanitised MPFB names.
  * Returns null if the chain is incomplete.
  */
 function findStanceChain(
@@ -86,16 +87,24 @@ function findStanceChain(
   stanceFoot: StanceFoot
 ): { hip: Object3D; knee: Object3D; heel: Object3D; toe: Object3D } | null {
   const side = stanceFoot === "left" ? "L" : "R";
-  const hipName = `upperleg01.${side}`;
-  const kneeName = `lowerleg01.${side}`;
-  const heelName = `foot.${side}`;
-  const toeName = `toe1-1.${side}`;
+  // MPFB sanitised names (dots removed by PropertyBinding.sanitizeNodeName)
+  const hipSanitised = sanitiseBoneName(`upperleg01.${side}`);
+  const kneeSanitised = sanitiseBoneName(`lowerleg01.${side}`);
+  const heelSanitised = sanitiseBoneName(`foot.${side}`);
+  const toeSanitised = sanitiseBoneName(`toe1-1.${side}`);
 
-  const hip = actorSlot.getObjectByName(hipName);
-  const knee = actorSlot.getObjectByName(kneeName);
-  const heel = actorSlot.getObjectByName(heelName);
-  const toe = actorSlot.getObjectByName(toeName);
+  const hipResults = findBonesBySanitisedName(actorSlot, hipSanitised);
+  const kneeResults = findBonesBySanitisedName(actorSlot, kneeSanitised);
+  const heelResults = findBonesBySanitisedName(actorSlot, heelSanitised);
+  const toeResults = findBonesBySanitisedName(actorSlot, toeSanitised);
 
+  if (hipResults.length === 0 || kneeResults.length === 0 || heelResults.length === 0 || toeResults.length === 0) {
+    return null;
+  }
+  const hip = hipResults[0];
+  const knee = kneeResults[0];
+  const heel = heelResults[0];
+  const toe = toeResults[0];
   if (!hip || !knee || !heel || !toe) return null;
   return { hip, knee, heel, toe };
 }
@@ -103,16 +112,19 @@ function findStanceChain(
 /**
  * Solve two-bone IK (hip + knee) to place the heel at target.
  * Uses cosine rule for deterministic, closed-form solution.
- * Returns the local rotation quaternions for hip and knee.
+ * Returns:
+ * - hipDelta: a from-identity quaternion (delta) to be COMPOSED with current animated hip pose
+ * - kneeQuat: an ABSOLUTE local rotation (well-defined bend) to be SET directly on knee
  */
 export function solveTwoBoneIK(
   hip: Object3D,
   knee: Object3D,
   heel: Object3D,
   targetWorld: { x: number; y: number; z: number },
-  maxExtension: number,
-  softening: number
-): { hipQuat: Quaternion; kneeQuat: Quaternion } | null {
+  _maxExtension: number,
+  softening: number,
+  actorSlot: Object3D
+): { hipDelta: Quaternion; kneeQuat: Quaternion } | null {
   // Get world positions
   hip.updateMatrixWorld(true);
   knee.updateMatrixWorld(true);
@@ -133,8 +145,10 @@ export function solveTwoBoneIK(
   const dist = toTarget.length();
 
   // Clamp distance to reachable range with softening near max extension
+  // Max extension is upperLen + lowerLen (full extension), not current hip-to-heel distance
   const minDist = Math.abs(upperLen - lowerLen);
-  const maxDist = maxExtension - softening;
+  const fullExtension = upperLen + lowerLen;
+  const maxDist = fullExtension - softening;
   let clampedDist = MathUtils.clamp(dist, minDist, maxDist);
 
   // If we're in the softening zone, approach exponentially
@@ -165,15 +179,14 @@ export function solveTwoBoneIK(
   // Hinge axis = cross(hipToKnee, hipToTarget) - the axis the leg rotates around
   let hingeAxis = new Vector3().crossVectors(hipToKnee, hipToTarget).normalize();
 
-  // If collinear (hinge axis near zero), use character's right vector as pole
+  // If collinear (hinge axis near zero), use caller-supplied actorSlot as direction-only frame
   // This defines the sagittal bend plane (knee bends forward/backward)
   if (hingeAxis.lengthSq() < 1e-6) {
-    // Get actorSlot's world right vector (X axis) as pole
-    const actorSlot = hip.parent;
     let poleVector: Vector3;
     if (actorSlot) {
       actorSlot.updateMatrixWorld(true);
-      poleVector = new Vector3(1, 0, 0).applyMatrix4(actorSlot.matrixWorld).normalize();
+      // Use direction-only transform (no translation) - applyQuaternion not applyMatrix4
+      poleVector = new Vector3(1, 0, 0).applyQuaternion(actorSlot.quaternion).normalize();
     } else {
       poleVector = new Vector3(1, 0, 0);
     }
@@ -194,12 +207,12 @@ export function solveTwoBoneIK(
   const kneeLocalAxis = hingeAxis.clone().applyQuaternion(kneeWorldQuat.clone().invert());
 
   // Create local rotations
-  // Hip rotates by hipAngle around hinge axis
-  const hipQuat = new Quaternion().setFromAxisAngle(hipLocalAxis, hipAngle);
-  // Knee bends by kneeBendAngle around hinge axis (supplement of internal angle)
+  // Hip delta: rotates by hipAngle around hinge axis (from-identity delta)
+  const hipDelta = new Quaternion().setFromAxisAngle(hipLocalAxis, hipAngle);
+  // Knee absolute: bends by kneeBendAngle around hinge axis (well-defined absolute local bend)
   const kneeQuat = new Quaternion().setFromAxisAngle(kneeLocalAxis, kneeBendAngle);
 
-  return { hipQuat, kneeQuat };
+  return { hipDelta, kneeQuat };
 }
 
 /**
@@ -319,26 +332,34 @@ export function applyStanceLockedGroundAdvance(input: {
   // This is FLEXION (shortening), so the leg bends to lift the toe
   const targetToeY = Math.max(toeWorld.y, input.floorOriginY);
   const heelWorld = worldXyz(heel);
+  // heelToToe = toe - heel, so heel = toe - heelToToe
+  // For a desired toe position, heelTarget = desiredToe - heelToToe
   const heelToToe = { x: toeWorld.x - heelWorld.x, y: toeWorld.y - heelWorld.y, z: toeWorld.z - heelWorld.z };
   const heelTarget = {
-    x: anchor.x + heelToToe.x,
-    y: targetToeY + heelToToe.y,
-    z: anchor.z + heelToToe.z,
+    x: anchor.x - heelToToe.x,
+    y: targetToeY - heelToToe.y,
+    z: anchor.z - heelToToe.z,
   };
 
-  // Current hip->heel distance (max extension for softening)
+  // Max extension is upperLen + lowerLen (full extension), not current hip-to-heel distance
   hip.updateMatrixWorld(true);
+  knee.updateMatrixWorld(true);
   heel.updateMatrixWorld(true);
   const hipWorld = new Vector3().setFromMatrixPosition(hip.matrixWorld);
+  const kneeWorld = new Vector3().setFromMatrixPosition(knee.matrixWorld);
   const heelWorldPos = new Vector3().setFromMatrixPosition(heel.matrixWorld);
-  const maxExtension = hipWorld.distanceTo(heelWorldPos);
+  const upperLen = hipWorld.distanceTo(kneeWorld);
+  const lowerLen = kneeWorld.distanceTo(heelWorldPos);
+  const maxExtension = upperLen + lowerLen;
   const softening = 0.005; // 5 mm softening zone
 
   // Solve IK to place heel at heelTarget (which puts toe at targetToeY)
-  const ikResult = solveTwoBoneIK(hip, knee, heel, heelTarget, maxExtension, softening);
+  const ikResult = solveTwoBoneIK(hip, knee, heel, heelTarget, maxExtension, softening, actorSlot);
   if (ikResult) {
     // Apply local rotations to hip and knee only
-    hip.quaternion.copy(ikResult.hipQuat);
+    // hipDelta is a from-identity delta; compose with current animated hip pose
+    hip.quaternion.multiplyQuaternions(hip.quaternion, ikResult.hipDelta);
+    // kneeQuat is an absolute local bend; set directly
     knee.quaternion.copy(ikResult.kneeQuat);
     // Update world matrices so subsequent frames see the corrected pose
     hip.updateMatrixWorld(true);
@@ -436,26 +457,34 @@ export function applySettledPostureCorrection(input: {
   // This is FLEXION (shortening), so the leg bends to lift the toe
   const targetToeY = floorOriginY;
   const heelWorld = worldXyz(heel);
+  // heelToToe = toe - heel, so heel = toe - heelToToe
+  // For a desired toe position, heelTarget = desiredToe - heelToToe
   const heelToToe = { x: toeWorld.x - heelWorld.x, y: toeWorld.y - heelWorld.y, z: toeWorld.z - heelWorld.z };
   const heelTarget = {
-    x: toeWorld.x + heelToToe.x, // keep XZ at current toe position
-    y: targetToeY + heelToToe.y,
-    z: toeWorld.z + heelToToe.z,
+    x: toeWorld.x - heelToToe.x,
+    y: targetToeY - heelToToe.y,
+    z: toeWorld.z - heelToToe.z,
   };
 
-  // Current hip->heel distance (max extension for softening)
+  // Max extension is upperLen + lowerLen (full extension), not current hip-to-heel distance
   hip.updateMatrixWorld(true);
+  knee.updateMatrixWorld(true);
   heel.updateMatrixWorld(true);
   const hipWorld = new Vector3().setFromMatrixPosition(hip.matrixWorld);
+  const kneeWorld = new Vector3().setFromMatrixPosition(knee.matrixWorld);
   const heelWorldPos = new Vector3().setFromMatrixPosition(heel.matrixWorld);
-  const maxExtension = hipWorld.distanceTo(heelWorldPos);
+  const upperLen = hipWorld.distanceTo(kneeWorld);
+  const lowerLen = kneeWorld.distanceTo(heelWorldPos);
+  const maxExtension = upperLen + lowerLen;
   const softening = 0.005; // 5 mm softening zone
 
   // Solve IK to place heel at heelTarget (which puts toe at targetToeY)
-  const ikResult = solveTwoBoneIK(hip, knee, heel, heelTarget, maxExtension, softening);
+  const ikResult = solveTwoBoneIK(hip, knee, heel, heelTarget, maxExtension, softening, actorSlot);
   if (ikResult) {
     // Apply local rotations to hip and knee only
-    hip.quaternion.copy(ikResult.hipQuat);
+    // hipDelta is a from-identity delta; compose with current animated hip pose
+    hip.quaternion.multiplyQuaternions(hip.quaternion, ikResult.hipDelta);
+    // kneeQuat is an absolute local bend; set directly
     knee.quaternion.copy(ikResult.kneeQuat);
     // Update world matrices so subsequent frames see the corrected pose
     hip.updateMatrixWorld(true);

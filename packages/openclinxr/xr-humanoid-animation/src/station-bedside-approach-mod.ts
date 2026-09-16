@@ -14,9 +14,9 @@ import {
   type CaseOwnedBedsideApproach,
   createCaseOwnedBedsideApproach,
   measureStanceGroundAdvance,
-  resolveToeBones,
   sampleLocomotionStanceTrack,
 } from "./case-owned-approach-runtime-mod.js";
+import { resolveToeBones } from "./resolve-toe-bones.js";
 import { observeMountedApproachGeometry } from "./mounted-approach-geometry-mod.js";
 
 /**
