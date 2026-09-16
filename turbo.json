@@ -100,7 +100,8 @@
     "architecture": {
       "cache": false,
       "dependsOn": [
-        "^typecheck"
+        "^typecheck",
+        "^build"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
