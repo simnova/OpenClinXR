@@ -187,15 +187,113 @@ export function attemptHasAdmissionObservation(attempt: AttemptRecord): boolean 
   return attempt.snapshots.some((snap) => PRODUCTION_STATUSES.has(String(snap.status)));
 }
 
+export function lastObservedSnapshot(snapshots: AdmissionSnapshot[]): AdmissionSnapshot | undefined {
+  return snapshots.length > 0 ? snapshots[snapshots.length - 1] : undefined;
+}
+
+export function deriveFinalsFromLastSnapshot(snapshots: AdmissionSnapshot[]): Pick<
+  AttemptRecord,
+  "finalStatus" | "finalReason" | "finalDetail" | "finalReproduced" | "observedGeometryRevision"
+> {
+  const last = lastObservedSnapshot(snapshots);
+  if (!last) {
+    return {
+      finalStatus: "unknown",
+      finalReason: "unknown",
+      finalDetail: "window.__openClinXrFrozenScenePlanAdmission was never published",
+      finalReproduced: null,
+      observedGeometryRevision: null,
+    };
+  }
+  return {
+    finalStatus: last.status,
+    finalReason: last.reason,
+    finalDetail: last.detail,
+    finalReproduced: last.reproduced,
+    observedGeometryRevision: last.observedGeometryRevision,
+  };
+}
+
+export function attemptLastObservationComplete(attempt: AttemptRecord): boolean {
+  if (attempt.namedTimeout) return false;
+  const last = lastObservedSnapshot(attempt.snapshots);
+  if (!last) return false;
+  return PRODUCTION_STATUSES.has(String(last.status));
+}
+
+function sameValue(left: unknown, right: unknown): boolean {
+  if (left === right) return true;
+  if (Array.isArray(left) && Array.isArray(right)) {
+    return left.length === right.length && left.every((value, index) => sameValue(value, right[index]));
+  }
+  return false;
+}
+
+const ATTEMPT_BIND_FIELDS = [
+  "attemptId",
+  "finalStatus",
+  "finalReason",
+  "finalDetail",
+  "finalReproduced",
+  "observedGeometryRevision",
+  "driveSource",
+  "environmentState",
+  "publishCount",
+  "namedTimeout",
+] as const;
+
+const SNAPSHOT_BIND_FIELDS = [
+  "atIso",
+  "atMs",
+  "status",
+  "reason",
+  "detail",
+  "reproduced",
+  "observedGeometryRevision",
+  "source",
+] as const;
+
+const ERROR_COLLECTION_FIELDS = ["consoleErrors", "pageErrors", "requestErrors"] as const;
+
+function bindAttemptToRaw(report: AttemptRecord, raw: AttemptRecord, errors: string[]): void {
+  const attemptId = report.attemptId;
+  for (const field of ATTEMPT_BIND_FIELDS) {
+    if (!sameValue(report[field], raw[field])) {
+      errors.push(`attempt ${attemptId} field ${field} diverges from raw`);
+    }
+  }
+  if (report.snapshots.length !== raw.snapshots.length) {
+    errors.push(`attempt ${attemptId} field snapshots diverges from raw`);
+  } else {
+    for (const [index, snap] of report.snapshots.entries()) {
+      for (const field of SNAPSHOT_BIND_FIELDS) {
+        if (!sameValue(snap[field], raw.snapshots[index]![field])) {
+          errors.push(`attempt ${attemptId} field snapshots[${index}].${field} diverges from raw`);
+        }
+      }
+    }
+  }
+  for (const field of ERROR_COLLECTION_FIELDS) {
+    if (!sameValue(report[field], raw[field])) {
+      errors.push(`attempt ${attemptId} field ${field} diverges from raw`);
+    }
+  }
+}
+
 export function recomputeCollectorOutcome(attempts: AttemptRecord[]): {
   outcome: CollectorOutcome;
   geometryVariation: GeometryVariation | null;
 } {
-  const complete = attempts.length === 5 && attempts.every(attemptHasAdmissionObservation);
+  const derived = attempts.map((attempt) => ({
+    attempt,
+    finals: deriveFinalsFromLastSnapshot(attempt.snapshots),
+    complete: attemptLastObservationComplete(attempt),
+  }));
+  const complete = attempts.length === 5 && derived.every((row) => row.complete);
   const revisions = [
     ...new Set(
-      attempts
-        .map((a) => a.observedGeometryRevision)
+      derived
+        .map((row) => row.finals.observedGeometryRevision)
         .filter((rev): rev is string => typeof rev === "string" && rev.length > 0 && rev !== "unknown"),
     ),
   ].sort();
@@ -206,23 +304,25 @@ export function recomputeCollectorOutcome(attempts: AttemptRecord[]): {
     return { outcome: "incomplete", geometryVariation };
   }
 
-  const statuses = attempts.map((a) => String(a.finalStatus));
-  if (statuses.every((s) => s === "admitted")) {
+  const allAdmitted = derived.every(
+    (row) => String(row.finals.finalStatus) === "admitted" && row.finals.finalReproduced === true,
+  );
+  if (allAdmitted) {
     return { outcome: "all_admitted", geometryVariation };
   }
 
-  const allRefused = statuses.every((s) => s === "refused");
+  const allRefused = derived.every((row) => String(row.finals.finalStatus) === "refused");
   if (allRefused) {
-    const reasons = new Set(attempts.map((a) => a.finalReason ?? ""));
-    const details = new Set(attempts.map((a) => a.finalDetail ?? ""));
+    const reasons = new Set(derived.map((row) => row.finals.finalReason ?? ""));
+    const details = new Set(derived.map((row) => row.finals.finalDetail ?? ""));
     const measuredGeometry =
       revisions.length === 1 &&
-      attempts.every(
-        (a) =>
-          typeof a.observedGeometryRevision === "string" &&
-          a.observedGeometryRevision.length > 0 &&
-          a.observedGeometryRevision !== "unknown" &&
-          a.observedGeometryRevision === revisions[0],
+      derived.every(
+        (row) =>
+          typeof row.finals.observedGeometryRevision === "string" &&
+          row.finals.observedGeometryRevision.length > 0 &&
+          row.finals.observedGeometryRevision !== "unknown" &&
+          row.finals.observedGeometryRevision === revisions[0],
       );
     if (reasons.size === 1 && details.size === 1 && measuredGeometry && geometryVariation === null) {
       return { outcome: "stable_refusal", geometryVariation: null };
@@ -471,9 +571,6 @@ export async function validateBedsideAdmissionColdBootsReport(
         `attempt ${attempt.attemptId}: admissionObservationPresent=${String(attempt.admissionObservationPresent)} but snapshots ${observed ? "contain" : "lack"} a production admission status`,
       );
     }
-    if (String(attempt.finalStatus) === "admitted" && !observed) {
-      errors.push(`admitted attempt ${attempt.attemptId} has no admission snapshot`);
-    }
     if (String(attempt.finalStatus) === "refused" && attempt.finalReason === "route_blocked") {
       errors.push(
         `attempt ${attempt.attemptId}: route_blocked is a DETAIL on the solver constraint, not a reason enum`,
@@ -485,7 +582,8 @@ export async function validateBedsideAdmissionColdBootsReport(
   const identityPlan = String(identity.frozenPlanSha256 ?? "");
   const identityBrowser = String(identity.browserVersion ?? "");
   const identityHead = String(value.captureHead ?? "");
-  for (const attempt of attempts) {
+  const evidenceAttempts: AttemptRecord[] = attempts.slice();
+  for (const [attemptIndex, attempt] of attempts.entries()) {
     if (attempt.captureHead !== "unknown" && attempt.captureHead !== identityHead) {
       errors.push(
         `identity mismatch: attempt ${attempt.attemptId} captureHead ${attempt.captureHead} !== ${identityHead}`,
@@ -528,12 +626,40 @@ export async function validateBedsideAdmissionColdBootsReport(
           `identity mismatch: attempt ${attempt.attemptId} raw bundleSha256 ${rawJson.bundleSha256} !== ${identityBundle}`,
         );
       }
+      const rawLocalErrors: string[] = [];
+      const rawAttempt = asAttempt(rawJson, 0, rawLocalErrors);
+      if (!rawAttempt) {
+        errors.push(
+          `attempt ${attempt.attemptId} raw is not a valid attempt record: ${rawLocalErrors.join("; ")}`,
+        );
+        continue;
+      }
+      bindAttemptToRaw(attempt, rawAttempt, errors);
+      evidenceAttempts[attemptIndex] = rawAttempt;
     } catch {
       // missing raw already reported
     }
   }
 
-  const recomputed = recomputeCollectorOutcome(attempts);
+  for (const [attemptIndex, attempt] of attempts.entries()) {
+    const evidence = evidenceAttempts[attemptIndex] ?? attempt;
+    const last = lastObservedSnapshot(evidence.snapshots);
+    const lastStatus = last ? String(last.status) : "unknown";
+    if (String(attempt.finalStatus) !== lastStatus) {
+      errors.push(`attempt ${attempt.attemptId}: finalStatus inconsistent with last snapshot`);
+    }
+    if (String(attempt.finalStatus) === "admitted") {
+      if (!last || !PRODUCTION_STATUSES.has(String(last.status))) {
+        errors.push(`admitted attempt ${attempt.attemptId} has no admission snapshot`);
+      } else if (String(last.status) !== "admitted" || last.reproduced !== true) {
+        errors.push(
+          `admitted attempt ${attempt.attemptId} last snapshot is not admitted with reproduced=true`,
+        );
+      }
+    }
+  }
+
+  const recomputed = recomputeCollectorOutcome(evidenceAttempts);
   const recordedOutcome = value.outcome;
   if (recordedOutcome !== recomputed.outcome) {
     errors.push(
@@ -557,6 +683,10 @@ export async function validateBedsideAdmissionColdBootsReport(
         errors.push(`sourceSha256.${key} missing`);
         continue;
       }
+      if (key === "validator") {
+        // Checker bytes change on a validator correction; observation snapshots stay bound to collector + production hashes.
+        continue;
+      }
       const abs = path.resolve(options.root, rel);
       try {
         const actual = await sha256File(abs);
@@ -576,7 +706,7 @@ export async function validateBedsideAdmissionColdBootsReport(
   return {
     ok: errors.length === 0,
     errors,
-    outcome: typeof recordedOutcome === "string" ? (recordedOutcome as CollectorOutcome) : recomputed.outcome,
+    outcome: recomputed.outcome,
   };
 }
 

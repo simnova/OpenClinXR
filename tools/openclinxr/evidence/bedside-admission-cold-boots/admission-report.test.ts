@@ -275,4 +275,59 @@ describe("bedside admission cold-boots validator", () => {
       true,
     );
   });
+
+  it("rejects a report-only forged refusal or admission over unchanged raw evidence", async () => {
+    const refusalDir = await tempDir();
+    const admittedReport = await wellFormedReport(refusalDir);
+    for (const attempt of admittedReport.attempts) {
+      attempt.finalStatus = "refused";
+      attempt.finalReason = "fabricated_reason";
+      attempt.finalDetail = "fabricated_detail";
+      attempt.finalReproduced = false;
+    }
+    admittedReport.outcome = "stable_refusal";
+    const forgedRefusal = await validateBedsideAdmissionColdBootsReport(admittedReport, { root: ROOT });
+    expect(forgedRefusal.ok).toBe(false);
+    expect(
+      forgedRefusal.errors.some(
+        (e) => e.includes("field finalStatus diverges from raw") && e.includes("attempt 1"),
+      ),
+    ).toBe(true);
+    expect(forgedRefusal.outcome).toBe("all_admitted");
+
+    const admissionDir = await tempDir();
+    const refusedReport = await wellFormedReport(admissionDir, undefined, "refused");
+    for (const attempt of refusedReport.attempts) {
+      attempt.finalStatus = "admitted";
+      attempt.finalReason = null;
+      attempt.finalDetail = null;
+      attempt.finalReproduced = true;
+    }
+    refusedReport.outcome = "all_admitted";
+    const forgedAdmission = await validateBedsideAdmissionColdBootsReport(refusedReport, { root: ROOT });
+    expect(forgedAdmission.ok).toBe(false);
+    expect(
+      forgedAdmission.errors.some(
+        (e) => e.includes("field finalStatus diverges from raw") && e.includes("attempt 1"),
+      ),
+    ).toBe(true);
+    expect(forgedAdmission.outcome).toBe("stable_refusal");
+  });
+
+  it("rejects a final status inconsistent with the last snapshot", async () => {
+    const dir = await tempDir();
+    const report = await wellFormedReport(dir, (attempt, index) => {
+      if (index === 0) {
+        attempt.finalStatus = "refused";
+        attempt.finalReason = "layout_not_reproduced";
+        attempt.finalDetail = "offset";
+        attempt.finalReproduced = false;
+      }
+    });
+    const result = await validateBedsideAdmissionColdBootsReport(report, { root: ROOT });
+    expect(result.ok).toBe(false);
+    expect(
+      result.errors.some((e) => e.includes("attempt 1") && e.includes("finalStatus inconsistent with last snapshot")),
+    ).toBe(true);
+  });
 });
