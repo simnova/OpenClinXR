@@ -2,7 +2,7 @@ import type { EncounterRuntimeAsset, LearnerRuntimeAssetBundle } from "@openclin
 import type { AssetLoadingContext } from "@openclinxr/xr-asset-loading";
 import * as assetLoading from "@openclinxr/xr-asset-loading";
 import { Group, Mesh, MeshBasicMaterial, PlaneGeometry, Scene } from "three";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   actorNameplateLabel,
   runtimeGeneratedSceneObjectName,
@@ -148,6 +148,10 @@ describe("stageStationActors", () => {
     vi.spyOn(assetLoading, "loadGeneratedHumanoidIntoActorSlot").mockImplementation(() => {});
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("exports stageStationActors", async () => {
     const mod = await import("./actor-staging.js");
     expect(typeof mod.stageStationActors).toBe("function");
@@ -176,7 +180,7 @@ describe("stageStationActors", () => {
     }
   });
 
-  it.fails("publishes every staged actor slot before an asynchronous humanoid load can finish", () => {
+  it("publishes every staged actor slot before an asynchronous humanoid load can finish", () => {
     const scene = new Scene();
     const ctx = buildCtx({
       applyActorFraming: (actor) => {
@@ -226,7 +230,7 @@ describe("stageStationActors", () => {
     }
   });
 
-  it.fails("does not publish an empty actor id for an unfilled staged slot", () => {
+  it("does not publish an empty actor id for an unfilled staged slot", () => {
     const scene = new Scene();
     const actors = { ...SLOT_ACTORS, additional_cast: "" };
     const ctx = buildCtx({ actors });
