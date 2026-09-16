@@ -4,7 +4,8 @@
  * [-2.5999999,1.8,2.5999999] whose ray intersects the leaf. A deeper eye z=1
  * is inside room bounds and has a clear ray. This does not identify the red/grey
  * foreground in the retained browser observation as this synthetic door.
- *
+ */
+/**
  * ## FIXED (tsk_e7dffd251d07d6e2)
  * Selector no longer restores the rejected doorway-row pool. Deeper room-derived
  * rows are searched only when every first-row eye is blocked; null if none clear.
