@@ -18,9 +18,12 @@ import { type Object3D, Quaternion, Vector3 } from "three";
 import { flexSupineArmsOntoDeck } from "./hob-arm-flex.js";
 import {
   alignSupineHeadToPillow,
+  captureSupineRestHeadReference,
   centerSupineBodyOnDeck,
+  clearSupineRestHeadReference,
   liftSupineBodyAboveDeck,
   lowerSupineBodyOntoDeck,
+  reapplySupineRestHeadToStoredPillow,
   settleSupineFloatOntoDeck,
 } from "./hob-body-align.js";
 import {
@@ -105,12 +108,7 @@ export function applySupinePoseHoldingIncline(humanoidRoot: Object3D): ApplySupi
 
 /** After hold restores base XYZ, re-apply head→pillow XZ only (no Y — Y sink undoes seat plant). */
 export function reapplySupineHeadToStoredPillow(humanoidRoot: Object3D): void {
-  const p = humanoidRoot.userData?.openClinXrSupinePillowWorld as
-    | { x?: number; y?: number; z?: number }
-    | undefined;
-  if (!p || typeof p.x !== "number" || typeof p.z !== "number") return;
-  if (!Number.isFinite(p.x) || !Number.isFinite(p.z)) return;
-  alignSupineHeadToPillow(humanoidRoot, { x: p.x, z: p.z });
+  reapplySupineRestHeadToStoredPillow(humanoidRoot);
 }
 
 /** World-Z tip without pelvis translation — for per-frame hold that owns position. */
@@ -380,6 +378,7 @@ export function applyAndPlantSupineOnDeck(
   headAlignDeltaX: number;
   inclineDegrees: number;
 } {
+  clearSupineRestHeadReference(humanoidRoot);
   const thickness = input.torsoHalfThickness ?? 0.26;
   // Deck leads: live query of stretcher SSOT; reject a second body-only angle.
   let incline = 0;
@@ -537,6 +536,7 @@ export function applyAndPlantSupineOnDeck(
     w: humanoidRoot.quaternion.w,
   };
   humanoidRoot.updateMatrixWorld?.(true);
+  captureSupineRestHeadReference(humanoidRoot);
   return {
     plantDeltaY: plant.deltaY,
     bodyMinYBefore: plant.bodyMinYBefore,
