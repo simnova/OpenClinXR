@@ -1,4 +1,4 @@
-import { resolveMorphTargetGroup } from "@openclinxr/asset-registry";
+import { resolveMorphTarget } from "@openclinxr/asset-registry";
 import { Mesh, Vector3 } from "three";
 import type { Group } from "three";
 import {
@@ -6,7 +6,6 @@ import {
   collectResolvedMorphTargets,
   expressionWeightsForEmotion,
   MOUTH_OPEN_CAP,
-  resolveMorphIndex,
 } from "@openclinxr/xr-dialogue";
 import type { SpeechSlotLike } from "@openclinxr/xr-dialogue";
 import type {
@@ -288,6 +287,61 @@ export function applyHumanoidRestBlink(slot: GeneratedHumanoidAnimationSlot, now
   scaleHumanoidRigControl(rightUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
   applyBlinkClosureToRoot(slot.root, blinkIntensity);
   return blinkIntensity;
+}
+
+
+/** One FACS target and the share of the canonical weight it carries. */
+type FacsTargetWeight = { readonly target: string; readonly scale: number };
+
+/**
+ * MULTI-TARGET expression groups.
+ *
+ * The shared 1:1 resolver returns ONE name, so `openclinxr_brow_concern` drove
+ * "eyebrows-left-inner-up" alone — an authored emotion moved half a face — and
+ * `openclinxr_cheek_tension` resolved to null because no cheek target ships, so that channel
+ * moved nothing at all. Measured on mpfb-gown-adult-patient.glb (47 target names).
+ *
+ * This lives HERE, not in @openclinxr/asset-registry, because that package's public surface is
+ * frozen under the PSR reduction programme (review group psr-01d) and this is its only consumer.
+ *
+ * ANATOMY, not convenience: concern is FACS AU1 (inner brow raiser) bilaterally plus AU4 (brow
+ * lowerer) at 0.45 so it reads as worry rather than anger. "Cheek tension" has no cheek target on
+ * this topology; the honest carriers are AU7 (lid tightener, eye-*-slit) and the nose compressor.
+ */
+const MPFB_FACS_EXPRESSION_GROUPS: Readonly<Record<string, readonly FacsTargetWeight[]>> = {
+  openclinxr_brow_concern: [
+    { target: "eyebrows-left-inner-up", scale: 1 },
+    { target: "eyebrows-right-inner-up", scale: 1 },
+    { target: "eyebrows-left-down", scale: 0.45 },
+    { target: "eyebrows-right-down", scale: 0.45 },
+  ],
+  openclinxr_cheek_tension: [
+    { target: "eye-left-slit", scale: 0.85 },
+    { target: "eye-right-slit", scale: 0.85 },
+    { target: "nose-compression-uncompress", scale: 0.4 },
+  ],
+  openclinxr_mouth_open: [{ target: "mouth-open", scale: 1 }],
+};
+
+/**
+ * Every target a canonical expression name should drive on a given body.
+ *
+ * Identity wins first, so the Anny rail (which carries the canonical spellings) still drives
+ * exactly one target. Falls back to the shared published resolver, which handles case variants
+ * and the FACS alias map. Empty array when nothing honest resolves — never a fabricated name.
+ */
+function resolveMorphTargetGroup(
+  canonicalName: string,
+  availableNames: ReadonlySet<string>,
+): readonly FacsTargetWeight[] {
+  if (availableNames.has(canonicalName)) return [{ target: canonicalName, scale: 1 }];
+  const group = MPFB_FACS_EXPRESSION_GROUPS[canonicalName];
+  if (group !== undefined) {
+    const present = group.filter((entry) => availableNames.has(entry.target));
+    if (present.length > 0) return present;
+  }
+  const direct = resolveMorphTarget(canonicalName, availableNames);
+  return direct === null ? [] : [{ target: direct, scale: 1 }];
 }
 
 export function applyHumanoidMorphTargetCue(

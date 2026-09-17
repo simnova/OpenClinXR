@@ -4,8 +4,7 @@ export {
   ENVIRONMENT_SHELL_DESCRIPTORS,
   resolveEnvironmentShellDescriptor,
 } from "./environment-descriptors.js";
-export { resolveMorphTarget, resolveMorphTargetGroup, MPFB_FACS_EXPRESSION_GROUPS } from "./morph-target-resolver.js";
-export type { FacsTargetWeight } from "./morph-target-resolver.js";
+export { resolveMorphTarget } from "./morph-target-resolver.js";
 export { resolvePoseBone } from "./pose-bone-resolver.js";
 export {
   parseRuntimeRoomPropColorHex,

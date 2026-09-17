@@ -41,4 +41,3 @@ export type {
   HumanoidExpressionWeights,
   HumanoidSpeechPlayback,
 } from "./types.js";
-export { applyHumanoidRestBlink } from "./face-rig.js";
