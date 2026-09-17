@@ -13,39 +13,6 @@ import numpy as np
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[4]
 
-CATALOGUE_SNAPSHOT_PATH = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes/makehuman-catalogue-snapshot.json"
-
-_catalogue_cache = None
-
-def load_catalogue_snapshot():
-    """Load the committed catalogue snapshot (synchronous, no network)."""
-    global _catalogue_cache
-    if _catalogue_cache is not None:
-        return _catalogue_cache
-    with open(CATALOGUE_SNAPSHOT_PATH, "r", encoding="utf-8") as f:
-        _catalogue_cache = json.load(f)
-    return _catalogue_cache
-
-def lookup_catalogue_licence(pack_slug):
-    """Look up a pack's licence in the catalogue snapshot. Returns None if not found or unspecified."""
-    snap = load_catalogue_snapshot()
-    entry = snap.get("packs", {}).get(pack_slug)
-    if not entry:
-        return None
-    licence = entry.get("licence")
-    if licence == "CC0":
-        return {"permitted": True, "attribution_required": False, "licence": "CC0"}
-    if licence == "CC-BY":
-        return {"permitted": True, "attribution_required": True, "licence": "CC-BY"}
-    return None
-
-def extract_pack_slug_from_path(mhclo_path):
-    """Extract pack slug from a provider-cache path like .../makehuman-pants01/..."""
-    match = re.search(r"/makehuman-([^/]+)/", str(mhclo_path))
-    if match:
-        return match.group(1)
-    return None
-
 # The mask machinery's proven pure-numpy ray intersector + winding orientation
 # (garment_coverage.py imports only stdlib + numpy — safe at module load). The
 # round-7 render-truth helpers use them; the in-main imports below keep the
@@ -815,64 +782,48 @@ def read_hair_mhclo_licence(mhclo_path):
     / `CC_by` / `CC BY 4.0` are permitted; AGPL is a HARD refusal; no licence line or
     an unrecognised line is a refusal (unspecified is a refusal). The bake refuses
     the style at fit time, so a copyleft style can never reach the shipped bytes even
-    if the evidence gate is bypassed. Returns (permitted, raw_token, via_catalogue).
+    if the evidence gate is bypassed. Returns (permitted, raw_token).
 
     This function is NOT the page-CC0 override. AGPL stays a hard refusal here.
     The named uuid allowlist is hair_page_cc0_override_permits, checked by the
     caller after this returns.
 
-    Shape 1: file is silent (no licence line) — consult catalogue for pack.
-    Shape 2: exporter boilerplate (AGPL3 pointing to dead external_tools_license.html) — consult catalogue.
-    Shape 3: explicit per-file copyleft — NEVER overridden by catalogue.
+    #651 — mhair02 keeps its recorded page-CC0/header-AGPL3 exception for the ED
+    patient's male cut: the same uuid allowlist (HAIR_PAGE_CC0_OVERRIDE) now ALSO
+    permits this exact basename when read_hair_mhclo_licence refuses, mirroring
+    how the kevin/street-male bakes already consume it.
     """
     try:
         header = mhclo_path.read_text(encoding="utf-8", errors="replace")[:4000]
     except OSError:
-        return False, None, False
+        return False, None
     raw = None
     for line in header.splitlines():
         m = re.match(r"^#\s*license:?\s*(.+)$", line.strip(), re.I)
         if m:
             raw = m.group(1).strip()
             break
-    # Shape 3: explicit per-file copyleft — NEVER overridden by catalogue.
-    if raw and re.search(r"agpl", raw, re.I):
-        return False, raw, False
-
-    # Shape 1: file is silent (no licence line at all) OR shape 2: exporter boilerplate.
-    # Boilerplate detection: AGPL3 in header pointing to dead external_tools_license.html
-    is_boilerplate = re.search(r"agpl", header, re.I) and re.search(r"external_tools_license\.html", header, re.I)
-    is_silent = raw is None
-
-    if (is_silent or is_boilerplate):
-        pack_slug = extract_pack_slug_from_path(mhclo_path)
-        if pack_slug:
-            cat = lookup_catalogue_licence(pack_slug)
-            if cat:
-                return cat["permitted"], cat["licence"], True
-
-    # No raw licence and no catalogue entry -> refusal.
     if not raw:
-        return False, None, False
-
-    # Recognised permissive tokens in the file itself.
+        return False, None
+    if re.search(r"agpl", raw, re.I):
+        return False, raw
     if re.search(r"cc\s*[-_ ]?0", raw, re.I):
-        return True, raw, False
+        return True, raw
     if re.search(r"cc[\s_-]*by", raw, re.I):
-        return True, raw, False
-    return False, raw, False
+        return True, raw
+    return False, raw
 
 
 def hair_licence_permits(mhclo_path, style):
     """#651 — the single licence decision for a hair fit.
 
     Header-first (read_hair_mhclo_licence), then the named uuid allowlist for the
-    one page-CC0 / header-AGPL3 exception. Returns (permitted, raw_token, via_catalogue).
+    one page-CC0 / header-AGPL3 exception. Returns (permitted, raw_token).
     """
-    permitted, raw_token, via_catalogue = read_hair_mhclo_licence(mhclo_path)
+    permitted, raw_token = read_hair_mhclo_licence(mhclo_path)
     if not permitted and hair_page_cc0_override_permits(mhclo_path, style):
-        return True, f"page_cc0_override ({raw_token})", False
-    return permitted, raw_token, via_catalogue
+        return True, f"page_cc0_override ({raw_token})"
+    return permitted, raw_token
 
 
 def declared_hair_obj_file(mhclo_path):
@@ -3824,7 +3775,7 @@ def main():
         _hair_obj = _hair_dir / declared_hair_obj_file(_hair_mhclo)
         if not _hair_mhclo.is_file() or not _hair_obj.is_file():
             raise RuntimeError(f"#381: hair sources missing in provider cache: {_hair_dir}")
-        _hair_lic_ok, _hair_lic_raw, _hair_via_catalogue = hair_licence_permits(_hair_mhclo, _hair_style)
+        _hair_lic_ok, _hair_lic_raw = hair_licence_permits(_hair_mhclo, _hair_style)
         _hair_override = hair_page_cc0_override_permits(_hair_mhclo, _hair_style)
         if not _hair_lic_ok and not _hair_override:
             raise RuntimeError(
@@ -3912,7 +3863,7 @@ def main():
         _brow_obj = _brow_dir / declared_hair_obj_file(_brow_mhclo)
         if not _brow_mhclo.is_file() or not _brow_obj.is_file():
             raise RuntimeError(f"#542: eyebrow sources missing: {_brow_dir}")
-        _brow_lic_ok, _brow_lic_raw, _brow_via_cat = read_hair_mhclo_licence(_brow_mhclo)
+        _brow_lic_ok, _brow_lic_raw = read_hair_mhclo_licence(_brow_mhclo)
         if not _brow_lic_ok:
             raise RuntimeError(
                 f"#542: eyebrow {_eyebrow_style} licence NOT permitted per its own "
@@ -4032,13 +3983,13 @@ def main():
         _lash_obj = _lash_dir / declared_hair_obj_file(_lash_mhclo)
         if not _lash_mhclo.is_file() or not _lash_obj.is_file():
             raise RuntimeError(f"#683: eyelash sources missing: {_lash_dir}")
-        _lash_lic_ok, _lash_lic_raw, _lash_via_cat = read_hair_mhclo_licence(_lash_mhclo)
+        _lash_lic_ok, _lash_lic_raw = read_hair_mhclo_licence(_lash_mhclo)
         if not _lash_lic_ok:
             raise RuntimeError(
                 f"#683: eyelash {_eyelash_style} licence NOT permitted per its own "
                 f".mhclo header: {_lash_lic_raw!r} — hard refusal"
             )
-        print(f"EYELASH_LICENCE {_eyelash_style} {_lash_lic_raw!r} via_catalogue={_lash_via_cat}")
+        print(f"EYELASH_LICENCE {_eyelash_style} {_lash_lic_raw!r}")
 
         import sys as _sys_lash
 
@@ -4117,13 +4068,13 @@ def main():
         _lower_lib_name = "makeclothes_library_scrub_pants"
         if not pants_obj.is_file() or not pants_mhclo.is_file():
             raise RuntimeError(f"scrub pants sources missing in provider cache: {_pants_dir}")
-        _lower_lic_ok, _lower_lic_raw, _lower_via_cat = read_hair_mhclo_licence(pants_mhclo)
+        _lower_lic_ok, _lower_lic_raw = read_hair_mhclo_licence(pants_mhclo)
         if not _lower_lic_ok:
             raise RuntimeError(
                 f"lower garment {_lower_lib_name} licence NOT permitted per its own "
                 f".mhclo header: {_lower_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
             )
-        print(f"LOWER_GARMENT_LICENCE {_lower_lib_name} {_lower_lic_raw!r} via_catalogue={_lower_via_cat}")
+        print(f"LOWER_GARMENT_LICENCE {_lower_lib_name} {_lower_lic_raw!r}")
         pants = import_obj(str(pants_obj), _lower_lib_name, force_z=False)
         apply_object_transforms(pants)
         pants.data.materials.clear()
@@ -4311,13 +4262,13 @@ def main():
 
     # Bake-time licence re-read for the selected upper (same reader as hair).
     # CC-BY matches `cc[\s_-]*by` — permitted. AGPL / unspecified refuse.
-    _upper_lic_ok, _upper_lic_raw, _upper_via_cat = read_hair_mhclo_licence(garment_mhclo)
+    _upper_lic_ok, _upper_lic_raw = read_hair_mhclo_licence(garment_mhclo)
     if not _upper_lic_ok:
         raise RuntimeError(
             f"upper garment {_upper_lib_name} licence NOT permitted per its own "
             f".mhclo header: {_upper_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
         )
-    print(f"UPPER_GARMENT_LICENCE {_upper_lib_name} {_upper_lic_raw!r} via_catalogue={_upper_via_cat}")
+    print(f"UPPER_GARMENT_LICENCE {_upper_lib_name} {_upper_lic_raw!r}")
 
     from bl_ext.user_default.mpfb.entities.clothes.mhclo import Mhclo  # noqa: E402
     from bl_ext.user_default.mpfb.services.clothesservice import ClothesService  # noqa: E402
@@ -4443,7 +4394,7 @@ def main():
         if not pants_obj.is_file() or not pants_mhclo.is_file():
             raise RuntimeError(f"lower garment sources missing in provider cache: {_pants_dir}")
 
-        _lower_lic_ok, _lower_lic_raw, _lower_via_cat = read_hair_mhclo_licence(pants_mhclo)
+        _lower_lic_ok, _lower_lic_raw = read_hair_mhclo_licence(pants_mhclo)
         _lower_lic_matcher = "hair"
         if not _lower_lic_ok and _lower_lic_raw is None:
             # The hair parser (:409) only matches `# license <token>`. GARMENT headers in this
@@ -4468,7 +4419,7 @@ def main():
                 f"lower garment {_lower_lib_name} licence NOT permitted per its own "
                 f".mhclo header: {_lower_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
             )
-        print(f"LOWER_GARMENT_LICENCE {_lower_lib_name} {_lower_lic_raw!r} matcher={_lower_lic_matcher} via_catalogue={_lower_via_cat}")
+        print(f"LOWER_GARMENT_LICENCE {_lower_lib_name} {_lower_lic_raw!r} matcher={_lower_lic_matcher}")
         if _lower_lib_name == "makeclothes_library_cargo_pants":
             print(
                 "LOWER_GARMENT_ATTRIBUTION makeclothes_library_cargo_pants "
@@ -4859,13 +4810,13 @@ def main():
         coat_mhclo = _coat_dir / "crudelabcoatopen.mhclo"
         if not coat_obj.is_file() or not coat_mhclo.is_file():
             raise RuntimeError(f"lab coat sources missing in provider cache: {_coat_dir}")
-        _coat_lic_ok, _coat_lic_raw, _coat_via_cat = read_hair_mhclo_licence(coat_mhclo)
+        _coat_lic_ok, _coat_lic_raw = read_hair_mhclo_licence(coat_mhclo)
         if not _coat_lic_ok:
             raise RuntimeError(
                 f"lab coat {_coat_dir.name} licence NOT permitted per its own .mhclo "
                 f"header: {_coat_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
             )
-        print(f"COAT_LICENCE makeclothes_library_lab_coat {_coat_lic_raw!r} via_catalogue={_coat_via_cat}")
+        print(f"COAT_LICENCE makeclothes_library_lab_coat {_coat_lic_raw!r}")
         coat = import_obj(str(coat_obj), "makeclothes_library_lab_coat", force_z=False)
         apply_object_transforms(coat)
         coat.data.materials.clear()
