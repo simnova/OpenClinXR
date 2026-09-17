@@ -1,0 +1,6 @@
+import {it,expect} from "vitest";import {readFileSync} from "node:fs";import {inspectAuthoredAlpha} from "./material-integrity.mjs";
+const bytes=readFileSync(new URL("../../../../apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",import.meta.url));const gltf=JSON.parse(bytes.subarray(20,20+bytes.readUInt32LE(12)).toString());
+const rows=gltf.materials.map((m,i)=>({gltfMaterialIndex:i,opacity:m.pbrMetallicRoughness?.baseColorFactor?.[3]??1,transparent:m.alphaMode==="BLEND",alphaTest:m.alphaMode==="MASK"?(m.alphaCutoff??0.5):0}));
+it("genuine authored MASK hidden surfaces retain alpha0 and cutoff0.5",()=>{expect(rows.filter(r=>r.opacity===0&&r.alphaTest===0.5)).toHaveLength(7);expect(inspectAuthoredAlpha(gltf,rows)).toEqual([]);});
+it("blanket opacity normalization cannot claim authored material preservation",()=>expect(inspectAuthoredAlpha(gltf,rows.map(r=>({...r,opacity:1,transparent:false})))).toContain("authored-opacity-mutated:4"));
+it("missing material and removed mask cutoff refuse",()=>{expect(inspectAuthoredAlpha(gltf,rows.slice(1))).toContain("material-observation-missing:0");expect(inspectAuthoredAlpha(gltf,rows.map(r=>({...r,alphaTest:0})))).toContain("authored-cutoff-mutated:4");});

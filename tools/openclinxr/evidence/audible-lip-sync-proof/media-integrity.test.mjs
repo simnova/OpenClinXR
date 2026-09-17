@@ -1,0 +1,11 @@
+import {it,expect,beforeAll} from "vitest";
+import {mkdirSync,writeFileSync,readFileSync} from "node:fs";import {join} from "node:path";import {execFileSync} from "node:child_process";import {createHash} from "node:crypto";
+import fixture from "./fixture-manifest.mjs";import {inspectRecordedMedia} from "./validate.mjs";
+// Destructive decoder controls, NOT browser facial evidence or a performance benchmark.
+const root=new URL("../../../../",import.meta.url).pathname;const output=join(new URL(fixture.proofReportPath,"file:").pathname,"..","..","decoder-controls-"+Date.now().toString(16));
+const paths={};
+beforeAll(()=>{mkdirSync(output,{recursive:true});for(const kind of ["coherent","silent","blank","videoOnly"]){const path=join(output,kind+".mkv");paths[kind]=path;const args=["-v","error","-f","lavfi","-i",kind==="blank"?"color=black:s=160x160:r=10:d=15":"testsrc2=s=160x160:r=10:d=15"];if(kind==="silent")args.push("-f","lavfi","-i","anullsrc=r=22050:cl=mono");else if(kind!=="videoOnly")args.push("-i",fixture.retainedPrivatePath);args.push("-t","15","-c:v","libx264","-threads","1","-b:v","120k");if(kind!=="videoOnly")args.push("-c:a","pcm_s16le");args.push(path);execFileSync("ffmpeg",args,{cwd:root,stdio:"pipe"});}const hashes=Object.fromEntries(Object.entries(paths).map(([k,p])=>[k,{path:p,sha256:createHash("sha256").update(readFileSync(p)).digest("hex")} ]));writeFileSync(join(output,"attempt-manifest.json"),JSON.stringify({purpose:"decoder-destructive-controls-not-mouth-proof",artifacts:hashes},null,2));},60000);
+it("real decoder accepts coherent changing control pixels and nonsilent fixture audio without grading a face",()=>expect(inspectRecordedMedia(paths.coherent)).toEqual([]));
+it("same decoder refuses silent combined output",()=>expect(inspectRecordedMedia(paths.silent)).toContain("silent-recorded-output"));
+it("same decoder refuses wholly blank recorded pixels",()=>{const errors=inspectRecordedMedia(paths.blank);expect(errors).toContain("uniform-recorded-pixels");expect(errors).toContain("unchanged-recorded-pixels");});
+it("same decoder refuses missing audio track",()=>expect(inspectRecordedMedia(paths.videoOnly)).toContain("video-audio-track-missing"));
