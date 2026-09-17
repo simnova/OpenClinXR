@@ -95,9 +95,15 @@ export function bindInverseMatchesWorld(object) {
 }
 
 export function fitNeutralHeadCamera(rig, camera, root) {
-  root.updateWorldMatrix(true,false);
-  root.updateMatrixWorld(true);
+  root.updateWorldMatrix(true,true);
   const contain=rig.containMeshes??[];
+  const preBindRefresh=contain.map(({object,indices})=>({
+    bindMode:object.bindMode??null,
+    bindMatrixInverse:object.bindMatrixInverse?Array.from(object.bindMatrixInverse.elements):null,
+    bindInverseWorldResidual:bindInverseMatchesWorld(object),
+    worldVertex:indices.length?skinnedWorldPoint(object,indices[0],new Vector3()).toArray():null,
+  }));
+  root.updateMatrixWorld(true);
   const hairBefore=contain.map(({object,indices})=>indices.length?skinnedWorldPoint(object,indices[0],new Vector3()).toArray():null);
   for(const {object} of rig.meshes)object.skeleton?.update();
   for(const {object} of contain)object.skeleton?.update();
@@ -142,6 +148,8 @@ export function fitNeutralHeadCamera(rig, camera, root) {
       isSkinned:!!object.isSkinnedMesh,
       skeletonSharedWithFace:!!(object.skeleton&&faceSkeleton&&object.skeleton===faceSkeleton),
       skeletonUpdated:true,
+      preBindRefresh:preBindRefresh[hi],
+      bindMode:object.bindMode??null,
       bindInverseWorldResidual:bindInverseMatchesWorld(object),
       worldMatrix:Array.from(object.matrixWorld.elements),
       bindMatrixInverse:object.bindMatrixInverse?Array.from(object.bindMatrixInverse.elements):null,
