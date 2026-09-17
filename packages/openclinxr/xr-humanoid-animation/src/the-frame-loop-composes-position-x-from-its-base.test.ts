@@ -33,10 +33,20 @@ import {
 // CONTRACTED: animation-loop.ts:156 becomes
 //   slot.root.position.x = slot.baseX + emotionalSway + dialogueWeightShift;
 // matching :155's slot.baseY + form.
+//
+// ## FIXED (idle-sway-does-not-slide-feet). The `+ emotionalSway + dialogueWeightShift` half of
+// this contract was itself a bug: it made `position.x` a rigid horizontal translation of the whole
+// humanoid, feet included — measured at up to 0.0122 m of toe XZ drift over 30 s standing idle, 2.4x
+// the 0.005 m perceptual floor (`the-standing-actor-does-not-slide-during-idle-sway.test.ts`). The
+// sway terms now compose into `rotation.z` (a lean about `slot.root`'s own near-floor origin)
+// instead, so `position.x` composes from `slot.baseX` ALONE — clause (5) below is updated to that,
+// and the "composes from base, does not lose the anchor" INTENT this test was written to prove is
+// unchanged and still asserted below.
 describe("The frame loop composes position.x from its base", () => {
-  it("(5) The frame loop composes position.x from slot.baseX", () => {
-    // animation-loop.ts:156 assigns position.x = emotionalSway + dialogueWeightShift
-    // It should compose from slot.baseX like position.y composes from slot.baseY at :155
+  it("(5) The frame loop composes position.x from slot.baseX, with no sway riding along on it", () => {
+    // animation-loop.ts used to assign position.x = baseX + emotionalSway + dialogueWeightShift.
+    // The anchor composition is still required (baseX must not be lost); the sway terms moved to
+    // rotation.z (see the FIXED note above), so position.x is now baseX exactly, every frame.
     // baseX is captured at humanoid-animation.ts:119 and currently unused
     const mockCtx = {
       slots: [] as GeneratedHumanoidAnimationSlot[],
@@ -118,10 +128,9 @@ describe("The frame loop composes position.x from its base", () => {
     // Run one frame update
     updateGeneratedHumanoidAnimations(mockCtx, 1/60, Date.now(), { position: { x: 0, y: 0, z: 5 } } as unknown as THREE.PerspectiveCamera);
 
-    // position.x should be composed from slot.baseX (0.5) + emotionalSway + dialogueWeightShift
-    // NOT just emotionalSway + dialogueWeightShift (which would lose the 0.5 anchor)
-    const expectedX = slot.baseX + Math.sin((Date.now() / 1000) * 0.43) * 0.012; // emotionalSway only (not speaking)
-    expect(slot.root.position.x).toBeCloseTo(expectedX, 3);
+    // position.x should be composed from slot.baseX (0.5) alone — NOT baseX + emotionalSway, which
+    // would translate the feet (see the FIXED note above). The 0.5 anchor must still not be lost.
+    expect(slot.root.position.x).toBeCloseTo(slot.baseX, 6);
   });
 });
 

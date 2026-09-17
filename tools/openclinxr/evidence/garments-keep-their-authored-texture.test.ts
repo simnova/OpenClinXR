@@ -184,6 +184,19 @@ const AUTHORED_TEXTURE: Record<string, { texture: string }> = {
   // sweater_fisherman.mhmat -> shirt-knit.png (2,316,765 B) is staged and consumed by the #360
   // path, so it must ship as baseColorTexture exactly like the t-shirt.
   mat_makeclothes_library_fisherman_sweater: { texture: "shirt-knit.png" },
+  // MEASURED 2026-09-17: three jeans garments reached the cast without a row here, so the
+  // enumeration guard failed them as NEW rather than passing them silently — the guard working
+  // as designed. Each declares a diffuseTexture that is staged, and each already SHIPS it, so
+  // classifying them here binds clause (1) to them instead of excusing them:
+  //   bootcut_jeans      mens_elv_jeans1f.mhmat  -> jeanstex1.png  (1,589,579 B staged)
+  //                      mpfb-family-partner-adult ships 1,552 KB
+  //   female_tight_jeans tightjeans.mhmat        -> tightjeans.png (5,441,511 B staged)
+  //                      mpfb-ob-patient-aisha / peds-parent-aisha ship 1,169 KB; viseme-inspect 5,314 KB
+  //   straight_leg_jeans mens_elv_jeans2slf.mhmat-> jeanstex1.png  (1,589,579 B staged)
+  //                      mpfb-street-adult-male ships 1,552 KB
+  mat_makeclothes_library_bootcut_jeans_pants: { texture: "jeanstex1.png" },
+  mat_makeclothes_library_female_tight_jeans_pants: { texture: "tightjeans.png" },
+  mat_makeclothes_library_straight_leg_jeans_pants: { texture: "jeanstex1.png" },
 };
 
 /**
@@ -214,8 +227,24 @@ const AUTHORED_TEXTURE: Record<string, { texture: string }> = {
  */
 const FLAT_BY_AUTHORED_STATE = new Set<string>([
   "mat_makeclothes_library_cargo_pants",
+  // PREMISE CORRECTED 2026-09-17 — these two rows are RETAINED, but #521's stated reason
+  // ("declared PNG absent") is no longer true and must not be read as an authored decision;
+  // that is exactly the error #740 corrected above.
+  //   - Both declared PNGs were present but TRUNCATED (no IEND; ffmpeg "chunk too big"):
+  //     shirt 2,173,517 B, pants 2,187,197 B. Replaced from the upstream asset pages with
+  //     complete files (shirt 3,314,672 B, pants 3,207,469 B, both decode). The truncated
+  //     originals are kept beside them as `.broken-backup`.
+  //   - The cache is therefore no longer "absent", and a future bake may texture these.
+  //   - Independently of that, the flat classification ALREADY disagrees with shipped bytes:
+  //     mpfb-peds-nurse-kevin and mpfb-clinical-physician-adult both ship a 437,089 B 2048x2048
+  //     scrub-shirt texture (sha256 c18e7daba260ee9c — a re-encode of the same upstream image,
+  //     which is 3,314,672 B / sha256 509b86542d480b42), while mpfb-clinical-nurse-adult ships
+  //     tex=NONE with the flat teal factor.
+  //   RESIDUAL, deliberately not resolved here: moving these rows to AUTHORED_TEXTURE would
+  //   require mpfb-clinical-nurse-adult to carry a texture it does not have, reddening main
+  //   without a fix. Resolution needs a re-bake slice, not a table edit. Do not "fix" this by
+  //   deleting the rows or by widening the clause.
   "mat_makeclothes_library_scrub_shirt",
-  // #521 — .mhmat staged, declared PNG absent -> GARMENT_MATERIAL_SKIP -> flat teal factor.
   "mat_makeclothes_library_scrub_pants",
   // #528 — physician lab coat: measured tex=NONE, factor ~[0.92,0.92,0.90] (flat by authored state).
   "mat_makeclothes_library_lab_coat",
