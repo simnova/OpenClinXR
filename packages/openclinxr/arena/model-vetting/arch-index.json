@@ -32,7 +32,9 @@
     "validatePipelineCandidateIndex",
     "visemeAtTimelineProgress"
   ],
-  "workspaceDependencies": [],
+  "workspaceDependencies": [
+    "@openclinxr/asset-registry"
+  ],
   "tests": [
     "src/cagematch-report.test.ts",
     "src/emotion-transition.test.ts",

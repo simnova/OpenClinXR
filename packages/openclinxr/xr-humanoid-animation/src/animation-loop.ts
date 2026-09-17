@@ -187,9 +187,24 @@ export function updateGeneratedHumanoidAnimations(
       // and was never read, so any child-local X the placement chain resolved was erased on the
       // next frame. Latent until now only because the loader zeroes the humanoid child
       // (generated-loaders.ts:112), which is exactly the offset this card set makes non-zero.
-      slot.root.position.x = slot.baseX + emotionalSway + dialogueWeightShift;
+      slot.root.position.x = slot.baseX;
+      // THE SAME DEFECT AS THE Y-BREATHING NOTE ABOVE, ONE AXIS OVER. `emotionalSway` and
+      // `dialogueWeightShift` used to be ADDED to `position.x` — a rigid horizontal translation of
+      // `slot.root`, which sits at the character's OWN feet (see the scale.y note above). Nothing
+      // downstream corrects it: `applySettledPostureCorrection` (stance-lock-mod.ts) only lifts a
+      // submerged toe's Y by rotating hip/knee, and it never reads or restores toe X/Z. Measured on
+      // the shipped physician's own rest-frame toe offset (0.096, 0.016, 0.035 relative to
+      // `slot.root`, SC-05's decoded value) over 30 s standing idle: 0.0122 m worst XZ displacement
+      // from rest, 2.4x the 0.005 m perceptual floor — the same class of defect reported as "the
+      // patient's foot still moves against the surface supporting it" (docs/progress.html, entries
+      // 99-101; 0.01604 m at peak, 0.00954 m once settled, cause recorded there as undetermined: this
+      // is that cause). Composed into `rotation.z` instead: a lean about `slot.root`'s own near-floor
+      // origin displaces a toe at that offset by ~2 mm at the same sway amplitude — under the
+      // perceptual floor — while still moving the torso for the idle-life cue.
+      // Full derivation: the-standing-actor-does-not-slide-during-idle-sway.test.ts.
       slot.root.rotation.x = dialogueLean + pediatricAsthmaOverlay.rotationX;
-      slot.root.rotation.z = Math.sin(t * 0.72) * 0.012 + pediatricAsthmaOverlay.rotationZ;
+      slot.root.rotation.z =
+        Math.sin(t * 0.72) * 0.012 + emotionalSway + dialogueWeightShift + pediatricAsthmaOverlay.rotationZ;
       slot.root.scale.x = slot.baseScaleX + pediatricAsthmaOverlay.scaleXDelta;
       slot.root.scale.y = slot.baseScaleY + breathing * 0.012 + pediatricAsthmaOverlay.scaleYDelta;
       slot.root.scale.z = slot.baseScaleZ + pediatricAsthmaOverlay.scaleZDelta;
