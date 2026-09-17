@@ -52,6 +52,16 @@ function fakeRuntime() {
 
 describe('actual prepared manager lifecycle', () => {
   beforeEach(()=>vi.stubGlobal('window',{})); afterEach(()=>vi.unstubAllGlobals());
+  it('invalid observed context time refuses the real manager accessor and clears owned speech', () => {
+    for (const invalidTime of [NaN, Infinity, -1]) {
+      const f = fakeRuntime();
+      expect(startPreparedActorTurnAudio({ actorId: 'clock-patient', spokenText: f.spoken })).toBe(true);
+      f.context.currentTime = invalidTime;
+      expect(() => f.slot.mediaPositionSeconds()).toThrow('audio-context-time-invalid');
+      syncPreparedActorAudio(20000);
+      expect(f.slot.activeSpeech).toBeUndefined();
+    }
+  });
   it('natural source end reports full native duration instead of rewinding to start offset', () => {
     const f = fakeRuntime();
     expect(startPreparedActorTurnAudio({ actorId: 'clock-patient', spokenText: f.spoken })).toBe(true);

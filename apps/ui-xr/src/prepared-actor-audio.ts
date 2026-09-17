@@ -63,7 +63,7 @@ export function createPlayback({
   pause: () => Promise<void>;
   resume: () => Promise<void>;
   stop: () => Promise<void>;
-  position: () => number; positionAt: (contextTime: number) => number;
+  position: () => number;
   snapshot: () => { contextTime: number; position: number };
   generation: string; nodeSerial: () => number;
 } {
@@ -92,6 +92,7 @@ export function createPlayback({
   function snapshot(): { contextTime: number; position: number } {
     if (playbackContext.state !== "running") throw new Error("audio-context-not-running");
     const contextTime = playbackContext.currentTime;
+    if (!Number.isFinite(contextTime) || contextTime < 0) throw new Error("audio-context-time-invalid");
     return { contextTime, position: positionAt(contextTime) };
   }
 
@@ -163,7 +164,6 @@ export function createPlayback({
     resume,
     stop,
     position: livePosition,
-    positionAt,
     snapshot,
     generation: identity.generation,
     nodeSerial: () => serial,
