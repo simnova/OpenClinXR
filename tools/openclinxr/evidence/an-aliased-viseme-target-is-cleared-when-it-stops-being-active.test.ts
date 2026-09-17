@@ -69,6 +69,16 @@ import { driveVisemeTimeline, resolveVisemeTarget } from "../../../packages/open
  * fought. Clause (1) flipped from `it.fails` to `it` in the same change.
  */
 
+/**
+ * ## UPDATED (visemes02 alias pass) — appended below the FIXED (#732) block above; the measured
+ * header is untouched. `resolveMorphTarget` now consults a visemes02 alias map (after the
+ * case-variant pass, before the FACS alias map) that lands IH/O U/L on the baked pack shapes the
+ * full shipped parent carries (viseme_I, viseme_U, viseme_nn). Clauses (1)-(4) and the FACS
+ * expectations in (5) run on HYBRID_WITHOUT_PACK_VOWELS (AVAILABLE minus viseme_I, viseme_U,
+ * viseme_nn) so the aliased FACS path is still exercised; (5) also asserts the full AVAILABLE
+ * set resolves IH->viseme_I, OU->viseme_U, L->viseme_nn.
+ */
+
 /** Measured 2026-08-27 from `mpfb-peds-parent-aisha.motion-bind.glb`, mesh `mpfb_ob_patient_aisha_body`. */
 const SHIPPED_VISEME_TARGETS = [
   "viseme_aa", "viseme_CH", "viseme_DD", "viseme_E", "viseme_FF", "viseme_I", "viseme_kk",
@@ -86,6 +96,15 @@ const SHIPPED_FACS_TARGETS = [
 const AVAILABLE = [...SHIPPED_VISEME_TARGETS, ...SHIPPED_FACS_TARGETS];
 
 /**
+ * A hybrid body that lacks the pack vowel shapes (viseme_I, viseme_U) and viseme_nn, so
+ * IH/OU/L still alias onto FACS targets. Used for SEQUENCE clauses (1)-(4) and the FACS
+ * expectations in (5).
+ */
+const HYBRID_WITHOUT_PACK_VOWELS = AVAILABLE.filter(
+  (name) => name !== "viseme_I" && name !== "viseme_U" && name !== "viseme_nn",
+);
+
+/**
  * `IH` is the aliased case (resolves to `mouth-part-later`); `AA` is the identity case (resolves to
  * `viseme_aa`) and is the known-good column in clause (2). `sil` follows each so the sequence gives
  * the drive an explicit opportunity to clear the previous shape.
@@ -98,7 +117,7 @@ const SEQUENCE = [
 ];
 
 function framesFor(phonemes: ReadonlyArray<{ phoneme: string; atSecond: number }>) {
-  return driveVisemeTimeline({ phonemes, availableTargets: AVAILABLE }).frames;
+  return driveVisemeTimeline({ phonemes, availableTargets: HYBRID_WITHOUT_PACK_VOWELS }).frames;
 }
 
 /** Targets any frame drives to full weight. */
@@ -169,7 +188,7 @@ describe("an aliased viseme target is cleared when it stops being active (#732)"
     const frames = framesFor(SEQUENCE);
     for (const f of frames) {
       for (const name of Object.keys(f.weights)) {
-        expect(AVAILABLE, `${name} is not a target this body carries`).toContain(name);
+        expect(HYBRID_WITHOUT_PACK_VOWELS, `${name} is not a target this body carries`).toContain(name);
       }
     }
   });
@@ -180,10 +199,13 @@ describe("an aliased viseme target is cleared when it stops being active (#732)"
    * silently measuring a split that no longer exists.
    */
   it("(5) KNOWN-GOOD: the three aliased visemes still resolve onto FACS targets", () => {
-    expect(resolveVisemeTarget("IH", AVAILABLE)).toBe("mouth-part-later");
-    expect(resolveVisemeTarget("OU", AVAILABLE)).toBe("mouth-protusion");
-    expect(resolveVisemeTarget("L", AVAILABLE)).toBe("mouth-parling");
-    expect(resolveVisemeTarget("AA", AVAILABLE), "the identity case, for contrast").toBe("viseme_aa");
+    expect(resolveVisemeTarget("IH", HYBRID_WITHOUT_PACK_VOWELS)).toBe("mouth-part-later");
+    expect(resolveVisemeTarget("OU", HYBRID_WITHOUT_PACK_VOWELS)).toBe("mouth-protusion");
+    expect(resolveVisemeTarget("L", HYBRID_WITHOUT_PACK_VOWELS)).toBe("mouth-parling");
+    expect(resolveVisemeTarget("AA", HYBRID_WITHOUT_PACK_VOWELS), "the identity case, for contrast").toBe("viseme_aa");
+    expect(resolveVisemeTarget("IH", AVAILABLE), "on the full pack body IH reaches the baked viseme").toBe("viseme_I");
+    expect(resolveVisemeTarget("OU", AVAILABLE), "on the full pack body OU reaches the baked viseme").toBe("viseme_U");
+    expect(resolveVisemeTarget("L", AVAILABLE), "on the full pack body L reaches the baked viseme").toBe("viseme_nn");
   });
 });
 

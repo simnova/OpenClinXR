@@ -61,6 +61,7 @@
   "tests": [
     "src/actor-turn-playback-coordinator.test.ts",
     "src/gaze-drives-eyes.test.ts",
+    "src/rhubarb-shapes-reach-baked-visemes.test.ts",
     "src/viseme-morph-apply.test.ts",
     "src/viseme-runtime-wire.test.ts",
     "src/viseme-timeline-drive.test.ts",

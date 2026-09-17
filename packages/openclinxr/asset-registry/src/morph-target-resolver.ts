@@ -18,7 +18,10 @@
  *      pack bakes mixed case (`viseme_aa`, `viseme_kk`, `viseme_nn`, `viseme_sil`). A genuine
  *      case-only variant wins here, so a real baked viseme beats the FACS alias. Renaming the pack
  *      to suit the resolver would diverge a proven upstream asset (D1).
- *   3. FACS ALIAS MAP last — canonical runtime name → MPFB FACS morph name, wired from the FACS
+ *   3. VISEMES02 ALIAS MAP third — a body carrying the baked visemes02 pack (15 Oculus viseme
+ *      names) must reach a baked viseme before a generic FACS unit (the same rule the #463
+ *      case-variant pass states). Consulted only when the alias name is present on the body.
+ *   4. FACS ALIAS MAP last — canonical runtime name → MPFB FACS morph name, wired from the FACS
  *      target names actually shipped on the library bodies (verified present on both), not invented.
  *
  * WHY THE MAP HAS VISEME ROWS (#353): a `viseme_*` TARGET is not required for a viseme to be
@@ -85,6 +88,19 @@ export const MPFB_FACS_MORPH_NAMES: Readonly<Record<string, string>> = {
 };
 
 /**
+ * visemes02 (Oculus 15-viseme pack) alias map: ARKit-style runtime names the wire emits that the
+ * visemes02 pack bakes under a different viseme spelling. Consulted only when the alias name is
+ * present on the body, so FACS-only MPFB bodies keep the FACS alias rows below.
+ */
+export const VISEMES02_MORPH_NAMES: Readonly<Record<string, string>> = {
+  viseme_IH: "viseme_I",
+  viseme_OH: "viseme_O",
+  viseme_OU: "viseme_U",
+  viseme_FV: "viseme_FF",
+  viseme_L: "viseme_nn",
+};
+
+/**
  * The case-only variant of `canonicalName` present in `availableNames`, or null. The caller has
  * already taken the exact-identity match, so only genuine case differences reach this pass.
  */
@@ -104,6 +120,7 @@ function resolveCaseVariant(
  *
  * Identity-first (covers the Anny rail and any canonical-spelling body), then a case-insensitive
  * variant match (#463 — the wire upper-cases tokens but the visemes02 pack bakes mixed case), then
+ * the visemes02 alias map (a baked viseme beats a generic FACS unit), then
  * the MPFB FACS alias map. Returns null when no honest target exists — never a fabricated name,
  * never a fallback that changes which region deforms.
  *
@@ -118,6 +135,8 @@ export function resolveMorphTarget(
   if (availableNames.has(canonicalName)) return canonicalName;
   const caseVariant = resolveCaseVariant(canonicalName, availableNames);
   if (caseVariant !== null) return caseVariant;
+  const visemes02 = VISEMES02_MORPH_NAMES[canonicalName];
+  if (visemes02 !== undefined && availableNames.has(visemes02)) return visemes02;
   const alias = MPFB_FACS_MORPH_NAMES[canonicalName];
   if (alias !== undefined && availableNames.has(alias)) return alias;
   return null;
