@@ -61,3 +61,8 @@ it("reinstalling the previous owned speech object after retirement is not new or
   expect(invoke(slot, () => { slot.activeSpeech = previous; }, "different-prepared-actor"))
     .toMatchObject({ kind: "refused", reason: "ordinary_setup_failed" });
 });
+it("an ordinary host action that throws is a typed refusal, never a success or escaped exception", () => {
+  const slot = host();
+  expect(invoke(slot, () => { throw new Error("ordinary host refused setup"); }))
+    .toMatchObject({ kind: "refused", reason: "ordinary_setup_failed" });
+});
