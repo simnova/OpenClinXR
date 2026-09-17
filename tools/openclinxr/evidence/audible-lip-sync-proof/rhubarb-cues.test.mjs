@@ -16,15 +16,15 @@ it("counterweight: actual committed gown carries the fifteen named targets, not 
 it("counterweight: admitted driver applies an existing named target to a coherent live fixture",()=>{
  const s=slot();s.activeSpeech.bakedCues=[{phoneme:"aa",atSecond:0,durationSeconds:9}];const r=applyNamedSpeechVisemes(s,500);expect(r.appliedMeshCount).toBe(1);expect(r.activeTargetName).toBe("viseme_aa");expect(r.jawOpenRadians).toBeGreaterThan(0);
 });
-it.fails("closed bilabial A selects PP with shut jaw instead of the current open AA",()=>{
+it("closed bilabial A selects PP with shut jaw instead of the current open AA",()=>{
  const s=slot();const r=applyNamedSpeechVisemes(s,500);expect(convertRhubarb(doc)[0].phoneme).toBe("PP");expect(r.activeTargetName).toBe("viseme_PP");expect(r.jawOpenRadians).toBe(0);
 });
-it.fails("all nine documented coarse shapes have distinct honest semantic assignments and resolve on the actual shipped dictionary",()=>{
+it("all nine documented coarse shapes have distinct honest semantic assignments and resolve on the actual shipped dictionary",()=>{
  // Approximate nine-shape reduction, not phone precision: B clench/consonants, H tongue-L.
  expect(convertRhubarb(doc).map(c=>c.phoneme)).toEqual(["PP","DD","E","aa","O","U","FF","nn","sil"]);
  for(let i=0;i<shapes.length;i++){const r=applyNamedSpeechVisemes(slot(),i*1000+500);expect(r.activeTargetName,shapes[i]).not.toBeNull();expect(r.appliedMeshCount,shapes[i]).toBe(1);}
 });
-it.fails("unknown shape, negative/overlapping/nonfinite times are named refusals rather than silently claiming rest",()=>{
+it("unknown shape, negative/overlapping/nonfinite times are named refusals rather than silently claiming rest",()=>{
  for(const bad of [{value:"?",start:0,end:1},{value:"A",start:-1,end:1},{value:"A",start:2,end:1},{value:"A",start:0,end:NaN}])expect(()=>convertRhubarb({mouthCues:[bad]})).toThrow("invalid-rhubarb-cue");
  expect(()=>convertRhubarb({mouthCues:[{value:"A",start:0,end:2},{value:"B",start:1,end:3}]})).toThrow("overlapping-rhubarb-cues");
 });

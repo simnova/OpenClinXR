@@ -17,11 +17,11 @@ it('ordinary same-object served bake still attaches',async()=>{
  const {slot}=await delayedJoin();expect(slot.activeSpeech.durationMs).toBe(1000);
  expect(slot.root.userData.openClinXrBakedVisemeTimeline.cueCount).toBe(1);
 });
-it.fails('equal-text replacement is not the object that requested the delayed bake',async()=>{
+it('equal-text replacement is not the object that requested the delayed bake',async()=>{
  const {slot}=await delayedJoin(slot=>{slot.activeSpeech={...slot.activeSpeech,durationMs:7777};});
  expect(slot.activeSpeech.durationMs).toBe(7777);expect(slot.root.userData.openClinXrBakedVisemeTimeline).toBeUndefined();
 });
-it.fails('audio-owned speech retains its native duration and exact source cues',async()=>{
+it('audio-owned speech retains its native duration and exact source cues',async()=>{
  const {slot,requested}=await delayedJoin(slot=>{slot.mediaPositionSeconds=()=>1.25;});
  expect(requested.durationMs).toBe(14376.825);expect(requested.bakedCues[0].phoneme).toBe('PP');
  expect(slot.root.userData.openClinXrBakedVisemeTimeline).toBeUndefined();
@@ -31,7 +31,7 @@ it('pause/removal before delayed response does not resurrect speech',async()=>{
  expect(slot.activeSpeech).toBeUndefined();expect(slot.root.userData.openClinXrBakedVisemeTimeline).toBeUndefined();
 });
 
-it.fails('equal-value distinct-object replay cannot receive the old delayed bake',async()=>{
+it('equal-value distinct-object replay cannot receive the old delayed bake',async()=>{
  const {slot,requested}=await delayedJoin(slot=>{slot.activeSpeech={...slot.activeSpeech};});
  expect(slot.activeSpeech).not.toBe(requested);
  expect(slot.activeSpeech.text).toBe(requested.text);

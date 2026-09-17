@@ -17,20 +17,20 @@ describe('admitted source-position clock versus wall/dwell time',()=>{
   const {slot,mesh}=fixture();const r=applyNamedSpeechVisemes(slot,10000);
   expect(r.activeTargetName).toBe('viseme_aa');expect(mesh.morphTargetInfluences[2]).toBeGreaterThan(0);
  });
- it.fails('real source position selects bilabial despite unrelated display wall time',()=>{
+ it('real source position selects bilabial despite unrelated display wall time',()=>{
   const {slot,mesh}=fixture(()=>1.25);const r=applyNamedSpeechVisemes(slot,10000);
   expect(r.activeTargetName).toBe('viseme_PP');expect(mesh.morphTargetInfluences[1]).toBeGreaterThan(0);
  });
- it.fails('exact baked start is not stretched by the longer native PCM buffer duration',()=>{
+ it('exact baked start is not stretched by the longer native PCM buffer duration',()=>{
   const {slot}=fixture(()=>1.24);
   expect(applyNamedSpeechVisemes(slot,1240).activeTargetName).toBe('viseme_PP');
  });
- it.fails('held source position does not advance with later display callbacks',()=>{
+ it('held source position does not advance with later display callbacks',()=>{
   const {slot}=fixture(()=>1.25);
   const a=applyNamedSpeechVisemes(slot,2000);const b=applyNamedSpeechVisemes(slot,12000);
   expect(a.activeTargetName).toBe('viseme_PP');expect(b.activeTargetName).toBe('viseme_PP');
  });
- it.fails('invalid or missing audio position refuses wall-clock substitution and releases mouth',()=>{
+ it('invalid or missing audio position refuses wall-clock substitution and releases mouth',()=>{
   for(const value of [null,NaN,Infinity,-1]){
    const {slot,mesh}=fixture(()=>value);applyNamedSpeechVisemes(slot,10000);
    expect(mesh.morphTargetInfluences[1]).toBe(0);expect(mesh.morphTargetInfluences[2]).toBe(0);
@@ -75,7 +75,7 @@ import {createAudioSpeechClock} from '../../../../apps/ui-xr/src/prepared-actor-
 describe('explicit audio-owned compatibility accessor through the actual admitted loop',()=>{
  beforeEach(()=>vi.stubGlobal('window',{}));afterEach(()=>vi.unstubAllGlobals());
  function owned(f,reader=()=>1.25,rate=1){return createAudioSpeechClock({slot:f.slot,speech:f.speech,positionSeconds:reader,wallOriginMs:0,rate});}
- it.fails('delayed display frame retains exact owned speech and native duration on source elapsed time',()=>{
+ it('delayed display frame retains exact owned speech and native duration on source elapsed time',()=>{
   const f=realLoopFixture(),clock=owned(f);clock.snapshot(16000);
   expect(f.slot.activeSpeech).toBe(f.speech);
   expect(f.speech.clockKind).toBe('audio_source_compatibility_accessor');
@@ -91,7 +91,7 @@ describe('explicit audio-owned compatibility accessor through the actual admitte
   updateGeneratedHumanoidAnimations(f.ctx,1/60,18000,new PerspectiveCamera());
   expect(f.slot.activeSpeech).toBe(f.speech);
  });
- it.fails('invalid null nonfinite negative throwing or suspended source clears only exact owned speech',()=>{
+ it('invalid null nonfinite negative throwing or suspended source clears only exact owned speech',()=>{
   for(const reader of [()=>null,()=>NaN,()=>Infinity,()=>-1,()=>{throw Error('read-failed');},()=>{throw Error('audio-context-not-running');}]){
    const f=realLoopFixture(),other=realLoopFixture(),clock=owned(f,reader);
    clock.snapshot(16000);expect(f.slot.activeSpeech).toBeUndefined();expect(other.slot.activeSpeech).toBe(other.speech);
@@ -99,7 +99,7 @@ describe('explicit audio-owned compatibility accessor through the actual admitte
    expect(f.slot.activeSpeech).toBeUndefined();
   }
  });
- it.fails('late invalid snapshot and release cannot clear replacement or another actor',()=>{
+ it('late invalid snapshot and release cannot clear replacement or another actor',()=>{
   const f=realLoopFixture(),other=realLoopFixture(),clock=owned(f,()=>null);
   const replacement={...f.speech,text:'replacement',startedAtMs:15900};f.slot.activeSpeech=replacement;
   clock.snapshot(16000);clock.release();
@@ -107,20 +107,20 @@ describe('explicit audio-owned compatibility accessor through the actual admitte
   updateGeneratedHumanoidAnimations(f.ctx,1/60,16000,new PerspectiveCamera());
   expect(f.slot.activeSpeech).toBe(replacement);
  });
- it.fails('release clears owned speech and source end releases through the actual loop',()=>{
+ it('release clears owned speech and source end releases through the actual loop',()=>{
   const f=realLoopFixture(),other=realLoopFixture(),clock=owned(f);clock.snapshot(16000);clock.release();
   expect(f.slot.activeSpeech).toBeUndefined();expect(other.slot.activeSpeech).toBe(other.speech);
   const end=realLoopFixture(),endClock=owned(end,()=>317009/22050);endClock.snapshot(16000);
   updateGeneratedHumanoidAnimations(end.ctx,1/60,16000,new PerspectiveCamera());
   expect(end.slot.activeSpeech).toBeUndefined();
  });
- it.fails('non-unit rate is an explicit bounded diagnostic refusal',()=>{
+ it('non-unit rate is an explicit bounded diagnostic refusal',()=>{
   for(const rate of [0.5,2,0,NaN,Infinity]){const f=realLoopFixture();
    expect(()=>owned(f,()=>1.25,rate)).toThrow('audio-speech-clock-rate-unsupported');
    expect(f.slot.activeSpeech).toBe(f.speech);expect(f.speech.startedAtMs).toBe(0);
   }
  });
-  it.fails('resume keeps absolute source position and full native duration with a fresh owned speech object',()=>{
+  it('resume keeps absolute source position and full native duration with a fresh owned speech object',()=>{
     const f=realLoopFixture();
     const nativeSeconds=317009/22050;
     let sourceSeconds=6.25;
