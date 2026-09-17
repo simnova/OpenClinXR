@@ -21,11 +21,11 @@ function host(initial?: Speech) {
   });
   return slot;
 }
-function invoke(slot: ReturnType<typeof host>, setup: () => void): unknown {
+function invoke(slot: ReturnType<typeof host>, setup: () => void, actorId = "ordinary-host"): unknown {
   // Structural cast permits planting the future overload without weakening assertions.
   const route = startActorTurnSpeech as unknown as (context: { actorId: string; spokenText: string },
     adapter: { readSpeech: () => Speech | undefined; startDialogue: () => void }) => unknown;
-  return route({ actorId: "ordinary-host", spokenText: "Ordinary line" }, {
+  return route({ actorId, spokenText: "Ordinary line" }, {
     readSpeech: () => slot.activeSpeech, startDialogue: setup,
   });
 }
@@ -52,4 +52,12 @@ it("existing direct prepared boolean compatibility still starts a real owned fix
   const slot = host();
   expect(startPreparedActorTurnAudio({ actorId: "different-prepared-actor", spokenText: "Prepared" })).toBe(true);
   expect(slot.activeSpeech?.text).toBe("Prepared");
+});
+it("reinstalling the previous owned speech object after retirement is not new ordinary speech", () => {
+  const slot = host();
+  expect(startPreparedActorTurnAudio({ actorId: "different-prepared-actor", spokenText: "Prepared" })).toBe(true);
+  const previous = slot.activeSpeech!;
+  previous.text = "Ordinary line";
+  expect(invoke(slot, () => { slot.activeSpeech = previous; }, "different-prepared-actor"))
+    .toMatchObject({ kind: "refused", reason: "ordinary_setup_failed" });
 });
