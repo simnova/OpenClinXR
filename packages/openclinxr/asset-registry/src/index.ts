@@ -4,7 +4,7 @@ export {
   ENVIRONMENT_SHELL_DESCRIPTORS,
   resolveEnvironmentShellDescriptor,
 } from "./environment-descriptors.js";
-export { CAST_VISEME_FALLBACK_NAMES, resolveMorphTarget, VISEMES02_MORPH_NAMES } from "./morph-target-resolver.js";
+export { resolveMorphTarget } from "./morph-target-resolver.js";
 export { resolvePoseBone } from "./pose-bone-resolver.js";
 export {
   parseRuntimeRoomPropColorHex,
