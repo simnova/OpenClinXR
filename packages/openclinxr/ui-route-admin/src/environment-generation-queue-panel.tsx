@@ -7,7 +7,7 @@ import {
   type ScenarioSceneGenerationPipelineWorkOrderQueue,
 } from "@openclinxr/asset-registry";
 import { PlacementAuthoringRow } from "./placement-authoring-row.js";
-import { Button, Form, Input, InputNumber, Select, Space, Table, Tag, Typography } from "antd";
+import { Button, Form, Input, Select, Space, Table, Tag, Typography } from "antd";
 import { FactoryStationCards } from "@openclinxr/ui-shared/admin-factory-station-cards";
 import { lazy, type ReactElement, Suspense, useEffect, useMemo } from "react";
 import { ConnectNodesRow } from "./connect-nodes-row.js";

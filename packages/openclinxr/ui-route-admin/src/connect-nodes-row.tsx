@@ -41,7 +41,7 @@ export function ConnectNodesRow({
   }
 
   return (
-    <div className="station-queue-row" aria-label="Connect compile graph nodes">
+    <fieldset className="station-queue-row" aria-label="Connect compile graph nodes">
       <Select
         allowClear
         showSearch
@@ -88,6 +88,6 @@ export function ConnectNodesRow({
         a closed compile-edge kind's required input port type (e.g. a body output may only connect
         to a wardrobe input); a matching pair is added to the compile graph above.
       </Typography.Paragraph>
-    </div>
+    </fieldset>
   );
 }
