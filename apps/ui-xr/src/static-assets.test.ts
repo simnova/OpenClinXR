@@ -68,15 +68,20 @@ const generatedSceneAssetHashes = {
   "humanoids/candidates/charmorph-reom-ob-patient-candidate.glb": "47640a2d45a9b5c0b3c5a93885c59870ca19bcb52eeb881017668166c612428b",
   // #168: ECG cart regenerated as an assembled object; only GLBs that exist on disk are hashed.
   // Six previously listed medical-equipment hashes certified absent files and were removed with PROVENANCE.md.
-  "medical-equipment/ecg-cart-12-lead.glb": "5ffc60fe8238a4e1acfaed01f519e17d0861f5cc6ecdb5e138c30899eb20e8b6",
-  "medical-equipment/iv-pole-with-pump.glb": "1a9a57932e2e0b8bd86c927527e8ea4fcb19fd3e74bf9ba33ec4490234ccfb04",
+  // 2026-09-16: 8 of these 9 hashes updated by finalize-equipment-glb-cli.ts (dedup duplicate
+  // texture/material datablocks, remove zero-area triangles, compact orphaned vertices). Every
+  // rendered triangle, node, and AABB is unchanged — see PROVENANCE.md and each asset's
+  // finalizeStation provenance block for the measured before/after. wall-clock-analog.glb was
+  // already clean (byte-identical, hash unchanged).
+  "medical-equipment/ecg-cart-12-lead.glb": "a6a34c19458a77c81899f31407027fa922b640b279d2a78464eb1aefe9799027",
+  "medical-equipment/iv-pole-with-pump.glb": "778b1173cc6c8732e55c4949c24789a517fe993c6f3a46f1f80fb1ff5f829c2c",
   "medical-equipment/wall-clock-analog.glb": "cefadd32f3a115177cbe6a696159d798dca371ee5ad50111937ab9b8aa5624ce",
-  "medical-equipment/bedside-monitor-generated.glb": "cff08df0a94ee25651d02c4667fe94232aff659d2702b04084c99c7440953f3b",
+  "medical-equipment/bedside-monitor-generated.glb": "7eeba9c54f0408cab2eb697d0a2a42742f424daf439ae4562a13430d74e37b13",
   "environment/ed-exam-bay-shell.glb": "e390697fea990ea41701fc220224c94b1be2b18ce4cde9778e892261c07124f9",
-  "medical-equipment/hospital-bed-sketchfab-ccby.glb": "df70210a32b88537a3837cf62b46e3b6ba19c65d71495e8ff5d61fd52111bf27",
-  "medical-equipment/stretcher-sketchfab-ccby.glb": "ae930b59ec9180fc1c74aed2592208f76cd3c0118987852cc6a6bbebebc4a35d",
-  "medical-equipment/exam-table-sketchfab-ccby.glb": "b620e4949d2fef3669fe83327d66937d2fcac4bfbc0f0960e98e25e0edb51f0b",
-  "medical-equipment/privacy-curtain-monitor-sketchfab-ccby.glb": "89ccdab93ce4f6ca1cdd0c8f94afe834db431ed667ddac4580bbd9cc3c22a8bf",
+  "medical-equipment/hospital-bed-sketchfab-ccby.glb": "d429b23ec21148c527121386d94675ef66aaa2c8171743314fe2834143ad5903",
+  "medical-equipment/stretcher-sketchfab-ccby.glb": "6c7ce26cbee8ee38e8118abfddccbb7fc0f36626a85f1952eee9b9fff551221a",
+  "medical-equipment/exam-table-sketchfab-ccby.glb": "a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335",
+  "medical-equipment/privacy-curtain-monitor-sketchfab-ccby.glb": "b320a807a789561a34222a7c3d4573842679f8cf6b1921263d015c59fcc210aa",
   "environment/pediatric_urgent_care_bay_environment.glb": "9c431d8e158cbb7486de557ffaed02e79a0bac9681704b80449ace7dc4af8c62",
   "environment/infinigen-ed-exam-bay.glb": "bc5db832c45fe6a2e1f06fbd482cf40966f0325e891b59d33637f5a3f7fefc02",
 } as const;

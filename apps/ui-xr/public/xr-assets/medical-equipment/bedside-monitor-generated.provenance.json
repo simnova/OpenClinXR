@@ -68,6 +68,17 @@
     ],
     "publishedAs": null
   },
+  "finalizeStation": {
+    "tool": "tools/openclinxr/asset-pipeline/equipment/finalize-equipment-glb-cli.ts",
+    "appliedAt": "2026-09-16T00:00:00.000Z",
+    "measuredBefore": { "sha256": "cff08df0a94ee25651d02c4667fe94232aff659d2702b04084c99c7440953f3b", "bytes": 8375032, "triangles": 60000, "vertices": 136548 },
+    "measuredAfter": { "sha256": "7eeba9c54f0408cab2eb697d0a2a42742f424daf439ae4562a13430d74e37b13", "bytes": 6790504, "triangles": 59985, "vertices": 87037 },
+    "degenerateTrianglesRemoved": 15,
+    "orphanedVerticesRemoved": 49511,
+    "bytesSavedPct": 18.9,
+    "claimScope": "removed 15 zero-area triangles and 49,511 of 136,548 vertices (36.3%) referenced by NO triangle in this decimation-ladder output; AABB, silhouette, and every real (non-degenerate) triangle unchanged",
+    "notEvidenceFor": ["visual_realism_change", "clinical_validity", "quest_readiness"]
+  },
   "toolVersion": "openclinxr-trellis-promote-v1",
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
@@ -87,8 +98,8 @@
   ],
   "claimScope": "local_tracked_equipment_glb_wiring_not_readiness",
   "promotionGates": false,
-  "outputSha256": "cff08df0a94ee25651d02c4667fe94232aff659d2702b04084c99c7440953f3b",
-  "outputBytes": 8375032,
+  "outputSha256": "7eeba9c54f0408cab2eb697d0a2a42742f424daf439ae4562a13430d74e37b13",
+  "outputBytes": 6790504,
   "generatedAt": "2026-08-09T00:00:00.000Z",
   "method": "copy_byte_identical_decimated_rung_to_tracked_library"
 }

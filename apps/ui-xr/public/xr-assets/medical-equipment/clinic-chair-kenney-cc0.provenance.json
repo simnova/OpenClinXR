@@ -14,8 +14,8 @@
   "optimizationMode": "seat_height_uniform_normalize_no_decimation",
   "realismGrade": null,
   "promotionStatus": "runtime_candidate_not_readiness_gate_pass",
-  "sha256": "47547fd2f8293360eebc43a489aff535e61833f7879007b5298c9d029f6cbfc0",
-  "bytes": 10424,
+  "sha256": "d06b73319a3d4d6c0ddc5aaeabc59b8199548a64919941827ac821253f4c3ee5",
+  "bytes": 7392,
   "measuredNormalize": {
     "sourceFile": "chair.glb",
     "sourceBytes": 10756,
@@ -37,8 +37,19 @@
     },
     "promotedSurfaceY": 0.45,
     "promotedSurfaceArea": 0.129,
-    "promotedTriangleCount": 170,
+    "promotedTriangleCount": 162,
     "runtimeFit": "applyGltfEquipmentFootprintFit scale=min(1, env/glb); promoted footprint must be <= parametric composite envelope so the runtime does not shrink it"
+  },
+  "finalizeStation": {
+    "tool": "tools/openclinxr/asset-pipeline/equipment/finalize-equipment-glb-cli.ts",
+    "appliedAt": "2026-09-16T00:00:00.000Z",
+    "measuredBefore": { "sha256": "47547fd2f8293360eebc43a489aff535e61833f7879007b5298c9d029f6cbfc0", "bytes": 10424, "triangles": 170, "vertices": 230 },
+    "measuredAfter": { "sha256": "d06b73319a3d4d6c0ddc5aaeabc59b8199548a64919941827ac821253f4c3ee5", "bytes": 7392, "triangles": 162, "vertices": 229 },
+    "degenerateTrianglesRemoved": 8,
+    "orphanedVerticesRemoved": 1,
+    "bytesSavedPct": 29.1,
+    "claimScope": "removed 8 zero-area (cross-product length < 1e-12) triangles and 1 vertex referenced by no triangle, carried in from the raw Kenney source mesh; AABB unchanged",
+    "notEvidenceFor": ["visual_realism_change", "clinical_validity", "quest_readiness"]
   },
   "sourceOriginChain": {
     "sourceTopologyMode": "kenney_asset_pack_download",
