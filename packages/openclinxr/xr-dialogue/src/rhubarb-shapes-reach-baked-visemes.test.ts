@@ -87,7 +87,7 @@ function drivenTargetForShape(names: Set<string>, shape: string): string | null 
 const SHAPES_A_TO_H = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
 describe("rhubarb shapes reach baked visemes02 targets on MPFB bodies", () => {
-  it.fails("every shape A..H drives a viseme_* name present in the nurse GLB", () => {
+  it("every shape A..H drives a viseme_* name present in the nurse GLB", () => {
     const names = targetNamesFromGlb(NURSE_GLB);
     const misses = SHAPES_A_TO_H.map((shape) => ({ shape, drove: drivenTargetForShape(names, shape) })).filter(
       ({ drove }) => drove === null || !drove.startsWith("viseme_") || !names.has(drove),
@@ -98,7 +98,7 @@ describe("rhubarb shapes reach baked visemes02 targets on MPFB bodies", () => {
     ).toEqual([]);
   });
 
-  it.fails("shapes C,D,E,F,G drive five DISTINCT viseme_* targets on the nurse body", () => {
+  it("shapes C,D,E,F,G drive five DISTINCT viseme_* targets on the nurse body", () => {
     const names = targetNamesFromGlb(NURSE_GLB);
     const drove = ["C", "D", "E", "F", "G"].map((shape) => drivenTargetForShape(names, shape));
     expect(drove.every((target) => target?.startsWith("viseme_"))).toBe(true);
@@ -157,3 +157,10 @@ describe("rhubarb shapes reach baked visemes02 targets on MPFB bodies", () => {
     }
   });
 });
+
+// ## FIXED - appended below the immutable header above; the header's measured table is untouched.
+// VISEMES02_MORPH_NAMES alias pass in packages/openclinxr/asset-registry/src/morph-target-resolver.ts
+// (runs after the #463 case-variant pass, before the MPFB_FACS_MORPH_NAMES alias pass, consulted
+// only when the alias name is present on the body): a baked visemes02 pack name beats a generic
+// FACS unit. Measured through the public API on the nurse GLB:
+//   C->viseme_I, D->viseme_O, E->viseme_U, F->viseme_FF, G->viseme_nn, H->viseme_U.
