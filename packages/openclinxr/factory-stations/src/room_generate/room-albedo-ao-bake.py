@@ -438,7 +438,22 @@ def image_mean_l(img: bpy.types.Image) -> float:
 
 
 def bake_materials(resolution: int, restore_albedo: bool) -> Dict[str, Dict[str, object]]:
-    """Bake DIFFUSE (direct+indirect+colour) per material to a packed image."""
+    """Bake DIFFUSE (direct+indirect+colour) per material to a packed image.
+
+    #issue-env-multimat: a mesh object can carry MORE THAN ONE material slot (a wall
+    with a window/door reveal is a second material on the SAME `.wall` mesh, not a
+    second object). Grouping by `mats[0]` only — the prior behaviour — silently drops
+    every other slot from `by_mat`, so that material's node tree never gets an image
+    texture node and Blender's bake operator has nothing to write into for it. Blender
+    says so on stdout: `No active and selected image texture node found in material
+    "shader_plaster.024" (1) for object "bedroom_0/0.wall"`. The skipped material then
+    exports at its default baseColorFactor (1,1,1,1) with no baseColorTexture — a flat
+    white patch on an otherwise-textured wall. Measured 2026-09-16 on the shipped
+    infinigen-urgent-care-clinic.glb: `shader_plaster.024` (469 of the wall's 864
+    vertices — more than half the wall) shipped with hasBaseColorTexture=false while
+    its sibling slot `shader_plaster.013` baked normally. Iterate every material slot
+    on the object, not just the first, so every slot a mesh actually uses gets baked.
+    """
     objs = [o for o in bpy.context.scene.objects if o.type == "MESH"]
     for o in objs:
         ensure_uv(o)
@@ -446,9 +461,8 @@ def bake_materials(resolution: int, restore_albedo: bool) -> Dict[str, Dict[str,
     by_mat: Dict[str, List[bpy.types.Object]] = {}
     for obj in objs:
         mats = [m for m in obj.data.materials if m is not None]
-        if not mats:
-            continue
-        by_mat.setdefault(mats[0].name, []).append(obj)
+        for mat in mats:
+            by_mat.setdefault(mat.name, []).append(obj)
 
     results: Dict[str, Dict[str, object]] = {}
     for mat_name, objs_ in by_mat.items():

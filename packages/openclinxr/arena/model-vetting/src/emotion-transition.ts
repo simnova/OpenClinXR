@@ -1,3 +1,4 @@
+import { resolveMorphTargetIndex } from "./morph-index.js";
 export type HumanoidExpressionEmotion = "neutral" | "anxious" | "concerned" | "reassured" | "pain";
 
 export type HumanoidExpressionWeights = {
@@ -104,9 +105,9 @@ export function applyMorphTargetEmotionCue(
     if (!mesh.morphTargetDictionary || !mesh.morphTargetInfluences) {
       return;
     }
-    const mouthOpenIndex = mesh.morphTargetDictionary["openclinxr_mouth_open"];
-    const browConcernIndex = mesh.morphTargetDictionary["openclinxr_brow_concern"];
-    const cheekTensionIndex = mesh.morphTargetDictionary["openclinxr_cheek_tension"];
+    const mouthOpenIndex = resolveMorphTargetIndex(mesh.morphTargetDictionary, "openclinxr_mouth_open");
+    const browConcernIndex = resolveMorphTargetIndex(mesh.morphTargetDictionary, "openclinxr_brow_concern");
+    const cheekTensionIndex = resolveMorphTargetIndex(mesh.morphTargetDictionary, "openclinxr_cheek_tension");
     if (typeof mouthOpenIndex === "number") {
       mesh.morphTargetInfluences[mouthOpenIndex] = Math.min(0.95, Math.max(0, weights.mouthOpen));
       appliedTargetCount += 1;

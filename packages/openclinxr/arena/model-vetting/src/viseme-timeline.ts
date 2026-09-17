@@ -1,3 +1,4 @@
+import { resolveMorphTargetIndex } from "./morph-index.js";
 export const PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE =
   "Maya Johnson: It is hard to breathe and my chest feels tight.";
 
@@ -230,9 +231,9 @@ export function applyMorphTargetVisemeCue(
     if (!mesh.morphTargetDictionary || !mesh.morphTargetInfluences) {
       return;
     }
-    const mouthOpenIndex = mesh.morphTargetDictionary["openclinxr_mouth_open"];
-    const browConcernIndex = mesh.morphTargetDictionary["openclinxr_brow_concern"];
-    const cheekTensionIndex = mesh.morphTargetDictionary["openclinxr_cheek_tension"];
+    const mouthOpenIndex = resolveMorphTargetIndex(mesh.morphTargetDictionary, "openclinxr_mouth_open");
+    const browConcernIndex = resolveMorphTargetIndex(mesh.morphTargetDictionary, "openclinxr_brow_concern");
+    const cheekTensionIndex = resolveMorphTargetIndex(mesh.morphTargetDictionary, "openclinxr_cheek_tension");
     if (typeof mouthOpenIndex === "number") {
       mesh.morphTargetInfluences[mouthOpenIndex] = Math.min(0.95, Math.max(0, openness));
       appliedTargetCount += 1;
