@@ -107,14 +107,11 @@ export function decodeObservedRowMarkerFromRgba(rgba, width, height, layout) {
 export function resolveObservedRowFromMarker(decoded, rows) {
   if (!decoded || !Array.isArray(rows)) throw new Error("row-barcode-missing");
   const matches = [];
-  const seen = new Set();
   for (const row of rows) {
     if (row?.callbackSerial !== decoded.callbackSerial || row?.nodeSerial !== decoded.nodeSerial) continue;
     let genN;
     try { genN = generation16(row.generation); } catch { continue; }
     if (genN !== decoded.generationN) continue;
-    if (seen.has(row.generation)) continue;
-    seen.add(row.generation);
     matches.push(row);
   }
   if (matches.length !== 1) throw new Error("row-barcode-missing");

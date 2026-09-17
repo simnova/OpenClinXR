@@ -229,6 +229,22 @@ export async function captureAudibleLipSync(repo = repoRoot) {
         executed: { path: `${runId}/neutral-face-view.mjs.executed.js`, sha256: writeUnique(runDir, "neutral-face-view.mjs.executed.js", executedBytes).sha256 },
       };
     }
+    const markerHelperModules = [];
+    for (const name of ["observed-row-overlay.mjs", "observed-row-barcode.mjs"]) {
+      const script = parsed.find((row) => (row.url ?? "").includes("/" + name));
+      const net = script && network.find((row) => row.response.url === script.url);
+      if (!script || !net?.requestId) throw new Error("marker-helper-provenance-missing:" + name);
+      const body = await cdp.send("Network.getResponseBody", {requestId: net.requestId});
+      const servedBytes = Buffer.from(body.body, body.base64Encoded ? "base64" : "utf8");
+      const source = await cdp.send("Debugger.getScriptSource", {scriptId: script.scriptId});
+      const executedBytes = Buffer.from(source.scriptSource, "utf8");
+      markerHelperModules.push({
+        sourcePath: "tools/openclinxr/evidence/audible-lip-sync-proof/" + name,
+        url: script.url, scriptId: script.scriptId, scriptParsedEvent: "Debugger.scriptParsed",
+        served: {path: `${runId}/${name}.served.js`, sha256: writeUnique(runDir, name + ".served.js", servedBytes).sha256},
+        executed: {path: `${runId}/${name}.executed.js`, sha256: writeUnique(runDir, name + ".executed.js", executedBytes).sha256},
+      });
+    }
     const wavRef = { path: `${runId}/input.wav`, sha256: sha256(wavBytes) };
     const cueRef = { path: `${runId}/cues.json`, sha256: sha256(cueBytes) };
     const sourceBindings = Object.entries(fixture.requiredSourceRoles).map(([role, path]) => ({
@@ -256,6 +272,7 @@ export async function captureAudibleLipSync(repo = repoRoot) {
       sourceBindings,
       executedModules,
       helperModule,
+      markerHelperModules,
       viteDiagnostics,
       prerender: result.prerender,
       recorderStartedAtMs: result.recorderStartedAtMs,

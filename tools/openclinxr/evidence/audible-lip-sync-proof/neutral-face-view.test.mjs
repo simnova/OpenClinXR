@@ -277,10 +277,12 @@ test('separate-skeleton posed hair crown is framed; face-only camera clips it; g
 test('neutral overlay is a GL barcode after the authored scene, not a DOM overlay',async()=>{
   const {readFile}=await import('node:fs/promises');
   const source=await readFile(new URL('./neutral-face-view.mjs',import.meta.url),'utf8');
-  assert.match(source,/encodeObservedRowMarker/);
-  assert.match(source,/OrthographicCamera/);
-  assert.match(source,/renderer\.render\(overlayScene,overlayCam\)/);
-  assert.match(source,/autoClear=false/);
+  assert.match(source,/createObservedRowOverlay/);
+  assert.match(source,/rowOverlay\.render\(renderer,row\)/);
+  const overlay=await readFile(new URL('./observed-row-overlay.mjs',import.meta.url),'utf8');
+  assert.match(overlay,/OrthographicCamera/);
+  assert.match(overlay,/renderer\.render\(scene,camera\)/);
+  assert.match(overlay,/autoClear=false/);
   assert.doesNotMatch(source,/innerHTML|createElement\(['"]div['"]\)/);
   assert.match(source,/marker:\{version:marker\.version,checksum:marker\.checksum/);
   assert.match(source,/containMeshes\?\?\[\]/);

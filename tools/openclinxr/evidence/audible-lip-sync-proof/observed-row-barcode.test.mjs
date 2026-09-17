@@ -122,3 +122,8 @@ it("refuses a decoded nonce with no matching observed row", () => {
     {callbackSerial: 1, generation: "clock-patient:turn-1:7", nodeSerial: 3},
   ])).toThrow(/row-barcode-missing/);
 });
+
+it("refuses duplicate raw identities even when their full generation matches",()=>{
+ const decoded=decodeObservedRowBits(encodeObservedRowMarker(row).bits);
+ expect(()=>resolveObservedRowFromMarker(decoded,[row,{...row,sourcePositionSeconds:999}])).toThrow(/row-barcode-missing/);
+});

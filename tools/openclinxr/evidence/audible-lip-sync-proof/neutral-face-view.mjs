@@ -1,6 +1,6 @@
-import {Box3, Color, DataTexture, DirectionalLight, HemisphereLight, Mesh, MeshBasicMaterial, NearestFilter, OrthographicCamera, PerspectiveCamera, PlaneGeometry, PropertyBinding, Quaternion, RGBAFormat, Scene, Vector3, WebGLRenderer} from "three";
+import {Box3, Color, DirectionalLight, HemisphereLight, PerspectiveCamera, PropertyBinding, Quaternion, Scene, Vector3, WebGLRenderer} from "three";
 import {isFittedHairMeshName} from "../../../../packages/openclinxr/xr-scene/dist/index.js";
-import {encodeObservedRowMarker, ROW_BARCODE_VIEWPORT} from "./observed-row-barcode.mjs";
+import {createObservedRowOverlay} from "./observed-row-overlay.mjs";
 
 const components = ["getX", "getY", "getZ", "getW"];
 const vec = (bone) => bone.getWorldPosition(new Vector3());
@@ -190,32 +190,9 @@ export function createNeutralFaceView(slot) {
   const fill = new HemisphereLight(0xffffff,0x6e7788,2); fill.layers.set(30);
   scene.add(fill);const key=new DirectionalLight(0xffffff,2);key.layers.set(30);scene.add(key,key.target);
   const camera=new PerspectiveCamera(35,1,.001,10);camera.layers.set(30);
-  const overlayScene=new Scene();
-  const overlayCam=new OrthographicCamera(-1,1,1,-1,0,1);
-  const overlayData=new Uint8Array(ROW_BARCODE_VIEWPORT*ROW_BARCODE_VIEWPORT*4);
-  const overlayTex=new DataTexture(overlayData,ROW_BARCODE_VIEWPORT,ROW_BARCODE_VIEWPORT,RGBAFormat);
-  overlayTex.magFilter=NearestFilter;overlayTex.minFilter=NearestFilter;overlayTex.flipY=true;overlayTex.needsUpdate=true;
-  const overlay=new Mesh(new PlaneGeometry(2,2),new MeshBasicMaterial({map:overlayTex,transparent:true,depthTest:false,depthWrite:false}));
-  overlayScene.add(overlay);
+  const rowOverlay=createObservedRowOverlay();
   let framing;
-  function drawMarker(row){
-    overlayData.fill(0);
-    const marker=encodeObservedRowMarker(row);
-    const {layout,bits}=marker;
-    for(let i=0;i<bits.length;i++){
-      const v=bits[i]?255:0;
-      const x0=layout.x0+i*layout.cellPx;
-      for(let y=layout.y0;y<layout.y0+layout.stripPx;y++){
-        for(let x=x0;x<x0+layout.cellPx;x++){
-          const o=(y*ROW_BARCODE_VIEWPORT+x)*4;
-          overlayData[o]=overlayData[o+1]=overlayData[o+2]=v;overlayData[o+3]=255;
-        }
-      }
-    }
-    overlayTex.needsUpdate=true;
-    return marker;
-  }
-  return {canvas,getRig(){return rig;},excludeHostCues(cues){for(const cue of cues)cue?.traverse((object)=>object.layers.set(0));},render(row){framing=fitNeutralHeadCamera(rig,camera,slot.root);key.position.copy(camera.position);key.target.position.copy(rig.head.getWorldPosition(new Vector3()));renderer.autoClear=true;renderer.render(scene,camera);let marker=null;if(row){marker=drawMarker(row);renderer.autoClear=false;renderer.clearDepth();renderer.render(overlayScene,overlayCam);renderer.autoClear=true;framing={...framing,marker:{version:marker.version,checksum:marker.checksum,callbackSerial:marker.callbackSerial,generation:marker.generation,generationN:marker.generationN,nodeSerial:marker.nodeSerial,layout:marker.layout}};}return framing;},dispose(){overlayTex.dispose();overlay.geometry.dispose();overlay.material.dispose();restore();},getFraming(){return framing;}};
+  return {canvas,getRig(){return rig;},excludeHostCues(cues){for(const cue of cues)cue?.traverse((object)=>object.layers.set(0));},render(row){framing=fitNeutralHeadCamera(rig,camera,slot.root);key.position.copy(camera.position);key.target.position.copy(rig.head.getWorldPosition(new Vector3()));renderer.autoClear=true;renderer.render(scene,camera);let marker=null;if(row){marker=rowOverlay.render(renderer,row);framing={...framing,marker:{version:marker.version,checksum:marker.checksum,callbackSerial:marker.callbackSerial,generation:marker.generation,generationN:marker.generationN,nodeSerial:marker.nodeSerial,layout:marker.layout}};}return framing;},dispose(){rowOverlay.dispose();restore();},getFraming(){return framing;}};
   } catch(error) {
     restore();
     throw error;
