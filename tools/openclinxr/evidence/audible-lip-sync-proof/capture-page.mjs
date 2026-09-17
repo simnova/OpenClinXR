@@ -40,9 +40,12 @@ export async function runBrowserCapture(input) {
     else if (name.includes("runtime-expression-cue")) idleCues.expression = object;
   });
   if (!idleCues.mouth || !idleCues.gaze || !idleCues.eyeFocus || !idleCues.expression) throw new Error("idle-cue-identity-missing");
-  if (![idleCues.mouth, idleCues.gaze, idleCues.eyeFocus, idleCues.expression].every((cue) => cue.visible === false)) {
-    throw new Error("idle-cue-not-hidden");
-  }
+  const idleCueVisibility = {
+    mouth: idleCues.mouth.visible === true,
+    gaze: idleCues.gaze.visible === true,
+    eyeFocus: idleCues.eyeFocus.visible === true,
+    expression: idleCues.expression.visible === true,
+  };
   const neutralView = createNeutralFaceView({root: ownedRoot, actorSlot});
   const canvas = neutralView.canvas;
   const previousAfterRender = clinicalScene.onAfterRender;
@@ -53,7 +56,7 @@ export async function runBrowserCapture(input) {
     displayNowMs: performance.now(),
     contextCurrentTime: context.currentTime,
     framing: prerenderFraming,
-    idleCuesHidden: true,
+    idleCueVisibility,
   };
   const recorderDest = audio.getRecorderDestination();
   if (!recorderDest) throw new Error("combined-mediarecorder-unstartable");

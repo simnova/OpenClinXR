@@ -55,7 +55,8 @@ test('consumed capture uses neutral canvas and one host facial writer',async()=>
   assert.match(source,/targetIndex/);
   assert.match(source,/contextCurrentTime: context\.currentTime/);
   assert.match(source,/recorder\.onstart/);
-  assert.ok(source.indexOf('idle-cue-not-hidden')<source.indexOf('neutralView.render()'));
+  assert.ok(source.indexOf('idle-cue-identity-missing')<source.indexOf('neutralView.render()'));
+  assert.match(source,/idleCueVisibility/);
   assert.ok(source.indexOf('neutralView.render()')<source.indexOf('recorder.start()'));
   assert.ok(source.indexOf('await recorderStarted')<source.indexOf('bridge.fire()'));
   assert.ok(source.indexOf('createNeutralFaceView({')<source.indexOf('bridge.fire()'));
