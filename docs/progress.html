@@ -27,6 +27,210 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-17T0324">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 103 &middot; 2026-09-17 03:24 EDT</p>
+          <h2>The foot-slide reported as undetermined three entries ago has a cause, a fix, and now a picture. Four other repairs got pictures too.</h2>
+        </div>
+        <p>
+          Everything below is merged. Every image and video on this page was rendered specifically
+          for it and looked at, frame by frame, at its native size, before publishing &mdash; not
+          taken on trust from whoever produced it. Where a number below could not be matched with a
+          picture, that is said plainly instead of skipped.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Seven repairs, each with its own measurement. Bold rows have a picture below.</caption>
+            <thead><tr><th scope="col">What was wrong</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Standing actors slid their whole body sideways</strong></td><td>worst toe drift 0.0122&nbsp;m over 40&nbsp;s of standing still</td><td>0.0004&nbsp;m (perceptual floor 0.005&nbsp;m)</td></tr>
+              <tr><td><strong>The fitted eyebrow had no shape keys; a brow action unit moved the skin under a rigid brow</strong></td><td>0 of 8 brow controls moved the eyebrow mesh</td><td>all 8 move it, 4.2&ndash;6.9&nbsp;mm each</td></tr>
+              <tr><td><strong>A silent actor never blinked</strong></td><td>13.5 blinks/min, exactly every 4.3&nbsp;s</td><td>17.5 blinks/min, 2.1&ndash;4.7&nbsp;s apart</td></tr>
+              <tr><td>Feeling reached an MPFB face and moved nothing</td><td>0 of 3 facial targets written</td><td>2 of 3 written (the third has no matching control on this topology)</td></tr>
+              <tr><td><strong>The skin bake drew hard ridges at each cell boundary instead of pore texture</strong></td><td>correlation ratio 4.58 (large correlated facets)</td><td>3.57 &mdash; improved, still not fine grain. Partial.</td></tr>
+              <tr><td>A garment-classification gate masked its own failures behind one catch-all reason</td><td>5 of 5 clauses failing for the same reported cause</td><td>3 real, individually named defects</td></tr>
+              <tr><td>Every agent turn on the low-cost worker model silently failed and retried</td><td>a streamed tool call returned no text and no tool call &mdash; 15 retries</td><td>the tool call and its finish reason arrive; a verified turn completed in 12&nbsp;s with 0 retries</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>The undetermined foot slide, found and pictured</h3>
+        <p>
+          Entries 99 through 102 carried the same open line: a standing patient's foot moves
+          against the floor by about a centimetre and a half, cause undetermined. It has a cause
+          now. The idle-sway code assigned <code>slot.root.position.x = baseX + sway</code> on
+          every frame. <code>slot.root</code>'s own local origin sits at the character's feet, so
+          that line was a flat sideways shove of the entire body, feet included &mdash; nothing
+          downstream ever corrected it. The sway is now composed into a rotation about that same
+          near-floor origin instead of a position offset: a lean, not a slide. Measured over 40
+          simulated seconds of standing, non-speaking idle: worst toe drift went from 0.0122&nbsp;m
+          to 0.0004&nbsp;m, against a stated perceptual floor of 0.005&nbsp;m. The torso still
+          visibly sways; a test now refuses any fix that removes the sway rather than relocating it.
+        </p>
+        <p>
+          The two images below are the same loaded figure, the same camera, the same lighting,
+          differing only in which of the two formulas is applied to the root at the same simulated
+          instant: the old code's flat +12&nbsp;mm shift, and the new code's ~1&deg; lean. Camera is
+          low and front-on rather than side-on &mdash; the slide runs left-right, and a profile
+          camera foreshortens exactly that axis to nothing.
+        </p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:16px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/foot-slide-idle-sway-before-2026-09-17.png" alt="The physician's feet from a low front camera, old sway code applied: the whole figure is shifted off the floor grid's centre line." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Before &mdash; old code, position.x shifted +12&nbsp;mm</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/foot-slide-idle-sway-after-2026-09-17.png" alt="The same feet, same camera, new sway code applied: the figure sits back on the floor grid's centre line." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">After &mdash; new code, rotation lean, feet stay put</figcaption>
+          </figure>
+        </div>
+        <p class="evidence-note">
+          Measured on this render: the shoe silhouette's centre shifted about 18&nbsp;px between the
+          two frames at this framing, in the direction the old formula's +12&nbsp;mm shift predicts.
+          A wider, single-condition shot of the same figure for orientation:
+        </p>
+        <figure style="margin:8px 0 0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620; max-width:420px;">
+          <img src="assets/foot-slide-idle-sway-context-2026-09-17.png" alt="The full standing physician figure on the floor plane, new code, for orientation." style="width:100%; height:auto; display:block;">
+          <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Same figure, pulled back, for orientation</figcaption>
+        </figure>
+
+        <h3>The eyebrow now has shape keys, and the movement is genuinely small</h3>
+        <p>
+          Shipped MPFB bodies carry 47 morph targets, 8 of them eyebrow action units. The fitted
+          eyebrow is a separate mesh from the body and carried none of them &mdash; a brow action
+          unit deformed the skin beneath a brow that never moved. It now reuses the same
+          correspondence used to fit the eyebrow in the first place, once per body brow key.
+          Verified by reading the exported geometry back: all 8 targets are present under their
+          exact body-matching names and every one moves real geometry, 4.2 to 6.9&nbsp;mm,
+          reproduced three times on two different characters.
+        </p>
+        <p>
+          Said plainly: the eyebrow mesh is 21,816 triangles across roughly a 269&times;22&nbsp;pixel
+          band on screen at this framing &mdash; about 3.7 triangles per pixel. It renders as
+          speckle, and a few millimetres of motion in that speckle is genuinely hard to see. The
+          crop below is enlarged 3&times; with nearest-neighbour scaling only, so no new detail is
+          invented &mdash; it just shows the existing pixels bigger. Look at the outer end of the
+          near eyebrow.
+        </p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:12px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#fff;">
+            <img src="assets/brow-facs-control-crop-2026-09-17.png" alt="Brow band, enlarged 3x nearest-neighbour, control condition with no eyebrow shape keys." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Control &mdash; eyebrow mesh has no shape keys</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#fff;">
+            <img src="assets/brow-facs-treatment-crop-2026-09-17.png" alt="The same brow band, same enlargement, treatment condition with the brow-up unit driving the fitted eyebrow's own shape key." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Treatment &mdash; same unit now moves the eyebrow mesh</figcaption>
+          </figure>
+        </div>
+
+        <h3>Blinking, frame-accurate</h3>
+        <p>
+          A character that never spoke also never blinked. The interval is no longer a fixed 4.3&nbsp;s
+          metronome; it is now derived from the blink index, scattered 2.1&ndash;4.7&nbsp;s apart, at
+          a long-run rate of 17.5 per minute &mdash; inside the ordinary human resting range, and
+          still exactly reproducible frame to frame. The two stills below are the same capture,
+          same camera, lids open and then fully closed:
+        </p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:12px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#10221a;">
+            <img src="assets/blink-open-2026-09-17.png" alt="An actor mid-speech with both eyes open." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Eyes open</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#10221a;">
+            <img src="assets/blink-closed-2026-09-17.png" alt="The same actor, both eyelids fully closed." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Eyes closed</figcaption>
+          </figure>
+        </div>
+        <div class="motion-proof">
+          <video class="motion-proof__video" controls muted loop playsinline preload="metadata"
+            poster="assets/blink-demo-poster-2026-09-17.png"
+            aria-label="An actor speaking a line while an authored emotion arc plays, with natural blinking in the background.">
+            <source src="assets/blink-demo-2026-09-17.webm" type="video/webm">
+            Your browser does not support WebM video.
+          </video>
+          <div>
+            <p class="status-copy">
+              Twelve seconds of the same actor speaking a recorded line while an authored emotion
+              arc runs underneath. Watched at full length, it shows speech and the emotion arc
+              running; it is not, on its own, close enough scrutiny to certify a blink lands inside
+              this particular clip &mdash; the frame-accurate stills above carry that specific claim.
+            </p>
+          </div>
+        </div>
+
+        <h3>The skin bake, and a fix that is honestly partial</h3>
+        <p>
+          The blotchy skin reported two entries ago has a mechanism: a Voronoi cell pattern feeds a
+          bump map through a ramp that only spans half its input range, so nearly all of the bump
+          signal piles up into a hard ridge at each cell's boundary and the interior stays flat
+          &mdash; a mosaic of facets, not pore texture. The ramp now spans its whole input range and
+          the cells are finer. Measured with the same instrument throughout (a spatial-correlation
+          ratio: high means large correlated facets, low means fine independent grain): 4.58 before,
+          3.57 after. That is a real improvement and it does not reach the roughly 1.7&ndash;3.3
+          range this project measures on genuinely fine grain elsewhere. The residual cause is
+          understood &mdash; the ramp's shape, not just its two endpoint stops &mdash; and reshaping
+          it is not done here. Call this partial, not fixed.
+        </p>
+        <p>
+          The two images below are raw normal-map textures, not lit renders &mdash; flat lilac means
+          no bump; anything darker or more saturated is a surface angle. Read them for facet SIZE,
+          not for how skin should look. Same isolated bake, same body, old constants against the
+          ones now shipping.
+        </p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:12px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#8888e8;">
+            <img src="assets/skin-dermal-before-2026-09-17.png" alt="Skin normal-map bake, old ramp constants: large, hard-edged flat facets." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Before &mdash; wide cells, half-range ramp</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#8888e8;">
+            <img src="assets/skin-dermal-after-2026-09-17.png" alt="Skin normal-map bake, current ramp constants: visibly smaller facets, still a hard-edged mosaic rather than fine grain." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">After &mdash; finer cells, full-range ramp, still faceted</figcaption>
+          </figure>
+        </div>
+
+        <h3>Also landed, no picture attached</h3>
+        <p>
+          A garment-classification gate had one catch-all failure reason covering five unrelated
+          clauses; it now names three real, separate defects instead of masking them (a nurse scrub
+          shirt shipping no texture at all; a tight-jeans image on two actors missing its final PNG
+          chunk so it fails to decode; a t-shirt shipped at the wrong role colour). Two truncated
+          nurse-scrub textures &mdash; a shirt and pants, both missing their final image chunk
+          &mdash; were replaced with complete upstream files. Neither is a visual claim worth a
+          picture on its own; both are recorded so the next person does not re-discover them.
+        </p>
+        <p>
+          Separately: the low-cost worker model this project dispatches most implementation work to
+          had been silently failing on every turn that used a tool. The proxy in front of it
+          treated a streamed tool-call response as an empty answer &mdash; no text, no recognized
+          tool call &mdash; and retried the identical request up to 15 times. Measured on the wire,
+          before: <code>content '' tool_calls=[] finish=None</code>. After: the tool call and its
+          finish reason arrive intact, verified end to end with a 12-second turn and zero retries.
+          Several of the pictures on this page were produced by that same worker model after the fix
+          landed.
+        </p>
+
+        <h3>Still open</h3>
+        <p>
+          The skin bake is a partial fix, stated above, and the ramp-shape repair that would close
+          it further is not started. The MPFB facet mosaic on already-shipped characters is
+          unchanged by tonight's work &mdash; this fix only changes what a future bake produces; none
+          of the 11 shipped MPFB actors have been re-baked. The eyebrow fix is source-only for the
+          same reason: no shipped character has been regenerated with it yet. The face still does
+          not read as its intended mood at a glance, even with eight brow targets now moving real
+          geometry &mdash; whether eight small brow movements are enough to be seen is a separate,
+          unsettled question from whether they move anything at all.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or
+          production claim is made here. The foot-slide and brow-shape-key fixes are reported as
+          merged with an independently rendered, independently measured picture for each. The skin
+          fix is reported as PARTIAL and is stated as such in its own measured numbers, not implied
+          fixed by the presence of a picture. The blink video shows speech and an authored emotion
+          arc; it is not offered as proof of a blink landing inside that specific clip &mdash; the
+          frame-accurate stills carry that claim. No shipped GLB has been regenerated by any repair
+          in this entry. No claim is made about how any of this looks in a headset.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-17T0010">
         <div class="section-heading">
           <p class="eyebrow">Entry 102 &middot; 2026-09-17 00:10 EDT</p>
