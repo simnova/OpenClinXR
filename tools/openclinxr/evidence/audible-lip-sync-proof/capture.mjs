@@ -10,6 +10,12 @@ import { runBrowserCapture } from "./capture-page.mjs";
 
 const repoRoot = fileURLToPath(new URL("../../../../", import.meta.url));
 const packetRoot = dirname(fixture.proofReportPath);
+/** Owner RED scaffold: selected directory is not admitted yet. */
+export function resolveCaptureOutputPaths(selectedDirectory) {
+  void selectedDirectory;
+  return { packetRoot: dirname(fixture.proofReportPath), latest: fixture.proofReportPath };
+}
+
 const actorId = "patient_robert_hayes_v1";
 const scenarioId = "ed_chest_pain_priority_v1";
 const responseText = "diagnostic prepared actor pcm riddle";
