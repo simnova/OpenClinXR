@@ -1,6 +1,7 @@
 import { useCallback, useState, type ReactElement } from "react";
 import type { CompileEdge } from "@openclinxr/ui-shared/admin-compile-graph-canvas";
 import type { FacultyCompileLockRow } from "./faculty-compile-lock.js";
+import { resolveCompileEdgeConnection, validateCompileEdge } from "./compile-edge-port-types.js";
 import {
   EnvironmentGenerationQueuePanel,
   type EnvironmentGenerationQueuePanelProps,
@@ -13,7 +14,7 @@ export type SeedWorldviewCompileGraph = {
 
 export type SeedWorldviewQueueProps = Omit<
   EnvironmentGenerationQueuePanelProps,
-  "onAddActor" | "onBindEquipmentFixtureSlot" | "onAddTrellisModel" | "onCompileEncounter"
+  "onAddActor" | "onBindEquipmentFixtureSlot" | "onAddTrellisModel" | "onCompileEncounter" | "onConnectNodes"
 > & {
   onCompileEncounter?: (scenarioId: string, graph: SeedWorldviewCompileGraph) => void;
 };
@@ -43,6 +44,8 @@ export function SeedWorldviewQueue({
       onStationApply={worldview.onApplyStation}
       onAddNode={worldview.onAddNode}
       onRemoveNode={worldview.onRemoveNode}
+      onConnectNodes={worldview.onConnectNodes}
+      {...(worldview.state.lastConnectionAttempt ? { connectionAttempt: worldview.state.lastConnectionAttempt } : {})}
       {...(onCompileEncounter
         ? {
             onCompileEncounter: (scenarioId: string) =>
@@ -75,6 +78,15 @@ export type WorldviewTrellisModel = {
   packId: string;
 };
 
+/**
+ * Result of the most recent "connect nodes" worldview attempt (WCG typed-port gate).
+ * Kept on state, not only as a return value, so the panel can show the operator what
+ * happened to the connection they just tried, including a refusal reason.
+ */
+export type WorldviewConnectionAttempt =
+  | { ok: true; edge: CompileEdge }
+  | { ok: false; from: string; to: string; reason: string };
+
 export type WorldviewCompileGraphState = {
   actors: WorldviewActorDraft[];
   equipmentBinds: WorldviewEquipmentBind[];
@@ -82,10 +94,21 @@ export type WorldviewCompileGraphState = {
   extraNodeIds: string[];
   removedNodeIds: string[];
   stationPayloads: Partial<Record<string, Record<string, unknown>>>;
+  /** Edges accepted through the "connect nodes" typed-port gate (`reduceWorldviewConnectNodes`). */
+  manualEdges: CompileEdge[];
+  lastConnectionAttempt?: WorldviewConnectionAttempt;
 };
 
 export function emptyWorldviewCompileGraph(): WorldviewCompileGraphState {
-  return { actors: [], equipmentBinds: [], trellisModels: [], extraNodeIds: [], removedNodeIds: [], stationPayloads: {} };
+  return {
+    actors: [],
+    equipmentBinds: [],
+    trellisModels: [],
+    extraNodeIds: [],
+    removedNodeIds: [],
+    stationPayloads: {},
+    manualEdges: [],
+  };
 }
 
 export function reduceWorldviewAddActor(
@@ -154,9 +177,52 @@ export function reduceWorldviewRemoveNode(
     extraNodeIds: state.extraNodeIds.filter((id) => id !== nodeId),
     removedNodeIds: state.removedNodeIds.includes(nodeId) ? state.removedNodeIds : [...state.removedNodeIds, nodeId],
     stationPayloads: state.stationPayloads,
+    manualEdges: state.manualEdges,
   };
 }
 
+/**
+ * The "connect nodes" worldview action: a user picks two existing compile-graph node
+ * ids and asks for a connection. `resolveCompileEdgeConnection` (WCG typed-port gate)
+ * infers the one closed-vocabulary edge kind those two port types could form and
+ * REFUSES the connection when the output type does not match the input type. A
+ * refused attempt is recorded (`lastConnectionAttempt`) but no edge is added; an
+ * accepted attempt appends the edge to `manualEdges` for `mergeWorldviewCompileEdges`.
+ */
+export function reduceWorldviewConnectNodes(
+  state: WorldviewCompileGraphState,
+  fromNodeId: string,
+  toNodeId: string,
+): WorldviewCompileGraphState {
+  const resolution = resolveCompileEdgeConnection(fromNodeId, toNodeId);
+  if (!resolution.ok) {
+    return {
+      ...state,
+      lastConnectionAttempt: { ok: false, from: fromNodeId, to: toNodeId, reason: resolution.reason },
+    };
+  }
+  const alreadyPresent = state.manualEdges.some(
+    (edge) => edge.from === resolution.edge.from && edge.to === resolution.edge.to && edge.kind === resolution.edge.kind,
+  );
+  return {
+    ...state,
+    manualEdges: alreadyPresent ? state.manualEdges : [...state.manualEdges, resolution.edge],
+    lastConnectionAttempt: { ok: true, edge: resolution.edge },
+  };
+}
+
+/**
+ * WCG typed-port gate. Every worldview action below used to stamp an ad hoc,
+ * unvalidated `kind` — `actor.compileNodeKind` (a node FAMILY name, "ActorVariant",
+ * not an edge kind), `"fixtureSlot"`, `"trellisBake"`, `"authored"` — none of them
+ * checked against a vocabulary or against what port type the endpoints actually are.
+ * Each is now built with the CLOSED, port-checked kind from `compile-edge-port-types.ts`
+ * (`body_to_clothing`, `equip_to_fixture_slot`, `trellis_model_to_room`,
+ * `standalone_node_declared`), and `validateCompileEdge` runs over EVERY edge —
+ * base, worldview-derived, and manually connected — before it reaches the canvas.
+ * A candidate that fails validation is dropped, never silently rendered as a
+ * type-incoherent dependency.
+ */
 export function mergeWorldviewCompileEdges(
   base: readonly CompileEdge[],
   state: WorldviewCompileGraphState,
@@ -166,29 +232,30 @@ export function mergeWorldviewCompileEdges(
     extra.push({
       from: `actor:${actor.actorId}:body`,
       to: `actor:${actor.actorId}:wardrobe`,
-      kind: actor.compileNodeKind,
+      kind: "body_to_clothing",
     });
   }
   for (const bind of state.equipmentBinds) {
     extra.push({
       from: `equip:${bind.equipmentId}`,
       to: `fixture:${bind.fixtureSlot}`,
-      kind: "fixtureSlot",
+      kind: "equip_to_fixture_slot",
     });
   }
   for (const model of state.trellisModels) {
     extra.push({
       from: `trellis:${model.modelId}`,
       to: `room:equipment`,
-      kind: "trellisBake",
+      kind: "trellis_model_to_room",
     });
   }
   for (const nodeId of state.extraNodeIds) {
-    extra.push({ from: nodeId, to: nodeId, kind: "authored" });
+    extra.push({ from: nodeId, to: nodeId, kind: "standalone_node_declared" });
   }
-  return [...base, ...extra].filter(
+  const candidates = [...base, ...extra, ...state.manualEdges].filter(
     (edge) => !state.removedNodeIds.includes(edge.from) && !state.removedNodeIds.includes(edge.to),
   );
+  return candidates.filter((edge) => validateCompileEdge(edge).ok);
 }
 
 export function mergeWorldviewLockRows(
@@ -250,6 +317,8 @@ export function useWorldviewCompileGraph(): {
   onApplyStation: (stationId: string, value: Record<string, unknown>) => void;
   onAddNode: (nodeId: string) => void;
   onRemoveNode: (nodeId: string) => void;
+  /** Typed-port "connect nodes" action (WCG). Refuses a mismatched pair; see reduceWorldviewConnectNodes. */
+  onConnectNodes: (fromNodeId: string, toNodeId: string) => void;
 } {
   const [state, setState] = useState(emptyWorldviewCompileGraph);
   const onAddActor = useCallback((payload: WorldviewActorDraft) => {
@@ -270,7 +339,19 @@ export function useWorldviewCompileGraph(): {
   const onRemoveNode = useCallback((nodeId: string) => {
     setState((current) => reduceWorldviewRemoveNode(current, nodeId));
   }, []);
-  return { state, onAddActor, onBindEquipmentFixtureSlot, onAddTrellisModel, onApplyStation, onAddNode, onRemoveNode };
+  const onConnectNodes = useCallback((fromNodeId: string, toNodeId: string) => {
+    setState((current) => reduceWorldviewConnectNodes(current, fromNodeId, toNodeId));
+  }, []);
+  return {
+    state,
+    onAddActor,
+    onBindEquipmentFixtureSlot,
+    onAddTrellisModel,
+    onApplyStation,
+    onAddNode,
+    onRemoveNode,
+    onConnectNodes,
+  };
 }
 
 function actorIdFromCompileNode(nodeId: string): string | undefined {

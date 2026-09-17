@@ -7,9 +7,10 @@ import {
   type ScenarioSceneGenerationPipelineWorkOrderQueue,
 } from "@openclinxr/asset-registry";
 import { PlacementAuthoringRow } from "./placement-authoring-row.js";
-import { Button, Form, Input, InputNumber, Select, Space, Table, Tag, Typography } from "antd";
+import { Button, Form, Input, Select, Space, Table, Tag, Typography } from "antd";
 import { FactoryStationCards } from "@openclinxr/ui-shared/admin-factory-station-cards";
 import { lazy, type ReactElement, Suspense, useEffect, useMemo } from "react";
+import { ConnectNodesRow } from "./connect-nodes-row.js";
 import type { CreateScenarioSceneGenerationRequestResult, ScenarioSceneGenerationRequestPublicationReadiness, ScenarioSceneGenerationRequestQueue } from "./admin-review-types.js";
 import { supportSurfaceOptions } from "./case-authoring-model.js";
 import type { CompileEdge } from "@openclinxr/ui-shared/admin-compile-graph-canvas";
@@ -28,30 +29,8 @@ import {
   sceneGenerationRequestProjectionArtifactStatusLabel,
   sceneGenerationRequestReviewStatusColor,
 } from "./status-view-model.js";
-import {
-  summarizeAssetReleaseLadderReplayProjection,
-  summarizeDynamicBehaviorCoverage,
-  summarizeEncounterFactoryDryRun,
-  summarizeEncounterFactoryInputPlanning,
-  summarizeEvidenceGateRefs,
-  summarizeHumanoidMetadataBlockers,
-  summarizeHumanoidRealismProfiles,
-  summarizeHumanReviewActions,
-  summarizeMaterializationEvidenceAttachments,
-  summarizeMaterializationInputManifest,
-  summarizeMaterializationInputReviewActions,
-  summarizeMaterializationInputReviewDecisionRecord,
-  summarizePedsGeneratedPlayerAndEmotion,
-  summarizePublicationMetadata,
-  summarizeRuntimeBundleAssemblyAudit,
-  summarizeRuntimeBundleGateRefs,
-  summarizeRuntimeEvidenceCaptureScaffold,
-  summarizeRuntimeRealismEvidenceInputReviewDecisionRecord,
-  summarizeRuntimeVisualEvidenceAttachmentActions,
-  summarizeRuntimeVisualEvidenceAttachmentRecord,
-  summarizeRuntimeVisualEvidenceAttachmentSummary,
-  summarizeScenarioReviewGate,
-} from "./environment-queue-readiness-summaries.js";
+import { summarizeEvidenceGateRefs } from "./environment-queue-readiness-summaries.js";
+import { PublicationReadinessSummaryList } from "./publication-readiness-summary-list.js";
 
 export type EnvironmentGenerationQueuePanelProps = {
   environmentGenerationQueue: EnvironmentGenerationQueue;
@@ -88,6 +67,16 @@ export type EnvironmentGenerationQueuePanelProps = {
   onStationApply?: (stationId: import("@openclinxr/shared-schemas").ProductionStationId, value: Record<string, unknown>) => void;
   onAddNode?: (nodeId: string) => void;
   onRemoveNode?: (nodeId: string) => void;
+  /**
+   * Typed-port "connect nodes" action (World Compile Graph). The caller (SeedWorldviewQueue)
+   * runs the candidate through `resolveCompileEdgeConnection` and REFUSES a connection whose
+   * output port type does not match the input port type the picked kind requires; an accepted
+   * connection is appended to the compile graph. This is the drivable connect-two-nodes surface;
+   * `compileEdges` stays the source of truth for what is actually connected.
+   */
+  onConnectNodes?: (fromNodeId: string, toNodeId: string) => void;
+  /** Parent-owned result of the most recent onConnectNodes call, so a refusal reason is visible. */
+  connectionAttempt?: { ok: true; edge: CompileEdge } | { ok: false; from: string; to: string; reason: string };
   /** Authored Scenario.version for the featured case (worldview header). */
   caseDefVersion?: number;
   /** Last world-compile compileVersion for the featured case (worldview header). */
@@ -153,6 +142,8 @@ export function EnvironmentGenerationQueuePanel({
   onStationApply,
   onAddNode,
   onRemoveNode,
+  onConnectNodes,
+  connectionAttempt,
   caseDefVersion,
   compileVersion,
   placementAuthorRows,
@@ -329,27 +320,7 @@ export function EnvironmentGenerationQueuePanel({
           <Typography.Text type="secondary">{sceneGenerationPublicationReadiness.blockers.join(", ") || sceneGenerationPublicationReadiness.nextAction}</Typography.Text>
           <Typography.Text type="secondary">{`Learner-use blockers: ${sceneGenerationPublicationReadiness.learnerRuntimeUseBlockers?.join(", ") || "none"}`}</Typography.Text>
           <Typography.Text type="secondary">{`Evidence gates: ${summarizeEvidenceGateRefs(sceneGenerationPublicationReadiness.evidenceGateRefs)}`}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeScenarioReviewGate(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeRuntimeBundleGateRefs(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeRuntimeBundleAssemblyAudit(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizePublicationMetadata(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeHumanoidRealismProfiles(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeHumanoidMetadataBlockers(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeHumanReviewActions(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeDynamicBehaviorCoverage(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeEncounterFactoryInputPlanning(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeMaterializationInputManifest(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeMaterializationEvidenceAttachments(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeMaterializationInputReviewActions(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeMaterializationInputReviewDecisionRecord(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeRuntimeRealismEvidenceInputReviewDecisionRecord(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeRuntimeVisualEvidenceAttachmentSummary(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeRuntimeVisualEvidenceAttachmentRecord(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeAssetReleaseLadderReplayProjection(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeRuntimeVisualEvidenceAttachmentActions(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeRuntimeEvidenceCaptureScaffold(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizePedsGeneratedPlayerAndEmotion(sceneGenerationPublicationReadiness)}</Typography.Text>
-          <Typography.Text type="secondary">{summarizeEncounterFactoryDryRun(sceneGenerationPublicationReadiness)}</Typography.Text>
+          <PublicationReadinessSummaryList sceneGenerationPublicationReadiness={sceneGenerationPublicationReadiness} />
         </div>
       ) : null}
       {prohibitedActionEntries.length > 0 ? (
@@ -467,6 +438,11 @@ export function EnvironmentGenerationQueuePanel({
         <Typography.Paragraph type="secondary">
           Read-only @xyflow/react rendering of compile/materialization dependencies; no write path, Mongo persistence, or lock-API enforcement is implied.
         </Typography.Paragraph>
+        <ConnectNodesRow
+          compileEdges={compileEdges}
+          {...(onConnectNodes ? { onConnectNodes } : {})}
+          {...(connectionAttempt ? { connectionAttempt } : {})}
+        />
       </fieldset>
     </section>
   );
