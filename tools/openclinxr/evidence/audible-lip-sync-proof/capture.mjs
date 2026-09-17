@@ -277,6 +277,8 @@ export async function captureAudibleLipSync(repo = repoRoot) {
       viteDiagnostics,
       prerender: result.prerender,
       recorderStartedAtMs: result.recorderStartedAtMs,
+      recorderStartCallAtMs: result.recorderStartCallAtMs,
+      recorderOnStartAtMs: result.recorderOnStartAtMs,
       recorderEvents: result.recorderEvents,
       buildMetadata: metadata,
       authoredMaterialRows: result.authoredMaterialRows,

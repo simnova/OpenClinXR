@@ -80,29 +80,42 @@ export async function runBrowserCapture(input) {
   const stopped = new Promise((resolve) => {
     recorder.onstop = resolve;
   });
-  let recorderStartedAtMs;
+  let recorderStartCallAtMs;
+  let recorderOnStartAtMs;
+  let graphClockAtOnStart;
   const recorderStarted = new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error("mediarecorder-onstart-timeout:" + startupStage)), 2000);
-    recorder.onstart = () => { clearTimeout(timer); resolve(); };
+    recorder.onstart = () => {
+      recorderOnStartAtMs = performance.now();
+      graphClockAtOnStart = serializeAudioGraphClock(readAudioGraphClock(context, recorderOnStartAtMs));
+      clearTimeout(timer);
+      resolve();
+    };
     recorder.onerror = () => { clearTimeout(timer); reject(new Error("mediarecorder-start-failed:" + startupStage)); };
   });
   startupStage = "recorder-start";
+  recorderStartCallAtMs = performance.now();
+  const graphClockAtStartCall = serializeAudioGraphClock(readAudioGraphClock(context, recorderStartCallAtMs));
   recorder.start();
   startupStage = "post-start-draw";
   const prerenderFraming = neutralView.render();
   canvasStream.getVideoTracks()[0]?.requestFrame?.();
   await recorderStarted;
-  recorderStartedAtMs = performance.now();
-  const graphClockAtRecorderStart = readAudioGraphClock(context, recorderStartedAtMs);
+  const recorderStartedAtMs = recorderOnStartAtMs;
   const prerender = {
     displayNowMs: performance.now(),
     contextCurrentTime: context.currentTime,
-    graphClock: serializeAudioGraphClock(graphClockAtRecorderStart),
+    graphClock: graphClockAtOnStart,
+    graphClockAtStartCall,
+    graphClockAtOnStart,
     framing: prerenderFraming,
     idleCueVisibility,
     idleCueLayerExcluded,
+    recorderStartCallAtMs,
+    recorderOnStartAtMs,
     recorderStartedAtMs,
     recorderStartContextTime: context.currentTime,
+    contextId: graphClockAtOnStart?.contextId ?? null,
     contextIsGetContext: audio.getContext() === context,
     mediaStreamDestination: {
       type: recorderDest.constructor?.name ?? null,
@@ -251,6 +264,8 @@ export async function runBrowserCapture(input) {
     speechEndedAtMs: performance.now(),
     authoredMaterialRows: audio.getAuthoredMaterials(),
     framing: finalFraming,
+    recorderStartCallAtMs,
+    recorderOnStartAtMs,
     recorderStartedAtMs,
     recorderEvents,
     prerender,

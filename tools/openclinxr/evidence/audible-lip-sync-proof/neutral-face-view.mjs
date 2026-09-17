@@ -79,11 +79,10 @@ export function identifyHeadGeometry(root) {
   return {head,eyes,jaw,meshes,containMeshes,localUp,bindQuaternion};
 }
 
-/** SkinnedMesh.getVertexPosition already applies bindMatrixInverse (world). Unskinned meshes need matrixWorld. */
+/** getVertexPosition is mesh-local after bindMatrixInverse (shader skinning_vertex). World needs matrixWorld for skinned and unskinned. */
 export function skinnedWorldPoint(object, index, target) {
   object.getVertexPosition(index, target);
-  if (!object.isSkinnedMesh) target.applyMatrix4(object.matrixWorld);
-  return target;
+  return target.applyMatrix4(object.matrixWorld);
 }
 
 export function bindInverseMatchesWorld(object) {

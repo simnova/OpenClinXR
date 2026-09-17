@@ -73,6 +73,10 @@ test('consumed capture uses neutral canvas and one host facial writer',async()=>
   assert.match(source,/readAudioGraphClock/);
   assert.match(source,/serializeAudioGraphClock/);
   assert.match(source,/recorderEvents/);
+  assert.match(source,/recorderStartCallAtMs = performance\.now\(\)/);
+  assert.match(source,/recorderOnStartAtMs = performance\.now\(\)/);
+  assert.ok(source.indexOf('recorderStartCallAtMs = performance.now()')<source.indexOf('recorder.start()'));
+  assert.ok(source.indexOf('recorderOnStartAtMs = performance.now()')<source.indexOf('await recorderStarted'));
   assert.match(source,/notAnOutputDeviceClock: true/);
   assert.doesNotMatch(source,/0\.050637|fittedDelay|arbitraryDelay/);
   assert.doesNotMatch(source,/innerHTML|createElement\(['"]div['"]\)|position:\s*['"]absolute['"]/);
@@ -311,15 +315,36 @@ test('updateWorldMatrix leaves SkinnedMesh bindMatrixInverse stale; updateMatrix
   assert.ok(stale.distanceTo(fresh)>1e-4);
 });
 
-test('skinned world sample matches getVertexPosition after inverse refresh, not a second matrixWorld',()=>{
-  const a=actor();
-  a.mesh.position.y+=0.25;
-  a.root.updateMatrixWorld(true);
-  const world=skinnedWorldPoint(a.mesh,0,new Vector3());
-  const gpuLike=a.mesh.getVertexPosition(0,new Vector3());
-  const doubled=gpuLike.clone().applyMatrix4(a.mesh.matrixWorld);
-  assert.ok(world.distanceTo(gpuLike)<1e-8);
-  assert.ok(world.distanceTo(doubled)>1e-4);
-  const result=fitNeutralHeadCamera(identifyHeadGeometry(a.root),new PerspectiveCamera(35,1,.001,10),a.root);
-  assert.ok(result.hairContainment.every((row)=>row.bindInverseWorldResidual==null || row.bindInverseWorldResidual<1e-5) || result.containedHairVertices===0);
+function assertWorld(point, xyz, label) {
+  const dx=point.x-xyz[0], dy=point.y-xyz[1], dz=point.z-xyz[2];
+  assert.ok(Math.hypot(dx,dy,dz)<1e-6, `${label}: got [${point.x},${point.y},${point.z}] expected [${xyz}]`);
+}
+
+function translatedAttachedSkin() {
+  const root=new Group();
+  const bone=new Bone();
+  root.add(bone);
+  const geom=new BufferGeometry();
+  geom.setAttribute('position',new Float32BufferAttribute([0,1,0],3));
+  geom.setAttribute('skinIndex',new Uint16BufferAttribute([0,0,0,0],4));
+  geom.setAttribute('skinWeight',new Float32BufferAttribute([1,0,0,0],4));
+  const mesh=new SkinnedMesh(geom,new MeshBasicMaterial());
+  root.add(mesh);
+  mesh.bind(new Skeleton([bone]));
+  root.position.y=2;
+  return {root,mesh};
+}
+
+test('translated attached skin world is [0,3,0] after updateMatrixWorld; stale inverse and local-only are refused',()=>{
+  const {root,mesh}=translatedAttachedSkin();
+  root.updateWorldMatrix(true,true);
+  const unrefreshed=skinnedWorldPoint(mesh,0,new Vector3());
+  assertWorld(unrefreshed,[0,5,0],'unrefreshed updateWorldMatrix');
+  assert.throws(()=>assertWorld(unrefreshed,[0,3,0],'unrefreshed claimed as world'));
+  root.updateMatrixWorld(true);
+  const world=skinnedWorldPoint(mesh,0,new Vector3());
+  assertWorld(world,[0,3,0],'refreshed helper world');
+  const local=mesh.getVertexPosition(0,new Vector3());
+  assertWorld(local,[0,1,0],'no modelMatrix is mesh local');
+  assert.throws(()=>assertWorld(local,[0,3,0],'local claimed as world'));
 });
