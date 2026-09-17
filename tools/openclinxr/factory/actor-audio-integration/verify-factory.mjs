@@ -1,9 +1,9 @@
 /** Read retained results: this factory verifier never records or rewrites an AV attempt. */
 import {createHash} from "node:crypto";
 import {inspectExecutedModules} from "../../evidence/audible-lip-sync-proof/executed-module-integrity.mjs";
-import {reproduceViteModules} from "../../evidence/audible-lip-sync-proof/reproduce-vite-modules.mjs";
 import {execFileSync} from "node:child_process";
-import {realpathSync,existsSync,readFileSync} from "node:fs";
+import {realpathSync,existsSync,readFileSync,mkdtempSync,writeFileSync} from "node:fs";
+import {tmpdir} from "node:os";
 import {resolve,dirname} from "node:path";
 import {fileURLToPath} from "node:url";
 import {assertCaptureOutputWiring} from "../../evidence/audible-lip-sync-proof/capture-output-wiring.mjs";
@@ -31,7 +31,13 @@ const dataBindings=(fresh.sourceBindings??[]).filter(row=>row.role==="preparedDa
 const dataHash=createHash("sha256").update(readFileSync(resolve(tree,dataPath))).digest("hex");
 if(dataBindings.length!==1 || dataBindings[0].path!==dataPath || dataBindings[0].sha256!==dataHash)
   throw new Error("required current preparedData source binding");
-const reproduced=await reproduceViteModules(tree,fresh.executedModules,fresh.buildMetadata);
+const witnessRoot=mkdtempSync(resolve(tmpdir(),"factory-data-witness-"));
+const witnessInput=resolve(witnessRoot,"input.json");
+writeFileSync(witnessInput,JSON.stringify({repoRoot:tree,rows:fresh.executedModules,metadata:fresh.buildMetadata}));
+const reproduction=execFileSync("node",["tools/openclinxr/evidence/audible-lip-sync-proof/reproduce-vite-modules.mjs",witnessInput],
+  {cwd:tree,env:{...process.env,NODE_ENV:"test"},encoding:"utf8",maxBuffer:30*1024*1024,timeout:120000});
+writeFileSync(resolve(witnessRoot,"expected-current-modules.json"),reproduction);
+const reproduced=JSON.parse(reproduction);
 const dataErrors=inspectExecutedModules(fresh.executedModules,dirname(report),tree,[dataPath],reproduced);
 if(dataErrors.length) throw new Error("preparedData executed witness: "+dataErrors.join(","));
 console.log(JSON.stringify({treeRoot:tree,scope:"ordinary-dialogue-and-local-private-audible-clock-integrity",notTested:["physical-output-sync","phonetic-perceptual-sync","voice-recording-rights","case-artifact-admission"]}));
