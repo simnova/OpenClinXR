@@ -86,14 +86,20 @@ document it defers to does not exist, and it defers to an *external tools* licen
 not the asset. Meanwhile `culturalibre_male_boots.mhclo` says `# license CC-0`, and both pack pages
 list every asset as CC0 with no mention of AGPL anywhere.
 
-**Precedence, in order:**
+**Precedence, in order (CORRECTED 2026-09-17 — bake gates now match shapes 1-2):**
 
-1. the asset's own descriptor (`.mhclo` / `.mhmat`) — the author's declaration
-2. the publisher's per-asset pack page at `static.makehumancommunity.org/assets/assetpacks/<pack>.html`
-3. a mesh-header line — **only** when asset-specific, never when it is boilerplate deferring to an
-   external-tools document
+1. the asset's own descriptor (`.mhclo` / `.mhmat`) — an EXPLICIT declaration here, including
+   copyleft, always governs and is never overridden
+2. when the descriptor is silent or carries only exporter-template boilerplate, the committed
+   publisher catalogue governs: `tools/openclinxr/asset-pipeline/makeclothes/makehuman-catalogue-snapshot.json`
+   (asset-pack index https://static.makehumancommunity.org/assets/assetpacks/index.html, fetched
+   2026-09-17; user-contributed index recorded as secondary/future, not consumed)
+3. a mesh-header line — **only** when asset-specific and neither of the above resolved it, never
+   when it is boilerplate deferring to an external-tools document
 
-Silence still refuses. Two asset-specific sources disagreeing still refuses.
+Total silence everywhere (no descriptor line AND no catalogue entry) still refuses. An explicit
+per-file copyleft declaration is never overridden by the catalogue. Two asset-specific sources
+disagreeing still refuses.
 
 **What this does NOT reverse:** `skins01` / `skins02` stay refused. Those carry
 `# This file is licensed AGPLv3` as an explicit per-file statement in the asset's own `.mhmat`

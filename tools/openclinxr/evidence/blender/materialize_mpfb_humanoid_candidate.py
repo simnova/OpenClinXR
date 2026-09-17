@@ -774,7 +774,39 @@ def extract_hm08_feature_helpers(basemesh, armature, ref_tag):
     return extracted
 
 
-def read_hair_mhclo_licence(mhclo_path):
+# 2026-09-17 — committed publisher catalogue for the bake-time silence
+# fallback (ledger shape 1). Same JSON the TS gates read; pack slug derived
+# from the asset path (`.../makehuman-shoes01/...` -> `shoes01`). Loaded once.
+# Catalogue is consulted ONLY on true silence (no licence line); an explicit
+# per-file copyleft or unrecognised token never falls through to it (shape 3).
+_CATALOGUE_SNAPSHOT_PATH = (
+    REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes/makehuman-catalogue-snapshot.json"
+)
+_CATALOGUE_PACKS = None
+
+
+def catalogue_entry_for_pack(pack_slug):
+    """Catalogue entry for a pack slug, or None when unlisted. No network."""
+    global _CATALOGUE_PACKS
+    if _CATALOGUE_PACKS is None:
+        try:
+            _CATALOGUE_PACKS = json.loads(_CATALOGUE_SNAPSHOT_PATH.read_text(encoding="utf-8")).get(
+                "packs", {}
+            )
+        except OSError:
+            _CATALOGUE_PACKS = {}
+    if not pack_slug:
+        return None
+    return _CATALOGUE_PACKS.get(pack_slug)
+
+
+def pack_slug_from_mhclo_path(mhclo_path):
+    """Pack slug from a provider-cache path. `makehuman-shoes01` -> `shoes01`."""
+    m = re.search(r"makehuman-([a-z0-9]+)", str(mhclo_path), re.I)
+    return m.group(1).lower() if m else None
+
+
+def read_hair_mhclo_licence(mhclo_path, pack_slug=None):
     """#381 — read the licence line from a hair `.mhclo`'s OWN header.
 
     Mirrors `hair-licence-classify.ts` `readHairLicenceLine` + `classifyHairLicence`
@@ -792,6 +824,9 @@ def read_hair_mhclo_licence(mhclo_path):
     patient's male cut: the same uuid allowlist (HAIR_PAGE_CC0_OVERRIDE) now ALSO
     permits this exact basename when read_hair_mhclo_licence refuses, mirroring
     how the kevin/street-male bakes already consume it.
+
+    # 2026-09-17 — silence falls back to the publisher catalogue (shape 1).
+    # AGPL above returns first and never reaches this lookup (shape 3 guard).
     """
     try:
         header = mhclo_path.read_text(encoding="utf-8", errors="replace")[:4000]
@@ -804,6 +839,10 @@ def read_hair_mhclo_licence(mhclo_path):
             raw = m.group(1).strip()
             break
     if not raw:
+        slug = pack_slug if pack_slug is not None else pack_slug_from_mhclo_path(mhclo_path)
+        entry = catalogue_entry_for_pack(slug)
+        if entry:
+            return True, f"catalogue:{slug}={entry['licence']}"
         return False, None
     if re.search(r"agpl", raw, re.I):
         return False, raw
@@ -1472,10 +1511,21 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
 # (smaller bodies map the same atlas to smaller texels -> scale must rise to keep
 # both sd and coherence constant), which is exactly the compensation the missing
 # MPFB_GEN_scale_factor was designed to supply.
-DERMAL_CELL_TEXELS = 47.0
-DERMAL_BUMP_STRENGTH = 6.0
+#
+# MEASURED 2026-09-17 (orchestrator, isolated create_human + configure_skin_normal_detail +
+# bake_skin_normal_to_texture harness, no garments/hair/eyes): the shipped ramp (valley 0.0/peak 0.5)
+# concentrates the Voronoi DISTANCE_TO_EDGE height signal into a ridge at each cell boundary with a
+# flat floor across the cell interior, producing a mosaic of large flat facets rather than pore
+# texture (measured: 58.78% of texels deviate >6/255 from flat, R-channel std 9.01, a
+# spatial-correlation-ratio of 4.58 versus ~1.7-3.3 for genuinely fine independent grain). Widening
+# the ramp to the full range (peak 0.5->1.0), with cell size 47->20 texels and bump strength 6.0->7.0
+# to compensate, measured 60.35% texels >6/255, std 12.12, correlation ratio 3.57 — real but partial
+# improvement; the ramp's linear-then-flat SHAPE (not just its stop positions) is still the residual
+# cause of some facet character and is not addressed here.
+DERMAL_CELL_TEXELS = 20.0
+DERMAL_BUMP_STRENGTH = 7.0
 DERMAL_RAMP_VALLEY = 0.0
-DERMAL_RAMP_PEAK = 0.5
+DERMAL_RAMP_PEAK = 1.0
 
 
 def _walk_group_instances(nt, out=None):
@@ -3871,6 +3921,9 @@ def main():
         from facs_shape_key_transfer import (  # noqa: E402
             transfer_body_shape_keys_to_fitted_mesh as _transfer_brow_facs,
         )
+        # #597 v2 factory station — coverage-greedy eyebrow strand reduction
+        # (D1: port the ALREADY-PROVEN algorithm from reduce-shipped-eyebrows-v2.ts)
+        from eyebrow_strand_reduction import reduce_eyebrow_mesh  # noqa: E402
 
         _brow_ref_tag = subject_id
         _brow_mesh_name = (
@@ -3894,6 +3947,19 @@ def main():
         _brow_bone = _weight_brow_to_head(_brow, _brow_arm)
         for _poly in _brow.data.polygons:
             _poly.use_smooth = True
+
+        # #597 v2 — coverage-greedy eyebrow strand reduction
+        # Runs AFTER weighting (bone weights survive bmesh delete automatically),
+        # BEFORE FACS transfer (so the reduced mesh receives correct shape keys via
+        # the kept_vertex_indices remap). The eyes_asset (fitted eyes_low_poly) is
+        # in scope from earlier in this function (~line 3449) and is identity-transformed
+        # like the brow (apply_object_transforms in fit_hair), so local == world for both.
+        _brow, _brow_reduction_evidence = reduce_eyebrow_mesh(
+            _brow, eyes_asset, budget_tris=3600
+        )
+        print(f"EYEBROW_REDUCTION {json.dumps(_brow_reduction_evidence)}")
+
+        # Recompute triangle count AFTER reduction for EYEBROW_FIT evidence
         _brow_tris = sum(max(len(p.vertices) - 2, 0) for p in _brow.data.polygons)
 
         # Authored emotion is invisible on the eyebrow otherwise: the body carries
@@ -3914,7 +3980,8 @@ def main():
                 f"{len(_brow_facs_names)}: {_brow_facs_names}"
             )
         _brow_facs_displacements_m = _transfer_brow_facs(
-            str(_brow_mhclo), _brow, human, _brow_facs_names
+            str(_brow_mhclo), _brow, human, _brow_facs_names,
+            kept_vertex_indices=_brow_reduction_evidence["keptVertexIndices"]
         )
         print(
             "EYEBROW_FACS_TRANSFER "

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "openclinxr.makehuman-catalogue-snapshot.v1",
+  "claimScope": "per-pack licence listings from the MakeHuman asset-pack index page only; not a per-asset grant, not evidence for user-contributed pages, not a substitute for reading the asset's own descriptor first",
+  "notEvidenceFor": [
+    "per-asset licence grants",
+    "user-contributed repository licences",
+    "clinical validity",
+    "quest readiness"
+  ],
+  "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/index.html",
+  "fetchedAt": "2026-09-17",
+  "fetchMethod": "prior fetch staged at .openclinxr-local/provider-cache/licence-catalogue/raw/assetpacks-index-2026-09-17.html + parsed JSON assetpacks-index-parsed-2026-09-17.json (77 entries); snapshot derived locally, no network in hot path",
+  "rawStaging": [
+    ".openclinxr-local/provider-cache/licence-catalogue/raw/assetpacks-index-2026-09-17.html",
+    ".openclinxr-local/provider-cache/licence-catalogue/raw/assetpacks-index-parsed-2026-09-17.json"
+  ],
+  "secondaryCatalogue": {
+    "path": ".openclinxr-local/provider-cache/licence-catalogue/raw/user-contributed-assets-2026-09-17.html",
+    "url": "http://makehumancommunity.org/content/user_contributed_assets.html",
+    "status": "category-nav index only, no per-asset licence table; recorded for future intake, NOT consumed"
+  },
+  "packs": {
+    "skins01": {
+      "licence": "CC0",
+      "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/index.html",
+      "packPageUrl": "https://static.makehumancommunity.org/assets/assetpacks/skins01.html",
+      "label": "Material assets, shared under CC0: Skins 01 — A set of natural female skins",
+      "fetchedAt": "2026-09-17"
+    },
+    "skins02": {
+      "licence": "CC0",
+      "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/index.html",
+      "packPageUrl": "https://static.makehumancommunity.org/assets/assetpacks/skins02.html",
+      "label": "Material assets, shared under CC0: Skins 02 — A set of natural male skins",
+      "fetchedAt": "2026-09-17"
+    },
+    "hair01": {
+      "licence": "CC0",
+      "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/index.html",
+      "packPageUrl": "https://static.makehumancommunity.org/assets/assetpacks/hair01.html",
+      "label": "Mesh assets shared under CC0: Hair 01 — A set of mostly low-poly and stylized hair",
+      "fetchedAt": "2026-09-17"
+    },
+    "pants01": {
+      "licence": "CC0",
+      "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/index.html",
+      "packPageUrl": "https://static.makehumancommunity.org/assets/assetpacks/pants01.html",
+      "label": "Mesh assets shared under CC0: Pants 01 — A set of pants",
+      "fetchedAt": "2026-09-17"
+    },
+    "shirts01": {
+      "licence": "CC0",
+      "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/index.html",
+      "packPageUrl": "https://static.makehumancommunity.org/assets/assetpacks/shirts01.html",
+      "label": "Mesh assets shared under CC0: Shirts 01 — A set of t-shirts, sweaters and tops",
+      "fetchedAt": "2026-09-17"
+    },
+    "shoes01": {
+      "licence": "CC0",
+      "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/index.html",
+      "packPageUrl": "https://static.makehumancommunity.org/assets/assetpacks/shoes01.html",
+      "label": "Mesh assets shared under CC0: Shoes 01 — A set of shoes and boots",
+      "fetchedAt": "2026-09-17"
+    }
+  }
+}

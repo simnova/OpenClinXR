@@ -11,9 +11,7 @@ import type { updateHumanoidEmotionExpression } from "./face-rig.js";
 declare global {
   // Window evidence surfaces owned by the app composition root; this package
   // only writes them through the extracted recorder functions below.
-  interface Window {
-    __openClinXrHumanoidSpeechEvidence?: HumanoidSpeechEvidence;
-  }
+  var __openClinXrHumanoidSpeechEvidence: HumanoidSpeechEvidence | undefined;
 }
 
 export type MouthGazePoseComparatorEvidenceRecord = {
@@ -98,8 +96,12 @@ export function writeHumanoidSpeechFrameEvidence(
   ) => HumanoidSpeechEvidence,
   roundWeights: (weights: HumanoidExpressionWeights) => HumanoidExpressionWeights,
 ): void {
-  window.__openClinXrHumanoidSpeechEvidence = {
-    ...(window.__openClinXrHumanoidSpeechEvidence ??
+  const browserGlobal = globalThis as unknown as { window?: unknown };
+  if (typeof browserGlobal.window === "undefined") {
+    return;
+  }
+  globalThis.__openClinXrHumanoidSpeechEvidence = {
+    ...(globalThis.__openClinXrHumanoidSpeechEvidence ??
       buildEvidence(
         speech.actorId,
         speech.assetId,
@@ -164,7 +166,9 @@ export function writeMouthGazePoseComparatorEvidence(
   roundWeights: (weights: HumanoidExpressionWeights) => HumanoidExpressionWeights,
   writeComparatorEvidence?: (record: Record<string, unknown>) => void,
 ): void {
-  const speechEvidence = window.__openClinXrHumanoidSpeechEvidence as unknown as
+  const speechEvidence = (globalThis as unknown as { window?: unknown }).window === undefined
+    ? undefined
+    : globalThis.__openClinXrHumanoidSpeechEvidence as unknown as
     | Record<string, unknown>
     | undefined;
   const record = {

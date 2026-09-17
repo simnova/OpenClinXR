@@ -29,6 +29,17 @@ row carries a **replacement posture**, not just a licence.
   - It **narrows and does not repeal** the four "page is not the licence" findings below (`mhair02`,
     `hair01`, `skins01/02`, `laying-on-bed`). Those are this same direction — page claiming more than the
     file — and are now sanctioned rather than refused.
+- **CORRECTION 2026-09-17 — the amended three-shape ruling (led, not this template; see ledger).**
+  The 2026-09-10 amendment widened the ruling to any publisher statement vs any per-file surface, with
+  three shapes: file SILENT -> page governs; exporter-template BOILERPLATE -> page governs; EXPLICIT
+  per-file copyleft -> page does NOT govern without a dated named per-asset override. The bake gates
+  (`classifyHairLicence` in `hair-licence-classify.ts`, `resolveGarmentLicense` in `fit-cli.ts`,
+  `read_hair_mhclo_licence` in `materialize_mpfb_humanoid_candidate.py`) were loosened to shapes 1 and 2
+  on 2026-09-17 via the committed catalogue
+  (`tools/openclinxr/asset-pipeline/makeclothes/makehuman-catalogue-snapshot.json`, fetched 2026-09-17
+  from the index above). Shape 3 stays a hard bake refusal, matching the ruling — no divergence left to
+  name for it. Total silence everywhere (no descriptor line AND no catalogue entry) still refuses; an
+  explicit per-file copyleft or unrecognised token is never overridden by the catalogue.
 - **DELIVERY MODEL: this product REDISTRIBUTES raw asset files. It does not embed them.**
   Assets live in `apps/ui-xr/public/xr-assets/**` — Vite's public directory, served at the site root —
   so every `.glb` is a URL any browser can fetch and save. That is materially different from a

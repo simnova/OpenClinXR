@@ -67,6 +67,16 @@ row carries a **replacement posture**, not just a licence.
     at bake time. That is intended. If a sanctioned asset is later needed in shipped bytes, the baker is
     changed in its own slice, with its own two-sided probe, not by reading this paragraph as permission.
 
+  **CORRECTED 2026-09-17 — the bake gate now matches shapes 1 and 2.** The paragraph above was true
+  until 2026-09-17 and is kept as history, not erased. `classifyHairLicence`
+  (`hair-licence-classify.ts`), `resolveGarmentLicense` (`fit-cli.ts`), and `read_hair_mhclo_licence`
+  (`materialize_mpfb_humanoid_candidate.py`) now consult the committed publisher catalogue
+  (`tools/openclinxr/asset-pipeline/makeclothes/makehuman-catalogue-snapshot.json`, fetched 2026-09-17
+  from the asset-pack index) when the asset's own descriptor is completely silent — catalogue-derived
+  verdicts carry a distinct `catalogue_cc0`/`catalogue_cc_by` family (TS) or `catalogue:<slug>=<licence>`
+  token (Python) so the provenance stays visible. Shape 3 (explicit per-file copyleft) stays a hard
+  bake refusal, matching this ruling — that half of the paragraph above is still true and unchanged.
+
   **DIRECTION AND PRECEDENCE, unchanged from 2026-08-24.** It is an override, not a tiebreak: a file that
   already clears stands on its own header and no override is invoked. It runs one direction only — a page
   that is silent, or less permissive than the file, does not soften the file.

@@ -51,7 +51,7 @@ notEvidenceFor: that the transferred pose is anatomically ideal (it is exactly a
 
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import bpy
 from mathutils import Vector
@@ -62,6 +62,7 @@ def transfer_body_shape_keys_to_fitted_mesh(
     fitted_obj: bpy.types.Object,
     reference: bpy.types.Object,
     unit_names: List[str],
+    kept_vertex_indices: Optional[List[int]] = None,
 ) -> Dict[str, float]:
     """Give `fitted_obj` a same-named shape key for each of `unit_names` present on
     `reference` (the MPFB body), driving each body key to 1.0 in isolation and
@@ -75,6 +76,12 @@ def transfer_body_shape_keys_to_fitted_mesh(
     already on `fitted_obj.data.vertices`); `reference` is the SAME body object
     `fitted_obj` was originally fit against, at the SAME topology (called before any
     helper-vertex strip the caller performs later).
+
+    If `kept_vertex_indices` is provided, it maps new mesh vertex order (after
+    reduction) to original .obj vertex order. The function remaps `mhclo.verts`
+    after loading so the per-vertex correspondence remains correct. This is
+    required when the fitted mesh has been reduced (e.g. eyebrow strand reduction)
+    because `mhclo.verts` is a dict keyed by original .obj vertex index (0..N-1).
     """
     from bl_ext.user_default.mpfb.services.clothesservice import ClothesService
     from bl_ext.user_default.mpfb.entities.clothes.mhclo import Mhclo
@@ -98,6 +105,17 @@ def transfer_body_shape_keys_to_fitted_mesh(
 
     mhclo = Mhclo()
     mhclo.load(mhclo_path)
+
+    # Remap mhclo.verts if kept_vertex_indices is provided
+    # This is critical: after reduction, the mesh has M < N vertices in a different
+    # order than the original .obj. The mhclo.verts dict is keyed by original .obj
+    # index (0..N-1). If we don't remap, the loop will look up mhclo.verts[0..M-1]
+    # and get WRONG correspondences for every kept vertex whose original index
+    # was not its new enumerate position.
+    if kept_vertex_indices is not None:
+        old_verts = mhclo.verts
+        mhclo.verts = {new_i: old_verts[old_i] for new_i, old_i in enumerate(kept_vertex_indices)}
+        print(f"[facs_transfer] Remapped mhclo.verts: {len(old_verts)} -> {len(mhclo.verts)} entries")
 
     base_co = [v.co.copy() for v in fitted_obj.data.vertices]
     saved_values = {kb.name: kb.value for kb in body_key_blocks if kb.name != "Basis"}
