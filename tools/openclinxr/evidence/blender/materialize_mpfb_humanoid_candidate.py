@@ -1472,10 +1472,21 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
 # (smaller bodies map the same atlas to smaller texels -> scale must rise to keep
 # both sd and coherence constant), which is exactly the compensation the missing
 # MPFB_GEN_scale_factor was designed to supply.
-DERMAL_CELL_TEXELS = 47.0
-DERMAL_BUMP_STRENGTH = 6.0
+#
+# MEASURED 2026-09-17 (orchestrator, isolated create_human + configure_skin_normal_detail +
+# bake_skin_normal_to_texture harness, no garments/hair/eyes): the shipped ramp (valley 0.0/peak 0.5)
+# concentrates the Voronoi DISTANCE_TO_EDGE height signal into a ridge at each cell boundary with a
+# flat floor across the cell interior, producing a mosaic of large flat facets rather than pore
+# texture (measured: 58.78% of texels deviate >6/255 from flat, R-channel std 9.01, a
+# spatial-correlation-ratio of 4.58 versus ~1.7-3.3 for genuinely fine independent grain). Widening
+# the ramp to the full range (peak 0.5->1.0), with cell size 47->20 texels and bump strength 6.0->7.0
+# to compensate, measured 60.35% texels >6/255, std 12.12, correlation ratio 3.57 — real but partial
+# improvement; the ramp's linear-then-flat SHAPE (not just its stop positions) is still the residual
+# cause of some facet character and is not addressed here.
+DERMAL_CELL_TEXELS = 20.0
+DERMAL_BUMP_STRENGTH = 7.0
 DERMAL_RAMP_VALLEY = 0.0
-DERMAL_RAMP_PEAK = 0.5
+DERMAL_RAMP_PEAK = 1.0
 
 
 def _walk_group_instances(nt, out=None):
