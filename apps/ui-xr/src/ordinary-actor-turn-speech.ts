@@ -3,7 +3,7 @@ import { startPreparedActorTurnAudio, type PreparedActorStartContext } from "./p
 
 export function startActorTurnSpeech(
   context: PreparedActorStartContext,
-  startNonAudibleDialogue: (context: PreparedActorStartContext) => void,
+  startNonAudibleDialogue: (context: PreparedActorStartContext) => boolean,
 ): boolean {
   void startNonAudibleDialogue;
   return startPreparedActorTurnAudio(context);

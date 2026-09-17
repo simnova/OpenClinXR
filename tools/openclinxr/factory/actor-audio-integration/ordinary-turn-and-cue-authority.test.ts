@@ -31,7 +31,7 @@ function fixture(actorId = "prepared-actor") {
 it.fails("ordinary unprepared speech starts existing dialogue and explicitly reports unavailable audio", () => {
   const f = fixture();
   let fallbackStarts = 0;
-  const result = startActorTurnSpeech({ actorId: "ordinary-actor", spokenText: "Unprepared authored line" }, () => { fallbackStarts += 1; });
+  const result = startActorTurnSpeech({ actorId: "ordinary-actor", spokenText: "Unprepared authored line" }, () => { fallbackStarts += 1; return true; });
   expect(fallbackStarts).toBe(1);
   expect(f.sources).toHaveLength(0);
   expect(result).toEqual({ kind: "dialogue_only", reason: "prepared_audio_unavailable" });
@@ -39,7 +39,7 @@ it.fails("ordinary unprepared speech starts existing dialogue and explicitly rep
 
 it.fails("prepared speech uses the owned source and reports a typed audible outcome", () => {
   const f = fixture(); let fallbackStarts = 0;
-  const result = startActorTurnSpeech({ actorId: "prepared-actor", spokenText: "A prepared line" }, () => { fallbackStarts += 1; });
+  const result = startActorTurnSpeech({ actorId: "prepared-actor", spokenText: "A prepared line" }, () => { fallbackStarts += 1; return true; });
   expect(f.sources).toHaveLength(1);
   expect(f.sources[0]?.starts).toBe(1);
   expect(fallbackStarts).toBe(0);
@@ -59,12 +59,12 @@ function invokeActualFrozenTurnHost(actorId: string, spokenText: string, f: Retu
   const names = ["generatedHumanoidAnimationSlotsByActorId", "playFrozenActorTurnOnSlot", "startPreparedActorTurnAudio", "startActorTurnSpeech", "preparedActorTurnAudioAvailable", "triggerHumanoidDialogue", "playOneShotResponseClip", "startHumanoidEmotionTransition"];
   const getHost = new Function(...names, body + "\nreturn playLiveFrozenActorTurn;");
   const host = getHost(new Map([[actorId, f.slot]]), (_plan: unknown, _execution: unknown, adapters: { speak: (ctx: unknown) => unknown }) => adapters.speak({ actorId, spokenText }), startPreparedActorTurnAudio, startActorTurnSpeech, preparedActorTurnAudioAvailable, fallback, () => false, () => undefined);
-  return host({ actorId }, {}, { kind: "learner_camera", actorId: null });
+  return host({ actorId, spokenText }, {}, { kind: "learner_camera", actorId: null });
 }
 
 it.fails("actual ordinary frozen-turn host executes dialogue-only adapter without a prepared source", () => {
   const f = fixture(); let fallbackStarts = 0;
-  const result = invokeActualFrozenTurnHost("ordinary-host-actor", "Ordinary host line", f, () => { fallbackStarts += 1; });
+  const result = invokeActualFrozenTurnHost("ordinary-host-actor", "Ordinary host line", f, () => { fallbackStarts += 1; f.slot.activeSpeech = { text: "Ordinary host line", startedAt: 0, durationMs: 1000 }; });
   expect(result).toBe(true);
   expect(fallbackStarts).toBe(1);
   expect(f.sources).toHaveLength(0);
@@ -72,7 +72,7 @@ it.fails("actual ordinary frozen-turn host executes dialogue-only adapter withou
 
 it("actual prepared frozen-turn host executes its existing audible adapter without ordinary fallback", () => {
   const f = fixture("prepared-host-actor"); let fallbackStarts = 0;
-  const result = invokeActualFrozenTurnHost("prepared-host-actor", "A prepared line", f, () => { fallbackStarts += 1; });
+  const result = invokeActualFrozenTurnHost("prepared-host-actor", "A prepared line", f, () => { fallbackStarts += 1; return true; });
   expect(result).toBe(true);
   expect(f.sources[0]?.starts).toBe(1);
   expect(fallbackStarts).toBe(0);
@@ -84,7 +84,7 @@ it("owned stop refusal never becomes ordinary-dialogue fallback success", () => 
   expect(startPreparedActorTurnAudio({ actorId: "stop-refusal-actor", spokenText: "A prepared line" })).toBe(true);
   f.sources[0]!.refuseStop = true;
   let fallbackStarts = 0;
-  const result: unknown = startActorTurnSpeech({ actorId: "stop-refusal-actor", spokenText: "A prepared line" }, () => { fallbackStarts += 1; });
+  const result: unknown = startActorTurnSpeech({ actorId: "stop-refusal-actor", spokenText: "A prepared line" }, () => { fallbackStarts += 1; return true; });
   expect(fallbackStarts).toBe(0);
   expect(f.dialogueStarts()).toBe(1);
   expect(result === false || (typeof result === "object" && result !== null && "kind" in result && result.kind === "refused")).toBe(true);
@@ -102,6 +102,7 @@ it.fails("prepared-to-unprepared transition stops owned audio before exactly one
     expect(f.sources[0]?.stopped).toBe(true);
     fallbackStarts += 1;
     f.slot.activeSpeech = { text: "Next ordinary line", startedAt: 0, durationMs: 1000 };
+    return true;
   });
   expect(fallbackStarts).toBe(1);
   expect(f.sources).toHaveLength(1);
@@ -115,7 +116,7 @@ it.fails("unprepared transition with owned-stop refusal retains the prior source
   const previousSpeech = f.slot.activeSpeech;
   f.sources[0]!.refuseStop = true;
   let fallbackStarts = 0;
-  const result = startActorTurnSpeech({ actorId: "owned-refusal-next", spokenText: "Next ordinary line" }, () => { fallbackStarts += 1; });
+  const result = startActorTurnSpeech({ actorId: "owned-refusal-next", spokenText: "Next ordinary line" }, () => { fallbackStarts += 1; return true; });
   expect(fallbackStarts).toBe(0);
   expect(f.slot.activeSpeech).toBe(previousSpeech);
   expect(f.sources[0]?.stopped).toBe(false);
@@ -127,9 +128,17 @@ it.fails("a matching prepared entry in a suspended audio context refuses without
   const f = fixture("suspended-prepared");
   f.context.state = "suspended";
   let fallbackStarts = 0;
-  const result = startActorTurnSpeech({ actorId: "suspended-prepared", spokenText: "A prepared line" }, () => { fallbackStarts += 1; });
+  const result = startActorTurnSpeech({ actorId: "suspended-prepared", spokenText: "A prepared line" }, () => { fallbackStarts += 1; return true; });
   expect(fallbackStarts).toBe(0);
   expect(f.sources).toHaveLength(0);
   expect(f.dialogueStarts()).toBe(0);
   expect(result).toMatchObject({ kind: "refused" });
+});
+
+it.fails("failed ordinary speech setup is a typed refusal rather than a callback-only ACK", () => {
+  const f = fixture(); let attempted = 0;
+  const result = startActorTurnSpeech({ actorId: "missing-ordinary-slot", spokenText: "No slot line" }, () => { attempted += 1; return false; });
+  expect(attempted).toBe(1);
+  expect(result).toMatchObject({ kind: "refused" });
+  expect(f.sources).toHaveLength(0);
 });
