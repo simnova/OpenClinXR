@@ -22,21 +22,34 @@ import { utteranceIdForText } from "./viseme-utterance-hash.js";
 
 /**
  * Rhubarb lip-sync shapes (#722) → runtime phoneme tokens the driver resolves to shipped
- * morph targets. Rhubarb's own shape definitions (from its docs): A = "aa" (trap), B = "e"
- * (dress), C = "i" (fleece), D = "o" (thought), E = "u" (goose), F = "f/v", G = "r", H =
- * "w/aw", X = silence. Tokens are chosen so `resolveVisemeTarget` lands on the viseme_* names
- * the shipped cast GLBs carry (viseme_AA, viseme_E, viseme_IH, viseme_OH, viseme_OU,
- * viseme_FV, viseme_L, viseme_TH, viseme_silence — face-morph-census, 2026-08-13).
+ * morph targets. Meanings quoted from the Rhubarb README (~/.openclinxr-tools/rhubarb/
+ * README.adoc, "Mouth shapes"): A = "Closed mouth for the P, B, and M sounds"; B =
+ * "Slightly open mouth with clenched teeth ... K, S, T ... EE sound in bee"; C = "Open
+ * mouth ... EH as in men and AE as in bat"; D = "Wide open mouth ... AA as in father";
+ * E = "Slightly rounded mouth ... AO as in off and ER as in bird"; F = "Puckered lips ...
+ * UW as in you, OW as in show, W as in way"; G = "Upper teeth touching the lower lip for
+ * F ... and V"; H = "long L sounds, with the tongue raised behind the upper teeth"; X =
+ * "Idle position ... lips should be closed but relaxed".
+ *
+ * Each token reaches, per body rail: MPFB visemes02 nurse (viseme_PP viseme_SS viseme_E
+ * viseme_aa viseme_O viseme_U viseme_FF viseme_nn viseme_sil); Anny cast (viseme_silence
+ * viseme_IH viseme_E viseme_AA viseme_OH viseme_OU viseme_FV viseme_L viseme_silence, via
+ * the CAST_VISEME_FALLBACK_NAMES pass); FACS-only MPFB (mouth-compression mouth-part-later
+ * mouth-retraction mouth-open mouth-eversion mouth-protusion mouth-elevation mouth-parling).
+ *
+ * The previous table (A->AA ... H->OU, "A = aa (trap)" etc.) misread Rhubarb's shapes and
+ * opened the mouth wide on bilabial closures. B->SS rather than kk: the README says
+ * "clenched teeth"; visemes02 SS is the teeth-together sibilant, kk is teeth apart.
  */
 const RHUBARB_SHAPE_TO_TOKEN: Readonly<Record<string, string>> = {
-  A: "AA",
-  B: "E",
-  C: "IH",
-  D: "OH",
-  E: "OU",
-  F: "FV",
-  G: "L",
-  H: "OU",
+  A: "PP",
+  B: "SS",
+  C: "E",
+  D: "AA",
+  E: "OH",
+  F: "OU",
+  G: "FV",
+  H: "L",
   X: "sil",
 };
 

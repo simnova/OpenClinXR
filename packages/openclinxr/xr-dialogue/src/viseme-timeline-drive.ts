@@ -69,6 +69,7 @@ const PHONEME_ALIASES: Readonly<Record<string, string>> = {
 const CANONICAL_FALLBACK_VISEME_NAMES: readonly string[] = [
   "viseme_sil", "viseme_AA", "viseme_E", "viseme_IH",
   "viseme_OH", "viseme_OU", "viseme_FV", "viseme_TH", "viseme_L",
+  "viseme_PP", "viseme_SS",
 ];
 
 const SILENCE_TOKENS: ReadonlySet<string> = new Set(["sil", "silence", "rest"]);
