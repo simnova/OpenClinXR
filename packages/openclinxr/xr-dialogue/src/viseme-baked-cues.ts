@@ -173,6 +173,8 @@ export type BakedSpeechSlotLike = {
         startedAtMs?: number;
       }
     | undefined;
+  /** Present source-media reader marks audio-owned speech; delayed served bakes must not attach. */
+  mediaPositionSeconds?: () => number | null | undefined;
 };
 
 /**
@@ -186,20 +188,22 @@ export function attachBakedCuesToSpeech(
   text: string,
   scenarioId: string,
 ): void {
+  const requested = slot.activeSpeech;
   void loadBakedMouthCuesForUtterance(scenarioId, text).then((loaded) => {
     if (!loaded) return;
-    const current = slot.activeSpeech;
-    if (!current || current.text !== text) return;
-    current.bakedCues = loaded.cues;
-    current.durationMs = bakedCuesDurationMs(loaded.cues);
+    if (slot.activeSpeech !== requested) return;
+    if (!requested || requested.text !== text) return;
+    if (typeof slot.mediaPositionSeconds === "function") return;
+    requested.bakedCues = loaded.cues;
+    requested.durationMs = bakedCuesDurationMs(loaded.cues);
     const rootUserData = slot.root.userData ?? {};
     slot.root.userData = rootUserData;
     rootUserData.openClinXrBakedVisemeTimeline = {
       scenarioId,
       utteranceId: loaded.utteranceId,
       cueCount: loaded.cues.length,
-      durationMs: current.durationMs,
-      speechStartedAtMs: current.startedAtMs,
+      durationMs: requested.durationMs,
+      speechStartedAtMs: requested.startedAtMs,
       attachedAtMs: performance.now(),
     };
   });

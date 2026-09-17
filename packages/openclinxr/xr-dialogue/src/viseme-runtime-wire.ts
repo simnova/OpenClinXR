@@ -402,31 +402,55 @@ export type SpeechSlotLike = {
         bakedCues?: readonly PhonemeCue[];
       }
     | undefined;
+  /** Present source-media reader: absolute baked intervals. Absent keeps legacy wall progress. */
+  mediaPositionSeconds?: () => number | null | undefined;
 };
+
+function silenceNamedVisemes(slot: SpeechSlotLike, nowMs: number): NamedVisemeDriveResult {
+  return applyDialogueVisemeTimelineToRoot(slot.root, { phonemeSequence: ["sil"], progress: 0, nowMs });
+}
+
+function bakedCuesAdmissible(cues: readonly PhonemeCue[] | undefined): boolean {
+  if (!cues?.length) return false;
+  let end = Number.NEGATIVE_INFINITY;
+  for (const cue of cues) {
+    const duration = typeof cue.durationSeconds === "number" && Number.isFinite(cue.durationSeconds) ? cue.durationSeconds : Number.NaN;
+    if (!Number.isFinite(cue.atSecond) || cue.atSecond < 0 || !Number.isFinite(duration) || duration <= 0) return false;
+    if (cue.atSecond < end) return false;
+    end = cue.atSecond + duration;
+  }
+  return true;
+}
 
 /**
  * Thin speech-path entry: phoneme timeline from active dialogue → named morph weights.
  * When `activeSpeech.bakedCues` is present, the baked timeline drives instead of the
  * text-derived dwell model (#722). When speech ends, callers should apply silence via
- * applyDialogueVisemeTimelineToRoot({ sil }).
+ * applyDialogueVisemeTimelineToRoot({ sil }). Present mediaPositionSeconds uses absolute
+ * baked intervals (gaps silence); invalid/null/NaN/infinity/negative/throw never wall-falls-back.
  */
 export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = performance.now()): NamedVisemeDriveResult {
   const speech = slot.activeSpeech;
-  if (!speech?.phonemeSequence?.length) {
+  if (!speech?.phonemeSequence?.length) return silenceNamedVisemes(slot, nowMs);
+  if (typeof slot.mediaPositionSeconds === "function") {
+    let media: number | null | undefined;
+    try { media = slot.mediaPositionSeconds(); } catch { return silenceNamedVisemes(slot, nowMs); }
+    if (media == null || typeof media !== "number" || !Number.isFinite(media) || media < 0) return silenceNamedVisemes(slot, nowMs);
+    const driveNowMs = media * 1000;
+    if (!bakedCuesAdmissible(speech.bakedCues)) return silenceNamedVisemes(slot, driveNowMs);
+    const cue = speech.bakedCues?.find((entry) => {
+      const duration = typeof entry.durationSeconds === "number" && Number.isFinite(entry.durationSeconds) ? entry.durationSeconds : 0;
+      return media >= entry.atSecond && media < entry.atSecond + duration;
+    });
+    if (!cue) return silenceNamedVisemes(slot, driveNowMs);
     return applyDialogueVisemeTimelineToRoot(slot.root, {
-      phonemeSequence: ["sil"],
-      progress: 0,
-      nowMs,
+      phonemeSequence: [cue.phoneme], progress: 0, nowMs: driveNowMs,
+      bakedCues: [{ phoneme: cue.phoneme, atSecond: 0, ...(typeof cue.durationSeconds === "number" ? { durationSeconds: cue.durationSeconds } : {}) }],
     });
   }
-  const progress = Math.min(
-    1,
-    Math.max(0, (nowMs - speech.startedAtMs) / Math.max(1, speech.durationMs)),
-  );
+  const progress = Math.min(1, Math.max(0, (nowMs - speech.startedAtMs) / Math.max(1, speech.durationMs)));
   return applyDialogueVisemeTimelineToRoot(slot.root, {
-    phonemeSequence: speech.phonemeSequence,
-    progress,
-    nowMs,
+    phonemeSequence: speech.phonemeSequence, progress, nowMs,
     ...(speech.bakedCues && speech.bakedCues.length > 0 ? { bakedCues: speech.bakedCues } : {}),
   });
 }
