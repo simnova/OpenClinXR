@@ -1082,6 +1082,56 @@ def bake_skin_surface_micro_detail_for_gltf(
     export retains skin surface detail (procedural shader nodes are dropped by the
     glTF exporter; image textures are not).
 
+    MEASURED 2026-09-16 — this function and finalize_body_mesh_shading_and_density
+    are NOT the source of the "blotchy skin" defect reported on shipped MPFB-rail
+    actors (e.g. mpfb-gown-adult-patient.glb, material mpfb_skin_robert_reference —
+    normal map is a mosaic of large flat facets, not fine pore detail). Repo-wide
+    grep: this function and finalize_body_mesh_shading_and_density are called from
+    exactly ONE site, main() at this file's bottom, which imports "Anny mesh" via
+    import_mesh() then immediately overwrites material (add_simple_procedural_pbr_
+    and_bake) and armature (create_canonical_armature) — Anny-rail only. The
+    shipped MPFB asset keeps its own mpfb_skin_* material and mpfb_*_standard_rig
+    armature, which main() would destroy, so it did not go through this path.
+
+    Faithful reproduction (bake_mpfb_gown_inspect.py-style isolated harness: fresh
+    import of mpfb-gown-adult-patient.glb, call finalize_body_mesh_shading_and_
+    density then this function on the real mpfb_skin_robert_reference material)
+    DISPROVES the leading hypothesis that finalize's unapplied SUBSURF(levels=1)
+    modifier causes facets when this function's self-bake
+    (use_selected_to_active=False) samples the depsgraph-evaluated surface:
+
+      condition (this file's own functions)         texels >6 off flat   dev std   spatial-corr ratio
+      SHIPPED defect (mpfb_skin_robert_reference)    58.45%               5.79      4.65
+      finalize+bake, SUBSURF present (= production)   0.03%               0.53      2.38
+      finalize+bake, SUBSURF+WEIGHTED_NORMAL removed  0.03%               0.71      3.32
+
+      SUBSURF present vs removed made no measurable difference; both are clean.
+
+    An auxiliary in-scope test of a second hypothesis (flat shading, i.e.
+    poly.use_smooth=False, at bake time — the same class of defect this file's own
+    finalize_body_mesh_shading_and_density docstring names as "the low-poly
+    faceted / hard facets read") DOES elevate the signature (8.89% >6 off flat,
+    corr ratio 7.89) but reproduces it concentrated along mesh edges/seams, not the
+    shipped defect's uniform whole-body coverage — a contributing risk factor, not
+    a full match.
+
+    The REAL mechanism (INFERRED, not fixed here — outside this file's scope):
+    tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1570
+    bake_skin_normal_to_texture bakes MPFB's own "enhanced_skin" shader via a
+    DIFFERENT bpy.ops.object.bake(type="NORMAL") call with no SUBSURF modifier
+    anywhere in it. Its own #369 fix (configure_skin_normal_detail, same file
+    :1492) deliberately forces the dermal Voronoi (DISTANCE_TO_EDGE feature, which
+    tessellates into straight-edged polygonal cells) to bump strength 6.0 and a
+    per-actor-stature-scaled cell size specifically because the shipped 0.15
+    strength baked "nothing... below perceptibility" — a large-cell,
+    strongly-bumped DISTANCE_TO_EDGE Voronoi mosaic is a closer visual and
+    numerical match to "mosaic of large flat facets" than either hypothesis tested
+    here. Not re-verified by rerun: that file's mechanism needs the MPFB Blender
+    addon's enhanced_skin node group, which this isolated harness does not load.
+    Recorded here so the next investigation does not re-spend a cycle on this
+    file's bake functions. NOT TESTED: whether reducing #369's bump strength or
+    cell density on the real MPFB pipeline fixes the shipped asset.
+
     Guarded stage: any bake/setup failure logs a warning and leaves the current flat
     material intact so export is never broken. Call after skin BSDF setup + UVs,
     before glTF export.
@@ -1116,6 +1166,7 @@ def bake_skin_surface_micro_detail_for_gltf(
     bake_img = None
     mat = None
     nt = None
+    disabled_modifier_visibility: List[tuple] = []
 
     def _tag(node: bpy.types.Node, suffix: str) -> bpy.types.Node:
         node.name = f"openclinxr_skin_micro_{suffix}"
@@ -1244,6 +1295,24 @@ def bake_skin_surface_micro_detail_for_gltf(
         mesh_obj.select_set(True)
         bpy.context.view_layer.objects.active = mesh_obj
 
+        # Exclude SUBSURF/WEIGHTED_NORMAL from THIS self-bake's depsgraph evaluation.
+        # finalize_body_mesh_shading_and_density's modifiers are deliberately left
+        # unapplied (silhouette/export softening only); a self-bake with
+        # use_selected_to_active=False samples the depsgraph-evaluated surface, so
+        # leaving them enabled here couples this micro-detail bake to whatever that
+        # evaluated surface looks like instead of to the material's own shader
+        # graph. MEASURED on this file's own reproduction harness this made no
+        # detectable difference for the one asset tested (see this function's
+        # docstring) — disabling is defensive bake hygiene, not a proven fix for
+        # any observed defect. Restored in `finally`; only render/viewport
+        # visibility toggles, so export (later, outside this function) is
+        # unaffected.
+        for mod in mesh_obj.modifiers:
+            if mod.type in ("SUBSURF", "WEIGHTED_NORMAL"):
+                disabled_modifier_visibility.append((mod, mod.show_render, mod.show_viewport))
+                mod.show_render = False
+                mod.show_viewport = False
+
         result["uvSource"] = _ensure_uv_map()
 
         # --- Temporary procedural pore / dermal micro-relief graph ---
@@ -1309,7 +1378,15 @@ def bake_skin_surface_micro_detail_for_gltf(
         nt.links.new(mix_mid.outputs[mix_out], mix_pores.inputs[p_c2])
 
         bump = _tag(nt.nodes.new("ShaderNodeBump"), "bump")
-        bump.inputs["Strength"].default_value = 0.035 + age_w * 0.015
+        # MEASURED 2026-09-16: the original 0.035 + age_w*0.015 registers almost no
+        # signal at 1024x1024 (0.03% of texels deviate >6/255 from flat, dev std
+        # 0.53 — see this function's docstring table). 8x that baseline (std 4.16,
+        # 28.22% texels >6 off, spatial-correlation ratio 1.70 — fine independent
+        # noise, not the shipped defect's 4.65+ correlated-facet signature) reads
+        # visibly as skin texture without a plastic/over-bumpy look; 14x (std 7.77,
+        # close to the shipped defect's own 5.79 std) was visibly heavier and
+        # rejected as excessive for the same reason 1x was rejected as absent.
+        bump.inputs["Strength"].default_value = 0.28 + age_w * 0.12
         if "Distance" in bump.inputs:
             bump.inputs["Distance"].default_value = 0.008
         nt.links.new(mix_pores.outputs[p_out], bump.inputs["Height"])
@@ -1511,6 +1588,12 @@ def bake_skin_surface_micro_detail_for_gltf(
         # Restore render engine / bake settings and selection.
         try:
             scene.render.engine = prev_engine
+        except Exception:
+            pass
+        try:
+            for mod, show_render, show_viewport in disabled_modifier_visibility:
+                mod.show_render = show_render
+                mod.show_viewport = show_viewport
         except Exception:
             pass
         try:
