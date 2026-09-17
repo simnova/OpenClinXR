@@ -261,6 +261,35 @@ export function resetHumanoidFaceRigControls(slot: GeneratedHumanoidAnimationSlo
   }
 }
 
+
+/**
+ * Blink a humanoid that is NOT speaking.
+ *
+ * DEFECT (measured 2026-09-16, 1,321-frame capture): `updateHumanoidSpeechCue` returns early
+ * whenever `slot.activeSpeech` is undefined, and that return happens BEFORE
+ * `applyHumanoidFaceRigControls` — the only caller of the lid-closure applier. Across 883 silent
+ * frames (~8.7 s) blink intensity was 0 on every one, where a 3.4 s mean interval predicts two or
+ * three blinks. A humanoid standing quietly never blinked, which is among the strongest tells that
+ * a face is synthetic, and it affects every actor not currently holding the floor.
+ *
+ * The rest clock is slot-local and starts when the slot first falls silent, so a figure does not
+ * blink the instant speech ends and the schedule stays deterministic per slot.
+ */
+export function applyHumanoidRestBlink(slot: GeneratedHumanoidAnimationSlot, nowMs: number): number {
+  const bag = slot as unknown as Record<string, unknown>;
+  if (typeof bag["_restBlinkOriginMs"] !== "number") bag["_restBlinkOriginMs"] = nowMs;
+  const originMs = bag["_restBlinkOriginMs"] as number;
+  const blinkIntensity = blinkIntensityAt(Math.max(0, nowMs - originMs));
+  const leftUpperEyelid = slot.root.getObjectByName("openclinxr_left_upper_eyelid_blink_control");
+  const rightUpperEyelid = slot.root.getObjectByName("openclinxr_right_upper_eyelid_blink_control");
+  offsetHumanoidRigControl(leftUpperEyelid, 0, -blinkIntensity * 0.002, -blinkIntensity * 0.012);
+  offsetHumanoidRigControl(rightUpperEyelid, 0, -blinkIntensity * 0.002, -blinkIntensity * 0.012);
+  scaleHumanoidRigControl(leftUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
+  scaleHumanoidRigControl(rightUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
+  applyBlinkClosureToRoot(slot.root, blinkIntensity);
+  return blinkIntensity;
+}
+
 export function applyHumanoidMorphTargetCue(
   slot: GeneratedHumanoidAnimationSlot,
   openness: number,
