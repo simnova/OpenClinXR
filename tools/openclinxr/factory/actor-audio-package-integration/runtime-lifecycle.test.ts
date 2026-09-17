@@ -169,3 +169,27 @@ it("two factory instances do not share preparation or host ownership", () => {
   const second = createActorAudioRuntime();
   expect(second.preparedActorTurnAudioAvailable({ actorId: "isolated-a", spokenText: "A prepared line" })).toBe(false);
 });
+
+it("the package-owned speech clock follows real context time and freezes while that clock is unchanged", () => {
+  const f = fixture("native-clock");
+  expect(runtime.startPreparedActorTurnAudio({ actorId: "native-clock", spokenText: "A prepared line" })).toBe(true);
+  f.context.currentTime = 1.25;
+  runtime.syncPreparedActorAudio(9000);
+  const speech = f.slot.activeSpeech as unknown as { startedAtMs: number };
+  expect(speech.startedAtMs).toBeCloseTo(8750, 8);
+  runtime.syncPreparedActorAudio(12000);
+  expect(speech.startedAtMs).toBeCloseTo(11750, 8);
+  f.context.currentTime = 1.5;
+  runtime.syncPreparedActorAudio(13000);
+  expect(speech.startedAtMs).toBeCloseTo(12500, 8);
+});
+it("a replaced host speech is not cleared or reclocked by an older package-owned session", () => {
+  const f = fixture("replacement-clock");
+  expect(runtime.startPreparedActorTurnAudio({ actorId: "replacement-clock", spokenText: "A prepared line" })).toBe(true);
+  const replacement = { text: "Replacement", startedAt: 42, durationMs: 800 };
+  f.slot.activeSpeech = replacement;
+  runtime.syncPreparedActorAudio(99999);
+  expect(f.slot.activeSpeech).toBe(replacement);
+  expect(replacement.startedAt).toBe(42);
+  expect(Object.getOwnPropertyDescriptor(replacement, "startedAtMs")).toBeUndefined();
+});
