@@ -3338,6 +3338,37 @@ def _build_body_surface_derived_garment(
     # Drop copied body UVs — UV seams force the glTF exporter to split shared vertices.
     while gmesh.uv_layers:
         gmesh.uv_layers.remove(gmesh.uv_layers[0])
+    # Measured 2026-09-16 (control/treatment on bake_mpfb_gown_inspect.py, mpfb-viseme-inspect
+    # body): re-unwrapping the garment's OWN topology after the body-UV strip above adds
+    # TEXCOORD_0 covering ~95% of the unit square (non-degenerate, non-identical) at the cost
+    # of +35% garment vertex count (16,966 -> 22,970) from glTF-export UV-seam splitting, and
+    # +4.7% on the whole-actor GLB (9,445,532 -> 9,893,624 bytes). Triangle count is unchanged
+    # (32,167 both ways) — the cost is attribute-duplication, not new geometry.
+    #
+    # Kept gated rather than made the default: dozens of tests elsewhere in this repo pin exact
+    # garment vertex/triangle counts and GLB byte sizes on the shipped assets (e.g.
+    # the-patient-gown-is-a-gown-class-asset.test.ts, garment-bake-matrix.ts) as IMMUTABLE
+    # measured evidence. Flipping the default here would silently invalidate every one of those
+    # pins across every shipped humanoid without re-baking and re-pinning each — a separate,
+    # much larger slice than this measurement. With the flag unset this branch is a no-op: a
+    # SHA-256 byte-for-byte diff of the isolated-harness GLB baked before and after this edit,
+    # both with the flag unset, is identical.
+    if os.environ.get("OPENCLINXR_GARMENT_UV_UNWRAP") == "1":
+        bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.ops.object.select_all(action="DESELECT")
+        garment.select_set(True)
+        bpy.context.view_layer.objects.active = garment
+        bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.mesh.select_all(action="SELECT")
+        try:
+            bpy.ops.uv.smart_project(angle_limit=66.0, island_margin=0.02)
+        except TypeError:
+            bpy.ops.uv.smart_project()
+        bpy.ops.object.mode_set(mode="OBJECT")
+        print(
+            f"[blender] garment UV unwrap (OPENCLINXR_GARMENT_UV_UNWRAP=1): "
+            f"layers={len(gmesh.uv_layers)} verts_after_unwrap={len(gmesh.vertices)}"
+        )
     if hasattr(gmesh, "color_attributes"):
         while len(gmesh.color_attributes) > 0:
             gmesh.color_attributes.remove(gmesh.color_attributes[0])
