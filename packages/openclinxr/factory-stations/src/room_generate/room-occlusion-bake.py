@@ -361,14 +361,21 @@ def bake_ao_per_material(resolution: int) -> Dict[str, Dict[str, object]]:
     """Bake distance-bounded AO per material into a packed image; wire it into the glTF
     Settings "Occlusion" input via a UV Map node pointing at the second UV set. Returns
     per-material stats including the baked image's luminance sd (0-255) so flat maps can
-    be excluded."""
+    be excluded.
+
+    #issue-env-multimat: same defect class as the albedo bake's `bake_materials` (see
+    its docstring) — grouping by `mats[0]` only silently drops every other material
+    slot on a multi-material mesh (a wall with a window/door reveal is a SECOND slot on
+    the same `.wall` object). That slot's node tree never gets an AO_UV image node, so
+    it never receives an occlusionTexture at all, regardless of the flat-map skip below.
+    Iterate every material slot an object actually carries.
+    """
     meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
     by_mat: Dict[str, List[bpy.types.Object]] = {}
     for obj in meshes:
         mats = [m for m in obj.data.materials if m is not None]
-        if not mats:
-            continue
-        by_mat.setdefault(mats[0].name, []).append(obj)
+        for mat in mats:
+            by_mat.setdefault(mat.name, []).append(obj)
 
     # One BVH over the WHOLE scene (every material), built once: cross-material
     # occlusion is the point of a room AO map (v1's per-material BVH defect).
