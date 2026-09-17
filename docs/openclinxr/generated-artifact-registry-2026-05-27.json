@@ -23452,7 +23452,7 @@
     {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/actor-audio-runtime-v1.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
