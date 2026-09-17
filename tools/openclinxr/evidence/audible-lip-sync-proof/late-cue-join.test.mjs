@@ -30,3 +30,13 @@ it('pause/removal before delayed response does not resurrect speech',async()=>{
  const {slot}=await delayedJoin(slot=>{slot.activeSpeech=undefined;});
  expect(slot.activeSpeech).toBeUndefined();expect(slot.root.userData.openClinXrBakedVisemeTimeline).toBeUndefined();
 });
+
+it.fails('equal-value distinct-object replay cannot receive the old delayed bake',async()=>{
+ const {slot,requested}=await delayedJoin(slot=>{slot.activeSpeech={...slot.activeSpeech};});
+ expect(slot.activeSpeech).not.toBe(requested);
+ expect(slot.activeSpeech.text).toBe(requested.text);
+ expect(slot.activeSpeech.startedAtMs).toBe(requested.startedAtMs);
+ expect(slot.activeSpeech.durationMs).toBe(14376.825);
+ expect(slot.activeSpeech.bakedCues[0].phoneme).toBe('PP');
+ expect(slot.root.userData.openClinXrBakedVisemeTimeline).toBeUndefined();
+});
