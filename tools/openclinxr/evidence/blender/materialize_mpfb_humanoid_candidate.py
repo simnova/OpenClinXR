@@ -3882,6 +3882,9 @@ def main():
         from facs_shape_key_transfer import (  # noqa: E402
             transfer_body_shape_keys_to_fitted_mesh as _transfer_brow_facs,
         )
+        # #597 v2 factory station — coverage-greedy eyebrow strand reduction
+        # (D1: port the ALREADY-PROVEN algorithm from reduce-shipped-eyebrows-v2.ts)
+        from eyebrow_strand_reduction import reduce_eyebrow_mesh  # noqa: E402
 
         _brow_ref_tag = subject_id
         _brow_mesh_name = (
@@ -3905,6 +3908,19 @@ def main():
         _brow_bone = _weight_brow_to_head(_brow, _brow_arm)
         for _poly in _brow.data.polygons:
             _poly.use_smooth = True
+
+        # #597 v2 — coverage-greedy eyebrow strand reduction
+        # Runs AFTER weighting (bone weights survive bmesh delete automatically),
+        # BEFORE FACS transfer (so the reduced mesh receives correct shape keys via
+        # the kept_vertex_indices remap). The eyes_asset (fitted eyes_low_poly) is
+        # in scope from earlier in this function (~line 3449) and is identity-transformed
+        # like the brow (apply_object_transforms in fit_hair), so local == world for both.
+        _brow, _brow_reduction_evidence = reduce_eyebrow_mesh(
+            _brow, eyes_asset, budget_tris=3600
+        )
+        print(f"EYEBROW_REDUCTION {json.dumps(_brow_reduction_evidence)}")
+
+        # Recompute triangle count AFTER reduction for EYEBROW_FIT evidence
         _brow_tris = sum(max(len(p.vertices) - 2, 0) for p in _brow.data.polygons)
 
         # Authored emotion is invisible on the eyebrow otherwise: the body carries
@@ -3925,7 +3941,8 @@ def main():
                 f"{len(_brow_facs_names)}: {_brow_facs_names}"
             )
         _brow_facs_displacements_m = _transfer_brow_facs(
-            str(_brow_mhclo), _brow, human, _brow_facs_names
+            str(_brow_mhclo), _brow, human, _brow_facs_names,
+            kept_vertex_indices=_brow_reduction_evidence["keptVertexIndices"]
         )
         print(
             "EYEBROW_FACS_TRANSFER "
