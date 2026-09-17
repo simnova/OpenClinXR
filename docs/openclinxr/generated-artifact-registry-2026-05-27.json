@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 395,
+    "keep-evidence": 396,
     "ignore-local-cache": 2771,
     "keep-current": 226,
     "keep-compatibility-input": 24,
@@ -23448,6 +23448,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/actor-audio-runtime-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/psr-01f.json",

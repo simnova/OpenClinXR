@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 226
-- keep-evidence: 395
+- keep-evidence: 396
 - keep-template: 6
 
 ## Cleanup Actions
@@ -3380,6 +3380,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/model-vetting-captures/mpfb-street-adult-male_three_quarter_2026-08-19.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/model-vetting-report-peds-asthma-parent-anxiety-2026-06-07.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ob-humanoid-source-variants-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/package-public-surface-reduction/admissions/actor-audio-runtime-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/psr-01f.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/approvals/psr-01b.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/approvals/psr-01c.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
