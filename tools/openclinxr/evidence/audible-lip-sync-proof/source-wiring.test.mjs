@@ -22,3 +22,12 @@ it.fails('the existing dev dialogue ingress and preparation bridge are wired rat
  const source=main(),begin=source.indexOf('initSpeakFixtureBridge({'),end=source.indexOf('function buildHumanoidSpeechEvidence(',begin);
  expect(source.slice(begin,end)).toMatch(/startPreparedActorTurnAudio\(/);
 });
+
+// Exercise the consumed manager itself: a lower-level playback refusal cannot prove host ACK.
+import {startPreparedActorTurnAudio} from '../../../../apps/ui-xr/src/prepared-actor-audio.ts';
+it.fails('unprepared product source manager returns false instead of acknowledging voice',()=>{
+ expect(startPreparedActorTurnAudio({actorId:'clock-patient',spokenText:'clock fixture'})).toBe(false);
+});
+it.fails('caller running-context labels cannot grant an unprepared product voice ACK',()=>{
+ expect(startPreparedActorTurnAudio({actorId:'clock-patient',spokenText:'clock fixture',contextState:'running',userActivated:true})).toBe(false);
+});
