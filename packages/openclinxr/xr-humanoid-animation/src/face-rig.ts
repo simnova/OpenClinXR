@@ -1,3 +1,4 @@
+import { resolveMorphTargetGroup } from "@openclinxr/asset-registry";
 import { Mesh, Vector3 } from "three";
 import type { Group } from "three";
 import {
@@ -72,13 +73,56 @@ export function computeAffectRampIntensity(
   return peak * Math.max(0, 1 - d);
 }
 
+
+/**
+ * Mean resting inter-blink interval, ms.
+ *
+ * The original clock used 4,300 ms, which measures 13.5 blinks/min — BELOW the 15-20/min
+ * resting range for spontaneous human blinking. 3,400 ms measures 17.6/min, mid-range.
+ */
+const BLINK_MEAN_INTERVAL_MS = 3400;
+/** Lid closure duration, ms. Unchanged. */
+const BLINK_CLOSURE_MS = 200;
+
+/**
+ * Inter-blink interval for the nth blink since speech start.
+ *
+ * The original clock was `elapsedMs % 4300` — a metronome. Spontaneous human blinking at rest is
+ * 15-20/min with intervals scattered roughly 2-6 s; a perfectly regular blink is one of the most
+ * reliable tells that a face is synthetic. This spreads the interval over [0.58, 1.42] x the mean
+ * (2,108-4,692 ms), giving a measured 17.6 blinks/min inside the 15-20 resting range while
+ * removing the regularity.
+ *
+ * DETERMINISTIC by construction: the jitter is a hash of the blink INDEX, not a PRNG and not
+ * wall-clock, so an evidence capture reproduces frame for frame. No seed, no state, no
+ * Math.random.
+ */
+function blinkIntervalMs(index: number): number {
+  const hashed = Math.sin((index + 1) * 12.9898) * 43758.5453;
+  const fraction = hashed - Math.floor(hashed);
+  return BLINK_MEAN_INTERVAL_MS * (0.62 + fraction * 0.76);
+}
+
+/** Lid-closure intensity in [0,1] at `elapsedMs`, over the irregular blink schedule. */
+function blinkIntensityAt(elapsedMs: number): number {
+  let cursor = 0;
+  for (let index = 0; index < 100000; index++) {
+    const interval = blinkIntervalMs(index);
+    if (elapsedMs < cursor + interval) {
+      const closureStart = cursor + interval - BLINK_CLOSURE_MS;
+      if (elapsedMs <= closureStart) return 0;
+      return Math.sin(Math.PI * ((elapsedMs - closureStart) / BLINK_CLOSURE_MS));
+    }
+    cursor += interval;
+  }
+  return 0;
+}
+
 export function computeHumanoidEyeMotionMetrics(speech: HumanoidSpeechPlayback, nowMs: number): HumanoidEyeMotionMetrics {
   const elapsedMs = Math.max(0, nowMs - speech.startedAtMs);
   const microSaccadeYaw = Math.sin(elapsedMs / 173) * 0.018 + Math.sin(elapsedMs / 421) * 0.011;
   const microSaccadePitch = Math.sin(elapsedMs / 229) * 0.012;
-  const blinkPhase = elapsedMs % 4300;
-  const blinkWindow = blinkPhase > 3940 && blinkPhase < 4140 ? (blinkPhase - 3940) / 200 : 0;
-  const blinkIntensity = blinkWindow > 0 ? Math.sin(Math.PI * blinkWindow) : 0;
+  const blinkIntensity = blinkIntensityAt(elapsedMs);
   return {
     blinkIntensity: Number(blinkIntensity.toFixed(3)),
     microSaccadeYaw: Number(microSaccadeYaw.toFixed(3)),
@@ -225,6 +269,7 @@ export function applyHumanoidMorphTargetCue(
   applyNamedVisemes: (slot: SpeechSlotLike, nowMs: number) => { activeTargetName: string | null },
 ): void {
   let applied = 0;
+  const drivenTargetNames = new Set<string>();
   const resolvedTargets: Record<string, string | null> = {
     openclinxr_mouth_open: null,
     openclinxr_brow_concern: null,
@@ -235,24 +280,26 @@ export function applyHumanoidMorphTargetCue(
       return;
     }
     collectResolvedMorphTargets(object.morphTargetDictionary, resolvedTargets);
-    const mouthOpenIndex = resolveMorphIndex(object.morphTargetDictionary, "openclinxr_mouth_open");
-    const browConcernIndex = resolveMorphIndex(object.morphTargetDictionary, "openclinxr_brow_concern");
-    const cheekTensionIndex = resolveMorphIndex(object.morphTargetDictionary, "openclinxr_cheek_tension");
-    if (typeof mouthOpenIndex === "number") {
-      const influences = object.morphTargetInfluences;
-      influences[mouthOpenIndex] = Math.min(MOUTH_OPEN_CAP, Math.max(0, openness + expressionWeights.mouthOpen * 0.18));
-      applied++;
-    }
-    if (typeof browConcernIndex === "number") {
-      const influences = object.morphTargetInfluences;
-      influences[browConcernIndex] = Math.min(0.95, Math.max(0, expressionWeights.browConcern + (viseme === "rest" ? 0 : 0.05)));
-      applied++;
-    }
-    if (typeof cheekTensionIndex === "number") {
-      const influences = object.morphTargetInfluences;
-      influences[cheekTensionIndex] = Math.min(0.95, Math.max(0, expressionWeights.cheekTension + openness * 0.22));
-      applied++;
-    }
+    const dict = object.morphTargetDictionary;
+    const influences = object.morphTargetInfluences;
+    const availableNames = new Set(Object.keys(dict));
+    // MULTI-TARGET drive. The 1:1 resolver sent brow concern to the LEFT inner brow alone and
+    // cheek tension to nothing at all, so an authored emotion moved half a face or none of it.
+    // resolveMorphTargetGroup keeps identity-first (the Anny rail still drives one target) and
+    // only fans out on bodies that carry the FACS names.
+    const driveGroup = (canonical: string, value: number, cap: number): void => {
+      for (const { target, scale } of resolveMorphTargetGroup(canonical, availableNames)) {
+        const index = dict[target];
+        if (typeof index !== "number" || !Number.isInteger(index)) continue;
+        if (index < 0 || index >= influences.length) continue;
+        influences[index] = Math.min(cap, Math.max(0, value * scale));
+        applied++;
+        drivenTargetNames.add(target);
+      }
+    };
+    driveGroup("openclinxr_mouth_open", openness + expressionWeights.mouthOpen * 0.18, MOUTH_OPEN_CAP);
+    driveGroup("openclinxr_brow_concern", expressionWeights.browConcern + (viseme === "rest" ? 0 : 0.05), 0.95);
+    driveGroup("openclinxr_cheek_tension", expressionWeights.cheekTension + openness * 0.22, 0.95);
   });
   const named = applyNamedVisemes(slot, performance.now());
   if (named.activeTargetName) applied += 1;
@@ -262,6 +309,7 @@ export function applyHumanoidMorphTargetCue(
     expressionWeights: roundHumanoidExpressionWeights(expressionWeights),
     appliedTargetCount: applied,
     resolvedTargets,
+    drivenTargetNames: [...drivenTargetNames].sort(),
     targetNames: ["openclinxr_mouth_open", "openclinxr_brow_concern", "openclinxr_cheek_tension", ...(named.activeTargetName ? [named.activeTargetName] : [])],
     cueIds: ["dialogue_viseme_and_gaze_mapping", "visible_runtime_mouth_shape_cue", "emotion_aligned_expression_transition_cue", "named_viseme_morph_drive"],
     notEvidenceFor: "production phoneme timing, validated facial animation, or clinical affect scoring",
