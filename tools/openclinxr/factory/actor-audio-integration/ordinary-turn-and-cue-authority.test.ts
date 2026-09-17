@@ -28,7 +28,7 @@ function fixture(actorId = "prepared-actor") {
   return { sources, slot, context, dialogueStarts: () => dialogueStarts };
 }
 
-it.fails("ordinary unprepared speech starts existing dialogue and explicitly reports unavailable audio", () => {
+it("ordinary unprepared speech starts existing dialogue and explicitly reports unavailable audio", () => {
   const f = fixture();
   let fallbackStarts = 0;
   const result = startActorTurnSpeech({ actorId: "ordinary-actor", spokenText: "Unprepared authored line" }, () => { fallbackStarts += 1; f.slot.activeSpeech = { text: "Unprepared authored line", startedAt: 0, durationMs: 1000 }; return true; });
@@ -37,7 +37,7 @@ it.fails("ordinary unprepared speech starts existing dialogue and explicitly rep
   expect(result).toEqual({ kind: "dialogue_only", reason: "prepared_audio_unavailable" });
 });
 
-it.fails("prepared speech uses the owned source and reports a typed audible outcome", () => {
+it("prepared speech uses the owned source and reports a typed audible outcome", () => {
   const f = fixture(); let fallbackStarts = 0;
   const result = startActorTurnSpeech({ actorId: "prepared-actor", spokenText: "A prepared line" }, () => { fallbackStarts += 1; return true; });
   expect(f.sources).toHaveLength(1);
@@ -46,7 +46,7 @@ it.fails("prepared speech uses the owned source and reports a typed audible outc
   expect(result).toMatchObject({ kind: "audio_started" });
 });
 
-it.fails("app preparation uses the existing canonical Rhubarb semantics for all nine shapes", () => {
+it("app preparation uses the existing canonical Rhubarb semantics for all nine shapes", () => {
   const doc = { mouthCues: ["A", "B", "C", "D", "E", "F", "G", "H", "X"].map((value, i) => ({ value, start: i, end: i + 1 })) };
   expect(convertRhubarb(doc)).toEqual(mouthCuesToPhonemeCues(doc));
 });
@@ -62,7 +62,7 @@ function invokeActualFrozenTurnHost(actorId: string, spokenText: string, f: Retu
   return host({ actorId, spokenText }, {}, { kind: "learner_camera", actorId: null });
 }
 
-it.fails("actual ordinary frozen-turn host executes dialogue-only adapter without a prepared source", () => {
+it("actual ordinary frozen-turn host executes dialogue-only adapter without a prepared source", () => {
   const f = fixture(); let fallbackStarts = 0;
   const result = invokeActualFrozenTurnHost("ordinary-host-actor", "Ordinary host line", f, () => { fallbackStarts += 1; f.slot.activeSpeech = { text: "Ordinary host line", startedAt: 0, durationMs: 1000 }; });
   expect(result).toBe(true);
@@ -94,7 +94,7 @@ it("invalid overlapping preparation cues remain refused", () => {
   expect(() => convertRhubarb({ mouthCues: [{ value: "A", start: 0, end: 1 }, { value: "B", start: 0.5, end: 1.5 }] })).toThrow();
 });
 
-it.fails("prepared-to-unprepared transition stops owned audio before exactly one ordinary dialogue start", () => {
+it("prepared-to-unprepared transition stops owned audio before exactly one ordinary dialogue start", () => {
   const f = fixture("owned-to-ordinary");
   expect(startPreparedActorTurnAudio({ actorId: "owned-to-ordinary", spokenText: "A prepared line" })).toBe(true);
   let fallbackStarts = 0;
@@ -116,7 +116,7 @@ it.fails("prepared-to-unprepared transition stops owned audio before exactly one
   expect(f.slot.mediaPositionSeconds).toBeUndefined();
 });
 
-it.fails("unprepared transition with owned-stop refusal retains the prior source and speech", () => {
+it("unprepared transition with owned-stop refusal retains the prior source and speech", () => {
   const f = fixture("owned-refusal-next");
   expect(startPreparedActorTurnAudio({ actorId: "owned-refusal-next", spokenText: "A prepared line" })).toBe(true);
   const previousSpeech = f.slot.activeSpeech;
@@ -130,7 +130,7 @@ it.fails("unprepared transition with owned-stop refusal retains the prior source
   expect(result).toMatchObject({ kind: "refused" });
 });
 
-it.fails("a matching prepared entry in a suspended audio context refuses without ordinary fallback", () => {
+it("a matching prepared entry in a suspended audio context refuses without ordinary fallback", () => {
   const f = fixture("suspended-prepared");
   f.context.state = "suspended";
   let fallbackStarts = 0;
@@ -141,7 +141,7 @@ it.fails("a matching prepared entry in a suspended audio context refuses without
   expect(result).toMatchObject({ kind: "refused" });
 });
 
-it.fails("failed ordinary speech setup is a typed refusal rather than a callback-only ACK", () => {
+it("failed ordinary speech setup is a typed refusal rather than a callback-only ACK", () => {
   const f = fixture(); let attempted = 0;
   const result = startActorTurnSpeech({ actorId: "missing-ordinary-slot", spokenText: "No slot line" }, () => { attempted += 1; return false; });
   expect(attempted).toBe(1);

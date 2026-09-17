@@ -1,48 +1,8 @@
-/** App-local prepared PCM transport and source-relative speech clock. Diagnostic nine-shape map is approximate. */
-export const DIAGNOSTIC_RHUBARB_SHAPES: Readonly<Record<string, string>> = { A: "PP", B: "DD", C: "E", D: "aa", E: "O", F: "U", G: "FF", H: "nn", X: "sil" };
+/** App-local prepared PCM transport and source-relative speech clock. */
+import { cuesAdmissible, convertRhubarb, decodePcm16MonoWav as decodePcm16MonoWavPure, type DiagnosticMouthCue, type PlaybackIdentity, type PlaybackSource, type PlaybackContext, type PlaybackBuffer } from "./prepared-actor-audio-data.js";
 
-export type DiagnosticMouthCue = { phoneme: string; atSecond: number; durationSeconds: number };
-export function convertRhubarb(doc: { mouthCues?: ReadonlyArray<{ start: number; end: number; value: string }> }): DiagnosticMouthCue[] {
-  const cues = doc?.mouthCues ?? [];
-  const out: DiagnosticMouthCue[] = [];
-  for (const cue of cues) {
-    const value = String(cue?.value ?? "");
-    const start = Number(cue?.start);
-    const end = Number(cue?.end);
-    if (!(value in DIAGNOSTIC_RHUBARB_SHAPES) || !Number.isFinite(start) || !Number.isFinite(end) || start < 0 || end <= start) {
-      throw new Error("invalid-rhubarb-cue");
-    }
-    if (out.length > 0) {
-      const prev = out[out.length - 1];
-      if (prev && start < prev.atSecond + prev.durationSeconds) throw new Error("overlapping-rhubarb-cues");
-    }
-    const phoneme = DIAGNOSTIC_RHUBARB_SHAPES[value];
-    if (!phoneme) throw new Error("invalid-rhubarb-cue");
-    out.push({ phoneme, atSecond: start, durationSeconds: end - start });
-  }
-  return out;
-}
+export { convertRhubarb, type DiagnosticMouthCue, type PlaybackIdentity, type PlaybackSource, type PlaybackContext, type PlaybackBuffer };
 
-type PlaybackIdentity = { waveformSha256: string; cueSha256: string; actorId: string; generation: string; decodedSampleRate: number; decodedSampleCount: number };
-
-type PlaybackSource = {
-  playbackRate: { value: number };
-  buffer: unknown;
-  connect(dest: unknown): void;
-  start(when: number, offset: number): void;
-  stop?: (() => unknown) | undefined;
-  onended: (() => void) | null;
-};
-
-type PlaybackContext = {
-  currentTime: number;
-  state: string;
-  sampleRate?: number;
-  resume?: () => Promise<unknown>;
-  createBufferSource(): PlaybackSource;
-};
-
-type PlaybackBuffer = { duration: number; sampleRate?: number; length?: number };
 
 export function createPlayback({
   context,
@@ -58,6 +18,7 @@ export function createPlayback({
   start: (opts: { when: number; offset: number; rate: number }) => Promise<void>;
   startNow: (opts: { when: number; offset: number; rate: number }) => void;
   stopNow: () => void;
+  abandonNow: () => boolean;
   ended: () => boolean;
   pauseNow: () => void;
   pause: () => Promise<void>;
@@ -102,13 +63,13 @@ export function createPlayback({
     next.buffer = playbackBuffer;
     next.playbackRate.value = opts.rate;
     next.connect(playbackDestination);
+    source = next;
     next.start(opts.when, opts.offset);
     serial += 1;
     const held = next;
     next.onended = () => {
       if (source === held) { playing = false; naturallyEnded = true; }
     };
-    source = next;
     startedAt = opts.when;
     offset = opts.offset;
     rate = opts.rate;
@@ -150,6 +111,18 @@ export function createPlayback({
     paused = false;
     naturallyEnded = false;
   }
+  function abandonNow(): boolean {
+    let stopped = true;
+    try { stopNow(); } catch { stopped = false; }
+    try {
+      if (source?.disconnect) {
+        source.disconnect();
+        stopped = true;
+      }
+    } catch { /* A failed disconnection does not erase a successful stop. */ }
+    return stopped;
+  }
+
   function stop(): Promise<void> {
     try { stopNow(); return Promise.resolve(); } catch (error) { return Promise.reject(error); }
   }
@@ -158,6 +131,7 @@ export function createPlayback({
     start,
     startNow,
     stopNow,
+    abandonNow,
     ended: () => naturallyEnded,
     pauseNow,
     pause,
@@ -296,6 +270,7 @@ type OwnedSession = {
   nodeSerial: number;
   startedWhen: number;
   clockState: { lastContextTime: number; lastPosition: number };
+  mediaPositionReader: () => number | null;
 };
 
 const host: Host = {};
@@ -323,20 +298,32 @@ function requireRunningContext(context: AudioContext | PlaybackContext | undefin
   if (context?.state !== "running") throw new Error("audio-context-not-running");
 }
 
-function cuesAdmissible(cues: readonly DiagnosticMouthCue[] | undefined): boolean {
-  if (!cues?.length) return false;
-  let end = Number.NEGATIVE_INFINITY;
-  for (const cue of cues) {
-    if (!Number.isFinite(cue.atSecond) || cue.atSecond < 0 || !Number.isFinite(cue.durationSeconds) || cue.durationSeconds <= 0) return false;
-    if (cue.atSecond < end) return false;
-    end = cue.atSecond + cue.durationSeconds;
+/** Presence query does not expose mutable manager state. */
+export function isPreparedEntryPresent(actorId: string, spokenText: string): boolean {
+  return prepared.has(prepareKey(actorId, spokenText));
+}
+
+export function retireOwnedActorSession(actorId: string): boolean {
+  const previous = sessions.get(actorId);
+  if (!stopOwned(previous)) return false;
+  if (previous) {
+    previous.clock.release();
+    if (previous.slot.mediaPositionSeconds === previous.mediaPositionReader) delete previous.slot.mediaPositionSeconds;
+    if (previous.slot.activeSpeech === previous.speech) previous.slot.activeSpeech = undefined;
+    sessions.delete(actorId);
   }
   return true;
 }
 
+export type PreparedActorAudioOutcome =
+  | { kind: "audio_started" }
+  | { kind: "refused"; reason: "prepared_audio_unavailable" | "invalid_cues" | "suspended" | "owned_stop_refusal" | "playback_failed" };
+
+
 function observePlayer(player: ReturnType<typeof createPlayback>, clockState: { lastContextTime: number; lastPosition: number }): number {
   const snap = player.snapshot();
-  clockState.lastContextTime = snap.contextTime; clockState.lastPosition = snap.position;
+  clockState.lastContextTime = snap.contextTime;
+  clockState.lastPosition = snap.position;
   return snap.position;
 }
 
@@ -345,22 +332,26 @@ function stopOwned(session: OwnedSession | undefined): boolean {
   try { session.player.stopNow(); return true; } catch { return false; }
 }
 
-export function startPreparedActorTurnAudio(ctx: PreparedActorStartContext): boolean {
+export function startPreparedActorTurnAudioOutcome(ctx: PreparedActorStartContext): PreparedActorAudioOutcome {
   void ctx.contextState;
   void ctx.userActivated;
   const entry = prepared.get(prepareKey(ctx.actorId, ctx.spokenText));
-  if (!entry) return false;
-  if (!cuesAdmissible(entry.cues)) return false;
-  if (sharedContext?.state !== "running" || !userActivated || !sharedDestination) return false;
-  const previous = sessions.get(ctx.actorId);
-  if (!stopOwned(previous)) return false;
-  host.triggerDialogue?.(ctx);
-  const slot = host.getSlot?.(ctx.actorId) as LiveSlot | undefined;
-  if (!slot?.activeSpeech || slot.activeSpeech.text !== ctx.spokenText) return false;
-  if (previous && slot.activeSpeech === previous.speech) slot.activeSpeech = { ...previous.speech, text: ctx.spokenText };
-  const speech = slot.activeSpeech;
-  if (!speech) return false;
+  if (!entry) return { kind: "refused", reason: "prepared_audio_unavailable" };
+  if (!cuesAdmissible(entry.cues)) return { kind: "refused", reason: "invalid_cues" };
+  if (sharedContext?.state !== "running" || !userActivated || !sharedDestination) return { kind: "refused", reason: "suspended" };
+  if (!retireOwnedActorSession(ctx.actorId)) return { kind: "refused", reason: "owned_stop_refusal" };
+  let attempt: OwnedSession | undefined;
+  let slot: LiveSlot | undefined;
+  let speech: LiveSlot["activeSpeech"];
+  let originalSpeech: LiveSlot["activeSpeech"];
+  let sourceStarted = false;
+  let mediaPositionReader: (() => number) | undefined;
   try {
+    host.triggerDialogue?.(ctx);
+    slot = host.getSlot?.(ctx.actorId) as LiveSlot | undefined;
+    if (!slot?.activeSpeech || slot.activeSpeech.text !== ctx.spokenText) throw new Error("prepared-speech-unavailable");
+    speech = slot.activeSpeech;
+    originalSpeech = { ...speech };
     const genN = (actorGeneration.get(ctx.actorId) ?? 0) + 1;
     actorGeneration.set(ctx.actorId, genN);
     const generation = `${ctx.actorId}:${entry.runnerConversationTurn}:${genN}`;
@@ -381,21 +372,37 @@ export function startPreparedActorTurnAudio(ctx: PreparedActorStartContext): boo
       tapNode.port.postMessage({ arm: true, generation, nodeSerial: player.nodeSerial() + 1, sourceStartContextSample: tapMeta.sourceStartContextSample, sampleCount: entry.decodedSampleCount });
     }
     const resumeOffset = typeof ctx.resumeOffset === "number" && Number.isFinite(ctx.resumeOffset) && ctx.resumeOffset >= 0 ? ctx.resumeOffset : 0;
-    player.startNow({ when, offset: resumeOffset, rate: 1 });
-    if (tapMeta) tapMeta.nodeSerial = player.nodeSerial();
-    if (slot.root) slot.root.userData = { ...slot.root.userData, openClinXrPreparedGeneration: generation };
     speech.durationMs = (entry.decodedSampleCount / entry.decodedSampleRate) * 1000;
     speech.bakedCues = entry.cues;
     const clockState = { lastContextTime: when, lastPosition: 0 };
-    slot.mediaPositionSeconds = () => observePlayer(player, clockState);
+    mediaPositionReader = () => observePlayer(player, clockState);
+    slot.mediaPositionSeconds = mediaPositionReader;
     const clock = createAudioSpeechClock({ slot, speech, positionSeconds: () => observePlayer(player, clockState), wallOriginMs: performance.now(), rate: 1 });
-    previous?.clock.release();
-    if (!slot.activeSpeech) return false;
-    sessions.set(ctx.actorId, { actorId: ctx.actorId, player, clock, speech, slot, generation, nodeSerial: player.nodeSerial(), startedWhen: when, clockState });
-    return slot.activeSpeech === speech;
+    attempt = { actorId: ctx.actorId, player, clock, speech, slot, generation, nodeSerial: player.nodeSerial(), startedWhen: when, clockState, mediaPositionReader };
+    player.startNow({ when, offset: resumeOffset, rate: 1 });
+    sourceStarted = true;
+    attempt.nodeSerial = player.nodeSerial();
+    if (tapMeta) tapMeta.nodeSerial = player.nodeSerial();
+    if (slot.activeSpeech !== speech || slot.mediaPositionSeconds !== mediaPositionReader || actorGeneration.get(ctx.actorId) !== genN) throw new Error("prepared-speech-replaced");
+    if (slot.root) slot.root.userData = { ...slot.root.userData, openClinXrPreparedGeneration: generation };
+    sessions.set(ctx.actorId, attempt);
+    return { kind: "audio_started" };
   } catch {
-    return false;
+    if (attempt && !attempt.player.abandonNow()) {
+      if (!sessions.has(ctx.actorId)) sessions.set(ctx.actorId, attempt);
+      return { kind: "refused", reason: "owned_stop_refusal" };
+    }
+    const ownedSpeech = slot?.activeSpeech === speech && speech !== undefined;
+    attempt?.clock.release();
+    if (slot && slot.mediaPositionSeconds === mediaPositionReader) delete slot.mediaPositionSeconds;
+    if (slot && ownedSpeech) slot.activeSpeech = sourceStarted ? undefined : originalSpeech;
+    return { kind: "refused", reason: "playback_failed" };
   }
+}
+
+/** Compatibility handshake used by the existing coordinator and DEV bridge. */
+export function startPreparedActorTurnAudio(ctx: PreparedActorStartContext): boolean {
+  return startPreparedActorTurnAudioOutcome(ctx).kind === "audio_started";
 }
 
 export function pausePreparedActorTurnAudio(actorId: string): boolean {
@@ -497,9 +504,21 @@ type PrepareHostInput = PreparedIdentity & {
   wav: ArrayBuffer;
   mouthCues: { mouthCues?: Array<{ start: number; end: number; value: string }> };
   tapWorkletUrl?: string;
+  diagnosticCues?: DiagnosticMouthCue[];
 };
 
+/** Approximate private cues are admitted only by actual DEV fixture ingress, never caller labels. */
+export function selectPreparationCues(input: Pick<PrepareHostInput, "mouthCues" | "diagnosticCues">): DiagnosticMouthCue[] {
+  if (input.diagnosticCues !== undefined) {
+    if (import.meta.env.DEV !== true || !speakFixtureEnabled()) throw new Error("diagnostic-cues-ingress-refused");
+    if (!cuesAdmissible(input.diagnosticCues)) throw new Error("invalid-diagnostic-cues");
+    return input.diagnosticCues.map((cue) => ({ ...cue }));
+  }
+  return convertRhubarb(input.mouthCues);
+}
+
 async function prepareFromHost(input: PrepareHostInput): Promise<{ decodedSampleCount: number; decodedSampleRate: number }> {
+  const cues = selectPreparationCues(input);
   const context = await markUserActivated();
   requireRunningContext(context);
   const decoded = decodePcm16MonoWav(input.wav);
@@ -531,42 +550,13 @@ async function prepareFromHost(input: PrepareHostInput): Promise<{ decodedSample
       sharedDestination = tapNode;
     }
   }
-  const cues = convertRhubarb(input.mouthCues);
   const entry: PreparedEntry = { ...input, buffer, cues, decodedSampleRate: decoded.sampleRate, decodedSampleCount: decoded.sampleCount };
   prepared.set(prepareKey(input.actorId, input.responseText), entry);
   return { decodedSampleCount: decoded.sampleCount, decodedSampleRate: decoded.sampleRate };
 }
 
 export function decodePcm16MonoWav(wav: ArrayBuffer): { sampleRate: number; sampleCount: number; float32: Float32Array; pcm16: Int16Array } {
-  const bytes = new Uint8Array(wav);
-  const view = new DataView(wav);
-  const ascii = (start: number, n: number) => String.fromCharCode(...bytes.subarray(start, start + n));
-  if (ascii(0, 4) !== "RIFF" || ascii(8, 4) !== "WAVE") throw new Error("invalid-waveform-container");
-  let fmt: DataView | undefined;
-  let dataOffset = 0;
-  let dataSize = 0;
-  for (let p = 12; p + 8 <= bytes.length; ) {
-    const tag = ascii(p, 4);
-    const size = view.getUint32(p + 4, true);
-    const start = p + 8;
-    if (start + size > bytes.length) throw new Error("truncated-waveform-chunk");
-    if (tag === "fmt ") fmt = new DataView(wav, start, size);
-    if (tag === "data") {
-      dataOffset = start;
-      dataSize = size;
-    }
-    p = start + size + (size % 2);
-  }
-  if (!fmt || fmt.byteLength < 16 || dataSize <= 0) throw new Error("unsupported-waveform-domain");
-  if (fmt.getUint16(0, true) !== 1 || fmt.getUint16(2, true) !== 1 || fmt.getUint16(14, true) !== 16 || dataSize % 2) {
-    throw new Error("unsupported-waveform-domain");
-  }
-  const sampleRate = fmt.getUint32(4, true);
-  const sampleCount = dataSize / 2;
-  const pcm16 = new Int16Array(wav, dataOffset, sampleCount);
-  const float32 = new Float32Array(sampleCount);
-  for (let i = 0; i < sampleCount; i += 1) float32[i] = (pcm16[i] ?? 0) / 32768;
-  return { sampleRate, sampleCount, float32, pcm16 };
+  return decodePcm16MonoWavPure(wav);
 }
 
 function getAuthoredMaterials(): Array<{ gltfMaterialIndex: number; opacity: number; transparent: boolean; alphaTest: number }> {

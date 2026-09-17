@@ -36,10 +36,16 @@ window.runNativeTrackControl=async()=>{
  await new Promise((r)=>setTimeout(r,400));
  const snap=await first.stop();
  const liveAfterStop={audio:audioTrack.readyState,video:videoTrack.readyState};
- g.fillStyle="#000"; g.fillRect(0,layout.y0,1024,layout.stripPx);
  const second=startNativeTrackObserver({audioTrack,videoTrack});
- canvasStream.getVideoTracks()[0].requestFrame?.();
- await new Promise((r)=>setTimeout(r,600));
+ // Paint AFTER installing the second tee: it may initially read a queued old marked frame.
+ // Actual subsequent draws must deliver an invalid strip while keeping both source tracks live.
+ for(let n=0;n<6;n++) {
+  await new Promise((r)=>setTimeout(r,100));
+  g.fillStyle=n%2?"#336699":"#336698"; g.fillRect(0,0,1024,1024);
+  g.fillStyle="#000"; g.fillRect(0,layout.y0,1024,layout.stripPx);
+  canvasStream.getVideoTracks()[0].requestFrame?.();
+ }
+ await new Promise((r)=>setTimeout(r,100));
  const tampered=await second.stop();
  osc.stop();
  const afterOsc={audio:audioTrack.readyState};

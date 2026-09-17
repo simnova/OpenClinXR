@@ -15,6 +15,7 @@ export async function runBrowserCapture(input) {
     cueSha256: input.cueSha256,
     wav: binary.buffer,
     mouthCues: input.mouthCues,
+    diagnosticCues: input.diagnosticCues,
     tapWorkletUrl: tapUrl,
   });
   const {createNeutralFaceView, readOwnedArticulation, subtreeExcludedFromJudgingLayer} = await import(input.neutralFaceModuleUrl);

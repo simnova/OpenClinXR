@@ -7,15 +7,15 @@ import { chromium } from "playwright";
 import fixture from "./fixture-manifest.mjs";
 import { prepareViteOptimization } from "./reproduce-vite-modules.mjs";
 import { runBrowserCapture } from "./capture-page.mjs";
+import {convertRhubarb as convertHistoricalDiagnosticCues} from "./rhubarb-cues.mjs";
 
 const repoRoot = fileURLToPath(new URL("../../../../", import.meta.url));
-const packetRoot = dirname(fixture.proofReportPath);
-/** Owner RED scaffold: selected directory is not admitted yet. */
+/** Pure output selection; default preserves the original historical fixture path. */
 export function resolveCaptureOutputPaths(selectedDirectory) {
-  void selectedDirectory;
-  return { packetRoot: dirname(fixture.proofReportPath), latest: fixture.proofReportPath };
+  if (selectedDirectory !== undefined && (typeof selectedDirectory !== "string" || selectedDirectory.trim() === "")) throw new Error("invalid-output-directory");
+  const packetRoot = selectedDirectory === undefined ? dirname(fixture.proofReportPath) : resolve(selectedDirectory);
+  return { packetRoot, latest: selectedDirectory === undefined ? fixture.proofReportPath : resolve(packetRoot, "latest-report.json") };
 }
-
 const actorId = "patient_robert_hayes_v1";
 const scenarioId = "ed_chest_pain_priority_v1";
 const responseText = "diagnostic prepared actor pcm riddle";
@@ -23,6 +23,7 @@ const runnerConversationTurn = 1;
 const requiredModules = [
   { sourcePath: "apps/ui-xr/src/main.ts", match: /\/src\/main\.ts/ },
   { sourcePath: "apps/ui-xr/src/prepared-actor-audio.ts", match: /prepared-actor-audio/ },
+  { sourcePath: "apps/ui-xr/src/prepared-actor-audio-data.ts", match: /prepared-actor-audio-data/ },
   { sourcePath: "packages/openclinxr/xr-dialogue/dist/viseme-runtime-wire.js", match: /viseme-runtime-wire/ },
   { sourcePath: "packages/openclinxr/xr-dialogue/dist/viseme-baked-cues.js", match: /viseme-baked-cues/ },
 ];
@@ -87,7 +88,8 @@ async function startVite(repoRoot, metadata) {
   return { child, base };
 }
 
-export async function captureAudibleLipSync(repo = repoRoot) {
+export async function captureAudibleLipSync(repo = repoRoot, {outputDirectory} = {}) {
+  const {packetRoot, latest} = resolveCaptureOutputPaths(outputDirectory);
   const captureHead = execFileSync("git", ["rev-parse", "HEAD"], { cwd: repo, encoding: "utf8" }).trim();
   const buildTime = new Date().toISOString();
   const metadata = { gitCommit: captureHead, buildTime };
@@ -200,6 +202,7 @@ export async function captureAudibleLipSync(repo = repoRoot) {
       nativeTrackObserverModuleUrl: "/@fs/" + resolve(repo, "tools/openclinxr/evidence/audible-lip-sync-proof/native-track-observer.mjs"),
       wavBase64: wavBytes.toString("base64"),
       mouthCues: JSON.parse(cueBytes.toString("utf8")),
+      diagnosticCues: convertHistoricalDiagnosticCues(JSON.parse(cueBytes.toString("utf8"))),
       tapSource,
       scenarioId,
       actorId,
@@ -299,6 +302,11 @@ export async function captureAudibleLipSync(repo = repoRoot) {
       path,
       sha256: sha256(readFileSync(resolve(repo, path))),
     }));
+    sourceBindings.push({
+      role: "preparedData",
+      path: "apps/ui-xr/src/prepared-actor-audio-data.ts",
+      sha256: sha256(readFileSync(resolve(repo, "apps/ui-xr/src/prepared-actor-audio-data.ts"))),
+    });
     const report = {
       schemaVersion: 1,
       claimScope: "local-prerecorded-coarse-mouth-clock-proof",
@@ -340,7 +348,6 @@ export async function captureAudibleLipSync(repo = repoRoot) {
     };
     const reportBytes = Buffer.from(JSON.stringify(report, null, 2));
     writeUnique(runDir, "report.json", reportBytes);
-    const latest = fixture.proofReportPath;
     mkdirSync(dirname(latest), { recursive: true });
     writeFileSync(latest, reportBytes);
     return { report, runDir, latest };
@@ -355,7 +362,10 @@ export async function captureAudibleLipSync(repo = repoRoot) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  captureAudibleLipSync().then((result) => {
+  const args = process.argv.slice(2);
+  const valid = args.length === 0 || (args.length === 2 && args[0] === "--output-dir" && args[1]);
+  if (!valid) throw new Error("usage: capture.mjs [--output-dir directory]");
+  captureAudibleLipSync(repoRoot, {outputDirectory: args[1]}).then((result) => {
     console.log(JSON.stringify({ runDir: result.runDir, latest: result.latest, frames: result.report.frames.length }));
   }).catch((error) => {
     console.error(error);

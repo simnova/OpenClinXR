@@ -141,6 +141,7 @@ import {
 } from "@openclinxr/xr-humanoid-animation";
 import { playManifestMotionClip } from "./motion-manifest-motion-address.js";
 import { initPreparedActorAudioBridge, startPreparedActorTurnAudio, syncPreparedActorAudio } from "./prepared-actor-audio.js";
+import { preparedActorTurnAudioAvailable, startActorTurnSpeech } from "./ordinary-actor-turn-speech.js";
 import { observeMountedApproachGeometry } from "@openclinxr/xr-humanoid-animation/mounted-approach-geometry";
 import { applyStationBedsideStanceLock, createStationBedsideApproachState, updateStationBedsideApproach } from "@openclinxr/xr-humanoid-animation/station-bedside-approach";
 import {
@@ -4359,6 +4360,10 @@ function playLiveFrozenActorTurn(
     clipNames: slot?.responseClips?.map((clip) => clip.name) ?? [],
     getSlot: (id) => generatedHumanoidAnimationSlotsByActorId.get(id),
     speak: (ctx) => startPreparedActorTurnAudio({ ...ctx, gazeTarget, req, emotionSource: "plan.dialogueEmotionTo" }),
+    ...(!preparedActorTurnAudioAvailable({ actorId: plan.actorId, spokenText: plan.spokenText }) ? { speak: (ctx: Parameters<typeof startPreparedActorTurnAudio>[0]) => ["audio_started", "dialogue_only"].includes(startActorTurnSpeech({ ...ctx, gazeTarget, req, emotionSource: "plan.dialogueEmotionTo" }, {
+      readSpeech: (c) => generatedHumanoidAnimationSlotsByActorId.get(c.actorId)?.activeSpeech,
+      startDialogue: (c) => triggerHumanoidDialogue(c.actorId, c.spokenText, gazeTarget, c.faceEmotion as HumanoidExpressionEmotion | undefined, req, "plan.dialogueEmotionTo"),
+    }).kind) } : {}),
     playClip: playOneShotResponseClip,
     startFaceTransition: (id, emotion, nowMs) => { const live = generatedHumanoidAnimationSlotsByActorId.get(id); if (live) startHumanoidEmotionTransition(live, emotion, nowMs); },
   });
