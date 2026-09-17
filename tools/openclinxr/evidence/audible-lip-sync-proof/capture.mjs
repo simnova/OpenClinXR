@@ -157,6 +157,7 @@ export async function captureAudibleLipSync(repo = repoRoot) {
     await page.click("canvas", { timeout: 10000 });
     const result = await page.evaluate(runBrowserCapture, {
       neutralFaceModuleUrl: "/@fs/" + resolve(repo, "tools/openclinxr/evidence/audible-lip-sync-proof/neutral-face-view.mjs"),
+      audioGraphClockModuleUrl: "/@fs/" + resolve(repo, "tools/openclinxr/evidence/audible-lip-sync-proof/audio-graph-clock.mjs"),
       wavBase64: wavBytes.toString("base64"),
       mouthCues: JSON.parse(cueBytes.toString("utf8")),
       tapSource,
@@ -230,7 +231,7 @@ export async function captureAudibleLipSync(repo = repoRoot) {
       };
     }
     const markerHelperModules = [];
-    for (const name of ["observed-row-overlay.mjs", "observed-row-barcode.mjs"]) {
+    for (const name of ["observed-row-overlay.mjs", "observed-row-barcode.mjs", "audio-graph-clock.mjs"]) {
       const script = parsed.find((row) => (row.url ?? "").includes("/" + name));
       const net = script && network.find((row) => row.response.url === script.url);
       if (!script || !net?.requestId) throw new Error("marker-helper-provenance-missing:" + name);
@@ -276,6 +277,7 @@ export async function captureAudibleLipSync(repo = repoRoot) {
       viteDiagnostics,
       prerender: result.prerender,
       recorderStartedAtMs: result.recorderStartedAtMs,
+      recorderEvents: result.recorderEvents,
       buildMetadata: metadata,
       authoredMaterialRows: result.authoredMaterialRows,
       playedTap: result.playedTap,

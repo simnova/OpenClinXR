@@ -79,13 +79,25 @@ export function identifyHeadGeometry(root) {
   return {head,eyes,jaw,meshes,containMeshes,localUp,bindQuaternion};
 }
 
-function skinnedWorldPoint(object, index, target) {
+/** SkinnedMesh.getVertexPosition already applies bindMatrixInverse (world). Unskinned meshes need matrixWorld. */
+export function skinnedWorldPoint(object, index, target) {
   object.getVertexPosition(index, target);
-  return target.applyMatrix4(object.matrixWorld);
+  if (!object.isSkinnedMesh) target.applyMatrix4(object.matrixWorld);
+  return target;
+}
+
+export function bindInverseMatchesWorld(object) {
+  if (!object?.isSkinnedMesh || !object.bindMatrixInverse) return null;
+  const product=object.bindMatrixInverse.clone().multiply(object.matrixWorld);
+  const identity=product.elements;
+  let max=0;
+  for (let i=0;i<16;i++) max=Math.max(max, Math.abs(identity[i]-(i%5===0?1:0)));
+  return max;
 }
 
 export function fitNeutralHeadCamera(rig, camera, root) {
-  root.updateWorldMatrix(true,true);
+  root.updateWorldMatrix(true,false);
+  root.updateMatrixWorld(true);
   const contain=rig.containMeshes??[];
   const hairBefore=contain.map(({object,indices})=>indices.length?skinnedWorldPoint(object,indices[0],new Vector3()).toArray():null);
   for(const {object} of rig.meshes)object.skeleton?.update();
@@ -131,7 +143,9 @@ export function fitNeutralHeadCamera(rig, camera, root) {
       isSkinned:!!object.isSkinnedMesh,
       skeletonSharedWithFace:!!(object.skeleton&&faceSkeleton&&object.skeleton===faceSkeleton),
       skeletonUpdated:true,
+      bindInverseWorldResidual:bindInverseMatchesWorld(object),
       worldMatrix:Array.from(object.matrixWorld.elements),
+      bindMatrixInverse:object.bindMatrixInverse?Array.from(object.bindMatrixInverse.elements):null,
       worldVertexBeforeUpdate:hairBefore[hi],
       worldVertexAfterUpdate:indices.length?points[sampledHeadVertices+contain.slice(0,hi).reduce((n,m)=>n+m.indices.length,0)].toArray():null,
       projectedExtrema:subset.length?{minX:Math.min(...subset.map(p=>p.x)),maxX:Math.max(...subset.map(p=>p.x)),minY:Math.min(...subset.map(p=>p.y)),maxY:Math.max(...subset.map(p=>p.y))}:null,
@@ -192,7 +206,7 @@ export function createNeutralFaceView(slot) {
   const camera=new PerspectiveCamera(35,1,.001,10);camera.layers.set(30);
   const rowOverlay=createObservedRowOverlay();
   let framing;
-  return {canvas,getRig(){return rig;},excludeHostCues(cues){for(const cue of cues)cue?.traverse((object)=>object.layers.set(0));},render(row){framing=fitNeutralHeadCamera(rig,camera,slot.root);key.position.copy(camera.position);key.target.position.copy(rig.head.getWorldPosition(new Vector3()));renderer.autoClear=true;renderer.render(scene,camera);let marker=null;if(row){marker=rowOverlay.render(renderer,row);framing={...framing,marker:{version:marker.version,checksum:marker.checksum,callbackSerial:marker.callbackSerial,generation:marker.generation,generationN:marker.generationN,nodeSerial:marker.nodeSerial,layout:marker.layout}};}return framing;},dispose(){rowOverlay.dispose();restore();},getFraming(){return framing;}};
+  return {canvas,getRig(){return rig;},excludeHostCues(cues){for(const cue of cues)cue?.traverse((object)=>object.layers.set(0));},render(row){framing=fitNeutralHeadCamera(rig,camera,slot.root);key.position.copy(camera.position);key.target.position.copy(rig.head.getWorldPosition(new Vector3()));renderer.autoClear=true;renderer.render(scene,camera);framing={...framing,canvasSize:[canvas.width,canvas.height],rendererDrawingBuffer:[renderer.domElement.width,renderer.domElement.height],overlayLayout:rowOverlay.layout};let marker=null;if(row){marker=rowOverlay.render(renderer,row);framing={...framing,marker:{version:marker.version,checksum:marker.checksum,callbackSerial:marker.callbackSerial,generation:marker.generation,generationN:marker.generationN,nodeSerial:marker.nodeSerial,layout:marker.layout}};}return framing;},dispose(){rowOverlay.dispose();restore();},getFraming(){return framing;}};
   } catch(error) {
     restore();
     throw error;

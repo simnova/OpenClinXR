@@ -18,6 +18,8 @@ export async function runBrowserCapture(input) {
     tapWorkletUrl: tapUrl,
   });
   const {createNeutralFaceView, readOwnedArticulation, subtreeExcludedFromJudgingLayer} = await import(input.neutralFaceModuleUrl);
+  const {readAudioGraphClock, recorderChunkFact, serializeAudioGraphClock} = await import(input.audioGraphClockModuleUrl);
+  if (typeof readAudioGraphClock !== "function" || typeof recorderChunkFact !== "function" || typeof serializeAudioGraphClock !== "function") throw new Error("audio-graph-clock-helper-missing");
   const clinicalScene = window.__openClinXrDebugScene;
   let ownedRoot;
   clinicalScene?.traverse((object) => {
@@ -70,7 +72,9 @@ export async function runBrowserCapture(input) {
     : "video/webm";
   recorder = new MediaRecorder(mixed, { mimeType });
   const chunks = [];
+  const recorderEvents = [];
   recorder.ondataavailable = (event) => {
+    recorderEvents.push(recorderChunkFact(event, performance.now()));
     if (event.data && event.data.size) chunks.push(event.data);
   };
   const stopped = new Promise((resolve) => {
@@ -89,14 +93,23 @@ export async function runBrowserCapture(input) {
   canvasStream.getVideoTracks()[0]?.requestFrame?.();
   await recorderStarted;
   recorderStartedAtMs = performance.now();
+  const graphClockAtRecorderStart = readAudioGraphClock(context, recorderStartedAtMs);
   const prerender = {
     displayNowMs: performance.now(),
     contextCurrentTime: context.currentTime,
+    graphClock: serializeAudioGraphClock(graphClockAtRecorderStart),
     framing: prerenderFraming,
     idleCueVisibility,
     idleCueLayerExcluded,
     recorderStartedAtMs,
     recorderStartContextTime: context.currentTime,
+    contextIsGetContext: audio.getContext() === context,
+    mediaStreamDestination: {
+      type: recorderDest.constructor?.name ?? null,
+      streamId: recorderDest.stream?.id ?? null,
+      audioTrackReadyState: recorderDest.stream?.getAudioTracks?.()[0]?.readyState ?? null,
+      notAnOutputDeviceClock: true,
+    },
     startupStage,
   };
   const speechStartedAtMs = performance.now();
@@ -172,6 +185,7 @@ export async function runBrowserCapture(input) {
             frameIndex: drive.frameIndex ?? 0,
             activeTargetName: drive.activeTargetName ?? null,
             appliedMeshCount: drive.appliedMeshCount ?? 0,
+            graphClock: serializeAudioGraphClock(readAudioGraphClock(context, performance.now())),
           };
           row.evaluationFraming = neutralView.render(row);
           frames.push(row);
@@ -238,6 +252,7 @@ export async function runBrowserCapture(input) {
     authoredMaterialRows: audio.getAuthoredMaterials(),
     framing: finalFraming,
     recorderStartedAtMs,
+    recorderEvents,
     prerender,
     evaluationScene: "neutral-owned-actor-no-room",
     facialWriter: "actual-ui-xr-host-only",

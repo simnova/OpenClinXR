@@ -1,7 +1,7 @@
 import {test} from 'vitest';
 import assert from 'node:assert/strict';
 import {Bone, BufferGeometry, Float32BufferAttribute, Uint16BufferAttribute, Group, Layers, Mesh, MeshBasicMaterial, PerspectiveCamera, PropertyBinding, Skeleton, SkinnedMesh, Vector3} from 'three';
-import {identifyHeadGeometry, fitNeutralHeadCamera, readOwnedArticulation, isDeformingFacialPrimitive, subtreeExcludedFromJudgingLayer} from './neutral-face-view.mjs';
+import {identifyHeadGeometry, fitNeutralHeadCamera, readOwnedArticulation, isDeformingFacialPrimitive, subtreeExcludedFromJudgingLayer, skinnedWorldPoint, bindInverseMatchesWorld} from './neutral-face-view.mjs';
 
 function actor() {
   const root = new Group(), head = new Bone(), left = new Bone(), right = new Bone(), jaw = new Bone();
@@ -69,6 +69,12 @@ test('consumed capture uses neutral canvas and one host facial writer',async()=>
   assert.ok(source.indexOf('const row =')>source.indexOf('clinicalScene.onAfterRender'));
   assert.ok(source.indexOf('const row =')<source.indexOf('neutralView.render(row)'));
   assert.ok(source.indexOf('neutralView.render(row)')<source.indexOf('frames.push(row)'));
+  assert.match(source,/audioGraphClockModuleUrl/);
+  assert.match(source,/readAudioGraphClock/);
+  assert.match(source,/serializeAudioGraphClock/);
+  assert.match(source,/recorderEvents/);
+  assert.match(source,/notAnOutputDeviceClock: true/);
+  assert.doesNotMatch(source,/0\.050637|fittedDelay|arbitraryDelay/);
   assert.doesNotMatch(source,/innerHTML|createElement\(['"]div['"]\)|position:\s*['"]absolute['"]/);
 });
 
@@ -143,6 +149,8 @@ test('capture does not wait for activeSpeech before prepare and uses isolated @f
   const capture=await readFile(new URL('./capture.mjs',import.meta.url),'utf8');
   assert.doesNotMatch(capture,/waitForFunction\(\(\) => \{[\s\S]*activeSpeech[\s\S]*prepare/);
   assert.match(capture,/neutralFaceModuleUrl: "\/@fs\/" \+ resolve\(repo,/);
+  assert.match(capture,/audioGraphClockModuleUrl: "\/@fs\/" \+ resolve\(repo,/);
+  assert.match(capture,/audio-graph-clock\.mjs/);
   assert.doesNotMatch(capture,/__openClinXrDebugRenderer/);
   assert.doesNotMatch(capture,/head-box-from-geometry\.js/);
   assert.match(capture,/if \(!process\.env\.NODE_ENV\) process\.env\.NODE_ENV = "test"/);
@@ -287,4 +295,31 @@ test('neutral overlay is a GL barcode after the authored scene, not a DOM overla
   assert.match(source,/marker:\{version:marker\.version,checksum:marker\.checksum/);
   assert.match(source,/containMeshes\?\?\[\]/);
   assert.match(source,/for\(const \{object\} of contain\)object\.skeleton\?\.update\(\)/);
+  assert.match(source,/root\.updateMatrixWorld\(true\)/);
+});
+
+test('updateWorldMatrix leaves SkinnedMesh bindMatrixInverse stale; updateMatrixWorld refreshes it',()=>{
+  const a=actor();
+  a.root.updateMatrixWorld(true);
+  a.mesh.position.y+=0.25;
+  a.root.updateWorldMatrix(true,true);
+  assert.ok(bindInverseMatchesWorld(a.mesh)>0.1);
+  const stale=a.mesh.getVertexPosition(0,new Vector3()).clone();
+  a.root.updateMatrixWorld(true);
+  assert.ok(bindInverseMatchesWorld(a.mesh)<1e-6);
+  const fresh=a.mesh.getVertexPosition(0,new Vector3());
+  assert.ok(stale.distanceTo(fresh)>1e-4);
+});
+
+test('skinned world sample matches getVertexPosition after inverse refresh, not a second matrixWorld',()=>{
+  const a=actor();
+  a.mesh.position.y+=0.25;
+  a.root.updateMatrixWorld(true);
+  const world=skinnedWorldPoint(a.mesh,0,new Vector3());
+  const gpuLike=a.mesh.getVertexPosition(0,new Vector3());
+  const doubled=gpuLike.clone().applyMatrix4(a.mesh.matrixWorld);
+  assert.ok(world.distanceTo(gpuLike)<1e-8);
+  assert.ok(world.distanceTo(doubled)>1e-4);
+  const result=fitNeutralHeadCamera(identifyHeadGeometry(a.root),new PerspectiveCamera(35,1,.001,10),a.root);
+  assert.ok(result.hairContainment.every((row)=>row.bindInverseWorldResidual==null || row.bindInverseWorldResidual<1e-5) || result.containedHairVertices===0);
 });
