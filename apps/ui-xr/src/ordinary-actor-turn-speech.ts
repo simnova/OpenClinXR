@@ -8,3 +8,6 @@ export function startActorTurnSpeech(
   void startNonAudibleDialogue;
   return startPreparedActorTurnAudio(context);
 }
+
+/** Owner scaffold; final implementation must consult actual prepared-map presence only. */
+export function preparedActorTurnAudioAvailable(_context: PreparedActorStartContext): boolean { return false; }

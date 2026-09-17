@@ -1,6 +1,7 @@
 import { it, expect } from "vitest";
+import ts from "typescript";
 import { readFileSync } from "node:fs";
-import { startActorTurnSpeech } from "../../../../apps/ui-xr/src/ordinary-actor-turn-speech.js";
+import { startActorTurnSpeech, preparedActorTurnAudioAvailable } from "../../../../apps/ui-xr/src/ordinary-actor-turn-speech.js";
 import { installPreparedActorAudioRuntime, startPreparedActorTurnAudio, convertRhubarb } from "../../../../apps/ui-xr/src/prepared-actor-audio.js";
 import { mouthCuesToPhonemeCues } from "../../../../packages/openclinxr/xr-dialogue/dist/index.js";
 
@@ -50,12 +51,32 @@ it.fails("app preparation uses the existing canonical Rhubarb semantics for all 
   expect(convertRhubarb(doc)).toEqual(mouthCuesToPhonemeCues(doc));
 });
 
-it.fails("ordinary UI-XR frozen-turn host consumes the ordinary/prepared speech boundary", () => {
+function invokeActualFrozenTurnHost(actorId: string, spokenText: string, f: ReturnType<typeof fixture>, fallback: () => void): unknown {
   const main = readFileSync(new URL("../../../../apps/ui-xr/src/main.ts", import.meta.url), "utf8");
   const begin = main.indexOf("function playLiveFrozenActorTurn(");
   const end = main.indexOf("function hasAuthoredClinicalIdlePoseClip(", begin);
-  const host = main.slice(begin, end);
-  expect(host).toContain("startActorTurnSpeech(");
+  const body = ts.transpileModule(main.slice(begin, end), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText;
+  const names = ["generatedHumanoidAnimationSlotsByActorId", "playFrozenActorTurnOnSlot", "startPreparedActorTurnAudio", "startActorTurnSpeech", "preparedActorTurnAudioAvailable", "triggerHumanoidDialogue", "playOneShotResponseClip", "startHumanoidEmotionTransition"];
+  const getHost = new Function(...names, body + "\nreturn playLiveFrozenActorTurn;");
+  const host = getHost(new Map([[actorId, f.slot]]), (_plan: unknown, _execution: unknown, adapters: { speak: (ctx: unknown) => unknown }) => adapters.speak({ actorId, spokenText }), startPreparedActorTurnAudio, startActorTurnSpeech, preparedActorTurnAudioAvailable, fallback, () => false, () => undefined);
+  return host({ actorId }, {}, { kind: "learner_camera", actorId: null });
+}
+
+it.fails("actual ordinary frozen-turn host executes dialogue-only adapter without a prepared source", () => {
+  const f = fixture(); let fallbackStarts = 0;
+  const result = invokeActualFrozenTurnHost("ordinary-host-actor", "Ordinary host line", f, () => { fallbackStarts += 1; });
+  expect(result).toBe(true);
+  expect(fallbackStarts).toBe(1);
+  expect(f.sources).toHaveLength(0);
+});
+
+it("actual prepared frozen-turn host executes its existing audible adapter without ordinary fallback", () => {
+  const f = fixture("prepared-host-actor"); let fallbackStarts = 0;
+  const result = invokeActualFrozenTurnHost("prepared-host-actor", "A prepared line", f, () => { fallbackStarts += 1; });
+  expect(result).toBe(true);
+  expect(f.sources[0]?.starts).toBe(1);
+  expect(fallbackStarts).toBe(0);
+  expect(f.dialogueStarts()).toBe(1);
 });
 
 it("owned stop refusal never becomes ordinary-dialogue fallback success", () => {
