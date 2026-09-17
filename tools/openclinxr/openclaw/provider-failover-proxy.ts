@@ -151,7 +151,12 @@ export function isEmptyCompletion(body: unknown): boolean {
   const b = body as Record<string, unknown>;
   if (b.error) return true;
   if (!Array.isArray(b.choices) || b.choices.length === 0) return true;
-  const first = b.choices[0] as { message?: { content?: string } } | undefined;
+  const first = b.choices[0] as { message?: { content?: string; tool_calls?: unknown } } | undefined;
+  // A tool call IS the answer on an agent turn, and its content is null by design. Judging it
+  // empty failed every agentic muse-spark-1 turn over to a second provider and tripped the
+  // primary's circuit breaker (measured 2026-09-17: grok sat in a 15-attempt retry storm).
+  const toolCalls = first?.message?.tool_calls;
+  if (Array.isArray(toolCalls) && toolCalls.length > 0) return false;
   const content = first?.message?.content;
   return content === undefined || content === null || content === "";
 }
@@ -234,6 +239,40 @@ export function accumulateStreamContent(text: string): string {
   return acc;
 }
 
+/**
+ * True when a completed event stream carries at least one tool-call delta.
+ *
+ * MEASURED 2026-09-17: a tool-calling request to meta/muse-spark-1.3-contributor returned the
+ * tool call direct from OpenRouter streamed and unstreamed, and through this proxy unstreamed —
+ * but through this proxy STREAMED it came back with no content, no tool calls and no finish
+ * reason. The stream carried the call; accumulateStreamContent counts only text, so the stream
+ * was judged empty and discarded. Grok streams, so every agentic turn was lost.
+ */
+export function streamHasToolCalls(text: string): boolean {
+  for (const line of text.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("data:")) continue;
+    const data = trimmed.slice(5).trim();
+    if (data === "" || data === "[DONE]") continue;
+    let evt: unknown;
+    try {
+      evt = JSON.parse(data) as unknown;
+    } catch {
+      continue;
+    }
+    const choices = (evt as { choices?: Array<unknown> })?.choices;
+    if (!Array.isArray(choices)) continue;
+    for (const c of choices) {
+      const choice = c as { delta?: { tool_calls?: unknown }; message?: { tool_calls?: unknown } };
+      const fromDelta = choice?.delta?.tool_calls;
+      const fromMessage = choice?.message?.tool_calls;
+      if (Array.isArray(fromDelta) && fromDelta.length > 0) return true;
+      if (Array.isArray(fromMessage) && fromMessage.length > 0) return true;
+    }
+  }
+  return false;
+}
+
 /** Renders one whole completion as an event stream for a client that asked for streaming. */
 function sseFromContent(content: string): string {
   const chunk = (delta: unknown): string =>
@@ -297,7 +336,7 @@ export async function forwardChat(opts: {
       const text = await res.text();
       if (res.ok && isSseResponse(res)) {
         const content = accumulateStreamContent(text);
-        if (content === "") {
+        if (content === "" && !streamHasToolCalls(text)) {
           // Completed event stream with no content delta — same empty-completion
           // failure as a whole JSON body, same transient failover.
           breaker.recordFailure(up.name, 500);
