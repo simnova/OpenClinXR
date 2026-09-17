@@ -2,9 +2,9 @@ import {readFileSync,existsSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
-/** Served bytes plus Debugger.getScriptSource bytes and original-source map content.
+/** Served bytes plus Debugger.getScriptSource bytes plus independently rebuilt/current Vite bytes.
  * This establishes executed-module identity, never physical speaker/perceptual sync. */
-export function inspectExecutedModules(rows,root,repoRoot,requiredPaths){
+export function inspectExecutedModules(rows,root,repoRoot,requiredPaths,reproduced={}){
  const errors=[];
  for(const sourcePath of requiredPaths){
   const matches=(rows??[]).filter(row=>row.sourcePath===sourcePath);
@@ -17,11 +17,7 @@ export function inspectExecutedModules(rows,root,repoRoot,requiredPaths){
   if(paths.some(path=>!existsSync(path))){errors.push('executed-module-missing:'+sourcePath);continue;}
   const bytes=paths.map(path=>readFileSync(path));
   if(bytes.some((data,index)=>hash(data)!==refs[index].sha256)||!bytes[0].equals(bytes[1]))errors.push('served-executed-module-mismatch:'+sourcePath);
-  const original=resolve(repoRoot,sourcePath);
-  let contents=[];
-  try{const inline=bytes[0].toString().match(/\/\/# sourceMappingURL=data:application\/json;(?:charset=utf-8;)?base64,([A-Za-z0-9+/=]+)\s*$/);const map=JSON.parse(Buffer.from(inline?.[1]??'', 'base64').toString());contents=map.sources.map((name,index)=>({name,content:map.sourcesContent[index]}));}catch{errors.push('executed-source-map-missing:'+sourcePath);}
-  const candidates=contents.filter(item=>typeof item.name==='string'&&item.name.endsWith(sourcePath.split('/').at(-1)));
-  if(!existsSync(original)||candidates.length!==1||typeof candidates[0]?.content!=='string'||hash(candidates[0].content)!==hash(readFileSync(original)))errors.push('executed-original-source-mismatch:'+sourcePath);
+  if(typeof reproduced[sourcePath]!=='string'||!bytes[0].equals(Buffer.from(reproduced[sourcePath],'base64')))errors.push('executed-current-transform-mismatch:'+sourcePath);
  }
  return errors;
 }

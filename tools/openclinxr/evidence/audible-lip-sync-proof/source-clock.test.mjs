@@ -120,4 +120,45 @@ describe('explicit audio-owned compatibility accessor through the actual admitte
    expect(f.slot.activeSpeech).toBe(f.speech);expect(f.speech.startedAtMs).toBe(0);
   }
  });
+  it.fails('resume keeps absolute source position and full native duration with a fresh owned speech object',()=>{
+    const f=realLoopFixture();
+    const nativeSeconds=317009/22050;
+    let sourceSeconds=6.25;
+    const oldSpeech=f.speech;
+    const oldClock=createAudioSpeechClock({slot:f.slot,speech:oldSpeech,positionSeconds:()=>sourceSeconds,wallOriginMs:0,rate:1});
+    oldClock.snapshot(16000);
+    oldClock.release();
+    expect(f.slot.activeSpeech).toBeUndefined();
+
+    const resumed={...oldSpeech,startedAtMs:20000,durationMs:nativeSeconds*1000};
+    // Recreate a fresh plain speech object rather than retaining old accessor descriptors.
+    delete resumed.originalWallStartedAtMs;
+    delete resumed.clockKind;
+    f.slot.activeSpeech=resumed;
+    const resumeClock=createAudioSpeechClock({slot:f.slot,speech:resumed,positionSeconds:()=>sourceSeconds,wallOriginMs:20000,rate:1});
+    resumeClock.snapshot(20000);
+    expect(f.slot.activeSpeech).toBe(resumed);
+    expect(resumed).not.toBe(oldSpeech);
+    expect(resumed.originalWallStartedAtMs).toBe(20000);
+    expect(oldSpeech.originalWallStartedAtMs).toBe(0);
+    expect(Object.getOwnPropertyDescriptor(resumed,'originalWallStartedAtMs').writable).toBe(false);
+    expect(resumed.durationMs).toBe(nativeSeconds*1000);
+    expect(20000-resumed.startedAtMs).toBe(6250);
+    oldClock.release();
+    expect(f.slot.activeSpeech).toBe(resumed);
+
+    sourceSeconds=9;
+    resumeClock.snapshot(25000);
+    updateGeneratedHumanoidAnimations(f.ctx,1/60,25000,new PerspectiveCamera());
+    expect(f.slot.activeSpeech).toBe(resumed);
+    expect(25000-resumed.startedAtMs).toBe(9000);
+    expect(resumed.durationMs).toBe(nativeSeconds*1000);
+    expect(resumed.originalWallStartedAtMs).toBe(20000);
+
+    sourceSeconds=nativeSeconds;
+    resumeClock.snapshot(31000);
+    updateGeneratedHumanoidAnimations(f.ctx,1/60,31000,new PerspectiveCamera());
+    expect(f.slot.activeSpeech).toBeUndefined();
+  });
+
 });

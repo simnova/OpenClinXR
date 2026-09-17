@@ -1,4 +1,5 @@
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, mkdtempSync, writeFileSync } from "node:fs";
+import {tmpdir} from "node:os";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -47,10 +48,17 @@ export function validateReport(r,root){
  if(Array.isArray(r.executedModules)&&r.executedModules.length){
   try{execFileSync("pnpm",["--filter","@openclinxr/xr-dialogue","build","--force"],{cwd:repoRoot,stdio:"pipe"});}catch{errors.push("consumed-dialogue-build-refused");}
  }
+ let reproduced={};
+ if(Array.isArray(r.executedModules)&&r.executedModules.length){
+  const directory=mkdtempSync(resolve(tmpdir(),"lip-sync-current-vite-validation-"));
+  const input=resolve(directory,"input.json");writeFileSync(input,JSON.stringify({repoRoot,rows:r.executedModules,metadata:r.buildMetadata}));
+  try{const output=execFileSync("node",[fileURLToPath(new URL("./reproduce-vite-modules.mjs",import.meta.url)),input],{encoding:"utf8",maxBuffer:30*1024*1024,timeout:120000});writeFileSync(resolve(directory,"expected-current-modules.json"),output);reproduced=JSON.parse(output);}catch(e){writeFileSync(resolve(directory,"refusal.txt"),e.message);errors.push("current-vite-reproduction-refused");}
+ }
+ need(r.buildMetadata?.gitCommit===r.captureHead,"capture-build-commit-mismatch");
  errors.push(...inspectExecutedModules(r.executedModules,root,repoRoot,[
   "apps/ui-xr/src/main.ts","apps/ui-xr/src/prepared-actor-audio.ts",
   "packages/openclinxr/xr-dialogue/dist/viseme-runtime-wire.js",
-  "packages/openclinxr/xr-dialogue/dist/viseme-baked-cues.js"]));
+  "packages/openclinxr/xr-dialogue/dist/viseme-baked-cues.js"],reproduced));
  const roles=r.sourceBindings??[];
  for(const [role,path] of Object.entries(fixture.requiredSourceRoles)) {
   const entries=roles.filter(b=>b.role===role);need(entries.length===1,"required-source-role:"+role);
