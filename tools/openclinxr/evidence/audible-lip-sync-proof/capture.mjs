@@ -32,6 +32,32 @@ function writeUnique(dir, name, bytes) {
   return { path: name, sha256: sha256(bytes) };
 }
 
+function readViteDepMetadata(repo) {
+  const path = resolve(repo, "apps/ui-xr/node_modules/.vite/deps/_metadata.json");
+  if (!existsSync(path)) return { present: false };
+  const meta = JSON.parse(readFileSync(path, "utf8"));
+  return {
+    present: true,
+    hash: meta.hash ?? null,
+    configHash: meta.configHash ?? null,
+    lockfileHash: meta.lockfileHash ?? null,
+    browserHash: meta.browserHash ?? null,
+    optimized: Object.keys(meta.optimized ?? {}),
+  };
+}
+
+async function waitStableMainTransform(base) {
+  let previous;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const response = await fetch(new URL("/src/main.ts", base), { signal: AbortSignal.timeout(20000) });
+    if (!response.ok) throw new Error("capture-main-warmup-refused:" + response.status);
+    const bytes = Buffer.from(await response.arrayBuffer());
+    if (previous?.equals(bytes)) return { attempts: attempt + 1, bytes: bytes.length };
+    previous = bytes;
+  }
+  throw new Error("capture-main-transform-unstable");
+}
+
 async function startVite(repoRoot, metadata) {
   const app = resolve(repoRoot, "apps/ui-xr");
   const child = spawn(resolve(app, "node_modules/.bin/vite"), ["--host", "127.0.0.1", "--port", "0"], {
@@ -59,7 +85,15 @@ export async function captureAudibleLipSync(repo = repoRoot) {
   const captureHead = execFileSync("git", ["rev-parse", "HEAD"], { cwd: repo, encoding: "utf8" }).trim();
   const buildTime = new Date().toISOString();
   const metadata = { gitCommit: captureHead, buildTime };
+  // Frozen reproduce inherits ambient NODE_ENV into Vite getConfigHash. Vitest sets
+  // NODE_ENV=test; standalone `node capture.mjs` would otherwise hash development.
+  if (!process.env.NODE_ENV) process.env.NODE_ENV = "test";
+  const viteDiagnostics = {
+    nodeEnv: process.env.NODE_ENV,
+    preOptimize: readViteDepMetadata(repo),
+  };
   prepareViteOptimization(repo, metadata);
+  viteDiagnostics.postOptimize = readViteDepMetadata(repo);
   const runId = "run-" + Date.now().toString(16) + "-" + process.pid;
   const runDir = resolve(packetRoot, runId);
   mkdirSync(runDir, { recursive: true });
@@ -98,6 +132,8 @@ export async function captureAudibleLipSync(repo = repoRoot) {
       if (event.response?.url) network.push(event);
     });
     const url = `${base}?openclinxrScenarioId=${scenarioId}&openclinxrSpeakFixture=1&openclinxrCaptureMode=face-detail&openclinxrAcceleratedExam=1`;
+    viteDiagnostics.warmup = await waitStableMainTransform(base);
+    viteDiagnostics.hostStartup = readViteDepMetadata(repo);
     await page.goto(url, { waitUntil: "networkidle", timeout: 180000 });
     await page.waitForFunction(() => window.__openClinXrSpeakFixtureBridge && window.__openClinXrPreparedActorAudio, null, { timeout: 120000 });
     await page.waitForFunction((expected) => {
@@ -120,6 +156,7 @@ export async function captureAudibleLipSync(repo = repoRoot) {
     await page.bringToFront();
     await page.click("canvas", { timeout: 10000 });
     const result = await page.evaluate(runBrowserCapture, {
+      neutralFaceModuleUrl: "/@fs/" + resolve(repo, "tools/openclinxr/evidence/audible-lip-sync-proof/neutral-face-view.mjs"),
       wavBase64: wavBytes.toString("base64"),
       mouthCues: JSON.parse(cueBytes.toString("utf8")),
       tapSource,
@@ -132,6 +169,7 @@ export async function captureAudibleLipSync(repo = repoRoot) {
       sampleRate: fixture.sampleRate,
       sampleCount: fixture.sampleCount,
     });
+    viteDiagnostics.postHelper = readViteDepMetadata(repo);
     const played = Float32Array.from(result.playedSamples);
     const playedBytes = Buffer.from(played.buffer, played.byteOffset, played.byteLength);
     const playedRef = { path: `${runId}/played.f32`, sha256: writeUnique(runDir, "played.f32", playedBytes).sha256 };
@@ -167,6 +205,30 @@ export async function captureAudibleLipSync(repo = repoRoot) {
         executed,
       });
     }
+    const helperScript = parsed.find((row) => /neutral-face-view/.test(row.url ?? ""));
+    let helperModule = null;
+    if (helperScript) {
+      const source = await cdp.send("Debugger.getScriptSource", { scriptId: helperScript.scriptId });
+      const net = network.find((row) => row.response.url === helperScript.url);
+      let servedBytes = Buffer.from(source.scriptSource ?? "", "utf8");
+      if (net?.requestId) {
+        try {
+          const body = await cdp.send("Network.getResponseBody", { requestId: net.requestId });
+          servedBytes = Buffer.from(body.body, body.base64Encoded ? "base64" : "utf8");
+        } catch {
+          servedBytes = Buffer.from(source.scriptSource ?? "", "utf8");
+        }
+      }
+      const executedBytes = Buffer.from(source.scriptSource ?? "", "utf8");
+      helperModule = {
+        sourcePath: "tools/openclinxr/evidence/audible-lip-sync-proof/neutral-face-view.mjs",
+        url: helperScript.url,
+        scriptId: helperScript.scriptId,
+        scriptParsedEvent: "Debugger.scriptParsed",
+        served: { path: `${runId}/neutral-face-view.mjs.served.js`, sha256: writeUnique(runDir, "neutral-face-view.mjs.served.js", servedBytes).sha256 },
+        executed: { path: `${runId}/neutral-face-view.mjs.executed.js`, sha256: writeUnique(runDir, "neutral-face-view.mjs.executed.js", executedBytes).sha256 },
+      };
+    }
     const wavRef = { path: `${runId}/input.wav`, sha256: sha256(wavBytes) };
     const cueRef = { path: `${runId}/cues.json`, sha256: sha256(cueBytes) };
     const sourceBindings = Object.entries(fixture.requiredSourceRoles).map(([role, path]) => ({
@@ -193,6 +255,10 @@ export async function captureAudibleLipSync(repo = repoRoot) {
       framing: result.framing,
       sourceBindings,
       executedModules,
+      helperModule,
+      viteDiagnostics,
+      prerender: result.prerender,
+      recorderStartedAtMs: result.recorderStartedAtMs,
       buildMetadata: metadata,
       authoredMaterialRows: result.authoredMaterialRows,
       playedTap: result.playedTap,
@@ -204,6 +270,9 @@ export async function captureAudibleLipSync(repo = repoRoot) {
     mkdirSync(dirname(latest), { recursive: true });
     writeFileSync(latest, reportBytes);
     return { report, runDir, latest };
+  } catch (error) {
+    writeUnique(runDir, "failure.json", Buffer.from(JSON.stringify({outcome:"instrument-failure",captureHead,message:String(error?.message ?? error),sourceDirty:execFileSync("git",["status","--porcelain"],{cwd:repo,encoding:"utf8"}).trim().length>0},null,2)));
+    throw error;
   } finally {
     await context.close().catch(() => undefined);
     await browser.close();
