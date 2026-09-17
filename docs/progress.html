@@ -98,10 +98,23 @@
           eyebrow stays where it is. That is the next repair, and it is not done.
         </p>
         <p>
-          Also unrepaired and visible in the same recording: the skin is mottled, the inside of the mouth
-          reads as a white shape, and the gown patient is wearing a child's garment. The hair in that
-          recording is still flat, because the character was built before the hair repair and has not been
-          rebuilt.
+          Also unrepaired and visible in the same recording: the skin is mottled and the inside of the mouth
+          reads as a white shape. The hair in that recording is still flat, because the character was built
+          before the hair repair and has not been rebuilt.
+        </p>
+        <h3>A claim in this entry was wrong, and is withdrawn</h3>
+        <p>
+          An earlier version of this entry said the gown patient wears a child's garment. That is false. The
+          garment is generated from that adult's own body measurements &mdash; chest depth, torso width, arm
+          length, height &mdash; with the neck and arm openings cut from landmarks on the body itself. Only
+          its internal name says otherwise, because the step that builds it labels adult garments with a
+          name left over from the paediatric case. That is a misleading label on correct geometry.
+        </p>
+        <p>
+          Two real faults were found while checking it. The garment carries no texture coordinates at all
+          across its 27,995 triangles, so it can never take a fabric image. And the layer that declares the
+          hospital gown is a single triangle with no material attached. Both are recorded and neither is
+          repaired.
         </p>
         <p class="status-copy">
           No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
