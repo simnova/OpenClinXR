@@ -1,6 +1,7 @@
 /** Producer manager lifecycle controls. Original clock/player assertions stay in their suites. */
 import {describe,it,expect,vi,beforeEach,afterEach} from 'vitest';
 import {
+  createPlayback,
   installPreparedActorAudioRuntime,
   registerPreparedActorAudioEntry,
   startPreparedActorTurnAudio,
@@ -215,6 +216,52 @@ describe('actual prepared manager lifecycle', () => {
     expect(slot.activeSpeech).toBe(resumed);
     expect(25000 - resumed.startedAtMs).toBeCloseTo(9000, 5);
     expect(resumed.durationMs).toBe(nativeSeconds * 1000);
+  });
+
+  it('advancing currentTime getter keeps manager clockState on one snapshot', () => {
+    const f = fakeRuntime();
+    const quantum = 128 / 22050;
+    let reads = 0;
+    let lastRead = f.context.currentTime;
+    Object.defineProperty(f.context, 'currentTime', {
+      configurable: true,
+      get() { reads += 1; lastRead = 10 + reads * quantum; return lastRead; },
+    });
+    expect(startPreparedActorTurnAudio({ actorId: 'clock-patient', spokenText: f.spoken })).toBe(true);
+    const when = f.sources[0].starts[0][0];
+    reads = 0;
+    const pos = f.slot.mediaPositionSeconds();
+    expect(reads).toBe(1);
+    expect(pos).toBe(Math.min(nativeSeconds, Math.max(0, lastRead - when)));
+    reads = 0;
+    syncPreparedActorAudio(20000);
+    expect(reads).toBe(1);
+    expect(20000 - f.slot.activeSpeech.startedAtMs).toBeCloseTo(lastRead * 1000 - when * 1000, 5);
+  });
+
+  it('stationary currentTime, pre-start, pause, resume and end keep lifecycle positions', async () => {
+    const f = fakeRuntime();
+    const player = createPlayback({
+      context: f.context, buffer: { duration: nativeSeconds, sampleRate: 22050, length: 317009 },
+      identity: { waveformSha256: 'a'.repeat(64), cueSha256: 'b'.repeat(64), actorId: 'clock-patient', generation: 'g', decodedSampleRate: 22050, decodedSampleCount: 317009 },
+      destination: {},
+    });
+    expect(player.position()).toBe(0);
+    f.context.currentTime = 10;
+    await player.start({ when: 12, offset: 0.5, rate: 1 });
+    expect(player.position()).toBe(0.5);
+    f.context.currentTime = 12.75;
+    expect(player.snapshot()).toEqual({ contextTime: 12.75, position: 1.25 });
+    await player.pause();
+    f.context.currentTime = 40;
+    expect(player.position()).toBe(1.25);
+    await player.resume();
+    expect(f.sources.at(-1).starts[0]).toEqual([40, 1.25]);
+    f.context.currentTime = 41;
+    expect(player.position()).toBe(2.25);
+    f.sources.at(-1).onended();
+    expect(player.ended()).toBe(true);
+    expect(player.position()).toBe(nativeSeconds);
   });
 
   it('overlapping prepared cues are refused before a source is created', () => {

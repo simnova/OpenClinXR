@@ -1,7 +1,7 @@
 import {test} from 'vitest';
 import assert from 'node:assert/strict';
 import {Bone, BufferGeometry, Float32BufferAttribute, Uint16BufferAttribute, Group, Layers, Mesh, MeshBasicMaterial, PerspectiveCamera, PropertyBinding, Skeleton, SkinnedMesh, Vector3} from 'three';
-import {identifyHeadGeometry, fitNeutralHeadCamera, readOwnedArticulation, isDeformingFacialPrimitive} from './neutral-face-view.mjs';
+import {identifyHeadGeometry, fitNeutralHeadCamera, readOwnedArticulation, isDeformingFacialPrimitive, subtreeExcludedFromJudgingLayer} from './neutral-face-view.mjs';
 
 function actor() {
   const root = new Group(), head = new Bone(), left = new Bone(), right = new Bone(), jaw = new Bone();
@@ -58,6 +58,7 @@ test('consumed capture uses neutral canvas and one host facial writer',async()=>
   assert.match(source,/mediarecorder-onstart-timeout/);
   assert.match(source,/requestFrame/);
   assert.match(source,/idleCueVisibility/);
+  assert.match(source,/subtreeExcludedFromJudgingLayer/);
   assert.ok(source.indexOf('excludeHostCues(idleCueList)')<source.indexOf('captureStream(30)'));
   assert.ok(source.indexOf('recorder.start()')<source.indexOf('neutralView.render()'));
   assert.ok(source.indexOf('requestFrame')<source.indexOf('await recorderStarted'));
@@ -71,6 +72,17 @@ test('visible cues on layer 0 are excluded from judging camera layer 30',()=>{
   const asset=new Layers(); asset.set(30);
   assert.equal(camera.test(cue),false);
   assert.equal(camera.test(asset),true);
+});
+
+test('exclusion guard walks cue descendants; one eligible child fails closed',()=>{
+  const cue=new Group(); const child=new Mesh(new BufferGeometry(),new MeshBasicMaterial());
+  child.visible=true; cue.add(child);
+  cue.layers.set(30); child.layers.set(30);
+  cue.traverse((object)=>object.layers.set(0));
+  assert.equal(subtreeExcludedFromJudgingLayer(cue,30),true);
+  child.layers.set(30);
+  assert.equal(subtreeExcludedFromJudgingLayer(cue,30),false);
+  assert.equal((cue.layers.mask & (1<<30))===0,true);
 });
 
 test('GLTFLoader sanitized eye bone names resolve without anatomical fallback',()=>{

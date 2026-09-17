@@ -168,3 +168,11 @@ export function createNeutralFaceView(slot) {
     throw error;
   }
 }
+
+export function subtreeExcludedFromJudgingLayer(root, layer = 30) {
+  if (!root) return false;
+  const mask = 1 << layer;
+  let excluded = true;
+  root.traverse((object) => { if ((object.layers.mask & mask) !== 0) excluded = false; });
+  return excluded;
+}

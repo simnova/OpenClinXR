@@ -17,7 +17,7 @@ export async function runBrowserCapture(input) {
     mouthCues: input.mouthCues,
     tapWorkletUrl: tapUrl,
   });
-  const {createNeutralFaceView, readOwnedArticulation} = await import(input.neutralFaceModuleUrl);
+  const {createNeutralFaceView, readOwnedArticulation, subtreeExcludedFromJudgingLayer} = await import(input.neutralFaceModuleUrl);
   const clinicalScene = window.__openClinXrDebugScene;
   let ownedRoot;
   clinicalScene?.traverse((object) => {
@@ -47,7 +47,7 @@ export async function runBrowserCapture(input) {
     expression: idleCues.expression.visible === true,
   };
   const idleCueList = [idleCues.mouth, idleCues.gaze, idleCues.eyeFocus, idleCues.expression];
-  const judgingLayerMask = 1 << 30;
+  const judgingLayer = 30;
   const neutralView = createNeutralFaceView({root: ownedRoot, actorSlot});
   const canvas = neutralView.canvas;
   const previousAfterRender = clinicalScene.onAfterRender;
@@ -55,7 +55,7 @@ export async function runBrowserCapture(input) {
   try {
   startupStage = "exclude-idle-cues";
   neutralView.excludeHostCues(idleCueList);
-  const idleCueLayerExcluded = idleCueList.every((cue) => (cue.layers.mask & judgingLayerMask) === 0);
+  const idleCueLayerExcluded = idleCueList.every((cue) => subtreeExcludedFromJudgingLayer(cue, judgingLayer));
   if (!idleCueLayerExcluded) throw new Error("idle-cue-layer-not-excluded");
   const recorderDest = audio.getRecorderDestination();
   if (!recorderDest) throw new Error("combined-mediarecorder-unstartable");

@@ -63,9 +63,9 @@ export function createPlayback({
   pause: () => Promise<void>;
   resume: () => Promise<void>;
   stop: () => Promise<void>;
-  position: () => number;
-  generation: string;
-  nodeSerial: () => number;
+  position: () => number; positionAt: (contextTime: number) => number;
+  snapshot: () => { contextTime: number; position: number };
+  generation: string; nodeSerial: () => number;
 } {
   if (!context || !buffer || !identity || !destination) throw new Error("invalid-playback-input");
   const playbackContext = context;
@@ -82,12 +82,17 @@ export function createPlayback({
   let serial = 0;
   const duration = playbackBuffer.duration;
 
-  function livePosition(): number {
+  function positionAt(contextTime: number): number {
     if (paused) return pausedPosition;
     if (naturallyEnded) return duration;
-    if (!playing || !source) return offset;
-    if (playbackContext.currentTime < startedAt) return offset;
-    return Math.min(duration, offset + Math.max(0, playbackContext.currentTime - startedAt) * rate);
+    if (!playing || !source || !Number.isFinite(contextTime) || contextTime < startedAt) return offset;
+    return Math.min(duration, offset + Math.max(0, contextTime - startedAt) * rate);
+  }
+  const livePosition = () => positionAt(playbackContext.currentTime);
+  function snapshot(): { contextTime: number; position: number } {
+    if (playbackContext.state !== "running") throw new Error("audio-context-not-running");
+    const contextTime = playbackContext.currentTime;
+    return { contextTime, position: positionAt(contextTime) };
   }
 
   function startNow(opts: { when: number; offset: number; rate: number }): void {
@@ -111,12 +116,7 @@ export function createPlayback({
     naturallyEnded = false;
   }
   function start(opts: { when: number; offset: number; rate: number }): Promise<void> {
-    try {
-      startNow(opts);
-      return Promise.resolve();
-    } catch (error) {
-      return Promise.reject(error);
-    }
+    try { startNow(opts); return Promise.resolve(); } catch (error) { return Promise.reject(error); }
   }
 
   function pauseNow(): void {
@@ -163,6 +163,8 @@ export function createPlayback({
     resume,
     stop,
     position: livePosition,
+    positionAt,
+    snapshot,
     generation: identity.generation,
     nodeSerial: () => serial,
   };
@@ -332,9 +334,10 @@ function cuesAdmissible(cues: readonly DiagnosticMouthCue[] | undefined): boolea
   return true;
 }
 
-function guardedPosition(player: ReturnType<typeof createPlayback>): number {
-  if (sharedContext?.state !== "running") throw new Error("audio-context-not-running");
-  return player.position();
+function observePlayer(player: ReturnType<typeof createPlayback>, clockState: { lastContextTime: number; lastPosition: number }): number {
+  const snap = player.snapshot();
+  clockState.lastContextTime = snap.contextTime; clockState.lastPosition = snap.position;
+  return snap.position;
 }
 
 function stopOwned(session: OwnedSession | undefined): boolean {
@@ -384,12 +387,8 @@ export function startPreparedActorTurnAudio(ctx: PreparedActorStartContext): boo
     speech.durationMs = (entry.decodedSampleCount / entry.decodedSampleRate) * 1000;
     speech.bakedCues = entry.cues;
     const clockState = { lastContextTime: when, lastPosition: 0 };
-    slot.mediaPositionSeconds = () => {
-      clockState.lastContextTime = sharedContext?.currentTime ?? 0;
-      clockState.lastPosition = guardedPosition(player);
-      return clockState.lastPosition;
-    };
-    const clock = createAudioSpeechClock({ slot, speech, positionSeconds: () => guardedPosition(player), wallOriginMs: performance.now(), rate: 1 });
+    slot.mediaPositionSeconds = () => observePlayer(player, clockState);
+    const clock = createAudioSpeechClock({ slot, speech, positionSeconds: () => observePlayer(player, clockState), wallOriginMs: performance.now(), rate: 1 });
     previous?.clock.release();
     if (!slot.activeSpeech) return false;
     sessions.set(ctx.actorId, { actorId: ctx.actorId, player, clock, speech, slot, generation, nodeSerial: player.nodeSerial(), startedWhen: when, clockState });
