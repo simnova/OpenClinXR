@@ -774,7 +774,39 @@ def extract_hm08_feature_helpers(basemesh, armature, ref_tag):
     return extracted
 
 
-def read_hair_mhclo_licence(mhclo_path):
+# 2026-09-17 — committed publisher catalogue for the bake-time silence
+# fallback (ledger shape 1). Same JSON the TS gates read; pack slug derived
+# from the asset path (`.../makehuman-shoes01/...` -> `shoes01`). Loaded once.
+# Catalogue is consulted ONLY on true silence (no licence line); an explicit
+# per-file copyleft or unrecognised token never falls through to it (shape 3).
+_CATALOGUE_SNAPSHOT_PATH = (
+    REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes/makehuman-catalogue-snapshot.json"
+)
+_CATALOGUE_PACKS = None
+
+
+def catalogue_entry_for_pack(pack_slug):
+    """Catalogue entry for a pack slug, or None when unlisted. No network."""
+    global _CATALOGUE_PACKS
+    if _CATALOGUE_PACKS is None:
+        try:
+            _CATALOGUE_PACKS = json.loads(_CATALOGUE_SNAPSHOT_PATH.read_text(encoding="utf-8")).get(
+                "packs", {}
+            )
+        except OSError:
+            _CATALOGUE_PACKS = {}
+    if not pack_slug:
+        return None
+    return _CATALOGUE_PACKS.get(pack_slug)
+
+
+def pack_slug_from_mhclo_path(mhclo_path):
+    """Pack slug from a provider-cache path. `makehuman-shoes01` -> `shoes01`."""
+    m = re.search(r"makehuman-([a-z0-9]+)", str(mhclo_path), re.I)
+    return m.group(1).lower() if m else None
+
+
+def read_hair_mhclo_licence(mhclo_path, pack_slug=None):
     """#381 — read the licence line from a hair `.mhclo`'s OWN header.
 
     Mirrors `hair-licence-classify.ts` `readHairLicenceLine` + `classifyHairLicence`
@@ -792,6 +824,9 @@ def read_hair_mhclo_licence(mhclo_path):
     patient's male cut: the same uuid allowlist (HAIR_PAGE_CC0_OVERRIDE) now ALSO
     permits this exact basename when read_hair_mhclo_licence refuses, mirroring
     how the kevin/street-male bakes already consume it.
+
+    # 2026-09-17 — silence falls back to the publisher catalogue (shape 1).
+    # AGPL above returns first and never reaches this lookup (shape 3 guard).
     """
     try:
         header = mhclo_path.read_text(encoding="utf-8", errors="replace")[:4000]
@@ -804,6 +839,10 @@ def read_hair_mhclo_licence(mhclo_path):
             raw = m.group(1).strip()
             break
     if not raw:
+        slug = pack_slug if pack_slug is not None else pack_slug_from_mhclo_path(mhclo_path)
+        entry = catalogue_entry_for_pack(slug)
+        if entry:
+            return True, f"catalogue:{slug}={entry['licence']}"
         return False, None
     if re.search(r"agpl", raw, re.I):
         return False, raw

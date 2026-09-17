@@ -36,6 +36,10 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  catalogueEntryForPack,
+  packSlugFromSourceId,
+} from "./makehuman-catalogue.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../../..");
@@ -87,6 +91,8 @@ export type HairLicenceFamily =
   | "cc-0"
   | "agpl3"
   | "none"
+  | "catalogue_cc0"
+  | "catalogue_cc_by"
   | "unknown";
 
 export type HairStyleClassification = {
@@ -104,6 +110,8 @@ export type HairStyleClassification = {
   /** Largest vertex index referenced anywhere in the `.mhclo`. */
   maxVertexRef: number;
   attributionRequired: boolean;
+  /** True when the verdict came from the publisher catalogue (silent header). */
+  viaCatalogue: boolean;
 };
 
 export type HairClassificationArtifact = {
@@ -189,19 +197,42 @@ export function measureHairHelperRefs(mhcloPath: string): {
   };
 }
 
-/** Classify one raw licence token into a family + permissiveness verdict. */
-export function classifyHairLicence(raw: string | null): {
+/** Classify one raw licence token into a family + permissiveness verdict.
+ *
+ * 2026-09-17 — silence falls back to the committed publisher catalogue
+ * (ledger shape 1; `makehuman-catalogue-snapshot.json`). The AGPL branch
+ * below returns BEFORE any catalogue lookup: an explicit per-file copyleft
+ * declaration is never overridden by the catalogue (HARD GUARD, shape 3).
+ * A non-empty unrecognised token also never consults the catalogue.
+ */
+export function classifyHairLicence(
+  raw: string | null,
+  packSlug: string | null = packSlugFromSourceId(HAIR_SOURCE_ID),
+): {
   family: HairLicenceFamily;
   permitted: boolean;
   attributionRequired: boolean;
   refusalReason: string | null;
+  viaCatalogue: boolean;
 } {
   if (!raw) {
+    const entry = catalogueEntryForPack(packSlug);
+    if (entry) {
+      const isBy = entry.licence === "CC-BY";
+      return {
+        family: isBy ? "catalogue_cc_by" : "catalogue_cc0",
+        permitted: true,
+        attributionRequired: isBy,
+        refusalReason: null,
+        viaCatalogue: true,
+      };
+    }
     return {
       family: "none",
       permitted: false,
       attributionRequired: false,
       refusalReason: "no licence line in the .mhclo header — unspecified is a refusal",
+      viaCatalogue: false,
     };
   }
   if (/agpl/i.test(raw)) {
@@ -210,6 +241,7 @@ export function classifyHairLicence(raw: string | null): {
       permitted: false,
       attributionRequired: false,
       refusalReason: `AGPL3 (copyleft) in the .mhclo header — hard refusal: ${raw}`,
+      viaCatalogue: false,
     };
   }
   if (/cc\s*[-_ ]?0/iu.test(raw)) {
@@ -218,6 +250,7 @@ export function classifyHairLicence(raw: string | null): {
       permitted: true,
       attributionRequired: false,
       refusalReason: null,
+      viaCatalogue: false,
     };
   }
   // `CC_by` (underscore), `CC BY 4.0` (space) and `CC-BY` (dash) all appear in the
@@ -228,6 +261,7 @@ export function classifyHairLicence(raw: string | null): {
       permitted: true,
       attributionRequired: true,
       refusalReason: null,
+      viaCatalogue: false,
     };
   }
   return {
@@ -235,12 +269,13 @@ export function classifyHairLicence(raw: string | null): {
     permitted: false,
     attributionRequired: false,
     refusalReason: `unrecognised licence line in the .mhclo header — refused: ${raw}`,
+    viaCatalogue: false,
   };
 }
 
 export function classifyHairStyle(asset: string, mhcloPath: string): HairStyleClassification {
   const { raw } = readHairLicenceLine(mhcloPath);
-  const { family, permitted, attributionRequired, refusalReason: licenceRefusal } =
+  const { family, permitted, attributionRequired, refusalReason: licenceRefusal, viaCatalogue } =
     classifyHairLicence(raw);
   const { maxVertexRef, helperVertexRefs } = measureHairHelperRefs(mhcloPath);
 
@@ -259,6 +294,7 @@ export function classifyHairStyle(asset: string, mhcloPath: string): HairStyleCl
     helperVertexRefs,
     maxVertexRef,
     attributionRequired,
+    viaCatalogue,
   };
 }
 
