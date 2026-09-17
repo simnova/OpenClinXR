@@ -1,8 +1,10 @@
+import { createCaseAudioController } from "./actor-audio-case-controller.js";
+import type { CaseAudioOptions } from "./actor-audio-case-types.js";
 import { createPlayback, createAudioSpeechClock } from "./actor-audio-playback-clock.js";
 import { convertRhubarb, cuesAdmissible, decodePcm16MonoWav as decodePcm16MonoWavPure, hasPreparedEntry } from "./actor-audio-prepared-data.js";
 import type { PlaybackContext, DiagnosticMouthCue } from "./actor-audio-prepared-data.js";
 import type { Host, OwnedSession, LiveSlot, PreparedEntry, PreparedIdentity, PreparedActorStartContext } from "./actor-audio-types.js";
-export function createActorAudioRuntime(options: { developmentFixture?: boolean; fixtureSearch?: string } = {}) {
+export function createActorAudioRuntime(options: { developmentFixture?: boolean; fixtureSearch?: string; caseAudio?: CaseAudioOptions } = {}) {
 const host: Host = {};
 const prepared = new Map<string, PreparedEntry>();
 const sessions = new Map<string, OwnedSession>();
@@ -333,6 +335,6 @@ const diagnostics = Object.freeze({
     return { samples, meta: tapMeta ? { ...tapMeta } : undefined };
   },
 });
-return Object.freeze({ initPreparedActorAudioBridge, startPreparedActorTurnAudio, startPreparedActorTurnAudioOutcome,
+return Object.freeze({ caseAudio: createCaseAudioController(options.caseAudio), initPreparedActorAudioBridge, startPreparedActorTurnAudio, startPreparedActorTurnAudioOutcome,
   syncPreparedActorAudio, preparedActorTurnAudioAvailable, startActorTurnSpeech, diagnostics });
 }

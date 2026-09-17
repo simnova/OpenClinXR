@@ -1,0 +1,10 @@
+{
+  "schema": "openclinxr.actor-audio-approved-case-owner-plant.v1",
+  "base": "3345167e003f5239e9396f42cfeb3ddd634d5438",
+  "test": "apps/ui-xr/tests/approved-case-actor-audio.test.ts",
+  "normalizedTestSha256": "f5cbc854ea78b9d5ca80fa72736d986f1258332b2804a1008c0c926ba8aa15fd",
+  "sourceOracle": "tools/openclinxr/factory/actor-audio-approved-case-integration/architecture-and-host.test.mjs",
+  "sourceOracleSha256": "7c79561c60943e68494cc9a26e8422a29a7f6aeddb6301fcc9ebb63cad08e42d",
+  "originalMainPlaybackBodySha256": "8ec9486ef8883cb7ceb9ef589cdb05be196d715c6aa5bc0cc78eb8aad6431ad8",
+  "scope": "engineering approval/admission/ownership; no voiced speech rights or AV synchronization acceptance"
+}
