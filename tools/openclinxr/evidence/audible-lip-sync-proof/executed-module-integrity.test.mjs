@@ -1,5 +1,5 @@
 import {it,expect} from 'vitest';
-import {mkdtempSync,writeFileSync} from 'node:fs';
+import {mkdtempSync,writeFileSync,readFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';import {join} from 'node:path';import {createHash} from 'node:crypto';
 import {inspectExecutedModules} from './executed-module-integrity.mjs';
 import {reproduceViteModules} from './reproduce-vite-modules.mjs';
@@ -27,3 +27,17 @@ it('real current Vite transforms are reproducible and changed code cannot hide b
  rows[2].served.sha256=rows[2].executed.sha256=createHash('sha256').update(forged).digest('hex');
  expect(inspectExecutedModules(rows,root,repoRoot,paths,current)).toContain('executed-current-transform-mismatch:'+paths[2]);
 },60000);
+
+it('retained actual browser CDP and network responses agree; modifying executed bytes refuses',()=>{
+ const root='/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/openclinxr-lip-sync-consultation-2026-09-16/execution-packet/browser-cdp-module-probe-1789613971918';
+ const reportBytes=readFileSync(join(root,'report.json')); expect(createHash('sha256').update(reportBytes).digest('hex')).toBe('49804827a9de4c4ca4b7e08867a24865cdd0343bbb656cbb00f051c58e8da4ce'); const report=JSON.parse(reportBytes.toString('utf8'));
+ expect(report.scope).toBe('browser-CDP-module-source-identity-only');
+ const paths=['apps/ui-xr/src/main.ts','packages/openclinxr/xr-dialogue/dist/viseme-baked-cues.js','packages/openclinxr/xr-dialogue/dist/viseme-runtime-wire.js','apps/ui-xr/src/prepared-actor-audio.ts'];
+ const reproduced={},rows=report.scripts.map((script,index)=>{const network=report.network.find(row=>row.url===script.url);reproduced[paths[index]]=readFileSync(join(root,network.file)).toString('base64');return {sourcePath:paths[index],url:script.url,scriptId:script.scriptId,scriptParsedEvent:'Debugger.scriptParsed',served:{path:network.file,sha256:network.sha256},executed:{path:script.file,sha256:script.sha256}};});
+ // Reproduced here means retained independent network bytes, NOT a current-build or product-consumption claim.
+ expect(inspectExecutedModules(rows,root,root,paths,reproduced)).toEqual([]);
+ const altered=mkdtempSync(join(tmpdir(),'actual-cdp-tamper-control-'));
+ for(const row of rows)for(const ref of [row.served,row.executed])writeFileSync(join(altered,ref.path),readFileSync(join(root,ref.path)));
+ writeFileSync(join(altered,rows[2].executed.path),'changed executed script');
+ expect(inspectExecutedModules(rows,altered,root,paths,reproduced)).toContain('served-executed-module-mismatch:'+paths[2]);
+});

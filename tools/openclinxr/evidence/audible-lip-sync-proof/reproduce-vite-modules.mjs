@@ -1,7 +1,17 @@
-import {spawn} from 'node:child_process';
+import {spawn,execFileSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+/** Supported prebundle finalization before either actual capture or reproduction.
+ * Dynamic discovery URLs include a session timestamp; completed cache hashes do not.
+ * This retains the app config and does not strip/normalize dependency version bytes. */
+export function prepareViteOptimization(repoRoot,metadata){
+ if(!/^[a-f0-9]{40}$/.test(metadata?.gitCommit??'')||!Number.isFinite(Date.parse(metadata?.buildTime??'')))throw Error('invalid-observed-build-metadata');
+ const app=resolve(repoRoot,'apps/ui-xr');
+ execFileSync(resolve(app,'node_modules/.bin/vite'),['optimize','--force'],{cwd:app,env:{...process.env,NO_COLOR:'1',OPENCLINXR_BUILD_COMMIT:metadata.gitCommit,OPENCLINXR_BUILD_TIME:metadata.buildTime},stdio:['ignore','pipe','pipe'],timeout:60000});
+}
 export async function reproduceViteModules(repoRoot,rows,metadata){
+ prepareViteOptimization(repoRoot,metadata);
  if(!/^[a-f0-9]{40}$/.test(metadata?.gitCommit??'')||!Number.isFinite(Date.parse(metadata?.buildTime??'')))throw Error('invalid-observed-build-metadata');
  const app=resolve(repoRoot,'apps/ui-xr');
  const child=spawn(resolve(app,'node_modules/.bin/vite'),['--host','127.0.0.1','--port','0'],{cwd:app,env:{...process.env,NO_COLOR:'1',OPENCLINXR_BUILD_COMMIT:metadata.gitCommit,OPENCLINXR_BUILD_TIME:metadata.buildTime},stdio:['ignore','pipe','pipe']});
@@ -33,4 +43,4 @@ export async function reproduceViteModules(repoRoot,rows,metadata){
   return expected;
  }finally{child.kill('SIGTERM');await new Promise(resolveExit=>{if(child.exitCode!==null)resolveExit();else child.once('exit',resolveExit);});}
 }
-if(process.argv[2]){try{const input=JSON.parse(readFileSync(process.argv[2],'utf8'));console.log(JSON.stringify(await reproduceViteModules(input.repoRoot,input.rows,input.metadata)));}catch(e){console.error(e.message);process.exitCode=1;}}
+if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){try{const input=JSON.parse(readFileSync(process.argv[2],'utf8'));console.log(JSON.stringify(await reproduceViteModules(input.repoRoot,input.rows,input.metadata)));}catch(e){console.error(e.message);process.exitCode=1;}}
