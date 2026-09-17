@@ -1,5 +1,5 @@
-/** App-local pure Rhubarb validation/canonical delegation and PCM16 mono decoding. */
-import { mouthCuesToPhonemeCues } from "@openclinxr/xr-dialogue";
+/** Private pure Rhubarb validation/canonical delegation and PCM16 mono decoding. */
+import { mouthCuesToPhonemeCues } from "./viseme-baked-cues.js";
 
 export type MouthCuesDocument = Parameters<typeof mouthCuesToPhonemeCues>[0];
 export type DiagnosticMouthCue = { phoneme: string; atSecond: number; durationSeconds: number };
@@ -92,3 +92,6 @@ export function cuesAdmissible(cues: readonly DiagnosticMouthCue[] | undefined):
   return true;
 }
 
+
+/** Pure presence query; ownership remains in the runtime closure. */
+export function hasPreparedEntry(entries: ReadonlyMap<string, unknown>, actorId: string, text: string): boolean { return entries.has(`${actorId}\0${text}`); }

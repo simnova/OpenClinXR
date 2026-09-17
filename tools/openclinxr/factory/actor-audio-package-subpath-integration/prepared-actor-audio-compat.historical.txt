@@ -1,0 +1,23 @@
+import { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
+export { createPlayback, createAudioSpeechClock } from "../../../../packages/openclinxr/xr-dialogue/src/actor-audio-playback-clock.js";
+export { convertRhubarb, decodePcm16MonoWav, cuesAdmissible } from "../../../../packages/openclinxr/xr-dialogue/src/actor-audio-prepared-data.js";
+const environment = import.meta as ImportMeta & { env?: { DEV?: boolean } };
+let runtime = createActorAudioRuntime({ developmentFixture: environment.env?.DEV === true, fixtureSearch: "?openclinxrSpeakFixture=1" });
+export const installPreparedActorAudioRuntime = (input: Parameters<typeof runtime.diagnostics.installRuntime>[0]) => {
+  runtime = createActorAudioRuntime({ developmentFixture: environment.env?.DEV === true, fixtureSearch: "?openclinxrSpeakFixture=1" });
+  runtime.diagnostics.installRuntime(input);
+};
+export const registerPreparedActorAudioEntry = (...args: Parameters<typeof runtime.diagnostics.registerEntry>) => runtime.diagnostics.registerEntry(...args);
+export const startPreparedActorTurnAudio = (...args: Parameters<typeof runtime.startPreparedActorTurnAudio>) => runtime.startPreparedActorTurnAudio(...args);
+export const startPreparedActorTurnAudioOutcome = (...args: Parameters<typeof runtime.startPreparedActorTurnAudioOutcome>) => runtime.startPreparedActorTurnAudioOutcome(...args);
+export const syncPreparedActorAudio = (...args: Parameters<typeof runtime.syncPreparedActorAudio>) => runtime.syncPreparedActorAudio(...args);
+export const startActorTurnSpeech = (...args: Parameters<typeof runtime.startActorTurnSpeech>) => runtime.startActorTurnSpeech(...args);
+export const preparedActorTurnAudioAvailable = (...args: Parameters<typeof runtime.preparedActorTurnAudioAvailable>) => runtime.preparedActorTurnAudioAvailable(...args);
+export const selectPreparationCues = (input: Parameters<typeof runtime.diagnostics.selectPreparationCues>[0]) => {
+  const browser = globalThis as typeof globalThis & { window?: { location?: { search?: string } } };
+  const search = browser.window?.location?.search ?? "";
+  return createActorAudioRuntime({ developmentFixture: environment.env?.DEV === true, fixtureSearch: search }).diagnostics.selectPreparationCues(input);
+};
+
+export const pausePreparedActorTurnAudio = (...args: Parameters<typeof runtime.diagnostics.pause>) => runtime.diagnostics.pause(...args);
+export const resumePreparedActorTurnAudio = (...args: Parameters<typeof runtime.diagnostics.resume>) => runtime.diagnostics.resume(...args);

@@ -140,8 +140,8 @@ import {
   updateHumanoidEmotionExpression as updatePackageHumanoidEmotionExpression,
 } from "@openclinxr/xr-humanoid-animation";
 import { playManifestMotionClip } from "./motion-manifest-motion-address.js";
-import { initPreparedActorAudioBridge, startPreparedActorTurnAudio, syncPreparedActorAudio } from "./prepared-actor-audio.js";
-import { preparedActorTurnAudioAvailable, startActorTurnSpeech } from "./ordinary-actor-turn-speech.js";
+import { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
+const { initPreparedActorAudioBridge, startPreparedActorTurnAudio, syncPreparedActorAudio, preparedActorTurnAudioAvailable, startActorTurnSpeech } = createActorAudioRuntime({ developmentFixture: import.meta.env.DEV === true });
 import { observeMountedApproachGeometry } from "@openclinxr/xr-humanoid-animation/mounted-approach-geometry";
 import { applyStationBedsideStanceLock, createStationBedsideApproachState, updateStationBedsideApproach } from "@openclinxr/xr-humanoid-animation/station-bedside-approach";
 import {

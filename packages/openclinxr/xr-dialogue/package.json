@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./actor-audio-runtime": {
+      "types": "./dist/actor-audio-runtime.d.ts",
+      "default": "./dist/actor-audio-runtime.js"
     }
   },
   "scripts": {
