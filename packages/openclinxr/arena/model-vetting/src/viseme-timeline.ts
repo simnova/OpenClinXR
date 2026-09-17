@@ -32,19 +32,25 @@ export type VisemeTimeline = {
 };
 
 /**
- * Rhubarb mouth-shape letters → same runtime tokens as ui-xr viseme-baked-cues
- * (A=AA, B=E, C=IH, D=OH, E=OU, F=FV, G=L, H=OU, X=sil). Copied here so this
- * package does not import ui-xr.
+ * Rhubarb mouth-shape letters → runtime tokens. Meanings quoted from the Rhubarb README
+ * (~/.openclinxr-tools/rhubarb/README.adoc, "Mouth shapes"): A = "Closed mouth for the P,
+ * B, and M sounds" (PP); B = "Slightly open mouth with clenched teeth ... K, S, T ... EE
+ * sound in bee" (SS — the teeth-together sibilant, not kk); C = "Open mouth ... EH/AE"
+ * (E); D = "Wide open mouth ... AA" (AA); E = "Slightly rounded mouth ... AO/ER" (OH);
+ * F = "Puckered lips ... UW/OW/W" (OU); G = "Upper teeth touching the lower lip for F/V"
+ * (FV); H = "long L sounds, with the tongue raised behind the upper teeth" (L); X = idle
+ * (sil). The previous table (A=AA ... H=OU) encoded the misread Rhubarb table. Copied here
+ * so this package does not import ui-xr.
  */
 const RHUBARB_VALUE_TO_VISEME: Record<string, string> = {
-  A: "AA",
-  B: "E",
-  C: "IH",
-  D: "OH",
-  E: "OU",
-  F: "FV",
-  G: "L",
-  H: "OU",
+  A: "PP",
+  B: "SS",
+  C: "E",
+  D: "AA",
+  E: "OH",
+  F: "OU",
+  G: "FV",
+  H: "L",
   X: "sil",
 };
 
@@ -54,7 +60,9 @@ const VISEME_OPENNESS: Record<string, number> = {
   rest: 0,
   sil: 0,
   closed: 0.08,
+  PP: 0.08,
   teeth: 0.2,
+  SS: 0.2,
   FV: 0.2,
   rounded: 0.34,
   OU: 0.34,

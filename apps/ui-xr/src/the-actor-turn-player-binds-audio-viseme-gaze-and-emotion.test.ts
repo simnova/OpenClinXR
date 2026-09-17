@@ -19,7 +19,7 @@ import { mouthCuesToPhonemeCues } from "@openclinxr/xr-dialogue";
  * turnId, and plan digest. Mismatch or missing artifacts block; never fall
  * back to per-letter visemesForText.
  *
- * known-good: viseme-baked-cues Rhubarb A → AA; captions = plan.spokenText.
+ * known-good: viseme-baked-cues Rhubarb A → PP; captions = plan.spokenText.
  */
 
 const PLAN_ID = "plan_maya_wob_001";
@@ -126,9 +126,10 @@ function spyAdapters(overrides: Partial<ActorTurnPlayerAdapters> = {}): ActorTur
 }
 
 describe("the actor turn player binds audio viseme gaze and emotion", () => {
-  it("(0) COUNTERWEIGHT: Rhubarb A still maps to AA; digest is stable for a frozen plan", () => {
+  it("(0) COUNTERWEIGHT: Rhubarb A maps to PP; digest is stable for a frozen plan", () => {
+    // Old pin (A->AA) encoded the misread Rhubarb table; the README reads A closed lips (PP).
     const mapped = mouthCuesToPhonemeCues({ mouthCues: [{ start: 0, end: 0.2, value: "A" }] });
-    expect(mapped[0]?.phoneme).toBe("AA");
+    expect(mapped[0]?.phoneme).toBe("PP");
     const plan = samplePlan();
     expect(digestActorTurnPlan(plan)).toBe(digestActorTurnPlan(samplePlan()));
     expect(digestActorTurnPlan(plan)).toHaveLength(16);
@@ -156,7 +157,7 @@ describe("the actor turn player binds audio viseme gaze and emotion", () => {
     expect(playback.audio.audioUri).toBe(AUDIO_URI);
     expect(playback.viseme.startedAtMs).toBe(2_400);
     expect(playback.viseme.baker).toBe("rhubarb");
-    expect(playback.viseme.cues.map((cue) => cue.phoneme)).toEqual(["sil", "AA", "E"]);
+    expect(playback.viseme.cues.map((cue) => cue.phoneme)).toEqual(["sil", "PP", "SS"]);
     expect(playback.gaze.startedAtMs).toBe(2_400);
     expect(playback.gaze.gazeTargetKind).toBe("learner_camera");
     expect(playback.emotion.startedAtMs).toBe(2_400);
@@ -288,7 +289,7 @@ describe("the actor turn player binds audio viseme gaze and emotion", () => {
       expect(ctx.timelineOriginMs).toBe(2_400);
       expect(ctx.visemeCues.baker).toBe("rhubarb");
       expect(ctx.visemeCues.mouthCues).toEqual([...RHUBARB_CUES]);
-      expect(ctx.visemePhonemeCues.map((cue) => cue.phoneme)).toEqual(["sil", "AA", "E"]);
+      expect(ctx.visemePhonemeCues.map((cue) => cue.phoneme)).toEqual(["sil", "PP", "SS"]);
     }
   });
 
