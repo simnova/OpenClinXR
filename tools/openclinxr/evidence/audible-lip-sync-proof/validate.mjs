@@ -6,6 +6,8 @@ import { resolve } from "node:path";
 import fixture from "./fixture-manifest.mjs";
 import {inspectPlayedSamples} from "./waveform-identity.mjs";
 import {inspectAuthoredAlpha} from "./material-integrity.mjs";
+import {inspectNativeCaptureBindings} from "./capture-bindings.mjs";
+import {inspectExecutedModules} from "./executed-module-integrity.mjs";
 export function inspectMetadata(r) {
  const errors=[];const need=(ok,message)=>{if(!ok)errors.push(message);};
  need(r?.schemaVersion===1,"schema");need(r?.claimScope==="local-prerecorded-coarse-mouth-clock-proof","claim-scope");
@@ -35,11 +37,20 @@ export function inspectMetadata(r) {
 }
 function digest(path){return createHash("sha256").update(readFileSync(path)).digest("hex");}
 export function validateReport(r,root){
- const errors=inspectMetadata(r);const need=(ok,message)=>{if(!ok)errors.push(message);};
+ const errors=[...inspectMetadata(r),...inspectNativeCaptureBindings(r)];const need=(ok,message)=>{if(!ok)errors.push(message);};
 
  errors.push(...inspectArtifacts(r,root));
  const wav=r.files?.inputWav,cues=r.files?.cues;need(wav?.sha256===fixture.sha256,"waveform-identity-mismatch");need(cues?.sha256===fixture.cueSha256,"cue-identity-mismatch");
  const repoRoot=fileURLToPath(new URL("../../../../",import.meta.url));
+ // Rebuild the consumed package before comparing executed dist; a tracked source hash
+ // cannot attest stale compiler output. This writes only the explicitly selected proof tree.
+ if(Array.isArray(r.executedModules)&&r.executedModules.length){
+  try{execFileSync("pnpm",["--filter","@openclinxr/xr-dialogue","build","--force"],{cwd:repoRoot,stdio:"pipe"});}catch{errors.push("consumed-dialogue-build-refused");}
+ }
+ errors.push(...inspectExecutedModules(r.executedModules,root,repoRoot,[
+  "apps/ui-xr/src/main.ts","apps/ui-xr/src/prepared-actor-audio.ts",
+  "packages/openclinxr/xr-dialogue/dist/viseme-runtime-wire.js",
+  "packages/openclinxr/xr-dialogue/dist/viseme-baked-cues.js"]));
  const roles=r.sourceBindings??[];
  for(const [role,path] of Object.entries(fixture.requiredSourceRoles)) {
   const entries=roles.filter(b=>b.role===role);need(entries.length===1,"required-source-role:"+role);

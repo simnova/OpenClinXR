@@ -25,10 +25,12 @@ export default {
     "capturePage": "tools/openclinxr/evidence/audible-lip-sync-proof/capture-page.mjs",
     "audioTap": "tools/openclinxr/evidence/audible-lip-sync-proof/audio-tap.mjs",
     "admittedRig": "packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts",
+    "consumedHost": "apps/ui-xr/src/main.ts",
+    "preparedAudio": "apps/ui-xr/src/prepared-actor-audio.ts",
+    "lateCueJoin": "packages/openclinxr/xr-dialogue/src/viseme-baked-cues.ts",
     "asset": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb"
   },
   "frozenSourceHashes": {
-    "admittedRig": "55a9f7289524fc4b1e2a609d5fc3cd6e3ad4043f7eccb7457a6afb63d8f63691",
     "asset": "8da37c5707958d7a4f8f8a89222d76ea6c0d3c2f18eb903d56c7f4d8727befcf"
   }
 };
