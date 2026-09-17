@@ -15,16 +15,18 @@
  * claimScope: uniform seat-height normalization of a raw CC0 GLB into the tracked medical-equipment
  * library with provenance. notEvidenceFor: visual realism, clinical validity, Quest readiness.
  */
-import { NodeIO } from "@gltf-transform/core";
+import { type Document, type Node, NodeIO } from "@gltf-transform/core";
 import { createHash } from "node:crypto";
 import { readFile, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { finalizeEquipmentGlbDocument, type FinalizeEquipmentGlbReport } from "./finalize-equipment-glb.js";
 
 const REPO = process.cwd();
 const KIT = join(REPO, ".openclinxr/staging/equipment/kenney-furniture-kit/Models/GLTF format");
 const PROMOTED_DIR = join(REPO, "apps/ui-xr/public/xr-assets/medical-equipment");
 const KIT_LICENSE_PATH = join(REPO, ".openclinxr/staging/equipment/kenney-furniture-kit/License.txt");
-const KIT_PROVENANCE_PATH = join(REPO, ".openclinxr/staging/equipment/kenney-furniture-kit/provenance.json");
+/** Relative (repo-root) form used in the written provenance sidecar's sourceRecordPath. */
+const KIT_PROVENANCE_PATH_REL = ".openclinxr/staging/equipment/kenney-furniture-kit/provenance.json";
 
 type Mat4 = number[];
 
@@ -77,13 +79,13 @@ function applyNormal(m: Mat4, n: number[]): number[] {
 }
 
 /** World AABB + horizontal-surface area bins (|ny|>0.85), from the RAW source geometry. */
-function measure(doc: any, scale: number): { aabbMin: number[]; aabbMax: number[]; tris: number; horizontalBins: Map<number, number> } {
+function measure(doc: Document, scale: number): { aabbMin: number[]; aabbMax: number[]; tris: number; horizontalBins: Map<number, number> } {
   const root = doc.getRoot();
   let min = [Infinity, Infinity, Infinity];
   let max = [-Infinity, -Infinity, -Infinity];
   let tris = 0;
   const bins = new Map<number, number>();
-  const processNode = (node: any, m: Mat4): void => {
+  const processNode = (node: Node, m: Mat4): void => {
     const mesh = node.getMesh();
     if (mesh) {
       for (const prim of mesh.listPrimitives()) {
@@ -104,7 +106,7 @@ function measure(doc: any, scale: number): { aabbMin: number[]; aabbMax: number[
           const b = apply(m, at(i + 1));
           const c = apply(m, at(i + 2));
           for (const p of [a, b, c]) {
-            const scaled = p.map((v) => v * scale);
+            const scaled = p.map((val) => val * scale);
             min = [Math.min(min[0], scaled[0]), Math.min(min[1], scaled[1]), Math.min(min[2], scaled[2])];
             max = [Math.max(max[0], scaled[0]), Math.max(max[1], scaled[1]), Math.max(max[2], scaled[2])];
           }
@@ -141,9 +143,9 @@ function measure(doc: any, scale: number): { aabbMin: number[]; aabbMax: number[
 }
 
 /** Bake world transforms + uniform scale into POSITION/NORMAL, reset node TRS to identity. */
-function bakeTransformsAndScale(doc: any, scale: number): void {
+function bakeTransformsAndScale(doc: Document, scale: number): void {
   const root = doc.getRoot();
-  const processNode = (node: any, m: Mat4): void => {
+  const processNode = (node: Node, m: Mat4): void => {
     const mesh = node.getMesh();
     if (mesh) {
       for (const prim of mesh.listPrimitives()) {
@@ -201,8 +203,8 @@ function sha256(buf: Buffer): string {
 function parseArgs(args: string[]): Record<string, string> {
   const out: Record<string, string> = {};
   for (let i = 0; i < args.length; i += 2) {
-    const key = args[i]!;
-    if (!key.startsWith("--")) throw new Error(`expected --flag, got ${key}`);
+    const key = args[i];
+    if (key === undefined || !key.startsWith("--")) throw new Error(`expected --flag, got ${String(key)}`);
     out[key.slice(2)] = args[i + 1] ?? "";
   }
   return out;
@@ -228,7 +230,9 @@ async function main(): Promise<void> {
   const raw = measure(doc, 1);
   const sorted = [...raw.horizontalBins.entries()].sort((a, b) => b[1] - a[1]);
   if (sorted.length === 0) throw new Error("no horizontal (|ny|>0.85) surface detected; cannot anchor seat height");
-  const [seatY, seatArea] = sorted[0]!;
+  const first = sorted[0];
+  if (first === undefined) throw new Error("no horizontal (|ny|>0.85) surface detected; cannot anchor seat height");
+  const [seatY, seatArea] = first;
   const scale = targetHeightM / (seatY / 100);
   if (scale <= 0 || !Number.isFinite(scale)) throw new Error(`invalid scale ${scale} from seatY ${seatY}`);
 
@@ -240,6 +244,16 @@ async function main(): Promise<void> {
   for (const scene of doc.getRoot().listScenes()) {
     for (const child of scene.listChildren()) child.setName(stem);
   }
+
+  // 3.5. Finalize: remove zero-area triangles and now-orphaned vertices, and dedup
+  // any duplicate accessor/material/texture datablocks the raw kit shipped. Measured
+  // 2026-09-16 on this exact station's own prior output (clinic-chair-kenney-cc0.glb):
+  // 8 of 170 triangles were zero-area and 1 vertex was referenced by no triangle at
+  // all, carried through untouched from the raw Kenney mesh. Runs AFTER the bake so
+  // the seat-height verification below measures the finalized geometry, not a
+  // pre-cleanup intermediate; AABB and horizontal-surface detection are unaffected
+  // by this step (proven: degenerate/orphaned data contributes no area or extent).
+  const finalizeReport: FinalizeEquipmentGlbReport = await finalizeEquipmentGlbDocument(doc);
 
   // 4. Write promoted GLB.
   await io.write(targetPath, doc);
@@ -258,7 +272,7 @@ async function main(): Promise<void> {
     scenarioId: null,
     assetId,
     assetPath: `apps/ui-xr/public/xr-assets/medical-equipment/${target}`,
-    sourceRecordPath: ".openclinxr/staging/equipment/kenney-furniture-kit/provenance.json",
+    sourceRecordPath: KIT_PROVENANCE_PATH_REL,
     generatorMode: "kenney_promote_cli_tsx_bake_world_transform_and_uniform_scale",
     sourceKind: "third_party_kenney_cc0",
     usesRealTrellisForwardPass: false,
@@ -293,6 +307,15 @@ async function main(): Promise<void> {
       promotedSurfaceArea: promotedSeat ? round3(promotedSeat[1]) : null,
       promotedTriangleCount: promoted.tris,
       runtimeFit: "applyGltfEquipmentFootprintFit scale=min(1, env/glb); promoted footprint must be <= parametric composite envelope so the runtime does not shrink it",
+    },
+    finalizeStation: {
+      tool: "tools/openclinxr/asset-pipeline/equipment/finalize-equipment-glb.ts",
+      appliedAt: "bake_time_before_write",
+      degenerateTrianglesRemoved: finalizeReport.degenerateTrianglesRemoved,
+      orphanedVerticesRemoved: finalizeReport.orphanedVerticesRemoved,
+      texturesDeduped: finalizeReport.texturesBefore - finalizeReport.texturesAfter,
+      materialsDeduped: finalizeReport.materialsBefore - finalizeReport.materialsAfter,
+      claimScope: "geometry/texture-datablock cleanup only; does not alter AABB or seat detection",
     },
     sourceOriginChain: {
       sourceTopologyMode: "kenney_asset_pack_download",
@@ -346,7 +369,7 @@ async function main(): Promise<void> {
   };
 
   const sidecarPath = targetPath.replace(/\.glb$/u, ".provenance.json");
-  await writeFile(sidecarPath, JSON.stringify(provenance, null, 2) + "\n");
+  await writeFile(sidecarPath, `${JSON.stringify(provenance, null, 2)}\n`);
   console.log(JSON.stringify({
     source,
     target,

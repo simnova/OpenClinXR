@@ -14,8 +14,8 @@
   "optimizationMode": "length_width_deck_unit_normalize_no_decimation",
   "realismGrade": null,
   "promotionStatus": "runtime_candidate_not_readiness_gate_pass",
-  "sha256": "df70210a32b88537a3837cf62b46e3b6ba19c65d71495e8ff5d61fd52111bf27",
-  "bytes": 4727052,
+  "sha256": "d429b23ec21148c527121386d94675ef66aaa2c8171743314fe2834143ad5903",
+  "bytes": 4726800,
   "measuredNormalize": {
     "lengthM": 2.1500000953674316,
     "widthM": 0.9800000190734863,
@@ -68,8 +68,18 @@
       "Sketchfab Token API download to staging.",
       "Blender normalize (length/width/deck SSOT).",
       "Promote byte-identical normalized GLB into medical-equipment library.",
-      "Wire REAL_EQUIPMENT_GLTF_BY_ID + deckTopYMeters stamp."
+      "Wire REAL_EQUIPMENT_GLTF_BY_ID + deckTopYMeters stamp.",
+      "2026-09-16: finalize-equipment-glb-cli.ts (prune) removed the empty 'BedsideStand' node — normalize-equipment-glb.py had already removed its two meshes (removedMeshes above) but left the now-childless, mesh-less transform node behind. No mesh, geometry, AABB, or material changed."
     ]
+  },
+  "finalizeStation": {
+    "tool": "tools/openclinxr/asset-pipeline/equipment/finalize-equipment-glb-cli.ts",
+    "appliedAt": "2026-09-16T00:00:00.000Z",
+    "measuredBefore": { "sha256": "df70210a32b88537a3837cf62b46e3b6ba19c65d71495e8ff5d61fd52111bf27", "bytes": 4727052 },
+    "measuredAfter": { "sha256": "d429b23ec21148c527121386d94675ef66aaa2c8171743314fe2834143ad5903", "bytes": 4726800 },
+    "bytesSavedPct": 0.005,
+    "claimScope": "removed one already-empty leftover node; no geometry, texture, or material changed",
+    "notEvidenceFor": ["visual_realism_change", "clinical_validity", "quest_readiness"]
   },
   "toolVersion": "openclinxr-equipment-bank-promote-v1",
   "promotedAt": "2026-08-12T14:01:20.603529+00:00",
