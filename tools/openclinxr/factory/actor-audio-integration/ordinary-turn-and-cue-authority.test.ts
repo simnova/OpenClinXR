@@ -24,7 +24,7 @@ function fixture(actorId = "prepared-actor") {
       waveformSha256: "a".repeat(64), cueSha256: "b".repeat(64), buffer: { duration: 1 } as AudioBuffer,
       cues: [{ phoneme: "PP", atSecond: 0, durationSeconds: 1 }], decodedSampleRate: 22050, decodedSampleCount: 22050 },
   });
-  return { sources, slot, dialogueStarts: () => dialogueStarts };
+  return { sources, slot, context, dialogueStarts: () => dialogueStarts };
 }
 
 it.fails("ordinary unprepared speech starts existing dialogue and explicitly reports unavailable audio", () => {
@@ -71,4 +71,44 @@ it("owned stop refusal never becomes ordinary-dialogue fallback success", () => 
 
 it("invalid overlapping preparation cues remain refused", () => {
   expect(() => convertRhubarb({ mouthCues: [{ value: "A", start: 0, end: 1 }, { value: "B", start: 0.5, end: 1.5 }] })).toThrow();
+});
+
+it.fails("prepared-to-unprepared transition stops owned audio before exactly one ordinary dialogue start", () => {
+  const f = fixture("owned-to-ordinary");
+  expect(startPreparedActorTurnAudio({ actorId: "owned-to-ordinary", spokenText: "A prepared line" })).toBe(true);
+  let fallbackStarts = 0;
+  const result = startActorTurnSpeech({ actorId: "owned-to-ordinary", spokenText: "Next ordinary line" }, () => {
+    expect(f.sources[0]?.stopped).toBe(true);
+    fallbackStarts += 1;
+    f.slot.activeSpeech = { text: "Next ordinary line", startedAt: 0, durationMs: 1000 };
+  });
+  expect(fallbackStarts).toBe(1);
+  expect(f.sources).toHaveLength(1);
+  expect(f.sources[0]?.stopped).toBe(true);
+  expect(result).toEqual({ kind: "dialogue_only", reason: "prepared_audio_unavailable" });
+});
+
+it.fails("unprepared transition with owned-stop refusal retains the prior source and speech", () => {
+  const f = fixture("owned-refusal-next");
+  expect(startPreparedActorTurnAudio({ actorId: "owned-refusal-next", spokenText: "A prepared line" })).toBe(true);
+  const previousSpeech = f.slot.activeSpeech;
+  f.sources[0]!.refuseStop = true;
+  let fallbackStarts = 0;
+  const result = startActorTurnSpeech({ actorId: "owned-refusal-next", spokenText: "Next ordinary line" }, () => { fallbackStarts += 1; });
+  expect(fallbackStarts).toBe(0);
+  expect(f.slot.activeSpeech).toBe(previousSpeech);
+  expect(f.sources[0]?.stopped).toBe(false);
+  expect(f.sources).toHaveLength(1);
+  expect(result).toMatchObject({ kind: "refused" });
+});
+
+it.fails("a matching prepared entry in a suspended audio context refuses without ordinary fallback", () => {
+  const f = fixture("suspended-prepared");
+  f.context.state = "suspended";
+  let fallbackStarts = 0;
+  const result = startActorTurnSpeech({ actorId: "suspended-prepared", spokenText: "A prepared line" }, () => { fallbackStarts += 1; });
+  expect(fallbackStarts).toBe(0);
+  expect(f.sources).toHaveLength(0);
+  expect(f.dialogueStarts()).toBe(0);
+  expect(result).toMatchObject({ kind: "refused" });
 });
