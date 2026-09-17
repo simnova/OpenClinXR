@@ -30,6 +30,10 @@ import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 // #275 — single source of truth for the factory's FALLBACK upper garment identity.
 import { HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX } from "./garment-selection-by-role.js";
+import {
+  catalogueEntryForPack,
+  packSlugFromPath,
+} from "./makehuman-catalogue.js";
 import { planClothingConsume, runClothingConsume } from "@openclinxr/factory-stations";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -275,6 +279,63 @@ export function isPermittedGarmentLicense(token: string): boolean {
 }
 
 /**
+ * 2026-09-17 — bake-time silence fallback (ledger shape 1). Calls
+ * `readMhcloLicense`; when the token is EXACTLY the silence sentinel (true
+ * silence — not an unrecognised token, not boilerplate misread as a token),
+ * consults the committed publisher catalogue for `packSlug` (derived from
+ * the `mhcloRel` path, e.g. `.../makehuman-shoes01/...` -> `shoes01`, when
+ * the caller passes none). Any other token defers to
+ * `isPermittedGarmentLicense` exactly as before — an explicit per-file
+ * copyleft or unrecognised token is never overridden by the catalogue
+ * (HARD GUARD, shape 3).
+ */
+export function resolveGarmentLicense(
+  mhcloPath: string,
+  packSlug?: string | null,
+): { token: string; source: string; permitted: boolean; viaCatalogue: boolean } {
+  const license = readMhcloLicense(mhcloPath);
+  if (license.token !== "license_not_found_in_mhclo_header") {
+    return {
+      token: license.token,
+      source: license.source,
+      permitted: isPermittedGarmentLicense(license.token),
+      viaCatalogue: false,
+    };
+  }
+  // The sentinel also covers "a licence line with a non-CC token" (e.g.
+  // `# license AGPL3`), which readMhcloLicense does not capture. That is an
+  // EXPLICIT declaration, not silence — never consult the catalogue for it.
+  const explicitLine = /^#\s*license:?\s*(.+)$/im.exec(license.rawHeader);
+  if (explicitLine) {
+    const explicit = explicitLine[1]!.trim();
+    return {
+      token: explicit,
+      source: `${license.source}; explicit_header_licence=${explicit}`,
+      permitted: false,
+      viaCatalogue: false,
+    };
+  }
+  const slug = packSlug ?? packSlugFromPath(mhcloPath);
+  const entry = catalogueEntryForPack(slug);
+  if (entry) {
+    return {
+      token: entry.licence,
+      source:
+        `${license.source}; catalogue:${slug}=${entry.licence} ` +
+        `(${entry.packPageUrl}; fetched ${entry.fetchedAt})`,
+      permitted: true,
+      viaCatalogue: true,
+    };
+  }
+  return {
+    token: license.token,
+    source: license.source,
+    permitted: false,
+    viaCatalogue: false,
+  };
+}
+
+/**
  * #220 lower-body garment candidates examined for find-or-stop.
  * Licence is always re-read from the local .mhclo header when the file exists —
  * never invented. Remote pack URLs may 404; local staging is the factory input.
@@ -380,11 +441,20 @@ export function examineLowerGarmentCandidates(repoRoot: string = REPO_ROOT): Exa
 
     const license = readMhcloLicense(mhcloAbs);
     const permitted = isPermittedGarmentLicense(license.token);
+    // 2026-09-17: catalogue silence fallback (ledger shape 1). The sentinel
+    // means no licence token at all; the pack slug comes from the candidate's
+    // own staged path (`.../makehuman-pants01/...` -> `pants01`).
+    const fallback =
+      license.token === "license_not_found_in_mhclo_header"
+        ? resolveGarmentLicense(mhcloAbs, packSlugFromPath(c.localMhcloRel))
+        : null;
+    const effectiveToken = fallback?.viaCatalogue ? fallback.token : license.token;
+    const effectivePermitted = fallback?.viaCatalogue ? fallback.permitted : permitted;
     const isShorts = /short/i.test(c.garmentId);
     let accepted = false;
     let rejectionReason: string | null = null;
-    if (!permitted) {
-      rejectionReason = `licence "${license.token}" is not CC0/CC-BY (copyleft or unknown refused)`;
+    if (!effectivePermitted) {
+      rejectionReason = `licence "${effectiveToken}" is not CC0/CC-BY (copyleft or unknown refused)`;
     } else if (isShorts) {
       rejectionReason =
         "shorts (above-knee) — cargo pants preferred as primary full-length lower garment";
@@ -400,7 +470,7 @@ export function examineLowerGarmentCandidates(repoRoot: string = REPO_ROOT): Exa
     out.push({
       garmentId: c.garmentId,
       sourceUrl: c.sourceUrl,
-      licenseToken: license.token,
+      licenseToken: effectiveToken,
       accepted,
       rejectionReason,
       localMhcloPath: mhcloAbs,

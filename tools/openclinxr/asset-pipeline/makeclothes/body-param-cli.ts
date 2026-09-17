@@ -34,8 +34,12 @@ import {
   LIBRARY_LOWER_GARMENT_ID,
   LIBRARY_LOWER_MESH_PREFIX,
   readMhcloLicense,
+  resolveGarmentLicense,
   type ExaminedLowerGarment,
 } from "./fit-cli.js";
+import {
+  packSlugFromPath,
+} from "./makehuman-catalogue.js";
 import {
   classifyHairStyle,
   HAIR_HELPER_STRIP_THRESHOLD,
@@ -565,8 +569,8 @@ export function resolveFootwearCandidate(
         `(${cand.mhcloRel}, ${cand.objRel}) — stage the makehuman-shoes01 CC0 subset and re-run.`,
     );
   }
-  const license = readMhcloLicense(mhcloAbs);
-  if (!isPermittedGarmentLicense(license.token)) {
+  const license = resolveGarmentLicense(mhcloAbs, packSlugFromPath(cand.mhcloRel));
+  if (!license.permitted) {
     throw new Error(
       `[body-param] #324 footwear ${cand.shoeId} licence not permitted from its own .mhclo header: ` +
         `token=${license.token} source=${license.source}`,
@@ -650,11 +654,14 @@ export function resolveHairCandidate(
     );
   }
   const { raw } = readHairLicenceLine(mhcloAbs);
+  const catalogueSuffix = classification.viaCatalogue
+    ? `; catalogue:hair01=CC0 (https://static.makehumancommunity.org/assets/assetpacks/hair01.html; fetched 2026-09-17)`
+    : "";
   return {
     candidate: cand,
     licenseToken: raw ?? classification.licenceFamily,
     licenseSource: `mhclo_header:${path.basename(mhcloAbs)}; license=${raw ?? ""}; style=${cand.style}; ` +
-      `helperRefs=0(<${HAIR_HELPER_STRIP_THRESHOLD}); pack=${HAIR_PACK_DIR}`,
+      `helperRefs=0(<${HAIR_HELPER_STRIP_THRESHOLD}); pack=${HAIR_PACK_DIR}${catalogueSuffix}`,
   };
 }
 
@@ -764,8 +771,8 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
   }
   copyFileSync(cachedToigoMhclo, toigoMhcloPath);
   copyFileSync(cachedToigoObj, toigoObjPath);
-  const toigoLicense = readMhcloLicense(toigoMhcloPath);
-  if (!isPermittedGarmentLicense(toigoLicense.token)) {
+  const toigoLicense = resolveGarmentLicense(toigoMhcloPath, packSlugFromPath(TOIGO_T_SHIRT.mhcloRel));
+  if (!toigoLicense.permitted) {
     throw new Error(
       `[body-param] #322 toigo licence not permitted from its own .mhclo header: ` +
         `token=${toigoLicense.token} source=${toigoLicense.source}`,
