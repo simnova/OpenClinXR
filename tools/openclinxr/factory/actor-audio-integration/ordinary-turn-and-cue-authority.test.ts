@@ -2,13 +2,13 @@ import { it, expect } from "vitest";
 import ts from "typescript";
 import { readFileSync } from "node:fs";
 import { startActorTurnSpeech, preparedActorTurnAudioAvailable } from "../../../../apps/ui-xr/src/ordinary-actor-turn-speech.js";
-import { installPreparedActorAudioRuntime, startPreparedActorTurnAudio, convertRhubarb } from "../../../../apps/ui-xr/src/prepared-actor-audio.js";
+import { installPreparedActorAudioRuntime, startPreparedActorTurnAudio, convertRhubarb, syncPreparedActorAudio } from "../../../../apps/ui-xr/src/prepared-actor-audio.js";
 import { mouthCuesToPhonemeCues } from "../../../../packages/openclinxr/xr-dialogue/dist/index.js";
 
 // OWNER PLANT: ordinary turns must not disappear when prepared audio is absent.
 function fixture(actorId = "prepared-actor") {
   const sources: { starts: number; stopped: boolean; refuseStop: boolean }[] = [];
-  const slot: { activeSpeech?: { text: string; startedAt: number; durationMs: number } } = {};
+  const slot: { activeSpeech?: { text: string; startedAt: number; durationMs: number }; mediaPositionSeconds?: () => number | null } = {};
   let dialogueStarts = 0;
   const context = {
     state: "running", currentTime: 1, sampleRate: 22050,
@@ -31,7 +31,7 @@ function fixture(actorId = "prepared-actor") {
 it.fails("ordinary unprepared speech starts existing dialogue and explicitly reports unavailable audio", () => {
   const f = fixture();
   let fallbackStarts = 0;
-  const result = startActorTurnSpeech({ actorId: "ordinary-actor", spokenText: "Unprepared authored line" }, () => { fallbackStarts += 1; return true; });
+  const result = startActorTurnSpeech({ actorId: "ordinary-actor", spokenText: "Unprepared authored line" }, () => { fallbackStarts += 1; f.slot.activeSpeech = { text: "Unprepared authored line", startedAt: 0, durationMs: 1000 }; return true; });
   expect(fallbackStarts).toBe(1);
   expect(f.sources).toHaveLength(0);
   expect(result).toEqual({ kind: "dialogue_only", reason: "prepared_audio_unavailable" });
@@ -100,6 +100,8 @@ it.fails("prepared-to-unprepared transition stops owned audio before exactly one
   let fallbackStarts = 0;
   const result = startActorTurnSpeech({ actorId: "owned-to-ordinary", spokenText: "Next ordinary line" }, () => {
     expect(f.sources[0]?.stopped).toBe(true);
+    expect(f.slot.mediaPositionSeconds).toBeUndefined();
+    expect(f.slot.activeSpeech).toBeUndefined();
     fallbackStarts += 1;
     f.slot.activeSpeech = { text: "Next ordinary line", startedAt: 0, durationMs: 1000 };
     return true;
@@ -108,6 +110,10 @@ it.fails("prepared-to-unprepared transition stops owned audio before exactly one
   expect(f.sources).toHaveLength(1);
   expect(f.sources[0]?.stopped).toBe(true);
   expect(result).toEqual({ kind: "dialogue_only", reason: "prepared_audio_unavailable" });
+  const ordinarySpeech = f.slot.activeSpeech;
+  syncPreparedActorAudio(9000);
+  expect(f.slot.activeSpeech).toBe(ordinarySpeech);
+  expect(f.slot.mediaPositionSeconds).toBeUndefined();
 });
 
 it.fails("unprepared transition with owned-stop refusal retains the prior source and speech", () => {
@@ -141,4 +147,16 @@ it.fails("failed ordinary speech setup is a typed refusal rather than a callback
   expect(attempted).toBe(1);
   expect(result).toMatchObject({ kind: "refused" });
   expect(f.sources).toHaveLength(0);
+});
+
+
+it("actual ordinary frozen-turn host refuses a trigger that creates no speech", () => {
+  const f = fixture(); let attempted = 0;
+  const result = invokeActualFrozenTurnHost("ordinary-no-setup", "No setup line", f, () => { attempted += 1; });
+  expect(result).toBe(false);
+  expect(f.slot.activeSpeech).toBeUndefined();
+  expect(f.sources).toHaveLength(0);
+  // Pre-fix the prepared-only host does not attempt ordinary dialogue.
+  // Once routed through the ordinary host, it must still refuse this callback.
+  expect(attempted).toBeLessThanOrEqual(1);
 });
