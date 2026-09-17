@@ -1,5 +1,6 @@
-import {Box3, Color, DirectionalLight, HemisphereLight, PerspectiveCamera, PropertyBinding, Quaternion, Scene, Vector3, WebGLRenderer} from "three";
+import {Box3, Color, DataTexture, DirectionalLight, HemisphereLight, Mesh, MeshBasicMaterial, NearestFilter, OrthographicCamera, PerspectiveCamera, PlaneGeometry, PropertyBinding, Quaternion, RGBAFormat, Scene, Vector3, WebGLRenderer} from "three";
 import {isFittedHairMeshName} from "../../../../packages/openclinxr/xr-scene/dist/index.js";
+import {encodeObservedRowMarker, ROW_BARCODE_VIEWPORT} from "./observed-row-barcode.mjs";
 
 const components = ["getX", "getY", "getZ", "getW"];
 const vec = (bone) => bone.getWorldPosition(new Vector3());
@@ -78,9 +79,18 @@ export function identifyHeadGeometry(root) {
   return {head,eyes,jaw,meshes,containMeshes,localUp,bindQuaternion};
 }
 
+function skinnedWorldPoint(object, index, target) {
+  object.getVertexPosition(index, target);
+  return target.applyMatrix4(object.matrixWorld);
+}
+
 export function fitNeutralHeadCamera(rig, camera, root) {
   root.updateWorldMatrix(true,true);
+  const contain=rig.containMeshes??[];
+  const hairBefore=contain.map(({object,indices})=>indices.length?skinnedWorldPoint(object,indices[0],new Vector3()).toArray():null);
   for(const {object} of rig.meshes)object.skeleton?.update();
+  for(const {object} of contain)object.skeleton?.update();
+  const faceSkeleton=rig.meshes[0]?.object.skeleton;
   const eyeMid=vec(rig.eyes.left).add(vec(rig.eyes.right)).multiplyScalar(.5);
   const right=requireVector(vec(rig.eyes.right).sub(vec(rig.eyes.left)),"neutral-eye-axis-degenerate");
   const up=rig.localUp.clone().applyQuaternion(rig.head.getWorldQuaternion(new Quaternion()));
@@ -92,7 +102,7 @@ export function fitNeutralHeadCamera(rig, camera, root) {
   const points=[];const bounds=new Box3();
   const sample=({object,indices})=>{
     for(const i of indices){
-      const p=object.getVertexPosition(i,new Vector3()).applyMatrix4(object.matrixWorld);
+      const p=skinnedWorldPoint(object,i,new Vector3());
       points.push(p);
       const d=p.clone().sub(eyeMid);
       bounds.expandByPoint(new Vector3(d.dot(right),d.dot(up),d.dot(front)));
@@ -109,12 +119,31 @@ export function fitNeutralHeadCamera(rig, camera, root) {
   camera.position.copy(center).addScaledVector(front,distance);camera.up.copy(up);camera.near=Math.max(.001,distance-size.z);camera.far=distance+size.z+1;camera.lookAt(center);camera.updateProjectionMatrix();camera.updateMatrixWorld(true);
   const ndc=points.map((p)=>p.clone().project(camera));
   if(ndc.some((p)=>![p.x,p.y,p.z].every(Number.isFinite) || Math.abs(p.x)>1 || Math.abs(p.y)>1 || p.z < -1 || p.z>1))throw new Error("neutral-head-clipped");
+  const hairNdc=ndc.slice(sampledHeadVertices);
+  const hairContainment=contain.map(({object,indices},hi)=>{
+    const subset=hairNdc.slice(0,indices.length); hairNdc.splice(0,indices.length);
+    return {
+      name:object.name??null,
+      geometryName:object.geometry?.name??null,
+      userDataName:object.userData?.name??null,
+      accessorCount:object.geometry.attributes.position.count,
+      sampledCount:indices.length,
+      isSkinned:!!object.isSkinnedMesh,
+      skeletonSharedWithFace:!!(object.skeleton&&faceSkeleton&&object.skeleton===faceSkeleton),
+      skeletonUpdated:true,
+      worldMatrix:Array.from(object.matrixWorld.elements),
+      worldVertexBeforeUpdate:hairBefore[hi],
+      worldVertexAfterUpdate:indices.length?points[sampledHeadVertices+contain.slice(0,hi).reduce((n,m)=>n+m.indices.length,0)].toArray():null,
+      projectedExtrema:subset.length?{minX:Math.min(...subset.map(p=>p.x)),maxX:Math.max(...subset.map(p=>p.x)),minY:Math.min(...subset.map(p=>p.y)),maxY:Math.max(...subset.map(p=>p.y))}:null,
+    };
+  });
   return {
     cameraMatrixWorld:Array.from(camera.matrixWorld.elements),
     viewport:[1024,1024],
     headBounds:bounds.toJSON?.() ?? {min:bounds.min.toArray(),max:bounds.max.toArray()},
     sampledHeadVertices,
     containedHairVertices:points.length-sampledHeadVertices,
+    hairContainment,
     headMatrixWorld:Array.from(rig.head.matrixWorld.elements),
     bindQuaternion:rig.bindQuaternion.toArray(),
     jawMatrixWorld:rig.jaw?Array.from(rig.jaw.matrixWorld.elements):null,
@@ -161,8 +190,32 @@ export function createNeutralFaceView(slot) {
   const fill = new HemisphereLight(0xffffff,0x6e7788,2); fill.layers.set(30);
   scene.add(fill);const key=new DirectionalLight(0xffffff,2);key.layers.set(30);scene.add(key,key.target);
   const camera=new PerspectiveCamera(35,1,.001,10);camera.layers.set(30);
+  const overlayScene=new Scene();
+  const overlayCam=new OrthographicCamera(-1,1,1,-1,0,1);
+  const overlayData=new Uint8Array(ROW_BARCODE_VIEWPORT*ROW_BARCODE_VIEWPORT*4);
+  const overlayTex=new DataTexture(overlayData,ROW_BARCODE_VIEWPORT,ROW_BARCODE_VIEWPORT,RGBAFormat);
+  overlayTex.magFilter=NearestFilter;overlayTex.minFilter=NearestFilter;overlayTex.flipY=true;overlayTex.needsUpdate=true;
+  const overlay=new Mesh(new PlaneGeometry(2,2),new MeshBasicMaterial({map:overlayTex,transparent:true,depthTest:false,depthWrite:false}));
+  overlayScene.add(overlay);
   let framing;
-  return {canvas,getRig(){return rig;},excludeHostCues(cues){for(const cue of cues)cue?.traverse((object)=>object.layers.set(0));},render(){framing=fitNeutralHeadCamera(rig,camera,slot.root);key.position.copy(camera.position);key.target.position.copy(rig.head.getWorldPosition(new Vector3()));renderer.render(scene,camera);return framing;},dispose(){restore();},getFraming(){return framing;}};
+  function drawMarker(row){
+    overlayData.fill(0);
+    const marker=encodeObservedRowMarker(row);
+    const {layout,bits}=marker;
+    for(let i=0;i<bits.length;i++){
+      const v=bits[i]?255:0;
+      const x0=layout.x0+i*layout.cellPx;
+      for(let y=layout.y0;y<layout.y0+layout.stripPx;y++){
+        for(let x=x0;x<x0+layout.cellPx;x++){
+          const o=(y*ROW_BARCODE_VIEWPORT+x)*4;
+          overlayData[o]=overlayData[o+1]=overlayData[o+2]=v;overlayData[o+3]=255;
+        }
+      }
+    }
+    overlayTex.needsUpdate=true;
+    return marker;
+  }
+  return {canvas,getRig(){return rig;},excludeHostCues(cues){for(const cue of cues)cue?.traverse((object)=>object.layers.set(0));},render(row){framing=fitNeutralHeadCamera(rig,camera,slot.root);key.position.copy(camera.position);key.target.position.copy(rig.head.getWorldPosition(new Vector3()));renderer.autoClear=true;renderer.render(scene,camera);let marker=null;if(row){marker=drawMarker(row);renderer.autoClear=false;renderer.clearDepth();renderer.render(overlayScene,overlayCam);renderer.autoClear=true;framing={...framing,marker:{version:marker.version,checksum:marker.checksum,callbackSerial:marker.callbackSerial,generation:marker.generation,generationN:marker.generationN,nodeSerial:marker.nodeSerial,layout:marker.layout}};}return framing;},dispose(){overlayTex.dispose();overlay.geometry.dispose();overlay.material.dispose();restore();},getFraming(){return framing;}};
   } catch(error) {
     restore();
     throw error;

@@ -134,7 +134,6 @@ export async function runBrowserCapture(input) {
       try {
         if (typeof previousAfterRender === "function") previousAfterRender.apply(this, arguments);
         if (settled) return;
-        const framing = neutralView.render();
         const appliedInfluences = [];
         ownedRoot.traverse((object) => {
           if (!object.isMesh || !object.morphTargetDictionary || !object.morphTargetInfluences) return;
@@ -153,14 +152,13 @@ export async function runBrowserCapture(input) {
         const drive = session.slot.root?.userData?.openClinXrNamedVisemeDrive;
         const sourcePositionSeconds = session.clockState.lastPosition;
         if (context.state === "running" && session.slot.activeSpeech === session.speech && drive) {
-          frames.push({
+          const row = {
             contextTime: session.clockState.lastContextTime,
             contextCurrentTime: context.currentTime,
             cachedDriverContextTime: session.clockState.lastContextTime,
             callbackSerial: frames.length,
             recorderStartedAtMs,
             hostCallback: "WebGLRenderer.render:scene.onAfterRender",
-            evaluationFraming: framing,
             appliedInfluences,
             jawWorld: articulation.jaw,
             observationKind: "raf-callback",
@@ -174,7 +172,9 @@ export async function runBrowserCapture(input) {
             frameIndex: drive.frameIndex ?? 0,
             activeTargetName: drive.activeTargetName ?? null,
             appliedMeshCount: drive.appliedMeshCount ?? 0,
-          });
+          };
+          row.evaluationFraming = neutralView.render(row);
+          frames.push(row);
         }
         if (context.currentTime < session.startedWhen + 0.05 && performance.now() - wallStart > 12000) {
           fail(new Error("audio-context-not-advancing"));

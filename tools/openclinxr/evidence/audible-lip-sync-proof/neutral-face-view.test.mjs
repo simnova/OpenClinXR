@@ -64,6 +64,12 @@ test('consumed capture uses neutral canvas and one host facial writer',async()=>
   assert.ok(source.indexOf('requestFrame')<source.indexOf('await recorderStarted'));
   assert.ok(source.indexOf('await recorderStarted')<source.indexOf('bridge.fire()'));
   assert.ok(source.indexOf('createNeutralFaceView({')<source.indexOf('bridge.fire()'));
+  assert.match(source,/const row = \{/);
+  assert.match(source,/row\.evaluationFraming = neutralView\.render\(row\)/);
+  assert.ok(source.indexOf('const row =')>source.indexOf('clinicalScene.onAfterRender'));
+  assert.ok(source.indexOf('const row =')<source.indexOf('neutralView.render(row)'));
+  assert.ok(source.indexOf('neutralView.render(row)')<source.indexOf('frames.push(row)'));
+  assert.doesNotMatch(source,/innerHTML|createElement\(['"]div['"]\)|position:\s*['"]absolute['"]/);
 });
 
 test('visible cues on layer 0 are excluded from judging camera layer 30',()=>{
@@ -184,4 +190,99 @@ test('skinned fitted hair is containment and does not enter face indices',()=>{
   const result=fitNeutralHeadCamera(rig,new PerspectiveCamera(35,1,.001,10),a.root);
   assert.equal(result.sampledHeadVertices,4);
   assert.equal(result.containedHairVertices,3);
+});
+
+const OWNED_HAIR='makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mesh';
+const OWNED_NOT_HAIR=[
+  'makeclothes_library_toigo_t_shirt_mpfb_robert_reference_mesh',
+  'makeclothes_library_toigo_t_shirt',
+  'openclinxr_declared_upper_layers__hospital_gown_mesh',
+  'openclinxr_declared_upper_layers__hospital_gown',
+  'mpfb_robert_reference_body',
+  'makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_robert_reference_mesh',
+  'openclinxr_real_garment_peds_upper_v1_mesh',
+  'openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh',
+];
+
+test('owned GLB hair name is fitted-hair containment; gown/t-shirt/body/shoes/garment are not',async()=>{
+  const {isFittedHairMeshName}=await import('../../../../packages/openclinxr/xr-scene/dist/index.js');
+  assert.equal(isFittedHairMeshName(OWNED_HAIR),true);
+  for (const name of OWNED_NOT_HAIR) assert.equal(isFittedHairMeshName(name),false);
+  const a=actor();
+  const hair=new Mesh(new BufferGeometry().setAttribute('position',new Float32BufferAttribute([0,2,0,.1,2,0,0,2.1,0],3)),new MeshBasicMaterial());
+  hair.name=OWNED_HAIR;
+  a.root.add(hair);
+  for (const name of OWNED_NOT_HAIR) {
+    const geom=new BufferGeometry();
+    geom.setAttribute('position',new Float32BufferAttribute([-.4,1.2,-.2,.4,2.4,.3,-.4,2.4,.3,.4,1.2,-.2],3));
+    geom.setAttribute('skinIndex',new Uint16BufferAttribute(Array(4).fill([0,0,0,0]).flat(),4));
+    geom.setAttribute('skinWeight',new Float32BufferAttribute(Array(4).fill([1,0,0,0]).flat(),4));
+    const garment=new SkinnedMesh(geom,new MeshBasicMaterial()); garment.name=name;
+    a.root.add(garment); garment.bind(a.mesh.skeleton);
+  }
+  a.root.updateMatrixWorld(true);
+  const rig=identifyHeadGeometry(a.root);
+  assert.equal(rig.containMeshes.length,1);
+  assert.equal(rig.containMeshes[0].object.name,OWNED_HAIR);
+  assert.equal(rig.meshes.length,1);
+  assert.equal(rig.meshes[0].object,a.mesh);
+  const result=fitNeutralHeadCamera(rig,new PerspectiveCamera(35,1,.001,10),a.root);
+  assert.equal(result.sampledHeadVertices,4);
+  assert.equal(result.containedHairVertices,3);
+  assert.equal(result.hairContainment[0].accessorCount,3);
+  assert.equal(result.hairContainment[0].sampledCount,3);
+  assert.ok(result.projectedBounds.maxY<1);
+});
+
+test('separate-skeleton posed hair crown is framed; face-only camera clips it; garments stay out',()=>{
+  const a=actor();
+  const hairHead=new Bone(); hairHead.name='head';
+  const hairLeft=new Bone(); hairLeft.name='eye.L';
+  const hairRight=new Bone(); hairRight.name='eye.R';
+  hairHead.position.y=1.6; hairLeft.position.set(.03,.06,.09); hairRight.position.set(-.03,.06,.09);
+  hairHead.add(hairLeft,hairRight); a.root.add(hairHead);
+  const hairGeom=new BufferGeometry();
+  hairGeom.setAttribute('position',new Float32BufferAttribute([0,.35,0,.04,.35,0,0,.35,.04],3));
+  hairGeom.setAttribute('skinIndex',new Uint16BufferAttribute(Array(3).fill([0,0,0,0]).flat(),4));
+  hairGeom.setAttribute('skinWeight',new Float32BufferAttribute(Array(3).fill([1,0,0,0]).flat(),4));
+  const hair=new SkinnedMesh(hairGeom,new MeshBasicMaterial());
+  hair.name=OWNED_HAIR;
+  a.root.add(hair);
+  hair.bind(new Skeleton([hairHead,hairLeft,hairRight]));
+  hairHead.position.y=2.35;
+  a.root.updateMatrixWorld(true);
+  const rig=identifyHeadGeometry(a.root);
+  assert.equal(rig.containMeshes[0].object,hair);
+  assert.equal(rig.containMeshes[0].indices.length,3);
+  assert.notEqual(hair.skeleton,a.mesh.skeleton);
+  const faceCam=new PerspectiveCamera(35,1,.001,10);
+  fitNeutralHeadCamera({...rig,containMeshes:[]},faceCam,a.root);
+  const crown=new Vector3();
+  hair.getVertexPosition(0,crown).applyMatrix4(hair.matrixWorld);
+  const faceNdc=crown.clone().project(faceCam);
+  assert.ok(Math.abs(faceNdc.y)>1,'face-only frustum must miss the posed crown');
+  const cam=new PerspectiveCamera(35,1,.001,10);
+  const result=fitNeutralHeadCamera(rig,cam,a.root);
+  assert.equal(result.sampledHeadVertices,4);
+  assert.equal(result.containedHairVertices,3);
+  assert.equal(result.hairContainment[0].skeletonSharedWithFace,false);
+  assert.equal(result.hairContainment[0].accessorCount,3);
+  assert.equal(result.hairContainment[0].sampledCount,3);
+  assert.ok(result.hairContainment[0].worldVertexAfterUpdate[1]>2.5);
+  assert.ok(result.hairContainment[0].projectedExtrema.maxY<1);
+  assert.ok(Math.abs(crown.clone().project(cam).y)<1);
+  assert.ok(result.projectedBounds.maxY<1);
+});
+
+test('neutral overlay is a GL barcode after the authored scene, not a DOM overlay',async()=>{
+  const {readFile}=await import('node:fs/promises');
+  const source=await readFile(new URL('./neutral-face-view.mjs',import.meta.url),'utf8');
+  assert.match(source,/encodeObservedRowMarker/);
+  assert.match(source,/OrthographicCamera/);
+  assert.match(source,/renderer\.render\(overlayScene,overlayCam\)/);
+  assert.match(source,/autoClear=false/);
+  assert.doesNotMatch(source,/innerHTML|createElement\(['"]div['"]\)/);
+  assert.match(source,/marker:\{version:marker\.version,checksum:marker\.checksum/);
+  assert.match(source,/containMeshes\?\?\[\]/);
+  assert.match(source,/for\(const \{object\} of contain\)object\.skeleton\?\.update\(\)/);
 });
