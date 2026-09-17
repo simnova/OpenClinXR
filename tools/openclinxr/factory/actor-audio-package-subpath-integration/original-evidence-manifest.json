@@ -1,0 +1,1686 @@
+{
+  "schemaVersion": 1,
+  "claimScope": "Original externally retained evidence byte preservation, not new API or AV acceptance",
+  "evidenceRoot": "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/openclinxr-lip-sync-consultation-2026-09-16/execution-packet",
+  "sourceBaseline": "5a3c1ec92174831f01b94bdf1ea7038c490c2b17",
+  "files": [
+    {
+      "path": "proof-output/latest-report.json",
+      "bytes": 32312912,
+      "sha256": "e52f79b9b7cb3161ef86c0f26ef17af2e6786df025d8d50a8d4416eb022d0612"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 53322,
+      "sha256": "6a0e3ab6fc00d45cde55d566016ffa2094d1399bad8a1090bd5ec66dc1ec4383"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 53322,
+      "sha256": "6a0e3ab6fc00d45cde55d566016ffa2094d1399bad8a1090bd5ec66dc1ec4383"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/attempt.json",
+      "bytes": 131,
+      "sha256": "33525778fb8e95800a4530163470f2f01764f8acdd890fe6aa44752d63288d0e"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/capture.webm",
+      "bytes": 110,
+      "sha256": "34625a59ca017ae414573bcb4a21464514f695d9806955fa676098939005795c"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 86544,
+      "sha256": "a21ca3cdba790ddee2500f9cd515af03a6515e7a8e30697406da769bdb68a713"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 86544,
+      "sha256": "a21ca3cdba790ddee2500f9cd515af03a6515e7a8e30697406da769bdb68a713"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/played.f32",
+      "bytes": 512,
+      "sha256": "975b12cec523ca740774539d44494b8798751242b1d52115d1bb8502ce0c5f26"
+    },
+    {
+      "path": "proof-output/run-1a0adab8380-46904/report.json",
+      "bytes": 407227,
+      "sha256": "a4366328c7f2d7ee5f58f58ba7fa2368405eabbe5e55f2a75eb8c89e9ff3ba3b"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 53322,
+      "sha256": "6a0e3ab6fc00d45cde55d566016ffa2094d1399bad8a1090bd5ec66dc1ec4383"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 53322,
+      "sha256": "6a0e3ab6fc00d45cde55d566016ffa2094d1399bad8a1090bd5ec66dc1ec4383"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/attempt.json",
+      "bytes": 131,
+      "sha256": "5bf9656901cb53792452a5eb7566ba441c507bfd18e3d9038355a93dfd113bfc"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/capture.webm",
+      "bytes": 67630,
+      "sha256": "89ad1c9877f74c68535c96fab9fc447c69f23b33858d9966694134c450c5c5f4"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 86544,
+      "sha256": "a21ca3cdba790ddee2500f9cd515af03a6515e7a8e30697406da769bdb68a713"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 86544,
+      "sha256": "a21ca3cdba790ddee2500f9cd515af03a6515e7a8e30697406da769bdb68a713"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/played.f32",
+      "bytes": 1267712,
+      "sha256": "3511ae47218dfc0e4ec5e73f1fb2adb9940a0ee0d3f9dcc011d477cacac77040"
+    },
+    {
+      "path": "proof-output/run-1a0adad51a4-48433/report.json",
+      "bytes": 764123,
+      "sha256": "94b646c76a147580ea7dd28c806de47bbfa3d5e001191f358d3929a782b086f4"
+    },
+    {
+      "path": "proof-output/run-1a0adb023a0-50713/attempt.json",
+      "bytes": 131,
+      "sha256": "f84716ce24c03c76ae19381580c96aaee7e6f3c71da0e86f2029b296c3f2918c"
+    },
+    {
+      "path": "proof-output/run-1a0adb023a0-50713/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0adb023a0-50713/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 54345,
+      "sha256": "8a58d538631101b382a47c7713f26a37693b0a43dcb639ac53bef199d6bedf2e"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 54345,
+      "sha256": "8a58d538631101b382a47c7713f26a37693b0a43dcb639ac53bef199d6bedf2e"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/attempt.json",
+      "bytes": 131,
+      "sha256": "35da5c2aa65d26ed542596fa8ece76fb40bedc2aaec70b4bd0ca1f4e831eb2a0"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/capture.webm",
+      "bytes": 308091,
+      "sha256": "5394fe544f59691f039f048c171a23d19e864d715f243483d43cbf7a6293a9b0"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 86544,
+      "sha256": "a21ca3cdba790ddee2500f9cd515af03a6515e7a8e30697406da769bdb68a713"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 86544,
+      "sha256": "a21ca3cdba790ddee2500f9cd515af03a6515e7a8e30697406da769bdb68a713"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "proof-output/run-1a0adb0c20b-51217/report.json",
+      "bytes": 821347,
+      "sha256": "63386fe49e35b9642b6f40d3c27b5b8f228bb5156a04e161e6fc52e192b294db"
+    },
+    {
+      "path": "proof-output/run-1a0adb2bac0-52818/attempt.json",
+      "bytes": 131,
+      "sha256": "d022d92e0dbf35d3c0911116d6942b4da9db765aa26470419d4c450b84e2276c"
+    },
+    {
+      "path": "proof-output/run-1a0adb2bac0-52818/capture.webm",
+      "bytes": 264,
+      "sha256": "7d9a01cb244f20d41862ee6c082f39651690a0e1b53b46adb3ff00c3b9cd8be8"
+    },
+    {
+      "path": "proof-output/run-1a0adb2bac0-52818/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0adb2bac0-52818/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0adb2bac0-52818/page@655ccc0a26abc2c8e72e56288a45be75.webm",
+      "bytes": 804578,
+      "sha256": "3863556d1d20a86ad6f9f743f12028f3d48ab71e7223e33b22d297f9836f76f0"
+    },
+    {
+      "path": "proof-output/run-1a0adb2bac0-52818/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "proof-output/run-1a0adb347c7-53273/attempt.json",
+      "bytes": 131,
+      "sha256": "b9b4906e45da2eaecdc0de0f49e84b860ebb1f244000c9bc4e924335343915d4"
+    },
+    {
+      "path": "proof-output/run-1a0adb347c7-53273/capture.mkv",
+      "bytes": 833886,
+      "sha256": "cd1c073ec3d26a7063078e196311f03bcd830103b8eaafb50297b5bf8ae59ef5"
+    },
+    {
+      "path": "proof-output/run-1a0adb347c7-53273/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0adb347c7-53273/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0adb347c7-53273/page@06f0a7d1a8a0566adc5e863567ed4741.webm",
+      "bytes": 805363,
+      "sha256": "75d048f72532b259805945445fbbb33ce0d9f10d011d9137487feb7993b023f5"
+    },
+    {
+      "path": "proof-output/run-1a0adb347c7-53273/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 54345,
+      "sha256": "8a58d538631101b382a47c7713f26a37693b0a43dcb639ac53bef199d6bedf2e"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 54345,
+      "sha256": "8a58d538631101b382a47c7713f26a37693b0a43dcb639ac53bef199d6bedf2e"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/attempt.json",
+      "bytes": 131,
+      "sha256": "1caeed2209196d3c70780ca56035bae2370af9cf6a53890a87d1b205f396204e"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/capture.mkv",
+      "bytes": 833789,
+      "sha256": "d8d29035cf791d475e6c68524fd34cf7255a89ec79bc9a43c26d42ebd422e982"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 86544,
+      "sha256": "a21ca3cdba790ddee2500f9cd515af03a6515e7a8e30697406da769bdb68a713"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 86544,
+      "sha256": "a21ca3cdba790ddee2500f9cd515af03a6515e7a8e30697406da769bdb68a713"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/page@fc3e43a1c5487750a8716d16bb08a076.webm",
+      "bytes": 832310,
+      "sha256": "d696c1b2a6dc2dbead916452ff0e7c79593a55ad91d128c7568dc6205ab83cc2"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "proof-output/run-1a0adb425dd-54016/report.json",
+      "bytes": 757801,
+      "sha256": "0841938a248be1dacd352d04617dfef811168bc6139bbbe20316ff670f513786"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 54345,
+      "sha256": "8a58d538631101b382a47c7713f26a37693b0a43dcb639ac53bef199d6bedf2e"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 54345,
+      "sha256": "8a58d538631101b382a47c7713f26a37693b0a43dcb639ac53bef199d6bedf2e"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/attempt.json",
+      "bytes": 131,
+      "sha256": "9edeabc1dbab31ded97f4f0101401b9606795354b513bcf9bf01c32af8fdf9c1"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/capture.mkv",
+      "bytes": 833573,
+      "sha256": "9d68af31009666405c91be77be10ecf1f50a82790b21f635ac4474e5f8466206"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/owner-grade-frame3.png",
+      "bytes": 210068,
+      "sha256": "f03e98b278ff09ad76cf735854dc5c489144a7d207ecbefaf4582a61c0a453ec"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 86544,
+      "sha256": "a21ca3cdba790ddee2500f9cd515af03a6515e7a8e30697406da769bdb68a713"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 86544,
+      "sha256": "a21ca3cdba790ddee2500f9cd515af03a6515e7a8e30697406da769bdb68a713"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/page@0f9ae5782f5b58bf7b8a792875064b33.webm",
+      "bytes": 832390,
+      "sha256": "96c7e6780258b7c1838225489238e33ff551638ea0df13db1836fc7e806205d0"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "proof-output/run-1a0adb52121-55471/report.json",
+      "bytes": 741447,
+      "sha256": "e651f23e4a8d8d881276a61bf1596e63dc3b267459b0f616822e90320f213d72"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 54281,
+      "sha256": "69befb1125df5debe690d2bf6200e1775c3a92836a7d73f8ee5d237762a0f326"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 54281,
+      "sha256": "69befb1125df5debe690d2bf6200e1775c3a92836a7d73f8ee5d237762a0f326"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/attempt.json",
+      "bytes": 131,
+      "sha256": "dd62940bd02e8d5b97827c624429d3abbb5b03f8512cbe231f9bb5fea5494da4"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/capture.mkv",
+      "bytes": 833670,
+      "sha256": "a451313bc864acf56ef5790052d30549f7e24d08b164d4b5e2af716ace500371"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 83692,
+      "sha256": "16f3f2acc25665bf2d8429fddb640649d4a0780591b145382d124c3e614ddb89"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 83692,
+      "sha256": "16f3f2acc25665bf2d8429fddb640649d4a0780591b145382d124c3e614ddb89"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/page@e85b0315a27c62dda8ad4c64b97561e8.webm",
+      "bytes": 833083,
+      "sha256": "a093b2c44a37ff1fac6ec3f6b0f0d2ba87fb241184fd3e91f53b889795ad0d50"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "proof-output/run-1a0adb85e1e-63448/report.json",
+      "bytes": 741721,
+      "sha256": "b95e240d14f0aead23486f62b6a4eacfcb13c161fc67954c8e70fe409c6307c8"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 612393,
+      "sha256": "e67958a035df6a8c333bc0c7a14a7d144f1fe68a5b969326ae8195cb214376cf"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 612393,
+      "sha256": "e67958a035df6a8c333bc0c7a14a7d144f1fe68a5b969326ae8195cb214376cf"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 54281,
+      "sha256": "69befb1125df5debe690d2bf6200e1775c3a92836a7d73f8ee5d237762a0f326"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 54281,
+      "sha256": "69befb1125df5debe690d2bf6200e1775c3a92836a7d73f8ee5d237762a0f326"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/attempt.json",
+      "bytes": 131,
+      "sha256": "437c98600f1338dbab5a868e3d38671dd6c462c3a8b18ba16dc70f5753494389"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/capture.mkv",
+      "bytes": 803408,
+      "sha256": "f19ca52950b8c49e00733a68b72d665757921cece1300157ab42f9bf7e0a42d2"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 83692,
+      "sha256": "16f3f2acc25665bf2d8429fddb640649d4a0780591b145382d124c3e614ddb89"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 83692,
+      "sha256": "16f3f2acc25665bf2d8429fddb640649d4a0780591b145382d124c3e614ddb89"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/page@7644efc2a7fc548b3a98f2dc46166348.webm",
+      "bytes": 833035,
+      "sha256": "27f5250337915f0ce4f1f178b090223a774bbcd9fd2d94adbe759c571fcae9b5"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "proof-output/run-1a0adb935e9-64748/report.json",
+      "bytes": 748993,
+      "sha256": "47177eb1fea8e61e85fb0166b6f707b112e713933ae31db3f14954283cd34939"
+    },
+    {
+      "path": "proof-output/run-1a0ae27b723-90662/attempt.json",
+      "bytes": 131,
+      "sha256": "25458da361b3898a1da846017346f182560539cacfc06750c08034da1392a12d"
+    },
+    {
+      "path": "proof-output/run-1a0ae27b723-90662/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0ae27b723-90662/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0ae5432cb-52076/attempt.json",
+      "bytes": 131,
+      "sha256": "ae78e1d41e5f192f1603c16611c387d4576876963d5c5b53955615066cff6553"
+    },
+    {
+      "path": "proof-output/run-1a0ae5432cb-52076/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0ae5432cb-52076/failure.json",
+      "bytes": 433,
+      "sha256": "9f032b325df5d293ee5f3c12340e754961992c250249459beacc0f3d0f1c4c57"
+    },
+    {
+      "path": "proof-output/run-1a0ae5432cb-52076/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 612393,
+      "sha256": "8930c4c03edf1c75fb99010eedac3da1a93b4d5fce141ab7e5b20f2b9c8b4ad8"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 61918,
+      "sha256": "014e651f2e53b6e574f08bc357affe1fe9e3bda571b3f7c9a65454886ecb1f27"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 61918,
+      "sha256": "014e651f2e53b6e574f08bc357affe1fe9e3bda571b3f7c9a65454886ecb1f27"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/attempt.json",
+      "bytes": 131,
+      "sha256": "187775c555e82ca2ff499af6139ffc795108c865aadd064b9246f5304e9d536a"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/decoded-audio.wav",
+      "bytes": 2880078,
+      "sha256": "cc067c6571a8f3b0176a2f9340d5ce019859eb839dcd91a6c91b21747827e3a8"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/decoded-probe.json",
+      "bytes": 3520,
+      "sha256": "d2947fb2816ca6917a71a2e064695149fa117d95fec750d2bb24d018bd9fc04b"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/decoded-video-pts.json",
+      "bytes": 17316,
+      "sha256": "3df0c8f3a9efd95bdd38727b670220e585a3b8ac168189831a21a4dfceee2910"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/evaluated-frame-2s.png",
+      "bytes": 548650,
+      "sha256": "45a0b6ff89bd015cf7d25300cb5a2e1437f11174c287500613f60302d0ac24ff"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/independent-review.json",
+      "bytes": 1177,
+      "sha256": "9fd2733179d8e64ab0d01792cfd48c9b5b5de7607eb549ad06594377da1c6be3"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/mixed-raw.webm",
+      "bytes": 3259430,
+      "sha256": "de0c3439bd825d0069aa3218ee1092b832b6f12f962757108970a476c3f936da"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 87258,
+      "sha256": "c62bbe9d451991f18908cad34339f90a0fb78ff42ef8fdfad1151d34354b7fc8"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 87258,
+      "sha256": "c62bbe9d451991f18908cad34339f90a0fb78ff42ef8fdfad1151d34354b7fc8"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "proof-output/run-1a0ae656ccf-71182/report.json",
+      "bytes": 18349755,
+      "sha256": "c992aa9bdc8d29fbbadca5ea54aa77a56a1e1efe9911a867ff26489d71934584"
+    },
+    {
+      "path": "proof-output/run-1a0ae73fa2e-80587/attempt.json",
+      "bytes": 131,
+      "sha256": "56d421882d50acdfa1f5ae1bfe23ef6db92e0a99d8a5aca4de3270ab0493fafc"
+    },
+    {
+      "path": "proof-output/run-1a0ae73fa2e-80587/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0ae73fa2e-80587/failure.json",
+      "bytes": 287,
+      "sha256": "1c927a7afe70b55f5e7e2c54dd6a719a4cadc25817ed49312f38d3cf32b42a87"
+    },
+    {
+      "path": "proof-output/run-1a0ae73fa2e-80587/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0ae7681eb-85419/attempt.json",
+      "bytes": 131,
+      "sha256": "ba8f605cb489da406343955ff125928c99fa3bf4d90103eb770fc2fe3112bf45"
+    },
+    {
+      "path": "proof-output/run-1a0ae7681eb-85419/coordinator-cancellation.json",
+      "bytes": 7158,
+      "sha256": "f83b56f5b360c3f0a485ae8612a680cb8eb11438f0239e4ffb7a6a293a3aa3be"
+    },
+    {
+      "path": "proof-output/run-1a0ae7681eb-85419/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0ae7681eb-85419/failure.json",
+      "bytes": 201,
+      "sha256": "09ab45eb607b34fb15866d7c26899343ff73db5457a8556eec7d2af55cf9c34c"
+    },
+    {
+      "path": "proof-output/run-1a0ae7681eb-85419/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 612393,
+      "sha256": "e67958a035df6a8c333bc0c7a14a7d144f1fe68a5b969326ae8195cb214376cf"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 612393,
+      "sha256": "e67958a035df6a8c333bc0c7a14a7d144f1fe68a5b969326ae8195cb214376cf"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 61918,
+      "sha256": "014e651f2e53b6e574f08bc357affe1fe9e3bda571b3f7c9a65454886ecb1f27"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 61918,
+      "sha256": "014e651f2e53b6e574f08bc357affe1fe9e3bda571b3f7c9a65454886ecb1f27"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/attempt.json",
+      "bytes": 130,
+      "sha256": "0a6383ad605ffbb9724c550baca2b990529c5c7fda5052d26abf67d404c3a68c"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/independent-decoded-audio.wav",
+      "bytes": 1463118,
+      "sha256": "1bc7ad4a8aaa1af1950ac0278c49b09e7c6ec0193e775439eaf086ce140a9799"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/independent-decoded-probe.json",
+      "bytes": 3700,
+      "sha256": "6bfe9efc5d9ca3556d0bdf1437efe6476416f6745f9313e637325d3b18b2ac19"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/independent-frame-2s.png",
+      "bytes": 776990,
+      "sha256": "db8726e2b763fc8168fd94a69b2a95ddd665e765b873d96e6cb2c440f2139634"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/independent-review.json",
+      "bytes": 2357,
+      "sha256": "63abc2df0c4d07f52a1ac197120c7b637c1867a968c9574a7a797e913e916e0a"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/independent-video-pts.json",
+      "bytes": 23399,
+      "sha256": "c8aa166fb98accb13b9ea84cc75f2e8fabc669274b5f88d2c92c157ada2eae9f"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/independent-waveform-lag.json",
+      "bytes": 394,
+      "sha256": "420435fa98b37423ef5bdb2ef6960b610662cd3d36fe765b9ddd60d1e0d7b309"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/mixed-raw.webm",
+      "bytes": 3726882,
+      "sha256": "bd49634a1d1ef3559efd82c7d168b7871ed7d70d86d3cbbf7f143a6dee613bde"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/neutral-face-view.mjs.executed.js",
+      "bytes": 48123,
+      "sha256": "2324ce904fa877cc479f7c79a358023a81ee84aa91c9b7dcfa6c28f30127a800"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/neutral-face-view.mjs.served.js",
+      "bytes": 48123,
+      "sha256": "2324ce904fa877cc479f7c79a358023a81ee84aa91c9b7dcfa6c28f30127a800"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 87258,
+      "sha256": "c62bbe9d451991f18908cad34339f90a0fb78ff42ef8fdfad1151d34354b7fc8"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 87258,
+      "sha256": "c62bbe9d451991f18908cad34339f90a0fb78ff42ef8fdfad1151d34354b7fc8"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "proof-output/run-1a0ae7e9a55-4614/report.json",
+      "bytes": 30817551,
+      "sha256": "79998e2dd05673096324a6ca2f630037770bd14cccc29b4c0b7e1c3cf55f1c2d"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 612393,
+      "sha256": "e67958a035df6a8c333bc0c7a14a7d144f1fe68a5b969326ae8195cb214376cf"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 612393,
+      "sha256": "e67958a035df6a8c333bc0c7a14a7d144f1fe68a5b969326ae8195cb214376cf"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 63146,
+      "sha256": "b63f65ce1e2f63481c0efefa5ad4c2623216685591bdeed24a53198a4d90e1cd"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 63146,
+      "sha256": "b63f65ce1e2f63481c0efefa5ad4c2623216685591bdeed24a53198a4d90e1cd"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/attempt.json",
+      "bytes": 131,
+      "sha256": "468295411c133697079edec1db4bdc2672fc705fd6e9f98b2968c3f77cf7965e"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/independent-av-grading-final.json",
+      "bytes": 4621,
+      "sha256": "882e51cba19bde0a836a644042be8f082b05fd2bc7b41fbfa53dd06f35a36771"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/independent-av-grading-final.md",
+      "bytes": 4763,
+      "sha256": "f4975b034752f18be390e03f403b653f2542f14849c1c255ca68532b7542ed8d"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/independent-contact-sheet.png",
+      "bytes": 4090278,
+      "sha256": "70d0359cd523cac06317e26f97ad10149bd619bd94e87be1d0ded82544d4ba2d"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/independent-decoded-probe.json",
+      "bytes": 3701,
+      "sha256": "f9b35d8f2dcce95275f744a9da225d1a131a25b38be3f7980765c46ff03570ef"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/independent-frame-2s.png",
+      "bytes": 771510,
+      "sha256": "886da8120194e80c87fc29c3f00a75d30aedff38004f4e82344ed11fde4ad658"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/independent-mouth-controls.json",
+      "bytes": 1217,
+      "sha256": "1f246baa432146c7880111eb2c3f9339dd1368cd0a50b43cccba8d8a1f84f56a"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/independent-mouth-controls.py",
+      "bytes": 1057,
+      "sha256": "8afb60843f76bcdd76a5da368289172856494849b002af4c342e60a4d9c2ffae"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/independent-mouth-timeline.json",
+      "bytes": 1496,
+      "sha256": "0aacae0523206ea9a3eb4629d847326db110f659af452259a80bb012cd4cfab2"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/independent-mouth-timeline.py",
+      "bytes": 2053,
+      "sha256": "5a891e8076d1dcbb3d07a293df1aceea750a7bac1d62ed4dfe1c7114046da307"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/independent-review.json",
+      "bytes": 1720,
+      "sha256": "c15708be4c4014da903714c9cf6eb7c80f01621b3c40884886bbfaaf6765891e"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/independent-video-pts.json",
+      "bytes": 23963,
+      "sha256": "3aadc5f7cb0d7a3d2c6a87912d08cd5f563a31b2bef8c7bfcf6fdeb49d731301"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/independent-waveform-lag.json",
+      "bytes": 229,
+      "sha256": "b50d856250dc15e015e5f9bd96384d3fa9dc634af9fc897b879f41dc47e7f94f"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/mixed-raw.webm",
+      "bytes": 3833011,
+      "sha256": "e9bf769056ffe720090ee5929e5bcd8de10857d39389881f060691d91c8b1865"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/neutral-face-view.mjs.executed.js",
+      "bytes": 49473,
+      "sha256": "c2b64a638be4805b2564cbd23bee34251d0378c07c46bdc4ea7176c3be9d7267"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/neutral-face-view.mjs.served.js",
+      "bytes": 49473,
+      "sha256": "c2b64a638be4805b2564cbd23bee34251d0378c07c46bdc4ea7176c3be9d7267"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 87258,
+      "sha256": "c62bbe9d451991f18908cad34339f90a0fb78ff42ef8fdfad1151d34354b7fc8"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 87258,
+      "sha256": "c62bbe9d451991f18908cad34339f90a0fb78ff42ef8fdfad1151d34354b7fc8"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/played.f32",
+      "bytes": 1268036,
+      "sha256": "e24b296b80b6003aff52e3005346f5fd7015e81812fe43fa7696025fbdb4f873"
+    },
+    {
+      "path": "proof-output/run-1a0ae956fa1-48933/report.json",
+      "bytes": 32033253,
+      "sha256": "289339845294dc294b2af2c31c0212c00fdbed28e8efebdafc0e2f983395f6a7"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 612393,
+      "sha256": "e67958a035df6a8c333bc0c7a14a7d144f1fe68a5b969326ae8195cb214376cf"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 612393,
+      "sha256": "e67958a035df6a8c333bc0c7a14a7d144f1fe68a5b969326ae8195cb214376cf"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 63146,
+      "sha256": "b63f65ce1e2f63481c0efefa5ad4c2623216685591bdeed24a53198a4d90e1cd"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 63146,
+      "sha256": "b63f65ce1e2f63481c0efefa5ad4c2623216685591bdeed24a53198a4d90e1cd"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/attempt.json",
+      "bytes": 131,
+      "sha256": "f6668f1504fc75d790991305e0f088e60c899f87ea846bf3bc2543d8c323268f"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/independent-calibration-retention-manifest.json",
+      "bytes": 7206,
+      "sha256": "657828da9e206afb073b3fcadd552fcde8dec38ba765a17e615d7ac4853b932f"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/independent-contact-sheet.png",
+      "bytes": 3862531,
+      "sha256": "7430adbf77f65c27536763f40bad4a82c5273a1c35dd4faf3523bd85a3d48235"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/independent-decoded-probe.json",
+      "bytes": 3617,
+      "sha256": "cb54c3dda0684d033fd61d8d5be94930430963f6757bc502183b49525b2f3ef2"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/independent-native-observed-marker-map.json",
+      "bytes": 177020,
+      "sha256": "d8b24f7602b0bfbf2e5897c613304889b4c9dfaedfa86e5dd830d310201b3452"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/independent-waveform-offset.json",
+      "bytes": 1033,
+      "sha256": "895f174de02aa65396d01da0562918617f34529f05189018e912b8ce37c1ac06"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/independent-waveform-offset.py",
+      "bytes": 1898,
+      "sha256": "50e709d43453a0fcee800c90d0fb188a41514e19eb8325f52be01daf5c271fb5"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/mixed-raw.webm",
+      "bytes": 3733430,
+      "sha256": "f12da09a9cacad189e14f920ad1ef98d888b9d190bee63d88ae816b97a3e74f7"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/neutral-face-view.mjs.executed.js",
+      "bytes": 58992,
+      "sha256": "1f1d935718fc3e038b01958e7a77c171320386d6d96de327f81a8c3e66ace8e3"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/neutral-face-view.mjs.served.js",
+      "bytes": 58992,
+      "sha256": "1f1d935718fc3e038b01958e7a77c171320386d6d96de327f81a8c3e66ace8e3"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/observed-row-barcode.mjs.executed.js",
+      "bytes": 26543,
+      "sha256": "84d88399befc6fb4442358c4602b8df925d8e87fc53400a6de074b76bc45c833"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/observed-row-barcode.mjs.served.js",
+      "bytes": 26543,
+      "sha256": "84d88399befc6fb4442358c4602b8df925d8e87fc53400a6de074b76bc45c833"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/observed-row-overlay.mjs.executed.js",
+      "bytes": 10053,
+      "sha256": "fef5956072d73b7af649d1a1c0646d448ad3e29f809f776256daa2f2d878a08f"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/observed-row-overlay.mjs.served.js",
+      "bytes": 10053,
+      "sha256": "fef5956072d73b7af649d1a1c0646d448ad3e29f809f776256daa2f2d878a08f"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 87258,
+      "sha256": "c62bbe9d451991f18908cad34339f90a0fb78ff42ef8fdfad1151d34354b7fc8"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 87258,
+      "sha256": "c62bbe9d451991f18908cad34339f90a0fb78ff42ef8fdfad1151d34354b7fc8"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "proof-output/run-1a0af0cf266-99927/report.json",
+      "bytes": 36431911,
+      "sha256": "8c8bc0412198f91f88a4b27e5b112b10de4f708cce052f215c407b9ae2cd7ce2"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 612393,
+      "sha256": "e67958a035df6a8c333bc0c7a14a7d144f1fe68a5b969326ae8195cb214376cf"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 612393,
+      "sha256": "e67958a035df6a8c333bc0c7a14a7d144f1fe68a5b969326ae8195cb214376cf"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 63146,
+      "sha256": "b63f65ce1e2f63481c0efefa5ad4c2623216685591bdeed24a53198a4d90e1cd"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 63146,
+      "sha256": "b63f65ce1e2f63481c0efefa5ad4c2623216685591bdeed24a53198a4d90e1cd"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/attempt.json",
+      "bytes": 131,
+      "sha256": "8d7941423cf4836c1b630a747733c9cb36baeb35a4783d8973ce7afb56c8b01f"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/audio-graph-clock.mjs.executed.js",
+      "bytes": 17133,
+      "sha256": "b804da167362c7f91f7d58308aa75e40ae6e64287b036ce3843dcbaaf6532e66"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/audio-graph-clock.mjs.served.js",
+      "bytes": 17133,
+      "sha256": "b804da167362c7f91f7d58308aa75e40ae6e64287b036ce3843dcbaaf6532e66"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/independent-clock-crown-diagnostic.json",
+      "bytes": 4901,
+      "sha256": "cac9fff317f6ce88be4d6fde132cdc02bd69b8bb3c751b43e4a9b836780b9345"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/independent-contact-sheet.png",
+      "bytes": 1536450,
+      "sha256": "f27e6219d19fee475fa9f500833c622af6724712b307a28c8fddaec3bc55ed01"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/independent-decoded-probe.json",
+      "bytes": 3572,
+      "sha256": "66c0f26b44f36b2aa1eb699eea9e897277f03887dd90ca713242673c52a9419a"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/independent-native-observed-marker-map.json",
+      "bytes": 178211,
+      "sha256": "cca38b229b41115b460ae0a753843e880253a4193e59de53aa3cf1d1c4299951"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/independent-retention-manifest.json",
+      "bytes": 4034,
+      "sha256": "fcb12e48a277db2f029d35dd0ba71151c8ebd6138496696921e2eea5c9c05fb2"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/independent-waveform-offset.json",
+      "bytes": 1031,
+      "sha256": "6f8a870929142224bfd1918eb35c63a960c1aa7aa8258179bd23179463ccaf36"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/mixed-raw.webm",
+      "bytes": 3667967,
+      "sha256": "f928dab5e16449a0e755b3db2676050ae79d54fc71111edc804ab49f0d5b112a"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/neutral-face-view.mjs.executed.js",
+      "bytes": 64792,
+      "sha256": "f3f852e31d69b3e4b6330459e60f18aac24b90d2f9142780d0e019d01a51a22b"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/neutral-face-view.mjs.served.js",
+      "bytes": 64792,
+      "sha256": "f3f852e31d69b3e4b6330459e60f18aac24b90d2f9142780d0e019d01a51a22b"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/observed-row-barcode.mjs.executed.js",
+      "bytes": 26543,
+      "sha256": "84d88399befc6fb4442358c4602b8df925d8e87fc53400a6de074b76bc45c833"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/observed-row-barcode.mjs.served.js",
+      "bytes": 26543,
+      "sha256": "84d88399befc6fb4442358c4602b8df925d8e87fc53400a6de074b76bc45c833"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/observed-row-overlay.mjs.executed.js",
+      "bytes": 10053,
+      "sha256": "fef5956072d73b7af649d1a1c0646d448ad3e29f809f776256daa2f2d878a08f"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/observed-row-overlay.mjs.served.js",
+      "bytes": 10053,
+      "sha256": "fef5956072d73b7af649d1a1c0646d448ad3e29f809f776256daa2f2d878a08f"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 87258,
+      "sha256": "c62bbe9d451991f18908cad34339f90a0fb78ff42ef8fdfad1151d34354b7fc8"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 87258,
+      "sha256": "c62bbe9d451991f18908cad34339f90a0fb78ff42ef8fdfad1151d34354b7fc8"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "proof-output/run-1a0af38b14a-11371/report.json",
+      "bytes": 40413134,
+      "sha256": "0d744964f7250a58e42364acc1c741ea760955298ef024fe18e7b4859f4f2eca"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 612393,
+      "sha256": "e67958a035df6a8c333bc0c7a14a7d144f1fe68a5b969326ae8195cb214376cf"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 612393,
+      "sha256": "e67958a035df6a8c333bc0c7a14a7d144f1fe68a5b969326ae8195cb214376cf"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 63146,
+      "sha256": "b63f65ce1e2f63481c0efefa5ad4c2623216685591bdeed24a53198a4d90e1cd"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 63146,
+      "sha256": "b63f65ce1e2f63481c0efefa5ad4c2623216685591bdeed24a53198a4d90e1cd"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/attempt.json",
+      "bytes": 131,
+      "sha256": "891ecb6e85c91fb55ed892c29fd7337c5cc08b495e5f09a554689f747d286c08"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/audio-graph-clock.mjs.executed.js",
+      "bytes": 17133,
+      "sha256": "b804da167362c7f91f7d58308aa75e40ae6e64287b036ce3843dcbaaf6532e66"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/audio-graph-clock.mjs.served.js",
+      "bytes": 17133,
+      "sha256": "b804da167362c7f91f7d58308aa75e40ae6e64287b036ce3843dcbaaf6532e66"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/independent-native-audio-exact-chunk-map.json",
+      "bytes": 578186,
+      "sha256": "f074242d17b7e0be02d036060db2a42d41f011b4c9904e2a803c2b470d6d41d5"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/independent-native-audio-graph-brackets.json",
+      "bytes": 169382,
+      "sha256": "d768f5c6ea3e7d4c38630198333bb75f0c65d1f24e3b43d66d5081cab172d653"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/independent-native-clock-summary.json",
+      "bytes": 1024,
+      "sha256": "b7b237effde760297ea22b4b0ba7b2ce926db3938d4401f5d10374a64ec71b51"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/independent-native-contact-sheet.png",
+      "bytes": 1541834,
+      "sha256": "739b38c4c07e59bbb32b176c7ab55b97a0701de6f908b29bd91dc5dcb427cb06"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/independent-native-observed-marker-map.json",
+      "bytes": 167830,
+      "sha256": "f97cc7e37870f808eea00fac2ce83a40ba0f08eb1222d1bc492d0056fe62866c"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/independent-native-track-container-remap.json",
+      "bytes": 73853,
+      "sha256": "05235d16734f5c05a4758d2d5694b6f94955d30735cae6cb590a40dda1aa99bd"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/independent-retention-manifest.json",
+      "bytes": 5175,
+      "sha256": "5d416ddb3477d7527846efb61673ac87d47ffa581175006bc03a4e4f34df3926"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/independent-waveform-offset.json",
+      "bytes": 1030,
+      "sha256": "497d92b8b7fa8035889196a8818ee2a7f90c68f26c97610c3e508d2bde9c9e4c"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/mixed-raw.webm",
+      "bytes": 3571668,
+      "sha256": "8669ff38ed4a86d25347a54cb388d59c5aecfaeb70589337cc3ad334f6ea5406"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/native-track-audio.f32",
+      "bytes": 1006720,
+      "sha256": "e99324dd37dfccbb336879e254957fb4cc711c9ff3a86ac861f83b8bf4fb485a"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/native-track-observer.mjs.executed.js",
+      "bytes": 80193,
+      "sha256": "e16e407f7a42c592bceb1ebc39a1129329af16ee1eecfeb1b35c90085c7264dc"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/native-track-observer.mjs.served.js",
+      "bytes": 80193,
+      "sha256": "e16e407f7a42c592bceb1ebc39a1129329af16ee1eecfeb1b35c90085c7264dc"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/neutral-face-view.mjs.executed.js",
+      "bytes": 64792,
+      "sha256": "f3f852e31d69b3e4b6330459e60f18aac24b90d2f9142780d0e019d01a51a22b"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/neutral-face-view.mjs.served.js",
+      "bytes": 64792,
+      "sha256": "f3f852e31d69b3e4b6330459e60f18aac24b90d2f9142780d0e019d01a51a22b"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/observed-row-barcode.mjs.executed.js",
+      "bytes": 26543,
+      "sha256": "84d88399befc6fb4442358c4602b8df925d8e87fc53400a6de074b76bc45c833"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/observed-row-barcode.mjs.served.js",
+      "bytes": 26543,
+      "sha256": "84d88399befc6fb4442358c4602b8df925d8e87fc53400a6de074b76bc45c833"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/observed-row-overlay.mjs.executed.js",
+      "bytes": 10053,
+      "sha256": "fef5956072d73b7af649d1a1c0646d448ad3e29f809f776256daa2f2d878a08f"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/observed-row-overlay.mjs.served.js",
+      "bytes": 10053,
+      "sha256": "fef5956072d73b7af649d1a1c0646d448ad3e29f809f776256daa2f2d878a08f"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 39610,
+      "sha256": "b907a3241281c27a65af3de7a538d790ad4cedeea2b924f525007c29bc80879f"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 87258,
+      "sha256": "c62bbe9d451991f18908cad34339f90a0fb78ff42ef8fdfad1151d34354b7fc8"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 87258,
+      "sha256": "c62bbe9d451991f18908cad34339f90a0fb78ff42ef8fdfad1151d34354b7fc8"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "proof-output/run-1a0af71629c-21927/report.json",
+      "bytes": 32312912,
+      "sha256": "e52f79b9b7cb3161ef86c0f26ef17af2e6786df025d8d50a8d4416eb022d0612"
+    },
+    {
+      "path": "factory-proof-output/latest-report.json",
+      "bytes": 32468196,
+      "sha256": "1a7548632924b5c2b3a938a254a56acd3a4a42a918a34c5dd9b36ed036b18607"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b052b623-13278/attempt.json",
+      "bytes": 131,
+      "sha256": "872974cd92716bc6edaec65916746d4280387bf2eafa8742f80e499da06301a9"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b052b623-13278/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b052b623-13278/failure.json",
+      "bytes": 217,
+      "sha256": "483c1401564414f11cbacd81a639beb699c69337821f3376d076afddecf8eab4"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b052b623-13278/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b052b623-13278/mixed-raw.webm",
+      "bytes": 3481424,
+      "sha256": "8aa13a3a4d8c176e712f6d02d247c9389cb22cd4a46fba84da732198731d5345"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b052b623-13278/native-track-audio.f32",
+      "bytes": 978560,
+      "sha256": "774faebd8d7fbaf11a72e243b70f1ae757d6f57f751f83775a67754d6e75eca7"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b052b623-13278/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/apps_ui-xr_src_main.ts.executed.js",
+      "bytes": 614348,
+      "sha256": "3279cc57e44b40d739fdfb01ecc381f9c4fd99074edac548840729571f281607"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/apps_ui-xr_src_main.ts.served.js",
+      "bytes": 614348,
+      "sha256": "3279cc57e44b40d739fdfb01ecc381f9c4fd99074edac548840729571f281607"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/apps_ui-xr_src_prepared-actor-audio-data.ts.executed.js",
+      "bytes": 10791,
+      "sha256": "7cba0da35053521fa2f5048b2b56928462a81b6135d57139201f181b2c85f340"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/apps_ui-xr_src_prepared-actor-audio-data.ts.served.js",
+      "bytes": 10791,
+      "sha256": "7cba0da35053521fa2f5048b2b56928462a81b6135d57139201f181b2c85f340"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/apps_ui-xr_src_prepared-actor-audio.ts.executed.js",
+      "bytes": 62644,
+      "sha256": "0064d648c2fcbce040338bb0c65e475e78f488b52d01d7084625687aec1b4a1d"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/apps_ui-xr_src_prepared-actor-audio.ts.served.js",
+      "bytes": 62644,
+      "sha256": "0064d648c2fcbce040338bb0c65e475e78f488b52d01d7084625687aec1b4a1d"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/attempt.json",
+      "bytes": 131,
+      "sha256": "a53dfb6eb65cf5f0d5b1b6df61a2b9a44ddc9bf4e7c1b64a77c3833f320e9d13"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/audio-graph-clock.mjs.executed.js",
+      "bytes": 17133,
+      "sha256": "b804da167362c7f91f7d58308aa75e40ae6e64287b036ce3843dcbaaf6532e66"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/audio-graph-clock.mjs.served.js",
+      "bytes": 17133,
+      "sha256": "b804da167362c7f91f7d58308aa75e40ae6e64287b036ce3843dcbaaf6532e66"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/cues.json",
+      "bytes": 3903,
+      "sha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/input.wav",
+      "bytes": 639198,
+      "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/mixed-raw.webm",
+      "bytes": 3572140,
+      "sha256": "69c597ced6de2f52d737ffd207919f9980dd0030b25ddd2b6ad873cb66a2c9ed"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/native-track-audio.f32",
+      "bytes": 1003200,
+      "sha256": "c271ffa78966b2e87b41f8b8200106e9bb3fc4dfe138b2c97c9b2d4aa44477d0"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/native-track-observer.mjs.executed.js",
+      "bytes": 80202,
+      "sha256": "ff5b83d1ffe2f653104d4749cb095f18b7fe8698a7dd69738ef8cc7875093947"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/native-track-observer.mjs.served.js",
+      "bytes": 80202,
+      "sha256": "ff5b83d1ffe2f653104d4749cb095f18b7fe8698a7dd69738ef8cc7875093947"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/neutral-face-view.mjs.executed.js",
+      "bytes": 64802,
+      "sha256": "16758419c2ea9d38e2d4824a95f545e07ba08c0abe0a67632b9611d10da0b774"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/neutral-face-view.mjs.served.js",
+      "bytes": 64802,
+      "sha256": "16758419c2ea9d38e2d4824a95f545e07ba08c0abe0a67632b9611d10da0b774"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/observed-row-barcode.mjs.executed.js",
+      "bytes": 26543,
+      "sha256": "84d88399befc6fb4442358c4602b8df925d8e87fc53400a6de074b76bc45c833"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/observed-row-barcode.mjs.served.js",
+      "bytes": 26543,
+      "sha256": "84d88399befc6fb4442358c4602b8df925d8e87fc53400a6de074b76bc45c833"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/observed-row-overlay.mjs.executed.js",
+      "bytes": 10058,
+      "sha256": "c723bb3975ca3e4bdc8e2c187b8432aa7b598eae2b69a9426a342d416d9bb4a7"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/observed-row-overlay.mjs.served.js",
+      "bytes": 10058,
+      "sha256": "c723bb3975ca3e4bdc8e2c187b8432aa7b598eae2b69a9426a342d416d9bb4a7"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.executed.js",
+      "bytes": 44441,
+      "sha256": "5ec6dd8c9111b56d47936048546871e0d44312437b85ae9734dbe88593d3a2db"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/packages_openclinxr_xr-dialogue_dist_viseme-baked-cues.js.served.js",
+      "bytes": 44441,
+      "sha256": "5ec6dd8c9111b56d47936048546871e0d44312437b85ae9734dbe88593d3a2db"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.executed.js",
+      "bytes": 87282,
+      "sha256": "c1a50921a726fd22b0bcef21af2a9c440d911e6bfeb3b0b830ba1bfc2f7785ad"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/packages_openclinxr_xr-dialogue_dist_viseme-runtime-wire.js.served.js",
+      "bytes": 87282,
+      "sha256": "c1a50921a726fd22b0bcef21af2a9c440d911e6bfeb3b0b830ba1bfc2f7785ad"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/played.f32",
+      "bytes": 1268036,
+      "sha256": "7e208aefffb54939d583a124f5bb6d926d5597e9f6dac77b19232c470ddc4b76"
+    },
+    {
+      "path": "factory-proof-output/run-1a0b062e656-19007/report.json",
+      "bytes": 32468196,
+      "sha256": "1a7548632924b5c2b3a938a254a56acd3a4a42a918a34c5dd9b36ed036b18607"
+    }
+  ],
+  "groups": {
+    "proof-output": {
+      "files": 291,
+      "bytes": 331420520
+    },
+    "factory-proof-output": {
+      "files": 35,
+      "bytes": 79830957
+    }
+  },
+  "originalProtectedAssertions": {
+    "tools/openclinxr/evidence/audible-lip-sync-proof/artifact-integrity.test.mjs": "54d9d984e8dd637c0d04137872d0256cdf7dbaeab5c5ca28473fa0d7b845c0a6",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/audio-graph-clock.test.mjs": "c0cd6a7368c9495c6535f4dab080071c67879810d11e96af6c3c26296517541e",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/capture-bindings.test.mjs": "7bb11dd4088957a31c70b943e725460c334f873eaadee0684ce39fdad70ade87",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/capture-output-wiring.test.mjs": "282ba3e74aefde4d595f18c2310f77fa43e42b80c6894b45c90e77f1fcb9aaea",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/capture-output.test.mjs": "eb543174270b94dc49de21de05917d431efc71f866dbd203ce6e43927900b2c5",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/capture.test.mjs": "33864a624fff125e9cddc4ff106a66bdc5fb70552adb87c1e679794f17c7b9d6",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/executed-module-integrity.test.mjs": "524fb5e2e8af538f69bac54bd18154a8a663672857355a293abb1ace3993a2a0",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/late-cue-join.test.mjs": "816206878e533323497f68974bf86622eeaab7700cb09c3921d0287f87da3065",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/manager-lifecycle.test.mjs": "3dab9c29d0276b730be9d5cfe0b8fbc0866ac6dbab69b627f3af45c2f591ea84",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/material-integrity.test.mjs": "ac99a1a62b7c9a66983cb2a6eb32acc6b4b58738942f485a9d763fe1b3a0523d",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/media-integrity.test.mjs": "fc8f348577b6a677d8defd20b35bef5dac5a8bb43220b880d24b4b5e74ec4235",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/native-track-observer.browser.test.mjs": "cf96afe74b2673a84e1771253e580c5eb17d6b51324972ed77e6af21c30bac2f",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/native-track-observer.test.mjs": "678e3a27443ed67088fa53ed6d3fc0c0bb5f4b668756810d6f99d2172ac93f75",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/neutral-face-view.test.mjs": "5480eadabf7f9be78b094dffb4d95b9af1169ebd14d812a9e61ec853af1fc8e8",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/observed-row-barcode.test.mjs": "e76be439adf70470cad601a4d655787e95adb58ea95cba5c3568cc8da093f710",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/observed-row-overlay.browser.test.mjs": "16c708a59de7c0099576e02b9007e9723a0da85aee5549c6718bdf2f945fd70e",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/playback.test.mjs": "50b318d655351d24a5f8059613fc5373eb4d3fd2aa94218b9a76a48feb9be7a8",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/preparation-ingress.test.mjs": "4ec5e1513b7bf0ef2dab0379595dcd5753977303f51882fc89b59c74913544b1",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/reproduce-vite-modules.mjs": "dc2cc01146d517f11637723e4d221caf36163c69eb6838a1dcc9eac48171bc3c",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/rhubarb-cues.test.mjs": "4a33bc0d668d9a0772070d6138ad923102f8abfa8a20fff2ff152f0c805d95a1",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/source-clock.test.mjs": "6ef796bc833a620f0017336a5109ba1e21d8891dffbce6e0a06771b1d183d1ff",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/source-wiring.test.mjs": "e3f985e33b3424a87c58aa572f9f9485050261c7147ffcf02093477250ccbaf2",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/typed-prepared-failure-cleanup.test.mjs": "eb185e6577d71e2a71c3fb68730757d46e95a44be97ead7efd0fd7e2902fc024",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/typed-prepared-ownership.test.mjs": "8454ef9f203c699f7b0ddc373db741152de375003291b964284779a3d7bc4f39",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/validate.mjs": "56d865f3d0f101cb0c965d163ad418c836c3653aa3f0503d2fb0b752de919977",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/validate.test.mjs": "90acb8487b6268338eb7e54ba54b84c6720b19f54a42e6f3b2a0605ebd3134b8",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/verify-plant.mjs": "32e2438bfd4cec621e36ebe8f706b775af6663e7cd08479ad297e65e0f284c6b",
+    "tools/openclinxr/evidence/audible-lip-sync-proof/waveform-identity.test.mjs": "dbb5aa00fae0a73f660d5c7d23ed1443f931c0c3174a2e4d733a270caf414379",
+    "tools/openclinxr/factory/actor-audio-package-integration/public-admission.test.ts": "82c9e54a49da1c5c9ed46db2fcbcf0a5e360018766f5be244762d0c834b1353f",
+    "tools/openclinxr/factory/actor-audio-package-integration/historical-test-compatibility.test.ts": "8efb3aded3e26efd3eccf2be810c9261adc7657b3fc9a155316a3e78eb00def3",
+    "tools/openclinxr/factory/actor-audio-package-integration/original-evidence-manifest.json": "d2a668938a960c395a8fc1f7216eb7f5e50b4d93c450610b34b1e436e3d4d0b6",
+    "tools/openclinxr/factory/actor-audio-package-integration/verify-plant.mjs": "288c8cc35e904f29e3467e070b3b3704c822173b3c101fd42dbc171993147687",
+    "tools/openclinxr/factory/actor-audio-package-integration/runtime-lifecycle.test.ts": "dea37801a236d84602b73fc8fdbc0f012e544e7819cd199c0e49708c72d55160",
+    "tools/openclinxr/factory/actor-audio-package-integration/architecture-and-host.test.mjs": "c3ef2a195fed10c7ef948cfb507263c3a0acd7ad58680c7256629b3c178cb713",
+    "tools/openclinxr/factory/actor-audio-package-integration/ordinary-host-adapter.test.ts": "da6b108daba5cc60fee7d60f8a2362d8c730dcbd069b9852e4e7a381ffa3b97f",
+    "tools/openclinxr/factory/actor-audio-package-integration/typed-prepared-failure-cleanup.test.mjs": "b7a92a53b7a81d75a2e072ac48cbcfa2f19e045495f3701d79a017eaa680e318"
+  }
+}
