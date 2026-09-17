@@ -3868,6 +3868,9 @@ def main():
             fit_hair as _fit_brow,
             weight_hair_to_head as _weight_brow_to_head,
         )
+        from facs_shape_key_transfer import (  # noqa: E402
+            transfer_body_shape_keys_to_fitted_mesh as _transfer_brow_facs,
+        )
 
         _brow_ref_tag = subject_id
         _brow_mesh_name = (
@@ -3892,6 +3895,39 @@ def main():
         for _poly in _brow.data.polygons:
             _poly.use_smooth = True
         _brow_tris = sum(max(len(p.vertices) - 2, 0) for p in _brow.data.polygons)
+
+        # Authored emotion is invisible on the eyebrow otherwise: the body carries
+        # `eyebrows-*` FACS shape keys and the fitted eyebrow mesh (a SEPARATE object,
+        # per the #542 rail above) carried none, so a brow action unit deformed the
+        # skin under a rigid eyebrow. Transfer BEFORE the #318 helper strip (below) —
+        # same load-bearing order as the fit itself, since the transfer re-runs the
+        # SAME .mhclo correspondence, which still references helper vertices.
+        _brow_facs_names = sorted(
+            kb.name
+            for kb in (human.data.shape_keys.key_blocks if human.data.shape_keys else [])
+            if kb.name.startswith("eyebrows-")
+        )
+        if len(_brow_facs_names) < 8:
+            raise RuntimeError(
+                "eyebrow FACS transfer: expected >=8 'eyebrows-*' body shape keys "
+                f"(D1 — a body that ships fewer has itself regressed), found "
+                f"{len(_brow_facs_names)}: {_brow_facs_names}"
+            )
+        _brow_facs_displacements_m = _transfer_brow_facs(
+            str(_brow_mhclo), _brow, human, _brow_facs_names
+        )
+        print(
+            "EYEBROW_FACS_TRANSFER "
+            + json.dumps(
+                {
+                    "unitsTransferred": len(_brow_facs_displacements_m),
+                    "maxDisplacementM": {
+                        k: round(v, 6) for k, v in _brow_facs_displacements_m.items()
+                    },
+                }
+            )
+        )
+
         _eyebrow_fitted = {
             "style": _eyebrow_style,
             "mesh": _brow_mesh_name,
@@ -3899,6 +3935,7 @@ def main():
             "weightedBone": _brow_bone,
             "licence": _brow_lic_raw,
             "fitWallClockS": round(_brow_fit_s, 4),
+            "facsUnitsTransferred": sorted(_brow_facs_displacements_m.keys()),
         }
         print(f"EYEBROW_FIT {json.dumps(_eyebrow_fitted)}")
 
