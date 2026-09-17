@@ -40,6 +40,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+import os
 import bpy
 from mathutils import Vector
 
@@ -128,7 +129,60 @@ def find_body_and_armature() -> Tuple[bpy.types.Object, Optional[bpy.types.Objec
     return body, arm
 
 
-def create_material(name: str, color: Tuple[float, float, float, float]) -> bpy.types.Material:
+
+def _mhclo_material_path(mhclo_path: str) -> Optional[str]:
+    """#330 FIX — the asset declares its own material; the bake used to ignore it.
+
+    MakeClothes `.mhclo` carries a `material <name>.mhmat` line and the `.mhmat` sits in the
+    same directory as the `.obj`. Before this, create_material() was called with a flat
+    role colour and the pack's shipped hair textures (CC0, already extracted to the provider
+    cache) were discarded on every bake.
+    """
+    directory = os.path.dirname(os.path.abspath(mhclo_path))
+    try:
+        with open(mhclo_path, "r", errors="replace") as handle:
+            for line in handle:
+                if line.lower().startswith("material "):
+                    candidate = os.path.join(directory, line.split(None, 1)[1].strip())
+                    return candidate if os.path.isfile(candidate) else None
+    except Exception:
+        return None
+    return None
+
+
+def _mhmat_textures(mhmat_path: str) -> Dict[str, str]:
+    """Declared texture map paths from a MakeHuman `.mhmat`, resolved and existence-checked."""
+    directory = os.path.dirname(os.path.abspath(mhmat_path))
+    keys = {"diffusetexture": "diffuse", "normalmaptexture": "normal", "specularmaptexture": "specular"}
+    found: Dict[str, str] = {}
+    try:
+        with open(mhmat_path, "r", errors="replace") as handle:
+            for line in handle:
+                stripped = line.strip()
+                lowered = stripped.lower()
+                for token, field in keys.items():
+                    if lowered.startswith(token):
+                        parts = stripped.split(None, 1)
+                        if len(parts) < 2:
+                            continue
+                        candidate = os.path.join(directory, parts[1].strip())
+                        if os.path.isfile(candidate):
+                            found[field] = candidate
+    except Exception:
+        return {}
+    return found
+
+
+def source_hair_textures(mhclo_path: str) -> Dict[str, str]:
+    """Texture maps the hair asset itself declares. Empty dict when it ships none."""
+    mhmat = _mhclo_material_path(mhclo_path)
+    return _mhmat_textures(mhmat) if mhmat else {}
+
+def create_material(
+    name: str,
+    color: Tuple[float, float, float, float],
+    textures: Optional[Dict[str, str]] = None,
+) -> bpy.types.Material:
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nodes = mat.node_tree.nodes
@@ -139,6 +193,33 @@ def create_material(name: str, color: Tuple[float, float, float, float]) -> bpy.
     bsdf.inputs["Base Color"].default_value = color
     bsdf.inputs["Roughness"].default_value = 0.9
     links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+
+    # #330 FIX — wire the maps the ASSET declares. Flat `color` remains the fallback for
+    # styles that ship no .mhmat, so a textureless pack entry still bakes.
+    wired = []
+    maps = textures or {}
+    diffuse_path = maps.get("diffuse")
+    if diffuse_path:
+        tex = nodes.new("ShaderNodeTexImage")
+        tex.image = bpy.data.images.load(diffuse_path, check_existing=True)
+        tex.location = (-600, 200)
+        links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+        if "Alpha" in bsdf.inputs:
+            links.new(tex.outputs["Alpha"], bsdf.inputs["Alpha"])
+        wired.append("diffuse")
+    normal_path = maps.get("normal")
+    if normal_path:
+        ntex = nodes.new("ShaderNodeTexImage")
+        img = bpy.data.images.load(normal_path, check_existing=True)
+        img.colorspace_settings.name = "Non-Color"
+        ntex.image = img
+        ntex.location = (-600, -180)
+        nmap = nodes.new("ShaderNodeNormalMap")
+        nmap.location = (-300, -180)
+        links.new(ntex.outputs["Color"], nmap.inputs["Color"])
+        links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
+        wired.append("normal")
+    mat["openclinxr_wired_texture_maps"] = ",".join(wired)
     mat.diffuse_color = color
     try:
         mat.viewport_display.color = color[:3]
@@ -484,9 +565,11 @@ def main() -> None:
     placement = place_hair_on_body(hair, reference, body, arm)
     bpy.data.objects.remove(reference, do_unlink=True)
 
+    hair_textures = source_hair_textures(args.hair_mhclo)
     mat = create_material(
         f"openclinxr_fitted_hair_{args.hair_style}_{args.body_class}_mat",
         hair_color(args.role),
+        hair_textures,
     )
     hair.data.materials.append(mat)
     bone = weight_hair_to_head(hair, arm)
@@ -507,6 +590,9 @@ def main() -> None:
         "meshName": mesh_name,
         "objectName": hair.name,
         "materialName": hair.data.materials[0].name if hair.data.materials else None,
+        "sourceTextureMaps": {k: os.path.basename(v) for k, v in hair_textures.items()},
+        "wiredTextureMaps": mat.get("openclinxr_wired_texture_maps", ""),
+        "materialColorFallbackUsed": not bool(hair_textures),
         "weightedBone": bone,
         "faceCount": len(hair.data.polygons),
         "vertexCount": hair_b["vertexCount"],
