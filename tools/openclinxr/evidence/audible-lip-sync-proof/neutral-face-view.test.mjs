@@ -70,6 +70,9 @@ test('consumed capture uses neutral canvas and one host facial writer',async()=>
   assert.ok(source.indexOf('const row =')<source.indexOf('neutralView.render(row)'));
   assert.ok(source.indexOf('neutralView.render(row)')<source.indexOf('frames.push(row)'));
   assert.match(source,/audioGraphClockModuleUrl/);
+  assert.match(source,/nativeTrackObserverModuleUrl/);
+  assert.match(source,/startNativeTrackObserver/);
+  assert.ok(source.indexOf("startNativeTrackObserver")<source.indexOf("recorder.start()"));
   assert.match(source,/readAudioGraphClock/);
   assert.match(source,/serializeAudioGraphClock/);
   assert.match(source,/recorderEvents/);
@@ -154,7 +157,12 @@ test('capture does not wait for activeSpeech before prepare and uses isolated @f
   assert.doesNotMatch(capture,/waitForFunction\(\(\) => \{[\s\S]*activeSpeech[\s\S]*prepare/);
   assert.match(capture,/neutralFaceModuleUrl: "\/@fs\/" \+ resolve\(repo,/);
   assert.match(capture,/audioGraphClockModuleUrl: "\/@fs\/" \+ resolve\(repo,/);
+  assert.match(capture,/nativeTrackObserverModuleUrl: "\/@fs\/" \+ resolve\(repo,/);
   assert.match(capture,/audio-graph-clock\.mjs/);
+  assert.match(capture,/native-track-observer\.mjs/);
+  assert.match(capture,/Performance.enable/);
+  assert.match(capture,/timeTicks/);
+  assert.match(capture,/native-track-audio\.f32/);
   assert.doesNotMatch(capture,/__openClinXrDebugRenderer/);
   assert.doesNotMatch(capture,/head-box-from-geometry\.js/);
   assert.match(capture,/if \(!process\.env\.NODE_ENV\) process\.env\.NODE_ENV = "test"/);

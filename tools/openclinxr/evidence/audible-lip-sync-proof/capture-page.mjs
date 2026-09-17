@@ -20,6 +20,8 @@ export async function runBrowserCapture(input) {
   const {createNeutralFaceView, readOwnedArticulation, subtreeExcludedFromJudgingLayer} = await import(input.neutralFaceModuleUrl);
   const {readAudioGraphClock, recorderChunkFact, serializeAudioGraphClock} = await import(input.audioGraphClockModuleUrl);
   if (typeof readAudioGraphClock !== "function" || typeof recorderChunkFact !== "function" || typeof serializeAudioGraphClock !== "function") throw new Error("audio-graph-clock-helper-missing");
+  const {startNativeTrackObserver, float32ToBase64} = await import(input.nativeTrackObserverModuleUrl);
+  if (typeof startNativeTrackObserver !== "function") throw new Error("native-track-observer-helper-missing");
   const clinicalScene = window.__openClinXrDebugScene;
   let ownedRoot;
   clinicalScene?.traverse((object) => {
@@ -53,7 +55,7 @@ export async function runBrowserCapture(input) {
   const neutralView = createNeutralFaceView({root: ownedRoot, actorSlot});
   const canvas = neutralView.canvas;
   const previousAfterRender = clinicalScene.onAfterRender;
-  let canvasStream, recorder, ownedSession, startupStage = "create-view";
+  let canvasStream, recorder, ownedSession, trackObserver, startupStage = "create-view";
   try {
   startupStage = "exclude-idle-cues";
   neutralView.excludeHostCues(idleCueList);
@@ -67,6 +69,16 @@ export async function runBrowserCapture(input) {
     ...canvasStream.getVideoTracks(),
     ...recorderDest.stream.getAudioTracks(),
   ]);
+  startupStage = "native-track-observer";
+  const sourceAudioTrack = recorderDest.stream.getAudioTracks()[0];
+  const sourceVideoTrack = canvasStream.getVideoTracks()[0];
+  if (!sourceAudioTrack || !sourceVideoTrack) throw new Error("native-track-source-missing");
+  trackObserver = startNativeTrackObserver({
+    audioTrack: sourceAudioTrack,
+    videoTrack: sourceVideoTrack,
+    readClock: () => serializeAudioGraphClock(readAudioGraphClock(context, performance.now())),
+  });
+  if (trackObserver.status !== "available") throw new Error("native-track-observer-unavailable:" + trackObserver.reason);
   const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp8,opus")
     ? "video/webm;codecs=vp8,opus"
     : "video/webm";
@@ -232,6 +244,8 @@ export async function runBrowserCapture(input) {
   await new Promise((r) => setTimeout(r, 600));
   recorder.stop();
   await stopped;
+  const nativeTrack = trackObserver ? await trackObserver.stop() : null;
+  const nativeSamples = nativeTrack?.samples ?? new Float32Array(0);
   const blob = new Blob(chunks, { type: mimeType });
   const video = new Uint8Array(await blob.arrayBuffer());
   const played = audio.getPlayedTap();
@@ -271,6 +285,30 @@ export async function runBrowserCapture(input) {
     prerender,
     evaluationScene: "neutral-owned-actor-no-room",
     facialWriter: "actual-ui-xr-host-only",
+    nativeTrackObservation: nativeTrack && {
+      status: nativeTrack.status,
+      reason: nativeTrack.reason ?? null,
+      createdAtMs: nativeTrack.createdAtMs,
+      cloneCreatedAtMs: nativeTrack.cloneCreatedAtMs,
+      processorReadStartAtMs: nativeTrack.processorReadStartAtMs,
+      graphClockAtClone: nativeTrack.graphClockAtClone,
+      originalAudioTrackId: nativeTrack.originalAudioTrackId,
+      originalVideoTrackId: nativeTrack.originalVideoTrackId,
+      cloneAudioTrackId: nativeTrack.cloneAudioTrackId,
+      cloneVideoTrackId: nativeTrack.cloneVideoTrackId,
+      originalAudioReadyState: nativeTrack.originalAudioReadyState,
+      originalVideoReadyState: nativeTrack.originalVideoReadyState,
+      audioRows: nativeTrack.audioRows,
+      videoRows: nativeTrack.videoRows,
+      audioClosed: nativeTrack.audioClosed,
+      videoClosed: nativeTrack.videoClosed,
+      audioCopyFailures: nativeTrack.audioCopyFailures,
+      videoCopyFailures: nativeTrack.videoCopyFailures,
+      audioFramesObserved: nativeTrack.audioFramesObserved,
+      videoFramesObserved: nativeTrack.videoFramesObserved,
+      sampleCount: nativeSamples.length,
+    },
+    nativeTrackAudioBase64: nativeSamples.length ? float32ToBase64(nativeSamples) : "",
   };
   } finally {
     let playerStopError;
@@ -282,6 +320,7 @@ export async function runBrowserCapture(input) {
     } catch (error) {
       playerStopError = error;
     } finally {
+      if (trackObserver) await trackObserver.stop().catch(() => undefined);
       clinicalScene.onAfterRender = previousAfterRender;
       neutralView.dispose();
       canvasStream?.getTracks().forEach((track) => track.stop());

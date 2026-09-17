@@ -155,9 +155,43 @@ export async function captureAudibleLipSync(repo = repoRoot) {
     }, actorId, { timeout: 180000 });
     await page.bringToFront();
     await page.click("canvas", { timeout: 10000 });
+    async function readCdpTimeTicksBracketed() {
+      const pageBefore = await page.evaluate(() => ({ now: performance.now(), timeOrigin: performance.timeOrigin }));
+      let metric = { status: "unavailable" };
+      try {
+        const { metrics } = await cdp.send("Performance.getMetrics");
+        const map = Object.fromEntries((metrics ?? []).map((m) => [m.name, m.value]));
+        const timestamp = map.Timestamp;
+        const navigationStart = map.NavigationStart;
+        const finite = Number.isFinite(timestamp) && Number.isFinite(navigationStart);
+        metric = {
+          status: finite ? "available" : "unavailable",
+          reason: finite ? null : "non-finite-Timestamp-or-NavigationStart",
+          timestamp,
+          navigationStart,
+          timestampMs: Number.isFinite(timestamp) ? timestamp * 1000 : null,
+          navigationStartMs: Number.isFinite(navigationStart) ? navigationStart * 1000 : null,
+          units: { timestamp: "seconds", timestampMs: "milliseconds" },
+          timeDomain: "timeTicks",
+        };
+      } catch (error) {
+        metric = { status: "unavailable", reason: String(error?.message ?? error) };
+      }
+      const pageAfter = await page.evaluate(() => ({ now: performance.now(), timeOrigin: performance.timeOrigin }));
+      return { pageBefore, cdp: metric, pageAfter };
+    }
+    let cdpEnable = { status: "unavailable" };
+    try {
+      await cdp.send("Performance.enable", { timeDomain: "timeTicks" });
+      cdpEnable = { status: "available", timeDomain: "timeTicks" };
+    } catch (error) {
+      cdpEnable = { status: "unavailable", reason: String(error?.message ?? error) };
+    }
+    const cdpStart = await readCdpTimeTicksBracketed();
     const result = await page.evaluate(runBrowserCapture, {
       neutralFaceModuleUrl: "/@fs/" + resolve(repo, "tools/openclinxr/evidence/audible-lip-sync-proof/neutral-face-view.mjs"),
       audioGraphClockModuleUrl: "/@fs/" + resolve(repo, "tools/openclinxr/evidence/audible-lip-sync-proof/audio-graph-clock.mjs"),
+      nativeTrackObserverModuleUrl: "/@fs/" + resolve(repo, "tools/openclinxr/evidence/audible-lip-sync-proof/native-track-observer.mjs"),
       wavBase64: wavBytes.toString("base64"),
       mouthCues: JSON.parse(cueBytes.toString("utf8")),
       tapSource,
@@ -170,6 +204,7 @@ export async function captureAudibleLipSync(repo = repoRoot) {
       sampleRate: fixture.sampleRate,
       sampleCount: fixture.sampleCount,
     });
+    const cdpEnd = await readCdpTimeTicksBracketed();
     viteDiagnostics.postHelper = readViteDepMetadata(repo);
     const played = Float32Array.from(result.playedSamples);
     const playedBytes = Buffer.from(played.buffer, played.byteOffset, played.byteLength);
@@ -177,6 +212,11 @@ export async function captureAudibleLipSync(repo = repoRoot) {
     const rawMixed = Buffer.from(Uint8Array.from(result.videoBytes ?? []));
     if (rawMixed.length < 1024) throw new Error("combined-mediarecorder-unstartable");
     const videoRef = { path: `${runId}/mixed-raw.webm`, sha256: writeUnique(runDir, "mixed-raw.webm", rawMixed).sha256 };
+    let nativeTrackAudioRef = null;
+    if (result.nativeTrackAudioBase64) {
+      const pcm = Buffer.from(result.nativeTrackAudioBase64, "base64");
+      nativeTrackAudioRef = { path: `${runId}/native-track-audio.f32`, sha256: writeUnique(runDir, "native-track-audio.f32", pcm).sha256 };
+    }
     const executedModules = [];
     for (const required of requiredModules) {
       const script = parsed.find((row) => required.match.test(row.url ?? ""));
@@ -231,7 +271,7 @@ export async function captureAudibleLipSync(repo = repoRoot) {
       };
     }
     const markerHelperModules = [];
-    for (const name of ["observed-row-overlay.mjs", "observed-row-barcode.mjs", "audio-graph-clock.mjs"]) {
+    for (const name of ["observed-row-overlay.mjs", "observed-row-barcode.mjs", "audio-graph-clock.mjs", "native-track-observer.mjs"]) {
       const script = parsed.find((row) => (row.url ?? "").includes("/" + name));
       const net = script && network.find((row) => row.response.url === script.url);
       if (!script || !net?.requestId) throw new Error("marker-helper-provenance-missing:" + name);
@@ -280,10 +320,17 @@ export async function captureAudibleLipSync(repo = repoRoot) {
       recorderStartCallAtMs: result.recorderStartCallAtMs,
       recorderOnStartAtMs: result.recorderOnStartAtMs,
       recorderEvents: result.recorderEvents,
+      nativeTrackObservation: result.nativeTrackObservation,
+      cdpPerformance: {
+        enable: cdpEnable,
+        start: cdpStart,
+        end: cdpEnd,
+        audioTimestampMapping: "AudioData.timestamp_us/1000 - NavigationStart_s*1000 is Chromium TimeTicks identity, not a fitted delay",
+      },
       buildMetadata: metadata,
       authoredMaterialRows: result.authoredMaterialRows,
       playedTap: result.playedTap,
-      files: { inputWav: wavRef, cues: cueRef, video: videoRef, playedPcm: playedRef },
+      files: { inputWav: wavRef, cues: cueRef, video: videoRef, playedPcm: playedRef, nativeTrackAudio: nativeTrackAudioRef },
     };
     const reportBytes = Buffer.from(JSON.stringify(report, null, 2));
     writeUnique(runDir, "report.json", reportBytes);
