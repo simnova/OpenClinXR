@@ -1008,8 +1008,9 @@ def normalise_garment_texture_luminance(mat, label):
     The rule is now per-channel over opaque texels (alpha >= 0.5; all texels if none
     opaque): mean_c = channel mean, hi_c = channel 99.5th percentile, scale_c =
     min(1/mean_c, max(1/hi_c, MIN_NORMALISED_MEAN/mean_c)), rgb_c clipped to [0,1].
-    1/hi_c puts the channel's 99.5th-percentile texel at 1.0, so at most 0.5% of texels
-    clip (isolated highlights such as the white pocket label: shirt R p99 105, max 188)
+    1/hi_c puts the channel's 99.5th-percentile texel at 1.0, so roughly the top 0.5% of texels clip, more
+    where 8-bit values tie at the percentile (measured on the scrub shirt: 0.75%, 0.86%, 0.70%)
+    (isolated highlights such as the white pocket label: shirt R p99 105, max 188)
     and std/mean is preserved for the rest. 1/mean_c caps the channel mean at 1.0 — the
     old #386 target — so no channel is brightened past it. MIN_NORMALISED_MEAN = 0.6
     keeps effective brightness above the 50% floor in
