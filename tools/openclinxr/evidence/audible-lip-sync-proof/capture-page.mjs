@@ -46,20 +46,20 @@ export async function runBrowserCapture(input) {
     eyeFocus: idleCues.eyeFocus.visible === true,
     expression: idleCues.expression.visible === true,
   };
+  const idleCueList = [idleCues.mouth, idleCues.gaze, idleCues.eyeFocus, idleCues.expression];
+  const judgingLayerMask = 1 << 30;
   const neutralView = createNeutralFaceView({root: ownedRoot, actorSlot});
   const canvas = neutralView.canvas;
   const previousAfterRender = clinicalScene.onAfterRender;
-  let canvasStream, recorder, ownedSession;
+  let canvasStream, recorder, ownedSession, startupStage = "create-view";
   try {
-  const prerenderFraming = neutralView.render();
-  const prerender = {
-    displayNowMs: performance.now(),
-    contextCurrentTime: context.currentTime,
-    framing: prerenderFraming,
-    idleCueVisibility,
-  };
+  startupStage = "exclude-idle-cues";
+  neutralView.excludeHostCues(idleCueList);
+  const idleCueLayerExcluded = idleCueList.every((cue) => (cue.layers.mask & judgingLayerMask) === 0);
+  if (!idleCueLayerExcluded) throw new Error("idle-cue-layer-not-excluded");
   const recorderDest = audio.getRecorderDestination();
   if (!recorderDest) throw new Error("combined-mediarecorder-unstartable");
+  startupStage = "capture-stream";
   canvasStream = canvas.captureStream(30);
   const mixed = new MediaStream([
     ...canvasStream.getVideoTracks(),
@@ -76,16 +76,31 @@ export async function runBrowserCapture(input) {
   const stopped = new Promise((resolve) => {
     recorder.onstop = resolve;
   });
+  let recorderStartedAtMs;
   const recorderStarted = new Promise((resolve, reject) => {
-    recorder.onstart = resolve;
-    recorder.onerror = () => reject(new Error("mediarecorder-start-failed"));
+    const timer = setTimeout(() => reject(new Error("mediarecorder-onstart-timeout:" + startupStage)), 2000);
+    recorder.onstart = () => { clearTimeout(timer); resolve(); };
+    recorder.onerror = () => { clearTimeout(timer); reject(new Error("mediarecorder-start-failed:" + startupStage)); };
   });
+  startupStage = "recorder-start";
   recorder.start();
+  startupStage = "post-start-draw";
+  const prerenderFraming = neutralView.render();
+  canvasStream.getVideoTracks()[0]?.requestFrame?.();
   await recorderStarted;
-  const recorderStartedAtMs = performance.now();
-  prerender.recorderStartedAtMs = recorderStartedAtMs;
-  prerender.recorderStartContextTime = context.currentTime;
+  recorderStartedAtMs = performance.now();
+  const prerender = {
+    displayNowMs: performance.now(),
+    contextCurrentTime: context.currentTime,
+    framing: prerenderFraming,
+    idleCueVisibility,
+    idleCueLayerExcluded,
+    recorderStartedAtMs,
+    recorderStartContextTime: context.currentTime,
+    startupStage,
+  };
   const speechStartedAtMs = performance.now();
+  startupStage = "bridge-fire";
   bridge.prepare({
     scenarioId: input.scenarioId,
     traceTag: "audible-lip-sync-diagnostic",
@@ -106,7 +121,7 @@ export async function runBrowserCapture(input) {
     || session.slot.eyeFocusCue !== idleCues.eyeFocus
     || session.slot.expressionCue !== idleCues.expression
   ) throw new Error("started-slot-cue-identity-mismatch");
-  neutralView.excludeHostCues([session.slot.mouthCue, session.slot.gazeCue, session.slot.eyeFocusCue, session.slot.expressionCue]);
+  startupStage = "observe-host";
   const frames = [];
   const nativeSeconds = input.sampleCount / input.sampleRate;
   const wallStart = performance.now();

@@ -1,6 +1,6 @@
 import {test} from 'vitest';
 import assert from 'node:assert/strict';
-import {Bone, BufferGeometry, Float32BufferAttribute, Uint16BufferAttribute, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, PropertyBinding, Skeleton, SkinnedMesh, Vector3} from 'three';
+import {Bone, BufferGeometry, Float32BufferAttribute, Uint16BufferAttribute, Group, Layers, Mesh, MeshBasicMaterial, PerspectiveCamera, PropertyBinding, Skeleton, SkinnedMesh, Vector3} from 'three';
 import {identifyHeadGeometry, fitNeutralHeadCamera, readOwnedArticulation, isDeformingFacialPrimitive} from './neutral-face-view.mjs';
 
 function actor() {
@@ -55,11 +55,22 @@ test('consumed capture uses neutral canvas and one host facial writer',async()=>
   assert.match(source,/targetIndex/);
   assert.match(source,/contextCurrentTime: context\.currentTime/);
   assert.match(source,/recorder\.onstart/);
-  assert.ok(source.indexOf('idle-cue-identity-missing')<source.indexOf('neutralView.render()'));
+  assert.match(source,/mediarecorder-onstart-timeout/);
+  assert.match(source,/requestFrame/);
   assert.match(source,/idleCueVisibility/);
-  assert.ok(source.indexOf('neutralView.render()')<source.indexOf('recorder.start()'));
+  assert.ok(source.indexOf('excludeHostCues(idleCueList)')<source.indexOf('captureStream(30)'));
+  assert.ok(source.indexOf('recorder.start()')<source.indexOf('neutralView.render()'));
+  assert.ok(source.indexOf('requestFrame')<source.indexOf('await recorderStarted'));
   assert.ok(source.indexOf('await recorderStarted')<source.indexOf('bridge.fire()'));
   assert.ok(source.indexOf('createNeutralFaceView({')<source.indexOf('bridge.fire()'));
+});
+
+test('visible cues on layer 0 are excluded from judging camera layer 30',()=>{
+  const camera=new Layers(); camera.set(30);
+  const cue=new Layers(); cue.set(0);
+  const asset=new Layers(); asset.set(30);
+  assert.equal(camera.test(cue),false);
+  assert.equal(camera.test(asset),true);
 });
 
 test('GLTFLoader sanitized eye bone names resolve without anatomical fallback',()=>{
