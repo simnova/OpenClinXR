@@ -232,15 +232,17 @@ describe("actor turn playback coordinator", () => {
     expect(coordinator.tick().visemePhoneme).toBe("sil");
 
     clock.setCurrentTimeSeconds(0.12);
-    const atAa = coordinator.tick();
-    expect(atAa.visemePhoneme).toBe("AA");
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("AA");
-    expect(adapters.visemes.at(-1)).toBe("AA");
+    const atPp = coordinator.tick();
+    // Old pin (A->AA) encoded the misread Rhubarb table; README A is closed lips (PP).
+    expect(atPp.visemePhoneme).toBe("PP");
+    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("PP");
+    expect(adapters.visemes.at(-1)).toBe("PP");
 
     clock.setCurrentTimeSeconds(AUDIO_DURATION_MS / 1000);
     const atEnd = coordinator.tick();
     expect(atEnd.emotion).toBe("anxious");
-    expect(atEnd.visemePhoneme).toBe("E");
+    // Old pin (B->E) encoded the misread Rhubarb table; README B is clenched teeth (SS).
+    expect(atEnd.visemePhoneme).toBe("SS");
     expect(slot.emotionExpression.targetEmotion).toBe("anxious");
     expect(adapters.emotions.at(-1)).toBe("anxious");
     expect(coordinator.status).toBe("completed");
@@ -257,9 +259,10 @@ describe("actor turn playback coordinator", () => {
     coordinator.tick();
     clock.setCurrentTimeSeconds(0.13);
     const late = coordinator.tick();
-    expect(late.visemePhoneme).toBe("AA");
-    const aa = coordinator.evidence.events.find((event) => event.identity === "AA");
-    expect(aa?.driftMs).toBe(10);
+    // Old pin (A->AA) encoded the misread Rhubarb table; README A is closed lips (PP).
+    expect(late.visemePhoneme).toBe("PP");
+    const pp = coordinator.evidence.events.find((event) => event.identity === "PP");
+    expect(pp?.driftMs).toBe(10);
     expect(late.maxDriftMs).toBe(10);
     expect(late.withinDriftTolerance).toBe(true);
     expect(late.clockKind).toBe("synthetic_audio_time");
@@ -284,17 +287,18 @@ describe("actor turn playback coordinator", () => {
     expect(clock.paused).toBe(true);
     clock.setCurrentTimeSeconds(0.4);
     const paused = coordinator.tick();
-    expect(paused.visemePhoneme).toBe("AA");
+    // Old pins (A->AA, B->E) encoded the misread Rhubarb table; README A=PP, B=SS.
+    expect(paused.visemePhoneme).toBe("PP");
     expect(paused.audioTimeMs).toBe(120);
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("AA");
+    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("PP");
 
     coordinator.resume();
     expect(clock.paused).toBe(false);
     clock.setCurrentTimeSeconds(0.28);
     const resumed = coordinator.tick();
-    expect(resumed.visemePhoneme).toBe("E");
-    expect(adapters.visemes.at(-1)).toBe("E");
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("E");
+    expect(resumed.visemePhoneme).toBe("SS");
+    expect(adapters.visemes.at(-1)).toBe("SS");
+    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("SS");
 
     coordinator.interrupt("truncated");
     expect(coordinator.status).toBe("interrupted");
@@ -356,8 +360,9 @@ describe("actor turn playback coordinator", () => {
       { audioClock: clock, liveSlot: slot, modalityAdapters: firstAdapters },
     );
     clock.setCurrentTimeSeconds(0.12);
-    expect(first.tick().visemePhoneme).toBe("AA");
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("AA");
+    // Old pin (A->AA) encoded the misread Rhubarb table; README A is closed lips (PP).
+    expect(first.tick().visemePhoneme).toBe("PP");
+    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("PP");
 
     const secondPlan = samplePlan({ turnId: "turn_maya_wob_002", planId: "plan_maya_wob_002" });
     const secondClock = syntheticAudioClock(0);
@@ -372,7 +377,7 @@ describe("actor turn playback coordinator", () => {
     expect(slot.root.userData.openClinXrActorTurnPlaybackCancelled).toBe(true);
 
     secondClock.setCurrentTimeSeconds(0.12);
-    expect(second.tick().visemePhoneme).toBe("AA");
+    expect(second.tick().visemePhoneme).toBe("PP");
 
     const restartClock = syntheticAudioClock(0);
     const restartAdapters = recordingAdapters();
@@ -432,11 +437,12 @@ describe("actor turn playback coordinator", () => {
     const snap = coordinator.tick();
     expect(snap.audioTimeMs).toBe(120);
     expect(snap.audioTimeMs).not.toBe(wallClockMs);
-    expect(snap.visemePhoneme).toBe("AA");
+    // Old pin (A->AA) encoded the misread Rhubarb table; README A is closed lips (PP).
+    expect(snap.visemePhoneme).toBe("PP");
     expect(snap.emotion).toBe("neutral");
-    expect(adapters.visemes.at(-1)).toBe("AA");
+    expect(adapters.visemes.at(-1)).toBe("PP");
     expect(adapters.emotions.at(-1)).toBe("neutral");
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("AA");
+    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("PP");
     expect(slot.emotionExpression.targetEmotion).toBe("neutral");
     expect(snap.clockKind).toBe("synthetic_audio_time");
     expect(snap.headsetAudioLatencyUnmeasured).toBe(true);

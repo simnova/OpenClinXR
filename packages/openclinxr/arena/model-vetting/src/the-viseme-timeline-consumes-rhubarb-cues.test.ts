@@ -47,8 +47,9 @@ describe("the viseme timeline consumes rhubarb cues", () => {
     expect(fromCues.mappingMode).toBe("rhubarb_cue_json");
     expect(fromCues.mappingMode).not.toBe("deterministic_text_phoneme_viseme_runtime_cue");
     expect(fromCues.actorId).toBe("patient_maya_johnson_v1");
+    // Old pin (D->OH, B->E) encoded the misread Rhubarb table; README D=AA, B=SS.
     expect(fromCues.phonemeSequence).toEqual(["D", "B"]);
-    expect(fromCues.visemeSequence).toEqual(["OH", "E"]);
+    expect(fromCues.visemeSequence).toEqual(["AA", "SS"]);
     expect(fromCues.visemeSequence).not.toEqual(fromLetters.visemeSequence);
     expect(fromCues.sourceWavPath).toBe("fixture-maya.wav");
   });
@@ -67,16 +68,17 @@ describe("the viseme timeline consumes rhubarb cues", () => {
     }
   });
 
-  it("maps every Rhubarb A-H/X value to the landed runtime token table", () => {
+  it("maps every Rhubarb A-H/X value to the README-articulation token table", () => {
+    // Old table (A=AA ... H=OU) encoded the misread Rhubarb shapes.
     const table: ReadonlyArray<readonly [string, string]> = [
-      ["A", "AA"],
-      ["B", "E"],
-      ["C", "IH"],
-      ["D", "OH"],
-      ["E", "OU"],
-      ["F", "FV"],
-      ["G", "L"],
-      ["H", "OU"],
+      ["A", "PP"],
+      ["B", "SS"],
+      ["C", "E"],
+      ["D", "AA"],
+      ["E", "OH"],
+      ["F", "OU"],
+      ["G", "FV"],
+      ["H", "L"],
       ["X", "sil"],
     ];
     expect(table.map(([letter]) => letter).join("")).toBe("ABCDEFGHX");
@@ -97,7 +99,7 @@ describe("the viseme timeline consumes rhubarb cues", () => {
     const fx = visemeTimelineFromRhubarbCues(cuesFromTrackedJson(MAYA_RHUBARB_FX_400MS_JSON));
     expect(fx.mappingMode).toBe("rhubarb_cue_json");
     expect(fx.phonemeSequence).toEqual(["F", "X"]);
-    expect(fx.visemeSequence).toEqual(["FV", "sil"]);
+    expect(fx.visemeSequence).toEqual(["OU", "sil"]);
     expect(db.visemeSequence).not.toEqual(fx.visemeSequence);
     const dbOpenness = db.visemeSequence.map(visemeOpenness);
     const fxOpenness = fx.visemeSequence.map(visemeOpenness);

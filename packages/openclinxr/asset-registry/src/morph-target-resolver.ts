@@ -21,6 +21,8 @@
  *   3. VISEMES02 ALIAS MAP third — a body carrying the baked visemes02 pack (15 Oculus viseme
  *      names) must reach a baked viseme before a generic FACS unit (the same rule the #463
  *      case-variant pass states). Consulted only when the alias name is present on the body.
+ *   3b. CAST FALLBACK MAP — Anny cast bodies carry no PP/SS; closed lips reach the closed
+ *      idle target and clenched-teeth EE reaches the nearest close vowel. Same presence rule.
  *   4. FACS ALIAS MAP last — canonical runtime name → MPFB FACS morph name, wired from the FACS
  *      target names actually shipped on the library bodies (verified present on both), not invented.
  *
@@ -67,6 +69,8 @@ export const MPFB_FACS_MORPH_NAMES: Readonly<Record<string, string>> = {
   // IH and TH share mouth-part-later: the lips-part (AU25) family has three runtime visemes
   // (IH/TH/L) and two shipped targets, and the near-closed lingual L fits the subtle variant.
   viseme_sil: "mouth-compression", // AU24 lip presser — the only closed-lips shape
+  viseme_PP: "mouth-compression", // AU24 lip presser — closed lips, P/B/M (Rhubarb A)
+  viseme_SS: "mouth-part-later", // AU25 slight lips part — clenched-teeth consonants (Rhubarb B)
   viseme_AA: "mouth-open", // AU26 jaw drop — the open vowel; strongest target, moves down
   viseme_E: "mouth-retraction", // AU20 lip stretcher — the spread vowel
   viseme_IH: "mouth-part-later", // AU25 lips part — the slight-open vowel
@@ -101,6 +105,17 @@ export const VISEMES02_MORPH_NAMES: Readonly<Record<string, string>> = {
 };
 
 /**
+ * Anny cast fallback names: Anny cast bodies carry no PP/SS; closed lips reach the closed
+ * idle target (viseme_silence) and clenched-teeth EE reaches the nearest close vowel
+ * (viseme_IH). Consulted after the visemes02 pass and before the FACS pass, only when the
+ * alias name is present on the body (same pattern as VISEMES02_MORPH_NAMES).
+ */
+export const CAST_VISEME_FALLBACK_NAMES: Readonly<Record<string, string>> = {
+  viseme_PP: "viseme_silence",
+  viseme_SS: "viseme_IH",
+};
+
+/**
  * The case-only variant of `canonicalName` present in `availableNames`, or null. The caller has
  * already taken the exact-identity match, so only genuine case differences reach this pass.
  */
@@ -120,7 +135,8 @@ function resolveCaseVariant(
  *
  * Identity-first (covers the Anny rail and any canonical-spelling body), then a case-insensitive
  * variant match (#463 — the wire upper-cases tokens but the visemes02 pack bakes mixed case), then
- * the visemes02 alias map (a baked viseme beats a generic FACS unit), then
+ * the visemes02 alias map (a baked viseme beats a generic FACS unit), then the Anny cast
+ * fallback map (PP/SS reach the cast's closed-idle / nearest-close-vowel targets), then
  * the MPFB FACS alias map. Returns null when no honest target exists — never a fabricated name,
  * never a fallback that changes which region deforms.
  *
@@ -137,6 +153,8 @@ export function resolveMorphTarget(
   if (caseVariant !== null) return caseVariant;
   const visemes02 = VISEMES02_MORPH_NAMES[canonicalName];
   if (visemes02 !== undefined && availableNames.has(visemes02)) return visemes02;
+  const castFallback = CAST_VISEME_FALLBACK_NAMES[canonicalName];
+  if (castFallback !== undefined && availableNames.has(castFallback)) return castFallback;
   const alias = MPFB_FACS_MORPH_NAMES[canonicalName];
   if (alias !== undefined && availableNames.has(alias)) return alias;
   return null;

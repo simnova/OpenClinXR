@@ -161,35 +161,49 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
     };
 
     it("mouthCuesToPhonemeCues preserves the bake's real timing and maps Rhubarb shapes", () => {
+      // Old pin (A->AA, B->E) encoded the misread Rhubarb table; the README reads A closed
+      // lips (PP), B clenched teeth (SS), C open mouth (E).
       const cues = mouthCuesToPhonemeCues(bakedDoc);
       expect(cues).toHaveLength(6);
       expect(cues[0]).toMatchObject({ phoneme: "sil", atSecond: 0, durationSeconds: 0.04 });
-      expect(cues[1]).toMatchObject({ phoneme: "AA", atSecond: 0.04, durationSeconds: 0.08 });
-      expect(cues[2]).toMatchObject({ phoneme: "IH", atSecond: 0.12 });
-      expect(cues[3]).toMatchObject({ phoneme: "E", atSecond: 0.18, durationSeconds: 0.13 });
+      expect(cues[1]).toMatchObject({ phoneme: "PP", atSecond: 0.04, durationSeconds: 0.08 });
+      expect(cues[2]).toMatchObject({ phoneme: "E", atSecond: 0.12 });
+      expect(cues[3]).toMatchObject({ phoneme: "SS", atSecond: 0.18, durationSeconds: 0.13 });
     });
 
     it("applyDialogueVisemeTimelineToRoot with bakedCues plays the baked frame count on named targets", () => {
+      // Old pin (B->viseme_E) encoded the misread Rhubarb table. Under the README map the bake
+      // is sil,PP,E,SS,E,SS; the fixture mesh carries viseme_silence/AA/E/OH/OU only, so the C
+      // (E) frame drives viseme_E and the B (SS) frame honestly resolves to nothing on this mesh.
       const mesh = meshLike();
       const root = rootWith(mesh);
       const cues = mouthCuesToPhonemeCues(bakedDoc);
-      const early = applyDialogueVisemeTimelineToRoot(root, {
+      const eFrame = applyDialogueVisemeTimelineToRoot(root, {
         phonemeSequence: ["sil"],
-        progress: 0.5, // t = 0.5 * 0.45 s -> the B frame (viseme_E) is active
+        progress: 0.3, // t = 0.3 * 0.45 s -> the C frame (E) is active
         bakedCues: cues,
       });
-      expect(early.frameCount).toBe(6);
-      expect(early.activeTargetName).toBe("viseme_E");
+      expect(eFrame.frameCount).toBe(6);
+      expect(eFrame.activeTargetName).toBe("viseme_E");
       expect(mesh.morphTargetInfluences[mesh.morphTargetDictionary["viseme_E"]!]).toBe(1);
+      const ssFrame = applyDialogueVisemeTimelineToRoot(root, {
+        phonemeSequence: ["sil"],
+        progress: 0.5, // t = 0.5 * 0.45 s -> the B frame (SS); no SS target on this mesh
+        bakedCues: cues,
+      });
+      expect(ssFrame.activeTargetName).toBeNull();
       const later = applyDialogueVisemeTimelineToRoot(root, {
         phonemeSequence: ["sil"],
-        progress: 0.99, // near the end -> B (E) again per the bake
+        progress: 0.75, // t = 0.75 * 0.45 s -> the second C (E) frame per the bake
         bakedCues: cues,
       });
-      expect(later.activeTargetName).toMatch(/^viseme_/);
+      expect(later.activeTargetName).toBe("viseme_E");
     });
 
     it("applyNamedSpeechVisemes prefers bakedCues over the text-derived timeline", () => {
+      // Old pin sampled nowMs 500 (the B frame, then viseme_E). Under the README map the bake
+      // is sil,PP,E,SS,E,SS over 0.45 s; nowMs 300 lands on the C (E) frame, which this mesh
+      // carries, so the wire still drives a named target from baked timing, not text dwell.
       const mesh = meshLike();
       const root = rootWith(mesh);
       const cues = mouthCuesToPhonemeCues(bakedDoc);
@@ -203,7 +217,7 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
             bakedCues: cues,
           },
         },
-        500,
+        300,
       );
       expect(result.frameCount).toBe(cues.length);
       expect(result.activeTargetName).toMatch(/^viseme_/);
