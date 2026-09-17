@@ -14,8 +14,8 @@
   "optimizationMode": "length_width_deck_unit_normalize_no_decimation",
   "realismGrade": null,
   "promotionStatus": "runtime_candidate_not_readiness_gate_pass",
-  "sha256": "89ccdab93ce4f6ca1cdd0c8f94afe834db431ed667ddac4580bbd9cc3c22a8bf",
-  "bytes": 3717432,
+  "sha256": "b320a807a789561a34222a7c3d4573842679f8cf6b1921263d015c59fcc210aa",
+  "bytes": 3714348,
   "measuredNormalize": {
     "lengthM": 2.001667022705078,
     "widthM": 1.8111050128936768,
@@ -65,8 +65,18 @@
       "Sketchfab Token API download to staging.",
       "Blender normalize (length/width/deck SSOT).",
       "Promote byte-identical normalized GLB into medical-equipment library.",
-      "Wire REAL_EQUIPMENT_GLTF_BY_ID + deckTopYMeters stamp."
+      "Wire REAL_EQUIPMENT_GLTF_BY_ID + deckTopYMeters stamp.",
+      "2026-09-16: finalize-equipment-glb-cli.ts (prune) removed a small amount of unreferenced accessor/node cruft; no geometry, texture, or material changed (verified: 8,812 rendered triangles, 66 nodes, and AABB identical before/after)."
     ]
+  },
+  "finalizeStation": {
+    "tool": "tools/openclinxr/asset-pipeline/equipment/finalize-equipment-glb-cli.ts",
+    "appliedAt": "2026-09-16T00:00:00.000Z",
+    "measuredBefore": { "sha256": "89ccdab93ce4f6ca1cdd0c8f94afe834db431ed667ddac4580bbd9cc3c22a8bf", "bytes": 3717432 },
+    "measuredAfter": { "sha256": "b320a807a789561a34222a7c3d4573842679f8cf6b1921263d015c59fcc210aa", "bytes": 3714348 },
+    "bytesSavedPct": 0.1,
+    "claimScope": "removed unreferenced datablock cruft only; no geometry, texture, or material changed",
+    "notEvidenceFor": ["visual_realism_change", "clinical_validity", "quest_readiness"]
   },
   "toolVersion": "openclinxr-equipment-bank-promote-v1",
   "promotedAt": "2026-08-12T14:01:20.609822+00:00",

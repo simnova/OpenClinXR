@@ -50,6 +50,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
 import time
 from pathlib import Path
@@ -145,7 +146,61 @@ def find_body_and_armature() -> Tuple[bpy.types.Object, Optional[bpy.types.Objec
     return body, arm
 
 
-def create_material(name: str, color: Tuple[float, float, float, float]) -> bpy.types.Material:
+def _mhclo_material_path(mhclo_path: str) -> Optional[str]:
+    """Same resolver as #330's hair fix, ported for the footwear channel.
+
+    MakeClothes `.mhclo` carries a `material <name>.mhmat` line and the `.mhmat` sits in the
+    same directory as the `.obj`. Before this fix, create_material() was called with a flat
+    role colour and the pack's shipped shoe textures (CC0, already staged in the provider
+    cache) were discarded on every bake — the same class of defect #330 measured and fixed
+    for hair (`embed_library_hair.py::_mhclo_material_path`).
+    """
+    directory = os.path.dirname(os.path.abspath(mhclo_path))
+    try:
+        with open(mhclo_path, "r", errors="replace") as handle:
+            for line in handle:
+                if line.lower().startswith("material "):
+                    candidate = os.path.join(directory, line.split(None, 1)[1].strip())
+                    return candidate if os.path.isfile(candidate) else None
+    except Exception:
+        return None
+    return None
+
+
+def _mhmat_textures(mhmat_path: str) -> Dict[str, str]:
+    """Declared texture map paths from a MakeHuman `.mhmat`, resolved and existence-checked."""
+    directory = os.path.dirname(os.path.abspath(mhmat_path))
+    keys = {"diffusetexture": "diffuse", "normalmaptexture": "normal", "specularmaptexture": "specular"}
+    found: Dict[str, str] = {}
+    try:
+        with open(mhmat_path, "r", errors="replace") as handle:
+            for line in handle:
+                stripped = line.strip()
+                lowered = stripped.lower()
+                for token, field in keys.items():
+                    if lowered.startswith(token):
+                        parts = stripped.split(None, 1)
+                        if len(parts) < 2:
+                            continue
+                        candidate = os.path.join(directory, parts[1].strip())
+                        if os.path.isfile(candidate):
+                            found[field] = candidate
+    except Exception:
+        return {}
+    return found
+
+
+def source_footwear_textures(mhclo_path: str) -> Dict[str, str]:
+    """Texture maps the shoe asset itself declares. Empty dict when it ships none."""
+    mhmat = _mhclo_material_path(mhclo_path)
+    return _mhmat_textures(mhmat) if mhmat else {}
+
+
+def create_material(
+    name: str,
+    color: Tuple[float, float, float, float],
+    textures: Optional[Dict[str, str]] = None,
+) -> bpy.types.Material:
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nodes = mat.node_tree.nodes
@@ -156,6 +211,34 @@ def create_material(name: str, color: Tuple[float, float, float, float]) -> bpy.
     bsdf.inputs["Base Color"].default_value = color
     bsdf.inputs["Roughness"].default_value = 0.55
     links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+
+    # #324 FIX (same class as #330's hair fix) — wire the maps the ASSET declares. Flat
+    # `color` remains the fallback for shoe styles that ship no .mhmat, so a textureless
+    # pack entry still bakes.
+    wired = []
+    maps = textures or {}
+    diffuse_path = maps.get("diffuse")
+    if diffuse_path:
+        tex = nodes.new("ShaderNodeTexImage")
+        tex.image = bpy.data.images.load(diffuse_path, check_existing=True)
+        tex.location = (-600, 200)
+        links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+        if "Alpha" in bsdf.inputs:
+            links.new(tex.outputs["Alpha"], bsdf.inputs["Alpha"])
+        wired.append("diffuse")
+    normal_path = maps.get("normal")
+    if normal_path:
+        ntex = nodes.new("ShaderNodeTexImage")
+        img = bpy.data.images.load(normal_path, check_existing=True)
+        img.colorspace_settings.name = "Non-Color"
+        ntex.image = img
+        ntex.location = (-600, -180)
+        nmap = nodes.new("ShaderNodeNormalMap")
+        nmap.location = (-300, -180)
+        links.new(ntex.outputs["Color"], nmap.inputs["Color"])
+        links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
+        wired.append("normal")
+    mat["openclinxr_wired_texture_maps"] = ",".join(wired)
     mat.diffuse_color = color
     try:
         mat.viewport_display.color = color[:3]
@@ -527,10 +610,11 @@ def main() -> None:
 
     halves = split_shoe_halves(shoe, args.shoe_kind)
     shoe_color = footwear_color(args.role)
+    shoe_textures = source_footwear_textures(args.shoe_mhclo)
     shells: List[Dict[str, Any]] = []
     total_faces = 0
     for side, obj in halves.items():
-        mat = create_material(f"openclinxr_footwear_{args.shoe_kind}_{side}_mat", shoe_color)
+        mat = create_material(f"openclinxr_footwear_{args.shoe_kind}_{side}_mat", shoe_color, shoe_textures)
         obj.data.materials.append(mat)
         bone = weight_half_to_foot(obj, arm, side)
         zs = [v.co.z for v in obj.data.vertices]
@@ -546,6 +630,7 @@ def main() -> None:
             "maxZ": round(max(zs), 6),
             "minY": round(min(ys), 6),
             "maxY": round(max(ys), 6),
+            "wiredTextureMaps": mat.get("openclinxr_wired_texture_maps", ""),
         }
         total_faces += meta["faceCount"]
         shells.append(meta)
@@ -572,6 +657,8 @@ def main() -> None:
         # world coords ever disagree, this block is the answer (the #321 failure class).
         "placementDiagnostics": placement_diagnostics(halves, arm),
         "shells": shells,
+        "sourceTextureMaps": {k: os.path.basename(v) for k, v in shoe_textures.items()},
+        "materialColorFallbackUsed": not bool(shoe_textures),
         "totalFaceCount": total_faces,
         "bodyHeight": round(body_bounds["z"][1] - body_bounds["z"][0], 6),
         "bodyMinZ": round(body_bounds["z"][0], 6),

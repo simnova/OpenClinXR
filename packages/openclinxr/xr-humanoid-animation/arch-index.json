@@ -36,6 +36,7 @@
     "@openclinxr/xr-scene"
   ],
   "tests": [
+    "src/a-silent-humanoid-still-blinks.test.ts",
     "src/an-owned-chain-survives-the-posture-pass.test.ts",
     "src/humanoid-animation.test.ts",
     "src/natural-blink-and-emotion.test.ts",

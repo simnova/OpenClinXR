@@ -27,6 +27,92 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-16T2254">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 101 &middot; 2026-09-16 22:54 EDT</p>
+          <h2>Four defects fixed in the machine that builds the characters, not in the characters themselves.</h2>
+        </div>
+        <p>
+          The previous entry listed faults found by making one character speak. This entry is about
+          repairing the steps that produced them. Every fix is in the factory, so a character built
+          tomorrow gets it without anyone remembering to ask. Each was checked by running the step and
+          measuring the file it produced, not by reading the code and believing it.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Four repairs, each measured before and after by running the step that makes the file.</caption>
+            <thead><tr><th scope="col">What was wrong</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+            <tbody>
+              <tr><td>The hair step ignored the images the hairstyle ships with and wrote a flat colour</td><td>no image on any surface</td><td>colour and surface-detail images attached</td></tr>
+              <tr><td>The shoe step had the identical fault</td><td>no image on any surface</td><td>two surfaces carry images</td></tr>
+              <tr><td>Authored feeling drove one eyebrow, and one of its three channels drove nothing</td><td>1 control; 1 channel dead</td><td>4 controls, both sides; the dead channel now drives 3</td></tr>
+              <tr><td>Blinking was a metronome, and a silent character never blinked at all</td><td>every 4.3 s exactly; 0 blinks when not speaking</td><td>irregular, 17.5 per minute; blinks while silent</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>The hair fault was the same fault twice</h3>
+        <p>
+          A hairstyle arrives as a shape plus a small file naming its images. The step that fits hair to
+          a head never opened that file; it picked a colour from the character's role and wrote that
+          instead. The images had been downloaded, licence-checked and sitting on disk for months. The
+          shoe step turned out to contain the same mistake, found by looking for the pattern rather than
+          the instance. Both now read what the asset declares, and both keep the flat colour only for
+          assets that genuinely ship no images.
+        </p>
+        <h3>Feeling now reaches both sides of the face</h3>
+        <p>
+          The part of the system that turns a mood into face movement could only name one control per
+          channel. Concern went to the left inner eyebrow and nowhere else. A third channel, meant to
+          carry facial tension, matched nothing on these characters and so moved nothing at all. It now
+          names every control a mood implies, chosen by the standard anatomical coding for facial
+          movement rather than by convenience. Measured on a shipped character: concern went from one
+          control to four across both brows, and the dead channel from nothing to three.
+        </p>
+        <h3>Blinking</h3>
+        <p>
+          The old blink was a clock: exactly every 4.3 seconds, forever. Perfect regularity is one of the
+          clearest signals that a face is not a person. The interval is now scattered between 2.1 and 4.7
+          seconds while keeping the long-run rate inside the ordinary resting range for a human at rest,
+          and it is still exactly reproducible, so a recording made twice comes out the same both times.
+        </p>
+        <p>
+          Measuring that change found a worse one beside it. Across 883 frames of a character standing
+          quietly, roughly nine seconds, the eyelids never moved once. A character only blinked while it
+          was talking. That is now repaired too.
+        </p>
+        <h3>Two things I reported and then had to withdraw</h3>
+        <p>
+          The eyebrows carry no image file, and the previous entry counted that as the same fault as the
+          hair. It is not. The eyebrow asset declares no images of its own, so writing none is faithful to
+          the source. Separately, evidence records suggested a mesh-reduction step had been silently
+          dropped from shipped characters. Counting the actual shapes in the files shows it was not: the
+          numbers match what that step recorded. Both claims are withdrawn rather than quietly dropped.
+        </p>
+        <h3>Still open, and the important one is unchanged</h3>
+        <p>
+          A recording was made of one character speaking a real recorded line while moving through five
+          moods, with fourteen facial controls active at once. Reviewed frame by frame, the mood still
+          cannot be read from the face. Driving every control a mood implies was necessary and is not
+          sufficient. The cause now looks like the eyebrow itself: it is a separate object from the head
+          and carries none of the head's movement controls, so the skin beneath an eyebrow moves while the
+          eyebrow stays where it is. That is the next repair, and it is not done.
+        </p>
+        <p>
+          Also unrepaired and visible in the same recording: the skin is mottled, the inside of the mouth
+          reads as a white shape, and the gown patient is wearing a child's garment. The hair in that
+          recording is still flat, because the character was built before the hair repair and has not been
+          rebuilt.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production
+          claim is made here. The four repairs are reported as landed on branches with measured before and
+          after values from running the affected step; they are not merged and have not been reviewed. Facial
+          expression is NOT claimed to work: more controls are driven than before, and the result is not
+          readable as the intended mood on the faces recorded. Blinking is reported as irregular and present
+          while silent, NOT as matching human blink behaviour. No claim is made about how any of this looks in
+          a headset, and the appearance faults listed as open remain open.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-16T2054">
         <div class="section-heading">
           <p class="eyebrow">Entry 100 &middot; 2026-09-16 20:54 EDT</p>

@@ -14,8 +14,8 @@
   "optimizationMode": "length_width_deck_unit_normalize_no_decimation",
   "realismGrade": null,
   "promotionStatus": "runtime_candidate_not_readiness_gate_pass",
-  "sha256": "b620e4949d2fef3669fe83327d66937d2fcac4bfbc0f0960e98e25e0edb51f0b",
-  "bytes": 3381996,
+  "sha256": "a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335",
+  "bytes": 532224,
   "measuredNormalize": {
     "lengthM": 1.8999994993209839,
     "widthM": 0.7000000476837158,
@@ -65,8 +65,18 @@
       "Sketchfab Token API download to staging.",
       "Blender normalize (length/width/deck SSOT).",
       "Promote byte-identical normalized GLB into medical-equipment library.",
-      "Wire REAL_EQUIPMENT_GLTF_BY_ID + deckTopYMeters stamp."
+      "Wire REAL_EQUIPMENT_GLTF_BY_ID + deckTopYMeters stamp.",
+      "2026-09-16: finalize-equipment-glb-cli.ts (dedup) collapsed 15 materials each embedding a byte-identical 203,149-byte texture (verified sha256-equal) into 1 material + 1 texture. Lossless: all 15 materials were already property-identical (roughness 0.8211145401000977, metallic 0, alphaMode OPAQUE, doubleSided true, emissive [0,0,0], alphaCutoff 0.5, same UV set 0) — an authoring-time material-per-part duplication with no visual difference. Triangle count (7,940), vertex count (8,410), and AABB unchanged."
     ]
+  },
+  "finalizeStation": {
+    "tool": "tools/openclinxr/asset-pipeline/equipment/finalize-equipment-glb-cli.ts",
+    "appliedAt": "2026-09-16T00:00:00.000Z",
+    "measuredBefore": { "sha256": "b620e4949d2fef3669fe83327d66937d2fcac4bfbc0f0960e98e25e0edb51f0b", "bytes": 3381996, "textures": 15, "materials": 15 },
+    "measuredAfter": { "sha256": "a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335", "bytes": 532224, "textures": 1, "materials": 1 },
+    "bytesSavedPct": 84.3,
+    "claimScope": "texture/material datablock dedup only; does not alter geometry, AABB, or UVs",
+    "notEvidenceFor": ["visual_realism_change", "clinical_validity", "quest_readiness"]
   },
   "toolVersion": "openclinxr-equipment-bank-promote-v1",
   "promotedAt": "2026-08-12T14:01:20.607236+00:00",

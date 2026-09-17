@@ -74,13 +74,23 @@ describe("natural eyelids and authored facial affect", () => {
     expect(face.morphTargetInfluences).toEqual([0, 0]);
   });
 
-  it.fails("an idle actor closes and reopens real closure channels without active speech", () => {
+  // FIXED (rest blink): updateHumanoidSpeechCue returned before the face rig whenever
+  // slot.activeSpeech was undefined, so an idle actor's closure channel stayed 0. Measured on a
+  // 1,321-frame capture: 883 silent frames, blink intensity 0 on every one. applyHumanoidRestBlink
+  // now drives the same channel from a slot-local rest clock. Converted from it.fails in the same
+  // change that fixed it.
+  it("an idle actor closes and reopens real closure channels without active speech", () => {
     const samples = idleSamples(["patient"])[0]!;
     expect(samples.some(v => v >= 0.8)).toBe(true);
     expect(samples.some((v, i) => i > 0 && v <= 0.05 && samples[i - 1]! > 0.05)).toBe(true);
   });
 
-  it.fails("idle actors with identical clocks have distinct nonzero closure schedules", () => {
+  // FIXED (per-actor blink phase): the rest clock's ORIGIN was slot-local but its interval
+  // sequence was shared, so actors falling silent together blinked in unison — this clause
+  // sampled three idle actors and got byte-identical closure series. restBlinkPhaseMs hashes the
+  // actor id into a phase offset, deterministic so captures still reproduce. Converted from
+  // it.fails in the same change that fixed it.
+  it("idle actors with identical clocks have distinct nonzero closure schedules", () => {
     const samples = idleSamples(["patient", "nurse", "family"]);
     for (const sample of samples) expect(sample.some(v => v >= 0.8)).toBe(true);
     expect(samples[0]).not.toEqual(samples[1]);
