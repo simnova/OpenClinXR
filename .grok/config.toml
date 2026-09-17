@@ -278,14 +278,6 @@ skills = true
 hooks = true
 mcps = true
 
-# --- Notifications for unattended/autonomous runs (turn_complete for event-driven slice runner, approval during long slices) ---
-[ui.notifications]
-method = "auto"
-condition = "unfocused"
-events = ["turn_complete", "approval_required"]
-sleep_prevention = true
-progress_bar = true
-
 # --- Plugins (project .grok/plugins/ for bundled hooks/MCP/LSP/skills/agents; see 09-plugins.md) ---
 [plugins]
 # paths = [".grok/plugins"]  # default discovery includes .grok/plugins/ for team-shared automation
