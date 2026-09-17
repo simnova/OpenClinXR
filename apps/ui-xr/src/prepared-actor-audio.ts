@@ -58,6 +58,7 @@ export function createPlayback({
   start: (opts: { when: number; offset: number; rate: number }) => Promise<void>;
   startNow: (opts: { when: number; offset: number; rate: number }) => void;
   stopNow: () => void;
+  ended: () => boolean;
   pauseNow: () => void;
   pause: () => Promise<void>;
   resume: () => Promise<void>;
@@ -156,6 +157,7 @@ export function createPlayback({
     start,
     startNow,
     stopNow,
+    ended: () => naturallyEnded,
     pauseNow,
     pause,
     resume,
@@ -291,14 +293,13 @@ type OwnedSession = {
   generation: string;
   nodeSerial: number;
   startedWhen: number;
-  lastContextTime: number;
-  lastPosition: number;
   clockState: { lastContextTime: number; lastPosition: number };
 };
 
 const host: Host = {};
 const prepared = new Map<string, PreparedEntry>();
 const sessions = new Map<string, OwnedSession>();
+const actorGeneration = new Map<string, number>();
 let sharedContext: (AudioContext | PlaybackContext) | undefined;
 let sharedDestination: unknown;
 let tapNode: AudioWorkletNode | undefined;
@@ -336,9 +337,9 @@ function guardedPosition(player: ReturnType<typeof createPlayback>): number {
   return player.position();
 }
 
-function stopOwned(session: OwnedSession | undefined): void {
-  if (!session) return;
-  try { session.player.stopNow(); } catch { /* replacement must still proceed */ }
+function stopOwned(session: OwnedSession | undefined): boolean {
+  if (!session || session.player.ended()) return true;
+  try { session.player.stopNow(); return true; } catch { return false; }
 }
 
 export function startPreparedActorTurnAudio(ctx: PreparedActorStartContext): boolean {
@@ -349,7 +350,7 @@ export function startPreparedActorTurnAudio(ctx: PreparedActorStartContext): boo
   if (!cuesAdmissible(entry.cues)) return false;
   if (sharedContext?.state !== "running" || !userActivated || !sharedDestination) return false;
   const previous = sessions.get(ctx.actorId);
-  stopOwned(previous);
+  if (!stopOwned(previous)) return false;
   host.triggerDialogue?.(ctx);
   const slot = host.getSlot?.(ctx.actorId) as LiveSlot | undefined;
   if (!slot?.activeSpeech || slot.activeSpeech.text !== ctx.spokenText) return false;
@@ -357,7 +358,9 @@ export function startPreparedActorTurnAudio(ctx: PreparedActorStartContext): boo
   const speech = slot.activeSpeech;
   if (!speech) return false;
   try {
-    const generation = `${ctx.actorId}:${entry.runnerConversationTurn}:${(previous?.nodeSerial ?? 0) + 1}`;
+    const genN = (actorGeneration.get(ctx.actorId) ?? 0) + 1;
+    actorGeneration.set(ctx.actorId, genN);
+    const generation = `${ctx.actorId}:${entry.runnerConversationTurn}:${genN}`;
     const player = createPlayback({
       context: sharedContext as PlaybackContext,
       buffer: entry.buffer,
@@ -377,6 +380,7 @@ export function startPreparedActorTurnAudio(ctx: PreparedActorStartContext): boo
     const resumeOffset = typeof ctx.resumeOffset === "number" && Number.isFinite(ctx.resumeOffset) && ctx.resumeOffset >= 0 ? ctx.resumeOffset : 0;
     player.startNow({ when, offset: resumeOffset, rate: 1 });
     if (tapMeta) tapMeta.nodeSerial = player.nodeSerial();
+    if (slot.root) slot.root.userData = { ...slot.root.userData, openClinXrPreparedGeneration: generation };
     speech.durationMs = (entry.decodedSampleCount / entry.decodedSampleRate) * 1000;
     speech.bakedCues = entry.cues;
     const clockState = { lastContextTime: when, lastPosition: 0 };
@@ -388,10 +392,7 @@ export function startPreparedActorTurnAudio(ctx: PreparedActorStartContext): boo
     const clock = createAudioSpeechClock({ slot, speech, positionSeconds: () => guardedPosition(player), wallOriginMs: performance.now(), rate: 1 });
     previous?.clock.release();
     if (!slot.activeSpeech) return false;
-    sessions.set(ctx.actorId, {
-      actorId: ctx.actorId, player, clock, speech, slot, generation, nodeSerial: player.nodeSerial(),
-      startedWhen: when, lastContextTime: clockState.lastContextTime, lastPosition: clockState.lastPosition, clockState,
-    });
+    sessions.set(ctx.actorId, { actorId: ctx.actorId, player, clock, speech, slot, generation, nodeSerial: player.nodeSerial(), startedWhen: when, clockState });
     return slot.activeSpeech === speech;
   } catch {
     return false;
@@ -423,12 +424,16 @@ export function installPreparedActorAudioRuntime(input: {
   entry: PreparedEntry;
 }): void {
   sessions.clear();
+  actorGeneration.clear();
   host.getSlot = input.getSlot;
   if (input.triggerDialogue) host.triggerDialogue = input.triggerDialogue;
   sharedContext = input.context;
   sharedDestination = input.destination;
   userActivated = true;
   prepared.set(prepareKey(input.entry.actorId, input.entry.responseText), input.entry);
+}
+export function registerPreparedActorAudioEntry(entry: PreparedEntry): void {
+  prepared.set(prepareKey(entry.actorId, entry.responseText), entry);
 }
 
 export function syncPreparedActorAudio(displayNowMs: number): void {
@@ -465,14 +470,8 @@ export function initPreparedActorAudioBridge(deps?: {
     markUserActivated,
     getAuthoredMaterials,
     getPlayedTap: () => {
-      let count = 0;
-      for (const part of tapChunks) count += part.length;
-      const played = new Float32Array(count);
-      let offset = 0;
-      for (const part of tapChunks) {
-        played.set(part, offset);
-        offset += part.length;
-      }
+      const played = new Float32Array(tapChunks.reduce((n, p) => n + p.length, 0));
+      let offset = 0; for (const part of tapChunks) { played.set(part, offset); offset += part.length; }
       return { samples: played, meta: tapMeta };
     },
   };
