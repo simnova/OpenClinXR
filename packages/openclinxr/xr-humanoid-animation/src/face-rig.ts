@@ -274,11 +274,33 @@ export function resetHumanoidFaceRigControls(slot: GeneratedHumanoidAnimationSlo
  * The rest clock is slot-local and starts when the slot first falls silent, so a figure does not
  * blink the instant speech ends and the schedule stays deterministic per slot.
  */
+
+/**
+ * Per-actor phase offset for the rest blink.
+ *
+ * DEFECT this fixes: the rest clock's origin is slot-local but its interval sequence is shared, so
+ * actors that fall silent at the same moment blink in perfect unison — measured by the planted RED
+ * "idle actors with identical clocks have distinct nonzero closure schedules", which sampled three
+ * idle actors and got byte-identical closure series. A room of people blinking together is a
+ * stronger synthetic tell than the metronome it replaced.
+ *
+ * Hashed from the actor id, not a PRNG and not wall-clock, so a capture still reproduces exactly
+ * and the same actor always blinks on the same schedule.
+ */
+function restBlinkPhaseMs(actorId: string): number {
+  let hash = 0;
+  for (let index = 0; index < actorId.length; index++) {
+    hash = (hash * 31 + actorId.charCodeAt(index)) | 0;
+  }
+  const hashed = Math.sin(hash) * 43758.5453;
+  return (hashed - Math.floor(hashed)) * BLINK_MEAN_INTERVAL_MS;
+}
+
 export function applyHumanoidRestBlink(slot: GeneratedHumanoidAnimationSlot, nowMs: number): number {
   const bag = slot as unknown as Record<string, unknown>;
   if (typeof bag["_restBlinkOriginMs"] !== "number") bag["_restBlinkOriginMs"] = nowMs;
   const originMs = bag["_restBlinkOriginMs"] as number;
-  const blinkIntensity = blinkIntensityAt(Math.max(0, nowMs - originMs));
+  const blinkIntensity = blinkIntensityAt(Math.max(0, nowMs - originMs) + restBlinkPhaseMs(slot.actorId));
   const leftUpperEyelid = slot.root.getObjectByName("openclinxr_left_upper_eyelid_blink_control");
   const rightUpperEyelid = slot.root.getObjectByName("openclinxr_right_upper_eyelid_blink_control");
   offsetHumanoidRigControl(leftUpperEyelid, 0, -blinkIntensity * 0.002, -blinkIntensity * 0.012);
