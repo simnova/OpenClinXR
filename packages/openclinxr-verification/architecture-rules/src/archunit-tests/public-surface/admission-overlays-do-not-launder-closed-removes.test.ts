@@ -443,7 +443,7 @@ describe("admission overlays do not launder closed removes", () => {
     expect(applyMap).not.toMatch(/requireAppliedWith/u);
     // Initial empty allowlist was the PSR implementation prerequisite. The later
     // independently reviewed activation is exact, not an arbitrary admission id.
-    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f"\]/u);
+    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "actor-audio-runtime-v1"\]/u);
     const resolveStart = applyMap.indexOf("export function resolveApplyId");
     const resolveBody = applyMap.slice(resolveStart);
     expect(resolveBody).not.toMatch(/ADMISSION_GROUPS/u);
@@ -458,7 +458,7 @@ describe("admission overlays do not launder closed removes", () => {
 
 describe("the independently reviewed seven-row production activation", () => {
   it("binds the exact allowlist and reviewed admission row hash", () => {
-    expect(ADMISSION_GROUPS).toEqual(["psr-01f"]);
+    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "actor-audio-runtime-v1"]);
     const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8"));
     expect(admission.rows).toHaveLength(7);
     expect(admission.admissionHash).toBe("6a4df1fedee5ad0fae42e026eaf6e77c2f1a4155c117a1e3e0c9679f74f90d11");
@@ -480,6 +480,7 @@ describe("the independently reviewed seven-row production activation", () => {
     const files: Record<string, string> = {
       [RAW_INVENTORY_REL]: readFileSync(join(ROOT, RAW_INVENTORY_REL), "utf8"),
       [`${ADMISSIONS_DIR}/psr-01f.json`]: admissionBody,
+      [`${ADMISSIONS_DIR}/actor-audio-runtime-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "actor-audio-runtime-v1.json"), "utf8"),
     };
     for (const group of REVIEW_GROUPS) files[`${APPROVALS_DIR}/${group}.json`] = readFileSync(join(ROOT, APPROVALS_DIR, `${group}.json`), "utf8");
     withTree(files, (root) => run(root, JSON.parse(admissionBody)));

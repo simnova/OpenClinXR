@@ -1,0 +1,10 @@
+import {it,expect} from "vitest";
+import {readFileSync} from "node:fs";
+import fixture from "./fixture-manifest.mjs";
+import {pcm16MonoFloat32,inspectPlayedSamples} from "./waveform-identity.mjs";
+const wav=readFileSync(fixture.retainedPrivatePath),reference=pcm16MonoFloat32(wav);
+const meta={sampleRate:fixture.sampleRate,sampleCount:fixture.sampleCount,observationKind:"audio-worklet-process",sourceGeneration:"gown:1"};
+it("actual pinned native WAV reconstructs at its own PCM16 encoding quantum",()=>{expect(reference.sampleRate).toBe(22050);expect(reference.sampleCount).toBe(317009);expect(inspectPlayedSamples(wav,reference.samples,meta)).toEqual([]);});
+it("unrelated nonzero tone cannot substitute for played speech",()=>{const tone=Buffer.alloc(reference.samples.length);for(let i=0;i<reference.sampleCount;i++)tone.writeFloatLE(Math.sin(i*2*Math.PI*440/22050)*0.1,i*4);expect(inspectPlayedSamples(wav,tone,meta)).toContain("played-waveform-mismatch");});
+it("one native PCM16 least-significant bit mutation is refused",()=>{const changed=Buffer.from(reference.samples);changed.writeFloatLE(changed.readFloatLE(100*4)+1/32768,100*4);expect(inspectPlayedSamples(wav,changed,meta)).toContain("played-waveform-mismatch");});
+it("shortened or unbound stream and wrong sample domain refuse",()=>{expect(inspectPlayedSamples(wav,reference.samples.subarray(4),meta)).toContain("played-waveform-mismatch");expect(inspectPlayedSamples(wav,reference.samples,{...meta,observationKind:"input-buffer-copy"})).toContain("played-tap-unbound");expect(inspectPlayedSamples(wav,reference.samples,{...meta,sampleRate:48000})).toContain("played-domain-mismatch");});

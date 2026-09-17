@@ -1,0 +1,141 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "actor-audio-runtime-v1",
+  "reviewedBy": "GPT-audible-vertical-scout; exact source/types tree 23c5554173d388084d2e9e8eaa7c4b39c4a744395f4a22f67ed139c7a8158860; independent review SHA256 dcd984fd2920cd3746404c32caee42000ac7ec7a337d5059c3a9d784f7a90a97; 2026-09-17",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "19220f885a14224c927d5d208f838223fe795bee69162cee075532ef3165c8a1",
+  "packages": [
+    "packages/openclinxr/xr-dialogue"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./actor-audio-runtime",
+      "symbol": "createActorAudioRuntime",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "codex-native-bounded-fallback",
+      "rationale": "Single inert closure owns actor audio playback/sourceclock/typed ordinary dialogue and closed diagnostic operations; actual Main consumes five methods. Independent source+emitted signature review, engineering only, no approved voice or AV sync claim.",
+      "reviewedBy": "GPT-audible-vertical-scout; exact source/types tree 23c5554173d388084d2e9e8eaa7c4b39c4a744395f4a22f67ed139c7a8158860; independent review SHA256 dcd984fd2920cd3746404c32caee42000ac7ec7a337d5059c3a9d784f7a90a97; 2026-09-17"
+    }
+  ],
+  "sourceReview": {
+    "producer": "codex-native-bounded-fallback",
+    "reviewer": "GPT-audible-vertical-scout",
+    "verdict": "READY",
+    "scope": "Engineering source/public ownership/app-owned test compatibility only; no AV or Stage2 approval",
+    "baseline": "1e1f4b28f9631f5b35d9d96e49fb42c5ddd5e42a",
+    "currentOwnerPlantHead": "e5354a5fd124071590036f97a06d786a7ebc6308",
+    "reviewedSHA256Tree": "23c5554173d388084d2e9e8eaa7c4b39c4a744395f4a22f67ed139c7a8158860",
+    "files": {
+      "apps/ui-xr/src/main.ts": {
+        "sha256": "a264e79b35061784998579bd19c2547e18802acf74c40a5b24034bec77e6c522",
+        "bytes": 231824
+      },
+      "packages/openclinxr/xr-dialogue/src/actor-audio-runtime.ts": {
+        "sha256": "952705ed6cd82f44f0a6d5d15502323b31a7f2d0d21e41bb742fb181bf0e0fba",
+        "bytes": 17707
+      },
+      "packages/openclinxr/xr-dialogue/src/actor-audio-playback-clock.ts": {
+        "sha256": "37ccc1418309d1b6bbc6210725b522b69c6590cb0b02f1e0b4c6fc114c6c9b41",
+        "bytes": 6705
+      },
+      "packages/openclinxr/xr-dialogue/src/actor-audio-prepared-data.ts": {
+        "sha256": "93084b9757e37974a1153a80e0482c52c83c75444d407a50e6ef1b3837493b3f",
+        "bytes": 4096
+      },
+      "packages/openclinxr/xr-dialogue/src/actor-audio-types.ts": {
+        "sha256": "58584894e5f4b8aedba8e47a86bdc6435f9796e766ae616c45722b95315f58b6",
+        "bytes": 1688
+      },
+      "vitest.config.ts": {
+        "sha256": "1b19e398f8f3f9482821b49dcf77a0cfa7afc537ad071ebd2ab704df824690b5",
+        "bytes": 1527
+      },
+      "packages/openclinxr/xr-dialogue/dist/actor-audio-runtime.d.ts": {
+        "sha256": "495e7dbc10aca43f524cafcf98c586e07bcc9a3d61463cecd738224f496ce9b4",
+        "bytes": 4285
+      },
+      "packages/openclinxr/xr-dialogue/package.json": {
+        "sha256": "c022d65e710c955cbcb4a15f753c1883cde9527259db8b9859f716d5ca79a306",
+        "bytes": 1059
+      },
+      "packages/openclinxr/xr-dialogue/arch-index.json": {
+        "sha256": "19bc0e5674db80c3910dd2218508bbdb70c8bb283794384bf23e40f89f5da81f",
+        "bytes": 2499
+      },
+      "packages/openclinxr-verification/architecture-rules/src/checks/public-surface/apply-map.ts": {
+        "sha256": "3af6fdbfb71e845d4c8ac889c38bb4948dcf48365592ddafada2b9e92fd0c8d0",
+        "bytes": 3210
+      },
+      "packages/openclinxr-verification/architecture-rules/src/archunit-tests/public-surface/admission-overlays-do-not-launder-closed-removes.test.ts": {
+        "sha256": "71a3218553367ac85a21ef3fe78af239076986fce9ec81ab1a21c98c35d8b8fa",
+        "bytes": 22555
+      },
+      "tools/openclinxr/factory/actor-audio-package-subpath-integration/admitted-entrypoint-types.d.ts": {
+        "sha256": "6e363aa994ddb2a6eeec8897aee23557a7511f4c275c85869c20e77dfecaf828",
+        "bytes": 404
+      },
+      "packages/openclinxr-verification/architecture-rules/src/archunit-tests/public-surface/surface-meter.test.ts": {
+        "sha256": "3d7244cebce8704516f589321e02726a8ba2eb167b20728e585d2bedcef9cef7",
+        "bytes": 33446
+      },
+      "apps/ui-xr/tests/actor-audio-compat.ts": {
+        "sha256": "b173395a4c72860df44ab6de5ced85616372600d4fe19e192d8ac394c8dc1777",
+        "bytes": 2536
+      },
+      "apps/ui-xr/package.json": {
+        "sha256": "3a9158f1cca6efd8f4db076f53b2fbbd9b4c7dfdc4725d2cd08bc2f701bd5557",
+        "bytes": 1666
+      },
+      "tools/openclinxr/factory/actor-audio-app-owned-integration/workspace-seam.test.mjs": {
+        "sha256": "e0ac8394e86c71b257402df3ba8129771055c5728178fb667becbb5e840087e9",
+        "bytes": 2179
+      },
+      "tools/openclinxr/factory/actor-audio-package-subpath-integration/historical-test-compatibility.test.ts": {
+        "sha256": "3b1a1c227da6f9bb1fdf75857654e9bddf797230e8d1a9811b47626aa341c0a2",
+        "bytes": 1235
+      },
+      "packages/openclinxr/xr-dialogue/src/index.ts": {
+        "sha256": "f6f35040895c7804c9fb7ecbcd3db57a9936c3a3559826bc542d1aec358beb67",
+        "bytes": 2442
+      },
+      "packages/openclinxr/xr-dialogue/dist/actor-audio-runtime.js": {
+        "sha256": "6014324b61b1b20b242d235a0fc0db3bade353f35ad22146fedd97c89eaa6610",
+        "bytes": 16780
+      }
+    },
+    "historicalTestByteIdenticalToBaseline": true,
+    "publicAdmissionReviewedShape": {
+      "schema": "openclinxr.psr-admission.v1",
+      "id": "actor-audio-runtime-v1",
+      "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+      "packages": [
+        "packages/openclinxr/xr-dialogue"
+      ],
+      "rows": [
+        {
+          "package": "packages/openclinxr/xr-dialogue",
+          "entrypoint": "./actor-audio-runtime",
+          "symbol": "createActorAudioRuntime",
+          "kind": "runtime",
+          "disposition": "keep",
+          "owner": "codex-native-bounded-fallback",
+          "rationale": "Single inert closure owns actor audio playback/sourceclock/typed ordinary dialogue and closed diagnostic operations; actual Main consumes five methods. Independent source+emitted signature review, engineering only, no approved voice or AV sync claim."
+        }
+      ],
+      "metadataPolicy": "Owner must refresh source/review metadata and derived admissionHash from this exact independent review; those self-referential metadata bytes are deliberately excluded from source tree hash."
+    },
+    "metadataPolicy": "Admission own review/hash metadata excluded from recursive digest; owner refresh binds genuine current independent review",
+    "reportedNotReviewerRerun": {
+      "originalAudiblePass": 164,
+      "globalArchitecturePass": 239,
+      "knip": "GREEN",
+      "workspaceSeam": {
+        "baselineRED": 3,
+        "prospectiveGREEN": 3
+      }
+    },
+    "materialFindings": []
+  }
+}
