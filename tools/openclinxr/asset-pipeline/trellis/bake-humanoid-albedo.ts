@@ -33,9 +33,9 @@ function pngChunk(type: string, body: Uint8Array): Buffer {
   return Buffer.concat([header, Buffer.from(body), crc]);
 }
 
-type DecodedPng = { w: number; h: number; chans: number; px: Uint8Array };
+export type DecodedPng = { w: number; h: number; chans: number; px: Uint8Array };
 
-function decodePng8(bytes: Uint8Array): DecodedPng {
+export function decodePng8(bytes: Uint8Array): DecodedPng {
   if (bytes.length < 8 || bytes[0] !== 0x89 || bytes[1] !== 0x50) throw new Error("not a PNG");
   const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   let w = 0;
