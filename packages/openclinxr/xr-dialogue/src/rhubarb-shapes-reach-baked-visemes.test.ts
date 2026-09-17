@@ -105,45 +105,69 @@ describe("rhubarb shapes reach baked visemes02 targets on MPFB bodies", () => {
     expect(new Set(drove).size).toBe(5);
   });
 
-  it("known-good: A->viseme_aa, B->viseme_E, X stays silent (never aa/E)", () => {
+  it("readme-meaning: nurse maps A->PP B->SS C->E D->aa E->O F->U G->FF H->nn, X silent", () => {
     const names = targetNamesFromGlb(NURSE_GLB);
-    expect(drivenTargetForShape(names, "A")).toBe("viseme_aa");
-    expect(drivenTargetForShape(names, "B")).toBe("viseme_E");
-    const x = drivenTargetForShape(names, "X");
+    // README quotes beside each shape (mouth-shapes table, ~/.openclinxr-tools/rhubarb/README.adoc).
+    expect(drivenTargetForShape(names, "A")).toBe("viseme_PP"); // "Closed mouth for the P, B, and M sounds"
+    expect(drivenTargetForShape(names, "B")).toBe("viseme_SS"); // "Slightly open mouth with clenched teeth ... K, S, T"
+    expect(drivenTargetForShape(names, "C")).toBe("viseme_E"); // "Open mouth ... EH as in men and AE as in bat"
+    expect(drivenTargetForShape(names, "D")).toBe("viseme_aa"); // "Wide open mouth ... AA as in father"
+    expect(drivenTargetForShape(names, "E")).toBe("viseme_O"); // "Slightly rounded mouth ... AO as in off and ER as in bird"
+    expect(drivenTargetForShape(names, "F")).toBe("viseme_U"); // "Puckered lips ... UW as in you, OW as in show, W as in way"
+    expect(drivenTargetForShape(names, "G")).toBe("viseme_FF"); // "Upper teeth touching the lower lip for F ... and V"
+    expect(drivenTargetForShape(names, "H")).toBe("viseme_nn"); // 'long "L" sounds, with the tongue raised behind the upper teeth'
+    const x = drivenTargetForShape(names, "X"); // "Idle position ... lips should be closed but relaxed"
     expect(x === null || x === "viseme_sil").toBe(true);
     expect(x).not.toBe("viseme_aa");
     expect(x).not.toBe("viseme_E");
   });
 
-  it("counterweight: on a viseme_E-only body, A,C,D,E,F,G,H drive null and B drives viseme_E", () => {
+  it("counterweight asserts the README meaning: on a viseme_E-only body, C drives viseme_E", () => {
     const names = new Set(["viseme_E", "viseme_sil", "basis"]);
-    for (const shape of ["A", "C", "D", "E", "F", "G", "H"]) {
+    // B ("clenched teeth ... EE sound in bee") no longer maps to the spread vowel E under the README.
+    for (const shape of ["A", "B", "D", "E", "F", "G", "H"]) {
       expect(drivenTargetForShape(names, shape), `shape ${shape}`).toBeNull();
     }
-    expect(drivenTargetForShape(names, "B")).toBe("viseme_E");
+    expect(drivenTargetForShape(names, "C")).toBe("viseme_E"); // "Open mouth ... EH as in men and AE as in bat"
   });
 
-  it("net: Anny body resolves every shape by identity to its carried viseme_* names", () => {
+  it("net asserts the README meaning: Anny body resolves shapes to its carried viseme_* names", () => {
     const names = targetNamesFromGlb(ANNY_GLB);
+    // README quotes beside each shape (mouth-shapes table, ~/.openclinxr-tools/rhubarb/README.adoc).
+    // A: "Closed mouth for the P, B, and M sounds" — Anny carries no viseme_PP, and the
+    // driver DOES write silence at weight > 0: PHONEME_ALIASES maps sil->silence
+    // (viseme-timeline-drive.ts:58-60), resolveVisemeTarget tries viseme_silence first among
+    // candidates (:179-185), and the active frame target is written at 1 (:254-257).
     const expected: Readonly<Record<string, string>> = {
-      A: "viseme_AA",
-      B: "viseme_E",
-      C: "viseme_IH",
-      D: "viseme_OH",
-      E: "viseme_OU",
-      F: "viseme_FV",
-      G: "viseme_L",
-      H: "viseme_OU",
+      A: "viseme_silence",
+      B: "viseme_IH", // "clenched teeth ... EE sound in bee" — IH is the nearest EE on Anny
+      C: "viseme_E", // "Open mouth ... EH as in men and AE as in bat"
+      D: "viseme_AA", // "Wide open mouth ... AA as in father"
+      E: "viseme_OH", // "Slightly rounded mouth ... AO as in off and ER as in bird"
+      F: "viseme_OU", // "Puckered lips ... UW as in you, OW as in show, W as in way"
+      G: "viseme_FV", // "Upper teeth touching the lower lip for F ... and V"
+      H: "viseme_L", // 'long "L" sounds, with the tongue raised behind the upper teeth'
     };
     for (const shape of SHAPES_A_TO_H) {
       expect(drivenTargetForShape(names, shape), `shape ${shape}`).toBe(expected[shape]);
     }
   });
 
-  it("net: FACS-only library body keeps the alias rows for viseme_IH / viseme_OU", () => {
+  it("net asserts the README meaning: FACS-only library body keeps alias rows incl PP/SS", () => {
     const names = targetNamesFromGlb(FACS_ONLY_GLB);
     expect(resolveMorphTarget("viseme_IH", names)).toBe("mouth-part-later");
     expect(resolveMorphTarget("viseme_OU", names)).toBe("mouth-protusion");
+    expect(resolveMorphTarget("viseme_PP", names)).toBe("mouth-compression");
+    expect(resolveMorphTarget("viseme_SS", names)).toBe("mouth-part-later");
+  });
+
+  it("A is a closed-lip shape: drives viseme_PP and never viseme_aa on the nurse body", () => {
+    const names = targetNamesFromGlb(NURSE_GLB);
+    expect(drivenTargetForShape(names, "A")).toBe("viseme_PP"); // "Closed mouth for the P, B, and M sounds"
+    expect(drivenTargetForShape(names, "A")).not.toBe("viseme_aa");
+    expect(mouthCuesToPhonemeCues({ mouthCues: [{ start: 0, end: 0.1, value: "A" }] })[0]?.phoneme).not.toBe(
+      "AA",
+    );
   });
 
   it("vacuity guard: nurse GLB target set is the measured hybrid body", () => {
@@ -164,3 +188,18 @@ describe("rhubarb shapes reach baked visemes02 targets on MPFB bodies", () => {
 // only when the alias name is present on the body): a baked visemes02 pack name beats a generic
 // FACS unit. Measured through the public API on the nurse GLB:
 //   C->viseme_I, D->viseme_O, E->viseme_U, F->viseme_FF, G->viseme_nn, H->viseme_U.
+
+// ## SUPERSEDED (Rhubarb shape semantics) - appended below the ## FIXED block above; both blocks above are untouched.
+// Rhubarb's README (~/.openclinxr-tools/rhubarb/README.adoc, "Mouth shapes" table) says:
+//   A = "Closed mouth for the P, B, and M sounds"
+//   B = "Slightly open mouth with clenched teeth ... most consonants (K, S, T, etc.) ... EE sound in bee"
+//   C = "Open mouth ... vowels like EH as in men and AE as in bat"
+//   D = "Wide open mouth ... vowels like AA as in father"
+//   E = "Slightly rounded mouth ... AO as in off and ER as in bird"
+//   F = "Puckered lips ... UW as in you, OW as in show, and W as in way"
+//   G = "Upper teeth touching the lower lip for F as in for and V as in very"
+//   H = "long L sounds, with the tongue raised behind the upper teeth"
+//   X = "Idle position ... lips should be closed but relaxed"
+// The old known-good clause pinning A->viseme_aa and B->viseme_E, the viseme_E-only counterweight
+// pinning B->viseme_E, and the Anny net clause pinning A->viseme_AA ... H->viseme_OU encoded a
+// misreading of Rhubarb's shapes. The clauses above now assert the README meaning instead.
