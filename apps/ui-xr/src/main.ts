@@ -140,6 +140,8 @@ import {
   updateHumanoidEmotionExpression as updatePackageHumanoidEmotionExpression,
 } from "@openclinxr/xr-humanoid-animation";
 import { playManifestMotionClip } from "./motion-manifest-motion-address.js";
+import { initPreparedActorAudioBridge, startPreparedActorTurnAudio, syncPreparedActorAudio } from "./prepared-actor-audio.js";
+import { preparedActorTurnAudioAvailable, startActorTurnSpeech } from "./ordinary-actor-turn-speech.js";
 import { observeMountedApproachGeometry } from "@openclinxr/xr-humanoid-animation/mounted-approach-geometry";
 import { applyStationBedsideStanceLock, createStationBedsideApproachState, updateStationBedsideApproach } from "@openclinxr/xr-humanoid-animation/station-bedside-approach";
 import {
@@ -3481,7 +3483,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     floor.userData.genDrive = approachFrame ? { locomotion: approachFrame.locomotion, driveSource: approachFrame.driveSource } : floor.userData.genDrive;
     const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
     const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);
-    updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid);
+    syncPreparedActorAudio(now); updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid);
     applyStationBedsideStanceLock(caseOwnedBedsideApproach); // AFTER the pose: a lock reading last frame's pose cancels nothing.
     applyPhysicsBoneTransforms(now); // capture-gated; extracted module
     updateEnvironmentRealismAnimations(deltaSeconds, now);
@@ -4357,10 +4359,11 @@ function playLiveFrozenActorTurn(
     nowMs: performance.now(),
     clipNames: slot?.responseClips?.map((clip) => clip.name) ?? [],
     getSlot: (id) => generatedHumanoidAnimationSlotsByActorId.get(id),
-    speak: (ctx) => {
-      triggerHumanoidDialogue(ctx.actorId, ctx.spokenText, gazeTarget, ctx.faceEmotion, req, "plan.dialogueEmotionTo");
-      return true;
-    },
+    speak: (ctx) => startPreparedActorTurnAudio({ ...ctx, gazeTarget, req, emotionSource: "plan.dialogueEmotionTo" }),
+    ...(!preparedActorTurnAudioAvailable({ actorId: plan.actorId, spokenText: plan.spokenText }) ? { speak: (ctx: Parameters<typeof startPreparedActorTurnAudio>[0]) => ["audio_started", "dialogue_only"].includes(startActorTurnSpeech({ ...ctx, gazeTarget, req, emotionSource: "plan.dialogueEmotionTo" }, {
+      readSpeech: (c) => generatedHumanoidAnimationSlotsByActorId.get(c.actorId)?.activeSpeech,
+      startDialogue: (c) => triggerHumanoidDialogue(c.actorId, c.spokenText, gazeTarget, c.faceEmotion as HumanoidExpressionEmotion | undefined, req, "plan.dialogueEmotionTo"),
+    }).kind) } : {}),
     playClip: playOneShotResponseClip,
     startFaceTransition: (id, emotion, nowMs) => { const live = generatedHumanoidAnimationSlotsByActorId.get(id); if (live) startHumanoidEmotionTransition(live, emotion, nowMs); },
   });
@@ -4772,11 +4775,8 @@ tick();
 recordBootPhase("clock_started");
 // #710 dev-only speak fixture bridge: no-op unless the capture URL carries
 // openclinxrSpeakFixture=1 (see apps/ui-xr/src/speak-fixture-bridge.ts).
-initSpeakFixtureBridge({
-  triggerDialogue: (actorId: string, text: string): void => {
-    triggerHumanoidDialogue(actorId, text, { kind: "learner_camera", actorId: null });
-  },
-});
+initPreparedActorAudioBridge({ getSlot: (id) => generatedHumanoidAnimationSlotsByActorId.get(id), triggerDialogue: (ctx) => triggerHumanoidDialogue(ctx.actorId, ctx.spokenText, (ctx.gazeTarget ?? { kind: "learner_camera", actorId: null }) as HumanoidDialogueGazeTarget, ctx.faceEmotion as HumanoidExpressionEmotion | undefined, ctx.req as HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"] | undefined, ctx.emotionSource as HumanoidDialogueEmotionContext["source"] | undefined) });
+initSpeakFixtureBridge({ triggerDialogue: (actorId: string, text: string): void => { startPreparedActorTurnAudio({ actorId, spokenText: text }); } });
 function buildHumanoidSpeechEvidence(
   actorId: string | null,
   assetId: string | null,
