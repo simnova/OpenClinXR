@@ -14,17 +14,25 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-10 | DeepSeek HOLD | workers default `muse-spark-1`**
+**2026-09-18 ~11:15 UTC | harvest wake `01a0b507-1245` (muse-spark-1)**
 
 **BLOCKED**
-- DeepSeek (`deepseek-v4-flash` / `-pro` / vision-exp) HOLD: 402 Insufficient Balance. Do not dispatch.
+- Claude weekly limit until 2026-09-19 15:00 America/New_York. Grok continues the factory loop.
+- BothyBoard `tasks.next` → `{task:null}`, unchanged:true (verified live this wake). Factory bug-fixes need no cards.
+- One Blender bake at a time. Eyebrow worker holds that slot (bake PID 56376 running, `bake4.log` 11:13).
 
 **LANDED this wake**
-- Agent routing: Grok workers / explore / plan / general-purpose → `muse-spark-1` (contributor, vision OK). Fallback `nemotron-ultra` (free, text-only; write roles need `modelDowngradeReason`). User `~/.grok/config.toml` `[subagents.models]` binds live children.
+- Nothing new to land. Website entry 104 already on origin `1d346c79f`; `pnpm pages:validate` re-run green this wake.
 
-**NEXT this wake:** dequeue with Muse default. Street look-good parked (shin wash, open-collar cuff). Escalate `grok-4.6` only on measured Muse failure.
+**IN FLIGHT this wake**
+- Eyebrow bake4 PID 56376 at 100% CPU, cwd factory-eyebrow-visibility, output `/tmp/openclinxr-eyebrow-nurse1/mpfb-clinical-nurse-adult.glb` (not written yet). Stage: hole-guard / screenspace unhide. Bakes 1-3 died on missing provider-cache `.mhmat` (pants, shirt, shoes); 4 has garments. EYEBROW_REDUCTION this bake: 200 strands, 3600 tris, **247/2304 band cells (10.7%)**. FACS 8 units transferred. No 4-up → NOT merged.
+- Hide-mask `01a0b50a` session growing (2.6 MB), worktree still clean — reconnaissance, do not re-dispatch.
 
-NOT TESTED: live DeepSeek recovery probe (HOLD until operator lifts it).
+**NEXT:** when bake4 writes the GLB, isolated 4-up then pixel grade. Coverage 10.7% may still read as specks; contrast (hair-albedo brow) is the other lever in the uncommitted diff.
+
+NOT TESTED: meshopt 0.4 on this bake's 3600-tri brow (no GLB yet).
+
+SWEEP: reds=351 files oldest (#17) workers=2 (eyebrow-bake4 + hidemask-probe) bothy=null-unchanged
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**
