@@ -227,7 +227,7 @@ describe("expression weights follow actor turn plan", () => {
    * resolveLiveActorTurnForTrace(tag). requestActorResponse appears once.
    * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
    */
-  it.fails("(11) station actor-response body registers the live plan", () => {
+  it("(11) station actor-response body registers the live plan", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const stationStart = mainSource.indexOf("requestActorResponse");
     const stationBlock = mainSource.slice(stationStart, stationStart + 3000);
@@ -237,4 +237,9 @@ describe("expression weights follow actor turn plan", () => {
     expect(parsed?.plan.dialogueEmotionTo).toBe("anxious");
     expect(consumeLiveActorTurn(parsed!.plan, parsed!.execution).faceEmotion).toBe("anxious");
   });
+
+  // ## FIXED (R2 tsk_c948fb0a7b60c922)
+  // Station block now registerLiveActorTurn(plan, execution, tag) from
+  // liveActorTurnFromPayload(actorResponse). Caption still falls back to
+  // actorResponseTextFromApiResult.
 });

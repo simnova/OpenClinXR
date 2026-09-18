@@ -2391,6 +2391,10 @@ async function recordRemoteTraceAction(
       atSecond,
       traceContextTags: actorTurn.traceContextTags,
     });
+    const parsed = liveActorTurnFromPayload(actorResponse as unknown as Record<string, unknown>);
+    if (parsed) {
+      registerLiveActorTurn(parsed.plan, parsed.execution, tag);
+    }
     const text = actorResponseTextFromApiResult(actorResponse);
     if (text) {
       const liveTurn = resolveLiveActorTurnForTrace(tag);
