@@ -27,6 +27,94 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-18T1335">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 105 &middot; 2026-09-18 13:35 EDT</p>
+          <h2>Raising the eyebrow budget from 3,600 to 9,000 triangles kept more strands and did not fill the arches. Fitted CC0 teeth replaced the white helper slab.</h2>
+        </div>
+        <p>
+          Everything below is merged except the scratch re-bakes, which stay in <code>/tmp</code>.
+          The face stills were cropped 1:1 from a native 4096 isolated render (self-check relative
+          error 0.043%) and from the 09-18 10.7% control. 3&times;/4&times; enlargements were not
+          used for the grade.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Two factory changes since entry 104, each with its own measurement.</caption>
+            <thead><tr><th scope="col">What changed</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Eyebrow reducer spent leftover budget on densest strands</strong></td><td>greedy only; 200 of 1,775 strands; 3,600 tris; 247/2304 band cells (10.7%)</td><td>greedy + densest-ink fill; 499 of 1,775 strands; 9,000 tris; 257/2304 (11.2%). Arches still thin. Not filled.</td></tr>
+              <tr><td><strong>Inner mouth was a white helper slab</strong></td><td>helper verts 15006–15111 (teeth) and 13380–13605 (tongue)</td><td>CC0 <code>teeth_base</code> 7,120 tris + <code>tongue01</code> 448 tris fitted before helper strip; helper count 19,158 → 13,380. Separate upper incisors in the mouth-open still.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>The filled-arch attempt</h3>
+        <p>
+          Entry 104's reduced nurse brow read as a scatter of specks at video framing, and as two
+          thin strawberry-blond arches at a native face crop (247 of 2,304 band cells). A second
+          reducer phase now spends leftover triangle budget on the strands with the most projected
+          band ink per triangle, and the bake budget moved from 3,600 to 9,000 (still 3.5&times;
+          below the 31,968-triangle source, and under the 21,000-triangle speckle treatment that
+          already failed). The adult-nurse re-bake kept 499 of 1,775 strands and transferred all 8
+          brow action units. Band coverage moved 247 → 257 cells.
+        </p>
+        <p>
+          That is not a filled arch. The native face crop below is a 1:1 cut from the isolated
+          4096 front render of the 9,000-triangle bake. Both arches are present, hair-matched,
+          and thin. The 10.7% control is the same class.
+        </p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:12px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/eyebrow-nurse-scratch-front-face-2026-09-18.png" alt="Native face crop of the 3,600-triangle nurse brow: two thin strawberry-blond arches above the eyes, hair-matched, not filled." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Control &mdash; 3,600 tris, 247/2304 cells. Thin hair-matched arches.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/eyebrow-nurse-fill-front-face-2026-09-18.png" alt="Native 1:1 face crop from a 4096 isolated front render of the 9,000-triangle nurse: two thin strawberry-blond arches still, crumpled skin facets, grey T at the collar." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Treatment &mdash; 9,000 tris, 257/2304 cells, 1:1 crop of the 4096 isolated front. Arches readable, not filled. Skin facets and collar T unchanged.</figcaption>
+          </figure>
+        </div>
+        <p class="evidence-note">
+          Isolated 4-up self-check relative error 0.043% (probe vs in-page AABB). Full-body
+          4096 stills do not resolve the brow; the grade is this face crop. Worker 4&times;
+          enlargements of a ~300 px face from a 1024 full-body were discarded. Scratch GLB
+          44&nbsp;MB at <code>/tmp/openclinxr-brow-fill-nurse1/mpfb-clinical-nurse-adult.glb</code>;
+          the shipped nurse is unchanged. Commit <code>e580da62f</code>.
+        </p>
+
+        <h3>Fitted CC0 teeth, not a helper slab</h3>
+        <p>
+          The factory now fits MakeHuman system <code>teeth_base</code> and <code>tongue01</code>
+          through <code>HumanService.add_mhclo_asset</code> before the helper-vert strip. Licence
+          headers: “explicitly released as CC0 in september 2020”, Data Collection AB / Joel Palmius
+          / Jonas Hauquier. FACSHuman teeth/tongue were refused (AGPL3). On the Kevin re-bake:
+          3,868 verts / 7,120 tris teeth, 226 verts / 448 tris tongue; helper verts 19,158 → 13,380.
+        </p>
+        <figure style="margin:12px 0 0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#10221a; max-width:640px;">
+          <img src="assets/kevin-fitted-teeth-tongue-mouth-open-2026-09-18.png" alt="Mouth-open close-up of the Kevin re-bake after CC0 teeth_base fit: separate upper incisors with gaps, pink interior, not a single white slab." style="width:100%; height:auto; display:block;">
+          <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Kevin mouth-open still after CC0 teeth_base + tongue01. Separate incisors, not a white slab. Clay/Workbench diagnostic lighting. Tongue mesh not isolated from inner-mouth texture.</figcaption>
+        </figure>
+        <p class="evidence-note">
+          Tight close-up with tongue vs without is 967,342 vs 967,060 bytes and looks the same,
+          so the pink band is not proven to be the tongue mesh. Visemes on the new teeth are
+          untested. Scratch GLB not promoted. Commit <code>acf23827b</code>.
+        </p>
+
+        <h3>Still open</h3>
+        <p>
+          Filled eyebrows are not established at 9,000 triangles. Crumpled face/neck facets
+          (<code>bake_subdiv=False</code>), the closed-lid iris sliver, and the collar UV seam
+          (skin-atlas class C; hide-mask will not remove it) are unchanged. No shipped MPFB
+          file was replaced.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or
+          production claim is made here. The eyebrow fill is reported as a miss on appearance:
+          more strands kept, coverage +10 cells, arches still thin at native face crop. Teeth
+          are reported on a scratch re-bake with a mouth-open still; no shipped file has changed.
+          No claim is made about how any of this appears in a headset.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-18T0940">
         <div class="section-heading">
           <p class="eyebrow">Entry 104 &middot; 2026-09-18 09:40 EDT</p>

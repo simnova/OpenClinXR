@@ -14,24 +14,27 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-18 ~17:22 UTC | Grok 4.6 CEO resume after Claude weekly-limit**
+**2026-09-18 ~17:38 UTC | Grok 4.6 CEO — brow fill graded, entry 105**
 
 **BLOCKED**
 - Claude weekly limit until 2026-09-19 15:00 America/New_York.
 - BothyBoard `tasks.next` `{task:null}`. Factory bugs need no cards.
 - Muse long sessions die on `missing field created`. Do not use `isolation=worktree`.
 
-**LANDED on origin `e580da62f`**
-- Entry 104 `1d346c79f`. Kevin mouth stills `acf23827b`.
-- `e3ed4bc08` brow albedo follows fitted hair. MY GRADE native `docs/assets/eyebrow-nurse-scratch-front-face-2026-09-18.png`: two thin strawberry-blond arches, hair-matched. Coverage 247/2304 (10.7%). Scratch GLB stays in `/tmp`.
-- `e580da62f` factory: phase-2 densest-ink fill + budget 3600→9000. Vitest 3/3 `the-reduced-eyebrow-keeps-covering-strands`. Appearance ungraded until face crop.
+**LANDED on origin `e580da62f` (wiring) + docs this wake**
+- `e580da62f` phase-2 densest-ink fill, budget 3600→9000. Vitest 3/3.
+- Adult-nurse scratch GLB 44 MB `/tmp/openclinxr-brow-fill-nurse1/mpfb-clinical-nurse-adult.glb`. EYEBROW_REDUCTION afterTris 9000, keptStrands 499, bandCellsCovered 257/2304 (11.2%). Isolated 4-up agrees, relativeError 0.043%.
+- MY GRADE native 1:1 crop `docs/assets/eyebrow-nurse-fill-front-face-2026-09-18.png` (from 4096 front_lit): two thin strawberry-blond arches, hair-matched. arch_filled_left NO. arch_filled_right NO. still_dusting YES. Same class as 10.7% control. Scratch GLB not promoted.
+- Worker 4x enlargements of a ~300 px face from a 1024 full-body were discarded.
 
 **IN FLIGHT**
-- Adult nurse rebake blender pid 30732, cwd `wt/brow-coverage-thicken`, output `/tmp/openclinxr-brow-fill-nurse1/mpfb-clinical-nurse-adult.glb`. Log: afterTris 9000, keptStrands 499, bandCellsCovered 257/2304 (11.2%). Shirt `.mhmat` consumed. Worker `01a0b569` still live on that write root — do not re-dispatch.
+- None. Brow worker `01a0b569` returned. Bake slot free.
 
-NOT TESTED: filled-arch pixels vs 10.7% still; meshopt on 9000-tri brow; viseme on fitted teeth; tongue isolation; collar UV seam.
+NOT TESTED: meshopt on 9000-tri brow; viseme on fitted teeth; tongue isolation; filled-arch via a different reducer (raising tris again is the 21k-speckle treatment).
 
-SWEEP: reds=459 it.fails workers=1 (brow bake live pid 30732) bothy=null-unchanged bb-r6311-fb0846f6
+NEXT: crumpled face/neck facets (`bake_subdiv=False`) or closed-lid iris sliver.
+
+SWEEP: reds=459 it.fails workers=0 bothy=null-unchanged bb-r6311-fb0846f6
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**
