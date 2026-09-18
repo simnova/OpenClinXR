@@ -238,6 +238,25 @@ describe("expression weights follow actor turn plan", () => {
     expect(consumeLiveActorTurn(parsed!.plan, parsed!.execution).faceEmotion).toBe("anxious");
   });
 
+  it("(12) station block consumes synthesize return into the live registry", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const stationStart = mainSource.indexOf("requestActorResponse");
+    const stationBlock = mainSource.slice(stationStart, stationStart + 5000);
+    expect(stationBlock).toContain("synthesizeActorSpeech");
+    expect(stationBlock).toContain("actorTurnExecution");
+    expect(stationBlock).toContain("registerLiveActorTurn");
+    const plan = samplePlan({ dialogueEmotionTo: "anxious" });
+    const recordedVoice = { actorTurnExecution: sampleExecution({ interruption: { kind: "truncated" } }) };
+    const joined = liveActorTurnFromPayload({
+      actorTurnPlan: plan,
+      actorTurnExecution: (recordedVoice as Record<string, unknown>)["actorTurnExecution"],
+    });
+    const live = consumeLiveActorTurn(joined!.plan, joined!.execution);
+    expect(live.executionApplied).toBe(true);
+    expect(live.bargeInKind).toBe("truncated");
+    expect(live.droppedTagLog).toEqual(["[cry]", "[breath]"]);
+  });
+
   // ## FIXED (R2 tsk_c948fb0a7b60c922)
   // Station block now registerLiveActorTurn(plan, execution, tag) from
   // liveActorTurnFromPayload(actorResponse). Caption still falls back to
