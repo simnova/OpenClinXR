@@ -371,6 +371,13 @@ function resolveMorphTargetGroup(
   return direct === null ? [] : [{ target: direct, scale: 1 }];
 }
 
+/** Reassured-only AU12 gate: keys off weights row, never cheekTension magnitude. */
+const REASSURED_W = { mouthOpen: 0.08, browConcern: 0.18, cheekTension: 0.18 } as const;
+function isReassuredExpressionWeights(w: HumanoidExpressionWeights): boolean {
+  const t = 0.01;
+  return Math.abs(w.mouthOpen - REASSURED_W.mouthOpen) <= t && Math.abs(w.browConcern - REASSURED_W.browConcern) <= t && Math.abs(w.cheekTension - REASSURED_W.cheekTension) <= t;
+}
+
 export function applyHumanoidMorphTargetCue(
   slot: GeneratedHumanoidAnimationSlot,
   openness: number,
@@ -410,6 +417,9 @@ export function applyHumanoidMorphTargetCue(
     driveGroup("openclinxr_mouth_open", openness + expressionWeights.mouthOpen * 0.18, MOUTH_OPEN_CAP);
     driveGroup("openclinxr_brow_concern", expressionWeights.browConcern + (viseme === "rest" ? 0 : 0.05), 0.95);
     driveGroup("openclinxr_cheek_tension", expressionWeights.cheekTension + openness * 0.22, 0.95);
+    if (isReassuredExpressionWeights(expressionWeights)) {
+      driveGroup("mouth-corner-puller", 0.5, 0.95);
+    }
   });
   const named = applyNamedVisemes(slot, performance.now());
   if (named.activeTargetName) applied += 1;
