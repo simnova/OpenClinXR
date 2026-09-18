@@ -98,14 +98,18 @@ describe("natural eyelids and authored facial affect", () => {
     expect(samples[0]).not.toEqual(samples[2]);
   });
 
-  it.fails("authored pain is not immediately cancelled merely because speech is absent", () => {
+  // ## FIXED: silent and speech-finished branches of updateHumanoidSpeechCue no longer
+  // force targetEmotion to "neutral". Rest blink still applies after the morph cue.
+  it("authored pain is not immediately cancelled merely because speech is absent", () => {
     const { slot } = actor("patient");
     startHumanoidEmotionTransition(slot, "pain", 0);
     updateGeneratedHumanoidAnimations(context([slot]), 1 / 60, 100, new PerspectiveCamera());
     expect(slot.emotionExpression.targetEmotion).toBe("pain");
   });
 
-  it.fails("emotion interpolation reaches the same elapsed-time endpoint independent of frame subdivision", () => {
+  // ## FIXED: updateHumanoidEmotionExpression blends fromWeights→target by elapsed-time
+  // ease, so one jump and a 60 Hz loop agree at the same nowMs.
+  it("emotion interpolation reaches the same elapsed-time endpoint independent of frame subdivision", () => {
     const sparse = actor("sparse").slot;
     const dense = actor("dense").slot;
     startHumanoidEmotionTransition(sparse, "pain", 0);

@@ -163,10 +163,15 @@ export function updateHumanoidEmotionExpression(
   const state = slot.emotionExpression;
   const progress = Math.min(1, Math.max(0, (nowMs - state.transitionStartedAtMs) / state.transitionDurationMs));
   const eased = progress * progress * (3 - 2 * progress);
+  // Blend from the authored FROM emotion (captured as currentEmotion at start)
+  // to targetWeights. The previous lerp used `eased * 0.34` against the live
+  // weights, so a 60 Hz loop approached the target farther than a single jump
+  // of the same elapsed time.
+  const fromWeights = expressionWeightsForEmotion(state.currentEmotion);
   state.weights = {
-    mouthOpen: lerpHumanoidAnimation(state.weights.mouthOpen, state.targetWeights.mouthOpen, eased * 0.34),
-    browConcern: lerpHumanoidAnimation(state.weights.browConcern, state.targetWeights.browConcern, eased * 0.34),
-    cheekTension: lerpHumanoidAnimation(state.weights.cheekTension, state.targetWeights.cheekTension, eased * 0.34),
+    mouthOpen: lerpHumanoidAnimation(fromWeights.mouthOpen, state.targetWeights.mouthOpen, eased),
+    browConcern: lerpHumanoidAnimation(fromWeights.browConcern, state.targetWeights.browConcern, eased),
+    cheekTension: lerpHumanoidAnimation(fromWeights.cheekTension, state.targetWeights.cheekTension, eased),
   };
   slot.root.userData["openClinXrEmotionExpressionTransitionCue"] = {
     currentEmotion: state.currentEmotion,

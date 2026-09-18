@@ -22,7 +22,6 @@ import {
   normalizeHumanoidAnimationAngle,
   resetHumanoidFaceRigControls,
   roundHumanoidExpressionWeights,
-  startHumanoidEmotionTransition,
   updateHumanoidEmotionExpression,
   visemeOpenness,
   applyHumanoidRestBlink,
@@ -261,7 +260,6 @@ export function updateHumanoidSpeechCue(
     slot.expressionCue.scale.set(1, 1, 1);
     resetHumanoidFaceRigControls(slot);
     (slot as unknown as Record<string, unknown>)["_liveAffectRamp"] = undefined;
-    startHumanoidEmotionTransition(slot, "neutral", nowMs);
     applyHumanoidMorphTargetCue(slot, 0, "rest", updateHumanoidEmotionExpression(slot, nowMs).weights, applyNamedSpeechVisemes);
     // A silent humanoid still blinks. Applied AFTER the reset and the morph cue, both of which
     // zero the lid channel, so neither can undo it.
@@ -288,7 +286,6 @@ export function updateHumanoidSpeechCue(
     slot.expressionCue.scale.set(1, 1, 1);
     resetHumanoidFaceRigControls(slot);
     (slot as unknown as Record<string, unknown>)["_liveAffectRamp"] = undefined;
-    startHumanoidEmotionTransition(slot, "neutral", nowMs);
     applyHumanoidMorphTargetCue(slot, 0, "rest", updateHumanoidEmotionExpression(slot, nowMs).weights, applyNamedSpeechVisemes);
     return;
   }
