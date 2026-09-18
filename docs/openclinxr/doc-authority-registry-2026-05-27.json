@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 107,
-    "current-reference": 209,
+    "current-reference": 210,
     "archive-candidate": 92,
     "evidence": 147,
     "temporary": 54,
@@ -3732,6 +3732,13 @@
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/emotion-factory-tie-in-plan-2026-09-18.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/emotional-prosody-policy-review-2026-09-02.md",

@@ -220,4 +220,21 @@ describe("expression weights follow actor turn plan", () => {
     expect(mainSource).not.toMatch(/emotionForDialogueText\s*\(/u);
     expect(mainSource).not.toContain("dialogue_text_heuristic");
   });
+
+  /**
+   * Station actor-response drops actorTurnPlan: main.ts:2388-2406 reads only
+   * actorResponseTextFromApiResult (runtime-state.ts:1822-1828) then
+   * resolveLiveActorTurnForTrace(tag). requestActorResponse appears once.
+   * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+   */
+  it.fails("(11) station actor-response body registers the live plan", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const stationStart = mainSource.indexOf("requestActorResponse");
+    const stationBlock = mainSource.slice(stationStart, stationStart + 3000);
+    expect(stationBlock).toContain("registerLiveActorTurn");
+    const recorded = { actorTurnPlan: samplePlan({ dialogueEmotionTo: "anxious" }) };
+    const parsed = liveActorTurnFromPayload(recorded as Record<string, unknown>);
+    expect(parsed?.plan.dialogueEmotionTo).toBe("anxious");
+    expect(consumeLiveActorTurn(parsed!.plan, parsed!.execution).faceEmotion).toBe("anxious");
+  });
 });
