@@ -956,6 +956,11 @@ CONSUMED_GARMENT_TEXTURES: set = set()
 LUMINANCE_NORMALISED_IMAGES: set = set()
 
 
+# 50% floor in a-locked-clinical-colour-survives-its-garment-texture.test.ts for a
+# dark, high-contrast texture (shirt-knit mean 0.206), accepting clipping there.
+MIN_NORMALISED_MEAN = 0.6
+
+
 def normalise_garment_texture_luminance(mat, label):
     """#386 — a locked clinical colour and an authored garment texture must not multiply.
 
@@ -979,6 +984,33 @@ def normalise_garment_texture_luminance(mat, label):
 
     Returns the authored mean (for the bake census), or None when the material has no
     texture image or the image was already normalised.
+
+    FIXED 2026-09-17: the old rule divided ALL channels by the mean LUMINANCE and clipped
+    to [0,1]. Measured on `Scrubs_Main_BaseColor_Utility - sRGB - Texture.png`:
+
+    | stage | shirt R,G,B mean | shirt R,G,B std |
+    |---|---|---|
+    | source PNG | 96.9, 151.6, 179.5 | 3.9, 4.7, 5.2 |
+    | raw materialize GLB texture (after normalise) | 173.3, 254.8, 255.0 | 6.6, 1.97, 0.0 |
+    | after bake-humanoid-albedo (factor folded) | 8.8, 121.9, 133.0 | 0.45, 0.89, 0.0 |
+
+    Log line: `GARMENT_TEXTURE_NORMALISE ... authoredMean 0.5595 ... scale 1.787`. The
+    texture's G (0.595) and B (0.70) channels sit above the luminance (0.56), so G and B
+    scaled to 1.06x and 1.26x and clipped to 255: the weave was gone before export.
+    The rule is now per-channel over opaque texels (alpha >= 0.5; all texels if none
+    opaque): mean_c = channel mean, hi_c = channel 99.5th percentile, scale_c =
+    min(1/mean_c, max(1/hi_c, MIN_NORMALISED_MEAN/mean_c)), rgb_c clipped to [0,1].
+    1/hi_c puts the channel's 99.5th-percentile texel at 1.0, so roughly the top 0.5% of texels clip, more
+    where 8-bit values tie at the percentile (measured on the scrub shirt: 0.75%, 0.86%, 0.70%)
+    (isolated highlights such as the white pocket label: shirt R p99 105, max 188)
+    and std/mean is preserved for the rest. 1/mean_c caps the channel mean at 1.0 — the
+    old #386 target — so no channel is brightened past it. MIN_NORMALISED_MEAN = 0.6
+    keeps effective brightness above the 50% floor in
+    tools/openclinxr/evidence/a-locked-clinical-colour-survives-its-garment-texture.test.ts
+    for a dark, high-contrast texture (shirt-knit mean 0.206), accepting clipping there.
+    Per-channel scaling neutralises the texture's own hue, so the locked baseColorFactor
+    sets the hue and the texture supplies relative weave, which is what the #386
+    docstring already says it intends.
     """
     tex_node = None
     img = None
@@ -997,11 +1029,30 @@ def normalise_garment_texture_luminance(mat, label):
     px = np.array(img.pixels[:]).reshape(h, w, 4).astype(np.float32)
     rgb = px[..., :3]
     opaque = px[..., 3] >= 0.5
+    sel = rgb[opaque] if opaque.any() else rgb.reshape(-1, 3)
     lum = rgb.mean(axis=-1)
     mean = float(lum[opaque].mean()) if opaque.any() else float(lum.mean())
     if not np.isfinite(mean) or mean <= 0.0:
         return mean
-    px[..., :3] = np.clip(rgb / mean, 0.0, 1.0)
+    scales = []
+    means_after = []
+    clipped = []
+    n_texels = sel.shape[0]
+    for c in range(3):
+        ch = sel[:, c]
+        mean_c = float(ch.mean())
+        if not np.isfinite(mean_c) or mean_c <= 0.0:
+            scales.append(1.0)
+            means_after.append(0.0)
+            clipped.append(0.0)
+            continue
+        hi_c = float(np.percentile(ch, 99.5))
+        scale_c = min(1.0 / mean_c, max(1.0 / hi_c if hi_c > 0 else 1.0 / mean_c, MIN_NORMALISED_MEAN / mean_c))
+        scaled = np.clip(ch * scale_c, 0.0, 1.0)
+        scales.append(scale_c)
+        means_after.append(float(scaled.mean()))
+        clipped.append(float((scaled >= 1.0).mean()) if n_texels else 0.0)
+        px[..., c] = np.clip(rgb[..., c] * scale_c, 0.0, 1.0)
     img.pixels[:] = px.ravel()
     # The glTF exporter reads a FILE-sourced, non-dirty image straight from its path on
     # disk, and something between materialise and export clears the in-memory dirty flag
@@ -1019,7 +1070,10 @@ def normalise_garment_texture_luminance(mat, label):
     LUMINANCE_NORMALISED_IMAGES.add(img.name)
     print(
         f"GARMENT_TEXTURE_NORMALISE {label} {img.name} authoredMean {mean:.4f} "
-        f"size {w}x{h} scale {1.0 / mean:.3f} saved {_tmp_png} bytes={_tmp_png.stat().st_size}"
+        f"size {w}x{h} scale {scales[0]:.3f},{scales[1]:.3f},{scales[2]:.3f} "
+        f"meanAfter {means_after[0]:.4f},{means_after[1]:.4f},{means_after[2]:.4f} "
+        f"clippedFraction {clipped[0]:.4f},{clipped[1]:.4f},{clipped[2]:.4f} "
+        f"saved {_tmp_png} bytes={_tmp_png.stat().st_size}"
     )
     return mean
 
@@ -3841,6 +3895,7 @@ def main():
             create_material as _hair_create_material,
             fit_hair as _fit_hair,
             hair_color as _hair_color,
+            source_hair_textures as _source_hair_textures,
             weight_hair_to_head as _weight_hair_to_head,
         )
 
@@ -3853,9 +3908,11 @@ def main():
         _hair, _hair_fit_s = _fit_hair(
             str(_hair_mhclo), str(_hair_obj), human, _hair_mesh_name
         )
+        _hair_textures = _source_hair_textures(str(_hair_mhclo))
         _hair_mat = _hair_create_material(
             f"openclinxr_fitted_hair_{_hair_style}_mpfb_{_hair_ref_tag}_mat",
             _hair_color(args.actor_role),
+            _hair_textures,
         )
         _hair.data.materials.append(_hair_mat)
         _hair_arm = next(
@@ -3875,6 +3932,8 @@ def main():
             "weightedBone": _hair_bone,
             "licence": _hair_lic_raw,
             "pageCc0Override": bool(_hair_override),
+            "textureMaps": sorted(_hair_textures.keys()),
+            "wiredTextureMaps": _hair_mat.get("openclinxr_wired_texture_maps", ""),
             "fitWallClockS": round(_hair_fit_s, 4),
         }
         print(f"HAIR_FIT {json.dumps(_hair_fitted)}")
