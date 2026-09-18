@@ -57,7 +57,7 @@ export function createCaseAudioController(options: CaseAudioOptions | undefined,
   }
   return Object.freeze({
     select: bundle => {
-      for (const entry of entries.values()) { if (entry.handle && !owner.remove(entry.handle)) { reason = "owned_stop_refusal"; throw Error(reason); } }
+      for (const entry of entries.values()) { if (entry.handle) { if (!owner.remove(entry.handle)) { reason = "owned_stop_refusal"; throw Error(reason); } delete entry.handle; } }
       for (const registration of registrations) unregisterOwnedLiveActorTurn(registration.plan, registration.traceTag, registration.handle);
       registrations.length = 0;
       epoch++; selected = bundle; entries.clear(); pending.clear(); bindings.clear(); reason = null;
