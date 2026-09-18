@@ -1638,22 +1638,38 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
     # in the UV-overlapped bake). The scalp polys are temporarily reassigned to the
     # skin material for the bake and restored afterwards — the region still needs
     # to exist as a material assignment for export (#359).
+    # ## FOLLOW-ON (T-hole) 2026-09-18 — the COLOR bake writes (0,0,0) for
+    # hide-mask polys (their alpha-0 cover material is skipped, use_clear fills
+    # black): hide-mask faces live on the same body mesh and share basemesh UVs,
+    # so those black texels render as a T-shaped hole. Swap them to skin for the
+    # bake like the scalp, restore in the same finally.
     _scalp_bake_idx = next(
         (i for i, m in enumerate(human.data.materials) if "scalp" in (m.name or "").lower()),
         None,
     )
     _scalp_swapped: list[int] = []
-    if _scalp_bake_idx is not None and _scalp_bake_idx != skin_idx:
-        for _pi, _p in enumerate(human.data.polygons):
-            if _p.material_index == _scalp_bake_idx:
-                _p.material_index = skin_idx
-                _scalp_swapped.append(_pi)
+    _hidden_swapped: dict[int, int] = {}
+    for _pi, _p in enumerate(human.data.polygons):
+        _mi = _p.material_index
+        if _mi == skin_idx:
+            continue
+        if _mi == _scalp_bake_idx and _scalp_bake_idx != skin_idx:
+            _p.material_index = skin_idx
+            _scalp_swapped.append(_pi)
+        elif _mi < len(human.data.materials) and "openclinxr_hidden_" in (human.data.materials[_mi].name or ""):
+            _hidden_swapped[_pi] = _mi
+            _p.material_index = skin_idx
+    if _scalp_swapped:
         print(f"SKIN_BAKE scalp-cover swap {len(_scalp_swapped)} polys to skin for the bake")
+    if _hidden_swapped:
+        print(f"SKIN_BAKE hide-mask swap {len(_hidden_swapped)} polys to skin for the bake")
     try:
         bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=2, use_clear=True)
     finally:
         for _pi in _scalp_swapped:
             human.data.polygons[_pi].material_index = _scalp_bake_idx
+        for _pi, _mi in _hidden_swapped.items():
+            human.data.polygons[_pi].material_index = _mi
         scene.render.engine = prev_engine
         scene.cycles.device = prev_device
 
@@ -4319,8 +4335,12 @@ def main():
     # so the fitted mesh is a separate object and the strip does not touch it.
     # Patients/family cargo pants (scale refs < 13380) still fit AFTER the strip.
     _is_clinician = any(
-        token in (args.actor_role or "").lower()
+        token in (args.actor_role or "").lower() or token in (args.reference or "").lower()
         for token in ("nurse", "clinician", "staff", "physician", "doctor")
+    )
+    print(
+        f"CLINICIAN_BRANCH role={args.actor_role} reference={args.reference} "
+        f"clinician={_is_clinician}"
     )
     pants = None
     pants_mhclo = None
