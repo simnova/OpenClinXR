@@ -6196,6 +6196,14 @@ def main():
     # garment already covers (the contract's named-ban analysis: "Removing the
     # orphan quads IS allowed — they are skin a garment already covers"), ~0.3%
     # of the skin's triangles, and hiding them is what the mask was for.
+    #
+    # FOLLOW-ON 2026-09-18 (orphan-throat): the throat (~1.46 m / 1.76 m
+    # stature ~= 0.83 H) sits inside the 0.60-0.85 H hem band above, so a
+    # skin island in the collar V opening became MASK in front of skin and
+    # rendered the remaining lit T at x=0 y=1.45-1.46. Throat islands are
+    # NOT hem orphans: skip any orphan-sized component whose centroid
+    # Blender-Z is above 0.78 * stature (the neck band). Hem/waist/boot
+    # orphans below that line are still hidden.
     def _extend_mask_to_orphaned_quads(max_unique_verts=12):
         pos_key = [
             (round(float(v.co.x), 5), round(float(v.co.y), 5), round(float(v.co.z), 5))
@@ -6227,7 +6235,20 @@ def main():
         for pi in skin_polys:
             r = _find(pi)
             comp_pos.setdefault(r, set()).update(pos_key[vi] for vi in human.data.polygons[pi].vertices)
-        orphan_polys = [pi for pi in skin_polys if len(comp_pos[_find(pi)]) <= max_unique_verts]
+        stature_z = max(float(v.co.z) for v in human.data.vertices)
+        neck_z = 0.78 * stature_z
+        throat_roots = {
+            r
+            for r, keys in comp_pos.items()
+            if len(keys) <= max_unique_verts
+            and (sum(k[2] for k in keys) / max(len(keys), 1)) > neck_z
+        }
+        if throat_roots:
+            throat_polys = sum(1 for pi in skin_polys if _find(pi) in throat_roots)
+            print(f"ORPHAN_EXTEND_SKIP_THROAT n={throat_polys} components={len(throat_roots)} neck_z={neck_z:.3f}")
+        orphan_polys = [
+            pi for pi in skin_polys if len(comp_pos[_find(pi)]) <= max_unique_verts and _find(pi) not in throat_roots
+        ]
         if not orphan_polys:
             print(f"ORPHAN_EXTEND none (skin polys {len(skin_polys)})")
             return {"hiddenPolygons": 0, "note": "no orphan components"}
