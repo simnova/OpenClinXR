@@ -41,7 +41,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = pathResolve(HERE, "../../../..");
 const MAT = join(REPO_ROOT, "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py");
 const LEDGER = join(REPO_ROOT, "docs/openclinxr/third-party-asset-licence-ledger.md");
 
