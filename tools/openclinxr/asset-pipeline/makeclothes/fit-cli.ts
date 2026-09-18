@@ -34,6 +34,7 @@ import {
   catalogueEntryForPack,
   packSlugFromPath,
 } from "./makehuman-catalogue.js";
+import { resolveLicencePrecedence } from "./licence-precedence.js";
 import { planClothingConsume, runClothingConsume } from "@openclinxr/factory-stations";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -273,58 +274,114 @@ export function readMhcloLayering(mhcloPath: string): MhcloLayeringDirectives {
   return { zDepth, deleteVerts };
 }
 
-/** Permitted factory wardrobe tokens (copyleft refused regardless of convenience). */
+/** Permitted factory wardrobe tokens (copyleft refused regardless of convenience).
+ *
+ * This is the FILE-side test only: the catalogue side is decided by
+ * resolveLicencePrecedence, which governs over an explicit per-file copyleft
+ * line for catalogue packs (2026-09-17 ruling). */
 export function isPermittedGarmentLicense(token: string): boolean {
   return /cc0|cc-?0|cc-?by|public\s*domain/i.test(token) && !/agpl|gpl(?!\s*font)/i.test(token);
 }
 
 /**
- * 2026-09-17 — bake-time silence fallback (ledger shape 1). Calls
- * `readMhcloLicense`; when the token is EXACTLY the silence sentinel (true
- * silence — not an unrecognised token, not boilerplate misread as a token),
- * consults the committed publisher catalogue for `packSlug` (derived from
- * the `mhcloRel` path, e.g. `.../makehuman-shoes01/...` -> `shoes01`, when
- * the caller passes none). Any other token defers to
- * `isPermittedGarmentLicense` exactly as before — an explicit per-file
- * copyleft or unrecognised token is never overridden by the catalogue
- * (HARD GUARD, shape 3).
+ * 2026-09-17 — bake-time licence decision (OPERATOR RULING, refined the same day:
+ * "Review the assets with their listing page - is the listing page more permissive?
+ * If so record that as the license instead of the license embedded into the asset as
+ * many just leave the default license"). Calls `readMhcloLicense` for the file side
+ * and decides via `resolveLicencePrecedence`: more-permissive of catalogue vs file
+ * (catalogue rank > file rank -> catalogue; else the file's own verdict) >
+ * file (when the catalogue is silent) > refused (both silent, or the catalogue is
+ * conflicted). An explicit non-CC licence line is the file's DECLARED verdict,
+ * not silence — it loses to a MORE permissive listed catalogue, not to absence.
  */
 export function resolveGarmentLicense(
   mhcloPath: string,
   packSlug?: string | null,
-): { token: string; source: string; permitted: boolean; viaCatalogue: boolean } {
+): {
+  token: string;
+  source: string;
+  permitted: boolean;
+  viaCatalogue: boolean;
+  via: "catalogue" | "file" | "none";
+  overriddenFileLicence: string | null;
+} {
   const license = readMhcloLicense(mhcloPath);
-  if (license.token !== "license_not_found_in_mhclo_header") {
-    return {
-      token: license.token,
-      source: license.source,
-      permitted: isPermittedGarmentLicense(license.token),
-      viaCatalogue: false,
-    };
-  }
-  // The sentinel also covers "a licence line with a non-CC token" (e.g.
-  // `# license AGPL3`), which readMhcloLicense does not capture. That is an
-  // EXPLICIT declaration, not silence — never consult the catalogue for it.
-  const explicitLine = /^#\s*license:?\s*(.+)$/im.exec(license.rawHeader);
-  if (explicitLine) {
-    const explicit = explicitLine[1]!.trim();
-    return {
-      token: explicit,
-      source: `${license.source}; explicit_header_licence=${explicit}`,
-      permitted: false,
-      viaCatalogue: false,
-    };
-  }
   const slug = packSlug ?? packSlugFromPath(mhcloPath);
   const entry = catalogueEntryForPack(slug);
-  if (entry) {
+
+  let declared: string | null;
+  let filePermitted: boolean;
+  let fileAttribution = false;
+  let fileRefusal: string | null = null;
+  if (license.token === "license_not_found_in_mhclo_header") {
+    // The sentinel also covers "a licence line with a non-CC token" (e.g.
+    // `# license AGPL3`), which readMhcloLicense does not capture. That is an
+    // EXPLICIT declaration, not silence.
+    const explicitLine = /^#\s*license:?\s*(.+)$/im.exec(license.rawHeader);
+    if (explicitLine) {
+      declared = explicitLine[1]!.trim();
+      filePermitted = false;
+      fileRefusal = `explicit per-file licence "${declared}" is not CC0/CC-BY (copyleft or unknown refused)`;
+    } else {
+      declared = null;
+      filePermitted = false;
+      fileRefusal = `no licence line in the .mhclo header — unspecified is a refusal (${license.token})`;
+    }
+  } else {
+    declared = license.token;
+    filePermitted = isPermittedGarmentLicense(license.token);
+    fileAttribution = /cc[\s_-]*by/i.test(license.token);
+    if (!filePermitted) {
+      fileRefusal = `explicit per-file licence "${declared}" is not CC0/CC-BY (copyleft or unknown refused)`;
+    }
+  }
+
+  const precedence = resolveLicencePrecedence({
+    packSlug: slug,
+    file: {
+      declared,
+      permitted: filePermitted,
+      attributionRequired: fileAttribution,
+      refusalReason: fileRefusal,
+    },
+  });
+
+  if (precedence.via === "catalogue" && precedence.catalogueEntry && entry) {
+    const cat = precedence.catalogueEntry;
+    let source =
+      `${license.source}; catalogue:${slug}=${cat.licence} ` +
+      `(${cat.packPageUrl}; fetched ${cat.fetchedAt})`;
+    if (declared) source += `; overrides file licence=${declared}`;
     return {
-      token: entry.licence,
-      source:
-        `${license.source}; catalogue:${slug}=${entry.licence} ` +
-        `(${entry.packPageUrl}; fetched ${entry.fetchedAt})`,
+      token: cat.licence,
+      source,
       permitted: true,
       viaCatalogue: true,
+      via: "catalogue",
+      overriddenFileLicence: declared,
+    };
+  }
+  if (precedence.via === "none" && entry) {
+    return {
+      token: license.token,
+      source: `${license.source}; ${precedence.refusalReason ?? "catalogue conflict"}`,
+      permitted: false,
+      viaCatalogue: false,
+      via: "none",
+      overriddenFileLicence: null,
+    };
+  }
+  if (declared) {
+    return {
+      token: declared,
+      source:
+        license.token === "license_not_found_in_mhclo_header"
+          ? `${license.source}; explicit_header_licence=${declared}`
+          : license.source,
+      permitted: filePermitted,
+      viaCatalogue: false,
+      via: "file",
+      overriddenFileLicence: null,
     };
   }
   return {
@@ -332,6 +389,8 @@ export function resolveGarmentLicense(
     source: license.source,
     permitted: false,
     viaCatalogue: false,
+    via: "none",
+    overriddenFileLicence: null,
   };
 }
 
@@ -440,16 +499,11 @@ export function examineLowerGarmentCandidates(repoRoot: string = REPO_ROOT): Exa
     }
 
     const license = readMhcloLicense(mhcloAbs);
-    const permitted = isPermittedGarmentLicense(license.token);
-    // 2026-09-17: catalogue silence fallback (ledger shape 1). The sentinel
-    // means no licence token at all; the pack slug comes from the candidate's
-    // own staged path (`.../makehuman-pants01/...` -> `pants01`).
-    const fallback =
-      license.token === "license_not_found_in_mhclo_header"
-        ? resolveGarmentLicense(mhcloAbs, packSlugFromPath(c.localMhcloRel))
-        : null;
-    const effectiveToken = fallback?.viaCatalogue ? fallback.token : license.token;
-    const effectivePermitted = fallback?.viaCatalogue ? fallback.permitted : permitted;
+    // One decision for every candidate: the catalogue listing governs even
+    // over an explicit per-file declaration (2026-09-17 ruling).
+    const verdict = resolveGarmentLicense(mhcloAbs, packSlugFromPath(c.localMhcloRel));
+    const effectiveToken = verdict.via === "file" ? license.token : verdict.token;
+    const effectivePermitted = verdict.permitted;
     const isShorts = /short/i.test(c.garmentId);
     let accepted = false;
     let rejectionReason: string | null = null;

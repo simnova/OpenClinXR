@@ -95,6 +95,18 @@ import { describe, expect, it } from "vitest";
  * (CC BY 4.0) and `elvs_reverse_french_braid_bun` (CC_by) are additionally classified usable with
  * attribution. NOT covered here: hair on the MPFB2 materializer rail (aisha), hairstyle realism,
  * scalp-flush placement (pixel-graded separately).
+ *
+ * ## FIXED (2026-09-17 catalogue-over-file ruling)
+ *
+ * Operator: "remember that unclassified should default to the asset catalog page's
+ * listing of licensing not the asset itself" — on packs the catalogue lists CC0 while
+ * the asset's own file declares AGPLv3 (skins01/skins02): "go with what site links say
+ * (CC0 over AGPLv3)". Clauses (2) and (3) flipped accordingly: the 10 AGPL3 and 4
+ * headerless styles are now licence-permitted via catalogue_cc0 (the AGPL ones carry
+ * overriddenFileLicence matching /AGPL/), and the copyleft-reason check became a
+ * catalogue-provenance check. Constant names (AGPL3_MUST_REFUSE, UNLICENSED_MUST_REFUSE)
+ * are kept as the measured file-header census, documented, not renamed. The variant-
+ * spelling check is unchanged. Topology exclusions (helper-vertex refs) are unaffected.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -138,6 +150,9 @@ const HUMANOIDS = [
 type Classification = {
   asset?: string;
   licence?: string;
+  licenceFamily?: string;
+  via?: string;
+  overriddenFileLicence?: string;
   usable?: boolean;
   refusedReason?: string | null;
   helperVertexRefs?: number;
@@ -187,16 +202,32 @@ describe("hair reaches a body as a fitted library asset, under a real licence ga
     }
   });
 
-  it("(2) RED COUNTERWEIGHT: no AGPL3 or unlicensed style is marked usable or shipped — a directory glob is refused", () => {
+  it("(2) COUNTERWEIGHT: every AGPL3_MUST_REFUSE / UNLICENSED_MUST_REFUSE row is licence-permitted via catalogue and no refused style is shipped", () => {
     requireClassified(classified);
-    const usable = new Set(classified.filter((c) => c.usable).map((c) => c.asset ?? ""));
-    const leaked = [...AGPL3_MUST_REFUSE, ...UNLICENSED_MUST_REFUSE].filter((n) => usable.has(n));
-    expect(leaked, "copyleft or unlicensed hairstyles marked usable").toEqual([]);
+    // 2026-09-17 catalogue-over-file ruling: the hair01 catalogue listing (CC0)
+    // governs the file headers, so every row below records via "catalogue" and
+    // licenceFamily catalogue_cc0 — the AGPL ones with overriddenFileLicence
+    // matching /AGPL/. Usability still requires zero helper refs.
+    const byName = new Map(classified.map((c) => [c.asset ?? "", c]));
+    const notCatalogue = [...AGPL3_MUST_REFUSE, ...UNLICENSED_MUST_REFUSE].filter((n) => {
+      const c = byName.get(n);
+      return !c || c.via !== "catalogue" || c.licenceFamily !== "catalogue_cc0";
+    });
+    expect(notCatalogue, "rows not licence-permitted via catalogue_cc0").toEqual([]);
+    const agplWithoutOverride = AGPL3_MUST_REFUSE.filter((n) => {
+      const c = byName.get(n);
+      return !c || !/AGPL/i.test(c.overriddenFileLicence ?? "");
+    });
+    expect(agplWithoutOverride, "AGPL rows without an overriddenFileLicence matching /AGPL/").toEqual([]);
 
-    // and none of them may appear as geometry in a shipped humanoid
+    // Keep the "not present in a shipped humanoid" check only for styles that
+    // are NOT usable (topology exclusions keep them off bodies).
+    const unusable = new Set(classified.filter((c) => !c.usable).map((c) => c.asset ?? ""));
     const inShipped: string[] = [];
     for (const s of shipped) {
-      for (const bad of [...AGPL3_MUST_REFUSE, ...UNLICENSED_MUST_REFUSE]) {
+      for (const bad of [...unusable].filter((n) =>
+        [...AGPL3_MUST_REFUSE, ...UNLICENSED_MUST_REFUSE].includes(n as (typeof AGPL3_MUST_REFUSE)[number]),
+      )) {
         if (s.names.some((n) => n.includes(bad))) inShipped.push(`${s.path}: ${bad}`);
       }
     }
@@ -207,12 +238,13 @@ describe("hair reaches a body as a fitted library asset, under a real licence ga
     requireClassified(classified);
     const byName = new Map(classified.map((c) => [c.asset ?? "", c]));
 
-    // Every AGPL3 asset must be refused FOR THE COPYLEFT REASON, not incidentally.
-    const misreasoned = AGPL3_MUST_REFUSE.filter((n) => {
+    // 2026-09-17 ruling: every AGPL3 asset is permitted via the catalogue, so the
+    // check is catalogue provenance, not a copyleft reason.
+    const misprovenanced = AGPL3_MUST_REFUSE.filter((n) => {
       const c = byName.get(n);
-      return !c || c.usable !== false || !/agpl|copyleft/i.test(c.refusedReason ?? "");
+      return !c || c.via !== "catalogue" || c.licenceFamily !== "catalogue_cc0";
     });
-    expect(misreasoned, "AGPL3 styles not refused with a copyleft reason").toEqual([]);
+    expect(misprovenanced, "AGPL3 styles without catalogue_cc0 provenance").toEqual([]);
 
     // CC-0 / CC_by / CC BY 4.0 must NOT be swept up as unlicensed — that is the (c) failure.
     const wronglyUnlicensed = VARIANT_SPELLINGS_MUST_NOT_BE_UNLICENSED.filter((n) => {

@@ -6,11 +6,18 @@
  * licence listed on the MakeHuman asset-pack index page. It is read
  * synchronously at bake/classification time — no network in the hot path.
  *
- * HARD GUARD (ledger shapes + operator ruling 2026-09-10): the catalogue is
- * consulted ONLY when the asset's own descriptor is completely silent (no
- * licence line/token). An EXPLICIT per-file declaration — copyleft or an
- * unrecognised token — always governs and is never overridden by the
- * catalogue. AGPL/GPL stays refused even when the catalogue lists CC0.
+ * SUPERSEDED 2026-09-17 by the operator ruling: "remember that unclassified
+ * should default to the asset catalog page's listing of licensing not the asset
+ * itself" — on packs the catalogue lists CC0 while the asset's own file declares
+ * AGPLv3 (skins01/skins02): "go with what site links say (CC0 over AGPLv3)".
+ * REFINED by the operator the same day: "Review the assets with their listing page -
+ * is the listing page more permissive? If so record that as the license instead of the
+ * license embedded into the asset as many just leave the default license." So the
+ * catalogue listing no longer wins always: the MORE PERMISSIVE of the catalogue
+ * listing and the file line governs (CC0 3 > CC-BY 2 > copyleft 1 > unrecognised 0).
+ * Precedence lives in licence-precedence.ts: more-permissive (catalogue vs file) >
+ * file (when the catalogue is silent) > refused (both silent, or the catalogue lists
+ * conflicting licences for the same pack).
  *
  * claimScope: silence-fallback provenance for the bake gates.
  * notEvidenceFor: per-asset grants, user-contributed licences.
@@ -27,6 +34,8 @@ export type CatalogueLicence = "CC0" | "CC-BY";
 
 export type CatalogueEntry = {
   licence: CatalogueLicence;
+  /** Every licence the index listed for that pack; conflict = >1 distinct value. */
+  licences?: string[];
   sourceUrl: string;
   packPageUrl: string;
   label: string;

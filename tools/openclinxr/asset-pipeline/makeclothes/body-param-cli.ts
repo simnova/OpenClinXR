@@ -645,6 +645,8 @@ export function resolveHairCandidate(
     );
   }
   // Licence gate: classify from the style's OWN .mhclo header — never invented.
+  // The catalogue suffix comes from the classification's own decision: when the
+  // catalogue governed, the entry URL is the provenance (2026-09-17 ruling).
   const classification = classifyHairStyle(cand.style, mhcloAbs);
   if (!classification.usable) {
     throw new Error(
@@ -654,9 +656,14 @@ export function resolveHairCandidate(
     );
   }
   const { raw } = readHairLicenceLine(mhcloAbs);
-  const catalogueSuffix = classification.viaCatalogue
-    ? `; catalogue:hair01=CC0 (https://static.makehumancommunity.org/assets/assetpacks/hair01.html; fetched 2026-09-17)`
-    : "";
+  const catalogueSuffix =
+    classification.via === "catalogue" && classification.catalogueEntryUrl
+      ? `; catalogue:${classification.cataloguePackSlug ?? "hair01"}=${classification.licenceFamily === "catalogue_cc_by" ? "CC-BY" : "CC0"} ` +
+        `(${classification.catalogueEntryUrl}; fetched 2026-09-17)` +
+        (classification.overriddenFileLicence
+          ? `; overrides file licence=${classification.overriddenFileLicence}`
+          : "")
+      : "";
   return {
     candidate: cand,
     licenseToken: raw ?? classification.licenceFamily,

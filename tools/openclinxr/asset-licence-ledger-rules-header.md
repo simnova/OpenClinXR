@@ -80,3 +80,40 @@ row carries a **replacement posture**, not just a licence.
   `culturalibre_male_boots.mhclo` declares `CC-0` and `cargo_pants.mhclo` declares **nothing at all**.
   **Read the `.mhclo` first and judge on it.** Note an `.obj` disagreement in the row so nobody
   re-discovers it, but do not treat it as the grant.
+- **OPERATOR RULING 2026-09-17, REFINED the same day — take the MORE PERMISSIVE of the catalogue listing and the asset's own declaration.** Verbatim, typed by the operator on 2026-09-17:
+  - *"Review the assets with their listing page - is the listing page more permissive? If so record that as the license instead of the license embedded into the asset as many just leave the default license."*
+  - asked about packs the catalogue lists as CC0 while the asset's own file declares AGPLv3 (skins01/skins02):
+    *"go with what site links say (CC0 over AGPLv3)"*
+  - earlier the same day, before the refinement: *"remember that unclassified should default to the asset catalog page's listing of licensing not the asset itself"* — kept as history; the refinement narrows it to the more-permissive comparison below.
+  - catalogue URLs: *"https://static.makehumancommunity.org/assets/assetpacks/index.html"* and
+    *"http://makehumancommunity.org/content/user_contributed_assets.html"*
+
+  **SUPERSEDED the same day:** the earlier-today reading that the catalogue listing governs unconditionally,
+  including over an explicit per-file copyleft declaration, is narrowed to the comparison below.
+  This is the named, dated operator decision the 2026-09-10 amendment required before shape 3 (explicit
+  per-file copyleft) could be overridden. For MakeHuman catalogue packs it SUPERSEDES shape 3 **where the
+  catalogue is strictly more permissive**. The catalogue listing governs **only when it is MORE PERMISSIVE
+  than the asset's own declaration** — the operator's reason: "many just leave the default license".
+  When the catalogue is equal or stricter (e.g. catalogue CC-BY, file CC0) the FILE's more permissive
+  licence governs.
+  **Permissiveness comparison, enforced in code** (`tools/openclinxr/asset-pipeline/makeclothes/licence-precedence.ts`
+  and `tools/openclinxr/asset-pipeline/makeclothes/licence_precedence.py`, called by `classifyHairLicence`,
+  `resolveGarmentLicense` and `read_hair_mhclo_licence`) — rank CC0 > CC-BY > copyleft > unrecognised:
+  1. compare the catalogue listing for the asset's pack (`makehuman-catalogue-snapshot.json`, index fetched
+     2026-09-17) against the asset's own `.mhclo`/`.mhmat` declaration and take the MORE permissive; the
+     verdict records `via` (catalogue or file), the licence it overrode, and the catalogue URL;
+  2. catalogue silent -> the file governs;
+  3. catalogue silent AND file silent still refuses;
+  4. a catalogue listing conflicting licences for the same pack still refuses, and the file does not
+     rescue it;
+  5. an unrecognised or garbled token is the LEAST permissive and never wins.
+  A CC-BY attribution declared on either side is kept, whichever side governs. The
+  user-contributed index is recorded as a named source; it has no per-asset licence table today, so no
+  pack is resolved from it. Community pages outside the catalogue (`mhair02`, scrub kit) are unchanged
+  and keep their own recorded overrides.
+  **Verdicts that flip under this ruling:** skins01 `blindsaypatten_uniform_skin_texture` and
+  `callharvey3d_midtoned_female`, skins02 `rehmanpolanski_skin_viking_tattoos`, and ten hair01 styles
+  (learning_anime_hair, culturalibre_hair_01/02, elvs_double_mh_braid, elvs_french_braid_variation,
+  elvs_unkempt_french_braid, littleright_bobcut_hair, rehmanpolanski_hair_bun_brown,
+  sonntag78_junglebook_hair, sonntag78_blond_with_headband): refused -> permitted via catalogue CC0.
+  Topology exclusions (helper-vertex refs) are unaffected.
