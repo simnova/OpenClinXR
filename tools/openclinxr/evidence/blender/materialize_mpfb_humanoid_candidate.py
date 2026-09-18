@@ -167,14 +167,37 @@ EYELASH_STYLE_SEARCH_ROOTS = (
     ),
 )
 
+# Teeth + tongue mirror the eye rail (D1): CC0 system assets from
+# makehuman_system_assets_cc0.zip, fitted with HumanService.add_mhclo_asset BEFORE the
+# #318 helper strip. Both .mhclo files reference ONLY helper verts >= 13,380 (teeth_base:
+# barycentric triples 15006-15111; tongue01: plain refs 13380-13605), the same class as
+# the eyes (helper-l-eye / helper-r-eye 14598-14741), so the fit MUST run while those
+# verts exist. Headers carry the CC0 release stamp, same as the shipped eyes; they carry
+# no `# license` line, so read_hair_mhclo_licence would refuse them — the bake reads the
+# release stamp directly (teeth_tongue_licence_stamp, below) instead of routing them
+# through the hair gate. The .mhmat-declared textures are staged beside the .mhclo
+# (teeth.png 1,799,930 bytes; tongue01_diffuse.png 625,419 bytes from the same zip) and
+# consumed via the generic make_material_from_mhmat path — the same #340/#356 shape as
+# the eyes. FACSHuman teeth/tongue are AGPL3 — never stage or fit those here.
+TEETH_MHCLO = pathlib.Path(
+    ".openclinxr-local/provider-cache/facial/teeth_base/teeth_base.mhclo"
+)
+TONGUE_MHCLO = pathlib.Path(
+    ".openclinxr-local/provider-cache/facial/tongue01/tongue01.mhclo"
+)
+TEETH_TONGUE_CC0_STAMP = "This asset was explicitly released as CC0 in september 2020"
+
 # #542 — hm08 feature helpers that must survive as SEPARATE meshes. Fitting cages
 # (helper-tights / skirt / hair / genital) stay stripped by remove_helpers=True.
 # Do NOT set remove_helpers=False wholesale — that re-targets every garment fit.
 # #683 — eyelashes are NO LONGER helper-retained: they are fitted from the CC0
-# eyelashes01 pack before the strip ("do not do both"). Teeth/tongue stay helper-held.
+# eyelashes01 pack before the strip ("do not do both"). Teeth/tongue are NO LONGER
+# helper-retained either: they are fitted from the CC0 system-asset teeth_base +
+# tongue01 before the strip (below); extracting them here as well would give the
+# actor two sets of teeth, the same "do not do both" refusal as the lashes.
 HM08_FEATURE_HELPER_GROUPS = {
-    "teeth": ("helper-upper-teeth", "helper-lower-teeth"),
-    "tongue": ("helper-tongue",),
+    "teeth": (),
+    "tongue": (),
 }
 
 # #199: the LONG-SLEEVE upper slot. #197/#199 measured that body-surface-derived garments
@@ -668,6 +691,28 @@ def resolve_eyelash_style_dir(style):
     )
 
 
+def teeth_tongue_licence_stamp(mhclo_path):
+    """CC0 release-stamp check for the system-asset teeth/tongue .mhclo files.
+
+    These headers carry the prose release stamp, not a `# license CC0` line, so
+    the hair licence gate (read_hair_mhclo_licence) would refuse them as
+    unspecified. The stamp is the grant: the same sentence the shipped eyes
+    cleared on (#337, recorded in third-party-asset-licence-ledger.md), with the
+    same copyright holders (Data Collection AB, Joel Palmius, Jonas Hauquier).
+    AGPL/copyleft text anywhere in the header still refuses.
+    Returns (permitted, token).
+    """
+    try:
+        header = mhclo_path.read_text(encoding="utf-8", errors="replace")[:4000]
+    except OSError:
+        return False, None
+    if re.search(r"agpl|gpl", header, re.I):
+        return False, "copyleft text in the .mhclo header — refused"
+    if TEETH_TONGUE_CC0_STAMP in header:
+        return True, "CC0 release stamp (system assets, same as shipped eyes)"
+    return False, "no CC0 release stamp in the .mhclo header — unspecified is a refusal"
+
+
 def _vertex_indices_in_groups(basemesh, group_names):
     """Return sorted unique vertex indices that belong to any named vertex group."""
     name_to_idx = {g.name: g.index for g in basemesh.vertex_groups}
@@ -684,7 +729,7 @@ def _vertex_indices_in_groups(basemesh, group_names):
 
 
 def extract_hm08_feature_helpers(basemesh, armature, ref_tag):
-    """#542 — copy teeth/tongue helper verts to SEPARATE meshes, then leave
+    """#542 — copy hm08 feature helper verts to SEPARATE meshes, then leave
     the basemesh alone for remove_helpers=True (cages still strip; body stays 26,756 tris).
 
     MakeHuman stores feature geometry inside HelperGeometry alongside fitting cages.
@@ -692,12 +737,18 @@ def extract_hm08_feature_helpers(basemesh, armature, ref_tag):
     (contract clause 3). Extracting feature verts onto their own objects is the
     selective retention the brief requires. #683 — eyelashes are NOT retained here:
     they are fitted from the CC0 eyelashes01 pack before the strip ("do not do both").
+    Teeth/tongue are NOT retained here either: they are fitted from the CC0
+    system-asset teeth_base + tongue01 before the strip ("do not do both").
+    Features with an empty group tuple are skipped (retired rails leave no mesh).
     """
     import bmesh
 
     extracted = {}
-    missing_groups = []
+    missing_groups: list = []
     for feature, group_names in HM08_FEATURE_HELPER_GROUPS.items():
+        if not group_names:
+            print(f"HM08_FEATURE_RETIRED {feature} (fitted from CC0 pack, not helper-held)")
+            continue
         present = [n for n in group_names if n in basemesh.vertex_groups]
         absent = [n for n in group_names if n not in basemesh.vertex_groups]
         missing_groups.extend(absent)
@@ -4225,6 +4276,82 @@ def main():
             "(x_scale helper verts require full basemesh)"
         )
 
+    # Fitted CC0 teeth + tongue BEFORE the helper strip (same load-bearing order
+    # as eyes/hair/brows/lashes/scrub-pants). HumanService.add_mhclo_asset is the
+    # proven MPFB-native path (mesh load + ClothesService fit + delete group +
+    # rigging), called here with asset_type="teeth"/"tongue" the same way
+    # HumanService._check_add_bodyparts calls it for the ["eyes", "eyelashes",
+    # "eyebrows", "tongue", "teeth", "hair"] bodypart slots. The .mhclo files
+    # reference ONLY helper verts >= 13,380, so the fit MUST run while those verts
+    # exist; the fitted meshes are SEPARATE objects, so the strip below does not
+    # touch them. material_type="MAKESKIN" consumes each asset's OWN declared
+    # .mhmat via the generic make_material_from_mhmat path (same #340/#356 shape
+    # as the eyes). Do NOT also extract helper teeth/tongue below ("do not do
+    # both"): HM08_FEATURE_HELPER_GROUPS leaves those rails retired.
+    _teeth_mhclo = REPO_ROOT / TEETH_MHCLO
+    _tongue_mhclo = REPO_ROOT / TONGUE_MHCLO
+    _teeth_obj = _teeth_mhclo.parent / declared_hair_obj_file(_teeth_mhclo)
+    _tongue_obj = _tongue_mhclo.parent / declared_hair_obj_file(_tongue_mhclo)
+    for _p in (_teeth_mhclo, _teeth_obj, _tongue_mhclo, _tongue_obj):
+        if not _p.is_file():
+            raise RuntimeError(f"CC0 teeth/tongue sources missing: {_p} (stage from makehuman_system_assets_cc0.zip)")
+    _teeth_lic_ok, _teeth_lic_raw = teeth_tongue_licence_stamp(_teeth_mhclo)
+    _tongue_lic_ok, _tongue_lic_raw = teeth_tongue_licence_stamp(_tongue_mhclo)
+    if not _teeth_lic_ok:
+        raise RuntimeError(
+            f"teeth_base licence NOT permitted: {_teeth_lic_raw!r} — hard refusal"
+        )
+    if not _tongue_lic_ok:
+        raise RuntimeError(
+            f"tongue01 licence NOT permitted: {_tongue_lic_raw!r} — hard refusal"
+        )
+    print(f"TEETH_LICENCE teeth_base {_teeth_lic_raw!r}")
+    print(f"TONGUE_LICENCE tongue01 {_tongue_lic_raw!r}")
+
+    _teeth_asset = _HumanService.add_mhclo_asset(
+        str(_teeth_mhclo),
+        human,
+        asset_type="teeth",
+        subdiv_levels=0,
+        material_type="MAKESKIN",
+    )
+    _tongue_asset = _HumanService.add_mhclo_asset(
+        str(_tongue_mhclo),
+        human,
+        asset_type="tongue",
+        subdiv_levels=0,
+        material_type="MAKESKIN",
+    )
+    bpy.context.view_layer.update()
+    _teeth_asset.data.name = f"openclinxr_fitted_teeth_mpfb_{subject_id}_mesh"
+    _tongue_asset.data.name = f"openclinxr_fitted_tongue_mpfb_{subject_id}_mesh"
+    for _poly in _teeth_asset.data.polygons:
+        _poly.use_smooth = True
+    for _poly in _tongue_asset.data.polygons:
+        _poly.use_smooth = True
+    _teeth_tris = sum(max(len(p.vertices) - 2, 0) for p in _teeth_asset.data.polygons)
+    _tongue_tris = sum(max(len(p.vertices) - 2, 0) for p in _tongue_asset.data.polygons)
+    _teeth_mat = make_material_from_mhmat(
+        _teeth_mhclo.parent / "teeth.mhmat",
+        f"mat_openclinxr_fitted_teeth_mpfb_{subject_id}_mesh",
+    )
+    _tongue_mat = make_material_from_mhmat(
+        _tongue_mhclo.parent / "tongue01.mhmat",
+        f"mat_openclinxr_fitted_tongue_mpfb_{subject_id}_mesh",
+    )
+    _teeth_asset.data.materials.clear()
+    _teeth_asset.data.materials.append(_teeth_mat)
+    _tongue_asset.data.materials.clear()
+    _tongue_asset.data.materials.append(_tongue_mat)
+    print(
+        f"TEETH_FIT {_teeth_asset.name} verts {len(_teeth_asset.data.vertices)} "
+        f"tris {_teeth_tris} material {[_teeth_mat.name]} licence {_teeth_lic_raw!r}"
+    )
+    print(
+        f"TONGUE_FIT {_tongue_asset.name} verts {len(_tongue_asset.data.vertices)} "
+        f"tris {_tongue_tris} material {[_tongue_mat.name]} licence {_tongue_lic_raw!r}"
+    )
+
     # #542 — SELECTIVE retention of hm08 feature helpers BEFORE the #318 strip.
     # Teeth / tongue / eyelashes live in HelperGeometry alongside fitting cages.
     # Extract them onto separate named meshes first; then remove_helpers=True still
@@ -4248,8 +4375,9 @@ def main():
     # topology above — deleting helper verts re-maps shape-key blocks, and a target loaded
     # after the strip would mis-index (body_param_stage.py #221 A2). The FACS keys loaded
     # above survive on body-surface verts; Blender updates their key blocks when the helper
-    # verts are deleted. #542 extracts teeth/tongue/eyelashes to separate objects above
-    # so the strip can still delete HelperGeometry wholesale without losing those features.
+    # verts are deleted. #542 extracted helper features to separate objects above; teeth and
+    # tongue are now fitted from the CC0 system-asset pack (TEETH_FIT/TONGUE_FIT) so the
+    # strip can still delete HelperGeometry wholesale without losing those features.
     verts_before_strip = len(human.data.vertices)
     tris_before_strip = sum(max(len(p.vertices) - 2, 0) for p in human.data.polygons)
     from bl_ext.user_default.mpfb.services.exportservice import ExportService  # noqa: E402
