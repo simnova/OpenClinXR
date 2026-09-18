@@ -26,7 +26,7 @@ import { describe, expect, it } from "vitest";
 
 const MATERIALIZER = join(
   import.meta.dirname,
-  "blender/materialize_mpfb_humanoid_candidate.py",
+  "../blender/materialize_mpfb_humanoid_candidate.py",
 );
 
 const src = (): string => readFileSync(MATERIALIZER, "utf8");
