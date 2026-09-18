@@ -5,17 +5,22 @@ Port of the ALREADY-PROVEN algorithm from
 `tools/openclinxr/evidence/eyebrow-budget/reduce-shipped-eyebrows-v2.ts` (v2) into
 Blender/bpy, operating on the live mesh mid-bake.
 
-MECHANISM: whole original strands only (no vertex resampling). Greedy: repeatedly
-take the strand (connected component) that adds the most NEW covered grid cells
-per triangle inside an eye-anchored brow band, until no strand adds a new cell
-or the triangle budget is exhausted. Every kept vertex is an ORIGINAL vertex.
+MECHANISM: whole original strands only (no vertex resampling). Phase 1
+(greedy): repeatedly take the strand (connected component) that adds the most
+NEW covered grid cells per triangle inside an eye-anchored brow band, until no
+strand adds a new cell or the triangle budget is exhausted. Phase 2
+(densest-ink-per-tri fill, bstar-sweep select()): the greedy phase flatlines
+while budget remains — spend the remainder on the strands carrying the most
+projected band-plane ink per triangle, so leftover budget buys arch, not air.
+Every kept vertex is an ORIGINAL vertex.
 
 BUDGET: B* = 3,600 triangles was derived in bstar-sweep.ts as the smallest
 budget clearing both a 25% band-span floor and a 10% band-ink floor on every
-actor in that sweep. Use 3,600 as the starting budget constant; it is a
-documented, derived number, not invented — but this is a DIFFERENT eyebrow
-style/actor than that sweep covered, so MEASURE whether it actually clears
-visibility here rather than trusting the number blind.
+actor in that sweep. Measured 2026-09-18 on the nurse (mindfront_eyebrows_06):
+greedy spends the whole 3,600 budget for 247/2304 band cells (10.7%) — the
+10% ink floor, and a dusting at face-crop framing. DEFAULT below is re-tuned
+to 9,000 (greedy + phase-2 fill; still 3.5x below the 31,968-tri full brow and
+far below the 21k-speckle FAILED treatment) so the arch fills.
 
 THE CRITICAL REMAP: this function returns `kept_vertex_indices` — a list mapping
 new mesh vertex order (after reduction) to original .obj vertex order. This MUST
@@ -54,8 +59,11 @@ from mathutils import Vector
 from typing import Dict, List, Set, Tuple, Optional
 
 
-# Budget constant derived in bstar-sweep.ts (see module docstring)
-DEFAULT_EYEBROW_BUDGET_TRIS = 3600
+# Factory brow budget (measured 2026-09-18): greedy spends the whole 3,600
+# for 247/2304 band cells on mindfront_eyebrows_06 — the 10% ink floor, a
+# dusting. 9,000 (greedy + phase-2 fill) is still 3.5x below the 31,968-tri
+# full brow and far below the 21k-speckle FAILED treatment.
+DEFAULT_EYEBROW_BUDGET_TRIS = 9000
 
 # Eye-anchored band grid (matching v2 TS exactly)
 GRID_X = 96
@@ -269,6 +277,26 @@ def _cells_covered_by_triangles(
     return hit
 
 
+def _projected_ink_of_component(
+    bm: bmesh.types.BMesh,
+    tri_indices: List[List[int]],
+) -> float:
+    """
+    Projected ink of a component on the band plane (Blender XZ, the plane the
+    band grid lives in). Sum of |2D cross product| / 2 over its triangles —
+    the same projected-area measure ladder-rebake.ts uses for inkPerEye.
+    """
+    ink = 0.0
+    for tri in tri_indices:
+        v0 = bm.verts[tri[0]].co
+        v1 = bm.verts[tri[1]].co
+        v2 = bm.verts[tri[2]].co
+        ink += abs(
+            (v1.x - v0.x) * (v2.z - v0.z) - (v2.x - v0.x) * (v1.z - v0.z)
+        ) / 2.0
+    return ink
+
+
 def reduce_eyebrow_mesh(
     brow_obj: bpy.types.Object,
     eyes_obj: bpy.types.Object,
@@ -394,7 +422,32 @@ def reduce_eyebrow_mesh(
         kept_comp_indices.append(best_idx)
         kept_tris += comp_tri_counts[best_idx]
         pool.remove(best_idx)
-    
+
+    # Phase 2 — densest-ink-per-tri fill (bstar-sweep select()): the greedy
+    # phase flatlines while budget remains, because no leftover strand adds a
+    # NEW band cell. Spend the remainder ordered by projected band-plane ink
+    # per triangle, so leftover budget buys arch density, not air. Whole
+    # strands only — still no resampling, still original vertices.
+    if pool and kept_tris < budget_tris:
+        comp_ink = []
+        for k in range(len(comp_tris)):
+            tris_k = comp_tris[k][1]
+            ink = _projected_ink_of_component(bm, tris_k)
+            n = comp_tri_counts[k]
+            comp_ink.append(ink / n if n > 0 else 0.0)
+        pool.sort(key=lambda k: comp_ink[k], reverse=True)
+        for k in list(pool):
+            if kept_tris + comp_tri_counts[k] > budget_tris:
+                continue
+            cells_k = comp_cells[k]
+            for c in range(len(cells_k)):
+                if cells_k[c]:
+                    global_hit[c] = 1
+            kept_comp_indices.append(k)
+            kept_tris += comp_tri_counts[k]
+            pool.remove(k)
+        print(f"[eyebrow_reduction] Phase 2 densest fill spent to {kept_tris} tris")
+
     dropped_strands = len(pool)
     kept_strands = len(kept_comp_indices)
     band_cells_covered = sum(global_hit)

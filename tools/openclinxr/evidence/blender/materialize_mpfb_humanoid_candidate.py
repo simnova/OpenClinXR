@@ -4071,13 +4071,14 @@ def main():
         # the kept_vertex_indices remap). The eyes_asset (fitted eyes_low_poly) is
         # in scope from earlier in this function (~line 3449) and is identity-transformed
         # like the brow (apply_object_transforms in fit_hair), so local == world for both.
-        # The 3600 budget is the smallest clearing the 25%/10% floors on the sweep
-        # actors; it is NOT re-tuned here — contrast (above) and the meshopt floor
+        # The 9000 budget is greedy + phase-2 densest fill (measured 2026-09-18:
+        # greedy spends the whole 3600 for 247/2304 band cells on this brow —
+        # the 10% ink floor, a dusting). Contrast (above) and the meshopt floor
         # (decimate-produced-humanoid.ts, brow excluded from face-preserving rungs)
-        # are the visibility levers. Raising tris alone replays the 21k-speckle
-        # FAILED treatment (more invisible strands, not more arch).
+        # are the other visibility levers. 9000 stays 3.5x below the 31,968-tri
+        # full brow; raising tris to 21k replays the speckle FAILED treatment.
         _brow, _brow_reduction_evidence = reduce_eyebrow_mesh(
-            _brow, eyes_asset, budget_tris=3600
+            _brow, eyes_asset, budget_tris=9000
         )
         print(f"EYEBROW_REDUCTION {json.dumps(_brow_reduction_evidence)}")
 
@@ -4087,10 +4088,10 @@ def main():
         # brow meshes by name (FACE_RE), but a bare Blender DECIMATE here would
         # still eat the arch before export — so the bake-time floor is enforced
         # where the mesh is still in hand: the reduction budget is the floor.
-        if _brow_tris < 3600:
+        if _brow_tris < 9000:
             print(
                 "EYEBROW_MESHOPT_FLOOR "
-                + json.dumps({"browTris": _brow_tris, "floor": 3600, "breach": True})
+                + json.dumps({"browTris": _brow_tris, "floor": 9000, "breach": True})
             )
 
         # Authored emotion is invisible on the eyebrow otherwise: the body carries
