@@ -46,6 +46,15 @@ export async function decimateProducedHumanoid(
   const before = await countFaceTris(glbPath);
   await MeshoptSimplifier.ready;
   const after = await writeFacePreservingRung(glbPath, outputPath, DECIMATE_RUNG_RATIO);
+  // 2026-09-18 eyebrow-visibility: the face-preserving rung must NEVER touch the
+  // brow (FACE_RE exclusion in iterate-optimize.ts). A face-total drop after the
+  // rung means the brow/eyes/lashes were simplified — fail loudly, do not ship.
+  if (after.face < before.face) {
+    throw new Error(
+      `decimate face regression: face tris ${before.face} -> ${after.face} ` +
+        `(brow must be excluded from the fp-r0.4 rung)`,
+    );
+  }
   return {
     rungId: DECIMATE_RUNG_ID,
     ratio: DECIMATE_RUNG_RATIO,
