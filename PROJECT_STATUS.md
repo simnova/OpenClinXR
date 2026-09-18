@@ -14,25 +14,24 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-18 ~11:15 UTC | harvest wake `01a0b507-1245` (muse-spark-1)**
+**2026-09-18 ~17:22 UTC | Grok 4.6 CEO resume after Claude weekly-limit**
 
 **BLOCKED**
-- Claude weekly limit until 2026-09-19 15:00 America/New_York. Grok continues the factory loop.
-- BothyBoard `tasks.next` → `{task:null}`, unchanged:true (verified live this wake). Factory bug-fixes need no cards.
-- One Blender bake at a time. Eyebrow worker holds that slot (bake PID 56376 running, `bake4.log` 11:13).
+- Claude weekly limit until 2026-09-19 15:00 America/New_York.
+- BothyBoard `tasks.next` `{task:null}`. Factory bugs need no cards.
+- Muse long sessions die on `missing field created`. Do not use `isolation=worktree`.
 
-**LANDED this wake**
-- Nothing new to land. Website entry 104 already on origin `1d346c79f`; `pnpm pages:validate` re-run green this wake.
+**LANDED on origin `e580da62f`**
+- Entry 104 `1d346c79f`. Kevin mouth stills `acf23827b`.
+- `e3ed4bc08` brow albedo follows fitted hair. MY GRADE native `docs/assets/eyebrow-nurse-scratch-front-face-2026-09-18.png`: two thin strawberry-blond arches, hair-matched. Coverage 247/2304 (10.7%). Scratch GLB stays in `/tmp`.
+- `e580da62f` factory: phase-2 densest-ink fill + budget 3600→9000. Vitest 3/3 `the-reduced-eyebrow-keeps-covering-strands`. Appearance ungraded until face crop.
 
-**IN FLIGHT this wake**
-- Eyebrow bake4 PID 56376 at 100% CPU, cwd factory-eyebrow-visibility, output `/tmp/openclinxr-eyebrow-nurse1/mpfb-clinical-nurse-adult.glb` (not written yet). Stage: hole-guard / screenspace unhide. Bakes 1-3 died on missing provider-cache `.mhmat` (pants, shirt, shoes); 4 has garments. EYEBROW_REDUCTION this bake: 200 strands, 3600 tris, **247/2304 band cells (10.7%)**. FACS 8 units transferred. No 4-up → NOT merged.
-- Hide-mask `01a0b50a` session growing (2.6 MB), worktree still clean — reconnaissance, do not re-dispatch.
+**IN FLIGHT**
+- Adult nurse rebake blender pid 30732, cwd `wt/brow-coverage-thicken`, output `/tmp/openclinxr-brow-fill-nurse1/mpfb-clinical-nurse-adult.glb`. Log: afterTris 9000, keptStrands 499, bandCellsCovered 257/2304 (11.2%). Shirt `.mhmat` consumed. Worker `01a0b569` still live on that write root — do not re-dispatch.
 
-**NEXT:** when bake4 writes the GLB, isolated 4-up then pixel grade. Coverage 10.7% may still read as specks; contrast (hair-albedo brow) is the other lever in the uncommitted diff.
+NOT TESTED: filled-arch pixels vs 10.7% still; meshopt on 9000-tri brow; viseme on fitted teeth; tongue isolation; collar UV seam.
 
-NOT TESTED: meshopt 0.4 on this bake's 3600-tri brow (no GLB yet).
-
-SWEEP: reds=351 files oldest (#17) workers=2 (eyebrow-bake4 + hidemask-probe) bothy=null-unchanged
+SWEEP: reds=459 it.fails workers=1 (brow bake live pid 30732) bothy=null-unchanged bb-r6311-fb0846f6
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**
