@@ -23,16 +23,18 @@ export function createCaseAudioController(options: CaseAudioOptions | undefined,
   const registrations: Array<{ plan: ActorTurnPlan; traceTag: string; handle: object }> = [];
   const bindings = new Map<string, string>();
   function descriptor(plan: ActorTurnPlan) {
-    const turns = selected?.sceneManifest.dialogueTurns.filter(t => t.actorId === plan.actorId && t.text === plan.spokenText) ?? [];
+    const all = selected?.sceneManifest.dialogueTurns ?? [];
     const tag = bindings.get(key(plan));
-    return tag ? turns.find(t => t.traceTag === tag) : turns.length === 1 ? turns[0] : undefined;
+    if (tag) return all.find(t => t.traceTag === tag);
+    const turns = all.filter(t => t.actorId === plan.actorId && t.text === plan.spokenText);
+    return turns.length === 1 ? turns[0] : undefined;
   }
   async function preload(plan: ActorTurnPlan): Promise<Awaited<ReturnType<CaseAudioController["preload"]>>> {
     const turn = descriptor(plan);
     if (!turn?.actorAudio) return { kind: "absent" };
     const e = structuredClone(turn.actorAudio);
     const currentEpoch = epoch;
-    if (!selected || !caseEvidenceMatches(e, plan, selected.scenarioId, turn.traceTag)) return { kind: "refused", reason: "identity_mismatch" };
+    if (!selected || turn.actorId !== plan.actorId || turn.text !== plan.spokenText || !caseEvidenceMatches(e, plan, selected.scenarioId, turn.traceTag)) return { kind: "refused", reason: "identity_mismatch" };
     const existing = entries.get(key(plan));
     if (existing && existing.epoch === epoch) return { kind: "verified", selection: existing.token };
     const inflight = pending.get(key(plan));
@@ -61,7 +63,8 @@ export function createCaseAudioController(options: CaseAudioOptions | undefined,
       epoch++; selected = bundle; entries.clear(); pending.clear(); bindings.clear(); reason = null;
       for (const turn of bundle.sceneManifest.dialogueTurns) {
         const e = turn.actorAudio;
-        if (e && caseEvidenceMatches(e, e.plan, bundle.scenarioId, turn.traceTag)) {
+        if (e) bindings.set(key(e.plan), turn.traceTag);
+        if (e && turn.actorId === e.plan.actorId && turn.text === e.plan.spokenText && caseEvidenceMatches(e, e.plan, bundle.scenarioId, turn.traceTag)) {
           const handle = registerOwnedLiveActorTurn(e.plan, e.execution, turn.traceTag);
           registrations.push({ plan: e.plan, traceTag: turn.traceTag, handle });
           bindings.set(key(e.plan), turn.traceTag);
@@ -87,7 +90,7 @@ export function createCaseAudioController(options: CaseAudioOptions | undefined,
       if (execution && (execution.planId !== plan.planId || execution.turnId !== plan.turnId)) return { kind: "refused", reason: "execution_join_mismatch" };
       if (execution?.interruption.kind === "truncated" || execution?.interruption.kind === "replaced") return { kind: "refused", reason: "cancelled" };
       const entry = entries.get(key(plan));
-      if (!entry || !entry.handle || !caseEvidenceMatches(entry.evidence, plan, selected.scenarioId, descriptor(plan)!.traceTag)) return { kind: "refused", reason: "not_ready" };
+      if (!entry || !entry.handle || descriptor(plan)!.actorId !== plan.actorId || descriptor(plan)!.text !== plan.spokenText || !caseEvidenceMatches(entry.evidence, plan, selected.scenarioId, descriptor(plan)!.traceTag)) return { kind: "refused", reason: "not_ready" };
       let handle: object | undefined;
       let refusal = "adapter_failed";
       const player = playIdentityBoundActorTurn(plan, entry.evidence.artifacts, { nowMs: performance.now(), adapters: {
