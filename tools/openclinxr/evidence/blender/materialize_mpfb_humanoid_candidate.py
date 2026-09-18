@@ -248,6 +248,44 @@ SKIN_TONE_RGB = {
     "default": (0.68, 0.53, 0.44),
 }
 
+# skins01 catalogue CC0 (2026-09-17 more-permissive ruling). Photographic albedo
+# for the adult clinical nurse; unkeyed bakes keep enhanced_skin tone-only.
+SKINS01_ROOT = (
+    REPO_ROOT
+    / ".openclinxr-local/provider-cache/skins/sources/makehuman-skins01/extracted/skins"
+)
+SKIN_MHMAT_BY_REFERENCE = {
+    "ed_chest_pain_nurse_adult": "toigo_light_skin_with_natural_makeup",
+}
+
+
+def resolve_skins01_mhmat(stem):
+    if not stem:
+        return None
+    path = SKINS01_ROOT / stem / f"{stem}.mhmat"
+    return path if path.is_file() else None
+
+
+def ensure_body_subsurf(human, render_levels=1):
+    """Add an unapplied Catmull-Clark SUBSURF so clothes still bind to 13,380 verts.
+
+    viewport levels=0: ClothesService / mhclo see the helper-stripped basemesh.
+    render_levels=1 is baked later via ExportService.bake_modifiers_remove_helpers
+    (bake_subdiv=True, remove_helpers=False) after every mhclo fit.
+    """
+    existing = next((m for m in human.modifiers if m.type == "SUBSURF"), None)
+    if existing is None:
+        existing = human.modifiers.new("OpenClinXR_BodySubsurf", "SUBSURF")
+    existing.levels = 0
+    existing.render_levels = int(render_levels)
+    if hasattr(existing, "subdivision_type"):
+        existing.subdivision_type = "CATMULL_CLARK"
+    print(
+        "BODY_SUBSURF "
+        + json.dumps({"viewportLevels": existing.levels, "renderLevels": existing.render_levels})
+    )
+    return existing
+
 
 def _anny_manifest_for(manifest_id):
     """#651 — locate the tracked anny manifest for a reference id.
@@ -3409,7 +3447,25 @@ def main():
     # baseColorTexture before export.
     from bl_ext.user_default.mpfb.services.materialservice import MaterialService as _MaterialService  # noqa: E402
 
-    _skin_mat = _MaterialService.create_v2_skin_material(skin_material_name, human)
+    _mhmat_stem = SKIN_MHMAT_BY_REFERENCE.get(args.reference) if args.reference else None
+    _mhmat_path = resolve_skins01_mhmat(_mhmat_stem) if _mhmat_stem else None
+    _skin_mat = _MaterialService.create_v2_skin_material(
+        skin_material_name,
+        human,
+        mhmat_file=str(_mhmat_path) if _mhmat_path is not None else None,
+    )
+    if _mhmat_path is not None:
+        print(
+            "SKIN_MHMAT "
+            + json.dumps(
+                {
+                    "stem": _mhmat_stem,
+                    "path": str(_mhmat_path),
+                    "licence": "CC0",
+                    "via": "skins01 catalogue",
+                }
+            )
+        )
     _skin_tone = phenotype_skin_tone(args.reference)
     _skin_rgb = SKIN_TONE_RGB.get(_skin_tone, SKIN_TONE_RGB["default"])
     _master_color = next(
@@ -4393,6 +4449,9 @@ def main():
         f"HELPER_STRIP verts {verts_before_strip} -> {verts_after_strip}; "
         f"tris {tris_before_strip} -> {tris_after_strip}"
     )
+    # Subdiv AFTER the strip so mhclo still binds to 13,380 verts; applied at
+    # export (bake_subdiv=True, remove_helpers=False) once clothes are fitted.
+    ensure_body_subsurf(human, render_levels=1)
     # issue-341 round 15: the strip's `reapply_all_details` re-added the macro target
     # shape keys ($md-*) ON TOP of the basis `bake_targets` already baked (the macro
     # values live in the object's HumanObjectProperties, which bake_targets does not
@@ -6199,6 +6258,31 @@ def main():
     # covers the final skin region. The exported texture is saved next to the
     # output GLB for provenance.
     bpy.context.scene.frame_set(1)  # bake at rest pose — deterministic UV sampling
+    # Apply the unapplied body SUBSURF now that every mhclo fit has bound to the
+    # 13,380-vert strip. remove_helpers=False: cages already gone.
+    from bl_ext.user_default.mpfb.services.exportservice import ExportService as _ExportServiceSubdiv  # noqa: E402
+
+    verts_before_subdiv = len(human.data.vertices)
+    tris_before_subdiv = sum(max(len(p.vertices) - 2, 0) for p in human.data.polygons)
+    _ExportServiceSubdiv.bake_modifiers_remove_helpers(
+        human, bake_masks=False, bake_subdiv=True, remove_helpers=False, also_proxy=True
+    )
+    bpy.context.view_layer.update()
+    print(
+        "BODY_SUBDIV_APPLIED "
+        + json.dumps(
+            {
+                "vertsBefore": verts_before_subdiv,
+                "vertsAfter": len(human.data.vertices),
+                "trisBefore": tris_before_subdiv,
+                "trisAfter": sum(max(len(p.vertices) - 2, 0) for p in human.data.polygons),
+            }
+        )
+    )
+    bpy.context.view_layer.objects.active = human
+    human.select_set(True)
+    bpy.ops.object.shade_smooth()
+    print("BODY_SHADE_SMOOTH True")
     if skin_material_name not in [m.name for m in human.data.materials]:
         raise RuntimeError(f"#343: skin material {skin_material_name} missing before bake")
     bake_png = output.parent / f"{output.stem}.skin-baked.png"
