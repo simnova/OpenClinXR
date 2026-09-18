@@ -1,0 +1,1049 @@
+{
+ "schema": "openclinxr.speech-emotion-blink-video-evidence.v1",
+ "date": "2026-09-17",
+ "subject": "mpfb-clinical-nurse-adult rebaked by materialize_mpfb_humanoid_candidate.py @ main 34c939758 (--reference ed_chest_pain_nurse_adult --actor-role nurse) then the shipped post-bake ladder: optimize_glb_meshopt (0.4/0.001 simplify-only) -> optimize_glb_lash_lod (0.12/0.005) -> bake-humanoid-albedo -> separate_chest_anchor_joints 0.085. Licence-notice stage not run. Not promoted; scratch output only.",
+ "glb": {
+  "shippedBefore": {
+   "path": "/Volumes/files/src/openclinxr/.claude/worktrees/agent-a307d90e3afbc8b50/apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+   "bytes": 8396376,
+   "sha256": "8409334c30861e07d7bb180b2b8f7e5d48c277bc91c4a5df8f0cb0475869c541",
+   "materials": {
+    "hair": {
+     "material": "openclinxr_fitted_hair_toigo_blunt_bob_mpfb_ed_chest_pain_nurse_adult_mat",
+     "baseColorTexture": null,
+     "baseColorFactor": [
+      0.18000000715255737,
+      0.12999999523162842,
+      0.10000000149011612,
+      1
+     ],
+     "normalTexture": null
+    },
+    "scrub_pants": {
+     "material": "mat_makeclothes_library_scrub_pants",
+     "baseColorTexture": null,
+     "baseColorFactor": [
+      0.05,
+      0.48,
+      0.52,
+      1
+     ],
+     "normalTexture": null
+    },
+    "scrub_shirt": {
+     "material": "mat_makeclothes_library_scrub_shirt",
+     "baseColorTexture": null,
+     "baseColorFactor": [
+      0.05,
+      0.48,
+      0.52,
+      1
+     ],
+     "normalTexture": null
+    },
+    "skin": {
+     "material": "mpfb_skin_ed_chest_pain_nurse_adult",
+     "baseColorTexture": {
+      "mime": "image/png",
+      "bytes": 860888,
+      "sha256": "1a9e179b271352656e02c3176e47ae81988e6c56a9b7b74024b933b7b503e0a4",
+      "pngHasIEND": true,
+      "decodes": true,
+      "size": [
+       1024,
+       1024
+      ],
+      "meanRGB": [
+       88.2,
+       77.1,
+       70.7
+      ],
+      "stddevRGB": [
+       93.17,
+       81.43,
+       74.65
+      ]
+     },
+     "baseColorFactor": null,
+     "normalTexture": {
+      "mime": "image/png",
+      "bytes": 1071173,
+      "sha256": "81854b1f3d2a18040f5831b4ea623a0f2770f74e1722d95649685e2a45f653a1",
+      "pngHasIEND": true,
+      "decodes": true,
+      "size": [
+       1024,
+       1024
+      ],
+      "meanRGB": [
+       127.6,
+       127.7,
+       254.4
+      ],
+      "stddevRGB": [
+       8.89,
+       8.92,
+       0.99
+      ]
+     }
+    }
+   },
+   "morphTargetsPerMesh": {
+    "mpfb_ed_chest_pain_nurse_adult_body": 47
+   },
+   "morphTargetUnion": 47,
+   "morphFamilies": {
+    "eyebrows-": 8,
+    "eye-": 6,
+    "mouth-": 13,
+    "nose-": 4,
+    "viseme_": 15
+   }
+  },
+  "rawMaterializeOutput": {
+   "path": "/private/tmp/claude-501/-Volumes-files-src-openclinxr/cefaeebb-3769-400e-80db-3716364701e8/scratchpad/nurse-rebake/mpfb-clinical-nurse-adult.glb",
+   "bytes": 19732624,
+   "sha256": "d19b6c9b6d31bcff3a3f0b203905b062bf4f0be00b3f98eba4304039f6fd23db",
+   "materials": {
+    "hair": {
+     "material": "openclinxr_fitted_hair_toigo_blunt_bob_mpfb_ed_chest_pain_nurse_adult_mat",
+     "baseColorTexture": null,
+     "baseColorFactor": [
+      0.18000000715255737,
+      0.12999999523162842,
+      0.10000000149011612,
+      1
+     ],
+     "normalTexture": null
+    },
+    "scrub_pants": {
+     "material": "mat_makeclothes_library_scrub_pants",
+     "baseColorTexture": {
+      "mime": "image/png",
+      "bytes": 2678956,
+      "sha256": "5aa0009a1b132c292c1cd7ce42e6f794cabc1fa7c3231b6a12a89b7cccae3cfe",
+      "pngHasIEND": true,
+      "decodes": true,
+      "size": [
+       2048,
+       2048
+      ],
+      "meanRGB": [
+       175.2,
+       254.8,
+       255.0
+      ],
+      "stddevRGB": [
+       5.81,
+       1.31,
+       0.0
+      ]
+     },
+     "baseColorFactor": [
+      0.05,
+      0.48,
+      0.52,
+      1.0
+     ],
+     "normalTexture": null
+    },
+    "scrub_shirt": {
+     "material": "mat_makeclothes_library_scrub_shirt",
+     "baseColorTexture": {
+      "mime": "image/png",
+      "bytes": 2716138,
+      "sha256": "1baceb33b9b81816d8a2eb23da223df028af8fd13a64edd2c7e147b8c7478c64",
+      "pngHasIEND": true,
+      "decodes": true,
+      "size": [
+       2048,
+       2048
+      ],
+      "meanRGB": [
+       173.3,
+       254.8,
+       255.0
+      ],
+      "stddevRGB": [
+       6.6,
+       1.97,
+       0.0
+      ]
+     },
+     "baseColorFactor": [
+      0.05,
+      0.48,
+      0.52,
+      1.0
+     ],
+     "normalTexture": null
+    },
+    "skin": {
+     "material": "mpfb_skin_ed_chest_pain_nurse_adult",
+     "baseColorTexture": {
+      "mime": "image/png",
+      "bytes": 772910,
+      "sha256": "a04d862a97ca76ae6e0cadd972165d16f825447e29b2a6dc711c17594b8491fa",
+      "pngHasIEND": true,
+      "decodes": true,
+      "size": [
+       1024,
+       1024
+      ],
+      "meanRGB": [
+       76.2,
+       66.6,
+       61.0
+      ],
+      "stddevRGB": [
+       91.6,
+       80.05,
+       73.38
+      ]
+     },
+     "baseColorFactor": null,
+     "normalTexture": {
+      "mime": "image/png",
+      "bytes": 1221528,
+      "sha256": "0531201b25f1529b674b5c8c813bd49535823a2e468cfa06b8d4b83d8b020dcd",
+      "pngHasIEND": true,
+      "decodes": true,
+      "size": [
+       1024,
+       1024
+      ],
+      "meanRGB": [
+       127.7,
+       127.7,
+       253.9
+      ],
+      "stddevRGB": [
+       11.5,
+       11.65,
+       1.28
+      ]
+     }
+    }
+   },
+   "morphTargetsPerMesh": {
+    "mpfb_ed_chest_pain_nurse_adult_body": 47,
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_06_mpfb_ed_chest_pain_nurse_adult_mesh": 8
+   },
+   "morphTargetUnion": 47,
+   "morphFamilies": {
+    "eyebrows-": 8,
+    "eye-": 6,
+    "mouth-": 13,
+    "nose-": 4,
+    "viseme_": 15
+   }
+  },
+  "rebakedAfterLadder": {
+   "path": "/private/tmp/claude-501/-Volumes-files-src-openclinxr/cefaeebb-3769-400e-80db-3716364701e8/scratchpad/nurse-rebake/nurse-rebaked-2026-09-17.glb",
+   "bytes": 10506684,
+   "sha256": "b81f8221bbcf2bf9265ea82b807e42117b421b7e459f0fa9bcc5ac1988965f74",
+   "materials": {
+    "hair": {
+     "material": "openclinxr_fitted_hair_toigo_blunt_bob_mpfb_ed_chest_pain_nurse_adult_mat",
+     "baseColorTexture": null,
+     "baseColorFactor": [
+      0.18000000715255737,
+      0.12999999523162842,
+      0.10000000149011612,
+      1
+     ],
+     "normalTexture": null
+    },
+    "scrub_pants": {
+     "material": "mat_makeclothes_library_scrub_pants",
+     "baseColorTexture": {
+      "mime": "image/png",
+      "bytes": 519906,
+      "sha256": "46d17b7db8bed6016de16d76651dd968064ba004f28278441c88d5c315a5e2d0",
+      "pngHasIEND": true,
+      "decodes": true,
+      "size": [
+       2048,
+       2048
+      ],
+      "meanRGB": [
+       8.8,
+       121.9,
+       133.0
+      ],
+      "stddevRGB": [
+       0.41,
+       0.59,
+       0.0
+      ]
+     },
+     "baseColorFactor": null,
+     "normalTexture": null
+    },
+    "scrub_shirt": {
+     "material": "mat_makeclothes_library_scrub_shirt",
+     "baseColorTexture": {
+      "mime": "image/png",
+      "bytes": 437089,
+      "sha256": "c18e7daba260ee9c85109dabe78358718d4343f7f82a350c9cc021cab11ce83d",
+      "pngHasIEND": true,
+      "decodes": true,
+      "size": [
+       2048,
+       2048
+      ],
+      "meanRGB": [
+       8.8,
+       121.9,
+       133.0
+      ],
+      "stddevRGB": [
+       0.45,
+       0.89,
+       0.0
+      ]
+     },
+     "baseColorFactor": null,
+     "normalTexture": null
+    },
+    "skin": {
+     "material": "mpfb_skin_ed_chest_pain_nurse_adult",
+     "baseColorTexture": {
+      "mime": "image/png",
+      "bytes": 772910,
+      "sha256": "a04d862a97ca76ae6e0cadd972165d16f825447e29b2a6dc711c17594b8491fa",
+      "pngHasIEND": true,
+      "decodes": true,
+      "size": [
+       1024,
+       1024
+      ],
+      "meanRGB": [
+       76.2,
+       66.6,
+       61.0
+      ],
+      "stddevRGB": [
+       91.6,
+       80.05,
+       73.38
+      ]
+     },
+     "baseColorFactor": null,
+     "normalTexture": {
+      "mime": "image/png",
+      "bytes": 1221528,
+      "sha256": "0531201b25f1529b674b5c8c813bd49535823a2e468cfa06b8d4b83d8b020dcd",
+      "pngHasIEND": true,
+      "decodes": true,
+      "size": [
+       1024,
+       1024
+      ],
+      "meanRGB": [
+       127.7,
+       127.7,
+       253.9
+      ],
+      "stddevRGB": [
+       11.5,
+       11.65,
+       1.28
+      ]
+     }
+    }
+   },
+   "morphTargetsPerMesh": {
+    "mpfb_ed_chest_pain_nurse_adult_body": 47,
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_06_mpfb_ed_chest_pain_nurse_adult_mesh": 8
+   },
+   "morphTargetUnion": 47,
+   "morphFamilies": {
+    "eyebrows-": 8,
+    "eye-": 6,
+    "mouth-": 13,
+    "nose-": 4,
+    "viseme_": 15
+   }
+  }
+ },
+ "checks": {
+  "a_hairTexture": "NOT UPDATED. materialize_mpfb_humanoid_candidate.py:3823-3826 calls embed_library_hair.create_material(name, hair_color(role)) with no textures argument, so the 4ffc3cc31 .mhmat wiring (source_hair_textures) never reaches the MPFB materializer. bob_blunt.mhmat and StrawberryBlondHair.png / BakedHairNORMAL.png are on disk in the provider cache. Hair stays flat factor [0.18,0.13,0.10].",
+  "b_scrubTextures": "PRESENT, COMPLETE, VISUALLY FLAT. Raw materialize output embeds a 2048 PNG with IEND for shirt and pants, but its decoded pixels are already saturated (G,B mean 254.8/255.0, stddev <=2) and carry teal factor [0.05,0.48,0.52]. bake-humanoid-albedo multiplies the factor in: final shirt atlas mean [8.8,121.9,133.0] stddev [0.5,0.9,0.0], sha c18e7dab... which is byte-identical to the teal-baked atlas the shipped provenance note already describes. The source weave (stddev ~4/255) does not survive; no weave is visible in any frame.",
+  "c_skinNormal": "UPDATED. Normal map image hash differs from shipped (see materials.skin.normalTexture.sha256). Pixel grade: the face/neck/forearm relief still reads as large crumpled facets, more visible than the shipped bake under the same rig.",
+  "d_facsMorphs": "Body mesh 47 targets (unchanged count); eyebrow mesh now carries 8 eyebrows-* targets (shipped: 0).",
+  "e_visemeResolution": "DEFECT, runtime, not harness: of 429 speech frames, 220 drive no named viseme target (null) and 182 drive viseme_E, 13 viseme_aa. xr-dialogue viseme-baked-cues.ts RHUBARB_SHAPE_TO_TOKEN emits IH/OH/OU/FV/L for Rhubarb C/D/E/F/G/H; this GLB carries viseme_I/O/U/FF/nn, so only A (AA->viseme_aa) and B (E->viseme_E) resolve. The harness drives the shipped mapping unchanged.",
+  "f_blinkEyelid": "Closed-lid crops: the image-left eye (character right) closes with a crumpled lid and a visible iris sliver on all 7 closeup blinks; image-right eye closes cleanly."
+ },
+ "render": {
+  "harness": "tools/openclinxr/evidence/natural-blink-emotion/speech-emotion-video/",
+  "clock": "virtual; performance.now replaced; 30 fps output, two 1/60 s updateGeneratedHumanoidAnimations sub-steps per frame",
+  "lighting": "Model Vetting Studio rig: AmbientLight #dceee6 1.5, key #ffffff 2.4 at (3,5,4), fill #b6d8ca 1.2 at (-4,3,-2), no material overrides",
+  "size": [
+   1280,
+   720
+  ],
+  "fps": 30,
+  "frames": 1028,
+  "durationS": 34.27,
+  "schedule": [
+   {
+    "type": "camera",
+    "startMs": 0,
+    "shot": "closeup"
+   },
+   {
+    "type": "speech",
+    "startMs": 3000,
+    "lineId": "L1",
+    "text": "Your blood pressure is higher than it was an hour ago, so I want to check it again.",
+    "emotion": "concerned",
+    "utteranceId": "af805fcd1d",
+    "durationMs": 4474
+   },
+   {
+    "type": "speech",
+    "startMs": 10974,
+    "lineId": "L2",
+    "text": "The monitor is showing some changes, and I need the doctor to come and see you right now.",
+    "emotion": "anxious",
+    "utteranceId": "154929095b",
+    "durationMs": 4726
+   },
+   {
+    "type": "speech",
+    "startMs": 19200,
+    "lineId": "L3",
+    "text": "The doctor is on her way. You did the right thing telling us, and I will stay right here with you.",
+    "emotion": "reassured",
+    "utteranceId": "36e54fe33e",
+    "durationMs": 5062
+   },
+   {
+    "type": "camera",
+    "startMs": 27262,
+    "shot": "wide"
+   }
+  ],
+  "speechFramesByNamedViseme": {
+   "viseme_sil": 14,
+   "null": 220,
+   "viseme_aa": 13,
+   "viseme_E": 182
+  },
+  "rhubarbShapeCountsPerLine": {
+   "L1": {
+    "X": 3,
+    "F": 6,
+    "A": 2,
+    "H": 1,
+    "B": 12,
+    "C": 8,
+    "E": 4,
+    "D": 1
+   },
+   "L2": {
+    "X": 2,
+    "A": 3,
+    "D": 2,
+    "B": 11,
+    "E": 4,
+    "F": 3,
+    "C": 9
+   },
+   "L3": {
+    "X": 2,
+    "B": 14,
+    "D": 2,
+    "C": 10,
+    "E": 2,
+    "F": 4
+   }
+  }
+ },
+ "blinks": {
+  "blinks": [
+   {
+    "peakFrameIndex": 41,
+    "peakTimeMs": 1400,
+    "peakClosure": 0.992,
+    "shot": "closeup",
+    "duringSpeech": false,
+    "referenceFrameIndex": 31
+   },
+   {
+    "peakFrameIndex": 221,
+    "peakTimeMs": 7400,
+    "peakClosure": 0.987,
+    "shot": "closeup",
+    "duringSpeech": true,
+    "referenceFrameIndex": 210
+   },
+   {
+    "peakFrameIndex": 266,
+    "peakTimeMs": 8900,
+    "peakClosure": 0.991,
+    "shot": "closeup",
+    "duringSpeech": false,
+    "referenceFrameIndex": 255
+   },
+   {
+    "peakFrameIndex": 460,
+    "peakTimeMs": 15367,
+    "peakClosure": 0.995,
+    "shot": "closeup",
+    "duringSpeech": true,
+    "referenceFrameIndex": 450
+   },
+   {
+    "peakFrameIndex": 513,
+    "peakTimeMs": 17133,
+    "peakClosure": 0.991,
+    "shot": "closeup",
+    "duringSpeech": false,
+    "referenceFrameIndex": 502
+   },
+   {
+    "peakFrameIndex": 707,
+    "peakTimeMs": 23600,
+    "peakClosure": 0.987,
+    "shot": "closeup",
+    "duringSpeech": true,
+    "referenceFrameIndex": 696
+   },
+   {
+    "peakFrameIndex": 769,
+    "peakTimeMs": 25667,
+    "peakClosure": 0.992,
+    "shot": "closeup",
+    "duringSpeech": false,
+    "referenceFrameIndex": 759
+   },
+   {
+    "peakFrameIndex": 837,
+    "peakTimeMs": 27933,
+    "peakClosure": 0.999,
+    "shot": "wide",
+    "duringSpeech": false,
+    "referenceFrameIndex": 826
+   },
+   {
+    "peakFrameIndex": 943,
+    "peakTimeMs": 31467,
+    "peakClosure": 0.975,
+    "shot": "wide",
+    "duringSpeech": false,
+    "referenceFrameIndex": 933
+   }
+  ],
+  "blinkRatePerMinuteCloseup": 15.41
+ },
+ "blinkMeasureEncodedWebm": {
+  "pairs": [
+   {
+    "peakTimeMs": 1400,
+    "peakFrameIndex": 41,
+    "openFrameIndex": 31,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.0999,
+      "darkFraction": 0.0081,
+      "irisFraction": 0.0156
+     },
+     "closed": {
+      "scleraFraction": 0.0973,
+      "darkFraction": 0.0006,
+      "irisFraction": 0.0006
+     },
+     "scleraDrop": 0.0026,
+     "irisDrop": 0.015,
+     "confirmed": true
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.1091,
+      "darkFraction": 0.0078,
+      "irisFraction": 0.0154
+     },
+     "closed": {
+      "scleraFraction": 0.1109,
+      "darkFraction": 0.0011,
+      "irisFraction": 0.0009
+     },
+     "scleraDrop": -0.0018,
+     "irisDrop": 0.0145,
+     "confirmed": true
+    }
+   },
+   {
+    "peakTimeMs": 7400,
+    "peakFrameIndex": 221,
+    "openFrameIndex": 210,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.1198,
+      "darkFraction": 0.0042,
+      "irisFraction": 0.0141
+     },
+     "closed": {
+      "scleraFraction": 0.1292,
+      "darkFraction": 0.0004,
+      "irisFraction": 0
+     },
+     "scleraDrop": -0.0094,
+     "irisDrop": 0.0141,
+     "confirmed": true
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.1579,
+      "darkFraction": 0.004,
+      "irisFraction": 0.0141
+     },
+     "closed": {
+      "scleraFraction": 0.1532,
+      "darkFraction": 0.0009,
+      "irisFraction": 0
+     },
+     "scleraDrop": 0.0047,
+     "irisDrop": 0.0141,
+     "confirmed": true
+    }
+   },
+   {
+    "peakTimeMs": 8900,
+    "peakFrameIndex": 266,
+    "openFrameIndex": 255,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.0913,
+      "darkFraction": 0.0084,
+      "irisFraction": 0.0149
+     },
+     "closed": {
+      "scleraFraction": 0.0923,
+      "darkFraction": 0.0017,
+      "irisFraction": 0
+     },
+     "scleraDrop": -0.001,
+     "irisDrop": 0.0149,
+     "confirmed": true
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.1102,
+      "darkFraction": 0.0075,
+      "irisFraction": 0.0167
+     },
+     "closed": {
+      "scleraFraction": 0.1133,
+      "darkFraction": 0.0004,
+      "irisFraction": 0.0007
+     },
+     "scleraDrop": -0.0031,
+     "irisDrop": 0.016,
+     "confirmed": true
+    }
+   },
+   {
+    "peakTimeMs": 15367,
+    "peakFrameIndex": 460,
+    "openFrameIndex": 450,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.1242,
+      "darkFraction": 0.0048,
+      "irisFraction": 0.0126
+     },
+     "closed": {
+      "scleraFraction": 0.1283,
+      "darkFraction": 0.0008,
+      "irisFraction": 0
+     },
+     "scleraDrop": -0.0041,
+     "irisDrop": 0.0126,
+     "confirmed": true
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.1595,
+      "darkFraction": 0.0042,
+      "irisFraction": 0.0143
+     },
+     "closed": {
+      "scleraFraction": 0.1477,
+      "darkFraction": 0.0004,
+      "irisFraction": 0
+     },
+     "scleraDrop": 0.0118,
+     "irisDrop": 0.0143,
+     "confirmed": true
+    }
+   },
+   {
+    "peakTimeMs": 17133,
+    "peakFrameIndex": 513,
+    "openFrameIndex": 502,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.095,
+      "darkFraction": 0.0083,
+      "irisFraction": 0.0166
+     },
+     "closed": {
+      "scleraFraction": 0.1013,
+      "darkFraction": 0.0014,
+      "irisFraction": 0
+     },
+     "scleraDrop": -0.0063,
+     "irisDrop": 0.0166,
+     "confirmed": true
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.105,
+      "darkFraction": 0.0082,
+      "irisFraction": 0.0171
+     },
+     "closed": {
+      "scleraFraction": 0.1098,
+      "darkFraction": 0.0007,
+      "irisFraction": 0.0008
+     },
+     "scleraDrop": -0.0048,
+     "irisDrop": 0.0163,
+     "confirmed": true
+    }
+   },
+   {
+    "peakTimeMs": 23600,
+    "peakFrameIndex": 707,
+    "openFrameIndex": 696,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.1452,
+      "darkFraction": 0.0032,
+      "irisFraction": 0.0153
+     },
+     "closed": {
+      "scleraFraction": 0.1568,
+      "darkFraction": 0.0001,
+      "irisFraction": 0
+     },
+     "scleraDrop": -0.0116,
+     "irisDrop": 0.0153,
+     "confirmed": true
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.1813,
+      "darkFraction": 0.0036,
+      "irisFraction": 0.016
+     },
+     "closed": {
+      "scleraFraction": 0.1842,
+      "darkFraction": 0.0008,
+      "irisFraction": 0.0003
+     },
+     "scleraDrop": -0.0029,
+     "irisDrop": 0.0157,
+     "confirmed": true
+    }
+   },
+   {
+    "peakTimeMs": 25667,
+    "peakFrameIndex": 769,
+    "openFrameIndex": 759,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.0895,
+      "darkFraction": 0.0086,
+      "irisFraction": 0.0148
+     },
+     "closed": {
+      "scleraFraction": 0.0938,
+      "darkFraction": 0.0008,
+      "irisFraction": 0.0007
+     },
+     "scleraDrop": -0.0043,
+     "irisDrop": 0.0141,
+     "confirmed": true
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.1062,
+      "darkFraction": 0.0072,
+      "irisFraction": 0.0158
+     },
+     "closed": {
+      "scleraFraction": 0.108,
+      "darkFraction": 0.0006,
+      "irisFraction": 0.0008
+     },
+     "scleraDrop": -0.0018,
+     "irisDrop": 0.015,
+     "confirmed": true
+    }
+   }
+  ],
+  "summary": {
+   "pairs": 7,
+   "encodedConfirmedPairs": 7,
+   "sourceConfirmedPairs": 7
+  }
+ },
+ "blinkMeasureEncodedMp4": {
+  "pairs": [
+   {
+    "peakTimeMs": 1400,
+    "peakFrameIndex": 41,
+    "openFrameIndex": 31,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.1042,
+      "darkFraction": 0.0074,
+      "irisFraction": 0.0111
+     },
+     "closed": {
+      "scleraFraction": 0.1022,
+      "darkFraction": 0.0008,
+      "irisFraction": 0
+     },
+     "scleraDrop": 0.002,
+     "irisDrop": 0.0111,
+     "confirmed": true
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.1091,
+      "darkFraction": 0.0078,
+      "irisFraction": 0.0154
+     },
+     "closed": {
+      "scleraFraction": 0.1109,
+      "darkFraction": 0.0011,
+      "irisFraction": 0.0009
+     },
+     "scleraDrop": -0.0018,
+     "irisDrop": 0.0145,
+     "confirmed": true
+    }
+   },
+   {
+    "peakTimeMs": 7400,
+    "peakFrameIndex": 221,
+    "openFrameIndex": 210,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.1142,
+      "darkFraction": 0.0035,
+      "irisFraction": 0.0084
+     },
+     "closed": {
+      "scleraFraction": 0.127,
+      "darkFraction": 0.0006,
+      "irisFraction": 0
+     },
+     "scleraDrop": -0.0128,
+     "irisDrop": 0.0084,
+     "confirmed": false
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.1579,
+      "darkFraction": 0.004,
+      "irisFraction": 0.0141
+     },
+     "closed": {
+      "scleraFraction": 0.1532,
+      "darkFraction": 0.0009,
+      "irisFraction": 0
+     },
+     "scleraDrop": 0.0047,
+     "irisDrop": 0.0141,
+     "confirmed": true
+    }
+   },
+   {
+    "peakTimeMs": 8900,
+    "peakFrameIndex": 266,
+    "openFrameIndex": 255,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.0921,
+      "darkFraction": 0.0071,
+      "irisFraction": 0.0175
+     },
+     "closed": {
+      "scleraFraction": 0.1021,
+      "darkFraction": 0.0012,
+      "irisFraction": 0
+     },
+     "scleraDrop": -0.01,
+     "irisDrop": 0.0175,
+     "confirmed": true
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.1102,
+      "darkFraction": 0.0075,
+      "irisFraction": 0.0167
+     },
+     "closed": {
+      "scleraFraction": 0.1133,
+      "darkFraction": 0.0004,
+      "irisFraction": 0.0007
+     },
+     "scleraDrop": -0.0031,
+     "irisDrop": 0.016,
+     "confirmed": true
+    }
+   },
+   {
+    "peakTimeMs": 15367,
+    "peakFrameIndex": 460,
+    "openFrameIndex": 450,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.1348,
+      "darkFraction": 0.0046,
+      "irisFraction": 0.0104
+     },
+     "closed": {
+      "scleraFraction": 0.1348,
+      "darkFraction": 0.0009,
+      "irisFraction": 0
+     },
+     "scleraDrop": 0,
+     "irisDrop": 0.0104,
+     "confirmed": true
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.1595,
+      "darkFraction": 0.0042,
+      "irisFraction": 0.0143
+     },
+     "closed": {
+      "scleraFraction": 0.1477,
+      "darkFraction": 0.0004,
+      "irisFraction": 0
+     },
+     "scleraDrop": 0.0118,
+     "irisDrop": 0.0143,
+     "confirmed": true
+    }
+   },
+   {
+    "peakTimeMs": 17133,
+    "peakFrameIndex": 513,
+    "openFrameIndex": 502,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.1003,
+      "darkFraction": 0.0079,
+      "irisFraction": 0.0142
+     },
+     "closed": {
+      "scleraFraction": 0.1023,
+      "darkFraction": 0.0009,
+      "irisFraction": 0
+     },
+     "scleraDrop": -0.002,
+     "irisDrop": 0.0142,
+     "confirmed": true
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.105,
+      "darkFraction": 0.0082,
+      "irisFraction": 0.0171
+     },
+     "closed": {
+      "scleraFraction": 0.1098,
+      "darkFraction": 0.0007,
+      "irisFraction": 0.0008
+     },
+     "scleraDrop": -0.0048,
+     "irisDrop": 0.0163,
+     "confirmed": true
+    }
+   },
+   {
+    "peakTimeMs": 23600,
+    "peakFrameIndex": 707,
+    "openFrameIndex": 696,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.1466,
+      "darkFraction": 0.0033,
+      "irisFraction": 0.0122
+     },
+     "closed": {
+      "scleraFraction": 0.1614,
+      "darkFraction": 0.0004,
+      "irisFraction": 0
+     },
+     "scleraDrop": -0.0148,
+     "irisDrop": 0.0122,
+     "confirmed": true
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.1813,
+      "darkFraction": 0.0036,
+      "irisFraction": 0.016
+     },
+     "closed": {
+      "scleraFraction": 0.1842,
+      "darkFraction": 0.0008,
+      "irisFraction": 0.0003
+     },
+     "scleraDrop": -0.0029,
+     "irisDrop": 0.0157,
+     "confirmed": true
+    }
+   },
+   {
+    "peakTimeMs": 25667,
+    "peakFrameIndex": 769,
+    "openFrameIndex": 759,
+    "encoded": {
+     "open": {
+      "scleraFraction": 0.0919,
+      "darkFraction": 0.0074,
+      "irisFraction": 0.0136
+     },
+     "closed": {
+      "scleraFraction": 0.0922,
+      "darkFraction": 0.0006,
+      "irisFraction": 0
+     },
+     "scleraDrop": -0.0003,
+     "irisDrop": 0.0136,
+     "confirmed": true
+    },
+    "source": {
+     "open": {
+      "scleraFraction": 0.1062,
+      "darkFraction": 0.0072,
+      "irisFraction": 0.0158
+     },
+     "closed": {
+      "scleraFraction": 0.108,
+      "darkFraction": 0.0006,
+      "irisFraction": 0.0008
+     },
+     "scleraDrop": -0.0018,
+     "irisDrop": 0.015,
+     "confirmed": true
+    }
+   }
+  ],
+  "summary": {
+   "pairs": 7,
+   "encodedConfirmedPairs": 6,
+   "sourceConfirmedPairs": 7
+  }
+ }
+}
