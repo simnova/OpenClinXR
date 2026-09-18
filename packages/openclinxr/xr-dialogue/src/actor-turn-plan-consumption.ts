@@ -199,6 +199,17 @@ export function registerLiveActorTurn(
   return consumed;
 }
 
+export function registerOwnedLiveActorTurn(plan: ActorTurnPlan, execution: ActorTurnExecution | null, traceTag: string): object {
+  registerLiveActorTurn(plan, execution, traceTag);
+  return byJoin.get(actorTurnJoinKey(plan.planId, plan.turnId))!;
+}
+export function unregisterOwnedLiveActorTurn(plan: ActorTurnPlan, traceTag: string, registration: object | undefined): void {
+  const join = actorTurnJoinKey(plan.planId, plan.turnId);
+  if (!registration || byJoin.get(join) !== registration) return;
+  byJoin.delete(join);
+  if (joinByTraceTag.get(traceTag) === join) joinByTraceTag.delete(traceTag);
+}
+
 export function resolveLiveActorTurnForTrace(traceTag: string): LiveActorTurnConsumption | undefined {
   const joinKey = joinByTraceTag.get(traceTag);
   if (!joinKey) {

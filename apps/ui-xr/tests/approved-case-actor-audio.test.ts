@@ -60,18 +60,18 @@ function setup(options: {approval?: "allow"|"deny"|"missing"; fetch?: (uri:strin
 afterEach(()=>vi.unstubAllGlobals());
 async function ready(f:ReturnType<typeof setup>){f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);expect((await f.runtime.caseAudio.preload(plan)).kind).toBe("verified");await f.runtime.caseAudio.markGesture();}
 it("constructor and selection do not construct or start audio",()=>{const f=setup();f.select();expect(f.ledger).toEqual([]);});
-it.fails("unselected is null; selected descriptor missing is explicit absent",async()=>{const f=setup();expect(f.runtime.caseAudio.start(plan,execution,{})).toBeNull();Reflect.deleteProperty(f.bundle.sceneManifest.dialogueTurns[0]!,"actorAudio");f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);expect((await f.runtime.caseAudio.preload(plan)).kind).toBe("absent");expect(f.runtime.caseAudio.start(plan,execution,{})).toBeNull();expect(f.ledger).toEqual([]);});
-it.fails.each(["missing","deny"] as const)("trusted approval %s refuses before audio start",async approval=>{const f=setup({approval});f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);expect((await f.runtime.caseAudio.preload(plan))?.kind).toBe("refused");expect(f.sources).toHaveLength(0);});
-it.fails("approved 48k bytes produce native count/duration and one real player start",async()=>{const f=setup();await ready(f);expect(f.runtime.caseAudio.start(plan,execution,{})).toMatchObject({kind:"audio_started",player:{status:"playing",actorId:plan.actorId,turnId:plan.turnId}});expect(f.sources).toHaveLength(1);expect(f.slot.activeSpeech.durationMs).toBe(20);expect(f.ledger.filter(x=>x.startsWith("start:"))).toEqual(["start:0"]);});
-it.fails.each(["scenarioId","actorId","traceTag","spokenText","planId","planVersion","turnId","voiceId","planDigest","bakeWaveformSha256"])("mismatched %s never becomes eligible",async key=>{const f=setup();Object.assign(f.bundle.sceneManifest.dialogueTurns[0]!.actorAudio,{[key]:"WRONG"});f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);expect((await f.runtime.caseAudio.preload(plan))?.kind).toBe("refused");expect(f.sources).toHaveLength(0);});
-it.fails("voice identity is checked beyond digest",async()=>{expect(digestActorTurnPlan({...plan,voiceId:"other"})).toBe(digestActorTurnPlan(plan));const f=setup();f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);expect((await f.runtime.caseAudio.preload({...plan,voiceId:"other"}))?.kind).toBe("refused");});
-it.fails.each(["test:wav","test:cues"])("actual fetched %s bytes require hash match",async bad=>{const f=setup({fetch:async uri=>{const b=(uri==="test:wav"?wav:cueBytes).slice();if(uri===bad)b[b.length-1]^=1;return b;}});f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);expect((await f.runtime.caseAudio.preload(plan))?.kind).toBe("refused");});
-it.fails("late same-text fetch cannot install under a new selected bundle",async()=>{let release!:(v:Uint8Array)=>void;const f=setup({fetch:uri=>uri==="test:wav"?new Promise(r=>{release=r;}):Promise.resolve(cueBytes.slice())});f.select();const pending=f.runtime.caseAudio.preload(plan);await vi.waitFor(()=>expect(release).toBeTypeOf("function"));f.runtime.caseAudio.select({...f.bundle,bundleId:"replacement"});expect(release).toBeTypeOf("function");release(wav.slice());expect((await pending).kind).toBe("stale");expect(f.runtime.caseAudio.start(plan,execution,{})?.kind).toBe("refused");});
-it.fails("dispose old selection cannot erase newer equal-text eligibility",async()=>{const f=setup();await ready(f);const old=await f.runtime.caseAudio.preload(plan);expect(old.kind).toBe("verified");if(old.kind!=="verified")throw Error("owner control not ready");f.select();await f.runtime.caseAudio.preload(plan);f.runtime.caseAudio.dispose(old.selection);expect(f.runtime.caseAudio.snapshot().verifiedCount).toBe(1);await f.runtime.caseAudio.markGesture();expect(f.runtime.caseAudio.start(plan,execution,{})?.kind).toBe("audio_started");expect(f.sources).toHaveLength(1);});
-it.fails("gesture is real context readiness; caller labels do not unlock start",async()=>{const f=setup();f.select();await f.runtime.caseAudio.preload(plan);expect(f.runtime.caseAudio.start(plan,execution,{})?.kind).toBe("refused");expect(f.sources).toHaveLength(0);});
-it.fails("wrong artifact reference refuses; player boolean is not a prepared-start promise",async()=>{const f=setup();await ready(f);f.bundle.sceneManifest.dialogueTurns[0].actorAudio.artifacts={...artifacts,audio:{...artifacts.audio!,turnId:"wrong"}};f.select();await f.runtime.caseAudio.preload(plan);expect(f.runtime.caseAudio.start(plan,execution,{})?.kind).toBe("refused");expect(f.sources).toHaveLength(0);});
-it.fails("owned stop refusal preserves old owner and starts no second source",async()=>{const f=setup();await ready(f);f.runtime.caseAudio.start(plan,execution,{});const old=f.slot.activeSpeech;f.failStop();expect(f.runtime.caseAudio.start(plan,execution,{})?.kind).toBe("refused");expect(f.slot.activeSpeech).toBe(old);expect(f.sources).toHaveLength(1);expect(f.ledger.filter(x=>x==="stop")).toHaveLength(1);});
-it.fails("copied snapshot cannot mutate eligibility",async()=>{const f=setup();await ready(f);const s=f.runtime.caseAudio.snapshot();s.verifiedCount=999;expect(f.runtime.caseAudio.snapshot().verifiedCount).toBe(1);});
+it("unselected is null; selected descriptor missing is explicit absent",async()=>{const f=setup();expect(f.runtime.caseAudio.start(plan,execution,{})).toBeNull();Reflect.deleteProperty(f.bundle.sceneManifest.dialogueTurns[0]!,"actorAudio");f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);expect((await f.runtime.caseAudio.preload(plan)).kind).toBe("absent");expect(f.runtime.caseAudio.start(plan,execution,{})).toBeNull();expect(f.ledger).toEqual([]);});
+it.each(["missing","deny"] as const)("trusted approval %s refuses before audio start",async approval=>{const f=setup({approval});f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);expect((await f.runtime.caseAudio.preload(plan))?.kind).toBe("refused");expect(f.sources).toHaveLength(0);});
+it("approved 48k bytes produce native count/duration and one real player start",async()=>{const f=setup();await ready(f);expect(f.runtime.caseAudio.start(plan,execution,{})).toMatchObject({kind:"audio_started",player:{status:"playing",actorId:plan.actorId,turnId:plan.turnId}});expect(f.sources).toHaveLength(1);expect(f.slot.activeSpeech.durationMs).toBe(20);expect(f.ledger.filter(x=>x.startsWith("start:"))).toEqual(["start:0"]);});
+it.each(["scenarioId","actorId","traceTag","spokenText","planId","planVersion","turnId","voiceId","planDigest","bakeWaveformSha256"])("mismatched %s never becomes eligible",async key=>{const f=setup();Object.assign(f.bundle.sceneManifest.dialogueTurns[0]!.actorAudio,{[key]:"WRONG"});f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);expect((await f.runtime.caseAudio.preload(plan))?.kind).toBe("refused");expect(f.sources).toHaveLength(0);});
+it("voice identity is checked beyond digest",async()=>{expect(digestActorTurnPlan({...plan,voiceId:"other"})).toBe(digestActorTurnPlan(plan));const f=setup();f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);expect((await f.runtime.caseAudio.preload({...plan,voiceId:"other"}))?.kind).toBe("refused");});
+it.each(["test:wav","test:cues"])("actual fetched %s bytes require hash match",async bad=>{const f=setup({fetch:async uri=>{const b=(uri==="test:wav"?wav:cueBytes).slice();if(uri===bad)b[b.length-1]^=1;return b;}});f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);expect((await f.runtime.caseAudio.preload(plan))?.kind).toBe("refused");});
+it("late same-text fetch cannot install under a new selected bundle",async()=>{let release!:(v:Uint8Array)=>void;const f=setup({fetch:uri=>uri==="test:wav"?new Promise(r=>{release=r;}):Promise.resolve(cueBytes.slice())});f.select();const pending=f.runtime.caseAudio.preload(plan);await vi.waitFor(()=>expect(release).toBeTypeOf("function"));f.runtime.caseAudio.select({...f.bundle,bundleId:"replacement"});expect(release).toBeTypeOf("function");release(wav.slice());expect((await pending).kind).toBe("stale");expect(f.runtime.caseAudio.start(plan,execution,{})?.kind).toBe("refused");});
+it("dispose old selection cannot erase newer equal-text eligibility",async()=>{const f=setup();await ready(f);const old=await f.runtime.caseAudio.preload(plan);expect(old.kind).toBe("verified");if(old.kind!=="verified")throw Error("owner control not ready");f.select();await f.runtime.caseAudio.preload(plan);f.runtime.caseAudio.dispose(old.selection);expect(f.runtime.caseAudio.snapshot().verifiedCount).toBe(1);await f.runtime.caseAudio.markGesture();expect(f.runtime.caseAudio.start(plan,execution,{})?.kind).toBe("audio_started");expect(f.sources).toHaveLength(1);});
+it("gesture is real context readiness; caller labels do not unlock start",async()=>{const f=setup();f.select();await f.runtime.caseAudio.preload(plan);expect(f.runtime.caseAudio.start(plan,execution,{})?.kind).toBe("refused");expect(f.sources).toHaveLength(0);});
+it("wrong artifact reference refuses; player boolean is not a prepared-start promise",async()=>{const f=setup();await ready(f);f.bundle.sceneManifest.dialogueTurns[0].actorAudio.artifacts={...artifacts,audio:{...artifacts.audio!,turnId:"wrong"}};f.select();await f.runtime.caseAudio.preload(plan);expect(f.runtime.caseAudio.start(plan,execution,{})?.kind).toBe("refused");expect(f.sources).toHaveLength(0);});
+it("owned stop refusal preserves old owner and starts no second source",async()=>{const f=setup();await ready(f);f.runtime.caseAudio.start(plan,execution,{});const old=f.slot.activeSpeech;f.failStop();expect(f.runtime.caseAudio.start(plan,execution,{})?.kind).toBe("refused");expect(f.slot.activeSpeech).toBe(old);expect(f.sources).toHaveLength(1);expect(f.ledger.filter(x=>x==="stop")).toHaveLength(1);});
+it("copied snapshot cannot mutate eligibility",async()=>{const f=setup();await ready(f);const s=f.runtime.caseAudio.snapshot();s.verifiedCount=999;expect(f.runtime.caseAudio.snapshot().verifiedCount).toBe(1);});
 
 function onSlotControl(label:string,speakResult:boolean,cancelled:boolean) {
   const p={...plan,planId:`plan-${label}`,turnId:`turn-${label}`,stationRunId:`station-${label}`};
@@ -84,13 +84,13 @@ function onSlotControl(label:string,speakResult:boolean,cancelled:boolean) {
     playClip:()=>{writes++;return true;},startFaceTransition:(_id,emotion)=>{writes++;slot.emotionExpression.targetEmotion=emotion;}});
   return {result,slot,old,writes};
 }
-it.fails("actual OnSlot false speak guards later effective writes and preserves prior speech",()=>{
+it("actual OnSlot false speak guards later effective writes and preserves prior speech",()=>{
   const f=onSlotControl("false-owned",false,false);
   expect(f.result.lanes.some(l=>l.modality==="voice")).toBe(false);
   expect(f.slot.activeSpeech).toBe(f.old);expect(f.writes).toBe(0);
   expect(f.slot.emotionExpression.targetEmotion).toBe("neutral");expect(f.slot.root.userData).toEqual({});
 });
-it.fails("actual OnSlot cancelled refused start cannot clear prior owner",()=>{
+it("actual OnSlot cancelled refused start cannot clear prior owner",()=>{
   const f=onSlotControl("cancel-refused",false,true);
   expect(f.result.cancelled).toBe(true);expect(f.slot.activeSpeech).toBe(f.old);
   expect(f.slot.emotionExpression.targetEmotion).toBe("neutral");expect(f.writes).toBe(0);
@@ -106,13 +106,13 @@ it("existing identity player calls later adapters after false audio, requiring t
   expect(r.status).toBe("blocked");expect(calls).toEqual(["audio","viseme","gaze","emotion"]);
 });
 
-it.fails("accepted source with unfulfilled affect compensates only its owned generation",async()=>{
+it("accepted source with unfulfilled affect compensates only its owned generation",async()=>{
   const f=setup({omitEmotion:true});await ready(f);
   expect(f.runtime.caseAudio.start(plan,execution,{})?.kind).toBe("refused");
   expect(f.sources).toHaveLength(1);expect(f.ledger.filter(x=>x==="stop")).toHaveLength(1);
   expect(f.slot.activeSpeech).toBeUndefined();expect(f.slot.mediaPositionSeconds).toBeUndefined();
 });
-it.fails("partial audio setup preserves speech replaced by a source-start callback",async()=>{
+it("partial audio setup preserves speech replaced by a source-start callback",async()=>{
   const replacement={actorId:plan.actorId,text:"newer owner",startedAtMs:77,durationMs:50,visemeSequence:["AA"]};
   let f:ReturnType<typeof setup>;f=setup({onSourceStart:()=>{f.slot.activeSpeech=replacement;}});await ready(f);
   expect(f.runtime.caseAudio.start(plan,execution,{})?.kind).toBe("refused");
@@ -120,7 +120,7 @@ it.fails("partial audio setup preserves speech replaced by a source-start callba
   expect(f.ledger.filter(x=>x==="stop")).toHaveLength(1);
 });
 
-it.fails("programmatic gesture cannot allocate context or claim activation",async()=>{
+it("programmatic gesture cannot allocate context or claim activation",async()=>{
   const f=setup();f.select();expect((await f.runtime.caseAudio.preload(plan)).kind).toBe("verified");
   vi.stubGlobal("navigator",{userActivation:{isActive:false}});
   await f.runtime.caseAudio.markGesture();
@@ -128,17 +128,17 @@ it.fails("programmatic gesture cannot allocate context or claim activation",asyn
   expect(f.runtime.caseAudio.start(plan,execution,{})?.kind).toBe("refused");
 });
 
-it.fails.each(["nativeSampleRate","nativeSampleCount","waveformByteLength","cueByteLength"])("decoded/fetched evidence agrees with declared %s independently of approval",async key=>{
+it.each(["nativeSampleRate","nativeSampleCount","waveformByteLength","cueByteLength"])("decoded/fetched evidence agrees with declared %s independently of approval",async key=>{
   const f=setup({authority:async()=>true});Object.assign(f.bundle.sceneManifest.dialogueTurns[0]!.actorAudio,{[key]:1});
   f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);
   expect((await f.runtime.caseAudio.preload(plan)).kind).toBe("refused");expect(f.sources).toHaveLength(0);
 });
-it.fails("approved waveform cannot start an artifact naming a different audible URI",async()=>{
+it("approved waveform cannot start an artifact naming a different audible URI",async()=>{
   const f=setup();f.bundle.sceneManifest.dialogueTurns[0]!.actorAudio.artifacts.audio!.audioUri="test:unapproved-other";
   f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);
   expect((await f.runtime.caseAudio.preload(plan)).kind).toBe("refused");expect(f.sources).toHaveLength(0);
 });
-it.fails("approved cue bytes cannot authorize different embedded mouth cues",async()=>{
+it("approved cue bytes cannot authorize different embedded mouth cues",async()=>{
   const f=setup();f.bundle.sceneManifest.dialogueTurns[0]!.actorAudio.artifacts.visemeCues!.mouthCues=[{start:0,end:.02,value:"B"}];
   f.select();expect(f.runtime.caseAudio.snapshot().selected).toBe(true);
   expect((await f.runtime.caseAudio.preload(plan)).kind).toBe("refused");expect(f.sources).toHaveLength(0);
