@@ -306,6 +306,8 @@ export function playFrozenActorTurnOnSlot(
     startFaceTransition: (actorId: string, emotion: DialogueEmotion, nowMs: number) => void;
   },
 ): ActorTurnPlayback {
+  let acceptedSpeech: ActorTurnLiveSlot["activeSpeech"];
+  let voiceAccepted = false;
   const playback = playFrozenActorTurn(plan, execution, {
     nowMs: host.nowMs,
     approvedMotionClipIds: host.clipNames,
@@ -316,27 +318,29 @@ export function playFrozenActorTurnOnSlot(
         if (!live?.activeSpeech || live.activeSpeech.text !== ctx.spokenText) return false;
         live.root.userData.openClinXrActorTurnVoiceId = ctx.voiceId;
         live.root.userData.openClinXrActorTurnPerformancePlanId = ctx.performancePlanId;
-        return live.activeSpeech.actorId === ctx.actorId;
+        voiceAccepted = live.activeSpeech.actorId === ctx.actorId;
+        if (voiceAccepted) acceptedSpeech = live.activeSpeech;
+        return voiceAccepted;
       },
-      startViseme: (ctx) => Boolean(host.getSlot(ctx.actorId)?.activeSpeech?.visemeSequence.length),
+      startViseme: (ctx) => voiceAccepted && Boolean(host.getSlot(ctx.actorId)?.activeSpeech?.visemeSequence.length),
       startFacialAffect: (ctx) => {
         const live = host.getSlot(ctx.actorId);
-        if (!live) return false;
+        if (!live || !voiceAccepted) return false;
         host.startFaceTransition(ctx.actorId, ctx.faceEmotion, host.nowMs);
         return live.emotionExpression.targetEmotion === ctx.faceEmotion;
       },
       startGazePosture: (ctx) => {
         const live = host.getSlot(ctx.actorId);
-        if (!live) return false;
+        if (!live || !voiceAccepted) return false;
         live.root.userData.openClinXrActorTurnPosePresetId = ctx.posePresetId;
         return true;
       },
-      startMotion: (ctx) => host.playClip(ctx.actorId, ctx.clipId),
+      startMotion: (ctx) => voiceAccepted && host.playClip(ctx.actorId, ctx.clipId),
     },
   });
   if (playback.cancelled) {
     const live = host.getSlot(plan.actorId);
-    if (live) {
+    if (live && acceptedSpeech && live.activeSpeech === acceptedSpeech) {
       cleanupActorTurnLiveSlot(live, plan.dialogueEmotionFrom);
     }
   }

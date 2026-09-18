@@ -1,8 +1,10 @@
+import { createCaseAudioController } from "./actor-audio-case-controller.js";
+import type { CaseAudioOptions } from "./actor-audio-case-types.js";
 import { createPlayback, createAudioSpeechClock } from "./actor-audio-playback-clock.js";
 import { convertRhubarb, cuesAdmissible, decodePcm16MonoWav as decodePcm16MonoWavPure, hasPreparedEntry } from "./actor-audio-prepared-data.js";
 import type { PlaybackContext, DiagnosticMouthCue } from "./actor-audio-prepared-data.js";
 import type { Host, OwnedSession, LiveSlot, PreparedEntry, PreparedIdentity, PreparedActorStartContext } from "./actor-audio-types.js";
-export function createActorAudioRuntime(options: { developmentFixture?: boolean; fixtureSearch?: string } = {}) {
+export function createActorAudioRuntime(options: { developmentFixture?: boolean; fixtureSearch?: string; caseAudio?: CaseAudioOptions } = {}) {
 const host: Host = {};
 const prepared = new Map<string, PreparedEntry>();
 const sessions = new Map<string, OwnedSession>();
@@ -333,6 +335,67 @@ const diagnostics = Object.freeze({
     return { samples, meta: tapMeta ? { ...tapMeta } : undefined };
   },
 });
-return Object.freeze({ initPreparedActorAudioBridge, startPreparedActorTurnAudio, startPreparedActorTurnAudioOutcome,
+const caseEntries = new Map<object, PreparedEntry>();
+const sessionEntries = new WeakMap<OwnedSession, PreparedEntry>();
+const caseOwners = new WeakMap<object, OwnedSession>();
+const caseAudio = createCaseAudioController(options.caseAudio, {
+  async activate() {
+    if (typeof navigator === "undefined" || navigator.userActivation?.isActive !== true) return;
+    const context = (sharedContext ?? new AudioContext()) as AudioContext;
+    sharedContext = context;
+    if (context.state !== "running") await context.resume();
+    if (context.state !== "running") return;
+    userActivated = true;
+    sharedDestination ??= context.destination;
+  },
+  install(e, bytes) {
+    const context = sharedContext as AudioContext | undefined;
+    if (!userActivated || context?.state !== "running") return null;
+    const buffer = context.createBuffer(1, bytes.decoded.sampleCount, bytes.decoded.sampleRate);
+    buffer.getChannelData(0).set(bytes.decoded.float32);
+    const entry: PreparedEntry = { scenarioId: e.scenarioId, actorId: e.actorId, responseText: e.spokenText, runnerConversationTurn: e.plan.turnIndex + 1, waveformSha256: e.waveformSha256, cueSha256: e.cueSha256, buffer, cues: bytes.cues, decodedSampleRate: bytes.decoded.sampleRate, decodedSampleCount: bytes.decoded.sampleCount };
+    const handle = Object.freeze({}); caseEntries.set(handle, entry);
+    return handle;
+  },
+  remove(handle) {
+    const entry = caseEntries.get(handle);
+    if (!entry) return true;
+    const current = sessions.get(entry.actorId);
+    if (current && sessionEntries.get(current) === entry && !retireOwnedActorSession(entry.actorId)) return false;
+    if (prepared.get(prepareKey(entry.actorId, entry.responseText)) === entry) prepared.delete(prepareKey(entry.actorId, entry.responseText));
+    caseEntries.delete(handle); return true;
+  },
+  begin(e, entryHandle, context) {
+    const entry = caseEntries.get(entryHandle);
+    if (!entry || entry.actorId !== e.actorId || entry.responseText !== e.spokenText || entry.waveformSha256 !== e.waveformSha256 || entry.cueSha256 !== e.cueSha256) return { kind: "refused", reason: "prepared_audio_unavailable" };
+    const key = prepareKey(e.actorId, e.spokenText);
+    const previous = prepared.get(key);
+    prepared.set(key, entry);
+    const result = startPreparedActorTurnAudioOutcome({ actorId: e.actorId, spokenText: e.spokenText, faceEmotion: e.artifacts.emotion!.to, gazeTarget: { kind: e.artifacts.gaze!.gazeTargetKind, actorId: e.artifacts.gaze!.gazeTargetActorId }, req: context.req });
+    if (result.kind === "refused") {
+      if (prepared.get(key) === entry) { if (previous) prepared.set(key, previous); else prepared.delete(key); }
+      return result;
+    }
+    const session = sessions.get(e.actorId);
+    if (!session) return { kind: "refused", reason: "playback_failed" };
+    const handle = Object.freeze({}); caseOwners.set(handle, session); sessionEntries.set(session, entry);
+    return { kind: "audio_started", handle };
+  },
+  inspect(handle, e) {
+    const session = caseOwners.get(handle);
+    if (!session || sessions.get(e.actorId) !== session || session.slot.activeSpeech !== session.speech) return false;
+    const slot = session.slot as LiveSlot & { emotionExpression?: { targetEmotion?: string } };
+    const speech = session.speech as typeof session.speech & { gazeTargetKind?: string; gazeTargetActorId?: string | null };
+    return session.slot.activeSpeech?.bakedCues === prepared.get(prepareKey(e.actorId, e.spokenText))?.cues && slot.emotionExpression?.targetEmotion === e.artifacts.emotion?.to && speech.gazeTargetKind === e.artifacts.gaze?.gazeTargetKind && speech.gazeTargetActorId === e.artifacts.gaze?.gazeTargetActorId;
+  },
+  compensate(handle) {
+    const session = caseOwners.get(handle);
+    if (!session) return true;
+    if (sessions.get(session.actorId) !== session) return true;
+    if (!retireOwnedActorSession(session.actorId)) return false;
+    caseOwners.delete(handle); return true;
+  },
+});
+return Object.freeze({ caseAudio, initPreparedActorAudioBridge, startPreparedActorTurnAudio, startPreparedActorTurnAudioOutcome,
   syncPreparedActorAudio, preparedActorTurnAudioAvailable, startActorTurnSpeech, diagnostics });
 }

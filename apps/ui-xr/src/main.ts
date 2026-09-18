@@ -141,7 +141,7 @@ import {
 } from "@openclinxr/xr-humanoid-animation";
 import { playManifestMotionClip } from "./motion-manifest-motion-address.js";
 import { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
-const { initPreparedActorAudioBridge, startPreparedActorTurnAudio, syncPreparedActorAudio, preparedActorTurnAudioAvailable, startActorTurnSpeech } = createActorAudioRuntime({ developmentFixture: import.meta.env.DEV === true });
+const { caseAudio, initPreparedActorAudioBridge, startPreparedActorTurnAudio, syncPreparedActorAudio, preparedActorTurnAudioAvailable, startActorTurnSpeech } = createActorAudioRuntime({ developmentFixture: import.meta.env.DEV === true });
 import { observeMountedApproachGeometry } from "@openclinxr/xr-humanoid-animation/mounted-approach-geometry";
 import { applyStationBedsideStanceLock, createStationBedsideApproachState, updateStationBedsideApproach } from "@openclinxr/xr-humanoid-animation/station-bedside-approach";
 import {
@@ -512,6 +512,7 @@ declare global {
     __openClinXrExamineeLocomotionEvidence?: ExamineeLocomotionEvidence;
     __openClinXrBootEvidence?: OpenClinXrBootEvidence;
     __openClinXrTraceLatencyEvidence?: OpenClinXrTraceLatencyEvidence;
+    __openClinXrSelectedCaseAudio?: ReturnType<ReturnType<typeof createActorAudioRuntime>["caseAudio"]["snapshot"]>;
     __openClinXrXrEntryEvidence?: OpenClinXrXrEntryEvidence;
     __openClinXrTextPanelEvidence?: ReadableVrTextPanelEvidenceSet;
     __openClinXrRuntimeEvidencePosture?: RuntimeEvidencePosture;
@@ -690,7 +691,7 @@ function useEncounterRuntimeAssetBundle(
     fallbackReason?: string | null | undefined;
   } = { source: "local_fixture_fallback" },
 ): void {
-  encounterRuntimeAssetBundle = bundle;
+  encounterRuntimeAssetBundle = caseAudio.select(bundle);
   cachedRuntimeSlotAssignment = null;
   window.__openClinXrSelectedRuntimeAssetBundleId = bundle.bundleId;
   window.__openClinXrRuntimeSceneManifestEvidence = buildAppRuntimeSceneManifestEvidence(bundle);
@@ -1343,7 +1344,7 @@ const actorDialogueStore = createActorDialogueStore({
   responseClipNames: (actorId) => clinicalPackageTouchResponseClipNamesForActor(clipNameContext(), actorId),
   playClip: (actorId, clipName) => playOneShotResponseClip(actorId, clipName),
   playFrozenTurn: (plan, execution, gazeTarget, requirement) =>
-    playLiveFrozenActorTurn(plan, execution, gazeTarget, requirement),
+    caseAudio.start(plan, execution, { gazeTarget, req: requirement }) ?? playLiveFrozenActorTurn(plan, execution, gazeTarget, requirement),
   startFaceTransition: (actorId, emotion, nowMs) => {
     const live = generatedHumanoidAnimationSlotsByActorId.get(actorId);
     if (live) startHumanoidEmotionTransition(live, emotion, nowMs);
@@ -1366,9 +1367,6 @@ function triggerPedsAdaptiveDialogueBranch(
 }
 function triggerPedsActorPlayerRuntimeTurnForTrace(traceTag: string): boolean {
   return actorDialogueStore.triggerPedsActorPlayerRuntimeTurnForTrace(traceTag);
-}
-function _dedupePedsActorPlayerRuntimeTurns(turns: PedsActorPlayerRuntimeTurn[]): PedsActorPlayerRuntimeTurn[] {
-  return actorDialogueStore.dedupePedsActorPlayerRuntimeTurns(turns);
 }
 function pedsActorPlayerBundleDialogueTurns(): PedsActorPlayerRuntimeTurn[] {
   return actorDialogueStore.pedsActorPlayerBundleDialogueTurns();
@@ -2073,6 +2071,7 @@ function completeTraceActionFromInput(
   source: OpenClinXrTraceLatencyEvidence["source"],
   payload?: Record<string, unknown>,
 ): void {
+  void caseAudio.markGesture(tag);
   const traceSelectStartedAtMs = performance.now();
   const priorCompletedTraceTags = state.completedTraceTags;
   state = completeTraceAction(state, tag);
@@ -3484,6 +3483,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
     const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);
     syncPreparedActorAudio(now); updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid);
+    window.__openClinXrSelectedCaseAudio = caseAudio.snapshot();
     applyStationBedsideStanceLock(caseOwnedBedsideApproach); // AFTER the pose: a lock reading last frame's pose cancels nothing.
     applyPhysicsBoneTransforms(now); // capture-gated; extracted module
     updateEnvironmentRealismAnimations(deltaSeconds, now);
@@ -4424,7 +4424,7 @@ function rememberLiveActorTurnFromPayload(
   }
   const consumed = consumeLiveActorTurn(parsed.plan, parsed.execution);
   registerLiveActorTurn(consumed.plan, consumed.execution, tag);
-  return consumed;
+  return caseAudio.bindPlan(consumed, tag);
 }
 
 function applyHumanoidMorphTargetCue(

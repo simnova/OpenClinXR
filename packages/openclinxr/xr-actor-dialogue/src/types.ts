@@ -1,3 +1,4 @@
+import type { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
 import type {
   EncounterRuntimeDialogueTurn,
   LearnerRuntimeAssetBundle,
@@ -194,7 +195,7 @@ export type ActorDialogueSpeechDeps = Pick<
     execution: LiveActorTurnConsumption["execution"],
     gazeTarget: HumanoidDialogueGazeTarget,
     requirement: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"],
-  ) => ActorTurnPlayback;
+  ) => ActorTurnPlayback | NonNullable<ReturnType<ReturnType<typeof createActorAudioRuntime>["caseAudio"]["start"]>>;
   virtualDeviceSpeechByActorId: () => Map<string, HumanoidSpeechPlayback>;
   runtimeEmbodimentForActor: (actorId: string) => LearnerRuntimeAssetBundle["actors"][number]["embodiment"] | undefined;
   reviewCaptureMode: () => boolean;

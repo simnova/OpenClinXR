@@ -1,3 +1,4 @@
+import type { RuntimeActorAudioEvidence } from "./runtime-actor-audio-evidence.js";
 import {
   resolveScenarioActorCast,
 } from "./actor-casting.js";
@@ -131,6 +132,7 @@ export type EncounterRuntimeStationContext = {
   initialDialogueText: string;
 };
 export type EncounterRuntimeDialogueTurn = {
+  actorAudio?: RuntimeActorAudioEvidence;
   traceTag: string;
   actorId: string;
   text: string;

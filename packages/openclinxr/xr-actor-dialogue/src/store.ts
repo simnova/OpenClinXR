@@ -1,3 +1,4 @@
+import type { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
 import type { LearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import type {
   ActorTurnPlayback,
@@ -95,11 +96,12 @@ export type ActorDialogueStoreOptions = {
     execution: LiveActorTurnConsumption["execution"],
     gazeTarget: HumanoidDialogueGazeTarget,
     requirement: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"],
-  ) => ActorTurnPlayback;
+  ) => ActorTurnPlayback | NonNullable<ReturnType<ReturnType<typeof createActorAudioRuntime>["caseAudio"]["start"]>>;
   startFaceTransition: (actorId: string, emotion: HumanoidExpressionEmotion, nowMs: number) => void;
 };
 
 export type ActorDialogueStore = {
+  frozenTurnPlaybackEvidence: () => ReturnType<ActorDialogueStoreOptions["playFrozenTurn"]> | undefined;
   initialDialogueTextForSelectedScenario: () => string;
   runtimeDialogueTurnForTraceTag: (tag: string) => LearnerRuntimeAssetBundle["sceneManifest"]["dialogueTurns"] extends (infer T)[] | undefined ? T | undefined : never;
   schedulePedsActorPlayerRuntimePlaybackIfReady: () => void;
@@ -164,6 +166,7 @@ export type ActorDialogueStore = {
 };
 
 export function createActorDialogueStore(options: ActorDialogueStoreOptions): ActorDialogueStore {
+  let frozenTurnEvidence: ReturnType<ActorDialogueStoreOptions["playFrozenTurn"]> | undefined;
   let playbackScheduled = false;
   let playbackLastTraceAtMs = 0;
   let playbackSequenceActiveUntilMs = 0;
@@ -182,7 +185,11 @@ export function createActorDialogueStore(options: ActorDialogueStoreOptions): Ac
     runtimeTurnForTraceTag: (tag) => runtimeDialogueTurnForTraceTag(speechDepsShim(), tag),
     liveTurnForTrace: options.liveTurnForTrace,
     animationSlotForActor: options.animationSlotForActor,
-    playFrozenTurn: options.playFrozenTurn,
+    playFrozenTurn: (...args) => {
+      const result = options.playFrozenTurn(...args);
+      frozenTurnEvidence = structuredClone(result);
+      return result;
+    },
     virtualDeviceSpeechByActorId: options.virtualDeviceSpeechByActorId,
     runtimeEmbodimentForActor: options.runtimeEmbodimentForActor,
     reviewCaptureMode: options.reviewCaptureMode,
@@ -301,6 +308,7 @@ export function createActorDialogueStore(options: ActorDialogueStoreOptions): Ac
   void playLiveFrozenActorTurn;
 
   return {
+    frozenTurnPlaybackEvidence: () => frozenTurnEvidence === undefined ? undefined : structuredClone(frozenTurnEvidence),
     initialDialogueTextForSelectedScenario: () => initialDialogueTextForSelectedScenario(options),
     runtimeDialogueTurnForTraceTag: (tag) => runtimeDialogueTurnForTraceTag(speechDeps, tag) as ReturnType<ActorDialogueStore["runtimeDialogueTurnForTraceTag"]>,
     schedulePedsActorPlayerRuntimePlaybackIfReady: () => schedulePedsActorPlayerRuntimePlaybackIfReady({ ...playbackDeps(), playTurn }),

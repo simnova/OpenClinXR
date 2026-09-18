@@ -1,9 +1,9 @@
 {
   "schema": "openclinxr.psr-admission.v1",
   "id": "actor-audio-runtime-v1",
-  "reviewedBy": "GPT-audible-vertical-scout; exact source/types tree 23c5554173d388084d2e9e8eaa7c4b39c4a744395f4a22f67ed139c7a8158860; independent review SHA256 dcd984fd2920cd3746404c32caee42000ac7ec7a337d5059c3a9d784f7a90a97; 2026-09-17",
+  "reviewedBy": "GPT-audible-vertical-scout; exact source/types tree 7fa2207e75276fbdd9f6696125b51501f8f666f6ca7a16ec2c3d59b1859fe01a; independent review SHA256 fe499204070d50069b5a67260346ecc7ac7c7b2c06e350e1c65eaa9a98f31475; 2026-09-17",
   "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
-  "admissionHash": "19220f885a14224c927d5d208f838223fe795bee69162cee075532ef3165c8a1",
+  "admissionHash": "7c60db51327dc9bc6310e8aeea56c6479624bffbe11e46c8530cd72ccf6d0986",
   "packages": [
     "packages/openclinxr/xr-dialogue"
   ],
@@ -15,127 +15,78 @@
       "kind": "runtime",
       "disposition": "keep",
       "owner": "codex-native-bounded-fallback",
-      "rationale": "Single inert closure owns actor audio playback/sourceclock/typed ordinary dialogue and closed diagnostic operations; actual Main consumes five methods. Independent source+emitted signature review, engineering only, no approved voice or AV sync claim.",
-      "reviewedBy": "GPT-audible-vertical-scout; exact source/types tree 23c5554173d388084d2e9e8eaa7c4b39c4a744395f4a22f67ed139c7a8158860; independent review SHA256 dcd984fd2920cd3746404c32caee42000ac7ec7a337d5059c3a9d784f7a90a97; 2026-09-17"
+      "rationale": "Single closed runtime owns actual audible playback/sourceclock, typed ordinary dialogue, optional default-deny independently approved case evidence, real input activation and exact-entry cleanup. Main consumes existing admitted factory. Engineering source/emitted signature reviewed; configured TEST PCM is not speech rights or AV synchronization evidence.",
+      "reviewedBy": "GPT-audible-vertical-scout; exact source/types tree 7fa2207e75276fbdd9f6696125b51501f8f666f6ca7a16ec2c3d59b1859fe01a; independent review SHA256 fe499204070d50069b5a67260346ecc7ac7c7b2c06e350e1c65eaa9a98f31475; 2026-09-17"
     }
   ],
   "sourceReview": {
     "producer": "codex-native-bounded-fallback",
     "reviewer": "GPT-audible-vertical-scout",
-    "verdict": "READY",
-    "scope": "Engineering source/public ownership/app-owned test compatibility only; no AV or Stage2 approval",
-    "baseline": "1e1f4b28f9631f5b35d9d96e49fb42c5ddd5e42a",
-    "currentOwnerPlantHead": "e5354a5fd124071590036f97a06d786a7ebc6308",
-    "reviewedSHA256Tree": "23c5554173d388084d2e9e8eaa7c4b39c4a744395f4a22f67ed139c7a8158860",
+    "verdict": "ACCEPT_ENGINEERING_SOURCE_REVIEW",
+    "scope": "Closed Stage2 optional artifact approval/admission/ownership and emitted API only; no voiced-speech rights or AV synchronization acceptance",
+    "baseline": "3345167e003f5239e9396f42cfeb3ddd634d5438",
+    "currentOwnerPlantHead": "5e1226f2d8fa1861fdb2704c83e2f1a6a50f603b",
+    "reviewedSHA256Tree": "7fa2207e75276fbdd9f6696125b51501f8f666f6ca7a16ec2c3d59b1859fe01a",
+    "independentReviewSHA256": "fe499204070d50069b5a67260346ecc7ac7c7b2c06e350e1c65eaa9a98f31475",
     "files": {
-      "apps/ui-xr/src/main.ts": {
-        "sha256": "a264e79b35061784998579bd19c2547e18802acf74c40a5b24034bec77e6c522",
-        "bytes": 231824
-      },
       "packages/openclinxr/xr-dialogue/src/actor-audio-runtime.ts": {
-        "sha256": "952705ed6cd82f44f0a6d5d15502323b31a7f2d0d21e41bb742fb181bf0e0fba",
-        "bytes": 17707
+        "sha256": "a7f51a9da3778edaf88c7061ad3e8744fc298329412f0c1feffa078eef5b9702",
+        "bytes": 21880
       },
-      "packages/openclinxr/xr-dialogue/src/actor-audio-playback-clock.ts": {
-        "sha256": "37ccc1418309d1b6bbc6210725b522b69c6590cb0b02f1e0b4c6fc114c6c9b41",
-        "bytes": 6705
+      "packages/openclinxr/xr-dialogue/src/actor-audio-case-types.ts": {
+        "sha256": "773c9f796b0ff9ed4c744b3577b9b79d95a51414bf836d413b3fdb60e20b5950",
+        "bytes": 1854
       },
-      "packages/openclinxr/xr-dialogue/src/actor-audio-prepared-data.ts": {
-        "sha256": "93084b9757e37974a1153a80e0482c52c83c75444d407a50e6ef1b3837493b3f",
-        "bytes": 4096
+      "packages/openclinxr/xr-dialogue/src/actor-audio-case-controller.ts": {
+        "sha256": "cc0d5f3fc1f48644cae649bcc210baca4d10374a19126ff47bef66d2c457326d",
+        "bytes": 8002
       },
-      "packages/openclinxr/xr-dialogue/src/actor-audio-types.ts": {
-        "sha256": "58584894e5f4b8aedba8e47a86bdc6435f9796e766ae616c45722b95315f58b6",
-        "bytes": 1688
+      "packages/openclinxr/xr-dialogue/src/actor-audio-case-admission.ts": {
+        "sha256": "aac27aaa720015d70632ae6941a5e4e165e63463b5f14bddabf2d58c3c371b69",
+        "bytes": 1524
       },
-      "vitest.config.ts": {
-        "sha256": "1b19e398f8f3f9482821b49dcf77a0cfa7afc537ad071ebd2ab704df824690b5",
-        "bytes": 1527
+      "packages/openclinxr/xr-dialogue/src/actor-audio-case-preparation.ts": {
+        "sha256": "8f58b4b3d733abd4e37b4030df6d3f6a06d2a8279ea1129beca9ac6815689447",
+        "bytes": 2408
+      },
+      "packages/openclinxr/xr-dialogue/src/actor-turn-plan-consumption.ts": {
+        "sha256": "f3f383e49c348d4d38ec5c8bbefe476de18599e72773eaec066e8df2c1d11b22",
+        "bytes": 10015
+      },
+      "packages/openclinxr/xr-dialogue/src/actor-turn-playback.ts": {
+        "sha256": "73ca81ca01244e661c2115b3eee6c9b885110ab9737feac2becacc834a0c8d5a",
+        "bytes": 12519
       },
       "packages/openclinxr/xr-dialogue/dist/actor-audio-runtime.d.ts": {
-        "sha256": "495e7dbc10aca43f524cafcf98c586e07bcc9a3d61463cecd738224f496ce9b4",
-        "bytes": 4285
+        "sha256": "e7ef22d1f4040e075b9b07eea1ef59e5144ce013af738cab99734da49bc31a3b",
+        "bytes": 4462
       },
-      "packages/openclinxr/xr-dialogue/package.json": {
-        "sha256": "c022d65e710c955cbcb4a15f753c1883cde9527259db8b9859f716d5ca79a306",
-        "bytes": 1059
+      "packages/openclinxr/xr-dialogue/dist/actor-audio-case-types.d.ts": {
+        "sha256": "fb8f3835922a9b719f63f6eaf6935702d6d561cdfac96566cf862663a2ab8e77",
+        "bytes": 2072
       },
-      "packages/openclinxr/xr-dialogue/arch-index.json": {
-        "sha256": "19bc0e5674db80c3910dd2218508bbdb70c8bb283794384bf23e40f89f5da81f",
-        "bytes": 2499
+      "apps/ui-xr/src/main.ts": {
+        "sha256": "4bc3760f9e5fb1b0c08da0bf4c941e7087fcf3c5c8a7bbbb6c8a6d4d78db65e4",
+        "bytes": 231980
       },
-      "packages/openclinxr-verification/architecture-rules/src/checks/public-surface/apply-map.ts": {
-        "sha256": "3af6fdbfb71e845d4c8ac889c38bb4948dcf48365592ddafada2b9e92fd0c8d0",
-        "bytes": 3210
+      "packages/openclinxr/xr-actor-dialogue/src/store.ts": {
+        "sha256": "46e1fca96c7123fc32813dd6e40b3228094f8ba762659aee8762a047a231d936",
+        "bytes": 17242
       },
-      "packages/openclinxr-verification/architecture-rules/src/archunit-tests/public-surface/admission-overlays-do-not-launder-closed-removes.test.ts": {
-        "sha256": "71a3218553367ac85a21ef3fe78af239076986fce9ec81ab1a21c98c35d8b8fa",
-        "bytes": 22555
+      "packages/openclinxr/xr-actor-dialogue/src/types.ts": {
+        "sha256": "259a7bb4eb2cf6d724c97cb1e70393e070c20bea83f6e0d674c17a24d1a414fb",
+        "bytes": 8625
       },
-      "tools/openclinxr/factory/actor-audio-package-subpath-integration/admitted-entrypoint-types.d.ts": {
-        "sha256": "6e363aa994ddb2a6eeec8897aee23557a7511f4c275c85869c20e77dfecaf828",
-        "bytes": 404
-      },
-      "packages/openclinxr-verification/architecture-rules/src/archunit-tests/public-surface/surface-meter.test.ts": {
-        "sha256": "3d7244cebce8704516f589321e02726a8ba2eb167b20728e585d2bedcef9cef7",
-        "bytes": 33446
-      },
-      "apps/ui-xr/tests/actor-audio-compat.ts": {
-        "sha256": "b173395a4c72860df44ab6de5ced85616372600d4fe19e192d8ac394c8dc1777",
-        "bytes": 2536
-      },
-      "apps/ui-xr/package.json": {
-        "sha256": "3a9158f1cca6efd8f4db076f53b2fbbd9b4c7dfdc4725d2cd08bc2f701bd5557",
-        "bytes": 1666
-      },
-      "tools/openclinxr/factory/actor-audio-app-owned-integration/workspace-seam.test.mjs": {
-        "sha256": "e0ac8394e86c71b257402df3ba8129771055c5728178fb667becbb5e840087e9",
-        "bytes": 2179
-      },
-      "tools/openclinxr/factory/actor-audio-package-subpath-integration/historical-test-compatibility.test.ts": {
-        "sha256": "3b1a1c227da6f9bb1fdf75857654e9bddf797230e8d1a9811b47626aa341c0a2",
-        "bytes": 1235
-      },
-      "packages/openclinxr/xr-dialogue/src/index.ts": {
-        "sha256": "f6f35040895c7804c9fb7ecbcd3db57a9936c3a3559826bc542d1aec358beb67",
-        "bytes": 2442
-      },
-      "packages/openclinxr/xr-dialogue/dist/actor-audio-runtime.js": {
-        "sha256": "6014324b61b1b20b242d235a0fc0db3bade353f35ad22146fedd97c89eaa6610",
-        "bytes": 16780
+      "packages/openclinxr/asset-registry/src/runtime-actor-audio-evidence.ts": {
+        "sha256": "1a54de689758bf3ec1e02bd804dccff788335e2a9d7d56ef151263be549efe18",
+        "bytes": 1341
       }
     },
-    "historicalTestByteIdenticalToBaseline": true,
-    "publicAdmissionReviewedShape": {
-      "schema": "openclinxr.psr-admission.v1",
-      "id": "actor-audio-runtime-v1",
-      "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
-      "packages": [
-        "packages/openclinxr/xr-dialogue"
-      ],
-      "rows": [
-        {
-          "package": "packages/openclinxr/xr-dialogue",
-          "entrypoint": "./actor-audio-runtime",
-          "symbol": "createActorAudioRuntime",
-          "kind": "runtime",
-          "disposition": "keep",
-          "owner": "codex-native-bounded-fallback",
-          "rationale": "Single inert closure owns actor audio playback/sourceclock/typed ordinary dialogue and closed diagnostic operations; actual Main consumes five methods. Independent source+emitted signature review, engineering only, no approved voice or AV sync claim."
-        }
-      ],
-      "metadataPolicy": "Owner must refresh source/review metadata and derived admissionHash from this exact independent review; those self-referential metadata bytes are deliberately excluded from source tree hash."
-    },
-    "metadataPolicy": "Admission own review/hash metadata excluded from recursive digest; owner refresh binds genuine current independent review",
-    "reportedNotReviewerRerun": {
-      "originalAudiblePass": 164,
-      "globalArchitecturePass": 239,
-      "knip": "GREEN",
-      "workspaceSeam": {
-        "baselineRED": 3,
-        "prospectiveGREEN": 3
-      }
-    },
-    "materialFindings": []
+    "limitations": [
+      "Production constructor without independent trusted resolver defaults deny; no approved voiced inventory supplied",
+      "Configured synthetic TEST PCM is mechanism evidence only",
+      "Historical captured-file AV lead approximately51ms remains unresolved; no compensation added"
+    ],
+    "reviewedImplementationCommit": "c221851a47eeeb96708f7c73be839e8b26c915d9"
   }
 }
