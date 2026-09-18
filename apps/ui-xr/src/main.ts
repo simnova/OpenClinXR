@@ -2391,6 +2391,10 @@ async function recordRemoteTraceAction(
       atSecond,
       traceContextTags: actorTurn.traceContextTags,
     });
+    const parsed = liveActorTurnFromPayload(actorResponse as unknown as Record<string, unknown>);
+    if (parsed) {
+      registerLiveActorTurn(parsed.plan, parsed.execution, tag);
+    }
     const text = actorResponseTextFromApiResult(actorResponse);
     if (text) {
       const liveTurn = resolveLiveActorTurnForTrace(tag);
@@ -4435,14 +4439,6 @@ function applyHumanoidMorphTargetCue(
 ): void {
   applyPackageHumanoidMorphTargetCue(slot, openness, viseme, expressionWeights, applyNamedSpeechVisemes);
 }
-
-
-
-
-
-
-
-
 
 function orientHumanoidEyeFocusCue(slot: GeneratedHumanoidAnimationSlot, gazeOrigin: Vector3, boundedTarget: Vector3): void {
   orientPackageHumanoidEyeFocusCue(slot, gazeOrigin, boundedTarget);
