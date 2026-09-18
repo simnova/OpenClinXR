@@ -79,6 +79,14 @@ const WELD_TOL = 1e-4;
  * whose primitives are large connected surfaces, and face meshes are excluded by
  * name before any simplifier call. Measured: brow bbox unchanged on every body
  * because the brow primitive is never passed to the simplifier.
+ *
+ * 2026-09-18 eyebrow-visibility: the exclusion is LOAD-BEARING for the fitted
+ * brow. The brow is a many-tiny-component strand mesh; ANY meshopt ratio < 1 on
+ * it collapses strands (measured: reducer-baked 3,600 -> 1,045 after a 0.4 rung
+ * on the nurse). FACE_RE must keep matching the factory brow mesh name
+ * (`openclinxr_fitted_eyebrow_*_mesh`); a rename that stops matching silently
+ * re-exposes the brow to the simplifier. countFaceTris reports the face total
+ * separately so a rung that eats the brow fails loudly on the face count.
  */
 const FACE_RE = /eye|brow|lash|teeth|tongue/i;
 const GOWN_MARKER = "openclinxr_declared_upper_layers__hospital_gown_mesh";

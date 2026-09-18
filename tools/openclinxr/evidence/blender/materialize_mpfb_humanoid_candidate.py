@@ -3983,11 +3983,26 @@ def main():
         _brow, _brow_fit_s = _fit_brow(
             str(_brow_mhclo), str(_brow_obj), human, _brow_mesh_name
         )
-        # Dark brow colour — role hair colour is too brown for a brow silhouette;
-        # near-black reads as eyebrow geometry for presence (pixel grade is separate).
+        # Brow colour matches the fitted HAIR material's albedo, not a literal: the
+        # brow reads as eyebrow geometry against pale skin only when it carries the
+        # actor's own hair colour (measured 2026-09-18: (0.05,0.03,0.02) near-black
+        # brows are invisible at 1280x720 demo framing; the ED nurse's fitted hair
+        # is strawberry-blond, mean (0.686,0.499,0.385) from StrawberryBlondHair.png).
+        # _hair_mat is in scope from the fitted-hair rail above whenever a hair
+        # style was fitted; its Principled Base Color carries the actor's hair
+        # albedo (flat hair_color() fallback or the wired diffuse texture path —
+        # the socket value is the colour either way). _hair may be None only when
+        # no hair style was resolved; fall back to the nurse mid-dark brown then.
+        if _hair_fitted is not None:
+            try:
+                _brow_rgb = tuple(_hair_mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value)[:3]
+            except Exception:
+                _brow_rgb = (0.18, 0.13, 0.10)
+        else:
+            _brow_rgb = (0.18, 0.13, 0.10)
         _brow_mat = _brow_create_material(
             f"openclinxr_fitted_eyebrow_{_eyebrow_style}_mpfb_{_brow_ref_tag}_mat",
-            (0.05, 0.03, 0.02, 1.0),
+            (*_brow_rgb, 1.0),
         )
         _brow.data.materials.append(_brow_mat)
         _brow_arm = next(
@@ -4005,6 +4020,11 @@ def main():
         # the kept_vertex_indices remap). The eyes_asset (fitted eyes_low_poly) is
         # in scope from earlier in this function (~line 3449) and is identity-transformed
         # like the brow (apply_object_transforms in fit_hair), so local == world for both.
+        # The 3600 budget is the smallest clearing the 25%/10% floors on the sweep
+        # actors; it is NOT re-tuned here — contrast (above) and the meshopt floor
+        # (decimate-produced-humanoid.ts, brow excluded from face-preserving rungs)
+        # are the visibility levers. Raising tris alone replays the 21k-speckle
+        # FAILED treatment (more invisible strands, not more arch).
         _brow, _brow_reduction_evidence = reduce_eyebrow_mesh(
             _brow, eyes_asset, budget_tris=3600
         )
@@ -4012,6 +4032,15 @@ def main():
 
         # Recompute triangle count AFTER reduction for EYEBROW_FIT evidence
         _brow_tris = sum(max(len(p.vertices) - 2, 0) for p in _brow.data.polygons)
+        # Meshopt protect: the post-bake face-preserving rung (fp-r0.4) skips
+        # brow meshes by name (FACE_RE), but a bare Blender DECIMATE here would
+        # still eat the arch before export — so the bake-time floor is enforced
+        # where the mesh is still in hand: the reduction budget is the floor.
+        if _brow_tris < 3600:
+            print(
+                "EYEBROW_MESHOPT_FLOOR "
+                + json.dumps({"browTris": _brow_tris, "floor": 3600, "breach": True})
+            )
 
         # Authored emotion is invisible on the eyebrow otherwise: the body carries
         # `eyebrows-*` FACS shape keys and the fitted eyebrow mesh (a SEPARATE object,
