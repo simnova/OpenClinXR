@@ -1343,33 +1343,17 @@ def _weld_key_5(pos):
     )
 
 
-def apply_garment_auto_smooth_normals(glb_path, angle_deg=60.0):
-    """#371: angle-thresholded smooth shading for every fitted MakeClothes garment, written to
-    the EXPORTED bytes.
+def _auto_smooth_matching_prims(glb_path, angle_deg, keep, log_name, missing_error):
+    """Shared post-export 60-deg weld engine behind the #371 garment pass and the body pass.
 
-    The Anny rail auto-smoothes at 60 deg (automate_blender.py:4453-4458). The MPFB materializer
-    had no smoothing call at all, so every MakeClothes garment shipped 100% flat-shaded while the
-    body beside it shipped smooth. The contract measures the shipped GLB (garments-are-flat-
-    shaded-and-the-body-is-not.test.ts), so the smoothing runs where the contract measures —
-    after export, on the garment NORMAL accessors — with the contract's own weld keys and
-    face-normal math, so the result is exact by construction rather than by a Blender-version
-    lottery.
-
-    WHY POST-EXPORT AND NOT IN-BLENDER (measured 2026-08-13 on Blender 5.1.1): the exporter
-    reads `mesh.corner_normals`, and every in-Blender control for them fails to land on the
-    exported bytes — `shade_auto_smooth()` creates a "Smooth by Angle" NODES modifier the
-    exporter ignores; `normals_split_custom_set()` leaves ~1% of corners at their old values
-    (82/7884 on kevin's cargo pants); per-face `use_smooth`, `EDGE_SPLIT` and clearing custom
-    normals all export the original flat normals unchanged. The contract's own NOT TESTED line
-    and the grader's pixel read are the only arbiters, so this operates on the shipped bytes.
+    `keep(mat_name)` decides which primitives are smoothed; everything else (weld keys,
+    face-normal math, threshold rule, byte rewrite) is identical for both callers, so the
+    body result is exact by the same construction as the garment result.
 
     Per weld position the widest angle between incident face normals decides: below `angle_deg`
     every corner gets one shared normal (the average of the incident face normals); at or above
-    it the original per-face split normals are left untouched (this is what refuses
-    threshold-free smoothing — the shoe soles, hem rings and collars stay split). 60 deg is the
-    Anny rail's proven value and sits inside the contract's band: clause (1) demands smoothing
-    below 30 deg, clause (2) preservation above 60 deg, and this threshold satisfies both with
-    margin. Geometry, indices, materials and the JSON chunk are copied verbatim.
+    it the original per-face split normals are left untouched. Geometry, indices, materials
+    and the JSON chunk are copied verbatim.
     """
     with open(glb_path, "rb") as f:
         data = bytearray(f.read())
@@ -1420,9 +1404,7 @@ def apply_garment_auto_smooth_normals(glb_path, angle_deg=60.0):
             mat_name = ""
             if prim.get("material") is not None and prim["material"] < len(materials):
                 mat_name = materials[prim["material"]].get("name", "")
-            if not re.search(r"makeclothes_library", mat_name, re.I) or re.search(
-                r"eyes", mat_name, re.I
-            ):
+            if not keep(mat_name):
                 continue
             nor_acc_idx = prim["attributes"]["NORMAL"]
             if nor_acc_idx in processed:
@@ -1483,7 +1465,7 @@ def apply_garment_auto_smooth_normals(glb_path, angle_deg=60.0):
             patched.append(f"{mat_name}:{smoothed}")
 
     if not patched:
-        raise RuntimeError(f"#371: no garment primitive found in {glb_path}")
+        raise RuntimeError(f"#371: {missing_error} in {glb_path}")
     out = bytearray()
     out += b"glTF"
     out += struct.pack("<II", 2, 12 + 8 + json_len + len(bin_header) + len(bin_chunk))
@@ -1493,7 +1475,76 @@ def apply_garment_auto_smooth_normals(glb_path, angle_deg=60.0):
     out += bin_chunk
     with open(glb_path, "wb") as f:
         f.write(out)
-    print(f"GLB_AUTO_SMOOTH {glb_path} angle={angle_deg} garments [{','.join(patched)}]")
+    print(f"{log_name} {glb_path} angle={angle_deg} prims [{','.join(patched)}]")
+
+
+def _is_garment_prim(mat_name):
+    return bool(re.search(r"makeclothes_library", mat_name, re.I)) and not re.search(
+        r"eyes", mat_name, re.I
+    )
+
+
+def apply_garment_auto_smooth_normals(glb_path, angle_deg=60.0):
+    """#371: angle-thresholded smooth shading for every fitted MakeClothes garment, written to
+    the EXPORTED bytes.
+
+    The Anny rail auto-smoothes at 60 deg (automate_blender.py:4453-4458). The MPFB materializer
+    had no smoothing call at all, so every MakeClothes garment shipped 100% flat-shaded while the
+    body beside it shipped smooth. The contract measures the shipped GLB (garments-are-flat-
+    shaded-and-the-body-is-not.test.ts), so the smoothing runs where the contract measures —
+    after export, on the garment NORMAL accessors — with the contract's own weld keys and
+    face-normal math, so the result is exact by construction rather than by a Blender-version
+    lottery.
+
+    WHY POST-EXPORT AND NOT IN-BLENDER (measured 2026-08-13 on Blender 5.1.1): the exporter
+    reads `mesh.corner_normals`, and every in-Blender control for them fails to land on the
+    exported bytes — `shade_auto_smooth()` creates a "Smooth by Angle" NODES modifier the
+    exporter ignores; `normals_split_custom_set()` leaves ~1% of corners at their old values
+    (82/7884 on kevin's cargo pants); per-face `use_smooth`, `EDGE_SPLIT` and clearing custom
+    normals all export the original flat normals unchanged. The contract's own NOT TESTED line
+    and the grader's pixel read are the only arbiters, so this operates on the shipped bytes.
+
+    Per weld position the widest angle between incident face normals decides: below `angle_deg`
+    every corner gets one shared normal (the average of the incident face normals); at or above
+    it the original per-face split normals are left untouched (this is what refuses
+    threshold-free smoothing — the shoe soles, hem rings and collars stay split). 60 deg is the
+    Anny rail's proven value and sits inside the contract's band: clause (1) demands smoothing
+    below 30 deg, clause (2) preservation above 60 deg, and this threshold satisfies both with
+    margin. Geometry, indices, materials and the JSON chunk are copied verbatim.
+    """
+    return _auto_smooth_matching_prims(
+        glb_path,
+        angle_deg,
+        _is_garment_prim,
+        "GLB_AUTO_SMOOTH",
+        "no garment primitive found",
+    )
+
+
+def apply_body_auto_smooth_normals(glb_path, angle_deg=60.0):
+    """Post-export 60-deg auto-smooth for the body/skin primitives, sharing the #371 weld math.
+
+    MEASURED 2026-09-18: the native face crop still shows large polygonal shading facets at
+    428k tris after the Catmull-Clark subdiv + in-Blender shade_smooth() — measured on Blender
+    5.1.1, no in-Blender API lands on the bytes the glTF exporter writes (see the #371 docstring
+    above), so shade_smooth() leaves the exported GLB bytes unchanged. The garment pass SKIPS
+    every primitive whose material name does not match makeclothes_library, so the body/skin
+    primitives never got the proven post-export 60-deg weld; this pass applies the same weld
+    (same keys, same face-normal math, same threshold rule) to the mpfb_skin_ primitives.
+
+    SCOPE: mpfb_skin_ only (the #343 skin slice, created via MaterialService.create_v2_skin_
+    material). The scalp/hair region material (openclinxr_mesh_native_scalp_hair_surface) is a
+    separate second primitive on the body and is deliberately NOT smoothed here — like the eyes,
+    it is a distinct surface whose own edges must stay put. Hide-mask (openclinxr_hidden_upper)
+    and eye (mat_makeclothes_library_eyes) primitives are likewise excluded.
+    """
+    return _auto_smooth_matching_prims(
+        glb_path,
+        angle_deg,
+        lambda name: bool(re.search(r"^mpfb_skin_", name, re.I)),
+        "BODY_SMOOTH",
+        "no body primitive found",
+    )
 
 
 def verify_garment_textures_in_glb(glb_path):
@@ -6287,6 +6338,15 @@ def main():
         raise RuntimeError(f"#343: skin material {skin_material_name} missing before bake")
     bake_png = output.parent / f"{output.stem}.skin-baked.png"
     baked_img = bake_skin_material_to_texture(human, skin_material_name, str(bake_png), resolution=1024)
+    if args.reference == "ed_chest_pain_nurse_adult":
+        _blender_dir = pathlib.Path(__file__).resolve().parent
+        if str(_blender_dir) not in sys.path:
+            sys.path.insert(0, str(_blender_dir))
+        from inpaint_skin_atlas_throat import inpaint_throat_island  # noqa: E402
+
+        _throat = inpaint_throat_island(str(bake_png))
+        print("THROAT_INPAINT " + json.dumps(_throat))
+        baked_img.reload()
 
     # #370 — bake the shipped enhanced_skin shader's perturbed normal (procedural
     # pores) to a tangent-space normal map. Runs BEFORE the node-tree rebuild below
@@ -6363,9 +6423,15 @@ def main():
     # on the bytes the exporter writes, so the smoothing runs where the contract measures.
     apply_garment_auto_smooth_normals(str(output), angle_deg=60.0)
 
+    # Body pass: the subdiv + in-Blender shade_smooth() leave the exported GLB bytes
+    # unchanged (exporter reads mesh.corner_normals; measured 2026-09-18), and the garment
+    # pass above skips every non-makeclothes primitive, so the mpfb_skin_ body/face/neck
+    # gets the same post-export 60-deg weld here. Only NORMAL accessor data changes.
+    apply_body_auto_smooth_normals(str(output), angle_deg=60.0)
+
     # #372: assert the FINAL bytes still carry every authored garment texture this bake consumed
     # (the #371 rebake dropped the t-shirt texture silently and only a pixel grade caught it).
-    # Runs after the smoothing, which copies the JSON chunk verbatim and only rewrites NORMAL
+    # Runs after both smoothing passes, which copy the JSON chunk verbatim and only rewrite NORMAL
     # accessor data, so this checks exactly the bytes that ship.
     verify_garment_textures_in_glb(str(output))
 
