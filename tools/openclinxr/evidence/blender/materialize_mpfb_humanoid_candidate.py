@@ -1,6 +1,7 @@
 import argparse
 import json
 import math
+import os
 import pathlib
 import re
 import struct
@@ -1724,8 +1725,14 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
 # to compensate, measured 60.35% texels >6/255, std 12.12, correlation ratio 3.57 — real but partial
 # improvement; the ramp's linear-then-flat SHAPE (not just its stop positions) is still the residual
 # cause of some facet character and is not addressed here.
-DERMAL_CELL_TEXELS = 20.0
-DERMAL_BUMP_STRENGTH = 7.0
+#
+# ## FOLLOW-ON (F1) 2026-09-18 — DISTANCE_TO_EDGE tessellates into straight-edged
+# polygonal cells (the residual mosaic); F1 with Randomness 0.85 gives organic
+# cells. Constants honour DERMAL_* env overrides so bake variants need no edit.
+DERMAL_CELL_TEXELS = float(os.environ.get("DERMAL_CELL_TEXELS", "6.0"))
+DERMAL_BUMP_STRENGTH = float(os.environ.get("DERMAL_BUMP_STRENGTH", "1.0"))
+DERMAL_VORONOI_FEATURE = os.environ.get("DERMAL_VORONOI_FEATURE", "F1")
+DERMAL_VORONOI_RANDOMNESS = float(os.environ.get("DERMAL_VORONOI_RANDOMNESS", "0.85"))
 DERMAL_RAMP_VALLEY = 0.0
 DERMAL_RAMP_PEAK = 1.0
 
@@ -1801,6 +1808,10 @@ def configure_skin_normal_detail(skin_mat, human, resolution=1024):
                 for link in list(n.inputs["Scale"].links):
                     nt.links.remove(link)
                 n.inputs["Scale"].default_value = scale
+                # FOLLOW-ON (F1): DISTANCE_TO_EDGE is the mosaic source.
+                n.feature = DERMAL_VORONOI_FEATURE
+                if "Randomness" in n.inputs:
+                    n.inputs["Randomness"].default_value = DERMAL_VORONOI_RANDOMNESS
                 voronoi_forced += 1
 
     _force_dermal_scale(skin_mat.node_tree)
@@ -1811,6 +1822,9 @@ def configure_skin_normal_detail(skin_mat, human, resolution=1024):
         "dermalScale": scale,
         "dermalBumpStrength": DERMAL_BUMP_STRENGTH,
         "dermalRamp": [DERMAL_RAMP_VALLEY, DERMAL_RAMP_PEAK],
+        "dermalVoronoiFeature": DERMAL_VORONOI_FEATURE,
+        "dermalVoronoiRandomness": DERMAL_VORONOI_RANDOMNESS,
+        "dermalCellTexels": DERMAL_CELL_TEXELS,
         "dermalInstancesConfigured": dermal_instances,
         "otherBumpInputsLeftAtShipped": other_inputs,
         "voronoiScaleForced": voronoi_forced,
