@@ -16,7 +16,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { NodeIO, type Mesh } from "@gltf-transform/core";
-import { isPermittedGarmentLicense, readMhcloLicense } from "../asset-pipeline/makeclothes/fit-cli.js";
+import { resolveGarmentLicense } from "../asset-pipeline/makeclothes/fit-cli.js";
+import { packSlugFromPath } from "../asset-pipeline/makeclothes/makehuman-catalogue.js";
 import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -289,10 +290,10 @@ export function examineShoeCandidates(repoRoot: string = REPO_ROOT): ShoeCandida
     let accepted = false;
     let rejectionReason: string | null = null;
     try {
-      const lic = readMhcloLicense(mhcloAbs);
-      licenseToken = lic.token;
-      if (!isPermittedGarmentLicense(lic.token)) {
-        rejectionReason = `licence "${lic.token}" is not CC0/CC-BY`;
+      const verdict = resolveGarmentLicense(mhcloAbs, packSlugFromPath(mhcloAbs));
+      licenseToken = verdict.token;
+      if (!verdict.permitted) {
+        rejectionReason = `licence "${verdict.token}" is not CC0/CC-BY`;
       } else if (!objAbs) {
         rejectionReason = "mhclo present but companion .obj missing";
       } else {

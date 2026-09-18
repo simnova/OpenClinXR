@@ -86,24 +86,36 @@ document it defers to does not exist, and it defers to an *external tools* licen
 not the asset. Meanwhile `culturalibre_male_boots.mhclo` says `# license CC-0`, and both pack pages
 list every asset as CC0 with no mention of AGPL anywhere.
 
-**Precedence, in order (CORRECTED 2026-09-17 — bake gates now match shapes 1-2):**
+**Precedence — take the MORE PERMISSIVE of catalogue and file (OPERATOR RULING 2026-09-17, REFINED the same day):**
 
-1. the asset's own descriptor (`.mhclo` / `.mhmat`) — an EXPLICIT declaration here, including
-   copyleft, always governs and is never overridden
-2. when the descriptor is silent or carries only exporter-template boilerplate, the committed
-   publisher catalogue governs: `tools/openclinxr/asset-pipeline/makeclothes/makehuman-catalogue-snapshot.json`
-   (asset-pack index https://static.makehumancommunity.org/assets/assetpacks/index.html, fetched
-   2026-09-17; user-contributed index recorded as secondary/future, not consumed)
-3. a mesh-header line — **only** when asset-specific and neither of the above resolved it, never
-   when it is boilerplate deferring to an external-tools document
+Verbatim, 2026-09-17: *"Review the assets with their listing page - is the listing page more permissive? If so record that as the license instead of the license embedded into the asset as many just leave the default license."*; catalogue URLs *"https://static.makehumancommunity.org/assets/assetpacks/index.html"*
+and *"http://makehumancommunity.org/content/user_contributed_assets.html"*; on skins01/skins02 (catalogue
+CC0, file AGPLv3): *"go with what site links say (CC0 over AGPLv3)"*. Earlier the same day, before the
+refinement: *"remember that unclassified should default to the asset catalog page's listing of licensing not the asset itself"* — kept as history; the refinement narrows it to the comparison below.
+SUPERSEDED the same day: the earlier-today reading "catalogue over file" is narrowed — the catalogue
+listing governs **only when it is MORE PERMISSIVE than the asset's own declaration** (the operator's
+reason: "many just leave the default license"); when the catalogue is equal or stricter (e.g. catalogue
+CC-BY, file CC0) the FILE's more permissive licence governs.
 
-Total silence everywhere (no descriptor line AND no catalogue entry) still refuses. An explicit
-per-file copyleft declaration is never overridden by the catalogue. Two asset-specific sources
-disagreeing still refuses.
+1. compare the catalogue listing for the asset's pack (`tools/openclinxr/asset-pipeline/makeclothes/makehuman-catalogue-snapshot.json`)
+   against the asset's own `.mhclo` / `.mhmat` declaration and take the MORE PERMISSIVE (rank CC0 > CC-BY >
+   copyleft > unrecognised); the verdict records `via` (catalogue or file), the licence it overrode,
+   and the catalogue URL; a CC-BY attribution declared on either side is kept, whichever side governs;
+2. catalogue silent -> the file governs;
+3. catalogue silent AND file silent still refuses;
+4. a catalogue listing conflicting licences for one pack still refuses, and the file does not rescue it;
+5. an unrecognised or garbled token is the LEAST permissive and never wins.
 
-**What this does NOT reverse:** `skins01` / `skins02` stay refused. Those carry
-`# This file is licensed AGPLv3` as an explicit per-file statement in the asset's own `.mhmat`
-descriptor, and 21 of 23 carry no licence line at all. Different shape, different answer.
+Below the comparison, a mesh-header line counts only when asset-specific and neither of the above
+resolved it, never when it is boilerplate deferring to an external-tools document.
+
+One definition per language: `tools/openclinxr/asset-pipeline/makeclothes/licence-precedence.ts` and
+`tools/openclinxr/asset-pipeline/makeclothes/licence_precedence.py`.
+
+**skins01 / skins02 are no longer refused (2026-09-17).** Their 3 explicit `# This file is licensed
+AGPLv3` headers lose to the catalogue's MORE PERMISSIVE CC0 listing (catalogue CC0 > file copyleft),
+per the ruling above. Community pages
+outside the catalogue (`mhair02`, the scrub kit) keep their own recorded overrides.
 
 **Reaching the site:** `makehumancommunity.org` refuses HTTPS. Use `static.makehumancommunity.org`,
 which serves the asset-pack pages. Every acquisition or refusal goes in

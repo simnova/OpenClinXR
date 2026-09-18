@@ -27,6 +27,7 @@ _BODY_PARAM_DIR = REPO_ROOT / "packages/openclinxr/factory-stations/src/body_par
 if str(_BODY_PARAM_DIR) not in sys.path:
     sys.path.insert(0, str(_BODY_PARAM_DIR))
 from garment_coverage import _orient_outward, _ray_tri_hits  # noqa: E402
+from licence_precedence import resolve_licence_precedence  # noqa: E402
 
 # #333: footwear mapped by reference id. All three are the CC0/CC-0 zero-helper-ref
 # subset of makehuman-shoes01 (ledger: toigo_flats CC0, toigo_mj_cloth_shoes CC0,
@@ -120,8 +121,9 @@ HAIR_STYLE_BY_OUTPUT_STEM = {
 # Patrick 2026-08-14 pointed at http://www.makehumancommunity.org/clothes/mhair02.html
 # as CC0. The downloaded `.mhclo` header still says `# license AGPL3` (uuid
 # f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4). Same class as visemes02: assume the page
-# grant, record the header contradiction, allow THIS uuid/basename only. AGPL still
-# refuses for any style not on this list. Do not weaken read_hair_mhclo_licence.
+# grant, record the header contradiction, allow THIS uuid/basename only.
+# Catalogue packs are governed by the 2026-09-17 catalogue-over-file ruling via
+# read_hair_mhclo_licence; this allowlist covers only the community-page mhair02.
 # Sibling `male_short_hair` (same page/header lie, not named) stays refused.
 HAIR_PAGE_CC0_OVERRIDE = {
     "f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4": "mhair02",
@@ -774,30 +776,8 @@ def extract_hm08_feature_helpers(basemesh, armature, ref_tag):
     return extracted
 
 
-# 2026-09-17 — committed publisher catalogue for the bake-time silence
-# fallback (ledger shape 1). Same JSON the TS gates read; pack slug derived
-# from the asset path (`.../makehuman-shoes01/...` -> `shoes01`). Loaded once.
-# Catalogue is consulted ONLY on true silence (no licence line); an explicit
-# per-file copyleft or unrecognised token never falls through to it (shape 3).
-_CATALOGUE_SNAPSHOT_PATH = (
-    REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes/makehuman-catalogue-snapshot.json"
-)
-_CATALOGUE_PACKS = None
-
-
-def catalogue_entry_for_pack(pack_slug):
-    """Catalogue entry for a pack slug, or None when unlisted. No network."""
-    global _CATALOGUE_PACKS
-    if _CATALOGUE_PACKS is None:
-        try:
-            _CATALOGUE_PACKS = json.loads(_CATALOGUE_SNAPSHOT_PATH.read_text(encoding="utf-8")).get(
-                "packs", {}
-            )
-        except OSError:
-            _CATALOGUE_PACKS = {}
-    if not pack_slug:
-        return None
-    return _CATALOGUE_PACKS.get(pack_slug)
+# 2026-09-17 — OPERATOR RULING: catalogue-over-file precedence lives in
+# licence_precedence.py; this module only classifies the file side.
 
 
 def pack_slug_from_mhclo_path(mhclo_path):
@@ -807,26 +787,30 @@ def pack_slug_from_mhclo_path(mhclo_path):
 
 
 def read_hair_mhclo_licence(mhclo_path, pack_slug=None):
-    """#381 — read the licence line from a hair `.mhclo`'s OWN header.
+    """#381 — licence decision for a hair `.mhclo`: catalogue first, file second.
 
     Mirrors `hair-licence-classify.ts` `readHairLicenceLine` + `classifyHairLicence`
     (the machine gate the evidence RED reads live): `# license CC0` / `# license CC-0`
-    / `CC_by` / `CC BY 4.0` are permitted; AGPL is a HARD refusal; no licence line or
-    an unrecognised line is a refusal (unspecified is a refusal). The bake refuses
-    the style at fit time, so a copyleft style can never reach the shipped bytes even
-    if the evidence gate is bypassed. Returns (permitted, raw_token).
+    / `CC_by` / `CC BY 4.0` are permitted on the file side; AGPL is refused on the
+    file side; no licence line or an unrecognised line is refused on the file side
+    (unspecified is a refusal). The DECISION is `resolve_licence_precedence`:
+    2026-09-17 OPERATOR RULING, refined the same day — "Review the assets with their
+    listing page - is the listing page more permissive? If so record that as the license
+    instead of the license embedded into the asset as many just leave the default license"
+    ("go with what site links say (CC0 over AGPLv3)"): the MORE PERMISSIVE of the
+    catalogue listing and the file line governs (catalogue rank > file rank -> catalogue;
+    else the file's own verdict).
+    Returns (permitted, token); when the catalogue governs the token is
+    `catalogue:<slug>=<licence>` plus ` overrides file: <declared>` when the file
+    declared something. A catalogue conflict refuses regardless of the file.
 
-    This function is NOT the page-CC0 override. AGPL stays a hard refusal here.
-    The named uuid allowlist is hair_page_cc0_override_permits, checked by the
-    caller after this returns.
+    This function is NOT the page-CC0 override. The named uuid allowlist is
+    hair_page_cc0_override_permits, checked by the caller after this returns.
 
     #651 — mhair02 keeps its recorded page-CC0/header-AGPL3 exception for the ED
     patient's male cut: the same uuid allowlist (HAIR_PAGE_CC0_OVERRIDE) now ALSO
     permits this exact basename when read_hair_mhclo_licence refuses, mirroring
     how the kevin/street-male bakes already consume it.
-
-    # 2026-09-17 — silence falls back to the publisher catalogue (shape 1).
-    # AGPL above returns first and never reaches this lookup (shape 3 guard).
     """
     try:
         header = mhclo_path.read_text(encoding="utf-8", errors="replace")[:4000]
@@ -838,18 +822,26 @@ def read_hair_mhclo_licence(mhclo_path, pack_slug=None):
         if m:
             raw = m.group(1).strip()
             break
-    if not raw:
-        slug = pack_slug if pack_slug is not None else pack_slug_from_mhclo_path(mhclo_path)
-        entry = catalogue_entry_for_pack(slug)
-        if entry:
-            return True, f"catalogue:{slug}={entry['licence']}"
-        return False, None
-    if re.search(r"agpl", raw, re.I):
-        return False, raw
-    if re.search(r"cc\s*[-_ ]?0", raw, re.I):
-        return True, raw
-    if re.search(r"cc[\s_-]*by", raw, re.I):
-        return True, raw
+    if raw is not None and re.search(r"agpl", raw, re.I):
+        file_permitted, file_refusal = False, f"AGPL3 (copyleft) in the .mhclo header — refused: {raw}"
+    elif raw is not None and re.search(r"cc\s*[-_ ]?0", raw, re.I):
+        file_permitted, file_refusal = True, None
+    elif raw is not None and re.search(r"cc[\s_-]*by", raw, re.I):
+        file_permitted, file_refusal = True, None
+    elif raw is not None:
+        file_permitted, file_refusal = False, f"unrecognised licence line in the .mhclo header — refused: {raw}"
+    else:
+        file_permitted, file_refusal = False, "no licence line in the .mhclo header — unspecified is a refusal"
+    slug = pack_slug if pack_slug is not None else pack_slug_from_mhclo_path(mhclo_path)
+    file_attribution_required = raw is not None and re.search(r"cc[\s_-]*by", raw, re.I) is not None
+    verdict = resolve_licence_precedence(slug, raw, file_permitted, file_refusal_reason=file_refusal, file_attribution_required=file_attribution_required)
+    if verdict["via"] == "catalogue":
+        token = f"catalogue:{slug}={verdict['licence']}"
+        if raw:
+            token += f" overrides file: {raw}"
+        return True, token
+    if verdict["via"] == "file":
+        return bool(file_permitted), raw
     return False, raw
 
 

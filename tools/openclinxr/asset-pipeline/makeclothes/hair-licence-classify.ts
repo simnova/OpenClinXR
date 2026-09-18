@@ -7,6 +7,12 @@
  * the machine-checkable basis the evidence contract `hair-is-a-real-fitted-asset`
  * reads (`hair-licence-classification.json`).
  *
+ * 2026-09-17 OPERATOR RULING (supersedes the hard-refusal reading below): the
+ * MakeHuman catalogue listing governs even over an explicit per-file AGPL
+ * declaration — "go with what site links say (CC0 over AGPLv3)". The catalogue
+ * (hair01, CC0) therefore permits the AGPL3-header styles via catalogue_cc0;
+ * the copyleft refusal below applies only when the catalogue is silent.
+ *
  * MEASURED 2026-08-11 (the strings are NOT uniform — a naive `grep -i cc0` misses
  * `CC-0` and `CC_by`; a directory glob pulls in ten AGPL3 assets):
  *
@@ -28,6 +34,13 @@
  * ones that carry e.g. culturalibre_hair_05's four helper refs — a parser that stops
  * at the first section keyword misses them).
  *
+ * 2026-09-17 correction under the MEASURED 2026-08-11 table above: the table's
+ * "AGPL3 — HARD REFUSAL" row described the file-side verdict only. Under the
+ * 2026-09-17 catalogue-over-file ruling the hair01 catalogue listing (CC0)
+ * governs those ten styles (family catalogue_cc0, via catalogue), so they are
+ * usable when their helper-vertex refs are zero. The rows themselves are kept
+ * verbatim as the measured file-header census.
+ *
  * claimScope: licence classification of the staged makehuman-hair01 pack only.
  * notEvidenceFor: clinical hair realism, quest readiness, that a usable style fits
  * ANY basemesh (the fit is proven per-style by the embed stage, not here).
@@ -36,10 +49,8 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  catalogueEntryForPack,
-  packSlugFromSourceId,
-} from "./makehuman-catalogue.js";
+import { packSlugFromSourceId } from "./makehuman-catalogue.js";
+import { resolveLicencePrecedence } from "./licence-precedence.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../../..");
@@ -110,8 +121,16 @@ export type HairStyleClassification = {
   /** Largest vertex index referenced anywhere in the `.mhclo`. */
   maxVertexRef: number;
   attributionRequired: boolean;
-  /** True when the verdict came from the publisher catalogue (silent header). */
+  /** True when the verdict came from the publisher catalogue. */
   viaCatalogue: boolean;
+  /** Which side decided: catalogue listing, file header, or neither (refused). */
+  via: "catalogue" | "file" | "none";
+  /** The file's declared line when the catalogue governed and the file declared something. */
+  overriddenFileLicence: string | null;
+  /** Pack slug whose catalogue entry governed, when the catalogue decided. */
+  cataloguePackSlug: string | null;
+  /** Pack page URL of the governing catalogue entry, when the catalogue decided. */
+  catalogueEntryUrl: string | null;
 };
 
 export type HairClassificationArtifact = {
@@ -197,13 +216,64 @@ export function measureHairHelperRefs(mhcloPath: string): {
   };
 }
 
+/** File-side verdict for a raw header token (no catalogue consulted here). */
+function fileVerdictForRaw(raw: string | null): {
+  declared: string | null;
+  permitted: boolean;
+  attributionRequired: boolean;
+  refusalReason: string | null;
+} {
+  if (!raw) {
+    return {
+      declared: null,
+      permitted: false,
+      attributionRequired: false,
+      refusalReason: "no licence line in the .mhclo header — unspecified is a refusal",
+    };
+  }
+  if (/agpl/i.test(raw)) {
+    return {
+      declared: raw,
+      permitted: false,
+      attributionRequired: false,
+      refusalReason: `AGPL3 (copyleft) in the .mhclo header — refused: ${raw}`,
+    };
+  }
+  if (/cc\s*[-_ ]?0/iu.test(raw)) {
+    return { declared: raw, permitted: true, attributionRequired: false, refusalReason: null };
+  }
+  // `CC_by` (underscore), `CC BY 4.0` (space) and `CC-BY` (dash) all appear in the
+  // pack — the separator is non-uniform, so accept any of the three.
+  if (/cc[\s_-]*by/iu.test(raw)) {
+    return { declared: raw, permitted: true, attributionRequired: true, refusalReason: null };
+  }
+  return {
+    declared: raw,
+    permitted: false,
+    attributionRequired: false,
+    refusalReason: `unrecognised licence line in the .mhclo header — refused: ${raw}`,
+  };
+}
+
+/** File-side family for a raw header token (no catalogue consulted here). */
+function fileFamilyForRaw(raw: string | null): HairLicenceFamily {
+  if (!raw) return "none";
+  if (/agpl/i.test(raw)) return "agpl3";
+  if (/cc\s*[-_ ]?0/iu.test(raw)) return /cc\s*-0/iu.test(raw) ? "cc-0" : "cc0";
+  if (/cc[\s_-]*by/iu.test(raw)) return "cc_by";
+  return "unknown";
+}
+
 /** Classify one raw licence token into a family + permissiveness verdict.
  *
- * 2026-09-17 — silence falls back to the committed publisher catalogue
- * (ledger shape 1; `makehuman-catalogue-snapshot.json`). The AGPL branch
- * below returns BEFORE any catalogue lookup: an explicit per-file copyleft
- * declaration is never overridden by the catalogue (HARD GUARD, shape 3).
- * A non-empty unrecognised token also never consults the catalogue.
+ * 2026-09-17 — OPERATOR RULING, refined the same day: "Review the assets with their
+ * listing page - is the listing page more permissive? If so record that as the license
+ * instead of the license embedded into the asset as many just leave the default license"
+ * ("go with what site links say (CC0 over AGPLv3)"). The file-token classifier below
+ * still reads the file side, but the DECISION is delegated to resolveLicencePrecedence:
+ * more-permissive of catalogue vs file decides (catalogue rank > file rank -> catalogue;
+ * else the file's own verdict) > file (when the catalogue is silent) > refused
+ * (both silent, or the catalogue conflicts).
  */
 export function classifyHairLicence(
   raw: string | null,
@@ -214,69 +284,57 @@ export function classifyHairLicence(
   attributionRequired: boolean;
   refusalReason: string | null;
   viaCatalogue: boolean;
+  via: "catalogue" | "file" | "none";
+  overriddenFileLicence: string | null;
+  cataloguePackSlug: string | null;
+  catalogueEntryUrl: string | null;
 } {
-  if (!raw) {
-    const entry = catalogueEntryForPack(packSlug);
-    if (entry) {
-      const isBy = entry.licence === "CC-BY";
-      return {
-        family: isBy ? "catalogue_cc_by" : "catalogue_cc0",
-        permitted: true,
-        attributionRequired: isBy,
-        refusalReason: null,
-        viaCatalogue: true,
-      };
-    }
+  const file = fileVerdictForRaw(raw);
+  const precedence = resolveLicencePrecedence({ packSlug, file });
+  if (precedence.via === "catalogue" && precedence.catalogueEntry) {
+    const isBy = /cc[\s_-]*by/i.test(precedence.catalogueEntry.licence);
     return {
-      family: "none",
-      permitted: false,
-      attributionRequired: false,
-      refusalReason: "no licence line in the .mhclo header — unspecified is a refusal",
-      viaCatalogue: false,
-    };
-  }
-  if (/agpl/i.test(raw)) {
-    return {
-      family: "agpl3",
-      permitted: false,
-      attributionRequired: false,
-      refusalReason: `AGPL3 (copyleft) in the .mhclo header — hard refusal: ${raw}`,
-      viaCatalogue: false,
-    };
-  }
-  if (/cc\s*[-_ ]?0/iu.test(raw)) {
-    return {
-      family: /cc\s*-0/iu.test(raw) ? "cc-0" : "cc0",
+      family: isBy ? "catalogue_cc_by" : "catalogue_cc0",
       permitted: true,
-      attributionRequired: false,
+      attributionRequired: precedence.attributionRequired,
       refusalReason: null,
-      viaCatalogue: false,
+      viaCatalogue: true,
+      via: "catalogue",
+      overriddenFileLicence: precedence.overriddenFileLicence,
+      cataloguePackSlug: packSlug,
+      catalogueEntryUrl: precedence.catalogueEntry.packPageUrl,
     };
   }
-  // `CC_by` (underscore), `CC BY 4.0` (space) and `CC-BY` (dash) all appear in the
-  // pack — the separator is non-uniform, so accept any of the three.
-  if (/cc[\s_-]*by/iu.test(raw)) {
+  if (precedence.via === "file") {
     return {
-      family: "cc_by",
-      permitted: true,
-      attributionRequired: true,
-      refusalReason: null,
+      family: fileFamilyForRaw(raw),
+      permitted: file.permitted,
+      attributionRequired: file.attributionRequired,
+      refusalReason: file.refusalReason,
       viaCatalogue: false,
+      via: "file",
+      overriddenFileLicence: null,
+      cataloguePackSlug: null,
+      catalogueEntryUrl: null,
     };
   }
   return {
-    family: "unknown",
+    family: fileFamilyForRaw(raw),
     permitted: false,
     attributionRequired: false,
-    refusalReason: `unrecognised licence line in the .mhclo header — refused: ${raw}`,
+    refusalReason: precedence.refusalReason ?? file.refusalReason,
     viaCatalogue: false,
+    via: "none",
+    overriddenFileLicence: null,
+    cataloguePackSlug: null,
+    catalogueEntryUrl: null,
   };
 }
 
 export function classifyHairStyle(asset: string, mhcloPath: string): HairStyleClassification {
   const { raw } = readHairLicenceLine(mhcloPath);
-  const { family, permitted, attributionRequired, refusalReason: licenceRefusal, viaCatalogue } =
-    classifyHairLicence(raw);
+  const classified = classifyHairLicence(raw);
+  const { family, permitted, attributionRequired, refusalReason: licenceRefusal, viaCatalogue, via, overriddenFileLicence, cataloguePackSlug, catalogueEntryUrl } = classified;
   const { maxVertexRef, helperVertexRefs } = measureHairHelperRefs(mhcloPath);
 
   let refusedReason = licenceRefusal;
@@ -295,6 +353,10 @@ export function classifyHairStyle(asset: string, mhcloPath: string): HairStyleCl
     maxVertexRef,
     attributionRequired,
     viaCatalogue,
+    via,
+    overriddenFileLicence,
+    cataloguePackSlug,
+    catalogueEntryUrl,
   };
 }
 
