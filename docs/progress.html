@@ -27,6 +27,200 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-18T0940">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 104 &middot; 2026-09-18 09:40 EDT</p>
+          <h2>The nurse was re-baked on the repaired factory and filmed again. Hair texture arrived, the lip-sync map was wrong in seven of eight shapes and is now right, and the eyebrows got worse.</h2>
+        </div>
+        <p>
+          Everything below is merged. Every image and the video on this page were rendered for it
+          and looked at at native size before publishing. The nurse in every picture is a scratch
+          re-bake of the shipped character on the current factory; the shipped file itself has not
+          been replaced, and that is said again at the end.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Seven changes since entry 103, each with its own measurement. Bold rows have a picture below.</caption>
+            <thead><tr><th scope="col">What changed</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Hair shipped with no image, one flat brown colour</strong></td><td>hair material: no colour image, no surface image</td><td>both attached (3600&times;3600); strand streaks visible in every still</td></tr>
+              <tr><td><strong>Scrub weave was erased by the bake's colour normalisation</strong></td><td>shirt image blue-channel spread 0.0 (source 5.2)</td><td>7.0 in the raw bake, under 1% clipped &mdash; and still not visible at 1280&times;720</td></tr>
+              <tr><td><strong>Speech cues that reached no mouth shape at all</strong></td><td>197 of 363 cues drove nothing; in the 09-17 video 220 of 429 speech frames</td><td>0 and 0</td></tr>
+              <tr><td>The mouth-shape map had every shape except rest wrong</td><td>P/B/M opened the mouth wide; sibilants got 0&nbsp;s</td><td>P/B/M close the lips; in this video: SS 6.07&nbsp;s, E 3.30&nbsp;s, PP 0.43&nbsp;s</td></tr>
+              <tr><td><strong>Eyebrow mesh too dense to read (3.7 triangles per pixel)</strong></td><td>child 21,816 tris; nurse 9,597</td><td>child 2,034; nurse 1,045; all 8 brow targets kept &mdash; and the brow is now too sparse to read. Regression.</td></tr>
+              <tr><td>Licence gates refused assets whose catalogue page is more permissive than their file header</td><td>usable hairstyles 9; 13 assets refused on an AGPL header under a CC0 listing</td><td>usable hairstyles 21; those 13 permitted, each recording which side governed</td></tr>
+              <tr><td>World Compile Graph accepted any edge between any two nodes</td><td>edge kinds stamped ad hoc, never checked</td><td>refused unless kind is known and both ends are the port type it requires; 16 tests</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Hair texture arrives; the scrub weave does not, at this distance</h3>
+        <p>
+          The shipped nurse's hair material carried no image at all &mdash; one flat brown factor
+          &mdash; because the bake never wired the textures the hairstyle declares. It does now. The
+          same bake was also flattening the scrub fabric: a per-image colour normalisation collapsed
+          the shirt's blue channel to zero spread. Normalising per channel keeps it: 7.0 in the raw
+          bake against 5.2 in the source image, with under 1% of pixels clipped.
+        </p>
+        <p>
+          The two images below are the shipped file and the re-bake, same camera, same lighting,
+          same pose. Read them for what changed and what did not.
+        </p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:12px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/mpfb-nurse-shipped-2026-09-17.png" alt="The shipped MPFB nurse, three-quarter view: flat brown hair with no strand detail, flat cyan scrubs, grey T-shaped patch at the collar." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Before &mdash; shipped file. Hair is one flat colour; scrubs are one flat colour.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/mpfb-nurse-rebake-hair-scrub-textures-2026-09-17.png" alt="The same nurse re-baked, same camera: hair shows strawberry-blond strand streaks and light-dark variation; scrubs show a chest pocket outline; skin facets and the grey collar patch are unchanged." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">After &mdash; re-bake. Hair has strand streaks; a chest pocket outline shows. Weave still not visible.</figcaption>
+          </figure>
+        </div>
+        <p class="evidence-note">
+          Measured on these two renders, same pixel patches in each: hair-region brightness spread
+          20.9 before, 30.6 after &mdash; the streaks are real pixels, not a colour change. Shirt
+          patch 6.5 before, 5.0 after: the weave is in the image file and is not resolvable at this
+          framing; what shows on the shirt is a pocket outline, not fabric grain. Cheek patch 21.8
+          before, 23.1 after: the crumpled skin facets reported in entries 102 and 103 are unchanged
+          by this bake. The grey T-shaped patch at the collar is in both. The sleeve hem's hard edge
+          is in both. Both images are drawn with the old, unreduced eyebrow, so the brow regression
+          below is not visible in this pair.
+        </p>
+
+        <h3>Lip-sync: two defects, one of them in the meaning of every shape</h3>
+        <p>
+          Two separate faults. First, name resolution: the speech tool emits shape cues, and 197 of
+          363 cues in the test lines resolved to no mouth target on this character's face, so the
+          mouth simply did not move for them. That count is now 0. Second, and larger: the table
+          that says what each shape means was wrong for every shape except rest. The tool's own
+          documentation says shape A is closed lips (P, B, M); the map had it as a wide-open vowel,
+          so every bilabial closure opened the mouth wide. Sibilants, the most common shape in
+          ordinary speech, mapped to nothing. Measured in that fix's own report on the same three
+          lines: the sibilant target went from 0&nbsp;s to 25.54&nbsp;s of drive time, the open
+          vowel that had been absorbing everything fell from 25.54&nbsp;s to 11.63&nbsp;s, and lip
+          closure went from 0&nbsp;s to 3.25&nbsp;s. In the video below, all five A cues fire the
+          lip-closure target (0 of 5 did in the 09-17 recording), and no speech frame drives
+          nothing (220 of 429 did).
+        </p>
+        <p>
+          What this does not fix: on the open-mouth frames the teeth still render as one bright
+          white slab with no tooth separation, and on the closed-lip rest frames a thin white line
+          shows between the lips (13 near-white pixels in the mouth region of the closed still
+          below).
+        </p>
+
+        <h3>The blink, re-recorded on the re-baked nurse</h3>
+        <p>
+          Same harness, lighting and three lines as the 09-17 recording, run on the re-baked file. Measured in the encoded video,
+          not the source frames: 9 blinks in 34&nbsp;s, 15.4 per minute over the close-up, 7 of 7
+          close-up blinks confirmed in the frames of both the WebM and the MP4. To get the MP4 to
+          7 of 7 the encoder quality had to be raised (one blink read as unconfirmed at the old
+          setting because a compressed open-eye frame lost the iris); the file went from
+          1.6&nbsp;MB to 2.9&nbsp;MB; the rendered frames were byte-identical between the two encodes.
+        </p>
+        <figure style="margin:12px 0 0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#10221a; max-width:640px;">
+          <img src="assets/speech-emotion-blink-closed-2026-09-18.png" alt="The re-baked nurse from the front at the peak of a rest blink: both eyelids closed, lips closed, textured hair, grey T-shaped patch at the collar, faceted skin, eyebrows reduced to a scatter of dark specks." style="width:100%; height:auto; display:block;">
+          <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Frame 41, rest blink at 1.4&nbsp;s, native 1280&times;720. Proves: both lids close from the front; hair texture; lips closed at rest. Also shows: brows as specks, skin facets, the collar patch, a thin white line between the lips.</figcaption>
+        </figure>
+        <div class="motion-proof" style="margin-top:16px;">
+          <video class="motion-proof__video" controls muted loop playsinline preload="metadata"
+            poster="assets/speech-emotion-blink-poster-2026-09-18.png"
+            aria-label="The re-baked nurse speaking three lines with an authored emotion arc and natural blinking, close-up then wide.">
+            <source src="assets/speech-emotion-blink-2026-09-18.webm" type="video/webm">
+            <source src="assets/speech-emotion-blink-2026-09-18.mp4" type="video/mp4">
+            Your browser does not support this video.
+          </video>
+          <div>
+            <p class="status-copy">
+              34 seconds: three spoken lines, an authored concerned&ndash;anxious&ndash;reassured
+              arc, blinking, then a pull-back to the full figure. Watched at full length it shows
+              speech driving a range of mouth shapes and the hair texture in motion. It does not,
+              on its own, prove a blink lands or that any shape is the right one for its sound;
+              the per-frame counts above carry those claims. The poster is the mid-point of the
+              first line, mouth open on the white teeth slab.
+            </p>
+          </div>
+        </div>
+        <p style="margin-top:16px;">
+          The sheet below is every close-up blink from the encoded WebM, the open reference frame
+          beside the closed peak. It is enlarged about 1.9&times; (the iris is 15 pixels wide in
+          the frame, 28 on the sheet), so read it for presence and absence only. In all seven
+          closed crops the image-left eye keeps a sliver of blue iris under a crumpled lid (20
+          iris-blue pixels in the first closed crop) while the image-right eye closes cleanly. That
+          asymmetry was in the 09-17 recording and is unchanged.
+        </p>
+        <figure style="margin:8px 0 0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620; max-width:520px;">
+          <img src="assets/speech-emotion-blink-eye-crops-2026-09-18.png" alt="Seven rows of eye crops from the encoded video, open frame beside closed frame; in every closed crop the image-left eye shows a blue iris sliver under the lid and the image-right eye is fully closed." style="width:100%; height:auto; display:block;">
+          <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Seven close-up blinks, open | closed, from the encoded WebM, enlarged ~1.9&times;. Proves the lid reaches closure on every blink; shows the persistent iris sliver on one eye. Not a texture-quality image.</figcaption>
+        </figure>
+
+        <h3>The eyebrow reduction is a regression in what it was meant to fix</h3>
+        <p>
+          Entry 103 said the eyebrow mesh was 21,816 triangles over a band about 269&times;22
+          pixels, so its 4&ndash;7&nbsp;mm of brow movement rendered as speckle. A coverage-greedy
+          strand selection now keeps whole strands until a band grid is covered: 2,034 triangles on
+          the child, 1,045 on the nurse after the mesh optimiser, all 8 brow targets carried across
+          with their displacements within 0.8&nbsp;mm of the full mesh. The mechanism works as
+          specified. The result does not: on the nurse 200 of 1,775 strands survive, and in the
+          front still above a 160&times;25-pixel band across both eyes contains 94 dark
+          pixels. The brow reads as a scatter of specks, which is harder to see than the speckle it
+          replaced. The reduction lands as a factory step; its coverage target is wrong and will be
+          re-measured against a brow that a viewer can see.
+        </p>
+
+        <h3>Licence rule: the more permissive of the listing and the file</h3>
+        <p>
+          MakeHuman community assets ship with a template header that many authors never edit, so
+          a file can say AGPLv3 while its catalogue page says CC0. The gates now compare the two and
+          take the more permissive, ranked CC0 over CC-BY over copyleft over unreadable; a silent
+          file under a silent listing still refuses, and a listing that does not itself clear CC0 or
+          CC-BY cannot rescue a file. Every verdict records which side governed and the catalogue
+          URL. Measured over the provider cache: 10 hair01 styles and 3 skin files in two skin packs, all with AGPL
+          headers under CC0 listings, go from refused to permitted; usable hairstyles 9 to 21; topology exclusions
+          unchanged at 4. The operator's ruling that set this precedence is recorded verbatim in
+          the licence ledger, dated 2026-09-17.
+        </p>
+
+        <h3>World Compile Graph: connections are typed</h3>
+        <p>
+          The admin graph that assembles a character stamped an edge kind on every connection
+          without checking it, and nothing checked that the two ends were the right kind of node
+          for the relationship claimed. A closed edge vocabulary with a port type per node family
+          now refuses any connection whose kind is unknown or whose endpoints do not match, with a
+          reason, and a Connect action in the queue panel exposes that end to end. 16 tests, two
+          of them through the rendered panel. Three edge kinds the brief named stay reserved and
+          unbuildable because no character baker backs them yet.
+        </p>
+
+        <h3>Process</h3>
+        <p>
+          One dispatched worker committed directly to the shared main checkout instead of its own
+          worktree; the work was recovered and shared main restored; nothing was lost.
+        </p>
+
+        <h3>Still open</h3>
+        <p>
+          The nurse pictured here is a scratch re-bake. The shipped nurse file is unchanged; none
+          of the 11 shipped MPFB characters has been regenerated with the hair, weave, viseme or
+          eyebrow fixes. The re-bake is 33&nbsp;MB, most of it two 3600&times;3600 hair images, and
+          has not been measured against any headset budget. The face does not read as its intended
+          mood in any still: the three line-midpoint frames (concerned, anxious, reassured) differ
+          in mouth shape and are not distinguishable by feeling, and the eyebrow regression above
+          makes that worse than in entry 103. Teeth are a white slab. The grey collar patch, the
+          crumpled skin facets and the one-eye iris sliver are all as they were.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or
+          production claim is made here. Facial expression is NOT claimed to work: more mouth
+          shapes are driven than before, the shapes now follow the speech tool's documented
+          meanings, and the result is still not readable as the intended mood. The eyebrow
+          reduction is reported as a REGRESSION in visibility. The hair and scrub fix is reported
+          on a scratch re-bake with a same-camera before/after pair; no shipped file has changed.
+          The blink counts are measured in the encoded video frames; the video itself is offered
+          as a watchable record, not as proof of any single count. No claim is made about how any
+          of this appears in a headset.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-17T0324">
         <div class="section-heading">
           <p class="eyebrow">Entry 103 &middot; 2026-09-17 03:24 EDT</p>
