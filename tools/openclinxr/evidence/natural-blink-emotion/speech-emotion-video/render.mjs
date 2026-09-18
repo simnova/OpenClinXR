@@ -216,10 +216,10 @@ if (fileSizeBytes(join(opts.out, "video.webm")) > EIGHT_MB) {
   console.error("video.webm exceeds 8 MB; re-encoding at 0.7x bitrate");
   encodeWebm(Math.round(1400 * 0.7));
 }
-encodeMp4(23);
+encodeMp4(18);
 if (fileSizeBytes(join(opts.out, "video.mp4")) > EIGHT_MB) {
-  console.error("video.mp4 exceeds 8 MB; re-encoding at crf 26");
-  encodeMp4(26);
+  console.error("video.mp4 exceeds 8 MB; re-encoding at crf 21");
+  encodeMp4(21);
 }
 
 // Poster: closeup frame at L1 midpoint.
