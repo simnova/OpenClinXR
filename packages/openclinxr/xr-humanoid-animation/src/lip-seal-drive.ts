@@ -3,8 +3,8 @@ import type { Group } from "three";
 
 /**
  * Lip-seal drive: the named viseme_PP never seals on this body, so closed
- * visemes (PP/sil/rest/closed) also pin FACS `mouth-compression` (AU24) to 1.
- * Jaw drive in jaw-viseme-drive.ts is untouched.
+ * visemes (PP/sil/rest/closed) zero every viseme_* except viseme_sil, then pin
+ * FACS `mouth-compression` (AU24) to 1. Jaw drive in jaw-viseme-drive.ts is untouched.
  */
 
 const SEALED = new Set(["pp", "sil", "silence", "rest", "closed"]);
@@ -27,9 +27,14 @@ export function applyLipSealForClosedViseme(
     const dict = object.morphTargetDictionary;
     const influences = object.morphTargetInfluences;
     if (!dict || !influences) return;
-    const index = dict["mouth-compression"];
-    if (typeof index !== "number" || !Number.isInteger(index)) return;
-    if (index < 0 || index >= influences.length) return;
-    influences[index] = Math.max(influences[index] ?? 0, 1.0);
+    const sealIndex = dict["mouth-compression"];
+    if (typeof sealIndex !== "number" || !Number.isInteger(sealIndex)) return;
+    if (sealIndex < 0 || sealIndex >= influences.length) return;
+    for (const [name, index] of Object.entries(dict)) {
+      if (typeof index !== "number" || !Number.isInteger(index)) continue;
+      if (index < 0 || index >= influences.length) continue;
+      if (name.startsWith("viseme_") && name !== "viseme_sil") influences[index] = 0;
+    }
+    influences[sealIndex] = 1.0;
   });
 }

@@ -20,11 +20,11 @@ import {
   updateGeneratedHumanoidAnimations,
 } from "./index.js";
 
-function sealingSlot(actorId: string, visemeSequence: string[]): { slot: GeneratedHumanoidAnimationSlot; face: Mesh } {
+function sealingSlot(actorId: string, visemeSequence: string[], dict: Record<string, number> = { "mouth-compression": 0 }, phonemeSequence: string[] = ["AA"]): { slot: GeneratedHumanoidAnimationSlot; face: Mesh } {
   const root = new Group();
   const face = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
-  face.morphTargetDictionary = { "mouth-compression": 0 };
-  face.morphTargetInfluences = [0];
+  face.morphTargetDictionary = dict;
+  face.morphTargetInfluences = Object.values(dict);
   root.add(face);
   const jaw = new Object3D();
   jaw.name = "jaw";
@@ -42,7 +42,7 @@ function sealingSlot(actorId: string, visemeSequence: string[]): { slot: Generat
       actorId, assetId: `${actorId}-asset`, gazeTargetKind: "learner_camera", gazeTargetActorId: null,
       text: "pah", emotion: "neutral",
       emotionContext: { emotion: "neutral", source: "plan_missing", baselineMood: [], cueIds: [] },
-      phonemeSequence: ["AA"], visemeSequence, startedAtMs: 0, durationMs: 60_000,
+      phonemeSequence, visemeSequence, startedAtMs: 0, durationMs: 60_000,
     },
   };
   return { slot, face };
@@ -78,6 +78,17 @@ describe("lip-seal drive", () => {
     const camera = new PerspectiveCamera();
     updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
     expect(face.morphTargetInfluences?.[0] ?? 0).toBeGreaterThanOrEqual(0.9);
+  });
+
+  it("a PP viseme zeroes a competing viseme_PP while sealing", () => {
+    const dict = { "mouth-compression": 0, viseme_PP: 1 };
+    const { slot, face } = sealingSlot("patient", ["PP"], dict, ["PP"]);
+    const ctx = context([slot]);
+    const camera = new PerspectiveCamera();
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
+    const influences = face.morphTargetInfluences ?? [];
+    expect(influences[face.morphTargetDictionary!["viseme_PP"]!] ?? 1).toBe(0);
+    expect(influences[face.morphTargetDictionary!["mouth-compression"]!] ?? 0).toBeGreaterThanOrEqual(0.9);
   });
 
   it("COUNTERWEIGHT: an open viseme leaves mouth-compression at rest", () => {
