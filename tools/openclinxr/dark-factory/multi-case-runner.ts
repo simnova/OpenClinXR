@@ -51,6 +51,7 @@ import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 
 import type { EncounterRuntimeActorAsset } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
+import { writeDeterministicLipSyncWav } from "../../../packages/openclinxr/factory-stations/src/lip_sync/fixture-wav.js";
 import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { generatedActorPlacement } from "../../../packages/openclinxr/asset-registry/src/actor-placement.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
@@ -1072,7 +1073,14 @@ async function runLipSyncStage(caseId: string, stageDir: string): Promise<Statio
   }
   await mkdir(stageDir, { recursive: true });
   try {
-    const resolved = resolveLipSyncWavPath({ utterance, outDir: stageDir });
+    let resolved;
+    try {
+      resolved = resolveLipSyncWavPath({ utterance, outDir: stageDir });
+    } catch (resolveErr) {
+      if (process.env["OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM"] !== "1") throw resolveErr;
+      writeDeterministicLipSyncWav(utterance, stageDir);
+      resolved = resolveLipSyncWavPath({ utterance, outDir: stageDir });
+    }
     const wavPath =
       resolved.kind === "fixture-flag" ? await writeLipSyncFixtureWav(utterance, stageDir) : resolved.wavPath;
     const result = await runLipSync({ actorId: caseId, visemeBank: "mpfb_phonemes" }, { utterance, outDir: stageDir, wavPath });

@@ -24,6 +24,17 @@ import { resolveLipSyncWavPath } from "../../../../../tools/openclinxr/dark-fact
  * A recorded single *.wav already in outDir resolves as { kind: "provided" }
  * via readdirSync in resolveLipSyncWavPath; empty outDir still throws.
  *
+ * MEASURED S6 2026-09-19. runLipSyncStage has no wav producer: S4
+ * resolveLipSyncWavPath consumes a recorded wav but nothing writes one
+ * (no Grok TTS in tree). A deterministic PCM sine is the local unary
+ * stand-in for CI/dark-factory, behind OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM=1.
+ *
+ * ## FIXED (S6)
+ * With OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM=1, runLipSyncStage writes a
+ * deterministic PCM sine wav into stageDir before resolving; without the
+ * flag an empty outDir still throws. writeDeterministicLipSyncWav writes
+ * 16-bit mono 22050 Hz RIFF/WAVE bytes and never shells say/afconvert.
+ *
  * Do not invoke runLipSync here — that would shell say on this machine.
  */
 
@@ -71,6 +82,7 @@ describe("the lip_sync station rhubarb on wav not say", () => {
 
   it("(4) missing wavPath without fixture flag throws", async () => {
     delete process.env["OPENCLINXR_LIP_SYNC_FIXTURE"];
+    delete process.env["OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM"];
     await expect(
       runLipSync({ actorId: "actor_a", visemeBank: "mpfb_phonemes" }, { utterance: "hi", outDir: "out", wavPath: "" }),
     ).rejects.toThrow(/wavPath/);
@@ -83,5 +95,34 @@ describe("the lip_sync station rhubarb on wav not say", () => {
     const slice = runnerSrc.slice(start, start + 1200);
     expect(slice).toMatch(/fixtureWavPath/);
     expect(slice).toMatch(/throw new Error/);
+  });
+
+  it("(6) PCM flag writes a RIFF/WAVE sine so resolve finds it; unflagged still throws", async () => {
+    const { writeDeterministicLipSyncWav } = await import("./fixture-wav.js");
+    const helperSrc = readFileSync(join(SRC, "fixture-wav.ts"), "utf8");
+    expect(helperSrc).toMatch(/RIFF/);
+    expect(helperSrc).toMatch(/WAVE/);
+    // Helper writes a .wav with RIFF/WAVE bytes synchronously; never shells say/afconvert.
+    const detStart = helperSrc.indexOf("export function writeDeterministicLipSyncWav");
+    expect(detStart).toBeGreaterThan(-1);
+    const detSlice = helperSrc.slice(detStart, detStart + 2000);
+    expect(detSlice).not.toMatch(/execFileAsync|say|afconvert/);
+    const outDir = await mkdtemp(join(tmpdir(), "lip-sync-pcm-"));
+    const wavPath = writeDeterministicLipSyncWav("hello", outDir);
+    expect(wavPath.endsWith(".wav")).toBe(true);
+    expect(readFileSync(wavPath, "utf8").slice(0, 4)).toBe("RIFF");
+    delete process.env["OPENCLINXR_LIP_SYNC_FIXTURE"];
+    const resolved = resolveLipSyncWavPath({ utterance: "hello", outDir });
+    expect(resolved).toMatchObject({ kind: "provided", wavPath });
+    const runnerSrc = readFileSync(
+      join(SRC, "..", "..", "..", "..", "..", "tools", "openclinxr", "dark-factory", "multi-case-runner.ts"),
+      "utf8",
+    );
+    expect(runnerSrc).toMatch(/OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM/);
+    expect(runnerSrc).toMatch(/writeDeterministicLipSyncWav/);
+    // Unflagged path: empty outDir still throws.
+    delete process.env["OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM"];
+    const emptyDir = await mkdtemp(join(tmpdir(), "lip-sync-pcm-empty-"));
+    expect(() => resolveLipSyncWavPath({ utterance: "hi", outDir: emptyDir })).toThrow();
   });
 });
