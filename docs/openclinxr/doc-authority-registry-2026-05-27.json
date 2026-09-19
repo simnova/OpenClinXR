@@ -3748,6 +3748,13 @@
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
+      "path": "docs/openclinxr/speaking-sync-s5-grade-2026-09-19.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
       "path": "docs/openclinxr/emotional-prosody-policy-review-2026-09-02.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
