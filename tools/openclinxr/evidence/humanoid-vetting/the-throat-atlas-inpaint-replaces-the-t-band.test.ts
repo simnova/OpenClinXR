@@ -341,4 +341,42 @@ describe("the throat-atlas inpaint replaces the T band", () => {
     const faceAfter = medianOf(afterPx, face);
     expect(faceAfter, "face island rectangle unchanged").toEqual(faceBefore);
   }, 120_000);
+
+  it("throat-inpaint-skips-uniform-skin-bbox", () => {
+    const island = uvRect(0.33, 0.79, 0.46, 0.88);
+    const face = uvRect(0.65, 0.0, 1.0, 1.0);
+    const [c0, rTop, c1, rBot] = island;
+    const SKIN: [number, number, number] = [188, 144, 123];
+
+    // Fixture: black gutter; skin island (bbox + 8px margin) uniform at the
+    // ring color; face block on the right. No holes, no T band.
+    const px = new Uint8Array(W * H * 3); // all black
+    const paint = (x: number, y: number, c: [number, number, number]): void => {
+      const i = (y * W + x) * 3;
+      px[i] = c[0];
+      px[i + 1] = c[1];
+      px[i + 2] = c[2];
+    };
+    const m = 8;
+    for (let y = Math.max(0, rTop - m); y <= Math.min(H - 1, rBot + m); y += 1) {
+      for (let x = Math.max(0, c0 - m); x <= Math.min(W - 1, c1 + m); x += 1) paint(x, y, SKIN);
+    }
+    const [fc0, frTop, fc1, frBot] = face;
+    for (let y = frTop; y <= frBot; y += 1) {
+      for (let x = fc0; x <= fc1; x += 1) paint(x, y, FACE);
+    }
+
+    const dir = mkdtempSync(join(tmpdir(), "throat-inpaint-skip-"));
+    const input = join(dir, "atlas.png");
+    const output = join(dir, "atlas-inpainted.png");
+    const inputBytes = encodeRgb(px);
+    writeFileSync(input, inputBytes);
+
+    const python = pickPython();
+    const out = execFileSync(python, [HELPER, input, "--out", output], { encoding: "utf8" });
+    const census = JSON.parse(out) as { texelsChanged: number; bboxHoleTexels: number };
+    expect(census.bboxHoleTexels, "no holes in uniform skin").toBe(0);
+    expect(census.texelsChanged, "uniform chest not flattened").toBe(0);
+    expect(Buffer.from(readFileSync(output)).equals(Buffer.from(inputBytes)), "PNG byte-identical").toBe(true);
+  }, 120_000);
 });

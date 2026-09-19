@@ -36,6 +36,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
+import sys
 
 import numpy as np
 from PIL import Image
@@ -50,6 +52,11 @@ DEFAULT_PROTECT = ((0.65, 0.0, 1.0, 1.0),)  # (u0, v0, u1, v1)
 
 # Texels darker than this are atlas background, never skin, never ring.
 SKIN_MIN_MAXC = 16
+
+# Min per-texel max-channel delta vs the ring median for a bbox SKIN texel
+# to be replaced. Factory census (/tmp/openclinxr-f1-bump04-nurse1):
+# uniform chest deltas 2,2,1 (skip) vs lighter-T fixture 9,8,8 (replace).
+SKIN_REPLACE_MIN_DELTA = 8
 
 # Pillow >= 10 moved resampling flags under Image.Resampling.
 _RESAMPLE_BILINEAR = getattr(getattr(Image, "Resampling", Image), "BILINEAR", 1)
@@ -115,9 +122,9 @@ def inpaint_throat_island(png_path, uv_bbox=DEFAULT_UV_BBOX, out_path=None,
     GUTTER black (flood-filled from the image borders through black texels)
     is atlas background and stays byte-stable; HOLE black (not
     edge-connected, i.e. an interior unbaked void such as the collar T) is
-    filled with the neighbor skin median. All SKIN texels
-    (max(R,G,B) >= SKIN_MIN_MAXC) in the bbox are also replaced, so both
-    darker-T and lighter-T polarities are covered. The ring likewise uses
+    filled with the neighbor skin median. Bbox SKIN texels are replaced only
+    when they differ from the ring median by SKIN_REPLACE_MIN_DELTA (covers
+    lighter-T fixtures; skips uniform factory chest). The ring likewise uses
     skin texels only and raises ValueError when no skin ring exists or the
     ring median is near-black (fail closed -- never write [0,0,0] as fill).
 
@@ -178,9 +185,29 @@ def inpaint_throat_island(png_path, uv_bbox=DEFAULT_UV_BBOX, out_path=None,
     black_full = rgb.max(axis=2) < SKIN_MIN_MAXC
     gutter_full = _edge_connected_black(black_full)
     hole_mask = black_full[r_top:r_bot + 1, c0:c1 + 1] & ~gutter_full[r_top:r_bot + 1, c0:c1 + 1]
-    fill_mask = skin_mask | hole_mask
-    black_kept = int((~fill_mask).sum())
     hole_n = int(hole_mask.sum())
+    skin_delta = np.abs(island.astype(np.int16) - fill.astype(np.int16)).max(axis=2)
+    fill_mask = hole_mask | (skin_mask & (skin_delta >= SKIN_REPLACE_MIN_DELTA))
+    black_kept = int((~fill_mask).sum())
+    if int(fill_mask.sum()) == 0:
+        # Uniform skin == ring: nothing to do. Byte-identical copy, no re-encode.
+        dest = out_path or png_path
+        if out_path is not None and os.path.abspath(out_path) != os.path.abspath(png_path):
+            shutil.copyfile(png_path, dest)
+        print("THROAT_INPAINT_SKIP uniform-skin", file=sys.stderr)
+        return {
+            "texelsChanged": 0,
+            "medianBefore": median_before,
+            "medianAfter": median_before,
+            "neighborMedian": neighbor_median,
+            "ringTexels": int(ring_all.shape[0]),
+            "ringTrimKept": int(trimmed.shape[0]),
+            "bboxSkinTexels": int(skin_mask.sum()),
+            "bboxHoleTexels": hole_n,
+            "bboxBlackKept": black_kept,
+            "outPath": os.path.abspath(dest),
+            "uvConvention": "opengl-bottom-left",
+        }
     if source_diffuse is not None:
         src = Image.open(source_diffuse)
         if src.mode not in ("RGB", "RGBA"):
