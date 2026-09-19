@@ -1029,6 +1029,24 @@ export function resolveLipSyncWavPath(options: RunLipSyncStationOptions): {
 }
 
 /**
+ * Resolve the wav for the lip-sync bake, writing a deterministic PCM sine
+ * stand-in when the outDir is empty and OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM=1.
+ * Shared by runLipSyncStation and runLipSyncStage so the S6 fallback is one
+ * code path, not two copies. Without the flag an empty outDir still throws.
+ */
+export function resolveLipSyncWavPathAllowingDeterministicPcm(
+  options: RunLipSyncStationOptions,
+): { kind: "provided" | "fixture-flag" | "fixture-path"; wavPath: string } {
+  try {
+    return resolveLipSyncWavPath(options);
+  } catch (resolveErr) {
+    if (process.env["OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM"] !== "1") throw resolveErr;
+    const wavPath = writeDeterministicLipSyncWav(options.utterance, options.outDir);
+    return { kind: "provided", wavPath };
+  }
+}
+
+/**
  * The offline lip-sync seam: Rhubarb `--exportFormat json` on provided wav
  * bytes. Production baker never shells system TTS; the fixture helper runs
  * only behind the fixture flag (see resolveLipSyncWavPath).
@@ -1037,7 +1055,7 @@ export function resolveLipSyncWavPath(options: RunLipSyncStationOptions): {
  * bakes the same files on every run (D9 determinism).
  */
 export async function runLipSyncStation(options: RunLipSyncStationOptions): Promise<LipSyncStationResult> {
-  const resolved = resolveLipSyncWavPath(options);
+  const resolved = resolveLipSyncWavPathAllowingDeterministicPcm(options);
   const wavPath =
     resolved.kind === "fixture-flag" ? await writeLipSyncFixtureWav(options.utterance, options.outDir) : resolved.wavPath;
   const raw = await runLipSync(
@@ -1073,14 +1091,7 @@ async function runLipSyncStage(caseId: string, stageDir: string): Promise<Statio
   }
   await mkdir(stageDir, { recursive: true });
   try {
-    let resolved;
-    try {
-      resolved = resolveLipSyncWavPath({ utterance, outDir: stageDir });
-    } catch (resolveErr) {
-      if (process.env["OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM"] !== "1") throw resolveErr;
-      writeDeterministicLipSyncWav(utterance, stageDir);
-      resolved = resolveLipSyncWavPath({ utterance, outDir: stageDir });
-    }
+    const resolved = resolveLipSyncWavPathAllowingDeterministicPcm({ utterance, outDir: stageDir });
     const wavPath =
       resolved.kind === "fixture-flag" ? await writeLipSyncFixtureWav(utterance, stageDir) : resolved.wavPath;
     const result = await runLipSync({ actorId: caseId, visemeBank: "mpfb_phonemes" }, { utterance, outDir: stageDir, wavPath });

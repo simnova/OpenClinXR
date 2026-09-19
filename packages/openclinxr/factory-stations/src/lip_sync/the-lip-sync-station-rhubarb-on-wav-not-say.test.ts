@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -34,6 +34,11 @@ import { resolveLipSyncWavPath } from "../../../../../tools/openclinxr/dark-fact
  * deterministic PCM sine wav into stageDir before resolving; without the
  * flag an empty outDir still throws. writeDeterministicLipSyncWav writes
  * 16-bit mono 22050 Hz RIFF/WAVE bytes and never shells say/afconvert.
+ *
+ * ## FIXED (S7)
+ * runLipSyncStage and runLipSyncStation share one fallback helper
+ * (resolveLipSyncWavPathAllowingDeterministicPcm): same S6 PCM sine write
+ * then resolve; unflagged empty outDir still throws in both.
  *
  * Do not invoke runLipSync here — that would shell say on this machine.
  */
@@ -124,5 +129,30 @@ describe("the lip_sync station rhubarb on wav not say", () => {
     delete process.env["OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM"];
     const emptyDir = await mkdtemp(join(tmpdir(), "lip-sync-pcm-empty-"));
     expect(() => resolveLipSyncWavPath({ utterance: "hi", outDir: emptyDir })).toThrow();
+  });
+
+  it("(7) PCM flag + empty outDir runs the real Rhubarb binary end to end", async () => {
+    // MEASURED S7 2026-09-19. Deterministic 440 Hz sine (~1.0 s) through
+    // ~/.openclinxr-tools/rhubarb/rhubarb --exportFormat json returns
+    // duration 1.00 s with 3 cues (X/C/X). No richness assertion.
+    const { runLipSyncStation } = await import(
+      "../../../../../tools/openclinxr/dark-factory/multi-case-runner.js"
+    );
+    delete process.env["OPENCLINXR_LIP_SYNC_FIXTURE"];
+    process.env["OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM"] = "1";
+    try {
+      const outDir = await mkdtemp(join(tmpdir(), "lip-sync-s7-e2e-"));
+      const result = (await runLipSyncStation({ utterance: "hello", outDir })) as {
+        cues: Array<{ start: number; end: number; value: string }>;
+        cueArtifactPath: string;
+        manifestArtifactPath: string;
+      };
+      expect(existsSync(result.cueArtifactPath)).toBe(true);
+      expect(existsSync(result.manifestArtifactPath)).toBe(true);
+      expect(Array.isArray(result.cues)).toBe(true);
+      expect(result.cues.length).toBeGreaterThan(0);
+    } finally {
+      delete process.env["OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM"];
+    }
   });
 });
