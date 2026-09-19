@@ -27,6 +27,56 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-19T0051">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 106 &middot; 2026-09-18 20:51 EDT (2026-09-19 00:51 UTC)</p>
+          <h2>Factory F1 bump 0.4 removed the face mosaic and the collar T; fitted teeth now retreat after export.</h2>
+        </div>
+        <p>
+          Everything below is measured on the scratch bake at
+          <code>/tmp/openclinxr-defaults-nurse1</code> (self-check relative error 0.025%).
+          The shipped <code>mpfb-clinical-nurse-adult.glb</code> is unchanged. No still was
+          resized or upscaled; the grades are native 1:1 crops.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Four measured factory changes since entry 105.</caption>
+            <thead><tr><th scope="col">What changed</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Face shading</strong></td><td>DISTANCE_TO_EDGE mosaic on the face</td><td>F1 cell=6 bump=0.4 (origin <code>ea87cbb23</code> / <code>21fa033a8</code>)</td></tr>
+              <tr><td><strong>Collar T</strong></td><td>sternal MASK T</td><td>gone (<code>77cddf9c0</code> orphan skip). Native collar crop: no T, teal V.</td></tr>
+              <tr><td><strong>Inpaint flatten</strong></td><td>12,639 chest texels</td><td>2,136 (<code>df703c214</code> delta&ge;8). Not a visible T.</td></tr>
+              <tr><td><strong>Teeth</strong></td><td>helper slab</td><td>CC0 7,120 tris; post-export retreat wired (<code>3ea5df8bf</code>). Scratch probe marginAtCap -3.98&nbsp;mm &rarr; +0.50&nbsp;mm after --delta 0.00448. Shipped GLB not replaced.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:12px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/nurse-f1-bump04-face-2026-09-19.png" alt="Native 1:1 face crop of the F1 bump 0.4 scratch bake, not upscaled: smooth cheeks with no mosaic facets." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Face &mdash; native 1:1 crop. Scratch bake <code>/tmp/openclinxr-defaults-nurse1</code>, relative error 0.025%, not the shipped <code>mpfb-clinical-nurse-adult.glb</code>.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/nurse-f1-bump04-collar-2026-09-19.png" alt="Native 1:1 collar crop of the F1 bump 0.4 scratch bake, not upscaled: no sternal T, teal V at the collar." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Collar &mdash; native 1:1 crop. Scratch bake <code>/tmp/openclinxr-defaults-nurse1</code>, relative error 0.025%, not the shipped <code>mpfb-clinical-nurse-adult.glb</code>.</figcaption>
+          </figure>
+        </div>
+        <p class="evidence-note">
+          Grades are the two native 1:1 crops above, copied byte-for-byte from the CEO-graded
+          <code>glb-grade</code> renders. The teeth retreat is wired post-export on the scratch
+          path only; the shipped nurse GLB was not replaced.
+        </p>
+        <h3>Still open</h3>
+        <p>
+          The closed-lid iris sliver is unchanged. The teeth retreat margin (+0.50&nbsp;mm) is a
+          scratch-probe value, not a shipped-asset value.
+        </p>
+        <p class="status-copy">
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or
+          production claim is made here. Face and collar are reported on a scratch re-bake with
+          native 1:1 crops; no shipped file has changed. No claim is made about how any of this
+          appears in a headset.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-18T1335">
         <div class="section-heading">
           <p class="eyebrow">Entry 105 &middot; 2026-09-18 13:35 EDT</p>
