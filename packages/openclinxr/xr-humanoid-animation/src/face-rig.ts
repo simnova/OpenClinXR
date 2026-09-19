@@ -74,27 +74,18 @@ export function computeAffectRampIntensity(
 
 
 /**
- * Mean resting inter-blink interval, ms.
- *
- * The original clock used 4,300 ms, which measures 13.5 blinks/min — BELOW the 15-20/min
- * resting range for spontaneous human blinking. 3,400 ms measures 17.6/min, mid-range.
+ * Mean resting inter-blink interval, ms. 4,300 ms measured 13.5 blinks/min — below the
+ * 15-20/min resting range; 3,400 ms measures 17.6/min, mid-range.
  */
 const BLINK_MEAN_INTERVAL_MS = 3400;
 /** Lid closure duration, ms. Unchanged. */
 const BLINK_CLOSURE_MS = 200;
 
 /**
- * Inter-blink interval for the nth blink since speech start.
- *
- * The original clock was `elapsedMs % 4300` — a metronome. Spontaneous human blinking at rest is
- * 15-20/min with intervals scattered roughly 2-6 s; a perfectly regular blink is one of the most
- * reliable tells that a face is synthetic. This spreads the interval over [0.58, 1.42] x the mean
- * (2,108-4,692 ms), giving a measured 17.6 blinks/min inside the 15-20 resting range while
- * removing the regularity.
- *
- * DETERMINISTIC by construction: the jitter is a hash of the blink INDEX, not a PRNG and not
- * wall-clock, so an evidence capture reproduces frame for frame. No seed, no state, no
- * Math.random.
+ * Inter-blink interval for the nth blink since speech start. The original `elapsedMs % 4300`
+ * was a metronome; this spreads the interval over [0.58, 1.42] x the mean (2,108-4,692 ms)
+ * for a measured 17.6 blinks/min. DETERMINISTIC: jitter is a hash of the blink INDEX, so a
+ * capture reproduces frame for frame. No seed, no state, no Math.random.
  */
 function blinkIntervalMs(index: number): number {
   const hashed = Math.sin((index + 1) * 12.9898) * 43758.5453;
@@ -267,30 +258,18 @@ export function resetHumanoidFaceRigControls(slot: GeneratedHumanoidAnimationSlo
 
 
 /**
- * Blink a humanoid that is NOT speaking.
- *
- * DEFECT (measured 2026-09-16, 1,321-frame capture): `updateHumanoidSpeechCue` returns early
- * whenever `slot.activeSpeech` is undefined, and that return happens BEFORE
- * `applyHumanoidFaceRigControls` — the only caller of the lid-closure applier. Across 883 silent
- * frames (~8.7 s) blink intensity was 0 on every one, where a 3.4 s mean interval predicts two or
- * three blinks. A humanoid standing quietly never blinked, which is among the strongest tells that
- * a face is synthetic, and it affects every actor not currently holding the floor.
- *
- * The rest clock is slot-local and starts when the slot first falls silent, so a figure does not
- * blink the instant speech ends and the schedule stays deterministic per slot.
+ * Blink a humanoid that is NOT speaking. DEFECT (measured 2026-09-16, 1,321-frame capture):
+ * `updateHumanoidSpeechCue` returned before the face rig whenever `slot.activeSpeech` was
+ * undefined, so across 883 silent frames (~8.7 s) blink intensity was 0 on every one, where a
+ * 3.4 s mean interval predicts two or three blinks. The rest clock is slot-local and starts
+ * when the slot first falls silent, so a figure does not blink the instant speech ends.
  */
 
 /**
- * Per-actor phase offset for the rest blink.
- *
- * DEFECT this fixes: the rest clock's origin is slot-local but its interval sequence is shared, so
- * actors that fall silent at the same moment blink in perfect unison — measured by the planted RED
- * "idle actors with identical clocks have distinct nonzero closure schedules", which sampled three
- * idle actors and got byte-identical closure series. A room of people blinking together is a
- * stronger synthetic tell than the metronome it replaced.
- *
- * Hashed from the actor id, not a PRNG and not wall-clock, so a capture still reproduces exactly
- * and the same actor always blinks on the same schedule.
+ * Per-actor phase offset for the rest blink. Fixes shared-sequence unison: slot-local origins
+ * with a shared interval sequence made actors that fall silent together blink together
+ * (planted RED: three idle actors, byte-identical closure series). Hash of the actor id, so a
+ * capture reproduces exactly and the same actor keeps its schedule.
  */
 function restBlinkPhaseMs(actorId: string): number {
   let hash = 0;
@@ -299,6 +278,31 @@ function restBlinkPhaseMs(actorId: string): number {
   }
   const hashed = Math.sin(hash) * 43758.5453;
   return (hashed - Math.floor(hashed)) * BLINK_MEAN_INTERVAL_MS;
+}
+
+/**
+ * Blink drives the lid-tightener (eye-*-slit, AU7) alongside lid closure.
+ *
+ * DEFECT (CEO grade of docs/assets/speech-emotion-blink-closed-2026-09-17.png): lid closure
+ * 0.9993 still left a blue iris sliver — closure alone does not seal the eye. max() keeps
+ * keeps cheek_tension's AU7: emotion writes first at both call sites, so the blink takes the
+ * max and never erases it; at 0 the blink adds nothing.
+ */
+function applyBlinkSlitToRoot(root: Group, blinkIntensity: number): void {
+  const clamped = Math.min(1, Math.max(0, Number.isFinite(blinkIntensity) ? blinkIntensity : 0));
+  root.traverse((object) => {
+    if (!(object instanceof Mesh) || !object.morphTargetDictionary || !object.morphTargetInfluences) return;
+    const dict = object.morphTargetDictionary;
+    const influences = object.morphTargetInfluences;
+    const availableNames = new Set(Object.keys(dict));
+    for (const canonical of ["openclinxr_eye_left_slit", "openclinxr_eye_right_slit"] as const) {
+      const resolved = resolveMorphTarget(canonical, availableNames);
+      if (resolved === null) continue;
+      const index = dict[resolved];
+      if (typeof index !== "number" || !Number.isInteger(index) || index < 0 || index >= influences.length) continue;
+      influences[index] = Math.max(influences[index] ?? 0, clamped);
+    }
+  });
 }
 
 export function applyHumanoidRestBlink(slot: GeneratedHumanoidAnimationSlot, nowMs: number): number {
@@ -313,6 +317,7 @@ export function applyHumanoidRestBlink(slot: GeneratedHumanoidAnimationSlot, now
   scaleHumanoidRigControl(leftUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
   scaleHumanoidRigControl(rightUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
   applyBlinkClosureToRoot(slot.root, blinkIntensity);
+  applyBlinkSlitToRoot(slot.root, blinkIntensity);
   return blinkIntensity;
 }
 
@@ -321,19 +326,13 @@ export function applyHumanoidRestBlink(slot: GeneratedHumanoidAnimationSlot, now
 type FacsTargetWeight = { readonly target: string; readonly scale: number };
 
 /**
- * MULTI-TARGET expression groups.
+ * MULTI-TARGET expression groups. The shared 1:1 resolver sent `openclinxr_brow_concern` to the
+ * LEFT inner brow alone and `openclinxr_cheek_tension` to null (no cheek target ships), so an
+ * authored emotion moved half a face or nothing (mpfb-gown-adult-patient.glb, 47 targets).
+ * Lives HERE, not in asset-registry: that surface is frozen under PSR psr-01d.
  *
- * The shared 1:1 resolver returns ONE name, so `openclinxr_brow_concern` drove
- * "eyebrows-left-inner-up" alone — an authored emotion moved half a face — and
- * `openclinxr_cheek_tension` resolved to null because no cheek target ships, so that channel
- * moved nothing at all. Measured on mpfb-gown-adult-patient.glb (47 target names).
- *
- * This lives HERE, not in @openclinxr/asset-registry, because that package's public surface is
- * frozen under the PSR reduction programme (review group psr-01d) and this is its only consumer.
- *
- * ANATOMY, not convenience: concern is FACS AU1 (inner brow raiser) bilaterally plus AU4 (brow
- * lowerer) at 0.45 so it reads as worry rather than anger. "Cheek tension" has no cheek target on
- * this topology; the honest carriers are AU7 (lid tightener, eye-*-slit) and the nose compressor.
+ * ANATOMY: concern is AU1 bilaterally plus AU4 at 0.45 (worry, not anger); cheek tension rides
+ * AU7 (eye-*-slit) plus the nose compressor.
  */
 const MPFB_FACS_EXPRESSION_GROUPS: Readonly<Record<string, readonly FacsTargetWeight[]>> = {
   openclinxr_brow_concern: [
@@ -351,11 +350,9 @@ const MPFB_FACS_EXPRESSION_GROUPS: Readonly<Record<string, readonly FacsTargetWe
 };
 
 /**
- * Every target a canonical expression name should drive on a given body.
- *
- * Identity wins first, so the Anny rail (which carries the canonical spellings) still drives
- * exactly one target. Falls back to the shared published resolver, which handles case variants
- * and the FACS alias map. Empty array when nothing honest resolves — never a fabricated name.
+ * Every target a canonical expression name drives on a body. Identity first (Anny rail still
+ * drives one target), then the group above on FACS bodies, then the shared resolver. Empty
+ * when nothing honest resolves — never a fabricated name.
  */
 function resolveMorphTargetGroup(
   canonicalName: string,
@@ -475,6 +472,7 @@ export function applyHumanoidFaceRigControls(
   scaleHumanoidRigControl(leftUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
   scaleHumanoidRigControl(rightUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
   applyBlinkClosureToRoot(slot.root, blinkIntensity);
+  applyBlinkSlitToRoot(slot.root, blinkIntensity);
 
   slot.root.userData["openClinXrFaceRigRuntimeCue"] = {
     currentViseme: viseme,
