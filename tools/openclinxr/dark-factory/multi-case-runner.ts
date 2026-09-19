@@ -1007,17 +1007,6 @@ function firstAuthoredUtterance(scenario: Scenario | undefined): string | undefi
  * OPENCLINXR_LIP_SYNC_FIXTURE=1 or an explicit fixtureWavPath is given;
  * otherwise a missing wavPath throws.
  */
-export async function discoverRecordedLipSyncWav(outDir: string): Promise<string | undefined> {
-  let entries: string[];
-  try {
-    entries = await readdir(outDir);
-  } catch {
-    return undefined;
-  }
-  const wavs = entries.filter((entry) => entry.toLowerCase().endsWith(".wav")).sort();
-  return wavs.length === 1 ? path.join(outDir, wavs[0]) : undefined;
-}
-
 export function resolveLipSyncWavPath(options: RunLipSyncStationOptions): {
   kind: "provided" | "fixture-flag" | "fixture-path";
   wavPath: string;
@@ -1033,21 +1022,6 @@ export function resolveLipSyncWavPath(options: RunLipSyncStationOptions): {
   } catch {
     // missing outDir falls through to the throw below.
   }
-  throw new Error(
-    "lip_sync needs wavPath (Grok unary bytes); fixture TTS requires OPENCLINXR_LIP_SYNC_FIXTURE=1 or fixtureWavPath",
-  );
-}
-
-/** Sync entry point for the chain: provided > recorded-in-outDir > fixture > throw. */
-export async function resolveLipSyncWavPathAsync(options: RunLipSyncStationOptions): Promise<{
-  kind: "provided" | "fixture-flag" | "fixture-path";
-  wavPath: string;
-}> {
-  if (options.wavPath !== undefined) return { kind: "provided", wavPath: options.wavPath };
-  if (options.fixtureWavPath !== undefined) return { kind: "fixture-path", wavPath: options.fixtureWavPath };
-  if (process.env["OPENCLINXR_LIP_SYNC_FIXTURE"] === "1") return { kind: "fixture-flag", wavPath: "" };
-  const recorded = await discoverRecordedLipSyncWav(options.outDir);
-  if (recorded !== undefined) return { kind: "provided", wavPath: recorded };
   throw new Error(
     "lip_sync needs wavPath (Grok unary bytes); fixture TTS requires OPENCLINXR_LIP_SYNC_FIXTURE=1 or fixtureWavPath",
   );
