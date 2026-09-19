@@ -42,6 +42,13 @@ describe("skin graph wires the inside-mouth mask", () => {
     expect(src, "INNER_MOUTH marker").toContain("INNER_MOUTH");
   });
 
+  it("uses a skeptic-visible gum pink for the cavity shade", () => {
+    const src = mat();
+    expect(src, "cavity red").toContain("0.72");
+    expect(src, "cavity green").toContain("0.28");
+    expect(src, "cavity blue").toContain("0.32");
+  });
+
   it("does not weaken the skin bake guards", () => {
     const src = mat();
     expect(src, "F1 dermal guard").toContain("DERMAL_VORONOI_FEATURE");

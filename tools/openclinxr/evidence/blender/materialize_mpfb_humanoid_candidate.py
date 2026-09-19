@@ -3688,7 +3688,7 @@ def main():
     _cavity_bsdf = _skin_nt.nodes.new("ShaderNodeBsdfPrincipled")
     _cavity_bsdf.name = "InnerMouthCavity"
     _cavity_bsdf.label = "Inner Mouth Cavity"
-    _cavity_bsdf.inputs["Base Color"].default_value = (0.23, 0.045, 0.04, 1.0)
+    _cavity_bsdf.inputs["Base Color"].default_value = (0.72, 0.28, 0.32, 1.0)
     _cavity_bsdf.inputs["Roughness"].default_value = 0.85
     _mouth_mix = _skin_nt.nodes.new("ShaderNodeMixShader")
     _mouth_mix.name = "InnerMouthMix"
