@@ -22,7 +22,7 @@
  *   6. equipment             — apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry
  *   7. staging_placement     — packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement
  *   8. render                — tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms
- *   9. lip_sync              — writeLipSyncFixtureWav then runLipSync (Rhubarb on wav bytes)
+ *   9. lip_sync              — runLipSync on a provided wavPath (fixture helper only behind OPENCLINXR_LIP_SYNC_FIXTURE=1)
  *  10. world_compile         — tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization
  *                            (WCG compile driven by the chain: newest dated evidence JSON + chain stage-body/stage-rig
  *                            artifact hashes -> compileNodes with wouldInvoke/skippedBakers), then the planned-baker
@@ -269,7 +269,7 @@ const IMPLEMENTATIONS: Record<DarkFactoryStationId, string> = {
   render:
     "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
   lip_sync:
-    "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
+    "multi-case-runner.ts runLipSyncStation (provided wavPath -> rhubarb 1.14.0 --exportFormat json; fixture helper only behind OPENCLINXR_LIP_SYNC_FIXTURE=1)",
   world_compile:
     "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
 };
@@ -952,7 +952,10 @@ export type RunLipSyncStationOptions = {
   utterance: string;
   /** Directory the synthesized audio + cue artifacts are written into. */
   outDir: string;
+  /** Provided wav bytes path (e.g. Grok unary TTS output). The production path. */
   wavPath?: string;
+  /** Explicit pre-made fixture wav path. Using it never shells `say`. */
+  fixtureWavPath?: string;
 };
 
 export type LipSyncStationResult = {
@@ -997,15 +1000,39 @@ function firstAuthoredUtterance(scenario: Scenario | undefined): string | undefi
 }
 
 /**
- * The offline lip-sync seam: fixture wav (local TTS helper, not the baker) then
- * rhubarb `--exportFormat json`. Production baker never shells system TTS.
+ * Resolve the wav for the lip-sync bake. Production takes a provided wavPath
+ * (e.g. Grok unary TTS bytes) and never shells system TTS. The fixture helper
+ * writeLipSyncFixtureWav runs only when OPENCLINXR_LIP_SYNC_FIXTURE=1 or an
+ * explicit fixtureWavPath is given; otherwise a missing wavPath throws.
+ */
+export function resolveLipSyncWavPath(options: RunLipSyncStationOptions): {
+  kind: "provided" | "fixture-flag" | "fixture-path";
+  wavPath: string;
+} {
+  if (options.wavPath !== undefined) return { kind: "provided", wavPath: options.wavPath };
+  if (options.fixtureWavPath !== undefined) return { kind: "fixture-path", wavPath: options.fixtureWavPath };
+  if (process.env["OPENCLINXR_LIP_SYNC_FIXTURE"] === "1") return { kind: "fixture-flag", wavPath: "" };
+  throw new Error(
+    "lip_sync needs wavPath (Grok unary bytes); fixture TTS requires OPENCLINXR_LIP_SYNC_FIXTURE=1 or fixtureWavPath",
+  );
+}
+
+/**
+ * The offline lip-sync seam: Rhubarb `--exportFormat json` on provided wav
+ * bytes. Production baker never shells system TTS; the fixture helper runs
+ * only behind the fixture flag (see resolveLipSyncWavPath).
  *
  * Artifact names derive from a content hash of the utterance, so the same line
  * bakes the same files on every run (D9 determinism).
  */
 export async function runLipSyncStation(options: RunLipSyncStationOptions): Promise<LipSyncStationResult> {
-  const wavPath = options.wavPath ?? (await writeLipSyncFixtureWav(options.utterance, options.outDir));
-  const raw = await runLipSync({ actorId: "lip_sync", visemeBank: "mpfb_phonemes" }, { ...options, wavPath });
+  const resolved = resolveLipSyncWavPath(options);
+  const wavPath =
+    resolved.kind === "fixture-flag" ? await writeLipSyncFixtureWav(options.utterance, options.outDir) : resolved.wavPath;
+  const raw = await runLipSync(
+    { actorId: "lip_sync", visemeBank: "mpfb_phonemes" },
+    { utterance: options.utterance, outDir: options.outDir, wavPath },
+  );
   const cues = (raw["cues"] as LipSyncCue[] | undefined) ?? [];
   return {
     cues,
@@ -1035,7 +1062,9 @@ async function runLipSyncStage(caseId: string, stageDir: string): Promise<Statio
   }
   await mkdir(stageDir, { recursive: true });
   try {
-    const wavPath = await writeLipSyncFixtureWav(utterance, stageDir);
+    const resolved = resolveLipSyncWavPath({ utterance, outDir: stageDir });
+    const wavPath =
+      resolved.kind === "fixture-flag" ? await writeLipSyncFixtureWav(utterance, stageDir) : resolved.wavPath;
     const result = await runLipSync({ actorId: caseId, visemeBank: "mpfb_phonemes" }, { utterance, outDir: stageDir, wavPath });
     return {
       row: makeRow("lip_sync", "deterministic", [relStage(stageDir, path.basename(result.cueArtifactPath))], [
@@ -1358,7 +1387,7 @@ function executionCommandsFor(): Record<string, string> {
     equipment: "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
     staging_placement: "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
     render: "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
-    lip_sync: "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+    lip_sync: "in-process multi-case-runner.ts runLipSyncStation (provided wavPath -> rhubarb --exportFormat json; fixture helper only behind OPENCLINXR_LIP_SYNC_FIXTURE=1; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
     world_compile: "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)",
   };
 }

@@ -42,4 +42,30 @@ describe("the lip_sync station rhubarb on wav not say", () => {
     expect(slice.length).toBeGreaterThan(20);
     expect(slice).toMatch(/wavPath|inputWav|audioPath/);
   });
+
+  it("(3) runLipSyncStation with wavPath never defaults to writeLipSyncFixtureWav", () => {
+    const runnerSrc = readFileSync(
+      join(SRC, "..", "..", "..", "..", "..", "tools", "openclinxr", "dark-factory", "multi-case-runner.ts"),
+      "utf8",
+    );
+    expect(runnerSrc).not.toMatch(/options\.wavPath\s*\?\?\s*\(?\s*await\s+writeLipSyncFixtureWav/);
+    expect(runnerSrc).toMatch(/OPENCLINXR_LIP_SYNC_FIXTURE/);
+    expect(runnerSrc).toMatch(/resolveLipSyncWavPath/);
+  });
+
+  it("(4) missing wavPath without fixture flag throws", async () => {
+    delete process.env["OPENCLINXR_LIP_SYNC_FIXTURE"];
+    await expect(
+      runLipSync({ actorId: "actor_a", visemeBank: "mpfb_phonemes" }, { utterance: "hi", outDir: "out", wavPath: "" }),
+    ).rejects.toThrow(/wavPath/);
+    const runnerSrc = readFileSync(
+      join(SRC, "..", "..", "..", "..", "..", "tools", "openclinxr", "dark-factory", "multi-case-runner.ts"),
+      "utf8",
+    );
+    const start = runnerSrc.indexOf("export function resolveLipSyncWavPath");
+    expect(start).toBeGreaterThan(-1);
+    const slice = runnerSrc.slice(start, start + 1200);
+    expect(slice).toMatch(/fixtureWavPath/);
+    expect(slice).toMatch(/throw new Error/);
+  });
 });
