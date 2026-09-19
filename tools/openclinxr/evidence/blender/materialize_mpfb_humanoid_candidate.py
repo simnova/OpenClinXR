@@ -3284,6 +3284,17 @@ SEATED_REST_SOURCE_MAP_REL = (
 )
 MOTION_BIND_OUT_DIR_REL = "apps/ui-xr/public/xr-assets/humanoids/candidates"
 
+# #739 — post-export teeth rest clearance. A rebake that skips the retreat ships
+# teeth forward of the lip contour at MOUTH_OPEN_CAP (the fitted teeth carry no
+# morph targets to follow the retracting lips). Runs the existing station
+# tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts — never
+# reimplemented here (D1). Rule: if probe marginAtCap < 0,
+# delta = abs(marginAtCap) + 0.0005 (0.5 mm safety); if marginAtCap >= 0, skip.
+TEETH_REST_CLEARANCE_REL = (
+    "tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts"
+)
+TEETH_REST_CLEARANCE_SAFETY = 0.0005
+
 
 def _resolve_blender_binary():
     """Mirror motion-bind-cli.ts resolveBlender — env, brew, then PATH."""
@@ -3296,6 +3307,74 @@ def _resolve_blender_binary():
         if pathlib.Path(cand).is_file():
             return cand
     return "blender"
+
+
+def run_teeth_rest_clearance(actor_glb):
+    """#739 — probe the exported GLB, retreat the teeth when the margin is negative.
+
+    Calls tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts
+    (probe, then --delta when marginAtCap < 0). Never reimplements z-translate
+    in Python (D1). Prints TEETH_REST_CLEARANCE with mesh, marginAtCapBefore,
+    delta, marginAtCapAfter, tongueGapAfter, skipped.
+    """
+    import json as _json
+    import shutil as _shutil
+    import subprocess as _subprocess
+
+    station = REPO_ROOT / TEETH_REST_CLEARANCE_REL
+    glb = str(actor_glb)
+    pnpm = _shutil.which("pnpm")
+    npx = _shutil.which("npx")
+    if pnpm:
+        station_cmd = [pnpm, "exec", "tsx", str(station)]
+    elif npx:
+        station_cmd = [npx, "tsx", str(station)]
+    else:
+        raise RuntimeError("#739 teeth retreat: no pnpm or npx on PATH to run tsx")
+    probe = _subprocess.run(
+        [*station_cmd, glb, "--probe"],
+        cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300,
+    )
+    if probe.returncode != 0:
+        raise RuntimeError(
+            f"#739 teeth retreat probe failed (exit {probe.returncode}):\n"
+            f"{(probe.stdout or '')[-1500:]}{(probe.stderr or '')[-1500:]}"
+        )
+    rep = _json.loads(probe.stdout)
+    margin_before = float(rep["marginAtCap"])
+    if margin_before < 0:
+        delta = abs(margin_before) + TEETH_REST_CLEARANCE_SAFETY
+    else:
+        print(
+            f"TEETH_REST_CLEARANCE {actor_glb.name} marginAtCapBefore={margin_before:.6f} "
+            "delta=0 marginAtCapAfter=0 tongueGapAfter=0 skipped=True"
+        )
+        return
+    apply = _subprocess.run(
+        [*station_cmd, glb, "--delta", f"{delta:.6f}"],
+        cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300,
+    )
+    if apply.returncode != 0:
+        raise RuntimeError(
+            f"#739 teeth retreat apply failed (exit {apply.returncode}):\n"
+            f"{(apply.stdout or '')[-1500:]}{(apply.stderr or '')[-1500:]}"
+        )
+    after = _subprocess.run(
+        [*station_cmd, glb, "--probe"],
+        cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300,
+    )
+    if after.returncode != 0:
+        raise RuntimeError(
+            f"#739 teeth retreat re-probe failed (exit {after.returncode}):\n"
+            f"{(after.stdout or '')[-1500:]}{(after.stderr or '')[-1500:]}"
+        )
+    rep_after = _json.loads(after.stdout)
+    print(
+        f"TEETH_REST_CLEARANCE {rep_after.get('mesh')} "
+        f"marginAtCapBefore={margin_before:.6f} delta={delta:.6f} "
+        f"marginAtCapAfter={float(rep_after['marginAtCap']):.6f} "
+        f"tongueGapAfter={float(rep_after['tongueGap']):.6f} skipped=False"
+    )
 
 
 def replay_seated_rest_bind(actor_glb):
@@ -6490,6 +6569,9 @@ def main():
     # Runs after both smoothing passes, which copy the JSON chunk verbatim and only rewrite NORMAL
     # accessor data, so this checks exactly the bytes that ship.
     verify_garment_textures_in_glb(str(output))
+
+    # #739 — retreat the fitted teeth after the GLB exists (probe then apply).
+    run_teeth_rest_clearance(output)
 
     # #328 census: report the final exported body the same way the planted contract
     # measures it (largest non-garment/non-hidden primitive), plus the macro dict and
