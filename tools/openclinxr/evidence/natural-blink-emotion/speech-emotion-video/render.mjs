@@ -11,7 +11,8 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const repo = resolve(here, "../../../../../../..");
+// speech-emotion-video/ → natural-blink-emotion → evidence → openclinxr → tools → repo
+const repo = resolve(here, "../../../../../");
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -109,7 +110,8 @@ mkdirSync(framesDir, { recursive: true });
 
 const jobTmp = join(opts.out, ".serve-tmp");
 mkdirSync(jobTmp, { recursive: true });
-execFileSync("pnpm", ["exec", "esbuild", join(here, "page.mjs"), "--bundle", "--format=esm",
+const esbuildBin = join(repo, "node_modules/.pnpm/esbuild@0.27.7/node_modules/esbuild/bin/esbuild");
+execFileSync(esbuildBin, [join(here, "page.mjs"), "--bundle", "--format=esm",
   `--outfile=${join(jobTmp, "capture-page.js")}`, "--platform=browser"], { cwd: repo, stdio: "inherit" });
 writeFileSync(join(jobTmp, "index.html"),
   `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#18211d}</style></head><body><script type="module" src="/capture-page.js"></script></body></html>`);
