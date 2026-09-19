@@ -1730,7 +1730,8 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
 # polygonal cells (the residual mosaic); F1 with Randomness 0.85 gives organic
 # cells. Constants honour DERMAL_* env overrides so bake variants need no edit.
 DERMAL_CELL_TEXELS = float(os.environ.get("DERMAL_CELL_TEXELS", "6.0"))
-DERMAL_BUMP_STRENGTH = float(os.environ.get("DERMAL_BUMP_STRENGTH", "1.0"))
+# CEO grade 2026-09-19 native collar bump 1.0 cobblestone vs 0.4 smooth; mosaic already gone at both.
+DERMAL_BUMP_STRENGTH = float(os.environ.get("DERMAL_BUMP_STRENGTH", "0.4"))
 DERMAL_VORONOI_FEATURE = os.environ.get("DERMAL_VORONOI_FEATURE", "F1")
 DERMAL_VORONOI_RANDOMNESS = float(os.environ.get("DERMAL_VORONOI_RANDOMNESS", "0.85"))
 DERMAL_RAMP_VALLEY = 0.0
