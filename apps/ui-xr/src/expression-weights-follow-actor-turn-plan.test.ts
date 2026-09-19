@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { ActorTurnExecution, ActorTurnPlan } from "@openclinxr/shared-schemas";
 import {
+  attachBakedCuesToSpeech,
   LIVE_ACTOR_TURN_CONSUMPTION_SEAM,
   consumeLiveActorTurn,
   emotionForDialogueText,
@@ -261,4 +262,32 @@ describe("expression weights follow actor turn plan", () => {
   // Station block now registerLiveActorTurn(plan, execution, tag) from
   // liveActorTurnFromPayload(actorResponse). Caption still falls back to
   // actorResponseTextFromApiResult.
+
+  /**
+   * Station voice drives mouth from synthesize audioEvents: main.ts block after
+   * synthesizeActorSpeech reads voiceRecord audioEvents (same voiceResult that
+   * joins actorTurnExecution) into slot.activeSpeech; execution gains no
+   * visemeTimeline/audioUri. Mock "neutral-pain" is not a real cue.
+   * Diagnosis (7)(11)(12) headers IMMUTABLE. Added as it (green in same change).
+   */
+  it("(13) station block drives slot.activeSpeech from synthesize audioEvents, ignoring mock cue", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const synthStart = mainSource.indexOf("synthesizeActorSpeech");
+    const stationBlock = mainSource.slice(synthStart, synthStart + 1500);
+    expect(stationBlock).toContain("audioEvents");
+    expect(stationBlock).toContain("activeSpeech");
+    expect(stationBlock).not.toContain("visemeTimeline");
+    expect(stationBlock).not.toContain("audioUri");
+    const slot = { activeSpeech: { text: "line" }, root: { userData: {}, traverse() {} } };
+    expect(attachBakedCuesToSpeech(slot, "line", "peds_asthma_parent_anxiety_v1", [{ visemeCue: "AA", durationMs: 200 }])).toBe(true);
+    expect((slot.activeSpeech as Record<string, unknown>)["bakedCues"]).toEqual([
+      { phoneme: "AA", atSecond: 0, durationSeconds: 0.2 },
+    ]);
+    const mockSlot = { activeSpeech: { text: "line" }, root: { userData: {}, traverse() {} } };
+    expect(attachBakedCuesToSpeech(mockSlot, "line", "peds_asthma_parent_anxiety_v1", [{ visemeCue: "neutral-pain", durationMs: 1100 }])).toBe(false);
+    expect("bakedCues" in (mockSlot.activeSpeech as Record<string, unknown>)).toBe(false);
+    const exec = sampleExecution() as Record<string, unknown>;
+    expect("visemeTimeline" in exec).toBe(false);
+    expect("audioUri" in exec).toBe(false);
+  });
 });

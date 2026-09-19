@@ -182,12 +182,18 @@ export type BakedSpeechSlotLike = {
  * spoken line and attach it to the active speech so the wire drives the bake's real timing. A
  * line with no baked file resolves to null and the text-derived timeline stays. The marker on
  * the root is the runtime's own evidence that the join ran (the evidence harness waits on it).
+ * When audioEvents are passed (station synthesize path), real synthesize cues attach
+ * synchronously first (true); otherwise the served-bake load proceeds (false).
  */
 export function attachBakedCuesToSpeech(
   slot: BakedSpeechSlotLike,
   text: string,
   scenarioId: string,
-): void {
+  // Station synthesize path: real audioEvents attach synchronously (true);
+  // otherwise the served-bake load proceeds (false). Module-local fold — not public surface.
+  audioEvents?: unknown,
+): boolean {
+  if (audioEvents !== undefined && attachSynthesizeAudioEventsToSpeech(slot, audioEvents)) return true;
   const requested = slot.activeSpeech;
   void loadBakedMouthCuesForUtterance(scenarioId, text).then((loaded) => {
     if (!loaded) return;
@@ -207,4 +213,86 @@ export function attachBakedCuesToSpeech(
       attachedAtMs: performance.now(),
     };
   });
+  return false;
+}
+
+/**
+ * Real synthesize viseme tokens the mouth wire resolves (README map values +
+ * dialogue ARKit passthroughs). The mock "neutral-pain" fixture cue is absent
+ * by design — it must never drive the mouth.
+ */
+const REAL_SYNTHESIZE_VISEME_TOKENS: ReadonlySet<string> = new Set([
+  "AA",
+  "E",
+  "IH",
+  "OH",
+  "OU",
+  "FV",
+  "L",
+  "TH",
+  "PP",
+  "SS",
+  "sil",
+  "silence",
+]);
+
+const MOCK_SYNTHESIZE_VISEME_CUE = "neutral-pain";
+
+/**
+ * synthesizeActorSpeech audioEvents → driver cues with the events' own timing.
+ * Starts stack cumulatively (the voice result carries per-chunk duration only).
+ * Returns null when no real cue survives (mock cue, unknown token, bad duration).
+ * Never touches ActorTurnExecution — DVA-6 schema stays gap-reported.
+ */
+function mouthCuesFromSynthesizeAudioEvents(events: unknown): PhonemeCue[] | null {
+  if (!Array.isArray(events) || events.length === 0) return null;
+  const cues: PhonemeCue[] = [];
+  let atSecond = 0;
+  for (const event of events) {
+    if (event === null || typeof event !== "object") continue;
+    const record = event as Record<string, unknown>;
+    const cue = typeof record["visemeCue"] === "string" ? (record["visemeCue"] as string) : "";
+    if (cue.length === 0 || cue === MOCK_SYNTHESIZE_VISEME_CUE) continue;
+    if (!REAL_SYNTHESIZE_VISEME_TOKENS.has(cue)) continue;
+    const durationMs = Number(record["durationMs"]);
+    if (!Number.isFinite(durationMs) || durationMs <= 0) continue;
+    const durationSeconds = Number((durationMs / 1000).toFixed(4));
+    cues.push({ phoneme: cue, atSecond: Number(atSecond.toFixed(4)), durationSeconds });
+    atSecond += durationSeconds;
+  }
+  return cues.length > 0 ? cues : null;
+}
+
+/**
+ * Attach synthesize audioEvents to a live slot's activeSpeech as bakedCues so
+ * the existing wire drives the mouth from real cue timing. No-op (false) when
+ * the slot has no activeSpeech or no real cue survives. Writes only the speech
+ * slot + a root marker — never visemeTimeline / audioUri on the execution.
+ */
+function attachSynthesizeAudioEventsToSpeech(slot: unknown, events: unknown): boolean {
+  const cues = mouthCuesFromSynthesizeAudioEvents(events);
+  if (!cues) return false;
+  if (slot === null || typeof slot !== "object") return false;
+  const slotRecord = slot as Record<string, unknown>;
+  const active = slotRecord["activeSpeech"];
+  if (active === null || typeof active !== "object") return false;
+  const speech = active as Record<string, unknown>;
+  speech["bakedCues"] = cues;
+  const totalMs = cues.reduce(
+    (sum, cue) => sum + (typeof cue.durationSeconds === "number" ? cue.durationSeconds : 0),
+    0,
+  ) * 1000;
+  speech["durationMs"] = Math.max(1, Math.round(totalMs));
+  const root = slotRecord["root"];
+  if (root !== null && typeof root === "object") {
+    const rootRecord = root as Record<string, unknown>;
+    const userData = rootRecord["userData"];
+    if (userData !== null && typeof userData === "object") {
+      (userData as Record<string, unknown>)["openClinXrSynthesizeVisemeTimeline"] = {
+        cueCount: cues.length,
+        durationMs: speech["durationMs"],
+      };
+    }
+  }
+  return true;
 }
