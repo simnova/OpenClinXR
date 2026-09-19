@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "openclinxr.tongue-forward-aa.v1",
+  "parentGlb": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+  "meshName": "openclinxr_hm08_tongue_mpfb_robert_reference_mesh",
+  "vertexCount": 240,
+  "deltaZ": 0.004,
+  "beforeMaxZ": 0.13434343039989471,
+  "afterMaxZ": 0.13834343039989472,
+  "controlGlb": ".openclinxr/evidence/tongue-forward-aa/mpfb-gown-adult-patient-control.glb",
+  "treatmentGlb": ".openclinxr/evidence/tongue-forward-aa/mpfb-gown-adult-patient-treatment.glb",
+  "controlPngs": {
+    "front_lit": ".openclinxr/evidence/tongue-forward-aa/control_front_lit.png",
+    "front_structure": ".openclinxr/evidence/tongue-forward-aa/control_front_structure.png",
+    "three_quarter_lit": ".openclinxr/evidence/tongue-forward-aa/control_three_quarter_lit.png",
+    "three_quarter_structure": ".openclinxr/evidence/tongue-forward-aa/control_three_quarter_structure.png"
+  },
+  "treatmentPngs": {
+    "front_lit": ".openclinxr/evidence/tongue-forward-aa/treatment_front_lit.png",
+    "front_structure": ".openclinxr/evidence/tongue-forward-aa/treatment_front_structure.png",
+    "three_quarter_lit": ".openclinxr/evidence/tongue-forward-aa/treatment_three_quarter_lit.png",
+    "three_quarter_structure": ".openclinxr/evidence/tongue-forward-aa/treatment_three_quarter_structure.png"
+  },
+  "claimScope": "tongue_forward_aa_isolated_glb",
+  "notEvidenceFor": [
+    "cavity win",
+    "clinician",
+    "Quest"
+  ]
+}
