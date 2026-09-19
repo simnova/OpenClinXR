@@ -11,7 +11,7 @@ import type { Group, Object3D } from "three";
  */
 
 // Calibrated to the viseme_aa crop; parent will re-grade.
-const JAW_OPEN_RAD = -0.28;
+const JAW_OPEN_RAD = -0.12;
 
 const REST_KEY = "openClinXrJawRest";
 

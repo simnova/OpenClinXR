@@ -85,7 +85,7 @@ describe("jaw viseme drive", () => {
     const ctx = context([slot]);
     const camera = new PerspectiveCamera();
     updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
-    expect(jawOf(slot).rotation.x).toBeLessThan(-0.05);
+    expect(jawOf(slot).rotation.x).toBeLessThan(-0.02);
   });
 
   it("COUNTERWEIGHT: a rest viseme restores the jaw to rest", () => {
@@ -93,7 +93,7 @@ describe("jaw viseme drive", () => {
     const ctx = context([slot]);
     const camera = new PerspectiveCamera();
     updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
-    expect(jawOf(slot).rotation.x).toBeLessThan(-0.05);
+    expect(jawOf(slot).rotation.x).toBeLessThan(-0.02);
     if (slot.activeSpeech) slot.activeSpeech.visemeSequence = ["rest"];
     updateGeneratedHumanoidAnimations(ctx, 1 / 60, 2000, camera);
     expect(jawOf(slot).rotation.x).toBeCloseTo(0, 5);
