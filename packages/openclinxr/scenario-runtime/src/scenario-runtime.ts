@@ -23,9 +23,7 @@ import {
   routeActorInteraction,
 } from "@openclinxr/session-state";
 import type { ActorTurnPlan, InteractionEmotion, ReviewPacket, TraceEvent } from "@openclinxr/shared-schemas";
-import {
-  collectVoiceStream,
-} from "@openclinxr/voice-gateway";
+import { collectVoiceStream } from "@openclinxr/voice-gateway";
 import { generateActorResponseFromContext } from "./actor-turn-generation.js";
 import { ACTOR_TURN_EXECUTED_EVENT_TYPE, executionFromFrozenPlan } from "./actor-turn-plan.js";
 import {
@@ -73,6 +71,7 @@ import type {
   SynthesizeActorSpeechInput,
   SynthesizeActorSpeechResult,
 } from "./runtime-types.js";
+import { recachedMouthCuesFromAudioEvents } from "./recached-mouth-cues-from-audio-events.js";
 import {
   appendAssembledPhase,
   assembledDomainAtSecond,
@@ -522,7 +521,8 @@ export class ScenarioRuntime {
       payload: { actorTurnExecution },
     });
 
-    return { audioEvents, traceEvents: [...audioTraceEvents, executedEvent], actorTurnExecution };
+    const recachedMouthCues = recachedMouthCuesFromAudioEvents(audioEvents);
+    return { audioEvents, traceEvents: [...audioTraceEvents, executedEvent], actorTurnExecution, recachedMouthCues };
   }
 
   submitNote(stationRunId: string, input: SubmitNoteInput): SubmitNoteResult {

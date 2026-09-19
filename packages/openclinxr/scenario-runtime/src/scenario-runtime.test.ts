@@ -524,6 +524,10 @@ describe("scenario runtime", () => {
         actorId: "patient_robert_hayes_v1",
       }),
     ]);
+    expect(synthesized.recachedMouthCues).toEqual([{ phoneme: "AA", atSecond: 0, durationSeconds: 1.1 }]);
+    expect(synthesized.actorTurnExecution).toBeDefined();
+    expect(synthesized.actorTurnExecution).not.toHaveProperty("visemeTimeline");
+    expect(synthesized.actorTurnExecution).not.toHaveProperty("audioUri");
   });
 
   it("records safe trace evidence when actor response generation fails", async () => {

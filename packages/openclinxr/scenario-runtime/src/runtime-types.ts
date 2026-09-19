@@ -119,10 +119,17 @@ export type SynthesizeActorSpeechInput = {
   atSecond: number;
 };
 
+export type RecachedMouthCue = {
+  phoneme: string;
+  atSecond: number;
+  durationSeconds: number;
+};
+
 export type SynthesizeActorSpeechResult = {
   audioEvents: AudioEvent[];
   traceEvents: TraceEvent[];
   actorTurnExecution?: ActorTurnExecution;
+  recachedMouthCues: RecachedMouthCue[];
 };
 
 export type StartEncounterInput = {
