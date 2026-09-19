@@ -151,6 +151,13 @@ function pickPython(): string {
 }
 
 describe("the throat-atlas inpaint replaces the T band", () => {
+  /**
+   * ## FIXED (inpaint-skip-nohole): hole_n=0 skips ALL skin replace.
+   * Factory hide-mask bake leaves bboxHoleTexels=0 while pores with
+   * max-channel delta>=8 vs the ring were still flattened (2136 chest
+   * texels). Class-C skin T is owned by the orphan-mask skip, not inpaint,
+   * so this case now asserts texelsChanged=0 and byte-identical PNG.
+   */
   it("throat-island-inpaint", () => {
     const island = uvRect(0.157, 0.412, 0.604, 0.468);
     const face = uvRect(0.65, 0.0, 1.0, 1.0);
@@ -205,14 +212,18 @@ describe("the throat-atlas inpaint replaces the T band", () => {
       medianBefore: [number, number, number];
       medianAfter: [number, number, number];
       neighborMedian: [number, number, number];
+      bboxHoleTexels: number;
     };
-    expect(census.texelsChanged, "census changed texels").toBeGreaterThan(0);
+    expect(census.bboxHoleTexels, "no-hole fixture has no hole").toBe(0);
+    expect(census.texelsChanged, "no-hole skips all skin replace").toBe(0);
     expect(census.neighborMedian, "census neighbor median is skin").toEqual([165, 152, 137]);
+
+    const inputBytes = readFileSync(input);
+    expect(Buffer.from(readFileSync(output)).equals(Buffer.from(inputBytes)), "PNG byte-identical").toBe(true);
 
     const afterPx = decodeRgb(new Uint8Array(readFileSync(output)));
     const after = medianOf(afterPx, island);
-    expect(dist(after, NEIGHBOR), "T band moved to the neighbor median").toBeLessThan(dist(before, NEIGHBOR));
-    expect(dist(after, NEIGHBOR), "island median equals neighbor skin").toBeLessThanOrEqual(2);
+    expect(after, "no-hole leaves the skin band untouched").toEqual(before);
 
     const faceBefore = medianOf(px, face);
     const faceAfter = medianOf(afterPx, face);

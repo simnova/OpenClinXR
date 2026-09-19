@@ -53,9 +53,8 @@ DEFAULT_PROTECT = ((0.65, 0.0, 1.0, 1.0),)  # (u0, v0, u1, v1)
 # Texels darker than this are atlas background, never skin, never ring.
 SKIN_MIN_MAXC = 16
 
-# Min per-texel max-channel delta vs the ring median for a bbox SKIN texel
-# to be replaced. Factory census (/tmp/openclinxr-f1-bump04-nurse1):
-# uniform chest deltas 2,2,1 (skip) vs lighter-T fixture 9,8,8 (replace).
+# No-hole skips ALL skin replace: flattened 2136 chest pores (delta>=8 vs
+# ring) on factory bakes with bboxHoleTexels=0. Kept for reference only.
 SKIN_REPLACE_MIN_DELTA = 8
 
 # Pillow >= 10 moved resampling flags under Image.Resampling.
@@ -116,15 +115,14 @@ def _edge_connected_black(black):
 def inpaint_throat_island(png_path, uv_bbox=DEFAULT_UV_BBOX, out_path=None,
                           ring_width=6, max_ring_dist=40, protect=DEFAULT_PROTECT,
                           source_diffuse=None):
-    """Replace bbox skin texels plus the interior black HOLE with the ring skin median.
+    """Fill the interior black HOLE in the bbox with the ring skin median.
 
     Black texels in the bbox are classified by atlas-level edge connectivity:
     GUTTER black (flood-filled from the image borders through black texels)
     is atlas background and stays byte-stable; HOLE black (not
     edge-connected, i.e. an interior unbaked void such as the collar T) is
-    filled with the neighbor skin median. Bbox SKIN texels are replaced only
-    when they differ from the ring median by SKIN_REPLACE_MIN_DELTA (covers
-    lighter-T fixtures; skips uniform factory chest). The ring likewise uses
+    filled with the neighbor skin median. When hole_n == 0 no SKIN texel is
+    touched (byte-identical copy). The ring likewise uses
     skin texels only and raises ValueError when no skin ring exists or the
     ring median is near-black (fail closed -- never write [0,0,0] as fill).
 
@@ -186,15 +184,12 @@ def inpaint_throat_island(png_path, uv_bbox=DEFAULT_UV_BBOX, out_path=None,
     gutter_full = _edge_connected_black(black_full)
     hole_mask = black_full[r_top:r_bot + 1, c0:c1 + 1] & ~gutter_full[r_top:r_bot + 1, c0:c1 + 1]
     hole_n = int(hole_mask.sum())
-    skin_delta = np.abs(island.astype(np.int16) - fill.astype(np.int16)).max(axis=2)
-    fill_mask = hole_mask | (skin_mask & (skin_delta >= SKIN_REPLACE_MIN_DELTA))
-    black_kept = int((~fill_mask).sum())
-    if int(fill_mask.sum()) == 0:
-        # Uniform skin == ring: nothing to do. Byte-identical copy, no re-encode.
+    if hole_n == 0:
+        # No hole: do NOT touch any SKIN texel (pores stay). Byte-identical.
         dest = out_path or png_path
         if out_path is not None and os.path.abspath(out_path) != os.path.abspath(png_path):
             shutil.copyfile(png_path, dest)
-        print("THROAT_INPAINT_SKIP uniform-skin", file=sys.stderr)
+        print("THROAT_INPAINT_SKIP no-hole", file=sys.stderr)
         return {
             "texelsChanged": 0,
             "medianBefore": median_before,
@@ -204,10 +199,12 @@ def inpaint_throat_island(png_path, uv_bbox=DEFAULT_UV_BBOX, out_path=None,
             "ringTrimKept": int(trimmed.shape[0]),
             "bboxSkinTexels": int(skin_mask.sum()),
             "bboxHoleTexels": hole_n,
-            "bboxBlackKept": black_kept,
+            "bboxBlackKept": int((~hole_mask).sum()),
             "outPath": os.path.abspath(dest),
             "uvConvention": "opengl-bottom-left",
         }
+    fill_mask = hole_mask
+    black_kept = int((~fill_mask).sum())
     if source_diffuse is not None:
         src = Image.open(source_diffuse)
         if src.mode not in ("RGB", "RGBA"):
