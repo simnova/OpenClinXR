@@ -8,6 +8,7 @@ import {
   MOUTH_OPEN_CAP,
 } from "@openclinxr/xr-dialogue";
 import type { SpeechSlotLike } from "@openclinxr/xr-dialogue";
+import { applyJawVisemeToRoot } from "./jaw-viseme-drive.js";
 import type {
   GeneratedHumanoidAnimationSlot,
   HumanoidEmotionExpressionState,
@@ -454,6 +455,7 @@ export function applyHumanoidFaceRigControls(
   offsetHumanoidRigControl(upperLip, 0, openness * 0.006, openness * 0.004);
   offsetHumanoidRigControl(lowerLip, 0, -openness * 0.024, openness * 0.01);
   applyMorphTargetCue(slot, openness, viseme, expressionWeights);
+  applyJawVisemeToRoot(slot.root, openness);
 
   const gazeOrigin = new Vector3(0, 1.57, 0.29);
   const targetWorld = resolveGazeTargetWorld(speech, camera);
