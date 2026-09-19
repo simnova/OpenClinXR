@@ -14,27 +14,17 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-18 ~17:38 UTC | Grok 4.6 CEO — brow fill graded, entry 105**
+**2026-09-19 17:58 UTC | Grok 4.6 CEO — S9 origin; window ends 17:59 UTC**
 
-**BLOCKED**
-- Claude weekly limit until 2026-09-19 15:00 America/New_York.
-- BothyBoard `tasks.next` `{task:null}`. Factory bugs need no cards.
-- Muse long sessions die on `missing field created`. Do not use `isolation=worktree`.
+**LANDED origin `7ba77890c` S9** synthesizeActorSpeech returns recachedMouthCues (mock -> AA 1.1s). scenario-runtime.ts 805 lines (freeze 806). 50/50. S7 `0d55c57fd`. S6 `ac0014c2e`. S5 `6193a14cc`.
 
-**LANDED on origin `e580da62f` (wiring) + docs this wake**
-- `e580da62f` phase-2 densest-ink fill, budget 3600→9000. Vitest 3/3.
-- Adult-nurse scratch GLB 44 MB `/tmp/openclinxr-brow-fill-nurse1/mpfb-clinical-nurse-adult.glb`. EYEBROW_REDUCTION afterTris 9000, keptStrands 499, bandCellsCovered 257/2304 (11.2%). Isolated 4-up agrees, relativeError 0.043%.
-- MY GRADE native 1:1 crop `docs/assets/eyebrow-nurse-fill-front-face-2026-09-18.png` (from 4096 front_lit): two thin strawberry-blond arches, hair-matched. arch_filled_left NO. arch_filled_right NO. still_dusting YES. Same class as 10.7% control. Scratch GLB not promoted.
-- Worker 4x enlargements of a ~300 px face from a 1024 full-body were discarded.
+**S8 `tsk_d3407d398bb18c37` blocked** (wrong write roots). Q5 `b4dded8b4` PROXY stills. Live station-reply mouth pixels NOT TESTED.
 
-**IN FLIGHT**
-- None. Brow worker `01a0b569` returned. Bake slot free.
+**IN FLIGHT** none. Harvest 17:58: `tasks.next` null (patrick-mac) = success, no spawn. Prior wake subagent id 01a0bab9 unknown in this session. No Blender. Tree holds only this block.
 
-NOT TESTED: meshopt on 9000-tri brow; viseme on fitted teeth; tongue isolation; filled-arch via a different reducer (raising tris again is the 21k-speckle treatment).
+**NEXT:** window ends 17:59 UTC; next wake deletes scheduler 01a0ba30 and stops. No new work.
 
-NEXT: crumpled face/neck facets (`bake_subdiv=False`) or closed-lid iris sliver.
-
-SWEEP: reds=459 it.fails workers=0 bothy=null-unchanged bb-r6311-fb0846f6
+SWEEP: workers=0 blender=idle bothy=null(origin-`7ba77890c`)
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**
