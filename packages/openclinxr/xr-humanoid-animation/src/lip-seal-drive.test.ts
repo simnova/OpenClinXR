@@ -91,6 +91,36 @@ describe("lip-seal drive", () => {
     expect(influences[face.morphTargetDictionary!["mouth-compression"]!] ?? 0).toBeGreaterThanOrEqual(0.9);
   });
 
+  it("a PP viseme zeroes mouth-open while sealing", () => {
+    const dict = { "mouth-open": 0, "mouth-compression": 1, viseme_PP: 2 };
+    const { slot, face } = sealingSlot("patient", ["PP"], dict, ["PP"]);
+    face.morphTargetInfluences![0] = 0.233;
+    face.morphTargetInfluences![1] = 0;
+    face.morphTargetInfluences![2] = 1;
+    const ctx = context([slot]);
+    const camera = new PerspectiveCamera();
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
+    const influences = face.morphTargetInfluences ?? [];
+    expect(influences[face.morphTargetDictionary!["mouth-open"]!] ?? 1).toBe(0);
+    expect(influences[face.morphTargetDictionary!["mouth-compression"]!] ?? 0).toBeGreaterThanOrEqual(0.9);
+  });
+
+  it("a PP then aa sequence clears the leftover mouth-compression on the open frame", () => {
+    const dict = { "mouth-compression": 0, viseme_PP: 1, viseme_AA: 0 };
+    const { slot, face } = sealingSlot("patient", ["PP"], dict, ["PP"]);
+    const ctx = context([slot]);
+    const camera = new PerspectiveCamera();
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
+    expect(face.morphTargetInfluences?.[face.morphTargetDictionary!["mouth-compression"]!] ?? 0).toBeGreaterThanOrEqual(0.9);
+    if (slot.activeSpeech) {
+      slot.activeSpeech.visemeSequence = ["aa"];
+      slot.activeSpeech.phonemeSequence = ["AA"];
+    }
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 2000, camera);
+    const influences = face.morphTargetInfluences ?? [];
+    expect(influences[face.morphTargetDictionary!["mouth-compression"]!] ?? 1).toBe(0);
+  });
+
   it("COUNTERWEIGHT: an open viseme leaves mouth-compression at rest", () => {
     const { slot, face } = sealingSlot("patient", ["open"]);
     const ctx = context([slot]);
