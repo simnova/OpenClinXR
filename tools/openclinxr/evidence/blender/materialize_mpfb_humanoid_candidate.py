@@ -3646,6 +3646,59 @@ def main():
         f"rgb={[round(x, 3) for x in _skin_rgb]} shader=enhanced_skin"
     )
 
+    # Inner mouth (CEO grade 2026-09-19: open aa shows an upper tooth row with a
+    # dark-hole lower cavity). MPFB ships the proven region mask
+    # data/textures/mpfb_inside-mouth.jpg (CC0 via LICENSE.ASSETS.md, recorded
+    # in third-party-asset-licence-ledger.md) with a registered but UNUSED
+    # wrapper (nodewrappermpfbsystemvaluetextureinsidemouth.py:
+    # NodeWrapperMpfbSystemValueTextureInsideMouth, in COMPOSITE_NODE_WRAPPERS).
+    # The v2 skin graph (nodewrapperskin.py) and BodySectionsRouter consume the
+    # sibling Lips/Face masks and never InsideMouth, so nothing samples it.
+    # D1: instantiate the proven wrapper via its own create_instance (the same
+    # AbstractGroupWrapper path the skin graph uses internally) and mix a deep
+    # cavity shade over the router output where the mask is 1. The #343 DIFFUSE
+    # COLOR bake captures material-output surface, so the shade lands in the
+    # albedo PNG at the mouth UVs and ships in glTF baseColorTexture. No new
+    # geometry, no new image asset. F1 / ORPHAN_EXTEND_SKIP_THROAT /
+    # run_teeth_rest_clearance below are untouched.
+    from bl_ext.user_default.mpfb.entities.nodemodel.v2.composites.nodewrappermpfbsystemvaluetextureinsidemouth import (  # noqa: E402
+        NodeWrapperMpfbSystemValueTextureInsideMouth as _InsideMouthWrapper,
+    )
+
+    _skin_nt = _skin_mat.node_tree
+    _is_mouth = _InsideMouthWrapper.create_instance(
+        _skin_nt, name="IsInsideMouth", label="Is Inside Mouth"
+    )
+    _router_link = next(
+        (
+            _l
+            for _l in _skin_nt.links
+            if _l.from_node.name == "BodySectionsRouter"
+            and _l.to_node.bl_idname == "ShaderNodeOutputMaterial"
+        ),
+        None,
+    )
+    if _router_link is None:
+        raise RuntimeError(
+            "inner-mouth wire: BodySectionsRouter->Material Output link missing"
+        )
+    _mouth_out_sock = _router_link.to_socket
+    _mouth_from_sock = _router_link.from_socket
+    _skin_nt.links.remove(_router_link)
+    _cavity_bsdf = _skin_nt.nodes.new("ShaderNodeBsdfPrincipled")
+    _cavity_bsdf.name = "InnerMouthCavity"
+    _cavity_bsdf.label = "Inner Mouth Cavity"
+    _cavity_bsdf.inputs["Base Color"].default_value = (0.23, 0.045, 0.04, 1.0)
+    _cavity_bsdf.inputs["Roughness"].default_value = 0.85
+    _mouth_mix = _skin_nt.nodes.new("ShaderNodeMixShader")
+    _mouth_mix.name = "InnerMouthMix"
+    _mouth_mix.label = "Inner Mouth Mix"
+    _skin_nt.links.new(_mouth_from_sock, _mouth_mix.inputs[1])
+    _skin_nt.links.new(_cavity_bsdf.outputs["BSDF"], _mouth_mix.inputs[2])
+    _skin_nt.links.new(_is_mouth.outputs["Value"], _mouth_mix.inputs["Fac"])
+    _skin_nt.links.new(_mouth_mix.outputs["Shader"], _mouth_out_sock)
+    print("INNER_MOUTH mask=mpfb_inside-mouth.jpg node=IsInsideMouth mix=InnerMouthMix")
+
     # #222: wire the proven bounds-derived scalp/hair material region from the Anny rail
     # (tools/openclinxr/asset-pipeline/anny/automate_blender.py:4201) instead of hand-authoring
     # a UV sphere (D1: "do not have workers hand-author bespoke geometry"). The function is not
