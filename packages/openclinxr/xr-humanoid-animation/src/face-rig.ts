@@ -9,6 +9,7 @@ import {
 } from "@openclinxr/xr-dialogue";
 import type { SpeechSlotLike } from "@openclinxr/xr-dialogue";
 import { applyJawVisemeToRoot } from "./jaw-viseme-drive.js";
+import { applyLipSealForClosedViseme } from "./lip-seal-drive.js";
 import type {
   GeneratedHumanoidAnimationSlot,
   HumanoidEmotionExpressionState,
@@ -420,7 +421,7 @@ export function applyHumanoidMorphTargetCue(
     }
   });
   const named = applyNamedVisemes(slot, performance.now());
-  if (named.activeTargetName) applied += 1;
+  if (named.activeTargetName) applied += 1; applyLipSealForClosedViseme(slot.root, viseme, named.activeTargetName);
   slot.root.userData["openClinXrMorphTargetRuntimeCue"] = {
     currentViseme: named.activeTargetName ?? viseme,
     mouthOpenness: Number(openness.toFixed(3)),
