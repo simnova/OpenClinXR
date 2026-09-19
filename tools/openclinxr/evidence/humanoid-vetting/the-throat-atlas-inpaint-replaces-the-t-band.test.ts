@@ -232,4 +232,151 @@ describe("the throat-atlas inpaint replaces the T band", () => {
     }
     expect(faceBytesChanged, "face island texels changed (must be byte-stable)").toBe(0);
   }, 120_000);
+
+  /**
+   * FOLLOW-ON (subdiv2 atlas, 2026-09-18): the UV numbers in the header above
+   * document the classify record of the OLD shipped GLB (a 459x59 px black
+   * strip on the new atlas -- the wrong target). The real collar T sits at
+   * u=[0.3428,0.4385] v=[0.8027,0.8672]; the helper default is now
+   * (0.33,0.79,0.46,0.88).
+   *
+   * FOLLOW-ON 2: the real T is an INTERIOR BLACK HOLE (unbaked void) inside
+   * the torso skin island, not a darker-skin rectangle. This case models that
+   * polarity: a black T void fully surrounded by skin inside the default
+   * bbox, with black atlas gutter around the island. Runs the helper with NO
+   * --uv-bbox and asserts the hole fills to neighbor skin while the gutter
+   * and the face block stay byte-stable.
+   */
+  it("throat-inpaint-default-bbox-hole-fill", () => {
+    const island = uvRect(0.33, 0.79, 0.46, 0.88);
+    const face = uvRect(0.65, 0.0, 1.0, 1.0);
+    const [c0, rTop, c1, rBot] = island;
+    expect(c1, "default island has width").toBeGreaterThan(c0 + 2);
+    expect(rBot, "default island has height").toBeGreaterThan(rTop + 2);
+    const SKIN: [number, number, number] = [188, 142, 121];
+    const HOLE: [number, number, number] = [0, 0, 0];
+
+    // Fixture: black background; skin island = bbox + 8px margin; BLACK T
+    // hole (top bar + center stem, fully surrounded by skin) inside the
+    // default bbox; face block on right.
+    const px = new Uint8Array(W * H * 3); // all black
+    const paint = (x: number, y: number, c: [number, number, number]): void => {
+      const i = (y * W + x) * 3;
+      px[i] = c[0];
+      px[i + 1] = c[1];
+      px[i + 2] = c[2];
+    };
+    const m = 8;
+    const ic0 = Math.max(0, c0 - m);
+    const ic1 = Math.min(W - 1, c1 + m);
+    const irTop = Math.max(0, rTop - m);
+    const irBot = Math.min(H - 1, rBot + m);
+    for (let y = irTop; y <= irBot; y += 1) {
+      for (let x = ic0; x <= ic1; x += 1) paint(x, y, SKIN);
+    }
+    for (let x = c0; x <= c1; x += 1) {
+      paint(x, rTop, HOLE);
+      paint(x, rTop + 1, HOLE);
+    }
+    const stem = Math.floor((c0 + c1) / 2);
+    for (let y = rTop; y <= rBot; y += 1) {
+      paint(stem, y, HOLE);
+      paint(stem + 1, y, HOLE);
+    }
+    const [fc0, frTop, fc1, frBot] = face;
+    for (let y = frTop; y <= frBot; y += 1) {
+      for (let x = fc0; x <= fc1; x += 1) paint(x, y, FACE);
+    }
+
+    const dir = mkdtempSync(join(tmpdir(), "throat-inpaint-v2-"));
+    const input = join(dir, "atlas.png");
+    const output = join(dir, "atlas-inpainted.png");
+    writeFileSync(input, encodeRgb(px));
+
+    const python = pickPython();
+    const out = execFileSync(python, [HELPER, input, "--out", output], { encoding: "utf8" });
+    const census = JSON.parse(out) as {
+      texelsChanged: number;
+      medianBefore: [number, number, number];
+      medianAfter: [number, number, number];
+      neighborMedian: [number, number, number];
+      bboxHoleTexels: number;
+      bboxBlackKept: number;
+    };
+    expect(census.texelsChanged, "census changed texels").toBeGreaterThan(0);
+    expect(census.bboxHoleTexels, "census filled hole texels").toBeGreaterThan(0);
+    expect(census.neighborMedian, "census neighbor median is skin, not black").toEqual([188, 142, 121]);
+
+    const afterPx = decodeRgb(new Uint8Array(readFileSync(output)));
+    const after = medianOf(afterPx, island);
+    expect(dist(after, SKIN), "hole T filled to neighbor skin").toBeLessThanOrEqual(2);
+
+    // No black texels remain inside the bbox rect (hole filled, skin kept).
+    let blackLeft = 0;
+    for (let y = rTop; y <= rBot; y += 1) {
+      for (let x = c0; x <= c1; x += 1) {
+        const i = (y * W + x) * 3;
+        if (Math.max(afterPx[i]!, afterPx[i + 1]!, afterPx[i + 2]!) < 16) blackLeft += 1;
+      }
+    }
+    expect(blackLeft, "black texels left inside bbox (hole must be filled)").toBe(0);
+
+    // Black background byte-stable: every texel outside the island rect and
+    // the face rect is unchanged.
+    const inFace = (x: number, y: number): boolean => x >= fc0 && x <= fc1 && y >= frTop && y <= frBot;
+    let bgChanged = 0;
+    for (let y = 0; y < H; y += 1) {
+      for (let x = 0; x < W; x += 1) {
+        const inIsland = x >= c0 && x <= c1 && y >= rTop && y <= rBot;
+        if (inIsland || inFace(x, y)) continue;
+        const i = (y * W + x) * 3;
+        if (afterPx[i] !== px[i] || afterPx[i + 1] !== px[i + 1] || afterPx[i + 2] !== px[i + 2]) {
+          bgChanged += 1;
+        }
+      }
+    }
+    expect(bgChanged, "black background texels changed (must stay black)").toBe(0);
+
+    const faceBefore = medianOf(px, face);
+    const faceAfter = medianOf(afterPx, face);
+    expect(faceAfter, "face island rectangle unchanged").toEqual(faceBefore);
+  }, 120_000);
+
+  it("throat-inpaint-skips-uniform-skin-bbox", () => {
+    const island = uvRect(0.33, 0.79, 0.46, 0.88);
+    const face = uvRect(0.65, 0.0, 1.0, 1.0);
+    const [c0, rTop, c1, rBot] = island;
+    const SKIN: [number, number, number] = [188, 144, 123];
+
+    // Fixture: black gutter; skin island (bbox + 8px margin) uniform at the
+    // ring color; face block on the right. No holes, no T band.
+    const px = new Uint8Array(W * H * 3); // all black
+    const paint = (x: number, y: number, c: [number, number, number]): void => {
+      const i = (y * W + x) * 3;
+      px[i] = c[0];
+      px[i + 1] = c[1];
+      px[i + 2] = c[2];
+    };
+    const m = 8;
+    for (let y = Math.max(0, rTop - m); y <= Math.min(H - 1, rBot + m); y += 1) {
+      for (let x = Math.max(0, c0 - m); x <= Math.min(W - 1, c1 + m); x += 1) paint(x, y, SKIN);
+    }
+    const [fc0, frTop, fc1, frBot] = face;
+    for (let y = frTop; y <= frBot; y += 1) {
+      for (let x = fc0; x <= fc1; x += 1) paint(x, y, FACE);
+    }
+
+    const dir = mkdtempSync(join(tmpdir(), "throat-inpaint-skip-"));
+    const input = join(dir, "atlas.png");
+    const output = join(dir, "atlas-inpainted.png");
+    const inputBytes = encodeRgb(px);
+    writeFileSync(input, inputBytes);
+
+    const python = pickPython();
+    const out = execFileSync(python, [HELPER, input, "--out", output], { encoding: "utf8" });
+    const census = JSON.parse(out) as { texelsChanged: number; bboxHoleTexels: number };
+    expect(census.bboxHoleTexels, "no holes in uniform skin").toBe(0);
+    expect(census.texelsChanged, "uniform chest not flattened").toBe(0);
+    expect(Buffer.from(readFileSync(output)).equals(Buffer.from(inputBytes)), "PNG byte-identical").toBe(true);
+  }, 120_000);
 });

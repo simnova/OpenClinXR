@@ -3,7 +3,12 @@
  * cheekTension-driven mouth-corner is invisible: reassured 0.18 vs neutral 0.08
  * (delta 0.10) and would make pain (0.72) smile hardest. Per-emotion AU12 row
  * must drive mouth-corner-puller at ≥0.4 for reassured and 0 for pain/anxious.
- * Diagnosis and measured tables IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ * Diagnosis and measured tables in the planted header are IMMUTABLE. Flip the assertion and append a
+ * ## FIXED (#N) block below. Do not rewrite the original paths or numbers.
+ *
+ * ## FIXED (R1 tsk_d44a670c41f10d7e)
+ * face-rig.ts drives FACS "mouth-corner-puller" at 0.5 gated on the reassured
+ * weights row (tolerance 0.01); pain/anxious/neutral/concerned leave it at 0.
  */
 import { BoxGeometry, Group, Line, Mesh, MeshBasicMaterial } from "three";
 import { describe, expect, it } from "vitest";
@@ -80,7 +85,7 @@ function fakeSlot(dict: Record<string, number>, influences: number[]): Generated
 }
 
 describe("reassured drives mouth-corner-puller", () => {
-  it.fails("reassured drives mouth-corner-puller at grade-visible weight", () => {
+  it("reassured drives mouth-corner-puller at grade-visible weight", () => {
     const dict = Object.fromEntries(PROMOTED_LIB_NAMES.map((name, index) => [name, index]));
     const influences = new Array(PROMOTED_LIB_NAMES.length).fill(0);
     const slot = fakeSlot(dict, influences);
@@ -95,4 +100,20 @@ describe("reassured drives mouth-corner-puller", () => {
     expect(cue.drivenTargetNames).toContain("mouth-corner-puller");
     expect(influences[dict["mouth-corner-puller"]!]).toBeGreaterThanOrEqual(0.4);
   });
+
+  for (const emotion of ["pain", "anxious", "neutral", "concerned"] as const) {
+    it(`${emotion} leaves mouth-corner-puller at zero`, () => {
+      const dict = Object.fromEntries(PROMOTED_LIB_NAMES.map((name, index) => [name, index]));
+      const influences = new Array(PROMOTED_LIB_NAMES.length).fill(0);
+      const slot = fakeSlot(dict, influences);
+      applyHumanoidMorphTargetCue(
+        slot,
+        0,
+        "rest",
+        expressionWeightsForEmotion(emotion),
+        () => ({ activeTargetName: null }),
+      );
+      expect(influences[dict["mouth-corner-puller"]!]).toBe(0);
+    });
+  }
 });

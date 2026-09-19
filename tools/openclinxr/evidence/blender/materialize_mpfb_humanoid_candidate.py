@@ -1,6 +1,7 @@
 import argparse
 import json
 import math
+import os
 import pathlib
 import re
 import struct
@@ -1638,22 +1639,38 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
     # in the UV-overlapped bake). The scalp polys are temporarily reassigned to the
     # skin material for the bake and restored afterwards — the region still needs
     # to exist as a material assignment for export (#359).
+    # ## FOLLOW-ON (T-hole) 2026-09-18 — the COLOR bake writes (0,0,0) for
+    # hide-mask polys (their alpha-0 cover material is skipped, use_clear fills
+    # black): hide-mask faces live on the same body mesh and share basemesh UVs,
+    # so those black texels render as a T-shaped hole. Swap them to skin for the
+    # bake like the scalp, restore in the same finally.
     _scalp_bake_idx = next(
         (i for i, m in enumerate(human.data.materials) if "scalp" in (m.name or "").lower()),
         None,
     )
     _scalp_swapped: list[int] = []
-    if _scalp_bake_idx is not None and _scalp_bake_idx != skin_idx:
-        for _pi, _p in enumerate(human.data.polygons):
-            if _p.material_index == _scalp_bake_idx:
-                _p.material_index = skin_idx
-                _scalp_swapped.append(_pi)
+    _hidden_swapped: dict[int, int] = {}
+    for _pi, _p in enumerate(human.data.polygons):
+        _mi = _p.material_index
+        if _mi == skin_idx:
+            continue
+        if _mi == _scalp_bake_idx and _scalp_bake_idx != skin_idx:
+            _p.material_index = skin_idx
+            _scalp_swapped.append(_pi)
+        elif _mi < len(human.data.materials) and "openclinxr_hidden_" in (human.data.materials[_mi].name or ""):
+            _hidden_swapped[_pi] = _mi
+            _p.material_index = skin_idx
+    if _scalp_swapped:
         print(f"SKIN_BAKE scalp-cover swap {len(_scalp_swapped)} polys to skin for the bake")
+    if _hidden_swapped:
+        print(f"SKIN_BAKE hide-mask swap {len(_hidden_swapped)} polys to skin for the bake")
     try:
         bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=2, use_clear=True)
     finally:
         for _pi in _scalp_swapped:
             human.data.polygons[_pi].material_index = _scalp_bake_idx
+        for _pi, _mi in _hidden_swapped.items():
+            human.data.polygons[_pi].material_index = _mi
         scene.render.engine = prev_engine
         scene.cycles.device = prev_device
 
@@ -1708,8 +1725,15 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
 # to compensate, measured 60.35% texels >6/255, std 12.12, correlation ratio 3.57 — real but partial
 # improvement; the ramp's linear-then-flat SHAPE (not just its stop positions) is still the residual
 # cause of some facet character and is not addressed here.
-DERMAL_CELL_TEXELS = 20.0
-DERMAL_BUMP_STRENGTH = 7.0
+#
+# ## FOLLOW-ON (F1) 2026-09-18 — DISTANCE_TO_EDGE tessellates into straight-edged
+# polygonal cells (the residual mosaic); F1 with Randomness 0.85 gives organic
+# cells. Constants honour DERMAL_* env overrides so bake variants need no edit.
+DERMAL_CELL_TEXELS = float(os.environ.get("DERMAL_CELL_TEXELS", "6.0"))
+# CEO grade 2026-09-19 native collar bump 1.0 cobblestone vs 0.4 smooth; mosaic already gone at both.
+DERMAL_BUMP_STRENGTH = float(os.environ.get("DERMAL_BUMP_STRENGTH", "0.4"))
+DERMAL_VORONOI_FEATURE = os.environ.get("DERMAL_VORONOI_FEATURE", "F1")
+DERMAL_VORONOI_RANDOMNESS = float(os.environ.get("DERMAL_VORONOI_RANDOMNESS", "0.85"))
 DERMAL_RAMP_VALLEY = 0.0
 DERMAL_RAMP_PEAK = 1.0
 
@@ -1785,6 +1809,10 @@ def configure_skin_normal_detail(skin_mat, human, resolution=1024):
                 for link in list(n.inputs["Scale"].links):
                     nt.links.remove(link)
                 n.inputs["Scale"].default_value = scale
+                # FOLLOW-ON (F1): DISTANCE_TO_EDGE is the mosaic source.
+                n.feature = DERMAL_VORONOI_FEATURE
+                if "Randomness" in n.inputs:
+                    n.inputs["Randomness"].default_value = DERMAL_VORONOI_RANDOMNESS
                 voronoi_forced += 1
 
     _force_dermal_scale(skin_mat.node_tree)
@@ -1795,6 +1823,9 @@ def configure_skin_normal_detail(skin_mat, human, resolution=1024):
         "dermalScale": scale,
         "dermalBumpStrength": DERMAL_BUMP_STRENGTH,
         "dermalRamp": [DERMAL_RAMP_VALLEY, DERMAL_RAMP_PEAK],
+        "dermalVoronoiFeature": DERMAL_VORONOI_FEATURE,
+        "dermalVoronoiRandomness": DERMAL_VORONOI_RANDOMNESS,
+        "dermalCellTexels": DERMAL_CELL_TEXELS,
         "dermalInstancesConfigured": dermal_instances,
         "otherBumpInputsLeftAtShipped": other_inputs,
         "voronoiScaleForced": voronoi_forced,
@@ -4319,8 +4350,12 @@ def main():
     # so the fitted mesh is a separate object and the strip does not touch it.
     # Patients/family cargo pants (scale refs < 13380) still fit AFTER the strip.
     _is_clinician = any(
-        token in (args.actor_role or "").lower()
+        token in (args.actor_role or "").lower() or token in (args.reference or "").lower()
         for token in ("nurse", "clinician", "staff", "physician", "doctor")
+    )
+    print(
+        f"CLINICIAN_BRANCH role={args.actor_role} reference={args.reference} "
+        f"clinician={_is_clinician}"
     )
     pants = None
     pants_mhclo = None
@@ -6176,6 +6211,14 @@ def main():
     # garment already covers (the contract's named-ban analysis: "Removing the
     # orphan quads IS allowed — they are skin a garment already covers"), ~0.3%
     # of the skin's triangles, and hiding them is what the mask was for.
+    #
+    # FOLLOW-ON 2026-09-18 (orphan-throat): the throat (~1.46 m / 1.76 m
+    # stature ~= 0.83 H) sits inside the 0.60-0.85 H hem band above, so a
+    # skin island in the collar V opening became MASK in front of skin and
+    # rendered the remaining lit T at x=0 y=1.45-1.46. Throat islands are
+    # NOT hem orphans: skip any orphan-sized component whose centroid
+    # Blender-Z is above 0.78 * stature (the neck band). Hem/waist/boot
+    # orphans below that line are still hidden.
     def _extend_mask_to_orphaned_quads(max_unique_verts=12):
         pos_key = [
             (round(float(v.co.x), 5), round(float(v.co.y), 5), round(float(v.co.z), 5))
@@ -6207,7 +6250,20 @@ def main():
         for pi in skin_polys:
             r = _find(pi)
             comp_pos.setdefault(r, set()).update(pos_key[vi] for vi in human.data.polygons[pi].vertices)
-        orphan_polys = [pi for pi in skin_polys if len(comp_pos[_find(pi)]) <= max_unique_verts]
+        stature_z = max(float(v.co.z) for v in human.data.vertices)
+        neck_z = 0.78 * stature_z
+        throat_roots = {
+            r
+            for r, keys in comp_pos.items()
+            if len(keys) <= max_unique_verts
+            and (sum(k[2] for k in keys) / max(len(keys), 1)) > neck_z
+        }
+        if throat_roots:
+            throat_polys = sum(1 for pi in skin_polys if _find(pi) in throat_roots)
+            print(f"ORPHAN_EXTEND_SKIP_THROAT n={throat_polys} components={len(throat_roots)} neck_z={neck_z:.3f}")
+        orphan_polys = [
+            pi for pi in skin_polys if len(comp_pos[_find(pi)]) <= max_unique_verts and _find(pi) not in throat_roots
+        ]
         if not orphan_polys:
             print(f"ORPHAN_EXTEND none (skin polys {len(skin_polys)})")
             return {"hiddenPolygons": 0, "note": "no orphan components"}
