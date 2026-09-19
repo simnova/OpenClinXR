@@ -1,8 +1,11 @@
 import { readFileSync } from "node:fs";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { planLipSync, runLipSync } from "./run.js";
+import { resolveLipSyncWavPath } from "../../../../../tools/openclinxr/dark-factory/multi-case-runner.js";
 
 /**
  * OBSERVABLE: runLipSync production path shells macOS `say` then afconvert then
@@ -16,6 +19,10 @@ import { planLipSync, runLipSync } from "./run.js";
  *
  * ## FIXED (DVA-4)
  * runLipSync takes wavPath and runs Rhubarb only. macOS TTS is writeLipSyncFixtureWav.
+ *
+ * ## FIXED (S4)
+ * A recorded single *.wav already in outDir resolves as { kind: "provided" }
+ * via readdirSync in resolveLipSyncWavPath; empty outDir still throws.
  *
  * Do not invoke runLipSync here — that would shell say on this machine.
  */
@@ -51,6 +58,15 @@ describe("the lip_sync station rhubarb on wav not say", () => {
     expect(runnerSrc).not.toMatch(/options\.wavPath\s*\?\?\s*\(?\s*await\s+writeLipSyncFixtureWav/);
     expect(runnerSrc).toMatch(/OPENCLINXR_LIP_SYNC_FIXTURE/);
     expect(runnerSrc).toMatch(/resolveLipSyncWavPath/);
+  });
+
+  it("(5) recorded *.wav already in outDir resolves as provided", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "lip-sync-outdir-wav-"));
+    const dummy = join(outDir, "recorded-line.wav");
+    await writeFile(dummy, "RIFF-dummy");
+    delete process.env["OPENCLINXR_LIP_SYNC_FIXTURE"];
+    const resolved = resolveLipSyncWavPath({ utterance: "hello", outDir });
+    expect(resolved).toMatchObject({ kind: "provided", wavPath: dummy });
   });
 
   it("(4) missing wavPath without fixture flag throws", async () => {
