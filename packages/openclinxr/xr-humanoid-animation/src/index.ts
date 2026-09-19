@@ -19,9 +19,6 @@ export {
   updateHumanoidEmotionExpression,
 } from "./face-rig.js";
 export {
-  applyJawVisemeToRoot,
-} from "./jaw-viseme-drive.js";
-export {
   buildHumanoidSpeechEvidence,
   humanoidDialogueDurationMs,
   isGeneratedRuntimeDrive,

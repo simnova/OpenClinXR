@@ -16,7 +16,6 @@
     "MouthGazePoseComparatorEvidenceRecord",
     "RuntimeHumanoidActingCueEvidenceRecord",
     "applyHumanoidMorphTargetCue",
-    "applyJawVisemeToRoot",
     "buildHumanoidSpeechEvidence",
     "createHumanoidEmotionExpressionState",
     "humanoidDialogueDurationMs",
