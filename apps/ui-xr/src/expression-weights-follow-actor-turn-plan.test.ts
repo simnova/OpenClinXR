@@ -284,8 +284,13 @@ describe("expression weights follow actor turn plan", () => {
       { phoneme: "AA", atSecond: 0, durationSeconds: 0.2 },
     ]);
     const mockSlot = { activeSpeech: { text: "line" }, root: { userData: {}, traverse() {} } };
-    expect(attachBakedCuesToSpeech(mockSlot, "line", "peds_asthma_parent_anxiety_v1", [{ visemeCue: "neutral-pain", durationMs: 1100 }])).toBe(false);
-    expect("bakedCues" in (mockSlot.activeSpeech as Record<string, unknown>)).toBe(false);
+    expect(attachBakedCuesToSpeech(mockSlot, "line", "peds_asthma_parent_anxiety_v1", [{ visemeCue: "neutral-pain", durationMs: 1100 }])).toBe(true);
+    expect((mockSlot.activeSpeech as Record<string, unknown>)["bakedCues"]).toEqual([
+      { phoneme: "AA", atSecond: 0, durationSeconds: 1.1 },
+    ]);
+    for (const cue of (mockSlot.activeSpeech as Record<string, unknown>)["bakedCues"] as Array<Record<string, unknown>>) {
+      expect(cue["phoneme"]).not.toBe("neutral-pain");
+    }
     const exec = sampleExecution() as Record<string, unknown>;
     expect("visemeTimeline" in exec).toBe(false);
     expect("audioUri" in exec).toBe(false);
@@ -319,4 +324,31 @@ describe("expression weights follow actor turn plan", () => {
     expect("visemeTimeline" in exec).toBe(false);
     expect("audioUri" in exec).toBe(false);
   });
+
+  /**
+   * S5 mock duration envelope: synthesize audioEvents with mock "neutral-pain"
+   * but a finite durationMs attach a mouth-open envelope from duration;
+   * "neutral-pain" never becomes a phoneme. Execution gains no
+   * visemeTimeline/audioUri (DVA-6 stays gap-reported).
+   * Diagnosis (7)(11)(12)(13)(14) headers IMMUTABLE.
+   */
+  it("(15) mock visemeCue with durationMs attaches an AA mouth-open envelope", () => {
+    const slot = { activeSpeech: { text: "line" }, root: { userData: {}, traverse() {} } };
+    expect(attachBakedCuesToSpeech(slot, "line", "peds_asthma_parent_anxiety_v1", [{ visemeCue: "neutral-pain", durationMs: 1100 }])).toBe(true);
+    expect((slot.activeSpeech as Record<string, unknown>)["bakedCues"]).toEqual([
+      { phoneme: "AA", atSecond: 0, durationSeconds: 1.1 },
+    ]);
+    for (const cue of (slot.activeSpeech as Record<string, unknown>)["bakedCues"] as Array<Record<string, unknown>>) {
+      expect(cue["phoneme"]).not.toBe("neutral-pain");
+    }
+    const exec = sampleExecution() as Record<string, unknown>;
+    expect("visemeTimeline" in exec).toBe(false);
+    expect("audioUri" in exec).toBe(false);
+  });
+
+  // ## FIXED (S5 tsk_e7a367796ea110c1)
+  // mouthCuesFromSynthesizeAudioEvents emits one AA envelope (durationMs/1000)
+  // for mock/empty visemeCue with finite duration; real tokens still win.
+  // Clause (13) mock half flipped to attach=true + AA; phoneme never
+  // "neutral-pain"; execution gains no visemeTimeline/audioUri.
 });

@@ -247,7 +247,9 @@ const MOCK_SYNTHESIZE_VISEME_CUE = "neutral-pain";
 /**
  * synthesizeActorSpeech audioEvents → driver cues with the events' own timing.
  * Starts stack cumulatively (the voice result carries per-chunk duration only).
- * Returns null when no real cue survives (mock cue, unknown token, bad duration).
+ * Returns null when no cue survives (unknown token, bad duration).
+ * Mock/empty cue with finite duration emits one AA mouth-open envelope;
+ * "neutral-pain" never becomes a phoneme.
  * Never touches ActorTurnExecution — DVA-6 schema stays gap-reported.
  */
 function mouthCuesFromSynthesizeAudioEvents(events: unknown): PhonemeCue[] | null {
@@ -258,13 +260,20 @@ function mouthCuesFromSynthesizeAudioEvents(events: unknown): PhonemeCue[] | nul
     if (event === null || typeof event !== "object") continue;
     const record = event as Record<string, unknown>;
     const cue = typeof record["visemeCue"] === "string" ? (record["visemeCue"] as string) : "";
-    if (cue.length === 0 || cue === MOCK_SYNTHESIZE_VISEME_CUE) continue;
-    if (!REAL_SYNTHESIZE_VISEME_TOKENS.has(cue)) continue;
     const durationMs = Number(record["durationMs"]);
     if (!Number.isFinite(durationMs) || durationMs <= 0) continue;
     const durationSeconds = Number((durationMs / 1000).toFixed(4));
-    cues.push({ phoneme: cue, atSecond: Number(atSecond.toFixed(4)), durationSeconds });
-    atSecond += durationSeconds;
+    if (REAL_SYNTHESIZE_VISEME_TOKENS.has(cue)) {
+      cues.push({ phoneme: cue, atSecond: Number(atSecond.toFixed(4)), durationSeconds });
+      atSecond += durationSeconds;
+      continue;
+    }
+    if (cue.length === 0 || cue === MOCK_SYNTHESIZE_VISEME_CUE) {
+      cues.push({ phoneme: "AA", atSecond: Number(atSecond.toFixed(4)), durationSeconds });
+      atSecond += durationSeconds;
+      continue;
+    }
+    continue;
   }
   return cues.length > 0 ? cues : null;
 }
