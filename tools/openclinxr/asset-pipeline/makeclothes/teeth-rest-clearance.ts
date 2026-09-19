@@ -75,7 +75,7 @@ async function main(): Promise<void> {
       const p = pr.getAttribute("POSITION")!;
       for (let i = 0; i < p.getCount(); i++) { p.getElement(i, v); if (v[2] > tongueMaxZ) tongueMaxZ = v[2]; }
     }
-    const body = meshes.find((m) => /_body$/.test(m.getName()));
+    const body = meshes.find((m) => /_body(\.\d+)?$/.test(m.getName()));
     if (!body) throw new Error(`no *_body mesh found in ${glb}`);
     const names = (body.getExtras()?.targetNames as string[] | undefined) ?? [];
     const mi = names.indexOf("mouth-open");

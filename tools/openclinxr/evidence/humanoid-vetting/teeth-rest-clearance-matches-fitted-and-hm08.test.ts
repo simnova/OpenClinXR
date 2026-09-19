@@ -44,6 +44,19 @@ describe("teeth-rest-clearance matches fitted and hm08 teeth", () => {
     expect(src, "no silent skip").not.toMatch(/hm08_teeth mesh found/);
   });
 
+  it("(4) the station body matcher tolerates the glTF `.001` duplicate suffix", () => {
+    const src = station();
+    const m = /(\/_body.*?\/[a-z]*)/.exec(src);
+    expect(m, "body matcher declared as a regex literal in the station").not.toBeNull();
+    const matches = (name: string): boolean => {
+      const lit = m![1]!;
+      const re = new RegExp(lit.slice(1, lit.lastIndexOf("/")), lit.slice(lit.lastIndexOf("/") + 1));
+      return re.test(name);
+    };
+    expect(matches("mpfb_ob_patient_aisha_body"), "unsuffixed body").toBe(true);
+    expect(matches("mpfb_ed_chest_pain_nurse_adult_body.001"), "rebake body.001 duplicate").toBe(true);
+  });
+
   it("(3) --dry on the shipped nurse GLB still finds a teeth mesh and writes nothing", () => {
     if (!existsSync(SHIPPED_NURSE)) return;
     const before = readFileSync(SHIPPED_NURSE);
