@@ -2416,7 +2416,7 @@ async function recordRemoteTraceAction(
       const voiceRecord = voiceResult !== null && typeof voiceResult === "object" ? (voiceResult as Record<string, unknown>) : undefined;
       const joined = parsed ? liveActorTurnFromPayload({ actorTurnPlan: parsed.plan, actorTurnExecution: voiceRecord?.["actorTurnExecution"] }) : undefined;
       if (joined?.execution && joined.execution.planId === parsed?.plan.planId && joined.execution.turnId === parsed?.plan.turnId) registerLiveActorTurn(joined.plan, joined.execution, tag);
-      { const slotForSynthesize = generatedHumanoidAnimationSlotsByActorId.get(actorTurn.actorId); if (slotForSynthesize?.activeSpeech) attachBakedCuesToSpeech(slotForSynthesize, text, state.scenarioId, voiceRecord?.["audioEvents"]); }
+      { const slotForSynthesize = generatedHumanoidAnimationSlotsByActorId.get(actorTurn.actorId); if (slotForSynthesize?.activeSpeech) attachBakedCuesToSpeech(slotForSynthesize, text, state.scenarioId, voiceRecord?.["audioEvents"], voiceRecord?.["recachedMouthCues"] as Parameters<typeof attachBakedCuesToSpeech>[4]); }
     }
   } catch {
     // Remote dialogue is useful evidence, but local headset tracing should continue if model or voice providers fail.

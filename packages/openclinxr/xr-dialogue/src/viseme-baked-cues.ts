@@ -184,6 +184,9 @@ export type BakedSpeechSlotLike = {
  * the root is the runtime's own evidence that the join ran (the evidence harness waits on it).
  * When audioEvents are passed (station synthesize path), real synthesize cues attach
  * synchronously first (true); otherwise the served-bake load proceeds (false).
+ * S3: a recached wav-hash cue artifact (offline unary Grok wav → runLipSync, keyed by wav
+ * hash) wins ONLY when mediaPositionSeconds is present (replay/Q4 audio-owned speech);
+ * live first packet keeps S1 amplitude. Never touches DVA-6 execution.
  */
 export function attachBakedCuesToSpeech(
   slot: BakedSpeechSlotLike,
@@ -191,9 +194,12 @@ export function attachBakedCuesToSpeech(
   scenarioId: string,
   // Station synthesize path: real audioEvents attach synchronously (true);
   // otherwise the served-bake load proceeds (false). Module-local fold — not public surface.
+  // S3 recache: a precomputed cue artifact consulted only for audio-owned speech — not public surface.
   audioEvents?: unknown,
+  recachedCues?: readonly PhonemeCue[] | null,
 ): boolean {
   if (audioEvents !== undefined && attachSynthesizeAudioEventsToSpeech(slot, audioEvents)) return true;
+  if (attachRecachedCuesToSpeech(slot, recachedCues)) return true;
   const requested = slot.activeSpeech;
   void loadBakedMouthCuesForUtterance(scenarioId, text).then((loaded) => {
     if (!loaded) return;
@@ -261,6 +267,41 @@ function mouthCuesFromSynthesizeAudioEvents(events: unknown): PhonemeCue[] | nul
     atSecond += durationSeconds;
   }
   return cues.length > 0 ? cues : null;
+}
+
+/**
+ * S3 offline recache: a unary-Grok-wav → runLipSync cue artifact keyed by wav hash.
+ * Attaches ONLY when the slot carries source-media audio (mediaPositionSeconds
+ * present = replay/Q4). Live first packet (no media reader) keeps S1 amplitude —
+ * returns false so the served-bake path below runs its own media guard. Admission:
+ * nonempty cue list, finite non-negative timing. Slot + root marker only.
+ */
+function attachRecachedCuesToSpeech(slot: BakedSpeechSlotLike, recachedCues: readonly PhonemeCue[] | null | undefined): boolean {
+  if (!recachedCues || recachedCues.length === 0) return false;
+  if (typeof slot.mediaPositionSeconds !== "function") return false;
+  const cues: PhonemeCue[] = [];
+  for (const cue of recachedCues) {
+    const atSecond = Number(cue?.atSecond);
+    const durationSeconds = Number(cue?.durationSeconds);
+    if (typeof cue?.phoneme !== "string" || cue.phoneme.length === 0) return false;
+    if (!Number.isFinite(atSecond) || atSecond < 0) return false;
+    if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) return false;
+    cues.push({ phoneme: cue.phoneme, atSecond, durationSeconds });
+  }
+  if (cues.length === 0) return false;
+  const requested = slot.activeSpeech;
+  if (!requested) return false;
+  requested.bakedCues = cues;
+  requested.durationMs = bakedCuesDurationMs(cues);
+  const rootUserData = slot.root.userData ?? {};
+  slot.root.userData = rootUserData;
+  rootUserData.openClinXrRecachedVisemeTimeline = {
+    cueCount: cues.length,
+    durationMs: requested.durationMs,
+    speechStartedAtMs: requested.startedAtMs,
+    attachedAtMs: performance.now(),
+  };
+  return true;
 }
 
 /**

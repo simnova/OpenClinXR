@@ -290,4 +290,33 @@ describe("expression weights follow actor turn plan", () => {
     expect("visemeTimeline" in exec).toBe(false);
     expect("audioUri" in exec).toBe(false);
   });
+
+  /**
+   * S3 offline recache: generated spokenText with no served hash still moves mouth
+   * via S1 amplitude (live first packet); the recache artifact attaches only when
+   * mediaPositionSeconds is present (replay/Q4). Execution gains no viseme/audio.
+   * Diagnosis (7)(11)(12) headers IMMUTABLE. Added as it (green in same change).
+   */
+  it("(14) generated line moves mouth live via S1 amplitude; recache attaches only for audio-owned replay", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const synthStart = mainSource.indexOf("synthesizeActorSpeech");
+    const stationBlock = mainSource.slice(synthStart, synthStart + 1500);
+    expect(stationBlock).toContain("recachedMouthCues");
+    expect(stationBlock).not.toContain("visemeTimeline");
+    expect(stationBlock).not.toContain("audioUri");
+    const generated = "A generated reply no bake ever hashed.";
+    const liveSlot = { activeSpeech: { text: generated }, root: { userData: {}, traverse() {} } };
+    expect(attachBakedCuesToSpeech(liveSlot, generated, "peds_asthma_parent_anxiety_v1", [{ visemeCue: "AA", durationMs: 200 }])).toBe(true);
+    const recache = [{ phoneme: "AA", atSecond: 0, durationSeconds: 0.2 }];
+    const liveRecacheSlot = { activeSpeech: { text: generated }, root: { userData: {}, traverse() {} } };
+    expect(attachBakedCuesToSpeech(liveRecacheSlot, generated, "peds_asthma_parent_anxiety_v1", undefined, recache)).toBe(false);
+    expect("bakedCues" in (liveRecacheSlot.activeSpeech as Record<string, unknown>)).toBe(false);
+    const replaySlot = { activeSpeech: { text: generated }, root: { userData: {}, traverse() {} }, mediaPositionSeconds: () => 1.5 };
+    expect(attachBakedCuesToSpeech(replaySlot, generated, "peds_asthma_parent_anxiety_v1", undefined, recache)).toBe(true);
+    expect((replaySlot.activeSpeech as Record<string, unknown>)["bakedCues"]).toEqual(recache);
+    expect((replaySlot.root.userData as Record<string, unknown>)["openClinXrRecachedVisemeTimeline"]).toMatchObject({ cueCount: 1 });
+    const exec = sampleExecution() as Record<string, unknown>;
+    expect("visemeTimeline" in exec).toBe(false);
+    expect("audioUri" in exec).toBe(false);
+  });
 });

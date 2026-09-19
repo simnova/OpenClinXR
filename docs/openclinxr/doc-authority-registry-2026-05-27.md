@@ -201,6 +201,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/doc-authority-registry-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/dynamic-session-asset-strategy.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/emotion-factory-tie-in-plan-2026-09-18.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/speaking-sync-factory-tie-in-plan-2026-09-18.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/evidence-index-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/exam-scenario-architecture.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/external-ai-asset-pipeline-integration-plan.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
