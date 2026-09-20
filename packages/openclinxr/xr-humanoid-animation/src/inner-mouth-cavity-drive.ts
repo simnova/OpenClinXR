@@ -30,8 +30,10 @@ const NAMED_JAW_VISIBLE = 0.05;
  * frame 189 (viseme_aa): teeth back-center in head local is (0.016, -0.061, 0.065).
  * Constant (0, 0, 0.045) sat 6 cm above the teeth and inside the skull (0 px vs pink).
  */
-const HEAD_LOCAL = new Vector3(0, -0.061, 0.065);
-const TEETH_BACK_INSET = 0.008;
+const HEAD_LOCAL = new Vector3(0, -0.02, 0.055);
+/** Behind posterior teeth (min.z) and just under the upper row (max.y). Mid-Y sat on the chin. */
+const TEETH_BACK_INSET = -0.008;
+const TEETH_UPPER_DROP = 0.008;
 
 type NamedJawDrive = {
   activeTargetName?: string | null;
@@ -67,7 +69,7 @@ function teethBackInHead(root: Group, head: Object3D): Vector3 | null {
   if (!found || box.isEmpty()) return null;
   const world = new Vector3(
     (box.min.x + box.max.x) / 2,
-    (box.min.y + box.max.y) / 2,
+    box.max.y - TEETH_UPPER_DROP,
     box.min.z + TEETH_BACK_INSET,
   );
   return head.worldToLocal(world);
