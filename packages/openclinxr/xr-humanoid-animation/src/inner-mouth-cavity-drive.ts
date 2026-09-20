@@ -1,5 +1,5 @@
-import { BoxGeometry, Mesh, MeshBasicMaterial, Object3D, Vector3 } from "three";
-import type { Group } from "three";
+import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from "three";
+import type { Group, Object3D } from "three";
 
 /**
  * Unlit cavity card behind the teeth, parented to `head`.
