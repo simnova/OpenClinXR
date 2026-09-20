@@ -45,6 +45,14 @@ const STAMP_BY_SUBSTRING: Array<{ match: RegExp; stamp: Stamp }> = [
       garmentClass: "shell",
     },
   },
+  {
+    match: /lab_coat/i,
+    stamp: {
+      sourceMhclo: "crudelabcoatopen.mhclo",
+      licence: "CC0",
+      garmentClass: "labcoat",
+    },
+  },
 ];
 
 function stampFor(name: string): Stamp | null {

@@ -106,7 +106,7 @@ describe("the patient gown is a gown-class asset", () => {
     expect(rows.some((r) => r.prov.garmentClass), "no garment records a class at all").toBe(true);
   });
 
-  it.fails("(4) KNOWN-GOOD COLUMN: the physician's lab coat records crudelabcoatopen and CC0", async () => {
+  it("(4) KNOWN-GOOD COLUMN: the physician's lab coat records crudelabcoatopen and CC0", async () => {
     // The physician bake ALREADY fits this asset successfully — it is the proof the stand-in works
     // on this rail. Planted RED only because provenance does not exist yet; it must go green for
     // the right reason (the stamp), not because the assertion was loosened.
@@ -117,3 +117,10 @@ describe("the patient gown is a gown-class asset", () => {
     expect((coat!.prov.licence ?? "").toUpperCase(), "the lab coat is CC0 and must record it").toContain("CC0");
   });
 });
+
+/*
+ * ## FIXED (clause 4)
+ * 2026-09-20: garment-provenance-stamp wrote sourceMhclo=crudelabcoatopen.mhclo
+ * licence=CC0 garmentClass=labcoat onto the physician lab-coat mesh extras.
+ * Clauses (1)–(3) stay RED: the patient upper is still a peds shell / t-shirt.
+ */
