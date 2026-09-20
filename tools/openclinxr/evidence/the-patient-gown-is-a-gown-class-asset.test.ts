@@ -79,7 +79,7 @@ describe("the patient gown is a gown-class asset", () => {
     }
   });
 
-  it.fails("(2) RED: the patient's upper garment derives from a gown- or labcoat-class source", async () => {
+  it("(2) RED: the patient's upper garment derives from a gown- or labcoat-class source", async () => {
     // Refuses the shipped state: peds_upper_v1 relabelled `hospital_gown`.
     const rows = await garmentProvenance(GOWN);
     const upper = rows.filter((r) => /real_garment/i.test(r.mesh));
@@ -122,6 +122,6 @@ describe("the patient gown is a gown-class asset", () => {
  * ## FIXED (clause 4)
  * 2026-09-20: garment-provenance-stamp wrote sourceMhclo=crudelabcoatopen.mhclo
  * licence=CC0 garmentClass=labcoat onto the physician lab-coat mesh extras.
- * Clauses (1) and (3) 2026-09-20: stamp wrote sourceMhclo on t-shirt, shoes, and peds_upper shell.
- * No garment claims gown class while sourced from those. Clause (2) stays RED: the upper is still a shell, not a gown.
+ * Clause (2) 2026-09-20: fitted CC0 crudelabcoatopen as openclinxr_real_garment_labcoat_v1
+ * (clothing_consume fit_stage, then mesh copy). peds_upper shell remains; not relabelled.
  */
