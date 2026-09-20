@@ -140,8 +140,8 @@
     "publicRenderCleared": false,
     "publicRenderBlockedBy": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json \u2014 the hm08 basemesh AGPL/CC0 contradiction is unresolved upstream"
   },
-  "outputSha256": "8da37c5707958d7a4f8f8a89222d76ea6c0d3c2f18eb903d56c7f4d8727befcf",
-  "outputBytes": 18581616,
+  "outputSha256": "68e412b187d751bd0de7b3f27bc28cd56293191de5b9239e2cd9b6837962b078",
+  "outputBytes": 18580640,
   "byteLineage": {
     "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
     "correctedAt": "2026-09-09T20:55:55.570Z",

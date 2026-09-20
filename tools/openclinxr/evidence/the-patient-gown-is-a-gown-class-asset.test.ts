@@ -68,7 +68,7 @@ async function garmentProvenance(glb: string): Promise<Array<{ mesh: string; pro
 }
 
 describe("the patient gown is a gown-class asset", () => {
-  it.fails("(1) RED: every garment mesh records the .mhclo it was fitted from", async () => {
+  it("(1) RED: every garment mesh records the .mhclo it was fitted from", async () => {
     // Today: asset.extras is NONE and no mesh carries extras. Without this, clause (2) has nothing
     // to read and the material name is the only signal — which is the defect.
     const rows = await garmentProvenance(GOWN);
@@ -89,7 +89,7 @@ describe("the patient gown is a gown-class asset", () => {
       `upper garment classes were ${JSON.stringify(classes)} — none is gown or labcoat`).toBe(true);
   });
 
-  it.fails("(3) COUNTERWEIGHT: a material NAMED hospital_gown does not satisfy clause (2)", async () => {
+  it("(3) COUNTERWEIGHT: a material NAMED hospital_gown does not satisfy clause (2)", async () => {
     // The exact cheat that shipped. The class must come from recorded PROVENANCE; a mesh whose only
     // gown evidence is its material string must still fail. Asserting the negative directly: no
     // upper garment may claim a gown class while its source .mhclo is the peds upper shell.
@@ -122,5 +122,6 @@ describe("the patient gown is a gown-class asset", () => {
  * ## FIXED (clause 4)
  * 2026-09-20: garment-provenance-stamp wrote sourceMhclo=crudelabcoatopen.mhclo
  * licence=CC0 garmentClass=labcoat onto the physician lab-coat mesh extras.
- * Clauses (1)–(3) stay RED: the patient upper is still a peds shell / t-shirt.
+ * Clauses (1) and (3) 2026-09-20: stamp wrote sourceMhclo on t-shirt, shoes, and peds_upper shell.
+ * No garment claims gown class while sourced from those. Clause (2) stays RED: the upper is still a shell, not a gown.
  */
