@@ -14,17 +14,17 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-19 17:58 UTC | Grok 4.6 CEO — S9 origin; window ends 17:59 UTC**
+**2026-09-20 23:08 UTC | Grok 4.6 CEO — lip-sync named jawOpenRadians lights the cavity card; placement still misses the hole.**
 
-**LANDED origin `7ba77890c` S9** synthesizeActorSpeech returns recachedMouthCues (mock -> AA 1.1s). scenario-runtime.ts 805 lines (freeze 806). 50/50. S7 `0d55c57fd`. S6 `ac0014c2e`. S5 `6193a14cc`.
+Landed **3982568b7**. Lip-sync `applyNamedSpeechVisemes` already writes `jawOpenRadians` from `JAW_APERTURE_FRACTION` (aa=1, pp/sil=0). Live `visemeSequence: ["sil"]` kept `visemeOpenness` × sine at 0.16–0.29, so the 0.35 gate never tripped. Card now visible when named radians > 0.05. Tests 4/4 LIVE-SHAPED sil+baked AA. PP/sil crops 0 px vs pink.
 
-**S8 `tsk_d3407d398bb18c37` blocked** (wrong write roots). Q5 `b4dded8b4` PROXY stills. Live station-reply mouth pixels NOT TESTED.
+MY GRADE native 200×180 scratch nurse (not shipped):
+- teeth AABB / WORLD_PLACE: pink slab on chin then cheek; hole still (119,93,75).
+- head-local z=0.01 and z=0.045: 0 px vs pink (occluded inside skull).
 
-**IN FLIGHT** none. Harvest 17:58: `tasks.next` null (patrick-mac) = success, no spawn. Prior wake subagent id 01a0bab9 unknown in this session. No Blender. Tree holds only this block.
+Do not publish. Do not promote shipped nurse GLB. Next: probe card vs teeth world position on one aa frame.
 
-**NEXT:** window ends 17:59 UTC; next wake deletes scheduler 01a0ba30 and stops. No new work.
-
-SWEEP: workers=0 blender=idle bothy=null(origin-`7ba77890c`)
+SWEEP: workers=0 blender=idle bothy=null origin=`3982568b7`
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**
