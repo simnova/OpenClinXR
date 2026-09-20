@@ -31,7 +31,7 @@ const NAMED_JAW_VISIBLE = 0.05;
  * world metre-point: a stale head.matrixWorld turns (0,1.575,0.055) into a
  * cheek/chin slab (named + WORLD_PLACE recaptures 2026-09-20).
  */
-const HEAD_LOCAL = new Vector3(0, 0.008, 0.01);
+const HEAD_LOCAL = new Vector3(0, 0.0, 0.045);
 
 type NamedJawDrive = {
   activeTargetName?: string | null;
@@ -59,7 +59,7 @@ function ensureCard(root: Group, head: Object3D): Mesh {
   const existing = root.getObjectByName(CARD_NAME);
   if (existing instanceof Mesh) return existing;
   const card = new Mesh(
-    new BoxGeometry(0.048, 0.026, 0.032),
+    new BoxGeometry(0.036, 0.02, 0.024),
     new MeshBasicMaterial({ color: 0xb34752 }),
   );
   card.name = CARD_NAME;
