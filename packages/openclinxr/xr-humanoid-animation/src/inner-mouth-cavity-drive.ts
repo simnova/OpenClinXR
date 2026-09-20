@@ -1,5 +1,5 @@
 import type { Group, Object3D } from "three";
-import { Box3, BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from "three";
+import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from "three";
 
 /**
  * Unlit cavity card behind the teeth, parented to `head`.
@@ -49,34 +49,20 @@ function findHeadBone(root: Group): Object3D | null {
   return found;
 }
 
-function teethPlace(root: Group): Vector3 {
-  const box = new Box3();
-  let found = false;
-  root.traverse((object: Object3D) => {
-    if (!(object instanceof Mesh)) return;
-    if (!/teeth/i.test(object.name)) return;
-    box.expandByObject(object);
-    found = true;
-  });
-  if (!found || box.isEmpty()) return WORLD_PLACE.clone();
-  const center = new Vector3();
-  box.getCenter(center);
-  center.z = box.min.z + 0.008;
-  return center;
-}
-
 function ensureCard(root: Group, head: Object3D): Mesh {
   const existing = root.getObjectByName(CARD_NAME);
   if (existing instanceof Mesh) return existing;
   const card = new Mesh(
-    new BoxGeometry(0.056, 0.032, 0.036),
+    new BoxGeometry(0.048, 0.026, 0.032),
     new MeshBasicMaterial({ color: 0xb34752 }),
   );
   card.name = CARD_NAME;
   card.frustumCulled = false;
   head.add(card);
   head.updateWorldMatrix(true, false);
-  card.position.copy(head.worldToLocal(teethPlace(root)));
+  // WORLD_PLACE is mouth-height, just behind teeth minZ 0.070. Teeth AABB
+  // worldToLocal landed a chin slab (named recapture aa 2026-09-20).
+  card.position.copy(head.worldToLocal(WORLD_PLACE.clone()));
   return card;
 }
 
