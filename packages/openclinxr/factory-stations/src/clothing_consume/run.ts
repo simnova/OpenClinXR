@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { factoryStationSchemas } from "../catalog.js";
@@ -156,10 +157,14 @@ export async function runClothingConsume(
   if (options.licenseToken !== undefined) blenderArgs.push("--license-token", options.licenseToken);
   if (options.licenseSource !== undefined) blenderArgs.push("--license-source", options.licenseSource);
 
+  const cwd = options.cwd ?? repoRoot();
   const result = await spawnBlenderProcess(options.blender, blenderArgs, {
-    cwd: options.cwd ?? repoRoot(),
+    cwd,
     timeoutMs: options.timeoutMs ?? 600_000,
   });
+  if (result.code === 0) {
+    stampGarmentProvenance(options.outGlb, cwd);
+  }
   return {
     stationId: "clothing_consume",
     stageScript,
@@ -167,6 +172,23 @@ export async function runClothingConsume(
     stdout: result.stdout,
     stderr: result.stderr,
   };
+}
+
+const GARMENT_PROVENANCE_STAMP_REL =
+  "tools/openclinxr/asset-pipeline/makeclothes/garment-provenance-stamp.ts";
+
+/** Post-export: persist sourceMhclo extras. Does not reimplement the stamp (D1). */
+function stampGarmentProvenance(outGlb: string, cwd: string): void {
+  const station = path.join(repoRoot(), GARMENT_PROVENANCE_STAMP_REL);
+  const stamped = spawnSync("pnpm", ["exec", "tsx", station, outGlb], {
+    cwd,
+    encoding: "utf8",
+  });
+  if (stamped.status !== 0) {
+    throw new Error(
+      `garment-provenance-stamp failed on ${outGlb}: ${stamped.stderr || stamped.stdout}`,
+    );
+  }
 }
 
 export type RigRefitRunOptions = {
