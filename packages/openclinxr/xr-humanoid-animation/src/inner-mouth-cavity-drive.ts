@@ -25,7 +25,13 @@ const CARD_NAME = "openclinxr_inner_mouth_cavity";
 const OPEN_VISIBLE = 0.35;
 /** ~0.33 of JAW_OPEN_TEETH_CLEAR_RADIANS (0.15086); fv 0.023 stays hidden, e 0.068 shows. */
 const NAMED_JAW_VISIBLE = 0.05;
-const WORLD_PLACE = new Vector3(0, 1.575, 0.055);
+/**
+ * Head-local offset. Jaw sits at head-local ~(0, 0.006, 0.017) on this MPFB
+ * rig. Palate/cavity is slightly above and behind that. Do not worldToLocal a
+ * world metre-point: a stale head.matrixWorld turns (0,1.575,0.055) into a
+ * cheek/chin slab (named + WORLD_PLACE recaptures 2026-09-20).
+ */
+const HEAD_LOCAL = new Vector3(0, 0.008, 0.01);
 
 type NamedJawDrive = {
   activeTargetName?: string | null;
@@ -59,10 +65,7 @@ function ensureCard(root: Group, head: Object3D): Mesh {
   card.name = CARD_NAME;
   card.frustumCulled = false;
   head.add(card);
-  head.updateWorldMatrix(true, false);
-  // WORLD_PLACE is mouth-height, just behind teeth minZ 0.070. Teeth AABB
-  // worldToLocal landed a chin slab (named recapture aa 2026-09-20).
-  card.position.copy(head.worldToLocal(WORLD_PLACE.clone()));
+  card.position.copy(HEAD_LOCAL);
   return card;
 }
 
