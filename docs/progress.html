@@ -27,6 +27,46 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-20T1302">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 110 &middot; 2026-09-20 13:02 UTC</p>
+          <h2>Station-reply speaking sync: control vs treatment stills from UI-XR face-detail capture.</h2>
+        </div>
+        <p>
+          Harness: three.js UI-XR face-detail, subject <code>parent_tara_johnson_v1</code>, captured at 1280&times;1280 native.
+          No resize or upscale; grades are 1:1 crops from the renderer.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>ORCHESTRATOR GRADE — what the two stills show.</caption>
+            <thead><tr><th scope="col">Condition</th><th scope="col">Observation</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Control</strong></td><td>lips sealed; Trace 0/9; Parent Communication unselected</td></tr>
+              <tr><td><strong>Treatment</strong></td><td>Parent Communication click (<code>triggerStationReply</code>); mouth open with upper teeth; Trace 1/9; Tara Johnson caption; button highlighted</td></tr>
+              <tr><td><strong>Mouth driver</strong></td><td><code>mouth-open</code> morph channel is 0; viseme/jaw opened the mouth (not the morph)</td></tr>
+              <tr><td><strong>Capture HUD</strong></td><td>Grey review-panel disc on treatment cheek and grey bar on the hair — HUD overlays, not anatomy</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:12px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/speaking-sync-station-reply-control.png" alt="Control: lips sealed, Trace 0/9, Parent Communication unselected, parent_tara_johnson_v1 at 1280x1280 native." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Control &mdash; lips sealed, Trace 0/9, Parent Communication unselected. Native 1280&times;1280 crop.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/speaking-sync-station-reply-treatment.png" alt="Treatment: mouth open with upper teeth, Trace 1/9, Tara Johnson caption, Parent Communication button highlighted, grey HUD disc on cheek and grey bar on hair." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Treatment &mdash; mouth open on upper teeth, Trace 1/9, Tara Johnson caption, button highlighted. Grey disc/bar are capture HUD. Native 1280&times;1280 crop.</figcaption>
+          </figure>
+        </div>
+        <p class="evidence-note">
+          PNGs harvested from origin at <code>docs/assets/speaking-sync-station-reply-control.png</code> (556334 B) and <code>docs/assets/speaking-sync-station-reply-treatment.png</code> (532634 B), commit <code>cab21ea94</code>.
+        </p>
+        <p class="status-copy">
+          <strong>notEvidenceFor:</strong> cavity win, learner-default TTS, Quest, clinical/scoring, gums.
+          No clinical validity, scoring validity, licensure, exam-equivalence, Quest-readiness, or production claim is made here.
+          This is a two-still UI-XR face-detail comparison; no video, no headset, no learner runtime.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-19T2024">
         <div class="section-heading">
           <p class="eyebrow">Entry 109 &middot; 2026-09-19 20:24 UTC</p>
