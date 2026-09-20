@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "openclinxr.ui-xr.tongue-ui-xr-aa-capture.v1",
+  "generatedAt": "2026-09-20T15:30:57.826Z",
+  "claimScope": "tongue_ui_xr_aa_viseme_motion_vs_control",
+  "actor": "parent_tara_johnson_v1",
+  "control": {
+    "pngPath": "docs/assets/tongue-ui-xr-aa-control.png",
+    "bytes": 559184,
+    "sha256": "d7ae0dfde633b14b3de36226c591bc356448bafe2949e9a58ef1e0f99f44e0a0",
+    "visemeAaInfluence": 0,
+    "mouthOpenInfluence": 0
+  },
+  "treatment": {
+    "pngPath": "docs/assets/tongue-ui-xr-aa-treatment.png",
+    "bytes": 524297,
+    "sha256": "5f9d0faa9a4a7149c998b4a1516efebcd480cc741f2dc5c9cd4aa72c3bfbba8c",
+    "visemeAaInfluence": 1,
+    "mouthOpenInfluence": 1,
+    "appliedMeshes": 8,
+    "targetWeight": 1,
+    "treatmentDriver": "direct_morph_application_viseme_aa_mouth_open"
+  },
+  "producer": "tools/openclinxr/evidence/tongue-ui-xr-aa/tongue-ui-xr-aa-capture.ts",
+  "orchestratorGrade": {
+    "native": "1280x1280 three.js UI-XR face-detail parent",
+    "controlLips": "sealed",
+    "treatmentLips": "sealed",
+    "lipCropDarkFrac": {
+      "control": 0.0,
+      "treatment": 0.0
+    },
+    "lipCropMaxAbs": 79,
+    "note": "Sampler reports viseme_aa=1 and mouth-open=1 on 8 meshes; pixels show no open aperture and no teeth. Not a cavity observation. Do not publish as open-mouth or cavity win."
+  },
+  "notEvidenceFor": [
+    "clinician_realism",
+    "quest_readiness",
+    "audible_tts",
+    "production_phoneme_timing",
+    "clinical_validity",
+    "scoring_validity",
+    "inner_mouth_cavity",
+    "cavity_win",
+    "open_mouth_from_viseme_aa"
+  ]
+}
