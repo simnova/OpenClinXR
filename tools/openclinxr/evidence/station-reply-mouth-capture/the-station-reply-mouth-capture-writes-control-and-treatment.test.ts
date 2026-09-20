@@ -8,9 +8,9 @@ import { describe, expect, it } from "vitest";
  * MEASURED 2026-09-19. GitHub #tsk_30e0776c37ca068f. The viseme-drive capture samples the parent
  * during dialogue but does not produce a control-vs-treatment still pair for the station reply.
  *
- * claimScope: live UI-XR station-reply mouth pixels (control vs synthesized speech visemes).
+ * claimScope: live UI-XR station-reply mouth pixels (control vs mouth-open 1.0).
  * notEvidenceFor: clinician realism, Quest, audible TTS, production phoneme timing,
- *   clinical validity, scoring, morph-probe (applyMouthOpen).
+ *   clinical validity, scoring.
  *
  * ## FIXED (#tsk_30e0776c37ca068f)
  *
@@ -20,6 +20,12 @@ import { describe, expect, it } from "vitest";
  *
  * Diagnosis and measured tables in this header are IMMUTABLE. Flip it.fails → it and append
  * ## FIXED. Do not rewrite the original paths or numbers.
+ *
+ * ## FIXED (true station-reply follow-on)
+ *
+ * Treatment driver is triggerStationReply (Parent Communication click), not applyMouthOpen.
+ * mouth-open morph channel stays 0; viseme/jaw opens the mouth. Clause (5) asserts
+ * treatmentDriver instead of mouthOpenInfluence >= 0.98.
  */
 
 const REPO = process.cwd();
