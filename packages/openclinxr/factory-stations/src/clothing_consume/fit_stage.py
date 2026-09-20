@@ -365,6 +365,32 @@ def align_body_to_reference(body: bpy.types.Object, reference: bpy.types.Object)
     }
 
 
+def _mhclo_licence_token(mhclo_path: Path) -> str:
+    """Read a licence token from the .mhclo header. Unspecified stays unspecified."""
+    try:
+        text = mhclo_path.read_text(encoding="utf-8", errors="replace")[:4000].lower()
+    except OSError:
+        return "unspecified"
+    if "cc0" in text or "public domain" in text:
+        return "CC0"
+    if "cc-by" in text or "cc by" in text or "creative commons attribution" in text:
+        return "CC-BY"
+    return "unspecified"
+
+
+def _garment_class_from_name(name: str) -> str:
+    n = name.lower()
+    if "gown" in n or "labcoat" in n:
+        return "gown" if "gown" in n else "labcoat"
+    if "t_shirt" in n or "tshirt" in n or "t-shirt" in n:
+        return "tshirt"
+    if "pant" in n or "trouser" in n:
+        return "pants"
+    if "shoe" in n or "footwear" in n:
+        return "shoes"
+    return "other"
+
+
 def export_objects_glb(objects: list[bpy.types.Object], path: str) -> None:
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.object.select_all(action="DESELECT")
@@ -380,6 +406,7 @@ def export_objects_glb(objects: list[bpy.types.Object], path: str) -> None:
         export_materials="EXPORT",
         export_skins=False,
         export_animations=False,
+        export_extras=True,
     )
 
 
@@ -672,7 +699,12 @@ def main() -> None:
         else:
             report["steps"]["annyStatureAlign"] = {"skipped": True}
 
-        # 4) Export library GLB (hm08 + fitted garment only)
+        # 4) Persist the .mhclo the bake actually fitted (D1: do not discard it).
+        mhclo_path = Path(args.mhclo)
+        garment["sourceMhclo"] = mhclo_path.name
+        garment["licence"] = _mhclo_licence_token(mhclo_path)
+        garment["garmentClass"] = _garment_class_from_name(mhclo_path.name)
+        # 4b) Export library GLB (hm08 + fitted garment only)
         export_objects_glb([mh, garment], args.out_glb)
         report["artifacts"]["libraryGlb"] = args.out_glb
 
