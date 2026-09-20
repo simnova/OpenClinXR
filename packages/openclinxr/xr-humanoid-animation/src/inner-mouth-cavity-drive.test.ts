@@ -119,8 +119,32 @@ describe("inner mouth cavity drive", () => {
     const camera = new PerspectiveCamera();
     updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
     expect(slot.root.getObjectByName("openclinxr_inner_mouth_cavity")?.visible).toBe(true);
-    if (slot.activeSpeech) slot.activeSpeech.visemeSequence = ["rest"];
+    if (slot.activeSpeech) {
+      slot.activeSpeech.visemeSequence = ["rest"];
+      slot.activeSpeech.phonemeSequence = ["sil"];
+      slot.activeSpeech.bakedCues = [{ phoneme: "sil", atSecond: 0, durationSeconds: 60 }];
+    }
     updateGeneratedHumanoidAnimations(ctx, 1 / 60, 2000, camera);
+    expect(slot.root.getObjectByName("openclinxr_inner_mouth_cavity")?.visible).toBe(false);
+  });
+
+  it("LIVE-SHAPED: visemeSequence sil plus baked AA still shows the cavity card", () => {
+    const slot = speakingSlot(["sil"]);
+    if (slot.activeSpeech) {
+      slot.activeSpeech.phonemeSequence = ["sil"];
+      slot.activeSpeech.bakedCues = [{ phoneme: "AA", atSecond: 0, durationSeconds: 60 }];
+    }
+    updateGeneratedHumanoidAnimations(context([slot]), 1 / 60, 1000, new PerspectiveCamera());
+    expect(slot.root.getObjectByName("openclinxr_inner_mouth_cavity")?.visible).toBe(true);
+  });
+
+  it("COUNTERWEIGHT: visemeSequence sil plus baked PP hides the cavity card", () => {
+    const slot = speakingSlot(["sil"]);
+    if (slot.activeSpeech) {
+      slot.activeSpeech.phonemeSequence = ["sil"];
+      slot.activeSpeech.bakedCues = [{ phoneme: "PP", atSecond: 0, durationSeconds: 60 }];
+    }
+    updateGeneratedHumanoidAnimations(context([slot]), 1 / 60, 1000, new PerspectiveCamera());
     expect(slot.root.getObjectByName("openclinxr_inner_mouth_cavity")?.visible).toBe(false);
   });
 });
