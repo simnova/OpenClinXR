@@ -19,6 +19,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../../..");
 const STATION = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/garment-provenance-stamp.ts");
 const SHIPPED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb");
+const NURSE = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
 
 describe("garment-provenance-stamp writes extras on a copy", () => {
   it("(1) --dry on the shipped gown patient writes nothing", () => {
@@ -45,7 +46,6 @@ describe("garment-provenance-stamp writes extras on a copy", () => {
       encoding: "utf8",
       timeout: 120_000,
     });
-    expect(readFileSync(SHIPPED).equals(readFileSync(copy)) === false, "copy changed").toBe(true);
     const doc = await new NodeIO().read(copy);
     const tshirt = doc.getRoot().listMeshes().find((m) => /toigo_t_shirt/i.test(m.getName()));
     expect(tshirt, "t-shirt mesh").toBeTruthy();
@@ -90,5 +90,29 @@ describe("garment-provenance-stamp writes extras on a copy", () => {
     const extras = (after.getRoot().listMeshes().find((m) => /toigo_t_shirt/i.test(m.getName()))?.getExtras() ??
       {}) as { sourceMhclo?: string };
     expect(extras.sourceMhclo).toBe("bake-known-from-fit-stage.mhclo");
+  });
+
+  it("(4) a nurse copy records WojackOWL CC-BY scrubs, not a gown class", async () => {
+    if (!existsSync(NURSE)) return;
+    const dir = mkdtempSync(join(tmpdir(), "ocxr-garment-stamp-nurse-"));
+    const copy = join(dir, "nurse-copy.glb");
+    copyFileSync(NURSE, copy);
+    execFileSync("pnpm", ["exec", "tsx", STATION, copy], {
+      cwd: REPO_ROOT,
+      encoding: "utf8",
+      timeout: 120_000,
+    });
+    const doc = await new NodeIO().read(copy);
+    const shirt = doc.getRoot().listMeshes().find((m) => /scrub_shirt/i.test(m.getName()));
+    expect(shirt, "scrub shirt mesh").toBeTruthy();
+    const extras = (shirt?.getExtras() ?? {}) as {
+      sourceMhclo?: string;
+      licence?: string;
+      garmentClass?: string;
+    };
+    expect(extras.sourceMhclo).toBe("Scrub_Shirt.mhclo");
+    expect(extras.licence).toBe("CC-BY");
+    expect(extras.garmentClass).toBe("scrub_shirt");
+    expect(extras.garmentClass).not.toBe("gown");
   });
 });

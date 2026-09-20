@@ -61,13 +61,14 @@
     "2026-08-29 #0 (re-materialization record): this file's derivationNote predates the #598/#740 re-materialization — the shipped bytes now carry mat_makeclothes_library_footwear_toigo_mj_cloth_shoes with MJ-shoes3 (1,418,657 B), and SHOE_BY_REFERENCE maps no cast role to toigo_flats (measured in the one-garment-one-material re-measurement; the #502 strip entry above described the previous toigo_flats footwear).",
     "2026-09-03 #0 (chest-anchor separation): tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both — one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The ClinicalIdleConversation translation keyframes for both joints were moved with the rest nodes so the clip cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and both animations' rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-clinical-nurse-adult.json. Gate: tools/openclinxr/evidence/the-chest-anchor-joints-are-not-one-point.test.ts (3 passed).",
     "HB-07 nurse hole-guard promote (2026-09-12): full chain materialize (hole-guard) -> #695 optimize_glb_meshopt.mjs --simplify-ratio 0.4 --simplify-error 0.001 --simplify-only (92118 -> 41807) -> #737 optimize_glb_lash_lod.mjs --ratio 0.12 --error 0.005 (lashes 3237 -> 388, total 38958) -> bake-humanoid-albedo.ts (0 materials baked; factors already white or untextured) -> separate_chest_anchor_joints.mjs --half-span-m 0.085 -> write-shipped-licence-notice.ts. Shirt atlas NOT copied: makehuman-community-scrub-shirt/Scrubs_Main_BaseColor_Utility PNG is truncated (2,173,517 B, no IEND, OpenImageIO IDAT EOF), so materialize exported untextured role colour [0.05,0.48,0.52] and HB-02 left it (untextured factor IS the albedo). The 74b62af6 GLB-to-GLB shirt copy is undone. Body 12833 vs shipped 12892 (59-tri hole-guard delta). command/generatedAt/outputSha256/outputBytes recorded from this bake.",
-    "2026-09-12 waistband hem-fit: withdrew the scrub skip on fit_upper_hem_to_waistband in materialize_mpfb_humanoid_candidate.py (WAIST_MEET_UPPER pushed 36 verts, maxDeficit 7.65 mm). Same postopt ladder #695/#737 (38958 tris). measureWaistFit gapped 0 / min +5.0 mm; waist-box first-hits skin 0 hidden 0 (was 308/27)."
+    "2026-09-12 waistband hem-fit: withdrew the scrub skip on fit_upper_hem_to_waistband in materialize_mpfb_humanoid_candidate.py (WAIST_MEET_UPPER pushed 36 verts, maxDeficit 7.65 mm). Same postopt ladder #695/#737 (38958 tris). measureWaistFit gapped 0 / min +5.0 mm; waist-box first-hits skin 0 hidden 0 (was 308/27).",
+    "2026-09-20: garment-provenance-stamp wrote Scrub_Shirt.mhclo / Scrub_Pants.mhclo CC-BY extras. Geometry unchanged. outputSha256/outputBytes re-recorded."
   ],
   "claimScope": "nurse_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_toigo_blunt_bob_kept",
   "promotionGates": false,
   "generatedAt": "2026-09-12T09:29:57.027Z",
-  "outputSha256": "8409334c30861e07d7bb180b2b8f7e5d48c277bc91c4a5df8f0cb0475869c541",
-  "outputBytes": 8396376,
+  "outputSha256": "5e22b3a99f9f5c956906a35fe4bf7ca6e880bec0582d1143aa45f1b9d1fbfc4f",
+  "outputBytes": 8396648,
   "byteLineage": {
     "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
     "correctedAt": "2026-09-09T20:55:55.296Z",

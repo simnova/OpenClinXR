@@ -67,8 +67,8 @@
   "claimScope": "physician_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_plus_cc0_lab_coat_over_scrubs",
   "promotionGates": false,
   "generatedAt": "2026-08-14T17:56:00Z",
-  "outputSha256": "d0f9de7ec212d64dbc3c065b71a703f15136c25defd7c0ee0d5e8050ad640682",
-  "outputBytes": 9457820,
+  "outputSha256": "c9e3dc628ec01d74ef14536fefdefe8009d2f273013d452f6f7d03819eb10b69",
+  "outputBytes": 9458000,
   "motionClips": [
     {
       "clipName": "openclinxr_retarget_walk_formal_cc0",
