@@ -370,8 +370,69 @@ window.__step = async function __step({ frameIndex, fps, events }) {
     rightClosure: Number(right.toFixed(4)),
     namedViseme: named,
     nonzeroMorphs: sampleNonzeroMorphs(),
+    mouthProbe: sampleMouthProbe(slot.root),
   };
 };
+
+function worldXYZ(object) {
+  if (!object) return null;
+  const p = new Vector3();
+  object.getWorldPosition(p);
+  return { name: object.name, x: Number(p.x.toFixed(4)), y: Number(p.y.toFixed(4)), z: Number(p.z.toFixed(4)) };
+}
+
+function sampleMouthProbe(root) {
+  let head = null;
+  let jaw = null;
+  const teethBox = new Box3();
+  let teethN = 0;
+  root.traverse((o) => {
+    if (o.name === "head" && head === null) head = o;
+    if (o.name === "jaw" && jaw === null) jaw = o;
+    if (o.isMesh && /teeth/i.test(o.name)) {
+      teethBox.expandByObject(o);
+      teethN += 1;
+    }
+  });
+  const card = root.getObjectByName("openclinxr_inner_mouth_cavity");
+  const named = root.userData?.openClinXrNamedVisemeDrive;
+  const teeth = teethN === 0 || teethBox.isEmpty()
+    ? null
+    : {
+      n: teethN,
+      min: { x: Number(teethBox.min.x.toFixed(4)), y: Number(teethBox.min.y.toFixed(4)), z: Number(teethBox.min.z.toFixed(4)) },
+      max: { x: Number(teethBox.max.x.toFixed(4)), y: Number(teethBox.max.y.toFixed(4)), z: Number(teethBox.max.z.toFixed(4)) },
+    };
+  const headWorld = worldXYZ(head);
+  let cardLocal = null;
+  if (card) {
+    cardLocal = {
+      x: Number(card.position.x.toFixed(4)),
+      y: Number(card.position.y.toFixed(4)),
+      z: Number(card.position.z.toFixed(4)),
+      visible: card.visible,
+    };
+  }
+  let teethInHead = null;
+  if (head && teeth) {
+    const mid = new Vector3(
+      (teethBox.min.x + teethBox.max.x) / 2,
+      (teethBox.min.y + teethBox.max.y) / 2,
+      teethBox.min.z + 0.008,
+    );
+    head.updateWorldMatrix(true, false);
+    const local = head.worldToLocal(mid.clone());
+    teethInHead = { x: Number(local.x.toFixed(4)), y: Number(local.y.toFixed(4)), z: Number(local.z.toFixed(4)) };
+  }
+  return {
+    head: headWorld,
+    jaw: worldXYZ(jaw),
+    card: card ? { ...worldXYZ(card), ...cardLocal } : null,
+    teeth,
+    teethInHead,
+    namedJaw: typeof named?.jawOpenRadians === "number" ? Number(named.jawOpenRadians.toFixed(4)) : null,
+  };
+}
 
 window.__eyeBoxes = function __eyeBoxes() {
   const proj = (bone) => {
