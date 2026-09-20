@@ -1,4 +1,5 @@
 import type { Group, Object3D } from "three";
+import { applyInnerMouthCavity } from "./inner-mouth-cavity-drive.js";
 
 /**
  * Jaw-bone drive for viseme openness.
@@ -44,4 +45,5 @@ export function applyJawVisemeToRoot(root: Group, openness: number): void {
   }
   const clamped = Number.isFinite(openness) ? Math.min(1, Math.max(0, openness)) : 0;
   jaw.rotation.x += JAW_OPEN_RAD * clamped;
+  applyInnerMouthCavity(root, clamped);
 }
