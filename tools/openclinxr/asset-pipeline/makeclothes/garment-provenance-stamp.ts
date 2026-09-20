@@ -69,6 +69,46 @@ const STAMP_BY_SUBSTRING: Array<{ match: RegExp; stamp: Stamp }> = [
       garmentClass: "pants",
     },
   },
+  {
+    match: /bootcut_jeans/i,
+    stamp: {
+      sourceMhclo: "elvs_jeans_bootcut.mhclo",
+      licence: "CC-BY",
+      garmentClass: "pants",
+    },
+  },
+  {
+    match: /female_tight_jeans/i,
+    stamp: {
+      sourceMhclo: "punkduck_female_tight_jeans.mhclo",
+      licence: "CC-BY",
+      garmentClass: "pants",
+    },
+  },
+  {
+    match: /straight_leg_jeans/i,
+    stamp: {
+      sourceMhclo: "elvs_jeans_straight_leg.mhclo",
+      licence: "CC-BY",
+      garmentClass: "pants",
+    },
+  },
+  {
+    match: /cargo_pants/i,
+    stamp: {
+      sourceMhclo: "cargo_pants.mhclo",
+      licence: "CC0",
+      garmentClass: "pants",
+    },
+  },
+  {
+    match: /culturalibre_male_boots/i,
+    stamp: {
+      sourceMhclo: "culturalibre_male_boots.mhclo",
+      licence: "CC0",
+      garmentClass: "shoes",
+    },
+  },
 ];
 
 function stampFor(name: string): Stamp | null {

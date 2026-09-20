@@ -5,8 +5,8 @@
   "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
   "runtimeRole": "inspection_fixture",
   "runtimeRoleWhy": "Inspection subject for viseme contracts. Never cast; the shipped-bank cast resolver does not name it.",
-  "outputSha256": "053e161d441a2b140ef02e926297aeabb5ecebc3dfb5a4c10edda036930c2691",
-  "outputBytes": 13933000,
+  "outputSha256": "b2a4ce31cf9d03429f674f4aa8723b544a519f88f236ec65934ee81bec0b5eb3",
+  "outputBytes": 13933096,
   "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
   "fitTimeLower": {
     "garment": "punkduck_female_tight_jeans",
