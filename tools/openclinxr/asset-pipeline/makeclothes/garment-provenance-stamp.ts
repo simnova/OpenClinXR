@@ -70,20 +70,27 @@ async function main(): Promise<void> {
     throw new Error(`no garment meshes found in ${glb}`);
   }
 
-  const stamped: Array<{ mesh: string; stamp: Stamp | null }> = [];
+  const stamped: Array<{ mesh: string; stamp: Stamp | null; skippedExisting?: boolean }> = [];
   for (const mesh of candidates) {
     const name = mesh.getName();
+    const existing = (mesh.getExtras() ?? {}) as { sourceMhclo?: unknown };
+    const already = typeof existing.sourceMhclo === "string" && existing.sourceMhclo.length > 0;
+    if (already) {
+      stamped.push({ mesh: name, stamp: null, skippedExisting: true });
+      continue;
+    }
     const stamp = stampFor(name);
     stamped.push({ mesh: name, stamp });
     if (!stamp || dry) continue;
     mesh.setExtras({ ...(mesh.getExtras() ?? {}), ...stamp });
   }
 
-  const known = stamped.filter((s) => s.stamp);
+  const known = stamped.filter((s) => s.stamp || s.skippedExisting);
   if (known.length === 0) {
     throw new Error(`no garment mesh matched the stamp table in ${glb}`);
   }
-  if (!dry) await io.write(glb, doc);
+  const wrote = !dry && stamped.some((s) => s.stamp);
+  if (wrote) await io.write(glb, doc);
 
   process.stdout.write(
     `${JSON.stringify(

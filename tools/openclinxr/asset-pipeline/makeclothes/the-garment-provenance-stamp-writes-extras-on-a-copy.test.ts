@@ -59,4 +59,36 @@ describe("garment-provenance-stamp writes extras on a copy", () => {
     expect(extras.garmentClass).toBe("tshirt");
     expect(extras.garmentClass).not.toBe("gown");
   });
+
+  it("(3) does not overwrite sourceMhclo that fit_stage already wrote", async () => {
+    if (!existsSync(SHIPPED)) return;
+    const dir = mkdtempSync(join(tmpdir(), "ocxr-garment-stamp-keep-"));
+    const copy = join(dir, "gown-copy.glb");
+    copyFileSync(SHIPPED, copy);
+    const io = new NodeIO();
+    const planted = await io.read(copy);
+    const tshirt = planted.getRoot().listMeshes().find((m) => /toigo_t_shirt/i.test(m.getName()));
+    expect(tshirt, "t-shirt mesh").toBeTruthy();
+    tshirt?.setExtras({
+      ...(tshirt.getExtras() ?? {}),
+      sourceMhclo: "bake-known-from-fit-stage.mhclo",
+      licence: "CC0",
+      garmentClass: "tshirt",
+    });
+    await io.write(copy, planted);
+    const out = execFileSync("pnpm", ["exec", "tsx", STATION, copy], {
+      cwd: REPO_ROOT,
+      encoding: "utf8",
+      timeout: 120_000,
+    });
+    const report = JSON.parse(out) as { meshes: Array<{ mesh: string; skippedExisting?: boolean }> };
+    expect(
+      report.meshes.some((m) => /toigo_t_shirt/i.test(m.mesh) && m.skippedExisting === true),
+      "t-shirt skipped as existing",
+    ).toBe(true);
+    const after = await new NodeIO().read(copy);
+    const extras = (after.getRoot().listMeshes().find((m) => /toigo_t_shirt/i.test(m.getName()))?.getExtras() ??
+      {}) as { sourceMhclo?: string };
+    expect(extras.sourceMhclo).toBe("bake-known-from-fit-stage.mhclo");
+  });
 });
