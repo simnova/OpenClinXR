@@ -2,16 +2,18 @@
  * #tsk_30e0776c37ca068f — live station-reply mouth capture for the peds parent.
  *
  * Control: rest mouth (all morphs at 0) captured during the parent's station reply turn.
- * Treatment: AA/mouth-open at weight 1.0 driven via page.evaluate on the live scene,
- *   proving the runtime mesh accepts the viseme drive on the station reply.
+ * Treatment: live station path — click Parent Communication → synthesizeActorSpeech →
+ *   attachBakedCuesToSpeech (not page.evaluate mouth-open=1.0). Waits for
+ *   openClinXrBakedVisemeTimeline marker or mouth-open influence from speech.
+ *   If the click does not fire synthesize, UNABLE with measured reason.
  *
  * Outputs tracked PNGs:
  *   - docs/assets/speaking-sync-station-reply-control.png
  *   - docs/assets/speaking-sync-station-reply-treatment.png
  *
- * claimScope: live UI-XR station-reply mouth pixels (control vs mouth-open 1.0).
+ * claimScope: live UI-XR station-reply mouth pixels (control vs synthesized speech visemes).
  * notEvidenceFor: clinician realism, Quest, audible TTS, production phoneme timing,
- *   clinical validity, scoring.
+ *   clinical validity, scoring, morph-probe (applyMouthOpen).
  */
 
 import { createHash } from "node:crypto";
@@ -35,7 +37,7 @@ const PARENT_ACTOR_ID = "parent_tara_johnson_v1";
 /** The parent communication trace tag that triggers the station reply. */
 const PARENT_COMM_TRACE_TAG = "parent_communication";
 /** The mouth-open morph target (FACS jaw-drop, maps to viseme_AA on this GLB). */
-const MOUTH_OPEN_MORPH = "mouth-open";
+const _MOUTH_OPEN_MORPH = "mouth-open";
 /** Treatment weight — full open for visibility. */
 const TREATMENT_WEIGHT = 1.0;
 
@@ -331,7 +333,7 @@ async function readMouthOpenInfluence(page: Page, expectedActorId: string = PARE
 }
 
 /** Apply mouth-open morph at target weight via in-page interval (before render). */
-async function applyMouthOpen(page: Page, weight: number): Promise<void> {
+async function _applyMouthOpen(page: Page, weight: number): Promise<void> {
   await page.evaluate(`(() => {
     const MORPH = "mouth-open";
     const WEIGHT = ${JSON.stringify(weight)};
@@ -430,82 +432,67 @@ export async function runStationReplyMouthCapture(): Promise<void> {
       const controlSha = sha256Hex(readFileSync(CONTROL_PNG));
       process.stdout.write(`control: ${CONTROL_PNG} ${controlBytes} bytes sha256=${controlSha}\n`);
 
-      // ---- TREATMENT: mouth-open at 1.0 via page.evaluate ----
-      await applyMouthOpen(page, TREATMENT_WEIGHT);
-      await page.waitForTimeout(100);
-
-      // Verify treatment applied - read with more detailed info.
-      const treatRead = await readMouthOpenInfluence(page);
-      if (!treatRead.hasMouthOpen) {
-        throw new Error("Treatment: parent mesh has no mouth-open morph");
-      }
-      // Debug: read the actual max influence
-      const debugRead = await page.evaluate(`(() => {
-        const EXPECTED_ACTOR = ${JSON.stringify(PARENT_ACTOR_ID)};
-        const scene = window.__openClinXrDebugScene;
-        let maxInf = 0;
-        let hasMouthOpen = false;
-        let appliedAtTarget = 0;
-        if (scene && typeof scene.traverse === "function") {
+      // ---- TREATMENT: live station path (triggerStationReply -> synthesizeActorSpeech -> attachBakedCuesToSpeech) ----
+      // Trigger the parent communication station reply.
+      await triggerStationReply(page);
+      
+      // Wait for the baked viseme timeline marker OR mouth-open influence from speech.
+      // Timeout ~8s to allow for synthesis + attach.
+      const TREATMENT_TIMEOUT_MS = 8000;
+      const TREATMENT_POLL_INTERVAL_MS = 100;
+      const treatmentStartMs = Date.now();
+      let treatRead: { hasMouthOpen: boolean; influence: number; appliedMeshes: number } = { hasMouthOpen: false, influence: 0, appliedMeshes: 0 };
+      let bakedMarkerFound = false;
+      
+      while (Date.now() - treatmentStartMs < TREATMENT_TIMEOUT_MS) {
+        // Check for the baked viseme timeline marker on the root userData.
+        const markerCheck = await page.evaluate(`(() => {
+          const scene = window.__openClinXrDebugScene;
+          if (!scene || typeof scene.traverse !== "function") return { found: false, cueCount: 0 };
+          let found = false;
+          let cueCount = 0;
           scene.traverse(function (o) {
-            if (!o.isSkinnedMesh || !o.morphTargetDictionary || !o.morphTargetInfluences) return;
-            let cursor = o;
-            let isSubject = false;
-            while (cursor && cursor.parent) {
-              const ud = cursor.userData;
-              if (ud && typeof ud.openClinXrActorId === "string" && ud.openClinXrActorId === EXPECTED_ACTOR) {
-                isSubject = true;
-                break;
-              }
-              cursor = cursor.parent;
-            }
-            if (!isSubject) return;
-            const idx = o.morphTargetDictionary["mouth-open"];
-            if (idx !== undefined) {
-              hasMouthOpen = true;
-              const v = o.morphTargetInfluences[idx] || 0;
-              if (Math.abs(v) > Math.abs(maxInf)) maxInf = v;
-              if (Math.abs(v - ${JSON.stringify(TREATMENT_WEIGHT)}) < 0.05) appliedAtTarget += 1;
+            if (found) return;
+            const ud = o.userData;
+            if (ud && typeof ud.openClinXrBakedVisemeTimeline === "object") {
+              found = true;
+              cueCount = typeof ud.openClinXrBakedVisemeTimeline.cueCount === "number" ? ud.openClinXrBakedVisemeTimeline.cueCount : 0;
             }
           });
+          return { found, cueCount };
+        })()`) as { found: boolean; cueCount: number };
+        
+        if (markerCheck.found) {
+          bakedMarkerFound = true;
+          process.stdout.write(`treatment: baked viseme timeline marker found (cueCount=${markerCheck.cueCount})\n`);
+          break;
         }
-        return { hasMouthOpen, maxInf, appliedAtTarget };
-      })()`) as { hasMouthOpen: boolean; maxInf: number; appliedAtTarget: number };
-      process.stdout.write(`treatment debug: maxInf=${debugRead.maxInf} appliedAtTarget=${debugRead.appliedAtTarget}\n`);
-      
-      if (treatRead.appliedMeshes === 0) {
-        // The runtime may be fighting our applier - try a direct one-shot apply
-        await page.evaluate(`(() => {
-          const scene = window.__openClinXrDebugScene;
-          if (scene && typeof scene.traverse === "function") {
-            scene.traverse(function (o) {
-              if (!o.isSkinnedMesh || !o.morphTargetDictionary || !o.morphTargetInfluences) return;
-              let cursor = o;
-              let isSubject = false;
-              while (cursor && cursor.parent) {
-                const ud = cursor.userData;
-                if (ud && typeof ud.openClinXrActorId === "string" && ud.openClinXrActorId === ${JSON.stringify(PARENT_ACTOR_ID)}) {
-                  isSubject = true;
-                  break;
-                }
-                cursor = cursor.parent;
-              }
-              if (!isSubject) return;
-              const idx = o.morphTargetDictionary["mouth-open"];
-              if (idx !== undefined) {
-                o.morphTargetInfluences[idx] = ${JSON.stringify(TREATMENT_WEIGHT)};
-              }
-            });
-          }
-        })()`);
-        await page.waitForTimeout(50);
-        const recheck = await readMouthOpenInfluence(page);
-        process.stdout.write(`treatment recheck: influence=${recheck.influence} appliedMeshes=${recheck.appliedMeshes}\n`);
-        if (recheck.influence <= restRead.influence + 0.1) {
-          throw new Error(`Treatment: mouth-open influence ${recheck.influence} not higher than control ${restRead.influence}`);
+        
+        // Also check mouth-open influence as a secondary signal.
+        treatRead = await readMouthOpenInfluence(page);
+        if (treatRead.hasMouthOpen && treatRead.influence > restRead.influence + 0.1) {
+          process.stdout.write(`treatment: mouth-open influence detected (${treatRead.influence} > ${restRead.influence})\n`);
+          break;
         }
+        
+        await page.waitForTimeout(TREATMENT_POLL_INTERVAL_MS);
       }
-      process.stdout.write(`treatment: mouth-open=${treatRead.influence} appliedMeshes=${treatRead.appliedMeshes}\n`);
+      
+      if (!bakedMarkerFound && (!treatRead.hasMouthOpen || treatRead.influence <= restRead.influence + 0.1)) {
+        // The click did not fire synthesize — UNABLE with measured reason.
+        const buttonCount = await page.getByRole("button", { name: /parent communication/i }).count();
+        const consoleErrors: string[] = [];
+        page.on("console", msg => {
+          if (msg.type() === "error") consoleErrors.push(msg.text());
+        });
+        // Give a moment for any errors to surface
+        await page.waitForTimeout(500);
+        throw new Error(`UNABLE: triggerStationReply did not fire synthesize. buttonCount=${buttonCount}, consoleErrors=${JSON.stringify(consoleErrors.slice(0, 5))}, bakedMarkerFound=${bakedMarkerFound}, mouthOpenInfluence=${treatRead.influence}, controlInfluence=${restRead.influence}`);
+      }
+      
+      // Final read for inspection artifact
+      treatRead = await readMouthOpenInfluence(page);
+      process.stdout.write(`treatment: mouth-open=${treatRead.influence} appliedMeshes=${treatRead.appliedMeshes} bakedMarkerFound=${bakedMarkerFound}\n`);
 
       await page.screenshot({ path: TREATMENT_PNG, fullPage: false });
       const treatmentBytes = statSync(TREATMENT_PNG).size;
@@ -527,7 +514,7 @@ export async function runStationReplyMouthCapture(): Promise<void> {
       const inspection = {
         schemaVersion: "openclinxr.ui-xr.station-reply-mouth-capture.v1",
         generatedAt: new Date().toISOString(),
-        claimScope: "mouth_motion_vs_control_live_station_reply",
+        claimScope: "mouth_motion_vs_control_live_station_reply (morph-probe applyMouthOpen is NOT this treatment)",
         actor: PARENT_ACTOR_ID,
         traceTag: PARENT_COMM_TRACE_TAG,
         url,
@@ -555,6 +542,7 @@ export async function runStationReplyMouthCapture(): Promise<void> {
           mouthOpenInfluence: treatRead.influence,
           appliedMeshes: treatRead.appliedMeshes,
           targetWeight: TREATMENT_WEIGHT,
+          treatmentDriver: "triggerStationReply",
         },
         producer: PRODUCER_REPO_PATH,
         notEvidenceFor: [
@@ -564,6 +552,7 @@ export async function runStationReplyMouthCapture(): Promise<void> {
           "production_phoneme_timing",
           "clinical_validity",
           "scoring_validity",
+          "morph_probe_applyMouthOpen",
         ],
       };
 

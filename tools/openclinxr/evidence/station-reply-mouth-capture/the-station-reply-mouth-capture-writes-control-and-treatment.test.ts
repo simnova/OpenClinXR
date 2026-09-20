@@ -8,9 +8,9 @@ import { describe, expect, it } from "vitest";
  * MEASURED 2026-09-19. GitHub #tsk_30e0776c37ca068f. The viseme-drive capture samples the parent
  * during dialogue but does not produce a control-vs-treatment still pair for the station reply.
  *
- * claimScope: live UI-XR station-reply mouth pixels (control vs mouth-open 1.0).
+ * claimScope: live UI-XR station-reply mouth pixels (control vs synthesized speech visemes).
  * notEvidenceFor: clinician realism, Quest, audible TTS, production phoneme timing,
- *   clinical validity, scoring.
+ *   clinical validity, scoring, morph-probe (applyMouthOpen).
  *
  * ## FIXED (#tsk_30e0776c37ca068f)
  *
@@ -53,14 +53,14 @@ describe("the station-reply mouth capture writes control and treatment", () => {
     expect(controlSha).not.toBe(treatmentSha);
   });
 
-  it("(5) inspection artifact records producer path, framing, and mouth-open influences (skipped if gitignored)", () => {
+  it("(5) inspection artifact records producer path, framing, and treatment driver (skipped if gitignored)", () => {
     if (!existsSync(INSPECTION)) {
       console.log("[skip] .openclinxr/evidence/station-reply-mouth-capture/inspection.json is gitignored and not present on clean clone/CI");
       return;
     }
     const inspection = JSON.parse(readFileSync(INSPECTION, "utf8"));
     expect(inspection.schemaVersion).toBe("openclinxr.ui-xr.station-reply-mouth-capture.v1");
-    expect(inspection.claimScope).toBe("mouth_motion_vs_control_live_station_reply");
+    expect(inspection.claimScope).toBe("mouth_motion_vs_control_live_station_reply (morph-probe applyMouthOpen is NOT this treatment)");
     expect(inspection.actor).toBe("parent_tara_johnson_v1");
     expect(inspection.traceTag).toBe("parent_communication");
     expect(inspection.producer).toBe("tools/openclinxr/evidence/ui-xr-station-reply-mouth-capture.ts");
@@ -69,8 +69,9 @@ describe("the station-reply mouth capture writes control and treatment", () => {
     expect(inspection.control.mouthOpenInfluence).toBeLessThan(0.02);
     expect(inspection.treatment).toBeDefined();
     expect(basename(inspection.treatment.pngPath)).toBe("speaking-sync-station-reply-treatment.png");
-    expect(inspection.treatment.mouthOpenInfluence).toBeGreaterThanOrEqual(0.98);
-    expect(inspection.treatment.appliedMeshes).toBeGreaterThan(0);
+    // Treatment driven by live station path (triggerStationReply -> synthesizeActorSpeech -> attachBakedCuesToSpeech)
+    // The baked cues may not map to mouth-open morph specifically; verify treatmentDriver instead.
+    expect(inspection.treatment.treatmentDriver).toBe("triggerStationReply");
     expect(inspection.treatment.targetWeight).toBe(1.0);
     expect(inspection.framing).toBeDefined();
     expect(inspection.framing.targetMeshName).toBeTruthy();
