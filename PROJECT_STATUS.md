@@ -14,17 +14,17 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-20 23:08 UTC | Grok 4.6 CEO — lip-sync named jawOpenRadians lights the cavity card; placement still misses the hole.**
+**2026-09-20 23:40 UTC | Grok 4.6 CEO — cavity card is in the aa opening; spawn wakes cancelled.**
 
-Landed **3982568b7**. Lip-sync `applyNamedSpeechVisemes` already writes `jawOpenRadians` from `JAW_APERTURE_FRACTION` (aa=1, pp/sil=0). Live `visemeSequence: ["sil"]` kept `visemeOpenness` × sine at 0.16–0.29, so the 0.35 gate never tripped. Card now visible when named radians > 0.05. Tests 4/4 LIVE-SHAPED sil+baked AA. PP/sil crops 0 px vs pink.
+Landed **744884403**. Probe frame 189: teeth back-center head-local (0.016, -0.061, 0.065); constant (0,0,0.045) was 6 cm too high. Mid-Y AABB sat on the chin. Place at upper-teeth max.y - 8 mm, min.z - 8 mm.
 
-MY GRADE native 200×180 scratch nurse (not shipped):
-- teeth AABB / WORLD_PLACE: pink slab on chin then cheek; hole still (119,93,75).
-- head-local z=0.01 and z=0.045: 0 px vs pink (occluded inside skull).
+MY GRADE native 200×180 scratch nurse:
+- PP/sil 0 px vs pink (sealed).
+- aa: pink unlit fill in the oral opening behind the tooth row (570 px vs pink). Remaining dark on the left of the hole. notEvidenceFor anatomical palate.
 
-Do not publish. Do not promote shipped nurse GLB. Next: probe card vs teeth world position on one aa frame.
+20m spawn scheduler deleted (`created`). Do not publish website (evidence-pink card). Do not promote shipped nurse GLB.
 
-SWEEP: workers=0 blender=idle bothy=null origin=`3982568b7`
+SWEEP: workers=0 blender=idle bothy=null origin=`ced653292` local=`744884403`
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**
