@@ -38,6 +38,7 @@
     "src/clothing_consume/the-clothing-consume-station-builds-per-actor-bodies.test.ts",
     "src/clothing_consume/the-clothing-consume-station-carries-the-refit-contract.test.ts",
     "src/clothing_consume/the-clothing-consume-station-stamps-garment-provenance.test.ts",
+    "src/clothing_consume/the-fit-stage-stamps-mhclo-extras-before-export.test.ts",
     "src/clothing_consume/the-refit-path-assigns-authored-materials.test.ts",
     "src/clothing_consume/the-rig-refit-lands-on-animated-figures.test.ts",
     "src/equipment_generate/the-equipment-station-publishes-a-runtime-asset-url.test.ts",
