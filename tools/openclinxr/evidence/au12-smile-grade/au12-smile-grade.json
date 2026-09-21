@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "openclinxr.au12-smile-grade.v1",
+  "generatedAt": "2026-09-21T00:30:08.275Z",
+  "subject": "body-param-adult_lean_female-library.glb",
+  "sourceGlb": "/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+  "sourceGlbSha256": "97178619a6329328ed81c100501028aad6f54d84ea9862a89388d8da1a00da6c",
+  "morphTarget": "mouth-corner-puller",
+  "controlWeight": 0,
+  "treatmentWeight": 0.5,
+  "states": [
+    {
+      "stateId": "control",
+      "influence": 0,
+      "targetIndex": 15,
+      "appliedMeshes": 4,
+      "otherMax": 0,
+      "influenceCount": 32
+    },
+    {
+      "stateId": "treatment",
+      "influence": 0.5,
+      "targetIndex": 15,
+      "appliedMeshes": 4,
+      "otherMax": 0,
+      "influenceCount": 32
+    }
+  ],
+  "camera": {
+    "derivation": "lab-derived head framing (camera-fit-to-bounds.ts resolveFocus('head') -> frameCamera) from the subject's own bind-pose bounds — identical for both states by construction, verified to 1 mm across the loads via packFraming bounds",
+    "framePx": {
+      "width": 1280,
+      "height": 960
+    },
+    "headBoxMeters": {
+      "min": {
+        "x": -0.0944,
+        "y": 1.4088,
+        "z": 0.027
+      },
+      "max": {
+        "x": 0.0979,
+        "y": 1.7325,
+        "z": 0.2707
+      }
+    }
+  },
+  "stills": [
+    {
+      "stateId": "control",
+      "path": ".openclinxr/evidence/au12-smile-grade/control.png",
+      "harvestPath": "docs/assets/au12-smile-control.png",
+      "bytes": 101454,
+      "sha256": "d15218acf00d864d61902f16e109f3bbc6ab1a7a430c1fd136bd0c6196201acc",
+      "luminance": {
+        "mean": 56.98,
+        "sd": 51.87
+      }
+    },
+    {
+      "stateId": "treatment",
+      "path": ".openclinxr/evidence/au12-smile-grade/treatment.png",
+      "harvestPath": "docs/assets/au12-smile-treatment.png",
+      "bytes": 104706,
+      "sha256": "1d728ad722ab005787ea3fbacee30a30e086c27925203649b5f3b37cc70303ec",
+      "luminance": {
+        "mean": 57,
+        "sd": 51.91
+      }
+    }
+  ],
+  "claimScope": "au12_mouth_corner_puller_isolated",
+  "notEvidenceFor": [
+    "clinical validity",
+    "quest readiness",
+    "AU6 cheek-raiser (absent on this GLB; shipped MPFB FACS has no AU6)",
+    "cavity win (inner-mouth visibility not assessed here)",
+    "whether 0.5 reads as reassured to a learner (structural intactness is not legibility)",
+    "production phoneme timing or dialogue mixer",
+    "scoring validity"
+  ],
+  "orchestratorGrade": {
+    "native": "1280x960 isolated-subject lab three.js, library lean female, focus=head",
+    "control": "mouth corners rest, slight downturn",
+    "treatment": "mouth-corner-puller 0.5: lip corners pull up and back (oblique AU12). No cheek puff, no crow's-feet, empty eye sockets unchanged.",
+    "mouthCornerCropPx": { "x0": 478, "y0": 490, "x1": 625, "y1": 645, "maxAbs": 175, "fracGt20": 0.037 },
+    "featureExtentPx": "~100 px mouth width in this frame — resolved",
+    "notLearnerStation": true
+  }
+}
