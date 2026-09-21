@@ -17,6 +17,12 @@ import { boundClipJointTrack } from "./bound-clip-foot-track.js";
  * assertion and append a `## FIXED` block below. Do not rewrite the original
  * paths or numbers.
  *
+ * ## FIXED (tsk_f68d658c9938ce74)
+ * Node graft of existing Walk_Formal sampler outputs reversed in time via
+ * `rebindBoundClipTravelHeading` in graft-bound-clip.ts. Stance-window travel z
+ * now matches rest toe−ankle +Z. inPlace / rootTravelMeters 0 unchanged.
+ * Rest z stays > 0.05 m. Not a 180 yaw, not --source-orientation, not IK bake.
+ *
  * claimScope: clip-space heading of Walk_Formal on the shipped physician.
  * notEvidenceFor: foot plant, gait, Quest, browser A08, factory IK bake.
  */
@@ -38,7 +44,7 @@ describe("the walk clip faces the same way it travels", () => {
     expect(restToe.z - restFoot.z).toBeGreaterThan(0.05);
   });
 
-  it.fails(
+  it(
     "(2) longest stance-window travel has the same sign as rest toe−ankle z",
     async () => {
       const [toe, foot] = await Promise.all([
