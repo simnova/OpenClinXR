@@ -427,7 +427,8 @@ function sampleMouthProbe(root) {
   return {
     head: headWorld,
     jaw: worldXYZ(jaw),
-    card: card ? { ...worldXYZ(card), ...cardLocal } : null,
+    cardWorld: worldXYZ(card),
+    cardLocal,
     teeth,
     teethInHead,
     namedJaw: typeof named?.jawOpenRadians === "number" ? Number(named.jawOpenRadians.toFixed(4)) : null,

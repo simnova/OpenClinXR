@@ -1,5 +1,5 @@
 import type { Group, Object3D } from "three";
-import { Box3, BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from "three";
+import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from "three";
 
 /**
  * Unlit cavity card behind the teeth, parented to `head`.
@@ -26,14 +26,13 @@ const OPEN_VISIBLE = 0.35;
 /** ~0.33 of JAW_OPEN_TEETH_CLEAR_RADIANS (0.15086); fv 0.023 stays hidden, e 0.068 shows. */
 const NAMED_JAW_VISIBLE = 0.05;
 /**
- * Fallback when no teeth mesh exists. Measured 2026-09-20 speech-emotion-video
- * frame 189 (viseme_aa): teeth back-center in head local is (0.016, -0.061, 0.065).
- * Constant (0, 0, 0.045) sat 6 cm above the teeth and inside the skull (0 px vs pink).
+ * Head-local from speech-emotion-video probe 2026-09-20 frame 189 (viseme_aa).
+ * Y/Z from the upper-teeth placement that first put 0xb34752 in the hole.
+ * x=-0.018 worlded through the left cheek (hlx recapture). x=0 keeps the
+ * fill inside the opening (hl0). (0,0,0.045) was 6 cm too high. Mid-Y AABB
+ * sat on the chin. Live AABB mid-X painted the right of the opening.
  */
-const HEAD_LOCAL = new Vector3(0, -0.02, 0.055);
-/** Behind posterior teeth (min.z) and just under the upper row (max.y). Mid-Y sat on the chin. */
-const TEETH_BACK_INSET = -0.008;
-const TEETH_UPPER_DROP = 0.008;
+const HEAD_LOCAL = new Vector3(0, -0.039, 0.055);
 
 type NamedJawDrive = {
   activeTargetName?: string | null;
@@ -57,34 +56,17 @@ function findHeadBone(root: Group): Object3D | null {
   return found;
 }
 
-function teethBackInHead(root: Group, head: Object3D): Vector3 | null {
-  const box = new Box3();
-  let found = false;
-  root.traverse((object: Object3D) => {
-    if (!(object instanceof Mesh)) return;
-    if (!/teeth/i.test(object.name)) return;
-    box.expandByObject(object);
-    found = true;
-  });
-  if (!found || box.isEmpty()) return null;
-  const world = new Vector3(
-    (box.min.x + box.max.x) / 2,
-    box.max.y - TEETH_UPPER_DROP,
-    box.min.z + TEETH_BACK_INSET,
-  );
-  return head.worldToLocal(world);
-}
-
 function ensureCard(root: Group, head: Object3D): Mesh {
   const existing = root.getObjectByName(CARD_NAME);
   if (existing instanceof Mesh) return existing;
   const card = new Mesh(
-    new BoxGeometry(0.036, 0.02, 0.024),
+    new BoxGeometry(0.048, 0.026, 0.028),
     new MeshBasicMaterial({ color: 0xb34752 }),
   );
   card.name = CARD_NAME;
   card.frustumCulled = false;
   head.add(card);
+  card.position.copy(HEAD_LOCAL);
   return card;
 }
 
@@ -92,9 +74,7 @@ export function applyInnerMouthCavity(root: Group, openness: number): void {
   const head = findHeadBone(root);
   if (head === null) return;
   const card = ensureCard(root, head);
-  root.updateMatrixWorld(true);
-  const local = teethBackInHead(root, head);
-  card.position.copy(local ?? HEAD_LOCAL);
+  card.position.copy(HEAD_LOCAL);
   const clamped = Number.isFinite(openness) ? Math.min(1, Math.max(0, openness)) : 0;
   const named = namedJawDrive(root);
   const namedRadians = typeof named?.jawOpenRadians === "number" ? named.jawOpenRadians : 0;
