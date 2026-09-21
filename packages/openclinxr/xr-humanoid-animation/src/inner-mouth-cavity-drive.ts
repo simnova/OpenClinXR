@@ -1,5 +1,15 @@
 import type { Group, Object3D } from "three";
-import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from "three";
+import {
+  BufferGeometry,
+  BoxGeometry,
+  DoubleSide,
+  Float32BufferAttribute,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  SkinnedMesh,
+  Vector3,
+} from "three";
 
 /**
  * Unlit cavity card behind the teeth, parented to `head`.
@@ -31,6 +41,15 @@ const NAMED_JAW_VISIBLE = 0.05;
  * z=0.075 poked both lip corners. x=-0.008 and -0.018 punched the left cheek.
  */
 const HEAD_LOCAL = new Vector3(0, -0.039, 0.068);
+const FACES_NAME = "openclinxr_inner_lip_faces";
+const BODY_NAME = /_body(?:\.\d+|\d+)?$/;
+const ATTEMPTED_KEY = "openClinXrInnerLipFacesAttempted";
+const ABS_X = 0.022;
+const Y_MIN = -0.062;
+const Y_MAX = -0.028;
+const Z_MIN = 0.074;
+const Z_MAX = 0.100;
+const INWARD_DOT = 0.25;
 
 type NamedJawDrive = {
   activeTargetName?: string | null;
@@ -52,6 +71,115 @@ function findHeadBone(root: Group): Object3D | null {
     if (found === null && object.name.toLowerCase().includes("head")) found = object;
   });
   return found;
+}
+
+function findBodyMeshes(root: Group): Mesh[] {
+  const found: Mesh[] = [];
+  root.traverse((object: Object3D) => {
+    if (object instanceof Mesh && BODY_NAME.test(object.name)) found.push(object);
+  });
+  return found;
+}
+
+function keepInnerLipTriangle(
+  ax: number,
+  ay: number,
+  az: number,
+  bx: number,
+  by: number,
+  bz: number,
+  cx: number,
+  cy: number,
+  cz: number,
+): boolean {
+  const mx = (ax + bx + cx) / 3;
+  const my = (ay + by + cy) / 3;
+  const mz = (az + bz + cz) / 3;
+  if (Math.abs(mx) >= ABS_X || my < Y_MIN || my > Y_MAX || mz < Z_MIN || mz > Z_MAX) return false;
+  const e1x = bx - ax;
+  const e1y = by - ay;
+  const e1z = bz - az;
+  const e2x = cx - ax;
+  const e2y = cy - ay;
+  const e2z = cz - az;
+  let nx = e1y * e2z - e1z * e2y;
+  let ny = e1z * e2x - e1x * e2z;
+  let nz = e1x * e2y - e1y * e2x;
+  const nLen = Math.hypot(nx, ny, nz);
+  if (nLen < 1e-12) return false;
+  nx /= nLen;
+  ny /= nLen;
+  nz /= nLen;
+  const tx = HEAD_LOCAL.x - mx;
+  const ty = HEAD_LOCAL.y - my;
+  const tz = HEAD_LOCAL.z - mz;
+  const tLen = Math.hypot(tx, ty, tz);
+  if (tLen < 1e-12) return false;
+  return (nx * tx + ny * ty + nz * tz) / tLen > INWARD_DOT;
+}
+
+function deformToHeadLocal(
+  mesh: Mesh,
+  index: number,
+  headInv: Matrix4,
+  target: Vector3,
+): void {
+  mesh.getVertexPosition(index, target);
+  target.applyMatrix4(mesh.matrixWorld);
+  target.applyMatrix4(headInv);
+}
+
+function extractInnerLipFaces(root: Group, head: Object3D): void {
+  if (root.userData[ATTEMPTED_KEY] === true) return;
+  root.userData[ATTEMPTED_KEY] = true;
+  const sources = findBodyMeshes(root);
+  if (sources.length === 0) {
+    console.log("INNER_LIP_FACES n=0 source=none skinned=false");
+    return;
+  }
+  sources.sort((a, b) => b.geometry.getAttribute("position").count - a.geometry.getAttribute("position").count);
+  const source = sources[0]!;
+  root.updateMatrixWorld(true);
+  if (source instanceof SkinnedMesh && source.skeleton) source.skeleton.update();
+  const headInv = new Matrix4().copy(head.matrixWorld).invert();
+  const geo = source.geometry;
+  const index = geo.index;
+  const pos = geo.getAttribute("position");
+  const triCount = index !== null ? index.count / 3 : pos.count / 3;
+  const a = new Vector3();
+  const b = new Vector3();
+  const c = new Vector3();
+  const positions: number[] = [];
+  for (let t = 0; t < triCount; t += 1) {
+    const i0 = index !== null ? index.getX(t * 3) : t * 3;
+    const i1 = index !== null ? index.getX(t * 3 + 1) : t * 3 + 1;
+    const i2 = index !== null ? index.getX(t * 3 + 2) : t * 3 + 2;
+    deformToHeadLocal(source, i0, headInv, a);
+    deformToHeadLocal(source, i1, headInv, b);
+    deformToHeadLocal(source, i2, headInv, c);
+    if (keepInnerLipTriangle(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z)) {
+      positions.push(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
+    }
+  }
+  const nTri = positions.length / 9;
+  console.log(`INNER_LIP_FACES n=${nTri} source=${source.name} skinned=${source instanceof SkinnedMesh}`);
+  if (nTri === 0) return;
+  const out = new BufferGeometry();
+  out.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  const clone = new Mesh(
+    out,
+    new MeshBasicMaterial({
+      color: 0xb34752,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2,
+      depthWrite: false,
+      side: DoubleSide,
+    }),
+  );
+  clone.name = FACES_NAME;
+  clone.frustumCulled = false;
+  head.add(clone);
 }
 
 function ensureCard(root: Group, head: Object3D): Mesh {
@@ -76,5 +204,9 @@ export function applyInnerMouthCavity(root: Group, openness: number): void {
   const clamped = Number.isFinite(openness) ? Math.min(1, Math.max(0, openness)) : 0;
   const named = namedJawDrive(root);
   const namedRadians = typeof named?.jawOpenRadians === "number" ? named.jawOpenRadians : 0;
-  card.visible = namedRadians > NAMED_JAW_VISIBLE || clamped > OPEN_VISIBLE;
+  const visible = namedRadians > NAMED_JAW_VISIBLE || clamped > OPEN_VISIBLE;
+  card.visible = visible;
+  if (visible) extractInnerLipFaces(root, head);
+  const faces = root.getObjectByName(FACES_NAME);
+  if (faces) faces.visible = visible;
 }

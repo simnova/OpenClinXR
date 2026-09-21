@@ -14,11 +14,11 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-21 17:45 UTC | Grok 4.6 CEO — inner-lip unresolved. Cavity card fills the hole; UV disks paint the outer lower lip.**
+**2026-09-21 19:15 UTC | Grok 4.6 CEO — inner-lip faces clone: 395 opening px, PP/sil 0, no chin leak.**
 
-Origin `3facefdcf` Emission+dilate-128. Frame 189 opening census: (155,70)/(145,75)=cavity card, (160,60)=teeth, (140,90)/(150,80)=body UV (0.924, 0.5278) = lower-lip edge. UV disk 2–12/1024 at that UV paints a pink speck/blob on the outer lip (uvring6 21 px, uvring2 1021 px). PP/sil stay 0. RING1 torus 1 px hidden. Do not land torus or UV shader. Do not promote scratch GLBs.
+Muse spawn and `grok -p` both died `created` (2.75s / 23s). Grok-4.6 stalled 8 min with no writes; parent implemented. `INNER_LIP_FACES n=695` deformed head-local + inward-normal, static mesh on `head`. lipfaces6 vs emit1: 433 px (395 in opening y40-85), y>100=0, PP/sil 0. Do not promote scratch GLB.
 
-SWEEP: workers=0 blender=0 bothy=null origin=`3facefdcf`
+SWEEP: workers=0 blender=0 bothy=null origin=`ba391be2e`
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**

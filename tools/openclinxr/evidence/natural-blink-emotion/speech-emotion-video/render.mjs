@@ -126,6 +126,10 @@ const browser = await chromium.launch({
 const page = await browser.newPage({ viewport: { width: opts.width, height: opts.height } });
 page.setDefaultTimeout(180_000);
 page.on("pageerror", (e) => console.error("pageerror", e.message));
+page.on("console", (msg) => {
+  const text = msg.text();
+  if (text.includes("INNER_LIP")) console.error(text);
+});
 await page.addInitScript(() => {
   window.__virtualNowMs = 0;
   performance.now = () => window.__virtualNowMs;

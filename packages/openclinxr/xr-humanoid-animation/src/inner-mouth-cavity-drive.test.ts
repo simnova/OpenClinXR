@@ -8,7 +8,17 @@
  * claimScope: card visible on open visemes, hidden on rest, via updateGeneratedHumanoidAnimations.
  * notEvidenceFor: anatomical palate; pixel grade of a new capture (parent grades).
  */
-import { BoxGeometry, Group, Line, Mesh, MeshBasicMaterial, Object3D, PerspectiveCamera } from "three";
+import {
+  BufferGeometry,
+  BoxGeometry,
+  Float32BufferAttribute,
+  Group,
+  Line,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  PerspectiveCamera,
+} from "three";
 import { describe, expect, it } from "vitest";
 import {
   createHumanoidEmotionExpressionState,
@@ -136,6 +146,65 @@ describe("inner mouth cavity drive", () => {
     }
     updateGeneratedHumanoidAnimations(context([slot]), 1 / 60, 1000, new PerspectiveCamera());
     expect(slot.root.getObjectByName("openclinxr_inner_mouth_cavity")?.visible).toBe(true);
+  });
+
+  it("an open viseme clones an inward inner-lip triangle on the body mesh", () => {
+    const slot = speakingSlot(["open"]);
+    const geo = new BufferGeometry();
+    geo.setAttribute(
+      "position",
+      new Float32BufferAttribute(
+        [-0.01, -0.05, 0.088, 0, -0.04, 0.088, 0.01, -0.05, 0.088],
+        3,
+      ),
+    );
+    const body = new Mesh(geo, new MeshBasicMaterial());
+    body.name = "mpfb_x_body001";
+    slot.root.add(body);
+    updateGeneratedHumanoidAnimations(context([slot]), 1 / 60, 1000, new PerspectiveCamera());
+    const faces = slot.root.getObjectByName("openclinxr_inner_lip_faces");
+    expect(faces, "inner-lip face clone").toBeTruthy();
+    expect(faces?.visible).toBe(true);
+  });
+
+  it("COUNTERWEIGHT: a rest viseme hides the inner-lip face clone", () => {
+    const slot = speakingSlot(["open"]);
+    const geo = new BufferGeometry();
+    geo.setAttribute(
+      "position",
+      new Float32BufferAttribute(
+        [-0.01, -0.05, 0.088, 0, -0.04, 0.088, 0.01, -0.05, 0.088],
+        3,
+      ),
+    );
+    const body = new Mesh(geo, new MeshBasicMaterial());
+    body.name = "mpfb_x_body001";
+    slot.root.add(body);
+    const ctx = context([slot]);
+    const camera = new PerspectiveCamera();
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
+    expect(slot.root.getObjectByName("openclinxr_inner_lip_faces")?.visible).toBe(true);
+    if (slot.activeSpeech) {
+      slot.activeSpeech.visemeSequence = ["rest"];
+      slot.activeSpeech.phonemeSequence = ["sil"];
+      slot.activeSpeech.bakedCues = [{ phoneme: "sil", atSecond: 0, durationSeconds: 60 }];
+    }
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 2000, camera);
+    expect(slot.root.getObjectByName("openclinxr_inner_lip_faces")?.visible).toBe(false);
+  });
+
+  it("COUNTERWEIGHT: a cheek triangle outside the box is not cloned", () => {
+    const slot = speakingSlot(["open"]);
+    const geo = new BufferGeometry();
+    geo.setAttribute(
+      "position",
+      new Float32BufferAttribute([-0.01, -0.04, 0.02, 0, -0.03, 0.02, 0.01, -0.04, 0.02], 3),
+    );
+    const body = new Mesh(geo, new MeshBasicMaterial());
+    body.name = "mpfb_x_body001";
+    slot.root.add(body);
+    updateGeneratedHumanoidAnimations(context([slot]), 1 / 60, 1000, new PerspectiveCamera());
+    expect(slot.root.getObjectByName("openclinxr_inner_lip_faces")).toBeFalsy();
   });
 
   it("COUNTERWEIGHT: visemeSequence sil plus baked PP hides the cavity card", () => {
