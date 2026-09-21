@@ -3785,6 +3785,9 @@ def main():
             f"fewer than 8 mouth-named face targets loaded ({len(mouth_named)}); "
             f"a bake that ships without usable mouth morphs must fail loudly"
         )
+    # AU12 mouth-corner-puller is shipped on factory GLBs and must not regress
+    if "mouth-corner-puller" not in (face_status.get("names") or []):
+        raise RuntimeError("missing required AU12 face target: mouth-corner-puller")
 
     # #432 (E6.3) — apply the 15 visemes02 targets BEFORE the #318 helper strip, as clothes
     # do. FaceService.load_targets is the proven tool (#428: faceservice.py:154): the flags

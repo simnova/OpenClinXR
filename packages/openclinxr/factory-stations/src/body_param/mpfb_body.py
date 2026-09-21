@@ -124,6 +124,9 @@ def load_mpfb_face_shape_keys(basemesh: bpy.types.Object, *, min_count: int = 24
             status["error"] = (
                 f"only {len(loaded_names)} face targets loaded (need ≥{min_count})"
             )
+        # AU12 mouth-corner-puller is shipped on factory GLBs and must not regress
+        if status.get("error") is None and "mouth-corner-puller" not in loaded_names:
+            status["error"] = "missing required AU12 face target: mouth-corner-puller"
     except Exception as exc:  # noqa: BLE001
         status["error"] = f"{type(exc).__name__}: {exc}"
         status["traceback"] = traceback.format_exc()[-1500:]
