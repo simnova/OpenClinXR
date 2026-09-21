@@ -334,6 +334,202 @@ export async function graftBoundClip(input: {
   };
 }
 
+export type ClipTravelHeadingRebindReport = {
+  schemaVersion: "openclinxr.clip-travel-heading-rebind.v1";
+  generatedAt: string;
+  clipName: string;
+  method: "reverse_existing_channels";
+  target: { path: string; sha256Before: string; bytesBefore: number };
+  output: { path: string; sha256: string; bytes: number };
+  reversedSamplers: number;
+  reversedChannels: number;
+  rootTravelMeters: number;
+  inPlace: boolean;
+  published: ClipGraftReport["published"];
+  animationsAfter: string[];
+  geometryParity: ClipGraftReport["geometryParity"];
+};
+
+const ROOT_TRAVEL_IN_PLACE_METERS = 0.01;
+
+function accessorStride(type: string): number {
+  if (type === "VEC4") return 4;
+  if (type === "VEC3") return 3;
+  if (type === "VEC2") return 2;
+  if (type === "SCALAR") return 1;
+  throw new Error(`rebindBoundClipTravelHeading: unsupported accessor type ${type}`);
+}
+
+/** Reverse keyframe VALUES, keep times. LINEAR/STEP only — CUBICSPLINE stores tangents beside values. */
+function reverseSamplerOutput(output: Accessor, clipName: string): void {
+  const array = output.getArray();
+  if (!array) throw new Error(`rebindBoundClipTravelHeading: ${clipName} sampler output has no array.`);
+  const stride = accessorStride(output.getType());
+  if (array.length % stride !== 0) {
+    throw new Error(
+      `rebindBoundClipTravelHeading: ${clipName} output length ${array.length} is not a multiple of stride ${stride}.`,
+    );
+  }
+  const count = array.length / stride;
+  const reversed = array.slice() as typeof array;
+  for (let index = 0; index < count; index += 1) {
+    const source = (count - 1 - index) * stride;
+    const dest = index * stride;
+    for (let component = 0; component < stride; component += 1) {
+      reversed[dest + component] = array[source + component]!;
+    }
+  }
+  output.setArray(reversed);
+}
+
+function rootTranslationNetMeters(animation: Animation, rootJoint: string): number {
+  const channel = animation
+    .listChannels()
+    .find((entry) => entry.getTargetNode()?.getName() === rootJoint && entry.getTargetPath() === "translation");
+  const array = channel?.getSampler()?.getOutput()?.getArray();
+  if (!array || array.length < 6) return 0;
+  const last = array.length - 3;
+  return Math.hypot(Number(array[last]) - Number(array[0]), Number(array[last + 2]) - Number(array[2]));
+}
+
+/**
+ * Flip an in-place walk's stance-window travel heading by reversing existing sampler outputs.
+ *
+ * A 180° world yaw of every pose also flips rest toe−ankle z, which clause (1) of the planted
+ * heading test requires stay > 0.05 m. Time-reversing the already-grafted channels keeps that rest
+ * sign and flips only the stance travel (measured: rest z +0.128 → last-frame z +0.080; forward.z
+ * −0.9999 → +0.9999). No Blender, no IK bake, no new clip name. Root net XZ stays 0.
+ */
+export async function rebindBoundClipTravelHeading(input: {
+  targetPath: string;
+  clipName: string;
+  outputPath: string;
+  rootJoint?: string;
+  publish?: { provenancePath: string };
+}): Promise<ClipTravelHeadingRebindReport> {
+  const io = new NodeIO();
+  const targetBytes = await readFile(input.targetPath);
+  const document = await io.read(input.targetPath);
+  const animation = document
+    .getRoot()
+    .listAnimations()
+    .find((entry) => entry.getName() === input.clipName);
+  if (!animation) {
+    throw new Error(
+      `rebindBoundClipTravelHeading: ${input.targetPath} has no clip named ${input.clipName}. Present: ${document
+        .getRoot()
+        .listAnimations()
+        .map((entry) => entry.getName())
+        .join(", ")}`,
+    );
+  }
+
+  const cubic = animation
+    .listSamplers()
+    .filter((sampler) => sampler.getInterpolation() === "CUBICSPLINE")
+    .map((sampler) => sampler.getName() || "(unnamed)");
+  if (cubic.length > 0) {
+    throw new Error(
+      `rebindBoundClipTravelHeading: refused — ${input.clipName} carries CUBICSPLINE sampler(s) (${[...new Set(cubic)].join(", ")}). Reversing those accessors would treat tangents as values.`,
+    );
+  }
+
+  const before = meshStats(document);
+  const seenOutputs = new Set<Accessor>();
+  for (const sampler of animation.listSamplers()) {
+    const output = sampler.getOutput();
+    if (!output) {
+      throw new Error(`rebindBoundClipTravelHeading: ${input.clipName} has a sampler with no output accessor.`);
+    }
+    if (seenOutputs.has(output)) continue;
+    seenOutputs.add(output);
+    reverseSamplerOutput(output, input.clipName);
+  }
+
+  const rootJoint = input.rootJoint ?? "root";
+  const rootTravelMeters = rootTranslationNetMeters(animation, rootJoint);
+  if (rootTravelMeters >= ROOT_TRAVEL_IN_PLACE_METERS) {
+    throw new Error(
+      `rebindBoundClipTravelHeading: refused — ${input.clipName} root XZ net ${rootTravelMeters} m after reverse; in-place graft must keep rootTravelMeters 0.`,
+    );
+  }
+
+  const after = meshStats(document);
+  if (before.primitives !== after.primitives || before.triangles !== after.triangles) {
+    throw new Error(
+      `rebindBoundClipTravelHeading: refused — rebind changed geometry (${before.triangles} -> ${after.triangles} triangles).`,
+    );
+  }
+  if (before.positionDigest !== after.positionDigest) {
+    throw new Error("rebindBoundClipTravelHeading: refused — rebind changed POSITION accessor bytes.");
+  }
+
+  await io.write(input.outputPath, document);
+  const outputBytes = await readFile(input.outputPath);
+
+  let published: ClipGraftReport["published"] = null;
+  if (input.publish) {
+    await writeFile(input.targetPath, outputBytes);
+    const record = JSON.parse(await readFile(input.publish.provenancePath, "utf8")) as {
+      outputSha256?: string;
+      outputBytes?: number;
+      sourceNotes?: string[];
+      motionClips?: Array<Record<string, unknown>>;
+    };
+    record.outputSha256 = sha256(outputBytes);
+    record.outputBytes = outputBytes.byteLength;
+    const entry = (record.motionClips ?? []).find((clip) => clip.clipName === input.clipName);
+    if (!entry) {
+      throw new Error(
+        `rebindBoundClipTravelHeading: refused — ${input.publish.provenancePath} has no motionClips entry for ${input.clipName}. Publishing a hash without the clip record would describe bytes the record does not name.`,
+      );
+    }
+    if (entry.inPlace !== true || Number(entry.rootTravelMeters) !== 0) {
+      throw new Error(
+        `rebindBoundClipTravelHeading: refused — ${input.clipName} provenance is not inPlace/rootTravelMeters 0.`,
+      );
+    }
+    entry.headingRebind = {
+      method: "reverse_existing_channels",
+      deliveredBy: "tools/openclinxr/factory/graft-bound-clip.ts",
+      reboundAt: new Date().toISOString(),
+      note: "Reversed existing Walk_Formal sampler outputs so stance-window travel z matches rest toe−ankle +Z. inPlace/rootTravelMeters 0 unchanged. Not a 180 yaw, not --source-orientation, not an IK bake.",
+    };
+    entry.deliveredBy = "tools/openclinxr/factory/graft-bound-clip.ts";
+    const note =
+      "2026-09-21 heading rebind: reversed existing openclinxr_retarget_walk_formal_cc0 sampler outputs (Node graft, no Blender). Stance travel z sign now matches rest toe−ankle +Z. Geometry POSITION bytes identical; inPlace/rootTravelMeters 0 kept.";
+    record.sourceNotes = [...(record.sourceNotes ?? []).filter((row) => row !== note), note];
+    await writeFile(input.publish.provenancePath, `${JSON.stringify(record, null, 2)}\n`, "utf8");
+    published = {
+      assetPath: input.targetPath,
+      provenancePath: input.publish.provenancePath,
+      outputSha256: sha256(outputBytes),
+      outputBytes: outputBytes.byteLength,
+    };
+  }
+
+  return {
+    schemaVersion: "openclinxr.clip-travel-heading-rebind.v1",
+    generatedAt: new Date().toISOString(),
+    clipName: input.clipName,
+    method: "reverse_existing_channels",
+    target: { path: input.targetPath, sha256Before: sha256(targetBytes), bytesBefore: targetBytes.byteLength },
+    output: { path: input.outputPath, sha256: sha256(outputBytes), bytes: outputBytes.byteLength },
+    reversedSamplers: seenOutputs.size,
+    reversedChannels: animation.listChannels().length,
+    rootTravelMeters,
+    inPlace: true,
+    published,
+    animationsAfter: document.getRoot().listAnimations().map((entry) => entry.getName()),
+    geometryParity: {
+      primitives: after.primitives,
+      trianglesBefore: before.triangles,
+      trianglesAfter: after.triangles,
+      positionBytesIdentical: before.positionDigest === after.positionDigest,
+    },
+  };
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const flagValue = (flag: string, fallback: string): string => {
@@ -341,6 +537,20 @@ async function main(): Promise<void> {
     return index >= 0 ? (args[index + 1] ?? fallback) : fallback;
   };
   const targetPath = flagValue("--target", "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb");
+  if (args.includes("--rebind-travel-heading")) {
+    const report = await rebindBoundClipTravelHeading({
+      targetPath,
+      clipName: flagValue("--clip", "openclinxr_retarget_walk_formal_cc0"),
+      outputPath: flagValue("--output", ".openclinxr/evidence/walk-bind/physician-heading-rebind.glb"),
+      ...(args.includes("--publish")
+        ? { publish: { provenancePath: targetPath.replace(/\.glb$/u, ".provenance.json") } }
+        : {}),
+    });
+    const reportPath = flagValue("--report", ".openclinxr/evidence/walk-bind/physician-heading-rebind.json");
+    await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+    process.stdout.write(`${reportPath}\n`);
+    return;
+  }
   const removeClipName = flagValue("--remove-clip", "");
   const removeReason = flagValue(
     "--remove-reason",
