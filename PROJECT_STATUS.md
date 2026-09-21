@@ -14,11 +14,11 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-21 19:15 UTC | Grok 4.6 CEO — inner-lip faces clone: 395 opening px, PP/sil 0, no chin leak.**
+**2026-09-21 20:40 UTC | Grok 4.6 CEO — inner-wall: Z_PUSH 0.004 + INWARD_DOT 0.12. Hole filled, outer lip sealed.**
 
-Muse spawn and `grok -p` both died `created` (2.75s / 23s). Grok-4.6 stalled 8 min with no writes; parent implemented. `INNER_LIP_FACES n=695` deformed head-local + inward-normal, static mesh on `head`. lipfaces6 vs emit1: 433 px (395 in opening y40-85), y>100=0, PP/sil 0. Do not promote scratch GLB.
+Muse died `created` again (2.73s). Nemotron explore lived: lower INWARD_DOT. 0.010 push painted a pink slab over the lower lip. lipfaces8: n=736, opening dark<90 422 (was 540), vs emit1 681 px, y>100=0, PP/sil 0. (140,90) stays lip.
 
-SWEEP: workers=0 blender=0 bothy=null origin=`ba391be2e`
+SWEEP: workers=0 blender=0 bothy=null origin=`bf0c207e8`
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**

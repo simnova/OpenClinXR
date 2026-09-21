@@ -49,7 +49,9 @@ const Y_MIN = -0.062;
 const Y_MAX = -0.028;
 const Z_MIN = 0.074;
 const Z_MAX = 0.100;
-const INWARD_DOT = 0.25;
+const INWARD_DOT = 0.12;
+/** Cavity z=0.068; inner wall ~0.089. 0.010 poked through the lower lip. */
+const HEAD_Z_PUSH = 0.004;
 
 type NamedJawDrive = {
   activeTargetName?: string | null;
@@ -158,7 +160,11 @@ function extractInnerLipFaces(root: Group, head: Object3D): void {
     deformToHeadLocal(source, i1, headInv, b);
     deformToHeadLocal(source, i2, headInv, c);
     if (keepInnerLipTriangle(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z)) {
-      positions.push(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
+      positions.push(
+        a.x, a.y, a.z + HEAD_Z_PUSH,
+        b.x, b.y, b.z + HEAD_Z_PUSH,
+        c.x, c.y, c.z + HEAD_Z_PUSH,
+      );
     }
   }
   const nTri = positions.length / 9;
