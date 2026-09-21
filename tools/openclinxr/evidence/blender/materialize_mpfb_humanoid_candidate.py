@@ -3646,6 +3646,7 @@ def main():
         f"rgb={[round(x, 3) for x in _skin_rgb]} shader=enhanced_skin"
     )
 
+    INNER_MOUTH_DILATE_PX = 128
     # Inner mouth (CEO grade 2026-09-19: open aa shows an upper tooth row with a
     # dark-hole lower cavity). MPFB ships the proven region mask
     # data/textures/mpfb_inside-mouth.jpg (CC0 via LICENSE.ASSETS.md, recorded
@@ -3664,6 +3665,7 @@ def main():
     from bl_ext.user_default.mpfb.entities.nodemodel.v2.composites.nodewrappermpfbsystemvaluetextureinsidemouth import (  # noqa: E402
         NodeWrapperMpfbSystemValueTextureInsideMouth as _InsideMouthWrapper,
     )
+    from bl_ext.user_default.mpfb.services.locationservice import LocationService as _MouthLoc  # noqa: E402
 
     _skin_nt = _skin_mat.node_tree
     _is_mouth = _InsideMouthWrapper.create_instance(
@@ -3697,9 +3699,49 @@ def main():
     _mouth_mix.label = "Inner Mouth Mix"
     _skin_nt.links.new(_mouth_from_sock, _mouth_mix.inputs[1])
     _skin_nt.links.new(_cavity_emit.outputs["Emission"], _mouth_mix.inputs[2])
-    _skin_nt.links.new(_is_mouth.outputs["Value"], _mouth_mix.inputs["Fac"])
+    # CC0 island misses 333 inner-lip-wall faces (inside<32). Numpy 3x3 OR
+    # dilate=128 covers 332/333. Mix Fac is the dilated image, not IsInsideMouth
+    # (wrapper stays in the graph) and not IsLips (outer vermillion).
+    _mouth_jpg = pathlib.Path(_MouthLoc.get_mpfb_data("textures")) / "mpfb_inside-mouth.jpg"
+    if not _mouth_jpg.is_file():
+        raise RuntimeError(f"inner-mouth wire: missing CC0 mask {_mouth_jpg}")
+    _src_mouth = bpy.data.images.load(str(_mouth_jpg), check_existing=True)
+    _mw, _mh = _src_mouth.size
+    _src_px = np.array(_src_mouth.pixels[:]).reshape(_mh, _mw, 4)
+    _dilated = (_src_px[..., 0] * 255.0 >= 32.0)
+    for _ in range(INNER_MOUTH_DILATE_PX):
+        _pad = np.pad(_dilated, 1, mode="constant", constant_values=False)
+        _dilated = (
+            _pad[:-2, :-2] | _pad[:-2, 1:-1] | _pad[:-2, 2:]
+            | _pad[1:-1, :-2] | _pad[1:-1, 1:-1] | _pad[1:-1, 2:]
+            | _pad[2:, :-2] | _pad[2:, 1:-1] | _pad[2:, 2:]
+        )
+    _dil_px = np.zeros((_mh, _mw, 4), dtype=np.float32)
+    _dil_px[..., :3] = _dilated[..., None]
+    _dil_px[..., 3] = 1.0
+    _job_tmp = os.environ.get("OPENCLINXR_JOB_TMP")
+    _dil_dir = (
+        pathlib.Path(_job_tmp)
+        if _job_tmp
+        else pathlib.Path(tempfile.mkdtemp(prefix="ocx-innermouth-dilate-"))
+    )
+    _dil_dir.mkdir(parents=True, exist_ok=True)
+    _dil_png = _dil_dir / f"mpfb_inside-mouth-dilate{INNER_MOUTH_DILATE_PX}.png"
+    _dil_img = bpy.data.images.new("InnerMouthDilate", _mw, _mh, alpha=True)
+    _dil_img.pixels[:] = _dil_px.ravel()
+    _dil_img.filepath_raw = str(_dil_png)
+    _dil_img.file_format = "PNG"
+    _dil_img.save()
+    _dil_tex = _skin_nt.nodes.new("ShaderNodeTexImage")
+    _dil_tex.name = "InnerMouthDilateTex"
+    _dil_tex.label = "Inner Mouth Dilate"
+    _dil_tex.image = bpy.data.images.load(str(_dil_png), check_existing=False)
+    _dil_uv = _skin_nt.nodes.new("ShaderNodeTexCoord")
+    _dil_uv.name = "InnerMouthDilateUV"
+    _skin_nt.links.new(_dil_uv.outputs["UV"], _dil_tex.inputs["Vector"])
+    _skin_nt.links.new(_dil_tex.outputs["Color"], _mouth_mix.inputs["Fac"])
     _skin_nt.links.new(_mouth_mix.outputs["Shader"], _mouth_out_sock)
-    print("INNER_MOUTH mask=mpfb_inside-mouth.jpg node=IsInsideMouth mix=InnerMouthMix")
+    print("INNER_MOUTH mask=mpfb_inside-mouth.jpg dilate=128 node=IsInsideMouth mix=InnerMouthMix")
 
     # #222: wire the proven bounds-derived scalp/hair material region from the Anny rail
     # (tools/openclinxr/asset-pipeline/anny/automate_blender.py:4201) instead of hand-authoring

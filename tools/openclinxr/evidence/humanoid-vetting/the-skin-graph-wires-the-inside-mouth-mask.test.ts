@@ -41,6 +41,8 @@ describe("skin graph wires the inside-mouth mask", () => {
     expect(src, "cavity mix").toContain("InnerMouthMix");
     expect(src, "unlit emission").toContain("ShaderNodeEmission");
     expect(src, "INNER_MOUTH marker").toContain("INNER_MOUTH");
+    expect(src, "dilate print").toContain("dilate=128");
+    expect(src, "dilate constant").toContain("INNER_MOUTH_DILATE_PX");
   });
 
   it("uses a skeptic-visible gum pink for the cavity shade", () => {
