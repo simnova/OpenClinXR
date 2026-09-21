@@ -14,17 +14,13 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-20 00:15 UTC | Grok 4.6 CEO — HEAD_LOCAL set from aa probe (0, -0.039, 0.055).**
+**2026-09-21 01:05 UTC | Grok 4.6 CEO — cavity HEAD_LOCAL (0, -0.039, 0.068); back-hole filled, near-lip wall remains.**
 
-Landed **17ea8b92f**. Probe frame 189 viseme_aa: cardWorld with live AABB mid-X was +0.025 (right of hole). Constant (0,-0.039,0.055) from upper-teeth Y/Z. Local x=-0.018 punched the left cheek.
-
-MY GRADE native 200×180 scratch nurse:
-- PP/sil 0 px vs pink.
-- aa HEAD_LOCAL (0,-0.039,0.055): pink fill in the opening (533 px). Remaining dark left/lower. notEvidenceFor palate.
+Ladder (aa 200×180, PP/sil 0 px throughout): x<0 leaks left cheek; z=0.075 pokes lip corners; yaw/taller/side-slab no screen delta. Best: (0,-0.039,0.068) 48×26×28 mm — pink fill behind the tooth row, no leak. Remaining dark is the near inner-lip wall (card is behind it).
 
 Do not publish website. Do not promote shipped nurse GLB.
 
-SWEEP: workers=0 blender=idle bothy=null origin=`744884403` local=`17ea8b92f`
+SWEEP: workers=0 blender=idle bothy=null origin=`17ea8b92f`
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**

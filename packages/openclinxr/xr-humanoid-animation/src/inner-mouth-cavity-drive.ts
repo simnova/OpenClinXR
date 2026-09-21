@@ -26,13 +26,11 @@ const OPEN_VISIBLE = 0.35;
 /** ~0.33 of JAW_OPEN_TEETH_CLEAR_RADIANS (0.15086); fv 0.023 stays hidden, e 0.068 shows. */
 const NAMED_JAW_VISIBLE = 0.05;
 /**
- * Head-local from speech-emotion-video probe 2026-09-20 frame 189 (viseme_aa).
- * Y/Z from the upper-teeth placement that first put 0xb34752 in the hole.
- * x=-0.018 worlded through the left cheek (hlx recapture). x=0 keeps the
- * fill inside the opening (hl0). (0,0,0.045) was 6 cm too high. Mid-Y AABB
- * sat on the chin. Live AABB mid-X painted the right of the opening.
+ * Head-local from 2026-09-21 recapture ladder (aa frame 189).
+ * (0,-0.039,0.055) filled the opening. z=0.068 denser fill, no lip poke.
+ * z=0.075 poked both lip corners. x=-0.008 and -0.018 punched the left cheek.
  */
-const HEAD_LOCAL = new Vector3(0, -0.039, 0.055);
+const HEAD_LOCAL = new Vector3(0, -0.039, 0.068);
 
 type NamedJawDrive = {
   activeTargetName?: string | null;

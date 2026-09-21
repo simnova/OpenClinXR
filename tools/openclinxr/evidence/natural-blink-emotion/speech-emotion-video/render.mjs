@@ -31,6 +31,7 @@ function parseArgs() {
     width: Number(get("--width", "1280")),
     height: Number(get("--height", "720")),
     fps: Number(get("--fps", "30")),
+    skipEncode: args.includes("--skip-encode"),
   };
 }
 
@@ -176,6 +177,7 @@ writeFileSync(join(opts.out, "state.json"), JSON.stringify({
   frames: rows,
 }, null, 1));
 
+if (!opts.skipEncode) {
 // Audio: one adelay per line at its start, amix, apad, trim to total.
 {
   const inputs = [];
@@ -192,6 +194,7 @@ writeFileSync(join(opts.out, "state.json"), JSON.stringify({
     `${delays.join(";")};${mixInputs}amix=inputs=${lines.length}:normalize=0,apad,atrim=0:${totalSec}[mix]`,
     "-map", "[mix]", "-ar", "22050", "-ac", "1", join(opts.out, "audio.wav")],
     { stdio: "inherit" });
+}
 }
 
 // Encode both from the same PNG sequence.
@@ -212,6 +215,7 @@ function encodeMp4(crf) {
     "-movflags", "+faststart", "-c:a", "aac", "-b:a", "96k",
     "-shortest", join(opts.out, "video.mp4")], { stdio: "inherit" });
 }
+if (!opts.skipEncode) {
 const EIGHT_MB = 8 * 1024 * 1024;
 encodeWebm(1400);
 if (fileSizeBytes(join(opts.out, "video.webm")) > EIGHT_MB) {
@@ -222,6 +226,7 @@ encodeMp4(18);
 if (fileSizeBytes(join(opts.out, "video.mp4")) > EIGHT_MB) {
   console.error("video.mp4 exceeds 8 MB; re-encoding at crf 21");
   encodeMp4(21);
+}
 }
 
 // Poster: closeup frame at L1 midpoint.
