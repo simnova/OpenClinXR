@@ -39,6 +39,7 @@ describe("skin graph wires the inside-mouth mask", () => {
     const src = mat();
     expect(src, "mouth mask instance").toContain("IsInsideMouth");
     expect(src, "cavity mix").toContain("InnerMouthMix");
+    expect(src, "unlit emission").toContain("ShaderNodeEmission");
     expect(src, "INNER_MOUTH marker").toContain("INNER_MOUTH");
   });
 

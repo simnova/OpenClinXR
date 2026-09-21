@@ -3685,16 +3685,18 @@ def main():
     _mouth_out_sock = _router_link.to_socket
     _mouth_from_sock = _router_link.from_socket
     _skin_nt.links.remove(_router_link)
-    _cavity_bsdf = _skin_nt.nodes.new("ShaderNodeBsdfPrincipled")
-    _cavity_bsdf.name = "InnerMouthCavity"
-    _cavity_bsdf.label = "Inner Mouth Cavity"
-    _cavity_bsdf.inputs["Base Color"].default_value = (0.72, 0.28, 0.32, 1.0)
-    _cavity_bsdf.inputs["Roughness"].default_value = 0.85
+    # Principled in the cavity is lit and reads as the same dark hole (aa
+    # crops pixel-identical). Emission bakes an unlit shade into albedo.
+    _cavity_emit = _skin_nt.nodes.new("ShaderNodeEmission")
+    _cavity_emit.name = "InnerMouthCavity"
+    _cavity_emit.label = "Inner Mouth Cavity"
+    _cavity_emit.inputs["Color"].default_value = (0.72, 0.28, 0.32, 1.0)
+    _cavity_emit.inputs["Strength"].default_value = 1.0
     _mouth_mix = _skin_nt.nodes.new("ShaderNodeMixShader")
     _mouth_mix.name = "InnerMouthMix"
     _mouth_mix.label = "Inner Mouth Mix"
     _skin_nt.links.new(_mouth_from_sock, _mouth_mix.inputs[1])
-    _skin_nt.links.new(_cavity_bsdf.outputs["BSDF"], _mouth_mix.inputs[2])
+    _skin_nt.links.new(_cavity_emit.outputs["Emission"], _mouth_mix.inputs[2])
     _skin_nt.links.new(_is_mouth.outputs["Value"], _mouth_mix.inputs["Fac"])
     _skin_nt.links.new(_mouth_mix.outputs["Shader"], _mouth_out_sock)
     print("INNER_MOUTH mask=mpfb_inside-mouth.jpg node=IsInsideMouth mix=InnerMouthMix")

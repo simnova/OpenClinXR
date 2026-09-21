@@ -14,13 +14,11 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-21 01:05 UTC | Grok 4.6 CEO — cavity HEAD_LOCAL (0, -0.039, 0.068); back-hole filled, near-lip wall remains.**
+**2026-09-21 16:32 UTC | Grok 4.6 CEO — inner-lip: Emission mix lands; remaining dark is unmasked inner vermillion. Ring worker in flight.**
 
-Ladder (aa 200×180, PP/sil 0 px throughout): x<0 leaks left cheek; z=0.075 pokes lip corners; yaw/taller/side-slab no screen delta. Best: (0,-0.039,0.068) 48×26×28 mm — pink fill behind the tooth row, no leak. Remaining dark is the near inner-lip wall (card is behind it).
+Scratch emit nurse `/tmp/openclinxr-innermouth-emit-nurse1` recapture vs r6 = 30 px. Remaining aa (140,90)=(121,89,80). `mpfb_inside-mouth.jpg` 82752 texels vs `mpfb_lips.jpg` 5039; neither island covers the visible inner-lip wall. Runtime body AABB/sphere leaked. Next: inner-lip torus in `inner-mouth-cavity-drive.ts` (wt/inner-lip-ring). Do not promote emit GLB. Do not publish.
 
-Do not publish website. Do not promote shipped nurse GLB.
-
-SWEEP: workers=0 blender=idle bothy=null origin=`17ea8b92f`
+SWEEP: workers=1 blender=0 bothy=null origin=`342076b75`
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**
