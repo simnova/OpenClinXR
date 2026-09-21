@@ -14,11 +14,11 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-21 16:32 UTC | Grok 4.6 CEO — inner-lip: Emission mix lands; remaining dark is unmasked inner vermillion. Ring worker in flight.**
+**2026-09-21 17:45 UTC | Grok 4.6 CEO — inner-lip unresolved. Cavity card fills the hole; UV disks paint the outer lower lip.**
 
-Scratch emit nurse `/tmp/openclinxr-innermouth-emit-nurse1` recapture vs r6 = 30 px. Remaining aa (140,90)=(121,89,80). `mpfb_inside-mouth.jpg` 82752 texels vs `mpfb_lips.jpg` 5039; neither island covers the visible inner-lip wall. Runtime body AABB/sphere leaked. Next: inner-lip torus in `inner-mouth-cavity-drive.ts` (wt/inner-lip-ring). Do not promote emit GLB. Do not publish.
+Origin `3facefdcf` Emission+dilate-128. Frame 189 opening census: (155,70)/(145,75)=cavity card, (160,60)=teeth, (140,90)/(150,80)=body UV (0.924, 0.5278) = lower-lip edge. UV disk 2–12/1024 at that UV paints a pink speck/blob on the outer lip (uvring6 21 px, uvring2 1021 px). PP/sil stay 0. RING1 torus 1 px hidden. Do not land torus or UV shader. Do not promote scratch GLBs.
 
-SWEEP: workers=1 blender=0 bothy=null origin=`342076b75`
+SWEEP: workers=0 blender=0 bothy=null origin=`3facefdcf`
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**
