@@ -42,6 +42,7 @@ const NAMED_JAW_VISIBLE = 0.05;
  */
 const HEAD_LOCAL = new Vector3(0, -0.039, 0.068);
 const FACES_NAME = "openclinxr_inner_lip_faces";
+const RIM_NAME = "openclinxr_inner_lip_rim";
 const BODY_NAME = /_body(?:\.\d+|\d+)?$/;
 const ATTEMPTED_KEY = "openClinXrInnerLipFacesAttempted";
 const ABS_X = 0.022;
@@ -50,8 +51,10 @@ const Y_MAX = -0.028;
 const Z_MIN = 0.074;
 const Z_MAX = 0.100;
 const INWARD_DOT = 0.12;
-/** Cavity z=0.068; inner wall ~0.089. 0.010 poked through the lower lip. */
-const HEAD_Z_PUSH = 0.004;
+/** NO +Z slab: user forbid the 0.010 pink slab. */
+const HEAD_Z_PUSH = 0;
+/** Rim only: along triangle normal, toward camera for front-facing faces. Not +Z. */
+const RIM_NORMAL_PUSH = 0.002;
 
 type NamedJawDrive = {
   activeTargetName?: string | null;
@@ -120,6 +123,43 @@ function keepInnerLipTriangle(
   return (nx * tx + ny * ty + nz * tz) / tLen > INWARD_DOT;
 }
 
+function keepInnerLipRim(
+  ax: number,
+  ay: number,
+  az: number,
+  bx: number,
+  by: number,
+  bz: number,
+  cx: number,
+  cy: number,
+  cz: number,
+): boolean {
+  const mx = (ax + bx + cx) / 3;
+  const my = (ay + by + cy) / 3;
+  const mz = (az + bz + cz) / 3;
+  if (Math.abs(mx) >= 0.018 || my < -0.055 || my > -0.034 || mz < 0.082 || mz > 0.094) return false;
+  const e1x = bx - ax;
+  const e1y = by - ay;
+  const e1z = bz - az;
+  const e2x = cx - ax;
+  const e2y = cy - ay;
+  const e2z = cz - az;
+  let nx = e1y * e2z - e1z * e2y;
+  let ny = e1z * e2x - e1x * e2z;
+  let nz = e1x * e2y - e1y * e2x;
+  const nLen = Math.hypot(nx, ny, nz);
+  if (nLen < 1e-12) return false;
+  nx /= nLen;
+  ny /= nLen;
+  nz /= nLen;
+  const tx = HEAD_LOCAL.x - mx;
+  const ty = HEAD_LOCAL.y - my;
+  const tz = HEAD_LOCAL.z - mz;
+  const tLen = Math.hypot(tx, ty, tz);
+  if (tLen < 1e-12) return false;
+  return (nx * tx + ny * ty + nz * tz) / tLen <= INWARD_DOT;
+}
+
 function deformToHeadLocal(
   mesh: Mesh,
   index: number,
@@ -151,7 +191,8 @@ function extractInnerLipFaces(root: Group, head: Object3D): void {
   const a = new Vector3();
   const b = new Vector3();
   const c = new Vector3();
-  const positions: number[] = [];
+  const cavityPos: number[] = [];
+  const rimPos: number[] = [];
   for (let t = 0; t < triCount; t += 1) {
     const i0 = index !== null ? index.getX(t * 3) : t * 3;
     const i1 = index !== null ? index.getX(t * 3 + 1) : t * 3 + 1;
@@ -160,32 +201,63 @@ function extractInnerLipFaces(root: Group, head: Object3D): void {
     deformToHeadLocal(source, i1, headInv, b);
     deformToHeadLocal(source, i2, headInv, c);
     if (keepInnerLipTriangle(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z)) {
-      positions.push(
-        a.x, a.y, a.z + HEAD_Z_PUSH,
-        b.x, b.y, b.z + HEAD_Z_PUSH,
-        c.x, c.y, c.z + HEAD_Z_PUSH,
-      );
+      cavityPos.push(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
+    } else if (keepInnerLipRim(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z)) {
+      const e1x = b.x - a.x;
+      const e1y = b.y - a.y;
+      const e1z = b.z - a.z;
+      const e2x = c.x - a.x;
+      const e2y = c.y - a.y;
+      const e2z = c.z - a.z;
+      let nx = e1y * e2z - e1z * e2y;
+      let ny = e1z * e2x - e1x * e2z;
+      let nz = e1x * e2y - e1y * e2x;
+      const nLen = Math.hypot(nx, ny, nz) || 1;
+      nx = (nx / nLen) * RIM_NORMAL_PUSH;
+      ny = (ny / nLen) * RIM_NORMAL_PUSH;
+      nz = (nz / nLen) * RIM_NORMAL_PUSH;
+      rimPos.push(a.x + nx, a.y + ny, a.z + nz, b.x + nx, b.y + ny, b.z + nz, c.x + nx, c.y + ny, c.z + nz);
     }
   }
-  const nTri = positions.length / 9;
-  console.log(`INNER_LIP_FACES n=${nTri} source=${source.name} skinned=${source instanceof SkinnedMesh}`);
-  if (nTri === 0) return;
-  const out = new BufferGeometry();
-  out.setAttribute("position", new Float32BufferAttribute(positions, 3));
-  const clone = new Mesh(
-    out,
-    new MeshBasicMaterial({
-      color: 0xb34752,
-      polygonOffset: true,
-      polygonOffsetFactor: -2,
-      polygonOffsetUnits: -2,
-      depthWrite: false,
-      side: DoubleSide,
-    }),
+  console.log(
+    `INNER_LIP_FACES n=${cavityPos.length / 9} rim=${rimPos.length / 9} source=${source.name} skinned=${source instanceof SkinnedMesh}`,
   );
-  clone.name = FACES_NAME;
-  clone.frustumCulled = false;
-  head.add(clone);
+  if (cavityPos.length > 0) {
+    const out = new BufferGeometry();
+    out.setAttribute("position", new Float32BufferAttribute(cavityPos, 3));
+    const clone = new Mesh(
+      out,
+      new MeshBasicMaterial({
+        color: 0xb34752,
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
+        polygonOffsetUnits: -2,
+        depthWrite: false,
+        side: DoubleSide,
+      }),
+    );
+    clone.name = FACES_NAME;
+    clone.frustumCulled = false;
+    head.add(clone);
+  }
+  if (rimPos.length > 0) {
+    const out = new BufferGeometry();
+    out.setAttribute("position", new Float32BufferAttribute(rimPos, 3));
+    const rim = new Mesh(
+      out,
+      new MeshBasicMaterial({
+        color: 0xb34752,
+        polygonOffset: true,
+        polygonOffsetFactor: -8,
+        polygonOffsetUnits: -8,
+        depthWrite: false,
+        side: DoubleSide,
+      }),
+    );
+    rim.name = RIM_NAME;
+    rim.frustumCulled = false;
+    head.add(rim);
+  }
 }
 
 function ensureCard(root: Group, head: Object3D): Mesh {
@@ -215,4 +287,6 @@ export function applyInnerMouthCavity(root: Group, openness: number): void {
   if (visible) extractInnerLipFaces(root, head);
   const faces = root.getObjectByName(FACES_NAME);
   if (faces) faces.visible = visible;
+  const rim = root.getObjectByName(RIM_NAME);
+  if (rim) rim.visible = visible;
 }

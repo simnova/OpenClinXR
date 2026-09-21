@@ -14,11 +14,11 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-21 20:40 UTC | Grok 4.6 CEO — inner-wall: Z_PUSH 0.004 + INWARD_DOT 0.12. Hole filled, outer lip sealed.**
+**2026-09-21 21:05 UTC | Grok 4.6 CEO — inner-rim: 42 front-facing tris, 2mm along normal, no +Z. (140,82) now pink.**
 
-Muse died `created` again (2.73s). Nemotron explore lived: lower INWARD_DOT. 0.010 push painted a pink slab over the lower lip. lipfaces8: n=736, opening dark<90 422 (was 540), vs emit1 681 px, y>100=0, PP/sil 0. (140,90) stays lip.
+Muse died `created` 4.18s. Nemotron wrote rim keep then stalled; parent split rim mesh. depthTest-false and 172-tri rim were slabs. lipfaces14: n=736 rim=42, HEAD_Z_PUSH=0, (140,82)=(179,71,82), (140,90) stays lip, PP/sil 0, y>100=0.
 
-SWEEP: workers=0 blender=0 bothy=null origin=`bf0c207e8`
+SWEEP: workers=0 blender=0 bothy=null origin=`10ca6cb4b`
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**

@@ -216,4 +216,24 @@ describe("inner mouth cavity drive", () => {
     updateGeneratedHumanoidAnimations(context([slot]), 1 / 60, 1000, new PerspectiveCamera());
     expect(slot.root.getObjectByName("openclinxr_inner_mouth_cavity")?.visible).toBe(false);
   });
+
+  it("keepInnerLipRim keeps a front-facing triangle in the rim box (CCW from +Z, normal +Z)", () => {
+    const slot = speakingSlot(["open"]);
+    const geo = new BufferGeometry();
+    // CCW from +Z so normal is +Z (front-facing)
+    geo.setAttribute(
+      "position",
+      new Float32BufferAttribute(
+        [-0.008, -0.048, 0.088, 0.008, -0.048, 0.088, 0, -0.04, 0.088],
+        3,
+      ),
+    );
+    const body = new Mesh(geo, new MeshBasicMaterial());
+    body.name = "mpfb_x_body001";
+    slot.root.add(body);
+    updateGeneratedHumanoidAnimations(context([slot]), 1 / 60, 1000, new PerspectiveCamera());
+    const rim = slot.root.getObjectByName("openclinxr_inner_lip_rim");
+    expect(rim, "inner-lip rim face clone").toBeTruthy();
+    expect(rim?.visible).toBe(true);
+  });
 });
