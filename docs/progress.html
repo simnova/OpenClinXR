@@ -33,7 +33,7 @@
           <h2>Clinic lighting came off a white clip. One generated room has a rug, a baseboard, a door, and a window.</h2>
         </div>
         <p>
-          Two separate pieces of evidence. The floor and wall images are packed texture atlases from the primary-care clinic file, not a photograph of a room. The black rectangles are unused texture space. The interior still is an Infinigen generate, seed 7, furniture off, rendered with EEVEE Next at 1280&times;720. That still is the mesh before the new simplify step.
+          Two separate pieces of evidence. The floor and wall images are packed texture atlases from the primary-care clinic file, not a photograph of a room. The black rectangles are unused texture space. The interior still is a rebuilt Infinigen generate, seed 7, furniture off, rendered with EEVEE Next at 1280&times;720. The casing is wider than the first still, and the near wall is plaster. That still is before the simplify step.
         </p>
         <div class="metric-table-wrap">
           <table class="metric-table">
@@ -68,8 +68,8 @@
           </figure>
         </div>
         <figure style="margin:16px 0 0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
-          <img src="assets/room-carpet-trim-seed7-2026-09-22.png" alt="Infinigen seed 7 interior at native 1280 by 720: blue-gray carpet, baseboard, panel door, curtained window, tile walls. A moulded door frame is not obvious." style="width:100%; height:auto; display:block;">
-          <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Seed 7 interior, native 1280&times;720, before simplify. Rug floor, baseboard, panel door, curtained window. Walls are still tile. A moulded frame around the door is not obvious in this shot. The generate log counts five casing objects.</figcaption>
+          <img src="assets/room-carpet-trim-seed7-2026-09-22.png" alt="Rebuilt seed 7 doorway at native 1280 by 720: a green casing frames the opening, the near wall is plaster, and a second door with its own frame sits beyond." style="width:100%; height:auto; display:block;">
+          <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Rebuild, native 1280&times;720. The casing is 11 cm wide and stands proud of the wall, so the frame around the opening is visible. The near wall is plaster, not tile. A second door and a baseboard are visible through the opening. This crop does not show the rug.</figcaption>
         </figure>
         <p>
           After that generate, the room station simplify (commit <code>cd1fb13fb</code>) ran on a copy: skirting and openings 158,700 to 99,116 triangles, walls and floors 6,336 to 3,197, file 8.4 MB to 1.4 MB. The largest casing cube stayed near 15,000 triangles. There is no second still of the simplified mesh.
