@@ -1,0 +1,21 @@
+{
+  "entrypoints": {
+    ".": [
+      "AudioEvent",
+      "LocalVoiceProviderAdapter",
+      "MockVoiceProviderAdapter",
+      "RealtimeVoiceGatewayPosture",
+      "RealtimeVoiceGatewayPostureInput",
+      "RealtimeVoiceProtocolLaneId",
+      "VoiceGateway",
+      "VoiceProviderAdapter",
+      "VoiceRequestPolicy",
+      "collectVoiceStream",
+      "createDefaultVoiceGateway",
+      "createRealtimeVoiceGatewayPosture",
+      "realtimeVoiceProtocol",
+      "selectRealtimeVoiceProtocol",
+      "supportedRealtimeVoiceControlTypes"
+    ]
+  }
+}

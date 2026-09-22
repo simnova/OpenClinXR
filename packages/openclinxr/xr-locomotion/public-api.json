@@ -1,0 +1,33 @@
+{
+  "entrypoints": {
+    ".": [
+      "ExamineeLocomotionEvidence",
+      "PORTAL_THRESHOLD_Z",
+      "PortalTransitionContext",
+      "PortalTransitionEvidence",
+      "RolePostureContext",
+      "XrHandGroup",
+      "XrInputSourceWithGamepad",
+      "XrSessionLike",
+      "applyDeterministicPortalPreviewStart",
+      "applyGeneratedHumanoidRoleSpecificPosture",
+      "applyLocomotion",
+      "buildExamineeLocomotionEvidence",
+      "createExamineeLocomotionTrail",
+      "createKeyboardLocomotion",
+      "createXrHandGestureLocomotionState",
+      "createXrHandSelectState",
+      "formatHandSelectStatus",
+      "formatPortalTransitionEvidence",
+      "isLocomotionVectorActive",
+      "isXrHandPinching",
+      "maybeCompleteTraceActionFromHandSelect",
+      "parsePortalPreviewStart",
+      "recordHandSelectTraceLatency",
+      "sampleRoomScalePose",
+      "updateExamineeLocomotionTrail",
+      "updatePortalTransitionEvidence",
+      "updateReusableExteriorAnteroomVisibility"
+    ]
+  }
+}

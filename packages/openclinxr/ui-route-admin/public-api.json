@@ -1,0 +1,48 @@
+{
+  "entrypoints": {
+    ".": [
+      "ReviewReplayWorkbenchProvider",
+      "ReviewReplayWorkbenchUI",
+      "ScenarioBankWorkbenchProvider",
+      "ScenarioBankWorkbenchUI",
+      "ScenarioDetailWorkbenchProvider",
+      "ScenarioDetailWorkbenchUI",
+      "SeedBlueprintWorkbenchProvider",
+      "SeedBlueprintWorkbenchUI",
+      "adminPublicationGates",
+      "adminWorkbenchRoutes",
+      "capabilityTagColor",
+      "findAdminWorkbenchRoute"
+    ],
+    "./case-authoring-workbench": [
+      "CaseAuthoringWorkbench"
+    ],
+    "./environment-generation-queue-panel": [
+      "EnvironmentGenerationQueuePanel"
+    ],
+    "./faculty-compile-lock": [
+      "FacultyCompileLockRow",
+      "facultyCompileLockAllowsCompile",
+      "facultyCompileLockIdentityMoved",
+      "mergeFacultyCompileLockRows"
+    ],
+    "./faculty-compile-lock-types": [
+      "FacultyCompileLockClient"
+    ],
+    "./review-replay-readiness-summary-panel": [
+      "ReviewReplayReadinessSummaryPanel"
+    ],
+    "./scenario-review-gate-panel": [
+      "AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX",
+      "SCENARIO_REVIEW_RECORDABLE_DIMENSIONS",
+      "SCENARIO_REVIEW_STALE_DECISION_DISPLAY",
+      "ScenarioReviewGatePanel",
+      "authoredScenarioContentIdentity",
+      "resolveScenarioReviewGateDisplay",
+      "scenarioReviewGatesAllowLearnerUse"
+    ],
+    "./seed-worldview-queue": [
+      "SeedWorldviewQueue"
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "entrypoints": {
+    ".": [
+      "AssembledExamAdmittedPhaseEvent",
+      "AssembledExamLedgerResumeProjection",
+      "AssembledExamResumeDecision",
+      "AssembledStationContext",
+      "DurableStorePersistenceHooks",
+      "ProviderHealthSnapshot",
+      "PublicationTargetUse",
+      "REQUIRED_STATE_OUTCOMES",
+      "ReviewerEvidence",
+      "RouteRuntimeActorInteractionInput",
+      "ScenarioCatalogPort",
+      "ScenarioRuntime",
+      "ScenarioRuntimeActorTurn",
+      "ScenarioRuntimeDurableStore",
+      "assembledExamOrchestratorClaimBoundary",
+      "buildInitialSceneSpec",
+      "createDefaultScenarioRuntime",
+      "createDurableStoreFromPersistenceHooks",
+      "createScenarioRuntimeWithPersistenceHooks",
+      "initialSceneSpecPermitsPromotion",
+      "requiredStateOutcomePromotes",
+      "resolveScenarioById",
+      "resumeAssembledExam"
+    ]
+  }
+}

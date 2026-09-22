@@ -1,0 +1,17 @@
+{
+  "entrypoints": {
+    ".": [
+      "buildActorModelContext",
+      "createMultiActorClinicalSession",
+      "createPersistenceSpikeStores",
+      "evaluateMultiActorPersistencePhase2Strategy",
+      "evaluateMultiActorStateOptions",
+      "persistLatestInteractionTurn",
+      "recordClinicalAction",
+      "rehydrateRealtimeCacheFromDurableState",
+      "routeActorInteraction",
+      "updateActorSpatialState",
+      "writeRealtimeCacheSnapshot"
+    ]
+  }
+}

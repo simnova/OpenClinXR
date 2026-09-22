@@ -1,0 +1,23 @@
+{
+  "entrypoints": {
+    ".": [
+      "CompiledMotionClipV1",
+      "MotionGlbBakeClip",
+      "ScenarioMotionCompileInput",
+      "bakeMotionProgramToGlb",
+      "compileMotionProgram",
+      "deriveSkeletonProfileFromRigAsset",
+      "planMotionProgram",
+      "readMotionGlbClipId"
+    ],
+    "./planted-red-manifest": [
+      "DerivedPlantedEntry",
+      "DiscoveredPlantedClause",
+      "INSTRUMENT_FAILURES",
+      "PLANTED_REDS",
+      "PlantedRed",
+      "derivePlantedEntries",
+      "discoverPlantedClauses"
+    ]
+  }
+}

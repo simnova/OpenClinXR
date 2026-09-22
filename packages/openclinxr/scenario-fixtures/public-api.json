@@ -1,0 +1,47 @@
+{
+  "entrypoints": {
+    ".": [
+      "AuthoredUtteranceRecord",
+      "DialogueFixtureSeed",
+      "PEDS_ASTHMA_SCENARIO_ID",
+      "affectForAuthoredRecord",
+      "buildDynamicEncounterFactoryPlanningProjection",
+      "buildDynamicEncounterFactoryProjectionArtifact",
+      "buildScenarioBankExamSequenceProjection",
+      "clinicKneePainScenario",
+      "createLearnerScenarioView",
+      "edChestPainDialogueSeeds",
+      "edChestPainScenario",
+      "edChestPainScenarioV2",
+      "edChestPainScenarioV3",
+      "evaluateScenarioBankMaturity",
+      "keywordAffectFallbackFromText",
+      "pediatricAsthmaScenario",
+      "resolveAuthoredUtteranceRecord",
+      "scenarioBank",
+      "scenarioDialogueSeedBank",
+      "variantScenarioBank"
+    ],
+    "./authored-utterance-record": [
+      "PEDS_ASTHMA_SCENARIO_ID",
+      "firstNameFromDisplayName",
+      "learnerVisibleAuthoredCaption",
+      "resolveAuthoredUtteranceRecord"
+    ],
+    "./ed-chest-pain": [
+      "edChestPainScenario",
+      "edChestPainScenarioV2",
+      "edChestPainScenarioV3"
+    ],
+    "./pediatric-asthma": [
+      "pediatricAsthmaDialogueSeeds",
+      "pediatricAsthmaScenario"
+    ],
+    "./scenario-bank": [
+      "findScenarioFixtureById",
+      "responseClipForBodyRegion",
+      "scenarioBank",
+      "scenarioDialogueSeedBank"
+    ]
+  }
+}

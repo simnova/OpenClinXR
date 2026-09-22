@@ -1,0 +1,19 @@
+{
+  "entrypoints": {
+    ".": [
+      "ExamRunQueryDeps",
+      "ExamStationContext",
+      "booleanQueryParam",
+      "buildExamNavigationHref",
+      "buildExamRunStationOutcome",
+      "configuredExamRunId",
+      "configuredExamSequence",
+      "findFormStationOutcome",
+      "formElapsedSecondForCurrentStation",
+      "formatStationClock",
+      "mergeExamRunStationOutcome",
+      "nextExamScenarioId",
+      "positiveIntegerQueryParam"
+    ]
+  }
+}

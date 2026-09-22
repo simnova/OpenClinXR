@@ -1,0 +1,33 @@
+{
+  "entrypoints": {
+    ".": [
+      "PedsActorListenerCueContext",
+      "ROOM_ENVIRONMENTAL_REALISM_CUE_IDS",
+      "applyPedsActorPlayerSequenceListenerCues",
+      "buildHumanoidSpeechEvidence",
+      "buildRuntimeReproducibilityEvidence",
+      "createFrameAccumulator",
+      "createTraceSelectLatencyRecorder",
+      "formatActorPlayerRuntimeMetadataSummary",
+      "formatEnvironmentRoomSummary",
+      "formatLearnerRuntimeUseGate",
+      "formatMaterializationAttachmentSummary",
+      "formatRemainingRuntimeBlockerReasons",
+      "formatRuntimePostureLane",
+      "formatRuntimeReadinessDecision",
+      "formatTechnicalGapStatus",
+      "formatTraceInteractionEvidenceSummary",
+      "pedsActorPlayerRuntimeTurns",
+      "recordFrame",
+      "recordPedsActorPlayerRuntimePlaybackEvidence",
+      "recordTraceSelectLatency",
+      "updateEnvironmentStateForTrace",
+      "updateManualEvidencePanel",
+      "updateRuntimePosturePanel",
+      "updateTraceActionHandoffEvidence",
+      "updateTraceInteractionEvidenceSummary",
+      "updateTraceReadiness",
+      "updateXrStatus"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "entrypoints": {
+    ".": [
+      "RealTelemetryRecorder",
+      "TelemetryRecorder",
+      "TelemetryRunCounters",
+      "TelemetrySnapshot",
+      "TelemetrySpanRecord",
+      "createInMemoryTelemetryRecorder",
+      "createTelemetryRecorder",
+      "openClinXrSpanNames",
+      "summarizeTelemetrySpans",
+      "telemetryAttributeNames",
+      "telemetryRouteAttributes"
+    ]
+  }
+}

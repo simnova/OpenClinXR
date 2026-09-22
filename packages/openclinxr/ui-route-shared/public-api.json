@@ -1,0 +1,22 @@
+{
+  "entrypoints": {
+    ".": [
+      "AdminControlPlaneClient",
+      "FacultyCompileLockClient",
+      "buildAdminGraphqlEndpoint",
+      "compileEncounterWorld",
+      "createAdminControlPlaneClient",
+      "createRouteManifest",
+      "findRouteByPath"
+    ],
+    "./admin-api-client-types": [
+      "AdminAssembledExamReplayProjection",
+      "AdminReviewPacketReplay",
+      "AdminScenario",
+      "AdminScenarioReviewDecision"
+    ],
+    "./compile-encounter-world": [
+      "compileEncounterWorld"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "entrypoints": {
+    ".": [
+      "ActorDialogueAdaptiveEvidence",
+      "ActorDialoguePlaybackEvidence",
+      "ActorDialogueSequence",
+      "ActorDialogueTurn",
+      "PedsActorPlayerRuntimePlaybackEvidence",
+      "PedsActorPlayerRuntimeSequenceEvidence",
+      "PedsActorPlayerRuntimeTurn",
+      "PedsAdaptiveDialogueBranchResolution",
+      "PedsAdaptiveDialogueEvidence",
+      "applyPedsActorPlayerSequenceListenerCues",
+      "createActorDialogueStore",
+      "dedupePedsActorPlayerRuntimeTurns",
+      "humanoidDialogueDurationMs",
+      "initialDialogueTextForSelectedScenario",
+      "localDialogueActorIdForTraceTag",
+      "localDialogueGazeTargetForTraceTag",
+      "normalizePedsActorPlayerEmotion",
+      "pedsActorPlayerBundleDialogueTurns",
+      "playLiveFrozenActorTurn",
+      "playPedsActorPlayerRuntimeSequence",
+      "playPedsActorPlayerRuntimeTurn",
+      "recordPedsActorPlayerRuntimePlaybackEvidence",
+      "runtimeDialogueTurnForTraceTag",
+      "scenarioDialogueEmotionContext",
+      "schedulePedsActorPlayerRuntimePlaybackIfReady",
+      "triggerHumanoidDialogue",
+      "triggerHumanoidDialogueForTrace",
+      "triggerPedsActorPlayerRuntimeTurnForTrace",
+      "triggerPedsAdaptiveDialogueBranch"
+    ]
+  }
+}

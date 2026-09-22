@@ -1,0 +1,12 @@
+{
+  "entrypoints": {
+    ".": [
+      "AgentMemoryEntry",
+      "createAgentDispatchPackets",
+      "createAgentLoopPlan",
+      "normalizeLegacyScorecard",
+      "recommendBackgroundAgentModel",
+      "serializeAgentLoopPlan"
+    ]
+  }
+}

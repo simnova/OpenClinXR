@@ -1,0 +1,201 @@
+{
+  "entrypoints": {
+    ".": [
+      "AssetManifest",
+      "ED_MONITOR_BOUNDS",
+      "ED_STRETCHER_DECK_BOUNDS",
+      "ENVIRONMENT_SHELL_DESCRIPTORS",
+      "EnvironmentGenerationPacket",
+      "EnvironmentGenerationQueue",
+      "EnvironmentGenerationWorkOrderQueue",
+      "HumanoidRealismMetadata",
+      "InMemoryAssetRegistry",
+      "MEASURED_STATION_GEOMETRY",
+      "ROOM_PROP_ACCENT_COLOR_FALLBACK",
+      "ROOM_PROP_BODY_COLOR_FALLBACK",
+      "ScenarioAssetBudget",
+      "ScenarioAssetReadiness",
+      "ScenarioGenerationEvidence",
+      "ScenarioOptimizationEvidence",
+      "ScenarioSceneGenerationPipelineWorkOrderQueue",
+      "bedsideClearanceViolations",
+      "bedsideTargetForClinician",
+      "buildAssetProductionReviewPacket",
+      "buildEncounterAssetNeedsReadinessManifest",
+      "buildEnvironmentGenerationPacket",
+      "buildEnvironmentGenerationQueue",
+      "buildEnvironmentGenerationWorkOrder",
+      "buildEnvironmentGenerationWorkOrderQueue",
+      "buildScenarioSceneGenerationPipelineWorkOrder",
+      "buildScenarioSceneGenerationPipelineWorkOrderQueue",
+      "createEdChestPainLocalAssetEvidenceFixtureManifests",
+      "createEdChestPainPlaceholderManifests",
+      "createScenarioPlaceholderManifests",
+      "evaluateAssetManifest",
+      "evaluateAssetPipelineTool",
+      "evaluateAssetPipelineToolMatrix",
+      "evaluateAssetProductionReadinessLadder",
+      "evaluateScenarioAssetBudget",
+      "evaluateScenarioGenerationEvidence",
+      "evaluateScenarioOptimizationEvidence",
+      "forwardVectorForHeading",
+      "headingRadiansToward",
+      "listShippedCastScenarioIds",
+      "monitorVisibilityFrom",
+      "parseRuntimeRoomPropColorHex",
+      "recommendedAssetPipelineTools",
+      "resolveEnvironmentShellDescriptor",
+      "resolveMorphTarget",
+      "resolvePoseBone",
+      "screenNormal",
+      "selectAssetPipelineToolsForLane",
+      "unstagedCastActors",
+      "validateAssetManifestStructure"
+    ],
+    "./accepted-scene-plan-evidence": [
+      "revalidateAcceptedScenePlan"
+    ],
+    "./actor-posture": [
+      "ActorPosture",
+      "DEFAULT_PATIENT_CHAIR_POSITION",
+      "DEFAULT_STRETCHER_POSITION",
+      "SEATED_CLIP_NAME",
+      "STANDING_CLIP_NAME",
+      "SUPINE_CLIP_NAME",
+      "clipBindingForPosture",
+      "composeSupportedActorWorldPosition",
+      "resolveActorPosture",
+      "seatedActorWorldPosition",
+      "seatedVerticalOffsetForSeatHeight",
+      "supineActorWorldPosition",
+      "supineVerticalOffsetSeed"
+    ],
+    "./approach-executor": [
+      "CLINICIAN_WALK_SPEED_MPS",
+      "FOOT_CONTACT_HEIGHT_METERS",
+      "footSlideMeters",
+      "stepBedsideApproach"
+    ],
+    "./bedside-approach-path": [
+      "BedsideApproachPlan",
+      "planBedsideApproach"
+    ],
+    "./case-actor-placements": [
+      "authoredCasePlacements"
+    ],
+    "./case-approach-intent": [
+      "ObservedApproachGeometry",
+      "ObservedFloorFrame",
+      "ResolvedBedsideApproach",
+      "geometryRevisionDigest",
+      "resolveBedsideApproachIntent"
+    ],
+    "./case-frozen-scene-plans": [
+      "CASE_FROZEN_SCENE_PLANS"
+    ],
+    "./case-owned-scene-plan": [
+      "CASE_SCENE_PLAN_AUTHORIZED_VARIATION_INDICES",
+      "CASE_SCENE_PLAN_SOLVER_VERSION"
+    ],
+    "./case-runtime-equipment": [
+      "unrealizableEquipmentDecisions"
+    ],
+    "./cast-asset-constants": [
+      "MPFB_GOWN_ADULT_PATIENT_GLB",
+      "PEDS_CHILD_GLB",
+      "PEDS_PARENT_GLB"
+    ],
+    "./encounter-bundle-admission": [
+      "ScenePlanAdmission",
+      "admitFrozenScenePlan",
+      "admitFrozenScenePlanForObservedScene",
+      "carriedAcceptedScenePlan",
+      "inspectBundleEligibility",
+      "inspectPinnedBundleIdentity",
+      "stationIdForSceneClosureScenario",
+      "verifyCommittedScenePlanAgainstDisk"
+    ],
+    "./environment-zone-templates": [
+      "FAMILY_CHAIR",
+      "fixturePlacementRule",
+      "resolveFixtureSlotPosition",
+      "resolveFixtureSlotsForRoom"
+    ],
+    "./fixture-wall-mounting": [
+      "NamedShellWall",
+      "wallFacingYawRadians"
+    ],
+    "./frozen-scene-replay": [
+      "reopenFrozenScene"
+    ],
+    "./initial-scene-contents": [
+      "bindInitialSceneContents"
+    ],
+    "./layout-solve": [
+      "resolveBedsideLayoutFromSeed"
+    ],
+    "./measured-station-geometry-freshness": [
+      "freshMeasuredTriangleCounts"
+    ],
+    "./runtime-asset-review": [
+      "EncounterBundleFactoryMember",
+      "EncounterBundleFactoryMemberKind",
+      "EncounterBundleMemberContentIdentity",
+      "PromoteReviewedFactoryOutputsInput",
+      "RuntimeAssetReviewDecision",
+      "encounterBundleFactoryMemberKinds",
+      "immutableEncounterBundleClaimScope",
+      "immutableEncounterBundleNotEvidenceFor",
+      "promoteEncounterRuntimeAssetBundleForLocalUse",
+      "promoteReviewedFactoryOutputsToImmutableEncounterBundle"
+    ],
+    "./runtime-bundle-lookups": [
+      "findRuntimeActorAsset",
+      "findRuntimeActorAssetByRole",
+      "findRuntimeEquipmentAsset"
+    ],
+    "./runtime-bundles": [
+      "ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS",
+      "ENCOUNTER_LEARNER_RUNTIME_REQUIRED_GATE_IDS",
+      "EncounterDynamicBehaviorCoverageSummary",
+      "EncounterFactoryDryRunSummary",
+      "EncounterFactoryInputPlanningSummary",
+      "EncounterRuntimeActorPlacement",
+      "EncounterRuntimeAsset",
+      "EncounterRuntimeAssetBundle",
+      "EncounterRuntimeDialogueTurn",
+      "EncounterRuntimeEvidenceGateId",
+      "EncounterRuntimeLearnerUseGate",
+      "EncounterRuntimeRoomProp",
+      "EncounterRuntimeSceneManifest",
+      "LearnerRuntimeAssetBundle",
+      "PedsHumanoidMaterializationHandoff",
+      "RuntimeAssetKind",
+      "RuntimeAssetReviewStatus",
+      "RuntimeAssetStoreKind",
+      "buildEncounterDynamicBehaviorCoverageSummary",
+      "buildEncounterFactoryDryRunSummary",
+      "buildEncounterFactoryInputPlanningSummary",
+      "buildEncounterFactorySummaryContracts",
+      "buildEncounterRuntimeAssetBundle",
+      "buildEncounterRuntimeBundlePublicationMetadata",
+      "buildGuardedRuntimeSelectorDisabledDecision",
+      "createEdChestPainLocalEncounterRuntimeAssetBundle",
+      "createEdChestPainLocalLearnerRuntimeAssetBundle",
+      "createEdChestPainRuntimeSceneManifest",
+      "evaluateEncounterRuntimeLearnerUseGate",
+      "registerGeneratedRuntimeAssetReference",
+      "resolveRuntimeAssetBlobUrl",
+      "resolveRuntimeAssetStoreConfig",
+      "resolveRuntimeAssetUrl",
+      "resolveScenarioActorCast",
+      "toLearnerRuntimeAssetBundle"
+    ],
+    "./scene-plan-freeze": [
+      "FreezeScenePlanInput",
+      "canonicalJson",
+      "freezeAcceptedScenePlan",
+      "observeScenePlanEvidence"
+    ]
+  }
+}

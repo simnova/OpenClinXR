@@ -1,0 +1,48 @@
+{
+  "entrypoints": {
+    ".": [
+      "GeneratedHumanoidAnimationSlot",
+      "HumanoidActingCueRecord",
+      "HumanoidAnimationRuntimeContext",
+      "HumanoidDialogueEmotionContext",
+      "HumanoidDialogueGazeTarget",
+      "HumanoidEmotionExpressionState",
+      "HumanoidExpressionEmotion",
+      "HumanoidExpressionWeights",
+      "HumanoidSpeechPlayback",
+      "MouthGazePoseComparatorEvidenceRecord",
+      "RuntimeHumanoidActingCueEvidenceRecord",
+      "applyHumanoidMorphTargetCue",
+      "buildHumanoidSpeechEvidence",
+      "createHumanoidEmotionExpressionState",
+      "humanoidDialogueDurationMs",
+      "isGeneratedRuntimeDrive",
+      "orientHumanoidEyeFocusCue",
+      "orientHumanoidTowardGazeTarget",
+      "playManifestMotionClip",
+      "resolveHumanoidGazeTargetWorld",
+      "startHumanoidEmotionTransition",
+      "updateGeneratedHumanoidAnimations",
+      "updateHumanoidEmotionExpression"
+    ],
+    "./case-owned-approach-runtime": [
+      "CaseOwnedApproachFrame",
+      "advanceCaseOwnedBedsideApproach",
+      "applyCaseOwnedStanceLock",
+      "createCaseOwnedBedsideApproach",
+      "measureStanceGroundAdvance",
+      "sampleLocomotionStanceTrack"
+    ],
+    "./locomotion-clip-playback": [
+      "playLocomotionClip"
+    ],
+    "./mounted-approach-geometry": [
+      "observeMountedApproachGeometry"
+    ],
+    "./station-bedside-approach": [
+      "applyStationBedsideStanceLock",
+      "createStationBedsideApproachState",
+      "updateStationBedsideApproach"
+    ]
+  }
+}

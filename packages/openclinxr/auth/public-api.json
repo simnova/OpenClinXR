@@ -1,0 +1,15 @@
+{
+  "entrypoints": {
+    ".": [
+      "AuthIdentity",
+      "DEFAULT_DEV_AUTH_IDENTITY",
+      "DEFAULT_DEV_AUTH_SECRET",
+      "canReadStationRun",
+      "hasFacultyAccess",
+      "parseBearerAuthorization",
+      "resolveSessionLearnerId",
+      "signAuthToken",
+      "verifyAuthToken"
+    ]
+  }
+}

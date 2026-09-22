@@ -1,0 +1,42 @@
+{
+  "entrypoints": {
+    ".": [
+      "ActorModelContext",
+      "AsyncDurableMultiActorSessionStore",
+      "DurableClinicalEventRecord",
+      "DurableClinicalEventReviewProjection",
+      "DurableConversationTurnRecord",
+      "DurableEmotionalStateTimelineRecord",
+      "DurableExamFormEncounterBundlePins",
+      "DurableExamStationEncounterBundlePin",
+      "ExamFormEncounterBundlePinPersistencePort",
+      "InteractionRoutingReason",
+      "LaunchPinnedStationAssetsInput",
+      "LaunchPinnedStationAssetsResult",
+      "MultiActorClinicalSession",
+      "PersistExamFormEncounterBundlePinsInput",
+      "RecordClinicalActionInput",
+      "RouteActorInteractionInput",
+      "buildActorModelContext",
+      "createDurableExamFormEncounterBundlePins",
+      "createMultiActorClinicalSession",
+      "createPersistenceSpikeStores",
+      "durableExamStationEncounterBundlePinClaimScope",
+      "durableExamStationEncounterBundlePinNotEvidenceFor",
+      "evaluateMultiActorPersistencePhase2Strategy",
+      "launchPinnedStationAssetsFromPort",
+      "persistLatestInteractionTurn",
+      "projectDurableClinicalEventForReview",
+      "recordClinicalAction",
+      "rehydrateRealtimeCacheFromDurableState",
+      "routeActorInteraction",
+      "updateActorSpatialState",
+      "writeRealtimeCacheSnapshot"
+    ],
+    "./accepted-scene-plan": [
+      "DurableAcceptedScenePlanRecord",
+      "acceptedScenePlanProblems",
+      "requireAcceptedScenePlan"
+    ]
+  }
+}

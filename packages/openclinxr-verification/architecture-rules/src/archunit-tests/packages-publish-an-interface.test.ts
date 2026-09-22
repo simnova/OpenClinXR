@@ -4,7 +4,6 @@ import {
   checkExportSurface,
   exportedSymbols,
   measureExportSurface,
-  readExportCeiling,
 } from "../checks/export-surface-budgets.ts";
 
 /**
@@ -18,15 +17,15 @@ import {
  * deleted check.
  */
 describe("packages publish an interface", () => {
-  it("(1) no package publishes more than its ceiling, and no new star wall appears", () => {
+  it("(1) no new star wall appears; the numeric rootEntrypointExports ceiling is not the gate", () => {
     const violations = checkExportSurface();
     expect(violations.map((v) => v.detail), violations.map((v) => v.detail).join("\n")).toEqual([]);
   });
 
-  it("(2) POSITIVE CONTROL: an over-budget entrypoint with no ceiling IS reported", () => {
+  it("(2) an over-budget entrypoint count is not reported; public-api.json is the gate", () => {
     const violations = checkExportSurface([{ pkg: "invented", exports: 90, starExports: 0 }], () => null);
-    expect(violations).toHaveLength(1);
-    expect(violations[0]?.detail).toContain(`90 symbols > budget ${ENTRYPOINT_EXPORT_BUDGET}`);
+    expect(ENTRYPOINT_EXPORT_BUDGET).toBe(25);
+    expect(violations).toEqual([]);
   });
 
   it("(3) POSITIVE CONTROL: a star wall in a package with no ceiling IS reported", () => {
@@ -35,22 +34,22 @@ describe("packages publish an interface", () => {
     expect(violations[0]?.detail).toContain("2 `export * from` wall(s) with no ceiling");
   });
 
-  it("(4) COUNTERWEIGHT: growth above an existing ceiling is reported", () => {
+  it("(4) growth above rootEntrypointExports is not a violation", () => {
     const violations = checkExportSurface(
       [{ pkg: "p", exports: 80, starExports: 3 }],
       () => ({ rootEntrypointExports: 70, starExports: 3 }),
     );
-    expect(violations).toHaveLength(1);
-    expect(violations[0]?.detail).toContain("grew to 80 symbols > ceiling 70");
+    expect(violations).toEqual([]);
   });
 
-  it("(5) COUNTERWEIGHT: a ceiling left above a shrunken surface is reported, so the ratchet tightens", () => {
+  it("(5) a star ceiling left above a removed wall is reported; the export count ceiling is not", () => {
     const violations = checkExportSurface(
       [{ pkg: "p", exports: 40, starExports: 1 }],
       () => ({ rootEntrypointExports: 70, starExports: 4 }),
     );
-    expect(violations.map((v) => v.detail).join("\n")).toContain("ceiling 70 is above the measured 40");
-    expect(violations.map((v) => v.detail).join("\n")).toContain("star ceiling 4 is above the measured 1");
+    const detail = violations.map((v) => v.detail).join("\n");
+    expect(detail).not.toContain("ceiling 70");
+    expect(detail).toContain("star ceiling 4 is above the measured 1");
   });
 
   it("(6) COUNTERWEIGHT: a package under budget with no star walls and no ceiling is NOT reported", () => {
