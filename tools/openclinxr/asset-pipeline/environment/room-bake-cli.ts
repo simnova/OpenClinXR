@@ -10,6 +10,7 @@
  *   pnpm exec tsx tools/openclinxr/asset-pipeline/environment/room-bake-cli.ts \
  *     --input apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb \
  *     [--output <path>] [--resolution 1024] [--report <path>] [--inspect]
+ *     [--light-rig legacy|distributed|rig]
  *
  * `--inspect` only measures a GLB and prints the JSON (no Blender run) — used to
  * produce the pre-fix artifact before any bake.
@@ -18,7 +19,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { ROOM_ALBEDO_REL, runRoomGenerate } from "@openclinxr/factory-stations";
 
@@ -26,6 +27,8 @@ export const ROOM_BAKE_SCHEMA_VERSION = "openclinxr.room-bake.v1";
 export const ROOM_BAKE_EVIDENCE_DIR = ".openclinxr/evidence/room-bake";
 export const ROOM_BAKE_SCRIPT = ROOM_ALBEDO_REL;
 export const BLENDER_BAKE_TIMEOUT_MS = 600_000;
+export const ROOM_BAKE_LIGHT_RIGS = ["legacy", "distributed", "rig"] as const;
+export type RoomBakeLightRig = (typeof ROOM_BAKE_LIGHT_RIGS)[number];
 
 type GlbMeasure = {
   tris: number;
@@ -108,7 +111,7 @@ export async function runRoomBake(options: {
   resolution?: number;
   report?: string;
   meansLog?: string;
-  lightRig?: "legacy" | "distributed";
+  lightRig?: RoomBakeLightRig;
 }): Promise<BakeReport> {
   const input = options.input;
   const output = options.output ?? input;
@@ -201,17 +204,22 @@ function defaultReportPath(output: string): string {
   return path.join(ROOM_BAKE_EVIDENCE_DIR, `bake-measure-${base}.json`);
 }
 
-export async function runRoomBakeCli(args = process.argv.slice(2)): Promise<void> {
-  const options: {
-    input?: string;
-    output?: string;
-    resolution?: number;
-    report?: string;
-    inspect?: boolean;
-    help?: boolean;
-  } = {};
+export type RoomBakeCliOptions = {
+  input?: string;
+  output?: string;
+  resolution?: number;
+  report?: string;
+  inspect?: boolean;
+  help?: boolean;
+  lightRig?: RoomBakeLightRig;
+};
+
+export function parseRoomBakeCliArgs(args: readonly string[]): RoomBakeCliOptions {
+  const options: RoomBakeCliOptions = {};
+  const rigs: readonly string[] = ROOM_BAKE_LIGHT_RIGS;
   for (let i = 0; i < args.length; i += 1) {
-    const arg = args[i]!;
+    const arg = args[i];
+    if (arg === undefined) continue;
     const next = () => {
       const value = args[i + 1];
       if (!value || value.startsWith("--")) throw new Error(`Missing value for ${arg}`);
@@ -224,18 +232,30 @@ export async function runRoomBakeCli(args = process.argv.slice(2)): Promise<void
     else if (arg === "--report") options.report = next();
     else if (arg === "--inspect") options.inspect = true;
     else if (arg === "--help") options.help = true;
-    else throw new Error(`Unknown room-bake option: ${arg}`);
+    else if (arg === "--light-rig") {
+      const value = next();
+      if (!rigs.includes(value)) {
+        throw new Error(`--light-rig must be one of ${ROOM_BAKE_LIGHT_RIGS.join("|")}`);
+      }
+      options.lightRig = value as RoomBakeLightRig;
+    } else throw new Error(`Unknown room-bake option: ${arg}`);
   }
+  return options;
+}
+
+export async function runRoomBakeCli(args = process.argv.slice(2)): Promise<void> {
+  const options = parseRoomBakeCliArgs(args);
 
   if (options.help) {
-    process.stdout.write([
+    process.stdout.write(`${[
       "Usage: tsx tools/openclinxr/asset-pipeline/environment/room-bake-cli.ts [options]",
       "  --input <glb>       Environment GLB to bake (required)",
       "  --output <glb>      Output path (default: in-place)",
       "  --resolution <px>   Bake resolution (default 1024)",
       "  --report <path>     Bake-measure report path",
       "  --inspect           Measure a GLB and print JSON without baking",
-    ].join("\n") + "\n");
+      "  --light-rig <name>  legacy | distributed | rig (default distributed)",
+    ].join("\n")}\n`);
     return;
   }
 
@@ -253,16 +273,25 @@ export async function runRoomBakeCli(args = process.argv.slice(2)): Promise<void
     output: options.output,
     resolution: options.resolution,
     report: options.report,
+    lightRig: options.lightRig,
   });
 }
 
-const isMain =
-  process.argv[1] &&
-  (import.meta.url === `file://${process.argv[1]}` ||
-    import.meta.url.endsWith(process.argv[1].replaceAll("\\", "/")) ||
-    import.meta.url.includes("room-bake-cli"));
+function invokedAsRoomBakeCli(): boolean {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  const normalized = entry.replaceAll("\\", "/");
+  if (
+    normalized === "room-bake-cli.ts"
+    || normalized.endsWith("/room-bake-cli.ts")
+    || normalized.endsWith("/room-bake-cli.js")
+  ) {
+    return true;
+  }
+  return path.resolve(entry) === fileURLToPath(import.meta.url);
+}
 
-if (isMain) {
+if (invokedAsRoomBakeCli()) {
   runRoomBakeCli().catch((err) => {
     console.error(err);
     process.exitCode = 1;
