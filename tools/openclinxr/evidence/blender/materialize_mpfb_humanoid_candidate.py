@@ -11,6 +11,57 @@ import zlib
 
 import bpy
 import numpy as np
+from numpy.typing import NDArray
+
+
+def stamp_inner_mouth_cavity_on_albedo_pixels(
+    albedo_rgba: NDArray[np.float32],
+    mask_rgba: NDArray[np.float32],
+    rgb: tuple[float, float, float] = (0.72, 0.28, 0.32),
+) -> NDArray[np.float32]:
+    """Stamp the inner mouth cavity color onto albedo where mask is present.
+
+    Pure numpy helper — no bpy dependency. Albedo and mask may differ in H×W;
+    bilinear resize mask to albedo shape. Where mask R (or luminance) > 0.5,
+    set albedo RGB to rgb, keep alpha. Returns a copy. Counterweight: all-zero
+    mask leaves albedo unchanged.
+    """
+    if albedo_rgba.ndim != 3 or albedo_rgba.shape[2] != 4:
+        raise ValueError("albedo_rgba must be HxWx4")
+    if mask_rgba.ndim != 3 or mask_rgba.shape[2] != 4:
+        raise ValueError("mask_rgba must be HxWx4")
+
+    h_a, w_a = albedo_rgba.shape[:2]
+    h_m, w_m = mask_rgba.shape[:2]
+
+    # Resize mask to albedo shape using nearest-neighbor (simple, fast)
+    if h_m != h_a or w_m != w_a:
+        # Build sampling indices
+        y_idx = np.clip((np.arange(h_a) + 0.5) * h_m / h_a, 0, h_m - 1).astype(int)
+        x_idx = np.clip((np.arange(w_a) + 0.5) * w_m / w_a, 0, w_m - 1).astype(int)
+        mask_resized = mask_rgba[y_idx[:, None], x_idx[None, :]]
+    else:
+        mask_resized = mask_rgba
+
+    # Use mask R channel (or luminance) as coverage
+    mask_cov = mask_resized[..., 0]
+    # Also accept luminance if R is zero but other channels have data
+    if not np.any(mask_cov > 0.5):
+        lum = mask_resized[..., :3].mean(axis=-1)
+        mask_cov = np.maximum(mask_cov, lum)
+
+    out = albedo_rgba.copy()
+    hit = mask_cov > 0.5
+    if np.any(hit):
+        out[hit, 0] = rgb[0]
+        out[hit, 1] = rgb[1]
+        out[hit, 2] = rgb[2]
+        # alpha unchanged
+        n = int(hit.sum())
+        print(f"INNER_MOUTH_STAMP texels={n}")
+    else:
+        print("INNER_MOUTH_STAMP texels=0")
+    return out
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[4]
 
@@ -1683,6 +1734,33 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
     # it with the baked albedo is the #343 RETRY approach 2 (bake the subsurface input,
     # combine with the albedo) — no light transport, no hand-authored node graph.
     apply_subsurface_tint(img, resolution)
+
+    # #343 FOLLOW-ON — stamp the dilated inner-mouth cavity mask onto the baked albedo.
+    # The InnerMouthMix node uses ShaderNodeEmission (0.72,0.28,0.32) so the cavity
+    # never reaches albedo via the DIFFUSE COLOR bake; use_clear=True leaves the
+    # island black. Export then deletes the emission graph. The dilated CC0 mask
+    # already exists as InnerMouthDilateTex / mpfb_inside-mouth-dilate128.png.
+    # If the skin material node tree still has that node with an image, read its
+    # pixels and stamp onto img.pixels, write back.
+    try:
+        skin_mat = human.data.materials[skin_idx]
+        dilate_node = next(
+            (n for n in skin_mat.node_tree.nodes if n.name == "InnerMouthDilateTex"),
+            None,
+        )
+        if dilate_node is not None and dilate_node.image is not None:
+            dilate_img = dilate_node.image
+            dw, dh = dilate_img.size
+            if dw > 0 and dh > 0:
+                dilate_px = np.array(dilate_img.pixels[:], dtype=np.float32).reshape(dh, dw, 4)
+                w, h = img.size
+                albedo_px = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)
+                stamped = stamp_inner_mouth_cavity_on_albedo_pixels(albedo_px, dilate_px)
+                img.pixels[:] = stamped.ravel()
+        else:
+            print("INNER_MOUTH_STAMP skipped=no-dilate-tex")
+    except Exception as _e:
+        print(f"INNER_MOUTH_STAMP error: {_e}")
 
     out_png = pathlib.Path(out_png_path)
     out_png.parent.mkdir(parents=True, exist_ok=True)

@@ -14,11 +14,12 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-21 21:05 UTC | Grok 4.6 CEO — inner-rim: 42 front-facing tris, 2mm along normal, no +Z. (140,82) now pink.**
+**2026-09-21 20:55 UTC | Grok 4.6 CEO — (169,43) still dark. Cheap-subagent ladder exhausted without a leak-free fill.**
 
-Muse died `created` 4.18s. Nemotron wrote rim keep then stalled; parent split rim mesh. depthTest-false and 172-tri rim were slabs. lipfaces14: n=736 rim=42, HEAD_Z_PUSH=0, (140,82)=(179,71,82), (140,90) stays lip, PP/sil 0, y>100=0.
+Rejected: clone+offset (nostril), CC0 atlas stamp (wrong island, vs30=1), skinned subset (vs20=0), vertex emissive (cheek mustache, PP 1308). Restored lipfaces30 clones, 12/12. Factory numpy stamp wired for next rebake. Not landing.
 
-SWEEP: workers=0 blender=0 bothy=null origin=`10ca6cb4b`
+SWEEP: workers=0 blender=0 bothy=null origin=`b12ba9c44` dirty=drive.ts+materialize stamp
+
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**

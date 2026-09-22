@@ -40,14 +40,24 @@ const NAMED_JAW_VISIBLE = 0.05;
  * (0,-0.039,0.055) filled the opening. z=0.068 denser fill, no lip poke.
  * z=0.075 poked both lip corners. x=-0.008 and -0.018 punched the left cheek.
  */
-const HEAD_LOCAL = new Vector3(0, -0.039, 0.068);
+/**
+ * y=-0.032, height 0.042 → y∈[-0.053,-0.011]. Old (0,-0.039) height 0.026
+ * only covered y∈[-0.052,-0.026]; remaining opening dark is crop y40-60
+ * (upper cavity above the card). z unchanged (no +Z slab).
+ */
+const HEAD_LOCAL = new Vector3(0, -0.032, 0.068);
+const CARD_SIZE = { x: 0.048, y: 0.042, z: 0.028 };
+const PALATE_NAME = "openclinxr_inner_mouth_palate";
+const PALATE_LOCAL = new Vector3(0, -0.008, 0.070);
+const PALATE_SIZE = { x: 0.024, y: 0.016, z: 0.012 };
 const FACES_NAME = "openclinxr_inner_lip_faces";
 const RIM_NAME = "openclinxr_inner_lip_rim";
+const UPPER_NAME = "openclinxr_inner_lip_upper";
 const BODY_NAME = /_body(?:\.\d+|\d+)?$/;
 const ATTEMPTED_KEY = "openClinXrInnerLipFacesAttempted";
 const ABS_X = 0.022;
 const Y_MIN = -0.062;
-const Y_MAX = -0.028;
+const Y_MAX = -0.010;
 const Z_MIN = 0.074;
 const Z_MAX = 0.100;
 const INWARD_DOT = 0.12;
@@ -160,6 +170,80 @@ function keepInnerLipRim(
   return (nx * tx + ny * ty + nz * tz) / tLen <= INWARD_DOT;
 }
 
+function keepUpperRim(
+  ax: number,
+  ay: number,
+  az: number,
+  bx: number,
+  by: number,
+  bz: number,
+  cx: number,
+  cy: number,
+  cz: number,
+): boolean {
+  const mx = (ax + bx + cx) / 3;
+  const my = (ay + by + cy) / 3;
+  const mz = (az + bz + cz) / 3;
+  if (Math.abs(mx) >= 0.026 || my < -0.032 || my > 0.012 || mz < 0.048 || mz > 0.096) return false;
+  const e1x = bx - ax;
+  const e1y = by - ay;
+  const e1z = bz - az;
+  const e2x = cx - ax;
+  const e2y = cy - ay;
+  const e2z = cz - az;
+  let nx = e1y * e2z - e1z * e2y;
+  let ny = e1z * e2x - e1x * e2z;
+  let nz = e1x * e2y - e1y * e2x;
+  const nLen = Math.hypot(nx, ny, nz);
+  if (nLen < 1e-12) return false;
+  nx /= nLen;
+  ny /= nLen;
+  nz /= nLen;
+  const tx = HEAD_LOCAL.x - mx;
+  const ty = HEAD_LOCAL.y - my;
+  const tz = HEAD_LOCAL.z - mz;
+  const tLen = Math.hypot(tx, ty, tz);
+  if (tLen < 1e-12) return false;
+  return (nx * tx + ny * ty + nz * tz) / tLen <= INWARD_DOT;
+}
+
+function keepUpperCavity(
+  ax: number,
+  ay: number,
+  az: number,
+  bx: number,
+  by: number,
+  bz: number,
+  cx: number,
+  cy: number,
+  cz: number,
+): boolean {
+  const mx = (ax + bx + cx) / 3;
+  const my = (ay + by + cy) / 3;
+  const mz = (az + bz + cz) / 3;
+  if (Math.abs(mx) >= 0.016 || my < -0.014 || my > 0.000 || mz < 0.080 || mz > 0.094) return false;
+  const e1x = bx - ax;
+  const e1y = by - ay;
+  const e1z = bz - az;
+  const e2x = cx - ax;
+  const e2y = cy - ay;
+  const e2z = cz - az;
+  let nx = e1y * e2z - e1z * e2y;
+  let ny = e1z * e2x - e1x * e2z;
+  let nz = e1x * e2y - e1y * e2x;
+  const nLen = Math.hypot(nx, ny, nz);
+  if (nLen < 1e-12) return false;
+  nx /= nLen;
+  ny /= nLen;
+  nz /= nLen;
+  const tx = HEAD_LOCAL.x - mx;
+  const ty = HEAD_LOCAL.y - my;
+  const tz = HEAD_LOCAL.z - mz;
+  const tLen = Math.hypot(tx, ty, tz);
+  if (tLen < 1e-12) return false;
+  return (nx * tx + ny * ty + nz * tz) / tLen > INWARD_DOT;
+}
+
 function deformToHeadLocal(
   mesh: Mesh,
   index: number,
@@ -193,6 +277,17 @@ function extractInnerLipFaces(root: Group, head: Object3D): void {
   const c = new Vector3();
   const cavityPos: number[] = [];
   const rimPos: number[] = [];
+  const upperPos: number[] = [];
+  let bandN = 0;
+  let bandYMin = 1;
+  let bandYMax = -1;
+  let bandZMin = 1;
+  let bandZMax = -1;
+  let unkeptN = 0;
+  let unkeptYMin = 1;
+  let unkeptYMax = -1;
+  let unkeptZMin = 1;
+  let unkeptZMax = -1;
   for (let t = 0; t < triCount; t += 1) {
     const i0 = index !== null ? index.getX(t * 3) : t * 3;
     const i1 = index !== null ? index.getX(t * 3 + 1) : t * 3 + 1;
@@ -200,9 +295,29 @@ function extractInnerLipFaces(root: Group, head: Object3D): void {
     deformToHeadLocal(source, i0, headInv, a);
     deformToHeadLocal(source, i1, headInv, b);
     deformToHeadLocal(source, i2, headInv, c);
-    if (keepInnerLipTriangle(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z)) {
-      cavityPos.push(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
-    } else if (keepInnerLipRim(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z)) {
+    const mx = (a.x + b.x + c.x) / 3;
+    const my = (a.y + b.y + c.y) / 3;
+    const mz = (a.z + b.z + c.z) / 3;
+    if (Math.abs(mx) < 0.04 && my > -0.12 && my < 0.12 && mz > 0.04 && mz < 0.12) {
+      bandN += 1;
+      if (my < bandYMin) bandYMin = my;
+      if (my > bandYMax) bandYMax = my;
+      if (mz < bandZMin) bandZMin = mz;
+      if (mz > bandZMax) bandZMax = mz;
+    }
+    const keptCav = keepInnerLipTriangle(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
+    const keptInnerLipRim = keepInnerLipRim(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
+    const keptUpperRim = keepUpperRim(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
+    const keptUpperCavity = keepUpperCavity(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
+    const keptRim = keptInnerLipRim || keptUpperRim;
+    if (!keptCav && !keptRim && !keptUpperCavity && Math.abs(mx) < 0.03 && my > -0.04 && my < 0.02 && mz > 0.05 && mz < 0.10) {
+      unkeptN += 1;
+      if (my < unkeptYMin) unkeptYMin = my;
+      if (my > unkeptYMax) unkeptYMax = my;
+      if (mz < unkeptZMin) unkeptZMin = mz;
+      if (mz > unkeptZMax) unkeptZMax = mz;
+    }
+    if (keptCav && my > -0.028) {
       const e1x = b.x - a.x;
       const e1y = b.y - a.y;
       const e1z = b.z - a.z;
@@ -217,11 +332,50 @@ function extractInnerLipFaces(root: Group, head: Object3D): void {
       ny = (ny / nLen) * RIM_NORMAL_PUSH;
       nz = (nz / nLen) * RIM_NORMAL_PUSH;
       rimPos.push(a.x + nx, a.y + ny, a.z + nz, b.x + nx, b.y + ny, b.z + nz, c.x + nx, c.y + ny, c.z + nz);
+    } else if (keptCav) {
+      cavityPos.push(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
+    } else if (keptInnerLipRim || keptUpperRim) {
+      const e1x = b.x - a.x;
+      const e1y = b.y - a.y;
+      const e1z = b.z - a.z;
+      const e2x = c.x - a.x;
+      const e2y = c.y - a.y;
+      const e2z = c.z - a.z;
+      let nx = e1y * e2z - e1z * e2y;
+      let ny = e1z * e2x - e1x * e2z;
+      let nz = e1x * e2y - e1y * e2x;
+      const nLen = Math.hypot(nx, ny, nz) || 1;
+      nx = (nx / nLen) * RIM_NORMAL_PUSH;
+      ny = (ny / nLen) * RIM_NORMAL_PUSH;
+      nz = (nz / nLen) * RIM_NORMAL_PUSH;
+      rimPos.push(a.x + nx, a.y + ny, a.z + nz, b.x + nx, b.y + ny, b.z + nz, c.x + nx, c.y + ny, c.z + nz);
+    } else if (keptUpperCavity) {
+      const e1x = b.x - a.x;
+      const e1y = b.y - a.y;
+      const e1z = b.z - a.z;
+      const e2x = c.x - a.x;
+      const e2y = c.y - a.y;
+      const e2z = c.z - a.z;
+      let nx = e1y * e2z - e1z * e2y;
+      let ny = e1z * e2x - e1x * e2z;
+      let nz = e1x * e2y - e1y * e2x;
+      const nLen = Math.hypot(nx, ny, nz) || 1;
+      nx = (-nx / nLen) * RIM_NORMAL_PUSH;
+      ny = (-ny / nLen) * RIM_NORMAL_PUSH;
+      nz = (-nz / nLen) * RIM_NORMAL_PUSH;
+      upperPos.push(a.x + nx, a.y + ny, a.z + nz, b.x + nx, b.y + ny, b.z + nz, c.x + nx, c.y + ny, c.z + nz);
     }
   }
   console.log(
-    `INNER_LIP_FACES n=${cavityPos.length / 9} rim=${rimPos.length / 9} source=${source.name} skinned=${source instanceof SkinnedMesh}`,
+    `INNER_LIP_FACES n=${cavityPos.length / 9} rim=${rimPos.length / 9} upper=${upperPos.length / 9} source=${source.name} skinned=${source instanceof SkinnedMesh}`,
   );
+  console.log(
+    `INNER_LIP_CENSUS n=${bandN} y=${bandYMin.toFixed(3)}..${bandYMax.toFixed(3)} z=${bandZMin.toFixed(3)}..${bandZMax.toFixed(3)}`,
+  );
+  console.log(
+    `INNER_LIP_UNKEPT n=${unkeptN} y=${unkeptYMin.toFixed(3)}..${unkeptYMax.toFixed(3)} z=${unkeptZMin.toFixed(3)}..${unkeptZMax.toFixed(3)}`,
+  );
+
   if (cavityPos.length > 0) {
     const out = new BufferGeometry();
     out.setAttribute("position", new Float32BufferAttribute(cavityPos, 3));
@@ -258,13 +412,31 @@ function extractInnerLipFaces(root: Group, head: Object3D): void {
     rim.frustumCulled = false;
     head.add(rim);
   }
+  if (upperPos.length > 0) {
+    const out = new BufferGeometry();
+    out.setAttribute("position", new Float32BufferAttribute(upperPos, 3));
+    const upper = new Mesh(
+      out,
+      new MeshBasicMaterial({
+        color: 0xb34752,
+        polygonOffset: true,
+        polygonOffsetFactor: -4,
+        polygonOffsetUnits: -4,
+        depthWrite: false,
+        side: DoubleSide,
+      }),
+    );
+    upper.name = UPPER_NAME;
+    upper.frustumCulled = false;
+    head.add(upper);
+  }
 }
 
 function ensureCard(root: Group, head: Object3D): Mesh {
   const existing = root.getObjectByName(CARD_NAME);
   if (existing instanceof Mesh) return existing;
   const card = new Mesh(
-    new BoxGeometry(0.048, 0.026, 0.028),
+    new BoxGeometry(CARD_SIZE.x, CARD_SIZE.y, CARD_SIZE.z),
     new MeshBasicMaterial({ color: 0xb34752 }),
   );
   card.name = CARD_NAME;
@@ -274,19 +446,38 @@ function ensureCard(root: Group, head: Object3D): Mesh {
   return card;
 }
 
+function ensurePalate(root: Group, head: Object3D): Mesh {
+  const existing = root.getObjectByName(PALATE_NAME);
+  if (existing instanceof Mesh) return existing;
+  const palate = new Mesh(
+    new BoxGeometry(PALATE_SIZE.x, PALATE_SIZE.y, PALATE_SIZE.z),
+    new MeshBasicMaterial({ color: 0xb34752 }),
+  );
+  palate.name = PALATE_NAME;
+  palate.frustumCulled = false;
+  head.add(palate);
+  palate.position.copy(PALATE_LOCAL);
+  return palate;
+}
+
 export function applyInnerMouthCavity(root: Group, openness: number): void {
   const head = findHeadBone(root);
   if (head === null) return;
   const card = ensureCard(root, head);
   card.position.copy(HEAD_LOCAL);
+  const palate = ensurePalate(root, head);
+  palate.position.copy(PALATE_LOCAL);
   const clamped = Number.isFinite(openness) ? Math.min(1, Math.max(0, openness)) : 0;
   const named = namedJawDrive(root);
   const namedRadians = typeof named?.jawOpenRadians === "number" ? named.jawOpenRadians : 0;
   const visible = namedRadians > NAMED_JAW_VISIBLE || clamped > OPEN_VISIBLE;
   card.visible = visible;
+  palate.visible = visible;
   if (visible) extractInnerLipFaces(root, head);
   const faces = root.getObjectByName(FACES_NAME);
   if (faces) faces.visible = visible;
   const rim = root.getObjectByName(RIM_NAME);
   if (rim) rim.visible = visible;
+  const upper = root.getObjectByName(UPPER_NAME);
+  if (upper) upper.visible = visible;
 }

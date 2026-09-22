@@ -236,4 +236,79 @@ describe("inner mouth cavity drive", () => {
     expect(rim, "inner-lip rim face clone").toBeTruthy();
     expect(rim?.visible).toBe(true);
   });
+
+  it("keepUpperCavity keeps an inward-facing triangle in the upper cavity box on the upper mesh", () => {
+    const slot = speakingSlot(["open"]);
+    const geo = new BufferGeometry();
+    // Triangle with centroid in the NEW high-z box: |x|<0.016, y∈[-0.014,0.000], z∈[0.080,0.094]
+    // Centroid at (0, -0.00867, 0.08533) - inside new box
+    // Vertices ordered so normal points INWARD toward HEAD_LOCAL (0, -0.032, 0.068)
+    // v1=(0, -0.012, 0.092), v2=(-0.01, -0.007, 0.082), v3=(0.01, -0.007, 0.082)
+    // e1=v2-v1=(-0.01, 0.005, -0.01), e2=v3-v1=(0.01, 0.005, -0.01)
+    // normal=e1×e2=(0, -0.0002, -0.0001) -> toward HEAD_LOCAL, cosine ~0.98 > INWARD_DOT
+    geo.setAttribute(
+      "position",
+      new Float32BufferAttribute(
+        [0, -0.012, 0.092, -0.01, -0.007, 0.082, 0.01, -0.007, 0.082],
+        3,
+      ),
+    );
+    const body = new Mesh(geo, new MeshBasicMaterial());
+    body.name = "mpfb_x_body001";
+    slot.root.add(body);
+    updateGeneratedHumanoidAnimations(context([slot]), 1 / 60, 1000, new PerspectiveCamera());
+    const upper = slot.root.getObjectByName("openclinxr_inner_lip_upper");
+    expect(upper, "upper cavity face clone on upper mesh").toBeTruthy();
+    expect(upper?.visible).toBe(true);
+  });
+
+  it("COUNTERWEIGHT: a rest viseme hides the upper mesh", () => {
+    const slot = speakingSlot(["open"]);
+    const geo = new BufferGeometry();
+    // Same triangle as above - inward-facing toward HEAD_LOCAL (winding fixed: CCW from +Z gives normal toward HEAD_LOCAL)
+    geo.setAttribute(
+      "position",
+      new Float32BufferAttribute(
+        [0, -0.012, 0.092, -0.01, -0.007, 0.082, 0.01, -0.007, 0.082],
+        3,
+      ),
+    );
+    const body = new Mesh(geo, new MeshBasicMaterial());
+    body.name = "mpfb_x_body001";
+    slot.root.add(body);
+    const ctx = context([slot]);
+    const camera = new PerspectiveCamera();
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
+    expect(slot.root.getObjectByName("openclinxr_inner_lip_upper")?.visible).toBe(true);
+    if (slot.activeSpeech) {
+      slot.activeSpeech.visemeSequence = ["rest"];
+      slot.activeSpeech.phonemeSequence = ["sil"];
+      slot.activeSpeech.bakedCues = [{ phoneme: "sil", atSecond: 0, durationSeconds: 60 }];
+    }
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 2000, camera);
+    expect(slot.root.getObjectByName("openclinxr_inner_lip_upper")?.visible).toBe(false);
+  });
+
+  it("an open viseme shows the palate mesh", () => {
+    const slot = speakingSlot(["open"]);
+    updateGeneratedHumanoidAnimations(context([slot]), 1 / 60, 1000, new PerspectiveCamera());
+    const palate = slot.root.getObjectByName("openclinxr_inner_mouth_palate");
+    expect(palate, "palate mesh").toBeTruthy();
+    expect(palate?.visible).toBe(true);
+  });
+
+  it("COUNTERWEIGHT: a rest viseme hides the palate mesh", () => {
+    const slot = speakingSlot(["open"]);
+    const ctx = context([slot]);
+    const camera = new PerspectiveCamera();
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
+    expect(slot.root.getObjectByName("openclinxr_inner_mouth_palate")?.visible).toBe(true);
+    if (slot.activeSpeech) {
+      slot.activeSpeech.visemeSequence = ["rest"];
+      slot.activeSpeech.phonemeSequence = ["sil"];
+      slot.activeSpeech.bakedCues = [{ phoneme: "sil", atSecond: 0, durationSeconds: 60 }];
+    }
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 2000, camera);
+    expect(slot.root.getObjectByName("openclinxr_inner_mouth_palate")?.visible).toBe(false);
+  });
 });
