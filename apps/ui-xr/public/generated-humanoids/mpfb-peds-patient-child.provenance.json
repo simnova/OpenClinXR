@@ -70,5 +70,13 @@
   "outputBytes": 11363100,
   "albedoBakeWrittenAt": "2026-09-11T23:26:23Z",
   "albedoBakeNote": "HB-07 attempt 5 full-chain rebake (materialize -> bake-humanoid-albedo.ts -> separate_chest_anchor_joints.mjs; decimation skipped, chosenRungId=raw). Capture-aligned 4096 screen-space unhide after REHIDE; garment-only occluder; sleeve prim4 f79/f190 restored to skin.",
-  "command": "blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/materialize/mpfb-peds-patient-child.glb --reference peds_patient_child --actor-role patient | tsx tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts --inputs /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/materialize/mpfb-peds-patient-child.glb --outdir /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo --report /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo-report.json | node tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs --input /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo/mpfb-peds-patient-child.glb --output /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/final/mpfb-peds-patient-child.glb --report /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/chest-anchor.json --half-span-m 0.085"
+  "command": "blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/materialize/mpfb-peds-patient-child.glb --reference peds_patient_child --actor-role patient | tsx tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts --inputs /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/materialize/mpfb-peds-patient-child.glb --outdir /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo --report /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo-report.json | node tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs --input /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo/mpfb-peds-patient-child.glb --output /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/final/mpfb-peds-patient-child.glb --report /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/chest-anchor.json --half-span-m 0.085",
+  "recipe": {
+    "inputs": [
+      {
+        "path": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+        "sha256": "120b56cb416eeaeca597eb06a332e3fb960e321e70f56b18354dcaf7689adc50"
+      }
+    ]
+  }
 }
