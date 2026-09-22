@@ -4,6 +4,7 @@ import { factoryStationSchemas } from "../catalog.js";
 import { repoRoot } from "../repo-root.js";
 import { planFromCatalog, type StationPlanResult, type StationRunner } from "../runner.js";
 import { spawnBlenderProcess } from "../spawn-blender.js";
+import { simplifyRoomAfterBake, type RoomSimplifyReport } from "./simplify.js";
 
 export const ROOM_ALBEDO_REL =
   "packages/openclinxr/factory-stations/src/room_generate/room-albedo-ao-bake.py";
@@ -33,6 +34,8 @@ export type RoomGenerateRunOptions = {
   bakeOcclusion?: boolean;
   albedoExtraArgs?: string[];
   occlusionExtraArgs?: string[];
+  /** Post-bake trim-locked simplify; defaults on. UV bake needs the full mesh first. */
+  simplifyAfterBake?: boolean;
   cwd?: string;
   timeoutMs?: number;
 };
@@ -92,12 +95,17 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
     stdout = occlusion.stdout;
     stderr = occlusion.stderr;
   }
+  let simplify: RoomSimplifyReport | null = null;
+  if (options.simplifyAfterBake !== false && options.workGlb !== "") {
+    simplify = await simplifyRoomAfterBake(options.workGlb);
+  }
   return {
     stationId: "room_generate",
     albedoExit,
     blenderExit: occlusionExit ?? albedoExit,
     stdout,
     stderr,
+    simplify,
   };
 }
 

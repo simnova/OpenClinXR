@@ -984,6 +984,19 @@ importers:
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/factory-stations:
+    dependencies:
+      '@gltf-transform/core':
+        specifier: ^4.3.0
+        version: 4.3.0
+      '@gltf-transform/extensions':
+        specifier: ^4.3.0
+        version: 4.3.0
+      '@gltf-transform/functions':
+        specifier: ^4.3.0
+        version: 4.3.0
+      meshoptimizer:
+        specifier: 1.0.1
+        version: 1.0.1
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*

@@ -20,6 +20,12 @@
     "build": "tsgo --build",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
+  "dependencies": {
+    "@gltf-transform/core": "^4.3.0",
+    "@gltf-transform/extensions": "^4.3.0",
+    "@gltf-transform/functions": "^4.3.0",
+    "meshoptimizer": "1.0.1"
+  },
   "devDependencies": {
     "@cellix/config-typescript": "workspace:*",
     "@cellix/config-vitest": "workspace:*",
