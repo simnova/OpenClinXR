@@ -33,7 +33,7 @@
           <h2>Clinic lighting came off a white clip. One generated room has a rug, a baseboard, a door, and a window.</h2>
         </div>
         <p>
-          Two separate pieces of evidence. The floor and wall images are packed texture atlases from the primary-care clinic file, not a photograph of a room. The black rectangles are unused texture space. The interior still is a rebuilt Infinigen generate, seed 7, furniture off, rendered with EEVEE Next at 1280&times;720. The casing is wider than the first still, and the near wall is plaster. That still is before the simplify step.
+          Two separate pieces of evidence. The floor and wall images are packed texture atlases from the primary-care clinic file, not a photograph of a room. The black rectangles are unused texture space. The interior still is a rebuilt Infinigen generate, seed 7, furniture off, rendered with EEVEE Next at 1280&times;720. The casing is wider than the first still, and the near wall is plaster. That still is AFTER the simplify step: skirting and openings 162,648 to 101,702 triangles, walls and floors 6,336 to 3,205, file 8.6 MB to 1.3 MB.
         </p>
         <div class="metric-table-wrap">
           <table class="metric-table">
@@ -68,11 +68,11 @@
           </figure>
         </div>
         <figure style="margin:16px 0 0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
-          <img src="assets/room-carpet-trim-seed7-2026-09-22.png" alt="Rebuilt seed 7 doorway at native 1280 by 720: a green casing frames the opening, the near wall is plaster, and a second door with its own frame sits beyond." style="width:100%; height:auto; display:block;">
-          <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Rebuild, native 1280&times;720. The casing is 11 cm wide and stands proud of the wall, so the frame around the opening is visible. The near wall is plaster, not tile. A second door and a baseboard are visible through the opening. This crop does not show the rug.</figcaption>
+          <img src="assets/room-carpet-trim-seed7-2026-09-22.png" alt="Simplified seed 7 room at native 1280 by 720: the casing frames the doorway, skirting runs along the wall base, and the wall is a wall. Geometry after the simplify step." style="width:100%; height:auto; display:block;">
+          <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">After simplify, native 1280&times;720. Skirting and openings 162,648 to 101,702 triangles, walls and floors 6,336 to 3,205. The casing still frames the doorway and the wall is still a wall. GLB export drops the wall and floor materials, so this crop renders white on white. This crop does not show the rug.</figcaption>
         </figure>
         <p>
-          After that generate, the room station simplify (commit <code>cd1fb13fb</code>) ran on a copy: skirting and openings 158,700 to 99,116 triangles, walls and floors 6,336 to 3,197, file 8.4 MB to 1.4 MB. The largest casing cube stayed near 15,000 triangles. There is no second still of the simplified mesh.
+          After that generate, the room station simplify (commit <code>cd1fb13fb</code>) ran on a copy: skirting and openings 162,648 to 101,702 triangles, walls and floors 6,336 to 3,205, file 8.6 MB to 1.3 MB. The largest casing cube stayed near 15,000 triangles. The still above is that simplified mesh.
         </p>
         <p class="evidence-note">
           Lighting commits <code>d1f63490b</code> and <code>9d4736e00</code>. Simplify commit <code>cd1fb13fb</code>. Learner file <code>infinigen-primary-care-clinic.glb</code> sha256 <code>9e1973038b17d018cc114c3ac84ce7a9fe5da870416cd39480c45c8a010bb1e0</code>, unchanged.
