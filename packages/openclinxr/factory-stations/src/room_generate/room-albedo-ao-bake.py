@@ -318,7 +318,7 @@ def restore_bright_albedo(mat: bpy.types.Material, surface: str) -> None:
     bsdf.inputs["Base Color"].default_value = albedo_for_surface(surface)
 
 
-def setup_scene(bbox: Dict[str, float], light_rig: str, rig_json: str = "") -> None:
+def setup_scene(bbox: Dict[str, float], light_rig: str, rig_json: str = "", energy_mul: float = 1.0) -> None:
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
     scene.cycles.samples = 32
@@ -348,7 +348,7 @@ def setup_scene(bbox: Dict[str, float], light_rig: str, rig_json: str = "") -> N
     cx = (bbox["minX"] + bbox["maxX"]) / 2.0
     cy = (bbox["minY"] + bbox["maxY"]) / 2.0
     cz = (bbox["minZ"] + bbox["maxZ"]) / 2.0
-    energy_scale = 6.4 / span
+    energy_scale = (6.4 / span) * energy_mul
 
     if light_rig == "rig":
         # lighting_design consumer: probe lights come from the rig JSON
@@ -386,6 +386,9 @@ def setup_scene(bbox: Dict[str, float], light_rig: str, rig_json: str = "") -> N
     down_data.size_y = soft
     # Floor/walls are UV-sparse; they need strong mid-room irradiance. Ceiling
     # already saturates under a modest upward key — keep upE low (clause 4).
+    # energy_mul scales the downward and wall lights only. The upward ceiling
+    # key stays at full strength so the ceiling does not fall while the walls
+    # and floor come off the clip and pick up shading.
     down_data.energy = 220.0 * energy_scale
 
     up_data = bpy.data.lights.new("openclinxr_room_bake_key", type="AREA")
@@ -395,7 +398,7 @@ def setup_scene(bbox: Dict[str, float], light_rig: str, rig_json: str = "") -> N
     up.rotation_euler = (math.pi, 0.0, 0.0)  # emit +Z (toward ceiling)
     up_data.size = soft
     up_data.size_y = soft
-    up_data.energy = 18.0 * energy_scale
+    up_data.energy = 18.0 * (6.4 / span)
 
     # Four vertical wall washes — AREA emitters facing +X/−X/+Y/−Y so wall
     # shells receive direct light the down-softbox only grazes.
@@ -630,6 +633,12 @@ def main() -> None:
         help="lighting_design rig JSON (required with --light-rig rig)",
     )
     ap.add_argument(
+        "--energy-scale",
+        type=float,
+        default=1.0,
+        help="Multiply probe-light energy. Below 1 unclips a flat white bake so occupied texels can vary.",
+    )
+    ap.add_argument(
         "--restore-albedo",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -644,7 +653,7 @@ def main() -> None:
     bpy.ops.import_scene.gltf(filepath=args.input)
 
     bbox = scene_bbox()
-    setup_scene(bbox, args.light_rig, args.rig_json)
+    setup_scene(bbox, args.light_rig, args.rig_json, args.energy_scale)
     results = bake_materials(args.resolution, args.restore_albedo)
     wire_textures_to_base_color()
 

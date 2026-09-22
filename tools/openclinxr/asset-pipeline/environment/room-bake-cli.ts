@@ -112,6 +112,8 @@ export async function runRoomBake(options: {
   report?: string;
   meansLog?: string;
   lightRig?: RoomBakeLightRig;
+  energyScale?: number;
+  restoreAlbedo?: boolean;
 }): Promise<BakeReport> {
   const input = options.input;
   const output = options.output ?? input;
@@ -148,6 +150,9 @@ export async function runRoomBake(options: {
         path.basename(output),
         "--light-rig",
         options.lightRig ?? "distributed",
+        "--energy-scale",
+        String(options.energyScale ?? 1),
+        options.restoreAlbedo === false ? "--no-restore-albedo" : "--restore-albedo",
       ],
     },
   );
@@ -212,6 +217,8 @@ export type RoomBakeCliOptions = {
   inspect?: boolean;
   help?: boolean;
   lightRig?: RoomBakeLightRig;
+  energyScale?: number;
+  restoreAlbedo?: boolean;
 };
 
 export function parseRoomBakeCliArgs(args: readonly string[]): RoomBakeCliOptions {
@@ -238,7 +245,15 @@ export function parseRoomBakeCliArgs(args: readonly string[]): RoomBakeCliOption
         throw new Error(`--light-rig must be one of ${ROOM_BAKE_LIGHT_RIGS.join("|")}`);
       }
       options.lightRig = value as RoomBakeLightRig;
-    } else throw new Error(`Unknown room-bake option: ${arg}`);
+    } else if (arg === "--energy-scale") {
+      const value = Number(next());
+      if (!Number.isFinite(value) || value <= 0) {
+        throw new Error("--energy-scale must be a positive number");
+      }
+      options.energyScale = value;
+    } else if (arg === "--no-restore-albedo") options.restoreAlbedo = false;
+    else if (arg === "--restore-albedo") options.restoreAlbedo = true;
+    else throw new Error(`Unknown room-bake option: ${arg}`);
   }
   return options;
 }
@@ -255,6 +270,7 @@ export async function runRoomBakeCli(args = process.argv.slice(2)): Promise<void
       "  --report <path>     Bake-measure report path",
       "  --inspect           Measure a GLB and print JSON without baking",
       "  --light-rig <name>  legacy | distributed | rig (default distributed)",
+      "  --energy-scale <n>  Multiply probe-light energy (default 1)",
     ].join("\n")}\n`);
     return;
   }
@@ -274,6 +290,8 @@ export async function runRoomBakeCli(args = process.argv.slice(2)): Promise<void
     resolution: options.resolution,
     report: options.report,
     lightRig: options.lightRig,
+    energyScale: options.energyScale,
+    restoreAlbedo: options.restoreAlbedo,
   });
 }
 

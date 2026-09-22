@@ -29,11 +29,29 @@ export const ROOM_BAKE_CLI = "tools/openclinxr/asset-pipeline/environment/room-b
 export const LIGHT_RIGS = ["legacy", "distributed", "rig"] as const;
 export type LightRig = (typeof LIGHT_RIGS)[number];
 
+/**
+ * Texels at or below this luminance are unused atlas padding (solid black from
+ * `use_clear`). The cutoff sits below the 2026-08-21 crushed-wall mean (~13) so
+ * a crushed bake is still scored instead of being dropped as padding.
+ */
+export const OCCUPIED_PADDING_CUTOFF = 8;
+
+/** 2026-08-21 crushed bake, cited as the floor a lit treatment must clear. */
+export const CRUSHED_WALL_MEAN = 13;
+export const CRUSHED_FLOOR_MEAN = 1.7;
+
+export type LuminanceStats = {
+  wholeMean: number;
+  occupiedMean: number;
+  occupiedSd: number;
+  occupiedCount: number;
+};
+
 export type SurfaceMeans = {
   path: string;
-  wall: number;
-  floor: number;
-  ceiling: number;
+  wall: LuminanceStats;
+  floor: LuminanceStats;
+  ceiling: LuminanceStats;
 };
 
 export type RoomBakeHarnessReport = {
@@ -50,6 +68,8 @@ export type BakeTreatmentResult = {
   treatmentPath: string;
   lightRig: LightRig;
   bakerArgv: string[];
+  report: RoomBakeHarnessReport;
+  realism: { ok: boolean; reasons: string[] };
 };
 
 export type RoomBakeHarnessSpawn = (argv: readonly string[]) => void;
@@ -92,23 +112,57 @@ export function surfaceForBakeName(name: string): Surface | null {
   return null;
 }
 
-function meanLuminance255(png: Uint8Array): number {
+/** Mean and population SD over texels at or above the padding cutoff. */
+export function occupiedLuminanceStats(
+  samples: ArrayLike<number>,
+  cutoff = OCCUPIED_PADDING_CUTOFF,
+): LuminanceStats {
+  if (samples.length === 0) {
+    throw new Error("empty luminance");
+  }
+  let whole = 0;
+  let occupiedSum = 0;
+  let occupiedCount = 0;
+  for (let i = 0; i < samples.length; i += 1) {
+    const sample = samples[i] ?? 0;
+    whole += sample;
+    if (sample >= cutoff) {
+      occupiedSum += sample;
+      occupiedCount += 1;
+    }
+  }
+  const wholeMean = whole / samples.length;
+  if (occupiedCount === 0) {
+    return { wholeMean, occupiedMean: Number.NaN, occupiedSd: Number.NaN, occupiedCount: 0 };
+  }
+  const occupiedMean = occupiedSum / occupiedCount;
+  let varSum = 0;
+  for (let i = 0; i < samples.length; i += 1) {
+    const sample = samples[i] ?? 0;
+    if (sample < cutoff) continue;
+    const delta = sample - occupiedMean;
+    varSum += delta * delta;
+  }
+  return {
+    wholeMean,
+    occupiedMean,
+    occupiedSd: Math.sqrt(varSum / occupiedCount),
+    occupiedCount,
+  };
+}
+
+function statsForPng(png: Uint8Array): LuminanceStats {
   const decoded = decodePng(png);
   if (!decoded || decoded.lum.length === 0) {
     throw new Error("packed bake image is not a decodable 8-bit PNG");
   }
-  let sum = 0;
-  for (let i = 0; i < decoded.lum.length; i += 1) {
-    const sample = decoded.lum[i];
-    if (sample !== undefined) sum += sample;
-  }
-  return sum / decoded.lum.length;
+  return occupiedLuminanceStats(decoded.lum);
 }
 
 export async function measureSurfaceMeans(glbPath: string): Promise<SurfaceMeans> {
   const abs = resolveRepoPath(glbPath);
   const doc = await io.read(abs);
-  const found: Partial<Record<Surface, number>> = {};
+  const found: Partial<Record<Surface, LuminanceStats>> = {};
   for (const material of doc.getRoot().listMaterials()) {
     const tex = material.getBaseColorTexture();
     if (!tex) continue;
@@ -117,28 +171,64 @@ export async function measureSurfaceMeans(glbPath: string): Promise<SurfaceMeans
     if (!surface || found[surface] !== undefined) continue;
     const image = tex.getImage();
     if (!image) continue;
-    found[surface] = meanLuminance255(image);
+    found[surface] = statsForPng(image);
   }
-  const means: SurfaceMeans = {
-    path: abs,
-    wall: found.wall ?? Number.NaN,
-    floor: found.floor ?? Number.NaN,
-    ceiling: found.ceiling ?? Number.NaN,
-  };
-  for (const surface of ["wall", "floor", "ceiling"] as const) {
-    if (!Number.isFinite(means[surface])) {
-      throw new Error(`missing finite ${surface} mean luminance in ${abs}`);
+  const missing = (["wall", "floor", "ceiling"] as const).filter((surface) => !found[surface]);
+  if (missing.length > 0) {
+    throw new Error(`missing ${missing.join(", ")} bake image in ${abs}`);
+  }
+  const wall = found.wall!;
+  const floor = found.floor!;
+  const ceiling = found.ceiling!;
+  for (const [name, stats] of [["wall", wall], ["floor", floor], ["ceiling", ceiling]] as const) {
+    if (!Number.isFinite(stats.occupiedMean) || !Number.isFinite(stats.occupiedSd)) {
+      throw new Error(`missing finite occupied ${name} luminance in ${abs}`);
     }
   }
-  return means;
+  return { path: abs, wall, floor, ceiling };
 }
 
-export function treatmentGlbPath(control: string, lightRig: LightRig): string {
+/**
+ * Lit and less flat than the control on occupied texels. Absolute floors are
+ * multiples of the 2026-08-21 crushed bake, not of the control's own mean.
+ */
+export function treatmentMeetsRealismBar(
+  control: SurfaceMeans,
+  treatment: SurfaceMeans,
+): { ok: boolean; reasons: string[] } {
+  const reasons: string[] = [];
+  if (!(treatment.wall.occupiedMean > 3 * CRUSHED_WALL_MEAN)) {
+    reasons.push(`occupied wall mean ${treatment.wall.occupiedMean} is not above ${3 * CRUSHED_WALL_MEAN}`);
+  }
+  if (!(treatment.floor.occupiedMean > 10 * CRUSHED_FLOOR_MEAN)) {
+    reasons.push(`occupied floor mean ${treatment.floor.occupiedMean} is not above ${10 * CRUSHED_FLOOR_MEAN}`);
+  }
+  if (!(treatment.wall.occupiedSd > control.wall.occupiedSd)) {
+    reasons.push(`occupied wall sd ${treatment.wall.occupiedSd} is not above control ${control.wall.occupiedSd}`);
+  }
+  if (!(treatment.floor.occupiedSd > control.floor.occupiedSd)) {
+    reasons.push(`occupied floor sd ${treatment.floor.occupiedSd} is not above control ${control.floor.occupiedSd}`);
+  }
+  const ceilingFloor = 0.9 * control.ceiling.occupiedMean;
+  if (!(treatment.ceiling.occupiedMean >= ceilingFloor)) {
+    reasons.push(`occupied ceiling mean ${treatment.ceiling.occupiedMean} is below 90% of control ${control.ceiling.occupiedMean}`);
+  }
+  return { ok: reasons.length === 0, reasons };
+}
+
+export function treatmentGlbPath(control: string, lightRig: LightRig, energyScale = 1): string {
   const stem = path.basename(control).replace(/\.glb$/i, "");
-  return path.join(ROOM_BAKE_HARNESS_DIR, `${stem}-${lightRig}.glb`);
+  const energy = energyScale === 1 ? "" : `-e${energyScale}`;
+  return path.join(ROOM_BAKE_HARNESS_DIR, `${stem}-${lightRig}${energy}.glb`);
 }
 
-export function roomBakeCliArgv(input: string, output: string, lightRig: LightRig): string[] {
+export function roomBakeCliArgv(
+  input: string,
+  output: string,
+  lightRig: LightRig,
+  energyScale = 1,
+  restoreAlbedo = true,
+): string[] {
   return [
     ROOM_BAKE_CLI,
     "--input",
@@ -147,6 +237,9 @@ export function roomBakeCliArgv(input: string, output: string, lightRig: LightRi
     output,
     "--light-rig",
     lightRig,
+    "--energy-scale",
+    String(energyScale),
+    restoreAlbedo ? "--restore-albedo" : "--no-restore-albedo",
   ];
 }
 
@@ -167,6 +260,8 @@ type Parsed = {
   output?: string;
   report: string;
   lightRig?: LightRig;
+  energyScale: number;
+  restoreAlbedo: boolean;
 };
 
 function parseArgs(args: readonly string[]): Parsed {
@@ -176,6 +271,8 @@ function parseArgs(args: readonly string[]): Parsed {
     help: false,
     control: SHIPPED_PRIMARY_CARE_GLB,
     report: DEFAULT_HARNESS_REPORT,
+    energyScale: 1,
+    restoreAlbedo: true,
   };
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -199,7 +296,15 @@ function parseArgs(args: readonly string[]): Parsed {
         throw new Error(`--light-rig must be one of ${LIGHT_RIGS.join("|")}`);
       }
       parsed.lightRig = value as LightRig;
-    } else {
+    } else if (arg === "--energy-scale") {
+      const value = Number(next());
+      if (!Number.isFinite(value) || value <= 0) {
+        throw new Error("--energy-scale must be a positive number");
+      }
+      parsed.energyScale = value;
+    } else if (arg === "--no-restore-albedo") parsed.restoreAlbedo = false;
+    else if (arg === "--restore-albedo") parsed.restoreAlbedo = true;
+    else {
       throw new Error(`Unknown room-bake-harness option: ${arg}`);
     }
   }
@@ -214,6 +319,7 @@ function usage(): string {
     "  --treatment <glb>       Treatment GLB (required with --measure-only)",
     "  --bake-treatment        Copy control and bake that copy with room-bake-cli.ts",
     "  --light-rig <name>      legacy | distributed | rig (required with --bake-treatment)",
+    "  --energy-scale <n>      Multiply probe-light energy (default 1)",
     "  --output <glb>          Treatment GLB path (default: .openclinxr/evidence/room-bake-harness/)",
     "  --report <path>         Mean-luminance JSON (default: .openclinxr/evidence/room-bake-harness/report.json)",
   ].join("\n");
@@ -243,21 +349,42 @@ export async function runRoomBakeHarness(
   refuseShippedWrite(parsed.report);
   if (parsed.bakeTreatment) {
     if (!parsed.lightRig) throw new Error("--light-rig is required with --bake-treatment");
-    const output = parsed.output ?? treatmentGlbPath(parsed.control, parsed.lightRig);
+    const output = parsed.output ?? treatmentGlbPath(parsed.control, parsed.lightRig, parsed.energyScale);
     refuseShippedWrite(output);
     const outputAbs = resolveRepoPath(output);
     refuseShippedWrite(outputAbs);
     const controlAbs = resolveRepoPath(parsed.control);
-    const spawnArgv = roomBakeCliArgv(controlAbs, outputAbs, parsed.lightRig);
+    const spawnArgv = roomBakeCliArgv(
+      controlAbs,
+      outputAbs,
+      parsed.lightRig,
+      parsed.energyScale,
+      parsed.restoreAlbedo,
+    );
     await mkdir(path.dirname(outputAbs), { recursive: true });
     await copyFile(controlAbs, outputAbs);
     (deps.spawn ?? defaultSpawn)(spawnArgv);
+    const control = await measureSurfaceMeans(controlAbs);
+    const treatment = await measureSurfaceMeans(outputAbs);
+    const reportPath = resolveRepoPath(parsed.report);
+    await mkdir(path.dirname(reportPath), { recursive: true });
+    const report: RoomBakeHarnessReport = {
+      schemaVersion: "openclinxr.room-bake-harness.v1",
+      mode: "measure-only",
+      reportPath,
+      control,
+      treatment,
+    };
+    await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+    const bar = treatmentMeetsRealismBar(control, treatment);
     return {
       mode: "bake-treatment",
       controlPath: controlAbs,
       treatmentPath: outputAbs,
       lightRig: parsed.lightRig,
       bakerArgv: spawnArgv,
+      report,
+      realism: bar,
     };
   }
 
