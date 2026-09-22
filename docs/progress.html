@@ -27,6 +27,60 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-22T2223">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 112 &middot; 2026-09-22 22:23 UTC</p>
+          <h2>Clinic lighting came off a white clip. One generated room has a rug, a baseboard, a door, and a window.</h2>
+        </div>
+        <p>
+          Two separate pieces of evidence. The floor and wall images are packed texture atlases from the primary-care clinic file, not a photograph of a room. The black rectangles are unused texture space. The interior still is an Infinigen generate, seed 7, furniture off, rendered with EEVEE Next at 1280&times;720. That still is the mesh before the new simplify step.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Occupied texels on the full atlases. Padding below luminance 8 is ignored. The learner clinic file was not replaced.</caption>
+            <thead><tr><th scope="col">Surface</th><th scope="col">Shipped mean / spread</th><th scope="col">Kept bake mean / spread</th></tr></thead>
+            <tbody>
+              <tr><td>Wall</td><td>251.21 / 15.51</td><td>220.12 / 22.48</td></tr>
+              <tr><td>Floor</td><td>254.85 / 4.33</td><td>239.22 / 20.65</td></tr>
+              <tr><td>Ceiling</td><td>254.80 / 1.11</td><td>253.00 / 3.57</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Kept lighting: distributed rig, wall energy 0.2, floor energy 0.1, opposite wall washes split by a contrast of 0.6, ceiling key left at full strength. Floor page images below are scaled from 4096 to 1024 with a box filter so the page can load. Wall images are the native 1024 atlases. Scores above were measured on the full atlases.
+        </p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:12px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/room-light-floor-shipped-2026-09-22.jpg" alt="Shipped primary-care floor atlas, scaled from 4096 to 1024: the occupied region is clipped white." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Shipped floor atlas. Occupied texels are clipped white. Page image scaled from 4096.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/room-light-floor-kept-2026-09-22.jpg" alt="Kept primary-care floor atlas, scaled from 4096 to 1024: a bright pool with darker corners." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Kept floor atlas. Bright center, darker corners. Page image scaled from 4096.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/room-light-wall-shipped-2026-09-22.png" alt="Shipped primary-care wall atlas at native 1024: lit strips are blown out to white, with black unused islands." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Shipped wall atlas, native 1024. Lit strips are blown out.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/room-light-wall-kept-2026-09-22.png" alt="Kept primary-care wall atlas at native 1024: a gray field with a vertical seam between brighter and dimmer washes." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Kept wall atlas, native 1024. Gray, with a seam between the wall washes.</figcaption>
+          </figure>
+        </div>
+        <figure style="margin:16px 0 0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+          <img src="assets/room-carpet-trim-seed7-2026-09-22.png" alt="Infinigen seed 7 interior at native 1280 by 720: blue-gray carpet, baseboard, panel door, curtained window, tile walls. A moulded door frame is not obvious." style="width:100%; height:auto; display:block;">
+          <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Seed 7 interior, native 1280&times;720, before simplify. Rug floor, baseboard, panel door, curtained window. Walls are still tile. A moulded frame around the door is not obvious in this shot. The generate log counts five casing objects.</figcaption>
+        </figure>
+        <p>
+          After that generate, the room station simplify (commit <code>cd1fb13fb</code>) ran on a copy: skirting and openings 158,700 to 99,116 triangles, walls and floors 6,336 to 3,197, file 8.4 MB to 1.4 MB. The largest casing cube stayed near 15,000 triangles. There is no second still of the simplified mesh.
+        </p>
+        <p class="evidence-note">
+          Lighting commits <code>d1f63490b</code> and <code>9d4736e00</code>. Simplify commit <code>cd1fb13fb</code>. Learner file <code>infinigen-primary-care-clinic.glb</code> sha256 <code>9e1973038b17d018cc114c3ac84ce7a9fe5da870416cd39480c45c8a010bb1e0</code>, unchanged.
+        </p>
+        <p class="status-copy">
+          <strong>notEvidenceFor:</strong> the clinic room a learner loads, a moulded door frame a viewer can pick out, production cloth, Quest readiness, clinical validity, scoring validity, licensure, or exam equivalence.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-21T0436">
         <div class="section-heading">
           <p class="eyebrow">Entry 111 &middot; 2026-09-21 04:36 UTC</p>
