@@ -404,6 +404,7 @@
     "assets:reachability": "vitest run --root . tools/openclinxr/openclaw/every-published-humanoid-is-cast-or-declared.test.ts",
     "factory:rooms:bake": "tsx tools/openclinxr/asset-pipeline/environment/rooms-bake-cli.ts",
     "factory:rooms:bake:inspect": "tsx tools/openclinxr/asset-pipeline/environment/rooms-bake-cli.ts --inspect",
+    "factory:rooms:harness": "tsx tools/openclinxr/evidence/room-bake-harness.ts",
     "arch:ceilings": "tsx tools/openclinxr/architecture/write-context-ceilings.ts",
     "arch:parallelism": "tsx tools/openclinxr/architecture/parallelism-report.ts",
     "arch:index": "tsx tools/openclinxr/architecture/write-package-agent-index.ts",
