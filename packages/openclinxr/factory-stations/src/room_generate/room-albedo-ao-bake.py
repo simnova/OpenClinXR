@@ -332,6 +332,8 @@ def setup_scene(
     rig_json: str = "",
     energy_mul: float = 1.0,
     samples: int = 32,
+    floor_energy_mul: float | None = None,
+    wall_contrast: float = 0.0,
 ) -> None:
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
@@ -403,7 +405,9 @@ def setup_scene(
     # energy_mul scales the downward and wall lights only. The upward ceiling
     # key stays at full strength so the ceiling does not fall while the walls
     # and floor come off the clip and pick up shading.
-    down_data.energy = 220.0 * energy_scale
+    floor_mul = energy_mul if floor_energy_mul is None else floor_energy_mul
+    floor_scale = (6.4 / span) * floor_mul
+    down_data.energy = 220.0 * floor_scale
 
     up_data = bpy.data.lights.new("openclinxr_room_bake_key", type="AREA")
     up = bpy.data.objects.new("openclinxr_room_bake_key", up_data)
@@ -418,11 +422,22 @@ def setup_scene(
     # shells receive direct light the down-softbox only grazes.
     wall_e = 80.0 * energy_scale
     wall_size = 0.55 * span_z
-    for name, loc, rot in (
-        ("openclinxr_room_bake_wall_px", (bbox["maxX"] - 0.2, cy, cz), (0.0, math.pi / 2.0, 0.0)),
-        ("openclinxr_room_bake_wall_nx", (bbox["minX"] + 0.2, cy, cz), (0.0, -math.pi / 2.0, 0.0)),
-        ("openclinxr_room_bake_wall_py", (cx, bbox["maxY"] - 0.2, cz), (-math.pi / 2.0, 0.0, 0.0)),
-        ("openclinxr_room_bake_wall_ny", (cx, bbox["minY"] + 0.2, cz), (math.pi / 2.0, 0.0, 0.0)),
+    # Opposite washes at (1+c) and (1-c) so the wall atlas gains a gradient
+    # without changing the average wall energy.
+    wall_factors = (
+        1.0 + wall_contrast,
+        1.0 - wall_contrast,
+        1.0 + wall_contrast,
+        1.0 - wall_contrast,
+    )
+    for (name, loc, rot), factor in zip(
+        (
+            ("openclinxr_room_bake_wall_px", (bbox["maxX"] - 0.2, cy, cz), (0.0, math.pi / 2.0, 0.0)),
+            ("openclinxr_room_bake_wall_nx", (bbox["minX"] + 0.2, cy, cz), (0.0, -math.pi / 2.0, 0.0)),
+            ("openclinxr_room_bake_wall_py", (cx, bbox["maxY"] - 0.2, cz), (-math.pi / 2.0, 0.0, 0.0)),
+            ("openclinxr_room_bake_wall_ny", (cx, bbox["minY"] + 0.2, cz), (math.pi / 2.0, 0.0, 0.0)),
+        ),
+        wall_factors,
     ):
         wd = bpy.data.lights.new(name, type="AREA")
         wo = bpy.data.objects.new(name, wd)
@@ -431,11 +446,12 @@ def setup_scene(
         wo.rotation_euler = rot
         wd.size = wall_size
         wd.size_y = soft * 0.7
-        wd.energy = wall_e
+        wd.energy = wall_e * factor
 
     print(
         f"[room-bake] light-rig=distributed softboxes@({cx:.2f},{cy:.2f},{cz:.2f}) "
-        f"downE={down_data.energy:.1f} upE={up_data.energy:.1f} wallE={wall_e:.1f} size={soft:.2f}"
+        f"downE={down_data.energy:.1f} upE={up_data.energy:.1f} wallE={wall_e:.1f} "
+        f"wallContrast={wall_contrast:.2f} size={soft:.2f}"
     )
 
 
@@ -561,11 +577,19 @@ def wire_textures_to_base_color() -> None:
         bsdf = find_bsdf(mat)
         if bsdf is None:
             continue
-        img_tex = None
+        preferred = None
+        fallback = None
         for node in nt.nodes:
-            if node.type == "TEX_IMAGE" and node.image and node.image.name.startswith("openclinxr_room_bake_"):
-                img_tex = node
-                break
+            if node.type != "TEX_IMAGE" or node.image is None:
+                continue
+            name = node.image.name
+            if not name.startswith("openclinxr_room_bake_"):
+                continue
+            if "surface_" in name:
+                preferred = node
+            elif fallback is None:
+                fallback = node
+        img_tex = preferred or fallback
         if img_tex is None:
             continue
         for link in list(bsdf.inputs["Base Color"].links):
@@ -669,6 +693,28 @@ def main() -> None:
         help="Cycles samples (default 32). Higher costs a full rebake.",
     )
     ap.add_argument(
+        "--floor-energy-scale",
+        type=float,
+        default=None,
+        help="Downward softbox multiplier. Defaults to --energy-scale.",
+    )
+
+    def unit_contrast(value: str) -> float:
+        try:
+            parsed = float(value)
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError("--wall-contrast must be in [0, 1)") from exc
+        if parsed < 0.0 or parsed >= 1.0:
+            raise argparse.ArgumentTypeError("--wall-contrast must be in [0, 1)")
+        return parsed
+
+    ap.add_argument(
+        "--wall-contrast",
+        type=unit_contrast,
+        default=0.0,
+        help="Split opposite wall washes by this fraction (0 = even).",
+    )
+    ap.add_argument(
         "--restore-albedo",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -683,7 +729,17 @@ def main() -> None:
     bpy.ops.import_scene.gltf(filepath=args.input)
 
     bbox = scene_bbox()
-    setup_scene(bbox, args.light_rig, args.rig_json, args.energy_scale, args.samples)
+    if args.floor_energy_scale is not None and args.floor_energy_scale <= 0:
+        raise SystemExit("--floor-energy-scale must be a positive number")
+    setup_scene(
+        bbox,
+        args.light_rig,
+        args.rig_json,
+        args.energy_scale,
+        args.samples,
+        args.floor_energy_scale,
+        args.wall_contrast,
+    )
     results = bake_materials(args.resolution, args.restore_albedo)
     wire_textures_to_base_color()
 

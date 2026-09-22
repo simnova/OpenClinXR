@@ -58,6 +58,8 @@ export type BakeControls = {
   source: string;
   lightRig: string;
   energyScale: number;
+  floorEnergyScale: number;
+  wallContrast: number;
   samples: number;
   resolution: number;
   restoreAlbedo: boolean;
@@ -189,12 +191,22 @@ export async function measureSurfaceMeans(glbPath: string): Promise<SurfaceMeans
     if (!role || found[role] !== undefined) continue;
     const mesh = node.getMesh();
     if (!mesh) continue;
+    let fallback: LuminanceStats | undefined;
+    let preferred: LuminanceStats | undefined;
     for (const prim of mesh.listPrimitives()) {
-      const image = prim.getMaterial()?.getBaseColorTexture()?.getImage();
+      const tex = prim.getMaterial()?.getBaseColorTexture();
+      const image = tex?.getImage();
       if (!image) continue;
-      found[role] = statsForPng(image);
-      break;
+      const stats = statsForPng(image);
+      const texName = tex?.getName() ?? "";
+      if (texName.includes("surface_")) {
+        preferred = stats;
+        break;
+      }
+      if (fallback === undefined) fallback = stats;
     }
+    const chosen = preferred ?? fallback;
+    if (chosen) found[role] = chosen;
   }
   for (const material of doc.getRoot().listMaterials()) {
     const tex = material.getBaseColorTexture();
@@ -263,6 +275,8 @@ export function roomBakeCliArgv(
   restoreAlbedo = true,
   samples = 32,
   resolution = 1024,
+  floorEnergyScale?: number,
+  wallContrast = 0,
 ): string[] {
   return [
     ROOM_BAKE_CLI,
@@ -281,6 +295,9 @@ export function roomBakeCliArgv(
     String(resolution),
     "--means-log",
     path.join(repoRoot(), ROOM_BAKE_HARNESS_DIR, "means.json"),
+    ...(floorEnergyScale !== undefined ? ["--floor-energy-scale", String(floorEnergyScale)] : []),
+    "--wall-contrast",
+    String(wallContrast),
   ];
 }
 
@@ -305,6 +322,8 @@ type Parsed = {
   restoreAlbedo: boolean;
   samples: number;
   resolution: number;
+  floorEnergyScale?: number;
+  wallContrast: number;
 };
 
 function parseArgs(args: readonly string[]): Parsed {
@@ -318,6 +337,7 @@ function parseArgs(args: readonly string[]): Parsed {
     restoreAlbedo: true,
     samples: 32,
     resolution: 1024,
+    wallContrast: 0,
   };
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -361,6 +381,18 @@ function parseArgs(args: readonly string[]): Parsed {
         throw new Error("--resolution must be a positive integer");
       }
       parsed.resolution = value;
+    } else if (arg === "--floor-energy-scale") {
+      const value = Number(next());
+      if (!Number.isFinite(value) || value <= 0) {
+        throw new Error("--floor-energy-scale must be a positive number");
+      }
+      parsed.floorEnergyScale = value;
+    } else if (arg === "--wall-contrast") {
+      const value = Number(next());
+      if (!Number.isFinite(value) || value < 0 || value >= 1) {
+        throw new Error("--wall-contrast must be in [0, 1)");
+      }
+      parsed.wallContrast = value;
     }
     else {
       throw new Error(`Unknown room-bake-harness option: ${arg}`);
@@ -390,6 +422,8 @@ function controlsFrom(parsed: Parsed, source: string): BakeControls {
     source,
     lightRig: parsed.lightRig ?? "distributed",
     energyScale: parsed.energyScale,
+    floorEnergyScale: parsed.floorEnergyScale ?? parsed.energyScale,
+    wallContrast: parsed.wallContrast,
     samples: parsed.samples,
     resolution: parsed.resolution,
     restoreAlbedo: parsed.restoreAlbedo,
@@ -433,6 +467,8 @@ export async function runRoomBakeHarness(
       parsed.restoreAlbedo,
       parsed.samples,
       parsed.resolution,
+      parsed.floorEnergyScale,
+      parsed.wallContrast,
     );
     await mkdir(path.dirname(outputAbs), { recursive: true });
     await copyFile(controlAbs, outputAbs);

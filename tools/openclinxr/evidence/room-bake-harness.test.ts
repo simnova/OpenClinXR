@@ -161,5 +161,9 @@ describe("room-bake-cli --light-rig", () => {
     expect(parseRoomBakeCliArgs(["--input", "room.glb", "--samples", "48"]).samples).toBe(48);
     expect(() => parseRoomBakeCliArgs(["--samples", "0"])).toThrow(/--samples must be a positive integer/);
     expect(() => parseRoomBakeCliArgs(["--samples", "nope"])).toThrow(/--samples must be a positive integer/);
+    expect(parseRoomBakeCliArgs(["--input", "room.glb", "--wall-contrast", "0.6"]).wallContrast).toBe(0.6);
+    expect(() => parseRoomBakeCliArgs(["--wall-contrast", "1"])).toThrow(/--wall-contrast must be in \[0, 1\)/);
+    expect(parseRoomBakeCliArgs(["--floor-energy-scale", "0.1"]).floorEnergyScale).toBe(0.1);
+    expect(() => parseRoomBakeCliArgs(["--floor-energy-scale", "0"])).toThrow(/--floor-energy-scale must be a positive number/);
   });
 });

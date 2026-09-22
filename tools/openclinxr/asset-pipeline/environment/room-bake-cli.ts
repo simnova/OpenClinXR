@@ -115,6 +115,8 @@ export async function runRoomBake(options: {
   energyScale?: number;
   restoreAlbedo?: boolean;
   samples?: number;
+  floorEnergyScale?: number;
+  wallContrast?: number;
 }): Promise<BakeReport> {
   const input = options.input;
   const output = options.output ?? input;
@@ -157,6 +159,11 @@ export async function runRoomBake(options: {
         options.restoreAlbedo === false ? "--no-restore-albedo" : "--restore-albedo",
         "--samples",
         String(samples),
+        ...(options.floorEnergyScale !== undefined
+          ? ["--floor-energy-scale", String(options.floorEnergyScale)]
+          : []),
+        "--wall-contrast",
+        String(options.wallContrast ?? 0),
       ],
     },
   );
@@ -225,6 +232,8 @@ export type RoomBakeCliOptions = {
   restoreAlbedo?: boolean;
   samples?: number;
   meansLog?: string;
+  floorEnergyScale?: number;
+  wallContrast?: number;
 };
 
 export function parseRoomBakeCliArgs(args: readonly string[]): RoomBakeCliOptions {
@@ -266,7 +275,19 @@ export function parseRoomBakeCliArgs(args: readonly string[]): RoomBakeCliOption
       }
       options.samples = value;
     } else if (arg === "--means-log") options.meansLog = next();
-    else throw new Error(`Unknown room-bake option: ${arg}`);
+    else if (arg === "--floor-energy-scale") {
+      const value = Number(next());
+      if (!Number.isFinite(value) || value <= 0) {
+        throw new Error("--floor-energy-scale must be a positive number");
+      }
+      options.floorEnergyScale = value;
+    } else if (arg === "--wall-contrast") {
+      const value = Number(next());
+      if (!Number.isFinite(value) || value < 0 || value >= 1) {
+        throw new Error("--wall-contrast must be in [0, 1)");
+      }
+      options.wallContrast = value;
+    } else throw new Error(`Unknown room-bake option: ${arg}`);
   }
   return options;
 }
@@ -307,6 +328,8 @@ export async function runRoomBakeCli(args = process.argv.slice(2)): Promise<void
     energyScale: options.energyScale,
     samples: options.samples,
     meansLog: options.meansLog,
+    floorEnergyScale: options.floorEnergyScale,
+    wallContrast: options.wallContrast,
     restoreAlbedo: options.restoreAlbedo,
   });
 }
