@@ -51,6 +51,11 @@ import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 
 import type { EncounterRuntimeActorAsset } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
+import {
+  runtimeHumanoidVariantAssetPath,
+  type AssetLoadingContext,
+} from "@openclinxr/xr-asset-loading";
+import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
 import { writeDeterministicLipSyncWav } from "../../../packages/openclinxr/factory-stations/src/lip_sync/fixture-wav.js";
 import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { generatedActorPlacement } from "../../../packages/openclinxr/asset-registry/src/actor-placement.js";
@@ -114,6 +119,63 @@ export const ROLLUP_DECIDING_INPUTS = [
   "tools/openclinxr/dark-factory/multi-case-runner.ts",
   "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
 ] as const;
+
+/**
+ * The baker named on the learner-loaded peds patient sidecar. Not a station-resolution
+ * input: a mismatch sets `stale` from `recipe.inputs`, and this path stays off
+ * `ROLLUP_DECIDING_INPUTS`.
+ */
+export const LEARNER_BODY_MATERIALIZER =
+  "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py";
+
+export const PEDS_ASTHMA_SCENARIO_ID = "peds_asthma_parent_anxiety_v1";
+export const PEDS_PATIENT_ACTOR_ID = "patient_maya_johnson_v1";
+
+/** Default peds cast: comparator branches skipped so resolution is the resolveCastPath fall-through. */
+export function pedsAsthmaPatientFallThroughContext(): AssetLoadingContext {
+  return {
+    scenarioId: () => PEDS_ASTHMA_SCENARIO_ID,
+    selectedHumanoidSourceComparator: () => null,
+    runtimeActorRole: () => "patient",
+    runtimePatientActorId: () => PEDS_PATIENT_ACTOR_ID,
+    runtimeFamilyActorId: () => "parent_tara_johnson_v1",
+    runtimeClinicalTeamActorId: () => "nurse_kevin_lee_v1",
+    encounterBundle: () => ({}),
+    resolveCastPath: (input) => resolveHumanoidVariantOrCastPath(input),
+  } as unknown as AssetLoadingContext;
+}
+
+export function pedsAsthmaPatientRuntimeGlb(): string {
+  return runtimeHumanoidVariantAssetPath(
+    pedsAsthmaPatientFallThroughContext(),
+    PEDS_PATIENT_ACTOR_ID,
+    "/not-the-cast-fallback.glb",
+  );
+}
+
+/** Disk sidecar beside a `/generated-humanoids/…` or `/xr-assets/…` runtime GLB. */
+export function provenanceSidecarBesideRuntimeGlb(runtimeGlb: string, repoRoot: string = REPO_ROOT): string {
+  const publicRel = runtimeGlb.replace(/^\//, "");
+  const glbOnDisk = path.join(repoRoot, "apps", "ui-xr", "public", publicRel);
+  if (!glbOnDisk.endsWith(".glb")) {
+    throw new Error(`runtime humanoid path is not a GLB: ${runtimeGlb}`);
+  }
+  return `${glbOnDisk.slice(0, -".glb".length)}.provenance.json`;
+}
+
+function learnerBodyRecipeDisagrees(repoRoot: string = REPO_ROOT): boolean {
+  const sidecar = provenanceSidecarBesideRuntimeGlb(pedsAsthmaPatientRuntimeGlb(), repoRoot);
+  let recorded: string | undefined;
+  try {
+    const doc = JSON.parse(readFileSync(sidecar, "utf8")) as {
+      recipe?: { inputs?: Array<{ path?: string; sha256?: string }> };
+    };
+    recorded = doc.recipe?.inputs?.find((row) => row.path === LEARNER_BODY_MATERIALIZER)?.sha256;
+  } catch {
+    return true;
+  }
+  return recorded !== sha256OfInput(LEARNER_BODY_MATERIALIZER, repoRoot);
+}
 
 /** sha256 hex of a repo-root-relative deciding input. */
 export function sha256OfInput(relPath: string, repoRoot: string = REPO_ROOT): string {
@@ -1642,7 +1704,8 @@ export async function refreshRollupStaleness(options: { evidenceDir?: string } =
   }
   const declared: Record<string, string> = rollup.measuredInputs ?? {};
   const drifted = ROLLUP_DECIDING_INPUTS.filter((rel) => declared[rel] !== sha256OfInput(rel));
-  if (drifted.length === 0) return false;
+  const recipeDrifted = learnerBodyRecipeDisagrees();
+  if (drifted.length === 0 && !recipeDrifted) return false;
   if (rollup.stale === true) return true; // already refused
   rollup.stale = true;
   await writeFile(rollupPath, `${JSON.stringify(rollup, null, 2)}\n`, "utf8");

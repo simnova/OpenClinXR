@@ -56,6 +56,14 @@ def sha256_file(path: PathLike) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def _resolve_recipe_input(path: PathLike) -> Path:
+    """Repo-relative recipe paths hash the file in this checkout, not cwd."""
+    candidate = Path(path)
+    if candidate.is_absolute():
+        return candidate
+    return Path(__file__).resolve().parents[4] / candidate
+
+
 def build_orchestrate_chains(
     *,
     case_id: str,
@@ -206,6 +214,7 @@ def build_provenance_document(
     source_topology_mode: str = "real_anny_mpfb2_forward_pass_v1",
     garment_authoring_class: str = "body_surface_normal_offset_issue_121",
     extra_fields: Optional[Mapping[str, Any]] = None,
+    recipe_inputs: Optional[Sequence[PathLike]] = None,
 ) -> Dict[str, Any]:
     """Pure builder: returns provenance dict; does not touch the filesystem."""
     if derivation_mode not in (DERIVATION_MODE_ORCHESTRATE, DERIVATION_MODE_BLENDER_ONLY_REBAKE):
@@ -293,6 +302,13 @@ def build_provenance_document(
         for key, value in extra_fields.items():
             if key not in doc:
                 doc[key] = value
+    if recipe_inputs is not None:
+        doc["recipe"] = {
+            "inputs": [
+                {"path": str(recipe_path), "sha256": sha256_file(_resolve_recipe_input(recipe_path))}
+                for recipe_path in recipe_inputs
+            ]
+        }
 
     return doc
 
