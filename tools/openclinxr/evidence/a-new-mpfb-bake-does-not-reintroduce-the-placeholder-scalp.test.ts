@@ -124,7 +124,7 @@ const MIN_HAIR_TRIS = 2000;
 type Asset = { id: string; scalpTris: number; hairTris: number };
 
 async function measure(): Promise<Asset[]> {
-  if (!existsSync(DIR)) return [];
+  if (!existsSync(DIR)) throw new Error("missing artifact");
   const ids = readdirSync(DIR)
     .filter((f) => f.startsWith("mpfb-") && f.endsWith(".glb"))
     .map((f) => f.replace(/\.glb$/u, ""))

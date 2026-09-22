@@ -98,7 +98,7 @@ function gateActors(): string[] {
 }
 
 async function dressedActors(): Promise<Dressed[]> {
-  if (!existsSync(DIR)) return [];
+  if (!existsSync(DIR)) throw new Error("missing artifact");
   const io = new NodeIO();
   const out: Dressed[] = [];
   for (const f of readdirSync(DIR).filter((x) => x.startsWith("mpfb-") && x.endsWith(".glb")).sort()) {

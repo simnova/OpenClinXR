@@ -146,13 +146,13 @@ describe("the waistband ratio compares rings from one garment pairing", () => {
     expect(src, "MAX_WAISTBAND_TO_HEM_HF_RATIO must remain 4").toMatch(
       /const MAX_WAISTBAND_TO_HEM_HF_RATIO\s*=\s*4\s*;/,
     );
-    if (!existsSync(ARTIFACT)) return;
+    if (!existsSync(ARTIFACT)) throw new Error("missing artifact");
     const over = rows().filter((x) => x.comparable && x.ratio > 4).map((x) => `${x.actor} ${x.ratio}`);
     expect(over, "comparable rows above the bound").toEqual([]);
   });
 
   it("(4) KNOWN-GOOD: two shipped-bytes ratios are reproduced", () => {
-    if (!existsSync(ARTIFACT)) return;
+    if (!existsSync(ARTIFACT)) throw new Error("missing artifact");
     for (const [actor, expected] of Object.entries(KNOWN_GOOD)) {
       const row = rows().find((x) => x.actor === actor);
       expect(row, `${actor} must be measured`).toBeTruthy();

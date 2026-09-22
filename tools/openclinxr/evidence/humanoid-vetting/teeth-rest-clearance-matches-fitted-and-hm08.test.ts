@@ -58,7 +58,7 @@ describe("teeth-rest-clearance matches fitted and hm08 teeth", () => {
   });
 
   it("(3) --dry on the shipped nurse GLB still finds a teeth mesh and writes nothing", () => {
-    if (!existsSync(SHIPPED_NURSE)) return;
+    if (!existsSync(SHIPPED_NURSE)) throw new Error("missing artifact");
     const before = readFileSync(SHIPPED_NURSE);
     const out = execFileSync("pnpm", ["exec", "tsx", STATION, SHIPPED_NURSE, "--dry"],
       { cwd: REPO_ROOT, encoding: "utf8", timeout: 120000 });

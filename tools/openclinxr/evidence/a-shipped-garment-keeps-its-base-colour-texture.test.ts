@@ -64,7 +64,7 @@ const KEPT_TEXTURE = /skin|eyes/i;
 type Row = { asset: string; material: string; hasTexture: boolean; factor: number[] };
 
 async function surveyMaterials(): Promise<Row[]> {
-  if (!existsSync(DIR)) return [];
+  if (!existsSync(DIR)) throw new Error("missing artifact");
   const io = new NodeIO();
   const rows: Row[] = [];
   for (const file of readdirSync(DIR).filter((f) => /^mpfb-.*\.glb$/u.test(f))) {

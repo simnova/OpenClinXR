@@ -45,7 +45,7 @@ const ACTORS = [
 ] as const;
 
 function garmentRegion(reportPath: string): unknown {
-  if (!existsSync(reportPath)) return undefined;
+  if (!existsSync(reportPath)) throw new Error("missing artifact");
   const report = JSON.parse(readFileSync(reportPath, "utf8")) as Record<string, unknown>;
   const nested = report["roleClothingMaterialRegions"] as Record<string, unknown> | undefined;
   return report["realGarmentRegionFromPhenotype"] ?? nested?.["realGarmentRegionFromPhenotype"];

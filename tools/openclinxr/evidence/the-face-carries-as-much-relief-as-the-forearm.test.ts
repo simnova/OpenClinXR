@@ -129,7 +129,7 @@ function shippedActors(): string[] {
  *  so they guard the artifact only once it exists — they are deliberately vacuous until then, and
  *  clause (1) is the thing that is red. */
 function reportOrNull(): { rows: IslandRow[] } | null {
-  if (!existsSync(REPORT)) return null;
+  if (!existsSync(REPORT)) throw new Error("missing artifact");
   return JSON.parse(readFileSync(REPORT, "utf8")) as { rows: IslandRow[] };
 }
 

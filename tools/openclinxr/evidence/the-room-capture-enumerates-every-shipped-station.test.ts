@@ -90,7 +90,7 @@ const CAPTURE = join(REPO_ROOT, "tools/openclinxr/evidence/ui-xr-environment-roo
 
 /** A bundle directory is a shipped station when it carries the learner runtime bundle. */
 function shippedStations(): string[] {
-  if (!existsSync(BUNDLES)) return [];
+  if (!existsSync(BUNDLES)) throw new Error("missing artifact");
   return readdirSync(BUNDLES)
     .filter((d) => existsSync(join(BUNDLES, d, "learner-runtime-bundle.v1.json")))
     .sort();

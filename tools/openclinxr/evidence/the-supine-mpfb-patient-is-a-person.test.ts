@@ -116,7 +116,7 @@ describe("a supine MPFB patient is posed by the rail that fits it", () => {
   it("(2) COUNTERWEIGHT: the Anny rail still receives them", () => {
     // Refuses (b) and (c). The Anny body is the known-good control every supine measurement
     // calibrates against — it is why L7 is parked — and a blanket skip un-poses it.
-    if (!existsSync(REPORT)) return;
+    if (!existsSync(REPORT)) throw new Error("missing artifact");
     const anny = railOf(requireReport(), "anny");
     expect(anny.jointCount, "the Anny rail is 23 joints").toBeLessThan(30);
     expect(anny.appliedJointEulers, `${anny.bodyGlb} keeps the table it was tuned for`).toBe(true);
@@ -131,7 +131,7 @@ describe("a supine MPFB patient is posed by the rail that fits it", () => {
   });
 
   it("(4) VACUITY GUARD: the report distinguishes two rails, not one row twice", () => {
-    if (!existsSync(REPORT)) return;
+    if (!existsSync(REPORT)) throw new Error("missing artifact");
     const r = requireReport();
     expect(new Set(r.rails.map((x) => x.rail)).size, "both rails must be measured").toBe(2);
     expect(new Set(r.rails.map((x) => x.bodyGlb)).size, "two distinct bodies").toBe(2);

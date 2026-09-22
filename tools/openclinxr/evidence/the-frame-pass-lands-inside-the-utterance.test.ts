@@ -97,7 +97,7 @@ type Report = {
 };
 
 function report(): Report | null {
-  if (!existsSync(REPORT)) return null;
+  if (!existsSync(REPORT)) throw new Error("missing artifact");
   return JSON.parse(readFileSync(REPORT, "utf8")) as Report;
 }
 

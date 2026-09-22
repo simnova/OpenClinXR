@@ -62,7 +62,7 @@ const readManifest = (): { entries?: Entry[] } | null => {
 /** The bank is the population — never a hardcoded list, or the gallery silently omits new encounters. */
 const shippedEncounterIds = (): string[] => {
   const dir = join(REPO, ".openclinxr/evidence/ui-xr-environment-room/latest");
-  if (!existsSync(dir)) return [];
+  if (!existsSync(dir)) throw new Error("missing artifact");
   return require("node:fs").readdirSync(dir)
     .filter((f: string) => f.endsWith("-room.png"))
     .map((f: string) => f.replace("-room.png", ""))

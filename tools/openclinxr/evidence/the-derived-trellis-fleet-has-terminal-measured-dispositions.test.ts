@@ -65,7 +65,7 @@ type Run = { censusSha256?: string; subjects?: Subject[] };
 
 const census = () => JSON.parse(readFileSync(CENSUS, "utf8"));
 function run(): Run {
-  if (!existsSync(RUN)) return {};
+  if (!existsSync(RUN)) throw new Error("missing artifact");
   try { return JSON.parse(readFileSync(RUN, "utf8")) as Run; } catch { return {}; }
 }
 function assertHashed(f: HashedFile | undefined, what: string): void {

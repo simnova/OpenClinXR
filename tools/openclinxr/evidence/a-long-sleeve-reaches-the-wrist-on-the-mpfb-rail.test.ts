@@ -144,7 +144,7 @@ function jointWorld(m: number[]): number[] {
 
 async function measure(actor: string): Promise<Row | null> {
   const file = join(GENERATED, `${actor}.glb`);
-  if (!existsSync(file)) return null;
+  if (!existsSync(file)) throw new Error("missing artifact");
   const doc = await io.read(file);
   const skin = doc.getRoot().listSkins()[0];
   if (!skin) return null;

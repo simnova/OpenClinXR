@@ -192,7 +192,7 @@ describe("the applied visemes move the mouth, not just the target list", () => {
       expect(existsSync(abs), `${a} must still ship`).toBe(true);
       expect(createHash("sha256").update(readFileSync(abs)).digest("hex"), `${a} was REBAKED — this slice bakes a NEW inspect asset, it does not touch the cast`).toBe(sha);
     }
-    if (!existsSync(PROVENANCE)) return;
+    if (!existsSync(PROVENANCE)) throw new Error("missing artifact");
     const p = prov();
     expect(p.packagerClaim, "packager claim from #430").toBe("CC0");
     expect(p.pageVerdict, "page verdict from #430").toBe("NOT_FOUND");

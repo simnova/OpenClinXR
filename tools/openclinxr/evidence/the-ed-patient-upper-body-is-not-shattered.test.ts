@@ -83,7 +83,7 @@ type Sample = {
 type Doc = { capturedAtHeadSha?: unknown; camera?: unknown; actors?: Sample[] };
 
 function doc(): Doc {
-  if (!existsSync(MEASUREMENT)) return {};
+  if (!existsSync(MEASUREMENT)) throw new Error("missing artifact");
   try { return JSON.parse(readFileSync(MEASUREMENT, "utf8")) as Doc; } catch { return {}; }
 }
 const actorOf = (id: string): Sample | undefined => (doc().actors ?? []).find((a) => a.actorId === id);

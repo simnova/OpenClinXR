@@ -211,7 +211,7 @@ function textureStats(bytes: Uint8Array): { mean: number; sd: number } | null {
 }
 
 async function readGarments(): Promise<Garment[]> {
-  if (!existsSync(ASSET)) return [];
+  if (!existsSync(ASSET)) throw new Error("missing artifact");
   const doc = await new NodeIO().readBinary(readFileSync(ASSET));
   const out: Garment[] = [];
   for (const m of doc.getRoot().listMaterials()) {

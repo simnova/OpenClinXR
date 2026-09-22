@@ -105,7 +105,7 @@ type Cell = {
 };
 
 function probe(): { cells?: Cell[]; glbSha256?: string } {
-  if (!existsSync(ARTIFACT)) return {};
+  if (!existsSync(ARTIFACT)) throw new Error("missing artifact");
   return JSON.parse(readFileSync(ARTIFACT, "utf8")) as { cells?: Cell[]; glbSha256?: string };
 }
 const cell = (id: string): Cell | undefined => (probe().cells ?? []).find((c) => c.id === id);

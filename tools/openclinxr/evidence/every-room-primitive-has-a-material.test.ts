@@ -111,7 +111,7 @@ type GraphPrim = {
 type Shell = { glb?: string; prims?: GraphPrim[]; wallRegionMeanL?: number; ceilingRegionMeanL?: number };
 
 function probe(): { shells?: Shell[]; glbSha256?: Record<string, string> } {
-  if (!existsSync(ARTIFACT)) return {};
+  if (!existsSync(ARTIFACT)) throw new Error("missing artifact");
   return JSON.parse(readFileSync(ARTIFACT, "utf8")) as { shells?: Shell[]; glbSha256?: Record<string, string> };
 }
 const shell = (glb: string): Shell | undefined => (probe().shells ?? []).find((s) => s.glb === glb);

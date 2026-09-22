@@ -200,7 +200,7 @@ describe("the physics-placement cagematch ran and was recorded", () => {
   it("(6) VACUITY GUARD: the comparison band comes from the CONTROL's own numbers", () => {
     // Refuses a band the worker picked. If the artifact is absent this clause is silent by design —
     // it guards the comparison, and (1)-(3) already fail loudly when there is nothing to compare.
-    if (!existsSync(REPORT)) return;
+    if (!existsSync(REPORT)) throw new Error("missing artifact");
     const r = requireReport();
     expect(Number.isFinite(worst(r.control)), "the control's worst penetration must be a real number").toBe(true);
     expect(

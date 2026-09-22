@@ -198,7 +198,7 @@ type Api = {
 };
 
 async function loadApi(): Promise<Api | null> {
-  if (!existsSync(MODULE_PATH)) return null;
+  if (!existsSync(MODULE_PATH)) throw new Error("missing artifact");
   try {
     const mod = (await import(MODULE_SPECIFIER)) as Api;
     if (typeof mod.deriveDoorwayOverviewCameraForAllEnvironments !== "function") return null;

@@ -85,7 +85,7 @@ type Arm = {
 type Report = { arms?: Arm[]; rubric?: HashedFile; policy?: { conclusion?: string; reason?: string } };
 
 function report(): Report {
-  if (!existsSync(REPORT)) return {};
+  if (!existsSync(REPORT)) throw new Error("missing artifact");
   try { return JSON.parse(readFileSync(REPORT, "utf8")) as Report; } catch { return {}; }
 }
 function assertHashed(f: HashedFile | undefined, what: string): void {

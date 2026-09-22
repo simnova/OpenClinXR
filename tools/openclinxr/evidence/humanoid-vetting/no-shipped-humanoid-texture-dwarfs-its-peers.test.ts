@@ -114,7 +114,7 @@ function parseGlbImages(glbPath: string): BodyInfo {
 }
 
 function getShippedBodies(): BodyInfo[] {
-  if (!fs.existsSync(GENERATED_HUMANOIDS)) return [];
+  if (!fs.existsSync(GENERATED_HUMANOIDS)) throw new Error("missing artifact");
   const files = fs.readdirSync(GENERATED_HUMANOIDS)
     .filter((f) => f.endsWith(".glb") && !f.includes("inspect"))
     .sort();

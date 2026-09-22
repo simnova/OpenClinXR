@@ -115,7 +115,7 @@ type Figure = {
 
 async function readFigure(id: string): Promise<Figure | null> {
   const path = join(ASSET_DIR, `${id}.glb`);
-  if (!existsSync(path)) return null;
+  if (!existsSync(path)) throw new Error("missing artifact");
   const doc = await new NodeIO().readBinary(readFileSync(path));
   const root = doc.getRoot();
   let bLo = Infinity, bHi = -Infinity;

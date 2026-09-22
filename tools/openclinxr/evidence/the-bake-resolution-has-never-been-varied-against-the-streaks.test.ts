@@ -92,7 +92,7 @@ type Cell = {
 type Ladder = { rankedBy?: string; cells: Cell[] };
 
 function ladderOrNull(): Ladder | null {
-  if (!existsSync(LADDER)) return null;
+  if (!existsSync(LADDER)) throw new Error("missing artifact");
   return JSON.parse(readFileSync(LADDER, "utf8")) as Ladder;
 }
 

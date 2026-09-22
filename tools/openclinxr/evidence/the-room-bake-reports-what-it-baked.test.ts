@@ -115,7 +115,7 @@ const MESH_POSITION_SHA: Record<string, string> = {
 
 type MeanRow = { material?: string; texture?: string; meanL?: number; surface?: string };
 function log(): { room?: string; rows?: MeanRow[]; loggedBeforeExport?: boolean } {
-  if (!existsSync(LOG)) return {};
+  if (!existsSync(LOG)) throw new Error("missing artifact");
   return JSON.parse(readFileSync(LOG, "utf8")) as { room?: string; rows?: MeanRow[]; loggedBeforeExport?: boolean };
 }
 const row = (s: string): MeanRow | undefined => (log().rows ?? []).find((r) => r.surface === s);

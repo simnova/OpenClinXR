@@ -59,11 +59,7 @@ describe("the station-reply mouth capture writes control and treatment", () => {
     expect(controlSha).not.toBe(treatmentSha);
   });
 
-  it("(5) inspection artifact records producer path, framing, and treatment driver (skipped if gitignored)", () => {
-    if (!existsSync(INSPECTION)) {
-      console.log("[skip] .openclinxr/evidence/station-reply-mouth-capture/inspection.json is gitignored and not present on clean clone/CI");
-      return;
-    }
+  it.skipIf(!existsSync(INSPECTION))("(5) inspection artifact records producer path, framing, and treatment driver (skipped if gitignored)", () => {
     const inspection = JSON.parse(readFileSync(INSPECTION, "utf8"));
     expect(inspection.schemaVersion).toBe("openclinxr.ui-xr.station-reply-mouth-capture.v1");
     expect(inspection.claimScope).toBe("mouth_motion_vs_control_live_station_reply (morph-probe applyMouthOpen is NOT this treatment)");

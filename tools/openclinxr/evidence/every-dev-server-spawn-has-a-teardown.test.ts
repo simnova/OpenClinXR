@@ -128,7 +128,7 @@ const LIVE_WRAPPER = 30001;
 const VITE_CHILD = 22149;
 
 async function loadSweeper(): Promise<((rows: readonly ProcRow[]) => number[]) | null> {
-  if (!existsSync(HELPER)) return null;
+  if (!existsSync(HELPER)) throw new Error("missing artifact");
   try {
     const mod = (await import(SPECIFIER)) as {
       selectOrphanedDevServerPids?: (rows: readonly ProcRow[]) => number[];

@@ -103,7 +103,7 @@ const TOP_FRAC_MIN = 0.7;
 type Shell = { pts: number[][]; hem: number; top: number; bodyY0: number; bodyY1: number };
 
 async function readShell(p: string): Promise<Shell | null> {
-  if (!existsSync(p)) return null;
+  if (!existsSync(p)) throw new Error("missing artifact");
   const doc = await new NodeIO().read(p);
   const collect = (re: RegExp): number[][] => {
     const out: number[][] = [];

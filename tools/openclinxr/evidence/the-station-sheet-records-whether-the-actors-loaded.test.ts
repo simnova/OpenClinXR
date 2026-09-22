@@ -112,7 +112,7 @@ const MISMATCHED = "psych_suicidal_ideation_safety_v1";
 type Select = (rows: readonly PresenceRow[]) => string[];
 
 async function loadSelector(): Promise<Select | null> {
-  if (!existsSync(CAPTURE)) return null;
+  if (!existsSync(CAPTURE)) throw new Error("missing artifact");
   try {
     const mod = (await import(SPECIFIER)) as { selectHumanoidPresenceMismatches?: Select };
     return mod.selectHumanoidPresenceMismatches ?? null;

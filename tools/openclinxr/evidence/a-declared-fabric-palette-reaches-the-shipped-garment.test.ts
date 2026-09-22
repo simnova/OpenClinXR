@@ -103,7 +103,7 @@ const COLOUR_EPSILON = 0.005;
 type Row = { actorId: string; palette: string | null; upper: number[] | null; lower: number[] | null };
 
 function declaredPalettes(): Record<string, string | null> {
-  if (!existsSync(PHENOTYPES)) return {};
+  if (!existsSync(PHENOTYPES)) throw new Error("missing artifact");
   const doc = JSON.parse(readFileSync(PHENOTYPES, "utf8")) as {
     entries: Record<string, Record<string, { phenotype?: Record<string, unknown> }>>;
   };
@@ -120,7 +120,7 @@ function declaredPalettes(): Record<string, string | null> {
 
 /** Keys of `_FABRIC_PALETTE_KIND_COLORS`, read from the file that defines them (not re-authored). */
 function paletteTableKeys(): string[] {
-  if (!existsSync(AUTOMATE)) return [];
+  if (!existsSync(AUTOMATE)) throw new Error("missing artifact");
   const src = readFileSync(AUTOMATE, "utf8");
   const start = src.indexOf("_FABRIC_PALETTE_KIND_COLORS: Dict");
   if (start < 0) return [];
@@ -130,7 +130,7 @@ function paletteTableKeys(): string[] {
 
 async function readGarments(assetStem: string): Promise<{ upper: number[] | null; lower: number[] | null }> {
   const path = join(HUMANOIDS, `${assetStem}.glb`);
-  if (!existsSync(path)) return { upper: null, lower: null };
+  if (!existsSync(path)) throw new Error("missing artifact");
   const doc = await new NodeIO().readBinary(readFileSync(path));
   let upper: number[] | null = null;
   let lower: number[] | null = null;

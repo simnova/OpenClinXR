@@ -161,7 +161,7 @@ describe("a CC0 recumbent BVH is measured against the MPFB rail", () => {
   it("(2) COUNTERWEIGHT: the header licence was read and recorded, whatever it says", () => {
     // Refuses (b). mhair02 was page-CC0 with an AGPL3 header; hair01 page-CC0 with MIXED contents.
     // Same site. An AGPL header is a reject_measured, not an obstacle to route around.
-    if (!existsSync(REPORT)) return;
+    if (!existsSync(REPORT)) throw new Error("missing artifact");
     const r = requireReport();
     expect(r.headerLicence?.length ?? 0, "headerLicence must be the text READ FROM THE FILE").toBeGreaterThan(1);
     expect(

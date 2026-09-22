@@ -75,7 +75,7 @@ type Row = {
 };
 
 function reportOrNull(): { rows: Row[] } | null {
-  if (!existsSync(REPORT)) return null;
+  if (!existsSync(REPORT)) throw new Error("missing artifact");
   return JSON.parse(readFileSync(REPORT, "utf8")) as { rows: Row[] };
 }
 
