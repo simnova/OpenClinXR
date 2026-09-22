@@ -423,6 +423,7 @@
     "@gltf-transform/functions": "^4.3.0",
     "@knip/language-server": "^3.0.5",
     "@openclinxr/factory-stations": "workspace:*",
+    "@openclinxr/xr-asset-loading": "workspace:*",
     "@openclinxr/xr-pose": "workspace:*",
     "@openclinxr/xr-runtime-state": "workspace:*",
     "@openclinxr/xr-scene": "workspace:*",

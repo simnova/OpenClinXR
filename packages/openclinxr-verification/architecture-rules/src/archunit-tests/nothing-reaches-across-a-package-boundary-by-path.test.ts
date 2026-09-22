@@ -11,7 +11,17 @@ import { describe, expect, it } from "vitest";
  */
 
 const ROOT = path.resolve(import.meta.dirname, "../../../../../");
-const SKIP = new Set(["node_modules", "dist", ".git", "coverage", ".turbo", "build"]);
+const SKIP = new Set([
+  "node_modules",
+  "dist",
+  "coverage",
+  "build",
+  ".git",
+  ".claude",
+  ".grok",
+  ".openclinxr",
+  ".turbo",
+]);
 const EXT = new Set([".ts", ".tsx", ".js", ".mjs", ".cjs", ".mts"]);
 
 function walk(dir: string, out: string[]): void {

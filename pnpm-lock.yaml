@@ -98,6 +98,9 @@ importers:
       '@openclinxr/factory-stations':
         specifier: workspace:*
         version: link:packages/openclinxr/factory-stations
+      '@openclinxr/xr-asset-loading':
+        specifier: workspace:*
+        version: link:packages/openclinxr/xr-asset-loading
       '@openclinxr/xr-pose':
         specifier: workspace:*
         version: link:packages/openclinxr/xr-pose
