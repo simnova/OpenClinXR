@@ -1,5 +1,4 @@
 import { execFileSync } from "node:child_process";
-import { resolve } from "node:path";
 
 /**
  * Commit only dirty paths whose repo-relative name is under one of the
@@ -17,7 +16,7 @@ export function commitWriteRoots(
   repoPath: string,
   writeRoots: readonly string[],
 ): void {
-  const porcelain = execFileSync("git", ["status", "--porcelain"], {
+  const porcelain = execFileSync("git", ["status", "--porcelain", "--untracked-files=all"], {
     cwd: repoPath,
     encoding: "utf8",
     maxBuffer: 32 * 1024 * 1024,
@@ -31,7 +30,10 @@ export function commitWriteRoots(
   for (const line of porcelain) {
     // porcelain format: "XY filename" where XY is status codes (AM, M , MM, etc.)
     // The filename starts at position 3 (after the two status chars and space)
-    const filename = line.trim().substring(3);
+    // Status is two columns. Do not trim first: " M path" would lose the leading space
+    // and shift the path. Renames are "R  old -> new"; commit the destination.
+    const raw = line.length >= 4 ? line.slice(3) : "";
+    const filename = raw.includes(" -> ") ? (raw.split(" -> ").pop() ?? "") : raw;
 
     if (!filename) continue;
 
@@ -51,9 +53,7 @@ export function commitWriteRoots(
   }
 
   if (toCommit.length > 0) {
-    // Stage only the in-scope files
-    const filesArg = toCommit.map((f) => ` ${f}`).join("");
-    execFileSync("git", ["add", ...toCommit], {
+    execFileSync("git", ["add", "--", ...toCommit], {
       cwd: repoPath,
       encoding: "utf8",
       maxBuffer: 32 * 1024 * 1024,
@@ -69,4 +69,3 @@ export function commitWriteRoots(
   }
   // If nothing in-scope is dirty, do not create a commit (no-op)
 }
-export { commitWriteRoots };

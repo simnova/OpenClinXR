@@ -42,6 +42,7 @@ import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { shouldRefuseDispatch, type BreakerRow } from "./retry-circuit-breaker.js";
 import { classifyDeath } from "./death-reason.js";
 import { deriveHandoffState } from "./worker-handoff-state.js";
+import { commitWriteRoots } from "./commit-write-roots.js";
 import { assertLoopNotPaused } from "./loop-pause.js";
 import { assertProductLaneNotStarved, assertPulseMeasurementAlive } from "./product-lane-gate.js";
 import { setFactoryField } from "./board-cli.js";
@@ -236,6 +237,12 @@ type DispatchOptions = {
    * provisioned — whole-root copy is rejected on cost (see worktree-asset-provisioning.ts).
    */
   assetPaths?: readonly string[];
+  /**
+   * Write roots for worker exit commit. Paths under any of these repo-relative roots will be
+   * committed when the worker exits; every other dirty path stays unstaged. Stage only files
+   * under these roots (never `git add -A` or `git add .`).
+   */
+  writeRoots?: readonly string[];
   /**
    * ISSUE #439: the session id the worker's NEW session is created with (`-s`). Chosen by the
    * caller BEFORE the process exists — never scraped from the child's output — so a dispatch
@@ -1813,7 +1820,22 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
    *
    * `phase` is deliberately unchanged; readiness gets its own field so monitors stop inferring it.
    */
-  const handoffAssessment = worktreePath ? deriveHandoffState(worktreePath) : undefined;
+  const handoffAssessment = worktreePath
+    ? deriveHandoffState(worktreePath)
+    : undefined;
+  // Commit only files under declared write roots; leave every other dirty path unstaged.
+  if (worktreePath && options.writeRoots?.length > 0) {
+    commitWriteRoots(worktreePath, options.writeRoots);
+    // Re-derive handoff state after the commit so the ledger row reflects the committed tree.
+    const reassessed = deriveHandoffState(worktreePath);
+    // merge the reassessed state into the entry
+    Object.assign(handoffAssessment, {
+      handoff: reassessed.handoff,
+      handoffDirtyFiles: reassessed.dirtyFiles,
+      handoffAheadCommits: reassessed.aheadCommits,
+      handoffDetail: reassessed.detail,
+    });
+  }
   const entry: DispatchLedgerEntry = {
     sessionId,
     ...ledgerIdentity(options, assembled, worktreePath),

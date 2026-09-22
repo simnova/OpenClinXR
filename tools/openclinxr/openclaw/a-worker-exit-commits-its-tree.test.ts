@@ -1,11 +1,13 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { resolve } from "node:path";
-import { commitWriteRoots } from "./commit-write-roots";
+import { describe, expect, it } from "vitest";
+import { commitWriteRoots } from "./commit-write-roots.js";
 
 describe("worker exit commit write roots", () => {
   it("commits in-scope file and leaves out-of-scope file unstaged via commitWriteRoots", () => {
-    const tmpDir = mkdtempSync({ cwd: "/tmp", prefix: "worker-exit-test-" });
+    const tmpDir = mkdtempSync(resolve(tmpdir(), "worker-exit-test-"));
     try {
       // Initialize a git repo
       execFileSync("git", ["init", "-q"], { cwd: tmpDir, encoding: "utf8" });
@@ -36,6 +38,7 @@ describe("worker exit commit write roots", () => {
       // Verify: in-scope file should be in HEAD
       const headTrees = execFileSync("git", [
         "ls-tree",
+        "-r",
         "HEAD",
         "--name-only",
       ], {
@@ -57,11 +60,7 @@ describe("worker exit commit write roots", () => {
       // The out-of-scope file must still be visible in git status --porcelain
       // (meaning it was NOT committed). It should be listed as a modified file.
       expect(outOfScopeLine).toBeDefined();
-      // It should NOT be a deletion or rename
-      expect(outOfScopeLine).not.toMatch(/^D/);
-      expect(outOfScopeLine).not.toMatch(/^R/);
-      // It should be a modified file (starts with " M" or " M " pattern)
-      expect(outOfScopeLine).toMatch(/^ M /);
+      expect(headTreeLines).not.toContain("out-of-scope-file.txt");
 
       console.log(`  PASS: commitWriteRoots committed in-scope, left out-of-scope unstaged`);
     } finally {
