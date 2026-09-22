@@ -106,7 +106,7 @@ type Hem = { verts: number; meanStepM: number; maxStepM: number; hemY: number; s
 
 async function measureHem(id: string): Promise<Hem | null> {
   const path = join(ASSET_DIR, `${id}.glb`);
-  if (!existsSync(path)) return null;
+  if (!existsSync(path)) throw new Error("missing artifact");
   const doc = await new NodeIO().readBinary(readFileSync(path));
   let pants: ArrayLike<number> | null = null;
   let lo = Infinity;

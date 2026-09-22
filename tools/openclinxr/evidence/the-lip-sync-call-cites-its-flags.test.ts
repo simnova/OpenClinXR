@@ -93,7 +93,8 @@ function doc(): Doc {
   return JSON.parse(readFileSync(ARTIFACT, "utf8")) as Doc;
 }
 function resolvesTo(c: Citation | undefined): boolean {
-  if (!c || !existsSync(join(REPO_ROOT, c.file))) return false;
+  if (!c) return false;
+  if (!existsSync(join(REPO_ROOT, c.file))) throw new Error("missing artifact");
   const lines = readFileSync(join(REPO_ROOT, c.file), "utf8").split("\n");
   return (lines[c.line - 1] ?? "").includes(c.symbol);
 }

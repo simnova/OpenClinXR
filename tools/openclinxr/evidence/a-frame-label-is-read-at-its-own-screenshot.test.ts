@@ -80,7 +80,7 @@ type Frame = {
 type Report = { utteranceDurationMs: number; frames: Frame[] };
 
 function report(): Report | null {
-  if (!existsSync(REPORT)) return null;
+  if (!existsSync(REPORT)) throw new Error("missing artifact");
   return JSON.parse(readFileSync(REPORT, "utf8")) as Report;
 }
 

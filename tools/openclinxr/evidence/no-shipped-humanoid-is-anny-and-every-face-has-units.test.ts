@@ -117,7 +117,7 @@ const GEN = join(REPO, "apps/ui-xr/public/generated-humanoids");
 
 const provenanceBySourceKind = (): Map<string, string> => {
   const out = new Map<string, string>();
-  if (!existsSync(GEN)) return out;
+  if (!existsSync(GEN)) throw new Error("missing artifact");
   for (const f of readdirSync(GEN).filter((n) => n.endsWith(".provenance.json"))) {
     try {
       const d = JSON.parse(readFileSync(join(GEN, f), "utf8")) as { sourceKind?: string };
@@ -182,7 +182,7 @@ function resolvedHumanoidRows(): ResolvedRow[] {
 
 async function faceUnitsOf(relPath: string): Promise<{ facsUnits: number; hasJaw: boolean } | null> {
   const abs = join(REPO, relPath);
-  if (!existsSync(abs)) return null;
+  if (!existsSync(abs)) throw new Error("missing artifact");
   const doc = await new NodeIO().read(abs);
   const joints = doc.getRoot().listSkins()[0]?.listJoints().map((j) => j.getName() ?? "") ?? [];
   const facs = new Set<string>();

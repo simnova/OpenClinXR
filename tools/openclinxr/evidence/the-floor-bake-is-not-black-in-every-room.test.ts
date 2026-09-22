@@ -81,7 +81,7 @@ const WALL_SHADER = /plaster/i;
 const MIN_NON_BLACK_PCT = 50;
 
 function roomAssets(dir: string, out: string[] = []): string[] {
-  if (!existsSync(dir)) return out;
+  if (!existsSync(dir)) throw new Error("missing artifact");
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, entry.name);
     if (entry.isDirectory()) roomAssets(p, out);

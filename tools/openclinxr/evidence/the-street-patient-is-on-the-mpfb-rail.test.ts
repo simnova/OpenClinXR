@@ -145,7 +145,7 @@ type Asset = { joints: number; parts: Part[]; stature: number; kneeY: number; bo
 const io = new NodeIO();
 
 async function readAsset(path: string): Promise<Asset | null> {
-  if (!existsSync(path)) return null;
+  if (!existsSync(path)) throw new Error("missing artifact");
   const doc = await io.read(path);
   const root = doc.getRoot();
   const skin = root.listSkins()[0];

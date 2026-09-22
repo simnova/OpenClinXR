@@ -52,7 +52,7 @@ const LEDGER = resolveSharedCoordinationPath(".openclinxr/openclaw/worker-sessio
 type Row = Record<string, unknown>;
 
 function rows(): Row[] {
-  if (!existsSync(LEDGER)) return [];
+  if (!existsSync(LEDGER)) throw new Error("missing artifact");
   return readFileSync(LEDGER, "utf8").split("\n").filter(Boolean)
     .map((l) => { try { return JSON.parse(l) as Row; } catch { return null; } })
     .filter((r): r is Row => r !== null);

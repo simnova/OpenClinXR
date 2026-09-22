@@ -79,7 +79,7 @@ type Row = {
 };
 
 function rows(): Row[] {
-  if (!existsSync(SWEEP)) return [];
+  if (!existsSync(SWEEP)) throw new Error("missing artifact");
   try {
     const parsed = JSON.parse(readFileSync(SWEEP, "utf8"));
     return Array.isArray(parsed) ? parsed : Array.isArray(parsed?.rows) ? parsed.rows : [];

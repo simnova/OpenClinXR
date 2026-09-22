@@ -126,7 +126,7 @@ type PokeRow = {
 };
 
 async function loadReport(): Promise<PokeRow[] | null> {
-  if (!existsSync(MODULE_PATH)) return null;
+  if (!existsSync(MODULE_PATH)) throw new Error("missing artifact");
   try {
     const mod = (await import(MODULE_SPECIFIER)) as {
       measureTorsoPokeThrough?: () => Promise<PokeRow[]> | PokeRow[];

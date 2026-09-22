@@ -58,7 +58,7 @@ const CACHE = join(mainWorktreeRoot(pathResolve(HERE, "../../..")), ".openclinxr
 function cachedMhclo(): string[] {
   const out: string[] = [];
   const walk = (d: string) => {
-    if (!existsSync(d)) return;
+    if (!existsSync(d)) throw new Error("missing artifact");
     for (const e of readdirSync(d)) {
       const p = join(d, e);
       if (statSync(p).isDirectory()) walk(p);

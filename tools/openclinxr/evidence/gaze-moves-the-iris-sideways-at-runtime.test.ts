@@ -115,7 +115,7 @@ type Reading = {
 };
 
 function runProbe(): Reading[] | null {
-  if (!existsSync(PROBE) || !existsSync(SUBJECT)) return null;
+  if (!existsSync(PROBE) || !existsSync(SUBJECT)) throw new Error("missing artifact");
   let stdout: string;
   try {
     stdout = execFileSync("pnpm", ["exec", "tsx", PROBE, SUBJECT], {

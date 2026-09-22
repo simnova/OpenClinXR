@@ -90,7 +90,7 @@ type MeshGeom = { name: string; verts: number; y0: number; y1: number };
 type Body = { meshes: string[]; geoms: MeshGeom[]; joints: string[]; bytes: number };
 
 async function read(p: string): Promise<Body | null> {
-  if (!existsSync(p)) return null;
+  if (!existsSync(p)) throw new Error("missing artifact");
   const doc = await new NodeIO().read(p);
   const geoms: MeshGeom[] = doc.getRoot().listMeshes().map((m) => {
     let y0 = Infinity;

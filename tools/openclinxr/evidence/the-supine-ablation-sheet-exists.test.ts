@@ -158,7 +158,7 @@ describe("the supine ablation sheet exists and is gradeable", () => {
 
   it("(4) VACUITY GUARD: the three cells are not the same render", () => {
     // If all three cells produced identical geometry the sheet would be gradeable and meaningless.
-    if (!existsSync(REPORT)) return;
+    if (!existsSync(REPORT)) throw new Error("missing artifact");
     const r = requireReport();
     const heights = r.cells.map((c) => +(c.posedMeshAabb.max.y - c.posedMeshAabb.min.y).toFixed(3));
     expect(new Set(heights).size, `cell heights ${heights.join(", ")} — standing must differ from lying`)

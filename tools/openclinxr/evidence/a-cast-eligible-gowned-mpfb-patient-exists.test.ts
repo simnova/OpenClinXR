@@ -120,7 +120,7 @@ type Shape = {
 };
 
 async function shapeOf(path: string): Promise<Shape | null> {
-  if (!existsSync(path)) return null;
+  if (!existsSync(path)) throw new Error("missing artifact");
   const doc = await new NodeIO().read(path);
   const rows = doc.getRoot().listMeshes().map((m) => {
     let verts = 0;

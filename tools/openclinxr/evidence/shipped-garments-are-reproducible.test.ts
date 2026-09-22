@@ -139,7 +139,7 @@ const io = new NodeIO();
 function everyMhcloStem(): Set<string> {
   const stems = new Set<string>();
   const walk = (dir: string): void => {
-    if (!existsSync(dir)) return;
+    if (!existsSync(dir)) throw new Error("missing artifact");
     for (const entry of readdirSync(dir)) {
       const full = join(dir, entry);
       if (statSync(full).isDirectory()) walk(full);

@@ -119,14 +119,14 @@ const NUMERIC_FIELDS = ["age", "height_cm", "bmi"] as const;
 type Actor = { scenario: string; actor: string; phenotype: Record<string, unknown> };
 
 function shippedScenarios(): string[] {
-  if (!existsSync(BUNDLES)) return [];
+  if (!existsSync(BUNDLES)) throw new Error("missing artifact");
   return readdirSync(BUNDLES)
     .filter((d) => existsSync(join(BUNDLES, d, "learner-runtime-bundle.v1.json")))
     .sort();
 }
 
 function exportedActors(): Actor[] {
-  if (!existsSync(EXPORT)) return [];
+  if (!existsSync(EXPORT)) throw new Error("missing artifact");
   let doc: { entries?: Record<string, Record<string, { phenotype?: Record<string, unknown> }>> };
   try {
     doc = JSON.parse(readFileSync(EXPORT, "utf8")) as typeof doc;

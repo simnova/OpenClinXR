@@ -117,7 +117,7 @@ type Run = {
 
 /** The artifact keys runs by label: `{ parent: {...}, nurse: {...} }` — not a `runs` array. */
 function runs(): Run[] {
-  if (!existsSync(INSPECTION)) return [];
+  if (!existsSync(INSPECTION)) throw new Error("missing artifact");
   const parsed = JSON.parse(readFileSync(INSPECTION, "utf8")) as Record<string, unknown>;
   const rows: Run[] = [];
   for (const label of ["parent", "nurse"] as const) {

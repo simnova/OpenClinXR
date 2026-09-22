@@ -161,7 +161,7 @@ describe("the shipped lower is fitted asset geometry, not a shell", () => {
   });
 
   it("COUNTERWEIGHT: nurse scrub pants stay 1352 faces x 2 = 2704 tris", async () => {
-    if (!existsSync(SCRUB_OBJ) || !existsSync(NURSE)) return;
+    if (!existsSync(SCRUB_OBJ) || !existsSync(NURSE)) throw new Error("missing artifact");
     const faces = objFaceCount(SCRUB_OBJ);
     const tris = await lowerTriangleCount(NURSE, /scrub_pants/i);
     expect(faces, "Scrub_Pants.obj face count").toBe(1352);
@@ -169,7 +169,7 @@ describe("the shipped lower is fitted asset geometry, not a shell", () => {
   });
 
   it("COUNTERWEIGHT: street straight-leg jeans stay 2854 faces x 2 = 5708 tris", async () => {
-    if (!existsSync(STREET_OBJ) || !existsSync(STREET)) return;
+    if (!existsSync(STREET_OBJ) || !existsSync(STREET)) throw new Error("missing artifact");
     const faces = objFaceCount(STREET_OBJ);
     const tris = await lowerTriangleCount(STREET, /straight_leg_jeans_pants/i);
     expect(faces, "elvs_jeans_straight_leg face count").toBe(2854);
@@ -209,7 +209,7 @@ describe("the shipped lower is fitted asset geometry, not a shell", () => {
   });
 
   it("SHIPPED standoff spread FAILS on the child cover-shell (bite)", async () => {
-    if (!existsSync(CHILD)) return;
+    if (!existsSync(CHILD)) throw new Error("missing artifact");
     const body = await readNamedMesh(CHILD, /_body/i);
     const pants = await readNamedMesh(CHILD, LOWER_RE);
     const spread = standoffSpreadMm(standoffMm(body, pants)).spread;
@@ -220,7 +220,7 @@ describe("the shipped lower is fitted asset geometry, not a shell", () => {
   });
 
   it("HB-07 child remains the cargo-named shell (out of scope, not rebaked)", async () => {
-    if (!existsSync(CHILD)) return;
+    if (!existsSync(CHILD)) throw new Error("missing artifact");
     const faces = objFaceCount(CARGO_OBJ);
     const tris = await lowerTriangleCount(CHILD, LOWER_RE);
     expect(tris, "child lower must exist").toBeGreaterThan(0);

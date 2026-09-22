@@ -129,7 +129,7 @@ function syntheticRoot(): { traverse: (cb: (o: unknown) => void) => void; userDa
 
 /** One spoken line from the shipped bank — never a sentence I invented. */
 function bankUtterance(): string | null {
-  if (!existsSync(BUNDLES)) return null;
+  if (!existsSync(BUNDLES)) throw new Error("missing artifact");
   for (const dir of readdirSync(BUNDLES).sort()) {
     const p = join(BUNDLES, dir, "learner-runtime-bundle.v1.json");
     if (!existsSync(p)) continue;

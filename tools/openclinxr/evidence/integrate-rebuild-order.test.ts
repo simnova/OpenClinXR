@@ -68,7 +68,7 @@ const MERGE_HEAD_REF = "a880669f";
 
 function declaredWorkspaceDependencies(pkgDir: string): string[] {
   const manifestPath = join(REPO_ROOT, pkgDir, "package.json");
-  if (!existsSync(manifestPath)) return [];
+  if (!existsSync(manifestPath)) throw new Error("missing artifact");
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;

@@ -126,7 +126,7 @@ const BLACK_LUMA = 12;
 type Frame = { id: string; nonBlackPct: number; mean: number; sd: number; classification: ReturnType<typeof classifyCaptureFrame> };
 
 async function readFrames(): Promise<Frame[]> {
-  if (!existsSync(CAPTURE_DIR)) return [];
+  if (!existsSync(CAPTURE_DIR)) throw new Error("missing artifact");
   const out: Frame[] = [];
   for (const file of readdirSync(CAPTURE_DIR).filter((f) => f.endsWith("-room.png")).sort()) {
     const abs = join(CAPTURE_DIR, file);

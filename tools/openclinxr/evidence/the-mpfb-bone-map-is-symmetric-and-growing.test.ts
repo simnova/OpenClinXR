@@ -90,7 +90,7 @@ const REPORT = "tools/openclinxr/evidence/mpfb-bone-map-coverage.json";
 const CONTROL = { mapKeys: 23, bonesDriven: 22, subjectJoints: 137 } as const;
 
 const mapKeys = (): string[] => {
-  if (!existsSync(MAP)) return [];
+  if (!existsSync(MAP)) throw new Error("missing artifact");
   const d = JSON.parse(readFileSync(MAP, "utf8")) as Record<string, unknown>;
   const b = (d.bones ?? d) as Record<string, unknown>;
   return Object.keys(b);

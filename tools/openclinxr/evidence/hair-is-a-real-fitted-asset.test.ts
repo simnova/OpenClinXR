@@ -159,7 +159,7 @@ type Classification = {
 };
 
 function classifications(): Classification[] {
-  if (!existsSync(ARTIFACT)) return [];
+  if (!existsSync(ARTIFACT)) throw new Error("missing artifact");
   const parsed = JSON.parse(readFileSync(ARTIFACT, "utf8")) as { assets?: Classification[] };
   return Array.isArray(parsed.assets) ? parsed.assets : [];
 }

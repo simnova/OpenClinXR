@@ -106,7 +106,7 @@ function tableRow(env: string): string | null {
 
 async function shapeOf(assetUrl: string): Promise<RoomShape | null> {
   const abs = join(PUBLIC, assetUrl.replace(/^\//u, ""));
-  if (!existsSync(abs)) return null;
+  if (!existsSync(abs)) throw new Error("missing artifact");
   const bytes = readFileSync(abs);
   const doc = await new NodeIO().readBinary(bytes);
   const root = doc.getRoot();

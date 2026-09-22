@@ -79,7 +79,7 @@ const BUNDLE = join(REPO, "apps/ui-xr/public/xr-assets/generated/oncology_bad_ne
 const SEAT_TARGET_M = 0.45;
 
 const promotedChair = (): string | null => {
-  if (!existsSync(PROMOTED)) return null;
+  if (!existsSync(PROMOTED)) throw new Error("missing artifact");
   const f = readdirSync(PROMOTED).find((n) => /chair/i.test(n) && n.endsWith(".glb"));
   return f ? join(PROMOTED, f) : null;
 };

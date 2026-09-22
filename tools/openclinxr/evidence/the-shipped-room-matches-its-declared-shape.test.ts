@@ -85,7 +85,7 @@ const HEIGHT_EPSILON_M = 0.01;
 type Declared = { wallHeight: number | null; aspectLo: number | null; aspectHi: number | null };
 
 function readDeclared(): Declared {
-  if (!existsSync(PROVENANCE)) return { wallHeight: null, aspectLo: null, aspectHi: null };
+  if (!existsSync(PROVENANCE)) throw new Error("missing artifact");
   const src = readFileSync(PROVENANCE, "utf8");
   const h = /wall_height=([0-9.]+)/u.exec(src);
   const a = /aspect_ratio_range=\(([0-9.]+),\s*([0-9.]+)\)/u.exec(src);
@@ -99,7 +99,7 @@ function readDeclared(): Declared {
 type Shipped = { floorAspect: number | null; floorArea: number | null; shellHeight: number | null };
 
 async function readShipped(): Promise<Shipped> {
-  if (!existsSync(ROOM)) return { floorAspect: null, floorArea: null, shellHeight: null };
+  if (!existsSync(ROOM)) throw new Error("missing artifact");
   const doc = await new NodeIO().readBinary(readFileSync(ROOM));
   let floorAspect: number | null = null;
   let floorArea: number | null = null;

@@ -80,7 +80,7 @@ function manifestPath(referenceId: string): string {
 /** `input_params.phenotype` from the manifest, or null when absent or unreadable. */
 function phenotypeBlock(referenceId: string): Record<string, unknown> | null {
   const p = manifestPath(referenceId);
-  if (!existsSync(p)) return null;
+  if (!existsSync(p)) throw new Error("missing artifact");
   try {
     const m = JSON.parse(readFileSync(p, "utf8")) as Record<string, unknown>;
     const input = m["input_params"] as Record<string, unknown> | undefined;

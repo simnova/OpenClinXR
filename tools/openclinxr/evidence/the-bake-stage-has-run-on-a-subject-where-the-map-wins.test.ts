@@ -105,7 +105,7 @@ type Rung = {
 type Sweep = { rankedBy?: string; rungs: Rung[] };
 
 function sweepOrNull(): Sweep | null {
-  if (!existsSync(SWEEP)) return null;
+  if (!existsSync(SWEEP)) throw new Error("missing artifact");
   return JSON.parse(readFileSync(SWEEP, "utf8")) as Sweep;
 }
 

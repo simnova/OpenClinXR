@@ -189,7 +189,7 @@ function headWidthPx(file: string): number {
 type Run = { dir: string; headPx: number; declaredViewport: number; pngW: number; agrees: boolean };
 
 function newestRun(): Run | null {
-  if (!existsSync(GRADE_ROOT)) return null;
+  if (!existsSync(GRADE_ROOT)) throw new Error("missing artifact");
   const dirs = readdirSync(GRADE_ROOT).filter((d) => ISO_RUN.test(d)).sort((a, b) => b.localeCompare(a));
   for (const d of dirs) {
     const gallery = join(GRADE_ROOT, d, "gallery.json");

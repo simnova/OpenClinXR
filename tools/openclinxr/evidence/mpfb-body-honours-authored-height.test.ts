@@ -123,7 +123,7 @@ type Row = {
 };
 
 function rows(): Row[] {
-  if (!existsSync(ARTIFACT)) return [];
+  if (!existsSync(ARTIFACT)) throw new Error("missing artifact");
   const parsed = JSON.parse(readFileSync(ARTIFACT, "utf8")) as { rows?: Row[] };
   return Array.isArray(parsed.rows) ? parsed.rows : [];
 }

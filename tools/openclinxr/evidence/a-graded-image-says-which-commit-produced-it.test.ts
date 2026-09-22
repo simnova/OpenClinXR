@@ -107,7 +107,7 @@ type Gallery = { dir: string; json: Record<string, unknown> | null; stampKey: st
 const ISO_RUN_DIR = /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z$/;
 
 function newestGalleries(limit = 1): Gallery[] {
-  if (!existsSync(GRADE_ROOT)) return [];
+  if (!existsSync(GRADE_ROOT)) throw new Error("missing artifact");
   const runs = readdirSync(GRADE_ROOT)
     .filter((d) => ISO_RUN_DIR.test(d) && existsSync(join(GRADE_ROOT, d, "gallery.json")))
     .sort((a, b) => b.localeCompare(a))
@@ -190,7 +190,7 @@ describe("a graded image says which commit produced it", () => {
     const empty = galleries
       .filter((g) => {
         const assets = join(GRADE_ROOT, g.dir, "assets");
-        if (!existsSync(assets)) return true;
+        if (!existsSync(assets)) throw new Error("missing artifact");
         return !readdirSync(assets).some((a) =>
           existsSync(join(assets, a)) && readdirSync(join(assets, a)).some((f) => f.endsWith(".png")),
         );

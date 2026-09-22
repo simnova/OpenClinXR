@@ -115,7 +115,7 @@ function tableRows(): Array<{ env: string; url: string }> {
 
 async function measure(row: { env: string; url: string }): Promise<Room | null> {
   const abs = join(PUBLIC, row.url.replace(/^\//u, ""));
-  if (!existsSync(abs)) return null;
+  if (!existsSync(abs)) throw new Error("missing artifact");
   const doc = await new NodeIO().readBinary(readFileSync(abs));
   const acc: Record<string, number[]> = {};
   for (const node of doc.getRoot().listNodes()) {
