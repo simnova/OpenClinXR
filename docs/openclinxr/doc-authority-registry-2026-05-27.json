@@ -5,10 +5,10 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 107,
-    "current-reference": 211,
-    "archive-candidate": 92,
-    "evidence": 147,
-    "temporary": 54,
+    "current-reference": 208,
+    "archive-candidate": 114,
+    "evidence": 128,
+    "temporary": 57,
     "protected-policy": 10,
     "agent-memory": 34,
     "generated-evidence": 11,
@@ -2775,7 +2775,7 @@
       "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
-      "path": "apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-BOTCIHTT.md",
+      "path": "apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-B8Wv7Cdq.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
@@ -2796,7 +2796,7 @@
       "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
-      "path": "apps/arena/model-vetting-studio/dist/assets/operator-steering-needed-questions-BDQXf1Mx.md",
+      "path": "apps/arena/model-vetting-studio/dist/assets/operator-steering-needed-questions-D84YeN9A.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
@@ -3735,24 +3735,10 @@
     },
     {
       "path": "docs/openclinxr/emotion-factory-tie-in-plan-2026-09-18.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "docs/openclinxr/speaking-sync-factory-tie-in-plan-2026-09-18.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "docs/openclinxr/speaking-sync-s5-grade-2026-09-19.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/emotional-prosody-policy-review-2026-09-02.md",
@@ -3818,6 +3804,13 @@
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
+      "path": "docs/openclinxr/factory-foot-plant-incorporation-review-2026-09-20.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
       "path": "docs/openclinxr/garment-license-compatible-source-options-2026-05-27.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
@@ -3881,7 +3874,98 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
+      "path": "docs/openclinxr/humanoid-motion-clip-deviation-2026-09-12.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
       "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/comparison-proposal.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-board-readback.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-critique.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-final-confirmation.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-fix-verification.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/handoff.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-grok-review.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-verification.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-seated-pose-restored-2026-09-12.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-seated-pose-transfer-2026-09-12.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
@@ -3924,10 +4008,10 @@
     },
     {
       "path": "docs/openclinxr/humanoid-vetting-2026-09-10.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/iwsdk-codex-mcp-runbook.md",
@@ -4064,31 +4148,31 @@
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/approvals/psr-01c.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/approvals/psr-01d.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/approvals/psr-01e.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/baseline.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/evidence/psr-00.md",
@@ -4197,24 +4281,24 @@
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-08-residual.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-residual.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/raw-inventory.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/review-2026-09-10-claude.md",
@@ -4232,6 +4316,13 @@
     },
     {
       "path": "docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/provider-empty-response-failover-2026-09-12.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
@@ -4347,7 +4438,7 @@
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Supplemental SC-07-09 source/recording hardening context authored 2026-09-12; frozen contracts unchanged."
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/scene-closure-2026-09-09/delegation-v2.md",
@@ -4421,10 +4512,10 @@
     },
     {
       "path": "docs/openclinxr/scene-closure-2026-09-09/foot-lock-ik-review-2026-09-12.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Four-round Grok consultation 2026-09-12 on terminal-turn foot locking; consultation record, no board mutation."
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "docs/openclinxr/scene-closure-2026-09-09/index.md",
@@ -4551,6 +4642,20 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/speaking-sync-factory-tie-in-plan-2026-09-18.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/speaking-sync-s5-grade-2026-09-19.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/spikes/vibevoice-local-voice-spike.md",
@@ -4819,6 +4924,13 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
+      "path": "tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
       "path": "tools/openclinxr/evidence/humanoid-vetting/family-partner-library-lower-2026-09-12.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
@@ -4833,14 +4945,14 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": "tools/openclinxr/evidence/humanoid-vetting/lower-garment-cloth-offset-2026-09-12.md",
+      "path": "tools/openclinxr/evidence/humanoid-vetting/humanoid-texture-budget-2026-09-12.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": "tools/openclinxr/evidence/humanoid-vetting/humanoid-texture-budget-2026-09-12.md",
+      "path": "tools/openclinxr/evidence/humanoid-vetting/lower-garment-cloth-offset-2026-09-12.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
@@ -4889,6 +5001,13 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
+      "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
       "path": "tools/openclinxr/evidence/humanoid-vetting/waist-fit-record-staleness-2026-09-12.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
@@ -4897,6 +5016,13 @@
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/waist-meet-one-contract-2026-09-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/evidence/motion-architecture-reassessment/fixtures/stale-current-instruction-control.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
@@ -4918,6 +5044,27 @@
     },
     {
       "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-05/terminal-turn-foot-lock-2026-09-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/evidence/settled-both-toes/both-toes-settled-measurement.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/evidence/settled-execution-observation/settled-branch-execution-report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/evidence/settled-posture-diagnosis/settled-correction-execution-report.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
@@ -4973,144 +5120,11 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": "docs/openclinxr/humanoid-motion-clip-deviation-2026-09-12.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Committed clip-channel-deviation instrument BEFORE/AFTER tables for CC0 seated retarget expansion (tsk_28c5e7db43239b8f)."
-    },
-    {
-      "path": "docs/openclinxr/provider-empty-response-failover-2026-09-12.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Provider empty-response failover fix: measured outage, cooldown tier, two-direction probe."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-motion-seated-pose-transfer-2026-09-12.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Seated pose transfer diagnosis: retarget_bvh drops held hip flexion via T-pose overwrite. Rest-to-frame-0, asymmetry, 85-deg knee artefact measured."
-    },
-    {
-      "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; tightjeans JPEG re-bake report documenting materializer bake path with texture overrides, fp-r0.4 decimation, EXCEPTION_MAP deletion, and licence survival."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-motion-seated-pose-restored-2026-09-12.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Seated pose restored: post-retarget correction copies frame 1 fcurve to frame 0; GLB post-processor sets q_anim=q_rest@q_source_global for ~87 deg hip flexion."
-    },
-    {
-      "path": "tools/openclinxr/evidence/settled-posture-diagnosis/settled-correction-execution-report.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; measurement of why the settled-posture correction has no runtime effect (candidate 2 ruled out by measurement; candidates 1 and 3 argued from call order). Use only when it verifies touched behavior."
-    },
-    {
-      "path": "tools/openclinxr/evidence/settled-execution-observation/settled-branch-execution-report.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; frame-count observation of the settled-correction branch (executes 119/120 arrived frames; corrected:true on 1) over the production executor and stance lock. Use only when it verifies touched behavior."
-    },
-    {
-      "path": "tools/openclinxr/evidence/settled-both-toes/both-toes-settled-measurement.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; per-toe settled/arrived measurement on the shipped physician bytes (neither toe below the floor; card premise false, no fix). Use only when it verifies touched behavior."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Delegation handoff for the motion-to-scene-closure card chain. Subordinate to protected policy and each live BothyBoard card, which override it on conflict."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/handoff.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; MR-01 reviewed handoff committed at ingestion, which the card's knownGood directs the worker to follow. Subordinate to protected policy and the live board contract, which override it on any conflict."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/comparison-proposal.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; MR-01 deliverable seed under active revision carrying per-job required decisions and conditional release. Not current instruction until the owner accepts it."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; MR-01 deliverable seed under active revision carrying the historical open decisions. Not current instruction until the owner accepts it."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-board-readback.md",
-      "authority": "evidence",
+      "path": "tools/openclinxr/openclaw/fixtures/superagent-loop-prompt.md",
+      "authority": "archive-candidate",
       "agentInstructionWeight": "none",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; ingestion preparation record of the board read-back taken before ingestion. Historical, superseded by the live card."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-critique.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "none",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; ingestion preparation record of an independent critique of the supplied package. Historical."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-final-confirmation.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "none",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; ingestion preparation record of the final pre-ingestion confirmation. Historical."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-fix-verification.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "none",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; ingestion preparation record verifying package fixes. Historical."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-grok-review.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "none",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; ingestion preparation record of a consulted review. Historical, and a consult is not a source of authority."
-    },
-    {
-      "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-verification.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "none",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; ingestion preparation record of checksum and placement verification. Historical."
-    },
-    {
-      "path": "tools/openclinxr/evidence/motion-architecture-reassessment/fixtures/stale-current-instruction-control.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "none",
-      "action": "treat-as-evidence",
-      "rationale": "RETAINED NEGATIVE CONTROL. Holds deliberately stale guidance so the planted clauses fail on a genuine instruction contradiction rather than a missing file. Never read as instruction; weight must stay none."
-    },
-    {
-      "path": "tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Delegation handoff for the additive public-surface admission prerequisite. Subordinate to protected policy and the live BothyBoard card, which overrides it on conflict."
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     }
   ]
 }

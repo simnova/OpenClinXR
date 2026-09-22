@@ -12,14 +12,14 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 107
-- archive-candidate: 90
-- current-reference: 210
+- archive-candidate: 114
+- current-reference: 208
 - decision-record: 44
-- evidence: 110
+- evidence: 128
 - generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
-- temporary: 54
+- temporary: 57
 
 ## Highest-Value Current Navigation
 
@@ -200,8 +200,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/communication-style-and-emotion-qa.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/doc-authority-registry-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/dynamic-session-asset-strategy.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/emotion-factory-tie-in-plan-2026-09-18.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/speaking-sync-factory-tie-in-plan-2026-09-18.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/evidence-index-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/exam-scenario-architecture.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/external-ai-asset-pipeline-integration-plan.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -220,7 +218,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/openclaw-runbook-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/openclaw-tool-adapters-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/physics-realbind-pre-production-readiness-checklist-2026-08-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/provider-empty-response-failover-2026-09-12.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/sample-case-bank-v1.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/session-state-websocket-message-design.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/statecharts-and-sequences.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -349,6 +346,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/cagematch/findings/rhubarb-lip-sync-driver.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/ecg-cart-4view-optimize-cagematch-plan-2026-08-31.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/ecg-cart-cagematch-treatments-table-2026-08-31.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/emotion-factory-tie-in-plan-2026-09-18.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/equipment-catalog-report.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/equipment-factory-15m-loop.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/equipment-factory-loop-log.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -356,8 +354,21 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/humanoid-glb-bake-and-vetting-2026-09-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-ENTRYPOINT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-clip-deviation-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
 - `docs/openclinxr/humanoid-motion-full-design-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/comparison-proposal.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-board-readback.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-critique.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-final-confirmation.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-fix-verification.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/handoff.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-verification.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-seated-pose-restored-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-seated-pose-transfer-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-scene-layout-research-brief-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-vetting-2026-09-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/kimodo-soma-rp-v11-cagematch-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -367,11 +378,20 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/owner-memory/decisions.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/measurements.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/package-public-surface-reduction-plan-2026-09-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/approvals/psr-01c.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/approvals/psr-01d.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/approvals/psr-01e.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/baseline.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-08-residual.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-residual.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/package-public-surface-reduction/raw-inventory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/provider-empty-response-failover-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/acceptance.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/board-manifest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/scene-closure-2026-09-09/closure-hardening-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/delegation-v2.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/index.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/proof-contract-v2.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -383,6 +403,8 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/scene-layout-consultation-records-2026-09-09/grok-4.6-research-rounds-8-11.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-layout-consultation-records-2026-09-09/openclinXR-complementary-scene-research.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-layout-implementation-plan-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/speaking-sync-factory-tie-in-plan-2026-09-18.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/speaking-sync-s5-grade-2026-09-19.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/superagent-goal-mpfb-human-realism-2026-08-14.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/third-party-asset-licence-ledger.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/vibevoice-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -393,26 +415,5 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-GUIDE-2026-08-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `tools/openclinxr/evidence/humanoid-vetting/family-partner-library-lower-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
-- `tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-acquisition-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
-- `tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; tightjeans JPEG re-bake report documenting materializer bake path with texture overrides, fp-r0.4 decimation, EXCEPTION_MAP deletion, and licence survival.
-- `tools/openclinxr/evidence/humanoid-vetting/remaining-cover-shell-lowers-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
-- `tools/openclinxr/evidence/humanoid-vetting/lower-garment-cloth-offset-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
-- `tools/openclinxr/evidence/scene-closure/proofs/sc-05/terminal-turn-foot-lock-2026-09-12.md` - evidence; treat-as-evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
-- `docs/openclinxr/humanoid-motion-clip-deviation-2026-09-12.md` - evidence; treat-as-evidence; Committed clip-channel-deviation instrument BEFORE/AFTER tables for CC0 seated retarget expansion.
-- `docs/openclinxr/humanoid-motion-seated-pose-restored-2026-09-12.md` - evidence; treat-as-evidence; Seated pose restored: post-retarget fcurve copy + GLB post-processor q_rest@q_source_global for ~87 deg hip flexion.
-- `tools/openclinxr/evidence/settled-posture-diagnosis/settled-correction-execution-report.md` - evidence; treat-as-evidence; Evidence or gate artifact; measurement of why the settled-posture correction has no runtime effect.
-- `tools/openclinxr/evidence/settled-execution-observation/settled-branch-execution-report.md` - evidence; treat-as-evidence; Evidence or gate artifact; frame-count observation of the settled-correction branch over the production executor and stance lock.
-- `tools/openclinxr/evidence/settled-both-toes/both-toes-settled-measurement.md` - evidence; treat-as-evidence; Evidence or gate artifact; per-toe settled/arrived measurement on the shipped physician bytes (neither toe below the floor; card premise false, no fix).
-- `docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md` - evidence; treat-as-evidence; Delegation handoff for the motion-to-scene-closure card chain. Subordinate to protected policy and each live BothyBoard card, which override it on conflict.
-- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/handoff.md` - evidence; treat-as-evidence; Evidence or gate artifact; MR-01 reviewed handoff committed at ingestion, which the card's knownGood directs the worker to follow. Subordinate to protected policy and the live board contract, which override it on any conflict.
-- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/comparison-proposal.md` - evidence; treat-as-evidence; Evidence or gate artifact; MR-01 deliverable seed under active revision carrying per-job required decisions and conditional release. Not current instruction until the owner accepts it.
-- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.md` - evidence; treat-as-evidence; Evidence or gate artifact; MR-01 deliverable seed under active revision carrying the historical open decisions. Not current instruction until the owner accepts it.
-- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-board-readback.md` - evidence; treat-as-evidence; Evidence or gate artifact; ingestion preparation record of the board read-back taken before ingestion. Historical, superseded by the live card.
-- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-critique.md` - evidence; treat-as-evidence; Evidence or gate artifact; ingestion preparation record of an independent critique of the supplied package. Historical.
-- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-final-confirmation.md` - evidence; treat-as-evidence; Evidence or gate artifact; ingestion preparation record of the final pre-ingestion confirmation. Historical.
-- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-fix-verification.md` - evidence; treat-as-evidence; Evidence or gate artifact; ingestion preparation record verifying package fixes. Historical.
-- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-grok-review.md` - evidence; treat-as-evidence; Evidence or gate artifact; ingestion preparation record of a consulted review. Historical, and a consult is not a source of authority.
-- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-verification.md` - evidence; treat-as-evidence; Evidence or gate artifact; ingestion preparation record of checksum and placement verification. Historical.
-- `tools/openclinxr/evidence/motion-architecture-reassessment/fixtures/stale-current-instruction-control.md` - evidence; treat-as-evidence; RETAINED NEGATIVE CONTROL. Holds deliberately stale guidance so the planted clauses fail on a genuine instruction contradiction rather than a missing file. Never read as instruction; weight must stay none.
-- `tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md` - evidence; treat-as-evidence; Delegation handoff for the additive public-surface admission prerequisite. Subordinate to protected policy and the live BothyBoard card, which overrides it on conflict.
+- `tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `tools/openclinxr/openclaw/fixtures/superagent-loop-prompt.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
