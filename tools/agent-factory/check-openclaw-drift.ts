@@ -16,6 +16,17 @@ export type OpenClawDriftFailure = {
   message: string;
 };
 
+function directoryHasAuthorityManifest(file: string): boolean {
+  let dir = path.dirname(file);
+  while (dir === "docs" || dir.startsWith("docs/")) {
+    if (existsSync(path.join(dir, ".authority.json"))) return true;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return false;
+}
+
 export type OpenClawDriftReport = {
   ok: boolean;
   checkedMarkdownCount: number;
@@ -127,7 +138,9 @@ export function buildOpenClawDriftReport(input: OpenClawDriftInput): OpenClawDri
 
   for (const file of input.markdownFiles) {
     if (isGeneratedOutputPolicyIgnoredPath(file)) continue;
-    if (!registeredMarkdown.has(file)) {
+    // A `.authority.json` beside the file, or in a parent under docs/, classifies that
+    // directory. Those markdown files do not need a root-registry entry.
+    if (!registeredMarkdown.has(file) && !directoryHasAuthorityManifest(file)) {
       failures.push({ file, message: "Markdown file is not registered in the doc authority registry; run pnpm docs:authority or remove the scattered artifact" });
     }
     if (oneOffMarkdownNamePattern.test(path.basename(file)) && !allowedOneOffMarkdownPaths.has(file)) {
@@ -226,7 +239,7 @@ function loadJson<T>(file: string): T | undefined {
   return JSON.parse(readFileSync(file, "utf8")) as T;
 }
 
-function loadInputFromWorkspace(): OpenClawDriftInput {
+export function loadInputFromWorkspace(): OpenClawDriftInput {
   const files: Record<string, string | undefined> = {};
   for (const file of requiredFiles) {
     files[file] = existsSync(file) ? readFileSync(file, "utf8") : undefined;
