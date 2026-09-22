@@ -1,5 +1,7 @@
-import { statSync } from "node:fs";
+import { mkdtempSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseRoomBakeCliArgs, runRoomBakeCli } from "../asset-pipeline/environment/room-bake-cli.js";
 import {
@@ -47,6 +49,7 @@ describe("room bake harness", () => {
   });
 
   it("measure-only returns finite wall, floor, and ceiling means without starting Blender", async () => {
+    const reportPath = path.join(mkdtempSync(path.join(tmpdir(), "room-bake-harness-")), "report.json");
     const report = await runRoomBakeHarness(
       [
         "--measure-only",
@@ -54,6 +57,8 @@ describe("room bake harness", () => {
         SHIPPED_PRIMARY_CARE_GLB,
         "--treatment",
         SHIPPED_PRIMARY_CARE_GLB,
+        "--report",
+        reportPath,
       ],
       {
         spawn() {
