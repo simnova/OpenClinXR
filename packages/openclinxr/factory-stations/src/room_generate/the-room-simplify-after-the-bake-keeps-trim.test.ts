@@ -5,7 +5,7 @@ import { Document, NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, EXTMeshoptCompression } from "@gltf-transform/extensions";
 import { MeshoptDecoder, MeshoptEncoder } from "meshoptimizer";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { simplifyRoomAfterBake } from "./simplify.js";
+import { simplifyRoomAfterBake, trimLockReason } from "./simplify.js";
 
 /**
  * Post-bake room simplify keeps architectural trim and reduces the rest.
@@ -140,5 +140,40 @@ describe("the room simplify after the bake keeps trim", () => {
     expect(report.lockedAfter).toBe(skirtingBefore);
     expect(report.simplifiedBefore).toBe(wallBefore);
     expect(report.simplifiedAfter).toBe(after.get("wall"));
+    expect(report.trimReverted).toEqual([]);
+  });
+
+  it("(2) a dense coplanar skirting grid loses triangles within 1% of its AABB", async () => {
+    const glbPath = path.join(workDir, "trim-grid.glb");
+    const doc = new Document();
+    const buffer = doc.createBuffer();
+    const pos = doc.createAccessor().setType("VEC3").setArray(gridPositions(3, 24));
+    const idx = doc.createAccessor().setType("SCALAR").setArray(gridIndices(24));
+    const prim = doc.createPrimitive().setAttribute("POSITION", pos).setIndices(idx);
+    const mesh = doc.createMesh("skirtingboard_support").addPrimitive(prim);
+    const node = doc.createNode("skirtingboard_support").setMesh(mesh);
+    doc.createScene("trim").addChild(node);
+    for (const accessor of [pos, idx]) accessor.setBuffer(buffer);
+    await new NodeIO().registerExtensions(ALL_EXTENSIONS).write(glbPath, doc);
+
+    const before = meshTriangleCounts(await readingIo().read(glbPath));
+    const trimBefore = before.get("skirtingboard_support") ?? 0;
+    expect(trimBefore).toBeGreaterThan(200);
+    expect(trimLockReason("skirtingboard_support", ["skirtingboard_support"])).toBe("mesh");
+
+    const report = await simplifyRoomAfterBake(glbPath);
+
+    const after = meshTriangleCounts(await readingIo().read(glbPath));
+    const trimAfter = after.get("skirtingboard_support") ?? 0;
+    expect(trimAfter).toBeLessThan(trimBefore);
+
+    const row = report.meshes.find((entry) => entry.name === "skirtingboard_support");
+    expect(row?.locked).toBe(true);
+    expect(row?.before).toBe(trimBefore);
+    expect(row?.after).toBe(trimAfter);
+    expect(report.lockedBefore).toBe(trimBefore);
+    expect(report.lockedAfter).toBe(trimAfter);
+    expect(report.trimReverted).toEqual([]);
+    expect(report.trimDiagonalDrift["skirtingboard_support"] ?? 1).toBeLessThan(0.01);
   });
 });

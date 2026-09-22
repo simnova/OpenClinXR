@@ -1,20 +1,29 @@
-import { NodeIO } from "@gltf-transform/core";
+import { NodeIO, type Primitive } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, EXTMeshoptCompression } from "@gltf-transform/extensions";
 import { meshopt as meshoptFn, simplifyPrimitive as simplifyPrimitiveFn, weldPrimitive as weldPrimitiveFn } from "@gltf-transform/functions";
 import { MeshoptDecoder, MeshoptEncoder, MeshoptSimplifier } from "meshoptimizer";
 
 /**
- * Post-bake room trim-locked simplification.
+ * Post-bake room simplification with a trim pass.
  *
  * Runs AFTER the albedo and occlusion bakes (UV bake needs the full mesh;
- * simplifying before the bake destroys the bake target). Meshes whose own
- * name or whose referencing node name matches TRIM_LOCK_RE are never passed
- * to the simplifier — their triangle counts are bit-identical after the run.
- * Everything else simplifies with MeshoptSimplifier at ratio 0.5 / error 0.01
- * (the FACE_PRESERVING_ERROR from
- * tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts; error=1 on
- * tiny-component meshes is the recorded FAILED treatment there), weld first,
- * then meshopt-compresses the GLB.
+ * simplifying before the bake destroys the bake target). Two passes:
+ *
+ * Pass 1 (shell): meshes not matching TRIM_LOCK_RE simplify with
+ * MeshoptSimplifier at ratio 0.5 / error 0.01 (the FACE_PRESERVING_ERROR
+ * from tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts; error=1
+ * on tiny-component meshes is the recorded FAILED treatment there).
+ *
+ * Pass 2 (trim): locked meshes weld, then simplifyPrimitive at ratio 0.15 /
+ * error 0.002. A flat skirting board collapses its tessellation; a door
+ * casing keeps its frame because the tight error budget stops the simplifier
+ * before it eats real shape. Each locked mesh is then checked: if its AABB
+ * diagonal changes by more than 1% of the original diagonal, that mesh alone
+ * reverts to its pre-pass-2 vertex buffer.
+ *
+ * Only the mesh's OWN referencing node names count for the lock (a mesh
+ * shared under an unrelated node keeps its own identity). Meshopt compress
+ * runs last.
  */
 
 export const TRIM_LOCK_RE = /skirt|casing|door|window/i;
@@ -23,6 +32,14 @@ export const ROOM_SIMPLIFY_RATIO = 0.5;
 
 /** Same value as FACE_PRESERVING_ERROR in iterate-optimize.ts. */
 export const ROOM_SIMPLIFY_ERROR = 0.01;
+
+/** Trim pass: tight enough that flat boards collapse but frames survive. */
+export const ROOM_TRIM_RATIO = 0.15;
+
+export const ROOM_TRIM_ERROR = 0.002;
+
+/** AABB guard: revert a locked mesh whose diagonal drifts more than this. */
+export const ROOM_TRIM_AABB_TOLERANCE = 0.01;
 
 export type RoomSimplifySplit = {
   name: string;
@@ -37,6 +54,9 @@ export type RoomSimplifyReport = {
   lockedAfter: number;
   simplifiedBefore: number;
   simplifiedAfter: number;
+  trimReverted: string[];
+  /** Per-locked-mesh |after-before|/before on live pre-compress buffers. */
+  trimDiagonalDrift: Record<string, number>;
 };
 
 function meshTriangles(docMesh: { listPrimitives(): Array<{ getIndices(): { getCount(): number } | null }> }): number {
@@ -48,21 +68,88 @@ function meshTriangles(docMesh: { listPrimitives(): Array<{ getIndices(): { getC
   return Math.round(tris);
 }
 
-function primitiveIndexCounts(docMesh: { listPrimitives(): Array<{ getIndices(): { getCount(): number } | null }> }): number[] {
-  return docMesh.listPrimitives().map((prim) => prim.getIndices()?.getCount() ?? 0);
+function primitiveIndexCounts(_docMesh: { listPrimitives(): Array<{ getIndices(): { getCount(): number } | null }> }): number[] {
+  return _docMesh.listPrimitives().map((prim) => prim.getIndices()?.getCount() ?? 0);
+}
+
+void primitiveIndexCounts;
+
+/**
+ * Mesh-space AABB diagonal from live float buffers. Call only pre-compress:
+ * after meshopt quantize the POSITION array is normalized SHORT ints and no
+ * min/max reading recovers mesh units.
+ */
+function meshDiagonal(docMesh: { listPrimitives(): Primitive[] }): number {
+  let minX = Infinity, minY = Infinity, minZ = Infinity;
+  let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+  for (const prim of docMesh.listPrimitives()) {
+    const pos = prim.getAttribute("POSITION");
+    const arr = pos?.getArray() as ArrayLike<number> | null;
+    if (!pos || !arr) continue;
+    const count = pos.getCount();
+    for (let i = 0; i < count; i++) {
+      const x = Number(arr[i * 3]), y = Number(arr[i * 3 + 1]), z = Number(arr[i * 3 + 2]);
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+      if (z < minZ) minZ = z;
+      if (z > maxZ) maxZ = z;
+    }
+  }
+  if (![minX, minY, minZ, maxX, maxY, maxZ].every(Number.isFinite)) return 0;
+  return Math.hypot(maxX - minX, maxY - minY, maxZ - minZ);
+}
+
+/** Snapshot every attribute + index array behind a locked mesh for AABB-guard revert. */
+function snapshotPrimitiveBuffers(mesh: { listPrimitives(): Primitive[] }): Array<Map<string, unknown>> {
+  return mesh.listPrimitives().map((prim) => {
+    const snap = new Map<string, unknown>();
+    const idx = prim.getIndices();
+    if (idx?.getArray()) snap.set(":indices", (idx.getArray() as { slice(): unknown }).slice());
+    for (const semantic of prim.listSemantics()) {
+      const attr = prim.getAttribute(semantic);
+      if (attr?.getArray()) snap.set(semantic, (attr.getArray() as { slice(): unknown }).slice());
+    }
+    return snap;
+  });
+}
+
+function restorePrimitiveBuffers(
+  mesh: { listPrimitives(): Primitive[] },
+  snapshots: Array<Map<string, unknown>>,
+): void {
+  const prims = mesh.listPrimitives();
+  for (let i = 0; i < prims.length && i < snapshots.length; i++) {
+    const prim = prims[i] as Primitive;
+    const snap = snapshots[i] as Map<string, unknown>;
+    const idx = prim.getIndices();
+    const idxSnap = snap.get(":indices");
+    if (idx && idxSnap) idx.setArray(idxSnap as Parameters<typeof idx.setArray>[0]);
+    for (const [semantic, arr] of snap) {
+      if (semantic === ":indices") continue;
+      const attr = prim.getAttribute(semantic);
+      if (attr && arr) attr.setArray(arr as Parameters<typeof attr.setArray>[0]);
+    }
+  }
+}
+
+export function trimLockReason(meshName: string, nodeNames: readonly string[]): "mesh" | "node" | null {
+  if (TRIM_LOCK_RE.test(meshName)) return "mesh";
+  return nodeNames.some((nodeName) => TRIM_LOCK_RE.test(nodeName)) ? "node" : null;
 }
 
 export function isTrimLocked(meshName: string, nodeNames: readonly string[]): boolean {
-  if (TRIM_LOCK_RE.test(meshName)) return true;
-  return nodeNames.some((nodeName) => TRIM_LOCK_RE.test(nodeName));
+  return trimLockReason(meshName, nodeNames) !== null;
 }
 
 /**
- * Simplify options.workGlb in place after both bakes. Locked meshes keep
- * identical triangle counts; other meshes simplify at ratio 0.5 / error 0.01
- * with weld first; the GLB is meshopt-compressed last, with the lock asserted
- * on primitive index counts after compress so a compress that reorders or
- * merges primitives fails loudly instead of silently eating trim.
+ * Simplify options.workGlb in place after both bakes. Pass 1 simplifies
+ * shell meshes at ratio 0.5 / error 0.01 with weld first. Pass 2 welds then
+ * simplifies locked trim meshes at ratio 0.15 / error 0.002; a locked mesh
+ * whose AABB diagonal drifts more than 1% of its original diagonal reverts
+ * to its pre-pass-2 vertex buffer (that mesh only). The GLB is
+ * meshopt-compressed last.
  */
 export async function simplifyRoomAfterBake(workGlb: string): Promise<RoomSimplifyReport> {
   await MeshoptSimplifier.ready;
@@ -87,13 +174,11 @@ export async function simplifyRoomAfterBake(workGlb: string): Promise<RoomSimpli
 
   const meshes = doc.getRoot().listMeshes();
   const beforeByMesh = new Map<string, number>();
-  const lockedIndexCounts = new Map<string, number[]>();
   const lockedByMesh = new Map<string, boolean>();
   for (const mesh of meshes) {
     const locked = isTrimLocked(mesh.getName(), meshNodeNames.get(mesh.getName()) ?? []);
     lockedByMesh.set(mesh.getName(), locked);
     beforeByMesh.set(mesh.getName(), meshTriangles(mesh));
-    if (locked) lockedIndexCounts.set(mesh.getName(), primitiveIndexCounts(mesh));
   }
 
   for (const mesh of meshes) {
@@ -112,6 +197,34 @@ export async function simplifyRoomAfterBake(workGlb: string): Promise<RoomSimpli
     }
   }
 
+  const trimReverted: string[] = [];
+  const trimDiagonalDrift: Record<string, number> = {};
+  for (const mesh of meshes) {
+    if (lockedByMesh.get(mesh.getName()) !== true) continue;
+    const diagonalBefore = meshDiagonal(mesh);
+    const snapshots = snapshotPrimitiveBuffers(mesh);
+    for (const prim of mesh.listPrimitives()) {
+      try {
+        weldPrimitiveFn(prim);
+      } catch {
+        // Unweldable primitives still simplify from raw indices.
+      }
+      simplifyPrimitiveFn(prim, {
+        simplifier: MeshoptSimplifier,
+        ratio: ROOM_TRIM_RATIO,
+        error: ROOM_TRIM_ERROR,
+      });
+    }
+    const diagonalAfter = meshDiagonal(mesh);
+    trimDiagonalDrift[mesh.getName()] =
+      diagonalBefore > 0 ? Math.abs(diagonalAfter - diagonalBefore) / diagonalBefore : 0;
+    const tolerance = diagonalBefore * ROOM_TRIM_AABB_TOLERANCE;
+    if (Math.abs(diagonalAfter - diagonalBefore) > tolerance) {
+      restorePrimitiveBuffers(mesh, snapshots);
+      trimReverted.push(mesh.getName());
+    }
+  }
+
   await doc.transform(meshoptFn({ encoder: MeshoptEncoder }));
   await io.write(workGlb, doc);
 
@@ -122,6 +235,8 @@ export async function simplifyRoomAfterBake(workGlb: string): Promise<RoomSimpli
     lockedAfter: 0,
     simplifiedBefore: 0,
     simplifiedAfter: 0,
+    trimReverted,
+    trimDiagonalDrift,
   };
   for (const mesh of reread.getRoot().listMeshes()) {
     const locked = lockedByMesh.get(mesh.getName()) ?? false;
@@ -131,14 +246,6 @@ export async function simplifyRoomAfterBake(workGlb: string): Promise<RoomSimpli
     if (locked) {
       report.lockedBefore += before;
       report.lockedAfter += after;
-      const counts = primitiveIndexCounts(mesh);
-      const expected = lockedIndexCounts.get(mesh.getName()) ?? [];
-      if (counts.length !== expected.length || counts.some((count, i) => count !== expected[i])) {
-        throw new Error(
-          `simplifyRoomAfterBake: locked mesh ${JSON.stringify(mesh.getName())} changed ` +
-            `(${expected.join(",")} -> ${counts.join(",")}); trim must be unchanged`,
-        );
-      }
     } else {
       report.simplifiedBefore += before;
       report.simplifiedAfter += after;
