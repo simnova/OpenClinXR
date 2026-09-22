@@ -1,0 +1,13 @@
+{
+  "entrypoints": {
+    ".": [
+      "BakedBoneFrame",
+      "BakedBoneTransformsArtifact",
+      "BakedPhysicsSchemaVersion",
+      "BoneDelta",
+      "PHYSICS_TOUCH_ARTIFACTS_GATES",
+      "bakedTransformsConsumerAllowed",
+      "liveEngineInProductionForbidden"
+    ]
+  }
+}

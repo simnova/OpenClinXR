@@ -12,11 +12,13 @@ import { fileURLToPath } from "node:url";
  * publishes a median of 6 per entrypoint, and its domain-seedwork keeps 3 of its 15 source
  * files unreachable by omitting them from `exports` — a mechanism no package here uses.
  *
- * TWO CLAUSES, because a count alone does not create privacy.
+ * TWO CLAUSES. The numeric one is retired.
  *
- * 1. ENTRYPOINT EXPORTS, budget 25. Provenance is two measurements, neither fitted to the
- *    current state: CellixJs's 59 entrypoints have a p90 of 21, and THIS repo's own 64
- *    subpath entrypoints have a p75 of 15. 25 clears both. 10 of 41 packages already pass.
+ * 1. ENTRYPOINT EXPORTS. The count ceiling (`rootEntrypointExports`, budget 25) is not the
+ *    gate. A package publishes the names in its package-local `public-api.json`, sealed from
+ *    the Closing-record surface, and `checkReviewedPublicApi` refuses a derived export that
+ *    file does not list. Do not raise `rootEntrypointExports`. The constant below stays as
+ *    the historical budget; this check does not consult it.
  *
  * 2. STAR EXPORTS, no budget, pure shrink-only from today's count. `export * from "./x.js"`
  *    republishes a module wholesale, so a symbol added inside becomes public with nobody
@@ -31,6 +33,7 @@ import { fileURLToPath } from "node:url";
 
 export const ENTRYPOINT_EXPORT_BUDGET = 25;
 export const CEILING_FILENAME = "arch-ceiling.json";
+export const PUBLIC_API_FILENAME = "public-api.json";
 
 export type ExportMeasurement = { pkg: string; exports: number; starExports: number };
 
@@ -108,6 +111,79 @@ export function readExportCeiling(pkg: string): ExportCeiling | null {
 
 export type ExportViolation = { pkg: string; detail: string };
 
+export type ReviewedEntrypoint = { pkg: string; specifier: string; exports: readonly string[] };
+
+export type PublicApiDocument = { entrypoints: Readonly<Record<string, readonly string[]>> };
+
+/**
+ * Derived entrypoint names must be the reviewed file, as a set. `rootEntrypointExports` is
+ * not read. A missing file is the same failure as a name the file does not list.
+ */
+export function checkReviewedPublicApi(
+  measurements: readonly ReviewedEntrypoint[],
+  readApi: (pkg: string) => PublicApiDocument | null,
+): ExportViolation[] {
+  const violations: ExportViolation[] = [];
+  const byPkg = new Map<string, ReviewedEntrypoint[]>();
+  for (const measurement of measurements) {
+    const list = byPkg.get(measurement.pkg) ?? [];
+    list.push(measurement);
+    byPkg.set(measurement.pkg, list);
+  }
+  for (const [pkg, entries] of byPkg) {
+    const doc = readApi(pkg);
+    if (doc === null) {
+      violations.push({
+        pkg,
+        detail:
+          `${pkg}/${PUBLIC_API_FILENAME}: missing. The reviewed surface is this file, not a count in ` +
+          `${CEILING_FILENAME}. Seal it from the Closing-record residual. Do not copy arch-index.json.`,
+      });
+      continue;
+    }
+    const reviewed = doc.entrypoints ?? {};
+    const seen = new Set<string>();
+    for (const entry of entries) {
+      seen.add(entry.specifier);
+      const allowed = new Set(reviewed[entry.specifier] ?? []);
+      const derived = new Set(entry.exports);
+      for (const name of [...derived].sort()) {
+        if (!allowed.has(name)) {
+          violations.push({
+            pkg,
+            detail:
+              `${pkg} ${entry.specifier} exports ${name}, which ${PUBLIC_API_FILENAME} does not list. ` +
+              "A derived export outside the reviewed file is refused. Add the name only when a file " +
+              "outside the package binds it. Do not raise rootEntrypointExports.",
+          });
+        }
+      }
+      for (const name of [...allowed].sort()) {
+        if (!derived.has(name)) {
+          violations.push({
+            pkg,
+            detail:
+              `${pkg} ${entry.specifier} lists ${name} in ${PUBLIC_API_FILENAME}, but the entrypoint does not ` +
+              "export it. The reviewed file is the derived surface, not a copy of an old index.",
+          });
+        }
+      }
+    }
+    for (const specifier of Object.keys(reviewed).sort()) {
+      if (seen.has(specifier)) continue;
+      for (const name of reviewed[specifier] ?? []) {
+        violations.push({
+          pkg,
+          detail:
+            `${pkg} ${specifier} lists ${name} in ${PUBLIC_API_FILENAME}, but that entrypoint is not a derived ` +
+            "export of the package.",
+        });
+      }
+    }
+  }
+  return violations;
+}
+
 export function checkExportSurface(
   measurements: readonly ExportMeasurement[] = measureExportSurface(),
   ceilingFor: (pkg: string) => ExportCeiling | null = readExportCeiling,
@@ -115,36 +191,6 @@ export function checkExportSurface(
   const violations: ExportViolation[] = [];
   for (const m of measurements) {
     const ceiling = ceilingFor(m.pkg);
-    const exportCeiling = ceiling?.rootEntrypointExports;
-    if (m.exports > ENTRYPOINT_EXPORT_BUDGET && exportCeiling === undefined) {
-      violations.push({
-        pkg: m.pkg,
-        detail:
-          `packages/openclinxr/${m.pkg}: root entrypoint publishes ${m.exports} symbols > budget ` +
-          `${ENTRYPOINT_EXPORT_BUDGET}, with no ceiling. A package that publishes every internal has a ` +
-          "namespace, not an interface: nothing can be renamed or made private without a consumer hunt. " +
-          "FIX: publish the symbols consumers need and move the rest behind them, or split the package " +
-          "into subpath entrypoints. Do NOT add a ceiling by hand; run pnpm arch:ceilings.",
-      });
-    } else if (exportCeiling !== undefined && m.exports > exportCeiling) {
-      violations.push({
-        pkg: m.pkg,
-        detail:
-          `packages/openclinxr/${m.pkg}: root entrypoint grew to ${m.exports} symbols > ceiling ` +
-          `${exportCeiling}. Ceilings only shrink — do not republish another internal.`,
-      });
-    } else if (
-      exportCeiling !== undefined &&
-      (m.exports < exportCeiling || m.exports <= ENTRYPOINT_EXPORT_BUDGET)
-    ) {
-      violations.push({
-        pkg: m.pkg,
-        detail:
-          `packages/openclinxr/${m.pkg}: export ceiling ${exportCeiling} is above the measured ${m.exports} ` +
-          "— the surface shrank but the ceiling did not. Run pnpm arch:ceilings.",
-      });
-    }
-
     const starCeiling = ceiling?.starExports;
     if (m.starExports > 0 && starCeiling === undefined) {
       violations.push({

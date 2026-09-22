@@ -1,0 +1,39 @@
+{
+  "entrypoints": {
+    ".": [
+      "FactoryStationSchema",
+      "PRODUCTION_STATION_IDS",
+      "ProductionStationId",
+      "ROOM_ALBEDO_REL",
+      "ROOM_OCCLUSION_REL",
+      "StandardIssue",
+      "StandardResult",
+      "StationJsonSchema",
+      "StationPropertySchema",
+      "applyStationPayloadToCompileSpec",
+      "factoryStationSchemas",
+      "findEquipmentSubject",
+      "planBodyParam",
+      "planClothingConsume",
+      "planEquipmentGenerate",
+      "planMotionRetarget",
+      "planRoomGenerate",
+      "productionStationIds",
+      "runBodyParam",
+      "runClothingConsume",
+      "runClothingGenerate",
+      "runDialogueRuntime",
+      "runEquipmentGenerate",
+      "runLipSync",
+      "runMotionRetarget",
+      "runRoomGenerate",
+      "runStaging",
+      "writeLipSyncFixtureWav"
+    ],
+    "./catalog": [
+      "ProductionStationId",
+      "factoryStationSchemas",
+      "productionStationIds"
+    ]
+  }
+}

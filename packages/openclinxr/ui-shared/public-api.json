@@ -1,0 +1,71 @@
+{
+  "entrypoints": {
+    ".": [
+      "ActorTurnReplayPanel",
+      "EmissionReplayBindPanel",
+      "FacultyDispositionPanel",
+      "adminWorkbenchCapabilityTags",
+      "capabilityTagColor",
+      "clampedScoreFromWorkbenchInput",
+      "countActorCommunicationProfiles",
+      "formatActorCommunicationProfileCoverage",
+      "formatDuration",
+      "openClinXrAdminTheme",
+      "pluralizeWorkbenchCount",
+      "uniqueWorkbenchValues"
+    ],
+    "./actor-turn-replay-panel": [
+      "ACTOR_TURN_REPLAY_CLAIM_BOUNDARY",
+      "ACTOR_TURN_REPLAY_NOT_EVIDENCE_FOR",
+      "ActorTurnReplayPanel"
+    ],
+    "./admin-compile-graph-canvas": [
+      "CompileEdge",
+      "CompileGraphCanvas",
+      "buildCompileGraphModel"
+    ],
+    "./admin-factory-station-cards": [
+      "FactoryStationCards"
+    ],
+    "./admin-runtime-posture": [
+      "AdminNoReadinessEvidenceClaim",
+      "AdminRealtimeVoicePosture",
+      "AdminRuntimeProtocolPosture",
+      "AdminRuntimeProtocolSupport",
+      "AdminRuntimeProviderPlaneReadiness",
+      "AdminRuntimeProviderReadiness",
+      "AdminRuntimeProviderReadinessSurface"
+    ],
+    "./admin-string-list-field": [
+      "StringListField"
+    ],
+    "./assembled-exam-replay-timeline": [
+      "ASSEMBLED_EXAM_PHASE_BY_TYPE",
+      "ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES",
+      "AdminAssembledExamReplayProjection",
+      "AdminAssembledExamStationReplaySlice",
+      "AssembledExamReplayTimeline",
+      "assembledExamDerivedBlockers",
+      "assembledExamStationReplayPosture"
+    ],
+    "./emission-replay-bind-panel": [
+      "AdminReplayFromEmissionV1",
+      "CLI_LATEST_FIXTURE_URL",
+      "EmissionReplayBindPanel",
+      "SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1",
+      "parseAdminReplayFromEmissionV1"
+    ],
+    "./factory-run-progress-panel": [
+      "FactoryRunProgressPanel"
+    ],
+    "./factory-run-table-client": [
+      "FactoryRunTable",
+      "fetchFactoryRunTable"
+    ],
+    "./faculty-disposition-panel": [
+      "FacultyDispositionPanel",
+      "appendAssembledExamFacultyDisposition",
+      "getAssembledExamFacultyDisposition"
+    ]
+  }
+}

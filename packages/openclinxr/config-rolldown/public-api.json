@@ -1,0 +1,8 @@
+{
+  "entrypoints": {
+    ".": [
+      "createOpenClinXrAzureFunctionsRolldownConfig",
+      "prepareOpenClinXrAzureFunctionsDeploy"
+    ]
+  }
+}

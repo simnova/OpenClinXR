@@ -1,0 +1,33 @@
+{
+  "entrypoints": {
+    ".": [
+      "CanonicalPhaseEventAdmission",
+      "EncounterMaterializationEvidenceRecord",
+      "MemoryExamRunLedger",
+      "MongoClient",
+      "MongoDurableClinicalEventRepository",
+      "MongoDurableConversationTurnRepository",
+      "MongoDurableEmotionalStateTimelineRepository",
+      "MongoEncounterMaterializationEvidenceRepository",
+      "MongoExamFormRepository",
+      "MongoFacultyScoreDraftRepository",
+      "MongoReviewPacketRepository",
+      "MongoRuntimeAssetBundleRepository",
+      "MongoScenarioRepository",
+      "MongoScenarioReviewDecisionRepository",
+      "MongoStationRunQueueRepository",
+      "MongoTraceRepository",
+      "OpenExamRunInput",
+      "ScenarioReviewDecisionRecord",
+      "createExamRunLedger",
+      "createMongoApiPersistenceSink",
+      "createMongoDurableMultiActorSessionStore",
+      "createMongoExamPersistence",
+      "durableActorTurnPersistenceScope",
+      "durableClinicalEventPersistenceScope",
+      "examRunLedgerClaimBoundary",
+      "examRunLedgerNotEvidenceFor",
+      "saveLearnerRuntimeAssetBundleFromGeneratedReport"
+    ]
+  }
+}

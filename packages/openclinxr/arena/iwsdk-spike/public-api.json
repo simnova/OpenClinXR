@@ -1,0 +1,40 @@
+{
+  "entrypoints": {
+    ".": [
+      "IwsdkAgentToolingEvidence",
+      "IwsdkSpikeGateEvidence",
+      "IwsdkSpikeMetrics",
+      "buildIwsdkAgentVerificationRunbook",
+      "buildIwsdkAiModeProfiles",
+      "buildIwsdkCodexMcpAdapterTemplate",
+      "buildIwsdkCommittedSpikeSequence",
+      "buildIwsdkCompatibilityContract",
+      "buildIwsdkManagedBrowserEvidenceContract",
+      "buildIwsdkMcpToolCoverage",
+      "buildIwsdkMcpToolInventory",
+      "buildIwsdkMcpToolInventoryRequirement",
+      "buildIwsdkOperatorApprovalContract",
+      "buildIwsdkOperatorSteeringBlockers",
+      "buildIwsdkOptionalMcpServerPolicy",
+      "buildIwsdkPackageMetadataDriftPolicies",
+      "buildIwsdkPreInstallPackagePolicy",
+      "buildIwsdkSidecarReadinessContract",
+      "buildIwsdkSourceRecordIdContract",
+      "buildIwsdkSpikeMetricThresholds",
+      "buildIwsdkSpikePlan",
+      "buildIwsdkUiXrStationParityContract",
+      "buildIwsdkVerificationToolSelectionContract",
+      "buildIwsdkViteAiDevConfigContract",
+      "evaluateIwsdkAgentToolingEvidence",
+      "evaluateIwsdkAgentToolingLocalPreflightEvidence",
+      "evaluateIwsdkCompatibilityEvidence",
+      "evaluateIwsdkManagedBrowserEvidence",
+      "evaluateIwsdkPackageMetadataDriftEvidence",
+      "evaluateIwsdkPreInstallPackageSelection",
+      "evaluateIwsdkSpikeMetrics",
+      "evaluateIwsdkSpikeReadiness",
+      "evaluateIwsdkWorkspacePosture",
+      "selectIwsdkVerificationToolsForClaim"
+    ]
+  }
+}

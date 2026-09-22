@@ -1,0 +1,20 @@
+{
+  "entrypoints": {
+    ".": [
+      "StationActorSlotKind",
+      "StationActorStagingContext",
+      "StationClinicalTouchSource",
+      "StationRoomResult",
+      "actorNameplateLabel",
+      "assembleStationScene",
+      "buildStationRoomShell",
+      "observeMountedSupportInstances",
+      "runtimeGeneratedSceneObjectName",
+      "stageStationActors",
+      "wireStationPointerInteraction"
+    ],
+    "./station-environment-affect-cue": [
+      "applyEnvironmentAffectCue"
+    ]
+  }
+}

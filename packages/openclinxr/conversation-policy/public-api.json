@@ -1,0 +1,33 @@
+{
+  "entrypoints": {
+    ".": [
+      "ActorTurnInProgress",
+      "ArbitrateTurnTakingInput",
+      "BargeInContext",
+      "BargeInOutcome",
+      "BargeInResolution",
+      "CaseEmotionPolicy",
+      "ConversationPolicy",
+      "EmotionEngine",
+      "EmotionEventClassifierVerdict",
+      "EmotionEventKind",
+      "EmotionTransition",
+      "HistoryTakingCoverageSpec",
+      "HistoryTakingCoverageState",
+      "LearnerBargeInInput",
+      "LearnerSttBargeInRecord",
+      "TurnCancellationDirective",
+      "TurnTakingDecision",
+      "arbitrateTurnTaking",
+      "buildHistoryTakingCoverageSpec",
+      "classifyEmotionEventDetailed",
+      "createDefaultConversationPolicy",
+      "domainsForTraceTag",
+      "initialHistoryTakingCoverageState",
+      "mapEmotionPerformance",
+      "resolveLearnerBargeInFromStt",
+      "stripProviderMarkup",
+      "updateHistoryTakingCoverage"
+    ]
+  }
+}

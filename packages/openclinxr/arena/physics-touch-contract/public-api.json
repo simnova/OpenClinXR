@@ -1,0 +1,30 @@
+{
+  "entrypoints": {
+    ".": [
+      "FIXED_DT",
+      "PhysicsCagematchReport",
+      "StubPhysicsAdapter",
+      "accumulateFrameTime",
+      "appendTickInput",
+      "buildDeterministicInputLog",
+      "buildPalpationInputLog",
+      "buildPhysicsCagematchReport",
+      "computeSnapshotHash",
+      "consumeTick",
+      "createFixedStepAccumulator",
+      "createInputLog",
+      "createStubPhysicsArtifactMeta",
+      "currentTick",
+      "defaultNotEvidenceFor",
+      "getTickInput",
+      "hashState",
+      "inputLogLength",
+      "listTickInputs",
+      "replayFromSnapshot",
+      "replayInputLog",
+      "runMeasuredMetrics",
+      "runThreeWayCagematch",
+      "serializeState"
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "entrypoints": {
+    ".": [
+      "ExamFlowRuntimeAccessors",
+      "ExamRunStationOutcome",
+      "OpenClinXrExamFlowEvidence",
+      "OpenClinXrExamFormRunEvidence",
+      "OpenClinXrExamRunSummaryEvidence",
+      "advanceFormRunClock",
+      "buildExamFlowEvidence",
+      "buildExamFormRunEvidence",
+      "buildExamRunSummaryEvidence",
+      "createExamFlowStore",
+      "createFormRunState",
+      "persistFormRunQueueSnapshot",
+      "readExamRunSummaryOutcomes",
+      "recordStationOutcome",
+      "recordStationOutcomeOnFormRun"
+    ]
+  }
+}

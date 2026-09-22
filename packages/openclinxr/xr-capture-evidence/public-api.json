@@ -1,0 +1,42 @@
+{
+  "entrypoints": {
+    ".": [
+      "DeclaredEquipmentMountEvidence",
+      "OpenClinXrXrEntryEvidence",
+      "buildCaseDefinedHumanoidPerformanceContractEvidence",
+      "buildRuntimeSceneManifestEvidence",
+      "formatCaseDefinedHumanoidPerformanceContractEvidence",
+      "formatSceneAssetEvidenceStatus",
+      "formatUnknownError",
+      "isActorCloseRealismCaptureMode",
+      "isActorPoseReviewCaptureMode",
+      "isDeterministicCaptureClock",
+      "isEdBayVisibleCaptureMode",
+      "isGeneratedPlaceholderSourceForDifferentScenario",
+      "isGeneratedSceneOverviewCaptureMode",
+      "isHumanoidFaceDetailCaptureMode",
+      "isHumanoidMouthGazePoseReviewCaptureMode",
+      "isPhysicsClinicalTouchCapture",
+      "isRealGarmentSleeveDeformCapture",
+      "isSceneOnlyVisualReviewCaptureMode",
+      "publishRuntimeActorSlotAssignmentEvidence",
+      "recordLearnerRuntimeUseGateEvidence",
+      "recordSceneAssetStatus",
+      "recordXrEntryEvidence",
+      "refreshDeclaredEquipmentMountEvidenceFromScene",
+      "resolveRuntimeSlotAssignment",
+      "roundPerformanceNow",
+      "runtimeAssetAffordanceCueIds",
+      "selectedCaptureMode",
+      "shouldRenderRoomPropInVisualReview",
+      "shouldShowActorRealismRequirementPanel",
+      "shouldShowInSceneEvidencePanels",
+      "shouldShowInSceneIdentityLabels",
+      "shouldShowPrimitiveAssetFallbacks",
+      "shouldShowRuntimeAffordanceMarkers",
+      "shouldSuppressGeneratedEnvironmentShell",
+      "shouldSuppressGeneratedEquipmentModel",
+      "shouldUseLearnerRuntimeAssetBundle"
+    ]
+  }
+}

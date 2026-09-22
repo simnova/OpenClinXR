@@ -1,0 +1,34 @@
+{
+  "entrypoints": {
+    ".": [
+      "CompletedHumanReview",
+      "SCENARIO_BANK_AUTONOMOUS_APPROVAL_ERROR",
+      "SCENARIO_BANK_PARTIAL_APPROVAL_ERROR",
+      "SCENARIO_BANK_STALE_APPROVAL_ERROR",
+      "ScenarioBankRevision",
+      "ScheduledEvent",
+      "StationRun",
+      "approveScenarioBankVersion",
+      "assemblyVisibleRevisions",
+      "authoredContentIdentity",
+      "authoredContentIdentityEvidenceRef",
+      "authoredContentIdentityFromEvidenceRefs",
+      "createScenarioBankDraft",
+      "createStationRun",
+      "evaluateRequiredTraceTags",
+      "findUnsafeClaimLanguage",
+      "forkDraftFromImmutableVersion",
+      "getScheduledEventsDue",
+      "markScenarioBankReviewReady",
+      "transitionStation",
+      "updateScenarioBankDraft"
+    ],
+    "./claim-language": [
+      "buildScenarioGovernanceCopy",
+      "findUnsafeClaimLanguage",
+      "safeUserFacingClaimLanguage",
+      "scoreUseCopy",
+      "validationStageCopy"
+    ]
+  }
+}

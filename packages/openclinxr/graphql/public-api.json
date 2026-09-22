@@ -1,0 +1,49 @@
+{
+  "entrypoints": {
+    ".": [
+      "AdminGraphqlReviewDecision",
+      "AdminGraphqlRootValue",
+      "AdminGraphqlScenario",
+      "AdminGraphqlScenarioStatus",
+      "buildAdminGraphqlSchema",
+      "createGraphqlCodegenPlan",
+      "executeAdminGraphql",
+      "openClinXrAdminSchemaSdl"
+    ],
+    "./client": [
+      "CreateStationRunQueueSnapshotDocument",
+      "CreateStationRunQueueSnapshotMutation",
+      "CreateStationRunQueueSnapshotMutationVariables",
+      "FacultyDispositionRefusalCode",
+      "FacultyDispositionStatus",
+      "FacultyDispositionValue",
+      "ReviewPacketReplayDocument",
+      "ReviewPacketReplayQuery",
+      "ReviewPacketReplayQueryVariables",
+      "SaveFacultyScoreDraftDocument",
+      "SaveFacultyScoreDraftMutation",
+      "SaveFacultyScoreDraftMutationVariables",
+      "ScenarioBankDocument",
+      "ScenarioBankQuery",
+      "ScenarioBankQueryVariables",
+      "ScenarioDetailDocument",
+      "ScenarioDetailQuery",
+      "ScenarioDetailQueryVariables",
+      "ScenarioReviewDecisionsDocument",
+      "ScenarioReviewDecisionsQuery",
+      "ScenarioReviewDecisionsQueryVariables",
+      "ScenarioStatus",
+      "StationRunQueueSnapshotsDocument",
+      "StationRunQueueSnapshotsQuery",
+      "StationRunQueueSnapshotsQueryVariables",
+      "SubmitScenarioReviewDocument",
+      "SubmitScenarioReviewMutation",
+      "SubmitScenarioReviewMutationVariables"
+    ],
+    "./documents": [
+      "AdminGraphqlDocument",
+      "adminGraphqlDocumentByOperationName",
+      "adminGraphqlDocuments"
+    ]
+  }
+}

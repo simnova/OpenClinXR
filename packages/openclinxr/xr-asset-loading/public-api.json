@@ -1,0 +1,35 @@
+{
+  "entrypoints": {
+    ".": [
+      "AssetLoadingContext",
+      "AssetLoadingScenarioTheme",
+      "HumanoidCueMode",
+      "addActorSpecificIdentityVariantCue",
+      "addHumanoidSourceComparatorFaceReviewCues",
+      "addReusableExteriorPreEncounterRoom",
+      "addRoleSpecificHumanoidVisuals",
+      "addScenarioSpecificClinicalSetDressing",
+      "addScenarioSpecificClinicalTeamCue",
+      "addScenarioSpecificFamilyCue",
+      "addScenarioSpecificPatientCue",
+      "clinicalTouchResponseClipNamesForActor",
+      "comparatorCaptureSubjectActorId",
+      "configureSemanticRolePoseOverlay",
+      "frameComparatorCaptureOnNamedActor",
+      "gazeProbeAnimationClipNamesFromGltf",
+      "hasAuthoredClinicalIdlePoseClip",
+      "loadGeneratedEnvironmentIntoSceneSlot",
+      "loadGeneratedEquipmentIntoSceneSlot",
+      "loadGeneratedHumanoidIntoActorSlot",
+      "neutralizeGeneratedHumanoidMorphTargets",
+      "pedsAsthmaPatientBundleVisemeUtterance",
+      "registerGeneratedHumanoidAnimation",
+      "roleAnimationClipNamesForActor",
+      "runtimeHumanoidVariantAssetPath",
+      "selectedHumanoidSourceComparator",
+      "shouldShowProceduralHumanoidDetailCues",
+      "suppressRuntimeDiagnosticOverlaysForSourceComparator",
+      "tintGeneratedSceneMaterials"
+    ]
+  }
+}

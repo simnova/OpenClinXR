@@ -1,0 +1,23 @@
+{
+  "entrypoints": {
+    ".": [
+      "ActorResponseRequest",
+      "ActorResponseResult",
+      "LocalModelProviderAdapter",
+      "MockModelProviderAdapter",
+      "ModelCapability",
+      "ModelGateway",
+      "ModelProviderAdapter",
+      "ModelRequestPolicy",
+      "OpenAiCompatibleModelProviderAdapter",
+      "buildActorCommunicationProfilePromptContext",
+      "buildActorResponseProviderPromptInput",
+      "buildActorResponseRequestsForDialogueSeeds",
+      "createActorDialogueModelGateway",
+      "createDefaultModelGateway",
+      "createLlamaCppModelProviderAdapter",
+      "createMlxModelProviderAdapter",
+      "createOllamaModelProviderAdapter"
+    ]
+  }
+}

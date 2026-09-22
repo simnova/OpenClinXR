@@ -1,0 +1,33 @@
+{
+  "entrypoints": {
+    ".": [
+      "AnnyLikePreflightReport",
+      "CagematchFeasibilityCriterion",
+      "CagematchReportPage",
+      "CagematchReportRegistry",
+      "ModelVettingCandidate",
+      "ModelVettingCaptureArtifacts",
+      "ModelVettingReport",
+      "PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE",
+      "PipelineCandidate",
+      "PipelineCandidateDiff",
+      "PipelineCandidateIndex",
+      "PromotionRecord",
+      "VisemeTimeline",
+      "applyMorphTargetEmotionCue",
+      "applyMorphTargetVisemeCue",
+      "batchScorePipelineIndex",
+      "buildModelVettingReportFromAnnyPreflight",
+      "buildPedsAsthmaPatientEmotionTransitionTimeline",
+      "buildPromotionRecord",
+      "buildVisemeTimelineFromDialogue",
+      "diffPipelineCandidates",
+      "emotionWeightsAtTimelineProgress",
+      "validateCagematchReportPage",
+      "validateCagematchReportRegistry",
+      "validateModelVettingReport",
+      "validatePipelineCandidateIndex",
+      "visemeAtTimelineProgress"
+    ]
+  }
+}
