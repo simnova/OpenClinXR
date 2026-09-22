@@ -2,8 +2,8 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { runtimeHumanoidVariantAssetPath } from "../../../../packages/openclinxr/xr-asset-loading/src/variant-paths.js";
-import { resolveHumanoidVariantOrCastPath } from "../../../../packages/openclinxr/xr-scene/src/humanoid-runtime-asset-url.js";
+import { runtimeHumanoidVariantAssetPath } from "@openclinxr/xr-asset-loading";
+import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
 
 const ROOT = path.resolve(import.meta.dirname, "../../../..");
 const MATERIALIZER = "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py";

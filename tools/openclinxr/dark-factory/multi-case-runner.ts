@@ -51,9 +51,11 @@ import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 
 import type { EncounterRuntimeActorAsset } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
-import type { AssetLoadingContext } from "../../../packages/openclinxr/xr-asset-loading/src/types.js";
-import { runtimeHumanoidVariantAssetPath } from "../../../packages/openclinxr/xr-asset-loading/src/variant-paths.js";
-import { resolveHumanoidVariantOrCastPath } from "../../../packages/openclinxr/xr-scene/src/humanoid-runtime-asset-url.js";
+import {
+  runtimeHumanoidVariantAssetPath,
+  type AssetLoadingContext,
+} from "@openclinxr/xr-asset-loading";
+import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
 import { writeDeterministicLipSyncWav } from "../../../packages/openclinxr/factory-stations/src/lip_sync/fixture-wav.js";
 import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { generatedActorPlacement } from "../../../packages/openclinxr/asset-registry/src/actor-placement.js";
