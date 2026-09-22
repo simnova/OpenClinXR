@@ -9,6 +9,8 @@ import {
   type RoomBakeHarnessReport,
   runRoomBakeHarness,
   SHIPPED_PRIMARY_CARE_GLB,
+  surfaceForBakeName,
+  surfaceForNodeName,
 } from "./room-bake-harness.js";
 
 describe("room bake harness", () => {
@@ -25,6 +27,15 @@ describe("room bake harness", () => {
     expect(distanceToBright(stats.occupiedMean)).toBeLessThan(distanceToBright(stats.wholeMean));
     expect(stats.occupiedMean).toBeGreaterThan(stats.wholeMean);
     expect(stats.occupiedCount).toBe(width * height - 16);
+  });
+
+  it("reads a surface token before a shared plaster name, and Infinigen node roles", () => {
+    expect(surfaceForBakeName("openclinxr_room_bake_surface_wall_shader_plaster")).toBe("wall");
+    expect(surfaceForBakeName("openclinxr_room_bake_surface_floor_shader_wood")).toBe("floor");
+    expect(surfaceForBakeName("openclinxr_room_bake_shader_plaster")).toBe("ceiling");
+    expect(surfaceForNodeName("bedroom_0/0.wall")).toBe("wall");
+    expect(surfaceForNodeName("bedroom_0/0.floor")).toBe("floor");
+    expect(surfaceForNodeName("bedroom_0/0.ceiling")).toBe("ceiling");
   });
 
   it("throws when asked to write the shipped primary-care GLB", async () => {
@@ -81,6 +92,57 @@ describe("room bake harness", () => {
     const written = JSON.parse(await readFile(report.reportPath, "utf8")) as RoomBakeHarnessReport;
     expect(written.control.wall.occupiedMean).toBeGreaterThan(written.control.wall.wholeMean);
   });
+
+  it("forwards --samples and refuses a non-positive sample count", async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "room-bake-harness-"));
+    const output = path.join(dir, "out.glb");
+    const reportPath = path.join(dir, "report.json");
+    let seen = "";
+    await runRoomBakeHarness(
+      [
+        "--bake-treatment",
+        "--light-rig",
+        "distributed",
+        "--samples",
+        "48",
+        "--output",
+        output,
+        "--report",
+        reportPath,
+      ],
+      {
+        spawn(argv) {
+          seen = argv.join(" ");
+        },
+      },
+    );
+    expect(seen).toContain("--samples 48");
+    await expect(runRoomBakeHarness(
+      ["--bake-treatment", "--light-rig", "distributed", "--samples", "0", "--output", output],
+      {
+        spawn() {
+          throw new Error("baker was invoked");
+        },
+      },
+    )).rejects.toThrow(/--samples must be a positive integer/);
+  });
+
+  it("scores urgent-care wall, floor, and ceiling from node roles", async () => {
+    const reportPath = path.join(mkdtempSync(path.join(tmpdir(), "room-bake-harness-")), "report.json");
+    const source = "apps/ui-xr/public/xr-assets/environment/infinigen-urgent-care-clinic.glb";
+    const report = await runRoomBakeHarness(
+      ["--measure-only", "--control", source, "--treatment", source, "--report", reportPath],
+      {
+        spawn() {
+          throw new Error("measure-only must not start Blender");
+        },
+      },
+    ) as RoomBakeHarnessReport;
+    expect(report.control.floor.occupiedCount).toBeGreaterThan(0);
+    expect(report.control.ceiling.occupiedCount).toBeGreaterThan(0);
+    expect(report.control.wall.occupiedCount).toBe(0);
+    expect(report.control.floor.occupiedMean).toBeGreaterThan(report.control.wall.wholeMean);
+  });
 });
 
 describe("room-bake-cli --light-rig", () => {
@@ -96,5 +158,8 @@ describe("room-bake-cli --light-rig", () => {
   it("throws on an unknown light rig", () => {
     expect(() => parseRoomBakeCliArgs(["--light-rig", "studio"])).toThrow(/--light-rig must be one of legacy\|distributed\|rig/);
     expect(() => parseRoomBakeCliArgs(["--light-rig"])).toThrow(/Missing value for --light-rig/);
+    expect(parseRoomBakeCliArgs(["--input", "room.glb", "--samples", "48"]).samples).toBe(48);
+    expect(() => parseRoomBakeCliArgs(["--samples", "0"])).toThrow(/--samples must be a positive integer/);
+    expect(() => parseRoomBakeCliArgs(["--samples", "nope"])).toThrow(/--samples must be a positive integer/);
   });
 });

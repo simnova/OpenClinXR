@@ -54,10 +54,20 @@ export type SurfaceMeans = {
   ceiling: LuminanceStats;
 };
 
+export type BakeControls = {
+  source: string;
+  lightRig: string;
+  energyScale: number;
+  samples: number;
+  resolution: number;
+  restoreAlbedo: boolean;
+};
+
 export type RoomBakeHarnessReport = {
   schemaVersion: "openclinxr.room-bake-harness.v1";
   mode: "measure-only";
   reportPath: string;
+  controls: BakeControls;
   control: SurfaceMeans;
   treatment: SurfaceMeans;
 };
@@ -96,9 +106,20 @@ export function isShippedPrimaryCareGlb(candidate: string): boolean {
  * shader_plaster) and classify_surface() order in room-albedo-ao-bake.py.
  * square_tile is tested before marble so the floor tile is not labelled a wall.
  */
+export function surfaceForNodeName(name: string): Surface | null {
+  const n = name.toLowerCase();
+  if (n.includes(".floor") || n.includes("/floor")) return "floor";
+  if (n.includes(".ceiling") || n.includes("/ceiling")) return "ceiling";
+  if (n.includes(".wall") || n.includes("/wall")) return "wall";
+  return null;
+}
+
 export function surfaceForBakeName(name: string): Surface | null {
   const n = name.toLowerCase();
   if (n.length === 0 || n.includes("openclinxr_room_ao_")) return null;
+  if (n.includes("surface_floor")) return "floor";
+  if (n.includes("surface_ceiling")) return "ceiling";
+  if (n.includes("surface_wall")) return "wall";
   if (n.includes("plaster") || n.includes("ceiling")) return "ceiling";
   if (n.includes("square_tile") || n.includes("floor")) return "floor";
   if (
@@ -133,7 +154,7 @@ export function occupiedLuminanceStats(
   }
   const wholeMean = whole / samples.length;
   if (occupiedCount === 0) {
-    return { wholeMean, occupiedMean: Number.NaN, occupiedSd: Number.NaN, occupiedCount: 0 };
+    return { wholeMean, occupiedMean: 0, occupiedSd: 0, occupiedCount: 0 };
   }
   const occupiedMean = occupiedSum / occupiedCount;
   let varSum = 0;
@@ -163,6 +184,18 @@ export async function measureSurfaceMeans(glbPath: string): Promise<SurfaceMeans
   const abs = resolveRepoPath(glbPath);
   const doc = await io.read(abs);
   const found: Partial<Record<Surface, LuminanceStats>> = {};
+  for (const node of doc.getRoot().listNodes()) {
+    const role = surfaceForNodeName(node.getName() ?? "");
+    if (!role || found[role] !== undefined) continue;
+    const mesh = node.getMesh();
+    if (!mesh) continue;
+    for (const prim of mesh.listPrimitives()) {
+      const image = prim.getMaterial()?.getBaseColorTexture()?.getImage();
+      if (!image) continue;
+      found[role] = statsForPng(image);
+      break;
+    }
+  }
   for (const material of doc.getRoot().listMaterials()) {
     const tex = material.getBaseColorTexture();
     if (!tex) continue;
@@ -228,6 +261,8 @@ export function roomBakeCliArgv(
   lightRig: LightRig,
   energyScale = 1,
   restoreAlbedo = true,
+  samples = 32,
+  resolution = 1024,
 ): string[] {
   return [
     ROOM_BAKE_CLI,
@@ -240,6 +275,12 @@ export function roomBakeCliArgv(
     "--energy-scale",
     String(energyScale),
     restoreAlbedo ? "--restore-albedo" : "--no-restore-albedo",
+    "--samples",
+    String(samples),
+    "--resolution",
+    String(resolution),
+    "--means-log",
+    path.join(repoRoot(), ROOM_BAKE_HARNESS_DIR, "means.json"),
   ];
 }
 
@@ -262,6 +303,8 @@ type Parsed = {
   lightRig?: LightRig;
   energyScale: number;
   restoreAlbedo: boolean;
+  samples: number;
+  resolution: number;
 };
 
 function parseArgs(args: readonly string[]): Parsed {
@@ -273,6 +316,8 @@ function parseArgs(args: readonly string[]): Parsed {
     report: DEFAULT_HARNESS_REPORT,
     energyScale: 1,
     restoreAlbedo: true,
+    samples: 32,
+    resolution: 1024,
   };
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -304,6 +349,19 @@ function parseArgs(args: readonly string[]): Parsed {
       parsed.energyScale = value;
     } else if (arg === "--no-restore-albedo") parsed.restoreAlbedo = false;
     else if (arg === "--restore-albedo") parsed.restoreAlbedo = true;
+    else if (arg === "--samples") {
+      const value = Number(next());
+      if (!Number.isInteger(value) || value < 1) {
+        throw new Error("--samples must be a positive integer");
+      }
+      parsed.samples = value;
+    } else if (arg === "--resolution") {
+      const value = Number(next());
+      if (!Number.isInteger(value) || value < 1) {
+        throw new Error("--resolution must be a positive integer");
+      }
+      parsed.resolution = value;
+    }
     else {
       throw new Error(`Unknown room-bake-harness option: ${arg}`);
     }
@@ -320,9 +378,22 @@ function usage(): string {
     "  --bake-treatment        Copy control and bake that copy with room-bake-cli.ts",
     "  --light-rig <name>      legacy | distributed | rig (required with --bake-treatment)",
     "  --energy-scale <n>      Multiply probe-light energy (default 1)",
+    "  --samples <n>           Cycles samples (default 32)",
+    "  --resolution <px>       Bake resolution (default 1024; floor stays at least 4096)",
     "  --output <glb>          Treatment GLB path (default: .openclinxr/evidence/room-bake-harness/)",
     "  --report <path>         Mean-luminance JSON (default: .openclinxr/evidence/room-bake-harness/report.json)",
   ].join("\n");
+}
+
+function controlsFrom(parsed: Parsed, source: string): BakeControls {
+  return {
+    source,
+    lightRig: parsed.lightRig ?? "distributed",
+    energyScale: parsed.energyScale,
+    samples: parsed.samples,
+    resolution: parsed.resolution,
+    restoreAlbedo: parsed.restoreAlbedo,
+  };
 }
 
 function refuseShippedWrite(candidate: string | undefined): void {
@@ -360,6 +431,8 @@ export async function runRoomBakeHarness(
       parsed.lightRig,
       parsed.energyScale,
       parsed.restoreAlbedo,
+      parsed.samples,
+      parsed.resolution,
     );
     await mkdir(path.dirname(outputAbs), { recursive: true });
     await copyFile(controlAbs, outputAbs);
@@ -372,6 +445,7 @@ export async function runRoomBakeHarness(
       schemaVersion: "openclinxr.room-bake-harness.v1",
       mode: "measure-only",
       reportPath,
+      controls: controlsFrom(parsed, controlAbs),
       control,
       treatment,
     };
@@ -396,6 +470,7 @@ export async function runRoomBakeHarness(
     schemaVersion: "openclinxr.room-bake-harness.v1",
     mode: "measure-only",
     reportPath,
+    controls: controlsFrom(parsed, resolveRepoPath(parsed.control)),
     control,
     treatment,
   };

@@ -114,10 +114,12 @@ export async function runRoomBake(options: {
   lightRig?: RoomBakeLightRig;
   energyScale?: number;
   restoreAlbedo?: boolean;
+  samples?: number;
 }): Promise<BakeReport> {
   const input = options.input;
   const output = options.output ?? input;
   const resolution = options.resolution ?? 1024;
+  const samples = options.samples ?? 32;
   const generatedAt = new Date().toISOString();
 
   const inputMeasure = await measureGlb(input);
@@ -153,6 +155,8 @@ export async function runRoomBake(options: {
         "--energy-scale",
         String(options.energyScale ?? 1),
         options.restoreAlbedo === false ? "--no-restore-albedo" : "--restore-albedo",
+        "--samples",
+        String(samples),
       ],
     },
   );
@@ -176,7 +180,7 @@ export async function runRoomBake(options: {
       script: ROOM_BAKE_SCRIPT,
       resolution,
       engine: "CYCLES",
-      samples: 32,
+      samples,
       bakeType: "DIFFUSE",
       passFilter: ["DIRECT", "INDIRECT", "COLOR"],
       worldAmbientStrength: 0.12,
@@ -219,6 +223,8 @@ export type RoomBakeCliOptions = {
   lightRig?: RoomBakeLightRig;
   energyScale?: number;
   restoreAlbedo?: boolean;
+  samples?: number;
+  meansLog?: string;
 };
 
 export function parseRoomBakeCliArgs(args: readonly string[]): RoomBakeCliOptions {
@@ -253,6 +259,13 @@ export function parseRoomBakeCliArgs(args: readonly string[]): RoomBakeCliOption
       options.energyScale = value;
     } else if (arg === "--no-restore-albedo") options.restoreAlbedo = false;
     else if (arg === "--restore-albedo") options.restoreAlbedo = true;
+    else if (arg === "--samples") {
+      const value = Number(next());
+      if (!Number.isInteger(value) || value < 1) {
+        throw new Error("--samples must be a positive integer");
+      }
+      options.samples = value;
+    } else if (arg === "--means-log") options.meansLog = next();
     else throw new Error(`Unknown room-bake option: ${arg}`);
   }
   return options;
@@ -271,6 +284,7 @@ export async function runRoomBakeCli(args = process.argv.slice(2)): Promise<void
       "  --inspect           Measure a GLB and print JSON without baking",
       "  --light-rig <name>  legacy | distributed | rig (default distributed)",
       "  --energy-scale <n>  Multiply probe-light energy (default 1)",
+      "  --samples <n>       Cycles samples (default 32)",
     ].join("\n")}\n`);
     return;
   }
@@ -291,6 +305,8 @@ export async function runRoomBakeCli(args = process.argv.slice(2)): Promise<void
     report: options.report,
     lightRig: options.lightRig,
     energyScale: options.energyScale,
+    samples: options.samples,
+    meansLog: options.meansLog,
     restoreAlbedo: options.restoreAlbedo,
   });
 }

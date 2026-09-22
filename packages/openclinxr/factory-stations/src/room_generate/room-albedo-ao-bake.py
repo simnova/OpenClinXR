@@ -134,26 +134,19 @@ def place_rig_probe_lights(rig_lights: List[Dict[str, object]]) -> None:
     print(f"[room-bake] probe lights from lighting rig: {len(rig_lights)}")
 
 
-def bake_image_name_for_material(mat: bpy.types.Material) -> str:
-    """Stable bake texture name matching shipped GLB bytes.
+def bake_image_name_for_material(mat: bpy.types.Material, surface: str = "") -> str:
+    """One albedo image per material, tagged with the surface role.
 
-    glTF import often renames materials (`shader_plaster` -> `shader_plaster.022`)
-    while the packed image stays `openclinxr_room_bake_shader_plaster`. Prefer any
-    existing openclinxr_room_bake_* already on the material; else strip Blender's
-    .NNN duplicate suffix from the material name — unless that name is already
-    allocated to another material in this bake, in which case keep the full
-    (unique) material name so every material gets its own albedo texture.
+    Urgent-care walls and the ceiling are both `shader_plaster` and previously
+    reused one `openclinxr_room_bake_shader_plaster` image, so the wall slot
+    overwrote the ceiling. The `surface_<role>_` token is what the harness
+    scorer reads before the plaster/ceiling name rule.
     """
-    if mat.use_nodes and mat.node_tree is not None:
-        for node in mat.node_tree.nodes:
-            if node.type == "TEX_IMAGE" and node.image:
-                name = node.image.name
-                if name.startswith("openclinxr_room_bake_"):
-                    return name
     base = _BLENDER_DUP_SUFFIX.sub("", mat.name)
-    candidate = f"openclinxr_room_bake_{base}"
+    role = surface if surface in ("wall", "floor", "ceiling") else "other"
+    candidate = f"openclinxr_room_bake_surface_{role}_{base}"
     if candidate in _BAKE_IMAGE_NAMES_USED:
-        candidate = f"openclinxr_room_bake_{mat.name}"
+        candidate = f"openclinxr_room_bake_surface_{role}_{mat.name}"
     _BAKE_IMAGE_NAMES_USED.add(candidate)
     return candidate
 
@@ -260,8 +253,23 @@ def ensure_uv(mesh_obj: bpy.types.Object) -> None:
     bpy.ops.object.mode_set(mode="OBJECT")
 
 
+def role_from_object_names(mesh_names: List[str]) -> str:
+    """Infinigen node names (`bedroom_0/0.wall`) outrank a shared plaster material."""
+    joined = " ".join(mesh_names).lower()
+    if ".floor" in joined or "/floor" in joined:
+        return "floor"
+    if ".ceiling" in joined or "/ceiling" in joined:
+        return "ceiling"
+    if ".wall" in joined or "/wall" in joined:
+        return "wall"
+    return ""
+
+
 def classify_surface(mat_name: str, mesh_names: List[str]) -> str:
-    """wall | floor | ceiling | other — material name first, mesh name fallback."""
+    """wall | floor | ceiling | other — object role first, then material name."""
+    role = role_from_object_names(mesh_names)
+    if role:
+        return role
     n = mat_name.lower()
     joined = " ".join(mesh_names).lower()
     if "plaster" in n or "ceiling" in n or "ceiling" in joined:
@@ -318,10 +326,16 @@ def restore_bright_albedo(mat: bpy.types.Material, surface: str) -> None:
     bsdf.inputs["Base Color"].default_value = albedo_for_surface(surface)
 
 
-def setup_scene(bbox: Dict[str, float], light_rig: str, rig_json: str = "", energy_mul: float = 1.0) -> None:
+def setup_scene(
+    bbox: Dict[str, float],
+    light_rig: str,
+    rig_json: str = "",
+    energy_mul: float = 1.0,
+    samples: int = 32,
+) -> None:
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
-    scene.cycles.samples = 32
+    scene.cycles.samples = samples
     if hasattr(scene.cycles, "use_denoising"):
         scene.cycles.use_denoising = False
     scene.render.bake.margin = 4
@@ -474,7 +488,7 @@ def bake_materials(resolution: int, restore_albedo: bool) -> Dict[str, Dict[str,
             mat.use_nodes = True
         mesh_names = [o.name for o in objs_]
         surface = classify_surface(mat_name, mesh_names)
-        img_name = bake_image_name_for_material(mat)
+        img_name = bake_image_name_for_material(mat, surface)
         if restore_albedo:
             restore_bright_albedo(mat, surface)
 
@@ -638,6 +652,22 @@ def main() -> None:
         default=1.0,
         help="Multiply probe-light energy. Below 1 unclips a flat white bake so occupied texels can vary.",
     )
+
+    def positive_samples(value: str) -> int:
+        try:
+            parsed = int(value)
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError("--samples must be a positive integer") from exc
+        if parsed < 1:
+            raise argparse.ArgumentTypeError("--samples must be a positive integer")
+        return parsed
+
+    ap.add_argument(
+        "--samples",
+        type=positive_samples,
+        default=32,
+        help="Cycles samples (default 32). Higher costs a full rebake.",
+    )
     ap.add_argument(
         "--restore-albedo",
         action=argparse.BooleanOptionalAction,
@@ -653,7 +683,7 @@ def main() -> None:
     bpy.ops.import_scene.gltf(filepath=args.input)
 
     bbox = scene_bbox()
-    setup_scene(bbox, args.light_rig, args.rig_json, args.energy_scale)
+    setup_scene(bbox, args.light_rig, args.rig_json, args.energy_scale, args.samples)
     results = bake_materials(args.resolution, args.restore_albedo)
     wire_textures_to_base_color()
 
