@@ -30,7 +30,8 @@
     "packages/openclinxr/asset-registry/src/resolved-phenotype-field.ts",
     "packages/openclinxr/motion-compiler/src/derive-skeleton-profile.ts",
     "packages/openclinxr/motion-compiler/src/regions/region-anchors.ts",
-    "packages/openclinxr/review-workflow/src/planted.ts"
+    "packages/openclinxr/review-workflow/src/planted.ts",
+    "tools/openclinxr/evidence/room-bake-harness.test.ts"
   ],
   "ignoreDependencies": [
     "@gltf-transform/cli",

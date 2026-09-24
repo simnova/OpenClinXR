@@ -45,6 +45,7 @@
     "src/lighting_design/the-lighting-design-station-emits-a-deterministic-rig.test.ts",
     "src/lip_sync/the-lip-sync-station-rhubarb-on-wav-not-say.test.ts",
     "src/motion_retarget/extract-library-clip.test.ts",
+    "src/room_generate/the-room-simplify-after-the-bake-keeps-trim.test.ts",
     "src/the-body-param-stage-is-split-into-modules.test.ts",
     "src/the-factory-station-schemas-validate.test.ts",
     "src/the-staging-station-takes-a-signed-plant-vector.test.ts",

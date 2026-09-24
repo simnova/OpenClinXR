@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { factoryStationSchemas } from "../catalog.js";
-import { planClothingConsume } from "./run.js";
+import { planClothingConsume } from "../index.js";
 
 /**
  * OBSERVABLE: refit outputs carry AUTHORED materials — the garment's own
