@@ -209,5 +209,5 @@ describe("commit-time gate: reviewed surface holds for psr-01d and psr-01e", () 
     expect(evaluation.record.verdict).toBe("close");
     // The detail says "all review groups resolved; applied psr-01b, psr-01c, psr-01d, psr-01e"
     expect(evaluation.record.criteria["5"].detail).toContain("applied psr-01b, psr-01c, psr-01d, psr-01e");
-  });
+  }, 30_000); // scans the real repo; 5.6-8 s measured at load average 50-90 on 2026-09-24
 });
