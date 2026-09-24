@@ -7,8 +7,8 @@
     "agent-methodology": 107,
     "current-reference": 208,
     "archive-candidate": 114,
-    "evidence": 128,
-    "temporary": 57,
+    "evidence": 131,
+    "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
     "generated-evidence": 11,
@@ -3882,10 +3882,10 @@
     },
     {
       "path": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md",
-      "authority": "temporary",
+      "authority": "evidence",
       "agentInstructionWeight": "none",
-      "action": "archive-or-inline-summary",
-      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+      "action": "treat-as-evidence",
+      "rationale": "Completed delegation handoff retained as historical evidence; not an active instruction."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
@@ -3938,10 +3938,10 @@
     },
     {
       "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/handoff.md",
-      "authority": "temporary",
+      "authority": "evidence",
       "agentInstructionWeight": "none",
-      "action": "archive-or-inline-summary",
-      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+      "action": "treat-as-evidence",
+      "rationale": "Completed delegation handoff retained as historical evidence; not an active instruction."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-grok-review.md",
@@ -4925,10 +4925,10 @@
     },
     {
       "path": "tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md",
-      "authority": "temporary",
+      "authority": "evidence",
       "agentInstructionWeight": "none",
-      "action": "archive-or-inline-summary",
-      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+      "action": "treat-as-evidence",
+      "rationale": "Completed delegation handoff retained as historical evidence; not an active instruction."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/family-partner-library-lower-2026-09-12.md",
