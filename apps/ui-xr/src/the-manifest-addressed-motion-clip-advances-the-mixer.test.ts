@@ -94,7 +94,7 @@ describe("the manifest-addressed motion clip advances the mixer", () => {
 
     const otherAction = mixer.existingAction(other);
     expect(otherAction === null || !otherAction.isRunning()).toBe(true);
-  });
+  }, 30_000); // loads and plays a shipped GLB; 2.9-4.5 s alone, >5 s under the parallel pre-push run (2026-09-24)
 });
 
 /**
