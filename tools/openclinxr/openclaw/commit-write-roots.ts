@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 /**
  * Commit only dirty paths whose repo-relative name is under one of the
@@ -18,6 +19,7 @@ export function commitWriteRoots(
 ): void {
   const porcelain = execFileSync("git", ["status", "--porcelain", "--untracked-files=all"], {
     cwd: repoPath,
+    env: gitEnvWithoutInheritedRepoVars(),
     encoding: "utf8",
     maxBuffer: 32 * 1024 * 1024,
     stdio: ["ignore", "pipe", "pipe"],
@@ -55,6 +57,7 @@ export function commitWriteRoots(
   if (toCommit.length > 0) {
     execFileSync("git", ["add", "--", ...toCommit], {
       cwd: repoPath,
+      env: gitEnvWithoutInheritedRepoVars(),
       encoding: "utf8",
       maxBuffer: 32 * 1024 * 1024,
       stdio: ["ignore", "pipe", "pipe"],
@@ -62,6 +65,7 @@ export function commitWriteRoots(
     // Commit only the staged in-scope files
     execFileSync("git", ["commit", "-qm", "worker: in-scope file commit"], {
       cwd: repoPath,
+      env: gitEnvWithoutInheritedRepoVars(),
       encoding: "utf8",
       maxBuffer: 32 * 1024 * 1024,
       stdio: ["ignore", "pipe", "pipe"],

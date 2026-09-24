@@ -4,19 +4,27 @@ import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { commitWriteRoots } from "./commit-write-roots.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
+
+// Under a pre-commit hook git exports GIT_DIR / GIT_INDEX_FILE / GIT_WORK_TREE, which override
+// `cwd`. Without this env every fixture git call below drove the HOST repository: on 2026-09-23 it
+// flipped core.bare to true on the shared checkout and staged the deletion of this directory.
+const env = gitEnvWithoutInheritedRepoVars();
 
 describe("worker exit commit write roots", () => {
   it("commits in-scope file and leaves out-of-scope file unstaged via commitWriteRoots", () => {
     const tmpDir = mkdtempSync(resolve(tmpdir(), "worker-exit-test-"));
     try {
       // Initialize a git repo
-      execFileSync("git", ["init", "-q"], { cwd: tmpDir, encoding: "utf8" });
+      execFileSync("git", ["init", "-q"], { cwd: tmpDir, env, encoding: "utf8" });
       execFileSync("git", ["config", "user.email", "test@test.com"], {
         cwd: tmpDir,
+        env,
         encoding: "utf8",
       });
       execFileSync("git", ["config", "user.name", "Test"], {
         cwd: tmpDir,
+        env,
         encoding: "utf8",
       });
 
@@ -43,6 +51,7 @@ describe("worker exit commit write roots", () => {
         "--name-only",
       ], {
         cwd: tmpDir,
+        env,
         encoding: "utf8",
       });
       const headTreeLines = headTrees.split("\n").filter((l) => l.trim());
@@ -51,6 +60,7 @@ describe("worker exit commit write roots", () => {
       // Verify: out-of-scope file should still be present as unstaged
       const statusOutput = execFileSync("git", ["status", "--porcelain"], {
         cwd: tmpDir,
+        env,
         encoding: "utf8",
       });
       const outOfScopeLine = statusOutput.split("\n").find(
