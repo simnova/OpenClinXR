@@ -1117,5 +1117,5 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
       { observationId: "sc06-frozen-seed", metric: "frozen_layout_seed", unit: "digest", value: record.variation.seed, source: "deriveLayoutVariationSeed" },
       { observationId: "sc06-geometry-revision", metric: "frozen_geometry_revision", unit: "digest", value: record.revisions.geometryRevision, source: "geometryRevisionDigest" },
     ]);
-  });
+  }, 30_000); // hashes four shipped GLBs; ~5.7 s measured on 2026-09-24, over the 5 s default
 });
