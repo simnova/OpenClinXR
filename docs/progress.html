@@ -27,6 +27,69 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-24T1852">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 113 &middot; 2026-09-24 18:52 UTC</p>
+          <h2>The physician walks to the bed instead of shuffling: knees bend, arms swing, and the planted foot stays put.</h2>
+        </div>
+        <p>
+          Same case, same cameras, same capture script. The left half is the walk before commit <code>90f179882</code>, the right half after. Before, the clip had lost most of its knee bend, snapped through a rest pose once per loop, and played backwards. The body also moved slower than the clip, so the foot lock pulled it back on every step. After, a natural walk clip drives the legs, arms and spine. The body moves at the speed the clip plays, and only feet the clip itself marks as planted are pinned.
+        </p>
+        <div class="motion-proof" style="margin-top:16px;">
+          <video class="motion-proof__video" controls loop playsinline preload="metadata"
+            poster="assets/walk-before-after-poster-2026-09-24.png"
+            aria-label="Physician approaching the bed. Left half: before the fix. Right half: after the fix, same camera.">
+            <source src="assets/walk-before-after-2026-09-24.mp4" type="video/mp4">
+            Your browser does not support this video.
+          </video>
+          <div>
+            <p class="status-copy">
+              Left: before. Right: after. Same camera and scene. The walk after the fix is shorter because it covers the route at walking speed, then the physician stands still.
+            </p>
+          </div>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Measured from the runtime's own toe positions in both captures, walking phase only.</caption>
+            <thead><tr><th scope="col">Measure</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+            <tbody>
+              <tr><td>Toe path length &divide; distance covered (1.0 is a straight line)</td><td>3.86</td><td>1.21</td></tr>
+              <tr><td>Ground speed</td><td>0.28 m/s</td><td>0.74 m/s</td></tr>
+              <tr><td>Knee bend per stride</td><td>12&deg;</td><td>74&deg;</td></tr>
+              <tr><td>Arm swing per stride</td><td>none (arms held still)</td><td>33&deg;</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:12px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/walk-before-2026-09-24.png" alt="Before: the physician one second into the approach, legs stiff and arms hanging at the sides." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Before, one second in. Stiff legs, arms hanging.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/walk-after-2026-09-24.png" alt="After: the physician one second into the approach, mid-stride with elbows bent." style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">After, one second in. Mid-stride, elbows bent, further along the route.</figcaption>
+          </figure>
+        </div>
+        <div class="motion-proof" style="margin-top:16px;">
+          <video class="motion-proof__video" controls loop playsinline preload="metadata"
+            poster="assets/walk-after-2026-09-24.png"
+            aria-label="After the fix, quarter speed, feet only: the planted foot stays on the floor grid while the other swings through.">
+            <source src="assets/walk-after-feet-slow-2026-09-24.mp4" type="video/mp4">
+            Your browser does not support this video.
+          </video>
+          <div>
+            <p class="status-copy">
+              After, quarter speed, feet only, on a plain grid floor with the room hidden. Watch the planted foot against the grid lines while the other foot swings through. Magenta dots mark where each step landed.
+            </p>
+          </div>
+        </div>
+        <p class="evidence-note">
+          Commit <code>90f179882</code>. Walk clip: Mesh2Motion <code>Walk</code>, CC0. Capture: <code>tools/openclinxr/evidence/foot-plant/foot-plant-video-capture.ts</code>, scenario <code>scene_closure_supine_bedside_v1</code>. Metrics: <code>tools/openclinxr/evidence/foot-plant/walk-quality-metrics.ts</code>. The before capture ran the same script with the pre-fix runtime and physician file restored.
+        </p>
+        <p class="status-copy">
+          <strong>notEvidenceFor:</strong> gait realism judged by a clinician, the other staff and family figures, headset playback, Quest performance, clinical validity, scoring validity, licensure, or exam equivalence.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-22T2223">
         <div class="section-heading">
           <p class="eyebrow">Entry 112 &middot; 2026-09-22 22:23 UTC</p>
