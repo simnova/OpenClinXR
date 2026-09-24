@@ -8,6 +8,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   SkinnedMesh,
+  SphereGeometry,
   Vector3,
 } from "three";
 
@@ -41,15 +42,14 @@ const NAMED_JAW_VISIBLE = 0.05;
  * z=0.075 poked both lip corners. x=-0.008 and -0.018 punched the left cheek.
  */
 /**
- * y=-0.032, height 0.042 → y∈[-0.053,-0.011]. Old (0,-0.039) height 0.026
- * only covered y∈[-0.052,-0.026]; remaining opening dark is crop y40-60
- * (upper cavity above the card). z unchanged (no +Z slab).
+ * SphereGeometry radius 0.011, 16x12 segs. Position (0,-0.038,0.052)
+ * sits deeper inside mouth, no cheek smear.
  */
-const HEAD_LOCAL = new Vector3(0, -0.032, 0.068);
-const CARD_SIZE = { x: 0.048, y: 0.042, z: 0.028 };
+const HEAD_LOCAL = new Vector3(0, -0.038, 0.052);
+const CARD_RADIUS = 0.011;
 const PALATE_NAME = "openclinxr_inner_mouth_palate";
-const PALATE_LOCAL = new Vector3(0, -0.008, 0.070);
-const PALATE_SIZE = { x: 0.024, y: 0.016, z: 0.012 };
+const PALATE_LOCAL = new Vector3(0, -0.010, 0.054);
+const PALATE_RADIUS = 0.010;
 const FACES_NAME = "openclinxr_inner_lip_faces";
 const RIM_NAME = "openclinxr_inner_lip_rim";
 const UPPER_NAME = "openclinxr_inner_lip_upper";
@@ -383,16 +383,14 @@ function extractInnerLipFaces(root: Group, head: Object3D): void {
       out,
       new MeshBasicMaterial({
         color: 0xb34752,
-        polygonOffset: true,
-        polygonOffsetFactor: -2,
-        polygonOffsetUnits: -2,
         depthWrite: false,
         side: DoubleSide,
       }),
     );
     clone.name = FACES_NAME;
     clone.frustumCulled = false;
-    head.add(clone);
+    const faceTriCount = cavityPos.length / 9;
+    if (faceTriCount <= 4) head.add(clone);
   }
   if (rimPos.length > 0) {
     const out = new BufferGeometry();
@@ -401,16 +399,14 @@ function extractInnerLipFaces(root: Group, head: Object3D): void {
       out,
       new MeshBasicMaterial({
         color: 0xb34752,
-        polygonOffset: true,
-        polygonOffsetFactor: -8,
-        polygonOffsetUnits: -8,
         depthWrite: false,
         side: DoubleSide,
       }),
     );
     rim.name = RIM_NAME;
     rim.frustumCulled = false;
-    head.add(rim);
+    const rimTriCount = rimPos.length / 9;
+    if (rimTriCount <= 4) head.add(rim);
   }
   if (upperPos.length > 0) {
     const out = new BufferGeometry();
@@ -419,16 +415,14 @@ function extractInnerLipFaces(root: Group, head: Object3D): void {
       out,
       new MeshBasicMaterial({
         color: 0xb34752,
-        polygonOffset: true,
-        polygonOffsetFactor: -4,
-        polygonOffsetUnits: -4,
         depthWrite: false,
         side: DoubleSide,
       }),
     );
     upper.name = UPPER_NAME;
     upper.frustumCulled = false;
-    head.add(upper);
+    const upperTriCount = upperPos.length / 9;
+    if (upperTriCount <= 4) head.add(upper);
   }
 }
 
@@ -436,7 +430,7 @@ function ensureCard(root: Group, head: Object3D): Mesh {
   const existing = root.getObjectByName(CARD_NAME);
   if (existing instanceof Mesh) return existing;
   const card = new Mesh(
-    new BoxGeometry(CARD_SIZE.x, CARD_SIZE.y, CARD_SIZE.z),
+    new SphereGeometry(CARD_RADIUS, 16, 12),
     new MeshBasicMaterial({ color: 0xb34752 }),
   );
   card.name = CARD_NAME;
@@ -450,7 +444,7 @@ function ensurePalate(root: Group, head: Object3D): Mesh {
   const existing = root.getObjectByName(PALATE_NAME);
   if (existing instanceof Mesh) return existing;
   const palate = new Mesh(
-    new BoxGeometry(PALATE_SIZE.x, PALATE_SIZE.y, PALATE_SIZE.z),
+    new SphereGeometry(PALATE_RADIUS, 12, 10),
     new MeshBasicMaterial({ color: 0xb34752 }),
   );
   palate.name = PALATE_NAME;
