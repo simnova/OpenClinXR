@@ -27,6 +27,7 @@ describe("OpenClinXR API Azure Functions tsdown config", () => {
         "fast-uri",
         "ajv-formats",
         "hono",
+        "meshoptimizer",
       ],
     });
   });

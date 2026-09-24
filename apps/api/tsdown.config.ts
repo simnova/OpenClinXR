@@ -21,6 +21,10 @@ export const openClinXrAzureFunctionsTsdownConfig = defineConfig({
       "fast-uri",
       "ajv-formats",
       "hono",
+      // Reached via @openclinxr/factory-stations -> room_generate/run.js -> simplify.js (added
+      // 2026-09-22). MIT, pure JS with inline WASM; bundling it keeps the Functions deploy
+      // self-contained like the other entries.
+      "meshoptimizer",
     ],
   },
   outputOptions: {
