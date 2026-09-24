@@ -74,6 +74,21 @@ LIGHTING_RIG_SCHEMA_VERSION = "openclinxr.lighting-rig.v1"
 
 RIG_BLENDER_TYPE = {"point": "POINT", "area": "AREA", "directional": "SUN"}
 
+
+def link_bake_object(obj) -> None:
+    """Link a bake-created object so the render includes it.
+
+    bpy.context.collection is the context collection at open_mainfile time,
+    which may not be in the view layer — objects linked there render nothing
+    (measured: probe card linked that way reports `in view layer: False` and
+    moves 0 pixels). The active layer collection's collection is always in the
+    view layer. Fail closed: raise if the link still leaves the object outside
+    the view layer.
+    """
+    bpy.context.view_layer.active_layer_collection.collection.objects.link(obj)
+    if obj.name not in bpy.context.view_layer.objects:
+        raise RuntimeError(f"bake object {obj.name!r} not in view layer after link")
+
 # Indoor comfort cap enforced on rig energies before use as bake probe lights.
 RIG_MAX_ENERGY = 500.0
 
@@ -111,7 +126,7 @@ def place_rig_probe_lights(rig_lights: List[Dict[str, object]]) -> None:
         blender_type = RIG_BLENDER_TYPE[str(entry.get("type"))]
         data = bpy.data.lights.new(name, type=blender_type)
         obj = bpy.data.objects.new(name, data)
-        bpy.context.collection.objects.link(obj)
+        link_bake_object(obj)
         pos = entry["position"]
         assert isinstance(pos, list)
         obj.location = (float(pos[0]), float(pos[1]), float(pos[2]))
@@ -379,7 +394,7 @@ def setup_scene(
         # Pre-#537: single AREA 25 cm below ceiling — control/falsifier path.
         key_data = bpy.data.lights.new("openclinxr_room_bake_key", type="AREA")
         key = bpy.data.objects.new("openclinxr_room_bake_key", key_data)
-        bpy.context.collection.objects.link(key)
+        link_bake_object(key)
         key.location = (cx, cy, bbox["maxZ"] - 0.25)
         key.rotation_euler = (0.0, 0.0, 0.0)
         key_data.size = 0.45 * span
@@ -395,7 +410,7 @@ def setup_scene(
     soft = 0.85 * span
     down_data = bpy.data.lights.new("openclinxr_room_bake_fill", type="AREA")
     down = bpy.data.objects.new("openclinxr_room_bake_fill", down_data)
-    bpy.context.collection.objects.link(down)
+    link_bake_object(down)
     down.location = (cx, cy, cz)
     down.rotation_euler = (0.0, 0.0, 0.0)  # emit −Z (toward floor)
     down_data.size = soft
@@ -411,7 +426,7 @@ def setup_scene(
 
     up_data = bpy.data.lights.new("openclinxr_room_bake_key", type="AREA")
     up = bpy.data.objects.new("openclinxr_room_bake_key", up_data)
-    bpy.context.collection.objects.link(up)
+    link_bake_object(up)
     up.location = (cx, cy, cz)
     up.rotation_euler = (math.pi, 0.0, 0.0)  # emit +Z (toward ceiling)
     up_data.size = soft
@@ -441,7 +456,7 @@ def setup_scene(
     ):
         wd = bpy.data.lights.new(name, type="AREA")
         wo = bpy.data.objects.new(name, wd)
-        bpy.context.collection.objects.link(wo)
+        link_bake_object(wo)
         wo.location = loc
         wo.rotation_euler = rot
         wd.size = wall_size

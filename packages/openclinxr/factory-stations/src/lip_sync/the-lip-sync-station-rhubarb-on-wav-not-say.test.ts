@@ -131,7 +131,7 @@ describe("the lip_sync station rhubarb on wav not say", () => {
     expect(() => resolveLipSyncWavPath({ utterance: "hi", outDir: emptyDir })).toThrow();
   });
 
-  it("(7) PCM flag + empty outDir runs the real Rhubarb binary end to end", async () => {
+  it("(7) PCM flag + empty outDir runs the real Rhubarb binary end to end", { timeout: 60000 }, async () => {
     // MEASURED S7 2026-09-19. Deterministic 440 Hz sine (~1.0 s) through
     // ~/.openclinxr-tools/rhubarb/rhubarb --exportFormat json returns
     // duration 1.00 s with 3 cues (X/C/X). No richness assertion.
