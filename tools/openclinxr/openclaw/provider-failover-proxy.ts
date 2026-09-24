@@ -161,6 +161,27 @@ export function isEmptyCompletion(body: unknown): boolean {
   return content === undefined || content === null || content === "";
 }
 
+/**
+ * Returns true if the request can be safely translated to Go /responses.
+ * The translation only supports a single user turn with no tools, no assistant/tool messages.
+ */
+function canFailoverToGoResponses(body: Record<string, unknown>): boolean {
+  const messages = body.messages;
+  if (!Array.isArray(messages)) return false;
+  // Must have exactly one non-system message, and it must be a user message
+  let nonSystemCount = 0;
+  for (const m of messages) {
+    const role = (m as { role?: string })?.role;
+    if (role === "system") continue;
+    nonSystemCount += 1;
+    if (role !== "user") return false;
+  }
+  if (nonSystemCount !== 1) return false;
+  // No tools or tool_choice allowed
+  if (body.tools !== undefined || body.tool_choice !== undefined) return false;
+  return true;
+}
+
 function lastUserText(messages: unknown): string {
   if (!Array.isArray(messages)) return "";
   for (let i = messages.length - 1; i >= 0; i -= 1) {
@@ -274,10 +295,17 @@ export function streamHasToolCalls(text: string): boolean {
 }
 
 /** Renders one whole completion as an event stream for a client that asked for streaming. */
-function sseFromContent(content: string): string {
-  const chunk = (delta: unknown): string =>
-    `data: ${JSON.stringify({ id: "failover-stream", object: "chat.completion.chunk", choices: [{ index: 0, delta }] })}\n\n`;
-  return `${chunk({ role: "assistant" })}${chunk({ content })}data: [DONE]\n\n`;
+function sseFromContent(content: string, model: string): string {
+  const created = Math.floor(Date.now() / 1000);
+  const chunk = (delta: unknown, finishReason?: string): string =>
+    `data: ${JSON.stringify({
+      id: "failover-stream",
+      object: "chat.completion.chunk",
+      created,
+      model,
+      choices: [{ index: 0, delta, finish_reason: finishReason ?? null }],
+    })}\n\n`;
+  return `${chunk({ role: "assistant" })}${chunk({ content })}${chunk({}, "stop")}data: [DONE]\n\n`;
 }
 
 export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
@@ -317,6 +345,19 @@ export async function forwardChat(opts: {
       continue;
     }
     const useGoResponses = up.name === "go" && up.model === "muse-spark-1.3-contributor";
+    // The /responses translation carries only the last user text: tools, system prompt and prior
+    // turns are dropped, so a failed-over agent turn would get a context-free answer. Such a request
+    // is not failed over. The primary's own error goes back and the client's retry handles it. The
+    // Go circuit is untouched because Go was never called.
+    if (useGoResponses && !canFailoverToGoResponses(opts.body)) {
+      return (
+        last ?? {
+          status: 502,
+          json: { error: { message: "cannot fail over this request to the Go /responses translation" } },
+          via: "go-translation-refused",
+        }
+      );
+    }
     const path = useGoResponses ? "/responses" : "/chat/completions";
     const payload = useGoResponses
       ? chatToGoResponses(opts.body, up.model)
@@ -334,6 +375,12 @@ export async function forwardChat(opts: {
         body: JSON.stringify(payload),
       });
       const text = await res.text();
+      if (res.ok && isSseResponse(res) && useGoResponses) {
+        // Responses-API events are not chat.completion.chunk objects, and a chat client cannot parse
+        // them. The translation never asks Go to stream, so an event stream here is a failure.
+        breaker.recordFailure(up.name, 500);
+        return { status: 502, json: { error: { message: "Go /responses answered as an event stream" } }, via: up.name };
+      }
       if (res.ok && isSseResponse(res)) {
         const content = accumulateStreamContent(text);
         if (content === "" && !streamHasToolCalls(text)) {
@@ -380,7 +427,7 @@ export async function forwardChat(opts: {
               status: 200,
               json,
               via: up.name,
-              sse: sseFromContent(content),
+              sse: sseFromContent(content, up.model),
               contentType: "text/event-stream",
             };
           }

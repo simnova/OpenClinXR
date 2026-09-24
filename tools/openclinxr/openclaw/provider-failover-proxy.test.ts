@@ -183,3 +183,183 @@ describe("provider-failover HTTP server", () => {
     expect(body.circuits).toEqual({});
   });
 });
+
+describe("provider-failover: tool requests do not fail over to Go", () => {
+  it("tool-calling streamed request with OpenRouter 500 returns 500 and never calls Go", async () => {
+    process.env.OPENROUTER_API_KEY = "or-test";
+    process.env.OPENCODE_API_KEY = "go-test";
+    const calls: string[] = [];
+    const fetchImpl: typeof fetch = async (url) => {
+      calls.push(String(url));
+      if (String(url).includes("openrouter")) {
+        return new Response(JSON.stringify({ error: { message: "upstream error" } }), { status: 500 });
+      }
+      // Go should never be called
+      return new Response(JSON.stringify({ output_text: "FROM_GO" }), { status: 200 });
+    };
+    const out = await forwardChat({
+      body: {
+        model: "muse-spark-1",
+        stream: true,
+        tools: [{ type: "function", function: { name: "test_fn", description: "test", parameters: { type: "object", properties: {} } } }],
+        messages: [
+          { role: "system", content: "You are a test assistant" },
+          { role: "user", content: "hello" },
+        ],
+      },
+      route: routeFor("muse-spark-1")!,
+      fetchImpl,
+      breaker: new CircuitBreaker(),
+    });
+    // Should return the primary error, not failover
+    expect(out.status).toBe(500);
+    expect(out.via).toBe("openrouter");
+    // Go should never have been called
+    expect(calls.filter((u) => u.includes("opencode.ai"))).toHaveLength(0);
+  });
+
+  it("a refused tool request leaves the Go circuit closed", async () => {
+    process.env.OPENROUTER_API_KEY = "or-test";
+    process.env.OPENCODE_API_KEY = "go-test";
+    const breaker = new CircuitBreaker();
+    const fetchImpl: typeof fetch = async () =>
+      new Response(JSON.stringify({ error: { message: "upstream error" } }), { status: 500 });
+    await forwardChat({
+      body: { model: "muse-spark-1", stream: true, tools: [{ type: "function", function: { name: "f" } }], messages: [{ role: "user", content: "hi" }] },
+      route: routeFor("muse-spark-1")!,
+      fetchImpl,
+      breaker,
+    });
+    expect(breaker.allow("go")).toBe(true);
+    expect(breaker.snapshot()["go"]).toBeUndefined();
+  });
+
+  it("a multi-turn request with an assistant turn is not failed over either", async () => {
+    process.env.OPENROUTER_API_KEY = "or-test";
+    process.env.OPENCODE_API_KEY = "go-test";
+    let goCalled = false;
+    const fetchImpl: typeof fetch = async (url) => {
+      if (String(url).includes("openrouter")) return new Response("{}", { status: 503 });
+      goCalled = true;
+      return new Response(JSON.stringify({ output_text: "X" }), { status: 200 });
+    };
+    const out = await forwardChat({
+      body: { model: "muse-spark-1", messages: [{ role: "user", content: "a" }, { role: "assistant", content: "b" }, { role: "user", content: "c" }] },
+      route: routeFor("muse-spark-1")!,
+      fetchImpl,
+      breaker: new CircuitBreaker(),
+    });
+    expect(out.status).toBe(503);
+    expect(goCalled).toBe(false);
+  });
+
+  it("a Go event-stream answer is a failure, never passed through raw", async () => {
+    process.env.OPENROUTER_API_KEY = "or-test";
+    process.env.OPENCODE_API_KEY = "go-test";
+    const fetchImpl: typeof fetch = async (url) => {
+      if (String(url).includes("openrouter")) return new Response("{}", { status: 500 });
+      return new Response('event: response.output_text.delta\ndata: {"type":"response.output_text.delta","delta":"X"}\n\n', {
+        status: 200,
+        headers: { "content-type": "text/event-stream" },
+      });
+    };
+    const out = await forwardChat({
+      body: { model: "muse-spark-1", stream: true, messages: [{ role: "user", content: "hi" }] },
+      route: routeFor("muse-spark-1")!,
+      fetchImpl,
+      breaker: new CircuitBreaker(),
+    });
+    expect(out.status).toBe(502);
+    expect(out.sse).toBeUndefined();
+  });
+
+  it("plain single-turn streamed request with OpenRouter 500 and Go JSON response produces valid chat.completion.chunk events", async () => {
+    process.env.OPENROUTER_API_KEY = "or-test";
+    process.env.OPENCODE_API_KEY = "go-test";
+    const calls: string[] = [];
+    const fetchImpl: typeof fetch = async (url) => {
+      calls.push(String(url));
+      if (String(url).includes("openrouter")) {
+        return new Response(JSON.stringify({ error: { message: "upstream error" } }), { status: 500 });
+      }
+      return new Response(
+        JSON.stringify({ output_text: "GO_ANSWER" }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    };
+    const out = await forwardChat({
+      body: {
+        model: "muse-spark-1",
+        stream: true,
+        messages: [{ role: "user", content: "hello" }],
+      },
+      route: routeFor("muse-spark-1")!,
+      fetchImpl,
+      breaker: new CircuitBreaker(),
+    });
+    expect(out.status).toBe(200);
+    expect(out.via).toBe("go");
+    expect(out.sse).toBeDefined();
+    // Parse the SSE stream and validate each chunk
+    const lines = (out.sse as string).trim().split("\n");
+    const dataLines = lines.filter((l) => l.startsWith("data:"));
+    let sawStop = false;
+    for (const line of dataLines) {
+      const data = line.slice(5).trim();
+      if (data === "[DONE]") continue;
+      const chunk = JSON.parse(data);
+      expect(chunk.object).toBe("chat.completion.chunk");
+      expect(typeof chunk.created).toBe("number");
+      expect(typeof chunk.model).toBe("string");
+      expect(Array.isArray(chunk.choices)).toBe(true);
+      const choice = chunk.choices[0];
+      if (choice.finish_reason === "stop") {
+        sawStop = true;
+      }
+    }
+    expect(sawStop).toBe(true);
+  });
+});
+
+describe("provider-failover HTTP server: tool requests", () => {
+  let server: Server | undefined;
+  afterEach(() => {
+    server?.close();
+    server = undefined;
+  });
+
+  it("tool request with OpenRouter 500 returns upstream error status, not 200 event stream", async () => {
+    process.env.OPENROUTER_API_KEY = "or-test";
+    process.env.OPENCODE_API_KEY = "go-test";
+    let goCalled = false;
+    const fetchImpl: typeof fetch = async (url) => {
+      if (String(url).includes("openrouter")) {
+        return new Response(JSON.stringify({ error: { message: "upstream error" } }), { status: 500 });
+      }
+      goCalled = true;
+      return new Response(JSON.stringify({ output_text: "FROM_GO" }), { status: 200 });
+    };
+    server = createServer(fetchImpl, new CircuitBreaker());
+    await new Promise<void>((resolve) => server!.listen(0, "127.0.0.1", resolve));
+    const addr = server.address();
+    const port = typeof addr === "object" && addr ? addr.port : DEFAULT_PORT;
+    const res = await fetch(`http://127.0.0.1:${port}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        model: "muse-spark-1",
+        stream: true,
+        tools: [{ type: "function", function: { name: "test_fn", description: "test", parameters: { type: "object", properties: {} } } }],
+        messages: [
+          { role: "system", content: "You are a test assistant" },
+          { role: "user", content: "hello" },
+        ],
+      }),
+    });
+    // Should return 500, not a 200 event stream
+    expect(res.status).toBe(500);
+    expect(goCalled).toBe(false);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
+  });
+});
