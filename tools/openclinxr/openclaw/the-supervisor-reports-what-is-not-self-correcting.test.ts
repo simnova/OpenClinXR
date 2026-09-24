@@ -231,7 +231,7 @@ describe("the supervisor reports what is not self-correcting", () => {
     expect(c.ok).toBe(false);
     expect(c.commitOnMain).toBe(false);
     expect(c.why).toContain("no commit cites");
-  });
+  }, 30_000); // real git work on a large repo; 5 s default times out under agent load (load avg ~90 measured 2026-09-24)
 
   it("(8) DUTY 3: LANDED and VERIFIED are different claims, and the report says which", () => {
     // AMENDED on iteration 1. The old assertion was:

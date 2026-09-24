@@ -141,7 +141,8 @@ export function pedsAsthmaPatientFallThroughContext(): AssetLoadingContext {
     runtimeFamilyActorId: () => "parent_tara_johnson_v1",
     runtimeClinicalTeamActorId: () => "nurse_kevin_lee_v1",
     encounterBundle: () => ({}),
-    resolveCastPath: (input) => resolveHumanoidVariantOrCastPath(input),
+    resolveCastPath: (input: Parameters<typeof resolveHumanoidVariantOrCastPath>[0]) =>
+      resolveHumanoidVariantOrCastPath(input),
   } as unknown as AssetLoadingContext;
 }
 

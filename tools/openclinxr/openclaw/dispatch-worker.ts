@@ -1824,8 +1824,9 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     ? deriveHandoffState(worktreePath)
     : undefined;
   // Commit only files under declared write roots; leave every other dirty path unstaged.
-  if (worktreePath && options.writeRoots?.length > 0) {
-    commitWriteRoots(worktreePath, options.writeRoots);
+  const writeRoots = options.writeRoots;
+  if (worktreePath && handoffAssessment && writeRoots && writeRoots.length > 0) {
+    commitWriteRoots(worktreePath, writeRoots);
     // Re-derive handoff state after the commit so the ledger row reflects the committed tree.
     const reassessed = deriveHandoffState(worktreePath);
     // merge the reassessed state into the entry

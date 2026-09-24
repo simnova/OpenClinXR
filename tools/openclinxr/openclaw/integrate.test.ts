@@ -467,7 +467,7 @@ describe("integration mutex — concurrent integrates refuse and lock is release
     expect(secondResult.landed).toBe(true);
     expect(secondResult.exitCode).toBe(0);
     expect(integrationEvents(root2)).toHaveLength(1);
-  });
+  }, 30_000); // real git work on a large repo; 5 s default times out under agent load (load avg ~90 measured 2026-09-24)
 
   it("DOES NOT ACQUIRE lock for merge-kill refusal (happens before lock)", () => {
     const { root, base, head } = repoWithCeilingRaise();
