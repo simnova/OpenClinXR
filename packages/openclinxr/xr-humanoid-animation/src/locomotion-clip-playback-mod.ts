@@ -107,7 +107,24 @@ export function resolveLocomotionClipTimeScale(
   return measurement;
 }
 
-export function playLocomotionClip(slot: GeneratedHumanoidAnimationSlot, locomotion: number, deltaSeconds: number): boolean {
+export function playLocomotionClip(
+  slot: GeneratedHumanoidAnimationSlot,
+  locomotion: number,
+  deltaSeconds: number,
+  /**
+   * Multiplies the derived rate. 1 for the normal walk; the settling-phase clip-driven turn
+   * (`clip-driven-settling-turn-mod.ts`) passes ~0.5 so the clip keeps stepping — and the stance
+   * lock keeps a real contact window to pivot about — without covering ground, since the executor
+   * prescribes zero forward advance for that phase.
+   */
+  timeScaleFactor: number = 1,
+  /**
+   * Target leg-chain effective weight, in (0, 1]. 1 for the normal walk (unchanged behaviour); the
+   * settling-phase clip-driven turn passes a reduced value (~0.35-0.5) to shrink stride amplitude —
+   * see the ramp note at its call site below.
+   */
+  legWeightTarget: number = 1,
+): boolean {
   const clipName = slot.locomotionClipName;
   const mixer = slot.mixer;
   if (!clipName || !mixer) return false;
@@ -130,10 +147,23 @@ export function playLocomotionClip(slot: GeneratedHumanoidAnimationSlot, locomot
       const fadeRate = 1 / LOCOMOTION_CROSSFADE_DURATION_S; // per second
       crossfadeState.weight = Math.max(0, crossfadeState.weight - fadeRate * deltaSeconds);
 
+      // Fade the action's effective weight FROM WHEREVER IT ACTUALLY WAS, not from
+      // `crossfadeState.weight` (the SEPARATE upper-body ownership tracker, which stays near 1
+      // through a whole walk regardless of `legWeightTarget`). Reading that here instead of the
+      // leg-weight ramp's own state snapped the action's weight from a reduced settling value
+      // (e.g. 0.4) back toward ~1 on the very first stopping frame — the same one-frame stance-toe
+      // jump the "FULL clip weight from the first frame" comment above already warns about,
+      // encountered again from the opposite direction. Kept as the same ramp state and rate as the
+      // walking branch's leg-weight ramp, fading toward 0 instead of `legWeightTarget`.
+      const legWeightState = (rootUserData["openClinXrLocomotionLegWeight"] ??= { current: 1 }) as {
+        current: number;
+      };
+      legWeightState.current = Math.max(0, legWeightState.current - fadeRate * deltaSeconds);
+
       // Fade the action's effective weight
       if (action.isRunning()) {
-        action.setEffectiveWeight(crossfadeState.weight);
-        if (crossfadeState.weight <= 0) {
+        action.setEffectiveWeight(legWeightState.current);
+        if (legWeightState.current <= 0) {
           action.stop();
         }
       }
@@ -143,7 +173,7 @@ export function playLocomotionClip(slot: GeneratedHumanoidAnimationSlot, locomot
       rootUserData["openClinXrOwnedBoneChains"] = chains;
       rootUserData["openClinXrLocomotionClipPlayback"] = {
         clipName,
-        playing: crossfadeState.weight > 0,
+        playing: legWeightState.current > 0,
         timeSeconds: action.time,
         mode: "retargeted_clip_drives_legs_fading_upper_body",
         crossfadeWeight: crossfadeState.weight,
@@ -161,6 +191,8 @@ export function playLocomotionClip(slot: GeneratedHumanoidAnimationSlot, locomot
     };
     crossfadeState.weight = 0;
     crossfadeState.targetWeight = 0;
+    (rootUserData["openClinXrLocomotionLegWeight"] as { current: number } | undefined) ??= { current: 0 };
+    (rootUserData["openClinXrLocomotionLegWeight"] as { current: number }).current = 0;
     return true;
   }
 
@@ -169,20 +201,41 @@ export function playLocomotionClip(slot: GeneratedHumanoidAnimationSlot, locomot
     action.reset().play();
     // FULL clip weight from the first frame. The crossfade below governs ONLY the
     // upper-body ownership blend (read by the posture pass); the leg pose the stance
-    // lock pins must be the clip's own pose immediately. Ramping the action's weight
-    // 0→1 flies a planted toe from its idle spot toward its clip pose (the probe's
+    // lock pins must be the clip's own pose immediately. Snapping the action's weight
+    // from 0 flies a planted toe from its idle spot toward its clip pose (the probe's
     // toe x travels 0→0.09 while in contact), and the lock reads that ramp as stance
-    // travel and drags the body sideways — measured 73 mm of lateral arrival error.
-    action.setEffectiveWeight(1);
+    // travel and drags the body sideways — measured 73 mm of lateral arrival error. So
+    // a FRESH start always resets the leg-weight ramp state to 1 here, and the ramp
+    // below (which runs every frame, started or continuing) applies it: a brand new
+    // walk still gets full weight on its first posed frame, exactly as before.
+    (rootUserData["openClinXrLocomotionLegWeight"] as { current: number } | undefined) ??= { current: 1 };
+    (rootUserData["openClinXrLocomotionLegWeight"] as { current: number }).current = 1;
     crossfadeState.weight = 0;
     crossfadeState.targetWeight = 1;
   }
+
+  // THE LEG WEIGHT RAMP, separate from the upper-body crossfade above. `action.setEffectiveWeight`
+  // on a single action blends the animated pose toward the BOUND (pre-play) pose in proportion to
+  // (1 - weight) — three.js's own PropertyMixer accumulation — so holding the leg chain at a
+  // reduced weight during settling SHRINKS the clip's stride amplitude around that bound pose
+  // instead of translating anything: the settling turn's own steps get shorter, not the body.
+  // Ramped (never snapped) toward `legWeightTarget` at a fixed rate so a weight CHANGE (1 -> a
+  // settling target, or back) does not itself register as a one-frame stance-toe jump.
+  const legWeightState = (rootUserData["openClinXrLocomotionLegWeight"] ??= { current: 1 }) as {
+    current: number;
+  };
+  const legWeightRampPerSecond = 1 / LOCOMOTION_LEG_WEIGHT_RAMP_DURATION_S;
+  const legWeightDelta = legWeightTarget - legWeightState.current;
+  const legWeightStep =
+    Math.sign(legWeightDelta) * Math.min(Math.abs(legWeightDelta), legWeightRampPerSecond * deltaSeconds);
+  legWeightState.current += legWeightStep;
+  action.setEffectiveWeight(legWeightState.current);
 
   // DERIVED rate, re-applied every walking frame so nothing downstream can
   // silently return the action to 1: the clip's own stance speed scaled to the
   // executor's planned speed (`resolveLocomotionClipTimeScale`).
   const speedMeasurement = resolveLocomotionClipTimeScale(slot);
-  if (speedMeasurement !== null) action.timeScale = speedMeasurement.timeScale;
+  if (speedMeasurement !== null) action.timeScale = speedMeasurement.timeScale * timeScaleFactor;
   // Cached on `slot.root.userData["openClinXrLocomotionStanceLabels"]` (resolveLocomotionStanceLabels's
   // own memoisation, keyed by clip name + duration), the same publish-on-userData pattern as the
   // speed measurement above — the clip's own stance labels published where a consumer (the stance
@@ -214,6 +267,9 @@ export function playLocomotionClip(slot: GeneratedHumanoidAnimationSlot, locomot
 
 /** Crossfade duration in seconds for upper-body blend in/out. */
 export const LOCOMOTION_CROSSFADE_DURATION_S = 0.3;
+
+/** Ramp duration for `legWeightTarget` changes (`playLocomotionClip`'s leg-weight ramp). */
+export const LOCOMOTION_LEG_WEIGHT_RAMP_DURATION_S = 0.3;
 
 /**
  * Explicit per-rail bone name patterns for MPFB2 rig, anchored at start of sanitised name.

@@ -86,6 +86,18 @@ import { sceneClosureCaseDocument } from "../../../tools/openclinxr/factory/scen
  * swing frames counted as contact and the slide metric scored swing motion as slide. PERCEPTUAL_-
  * FLOOR_METERS, FOOT_ROLL_ALLOWANCE and FOOT_CONTACT_HEIGHT_METERS are unchanged; the settling
  * and arrived clauses keep the band definition.
+ *
+ * ## CHANGED 2026-09-24 (second pass): the arrived clause now ALSO reads labels instead of the
+ * band, for the same reason as the walking clause above. `arrival-stance-close-mod.ts` gradually
+ * closes a split stance by gliding the SWING toe (now on a lifted minimum-jerk arc, not a drag)
+ * beside a stationary PLANT toe; that swing toe legitimately passes below the 0.06 m band while it
+ * glides, and the band could not tell that step from a genuine drag (see that file's header for
+ * the two gate attempts this cost before the fix moved here instead). `case-owned-approach-frame-
+ * mod.ts`'s arrived branch now publishes the close's own plant/swing designation onto
+ * `approach.lock.labelledStance`, in the exact shape the walking lock already uses, and once the
+ * close yields (or never had a snapshot to close against) publishes double support — both toes
+ * settled, neither a swing foot mid-step. `stopSlideL/R` below reads `run.stanceL/R`, which this
+ * harness already builds every frame from `approach.lock.labelledStance` (see the loop below).
  */
 
 const CASE = sceneClosureCaseDocument();
@@ -553,7 +565,7 @@ function runApproach(input: {
       supportAccepted: override?.supportAccepted ?? true,
     });
     if (frame === null) throw new Error("advanceCaseOwnedBedsideApproach returned null for a live approach");
-    playLocomotionClip(animationSlot as never, frame.locomotion, dt);
+    playLocomotionClip(animationSlot as never, frame.locomotion, dt, frame.locomotionTimeScaleFactor, frame.locomotionLegWeight);
     // THE FRAME LOOP'S IDLE TERMS, in the loop's own order — after the mixer and the clip, before
     // the stance lock, because `main.ts` calls the lock after `updateGeneratedHumanoidAnimations`.
     // `breathing` is `animation-loop.ts:140` verbatim; the scale line is `:180` verbatim and is the
@@ -568,7 +580,7 @@ function runApproach(input: {
     // drive before `updateGeneratedHumanoidAnimations` consumes it, so the pose the lock measures
     // does not exist until that pass has run. Folded into the drive step it read the previous
     // frame's pose and cancelled nothing — measured in a browser, 4.09996 m of total slide.
-    applyCaseOwnedStanceLock(approach);
+    applyCaseOwnedStanceLock(approach, dt);
     slot.updateMatrixWorld(true);
     frames.push(frame);
     const elementsL = toeL.matrixWorld.elements;
@@ -867,8 +879,10 @@ describe("the normal encounter physician approaches and stops", () => {
     // action out over the crossfade and releases the chain (`faded_to_idle`), which puts
     // both toes back inside the contact band.
     expect(run.settledOn).toBe("faded_to_idle");
-    const stopSlideL = footSlide(run.trackL.slice(stopStart), floorOriginY);
-    const stopSlideR = footSlide(run.trackR.slice(stopStart), floorOriginY);
+    // Arrived-phase contact is the close's own published plant/swing label, not the height band —
+    // see this file's second `## CHANGED` note above.
+    const stopSlideL = footSlide(run.trackL.slice(stopStart), floorOriginY, run.stanceL.slice(stopStart));
+    const stopSlideR = footSlide(run.trackR.slice(stopStart), floorOriginY, run.stanceR.slice(stopStart));
     expect(stopSlideL.contactFrames).toBeGreaterThanOrEqual(3);
     expect(stopSlideR.contactFrames).toBeGreaterThanOrEqual(3);
     expect(stopSlideL.worstFrameMeters).toBeLessThanOrEqual(PERCEPTUAL_FLOOR_METERS);

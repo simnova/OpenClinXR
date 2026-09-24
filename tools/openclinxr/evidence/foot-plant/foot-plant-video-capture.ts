@@ -75,6 +75,7 @@ type RuntimeSample = {
   rightToe: Vec3 | null;
   stanceFoot: string | null;
   headPitchDeg?: number | null;
+  headYawWorldRadians?: number | null;
   travelledMeters?: number;
   correctionMeters?: { x: number; z: number };
 };
@@ -149,6 +150,11 @@ type FootPlantVideoReport = {
     right: Vec3 | null;
     stanceFoot: string | null;
     headPitchDeg: number | null;
+    headYawWorldRadians: number | null;
+    slotYawRadians: number | null;
+    slot: { x: number; z: number } | null;
+    travelledMeters: number | null;
+    correctionMeters: { x: number; z: number } | null;
   }>;
   stanceWindows: StanceWindow[];
   maxSlideMeters: number;
@@ -204,6 +210,7 @@ type FootPlantVideoReport = {
     startWorld: Vec3 | null;
     targetWorld: Vec3 | null;
     travelHeadingRadians: number | null;
+    targetHeadingRadians: number | null;
   };
   claimScope: string;
   notEvidenceFor: readonly string[];
@@ -2220,6 +2227,8 @@ async function main(): Promise<void> {
           right: s.rightToe,
           stanceFoot: s.stanceFoot,
           headPitchDeg: s.headPitchDeg ?? null,
+          headYawWorldRadians: s.headYawWorldRadians ?? null,
+          slotYawRadians: s.slot ? s.slot.yaw : null,
           slot: s.slot ? { x: s.slot.x, z: s.slot.z } : null,
           travelledMeters: s.travelledMeters ?? null,
           correctionMeters: s.correctionMeters ?? null,
@@ -2235,6 +2244,7 @@ async function main(): Promise<void> {
           startWorld: evidence.startWorld ?? null,
           targetWorld: evidence.targetWorld ?? null,
           travelHeadingRadians: evidence.travelHeadingRadians ?? null,
+          targetHeadingRadians: evidence.targetHeadingRadians ?? null,
         },
         videos: {
           feetSide: `${OUTPUT_DIR}/feet-side.mp4`,

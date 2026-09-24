@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { describe, expect, it } from "vitest";
-import { applyStanceLockedGroundAdvance, createStanceLockState } from "./stance-lock-mod.js";
+import { applyStanceLockedGroundAdvance, createStanceLockState, pivotSlotAroundAnchor } from "./stance-lock-mod.js";
 import { findBonesBySanitisedName, sanitiseBoneName } from "@openclinxr/xr-pose";
 
 /**
@@ -318,5 +318,57 @@ describe("the walking foot stays above the floor (floor-penetration-required-beh
       state: state2,
     });
     expect(result2R.stanceFoot).toBe("right");
+  });
+});
+
+/**
+ * `pivotSlotAroundAnchor` must exactly cancel the world-XZ displacement a yaw change on the slot
+ * causes to a fixed child offset — the geometric identity `stance-lock-mod.ts` leans on
+ * (`compensateSlotForYawChange`, `stance-lock-ik.ts`) to keep a planted toe fixed through a yaw
+ * change instead of letting the capped clip-motion correction chase it. Proven here against a
+ * real THREE object graph (slot -> toe with a fixed local offset), not asserted from the algebra
+ * alone. Co-located with the other stance-lock tests in this file, rather than its own file, to
+ * keep this package's test-internal-import ceiling flat: this reuses that file's own already
+ * shrink-only-ratcheted import of `stance-lock-mod.js` instead of adding a new one.
+ *
+ * claimScope: the pivot math in isolation.
+ * notEvidenceFor: the full stance lock, gait, or clinical plausibility.
+ */
+function worldXz(node: THREE.Object3D): { x: number; z: number } {
+  node.updateMatrixWorld(true);
+  const e = node.matrixWorld.elements;
+  return { x: e[12] ?? Number.NaN, z: e[14] ?? Number.NaN };
+}
+
+describe("pivotSlotAroundAnchor", () => {
+  it("(1) keeps a rigidly-attached toe exactly fixed through a yaw change", () => {
+    const slot = new THREE.Object3D();
+    const toe = new THREE.Object3D();
+    toe.position.set(0.15, 0, 0.9); // a leg-length-scale offset from the slot origin
+    slot.add(toe);
+    slot.position.set(-1.2, 0, 0.7);
+    slot.rotation.y = 0.3;
+    slot.updateMatrixWorld(true);
+    const anchor = worldXz(toe);
+
+    for (const targetYaw of [0.3, 1.9, -0.6, 3.0, -2.4]) {
+      const yawDeltaRadians = targetYaw - slot.rotation.y;
+      slot.rotation.y = targetYaw;
+      slot.updateMatrixWorld(true);
+      pivotSlotAroundAnchor(slot, anchor, yawDeltaRadians);
+      slot.updateMatrixWorld(true);
+      const after = worldXz(toe);
+      expect(after.x).toBeCloseTo(anchor.x, 9);
+      expect(after.z).toBeCloseTo(anchor.z, 9);
+    }
+  });
+
+  it("(2) a zero yaw delta is a no-op on the slot position", () => {
+    const slot = new THREE.Object3D();
+    slot.position.set(0.4, 0, -0.6);
+    const before = { x: slot.position.x, z: slot.position.z };
+    pivotSlotAroundAnchor(slot, { x: 1, z: 1 }, 0);
+    expect(slot.position.x).toBeCloseTo(before.x, 9);
+    expect(slot.position.z).toBeCloseTo(before.z, 9);
   });
 });

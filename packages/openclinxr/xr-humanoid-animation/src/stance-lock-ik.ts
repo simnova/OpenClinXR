@@ -1,7 +1,7 @@
 import type { Object3D } from "three";
 import { MathUtils, Quaternion, Vector3 } from "three";
 import { findBonesBySanitisedName, sanitiseBoneName } from "@openclinxr/xr-pose";
-import type { StanceFoot } from "./stance-lock-mod.js";
+import type { StanceFoot, StanceLockState } from "./stance-lock-mod.js";
 
 /**
  * Two-bone IK primitives shared by the walking stance lock (`stance-lock-mod.ts`) and the
@@ -182,4 +182,96 @@ export function capCorrection(
   }
   const m = Math.hypot(c.x, c.z);
   return m > MAX_PIN_CORRECTION_METERS ? { x: (c.x / m) * MAX_PIN_CORRECTION_METERS, z: (c.z / m) * MAX_PIN_CORRECTION_METERS } : c;
+}
+
+/**
+ * Rotate the slot's own XZ position around a fixed world anchor by `yawDeltaRadians`, so a point
+ * that WAS at the anchor stays there through the rotation — a pivot about that point rather than
+ * about the slot's own origin.
+ *
+ * WHY THIS IS UNCAPPED, unlike `capCorrection` above. A yaw change on `actorSlot` rotates its whole
+ * child subtree (every bone, including a planted toe) around the SLOT's origin by construction —
+ * that displacement is exact geometry, not an estimate to chase. `capCorrection` exists to bound a
+ * HEURISTIC pull toward an anchor built from noisy per-frame clip motion; applying that same cap
+ * here only partially cancels a rotation and lets the uncancelled remainder become real slot drift,
+ * frame after frame, because the correction is always chasing a target that moved again before it
+ * arrived. Measured: an anticipatory heading blend without this produced 0.68 m of SC-05 arrival
+ * error over roughly the size of one stride's worth of yaw change — cancel the rotation exactly
+ * here, first, and let the SEPARATE clip-motion correction (still capped) handle only genuine
+ * walking advance afterward.
+ */
+export function pivotSlotAroundAnchor(
+  actorSlot: Object3D,
+  anchor: { x: number; z: number },
+  yawDeltaRadians: number,
+): void {
+  const dx = actorSlot.position.x - anchor.x;
+  const dz = actorSlot.position.z - anchor.z;
+  const cos = Math.cos(yawDeltaRadians);
+  const sin = Math.sin(yawDeltaRadians);
+  // Matches THREE's own Y-axis rotation (Matrix4.makeRotationY: x' = x*cos + z*sin,
+  // z' = -x*sin + z*cos — the same convention `travelYawForClipForward`'s `atan2(x, z)` heading
+  // already assumes), not the textbook XZ-plane rotation matrix, which has the cross-term signs
+  // flipped and would pivot the slot the wrong way around the anchor.
+  actorSlot.position.x = anchor.x + dx * cos + dz * sin;
+  actorSlot.position.z = anchor.z - dx * sin + dz * cos;
+}
+
+/**
+ * Cancel the planted foot's rotation-induced world displacement for this lock run, exactly,
+ * before anything reads a toe position or computes a clip-motion correction. `actorSlot.rotation.y`
+ * may have changed since the previous lock run (an anticipatory turn, the settling turn); that
+ * rotates the WHOLE child subtree — including a planted toe — about the slot's own origin by
+ * construction. Left uncompensated, `capCorrection`'s capped clip-motion correction chases that
+ * displacement a few millimetres per frame and never catches up, and the residual becomes real slot
+ * drift (measured 0.68 m of SC-05 arrival error from one stride's worth of yaw change).
+ * Compensating exactly here turns that same yaw change into a clean pivot about the anchor instead:
+ * the slot arcs around the planted foot, which is what a human step-turn does, and the clip-motion
+ * correction is left to handle only genuine clip-driven motion, where its cap is a real bound
+ * rather than a chase that never lands.
+ *
+ * Pivots around the toe's LAST MEASURED position (`prevToeWorldXz`), not the window's ideal
+ * `anchorWorldXz`. The two usually agree closely, but not exactly — the clip-motion correction is
+ * capped, so a stance window that has not yet fully converged onto its anchor leaves a small gap,
+ * and pivoting around the IDEAL point instead of the ACTUAL one carries that gap through the
+ * rotation instead of cancelling it. `prevToeWorldXz` is exact regardless of that gap.
+ */
+export function compensateSlotForYawChange(actorSlot: Object3D, state: StanceLockState): void {
+  const prevStanceToe =
+    state.stanceFoot === "left"
+      ? state.prevToeWorldXz?.left
+      : state.stanceFoot === "right"
+        ? state.prevToeWorldXz?.right
+        : undefined;
+  if (state.stanceFoot === null || prevStanceToe === undefined || state.prevYawRadians === null) return;
+  const yawDeltaRadians = actorSlot.rotation.y - state.prevYawRadians;
+  if (yawDeltaRadians === 0) return;
+  pivotSlotAroundAnchor(actorSlot, prevStanceToe, yawDeltaRadians);
+  actorSlot.updateMatrixWorld(true);
+}
+
+/**
+ * The slot's current lateral drift from the start-to-target route line, measured so a NEW
+ * footfall's anchor can be biased against it. A pivot through a yaw change moves the slot on an
+ * arc around the planted foot (see `compensateSlotForYawChange` — correct, and not corrected
+ * there), but nothing brings that arc back toward the route on its own. A real turning step-turn
+ * corrects course through where the NEXT foot lands, not by sliding the planted one, so the caller
+ * applies this only at anchor-capture ("new window") branches, never mid-window.
+ */
+export function computeFootfallBias(
+  slotXz: { x: number; z: number },
+  routeStart: { x: number; z: number } | undefined,
+  travelUnit: { x: number; z: number } | undefined,
+): { x: number; z: number } {
+  if (routeStart === undefined || travelUnit === undefined) return { x: 0, z: 0 };
+  const unitLength = Math.hypot(travelUnit.x, travelUnit.z);
+  if (unitLength === 0) return { x: 0, z: 0 };
+  const ux = travelUnit.x / unitLength;
+  const uz = travelUnit.z / unitLength;
+  const relX = slotXz.x - routeStart.x;
+  const relZ = slotXz.z - routeStart.z;
+  const along = relX * ux + relZ * uz;
+  const projectedX = routeStart.x + along * ux;
+  const projectedZ = routeStart.z + along * uz;
+  return { x: slotXz.x - projectedX, z: slotXz.z - projectedZ };
 }

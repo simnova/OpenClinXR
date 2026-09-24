@@ -78,6 +78,19 @@ export type GeneratedHumanoidAnimationSlot = {
 
 export type HumanoidRuntimeDrive = {
   locomotion?: GeneratedDriveScalarInput;
+  /**
+   * Multiplies the locomotion clip's derived playback rate. Absent/null means 1 (the normal
+   * walk); the bedside approach's settling-phase clip-driven turn sets it below 1 so the clip
+   * keeps stepping — a real contact window for the stance lock to pivot about — while the
+   * executor prescribes zero forward advance. See `clip-driven-settling-turn-mod.ts`.
+   */
+  locomotionTimeScaleFactor?: GeneratedDriveScalarInput;
+  /**
+   * Target leg-chain effective weight in (0, 1]. Absent/null means 1 (the normal walk, unchanged);
+   * the settling-phase clip-driven turn sets it below 1 to shrink stride amplitude around the
+   * bound (pre-play) pose instead of translating the body. See `playLocomotionClip`'s own note.
+   */
+  locomotionLegWeight?: GeneratedDriveScalarInput;
   gaze?: GeneratedDriveScalarInput;
   gazeAversion?: GeneratedDriveScalarInput;
   lipSync?: GeneratedDriveScalarInput;

@@ -3,9 +3,13 @@ import {
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
 import { AnimationMixer, type Object3D, Vector3 as ThreeVector3 } from "three";
 import {
-  applySettlingStepTurnPose,
   restoreSettlingRestToePose,
 } from "./settling-step-turn-mod.js";
+import {
+  applyClipDrivenSettlingTurn,
+  createClipDrivenSettlingTurnState,
+} from "./clip-driven-settling-turn-mod.js";
+import { applyHeadGazeLeadYaw } from "./head-gaze-lead-mod.js";
 import {
   captureRestStance,
   applyArrivalStanceClose,
@@ -55,12 +59,33 @@ export function advanceCaseOwnedBedsideApproach(
     deltaSeconds: input.deltaSeconds,
     walkSpeedMetersPerSecond: approach.walkSpeedMetersPerSecond,
     settleTurnRateRadiansPerSecond: approach.settleTurnRateRadiansPerSecond,
+    observedHeadingRadians: approach.actorSlot.rotation.y,
   });
   approach.execution = execution;
-  if (execution.phase !== "invalidated") {
+  // ## CHANGED: "settling" is excluded here. The clip-driven settling turn
+  // (`applyClipDrivenSettlingTurn`, run later in the frame from `applyCaseOwnedStanceLock`, after
+  // the mixer has posed the skeleton) owns `actorSlot.rotation.y` and any drift-correcting XZ
+  // nudge for the whole settling phase; `execution.headingRadians`/`prescribedPositionXz` are not
+  // advanced during settling (see `bedside-approach-execution-mod.ts`'s `## CHANGED` note), so
+  // writing them here would reset the turn's progress back to the phase's entry pose every frame.
+  if (execution.phase !== "invalidated" && execution.phase !== "settling") {
     approach.actorSlot.position.x = execution.prescribedPositionXz.x;
     approach.actorSlot.position.z = execution.prescribedPositionXz.z;
     approach.actorSlot.rotation.y = execution.headingRadians;
+  }
+  if (previousPhase !== "settling" && execution.phase === "settling") {
+    approach.clipTurn = createClipDrivenSettlingTurnState();
+  }
+  if (previousPhase === "settling" && execution.phase === "arrived" && approach.clipTurn.phaseFoot !== null) {
+    // SEED THE CLOSE'S PLANT DESIGNATION from the settling turn's own last pivot foot, rather than
+    // leaving `applyArrivalStanceClose` to discover it cold from a raw height comparison on its
+    // first frame. MEASURED: without this, a full clip-driven turn can hand the close a stance gap
+    // wide enough that its plant-role hysteresis re-anchors the slot several times while narrowing
+    // it (~0.16 m of "stopped" root travel from the ratchet alone, on top of a further snap once
+    // the close's own frame cap ends it) — the incumbent bias `applyArrivalStanceClose` already
+    // has (it prefers `state.plantFoot` unless a challenger clears the hysteresis margin) simply
+    // had nothing to be biased BY on its first frame. This gives it that.
+    approach.closeState = { ...approach.closeState, plantFoot: approach.clipTurn.phaseFoot };
   }
   approach.actorSlot.updateMatrixWorld(true);
   // THE FIRST WALKING FRAME'S POSE PREDATES THE CLIP, so the lock skips it and takes its anchor on
@@ -90,14 +115,25 @@ export function advanceCaseOwnedBedsideApproach(
   }
   return {
     locomotion: execution.drive.locomotion,
+    locomotionTimeScaleFactor: execution.drive.timeScaleFactor ?? 1,
+    locomotionLegWeight: execution.drive.legWeight ?? 1,
     driveSource: execution.driveSource,
     phase: execution.phase,
     positionXz: { x: approach.actorSlot.position.x, z: approach.actorSlot.position.z },
     headingRadians: approach.actorSlot.rotation.y,
-    stanceFoot: approach.lock.stanceFoot,
-    stanceCorrectionMeters: approach.lock.correctionMeters,
-    toeHeightMeters: approach.lock.toeHeightMeters,
-    doubleSupport: approach.lock.doubleSupport,
+    // ## CHANGED: during "settling" the walking-phase stance LOCK never runs again (see
+    // `applyCaseOwnedStanceLock`), so `approach.lock.stanceFoot` is frozen at the walk's last
+    // stance foot for the whole turn. The CLIP-DRIVEN settling turn runs its own reused lock
+    // instance (`approach.clipTurn.lock`), crowned by the same clip stance labels it pivots
+    // about — that is the one this evidence field should report while turning, or any
+    // capture-based metric measuring "does the labelled stance foot stay planted" reads the stale
+    // walking-phase label the whole settling phase through.
+    stanceFoot: execution.phase === "settling" ? approach.clipTurn.lock.stanceFoot : approach.lock.stanceFoot,
+    stanceCorrectionMeters:
+      execution.phase === "settling" ? approach.clipTurn.lock.correctionMeters : approach.lock.correctionMeters,
+    toeHeightMeters:
+      execution.phase === "settling" ? approach.clipTurn.lock.toeHeightMeters : approach.lock.toeHeightMeters,
+    doubleSupport: execution.phase === "settling" ? approach.clipTurn.lock.doubleSupport : approach.lock.doubleSupport,
     travelledMeters: execution.travelledMeters,
     stoppedSeconds: execution.stoppedSeconds,
     invalidationReason: execution.invalidationReason,
@@ -182,6 +218,27 @@ export function readHeadPitchDeg(actorSlot: Object3D | null): number | null {
 }
 
 /**
+ * Head bone world yaw, in radians, same `atan2(x, z)` convention as `travelYawForClipForward` and
+ * the rest of this executor. Read off the running scene after the frame — including the gaze-lead
+ * write below — the same telemetry posture as the toe samples and the pitch above.
+ */
+export function readHeadYawWorldRadians(actorSlot: Object3D | null): number | null {
+  if (actorSlot === null) return null;
+  const found: Object3D[] = [];
+  actorSlot.traverse((node) => {
+    if (typeof node.name === "string" && node.name.replaceAll(".", "") === "head") found.push(node);
+  });
+  const head = found[0];
+  if (head === undefined) return null;
+  head.updateWorldMatrix(true, false);
+  const elements = head.matrixWorld.elements;
+  const x = elements[8] ?? Number.NaN;
+  const z = elements[10] ?? Number.NaN;
+  if (!Number.isFinite(x) || !Number.isFinite(z)) return null;
+  return Math.atan2(x, z);
+}
+
+/**
  * Pin the planted toe. Call this AFTER the pose for this frame has been written, never before.
  *
  *
@@ -201,22 +258,86 @@ export function readHeadPitchDeg(actorSlot: Object3D | null): number | null {
  * the stance toe to at or above floorOriginY without moving actorSlot Y. This is a NEW call
  * site with its own gate, NOT a deletion of the locomotion gate.
  */
-export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | null): void {
+/** The clip's own stance labels with this frame's action time, or undefined with nothing bound. */
+function resolveClipStanceForFrame(
+  approach: CaseOwnedBedsideApproach,
+): { labels: LocomotionStanceLabels; actionTimeSeconds: number } | undefined {
+  const stanceSlot = approach.stanceLabelSlot;
+  const labels = approach.stanceLabels;
+  if (stanceSlot === null || labels === null || stanceSlot.mixer === undefined) return undefined;
+  const clipName = stanceSlot.locomotionClipName;
+  const clip = clipName ? stanceSlot.responseClips?.find((candidate) => candidate.name === clipName) : undefined;
+  const action = clip && stanceSlot.mixer ? stanceSlot.mixer.existingAction(clip) : null;
+  return action ? { labels, actionTimeSeconds: action.time } : undefined;
+}
+
+export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | null, deltaSeconds: number): void {
   if (approach === null) return;
-  if (approach.execution.phase === "settling") {
-    approach.turnStep = applySettlingStepTurnPose({
-      headingRadians: approach.actorSlot.rotation.y,
-      targetHeadingRadians: approach.intent.target.headingRadians,
+  // HEAD LEADS THE TURN. Ahead of both the entry and the settling turns of a phase (walking,
+  // settling), the head yaws toward the target heading first — bounded, so the neck does not
+  // exceed a natural range while the torso still faces the travel heading. `arrived`/`not_started`
+  // are excluded: by `arrived` body heading already equals target heading, so the lead computes to
+  // zero, and `not_started` has no target-facing decision to anticipate yet.
+  if (approach.execution.phase === "walking" || approach.execution.phase === "settling") {
+    applyHeadGazeLeadYaw({
       actorSlot: approach.actorSlot,
-      leftToe: approach.leftToe,
-      rightToe: approach.rightToe,
-      contactBandMeters: approach.contactBandMeters,
-      initialPlant: approach.lock.stanceFoot,
-      state: approach.turnStep,
+      bodyHeadingRadians: approach.actorSlot.rotation.y,
+      targetHeadingRadians: approach.intent.target.headingRadians,
     });
-    // After the settling turn completes, apply settled posture correction
-    // The turnStep.closing flag indicates the rest pose is being restored
-    if (approach.turnStep.closing && approach.turnStep.restLocal !== null) {
+  }
+  if (approach.execution.phase === "settling") {
+    // ## CHANGED: retired the procedural lift-and-slide turn (`applySettlingStepTurnPose`) for
+    // this call site. Measured on it (`.openclinxr/evidence/foot-plant-video/foot-plant-
+    // video.json`, `turn-quality-metrics.ts`): floorPenetrationM -0.036, minStepLiftM 0.006 over 4
+    // episodes, plantedSlideM 0.110 — both shoes swivelling on the floor with no visible steps.
+    // The turn is now driven by the walk clip's own steps: the action keeps playing (zero
+    // executor forward advance — see `bedside-approach-execution-mod.ts`'s settling branch), and
+    // `applyClipDrivenSettlingTurn` rotates the slot only on frames the clip itself labels
+    // stance, pivoting about the planted toe through the SAME stance-lock machinery the walk
+    // uses. See `clip-driven-settling-turn-mod.ts` for the full mechanism.
+    //
+    // GATED ON `drive.locomotion > 0` — the "waiting for the fade" sub-stage
+    // (`bedside-approach-execution-mod.ts`'s `SETTLING_DRIVE_STOP_TOLERANCE_RADIANS` branch) stops
+    // asking the clip to play but STAYS in `settling` for up to `SETTLING_FADE_SETTLE_SECONDS`, and
+    // `playLocomotionClip`'s crossfade shrinks the action's weight toward 0 across exactly that
+    // window. Left running through it, the stance lock's steady-state pin (capped at 0.02 m per
+    // frame — `capCorrection`) reads the toe's own steady convergence toward the BOUND pose as
+    // clip-motion drift and chases it every frame — measured, ~0.3-0.4 m of ADDITIONAL slot
+    // translation on top of the pivot's own, over the ~9-18 frames the fade takes. The lock has
+    // nothing left to do here (locomotion is 0; nothing is stepping), so it simply does not run.
+    if (approach.execution.drive.locomotion > 0) {
+      approach.clipTurn = applyClipDrivenSettlingTurn({
+        actorSlot: approach.actorSlot,
+        leftToe: approach.leftToe,
+        rightToe: approach.rightToe,
+        floorOriginY: approach.floorOriginY,
+        contactBandMeters: approach.contactBandMeters,
+        targetHeadingRadians: approach.intent.target.headingRadians,
+        deltaSeconds,
+        clipCycleSeconds: approach.clipCycleSeconds,
+        timeScaleFactor: approach.execution.drive.timeScaleFactor ?? 1,
+        clipStance: resolveClipStanceForFrame(approach),
+        state: approach.clipTurn,
+      });
+    } else {
+      // WAITING FOR THE FADE (see the note above): no more stepping, so no stance-lock pin to run
+      // — but the residual heading this sub-stage started with (up to `SETTLING_DRIVE_STOP_
+      // TOLERANCE_RADIANS`, ~4 deg — kept as a local copy of xr-runtime-state's own constant for
+      // the same "no new cross-package export" reason `SETTLE_TURN_TOLERANCE_RADIANS` is local in
+      // `clip-driven-settling-turn-mod.ts`) still needs to close, or the phase can sit forever a
+      // couple of degrees short of `SETTLE_TURN_TOLERANCE_RADIANS` with nothing left driving it
+      // there. Eased directly, over the SAME window the fade itself runs, with NO stance-lock pin
+      // attached: at this residual size (<=4 deg) an uncompensated rotation's own toe sweep is
+      // small (~leg-length-scale-offset x 0.07 rad, well under the ~0.02 m the walking-phase pin
+      // exists to bound), and running the pin here is exactly what chased the fading pose and
+      // produced the ~0.3-0.4 m of extra drift this branch exists to avoid.
+      const residual = ((approach.intent.target.headingRadians - approach.actorSlot.rotation.y + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+      const closeRatePerSecond = ((4 * Math.PI) / 180) / 0.3;
+      const step = Math.sign(residual) * Math.min(Math.abs(residual), closeRatePerSecond * deltaSeconds);
+      if (step !== 0) {
+        approach.actorSlot.rotation.y += step;
+        approach.actorSlot.updateMatrixWorld(true);
+      }
       applySettledPostureCorrection({
         actorSlot: approach.actorSlot,
         leftToe: approach.leftToe,
@@ -241,6 +362,14 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
     let closeActive = false;
     if (approach.restStance !== null) {
       if (!approach.closeState.done) {
+        // ## CHANGED — see `arrival-stance-close-mod.ts`'s own header note. The close now
+        // publishes which foot is this frame's PLANT vs its SWING onto `approach.lock`, in the
+        // same `labelledStance` shape the walking lock already uses, so SC-05's stop-slide clause
+        // can read it instead of the 0.06 m contact band — a closing step's swing foot passes
+        // below that band while it glides beside the plant, the same reason the walking clauses
+        // already read clip labels rather than the band. Two prior `maxStepMeters` gate attempts
+        // were reverted here for a different reason (see the arrival-stance-close-mod header); this
+        // does not change the close's own step sizing, only what SC-05 grades.
         const closed = applyArrivalStanceClose({
           actorSlot: approach.actorSlot,
           leftToe: approach.leftToe,
@@ -250,6 +379,31 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
         });
         approach.closeState = closed.state;
         closeActive = !closed.state.done;
+        if (closed.state.plantFoot !== null) {
+          approach.lock = {
+            ...approach.lock,
+            stanceFoot: closed.state.plantFoot,
+            doubleSupport: false,
+            labelledStance: {
+              left: closed.state.plantFoot === "left",
+              right: closed.state.plantFoot === "right",
+            },
+          };
+        }
+      }
+      if (!closeActive) {
+        // ## CHANGED: once the close has yielded, both toes are settled and neither is a
+        // swing foot mid-step — publish double support so `stopSlideL/R` grades both, the
+        // same as any double-support frame the walking lock already labels this way. Scoped
+        // to the `restStance !== null` (real close) branch only: the legacy no-snapshot
+        // fallback below never ran a close and must leave `approach.lock` untouched — see
+        // `the-arrived-stance-closes.test.ts`'s clause (1), which pins that fact by identity.
+        approach.lock = {
+          ...approach.lock,
+          stanceFoot: null,
+          doubleSupport: true,
+          labelledStance: { left: true, right: true },
+        };
       }
     } else if (approach.turnStep.restLocal !== null) {
       approach.turnStep = restoreSettlingRestToePose({
@@ -307,7 +461,9 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
     floorOriginY: approach.floorOriginY,
     contactBandMeters: approach.contactBandMeters,
     state: approach.lock,
-    ...(routeLength > 0 ? { travelUnit: { x: routeDx / routeLength, z: routeDz / routeLength } } : {}),
+    ...(routeLength > 0
+      ? { travelUnit: { x: routeDx / routeLength, z: routeDz / routeLength }, routeStart: approach.start }
+      : {}),
     ...(clipStance ? { clipStance } : {}),
   });
 }

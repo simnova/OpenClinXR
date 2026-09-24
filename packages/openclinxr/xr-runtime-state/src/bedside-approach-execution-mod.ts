@@ -31,6 +31,71 @@ type Vector3 = { x: number; y: number; z: number };
 
 export type ApproachPhase = "not_started" | "walking" | "settling" | "arrived" | "invalidated";
 
+/**
+ * How far the observed heading may sit from the target before settling ends. ~2 deg: tight enough
+ * that `SC-05`'s 10 deg settled-heading cap has real margin (the clip-driven turn's own per-phase
+ * quantisation — see `SETTLING_CLIP_TURN_MAX_PHASE_RADIANS`, xr-humanoid-animation — means the last
+ * stance-labelled increment can slightly overshoot or undershoot this band, not exactly hit it).
+ */
+export const SETTLE_TURN_TOLERANCE_RADIANS = (2 * Math.PI) / 180;
+
+/**
+ * The walk action's playback-rate multiplier during settling.
+ *
+ * ## CHANGED (coordinator direction, pixel-graded): raised from 0.5 to 1.0. At 0.5x the turn's own
+ * measured `settleSeconds` was 3.2 s for a ~90 deg pivot; a real turn is 2-4 short steps, on the
+ * order of 1.2-1.8 s. `settlingClipTurnPhaseDurationSeconds` (xr-humanoid-animation) is inversely
+ * proportional to this factor, so doubling it roughly halves settle time. Not derived from the clip
+ * the way the walking time-scale is (`resolveLocomotionClipTimeScale`) — there is no equivalent
+ * "turn-in-place ground truth" to derive it from, since the shipped clip set carries no
+ * turn-in-place take (see the settling-phase note above).
+ */
+export const SETTLING_LOCOMOTION_TIME_SCALE_FACTOR = 1.0;
+
+/**
+ * Target leg-chain effective weight during settling, in (0, 1] — see `playLocomotionClip`'s own
+ * note (xr-humanoid-animation, `locomotion-clip-playback-mod.ts`) for the mechanism: a reduced
+ * weight blends the clip's animated leg pose toward its BOUND (pre-play, near-standing) pose,
+ * shrinking stride amplitude around that pose instead of the body pivoting on a full walking
+ * stride. ADDED (coordinator direction, pixel-graded): the full-amplitude stride was measured to
+ * plant the stance toe ~0.7-0.8 m from the slot origin — real leg-length-scale geometry that alone
+ * forced a drift clamp to hold SC-05's 0.05 m arrival cap, and that clamp read as 0.38 m of
+ * "planted slide" against a 0.02 m target.
+ *
+ * MEASURED at 0.4 on the shipped physician, after the deeper fixes this same round made (a fixed
+ * per-phase pivot anchor instead of a continuously-drifting one, a Y-only stance correction instead
+ * of reusing the walking ground-advance pin, and a `computeFootfallBias` call that was silently
+ * returning zero — see `clip-driven-settling-turn-mod.ts`'s own notes on each): stance-toe-to-slot
+ * offset 0.186 m / 0.086 m / 0.088 m across the turn's three phases, all comfortably under the
+ * coordinator's ~0.25 m target, with NO drift clamp — SC-05 arrival error 0.008 m, settled yaw
+ * 0 deg, stopped root travel 0 m. The whole 0.35-0.5 range the coordinator suggested passes SC-05
+ * once those fixes are in place (0.5 measured clean too); 0.4 is the middle of that range.
+ */
+export const SETTLING_LEG_WEIGHT_TARGET = 0.4;
+
+/**
+ * How far the observed heading may sit from the target before the walk action is told to STOP
+ * (fade out) even though settling has not fully ended yet — a looser band than
+ * `SETTLE_TURN_TOLERANCE_RADIANS`, ~4 deg.
+ *
+ * MEASURED, NOT GUESSED. `playLocomotionClip` (xr-humanoid-animation, `locomotion-clip-playback-
+ * mod.ts`) fades the action's weight over `LOCOMOTION_CROSSFADE_DURATION_S` (0.3 s) once locomotion
+ * drops to 0 — kept local here as `SETTLING_FADE_SETTLE_SECONDS` for the same reason this file
+ * already keeps its own copy of other small cross-package constants rather than adding a dependency
+ * the other direction. The OLD procedural settling turn held `drive.locomotion` at 0 for the WHOLE
+ * settling phase, so that fade always finished seconds before arrival. The clip-driven turn instead
+ * keeps the clip playing right up to convergence — and measured, on the shipped physician: ending
+ * settling and immediately entering "arrived" with the fade still in its first ~0.3 s left the leg
+ * chain still partially blended with clip weight while `applyArrivalStanceClose`'s "the plant leg
+ * is never slerped, so a static slot converges" assumption (that file's own comment) held — 0.363 m
+ * of "stopped" root travel against a 0.005 m cap, entirely from that overlap. Stopping the drive a
+ * little early, while still in `settling`, gives the fade its 0.3 s BEFORE arrival-close ever runs.
+ */
+export const SETTLING_DRIVE_STOP_TOLERANCE_RADIANS = (4 * Math.PI) / 180;
+
+/** See `SETTLING_DRIVE_STOP_TOLERANCE_RADIANS`'s note: matches `LOCOMOTION_CROSSFADE_DURATION_S`. */
+export const SETTLING_FADE_SETTLE_SECONDS = 0.3;
+
 export type BedsideApproachExecution = {
   runId: string;
   physicianActorId: string;
@@ -42,8 +107,14 @@ export type BedsideApproachExecution = {
   /** Where the executor asks the slot to be this frame, before any stance-lock correction. */
   prescribedPositionXz: { x: number; z: number };
   headingRadians: number;
-  /** The drive the frame loop reads. `locomotion` is 0 whenever the actor must not be walking. */
-  drive: { locomotion: number };
+  /**
+   * The drive the frame loop reads. `locomotion` is 0 whenever the actor must not be walking —
+   * INCLUDING, now, not-yet-defined: during `settling` it is 1, because the clip-driven stepping
+   * turn keeps the walk clip playing (at `timeScaleFactor`) so the stance lock has a real contact
+   * window to pivot the settling turn about, even though the executor prescribes zero forward
+   * advance for that phase (`prescribedPositionXz` is frozen; see the settling branch below).
+   */
+  drive: { locomotion: number; timeScaleFactor?: number; legWeight?: number };
   /** Where the drive came from, so a recorder global is distinguishable from this producer. */
   driveSource: "case_owned_bedside_approach";
   arrivedAtMs: number | null;
@@ -166,8 +237,24 @@ export function stepBedsideApproachExecution(input: {
    * DERIVED FROM THE SHIPPED CLIP, not chosen: the whole turn completes in one measured walk-cycle
    * period, so the number moves only when the asset does. Nothing else in this file has a free
    * constant, and this one is not free either.
+   *
+   * ## CHANGED: no longer used to advance `headingRadians` directly. The settling turn is now
+   * CLIP-DRIVEN (`clip-driven-settling-turn-mod.ts`, xr-humanoid-animation): the actual yaw
+   * increment happens frame-by-frame, gated on the clip's own labelled stance foot, in the stance-
+   * lock apply step — which runs AFTER this function, once the mixer has posed the skeleton for the
+   * frame. This function only decides WHEN settling is done, by comparing the actually-achieved
+   * heading (`observedHeadingRadians`, below) against the target. Kept on the input type rather
+   * than removed: `createCaseOwnedBedsideApproach` still derives and carries it, and trimming it
+   * from every call site is out of scope for this change.
    */
   settleTurnRateRadiansPerSecond: number;
+  /**
+   * The slot's ACTUAL current heading, read off the live actor after the previous frame's
+   * clip-driven turn increment. `execution.headingRadians` is not advanced by this function during
+   * settling (see above), so it cannot answer "are we there yet" — only the observed heading can,
+   * the same discipline `observedPositionXz` already applies to travelled distance.
+   */
+  observedHeadingRadians: number;
 }): BedsideApproachExecution {
   const execution = input.execution;
   if (execution.phase === "invalidated") return execution;
@@ -207,27 +294,64 @@ export function stepBedsideApproachExecution(input: {
     // lock holding a toe pivots the body about that toe and finished 1.70 m out. Snapping the yaw
     // on the arrival frame swept `toe1-1.L` 0.225 m in one frame, 45x the allowance.
     //
-    // So the turn happens after the walk, in place, and its cost is honest and recorded: a planted
-    // toe sweeps while the body rotates, because the shipped clip set contains NO turn-in-place
-    // take. That interval is graded separately and it does not pass. It is not hidden inside the
-    // walk's numbers and no threshold was moved to accommodate it.
-    const remainingTurn = shortestYawDelta(execution.headingRadians, input.targetHeadingRadians);
-    const step = input.settleTurnRateRadiansPerSecond * input.deltaSeconds;
-    if (Math.abs(remainingTurn) <= step) {
+    // So the turn happens after the walk, in place.
+    //
+    // ## CHANGED: the turn is now driven by the walk clip's OWN steps instead of a procedural
+    // rotate-and-slide. The walk action keeps playing (`drive.locomotion` stays 1, at
+    // `SETTLING_LOCOMOTION_TIME_SCALE_FACTOR`) with ZERO executor forward advance
+    // (`prescribedPositionXz` is left untouched, exactly as it was frozen on the walking-to-
+    // settling transition frame). The actual yaw increment is applied by the clip-driven turn
+    // (`clip-driven-settling-turn-mod.ts`) after the mixer has posed the skeleton for the frame —
+    // this function only measures whether that has brought the slot within
+    // `SETTLE_TURN_TOLERANCE_RADIANS` of the target and, if so, ends the phase.
+    const remainingTurn = shortestYawDelta(input.observedHeadingRadians, input.targetHeadingRadians);
+    // `stoppedSeconds` is repurposed here (settling never otherwise uses it) as the fade-wait
+    // clock: seconds the drive has already spent at 0 since the FIRST frame remaining crossed
+    // `SETTLING_DRIVE_STOP_TOLERANCE_RADIANS` — see that constant's own note. Ending the phase
+    // requires BOTH the tight heading tolerance AND that clock reaching `SETTLING_FADE_SETTLE_
+    // SECONDS`, so arrival-close never inherits a still-fading clip weight on the plant leg.
+    if (Math.abs(remainingTurn) <= SETTLE_TURN_TOLERANCE_RADIANS && execution.stoppedSeconds >= SETTLING_FADE_SETTLE_SECONDS) {
       return {
         ...execution,
         phase: "arrived",
         travelledMeters,
         drive: { locomotion: 0 },
         headingRadians: input.targetHeadingRadians,
+        // TAKEN FROM WHERE THE BODY ACTUALLY IS, not the phase's stale entry point. The
+        // clip-driven turn genuinely translates the slot while pivoting about an off-centre
+        // planted foot — the same way a real stepping turn carries the torso — so the frozen
+        // walking-to-settling snapshot is wrong by however far that pivot moved it. Re-freezing it
+        // here (this field stops being written once `advanceCaseOwnedBedsideApproach` resumes
+        // writing `actorSlot.position` from it on the "arrived" phase) is what stopped a snap-back
+        // to the pre-turn spot from reading as resumed root travel during the stopped observation.
+        prescribedPositionXz: { x: input.observedPositionXz.x, z: input.observedPositionXz.z },
         stoppedSeconds: 0,
+      };
+    }
+    if (Math.abs(remainingTurn) <= SETTLING_DRIVE_STOP_TOLERANCE_RADIANS) {
+      // Close enough: stop asking the clip to play (starts its fade) while STILL in `settling`, so
+      // the fade's ~0.3 s run out here rather than after arrival-close has already started reading
+      // a plant leg it assumes is static.
+      return {
+        ...execution,
+        travelledMeters,
+        drive: { locomotion: 0 },
+        headingRadians: execution.headingRadians,
+        stoppedSeconds: execution.stoppedSeconds + input.deltaSeconds,
       };
     }
     return {
       ...execution,
       travelledMeters,
-      drive: { locomotion: 0 },
-      headingRadians: execution.headingRadians + Math.sign(remainingTurn) * step,
+      drive: {
+        locomotion: 1,
+        timeScaleFactor: SETTLING_LOCOMOTION_TIME_SCALE_FACTOR,
+        legWeight: SETTLING_LEG_WEIGHT_TARGET,
+      },
+      // Not advanced here — see the `## CHANGED` note above. The clip-driven turn owns the slot's
+      // actual rotation.y; this field just carries the phase's entry heading forward unchanged so
+      // nothing downstream reads a stale null.
+      headingRadians: execution.headingRadians,
       stoppedSeconds: 0,
     };
   }
@@ -248,6 +372,29 @@ export function stepBedsideApproachExecution(input: {
 
   const frameAdvanceMeters = input.walkSpeedMetersPerSecond * input.deltaSeconds;
   const remainingMeters = routeLength - travelledMeters;
+  // ANTICIPATORY TURN — attempted twice, reverted both times, and both measurements are recorded
+  // rather than only the second.
+  //
+  // Attempt 1: an unconditional minimum-jerk ease toward the target heading over the final stride.
+  // Measured 0.68 m of SC-05 arrival error — the stance lock's clip-motion correction is CAPPED
+  // and read the yaw change's rotation-induced toe displacement as something to chase a few
+  // millimetres per frame, never catching up.
+  //
+  // Attempt 2, after `stance-lock-mod.ts` gained `pivotSlotAroundAnchor` (cancels a yaw change's
+  // rotation-induced toe displacement exactly, before the capped correction sees anything — the
+  // planted foot then pivots cleanly rather than being chased) plus a footfall placement bias (a
+  // new stance window's anchor is nudged back toward the route line by the slot's current lateral
+  // drift from it — `footfallBiasXz` in that file): the SAME blend measured 0.248 m — real
+  // progress (0.68 -> 0.248 m, cut by roughly two thirds), verified, not assumed — but still short
+  // of the 0.05 m cap. The remainder is not a further bug to chase here: a pivot through a LARGE
+  // yaw change concentrated into one stride is a real, geometrically correct displacement (on the
+  // order of leg-length per radian for a foot held through the turn), and one footfall's placement
+  // bias per stance window does not fully cancel it when several such windows occur inside one
+  // blend. Spreading the turn across enough real footfalls to correct course every one of them is
+  // what the settling-phase clip-driven turn (a separate card item) targets instead.
+  //
+  // `headingRadians` stays locked to `travelHeadingRadians` for the whole walking phase.
+  const blendedHeadingRadians = input.travelHeadingRadians;
   // STOP WHEN THE NEXT FRAME WOULD OVERSHOOT. The band is one frame's advance rather than a fixed
   // tolerance, so it is a property of the frame rate and the walk speed and cannot be widened to
   // admit an observation: at 60 Hz and 0.676 m/s it is 11 mm, well inside the 0.05 m arrival cap
@@ -258,7 +405,7 @@ export function stepBedsideApproachExecution(input: {
       phase: "settling",
       travelledMeters,
       drive: { locomotion: 0 },
-      headingRadians: execution.headingRadians,
+      headingRadians: blendedHeadingRadians,
       prescribedPositionXz: { x: input.observedPositionXz.x, z: input.observedPositionXz.z },
       arrivedAtMs: input.nowMs,
       stoppedSeconds: 0,
@@ -276,10 +423,7 @@ export function stepBedsideApproachExecution(input: {
     phase: "walking",
     travelledMeters,
     drive: { locomotion: 1 },
-    // THE YAW IS FIXED WHILE WALKING. It is not a preference: the clip's travel direction IS the
-    // slot's yaw, so turning mid-walk steers the body off the route. Measured, a turn distributed
-    // across the walk left the physician 4.87 m from the bedside.
-    headingRadians: input.travelHeadingRadians,
+    headingRadians: blendedHeadingRadians,
     prescribedPositionXz: {
       x: input.observedPositionXz.x + unit.x * advance,
       z: input.observedPositionXz.z + unit.z * advance,

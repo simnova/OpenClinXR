@@ -448,7 +448,7 @@ type DeclaredEquipmentMountEvidence = {
 
 type GeneratedRuntimeDrive = {
   locomotion?: boolean | number | string | GeneratedDriveScalarValue | null;
-  gaze?: boolean | number | string | GeneratedDriveScalarValue | null;
+  locomotionTimeScaleFactor?: boolean | number | string | GeneratedDriveScalarValue | null; locomotionLegWeight?: boolean | number | string | GeneratedDriveScalarValue | null; gaze?: boolean | number | string | GeneratedDriveScalarValue | null;
   gazeAversion?: boolean | number | string | GeneratedDriveScalarValue | null;
   lipSync?: boolean | number | string | GeneratedDriveScalarValue | null;
   lipSyncViseme?: boolean | number | string | GeneratedDriveScalarValue | null;
@@ -3486,12 +3486,12 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       },
       { nowMs: now, deltaSeconds },
     ) : null;
-    floor.userData.genDrive = approachFrame ? { locomotion: approachFrame.locomotion, driveSource: approachFrame.driveSource } : floor.userData.genDrive;
+    floor.userData.genDrive = approachFrame ? { locomotion: approachFrame.locomotion, locomotionTimeScaleFactor: approachFrame.locomotionTimeScaleFactor, locomotionLegWeight: approachFrame.locomotionLegWeight, driveSource: approachFrame.driveSource } : floor.userData.genDrive;
     const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
     const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);
     syncPreparedActorAudio(now); updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid);
     window.__openClinXrSelectedCaseAudio = caseAudio.snapshot();
-    applyStationBedsideStanceLock(caseOwnedBedsideApproach); // AFTER the pose: a lock reading last frame's pose cancels nothing.
+    applyStationBedsideStanceLock(caseOwnedBedsideApproach, deltaSeconds); // AFTER the pose: a lock reading last frame's pose cancels nothing.
     applyPhysicsBoneTransforms(now); // capture-gated; extracted module
     updateEnvironmentRealismAnimations(deltaSeconds, now);
     // Per-frame affect modulation of the loaded environment container. The behaviour moved to

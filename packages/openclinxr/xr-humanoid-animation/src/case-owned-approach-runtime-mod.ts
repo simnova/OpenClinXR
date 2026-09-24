@@ -14,6 +14,10 @@ import {
   type SettlingStepTurnState,
 } from "./settling-step-turn-mod.js";
 import {
+  createClipDrivenSettlingTurnState,
+  type ClipDrivenSettlingTurnState,
+} from "./clip-driven-settling-turn-mod.js";
+import {
   createArrivalCloseState,
   type ArrivalCloseState,
   type RestStanceSnapshot,
@@ -67,13 +71,26 @@ export type CaseOwnedBedsideApproach = {
   contactBandMeters: number;
   walkSpeedMetersPerSecond: number;
   settleTurnRateRadiansPerSecond: number;
+  /** One full cycle of the bound clip, in seconds — the settling turn's own stepping cadence. */
+  clipCycleSeconds: number;
   travelHeadingRadians: number;
   start: Vector3;
   target: Vector3;
   /** False until a walking frame whose pose the clip has actually written; see the note on the lock. */
   lockArmed: boolean;
-  /** Alternating plant/swing during the terminal turn. Slot XZ is not written here. */
+  /**
+   * ## CHANGED: retained for `settling-step-turn-mod.ts`'s own restLocal fallback (the
+   * no-restStance branch in `applyCaseOwnedStanceLock`'s arrived close) and its own tests, but no
+   * longer driven during settling — see `clipTurn` below, which replaced it as the settling-phase
+   * turn owner.
+   */
   turnStep: SettlingStepTurnState;
+  /**
+   * The clip-driven settling turn's own state: which foot is this phase's pivot, its bounded
+   * budget, and the reused stance-lock state the pivot/pin cycle runs through. See
+   * `clip-driven-settling-turn-mod.ts`.
+   */
+  clipTurn: ClipDrivenSettlingTurnState;
   /**
    * The actor's own standing pose, snapshotted on the first walking frame while the
    * skeleton still holds the idle pose. Drives the arrived close and the settling
@@ -91,6 +108,10 @@ export type CaseOwnedBedsideApproachRefusal = { refused: true; reason: string };
 /** The drive this producer hands the frame loop, plus what it did to get there. */
 export type CaseOwnedApproachFrame = {
   locomotion: number;
+  /** Multiplies the clip's derived playback rate; below 1 only during the settling turn. */
+  locomotionTimeScaleFactor: number;
+  /** Target leg-chain effective weight; below 1 only during the settling turn. */
+  locomotionLegWeight: number;
   driveSource: "case_owned_bedside_approach";
   phase: BedsideApproachExecution["phase"];
   positionXz: { x: number; z: number };
@@ -265,11 +286,13 @@ export function createCaseOwnedBedsideApproach(input: {
     settleTurnRateRadiansPerSecond:
       absoluteYawDelta(travelHeadingRadians, input.intent.target.headingRadians)
       / Math.max(input.clipCycleSeconds, Number.EPSILON),
+    clipCycleSeconds: input.clipCycleSeconds,
     travelHeadingRadians,
     start: input.intent.start,
     target,
     lockArmed: false,
     turnStep: createSettlingStepTurnState(),
+    clipTurn: createClipDrivenSettlingTurnState(),
     restStance: null,
     closeState: createArrivalCloseState(),
     floorBandPlant,

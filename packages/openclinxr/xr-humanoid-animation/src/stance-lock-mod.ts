@@ -2,10 +2,10 @@ import type { Object3D } from "three";
 import { Vector3 } from "three";
 import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import { stanceAtTime } from "./locomotion-stance-labels.js";
-import { capCorrection, findStanceChain, solveTwoBoneIK, worldXyz } from "./stance-lock-ik.js";
+import { capCorrection, compensateSlotForYawChange, computeFootfallBias, findStanceChain, pivotSlotAroundAnchor, solveTwoBoneIK, worldXyz } from "./stance-lock-ik.js";
 import { applySettledPostureCorrection } from "./settled-posture-correction.js";
 
-export { solveTwoBoneIK, applySettledPostureCorrection }; // kept resolving after the split
+export { solveTwoBoneIK, applySettledPostureCorrection, pivotSlotAroundAnchor }; // kept resolving after the split
 
 /**
  * The stance constraint SC-00 named as the remedy, applied to the actor slot rather than the root.
@@ -95,6 +95,9 @@ export type StanceLockState = {
   forwardRight: number;
   /** This frame's clip-labelled stance, or null with no clip labels (height-band path). */
   labelledStance: { left: boolean; right: boolean } | null;
+  /** `actorSlot.rotation.y` at the end of the previous run, or null before the first — see
+   * `compensateSlotForYawChange` (`stance-lock-ik.ts`). */
+  prevYawRadians: number | null;
 };
 
 export function createStanceLockState(): StanceLockState {
@@ -110,6 +113,7 @@ export function createStanceLockState(): StanceLockState {
     forwardLeft: 0,
     forwardRight: 0,
     labelledStance: null,
+    prevYawRadians: null,
   };
 }
 
@@ -157,6 +161,8 @@ export function applyStanceLockedGroundAdvance(input: {
   state: StanceLockState;
   /** Route unit direction in world XZ. Enables the clip-motion rule and the no-backward clamp. */
   travelUnit?: { x: number; z: number };
+  /** Route start in world XZ — see `computeFootfallBias` (`stance-lock-ik.ts`). */
+  routeStart?: { x: number; z: number };
   /**
    * The clip's own stance labels with the action's time. When present, only feet
    * labelled stance are pinned; the height band is not consulted for crowning.
@@ -165,6 +171,8 @@ export function applyStanceLockedGroundAdvance(input: {
 }): StanceLockState {
   const { actorSlot, leftToe, rightToe, state } = input;
   actorSlot.updateMatrixWorld(true);
+  // Pivot about the planted foot first — see `compensateSlotForYawChange` (`stance-lock-ik.ts`).
+  compensateSlotForYawChange(actorSlot, state);
   if (leftToe === null || rightToe === null) {
     return {
       ...createStanceLockState(),
@@ -182,6 +190,8 @@ export function applyStanceLockedGroundAdvance(input: {
   // skate count and the follow never engages). Pre-correction both sides leaves pure
   // clip travel.
   const slotPreXz = { x: actorSlot.position.x, z: actorSlot.position.z };
+  // See `computeFootfallBias` (`stance-lock-ik.ts`); applied only at the anchor-capture branches.
+  const footfallBiasXz = computeFootfallBias(slotPreXz, input.routeStart, input.travelUnit);
   const leftHeight = left.y - input.floorOriginY;
   const rightHeight = right.y - input.floorOriginY;
   // THE CLIP OWNS CONTACT. When the caller supplies the clip's stance labels, the height band is
@@ -271,6 +281,7 @@ export function applyStanceLockedGroundAdvance(input: {
       prevSlotXz: slotPreXz,
       forwardLeft,
       forwardRight,
+      prevYawRadians: actorSlot.rotation.y,
     };
   }
 
@@ -293,6 +304,7 @@ export function applyStanceLockedGroundAdvance(input: {
       prevSlotXz: slotPreXz,
       forwardLeft,
       forwardRight,
+      prevYawRadians: actorSlot.rotation.y,
     };
   }
 
@@ -323,10 +335,11 @@ export function applyStanceLockedGroundAdvance(input: {
     // (measured: clamping a healthy transfer pin reintroduces SC-05's 12.5 mm worst
     // frame). Sustained backward runs never come from this branch — a crowned skater
     // is followed, not pinned — so there is no burst left for a clamp to bound.
+    // Biased like the branches below (`computeFootfallBias`) — the common footfall path.
     const pinned = worldXyz(stanceFoot === "left" ? leftToe : rightToe);
     return {
       stanceFoot,
-      anchorWorldXz: { x: pinned.x, z: pinned.z },
+      anchorWorldXz: { x: pinned.x - footfallBiasXz.x, z: pinned.z - footfallBiasXz.z },
       windowFrames: 1,
       correctionMeters,
       toeHeightMeters,
@@ -339,6 +352,7 @@ export function applyStanceLockedGroundAdvance(input: {
       prevSlotXz: slotPreXz,
       forwardLeft,
       forwardRight,
+      prevYawRadians: actorSlot.rotation.y,
     };
   }
 
@@ -351,7 +365,7 @@ export function applyStanceLockedGroundAdvance(input: {
     if (anchor === null) {
       return {
         stanceFoot,
-        anchorWorldXz: { x: toe.x, z: toe.z },
+        anchorWorldXz: { x: toe.x - footfallBiasXz.x, z: toe.z - footfallBiasXz.z },
         windowFrames: 1,
         correctionMeters: { x: 0, z: 0 },
         toeHeightMeters,
@@ -361,6 +375,7 @@ export function applyStanceLockedGroundAdvance(input: {
         prevSlotXz: slotPreXz,
         forwardLeft,
         forwardRight,
+        prevYawRadians: actorSlot.rotation.y,
       };
     }
     const correctionMeters = { x: anchor.x - toe.x, z: anchor.z - toe.z };
@@ -385,6 +400,7 @@ export function applyStanceLockedGroundAdvance(input: {
       prevSlotXz: slotPreXz,
       forwardLeft,
       forwardRight,
+      prevYawRadians: actorSlot.rotation.y,
     };
   }
 
@@ -393,10 +409,10 @@ export function applyStanceLockedGroundAdvance(input: {
 
   const anchor = state.stanceFoot === stanceFoot ? state.anchorWorldXz : null;
   if (anchor === null) {
-    // A NEW window: take the anchor where the clip actually put the foot and apply nothing.
+    // A NEW window: the clip's own foot position, biased by `footfallBiasXz`.
     return {
       stanceFoot,
-      anchorWorldXz: { x: toeWorld.x, z: toeWorld.z },
+      anchorWorldXz: { x: toeWorld.x - footfallBiasXz.x, z: toeWorld.z - footfallBiasXz.z },
       windowFrames: 1,
       correctionMeters: { x: 0, z: 0 },
       toeHeightMeters,
@@ -406,6 +422,7 @@ export function applyStanceLockedGroundAdvance(input: {
       prevSlotXz: slotPreXz,
       forwardLeft,
       forwardRight,
+      prevYawRadians: actorSlot.rotation.y,
     };
   }
 
@@ -474,6 +491,7 @@ export function applyStanceLockedGroundAdvance(input: {
     prevSlotXz: { x: actorSlot.position.x, z: actorSlot.position.z },
     forwardLeft,
     forwardRight,
+    prevYawRadians: actorSlot.rotation.y,
   };
 }
 

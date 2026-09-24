@@ -17,6 +17,7 @@ import {
   advanceCaseOwnedBedsideApproach,
   applyCaseOwnedStanceLock,
   readHeadPitchDeg,
+  readHeadYawWorldRadians,
   sampleLocomotionStanceTrack,
 } from "./case-owned-approach-frame-mod.js";
 import { resolveLocomotionClipTimeScale } from "./locomotion-clip-playback-mod.js";
@@ -305,6 +306,13 @@ export type BedsideApproachRuntimeEvidence = {
      * the frame was driven. Null when the rig carries no head bone.
      */
     headPitchDeg: number | null;
+    /**
+     * Head bone world yaw, in radians, `atan2(x, z)` convention — read after the frame's
+     * gaze-lead write. Null when the rig carries no head bone. Together with `slot.yaw` this is
+     * what a headLeadSeconds metric reads: how far ahead of the body the head reaches the target
+     * heading.
+     */
+    headYawWorldRadians: number | null;
   }>;
   startWorld: { x: number; y: number; z: number } | null;
   targetWorld: { x: number; y: number; z: number } | null;
@@ -392,6 +400,7 @@ export function publishBedsideApproachRuntimeEvidence(
       travelledMeters: frame.travelledMeters,
       correctionMeters: frame.stanceCorrectionMeters,
       headPitchDeg: readHeadPitchDeg(approach.actorSlot),
+      headYawWorldRadians: readHeadYawWorldRadians(approach.actorSlot),
     });
     while (samples.length > BEDSIDE_APPROACH_EVIDENCE_SAMPLE_LIMIT) samples.shift();
   }
@@ -431,7 +440,7 @@ export function publishBedsideApproachRuntimeEvidence(
  * the lock must measure does not exist until that pass has run. See the note on
  * `applyCaseOwnedStanceLock` for the measurement that forced the split.
  */
-export function applyStationBedsideStanceLock(state: StationBedsideApproachState): void {
-  applyCaseOwnedStanceLock(state.approach);
+export function applyStationBedsideStanceLock(state: StationBedsideApproachState, deltaSeconds: number): void {
+  applyCaseOwnedStanceLock(state.approach, deltaSeconds);
   publishBedsideApproachRuntimeEvidence(state, state.lastFrame);
 }

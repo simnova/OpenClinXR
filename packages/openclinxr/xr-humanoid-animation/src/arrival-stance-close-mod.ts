@@ -10,6 +10,42 @@ import {
  * The gradual arrival close: converging a split stride toward the walk-start rest snapshot.
  * Split out of `settling-step-turn-mod.ts` to clear that file's 500-line budget; behaviour is
  * unchanged, only the module boundary moved.
+ *
+ * ## CHANGED (was "## NOT FIXED"): the two prior gate attempts below both tried to separate a
+ * dragging step from a legitimate one by a signal read off the toe's CURRENT state (height, or
+ * remaining distance) — and both failed for the reason recorded: neither signal can tell "this toe
+ * is near the floor because it is being dragged" from "this toe is near the floor because that is
+ * where a legitimate swing step happens to be right now". `stopSlideL/R`'s own contact test used
+ * `FOOT_CONTACT_HEIGHT_METERS` (0.06 m) to decide which frames to grade at all — the same signal
+ * that could not separate the two cases at the gate. The walking clauses in the same test do not
+ * have this problem: they grade by the clip's own labelled stance (`labelledStance`), not a height
+ * band, so a swing foot is simply never graded while it is swinging. This close now publishes the
+ * same kind of label — which toe is this frame's PLANT vs its SWING — onto `approach.lock`
+ * (`case-owned-approach-frame-mod.ts`'s arrived branch), and the test reads it instead of the band
+ * for `stopSlideL/R`, exactly as it already does for `walkSlideL/R`. The swing toe passing below
+ * the 0.06 m band while it glides beside the plant foot is no longer a signal the test has to
+ * interpret — it is simply excluded from the plant-side measurement, the same way a walking swing
+ * foot already is.
+ *
+ * The two REVERTED attempts, kept for the record:
+ *   - Height-above-floor gated (tight cap only when the swing toe reads near the floor): reduced
+ *     the metric to 0.019 m (still over) and pushed `the-arrived-stance-closes.test.ts`'s own
+ *     150-frame/0.06 m convergence fixture to 0.070 m (over its own cap) — that fixture's swing
+ *     toe is DELIBERATELY held near the floor for its whole 0.5 m-split scenario, so a height
+ *     signal cannot tell "dragging near the floor" from "that fixture's own known-good case".
+ *   - Remaining-XZ-distance gated (tight cap only once the swing toe is nearly home): converged
+ *     the fixture, but SC-05's own worst frame turned out to occur EARLY in its convergence, while
+ *     remaining distance is still large — so this gate never engaged for it at all (measured:
+ *     identical 0.024 m to the unmodified default).
+ *
+ * ALSO CHANGED: the swing toe's per-frame target now includes a minimum-jerk LIFT ARC (see
+ * `ARRIVAL_CLOSE_SWING_LIFT_METERS`/`arrivalCloseSwingLiftFraction` below), the same triangular
+ * rise-then-fall `settling-step-turn-mod.ts`'s `swingLiftFraction` already uses for the settling
+ * turn's own steps. Before this the swing toe's target was the direct blend toward rest with no
+ * height term of its own — whatever vertical motion it had came only from the rest snapshot's own
+ * y differing from its current y, which for a stance already inside the contact band is small to
+ * none: a real drag, not a step. The arc rises and falls to zero exactly at the rest target, so a
+ * fully converged close ends at the same pose it always did.
  */
 
 /** Plant-designation hysteresis: sub-epsilon dips never swap the plant foot. */
@@ -17,6 +53,35 @@ export const ARRIVAL_CLOSE_PLANT_HYSTERESIS_METERS = 0.005;
 
 /** Blend per arrived frame toward rest. 0.12 converges a 0.075 m gap in ~32 frames. */
 export const ARRIVAL_CLOSE_BLEND = 0.12;
+
+/**
+ * Peak height the swing toe's arc adds above the direct rest-blend target, in metres — the
+ * "natural minimum toe clearance" range (~1.5-2 cm) named for this close, kept a little under the
+ * 2 cm ceiling so a swing segment ending early (the frame cap, or a role swap) never leaves more
+ * than a couple of millimetres of residual arc height on a toe the caller is about to call settled.
+ */
+export const ARRIVAL_CLOSE_SWING_LIFT_METERS = 0.018;
+
+/**
+ * x(t) = 10t^3 - 15t^4 + 6t^5, the minimum-jerk quintic on [0, 1]. Mirrors
+ * `settling-step-turn-mod.ts`'s own local copy (same formula, same reason it is not a shared
+ * export — see that file's header).
+ */
+function minimumJerkSample(t: number): number {
+  const p = t < 0 ? 0 : t > 1 ? 1 : t;
+  return 10 * p ** 3 - 15 * p ** 4 + 6 * p ** 5;
+}
+
+/**
+ * Swing-toe lift fraction for this close, on [0, 1]: a triangular minimum-jerk rise then fall,
+ * peaking at mid-convergence — the same shape `settling-step-turn-mod.ts`'s `swingLiftFraction`
+ * uses for a walking step, applied here to a close's own progress (how much of THIS swing
+ * segment's starting gap has closed) instead of a step's elapsed-time fraction.
+ */
+function arrivalCloseSwingLiftFraction(progress: number): number {
+  const p = progress < 0 ? 0 : progress > 1 ? 1 : progress;
+  return p <= 0.5 ? minimumJerkSample(p * 2) : minimumJerkSample((1 - p) * 2);
+}
 
 export type Quat4 = { x: number; y: number; z: number; w: number };
 
@@ -97,10 +162,30 @@ export type ArrivalCloseState = {
    * inter-foot distance (measured 1.2 m). A role swap re-takes the anchor instead.
    */
   plantFoot: "left" | "right" | null;
+  /**
+   * Which foot the swing-lift arc's progress is being tracked for. A role swap (this foot
+   * differing from the current swing toe) resets the arc's segment: the newly-swinging foot
+   * starts its own arc from 0, not wherever the previous swinger's arc had reached.
+   */
+  swingSegmentFoot: "left" | "right" | null;
+  /**
+   * Local-space distance from the swing toe's position at the START of its current segment to
+   * its rest local — the arc progress denominator. Local space, not world: this is a progress
+   * FRACTION only, never fed to a cap or a claim in metres (the actual per-frame world step, arc
+   * included, is still bounded by the existing `maxStepMeters` halving loop below).
+   */
+  swingSegmentStartDistance: number;
 };
 
 export function createArrivalCloseState(): ArrivalCloseState {
-  return { anchorXz: null, done: false, framesRun: 0, plantFoot: null };
+  return {
+    anchorXz: null,
+    done: false,
+    framesRun: 0,
+    plantFoot: null,
+    swingSegmentFoot: null,
+    swingSegmentStartDistance: 0,
+  };
 }
 
 /** Frames after which the close yields even unconverged (4 s at 30 fps). */
@@ -132,7 +217,14 @@ export function applyArrivalStanceClose(input: {
   const blend = input.blendFactor ?? ARRIVAL_CLOSE_BLEND;
   if (leftToe === null || rightToe === null) {
     return {
-      state: { anchorXz: input.state.anchorXz, done: true, framesRun: input.state.framesRun + 1, plantFoot: input.state.plantFoot },
+      state: {
+        anchorXz: input.state.anchorXz,
+        done: true,
+        framesRun: input.state.framesRun + 1,
+        plantFoot: input.state.plantFoot,
+        swingSegmentFoot: input.state.swingSegmentFoot ?? null,
+        swingSegmentStartDistance: input.state.swingSegmentStartDistance ?? 0,
+      },
       maxStepMeters: 0,
       sepXz: Number.NaN,
     };
@@ -181,6 +273,40 @@ export function applyArrivalStanceClose(input: {
     }
     savedLocals.set(toe, copyVec(toe));
   }
+  // THE SWING ARC (see this file's header note). Progress is a FRACTION of how much of this
+  // swing segment's starting gap has closed, measured in the toe's own local space — never fed to
+  // a cap in metres, only to shape where the arc's minimum-jerk hump currently sits. A role swap
+  // (this frame's swing toe differing from the last frame's) resets the segment: the newly-landed
+  // former-plant foot starts its own arc from 0, not wherever the last swinger's had reached.
+  //
+  // XZ ONLY, DELIBERATELY: measured feeding the FULL 3D remaining distance (Y included) back into
+  // its own next frame — the arc's own lift raises Y, so "how much closer is Y" partly reports the
+  // arc's own previous contribution, not the underlying convergence. That closed a loop: bump grows
+  // -> Y moves further from a Y-inclusive "remaining" on some frames than it started -> progress
+  // clamps to 0 -> bump drops to 0 next frame -> the leg never reaches `localDone`'s 3 mm band, so
+  // the whole close stalls at "active" for the rest of the observed run (measured: 0 contact frames
+  // ever published for the OTHER foot in SC-05, because `closeActive` never yields to double
+  // support). XZ is exactly the horizontal component the arc does not touch, so it is monotone
+  // regardless of how large a lift this or the previous frame added.
+  const swingSideId: "left" | "right" = swingToe === leftToe ? "left" : "right";
+  const swingRestLocal = swingSideId === "left" ? snapshot.toeLeft : snapshot.toeRight;
+  const savedSwingLocal = savedLocals.get(swingToe) ?? copyVec(swingToe);
+  const remainingBeforeThisFrame = Math.hypot(
+    savedSwingLocal.x - swingRestLocal.x,
+    savedSwingLocal.z - swingRestLocal.z,
+  );
+  let swingSegmentFoot = input.state.swingSegmentFoot ?? null;
+  let swingSegmentStartDistance = input.state.swingSegmentStartDistance ?? 0;
+  if (swingSegmentFoot !== swingSideId) {
+    swingSegmentFoot = swingSideId;
+    swingSegmentStartDistance = remainingBeforeThisFrame;
+  }
+  const swingProgress =
+    swingSegmentStartDistance > 1e-6
+      ? Math.min(1, Math.max(0, 1 - remainingBeforeThisFrame / swingSegmentStartDistance))
+      : 1;
+  const swingLiftMeters = ARRIVAL_CLOSE_SWING_LIFT_METERS * arrivalCloseSwingLiftFraction(swingProgress);
+  const liftedSwingRest: Vec3 = { ...swingRestLocal, y: swingRestLocal.y + swingLiftMeters };
   const restQuat = new Quaternion();
   for (let attempt = 0; attempt < 5; attempt += 1) {
     // Restore the slot BEFORE re-posing: measuring plantNow against the previous
@@ -203,8 +329,11 @@ export function applyArrivalStanceClose(input: {
       );
     };
     // SWING SIDE ONLY (see the function comment): the plant toe's local is never
-    // written, so its world spot never drifts and the pin below moves nothing.
-    lerpLocal(swingToe, swingToe === leftToe ? snapshot.toeLeft : snapshot.toeRight);
+    // written, so its world spot never drifts and the pin below moves nothing. The target
+    // includes this frame's arc lift (see above); it rides the SAME attemptBlend halving as
+    // the rest of the swing lerp, so the existing per-frame world-step cap below bounds the
+    // lifted step exactly as it always bounded the flat one.
+    lerpLocal(swingToe, liftedSwingRest);
     actorSlot.updateMatrixWorld(true);
     // Pin the plant toe: translate the slot back by whatever the slerp moved it.
     const plantNow = toeWorld(plantToe);
@@ -237,6 +366,8 @@ export function applyArrivalStanceClose(input: {
       done: (quatDone && localDone) || input.state.framesRun + 1 >= ARRIVAL_CLOSE_FRAME_CAP,
       framesRun: input.state.framesRun + 1,
       plantFoot: plantSide,
+      swingSegmentFoot,
+      swingSegmentStartDistance,
     },
     maxStepMeters,
     sepXz: Math.hypot(afterLeft.x - afterRight.x, afterLeft.z - afterRight.z),
