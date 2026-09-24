@@ -1,6 +1,11 @@
 import type { Object3D } from "three";
-import { MathUtils, Quaternion, Vector3 } from "three";
-import { findBonesBySanitisedName, sanitiseBoneName } from "@openclinxr/xr-pose";
+import { Vector3 } from "three";
+import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
+import { stanceAtTime } from "./locomotion-stance-labels.js";
+import { capCorrection, findStanceChain, solveTwoBoneIK, worldXyz } from "./stance-lock-ik.js";
+import { applySettledPostureCorrection } from "./settled-posture-correction.js";
+
+export { solveTwoBoneIK, applySettledPostureCorrection }; // kept resolving after the split
 
 /**
  * The stance constraint SC-00 named as the remedy, applied to the actor slot rather than the root.
@@ -31,8 +36,10 @@ import { findBonesBySanitisedName, sanitiseBoneName } from "@openclinxr/xr-pose"
  *  - PINNED: the single stance foot, within one contact window. Zero by construction.
  *  - NOT PINNED: the other foot during double support — one frame of the 42-frame shipped cycle,
  *    where both toes sit inside the contact band. It slides by exactly this frame's correction.
- *  - NOT PINNED: window transitions. When the stance foot changes, the anchor is re-taken and no
- *    correction is applied, so the seam frame carries whatever the clip does.
+ *  - SHARED: window transitions. When the stance foot changes, the incoming foot has no anchor,
+ *    and re-anchoring with no correction leaves both feet carrying the frame's full advance
+ *    (~15-24 mm at a 1.1 m/s walk). The switch frame pins the world-stationary foot instead,
+ *    so the planted foot keeps ~0 and the landing foot's burst opens a fresh window.
  *  - NOT AFFECTED AT ALL: arrival error, settled heading, stopped-observation root travel, swept
  *    collision and limb integrity. The lock moves the body, so it can only make arrival WORSE.
  *
@@ -54,12 +61,40 @@ export type StanceLockState = {
   anchorWorldXz: { x: number; z: number } | null;
   /** How many consecutive frames the current window has run. */
   windowFrames: number;
-  /** This frame's applied correction, in metres. Zero on a window seam. */
+  /** This frame's applied correction, in metres. Minimax-shared on a stance-switch frame. */
   correctionMeters: { x: number; z: number };
   /** Both toes' signed height above the floor frame this frame, for the record. */
   toeHeightMeters: { left: number; right: number };
   /** True when both toes were inside the band: the frame the other foot is NOT pinned. */
   doubleSupport: boolean;
+  /**
+   * Both toes' PRE-correction world XZ from the previous lock run, or null after a
+   * flight (no stance) or before the first run. Pre-correction, because the pin and the
+   * IK solve move the toe after the measurement: body-frame deltas against corrected
+   * positions would read the lock's own output as clip travel. A stance-switch frame
+   * has no anchor for the incoming foot, so its correction is derived from these instead.
+   */
+  prevToeWorldXz: { left: { x: number; z: number }; right: { x: number; z: number } } | null;
+  /**
+   * The actor slot's XZ before the previous lock run's correction, or null before the
+   * first run. Body-frame toe deltas (toe minus slot) cancel the slot's own motion
+   * exactly, leaving the clip's own travel, which is what the stance rule reads — and
+   * only pre-correction both sides does so, since a stored post-correction slot would
+   * read the pin's own translation back as clip travel. Also the datum for the
+   * no-backward clamp (post minus this is the executor advance plus the correction).
+   */
+  prevSlotXz: { x: number; z: number } | null;
+  /**
+   * Consecutive lock runs each foot has spent in band while travelling forward in body
+   * space. A foot that does so for 3+ frames is skating, not planting: it is refused
+   * the crown, and a crowned one is followed instead of pinned. Transients (1-2 frames:
+   * push-off, interpolated touchdown instants) pin like any stance. At 30 Hz and 60 Hz
+   * alike push-off clears in fewer frames than any measured skate (3-7 frames).
+   */
+  forwardLeft: number;
+  forwardRight: number;
+  /** This frame's clip-labelled stance, or null with no clip labels (height-band path). */
+  labelledStance: { left: boolean; right: boolean } | null;
 };
 
 export function createStanceLockState(): StanceLockState {
@@ -70,150 +105,30 @@ export function createStanceLockState(): StanceLockState {
     correctionMeters: { x: 0, z: 0 },
     toeHeightMeters: { left: Number.NaN, right: Number.NaN },
     doubleSupport: false,
+    prevToeWorldXz: null,
+    prevSlotXz: null,
+    forwardLeft: 0,
+    forwardRight: 0,
+    labelledStance: null,
   };
 }
 
-function worldXyz(node: Object3D): { x: number; y: number; z: number } {
-  const elements = node.matrixWorld.elements;
-  return { x: elements[12] ?? Number.NaN, y: elements[13] ?? Number.NaN, z: elements[14] ?? Number.NaN };
-}
 
 /**
- * Find the hip and knee bones for a given stance foot using sanitised MPFB names.
- * Returns null if the chain is incomplete.
+ * Per-frame body-travel thresholds for the stance rule, in metres of body-frame toe
+ * travel along the route in one lock run. A planted foot at 1.1 m/s moves ~18 mm per
+ * frame at 60 Hz (~37 mm at 30 Hz), so these sit two orders of magnitude below any real
+ * stance or swing step at any frame rate the runtime runs; only the exact turnaround
+ * instant falls between them, and there the height rule decides.
  */
-function findStanceChain(
-  actorSlot: Object3D,
-  stanceFoot: StanceFoot
-): { hip: Object3D; knee: Object3D; heel: Object3D; toe: Object3D } | null {
-  const side = stanceFoot === "left" ? "L" : "R";
-  // MPFB sanitised names (dots removed by PropertyBinding.sanitizeNodeName)
-  const hipSanitised = sanitiseBoneName(`upperleg01.${side}`);
-  const kneeSanitised = sanitiseBoneName(`lowerleg01.${side}`);
-  const heelSanitised = sanitiseBoneName(`foot.${side}`);
-  const toeSanitised = sanitiseBoneName(`toe1-1.${side}`);
-
-  const hipResults = findBonesBySanitisedName(actorSlot, hipSanitised);
-  const kneeResults = findBonesBySanitisedName(actorSlot, kneeSanitised);
-  const heelResults = findBonesBySanitisedName(actorSlot, heelSanitised);
-  const toeResults = findBonesBySanitisedName(actorSlot, toeSanitised);
-
-  if (hipResults.length === 0 || kneeResults.length === 0 || heelResults.length === 0 || toeResults.length === 0) {
-    return null;
-  }
-  const hip = hipResults[0];
-  const knee = kneeResults[0];
-  const heel = heelResults[0];
-  const toe = toeResults[0];
-  if (!hip || !knee || !heel || !toe) return null;
-  return { hip, knee, heel, toe };
-}
-
+const PUSH_OFF_METERS = 0.001;
 /**
- * Solve two-bone IK (hip + knee) to place the heel at target.
- * Uses cosine rule for deterministic, closed-form solution.
- * Returns:
- * - hipDelta: a from-identity quaternion (delta) to be COMPOSED with current animated hip pose
- * - kneeQuat: an ABSOLUTE local rotation (well-defined bend) to be SET directly on knee
+ * Height difference under which double support keeps the incumbent. Sub-millimetre
+ * gaps are measurement noise at metres of viewing distance, and crowning on them
+ * flickers the stance windows (which inflates step counts); a genuine weight transfer
+ * reads in centimetres.
  */
-export function solveTwoBoneIK(
-  hip: Object3D,
-  knee: Object3D,
-  heel: Object3D,
-  targetWorld: { x: number; y: number; z: number },
-  _maxExtension: number,
-  softening: number,
-  actorSlot: Object3D
-): { hipDelta: Quaternion; kneeQuat: Quaternion } | null {
-  // Get world positions
-  hip.updateMatrixWorld(true);
-  knee.updateMatrixWorld(true);
-  heel.updateMatrixWorld(true);
-
-  const hipWorld = new Vector3().setFromMatrixPosition(hip.matrixWorld);
-  const kneeWorld = new Vector3().setFromMatrixPosition(knee.matrixWorld);
-  const heelWorld = new Vector3().setFromMatrixPosition(heel.matrixWorld);
-
-  const target = new Vector3(targetWorld.x, targetWorld.y, targetWorld.z);
-
-  // Bone lengths (hip->knee, knee->heel)
-  const upperLen = hipWorld.distanceTo(kneeWorld);
-  const lowerLen = kneeWorld.distanceTo(heelWorld);
-
-  // Vector from hip to target
-  const toTarget = target.clone().sub(hipWorld);
-  const dist = toTarget.length();
-
-  // Clamp distance to reachable range with softening near max extension
-  // Max extension is upperLen + lowerLen (full extension), not current hip-to-heel distance
-  const minDist = Math.abs(upperLen - lowerLen);
-  const fullExtension = upperLen + lowerLen;
-  const maxDist = fullExtension - softening;
-  let clampedDist = MathUtils.clamp(dist, minDist, maxDist);
-
-  // If we're in the softening zone, approach exponentially
-  if (dist > maxDist - softening && dist < maxDist + softening) {
-    const t = (dist - (maxDist - softening)) / (2 * softening);
-    clampedDist = MathUtils.lerp(dist, maxDist, t * t * (3 - 2 * t)); // smoothstep
-  }
-
-  // Cosine rule for knee INTERNAL angle (angle between upper and lower leg in the triangle)
-  // cos(kneeInternal) = (upper^2 + lower^2 - dist^2) / (2 * upper * lower)
-  const cosKneeInternal = (upperLen * upperLen + lowerLen * lowerLen - clampedDist * clampedDist) / (2 * upperLen * lowerLen);
-  const kneeInternalAngle = Math.acos(MathUtils.clamp(cosKneeInternal, -1, 1));
-
-  // Knee joint bends by the SUPPLEMENT of the internal angle
-  // Straight leg: internal = PI, bend = 0. Fully bent: internal = 0, bend = PI.
-  const kneeBendAngle = Math.PI - kneeInternalAngle;
-
-  // Cosine rule for hip angle (angle between current upper leg and desired hip->target vector)
-  // cos(hip) = (upper^2 + dist^2 - lower^2) / (2 * upper * dist)
-  const cosHip = (upperLen * upperLen + clampedDist * clampedDist - lowerLen * lowerLen) / (2 * upperLen * clampedDist);
-  const hipAngle = Math.acos(MathUtils.clamp(cosHip, -1, 1));
-
-  // Build rotation axis: perpendicular to the plane containing hip, knee, and target
-  // Use a pole vector (character forward) to define the bend plane when collinear
-  const hipToKnee = new Vector3().subVectors(kneeWorld, hipWorld).normalize();
-  const hipToTarget = toTarget.clone().normalize();
-
-  // Hinge axis = cross(hipToKnee, hipToTarget) - the axis the leg rotates around
-  let hingeAxis = new Vector3().crossVectors(hipToKnee, hipToTarget).normalize();
-
-  // If collinear (hinge axis near zero), use caller-supplied actorSlot as direction-only frame
-  // This defines the sagittal bend plane (knee bends forward/backward)
-  if (hingeAxis.lengthSq() < 1e-6) {
-    let poleVector: Vector3;
-    if (actorSlot) {
-      actorSlot.updateMatrixWorld(true);
-      // Use direction-only transform (no translation) - applyQuaternion not applyMatrix4
-      poleVector = new Vector3(1, 0, 0).applyQuaternion(actorSlot.quaternion).normalize();
-    } else {
-      poleVector = new Vector3(1, 0, 0);
-    }
-    // Hinge axis = cross(legDirection, poleVector) - perpendicular to both
-    hingeAxis = new Vector3().crossVectors(hipToKnee, poleVector).normalize();
-    // If still degenerate (leg parallel to pole), use up vector
-    if (hingeAxis.lengthSq() < 1e-6) {
-      hingeAxis = new Vector3().crossVectors(hipToKnee, new Vector3(0, 1, 0)).normalize();
-    }
-  }
-
-  // Convert world hinge axis to hip local space
-  const hipWorldQuat = new Quaternion().setFromRotationMatrix(hip.matrixWorld);
-  const hipLocalAxis = hingeAxis.clone().applyQuaternion(hipWorldQuat.clone().invert());
-
-  // Knee rotates around same hinge axis (in knee local space)
-  const kneeWorldQuat = new Quaternion().setFromRotationMatrix(knee.matrixWorld);
-  const kneeLocalAxis = hingeAxis.clone().applyQuaternion(kneeWorldQuat.clone().invert());
-
-  // Create local rotations
-  // Hip delta: rotates by hipAngle around hinge axis (from-identity delta)
-  const hipDelta = new Quaternion().setFromAxisAngle(hipLocalAxis, hipAngle);
-  // Knee absolute: bends by kneeBendAngle around hinge axis (well-defined absolute local bend)
-  const kneeQuat = new Quaternion().setFromAxisAngle(kneeLocalAxis, kneeBendAngle);
-
-  return { hipDelta, kneeQuat };
-}
+const HEIGHT_TIE_METERS = 0.001;
 
 /**
  * Pin the stance toe and return the state.
@@ -222,6 +137,14 @@ export function solveTwoBoneIK(
  * rails and a lookup that guesses is the pattern-matching `chain-ownership.ts` refuses. A null toe
  * means the rig does not carry that bone, and the lock then does nothing and says so through
  * `stanceFoot: null` rather than pinning a body part it could not find.
+ *
+ * `travelUnit` is the route's unit direction in world XZ. It enables the clip-motion stance
+ * rule and the no-backward clamp; without it the lock keeps the legacy lower-toe rule.
+ *
+ * `clipStance` carries the clip's own stance labels (`locomotion-stance-labels.ts`) with the
+ * action's time. When present it OVERRIDES the height band: only feet the clip labels stance are
+ * pinned. A swinging foot inside the height band is not pinned. capCorrection's no-backward rule
+ * and 0.02 m cap stay as the safety net on every correction this function applies.
  */
 export function applyStanceLockedGroundAdvance(input: {
   actorSlot: Object3D;
@@ -232,6 +155,13 @@ export function applyStanceLockedGroundAdvance(input: {
   /** Height under which a toe counts as planted. The runtime's own FOOT_CONTACT_HEIGHT_METERS. */
   contactBandMeters: number;
   state: StanceLockState;
+  /** Route unit direction in world XZ. Enables the clip-motion rule and the no-backward clamp. */
+  travelUnit?: { x: number; z: number };
+  /**
+   * The clip's own stance labels with the action's time. When present, only feet
+   * labelled stance are pinned; the height band is not consulted for crowning.
+   */
+  clipStance?: { labels: LocomotionStanceLabels; actionTimeSeconds: number } | undefined;
 }): StanceLockState {
   const { actorSlot, leftToe, rightToe, state } = input;
   actorSlot.updateMatrixWorld(true);
@@ -246,22 +176,83 @@ export function applyStanceLockedGroundAdvance(input: {
   }
   const left = worldXyz(leftToe);
   const right = worldXyz(rightToe);
+  // The slot BEFORE this run's correction. Stored as the next run's datum: body-frame
+  // deltas against a post-correction slot would read the pin's own translation as clip
+  // travel (a -58 mm pin reads back as backward travel, which permanently resets the
+  // skate count and the follow never engages). Pre-correction both sides leaves pure
+  // clip travel.
+  const slotPreXz = { x: actorSlot.position.x, z: actorSlot.position.z };
   const leftHeight = left.y - input.floorOriginY;
   const rightHeight = right.y - input.floorOriginY;
-  const leftDown = leftHeight <= input.contactBandMeters;
-  const rightDown = rightHeight <= input.contactBandMeters;
+  // THE CLIP OWNS CONTACT. When the caller supplies the clip's stance labels, the height band is
+  // not consulted for crowning: a swinging foot at 2 cm is swing, not stance. The band values are
+  // kept for the double-support flag only.
+  const clipLabel = input.clipStance !== undefined
+    ? stanceAtTime(input.clipStance.labels, input.clipStance.actionTimeSeconds)
+    : null;
+  const leftDown = clipLabel !== null ? clipLabel.left : leftHeight <= input.contactBandMeters;
+  const rightDown = clipLabel !== null ? clipLabel.right : rightHeight <= input.contactBandMeters;
 
-  // IN DOUBLE SUPPORT THE LOWER TOE CARRIES THE BODY. Hysteresis on the previous stance foot was
-  // the first rule here and it is wrong for any gait without a flight phase: a foot that has begun
-  // to swing is still inside the 0.06 m band for several frames, and keeping it as the stance foot
-  // pins a toe that is deliberately moving forward — which drags the whole body backwards. Measured
-  // on a 0.5 m-stride probe gait at 60 Hz, that produced a 0.228 m worst-frame displacement on
-  // `toe1-1.L`, 45x the allowance, in the frames right after each stance change. The lower toe is
-  // the one bearing weight, and it is the one that must not move.
+  // THE STANCE FOOT IS THE ONE THE CLIP IS PLANTING. A planted foot in an in-place
+  // walk clip travels backward in body space at the clip's ground speed while a swinging
+  // foot travels forward, so per-frame contact derives from clip-space toe velocity
+  // (sign along the route) plus height. Body-frame deltas (toe minus slot) cancel the
+  // slot's own motion exactly, leaving pure clip travel. The lower toe wins, as it did
+  // originally: it is the weight-bearing foot on any healthy transfer. Two refinements:
+  // sub-millimetre height differences keep the incumbent (they are noise, and crowning
+  // on them flickers the windows), and a foot that has travelled forward for 3+ frames
+  // is skating and is refused the crown (crowning it and pinning it drags the whole
+  // slot backward 26-50 mm/frame — measured: 10 bursts, 1.64 m lost on the current clip).
+  const prevToe = state.prevToeWorldXz;
+  const prevSlot = state.prevSlotXz;
+  let bodyTravelL: number | null = null;
+  let bodyTravelR: number | null = null;
+  const unit = input.travelUnit;
+  if (unit !== undefined && prevToe !== null && prevSlot !== null) {
+    const unitLength = Math.hypot(unit.x, unit.z);
+    if (unitLength > 0) {
+      const ux = unit.x / unitLength;
+      const uz = unit.z / unitLength;
+      bodyTravelL =
+        (left.x - actorSlot.position.x - (prevToe.left.x - prevSlot.x)) * ux +
+        (left.z - actorSlot.position.z - (prevToe.left.z - prevSlot.z)) * uz;
+      bodyTravelR =
+        (right.x - actorSlot.position.x - (prevToe.right.x - prevSlot.x)) * ux +
+        (right.z - actorSlot.position.z - (prevToe.right.z - prevSlot.z)) * uz;
+    }
+  }
+  const forwardLeft =
+    leftDown && bodyTravelL !== null && bodyTravelL >= PUSH_OFF_METERS ? state.forwardLeft + 1 : 0;
+  const forwardRight =
+    rightDown && bodyTravelR !== null && bodyTravelR >= PUSH_OFF_METERS ? state.forwardRight + 1 : 0;
+  const leftSkating = forwardLeft >= 3;
+  const rightSkating = forwardRight >= 3;
   let stanceFoot: StanceFoot | null = null;
-  if (leftDown && rightDown) stanceFoot = leftHeight <= rightHeight ? "left" : "right";
-  else if (leftDown) stanceFoot = "left";
+  if (leftDown && rightDown) {
+    // The lower toe wins: it is the weight-bearing foot on any healthy transfer, and
+    // crowning it on touchdown takes the anchor at the touchdown point, which stays
+    // valid whether the foot plants or skates (a skater is followed, not pinned, once
+    // its forward run is sustained — see below). Sub-millimetre gaps keep the incumbent:
+    // they are noise, and crowning on them flickers the windows. Refusing the crown to
+    // a transient-forward foot was tried and it delays healthy touchdown crowns by the
+    // very frame the plant rubric grades, leaving the uncrowned foot to slide the full
+    // travel (measured: SC-05's 12.5 mm worst frame).
+    if (Math.abs(leftHeight - rightHeight) <= HEIGHT_TIE_METERS) {
+      stanceFoot = state.stanceFoot ?? (leftHeight <= rightHeight ? "left" : "right");
+    } else stanceFoot = leftHeight <= rightHeight ? "left" : "right";
+  } else if (leftDown) stanceFoot = "left";
   else if (rightDown) stanceFoot = "right";
+
+  // FOLLOW A SKATING STANCE FOOT instead of pinning it. A crowned foot 3+ frames into
+  // forward travel is not bearing weight (push-off cleared long ago; this is the clip's
+  // own transfer skate). Pinning it drags the slot backward by its full travel;
+  // re-anchoring lets the body keep the executor's advance while the toe slides with the
+  // clip. A 1-2 frame transient is pinned like any stance, so a healthy gait's plant
+  // never opens. The slide is reported, not hidden: skate frames take large steps, so
+  // the pinned-frames span the hold metric reads is unaffected. The no-backward clamp
+  // on the switch branch stays as the net.
+  const crownedForward = stanceFoot === "left" ? leftSkating : stanceFoot === "right" ? rightSkating : false;
+  const followSkate = crownedForward;
 
   const toeHeightMeters = { left: leftHeight, right: rightHeight };
   const doubleSupport = leftDown && rightDown;
@@ -273,6 +264,81 @@ export function applyStanceLockedGroundAdvance(input: {
       correctionMeters: { x: 0, z: 0 },
       toeHeightMeters,
       doubleSupport,
+      labelledStance: clipLabel,
+      // A flight breaks continuity: the next landing has no previous frame to share
+      // a correction with, so it re-anchors instead of minimaxing against stale feet.
+      prevToeWorldXz: null,
+      prevSlotXz: slotPreXz,
+      forwardLeft,
+      forwardRight,
+    };
+  }
+
+  if (followSkate && stanceFoot !== null) {
+    // The clip owns this foot this frame: track the anchor to the toe, correct nothing,
+    // run no IK. The window stays open, so cadence and window counts are unaffected.
+    const toe = stanceFoot === "left" ? left : right;
+    return {
+      stanceFoot,
+      anchorWorldXz: { x: toe.x, z: toe.z },
+      windowFrames: state.stanceFoot === stanceFoot ? state.windowFrames + 1 : 1,
+      correctionMeters: { x: 0, z: 0 },
+      toeHeightMeters,
+      doubleSupport,
+      labelledStance: clipLabel,
+      prevToeWorldXz: {
+        left: { x: left.x, z: left.z },
+        right: { x: right.x, z: right.z },
+      },
+      prevSlotXz: slotPreXz,
+      forwardLeft,
+      forwardRight,
+    };
+  }
+
+  // STANCE-SWITCH FRAME: the incoming foot has no anchor, and re-anchoring with no
+  // correction leaves both feet carrying the frame's full advance in world (~15-24 mm
+  // at a 1.1 m/s walk: the slot prescribes ~14 mm and the feet plant in body frame,
+  // so their world steps are the whole advance). Pin the WORLD-STATIONARY foot — the
+  // one whose raw world step is smaller — by translating the slot back by exactly that
+  // step. The pinned foot keeps ~0; the other keeps their rigid disagreement, which is
+  // the touchdown burst of a foot whose previous frame was still swinging high, so its
+  // switch pair opens a new window and is not graded as slide. Halving the disagreement
+  // instead (minimax) was measured worse here: it drags the planted foot 10 mm to spare
+  // the landing foot 10 mm, failing both. The stored previous positions are pre-correction,
+  // so both steps carry the same slot advance and the smaller one is the smaller clip step.
+  const prev = prevToe;
+  if (state.stanceFoot !== null && state.stanceFoot !== stanceFoot && prev !== null) {
+    const stepL = { x: left.x - prev.left.x, z: left.z - prev.left.z };
+    const stepR = { x: right.x - prev.right.x, z: right.z - prev.right.z };
+    const magL = Math.hypot(stepL.x, stepL.z);
+    const magR = Math.hypot(stepR.x, stepR.z);
+    const slowStep = magL <= magR ? stepL : stepR;
+    const correctionMeters = { x: -slowStep.x, z: -slowStep.z };
+    actorSlot.position.x += capCorrection(correctionMeters, input.travelUnit).x;
+    actorSlot.position.z += capCorrection(correctionMeters, input.travelUnit).z;
+    actorSlot.updateMatrixWorld(true);
+    // Deliberately unclamped: bounding the slot's net here would slide the incoming
+    // toe by the trimmed amount, and the frozen plant rubric grades exactly that step
+    // (measured: clamping a healthy transfer pin reintroduces SC-05's 12.5 mm worst
+    // frame). Sustained backward runs never come from this branch — a crowned skater
+    // is followed, not pinned — so there is no burst left for a clamp to bound.
+    const pinned = worldXyz(stanceFoot === "left" ? leftToe : rightToe);
+    return {
+      stanceFoot,
+      anchorWorldXz: { x: pinned.x, z: pinned.z },
+      windowFrames: 1,
+      correctionMeters,
+      toeHeightMeters,
+      doubleSupport,
+      labelledStance: clipLabel,
+      prevToeWorldXz: {
+        left: { x: left.x, z: left.z },
+        right: { x: right.x, z: right.z },
+      },
+      prevSlotXz: slotPreXz,
+      forwardLeft,
+      forwardRight,
     };
   }
 
@@ -290,12 +356,20 @@ export function applyStanceLockedGroundAdvance(input: {
         correctionMeters: { x: 0, z: 0 },
         toeHeightMeters,
         doubleSupport,
+        labelledStance: clipLabel,
+        prevToeWorldXz: { left: { x: left.x, z: left.z }, right: { x: right.x, z: right.z } },
+        prevSlotXz: slotPreXz,
+        forwardLeft,
+        forwardRight,
       };
     }
     const correctionMeters = { x: anchor.x - toe.x, z: anchor.z - toe.z };
-    actorSlot.position.x += correctionMeters.x;
-    actorSlot.position.z += correctionMeters.z;
+    actorSlot.position.x += capCorrection(correctionMeters, input.travelUnit).x;
+    actorSlot.position.z += capCorrection(correctionMeters, input.travelUnit).z;
     actorSlot.updateMatrixWorld(true);
+    // No clamp here: a continued pin plants the toe by construction, and the frozen
+    // plant rubric grades exactly that. Sustained forward runs never reach this pin —
+    // they are followed above — and switch frames are clamped at their own branch.
     return {
       stanceFoot,
       anchorWorldXz: anchor,
@@ -303,6 +377,14 @@ export function applyStanceLockedGroundAdvance(input: {
       correctionMeters,
       toeHeightMeters,
       doubleSupport,
+      labelledStance: clipLabel,
+      prevToeWorldXz: {
+        left: { x: left.x, z: left.z },
+        right: { x: right.x, z: right.z },
+      },
+      prevSlotXz: slotPreXz,
+      forwardLeft,
+      forwardRight,
     };
   }
 
@@ -319,13 +401,18 @@ export function applyStanceLockedGroundAdvance(input: {
       correctionMeters: { x: 0, z: 0 },
       toeHeightMeters,
       doubleSupport,
+      labelledStance: clipLabel,
+      prevToeWorldXz: { left: { x: left.x, z: left.z }, right: { x: right.x, z: right.z } },
+      prevSlotXz: slotPreXz,
+      forwardLeft,
+      forwardRight,
     };
   }
 
   // XZ correction for ground advance (slot translates to keep toe XZ anchored)
   const correctionMeters = { x: anchor.x - toeWorld.x, z: anchor.z - toeWorld.z };
-  actorSlot.position.x += correctionMeters.x;
-  actorSlot.position.z += correctionMeters.z;
+  actorSlot.position.x += capCorrection(correctionMeters, input.travelUnit).x;
+  actorSlot.position.z += capCorrection(correctionMeters, input.travelUnit).z;
   actorSlot.updateMatrixWorld(true);
 
   // Y correction via two-bone IK: target toe Y at max(current toe Y, floorOriginY)
@@ -371,6 +458,7 @@ export function applyStanceLockedGroundAdvance(input: {
     // But the requirement is to NOT move actorSlot Y
   }
 
+  // No clamp here either: same continued pin as the fallback path above.
   return {
     stanceFoot,
     anchorWorldXz: anchor,
@@ -378,121 +466,14 @@ export function applyStanceLockedGroundAdvance(input: {
     correctionMeters,
     toeHeightMeters,
     doubleSupport,
+    labelledStance: clipLabel,
+    prevToeWorldXz: {
+      left: { x: left.x, z: left.z },
+      right: { x: right.x, z: right.z },
+    },
+    prevSlotXz: { x: actorSlot.position.x, z: actorSlot.position.z },
+    forwardLeft,
+    forwardRight,
   };
 }
 
-/**
- * Settled posture correction for non-locomotion frames.
- * 
- * During settling and arrived phases, the figure stands still and the stance
- * lock (which requires locomotion > 0) does not run. This leaves the standing
- * foot penetrating the floor. This function applies the SAME two-bone IK solve
- * to lift the stance toe to at or above floorOriginY, without moving the
- * actorSlot Y.
- *
- * This is a NEW call site with its own gate, NOT a deletion of the locomotion
- * gate in applyStanceLockedGroundAdvance. The locomotion gate correctly
- * derives ground advance from a planted foot during walking; a settled figure
- * has no advance to derive.
- *
- * Reuses solveTwoBoneIK which already exists and is why the walking number
- * is 0.001995 m (2.5x margin against 0.005 m limit).
- */
-export function applySettledPostureCorrection(input: {
-  actorSlot: Object3D;
-  leftToe: Object3D | null;
-  rightToe: Object3D | null;
-  /** Signed height datum: the named floor frame's plane, in world metres. */
-  floorOriginY: number;
-  /** Height under which a toe counts as planted. */
-  contactBandMeters: number;
-}): { corrected: boolean; stanceFoot: StanceFoot | null; toeHeightMeters: { left: number; right: number } } {
-  const { actorSlot, leftToe, rightToe, floorOriginY, contactBandMeters } = input;
-  actorSlot.updateMatrixWorld(true);
-
-  if (leftToe === null || rightToe === null) {
-    return {
-      corrected: false,
-      stanceFoot: null,
-      toeHeightMeters: {
-        left: leftToe === null ? Number.NaN : worldXyz(leftToe).y - floorOriginY,
-        right: rightToe === null ? Number.NaN : worldXyz(rightToe).y - floorOriginY,
-      },
-    };
-  }
-
-  const left = worldXyz(leftToe);
-  const right = worldXyz(rightToe);
-  const leftHeight = left.y - floorOriginY;
-  const rightHeight = right.y - floorOriginY;
-  const leftDown = leftHeight <= contactBandMeters;
-  const rightDown = rightHeight <= contactBandMeters;
-
-  let stanceFoot: StanceFoot | null = null;
-  if (leftDown && rightDown) stanceFoot = leftHeight <= rightHeight ? "left" : "right";
-  else if (leftDown) stanceFoot = "left";
-  else if (rightDown) stanceFoot = "right";
-
-  const toeHeightMeters = { left: leftHeight, right: rightHeight };
-
-  if (stanceFoot === null) {
-    return { corrected: false, stanceFoot: null, toeHeightMeters };
-  }
-
-  // Find the stance leg chain
-  const chain = findStanceChain(actorSlot, stanceFoot);
-  if (!chain) {
-    return { corrected: false, stanceFoot, toeHeightMeters };
-  }
-
-  const { hip, knee, heel, toe: toeBone } = chain;
-  const toeWorld = stanceFoot === "left" ? left : right;
-
-  // Check if correction is needed
-  if (toeWorld.y >= floorOriginY) {
-    return { corrected: false, stanceFoot, toeHeightMeters };
-  }
-
-  // Y correction via two-bone IK: target toe Y at floorOriginY
-  // This is FLEXION (shortening), so the leg bends to lift the toe
-  const targetToeY = floorOriginY;
-  const heelWorld = worldXyz(heel);
-  // heelToToe = toe - heel, so heel = toe - heelToToe
-  // For a desired toe position, heelTarget = desiredToe - heelToToe
-  const heelToToe = { x: toeWorld.x - heelWorld.x, y: toeWorld.y - heelWorld.y, z: toeWorld.z - heelWorld.z };
-  const heelTarget = {
-    x: toeWorld.x - heelToToe.x,
-    y: targetToeY - heelToToe.y,
-    z: toeWorld.z - heelToToe.z,
-  };
-
-  // Max extension is upperLen + lowerLen (full extension), not current hip-to-heel distance
-  hip.updateMatrixWorld(true);
-  knee.updateMatrixWorld(true);
-  heel.updateMatrixWorld(true);
-  const hipWorld = new Vector3().setFromMatrixPosition(hip.matrixWorld);
-  const kneeWorld = new Vector3().setFromMatrixPosition(knee.matrixWorld);
-  const heelWorldPos = new Vector3().setFromMatrixPosition(heel.matrixWorld);
-  const upperLen = hipWorld.distanceTo(kneeWorld);
-  const lowerLen = kneeWorld.distanceTo(heelWorldPos);
-  const maxExtension = upperLen + lowerLen;
-  const softening = 0.005; // 5 mm softening zone
-
-  // Solve IK to place heel at heelTarget (which puts toe at targetToeY)
-  const ikResult = solveTwoBoneIK(hip, knee, heel, heelTarget, maxExtension, softening, actorSlot);
-  if (ikResult) {
-    // Apply local rotations to hip and knee only
-    // hipDelta is a from-identity delta; compose with current animated hip pose
-    hip.quaternion.multiplyQuaternions(hip.quaternion, ikResult.hipDelta);
-    // kneeQuat is an absolute local bend; set directly
-    knee.quaternion.copy(ikResult.kneeQuat);
-    // Update world matrices so subsequent frames see the corrected pose
-    hip.updateMatrixWorld(true);
-    knee.updateMatrixWorld(true);
-    // Force toe to update
-    toeBone.updateMatrixWorld(true);
-    return { corrected: true, stanceFoot, toeHeightMeters };
-  }
-
-  return { corrected: false, stanceFoot, toeHeightMeters };
-}

@@ -126,7 +126,7 @@ import {
 const WARD_BED_INSTANCE_ID = `${SCENE_CLOSURE_ENVIRONMENT_ID}:stretcher`;
 const CASE_SOURCE_PATH = "tools/openclinxr/factory/scene-closure-case-source.ts";
 const RIG_REVISION = "mpfb2_standard_137_joint";
-const CLIP_REVISION = "openclinxr_retarget_walk_formal_cc0";
+const CLIP_REVISION = "openclinxr_retarget_walk_source";
 
 /** Values-not-verdicts sink, matching SC-05's. A no-op unless the env var is set. */
 function observe(entries: ReadonlyArray<Record<string, unknown>>): void {

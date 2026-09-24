@@ -151,7 +151,7 @@ export function updateGeneratedHumanoidAnimations(
         // executor's own metric reports: nothing animates the legs, so every planted foot travels
         // the whole distance. The clip is played only when the drive asks for locomotion, and only
         // on an actor that carries one, so an actor without a clip keeps the old behaviour exactly.
-        if (!playLocomotionClip(slot, locomotion)) {
+        if (!playLocomotionClip(slot, locomotion, deltaSeconds)) {
           slot.root.position.z = slot.baseZ + locomotion * 0.6;
         }
       }

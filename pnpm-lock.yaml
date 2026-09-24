@@ -95,12 +95,18 @@ importers:
       '@knip/language-server':
         specifier: ^3.0.5
         version: 3.0.5
+      '@openclinxr/asset-registry':
+        specifier: workspace:*
+        version: link:packages/openclinxr/asset-registry
       '@openclinxr/factory-stations':
         specifier: workspace:*
         version: link:packages/openclinxr/factory-stations
       '@openclinxr/xr-asset-loading':
         specifier: workspace:*
         version: link:packages/openclinxr/xr-asset-loading
+      '@openclinxr/xr-humanoid-animation':
+        specifier: workspace:*
+        version: link:packages/openclinxr/xr-humanoid-animation
       '@openclinxr/xr-pose':
         specifier: workspace:*
         version: link:packages/openclinxr/xr-pose

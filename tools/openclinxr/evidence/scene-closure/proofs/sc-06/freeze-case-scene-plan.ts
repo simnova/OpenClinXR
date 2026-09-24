@@ -325,7 +325,7 @@ async function main(): Promise<void> {
     ],
     revisions: {
       rigRevision: "mpfb2_standard_137_joint",
-      clipRevision: "openclinxr_retarget_walk_formal_cc0",
+      clipRevision: "openclinxr_retarget_walk_source",
     },
     variation: { variationIndex: 0, assetRevision: "2026-09-09" },
     geometry,

@@ -8,14 +8,19 @@ import { geometryRevisionDigest, resolveBedsideApproachIntent } from "@openclinx
 import type { EncounterRuntimeActorPlacement } from "@openclinxr/asset-registry/runtime-bundles";
 import type { Object3D } from "three";
 import {
-  advanceCaseOwnedBedsideApproach,
-  applyCaseOwnedStanceLock,
   type CaseOwnedApproachFrame,
   type CaseOwnedBedsideApproach,
   createCaseOwnedBedsideApproach,
   measureStanceGroundAdvance,
-  sampleLocomotionStanceTrack,
 } from "./case-owned-approach-runtime-mod.js";
+import {
+  advanceCaseOwnedBedsideApproach,
+  applyCaseOwnedStanceLock,
+  readHeadPitchDeg,
+  sampleLocomotionStanceTrack,
+} from "./case-owned-approach-frame-mod.js";
+import { resolveLocomotionClipTimeScale } from "./locomotion-clip-playback-mod.js";
+import { resolveLocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import { resolveToeBones } from "./resolve-toe-bones.js";
 import { observeMountedApproachGeometry } from "./mounted-approach-geometry-mod.js";
 
@@ -205,6 +210,18 @@ export function resolveStationBedsideApproach(
       + "walking at a configured constant instead would be a fabricated input";
     return;
   }
+  // The clip plays at the rate resolveLocomotionClipTimeScale derives, so its planted foot travels
+  // backward at (speed at rate 1) x timeScale. The executor must advance the body at that same speed;
+  // advancing at the rate-1 speed left the foot outrunning the body by ~0.3 m/s, and the stance lock
+  // dragged the body back to hold the pin every step (measured: 0.30 m/s ground speed, lurch 2.25).
+  const playbackTimeScale =
+    context.animationSlot !== undefined
+      ? (resolveLocomotionClipTimeScale(context.animationSlot as never)?.timeScale ?? 1)
+      : 1;
+  const rateOneAdvance = measureStanceGroundAdvance(sampled.samples, {
+    contactBandMeters: FOOT_CONTACT_HEIGHT_METERS,
+    floorOriginY: 0,
+  });
   const approach = createCaseOwnedBedsideApproach({
     intent,
     geometry,
@@ -213,17 +230,25 @@ export function resolveStationBedsideApproach(
     actorSlot: slot,
     humanoidRoot,
     contactBandMeters: FOOT_CONTACT_HEIGHT_METERS,
-    clipAdvance: measureStanceGroundAdvance(sampled.samples, {
-      contactBandMeters: FOOT_CONTACT_HEIGHT_METERS,
-      floorOriginY: 0,
-    }),
-    clipCycleSeconds: sampled.cycleSeconds,
+    clipAdvance: { ...rateOneAdvance, metersPerSecond: rateOneAdvance.metersPerSecond * playbackTimeScale },
+    clipCycleSeconds: sampled.cycleSeconds / playbackTimeScale,
     routeHeadingRadians: headingRadiansToward(intent.start, intent.target.position),
   });
   if ("refused" in approach) {
     state.settled = true;
     state.refusal = approach.reason;
     return;
+  }
+  // The clip's own stance labels, resolved once per bound clip off the physician's live slot.
+  // The lock pins only labelled stance feet; without a slot (offline probes) it keeps the band.
+  if (context.animationSlot !== undefined) {
+    try {
+      approach.stanceLabels = resolveLocomotionStanceLabels(context.animationSlot as never);
+      approach.stanceLabelSlot = context.animationSlot as never;
+    } catch {
+      approach.stanceLabels = null;
+      approach.stanceLabelSlot = null;
+    }
   }
   state.approach = approach;
   state.settled = true;
@@ -265,6 +290,21 @@ export type BedsideApproachRuntimeEvidence = {
     leftToe: { x: number; y: number; z: number } | null;
     rightToe: { x: number; y: number; z: number } | null;
     stanceFoot: string | null;
+    /**
+     * Projected travel along the route, in metres — what the executor stops on.
+     * Optional: frames published before the stance-advance audit carry none.
+     */
+    travelledMeters?: number;
+    /**
+     * The stance lock's slot correction this frame, in metres — the derived advance.
+     * Optional: frames published before the stance-advance audit carry none.
+     */
+    correctionMeters?: { x: number; z: number };
+    /**
+     * Head bone world forward-vector pitch below horizontal, in degrees, read after
+     * the frame was driven. Null when the rig carries no head bone.
+     */
+    headPitchDeg: number | null;
   }>;
   startWorld: { x: number; y: number; z: number } | null;
   targetWorld: { x: number; y: number; z: number } | null;
@@ -349,6 +389,9 @@ export function publishBedsideApproachRuntimeEvidence(
       leftToe: worldOf(approach.leftToe),
       rightToe: worldOf(approach.rightToe),
       stanceFoot: frame.stanceFoot,
+      travelledMeters: frame.travelledMeters,
+      correctionMeters: frame.stanceCorrectionMeters,
+      headPitchDeg: readHeadPitchDeg(approach.actorSlot),
     });
     while (samples.length > BEDSIDE_APPROACH_EVIDENCE_SAMPLE_LIMIT) samples.shift();
   }

@@ -11,6 +11,7 @@ export const REQUIRED_SOURCE_PATHS = [
   "packages/openclinxr/asset-registry/src/runtime-bundles.ts",
   "packages/openclinxr/xr-humanoid-animation/src/case-owned-approach-runtime.ts",
   "packages/openclinxr/xr-humanoid-animation/src/case-owned-approach-runtime-mod.ts",
+  "packages/openclinxr/xr-humanoid-animation/src/case-owned-approach-frame-mod.ts",
   "packages/openclinxr/xr-humanoid-animation/src/station-bedside-approach-mod.ts",
   "packages/openclinxr/asset-registry/src/bedside-approach-path-mod.ts",
   "packages/openclinxr/xr-humanoid-animation/src/station-bedside-approach.ts",

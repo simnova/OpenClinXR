@@ -127,7 +127,7 @@ function runFrame(slot: GeneratedHumanoidAnimationSlot, locomotion: number | nul
 }
 
 describe("the locomotion drive plays a retargeted clip instead of sliding the root", () => {
-  it("(1) an actor WITH a locomotion clip plays it and claims the leg chain", () => {
+  it("(1) an actor WITH a locomotion clip plays it and claims the leg chain + upper body with crossfade", () => {
     const slot = standingSlot({
       locomotionClipName: WALK.name,
       responseClips: [WALK],
@@ -137,6 +137,7 @@ describe("the locomotion drive plays a retargeted clip instead of sliding the ro
     const playback = slot.root.userData["openClinXrLocomotionClipPlayback"] as {
       clipName: string;
       playing: boolean;
+      crossfadeWeight?: number;
     };
     expect(playback.clipName).toBe(WALK.name);
     expect(playback.playing).toBe(true);
@@ -147,47 +148,78 @@ describe("the locomotion drive plays a retargeted clip instead of sliding the ro
     // through `boneIsOwned` rather than on the stored shape is what makes that class fail here.
     const claimed = slot.root.userData["openClinXrOwnedBoneChains"] as OwnedChain[];
     expect(Array.isArray(claimed)).toBe(true);
+    // Leg chain always fully owned (weight=1)
     expect(boneIsOwned(claimed, "foot.L")).toBe(true);
     expect(boneIsOwned(claimed, "toe1-1.L")).toBe(true);
-    // And the unowned neighbour keeps moving: an arm bone is NOT captured by the leg claim.
-    expect(boneIsOwned(claimed, "upperarm01.L")).toBe(false);
+    // Upper body NOW claimed with crossfade weight (starts at 0, ramps to 1)
+    expect(boneIsOwned(claimed, "upperarm01.L")).toBe(true);
+    // Upper body chain has weight < 1 initially (crossfade)
+    const upperChain = claimed.find((c) => c.boneNames.includes("upperarm01.L"));
+    expect(upperChain).toBeDefined();
+    expect(upperChain!.weight).toBeLessThan(1);
+    expect(upperChain!.weight).toBeGreaterThanOrEqual(0);
     // And the root must NOT have been slid: that is the behaviour this replaces.
     expect(slot.root.position.z).toBeCloseTo(slot.baseZ, 6);
   });
 
-  it("(2) a zero drive STOPS the clip and releases the chain, so the actor is not left mid-stride", () => {
+  it("(2) a zero drive FADES OUT the clip and releases the chain after crossfade completes", () => {
     // A bone the clip actually drives, so "settled on the rest frame" is a POSE assertion rather
     // than a flag assertion. y goes 0.4 -> 0.9 over the clip; the rest frame is 0.4.
     const REST_Y = 0.4;
     const restBone = new THREE.Object3D();
     restBone.name = "foot.L";
-    const mixerRoot = new THREE.Group();
-    mixerRoot.add(restBone);
+    // Use the SAME root for both slot and mixer so animation drives the bone
+    const root = new THREE.Group();
+    root.add(restBone);
+    // Add upper body bones for ownership claim testing
+    const upperArmL = new THREE.Object3D();
+    upperArmL.name = "upperarm01.L";
+    root.add(upperArmL);
     const settleClip = new THREE.AnimationClip("openclinxr_retarget_settle_probe", 1, [
       new THREE.VectorKeyframeTrack("foot.L.position", [0, 1], [0, REST_Y, 0, 0, 0.9, 0]),
     ]);
     const slot = standingSlot({
       locomotionClipName: settleClip.name,
       responseClips: [settleClip],
-      mixer: new THREE.AnimationMixer(mixerRoot),
+      root, // Use same root for slot
+      mixer: new THREE.AnimationMixer(root), // Mixer on same root
     });
     runFrame(slot, 1);
-    slot.mixer?.update(0.5);
-    expect(restBone.position.y).toBeGreaterThan(REST_Y + 0.1);
+    // Advance time to let crossfade complete and clip drive the bone
+    for (let i = 0; i < 30; i++) {
+      runFrame(slot, 1);
+    }
+    // Verify crossfade weight reached 1 (full ownership)
+    const claimedAfterWalk = slot.root.userData["openClinXrOwnedBoneChains"] as OwnedChain[];
+    const upperChain = claimedAfterWalk.find((c) => c.boneNames.includes("upperarm01.L"));
+    expect(upperChain).toBeDefined();
+    expect(upperChain!.weight).toBeCloseTo(1, 2);
+    // Stop - should fade out over LOCOMOTION_CROSSFADE_DURATION_S (0.3s)
     runFrame(slot, 0);
     const playback = slot.root.userData["openClinXrLocomotionClipPlayback"] as {
       playing: boolean;
       settledOn?: string;
+      crossfadeWeight?: number;
     };
-    expect(playback.playing).toBe(false);
+    // After one frame at 60fps (1/60 ≈ 0.0167s), crossfade weight should be < 1 but > 0
+    expect(playback.playing).toBe(true); // Still fading
+    expect(playback.crossfadeWeight).toBeLessThan(1);
+    expect(playback.crossfadeWeight).toBeGreaterThan(0);
+    // Leg claim should still exist during fade
+    expect(slot.root.userData["openClinXrOwnedBoneChains"]).not.toEqual([]);
+    // Continue fading until fully stopped
+    for (let i = 0; i < 30; i++) {
+      runFrame(slot, 0);
+    }
+    const playbackFinal = slot.root.userData["openClinXrLocomotionClipPlayback"] as {
+      playing: boolean;
+      settledOn?: string;
+    };
+    expect(playbackFinal.playing).toBe(false);
     expect(slot.mixer?.existingAction(settleClip)?.isRunning()).toBe(false);
     expect(slot.root.userData["openClinXrOwnedBoneChains"]).toEqual([]);
-    // AND THE POSE IS THE CLIP'S REST FRAME, not wherever the stride stopped. `action.stop()` alone
-    // deactivates the action and leaves the bones holding the last mid-stride values: measured on
-    // the shipped take, the physician stood on one leg with `toe1-1.L` 0.252 m above the floor for
-    // the whole stopped observation and `signed-floor-contact` recorded zero frames on that foot.
-    expect(playback.settledOn).toBe("clip_rest_frame");
-    expect(restBone.position.y).toBeCloseTo(REST_Y, 6);
+    // Fade out settles to idle, not clip rest frame
+    expect(playbackFinal.settledOn).toBe("faded_to_idle");
   });
 
   it("(3) COUNTERWEIGHT: an actor with NO locomotion clip still slides, exactly as before", () => {

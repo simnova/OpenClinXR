@@ -23,7 +23,14 @@ import { boundClipJointTrack } from "./bound-clip-foot-track.js";
  * now matches rest toe−ankle +Z. inPlace / rootTravelMeters 0 unchanged.
  * Rest z stays > 0.05 m. Not a 180 yaw, not --source-orientation, not IK bake.
  *
- * claimScope: clip-space heading of Walk_Formal on the shipped physician.
+ * ## FIXED (wt/walk-rebind)
+ * `openclinxr_retarget_walk_formal_cc0` was removed from the physician and replaced by
+ * `openclinxr_retarget_walk_source`, bound from Mesh2Motion `Walk` with source-orientation
+ * "First person, Z up" (no time reversal). Measured on the new clip via boundClipJointTrack:
+ * rest `toe1-1.L − foot.L` z = +0.14 m; longest stance-window travel forward = {x: −0.017, z: +0.9999}
+ * over 11 frames. Travel already matches rest toe−ankle +Z, so the reversal above no longer applies.
+ *
+ * claimScope: clip-space heading of Walk on the shipped physician.
  * notEvidenceFor: foot plant, gait, Quest, browser A08, factory IK bake.
  */
 
@@ -31,7 +38,7 @@ const PHYSICIAN_GLB = path.resolve(
   process.cwd(),
   "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
 );
-const CLIP = "openclinxr_retarget_walk_formal_cc0";
+const CLIP = "openclinxr_retarget_walk_source";
 
 describe("the walk clip faces the same way it travels", () => {
   it("(1) rest left toe sits in +Z of the left foot (known-good column)", async () => {

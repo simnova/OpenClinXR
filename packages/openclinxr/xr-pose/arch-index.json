@@ -42,7 +42,9 @@
     "@openclinxr/xr-station"
   ],
   "tests": [
-    "src/actor-floor-composition.test.ts"
+    "src/actor-floor-composition.test.ts",
+    "src/clinical-idle-posture-crossfade.test.ts",
+    "src/the-head-attention-preserves-a-non-identity-bind.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/xr-pose test",

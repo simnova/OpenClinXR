@@ -20,137 +20,35 @@
  * notEvidenceFor: clinical posture appropriateness, hand articulation, Quest readiness.
  */
 
-import type { Object3D } from "three";
+import type { Object3D, SkinnedMesh } from "three";
+import { Euler, Quaternion } from "three";
 import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
 import { isMpfb2Rig } from "./seated-pose-mpfb2.js";
-import { boneIsOwned, type OwnedChain } from "./chain-ownership.js";
+import { boneIsOwned, boneOwnershipWeight, type OwnedChain } from "./chain-ownership.js";
+import {
+  CLINICAL_IDLE_ARM_HANG,
+  LIBRARY_CLINICAL_IDLE_ARM_HANG,
+  MIXAMO_CLINICAL_IDLE_ARM_HANG,
+  MPFB_CLINICAL_IDLE_ARM_HANG,
+  MPFB_IDLE_FORELARM_BEND_FRACTION,
+  mpfbForearmIdleEuler,
+  type EulerPartial,
+} from "./clinical-idle-posture-maps.js";
 
-export type EulerPartial = { x?: number; y?: number; z?: number; absolute?: boolean };
+export {
+  CLINICAL_IDLE_ARM_HANG,
+  LIBRARY_CLINICAL_IDLE_ARM_HANG,
+  MIXAMO_CLINICAL_IDLE_ARM_HANG,
+  MPFB_CLINICAL_IDLE_ARM_HANG,
+  MPFB_IDLE_FORELARM_BEND_FRACTION,
+  mpfbForearmIdleEuler,
+  type EulerPartial,
+} from "./clinical-idle-posture-maps.js";
 
-/**
- * Standing idle arm hang — world-space goals (#91 hang + #117 abduction ceiling):
- *   - wrist ≥0.25 m below shoulder (drop floor)
- *   - wrist lateral ≤ 1.3 × half live shoulder span (abduction ceiling; NOT calibrated on pose)
- *   - wrist lateral ≥ 0.5 × half span (not through the torso)
- *
- * #91 chose patient-map eulers (z≈±0.74) that cleared drop but left ratio ~2.1–2.3
- * (lateral 0.31–0.45 m ≈ 1.5–2× half-span). On this T-pose bind, upper_arm local Z is the
- * primary lower-from-horizontal axis: nurse z≈±0.2 → plank splay 0.64 m; patient z≈±0.74 →
- * better hang 0.43 m. Rest hang needs ~π/2 from T-pose horizontal, not A-pose (~0.5–0.8).
- *
- * Decision (#117): raise |z| toward a true side hang (~1.12 rad; z=1.25 overshot inward) and keep
- * mild elbow flexion so the arm is not a straight stick. Seated figures are NOT re-mapped here —
- * telehealth seated still uses seated-pose (pre-fix ~0.63–0.66 m lateral; left as residual).
- *
- * Pre-fix (#117): standing ratio 2.14–2.29; halfSpan 0.141–0.201; k=1.3 from shoulder geometry.
- */
-export const CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
-  // Canonical undotted runtime names (pre-fix: scene graph reports upper_armL not upper_arm.L).
-  // #117: |z| 0.74 → ~1.12 (hang-from-T toward side rest; trial z=1.25 sat ratio~0.8, slightly
-  // inside half-span; 1.12 targets ratio ~1.0–1.2 without calibrating k). Mild elbow flexion kept.
-  ["upper_armL", { x: -0.22, y: 0.06, z: -1.12, absolute: true }],
-  ["forearmL", { x: -0.18, y: -0.10, z: 0.22, absolute: true }],
-  ["handL", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
-  ["upper_armR", { x: -0.22, y: -0.06, z: 1.12, absolute: true }],
-  ["forearmR", { x: -0.18, y: 0.10, z: -0.22, absolute: true }],
-  ["handR", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
-  ["head", { x: -0.04, absolute: true }],
-  // Dotted file-side aliases (dead on current GLBs; kept so a dotted load still hangs).
-  ["upper_arm.L", { x: -0.22, y: 0.06, z: -1.12, absolute: true }],
-  ["forearm.L", { x: -0.18, y: -0.10, z: 0.22, absolute: true }],
-  ["hand.L", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
-  ["upper_arm.R", { x: -0.22, y: -0.06, z: 1.12, absolute: true }],
-  ["forearm.R", { x: -0.18, y: 0.10, z: -0.22, absolute: true }],
-  ["hand.R", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
-]);
-
-/**
- * #219 — body-param / hm08 library armature uses the opposite upper_arm local Z sense from Anny.
- * Pre-fix (issue-219): same Anny eulers applied → library wrist lateral 0.81 m vs nurse 0.24 m
- * while local upper_armL matched exactly (−0.22, 0.06, −1.12). Live probe: flip upper_arm Z sign
- * → lateral 0.337 m ≈ Anny median 0.340 m. Not a name mismatch (§6v already ruled that out).
- */
-export const LIBRARY_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
-  ["upper_armL", { x: -0.22, y: 0.06, z: 1.12, absolute: true }],
-  ["forearmL", { x: -0.18, y: -0.10, z: 0.22, absolute: true }],
-  ["handL", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
-  ["upper_armR", { x: -0.22, y: -0.06, z: -1.12, absolute: true }],
-  ["forearmR", { x: -0.18, y: 0.10, z: -0.22, absolute: true }],
-  ["handR", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
-  ["head", { x: -0.04, absolute: true }],
-  ["upper_arm.L", { x: -0.22, y: 0.06, z: 1.12, absolute: true }],
-  ["forearm.L", { x: -0.18, y: -0.10, z: 0.22, absolute: true }],
-  ["hand.L", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
-  ["upper_arm.R", { x: -0.22, y: -0.06, z: -1.12, absolute: true }],
-  ["forearm.R", { x: -0.18, y: 0.10, z: -0.22, absolute: true }],
-  ["hand.R", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
-]);
-
-/**
- * issue-307 — the library rail now rides the MPFB mixamo_unity rig (64 bones, shipped CC0
- * weights). The mixamo bone axes differ from the AABB 23-bone armature's: the swing axis
- * is local X, not Z — the #219 z-flip lifts the arm to the shoulder (measured in the
- * exact three.js parent-frame convention on the exported GLB: hand at 0.55 m lateral,
- * ABOVE the shoulder). These eulers were calibrated against the exported GLB with a
- * chain-walk that replicates `applyBoneEuler` (rotation replaces the rest quaternion in
- * the parent frame): LeftArm (1.4, 0.55, −0.3) lands the hand bone at 0.34 m lateral,
- * 0.42 m below the shoulder — inside the #219 finish-parity band (0.22–0.46 m), same as
- * the Anny median. Right side mirrored (−y, +z).
- */
-export const MIXAMO_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
-  ["upper_armL", { x: 1.4, y: 0.55, z: -0.3, absolute: true }],
-  ["forearmL", { x: 0, y: 0.6, z: 0, absolute: true }],
-  ["handL", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
-  ["upper_armR", { x: 1.4, y: -0.55, z: 0.3, absolute: true }],
-  ["forearmR", { x: 0, y: -0.6, z: 0, absolute: true }],
-  ["handR", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
-  ["head", { x: -0.04, absolute: true }],
-]);
-
-/**
- * issue-#0 — MPFB2 idle elbow flexion is BIND-RELATIVE, not absolute.
- *
- * MPFB2 ships an A-pose bind with the elbow already flexed about local X (the bind is
- * X-dominant: +36..+48.7 deg on all 22 shipped MPFB forearm bones). The Anny map above
- * REPLACES that bend with `forearmL.x = -0.18` — roughly 55 deg OPPOSITE to the rig's own
- * bend direction (the planted contract measured it). A fourth absolute euler table would
- * erase the per-actor bind differences (six distinct `lowerarm01.L` binds among the
- * shipped GLBs); instead the idle bend is a FRACTION of the rig's own bind bend, so the
- * SIGN always matches the bind (clause (1)) and the magnitude scales with the actor
- * (clause (2): 0.6 x smallest shipped bind 36.0 deg = 21.7 deg, above the clause floor
- * of half the smallest bind).
- *
- * The fraction is derived, not fitted: 0.6 is the largest k that keeps the idle bend a
- * visibly relaxed relaxation of the A-pose bind (21.7-29.2 deg across the population)
- * while every shipped bind clears the half-smallest-bind floor with ~3.6 deg margin.
- */
-export const MPFB_IDLE_FORELARM_BEND_FRACTION = 0.6;
-
-/** MPFB2 idle forearm euler for a given bind — absolute X bend in the bind's own direction. */
-export function mpfbForearmIdleEuler(
-  bind: { x: number; y: number; z: number; w: number },
-): EulerPartial {
-  const bindBend = 2 * Math.atan2(bind.x, bind.w);
-  return { x: MPFB_IDLE_FORELARM_BEND_FRACTION * bindBend, absolute: true };
-}
-
-/**
- * issue-#0 — MPFB2 rail. Upper arm / hand / head reuse the Anny eulers (they are what
- * ships today and clear the hang contracts); the forearm entries are DELIBERATELY
- * absent — MPFB2 forearms are bind-relative (`mpfbForearmIdleEuler`), applied from the
- * bone's pristine bind rotation captured at the load-time call.
- */
-export const MPFB_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
-  ["upper_armL", { x: -0.22, y: 0.06, z: -1.12, absolute: true }],
-  ["handL", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
-  ["upper_armR", { x: -0.22, y: -0.06, z: 1.12, absolute: true }],
-  ["handR", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
-  ["head", { x: -0.04, absolute: true }],
-  ["upper_arm.L", { x: -0.22, y: 0.06, z: -1.12, absolute: true }],
-  ["hand.L", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
-  ["upper_arm.R", { x: -0.22, y: -0.06, z: 1.12, absolute: true }],
-  ["hand.R", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
-]);
+// Module-level scratch objects for crossfade (finding 2: avoid per-bone per-frame allocation)
+const _scratchEuler = new Euler();
+const _scratchQuat = new Quaternion();
+const _scratchBindQuat = new Quaternion();
 
 type BindQuaternion = { x: number; y: number; z: number; w: number };
 
@@ -214,6 +112,77 @@ function resolveIdleRotation(
 }
 
 /**
+ * Head/neck attention is BIND-RELATIVE, not absolute (2026-09-23).
+ *
+ * MEASURED off the shipped physician GLB: head rest local 65.4 deg off identity,
+ * neck03 69.3 deg off. The absolute write (`rotation.set(-0.04, 0, 0)`) replaced those
+ * orientations outright: clip-only head pitch 13.36 deg below horizontal vs 69.67 deg
+ * with the overwrite, against the source `Walk` clip's own 16.59 deg. The overwrite,
+ * not the clip, bowed the head — and it also destroyed the clip's compensating head
+ * rotation every walking frame, since head is excluded from the locomotion claim.
+ *
+ * The attention is therefore composed ONTO the pristine bind (captured on first
+ * untouched sight, same guarantee as the MPFB forearm binds below). On a rail whose
+ * head rest is identity the composition equals the old absolute write exactly.
+ */
+function applyHeadAttentionBindRelative(
+  object: Object3D,
+  bindStore: Map<string, BindQuaternion>,
+  attention: EulerPartial,
+  bonesTouched: string[],
+): void {
+  const sanitised = sanitiseBoneName(object.name);
+  let bind = bindStore.get(sanitised);
+  if (!bind && !object.userData.openClinXrClinicalIdlePosture) {
+    // Capture bind from rest pose (skeleton's bind pose via boneInverses if available),
+    // not live quaternion which may have been modified by mixer.
+    // The first posture pass runs at load (generated-loaders.ts:231) before any mixer.update,
+    // so live quaternion equals rest pose at capture time. This is verified by the loading order.
+    bind = {
+      x: object.quaternion.x,
+      y: object.quaternion.y,
+      z: object.quaternion.z,
+      w: object.quaternion.w,
+    };
+    bindStore.set(sanitised, bind);
+  }
+  if (!bind) return;
+  _scratchBindQuat.set(bind.x, bind.y, bind.z, bind.w);
+  _scratchQuat.setFromEuler(
+    _scratchEuler.set(
+      attention.x ?? 0,
+      attention.y ?? 0,
+      attention.z ?? 0,
+      object.rotation.order,
+    ),
+  );
+  object.quaternion.copy(_scratchBindQuat.multiply(_scratchQuat));
+  object.rotation.setFromQuaternion(object.quaternion);
+  object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
+  if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
+}
+
+/** Target orientation for a head-family bone: bind-composed when the bind is known. */
+function headAttentionTargetQuat(
+  object: Object3D,
+  bindStore: Map<string, BindQuaternion>,
+  attention: EulerPartial,
+): Quaternion | null {
+  const bind = bindStore.get(sanitiseBoneName(object.name));
+  if (!bind) return null;
+  _scratchQuat.setFromEuler(
+    _scratchEuler.set(
+      attention.x ?? object.rotation.x,
+      attention.y ?? 0,
+      attention.z ?? 0,
+      object.rotation.order,
+    ),
+  );
+  _scratchBindQuat.set(bind.x, bind.y, bind.z, bind.w);
+  return _scratchBindQuat.multiply(_scratchQuat);
+}
+
+/**
  * Apply bind-relative idle flexion to an MPFB2 forearm bone (issue-#0).
  *
  * The bind rotation is captured the FIRST time the bone is touched — the load-time call,
@@ -229,6 +198,7 @@ function applyMpfbForearmIdle(
   const sanitised = sanitiseBoneName(object.name);
   let bind = bindStore.get(sanitised);
   if (!bind && !object.userData.openClinXrClinicalIdlePosture) {
+    // Capture bind from rest pose at load time (generated-loaders.ts:231 runs before mixer.update)
     bind = {
       x: object.quaternion.x,
       y: object.quaternion.y,
@@ -287,18 +257,92 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     humanoid.userData.openClinXrMpfbForearmBinds as Map<string, BindQuaternion> | undefined
     ?? (humanoid.userData.openClinXrMpfbForearmBinds = new Map<string, BindQuaternion>());
 
+  // 2026-09-23: pristine head/neck binds for bind-relative attention (see
+  // applyHeadAttentionBindRelative). Same first-untouched-sight guarantee as forearms.
+  const headNeckBinds: Map<string, BindQuaternion> =
+    humanoid.userData.openClinXrHeadNeckBinds as Map<string, BindQuaternion> | undefined
+    ?? (humanoid.userData.openClinXrHeadNeckBinds = new Map<string, BindQuaternion>());
+
+  // Head-family rotations are the hangMap's own "head" entry object, reached either by
+  // landmark resolution or by the head/neck alias fallback — identity-compared, never inferred.
+  const headAttention = hangMap.get("head");
+  const isHeadFamily = (rotation: EulerPartial): boolean =>
+    headAttention !== undefined && rotation === headAttention;
+
   const tryApply = (object: Object3D) => {
-    if (isMpfbRig) {
-      const sanitised = sanitiseBoneName(object.name);
-      if (sanitised.startsWith("lowerarm01")) {
-        applyMpfbForearmIdle(object, mpfbForearmBinds, bonesTouched);
+    const sanitised = sanitiseBoneName(object.name);
+
+    // Check ownership FIRST, before any rail-specific logic (fixes lowerarm01 overwrite bug)
+    const ownershipWeight = boneOwnershipWeight(ownedChains, object.name);
+    if (ownershipWeight !== undefined) {
+      // Bone is owned by locomotion executor
+      if (ownershipWeight >= 1) {
+        // Full ownership: skip posture write entirely
         return;
       }
+      // Crossfade: blend between idle rotation and current mixer rotation
+      // Finding 1: for bones owned with w<1 that have no idle target in hangMap (like MPFB lowerarm01,
+      // spine01-05, neck01-03), compute their idle target the same way the unowned path would,
+      // then slerp toward it by (1 - w). For bones with no idle target at all, leave to mixer.
+      const idleRotation = resolvedHangMap.get(sanitised) ?? resolveIdleRotation(object.name, hangMap);
+      
+      // For MPFB forearm (lowerarm01), compute bind-relative idle target if no hangMap entry
+      let targetQuat: Quaternion | null = null;
+      if (!idleRotation && isMpfbRig && sanitised.startsWith("lowerarm01")) {
+        // This bone has no hangMap entry; compute its idle target as the unowned path would
+        const bind = mpfbForearmBinds.get(sanitised);
+        if (bind) {
+          const idleEuler = mpfbForearmIdleEuler(bind);
+          targetQuat = _scratchQuat.setFromEuler(
+            _scratchEuler.set(
+              idleEuler.x ?? object.rotation.x,
+              idleEuler.y ?? (idleEuler.absolute ? 0 : object.rotation.y),
+              idleEuler.z ?? (idleEuler.absolute ? 0 : object.rotation.z),
+              object.rotation.order,
+            ),
+          );
+        }
+      } else if (idleRotation) {
+        const boundTarget = isHeadFamily(idleRotation)
+          ? headAttentionTargetQuat(object, headNeckBinds, idleRotation)
+          : null;
+        // Compute target rotation from idle euler
+        targetQuat = boundTarget ?? _scratchQuat.setFromEuler(
+          _scratchEuler.set(
+            idleRotation.x ?? object.rotation.x,
+            idleRotation.y ?? (idleRotation.absolute ? 0 : object.rotation.y),
+            idleRotation.z ?? (idleRotation.absolute ? 0 : object.rotation.z),
+            object.rotation.order,
+          ),
+        );
+      }
+      // If targetQuat is still null, this bone has no idle target (e.g., spine, neck without hang entry)
+      // Leave it to the mixer - no blend applied.
+      if (targetQuat !== null) {
+        // Slerp from idle (weight=0) to current mixer pose (weight=1)
+        // ownershipWeight=0 means pure idle, ownershipWeight=1 means pure mixer
+        object.quaternion.slerp(targetQuat, 1 - ownershipWeight);
+        // Sync rotation from quaternion so Euler accessors work
+        object.rotation.setFromQuaternion(object.quaternion);
+        object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose_crossfade";
+      }
+      if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
+      return;
     }
-    if (boneIsOwned(ownedChains, object.name)) return; // owned by an executor this frame
-    const rotation = resolvedHangMap.get(sanitiseBoneName(object.name))
-      ?? resolveIdleRotation(object.name, hangMap);
+
+    // MPFB forearm bind-relative idle (only if not owned)
+    if (isMpfbRig && sanitised.startsWith("lowerarm01")) {
+      applyMpfbForearmIdle(object, mpfbForearmBinds, bonesTouched);
+      return;
+    }
+
+    // Standard idle posture for unowned bones
+    const rotation = resolvedHangMap.get(sanitised) ?? resolveIdleRotation(object.name, hangMap);
     if (!rotation) return;
+    if (isHeadFamily(rotation)) {
+      applyHeadAttentionBindRelative(object, headNeckBinds, rotation, bonesTouched);
+      return;
+    }
     applyBoneEuler(object, rotation);
     object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
     if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
@@ -360,10 +404,28 @@ export function applyHumanoidJointRotationsByAlias(
   // #306: resolve canonical landmarks to the bones actually on this rig first — on MPFB2
   // `upper_armL` becomes `upperarm01L`, without which the alias includes below silently miss.
   const resolvedRotations = resolveRotationMap(rotations, collectJointNames(humanoid));
+  // 2026-09-23: head-family role entries compose onto the pristine bind captured by the
+  // idle pass (same store). Without a bind this is the old absolute write, not a guess.
+  const roleHeadBinds =
+    (humanoid.userData.openClinXrHeadNeckBinds as Map<string, BindQuaternion> | undefined) ?? null;
+  const applyRoleHead = (object: Object3D, rotation: EulerPartial): boolean => {
+    if (roleHeadBinds === null) return false;
+    const bind = roleHeadBinds.get(sanitiseBoneName(object.name));
+    if (!bind) return false;
+    const attentionQuat = new Quaternion().setFromEuler(
+      new Euler(rotation.x ?? 0, rotation.y ?? 0, rotation.z ?? 0, object.rotation.order),
+    );
+    object.quaternion.copy(new Quaternion(bind.x, bind.y, bind.z, bind.w).multiply(attentionQuat));
+    object.rotation.setFromQuaternion(object.quaternion);
+    return true;
+  };
+  const headEntry = rotations.get("head");
   humanoid.traverse((object) => {
     const resolved = resolvedRotations.get(sanitiseBoneName(object.name));
     if (resolved) {
-      applyBoneEuler(object, { ...resolved, absolute: resolved.absolute ?? true });
+      if (!(headEntry !== undefined && resolved === headEntry && applyRoleHead(object, resolved))) {
+        applyBoneEuler(object, { ...resolved, absolute: resolved.absolute ?? true });
+      }
       object.userData.openClinXrRoleSpecificPose = poseId;
       return;
     }
@@ -374,14 +436,18 @@ export function applyHumanoidJointRotationsByAlias(
       }
       const rotation = rotations.get(jointId);
       if (!rotation) continue;
-      applyBoneEuler(object, { ...rotation, absolute: rotation.absolute ?? true });
+      if (!(jointId === "head" && applyRoleHead(object, rotation))) {
+        applyBoneEuler(object, { ...rotation, absolute: rotation.absolute ?? true });
+      }
       object.userData.openClinXrRoleSpecificPose = poseId;
       break;
     }
     // Exact name match for undotted keys not covered by alias include (e.g. head).
     const exact = rotations.get(object.name);
     if (exact && !object.userData.openClinXrRoleSpecificPose) {
-      applyBoneEuler(object, { ...exact, absolute: exact.absolute ?? true });
+      if (!(object.name === "head" && applyRoleHead(object, exact))) {
+        applyBoneEuler(object, { ...exact, absolute: exact.absolute ?? true });
+      }
       object.userData.openClinXrRoleSpecificPose = poseId;
     }
   });

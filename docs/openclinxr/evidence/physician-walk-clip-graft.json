@@ -1,34 +1,41 @@
 {
   "schemaVersion": "openclinxr.clip-graft.v1",
-  "generatedAt": "2026-09-09T13:30:03.853Z",
-  "clipName": "openclinxr_retarget_cmu_02_01_walk",
+  "generatedAt": "2026-09-23T17:05:36.380Z",
+  "clipName": "openclinxr_retarget_walk_source",
   "target": {
     "path": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-    "sha256Before": "a234922c36d164003200a6a16a54d4d95d957f4d617f69d7c5442f27eac06939",
-    "bytesBefore": 11207936
+    "sha256Before": "e55272f60b2a72b19b9110794d2961e5c34d092423083034a9ba5eec5d1d3133",
+    "bytesBefore": 9458000
   },
   "source": {
-    "path": ".openclinxr/evidence/walk-bind/physician-walk.glb",
-    "sha256": "f22b6f95cc9bc0c860a091d3880d1859c1951df1ac339eb960b3624e3b34dfed",
-    "bytes": 11633760
+    "path": ".openclinxr/walk-rebind/physician-walk-fpzu-dropped.glb",
+    "sha256": "a60bc80f2c03f08bb6b48ce6ed2e13c0dc6780c6833da2d701a84b9556a6b57a",
+    "bytes": 9231728
   },
   "output": {
-    "path": ".openclinxr/evidence/walk-bind/physician-grafted.glb",
-    "sha256": "9ba749b2fda775a293772d933ac0d7fdbb1210043fd1c7c06629156eb565c68a",
-    "bytes": 11572416
+    "path": ".openclinxr/walk-rebind/physician-grafted.glb",
+    "sha256": "ab6ba3138a62ff03d079979241b95dbadf65e9173d232de486976b20d7789e8f",
+    "bytes": 9618436
   },
   "graftedChannels": 411,
   "graftedJoints": 137,
+  "removedClips": [
+    {
+      "clipName": "openclinxr_retarget_walk_formal_cc0",
+      "channels": 411,
+      "reason": "replaced by Walk-sourced openclinxr_retarget_walk_source (wt/walk-rebind): the formal clip kept 12.4 of 80.4 deg knee flexion and flipped upper arms to 178.3 deg"
+    }
+  ],
   "published": {
     "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
     "provenancePath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.provenance.json",
-    "outputSha256": "9ba749b2fda775a293772d933ac0d7fdbb1210043fd1c7c06629156eb565c68a",
-    "outputBytes": 11572416
+    "outputSha256": "ab6ba3138a62ff03d079979241b95dbadf65e9173d232de486976b20d7789e8f",
+    "outputBytes": 9618436
   },
   "animationsAfter": [
     "ClinicalIdleConversation",
     "ClinicalExpressionMicroTransition",
-    "openclinxr_retarget_cmu_02_01_walk"
+    "openclinxr_retarget_walk_source"
   ],
   "geometryParity": {
     "primitives": 18,

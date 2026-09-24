@@ -400,7 +400,10 @@ describe("the CC0 replacement walk is measured, not assumed", () => {
     const document = await new NodeIO().read(PHYSICIAN_GLB);
     const clips = document.getRoot().listAnimations().map((animation) => animation.getName());
     expect(clips).not.toContain("openclinxr_retarget_cmu_02_01_walk");
-    expect(clips).toContain("openclinxr_retarget_walk_formal_cc0");
+    // ## FIXED (wt/walk-rebind): openclinxr_retarget_walk_formal_cc0 was removed from the physician
+    // and replaced by openclinxr_retarget_walk_source (Mesh2Motion Walk, same CC0 clearance): the
+    // Formal bind kept 12.4 of 80.4 deg knee flexion and flipped the upper arms to 178.3 deg.
+    expect(clips).toContain("openclinxr_retarget_walk_source");
 
     // The historical report still names the CMU clip, which is correct — it measured that clip. The
     // pair of assertions above is what stops it being mistaken for a description of what ships.

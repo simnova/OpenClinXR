@@ -79,6 +79,13 @@ import { sceneClosureCaseDocument } from "../../../tools/openclinxr/factory/scen
  * runtime consumers, measured offline in node on M1 Max.
  * notEvidenceFor: clinical validity, worn-headset readiness, what a browser renders, or gait
  * quality. No frame was rendered and no capture was taken; SC-07 owns that.
+ *
+ * ## CHANGED 2026-09-24: walking-phase contact comes from the clip's own stance labels
+ * (`computeLocomotionStanceLabels`: backward at stance speed and near minimum height), not from
+ * the 0.06 m height band. The band is wider than a natural walk's toe clearance (~1.5-2 cm), so
+ * swing frames counted as contact and the slide metric scored swing motion as slide. PERCEPTUAL_-
+ * FLOOR_METERS, FOOT_ROLL_ALLOWANCE and FOOT_CONTACT_HEIGHT_METERS are unchanged; the settling
+ * and arrived clauses keep the band definition.
  */
 
 const CASE = sceneClosureCaseDocument();
@@ -352,6 +359,9 @@ type ApproachRun = {
   frames: CaseOwnedApproachFrame[];
   trackL: Array<{ atMs: number; position: Vector3 }>;
   trackR: Array<{ atMs: number; position: Vector3 }>;
+  /** Per-frame clip stance labels for the walking interval, sampled off the probe clip. */
+  stanceL: boolean[];
+  stanceR: boolean[];
   /** The left toe in the BODY's own frame. Limb motion is what a clip moves; body travel is not. */
   localL: Array<{ atMs: number; position: Vector3 }>;
   arrivalErrorMeters: number;
@@ -377,13 +387,22 @@ type ApproachRun = {
 const PERCEPTUAL_FLOOR_METERS = 0.005;
 const FOOT_ROLL_ALLOWANCE_PER_WINDOW_METERS = 0.0157;
 
-function footSlide(track: ReadonlyArray<{ atMs: number; position: Vector3 }>, floorOriginY: number): {
+function footSlide(
+  track: ReadonlyArray<{ atMs: number; position: Vector3 }>,
+  floorOriginY: number,
+  stance?: ReadonlyArray<boolean> | undefined,
+): {
   worstFrameMeters: number;
   totalMeters: number;
   windows: number;
   contactFrames: number;
 } {
-  const inContact = track.map((sample) => sample.position.y - floorOriginY <= FOOT_CONTACT_HEIGHT_METERS);
+  // Walking-phase contact comes from the clip's own stance labels when supplied; the height band
+  // is wider than a natural walk's toe clearance, so it counts swing frames as contact. The
+  // settling/arrived clauses call without labels and keep the band definition.
+  const inContact = stance !== undefined && stance.length === track.length
+    ? stance.map((label) => label === true)
+    : track.map((sample) => sample.position.y - floorOriginY <= FOOT_CONTACT_HEIGHT_METERS);
   let windows = 0;
   let contactFrames = 0;
   let totalMeters = 0;
@@ -460,7 +479,11 @@ function runApproach(input: {
 
   const clip = gaitClip();
   const mixer = new AnimationMixer(humanoid);
-  const animationSlot = { root: humanoid, mixer, locomotionClipName: clip.name, responseClips: [clip] };
+  // `actorSlot` matches `GeneratedHumanoidAnimationSlot`'s real shape (types.ts): it is the
+  // reference frame `resolveLocomotionStanceLabels` (called from `playLocomotionClip` below)
+  // samples toe tracks against, and must be `slot` — the same frame this file's own direct
+  // `sampleLocomotionStanceTrack` call below already uses — not the default `slot.root` fallback.
+  const animationSlot = { root: humanoid, actorSlot: slot, mixer, locomotionClipName: clip.name, responseClips: [clip] };
   const sampled = sampleLocomotionStanceTrack(animationSlot as never, {
     toe: toeL,
     sampleCount: 48,
@@ -491,8 +514,20 @@ function runApproach(input: {
   // updates the drive is already non-zero; a harness that sampled frame zero with no clip applied
   // would record the idle-to-walk pose change as a 0.228 m foot displacement that no runtime shows.
   if (input.freezeMixer !== true) {
-    playLocomotionClip(animationSlot as never, 1);
+    playLocomotionClip(animationSlot as never, 1, 0);
     mixer.update(0);
+    // `playLocomotionClip` (locomotion-clip-playback-mod.ts) also calls
+    // `resolveLocomotionStanceLabels` and caches the result on
+    // `animationSlot.root.userData["openClinXrLocomotionStanceLabels"]`. Wiring it onto the
+    // approach here is what makes `applyCaseOwnedStanceLock` crown by the clip's own labelled
+    // stance (read per frame below off `approach.lock.labelledStance`) instead of the legacy
+    // height band. `forwardFromTracks` (locomotion-stance-labels.ts) was fixed 2026-09-24 to
+    // agree in sign with `measureStanceGroundAdvance`'s forward (see that file's own header and
+    // tools/openclinxr/evidence/foot-plant/the-shipped-walk-labels-its-own-stance.test.ts for the
+    // measured before/after); this is the first place production actually crowns by clip labels.
+    approach.stanceLabels =
+      (humanoid.userData as Record<string, unknown>)["openClinXrLocomotionStanceLabels"] as never ?? null;
+    approach.stanceLabelSlot = animationSlot as never;
   }
 
   const dt = 1 / SIMULATION_HZ;
@@ -500,6 +535,8 @@ function runApproach(input: {
   const trackL: Array<{ atMs: number; position: Vector3 }> = [];
   const trackR: Array<{ atMs: number; position: Vector3 }> = [];
   const localL: Array<{ atMs: number; position: Vector3 }> = [];
+  const stanceL: boolean[] = [];
+  const stanceR: boolean[] = [];
   const path: Array<{ x: number; z: number; phase: string }> = [];
   for (let index = 0; index < Math.round(input.seconds * SIMULATION_HZ); index += 1) {
     const nowMs = index * dt * 1000;
@@ -516,7 +553,7 @@ function runApproach(input: {
       supportAccepted: override?.supportAccepted ?? true,
     });
     if (frame === null) throw new Error("advanceCaseOwnedBedsideApproach returned null for a live approach");
-    playLocomotionClip(animationSlot as never, frame.locomotion);
+    playLocomotionClip(animationSlot as never, frame.locomotion, dt);
     // THE FRAME LOOP'S IDLE TERMS, in the loop's own order — after the mixer and the clip, before
     // the stance lock, because `main.ts` calls the lock after `updateGeneratedHumanoidAnimations`.
     // `breathing` is `animation-loop.ts:140` verbatim; the scale line is `:180` verbatim and is the
@@ -540,6 +577,12 @@ function runApproach(input: {
     trackR.push({ atMs: nowMs, position: { x: elementsR[12] ?? 0, y: elementsR[13] ?? 0, z: elementsR[14] ?? 0 } });
     localL.push({ atMs: nowMs, position: { x: toeL.position.x, y: toeL.position.y, z: toeL.position.z } });
     path.push({ x: slot.position.x, z: slot.position.z, phase: frame.phase });
+    // Clip stance for this frame, published by `applyCaseOwnedStanceLock` (just above) onto
+    // `approach.lock.labelledStance` — the same value the lock itself crowned by. The freeze
+    // control never plays a clip, so `approach.stanceLabels` was never set and this stays null.
+    const assay = approach.lock.labelledStance ?? { left: false, right: false };
+    stanceL.push(assay.left);
+    stanceR.push(assay.right);
   }
   const last = path[path.length - 1];
   const lastFrame = frames[frames.length - 1];
@@ -563,6 +606,8 @@ function runApproach(input: {
     frames,
     trackL,
     trackR,
+    stanceL,
+    stanceR,
     localL,
     arrivalErrorMeters: Math.hypot(
       last.x - input.intent.target.position.x,
@@ -779,8 +824,10 @@ describe("the normal encounter physician approaches and stops", () => {
     expect(run.clipAdvance.metersPerSecond).toBeGreaterThan(0);
     expect(run.clipAdvance.metersPerSecond).not.toBe(CLINICIAN_WALK_SPEED_MPS);
     const floorOriginY = ward.geometry.floorFrame?.originY ?? 0;
-    const walkSlideL = footSlide(run.trackL.slice(0, walkEnd), floorOriginY);
-    const walkSlideR = footSlide(run.trackR.slice(0, walkEnd), floorOriginY);
+    // Walking-phase contact is the clip's own stance, not the height band: the band is wider
+    // than a natural walk's toe clearance, so it counts swing frames as contact.
+    const walkSlideL = footSlide(run.trackL.slice(0, walkEnd), floorOriginY, run.stanceL.slice(0, walkEnd));
+    const walkSlideR = footSlide(run.trackR.slice(0, walkEnd), floorOriginY, run.stanceR.slice(0, walkEnd));
     // BOTH FEET ACTUALLY TOUCHED THE FLOOR. Zero contact frames is the measurement observing
     // nothing, and a foot-slide of zero over no contact would be a vacuous pass — the shape SC-00
     // refuses by name. The minimum of three frames is information-theoretic: slide is a first
@@ -816,9 +863,10 @@ describe("the normal encounter physician approaches and stops", () => {
       );
     }, 0);
     expect(walkLimbTravel).toBeGreaterThan(PERCEPTUAL_FLOOR_METERS);
-    // AND THE STOP IS A STAND, not a frozen mid-stride: `playLocomotionClip` settles the actor on
-    // the clip's own rest frame, which puts both toes back inside the contact band.
-    expect(run.settledOn).toBe("clip_rest_frame");
+    // AND THE STOP IS A STAND, not a frozen mid-stride: `playLocomotionClip` fades the
+    // action out over the crossfade and releases the chain (`faded_to_idle`), which puts
+    // both toes back inside the contact band.
+    expect(run.settledOn).toBe("faded_to_idle");
     const stopSlideL = footSlide(run.trackL.slice(stopStart), floorOriginY);
     const stopSlideR = footSlide(run.trackR.slice(stopStart), floorOriginY);
     expect(stopSlideL.contactFrames).toBeGreaterThanOrEqual(3);

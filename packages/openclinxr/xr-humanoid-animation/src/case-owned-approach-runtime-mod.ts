@@ -6,22 +6,22 @@ import { resolveFloorBandPlantLocalY } from "@openclinxr/xr-pose/actor-floor-com
 import {
   type BedsideApproachExecution,
   beginBedsideApproachExecution,
-  stepBedsideApproachExecution,
   travelYawForClipForward,
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
-import { AnimationMixer, Box3, type Object3D, Vector3 as ThreeVector3 } from "three";
+import { Box3, type Object3D } from "three";
 import {
-  applySettlingStepTurnPose,
   createSettlingStepTurnState,
-  restoreSettlingRestToePose,
   type SettlingStepTurnState,
 } from "./settling-step-turn-mod.js";
 import {
-  applyStanceLockedGroundAdvance,
-  applySettledPostureCorrection,
-  createStanceLockState,
-  type StanceLockState,
-} from "./stance-lock-mod.js";
+  createArrivalCloseState,
+  type ArrivalCloseState,
+  type RestStanceSnapshot,
+} from "./arrival-stance-close-mod.js";
+import { createStanceLockState, type StanceLockState } from "./stance-lock-mod.js";
+import type {
+  LocomotionStanceLabels,
+} from "./locomotion-stance-labels.js";
 import { resolveToeBones } from "./resolve-toe-bones.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 
@@ -49,6 +49,20 @@ export type CaseOwnedBedsideApproach = {
   actorSlot: Object3D;
   leftToe: Object3D | null;
   rightToe: Object3D | null;
+  /**
+   * The bound locomotion clip's own stance labels, resolved once per clip and read every
+   * walking frame. The stance lock pins only feet the clip labels stance; null on the
+   * SC-05 probe rig (which carries marker toes, not the physician's skeleton) and on any
+   * actor without a bound clip, where the lock keeps its legacy height-band decision.
+   */
+  stanceLabels: LocomotionStanceLabels | null;
+  /** The slot carrying the playing walk action, or null when no action is playing. */
+  stanceLabelSlot:
+    | Pick<
+      GeneratedHumanoidAnimationSlot,
+      "mixer" | "locomotionClipName" | "responseClips"
+    >
+    | null;
   floorOriginY: number;
   contactBandMeters: number;
   walkSpeedMetersPerSecond: number;
@@ -60,6 +74,14 @@ export type CaseOwnedBedsideApproach = {
   lockArmed: boolean;
   /** Alternating plant/swing during the terminal turn. Slot XZ is not written here. */
   turnStep: SettlingStepTurnState;
+  /**
+   * The actor's own standing pose, snapshotted on the first walking frame while the
+   * skeleton still holds the idle pose. Drives the arrived close and the settling
+   * rest locals — the TRUE rest, not the mid-stride pose the turn used to capture.
+   */
+  restStance: RestStanceSnapshot | null;
+  /** Progress of the gradual arrival close (arrived phase). */
+  closeState: ArrivalCloseState;
   /** What the floor-band plant did to the physician before the walk, recorded for evidence. */
   floorBandPlant: ReturnType<typeof resolveFloorBandPlantLocalY>;
 };
@@ -235,6 +257,8 @@ export function createCaseOwnedBedsideApproach(input: {
     actorSlot: input.actorSlot,
     leftToe: toes.left,
     rightToe: toes.right,
+    stanceLabels: null,
+    stanceLabelSlot: null,
     floorOriginY: floorFrame.originY,
     contactBandMeters: input.contactBandMeters,
     walkSpeedMetersPerSecond: input.clipAdvance.metersPerSecond,
@@ -246,223 +270,8 @@ export function createCaseOwnedBedsideApproach(input: {
     target,
     lockArmed: false,
     turnStep: createSettlingStepTurnState(),
+    restStance: null,
+    closeState: createArrivalCloseState(),
     floorBandPlant,
   };
-}
-
-/**
- * One frame: step the executor, move the slot, then let the stance lock pin the planted toe.
- *
- * ORDER MATTERS AND IS THE WHOLE MECHANISM. The executor prescribes an advance from where the body
- * actually is; the slot is moved there; the pose for this frame is already applied by the mixer;
- * then the lock measures the planted toe and translates the slot back so the toe did not move. What
- * survives is a body that advanced by exactly what the foot allowed.
- *
- * The lock runs ONLY while the drive asks for locomotion. Once the walk ends there is no stance to
- * derive an advance from, and a lock that kept running would drag the body wherever the frozen pose
- * drifted.
- */
-export function advanceCaseOwnedBedsideApproach(
-  approach: CaseOwnedBedsideApproach | null,
-  input: {
-    nowMs: number;
-    deltaSeconds: number;
-    observedGeometryRevision: string;
-    supportAccepted: boolean;
-  },
-): CaseOwnedApproachFrame | null {
-  if (approach === null) return null;
-  const previousPhase = approach.execution.phase;
-  const execution = stepBedsideApproachExecution({
-    execution: approach.execution,
-    plan: approach.intent.plan,
-    start: approach.start,
-    target: approach.target,
-    targetHeadingRadians: approach.intent.target.headingRadians,
-    travelHeadingRadians: approach.travelHeadingRadians,
-    observedGeometryRevision: input.observedGeometryRevision,
-    supportAccepted: input.supportAccepted,
-    observedPositionXz: { x: approach.actorSlot.position.x, z: approach.actorSlot.position.z },
-    nowMs: input.nowMs,
-    deltaSeconds: input.deltaSeconds,
-    walkSpeedMetersPerSecond: approach.walkSpeedMetersPerSecond,
-    settleTurnRateRadiansPerSecond: approach.settleTurnRateRadiansPerSecond,
-  });
-  approach.execution = execution;
-  if (execution.phase !== "invalidated") {
-    approach.actorSlot.position.x = execution.prescribedPositionXz.x;
-    approach.actorSlot.position.z = execution.prescribedPositionXz.z;
-    approach.actorSlot.rotation.y = execution.headingRadians;
-  }
-  approach.actorSlot.updateMatrixWorld(true);
-  // THE FIRST WALKING FRAME'S POSE PREDATES THE CLIP, so the lock skips it and takes its anchor on
-  // the next one. On the frame the drive first asks for locomotion the skeleton still holds the idle
-  // pose; the clip's first sample lands one frame later. A lock that anchored on the idle pose would
-  // read the idle-to-walk pose change as foot slide and drag the whole body by it — measured on a
-  // 0.5 m-stride probe gait, 0.077 m of lateral error, half the arrival cap, from that one frame.
-  if (previousPhase !== "walking" && execution.phase === "walking") {
-    approach.lock = createStanceLockState();
-    approach.lockArmed = false;
-  } else if (execution.phase === "walking") {
-    approach.lockArmed = true;
-  }
-  return {
-    locomotion: execution.drive.locomotion,
-    driveSource: execution.driveSource,
-    phase: execution.phase,
-    positionXz: { x: approach.actorSlot.position.x, z: approach.actorSlot.position.z },
-    headingRadians: approach.actorSlot.rotation.y,
-    stanceFoot: approach.lock.stanceFoot,
-    stanceCorrectionMeters: approach.lock.correctionMeters,
-    toeHeightMeters: approach.lock.toeHeightMeters,
-    doubleSupport: approach.lock.doubleSupport,
-    travelledMeters: execution.travelledMeters,
-    stoppedSeconds: execution.stoppedSeconds,
-    invalidationReason: execution.invalidationReason,
-  };
-}
-
-/**
- * Sample the locomotion clip's own stance track by stepping this actor's mixer.
- *
- * WHY IT STEPS THE REAL MIXER. The clip's ground advance is a property of the ANIMATED skeleton,
- * not of the clip's raw channels: a retargeted take carries rotations, and the toe's displacement
- * only exists once forward kinematics has run. Reading it off the running rig is the same
- * measurement SC-00 made offline by decoding the GLB, taken through the consumer instead.
- *
- * The mixer's time is restored before returning, so this is an observation and not a side effect.
- * Returns null when the actor has no locomotion clip or no mixer, which is a legible "nothing to
- * measure" rather than a fabricated speed.
- */
-export function sampleLocomotionStanceTrack(
-  slot: Pick<GeneratedHumanoidAnimationSlot, "root" | "mixer" | "locomotionClipName" | "responseClips">,
-  input: { toe: Object3D; sampleCount: number; referenceFrame?: Object3D | undefined },
-): { samples: Array<{ atMs: number; position: Vector3 }>; cycleSeconds: number } | null {
-  const clipName = slot.locomotionClipName;
-  const mixer = slot.mixer;
-  if (!clipName || !mixer) return null;
-  const clip = slot.responseClips?.find((candidate) => candidate.name === clipName);
-  if (!clip || clip.duration <= 0) return null;
-  // A PRIVATE MIXER, so the calibration measures THIS clip and not a blend. The actor's own mixer
-  // is already running an idle take, and `clipAction` on it produces a pose weighted between the
-  // two: measured in a browser, a stance advance of 0.097 m/s for a clip whose own advance is
-  // 0.676. A second mixer over the same root binds the same bones, so what it writes is a real pose
-  // — the actor's mixer overwrites it on the next frame.
-  void mixer;
-  const calibrationMixer = new AnimationMixer(slot.root);
-  const action = calibrationMixer.clipAction(clip);
-  action.reset().play();
-  const step = clip.duration / Math.max(2, input.sampleCount);
-  const samples: Array<{ atMs: number; position: Vector3 }> = [];
-  for (let index = 0; index <= input.sampleCount; index += 1) {
-    calibrationMixer.update(index === 0 ? 0 : step);
-    const reference = input.referenceFrame ?? slot.root;
-    // `updateWorldMatrix(true, true)`: PARENTS as well as children. `updateMatrixWorld` only walks
-    // downward, so a reference whose own parent is stale composes against a stale world matrix and
-    // the samples come out in no frame at all — measured, a 0.5 m stance read as 2.16 m along the
-    // wrong axis, which then pointed the walk 86 degrees off its own route.
-    reference.updateWorldMatrix(true, true);
-    // IN THE REFERENCE FRAME, not root-relative. Subtracting the ROOT's world translation puts the
-    // toe's y about a hip-height below zero on every frame, so a contact test against a 0.06 m band
-    // calls the whole clip one long stance and divides its cyclic displacement by its full duration.
-    // Measured in a browser that way: 0.1137 m/s for a clip whose stance advance is 0.676 m/s. The
-    // actor slot stands ON the floor, so a position in its frame IS a height above the floor.
-    const elements = input.toe.matrixWorld.elements;
-    const world = new ThreeVector3(elements[12] ?? 0, elements[13] ?? 0, elements[14] ?? 0);
-    const local = reference.worldToLocal(world);
-    samples.push({ atMs: index * step * 1000, position: { x: local.x, y: local.y, z: local.z } });
-  }
-  action.stop();
-  calibrationMixer.stopAllAction();
-  return { samples, cycleSeconds: clip.duration };
-}
-
-
-/**
- * Pin the planted toe. Call this AFTER the pose for this frame has been written, never before.
- *
- * THE ORDER IS THE MECHANISM AND IT WAS MEASURED WRONG ONCE. `main.ts` produces the drive before it
- * runs `updateGeneratedHumanoidAnimations`, because the animation pass consumes that drive — so a
- * lock folded into the drive step reads the PREVIOUS frame's pose and its correction is always one
- * frame stale. Measured in a browser at 60 Hz on the shipped clip: `toe1-1.R` slid 0.30796 m in a
- * single frame and 4.09996 m in total across the walk, which is a lock cancelling nothing. Split
- * out, it runs after the mixer has posed the skeleton and cancels the same frame's drift.
- *
- * It is a no-op until `lockArmed`, which the drive step sets on the second walking frame.
- *
- * SETTLED POSTURE CORRECTION: During settling (after turn completes) and arrived phases,
- * the figure stands still with locomotion = 0, so the stance lock does not run. This leaves
- * the standing foot penetrating the floor (SC-05 measured 0.037172 m settling, 0.036384 m arrived).
- * The settled posture correction reuses the same two-bone IK solve (solveTwoBoneIK) to lift
- * the stance toe to at or above floorOriginY without moving actorSlot Y. This is a NEW call
- * site with its own gate, NOT a deletion of the locomotion gate.
- */
-export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | null): void {
-  if (approach === null) return;
-  if (approach.execution.phase === "settling") {
-    approach.turnStep = applySettlingStepTurnPose({
-      headingRadians: approach.actorSlot.rotation.y,
-      targetHeadingRadians: approach.intent.target.headingRadians,
-      actorSlot: approach.actorSlot,
-      leftToe: approach.leftToe,
-      rightToe: approach.rightToe,
-      contactBandMeters: approach.contactBandMeters,
-      initialPlant: approach.lock.stanceFoot,
-      state: approach.turnStep,
-    });
-    // After the settling turn completes, apply settled posture correction
-    // The turnStep.closing flag indicates the rest pose is being restored
-    if (approach.turnStep.closing && approach.turnStep.restLocal !== null) {
-      applySettledPostureCorrection({
-        actorSlot: approach.actorSlot,
-        leftToe: approach.leftToe,
-        rightToe: approach.rightToe,
-        floorOriginY: approach.floorOriginY,
-        contactBandMeters: approach.contactBandMeters,
-      });
-    }
-    return;
-  }
-  // First arrived frame: restLocal present, locomotion <= 0, closing false
-  // Restore rest toe locals and run settled correction on that restored pose
-  if (approach.turnStep.restLocal !== null && approach.execution.phase === "arrived" && approach.execution.drive.locomotion <= 0) {
-    approach.turnStep = restoreSettlingRestToePose({
-      leftToe: approach.leftToe,
-      rightToe: approach.rightToe,
-      state: approach.turnStep,
-      contactBandMeters: approach.contactBandMeters,
-    });
-    approach.actorSlot.updateMatrixWorld(true);
-    // After restoring rest pose (closing becomes true), apply settled correction
-    if (approach.turnStep.closing) {
-      applySettledPostureCorrection({
-        actorSlot: approach.actorSlot,
-        leftToe: approach.leftToe,
-        rightToe: approach.rightToe,
-        floorOriginY: approach.floorOriginY,
-        contactBandMeters: approach.contactBandMeters,
-      });
-    }
-    return;
-  }
-  // Settled/arrived phase: apply posture correction when not walking
-  if (approach.execution.phase === "arrived" && approach.execution.drive.locomotion <= 0) {
-    applySettledPostureCorrection({
-      actorSlot: approach.actorSlot,
-      leftToe: approach.leftToe,
-      rightToe: approach.rightToe,
-      floorOriginY: approach.floorOriginY,
-      contactBandMeters: approach.contactBandMeters,
-    });
-    return;
-  }
-  if (approach.execution.drive.locomotion <= 0 || !approach.lockArmed) return;
-  approach.lock = applyStanceLockedGroundAdvance({
-    actorSlot: approach.actorSlot,
-    leftToe: approach.leftToe,
-    rightToe: approach.rightToe,
-    floorOriginY: approach.floorOriginY,
-    contactBandMeters: approach.contactBandMeters,
-    state: approach.lock,
-  });
 }

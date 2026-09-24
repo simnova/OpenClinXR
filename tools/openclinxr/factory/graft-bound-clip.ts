@@ -360,6 +360,137 @@ function accessorStride(type: string): number {
   throw new Error(`rebindBoundClipTravelHeading: unsupported accessor type ${type}`);
 }
 
+/**
+ * Drop a leading rest frame from a bound clip's rotation samplers.
+ *
+ * MEASURED 2026-09-23. motion_bind_stage's retarget path keys the target rest
+ * pose at frame 0 (putInTPoses keys rest, then retracts frames 1..N), so every
+ * bound clip carries 42 keys for a 41-key source loop: key 0 is the rest pose,
+ * key 1 == key 41 closes the loop. Played with LoopRepeat the rest pose recurs
+ * once per cycle as a hitch (23.9 deg hip step, 176.8 deg arm step on Walk).
+ * The source key-0 value is NOT lost: it equals the last key (closed loop,
+ * 0.0 deg), so dropping key 0 keeps all 41 distinct loop poses.
+ *
+ * Time-domain, not value-domain: input (times) and output (values) key 0 are
+ * both removed, so remaining keys keep their source times and interpolation is
+ * unchanged. LINEAR/STEP only — CUBICSPLINE stores tangents beside values.
+ * REFUSES a clip whose key 0 is not rest-pose-like (key0->key1 step must exceed
+ * 2x the largest interior step): dropping a genuine motion frame would shorten
+ * the stride it was asked to preserve.
+ */
+export async function dropLeadingRestFrame(input: {
+  targetPath: string;
+  clipName: string;
+  outputPath: string;
+}): Promise<{
+  schemaVersion: "openclinxr.clip-rest-frame-drop.v1";
+  clipName: string;
+  keysBefore: number;
+  keysAfter: number;
+  droppedKey0ToKey1StepDeg: number;
+  largestInteriorStepDeg: number;
+}> {
+  const io = new NodeIO();
+  const targetBytes = await readFile(input.targetPath);
+  const document = await io.read(input.targetPath);
+  const animation = document
+    .getRoot()
+    .listAnimations()
+    .find((entry) => entry.getName() === input.clipName);
+  if (!animation) {
+    throw new Error(
+      `dropLeadingRestFrame: ${input.targetPath} has no clip named ${input.clipName}.`,
+    );
+  }
+  const cubic = animation
+    .listSamplers()
+    .filter((sampler) => sampler.getInterpolation() === "CUBICSPLINE");
+  if (cubic.length > 0) {
+    throw new Error(
+      `dropLeadingRestFrame: refused — ${input.clipName} carries CUBICSPLINE sampler(s). Dropping key 0 would orphan tangents.`,
+    );
+  }
+  // Verify key 0 is a rest frame on the hip channel before touching any sampler.
+  const hip = animation
+    .listChannels()
+    .find(
+      (entry) =>
+        entry.getTargetNode()?.getName() === "upperleg01.L" &&
+        entry.getTargetPath() === "rotation",
+    );
+  const hipSampler = hip?.getSampler();
+  const hipOutput = hipSampler?.getOutput()?.getArray();
+  if (!hip || !hipSampler || !hipOutput) {
+    throw new Error(
+      `dropLeadingRestFrame: refused — ${input.clipName} has no upperleg01.L rotation channel to verify the rest frame against.`,
+    );
+  }
+  const angleDeg = (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number): number => {
+    const dot = Math.min(1, Math.abs(a * e + b * f + c * g + d * h));
+    return (2 * Math.acos(dot) * 180) / Math.PI;
+  };
+  const keyQuat = (index: number): [number, number, number, number] => [
+    Number(hipOutput[index * 4]!),
+    Number(hipOutput[index * 4 + 1]!),
+    Number(hipOutput[index * 4 + 2]!),
+    Number(hipOutput[index * 4 + 3]!),
+  ];
+  const keyCount = hipOutput.length / 4;
+  const leading = angleDeg(...keyQuat(0), ...keyQuat(1));
+  let interior = 0;
+  for (let index = 1; index < keyCount - 1; index += 1) {
+    interior = Math.max(interior, angleDeg(...keyQuat(index), ...keyQuat(index + 1)));
+  }
+  if (!(leading > 2 * interior)) {
+    throw new Error(
+      `dropLeadingRestFrame: refused — key0->key1 hip step ${leading.toFixed(1)} deg is not > 2x the largest interior step ${interior.toFixed(1)} deg. Key 0 does not look like a prepended rest frame.`,
+    );
+  }
+  // Samplers SHARE accessors on the input side: all 42-key rotation channels
+  // ride one input accessor (the exporter deduplicates identical time tracks).
+  // Slice each ACCESSOR OBJECT once: collect first, then slice.
+  const inputsToSlice = new Set<Accessor>();
+  const outputsToSlice = new Map<Accessor, number>();
+  for (const sampler of animation.listSamplers()) {
+    const inputAccessor = sampler.getInput();
+    const outputAccessor = sampler.getOutput();
+    if (!inputAccessor || !outputAccessor) continue;
+    const inArray = inputAccessor.getArray();
+    const outArray = outputAccessor.getArray();
+    if (!inArray || !outArray) continue;
+    if (inArray.length <= 2) continue; // constant T/R/S bracket (2 STEP keys): no cycle frame to drop.
+    const stride =
+      outputAccessor.getType() === "VEC4" ? 4 : outputAccessor.getType() === "VEC3" ? 3 : 1;
+    if (outArray.length < stride * 2) {
+      throw new Error(
+        `dropLeadingRestFrame: ${input.clipName} a sampler has fewer than 2 keys.`,
+      );
+    }
+    inputsToSlice.add(inputAccessor);
+    if (!outputsToSlice.has(outputAccessor)) outputsToSlice.set(outputAccessor, stride);
+  }
+  for (const inputAccessor of inputsToSlice) {
+    const inArray = inputAccessor.getArray();
+    if (!inArray) continue;
+    inputAccessor.setArray(inArray.slice(1));
+  }
+  for (const [outputAccessor, stride] of outputsToSlice) {
+    const outArray = outputAccessor.getArray();
+    if (!outArray) continue;
+    outputAccessor.setArray(outArray.slice(stride));
+  }
+  await io.write(input.outputPath, document);
+  void targetBytes;
+  return {
+    schemaVersion: "openclinxr.clip-rest-frame-drop.v1",
+    clipName: input.clipName,
+    keysBefore: keyCount,
+    keysAfter: keyCount - 1,
+    droppedKey0ToKey1StepDeg: Math.round(leading * 10) / 10,
+    largestInteriorStepDeg: Math.round(interior * 10) / 10,
+  };
+}
+
 /** Reverse keyframe VALUES, keep times. LINEAR/STEP only — CUBICSPLINE stores tangents beside values. */
 function reverseSamplerOutput(output: Accessor, clipName: string): void {
   const array = output.getArray();
@@ -537,6 +668,18 @@ async function main(): Promise<void> {
     return index >= 0 ? (args[index + 1] ?? fallback) : fallback;
   };
   const targetPath = flagValue("--target", "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb");
+  if (args.includes("--drop-leading-rest-frame")) {
+    const report = await dropLeadingRestFrame({
+      targetPath,
+      clipName: flagValue("--clip", ""),
+      outputPath: flagValue("--output", ".openclinxr/evidence/walk-bind/rest-frame-dropped.glb"),
+    });
+    if (!flagValue("--clip", "")) throw new Error("drop-leading-rest-frame: --clip is required.");
+    const reportPath = flagValue("--report", ".openclinxr/evidence/walk-bind/rest-frame-drop.json");
+    await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+    process.stdout.write(`${reportPath}\n`);
+    return;
+  }
   if (args.includes("--rebind-travel-heading")) {
     const report = await rebindBoundClipTravelHeading({
       targetPath,

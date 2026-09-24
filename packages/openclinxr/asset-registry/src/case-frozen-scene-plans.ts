@@ -42,7 +42,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
         "caseId": "scene_closure_supine_bedside_v1",
         "caseVersion": 2,
         "caseSourceVersion": "openclinxr.scene-closure-case-source.v2",
-        "caseContentSha256": "c6d99b8cad2cead2c6916f02c9975e483e0d270f4f51f80b4cd8f2f25569801e",
+        "caseContentSha256": "1b36d9562b773ee693bb1aba0a474afdacd8a998d5492b2955c1b7cb91e2f82d",
         "stationId": "scene_closure_supine_bedside_station_v1",
         "environmentId": "inpatient_ward_room_v1"
       },
@@ -69,8 +69,8 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "senior_resident_ward_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-          "assetSha256": "e55272f60b2a72b19b9110794d2961e5c34d092423083034a9ba5eec5d1d3133",
-          "byteCount": 9458000
+          "assetSha256": "ab6ba3138a62ff03d079979241b95dbadf65e9173d232de486976b20d7789e8f",
+          "byteCount": 9618436
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:ward_nurse_patel_v1",
@@ -92,7 +92,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "revisions": {
         "solverVersion": "openclinxr.bedside-layout-solver.v1",
         "rigRevision": "mpfb2_standard_137_joint",
-        "clipRevision": "openclinxr_retarget_walk_formal_cc0",
+        "clipRevision": "openclinxr_retarget_walk_source",
         "geometryRevision": "geom-v1-cdaa4a22-7",
         "rubricVersion": "openclinxr.scene-closure-arrival-rubric.v1"
       },
@@ -148,11 +148,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-3544e6dd7a919e5c2a42407571438a9b",
+      "planRevision": "plan-v1-9a1c193171195800cca3d251c3c5c651",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-3544e6dd7a919e5c2a42407571438a9b"
+        "acknowledgedPlanRevision": "plan-v1-9a1c193171195800cca3d251c3c5c651"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);

@@ -1,10 +1,16 @@
-/** Public subpath entry: keep-only re-exports. Implementation: ./case-owned-approach-runtime-mod.js */
+/**
+ * Public subpath entry: keep-only re-exports.
+ * Implementation: ./case-owned-approach-runtime-mod.js (construction) and
+ * ./case-owned-approach-frame-mod.js (per-frame stepping, split out for its file-size budget).
+ */
 
 export {
-  advanceCaseOwnedBedsideApproach,
-  applyCaseOwnedStanceLock,
   type CaseOwnedApproachFrame,
   createCaseOwnedBedsideApproach,
   measureStanceGroundAdvance,
-  sampleLocomotionStanceTrack,
 } from "./case-owned-approach-runtime-mod.js";
+export {
+  advanceCaseOwnedBedsideApproach,
+  applyCaseOwnedStanceLock,
+  sampleLocomotionStanceTrack,
+} from "./case-owned-approach-frame-mod.js";

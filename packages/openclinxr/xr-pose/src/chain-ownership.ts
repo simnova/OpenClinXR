@@ -19,15 +19,31 @@
  * returned verdict "other" because the CCDIKSolver reported a wristR residual of 0.0000 m for a
  * chain that rendered the right arm ABSENT through a torn shoulder. Chain integrity — every bone
  * in the chain, not just its effector — is what a carve-out has to preserve.
+ *
+ * ## CHANGED: Added optional `weight` in [0,1] for crossfade between clip-driven and idle posture.
+ * When weight < 1, the posture pass writes slerp(idleRotation, mixerRotation, weight) so the
+ * transition is smooth. Default is 1 (full ownership, skip posture write entirely).
  */
 export type OwnedChain = {
   /** Who claimed the chain. Two executors must not claim the same bone; the caller decides. */
   ownerId: string;
   /** Exact bone names, as they appear on the rig. No patterns, no prefixes. */
   boneNames: readonly string[];
+  /** Blend weight in [0,1]. 1 = full ownership (posture skips bone). <1 = crossfade with idle. */
+  weight?: number;
 };
 
 /** True when `boneName` appears verbatim in any declared chain. */
 export function boneIsOwned(owned: readonly OwnedChain[], boneName: string): boolean {
   return owned.some((chain) => chain.boneNames.includes(boneName));
+}
+
+/** Get the ownership weight for a bone (default 1 if owned, undefined if not owned). */
+export function boneOwnershipWeight(owned: readonly OwnedChain[], boneName: string): number | undefined {
+  for (const chain of owned) {
+    if (chain.boneNames.includes(boneName)) {
+      return chain.weight ?? 1;
+    }
+  }
+  return undefined;
 }

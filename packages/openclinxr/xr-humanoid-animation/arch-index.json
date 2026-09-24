@@ -45,10 +45,14 @@
     "src/lip-seal-drive.test.ts",
     "src/natural-blink-and-emotion.test.ts",
     "src/reassured-drives-mouth-corner-puller.test.ts",
+    "src/the-arrived-stance-closes.test.ts",
+    "src/the-clip-labels-its-own-stance.test.ts",
     "src/the-frame-loop-composes-position-x-from-its-base.test.ts",
     "src/the-locomotion-drive-plays-a-clip.test.ts",
+    "src/the-stance-lock-keeps-clip-speed.test.ts",
     "src/the-standing-actor-does-not-slide-during-idle-sway.test.ts",
     "src/the-standing-foot-stays-above-the-floor.test.ts",
+    "src/the-walk-action-timescale-matches-the-executor.test.ts",
     "src/the-walking-foot-stays-above-the-floor.test.ts"
   ],
   "commands": {

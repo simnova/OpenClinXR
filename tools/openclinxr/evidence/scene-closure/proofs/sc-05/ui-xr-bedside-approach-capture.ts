@@ -43,6 +43,38 @@ const ENVIRONMENT_ID = "inpatient_ward_room_v1";
 const PHYSICIAN_ACTOR_ID = "senior_resident_ward_v1";
 const BUNDLE_ROUTE = `**/xr-assets/generated/${SCENARIO_ID}/learner-runtime-bundle.v1.json`;
 
+/**
+ * Reused by the foot-plant video capture so it runs the SAME scenario, bundle
+ * interception and URL as this SC-05 harness instead of copying them. Exported
+ * rather than copied per the delegation contract.
+ */
+export const SCENE_CLOSURE_SCENARIO_ID = SCENARIO_ID;
+export const SCENE_CLOSURE_STATION_ID = STATION_ID;
+export const SCENE_CLOSURE_ENVIRONMENT_ID = ENVIRONMENT_ID;
+export const SCENE_CLOSURE_PHYSICIAN_ACTOR_ID = PHYSICIAN_ACTOR_ID;
+export const SCENE_CLOSURE_BUNDLE_ROUTE = BUNDLE_ROUTE;
+
+/** The shipped producer over the persisted case, serialised for route fulfilment. */
+export function buildSceneClosureBundleJson(): string {
+  const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
+    scenarioId: SCENARIO_ID,
+    stationId: STATION_ID,
+    scenario: sceneClosureCaseDocument() as never,
+  });
+  return `${JSON.stringify(bundle, null, 2)}\n`;
+}
+
+/** The shipped entry URL for the scene-closure case. */
+export function buildSceneClosureUrl(baseUrl: string): string {
+  return (
+    `${baseUrl}?openclinxrScenarioId=${SCENARIO_ID}`
+    + `&stationId=${STATION_ID}`
+    + `&openclinxrEnvironmentId=${ENVIRONMENT_ID}`
+    + "&openclinxrPortalStart=encounter"
+    + "&openclinxrAcceleratedExam=1"
+  );
+}
+
 /** `acceptance-v2.md`'s engineering limits for the bounded demo, quoted rather than restated. */
 const ARRIVAL_ERROR_MAX_METERS = 0.05;
 const SETTLED_YAW_ERROR_MAX_DEGREES = 10;

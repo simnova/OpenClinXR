@@ -137,6 +137,10 @@ describe("shipped humanoids hash to their provenance", () => {
     // Vite's public directory and are downloadable, so shipping the derived clip is redistribution
     // of converted data. The replacement is Mesh2Motion's Walk_Formal, CC0 1.0 VERIFIED from that
     // clone's own LICENSE-CC0.MD.
+    //
+    // wt/walk-rebind replaced that clip with openclinxr_retarget_walk_source, bound from
+    // Mesh2Motion's `Walk` (same CC0 clearance), after measuring that the Formal bind kept only
+    // 12.4 of 80.4 deg knee flexion and flipped the upper arms to 178.3 deg.
     const row = provenanceRows().find((entry) => entry.file === "mpfb-clinical-physician-adult.provenance.json");
     expect(row?.matches).toBe(true);
     const record = JSON.parse(
@@ -144,7 +148,7 @@ describe("shipped humanoids hash to their provenance", () => {
     );
 
     const walk = record.motionClips?.find(
-      (clip: { clipName: string }) => clip.clipName === "openclinxr_retarget_walk_formal_cc0",
+      (clip: { clipName: string }) => clip.clipName === "openclinxr_retarget_walk_source",
     );
     expect(walk, "the grafted walk clip must be declared in provenance, with its licence").toBeDefined();
     expect(walk.licenceStatus).toMatch(/CC0 1\.0/u);

@@ -359,7 +359,7 @@ export const SCENE_CLOSURE_SELECTED_ASSET_MANIFEST = {
       role: "physician",
       assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
       rig: "mpfb2_standard_137_joint",
-      motionClips: ["openclinxr_retarget_walk_formal_cc0"],
+      motionClips: ["openclinxr_retarget_walk_source"],
     },
     {
       actorId: "ward_nurse_patel_v1",
