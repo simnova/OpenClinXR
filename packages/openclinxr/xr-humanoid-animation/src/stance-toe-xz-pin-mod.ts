@@ -285,6 +285,146 @@ export const ANKLE_CORRECTION_TARGET_CLEARANCE_METERS = 0.005;
 export const ANKLE_CORRECTION_MAX_RADIANS = (25 * Math.PI) / 180;
 
 /**
+ * Swing-foot lift assist: a rig-general FLOOR on toe clearance for a foot that is NOT this
+ * frame's stance pin, applied continuously through both the clip-driven turn (`clip-driven-
+ * settling-turn-mod.ts`'s per-frame pin loop) and the "waiting for fade" branch
+ * (`case-owned-approach-frame-mod.ts`) from the SAME call site shape, keyed off the SAME
+ * continuously-ramping `FootPinState.weight` both call sites already thread through
+ * `ClipDrivenSettlingTurnState.pin` — never a second, independently-timed variable.
+ *
+ * FLOOR, NOT TARGET: only raises a toe BELOW the target (`if (currentClearance >= desired) return`),
+ * never pulls an already-lifted toe down — `correctPlantedFootHeight` (above) is the exact-target
+ * version, correct for a STANCE foot that should sit at a known height; a SWING foot's raw clip
+ * pose already lifts it most of the time and should not be fought.
+ *
+ * THE TARGET ITSELF RAMPS WITH `assistWeight`, not only the blend: gating a FIXED target by weight
+ * (as `applyStanceToeXzPin` gates its slerp) still snaps the floor to full height the instant
+ * weight goes nonzero if the raw pose is far below it. Scaling `desiredClearance` by `assistWeight`
+ * means the floor itself rises from 0 continuously with the caller's shared weight — no frame where
+ * the floor jumps, only the raw pose's own shape does, and only ever pulling UP.
+ *
+ * LEG-LENGTH SCALED, not a physician constant: `targetClearanceMeters` is a fraction of THIS leg's
+ * own measured thigh+shin length (`hip`/`knee`/`heel` distances off whichever rig `findStanceChain`
+ * resolved), clamped to a sane band. Any rig sharing the MPFB bone-naming convention gets the same
+ * treatment with no per-rig branch.
+ *
+ * ANKLE-ONLY, same mechanism as `correctPlantedFootHeight`: rotates the HEEL bone about its own
+ * pivot, never a toe-local position, never the knee — the knee-flexion collapse this module's own
+ * header (clip-driven-settling-turn-mod.ts) attributes to the raw mixer's leg-weight fade is
+ * upstream of this function and NOT fixed by it; this only bounds where the FOOT ends up.
+ */
+export const SWING_LIFT_CLEARANCE_FRACTION_OF_LEG_LENGTH = 0.03;
+export const SWING_LIFT_CLEARANCE_MIN_METERS = 0.015;
+export const SWING_LIFT_CLEARANCE_MAX_METERS = 0.035;
+/** Per-frame ankle-tip clamp for the lift assist — same order as `ANKLE_CORRECTION_MAX_RADIANS`. */
+export const SWING_LIFT_MAX_RADIANS = (20 * Math.PI) / 180;
+
+export function applySwingFootLiftAssist(input: {
+  hip: Object3D;
+  knee: Object3D;
+  heel: Object3D;
+  toe: Object3D;
+  floorOriginY: number;
+  /** 0..1, continuous — the caller passes `1 - pin[side].weight` so this shares that ramp. */
+  assistWeight: number;
+}): { applied: boolean; targetClearanceMeters: number; currentClearanceMeters: number } {
+  const w = MathUtils.clamp(input.assistWeight, 0, 1);
+  const none = { applied: false, targetClearanceMeters: 0, currentClearanceMeters: 0 };
+  if (w <= 0) return none;
+  const { hip, knee, heel, toe } = input;
+  hip.updateMatrixWorld(true);
+  knee.updateMatrixWorld(true);
+  heel.updateMatrixWorld(true);
+  toe.updateMatrixWorld(true);
+  const hipWorld = new Vector3().setFromMatrixPosition(hip.matrixWorld);
+  const kneeWorld = new Vector3().setFromMatrixPosition(knee.matrixWorld);
+  const heelWorld = new Vector3().setFromMatrixPosition(heel.matrixWorld);
+  const toeWorld = worldXyz(toe);
+  const legLength = hipWorld.distanceTo(kneeWorld) + kneeWorld.distanceTo(heelWorld);
+  const targetClearanceMeters = MathUtils.clamp(
+    legLength * SWING_LIFT_CLEARANCE_FRACTION_OF_LEG_LENGTH,
+    SWING_LIFT_CLEARANCE_MIN_METERS,
+    SWING_LIFT_CLEARANCE_MAX_METERS,
+  );
+  const currentClearanceMeters = toeWorld.y - input.floorOriginY;
+  const desiredClearanceMeters = targetClearanceMeters * w;
+  if (currentClearanceMeters >= desiredClearanceMeters) {
+    return { applied: false, targetClearanceMeters: desiredClearanceMeters, currentClearanceMeters };
+  }
+  const arm = { x: toeWorld.x - heelWorld.x, y: toeWorld.y - heelWorld.y, z: toeWorld.z - heelWorld.z };
+  const armLength = Math.hypot(arm.x, arm.y, arm.z);
+  if (armLength < 1e-6) return none;
+
+  const targetY = input.floorOriginY + desiredClearanceMeters;
+  const desiredRelY = MathUtils.clamp(targetY - heelWorld.y, -armLength, armLength);
+  const currentAngle = Math.asin(MathUtils.clamp(arm.y / armLength, -1, 1));
+  const desiredAngle = Math.asin(MathUtils.clamp(desiredRelY / armLength, -1, 1));
+  const deltaAngle = MathUtils.clamp(desiredAngle - currentAngle, -SWING_LIFT_MAX_RADIANS, SWING_LIFT_MAX_RADIANS);
+  if (deltaAngle === 0) return { applied: false, targetClearanceMeters: desiredClearanceMeters, currentClearanceMeters };
+
+  const horizontal = new Vector3(arm.x, 0, arm.z);
+  if (horizontal.lengthSq() < 1e-8) return none;
+  horizontal.normalize();
+  // Same cross order as `correctPlantedFootHeight` — see that function's own header for the
+  // measured sign convention this rig's arm/axis definition needs.
+  const worldLateralAxis = new Vector3().crossVectors(horizontal, new Vector3(0, 1, 0)).normalize();
+
+  const parent = heel.parent;
+  if (parent === null) return none;
+  parent.updateMatrixWorld(true);
+  const parentWorldQuat = new Quaternion().setFromRotationMatrix(parent.matrixWorld);
+  const localAxis = worldLateralAxis.clone().applyQuaternion(parentWorldQuat.clone().invert()).normalize();
+
+  const fullDelta = new Quaternion().setFromAxisAngle(localAxis, deltaAngle);
+  heel.quaternion.multiplyQuaternions(heel.quaternion, fullDelta);
+  heel.updateMatrixWorld(true);
+  toe.updateMatrixWorld(true);
+  return { applied: true, targetClearanceMeters: desiredClearanceMeters, currentClearanceMeters };
+}
+
+/**
+ * One foot's "waiting for fade" treatment: the held stance pin (`applyStanceToeXzPin` +
+ * `correctPlantedFootHeight`) when this foot still carries pin weight, PLUS the swing-foot lift
+ * assist unconditionally — both keyed off the SAME `pinState`, which the caller threads in from
+ * `approach.clipTurn.pin`, the identical object the turning-phase loop
+ * (`applyClipDrivenSettlingTurn`, clip-driven-settling-turn-mod.ts) was updating a moment before
+ * this branch runs. Factored out of `case-owned-approach-frame-mod.ts` only to keep that file
+ * under its 500-line zone budget; behaviour is the call site's own, unchanged.
+ */
+export function applyFootPinAndSwingLift(input: {
+  actorSlot: Object3D;
+  side: StanceFoot;
+  pinState: FootPinState;
+  floorOriginY: number;
+}): void {
+  const { actorSlot, side, pinState, floorOriginY } = input;
+  const { anchorXz, weight } = pinState;
+  if (weight > 0 && anchorXz !== null) {
+    applyStanceToeXzPin({ actorSlot, stanceFoot: side, anchorXz, floorOriginY, weight });
+    const chain = findStanceChain(actorSlot, side);
+    if (chain !== null) {
+      correctPlantedFootHeight({ heel: chain.heel, toe: chain.toe, floorOriginY, weight });
+    }
+    return;
+  }
+  // MUTUALLY EXCLUSIVE with the `held` branch above — see `applySwingFootLiftAssist`'s sibling
+  // gate in `clip-driven-settling-turn-mod.ts`'s own per-frame loop (the `!isStance` note) for the
+  // measured reason: running both corrections on the SAME foot the SAME frame fights the stance
+  // pin's own convergence.
+  const chain = findStanceChain(actorSlot, side);
+  if (chain !== null) {
+    applySwingFootLiftAssist({
+      hip: chain.hip,
+      knee: chain.knee,
+      heel: chain.heel,
+      toe: chain.toe,
+      floorOriginY,
+      assistWeight: 1 - pinState.weight,
+    });
+  }
+}
+
+/**
  * DIRECT ANKLE CORRECTION (coordinator direction 2026-09-25, after the mixer-weight subclip
  * attempt measured worse and was reverted). `applyStanceToeXzPin` solves hip+knee only; the FOOT
  * (heel) bone's own rotation is whatever the mixer wrote, and MEASURED (`station-bedside-approach-

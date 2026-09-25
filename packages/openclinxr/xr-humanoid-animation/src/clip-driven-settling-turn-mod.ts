@@ -4,6 +4,7 @@ import { computeFootfallBias, findStanceChain, pivotSlotAroundAnchor, worldXyz }
 import { createStanceLockState, type StanceFoot, type StanceLockState } from "./stance-lock-mod.js";
 import {
   applyStanceToeXzPin,
+  applySwingFootLiftAssist,
   correctPlantedFootHeight,
   type FootPinState,
   IDLE_FOOT_PIN_STATE,
@@ -328,6 +329,31 @@ export function applyClipDrivenSettlingTurn(input: {
             weight,
           });
         }
+      }
+    }
+    // SWING-FOOT LIFT ASSIST (coordinator direction 2026-09-25, second pass): a foot not held by
+    // the pin above gets a continuous floor on its toe clearance, keyed off `1 - weight` — the
+    // SAME ramp this loop just used to bring the pin in or out, so there is no separate timer to
+    // fall out of step with it. GATED ON `!isStance`, not merely `weight < 1`: during the pin's
+    // OWN ramp-IN (footfall), `weight` is briefly < 1 while this side IS the stance foot, and
+    // running the assist there too fights `correctPlantedFootHeight` on the SAME frame for the
+    // SAME foot — MEASURED, it left a 0.0087 m residual slide against `the-planted-toe-stays-
+    // pinned-during-the-turn.test.ts`'s 0.005 m bound. `isStance` is exactly the loop's own
+    // held-vs-swinging distinction (line above), so gating on it keeps the two corrections
+    // mutually exclusive per foot per frame. See `applySwingFootLiftAssist`'s own header
+    // (stance-toe-xz-pin-mod.ts) for why this is a floor rather than a target, and why the target
+    // itself scales by the weight rather than only the blend.
+    if (!isStance) {
+      const chain = findStanceChain(actorSlot, side);
+      if (chain !== null) {
+        applySwingFootLiftAssist({
+          hip: chain.hip,
+          knee: chain.knee,
+          heel: chain.heel,
+          toe: chain.toe,
+          floorOriginY: input.floorOriginY,
+          assistWeight: 1 - weight,
+        });
       }
     }
   }

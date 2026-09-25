@@ -3,30 +3,29 @@ import {
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
 import { AnimationMixer, type Object3D, Vector3 as ThreeVector3 } from "three";
 import {
-  restoreSettlingRestToePose,
-} from "./settling-step-turn-mod.js";
+  applyArrivalStanceClose,
+  captureRestStance,
+} from "./arrival-stance-close-mod.js";
+import type {
+  CaseOwnedApproachFrame,
+  CaseOwnedBedsideApproach,
+} from "./case-owned-approach-runtime-mod.js";
 import {
   applyClipDrivenSettlingTurn,
   createClipDrivenSettlingTurnState,
 } from "./clip-driven-settling-turn-mod.js";
 import { applyHeadGazeLeadYaw } from "./head-gaze-lead-mod.js";
-import { applyStanceToeXzPin, correctPlantedFootHeight } from "./stance-toe-xz-pin-mod.js";
-import { findStanceChain } from "./stance-lock-ik.js";
+import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
+import { applySettledPostureCorrection } from "./settled-posture-correction.js";
 import {
-  captureRestStance,
-  applyArrivalStanceClose,
-} from "./arrival-stance-close-mod.js";
+  restoreSettlingRestToePose,
+} from "./settling-step-turn-mod.js";
 import {
   applyStanceLockedGroundAdvance,
   createStanceLockState,
 } from "./stance-lock-mod.js";
-import { applySettledPostureCorrection } from "./settled-posture-correction.js";
-import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
+import { applyFootPinAndSwingLift } from "./stance-toe-xz-pin-mod.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
-import type {
-  CaseOwnedApproachFrame,
-  CaseOwnedBedsideApproach,
-} from "./case-owned-approach-runtime-mod.js";
 
 type Vector3 = { x: number; y: number; z: number };
 
@@ -332,26 +331,18 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
       // frames; gating on `legWeight > 0` still left a 0.098 m residual — see git history).
       // + DIRECT ANKLE CORRECTION: see `correctPlantedFootHeight`'s own header
       // (stance-toe-xz-pin-mod.ts) for why the XZ pin alone leaves the toe ~3-5 cm high.
+      // SWING-FOOT LIFT ASSIST continues here off the SAME `pin` state the turning-phase loop
+      // (`applyClipDrivenSettlingTurn`) was updating a moment ago — see `applyFootPinAndSwingLift`'s
+      // own header (stance-toe-xz-pin-mod.ts) for why sharing that state is what makes this
+      // transition continuous instead of a second, independently-timed correction.
       const pin = approach.clipTurn.pin;
       for (const side of ["left", "right"] as const) {
-        const current = pin[side];
-        if (current.weight <= 0 || current.anchorXz === null) continue;
-        applyStanceToeXzPin({
+        applyFootPinAndSwingLift({
           actorSlot: approach.actorSlot,
-          stanceFoot: side,
-          anchorXz: current.anchorXz,
+          side,
+          pinState: pin[side],
           floorOriginY: approach.floorOriginY,
-          weight: current.weight,
         });
-        const chain = findStanceChain(approach.actorSlot, side);
-        if (chain !== null) {
-          correctPlantedFootHeight({
-            heel: chain.heel,
-            toe: chain.toe,
-            floorOriginY: approach.floorOriginY,
-            weight: current.weight,
-          });
-        }
       }
 
       // The residual heading this sub-stage started with (up to `SETTLING_DRIVE_STOP_

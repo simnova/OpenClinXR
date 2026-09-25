@@ -48,6 +48,34 @@ import {
 } from "../scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.js";
 
 const OUTPUT_DIR = ".openclinxr/evidence/foot-plant-video";
+/**
+ * `--humanoid=<glb-filename>` (or `FOOT_PLANT_HUMANOID_GLB`) swaps the loaded GLB for the SAME
+ * physician actor slot (`SCENE_CLOSURE_PHYSICIAN_ACTOR_ID`) without touching the scenario/cast
+ * data this capture reuses from SC-05 — only the `model.blob.blobName`/`url` on that one actor
+ * entry in the bundle JSON this script already builds. Added so a shared, rig-general animation
+ * fix can be demonstrated on a second shipped humanoid through the SAME scenario, camera framing
+ * and evidence pipeline, rather than a second bespoke capture tool. Defaults to the physician GLB
+ * (unchanged behaviour with no flag). The two shipped MPFB adults share one rig-naming convention
+ * (`resolve-toe-bones.ts`, `stance-lock-ik.ts`'s `findStanceChain`), so no other bundle field
+ * needs to change for a second rig to load and animate through the same runtime code.
+ */
+function humanoidGlbOverride(): string | null {
+  const flag = process.argv.find((arg) => arg.startsWith("--humanoid="));
+  if (flag) return flag.slice("--humanoid=".length);
+  return process.env.FOOT_PLANT_HUMANOID_GLB ?? null;
+}
+function applyHumanoidOverride(bundleJson: string, physicianActorId: string): string {
+  const glb = humanoidGlbOverride();
+  if (!glb) return bundleJson;
+  const bundle = JSON.parse(bundleJson) as {
+    actors: Array<{ actorId: string; model?: { blob?: { blobName: string; url?: string } } }>;
+  };
+  const actor = bundle.actors.find((a) => a.actorId === physicianActorId);
+  if (!actor?.model?.blob) throw new Error(`humanoid override: no model.blob on actor ${physicianActorId}`);
+  actor.model.blob.blobName = `generated-humanoids/${glb}`;
+  actor.model.blob.url = `/generated-humanoids/${glb}`;
+  return `${JSON.stringify(bundle, null, 2)}\n`;
+}
 const VIDEO_WIDTH = 1280;
 const VIDEO_HEIGHT = 720;
 const FFMPEG = "/opt/homebrew/bin/ffmpeg";
@@ -1937,7 +1965,9 @@ async function main(): Promise<void> {
     force: true,
   });
 
-  const bundleJson = buildSceneClosureBundleJson();
+  const bundleJson = applyHumanoidOverride(buildSceneClosureBundleJson(), SCENE_CLOSURE_PHYSICIAN_ACTOR_ID);
+  const humanoidOverride = humanoidGlbOverride();
+  if (humanoidOverride) process.stderr.write(`[humanoid] override: ${humanoidOverride}\n`);
   let server: PortlessDevServer | null = null;
   try {
     server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", readyTimeoutMs: 180_000 });
