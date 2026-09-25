@@ -1,6 +1,7 @@
 # Project-scoped Grok configuration for openclinxr
-# Augments user ~/.grok/config.toml. Repo-root takes precedence over user for supported sections.
-# See https://docs (or ~/.grok/docs/user-guide/05-configuration.md) for full options.
+# A project file only merges [mcp_servers], [plugins], [permission], and [mcp] max_output_bytes.
+# [agent], [subagents], [compat], [memory], [features], [toolset], [ui], and [skills] in THIS
+# file do not apply. Those live in ~/.grok/config.toml. See 26-config-reference.md.
 # This config is tuned for the project's heavy agentic workflows (per AGENTS.md, docs/agent-factory/, .agent-factory/, agents/** roles with charters+memory, subagent orchestration, persistent rehydration from snapshots in PROJECT_COORDINATION_INDEX.md etc., monorepo with turbo/pnpm, GitHub via `gh` CLI, custom skills in .agents/skills/ + lock).
 
 # --- Skills (already set for multi-harness standardization) ---
@@ -12,8 +13,12 @@ paths = [".agents/skills"]
 # Worker sessions: set OPENCLINXR_WORKER=1 so mutating SessionStart hooks NO-OP (docs hygiene, etc.).
 
 # --- Main session agent (CEO / orchestrator only) ---
+# IGNORED HERE. A project file cannot set [agent]. The live key is
+# ~/.grok/config.toml [agent] name = "orchestrator", which resolves to
+# .grok/agents/orchestrator.md when this repo is the cwd. --plan,
+# --agent-profile, and a Grok Build plan session (grok-build-plan) override it.
 # HARD: main transcript is CEO, not product IC. See agents/rules/orchestrator-only-main.md
-# and docs/agent-ops/MAIN-SESSION-ORCHESTRATOR-ONLY.md. New session required after change.
+# and docs/agent-ops/MAIN-SESSION-ORCHESTRATOR-ONLY.md.
 [agent]
 name = "orchestrator"
 

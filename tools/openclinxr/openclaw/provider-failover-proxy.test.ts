@@ -41,6 +41,13 @@ describe("provider-failover-proxy", () => {
     expect(r?.secondary.model).toBe("deepseek/deepseek-v4-flash");
   });
 
+  it("routes deepseek-v4-pro to Go pro, then OpenRouter pro", () => {
+    const r = routeFor("deepseek-v4-pro");
+    expect(r?.primary.model).toBe("deepseek-v4-pro");
+    expect(r?.secondary.model).toBe("deepseek/deepseek-v4-pro");
+    expect(routeFor("deepseek")?.secondary.model).toBe("deepseek/deepseek-v4-pro");
+  });
+
   it("failovers 402/403/429/5xx and not 400", () => {
     expect(shouldFailover(402)).toBe(true);
     expect(shouldFailover(403)).toBe(true);
@@ -108,6 +115,52 @@ describe("provider-failover-proxy", () => {
     });
     expect(out.status).toBe(400);
     expect(n).toBe(1);
+    expect(out.via).toBe("openrouter");
+  });
+
+  it("rewrites a named tool_choice to auto before OpenRouter", async () => {
+    process.env.OPENROUTER_API_KEY = "or-test";
+    process.env.OPENCODE_API_KEY = "go-test";
+    let sent: { tool_choice?: unknown; messages?: Array<{ role?: string; content?: unknown }> } | undefined;
+    const fetchImpl: typeof fetch = async (url, init) => {
+      if (String(url).includes("openrouter")) {
+        sent = JSON.parse(String(init?.body ?? "{}")) as {
+          tool_choice?: unknown;
+          messages?: Array<{ role?: string; content?: unknown }>;
+        };
+        return new Response(JSON.stringify({ choices: [{ message: { role: "assistant", content: "ok" } }] }), { status: 200 });
+      }
+      return new Response("{}", { status: 500 });
+    };
+    const out = await forwardChat({
+      body: {
+        model: "muse-spark-1",
+        tool_choice: { type: "function", function: { name: "echo" } },
+        messages: [{ role: "user", content: "hi" }],
+      },
+      route: routeFor("muse-spark-1")!,
+      fetchImpl,
+      breaker: new CircuitBreaker(),
+    });
+    expect(out.via).toBe("openrouter");
+    expect(sent?.tool_choice).toBe("auto");
+    expect(sent?.messages?.[0]?.content).toContain("You must call the function echo.");
+  });
+
+  it("a 400 does not open the upstream circuit", async () => {
+    process.env.OPENROUTER_API_KEY = "or-test";
+    process.env.OPENCODE_API_KEY = "go-test";
+    const breaker = new CircuitBreaker();
+    const fetchImpl: typeof fetch = async () =>
+      new Response(JSON.stringify({ error: { message: "bad tool_choice" } }), { status: 400 });
+    await forwardChat({
+      body: { model: "muse-spark-1", messages: [{ role: "user", content: "hi" }] },
+      route: routeFor("muse-spark-1")!,
+      fetchImpl,
+      breaker,
+    });
+    expect(breaker.snapshot().openrouter).toBeUndefined();
+    expect(breaker.allow("openrouter")).toBe(true);
   });
 
   it("quota 429 cools down for the Go 5h window; Retry-After wins when present", () => {
@@ -302,6 +355,89 @@ describe("provider-failover: tool requests fail over to Go", () => {
     const converted = goResponsesStreamToChatChunks(goTextSse, "muse-spark-1.3-contributor");
     expect(converted.hasContent).toBe(true);
     expect(converted.finishReason).toBe("stop");
+  });
+
+  it("pins Go reasoning to minimal and floors a tiny max_tokens so grok gets visible output", () => {
+    const tiny = translateChatRequestToGoResponses(
+      { max_tokens: 16, messages: [{ role: "user", content: "Reply PONG" }] },
+      "muse-spark-1.3-contributor",
+      true,
+    );
+    expect(tiny.ok).toBe(true);
+    if (!tiny.ok) throw new Error("unreachable");
+    expect(tiny.payload.reasoning).toEqual({ effort: "minimal" });
+    expect(tiny.payload.max_output_tokens).toBe(1024);
+    const named = translateChatRequestToGoResponses(
+      {
+        tool_choice: { type: "function", function: { name: "echo" } },
+        tools: [{ type: "function", function: { name: "echo", parameters: { type: "object", properties: {} } } }],
+        messages: [{ role: "user", content: "hi" }],
+      },
+      "muse-spark-1.3-contributor",
+      true,
+    );
+    expect(named.ok).toBe(true);
+    if (!named.ok) throw new Error("unreachable");
+    expect(named.payload.tool_choice).toBe("auto");
+    expect(named.payload.instructions).toContain("You must call the function echo.");
+    const capped = translateChatRequestToGoResponses(
+      { max_completion_tokens: 16384, messages: [{ role: "user", content: "hi" }] },
+      "muse-spark-1.3-contributor",
+      true,
+    );
+    expect(capped.ok).toBe(true);
+    if (!capped.ok) throw new Error("unreachable");
+    expect(capped.payload.max_output_tokens).toBe(16384);
+  });
+
+  it("flushes the first Go content delta before the upstream stream closes", async () => {
+    process.env.OPENROUTER_API_KEY = "or-test";
+    process.env.OPENCODE_API_KEY = "go-test";
+    const enc = new TextEncoder();
+    const first = `data: ${JSON.stringify({ type: "response.output_text.delta", delta: "PO" })}\n\n`;
+    const rest = `data: ${JSON.stringify({ type: "response.output_text.delta", delta: "NG" })}\n\n`;
+    let releaseRest: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+      releaseRest = resolve;
+    });
+    let sentFirst = false;
+    const stream = new ReadableStream({
+      async pull(controller) {
+        if (!sentFirst) {
+          sentFirst = true;
+          controller.enqueue(enc.encode(first));
+          return;
+        }
+        await gate;
+        controller.enqueue(enc.encode(rest));
+        controller.close();
+      },
+    });
+    let sawPoBeforeRest = false;
+    const fetchImpl: typeof fetch = async (url) => {
+      if (String(url).includes("openrouter")) {
+        return new Response(JSON.stringify({ error: { message: "upstream error" } }), { status: 500 });
+      }
+      return new Response(stream, { status: 200, headers: { "content-type": "text/event-stream" } });
+    };
+    const out = await forwardChat({
+      body: { model: "muse-spark-1", stream: true, messages: [{ role: "user", content: "hi" }] },
+      route: routeFor("muse-spark-1")!,
+      fetchImpl,
+      breaker: new CircuitBreaker(),
+      onStream: {
+        start() {},
+        write(chunk) {
+          if (chunk.includes("PO") && !chunk.includes("NG")) sawPoBeforeRest = true;
+          releaseRest();
+        },
+      },
+    });
+    expect(sawPoBeforeRest).toBe(true);
+    expect(out.via).toBe("go");
+    expect(out.sse).toContain("PO");
+    expect(out.sse).toContain("NG");
+    expect(out.sse).toContain("data: [DONE]");
   });
 
   it("translates a follow-up turn (assistant tool_call + tool result) into function_call / function_call_output items", () => {

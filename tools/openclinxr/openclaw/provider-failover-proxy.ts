@@ -7,9 +7,10 @@ import type { IncomingMessage, ServerResponse } from "node:http";
  */
 import http from "node:http";
 import {
+  GoResponsesChunker,
   goResponsesJsonToChatCompletion,
-  goResponsesStreamToChatChunks,
   sseFromChatMessage,
+  steerChatBody,
   translateChatRequestToGoResponses,
 } from "./provider-failover-go-responses.ts";
 
@@ -49,7 +50,10 @@ export class CircuitBreaker {
   }
 
   recordFailure(name: string, status: number, retryAfterHeader?: string | null): void {
-    if (status === 401) return;
+    // 401 is a missing key. 400 is this request (Go rejects a named tool_choice).
+    // Neither means the upstream is down, and opening the circuit on them
+    // blocks the next model that shares the hop.
+    if (status === 401 || status === 400) return;
     const ms = cooldownMsFor(status, retryAfterHeader);
     this.state.set(name, { kind: "open", openUntil: this.now() + ms });
   }
@@ -136,7 +140,7 @@ export function routeFor(model: string): { primary: Upstream; secondary: Upstrea
         name: "openrouter",
         base: "https://openrouter.ai/api/v1",
         keyEnv: "OPENROUTER_API_KEY",
-        model: "deepseek/deepseek-v4-flash",
+        model: "deepseek/deepseek-v4-pro",
       },
     };
   }
@@ -250,16 +254,43 @@ export type ForwardResult = {
   contentType?: string;
 };
 
+export type StreamSink = {
+  /** Called once, before the first byte, after this upstream is committed. */
+  start(via: string): void;
+  write(chunk: string): void;
+};
+
+async function readBody(res: Response, onPiece: (piece: string) => void): Promise<void> {
+  const body = res.body;
+  if (!body) {
+    onPiece(await res.text());
+    return;
+  }
+  const reader = body.getReader();
+  const dec = new TextDecoder();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const piece = dec.decode(value, { stream: true });
+    if (piece) onPiece(piece);
+  }
+  const tail = dec.decode();
+  if (tail) onPiece(tail);
+}
+
 export async function forwardChat(opts: {
   body: Record<string, unknown>;
   route: { primary: Upstream; secondary: Upstream };
   fetchImpl?: FetchLike;
   breaker?: CircuitBreaker;
+  /** When set, streaming answers are flushed at the first content or tool-call delta. */
+  onStream?: StreamSink;
 }): Promise<ForwardResult> {
   const fetchImpl = opts.fetchImpl ?? fetch;
   const breaker = opts.breaker ?? defaultBreaker;
   const order = [opts.route.primary, opts.route.secondary];
-  const wantStream = opts.body.stream === true;
+  const request = steerChatBody(opts.body);
+  const wantStream = request.stream === true;
   let last: ForwardResult | undefined;
   for (const up of order) {
     if (!breaker.allow(up.name)) {
@@ -282,7 +313,7 @@ export async function forwardChat(opts: {
     // Go circuit is untouched because Go was never called.
     let goTranslation: ReturnType<typeof translateChatRequestToGoResponses> | undefined;
     if (useGoResponses) {
-      goTranslation = translateChatRequestToGoResponses(opts.body, up.model, wantStream);
+      goTranslation = translateChatRequestToGoResponses(request, up.model, wantStream);
       if (!goTranslation.ok) {
         return (
           last ?? {
@@ -297,7 +328,13 @@ export async function forwardChat(opts: {
     const payload =
       useGoResponses && goTranslation?.ok
         ? goTranslation.payload
-        : { ...opts.body, model: up.model, stream: wantStream };
+        : { ...request, model: up.model, stream: wantStream };
+    // OpenRouter's muse provider returns HTTP 400 for anything but "auto"
+    // (measured: named tool_choice, same wording as Go). Grok still gets the
+    // tools array. Do not treat that 400 as an upstream failure.
+    if (!useGoResponses && payload.tool_choice !== undefined && payload.tool_choice !== "auto") {
+      payload.tool_choice = "auto";
+    }
     const headers: Record<string, string> = {
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
@@ -310,22 +347,57 @@ export async function forwardChat(opts: {
         headers,
         body: JSON.stringify(payload),
       });
-      const text = await res.text();
       if (res.ok && isSseResponse(res) && useGoResponses) {
-        // Go answered our /responses translation as an event stream (the normal case when the
-        // client asked to stream) — parse it into chat.completion.chunk SSE for the client.
-        const converted = goResponsesStreamToChatChunks(text, up.model);
-        if (!converted.hasContent && !converted.hasToolCalls) {
+        // Convert Go events as they arrive and flush grok's first content or
+        // tool-call delta before the upstream closes. Hold until that delta so
+        // an empty stream can still fail over.
+        const chunker = new GoResponsesChunker(up.model);
+        const sink = opts.onStream;
+        let committed = false;
+        const note = (produced: string): void => {
+          if (!sink) return;
+          if (!committed) {
+            if (chunker.hasContent || chunker.hasToolCalls) {
+              committed = true;
+              sink.start(up.name);
+              sink.write(chunker.emitted);
+            }
+            return;
+          }
+          if (produced) sink.write(produced);
+        };
+        await readBody(res, (piece) => note(chunker.pushText(piece)));
+        note(chunker.finish());
+        if (!chunker.hasContent && !chunker.hasToolCalls) {
           breaker.recordFailure(up.name, 500);
           last = { status: 200, json: { error: { message: "empty streamed completion" } }, via: up.name };
           if (up === order[order.length - 1]) return last;
           continue;
         }
         breaker.recordSuccess(up.name);
-        const json = { choices: [{ index: 0, finish_reason: converted.finishReason, message: { role: "assistant" } }] };
-        return { status: 200, json, via: up.name, sse: converted.sse, contentType: "text/event-stream" };
+        const json = { choices: [{ index: 0, finish_reason: chunker.finishReason, message: { role: "assistant" } }] };
+        return { status: 200, json, via: up.name, sse: chunker.emitted, contentType: "text/event-stream" };
       }
       if (res.ok && isSseResponse(res)) {
+        let text = "";
+        const sink = opts.onStream;
+        let committed = false;
+        let held = "";
+        await readBody(res, (piece) => {
+          text += piece;
+          if (!sink) return;
+          if (committed) {
+            sink.write(piece);
+            return;
+          }
+          held += piece;
+          if (accumulateStreamContent(text) !== "" || streamHasToolCalls(text)) {
+            committed = true;
+            sink.start(up.name);
+            sink.write(held);
+            held = "";
+          }
+        });
         const content = accumulateStreamContent(text);
         if (content === "" && !streamHasToolCalls(text)) {
           // Completed event stream with no content delta — same empty-completion
@@ -345,6 +417,7 @@ export async function forwardChat(opts: {
         breaker.recordSuccess(up.name);
         return { status: 200, json, via: up.name, sse: text, contentType: "text/event-stream" };
       }
+      const text = await res.text();
       let json: unknown = text;
       try {
         json = JSON.parse(text) as unknown;
@@ -430,7 +503,33 @@ export function createServer(fetchImpl?: FetchLike, breaker: CircuitBreaker = de
           res.end(JSON.stringify({ error: { message: `no failover route for ${model}` } }));
           return;
         }
-        const out = await forwardChat({ body, route, fetchImpl, breaker });
+        let handed = false;
+        const out = await forwardChat({
+          body,
+          route,
+          fetchImpl,
+          breaker,
+          onStream:
+            body.stream === true
+              ? {
+                  start(via) {
+                    handed = true;
+                    res.writeHead(200, {
+                      "content-type": "text/event-stream",
+                      "cache-control": "no-cache",
+                      "x-openclinxr-via": via,
+                    });
+                  },
+                  write(chunk) {
+                    res.write(chunk);
+                  },
+                }
+              : undefined,
+        });
+        if (handed) {
+          res.end();
+          return;
+        }
         if (body.stream === true && out.sse !== undefined) {
           res.writeHead(out.status, {
             "content-type": out.contentType ?? "text/event-stream",

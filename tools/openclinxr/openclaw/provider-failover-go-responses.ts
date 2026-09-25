@@ -179,11 +179,40 @@ export function chatToolsToGoTools(tools: unknown): Array<Record<string, unknown
   return out.length > 0 ? out : undefined;
 }
 
+/**
+ * Both OpenRouter's muse provider and OpenCode Go reject anything but
+ * `tool_choice: "auto"` (measured 2026-09-24, HTTP 400). The wire value is
+ * therefore always auto. This sentence is appended to the instructions so a
+ * named or required choice still steers the model.
+ */
+export function toolChoiceSteerText(toolChoice: unknown): string | undefined {
+  if (toolChoice === undefined || toolChoice === null || toolChoice === "auto") return undefined;
+  if (toolChoice === "none") return "Do not call a tool. Reply with text.";
+  if (toolChoice === "required") return "You must call one of the provided tools.";
+  const named = toolChoice as { type?: string; function?: { name?: string } };
+  if (named?.type === "function" && named.function?.name) {
+    return `You must call the function ${named.function.name}.`;
+  }
+  return "You must call one of the provided tools.";
+}
+
 export function chatToolChoiceToGo(toolChoice: unknown): unknown {
-  if (typeof toolChoice === "string") return toolChoice;
-  const tc = toolChoice as { type?: string; function?: { name?: string } } | undefined;
-  if (tc?.type === "function" && tc.function?.name) return { type: "function", name: tc.function.name };
-  return undefined;
+  if (toolChoice === undefined || toolChoice === null) return undefined;
+  return "auto";
+}
+
+/** Copy of a chat body with a forced tool choice written into the system text and sent as auto. */
+export function steerChatBody(body: Record<string, unknown>): Record<string, unknown> {
+  const steer = toolChoiceSteerText(body.tool_choice);
+  if (!steer) return body;
+  const messages = Array.isArray(body.messages) ? [...body.messages] : [];
+  const first = messages[0] as { role?: string; content?: unknown } | undefined;
+  if (first && (first.role === "system" || first.role === "developer") && typeof first.content === "string") {
+    messages[0] = { ...first, content: `${first.content}\n\n${steer}` };
+  } else {
+    messages.unshift({ role: "system", content: steer });
+  }
+  return { ...body, messages, tool_choice: "auto" };
 }
 
 export type GoTranslationResult =
@@ -201,19 +230,27 @@ export function translateChatRequestToGoResponses(
   model: string,
   wantStream: boolean,
 ): GoTranslationResult {
-  const { instructions, input, unsupported } = chatMessagesToGoInput(body.messages);
+  const steered = steerChatBody(body);
+  const { instructions, input, unsupported } = chatMessagesToGoInput(steered.messages);
   if (unsupported) return { ok: false, reason: `cannot translate to Go /responses: ${unsupported}` };
   if (input.length === 0) return { ok: false, reason: "cannot translate to Go /responses: no representable input" };
   const payload: Record<string, unknown> = { model, input, stream: wantStream };
   if (instructions) payload.instructions = instructions;
   const tools = chatToolsToGoTools(body.tools);
   if (tools) payload.tools = tools;
-  if (body.tool_choice !== undefined) {
-    const mapped = chatToolChoiceToGo(body.tool_choice);
+  if (steered.tool_choice !== undefined) {
+    const mapped = chatToolChoiceToGo(steered.tool_choice);
     if (mapped !== undefined) payload.tool_choice = mapped;
   }
-  const maxTokens = body.max_output_tokens ?? body.max_tokens ?? body.max_completion_tokens;
-  if (typeof maxTokens === "number") payload.max_output_tokens = maxTokens;
+  // Go bills reasoning tokens against max_output_tokens, and its default effort is
+  // high. Measured: a small budget then ends response.incomplete with no output_text,
+  // the proxy calls that empty, and grok retries the same request. The Go hop is the
+  // backup, so it answers immediately. A grok model cap (muse is 16384) is kept.
+  const requested = body.max_output_tokens ?? body.max_tokens ?? body.max_completion_tokens;
+  const MIN_GO_OUTPUT_TOKENS = 1024;
+  payload.max_output_tokens =
+    typeof requested === "number" ? Math.max(requested, MIN_GO_OUTPUT_TOKENS) : MIN_GO_OUTPUT_TOKENS;
+  payload.reasoning = { effort: "minimal" };
   return { ok: true, payload };
 }
 
@@ -312,78 +349,143 @@ function chunkLine(id: string, created: number, model: string, delta: Record<str
 }
 
 /**
+ * Incremental Go /responses SSE -> chat.completion.chunk SSE.
+ * pushText emits as soon as a complete event block arrives, so the proxy can
+ * flush the first content or tool-call delta before the upstream closes.
+ * Verified against __fixtures__/go-responses-text.sse and go-responses-tool-call.sse.
+ */
+export class GoResponsesChunker {
+  readonly emittedParts: string[] = [];
+  hasContent = false;
+  hasToolCalls = false;
+  private sentRole = false;
+  private sawIncomplete = false;
+  private buf = "";
+  private finished = false;
+  private readonly created = Math.floor(Date.now() / 1000);
+  private readonly id = "failover-go-stream";
+  private readonly toolIndexByItemId = new Map<string, number>();
+  private nextToolIndex = 0;
+
+  constructor(private readonly model: string) {}
+
+  get emitted(): string {
+    return this.emittedParts.join("");
+  }
+
+  get finishReason(): GoStreamToChatResult["finishReason"] {
+    return this.hasToolCalls ? "tool_calls" : this.sawIncomplete ? "length" : "stop";
+  }
+
+  /** Returns only the chat chunks produced by this fragment. */
+  pushText(fragment: string): string {
+    if (this.finished || fragment === "") return "";
+    this.buf += fragment;
+    const produced: string[] = [];
+    while (true) {
+      const split = this.buf.indexOf("\n\n");
+      if (split < 0) break;
+      const block = this.buf.slice(0, split);
+      this.buf = this.buf.slice(split + 2);
+      const chunk = this.consumeBlock(block);
+      if (chunk) produced.push(chunk);
+    }
+    return produced.join("");
+  }
+
+  /** Parses a trailing partial block, then the finish chunk and [DONE]. */
+  finish(): string {
+    if (this.finished) return "";
+    this.finished = true;
+    const produced: string[] = [];
+    if (this.buf.trim() !== "") {
+      const chunk = this.consumeBlock(this.buf);
+      this.buf = "";
+      if (chunk) produced.push(chunk);
+    }
+    this.ensureRole();
+    produced.push(this.emit({}, this.finishReason));
+    const done = "data: [DONE]\n\n";
+    this.emittedParts.push(done);
+    produced.push(done);
+    return produced.join("");
+  }
+
+  private emit(delta: Record<string, unknown>, chunkFinishReason: string | null = null): string {
+    const line = chunkLine(this.id, this.created, this.model, delta, chunkFinishReason);
+    this.emittedParts.push(line);
+    return line;
+  }
+
+  private ensureRole(): void {
+    if (this.sentRole) return;
+    this.sentRole = true;
+    this.emit({ role: "assistant" });
+  }
+
+  private consumeBlock(block: string): string {
+    const before = this.emittedParts.length;
+    for (const evt of parseGoResponsesSse(block)) {
+      const type = (evt.data.type as string | undefined) ?? evt.event;
+      if (type === "response.output_text.delta") {
+        const delta = evt.data.delta;
+        if (typeof delta === "string" && delta !== "") {
+          this.ensureRole();
+          this.hasContent = true;
+          this.emit({ content: delta });
+        }
+        continue;
+      }
+      if (type === "response.output_item.added") {
+        const item = evt.data.item as { type?: string; id?: string; call_id?: string; name?: string } | undefined;
+        if (item?.type === "function_call") {
+          this.ensureRole();
+          const idx = this.nextToolIndex;
+          this.nextToolIndex += 1;
+          this.toolIndexByItemId.set(item.id ?? String(idx), idx);
+          this.hasToolCalls = true;
+          this.emit({
+            tool_calls: [
+              { index: idx, id: item.call_id ?? item.id, type: "function", function: { name: item.name ?? "", arguments: "" } },
+            ],
+          });
+        }
+        continue;
+      }
+      if (type === "response.function_call_arguments.delta") {
+        const itemId = evt.data.item_id as string | undefined;
+        const delta = evt.data.delta;
+        const idx = this.toolIndexByItemId.get(itemId ?? "");
+        if (idx !== undefined && typeof delta === "string" && delta !== "") {
+          this.emit({ tool_calls: [{ index: idx, function: { arguments: delta } }] });
+        }
+        continue;
+      }
+      if (type === "response.incomplete" || type === "response.completed" || type === "response.failed") {
+        const resp = evt.data.response as { incomplete_details?: { reason?: string } } | undefined;
+        if (resp?.incomplete_details?.reason === "max_output_tokens") this.sawIncomplete = true;
+      }
+    }
+    return this.emittedParts.slice(before).join("");
+  }
+}
+
+/**
  * Go /responses SSE -> chat.completion.chunk SSE. Verified against __fixtures__/go-responses-
  * text.sse and go-responses-tool-call.sse: text deltas stream as response.output_text.delta;
  * a tool call opens on response.output_item.added (item.type function_call) and streams its
  * arguments via response.function_call_arguments.delta, keyed by item_id.
  */
 export function goResponsesStreamToChatChunks(text: string, model: string): GoStreamToChatResult {
-  const events = parseGoResponsesSse(text);
-  const created = Math.floor(Date.now() / 1000);
-  const id = "failover-go-stream";
-  const lines: string[] = [];
-  let sentRole = false;
-  let hasContent = false;
-  let hasToolCalls = false;
-  let sawIncomplete = false;
-  const toolIndexByItemId = new Map<string, number>();
-  let nextToolIndex = 0;
-
-  const emit = (delta: Record<string, unknown>, chunkFinishReason: string | null = null): void => {
-    lines.push(chunkLine(id, created, model, delta, chunkFinishReason));
+  const chunker = new GoResponsesChunker(model);
+  chunker.pushText(text);
+  chunker.finish();
+  return {
+    sse: chunker.emitted,
+    hasContent: chunker.hasContent,
+    hasToolCalls: chunker.hasToolCalls,
+    finishReason: chunker.finishReason,
   };
-  const ensureRole = (): void => {
-    if (sentRole) return;
-    sentRole = true;
-    emit({ role: "assistant" });
-  };
-
-  for (const evt of events) {
-    const type = (evt.data.type as string | undefined) ?? evt.event;
-    if (type === "response.output_text.delta") {
-      const delta = evt.data.delta;
-      if (typeof delta === "string" && delta !== "") {
-        ensureRole();
-        hasContent = true;
-        emit({ content: delta });
-      }
-      continue;
-    }
-    if (type === "response.output_item.added") {
-      const item = evt.data.item as { type?: string; id?: string; call_id?: string; name?: string } | undefined;
-      if (item?.type === "function_call") {
-        ensureRole();
-        const idx = nextToolIndex;
-        nextToolIndex += 1;
-        toolIndexByItemId.set(item.id ?? String(idx), idx);
-        hasToolCalls = true;
-        emit({
-          tool_calls: [
-            { index: idx, id: item.call_id ?? item.id, type: "function", function: { name: item.name ?? "", arguments: "" } },
-          ],
-        });
-      }
-      continue;
-    }
-    if (type === "response.function_call_arguments.delta") {
-      const itemId = evt.data.item_id as string | undefined;
-      const delta = evt.data.delta;
-      const idx = toolIndexByItemId.get(itemId ?? "");
-      if (idx !== undefined && typeof delta === "string" && delta !== "") {
-        emit({ tool_calls: [{ index: idx, function: { arguments: delta } }] });
-      }
-      continue;
-    }
-    if (type === "response.incomplete" || type === "response.completed" || type === "response.failed") {
-      const resp = evt.data.response as { incomplete_details?: { reason?: string } } | undefined;
-      if (resp?.incomplete_details?.reason === "max_output_tokens") sawIncomplete = true;
-    }
-  }
-  ensureRole();
-  const finishReason: GoStreamToChatResult["finishReason"] = hasToolCalls ? "tool_calls" : sawIncomplete ? "length" : "stop";
-  emit({}, finishReason);
-  lines.push("data: [DONE]\n\n");
-  return { sse: lines.join(""), hasContent, hasToolCalls, finishReason };
 }
 
 /** Renders a chat.completion message (content and/or tool_calls) as chat.completion.chunk SSE. */
