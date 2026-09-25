@@ -29,7 +29,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { copyFile, mkdir, readdir, rm, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { inflateSync } from "node:zlib";
 import { type Browser, chromium, type Page } from "playwright";
@@ -50,31 +50,55 @@ import {
 const OUTPUT_DIR = ".openclinxr/evidence/foot-plant-video";
 /**
  * `--humanoid=<glb-filename>` (or `FOOT_PLANT_HUMANOID_GLB`) swaps the loaded GLB for the SAME
- * physician actor slot (`SCENE_CLOSURE_PHYSICIAN_ACTOR_ID`) without touching the scenario/cast
- * data this capture reuses from SC-05 — only the `model.blob.blobName`/`url` on that one actor
- * entry in the bundle JSON this script already builds. Added so a shared, rig-general animation
- * fix can be demonstrated on a second shipped humanoid through the SAME scenario, camera framing
- * and evidence pipeline, rather than a second bespoke capture tool. Defaults to the physician GLB
- * (unchanged behaviour with no flag). The two shipped MPFB adults share one rig-naming convention
- * (`resolve-toe-bones.ts`, `stance-lock-ik.ts`'s `findStanceChain`), so no other bundle field
- * needs to change for a second rig to load and animate through the same runtime code.
+ * physician actor slot (`SCENE_CLOSURE_PHYSICIAN_ACTOR_ID`), by intercepting the NETWORK REQUEST
+ * for the resolved runtime path and serving the override file's bytes instead.
+ *
+ * NOT a bundle-JSON patch (a prior version of this flag did that and was MEASURED INEFFECTIVE,
+ * 2026-09-25: `resolveHumanoidVariantOrCastPath` — `packages/openclinxr/xr-scene/src/humanoid-
+ * runtime-asset-url.ts` — resolves this scenario's humanoid paths by SCENARIO POOL ASSIGNMENT
+ * keyed on `role` ("physician" always resolves `mpfb-clinical-physician-adult.glb` via
+ * `pickAdultGlb`), never reading `model.blob.blobName`/`url` off the bundle for a non-ED/peds/OB
+ * scenario. Patching the bundle changed a field the runtime never looks at; the "nurse" capture
+ * that produced was silently the physician again, control and treatment numbers agreeing to 4
+ * decimals). Route-level interception is correct regardless of which resolver path a scenario
+ * takes, because it replaces the BYTES behind whatever URL the runtime actually requests.
+ *
+ * Records: the exact request URL observed, and a sha256 of the bytes served for it — logged and
+ * written into the report — so a claimed swap is checkable without re-deriving it from pixels.
  */
+const PHYSICIAN_RUNTIME_GLB_PATH = "/generated-humanoids/mpfb-clinical-physician-adult.glb";
 function humanoidGlbOverride(): string | null {
   const flag = process.argv.find((arg) => arg.startsWith("--humanoid="));
   if (flag) return flag.slice("--humanoid=".length);
   return process.env.FOOT_PLANT_HUMANOID_GLB ?? null;
 }
-function applyHumanoidOverride(bundleJson: string, physicianActorId: string): string {
-  const glb = humanoidGlbOverride();
-  if (!glb) return bundleJson;
-  const bundle = JSON.parse(bundleJson) as {
-    actors: Array<{ actorId: string; model?: { blob?: { blobName: string; url?: string } } }>;
-  };
-  const actor = bundle.actors.find((a) => a.actorId === physicianActorId);
-  if (!actor?.model?.blob) throw new Error(`humanoid override: no model.blob on actor ${physicianActorId}`);
-  actor.model.blob.blobName = `generated-humanoids/${glb}`;
-  actor.model.blob.url = `/generated-humanoids/${glb}`;
-  return `${JSON.stringify(bundle, null, 2)}\n`;
+type HumanoidOverrideRecord = { requestedUrl: string; servedFile: string; sha256: string; byteLength: number };
+/** Every observed override-route fulfillment across dry/record passes, for the report + console. */
+const humanoidOverrideRecords: HumanoidOverrideRecord[] = [];
+/**
+ * Route the physician's resolved GLB URL to the override file's bytes, on the given page/context.
+ * Call once per page, before `page.goto`.
+ */
+async function installHumanoidOverrideRoute(page: Page, glbFileName: string): Promise<void> {
+  // A bare filename resolves under the shipped generated-humanoids dir (the normal case: prove
+  // the fix on another SHIPPED asset). A value containing a path separator is a literal path
+  // (cwd-relative or absolute) — used for a scratch-built hybrid GLB (e.g. a different-proportion
+  // rig that ships no locomotion clip of its own, grafted with one for this proof only; see
+  // `.scratch-turn-freeze/graft-walk-clip.mjs`, not committed).
+  const overridePath = glbFileName.includes("/")
+    ? path.resolve(process.cwd(), glbFileName)
+    : path.resolve(process.cwd(), "apps/ui-xr/public/generated-humanoids", glbFileName);
+  const bytes = await readFile(overridePath);
+  const { createHash } = await import("node:crypto");
+  const sha256 = createHash("sha256").update(bytes).digest("hex");
+  await page.route(`**${PHYSICIAN_RUNTIME_GLB_PATH}`, async (route) => {
+    const record = { requestedUrl: route.request().url(), servedFile: glbFileName, sha256, byteLength: bytes.length };
+    humanoidOverrideRecords.push(record);
+    process.stderr.write(
+      `[humanoid] served ${glbFileName} (sha256 ${sha256.slice(0, 12)}…, ${bytes.length} bytes) for ${record.requestedUrl}\n`,
+    );
+    await route.fulfill({ status: 200, contentType: "model/gltf-binary", body: bytes });
+  });
 }
 const VIDEO_WIDTH = 1280;
 const VIDEO_HEIGHT = 720;
@@ -257,6 +281,13 @@ type FootPlantVideoReport = {
     travelHeadingRadians: number | null;
     targetHeadingRadians: number | null;
   };
+  /**
+   * Non-null only when `--humanoid=` was passed. `requestedFile` is the flag's value;
+   * `served` lists every observed route fulfillment (URL + sha256 + byte length) across the dry
+   * and record passes — empty means the override was requested but NEVER actually served, which
+   * the caller (`main`) treats as a hard failure rather than a silent physician fallback.
+   */
+  humanoidOverride: { requestedFile: string; served: HumanoidOverrideRecord[] } | null;
   claimScope: string;
   notEvidenceFor: readonly string[];
 };
@@ -1091,6 +1122,8 @@ async function dryPass(
   const page = await context.newPage();
   await page.addInitScript(BROWSER_PAGE_GLOBALS_INIT_SCRIPT);
   try {
+    const override = humanoidGlbOverride();
+    if (override) await installHumanoidOverrideRoute(page, override);
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
     });
@@ -1540,6 +1573,8 @@ async function recordPass(
   const page = await context.newPage();
   await page.addInitScript(BROWSER_PAGE_GLOBALS_INIT_SCRIPT);
   try {
+    const override = humanoidGlbOverride();
+    if (override) await installHumanoidOverrideRoute(page, override);
     await page.clock.install();
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
@@ -1965,9 +2000,9 @@ async function main(): Promise<void> {
     force: true,
   });
 
-  const bundleJson = applyHumanoidOverride(buildSceneClosureBundleJson(), SCENE_CLOSURE_PHYSICIAN_ACTOR_ID);
+  const bundleJson = buildSceneClosureBundleJson();
   const humanoidOverride = humanoidGlbOverride();
-  if (humanoidOverride) process.stderr.write(`[humanoid] override: ${humanoidOverride}\n`);
+  if (humanoidOverride) process.stderr.write(`[humanoid] override requested: ${humanoidOverride}\n`);
   let server: PortlessDevServer | null = null;
   try {
     server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", readyTimeoutMs: 180_000 });
@@ -2297,6 +2332,9 @@ async function main(): Promise<void> {
           travelHeadingRadians: evidence.travelHeadingRadians ?? null,
           targetHeadingRadians: evidence.targetHeadingRadians ?? null,
         },
+        humanoidOverride: humanoidOverride
+          ? { requestedFile: humanoidOverride, served: humanoidOverrideRecords.slice() }
+          : null,
         videos: {
           feetSide: `${OUTPUT_DIR}/feet-side.mp4`,
           feetSideSlow: `${OUTPUT_DIR}/feet-side-slow.mp4`,
@@ -2326,6 +2364,23 @@ async function main(): Promise<void> {
         notEvidenceFor: NOT_EVIDENCE_FOR,
       };
       await writeFile(path.join(outputDir, "foot-plant-video.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
+      // A requested override that was never served is a SILENT FALLBACK to the physician —
+      // measured 2026-09-25: the bundle-JSON patch this replaced looked like it worked (exit 0,
+      // a plausible-looking report) while the runtime resolved the physician GLB anyway. Fail
+      // loudly instead.
+      if (humanoidOverride && humanoidOverrideRecords.length === 0) {
+        throw new Error(
+          `humanoid override requested (${humanoidOverride}) but the route never fired — ` +
+            `${PHYSICIAN_RUNTIME_GLB_PATH} was never requested, or a different resolver path was taken`,
+        );
+      }
+      if (humanoidOverride) {
+        const distinctFiles = new Set(humanoidOverrideRecords.map((r) => r.servedFile));
+        process.stderr.write(
+          `[humanoid] confirmed: ${humanoidOverrideRecords.length} request(s) served ${[...distinctFiles].join(",")} ` +
+            `(sha256 ${humanoidOverrideRecords[0]?.sha256.slice(0, 12)}…)\n`,
+        );
+      }
       if (framingFailure) throw framingFailure;
       process.stdout.write(
         `feet-side ${durations.feetSide.toFixed(1)}s (slow ${durations.feetSideSlow.toFixed(1)}s, ${passes["feet-side"].isolated}), three-quarter ${durations.threeQuarter.toFixed(1)}s, ` +

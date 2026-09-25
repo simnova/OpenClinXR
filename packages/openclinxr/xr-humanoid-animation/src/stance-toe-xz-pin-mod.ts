@@ -308,18 +308,28 @@ export const ANKLE_CORRECTION_MAX_RADIANS = (25 * Math.PI) / 180;
  * resolved), clamped to a sane band. Any rig sharing the MPFB bone-naming convention gets the same
  * treatment with no per-rig branch.
  *
- * ANKLE-ONLY, same mechanism as `correctPlantedFootHeight`: rotates the HEEL bone about its own
- * pivot, never a toe-local position, never the knee — the knee-flexion collapse this module's own
- * header (clip-driven-settling-turn-mod.ts) attributes to the raw mixer's leg-weight fade is
- * upstream of this function and NOT fixed by it; this only bounds where the FOOT ends up.
+ * HIP+KNEE, not ankle-only (coordinator direction 2026-09-25, third pass; measured against the
+ * shipped physician: `footBoneHeightMeters` — the heel bone's own world height — was IDENTICAL
+ * between an ankle-only version of this function and unmodified main, frame for frame, because
+ * rotating the heel about its own pivot tips the TOE without ever moving the HEEL. That reads as
+ * the foot dragging on its heel with the toe cocked up, not a step. This version instead solves
+ * the SAME two-bone IK the toe-XZ pin uses (`solveTwoBoneIkForXzPin`, this file, already proven
+ * for off-axis targets — see that function's own header) for a heel target that raises the TOE to
+ * the clearance floor while preserving the toe's current XZ (the heel-to-toe offset construction
+ * `applyStanceToeXzPin` already uses), so the hip and knee genuinely flex to lift the whole foot,
+ * and `footBoneHeightMeters` moves. Blended in via the SAME weight-slerp `applyStanceToeXzPin`
+ * uses (`identity.slerp(hipDelta, w)`, `knee.quaternion.slerp(kneeQuat, w)`), not a hard-clamped
+ * angle delta — a solved target is recomputed from scratch every frame, so an angle-delta clamp
+ * bounds how fast the SOLVE can move but not whether the solve itself is continuous; the slerp
+ * blend is what the successful ankle-only round already proved keeps the RESULT continuous as the
+ * shared weight itself ramps continuously (still true here, same argument, different bones).
  */
 export const SWING_LIFT_CLEARANCE_FRACTION_OF_LEG_LENGTH = 0.03;
 export const SWING_LIFT_CLEARANCE_MIN_METERS = 0.015;
 export const SWING_LIFT_CLEARANCE_MAX_METERS = 0.035;
-/** Per-frame ankle-tip clamp for the lift assist — same order as `ANKLE_CORRECTION_MAX_RADIANS`. */
-export const SWING_LIFT_MAX_RADIANS = (20 * Math.PI) / 180;
 
 export function applySwingFootLiftAssist(input: {
+  actorSlot: Object3D;
   hip: Object3D;
   knee: Object3D;
   heel: Object3D;
@@ -331,7 +341,7 @@ export function applySwingFootLiftAssist(input: {
   const w = MathUtils.clamp(input.assistWeight, 0, 1);
   const none = { applied: false, targetClearanceMeters: 0, currentClearanceMeters: 0 };
   if (w <= 0) return none;
-  const { hip, knee, heel, toe } = input;
+  const { actorSlot, hip, knee, heel, toe } = input;
   hip.updateMatrixWorld(true);
   knee.updateMatrixWorld(true);
   heel.updateMatrixWorld(true);
@@ -351,32 +361,21 @@ export function applySwingFootLiftAssist(input: {
   if (currentClearanceMeters >= desiredClearanceMeters) {
     return { applied: false, targetClearanceMeters: desiredClearanceMeters, currentClearanceMeters };
   }
-  const arm = { x: toeWorld.x - heelWorld.x, y: toeWorld.y - heelWorld.y, z: toeWorld.z - heelWorld.z };
-  const armLength = Math.hypot(arm.x, arm.y, arm.z);
-  if (armLength < 1e-6) return none;
-
-  const targetY = input.floorOriginY + desiredClearanceMeters;
-  const desiredRelY = MathUtils.clamp(targetY - heelWorld.y, -armLength, armLength);
-  const currentAngle = Math.asin(MathUtils.clamp(arm.y / armLength, -1, 1));
-  const desiredAngle = Math.asin(MathUtils.clamp(desiredRelY / armLength, -1, 1));
-  const deltaAngle = MathUtils.clamp(desiredAngle - currentAngle, -SWING_LIFT_MAX_RADIANS, SWING_LIFT_MAX_RADIANS);
-  if (deltaAngle === 0) return { applied: false, targetClearanceMeters: desiredClearanceMeters, currentClearanceMeters };
-
-  const horizontal = new Vector3(arm.x, 0, arm.z);
-  if (horizontal.lengthSq() < 1e-8) return none;
-  horizontal.normalize();
-  // Same cross order as `correctPlantedFootHeight` — see that function's own header for the
-  // measured sign convention this rig's arm/axis definition needs.
-  const worldLateralAxis = new Vector3().crossVectors(horizontal, new Vector3(0, 1, 0)).normalize();
-
-  const parent = heel.parent;
-  if (parent === null) return none;
-  parent.updateMatrixWorld(true);
-  const parentWorldQuat = new Quaternion().setFromRotationMatrix(parent.matrixWorld);
-  const localAxis = worldLateralAxis.clone().applyQuaternion(parentWorldQuat.clone().invert()).normalize();
-
-  const fullDelta = new Quaternion().setFromAxisAngle(localAxis, deltaAngle);
-  heel.quaternion.multiplyQuaternions(heel.quaternion, fullDelta);
+  // Heel target: same heel-to-toe-offset construction `applyStanceToeXzPin` uses, so the toe's
+  // XZ (and therefore the leg's forward swing) is preserved — only the toe's Y is raised.
+  const heelToToe = { x: toeWorld.x - heelWorld.x, y: toeWorld.y - heelWorld.y, z: toeWorld.z - heelWorld.z };
+  const heelTarget = {
+    x: toeWorld.x - heelToToe.x,
+    y: input.floorOriginY + desiredClearanceMeters - heelToToe.y,
+    z: toeWorld.z - heelToToe.z,
+  };
+  const softening = 0.005;
+  const ikResult = solveTwoBoneIkForXzPin(hip, knee, heel, heelTarget, softening, actorSlot);
+  const blendedHipDelta = new Quaternion().identity().slerp(ikResult.hipDelta, w);
+  hip.quaternion.multiplyQuaternions(hip.quaternion, blendedHipDelta);
+  knee.quaternion.slerp(ikResult.kneeQuat, w);
+  hip.updateMatrixWorld(true);
+  knee.updateMatrixWorld(true);
   heel.updateMatrixWorld(true);
   toe.updateMatrixWorld(true);
   return { applied: true, targetClearanceMeters: desiredClearanceMeters, currentClearanceMeters };
@@ -414,6 +413,7 @@ export function applyFootPinAndSwingLift(input: {
   const chain = findStanceChain(actorSlot, side);
   if (chain !== null) {
     applySwingFootLiftAssist({
+      actorSlot,
       hip: chain.hip,
       knee: chain.knee,
       heel: chain.heel,

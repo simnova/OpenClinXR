@@ -347,6 +347,7 @@ export function applyClipDrivenSettlingTurn(input: {
       const chain = findStanceChain(actorSlot, side);
       if (chain !== null) {
         applySwingFootLiftAssist({
+          actorSlot,
           hip: chain.hip,
           knee: chain.knee,
           heel: chain.heel,
