@@ -94,7 +94,7 @@ function textFromContent(content: unknown): { text: string; unsupported?: string
         continue;
       }
       const part = p as { type?: string; text?: string };
-      if ((part?.type === "text" || part?.type === "input_text") && typeof part.text === "string") {
+      if ((part?.type === "text" || part?.type === "input_text" || part?.type === "output_text") && typeof part.text === "string") {
         parts.push(part.text);
         continue;
       }
@@ -130,6 +130,11 @@ export function chatMessagesToGoInput(messages: unknown): {
       continue;
     }
     if (m?.role === "assistant" && Array.isArray(m.tool_calls) && m.tool_calls.length > 0) {
+      // Assistant text comes before the calls it announced, and Responses only accepts
+      // `output_text` on assistant messages (`input_text` there is a 400 from Go).
+      const lead = textFromContent(m.content);
+      if (lead.unsupported) return { input: items, unsupported: lead.unsupported };
+      if (lead.text) items.push({ type: "message", role: "assistant", content: [{ type: "output_text", text: lead.text }] });
       for (const tc of m.tool_calls) {
         const fn = tc?.function;
         if (!tc?.id || !fn?.name) return { input: items, unsupported: "assistant tool_call missing id/name" };
@@ -140,15 +145,16 @@ export function chatMessagesToGoInput(messages: unknown): {
           arguments: typeof fn.arguments === "string" ? fn.arguments : JSON.stringify(fn.arguments ?? {}),
         });
       }
-      const { text, unsupported } = textFromContent(m.content);
-      if (unsupported) return { input: items, unsupported };
-      if (text) items.push({ type: "message", role: "assistant", content: [{ type: "input_text", text }] });
       continue;
     }
     if (m?.role === "user" || m?.role === "assistant") {
       const { text, unsupported } = textFromContent(m.content);
       if (unsupported) return { input: items, unsupported };
-      items.push({ type: "message", role: m.role, content: [{ type: "input_text", text }] });
+      items.push({
+        type: "message",
+        role: m.role,
+        content: [{ type: m.role === "assistant" ? "output_text" : "input_text", text }],
+      });
       continue;
     }
     return { input: items, unsupported: `unsupported message role ${String(m?.role)}` };

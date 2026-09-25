@@ -444,3 +444,26 @@ describe("provider-failover HTTP server: tool requests", () => {
     expect(text).toContain('"finish_reason":"tool_calls"');
   });
 });
+
+describe("provider-failover: assistant history on the Go translation", () => {
+  it("sends assistant text as output_text, before that turn's function calls", async () => {
+    const { chatMessagesToGoInput } = await import("./provider-failover-go-responses.js");
+    const { input } = chatMessagesToGoInput([
+      { role: "system", content: "s" },
+      { role: "user", content: "u1" },
+      { role: "assistant", content: "I'll check." , tool_calls: [{ id: "c1", type: "function", function: { name: "ls", arguments: "{}" } }] },
+      { role: "tool", tool_call_id: "c1", content: "a b" },
+      { role: "assistant", content: "Two files." },
+      { role: "user", content: "u2" },
+    ]);
+    const types = input.map((i) => (i.type === "message" ? `${String(i.role)}:${String((i.content as Array<{ type: string }>)[0]?.type)}` : String(i.type)));
+    expect(types).toEqual([
+      "user:input_text",
+      "assistant:output_text",
+      "function_call",
+      "function_call_output",
+      "assistant:output_text",
+      "user:input_text",
+    ]);
+  });
+});
