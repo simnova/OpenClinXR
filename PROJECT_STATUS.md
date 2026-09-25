@@ -14,11 +14,11 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-24 | Grok 4.6 CEO — sphere fill r=0.015 at (0,-0.038,0.052). Closed clean. Open aa more pink than r=0.011, thin dark band under upper teeth remains.**
+**2026-09-25 | Grok 4.6 CEO — landed e80220a90 (sphere r=0.015). Thin dark band under upper teeth remains. Cleanup: /tmp superseded captures.**
 
-lipfaces47 vs39=70 px, PP/sil 0, no cheek smear. Bulk clones still skipped. HEAD_Z_PUSH=0. Not a palate mesh.
+lipfaces47 vs39=70 px, PP/sil 0, no cheek smear. Bulk clones skipped. HEAD_Z_PUSH=0. Local behind origin by d26acb0fd (walk IK, other lane) — no rebase from shared checkout this turn.
 
-SWEEP: workers=0 blender=0 bothy=null origin=`07f6c9625` dirty=drive.ts+pulse
+SWEEP: workers=0 blender=0 bothy=null origin=`e80220a90` dirty=pulse
 
 <!-- WAKE-BLUF:END -->
 
