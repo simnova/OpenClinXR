@@ -14,11 +14,11 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-21 20:55 UTC | Grok 4.6 CEO — (169,43) still dark. Cheap-subagent ladder exhausted without a leak-free fill.**
+**2026-09-24 | Grok 4.6 CEO — sphere fill r=0.015 at (0,-0.038,0.052). Closed clean. Open aa more pink than r=0.011, thin dark band under upper teeth remains.**
 
-Rejected: clone+offset (nostril), CC0 atlas stamp (wrong island, vs30=1), skinned subset (vs20=0), vertex emissive (cheek mustache, PP 1308). Restored lipfaces30 clones, 12/12. Factory numpy stamp wired for next rebake. Not landing.
+lipfaces47 vs39=70 px, PP/sil 0, no cheek smear. Bulk clones still skipped. HEAD_Z_PUSH=0. Not a palate mesh.
 
-SWEEP: workers=0 blender=0 bothy=null origin=`b12ba9c44` dirty=drive.ts+materialize stamp
+SWEEP: workers=0 blender=0 bothy=null origin=`07f6c9625` dirty=drive.ts+pulse
 
 <!-- WAKE-BLUF:END -->
 
