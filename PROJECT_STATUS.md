@@ -14,11 +14,11 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-25 | Grok 4.6 CEO — landed e80220a90 (sphere r=0.015). Thin dark band under upper teeth remains. Cleanup: /tmp superseded captures.**
+**2026-09-25 | Grok 4.6 CEO — inner mouth decent: card r=0.016, probes/band removed (all 0 px). Open aa shows teeth + narrow shadow slit + pink fill; closed clean.**
 
-lipfaces47 vs39=70 px, PP/sil 0, no cheek smear. Bulk clones skipped. HEAD_Z_PUSH=0. Local behind origin by d26acb0fd (walk IK, other lane) — no rebase from shared checkout this turn.
+lipfaces51 vs47=20 px, pink 119, PP/sil 0, no smear. Upper-zone spheres all occluded (probes y-0.014..+0.002 @z=0.058: 0 px). HEAD_Z_PUSH=0. Bulk clones skipped.
 
-SWEEP: workers=0 blender=0 bothy=null origin=`e80220a90` dirty=pulse
+SWEEP: workers=0 blender=0 bothy=null origin=`e80220a90` dirty=drive.ts+tests+pulse
 
 <!-- WAKE-BLUF:END -->
 

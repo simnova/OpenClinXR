@@ -311,4 +311,27 @@ describe("inner mouth cavity drive", () => {
     updateGeneratedHumanoidAnimations(ctx, 1 / 60, 2000, camera);
     expect(slot.root.getObjectByName("openclinxr_inner_mouth_palate")?.visible).toBe(false);
   });
+
+  it("the cavity card sphere radius is 0.016 (upper-band zone eats the dark band)", () => {
+    const slot = speakingSlot(["open"]);
+    updateGeneratedHumanoidAnimations(context([slot]), 1 / 60, 1000, new PerspectiveCamera());
+    const card = slot.root.getObjectByName("openclinxr_inner_mouth_cavity");
+    expect(card, "cavity card").toBeTruthy();
+    expect(card).toBeInstanceOf(Mesh);
+    const geo = (card as Mesh).geometry as { parameters?: { radius?: number } };
+    expect(geo.parameters?.radius).toBeCloseTo(0.016, 6);
+  });
+
+  it("COUNTERWEIGHT: no probe or band mesh remains in the tree", () => {
+    const slot = speakingSlot(["open"]);
+    updateGeneratedHumanoidAnimations(context([slot]), 1 / 60, 1000, new PerspectiveCamera());
+    for (const name of [
+      "openclinxr_probe_y1",
+      "openclinxr_probe_y2",
+      "openclinxr_probe_y3",
+      "openclinxr_inner_mouth_upper_band",
+    ]) {
+      expect(slot.root.getObjectByName(name), name).toBeFalsy();
+    }
+  });
 });

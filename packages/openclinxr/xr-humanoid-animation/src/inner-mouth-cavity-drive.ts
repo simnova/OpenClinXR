@@ -46,7 +46,7 @@ const NAMED_JAW_VISIBLE = 0.05;
  * larger radius eats the dark crescent without leaving the visible Y window.
  */
 const HEAD_LOCAL = new Vector3(0, -0.038, 0.052);
-const CARD_RADIUS = 0.015;
+const CARD_RADIUS = 0.016;
 const PALATE_NAME = "openclinxr_inner_mouth_palate";
 const PALATE_LOCAL = new Vector3(0, -0.010, 0.054);
 const PALATE_RADIUS = 0.010;
