@@ -27,6 +27,49 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-25T1920">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 116 &middot; 2026-09-25 19:20 UTC</p>
+          <h2>During the bedside turn the planted shoe now sits flat on the floor and slides about half as far.</h2>
+        </div>
+        <p>
+          Same case, same side camera, same capture script, played at quarter speed and cropped to the feet. Left: the turn as of Entry 114. Right: after commits <code>d9a14a570</code>, <code>0a41969eb</code> and <code>f529a04e4</code>. Before, the correction holding the planted foot switched off in a single frame near the end of the turn and let go of the outgoing foot early at each weight shift, and the planted shoe hovered toe-up about 5 cm off the floor. Now the hold stays on until the turn's leg motion has faded and until the outgoing foot is released, and the planted foot is rotated at the ankle so the toe meets the floor.
+        </p>
+        <div class="motion-proof" style="margin-top:16px;">
+          <video class="motion-proof__video" controls loop playsinline preload="metadata"
+            poster="assets/planted-foot-before-after-poster-2026-09-25.png"
+            aria-label="Physician's feet during the arrival turn at quarter speed. Left half: before, the planted right shoe tipped toe-up. Right half: after, the planted shoe flat on the floor.">
+            <source src="assets/planted-foot-before-after-2026-09-25.mp4" type="video/mp4">
+            Your browser does not support this video.
+          </video>
+          <div>
+            <p class="status-copy">
+              Left: before. Right: after. The poster frame is 12 s into the slow clip: before, the planted right shoe is tipped toe-up off the floor; after, it rests on the floor.
+            </p>
+          </div>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Measured from the runtime's own foot positions during the arrival turn, both captures, same script.</caption>
+            <thead><tr><th scope="col">Measure</th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Target</th></tr></thead>
+            <tbody>
+              <tr><td>Planted toe slide over the turn</td><td>12.6 cm</td><td>6.9 cm</td><td>2 cm or less</td></tr>
+              <tr><td>Largest one-frame move of the planted toe</td><td>17.5 cm</td><td>9.7 cm</td><td>2 cm or less</td></tr>
+              <tr><td>Planted toe height during the turn</td><td>5.0 cm</td><td>0.6 cm</td><td>1 cm or less</td></tr>
+              <tr><td>Deepest toe below the floor</td><td>0.65 cm</td><td>0.50 cm</td><td>0.5 cm or less</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Not done yet: at the middle weight shift the outgoing foot slides along the floor for four frames instead of lifting, and that slide is the 9.7 cm row. A knee-and-hip lift cleared 2.5 cm but was reverted, because the fade that ends the turn cut it off in one frame and made a larger jump.
+        </p>
+        <p class="evidence-note">
+          Commits <code>d9a14a570</code> (hold through the fade and the switch), <code>0a41969eb</code> (ankle rotation onto the floor) and <code>f529a04e4</code> (release the outgoing foot over four frames). Metrics: <code>tools/openclinxr/evidence/foot-plant/turn-quality-metrics.ts</code>. Scenario <code>scene_closure_supine_bedside_v1</code>.
+        </p>
+        <p class="status-copy">
+          <strong>notEvidenceFor:</strong> gait realism judged by a clinician, the other staff and family figures, headset playback, Quest performance, clinical validity, scoring validity, licensure, or exam equivalence.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-25T1901">
         <div class="section-heading">
           <p class="eyebrow">Entry 115 &middot; 2026-09-25 19:01 UTC</p>
