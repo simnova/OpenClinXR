@@ -15,11 +15,11 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - archive-candidate: 116
 - current-reference: 208
 - decision-record: 44
-- evidence: 128
+- evidence: 131
 - generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
-- temporary: 57
+- temporary: 54
 
 ## Highest-Value Current Navigation
 
@@ -355,7 +355,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/humanoid-motion-ENTRYPOINT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-clip-deviation-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md` - evidence; Completed delegation handoff retained as historical evidence; not an active instruction.
 - `docs/openclinxr/humanoid-motion-full-design-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/comparison-proposal.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -363,7 +363,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-critique.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-final-confirmation.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-fix-verification.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/handoff.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/handoff.md` - evidence; Completed delegation handoff retained as historical evidence; not an active instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-verification.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-seated-pose-restored-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-seated-pose-transfer-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -417,5 +417,5 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-GUIDE-2026-08-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md` - evidence; Completed delegation handoff retained as historical evidence; not an active instruction.
 - `tools/openclinxr/openclaw/fixtures/superagent-loop-prompt.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
