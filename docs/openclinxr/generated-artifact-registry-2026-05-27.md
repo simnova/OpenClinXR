@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 226
-- keep-evidence: 396
+- keep-evidence: 397
 - keep-template: 6
 
 ## Cleanup Actions
@@ -3206,8 +3206,8 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/humanoid-bake-wiring-2026-09-14.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-basecolorfactor-audit-2026-09-10.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-decimation-wiring-2026-09-14.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
-- `docs/openclinxr/humanoid-evidence-byte-drift-2026-09-14.json` - keep-evidence; keep; tsk_d6874d507ef8e3d7 verdict artifact: ROWS STALE / BYTES LEGITIMATE, per-body rewrite chains and row before/afters for the decimation evidence drift.
-- `docs/openclinxr/humanoid-falsifier-pin-lineage-2026-09-15.json` - keep-evidence; keep; tsk_1902d6e67383ea2a decision artifact: PIN_PROMOTED_LINEAGE, the rejected HB-02 alternative and what it would fail to catch, both station re-runs with their committed pre-image shas, and what the retargeted falsifier still falsifies.
+- `docs/openclinxr/humanoid-evidence-byte-drift-2026-09-14.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/humanoid-falsifier-pin-lineage-2026-09-15.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-lowest-vertex-audit-2026-09-10.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-motion-delegation-2026-09-14/cards/a3.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -3355,7 +3355,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-08-19.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/local-model-source-currentness-2026-05-21.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/local-realtime-voice-model-source-currentness-2026-05-21.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
-- `docs/openclinxr/lockfile-drift-gate-counterweight-2026-09-15.json` - keep-evidence; keep; Measured lockfile-drift counterweight for tsk_8d7b00a78f1760ed: preserves four removal/addition observations and two hook cost measurements. Registration classifies this artifact; it grants no policy exception or product completion.
+- `docs/openclinxr/lockfile-drift-gate-counterweight-2026-09-15.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/materialize-guard-withdraw-clip-2026-08-03.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/model-vetting-capture-artifact-map-peds-asthma-parent-anxiety-2026-06-05.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/model-vetting-captures/anny-skin-realvisxl-direct/peds_patient_child_realvisxl_direct_skin_front_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -3429,6 +3429,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/realvisxl-direct-texture-visual-review-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/realvisxl-skin-smoke-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/realvisxl-skin-smoke-2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/room-final-xu.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/scene-closure-2026-09-09/evidence/sc-00.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01s.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -3446,7 +3447,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/value-decisions/issue-200.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/value-decisions/issue-204.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/videos/iwsdk-mpfb-radial-pulse-interaction-poster-2026-09-04.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
-- `docs/openclinxr/viseme-chosen-rung-label-2026-09-15.json` - keep-evidence; keep; Decision artifact for tsk_68499a16e3ea6c09: resolves label/lookup mismatch in viseme row by renaming sweep entry fp-r0.4-jeans-lineage to fp-r0.4 (rungId names technique, inputLineage carries lineage) and restoring derived lookup in falsifier test.
+- `docs/openclinxr/viseme-chosen-rung-label-2026-09-15.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/garment-source-allowlist-template-2026-05-27.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
 - `docs/openclinxr/godot-quest-voice-evidence-template.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
 - `docs/openclinxr/quest-http3-compatibility-template.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.

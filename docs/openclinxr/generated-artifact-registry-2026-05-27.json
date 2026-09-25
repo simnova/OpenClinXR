@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 396,
+    "keep-evidence": 397,
     "ignore-local-cache": 2771,
     "keep-current": 226,
     "keep-compatibility-input": 24,
@@ -22129,7 +22129,7 @@
     {
       "path": "docs/openclinxr/humanoid-bake-wiring-2026-09-14.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
@@ -22157,7 +22157,7 @@
     {
       "path": "docs/openclinxr/humanoid-decimation-wiring-2026-09-14.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
@@ -22166,14 +22166,14 @@
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "tsk_d6874d507ef8e3d7 verdict artifact: ROWS STALE / BYTES LEGITIMATE, per-body rewrite chains and row before/afters for the decimation evidence drift."
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/humanoid-falsifier-pin-lineage-2026-09-15.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "tsk_1902d6e67383ea2a decision artifact: PIN_PROMOTED_LINEAGE, the rejected HB-02 alternative and what it would fail to catch, both station re-runs with their committed pre-image shas, and what the retargeted falsifier still falsifies."
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/humanoid-lowest-vertex-audit-2026-09-10.json",
@@ -23237,7 +23237,7 @@
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "Measured lockfile-drift counterweight for tsk_8d7b00a78f1760ed: preserves four removal/addition observations and two hook cost measurements. Registration classifies this artifact; it grants no policy exception or product completion."
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/materialize-clinical-idle-pose-clip-2026-05-23.json",
@@ -23828,6 +23828,13 @@
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
+      "path": "docs/openclinxr/room-realism/room-final-xu.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/runtime-realism-evidence-check-authored-idle-pose-required-2026-05-23.json",
       "authority": "keep-compatibility-input",
       "tracked": true,
@@ -23972,7 +23979,7 @@
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "Decision artifact for tsk_68499a16e3ea6c09: resolves label/lookup mismatch in viseme row by renaming sweep entry fp-r0.4-jeans-lineage to fp-r0.4 (rungId names technique, inputLineage carries lineage) and restoring derived lookup in falsifier test."
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "tools/openclinxr/evidence/blender/render_seated_clip_frames.py",

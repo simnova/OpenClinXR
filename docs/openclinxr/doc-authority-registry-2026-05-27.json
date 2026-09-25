@@ -6,9 +6,9 @@
   "counts": {
     "agent-methodology": 107,
     "current-reference": 208,
-    "archive-candidate": 114,
-    "evidence": 131,
-    "temporary": 54,
+    "archive-candidate": 116,
+    "evidence": 128,
+    "temporary": 57,
     "protected-policy": 10,
     "agent-memory": 34,
     "generated-evidence": 11,
@@ -3882,10 +3882,10 @@
     },
     {
       "path": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md",
-      "authority": "evidence",
+      "authority": "temporary",
       "agentInstructionWeight": "none",
-      "action": "treat-as-evidence",
-      "rationale": "Completed delegation handoff retained as historical evidence; not an active instruction."
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
@@ -3938,10 +3938,10 @@
     },
     {
       "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/handoff.md",
-      "authority": "evidence",
+      "authority": "temporary",
       "agentInstructionWeight": "none",
-      "action": "treat-as-evidence",
-      "rationale": "Completed delegation handoff retained as historical evidence; not an active instruction."
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-grok-review.md",
@@ -4390,6 +4390,20 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/room-realism-dual90-ideation-plan-2026-09-25.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/DUAL90-FINDINGS.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/runtime-dialogue-voice-affect-direction-2026-09-02.md",
@@ -4925,10 +4939,10 @@
     },
     {
       "path": "tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md",
-      "authority": "evidence",
+      "authority": "temporary",
       "agentInstructionWeight": "none",
-      "action": "treat-as-evidence",
-      "rationale": "Completed delegation handoff retained as historical evidence; not an active instruction."
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/family-partner-library-lower-2026-09-12.md",
