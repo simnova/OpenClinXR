@@ -8,22 +8,23 @@ import { geometryRevisionDigest, resolveBedsideApproachIntent } from "@openclinx
 import type { EncounterRuntimeActorPlacement } from "@openclinxr/asset-registry/runtime-bundles";
 import type { Object3D } from "three";
 import {
-  type CaseOwnedApproachFrame,
-  type CaseOwnedBedsideApproach,
-  createCaseOwnedBedsideApproach,
-  measureStanceGroundAdvance,
-} from "./case-owned-approach-runtime-mod.js";
-import {
   advanceCaseOwnedBedsideApproach,
   applyCaseOwnedStanceLock,
   readHeadPitchDeg,
   readHeadYawWorldRadians,
   sampleLocomotionStanceTrack,
 } from "./case-owned-approach-frame-mod.js";
+import {
+  type CaseOwnedApproachFrame,
+  type CaseOwnedBedsideApproach,
+  createCaseOwnedBedsideApproach,
+  measureStanceGroundAdvance,
+} from "./case-owned-approach-runtime-mod.js";
 import { resolveLocomotionClipTimeScale } from "./locomotion-clip-playback-mod.js";
 import { resolveLocomotionStanceLabels } from "./locomotion-stance-labels.js";
-import { resolveToeBones } from "./resolve-toe-bones.js";
 import { observeMountedApproachGeometry } from "./mounted-approach-geometry-mod.js";
+import { resolveToeBones } from "./resolve-toe-bones.js";
+import { findStanceChain } from "./stance-lock-ik.js";
 
 /**
  * The station's own bedside approach: observed once the physician's skeleton is in the scene, then
@@ -313,6 +314,13 @@ export type BedsideApproachRuntimeEvidence = {
      * heading.
      */
     headYawWorldRadians: number | null;
+    /**
+     * Knee flexion, in degrees, read off `hip->knee` vs `knee->heel` world vectors — 0 deg is a
+     * straight leg, larger is more bent. Published for BOTH legs every frame (stance or swing)
+     * regardless of which the lock is currently pinning, so a knee-pop (a large frame-to-frame
+     * jump) can be attributed to the correct leg. Null when the named bones are not on the rig.
+     */
+    kneeFlexionDeg: { left: number | null; right: number | null };
   }>;
   startWorld: { x: number; y: number; z: number } | null;
   targetWorld: { x: number; y: number; z: number } | null;
@@ -347,6 +355,28 @@ function worldOf(node: Object3D | null): { x: number; y: number; z: number } | n
   if (node === null) return null;
   const elements = node.matrixWorld.elements;
   return { x: elements[12] ?? Number.NaN, y: elements[13] ?? Number.NaN, z: elements[14] ?? Number.NaN };
+}
+
+/** Knee flexion in degrees: the angle between `hip->knee` and `knee->heel`, world space. A
+ * straight leg (thigh/shin collinear) reads ~0; a bent knee reads larger. */
+function kneeFlexionDegreesFor(actorSlot: Object3D, side: "left" | "right"): number | null {
+  const chain = findStanceChain(actorSlot, side);
+  if (chain === null) return null;
+  const { hip, knee, heel } = chain;
+  hip.updateMatrixWorld(true);
+  knee.updateMatrixWorld(true);
+  heel.updateMatrixWorld(true);
+  const hipW = worldOf(hip);
+  const kneeW = worldOf(knee);
+  const heelW = worldOf(heel);
+  if (hipW === null || kneeW === null || heelW === null) return null;
+  const v1x = kneeW.x - hipW.x, v1y = kneeW.y - hipW.y, v1z = kneeW.z - hipW.z;
+  const v2x = heelW.x - kneeW.x, v2y = heelW.y - kneeW.y, v2z = heelW.z - kneeW.z;
+  const len1 = Math.hypot(v1x, v1y, v1z);
+  const len2 = Math.hypot(v2x, v2y, v2z);
+  if (len1 === 0 || len2 === 0) return null;
+  const dot = (v1x * v2x + v1y * v2y + v1z * v2z) / (len1 * len2);
+  return (Math.acos(Math.max(-1, Math.min(1, dot))) * 180) / Math.PI;
 }
 
 /**
@@ -401,6 +431,10 @@ export function publishBedsideApproachRuntimeEvidence(
       correctionMeters: frame.stanceCorrectionMeters,
       headPitchDeg: readHeadPitchDeg(approach.actorSlot),
       headYawWorldRadians: readHeadYawWorldRadians(approach.actorSlot),
+      kneeFlexionDeg: {
+        left: kneeFlexionDegreesFor(approach.actorSlot, "left"),
+        right: kneeFlexionDegreesFor(approach.actorSlot, "right"),
+      },
     });
     while (samples.length > BEDSIDE_APPROACH_EVIDENCE_SAMPLE_LIMIT) samples.shift();
   }

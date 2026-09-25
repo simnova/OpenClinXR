@@ -27,11 +27,12 @@
  * locked bedside approach.
  * notEvidenceFor: gait realism, clinical plausibility, Quest performance.
  */
-import { copyFile, mkdir, readdir, rm, writeFile } from "node:fs/promises";
+
 import { execFileSync } from "node:child_process";
-import { inflateSync } from "node:zlib";
+import { copyFile, mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { type Browser, type Page, chromium } from "playwright";
+import { inflateSync } from "node:zlib";
+import { type Browser, chromium, type Page } from "playwright";
 import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
 import {
   type PortlessDevServer,
@@ -39,11 +40,11 @@ import {
   stopPortlessDevServer,
 } from "../lib/portless-server.js";
 import {
+  buildSceneClosureBundleJson,
+  buildSceneClosureUrl,
   SCENE_CLOSURE_BUNDLE_ROUTE,
   SCENE_CLOSURE_PHYSICIAN_ACTOR_ID,
   SCENE_CLOSURE_SCENARIO_ID,
-  buildSceneClosureBundleJson,
-  buildSceneClosureUrl,
 } from "../scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.js";
 
 const OUTPUT_DIR = ".openclinxr/evidence/foot-plant-video";
@@ -78,6 +79,7 @@ type RuntimeSample = {
   headYawWorldRadians?: number | null;
   travelledMeters?: number;
   correctionMeters?: { x: number; z: number };
+  kneeFlexionDeg?: { left: number | null; right: number | null };
 };
 
 type RuntimeEvidence = {
@@ -155,6 +157,7 @@ type FootPlantVideoReport = {
     slot: { x: number; z: number } | null;
     travelledMeters: number | null;
     correctionMeters: { x: number; z: number } | null;
+    kneeFlexionDeg: { left: number | null; right: number | null } | null;
   }>;
   stanceWindows: StanceWindow[];
   maxSlideMeters: number;
@@ -2232,6 +2235,7 @@ async function main(): Promise<void> {
           slot: s.slot ? { x: s.slot.x, z: s.slot.z } : null,
           travelledMeters: s.travelledMeters ?? null,
           correctionMeters: s.correctionMeters ?? null,
+          kneeFlexionDeg: s.kneeFlexionDeg ?? null,
         })),
         stanceWindows: windows,
         maxSlideMeters: maxSlide,

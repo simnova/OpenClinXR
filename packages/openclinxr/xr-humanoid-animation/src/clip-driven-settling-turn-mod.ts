@@ -1,60 +1,15 @@
-import { Vector3, type Object3D } from "three";
-import { stanceAtTime, type LocomotionStanceLabels } from "./locomotion-stance-labels.js";
-import { computeFootfallBias, findStanceChain, pivotSlotAroundAnchor, solveTwoBoneIK, worldXyz } from "./stance-lock-ik.js";
+import type { Object3D } from "three";
+import { type LocomotionStanceLabels, stanceAtTime } from "./locomotion-stance-labels.js";
+import { computeFootfallBias, pivotSlotAroundAnchor, worldXyz } from "./stance-lock-ik.js";
 import { createStanceLockState, type StanceFoot, type StanceLockState } from "./stance-lock-mod.js";
+import {
+  applyStanceToeXzPin,
+  type FootPinState,
+  IDLE_FOOT_PIN_STATE,
+  STANCE_TOE_PIN_RAMP_STEP,
+  worldXz,
+} from "./stance-toe-xz-pin-mod.js";
 
-function worldXz(node: Object3D): { x: number; z: number } {
-  node.updateWorldMatrix(true, false);
-  const e = node.matrixWorld.elements;
-  return { x: e[12] ?? Number.NaN, z: e[14] ?? Number.NaN };
-}
-
-/**
- * Lift a submerged stance toe by leg flexion ONLY — no XZ translation of anything. Y-only replica
- * of `applyStanceLockedGroundAdvance`'s own IK block (`stance-lock-mod.ts`), used here instead of
- * that function itself because ITS other job — advancing the slot to match the clip's own
- * stance-foot ground speed — is exactly WRONG for settling: the clip is still a forward WALK clip,
- * even at a reduced blend weight, and its stance phase still encodes forward progression. Measured
- * on the shipped physician: reusing the full walking function here produced a smooth, continuous
- * slot creep in the clip's current facing direction — a curved path, since the body is also
- * rotating — accounting for the bulk of a ~0.46 m arrival error even after the yaw-pivot's own
- * contribution (see `phasePivotAnchorXz`'s note) was fixed to the exact `2r sin(θ/2)` geometry.
- * Settling wants zero net translation; only Y needs correcting, and only by flexion.
- */
-function liftSubmergedStanceToe(input: {
-  actorSlot: Object3D;
-  stanceFoot: StanceFoot;
-  floorOriginY: number;
-}): void {
-  const chain = findStanceChain(input.actorSlot, input.stanceFoot);
-  if (chain === null) return;
-  const { hip, knee, heel, toe } = chain;
-  toe.updateWorldMatrix(true, false);
-  const toeWorld = worldXyz(toe);
-  const targetToeY = Math.max(toeWorld.y, input.floorOriginY);
-  if (targetToeY <= toeWorld.y) return; // already at or above the floor: nothing to lift
-  const heelWorld = worldXyz(heel);
-  const heelToToe = { x: toeWorld.x - heelWorld.x, y: toeWorld.y - heelWorld.y, z: toeWorld.z - heelWorld.z };
-  // The toe's OWN current XZ, not a pinned window anchor: this is FLEXION only, never a slide.
-  const heelTarget = { x: toeWorld.x - heelToToe.x, y: targetToeY - heelToToe.y, z: toeWorld.z - heelToToe.z };
-  hip.updateMatrixWorld(true);
-  knee.updateMatrixWorld(true);
-  heel.updateMatrixWorld(true);
-  const hipWorld = new Vector3().setFromMatrixPosition(hip.matrixWorld);
-  const kneeWorld = new Vector3().setFromMatrixPosition(knee.matrixWorld);
-  const heelWorldPos = new Vector3().setFromMatrixPosition(heel.matrixWorld);
-  const upperLen = hipWorld.distanceTo(kneeWorld);
-  const lowerLen = kneeWorld.distanceTo(heelWorldPos);
-  const maxExtension = upperLen + lowerLen;
-  const softening = 0.005;
-  const ikResult = solveTwoBoneIK(hip, knee, heel, heelTarget, maxExtension, softening, input.actorSlot);
-  if (ikResult === null) return;
-  hip.quaternion.multiplyQuaternions(hip.quaternion, ikResult.hipDelta);
-  knee.quaternion.copy(ikResult.kneeQuat);
-  hip.updateMatrixWorld(true);
-  knee.updateMatrixWorld(true);
-  toe.updateMatrixWorld(true);
-}
 
 /**
  * Kept LOCAL rather than a new cross-package export. Must match
@@ -162,6 +117,14 @@ export type ClipDrivenSettlingTurnState = {
    */
   anchorPositionXz: { x: number; z: number } | null;
   travelUnit: { x: number; z: number } | null;
+  /** Per-foot toe-XZ IK pin (`applyStanceToeXzPin`): anchor plus ramp weight, left and right. */
+  pin: { left: FootPinState; right: FootPinState };
+  /**
+   * Cumulative frames across the whole settling turn where `applyStanceToeXzPin` released rather
+   * than applied because the footfall anchor was beyond `STANCE_TOE_PIN_MAX_REACH_FRACTION` of leg
+   * reach. Exposed so a caller can report how often the guard fired.
+   */
+  reachReleasedFrameCount: number;
 };
 
 export function createClipDrivenSettlingTurnState(): ClipDrivenSettlingTurnState {
@@ -174,6 +137,8 @@ export function createClipDrivenSettlingTurnState(): ClipDrivenSettlingTurnState
     phasePivotAnchorXz: null,
     anchorPositionXz: null,
     travelUnit: null,
+    pin: { left: IDLE_FOOT_PIN_STATE, right: IDLE_FOOT_PIN_STATE },
+    reachReleasedFrameCount: 0,
   };
 }
 
@@ -266,14 +231,45 @@ export function applyClipDrivenSettlingTurn(input: {
     next = { ...next, phaseElapsedSeconds: elapsedSeconds, phaseAppliedRadians: desiredApplied };
   }
 
-  // Y-ONLY: lift a submerged stance toe by flexion, never by translating the slot. See
-  // `liftSubmergedStanceToe`'s own note for why `applyStanceLockedGroundAdvance` itself is not
-  // reused here — its ground-advance job (matching the clip's own stance-foot forward speed) is
-  // exactly wrong for a turn that wants zero net translation.
+  // TOE-XZ PIN, per foot, via `applyStanceToeXzPin`. Replaces the old Y-only
+  // `liftSubmergedStanceToe`: same reason `applyStanceLockedGroundAdvance` itself is not reused
+  // here (its ground-advance job — matching the clip's own stance-foot forward speed — is exactly
+  // wrong for a turn that wants zero net translation), plus the pin now also holds XZ so the clip's
+  // own gait motion cannot carry the planted toe backward in body space (the defect this fix
+  // targets). `stanceFootForY` names the foot the lock reports for continuity with the field below
+  // (double-support / flight frames keep reporting the last designated foot); the pin loop below
+  // ramps BOTH feet independently off the clip's raw per-foot labels, so a foot's weight reaches 0
+  // a few frames after it stops being reported here, not the same frame.
   const stanceFootForY = downFoot ?? next.phaseFoot;
-  if (stanceFootForY !== null) {
-    liftSubmergedStanceToe({ actorSlot, stanceFoot: stanceFootForY, floorOriginY: input.floorOriginY });
+  let pin = next.pin;
+  let reachReleasedFrameCount = next.reachReleasedFrameCount;
+  const pinSides: readonly StanceFoot[] = ["left", "right"];
+  for (const side of pinSides) {
+    const toe = side === "left" ? input.leftToe : input.rightToe;
+    const isStance = labelled !== null && labelled[side];
+    const current = pin[side];
+    let anchorXz = current.anchorXz;
+    let weight = current.weight;
+    if (isStance) {
+      if (anchorXz === null && toe !== null) anchorXz = worldXz(toe);
+      weight = Math.min(1, weight + STANCE_TOE_PIN_RAMP_STEP);
+    } else {
+      weight = Math.max(0, weight - STANCE_TOE_PIN_RAMP_STEP);
+      if (weight === 0) anchorXz = null;
+    }
+    pin = { ...pin, [side]: { anchorXz, weight } };
+    if (weight > 0 && anchorXz !== null) {
+      const result = applyStanceToeXzPin({
+        actorSlot,
+        stanceFoot: side,
+        anchorXz,
+        floorOriginY: input.floorOriginY,
+        weight,
+      });
+      if (result.reachReleased) reachReleasedFrameCount += 1;
+    }
   }
+  next = { ...next, pin, reachReleasedFrameCount };
 
   const leftHeight = input.leftToe !== null ? worldXyz(input.leftToe).y - input.floorOriginY : Number.NaN;
   const rightHeight = input.rightToe !== null ? worldXyz(input.rightToe).y - input.floorOriginY : Number.NaN;
