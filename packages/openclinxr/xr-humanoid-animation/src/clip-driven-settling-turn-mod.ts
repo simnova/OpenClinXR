@@ -265,7 +265,21 @@ export function applyClipDrivenSettlingTurn(input: {
   const pinSides: readonly StanceFoot[] = ["left", "right"];
   for (const side of pinSides) {
     const toe = side === "left" ? input.leftToe : input.rightToe;
-    const isStance = labelled !== null && labelled[side];
+    // HOLD THE OLD STANCE FOOT UNTIL THE HANDOFF IS CONFIRMED (measured 2026-09-25, turn-jump
+    // investigation; coordinator direction: "a stance switch should hand the old stance foot to
+    // swing only after it has lifted"). The raw PER-SAMPLE clip label (`labelled[side]`) can go
+    // false a few frames before the REPORTED switch (`stanceFootForY`, computed above from the
+    // smoothed `downFoot`/`phaseFoot`) — MEASURED on the real capture
+    // (`.openclinxr/evidence/foot-plant-video/foot-plant-video.json`): the left foot's pin weight
+    // started ramping down at sample 65 (1 -> 0.667 -> 0.333 -> ~0) while `stanceFoot` was still
+    // reported "left" through sample 66, so the pin's own correction weakened and the toe drifted
+    // 0.053, 0.122, 0.095 m across those three frames — growing as weight fell, not a footfall. A
+    // foot now counts as stance for the PIN as long as EITHER the raw label says so (so the
+    // INCOMING foot can still start ramping up early, preserving double-support overlap) OR it is
+    // still the currently-REPORTED stance foot (so the OUTGOING foot cannot start releasing before
+    // its own reported handoff), never anticipating a switch the rest of this function has not
+    // committed to yet.
+    const isStance = (labelled !== null && labelled[side]) || side === stanceFootForY;
     const current = pin[side];
     let anchorXz = current.anchorXz;
     let weight = current.weight;

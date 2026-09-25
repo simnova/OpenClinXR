@@ -64,7 +64,11 @@ export type CaseOwnedBedsideApproach = {
   stanceLabelSlot:
     | Pick<
       GeneratedHumanoidAnimationSlot,
-      "mixer" | "locomotionClipName" | "responseClips"
+      // "root" added 2026-09-25 (turn-jump investigation) so the waiting-for-fade branch in
+      // `case-owned-approach-frame-mod.ts` can read the clip action's own
+      // `openClinXrLocomotionLegWeight` off `root.userData` — the same source
+      // `locomotion-clip-playback-mod.ts` writes it to — rather than re-deriving it.
+      "mixer" | "locomotionClipName" | "responseClips" | "root"
     >
     | null;
   floorOriginY: number;

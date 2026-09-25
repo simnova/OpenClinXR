@@ -10,7 +10,7 @@ import {
   createClipDrivenSettlingTurnState,
 } from "./clip-driven-settling-turn-mod.js";
 import { applyHeadGazeLeadYaw } from "./head-gaze-lead-mod.js";
-import { applyStanceToeXzPin, STANCE_TOE_PIN_RAMP_STEP } from "./stance-toe-xz-pin-mod.js";
+import { applyStanceToeXzPin } from "./stance-toe-xz-pin-mod.js";
 import {
   captureRestStance,
   applyArrivalStanceClose,
@@ -321,45 +321,46 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
         state: approach.clipTurn,
       });
     } else {
-      // WAITING FOR THE FADE (see the note above): no more stepping, so the WALKING-STYLE
-      // continuously-re-anchoring lock (`applyStanceLockedGroundAdvance`) does not run — that is
-      // the ~0.3-0.4 m "chasing" drift this branch's header describes, and it stays out.
+      // WAITING FOR THE FADE: no more stepping, so the WALKING-STYLE re-anchoring lock
+      // (`applyStanceLockedGroundAdvance`) does not run — the ~0.3-0.4 m "chasing" drift this
+      // branch's header describes.
       //
-      // TOE-XZ PIN RAMP-DOWN, NOT a hard stop (measured 2026-09-25, turn-jump investigation).
-      // Dropping `applyClipDrivenSettlingTurn`'s toe-XZ pin outright on the FIRST frame this branch
-      // runs reveals, in one frame, however much the clip's own gait motion had been quietly
-      // carried in body space while the pin was actively correcting it — MEASURED on the real
-      // capture (`.openclinxr/evidence/foot-plant-video/foot-plant-video.json`, sample 79): a
-      // 0.18 m one-frame stance-toe jump the instant `drive.locomotion` first read 0, with the
-      // pin's own last anchor/weight otherwise unchanged (it had simply stopped being called).
-      // This instead ramps that SAME pin's weight down to 0 over `STANCE_TOE_PIN_RAMP_STEP` (the
-      // same few-frame ramp a footfall/liftoff already uses), holding the SAME FIXED anchor every
-      // frame — never re-measured, never chasing a moving target — which is a different mechanism
-      // from the re-anchoring lock this branch's header warns against, so it does not reintroduce
-      // that measured drift.
-      let pin = approach.clipTurn.pin;
+      // TOE-XZ PIN HELD AT ITS EXISTING WEIGHT for the whole branch, UNCONDITIONALLY — not
+      // dropped, not ramped down, not gated on the clip's own fading leg weight (measured
+      // 2026-09-25, turn-jump investigation).
+      //
+      // Dropping the pin outright on the first frame here revealed, in one frame, whatever the
+      // clip's own gait motion had quietly carried in body space while the pin corrected it —
+      // MEASURED: a 0.18 m one-frame stance-toe jump (sample 79). A 3-frame ramp-down only shrank
+      // the reveal window; the clip action's leg weight (`openClinXrLocomotionLegWeight`) fades
+      // over the SAME window this branch runs for, so the mixer keeps writing a changing raw pose
+      // the whole time and needs correcting the whole time, not for a fixed 3 frames.
+      //
+      // Gating on `legWeight > 0` (tried first) still left a 0.098 m residual: `playLocomotionClip`
+      // (the mixer step) and this function run as separate steps in the same frame, so on the
+      // frame leg weight first hit 0 the mixer had ALREADY frozen its pose while the `> 0` gate
+      // ALSO stopped the pin that same frame — the one frame it was still needed. Unconditional
+      // sidesteps that ordering: once the mixer stops changing the pose, re-applying the same
+      // fixed-anchor correction to an already-converged pose is a no-op, not new drift — a fixed
+      // anchor held every frame, unlike the re-anchoring lock's measured chasing.
+      const pin = approach.clipTurn.pin;
       for (const side of ["left", "right"] as const) {
         const current = pin[side];
         if (current.weight <= 0 || current.anchorXz === null) continue;
-        const weight = Math.max(0, current.weight - STANCE_TOE_PIN_RAMP_STEP);
         applyStanceToeXzPin({
           actorSlot: approach.actorSlot,
           stanceFoot: side,
           anchorXz: current.anchorXz,
           floorOriginY: approach.floorOriginY,
-          weight,
+          weight: current.weight,
         });
-        pin = { ...pin, [side]: { anchorXz: weight > 0 ? current.anchorXz : null, weight } };
       }
-      approach.clipTurn = { ...approach.clipTurn, pin };
 
       // The residual heading this sub-stage started with (up to `SETTLING_DRIVE_STOP_
-      // TOLERANCE_RADIANS`, ~4 deg — kept as a local copy of xr-runtime-state's own constant for
-      // the same "no new cross-package export" reason `SETTLE_TURN_TOLERANCE_RADIANS` is local in
+      // TOLERANCE_RADIANS`, ~4 deg — local copy, same reason as `SETTLE_TURN_TOLERANCE_RADIANS` in
       // `clip-driven-settling-turn-mod.ts`) still needs to close, or the phase can sit forever a
-      // couple of degrees short of `SETTLE_TURN_TOLERANCE_RADIANS` with nothing left driving it
-      // there. Eased directly, over the SAME window the fade itself runs — unrelated to the pin
-      // above, which only holds toe XZ, not slot yaw.
+      // couple of degrees short with nothing left driving it there. Eased over the SAME fade
+      // window; unrelated to the toe pin above (XZ only, not slot yaw).
       const residual = ((approach.intent.target.headingRadians - approach.actorSlot.rotation.y + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
       const closeRatePerSecond = ((4 * Math.PI) / 180) / 0.3;
       const step = Math.sign(residual) * Math.min(Math.abs(residual), closeRatePerSecond * deltaSeconds);
