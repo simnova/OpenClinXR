@@ -10,7 +10,8 @@ import {
   createClipDrivenSettlingTurnState,
 } from "./clip-driven-settling-turn-mod.js";
 import { applyHeadGazeLeadYaw } from "./head-gaze-lead-mod.js";
-import { applyStanceToeXzPin } from "./stance-toe-xz-pin-mod.js";
+import { applyStanceToeXzPin, correctPlantedFootHeight } from "./stance-toe-xz-pin-mod.js";
+import { findStanceChain } from "./stance-lock-ik.js";
 import {
   captureRestStance,
   applyArrivalStanceClose,
@@ -321,28 +322,16 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
         state: approach.clipTurn,
       });
     } else {
-      // WAITING FOR THE FADE: no more stepping, so the WALKING-STYLE re-anchoring lock
-      // (`applyStanceLockedGroundAdvance`) does not run — the ~0.3-0.4 m "chasing" drift this
-      // branch's header describes.
+      // WAITING FOR THE FADE: no more stepping, so the re-anchoring lock does not run (that is the
+      // ~0.3-0.4 m "chasing" drift this branch's header describes).
       //
-      // TOE-XZ PIN HELD AT ITS EXISTING WEIGHT for the whole branch, UNCONDITIONALLY — not
-      // dropped, not ramped down, not gated on the clip's own fading leg weight (measured
-      // 2026-09-25, turn-jump investigation).
-      //
-      // Dropping the pin outright on the first frame here revealed, in one frame, whatever the
-      // clip's own gait motion had quietly carried in body space while the pin corrected it —
-      // MEASURED: a 0.18 m one-frame stance-toe jump (sample 79). A 3-frame ramp-down only shrank
-      // the reveal window; the clip action's leg weight (`openClinXrLocomotionLegWeight`) fades
-      // over the SAME window this branch runs for, so the mixer keeps writing a changing raw pose
-      // the whole time and needs correcting the whole time, not for a fixed 3 frames.
-      //
-      // Gating on `legWeight > 0` (tried first) still left a 0.098 m residual: `playLocomotionClip`
-      // (the mixer step) and this function run as separate steps in the same frame, so on the
-      // frame leg weight first hit 0 the mixer had ALREADY frozen its pose while the `> 0` gate
-      // ALSO stopped the pin that same frame — the one frame it was still needed. Unconditional
-      // sidesteps that ordering: once the mixer stops changing the pose, re-applying the same
-      // fixed-anchor correction to an already-converged pose is a no-op, not new drift — a fixed
-      // anchor held every frame, unlike the re-anchoring lock's measured chasing.
+      // TOE-XZ PIN HELD AT ITS EXISTING WEIGHT, UNCONDITIONALLY, for the whole branch — not
+      // dropped, not ramped, not gated on the clip's fading leg weight (measured 2026-09-25:
+      // dropping outright revealed a 0.18 m one-frame jump; a 3-frame ramp-down only shrank the
+      // reveal window since the clip's leg weight fades over this WHOLE branch's window, not 3
+      // frames; gating on `legWeight > 0` still left a 0.098 m residual — see git history).
+      // + DIRECT ANKLE CORRECTION: see `correctPlantedFootHeight`'s own header
+      // (stance-toe-xz-pin-mod.ts) for why the XZ pin alone leaves the toe ~3-5 cm high.
       const pin = approach.clipTurn.pin;
       for (const side of ["left", "right"] as const) {
         const current = pin[side];
@@ -354,6 +343,15 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
           floorOriginY: approach.floorOriginY,
           weight: current.weight,
         });
+        const chain = findStanceChain(approach.actorSlot, side);
+        if (chain !== null) {
+          correctPlantedFootHeight({
+            heel: chain.heel,
+            toe: chain.toe,
+            floorOriginY: approach.floorOriginY,
+            weight: current.weight,
+          });
+        }
       }
 
       // The residual heading this sub-stage started with (up to `SETTLING_DRIVE_STOP_

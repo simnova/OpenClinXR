@@ -278,3 +278,78 @@ export function applyStanceToeXzPin(input: {
   }
   return { applied: true, reachReleased: false };
 }
+
+/** Toe clearance target for `correctPlantedFootHeight`: on the floor, not embedded in it. */
+export const ANKLE_CORRECTION_TARGET_CLEARANCE_METERS = 0.005;
+/** Per-frame ankle-tip clamp for `correctPlantedFootHeight`. */
+export const ANKLE_CORRECTION_MAX_RADIANS = (25 * Math.PI) / 180;
+
+/**
+ * DIRECT ANKLE CORRECTION (coordinator direction 2026-09-25, after the mixer-weight subclip
+ * attempt measured worse and was reverted). `applyStanceToeXzPin` solves hip+knee only; the FOOT
+ * (heel) bone's own rotation is whatever the mixer wrote, and MEASURED (`station-bedside-approach-
+ * mod.ts`'s `footBoneHeightMeters`, this slice's prior commit) it leaves the planted toe ~3-5 cm
+ * above floor at `SETTLING_LEG_WEIGHT_TARGET` even with the XZ pin fully engaged.
+ *
+ * This ROTATES the stance foot bone about its own heel pivot — not a toe-local position write
+ * (forbidden: moves only the toe, not the foot mesh) — so the toe tips down as a rigid body. The
+ * rotation axis is the WORLD lateral direction perpendicular to the heel->toe arm's horizontal
+ * projection (`cross(worldUp, horizontalArmDir)`), converted into the heel bone's PARENT-LOCAL
+ * frame (`heel.quaternion` is expressed relative to its parent) so applying it there produces the
+ * intended WORLD-space tip. The angle is the exact delta between the arm's CURRENT elevation from
+ * horizontal and its DESIRED elevation for the target toe height (`asin(relativeY / armLength)`,
+ * both measured with the SAME arm length — a rotation about the heel preserves it) — not a fixed
+ * increment, so a foot already close to the target barely moves. Clamped and blended the same way
+ * the XZ pin already is: `ANKLE_CORRECTION_MAX_RADIANS` per call, `weight`-blended (same weight the
+ * caller passed to `applyStanceToeXzPin` for this foot this frame).
+ */
+export function correctPlantedFootHeight(input: {
+  heel: Object3D;
+  toe: Object3D;
+  floorOriginY: number;
+  weight: number;
+}): void {
+  const { heel, toe, floorOriginY, weight } = input;
+  const w = Math.max(0, Math.min(1, weight));
+  if (w <= 0) return;
+  heel.updateMatrixWorld(true);
+  toe.updateMatrixWorld(true);
+  const heelWorld = new Vector3().setFromMatrixPosition(heel.matrixWorld);
+  const toeWorld = worldXyz(toe);
+  const arm = new Vector3(toeWorld.x - heelWorld.x, toeWorld.y - heelWorld.y, toeWorld.z - heelWorld.z);
+  const armLength = arm.length();
+  if (armLength < 1e-6) return;
+
+  const targetY = floorOriginY + ANKLE_CORRECTION_TARGET_CLEARANCE_METERS;
+  const desiredRelY = MathUtils.clamp(targetY - heelWorld.y, -armLength, armLength);
+  const currentAngle = Math.asin(MathUtils.clamp(arm.y / armLength, -1, 1));
+  const desiredAngle = Math.asin(MathUtils.clamp(desiredRelY / armLength, -1, 1));
+  const deltaAngle = MathUtils.clamp(
+    desiredAngle - currentAngle,
+    -ANKLE_CORRECTION_MAX_RADIANS,
+    ANKLE_CORRECTION_MAX_RADIANS,
+  );
+  if (deltaAngle === 0) return;
+
+  const horizontal = new Vector3(arm.x, 0, arm.z);
+  if (horizontal.lengthSq() < 1e-8) return; // arm points straight up/down: no well-defined tip axis
+  horizontal.normalize();
+  // cross(horizontal, worldUp), NOT cross(worldUp, horizontal): MEASURED 2026-09-25 that the other
+  // order rotates the toe the WRONG way (up instead of down, compounding frame over frame — a real
+  // capture with this sign put toeY at 0.18 m, higher than the 0.05-0.10 m defect this exists to
+  // fix). Rotating about `cross(worldUp, horizontal)` by a NEGATIVE (downward) `deltaAngle` moves a
+  // forward point UP, not down, for this arm/axis convention; the other cross order is correct.
+  const worldLateralAxis = new Vector3().crossVectors(horizontal, new Vector3(0, 1, 0)).normalize();
+
+  const parent = heel.parent;
+  if (parent === null) return;
+  parent.updateMatrixWorld(true);
+  const parentWorldQuat = new Quaternion().setFromRotationMatrix(parent.matrixWorld);
+  const localAxis = worldLateralAxis.clone().applyQuaternion(parentWorldQuat.clone().invert()).normalize();
+
+  const fullDelta = new Quaternion().setFromAxisAngle(localAxis, deltaAngle);
+  const blendedDelta = new Quaternion().identity().slerp(fullDelta, w);
+  heel.quaternion.multiplyQuaternions(heel.quaternion, blendedDelta);
+  heel.updateMatrixWorld(true);
+  toe.updateMatrixWorld(true);
+}

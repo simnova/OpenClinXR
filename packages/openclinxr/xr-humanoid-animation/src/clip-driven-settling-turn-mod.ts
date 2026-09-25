@@ -1,9 +1,10 @@
 import type { Object3D } from "three";
 import { type LocomotionStanceLabels, stanceAtTime } from "./locomotion-stance-labels.js";
-import { computeFootfallBias, pivotSlotAroundAnchor, worldXyz } from "./stance-lock-ik.js";
+import { computeFootfallBias, findStanceChain, pivotSlotAroundAnchor, worldXyz } from "./stance-lock-ik.js";
 import { createStanceLockState, type StanceFoot, type StanceLockState } from "./stance-lock-mod.js";
 import {
   applyStanceToeXzPin,
+  correctPlantedFootHeight,
   type FootPinState,
   IDLE_FOOT_PIN_STATE,
   STANCE_TOE_PIN_RAMP_STEP,
@@ -302,6 +303,19 @@ export function applyClipDrivenSettlingTurn(input: {
       });
       if (result.reachReleased) reachReleasedFrameCount += 1;
       reachReleasedThisFrame[side] = result.reachReleased;
+      // DIRECT ANKLE CORRECTION (coordinator direction 2026-09-25) — see `correctPlantedFootHeight`'s
+      // own header in stance-toe-xz-pin-mod.ts for why the XZ pin alone leaves the toe ~3-5 cm high.
+      if (!result.reachReleased) {
+        const chain = findStanceChain(actorSlot, side);
+        if (chain !== null) {
+          correctPlantedFootHeight({
+            heel: chain.heel,
+            toe: chain.toe,
+            floorOriginY: input.floorOriginY,
+            weight,
+          });
+        }
+      }
     }
   }
   next = { ...next, pin, reachReleasedFrameCount, reachReleasedThisFrame, pinDebugThisFrame };
