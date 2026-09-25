@@ -62,7 +62,7 @@ export class MockVoiceProviderAdapter implements VoiceProviderAdapter {
       eventType: "audio_chunk",
       audioFormat: "audio/mock",
       chunkIndex: 0,
-      durationMs: 1100,
+      durationMs: mockChunkDurationMs(input.prosodySpeed),
       visemeCue: "neutral-pain",
       provenance: this.provenance(input),
     };
@@ -372,6 +372,14 @@ function freezeActorTurnExecution(execution: ActorTurnExecutionRecord): ActorTur
   Object.freeze(execution.droppedProsodyTags);
   Object.freeze(execution.fallback);
   return Object.freeze(execution);
+}
+
+const MOCK_SYNTH_DURATION_MS = 1100;
+
+/** Omit / non-finite / ≤0 keeps the historical 1100 ms mock chunk. */
+function mockChunkDurationMs(prosodySpeed: number | undefined): number {
+  const speedScale = Number.isFinite(prosodySpeed) && (prosodySpeed as number) > 0 ? (prosodySpeed as number) : 1;
+  return Math.max(60, Math.round(MOCK_SYNTH_DURATION_MS / speedScale));
 }
 
 /** Pure function of (token, prosody.speed) so identical plans render identical chunks. */

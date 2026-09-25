@@ -488,13 +488,16 @@ describe("scenario runtime", () => {
       text: "It started while I was walking upstairs.",
       atSecond: 121,
     });
+    const plan = runtime.getFrozenActorTurnPlan(session.stationRunId, "patient_robert_hayes_v1");
+    expect(plan?.prosody.speed).toBeGreaterThan(0);
+    const durationMs = Math.max(60, Math.round(1100 / (plan?.prosody.speed as number)));
 
     expect(synthesized.audioEvents).toEqual([
       expect.objectContaining({
         eventType: "audio_chunk",
         audioFormat: "audio/mock",
         chunkIndex: 0,
-        durationMs: 1100,
+        durationMs,
         visemeCue: "neutral-pain",
         provenance: expect.objectContaining({
           requestId: "voice:run_ed_chest_pain_priority_v1_learner_001:patient_robert_hayes_v1:mock-robert-hayes:synthesis",
@@ -524,7 +527,9 @@ describe("scenario runtime", () => {
         actorId: "patient_robert_hayes_v1",
       }),
     ]);
-    expect(synthesized.recachedMouthCues).toEqual([{ phoneme: "AA", atSecond: 0, durationSeconds: 1.1 }]);
+    expect(synthesized.recachedMouthCues).toEqual([
+      { phoneme: "AA", atSecond: 0, durationSeconds: durationMs / 1000 },
+    ]);
     expect(synthesized.actorTurnExecution).toBeDefined();
     expect(synthesized.actorTurnExecution).not.toHaveProperty("visemeTimeline");
     expect(synthesized.actorTurnExecution).not.toHaveProperty("audioUri");

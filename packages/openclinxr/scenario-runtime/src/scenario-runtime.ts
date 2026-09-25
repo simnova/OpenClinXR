@@ -492,7 +492,7 @@ export class ScenarioRuntime {
         actorId: input.actorId,
         voiceId,
         text: frozenPlan.spokenTextForTts,
-        performancePlanId: frozenPlan.performancePlanId,
+        performancePlanId: frozenPlan.performancePlanId, prosodySpeed: frozenPlan.prosody.speed,
         policy: voiceSynthesisPolicy,
       }),
     );

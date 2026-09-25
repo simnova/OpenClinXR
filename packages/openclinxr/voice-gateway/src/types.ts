@@ -153,6 +153,8 @@ export type SpeechSynthesisRequest = {
   voiceId: string;
   text: string;
   performancePlanId: string;
+  /** Frozen-plan mapper speed (0.7–1.5). Omit to keep mock duration 1100 ms. */
+  prosodySpeed?: number;
   policy: VoiceRequestPolicy;
 };
 

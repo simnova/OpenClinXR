@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { collectVoiceStream, createDefaultVoiceGateway, createRealtimeVoiceGatewayPosture, LocalVoiceProviderAdapter, MockVoiceProviderAdapter, realtimeVoiceProtocol, selectRealtimeVoiceProtocol, type VoiceProviderAdapter } from "./index.js";
+import { collectVoiceStream, createDefaultVoiceGateway, createRealtimeVoiceGatewayPosture, LocalVoiceProviderAdapter, MockVoiceProviderAdapter, realtimeVoiceProtocol, selectRealtimeVoiceProtocol, VoiceGateway, type VoiceProviderAdapter } from "./index.js";
 import { createVibeVoiceProviderAdapter } from "./adapters.js";
 
 describe("voice gateway", () => {
@@ -425,6 +425,34 @@ describe("voice gateway", () => {
         }),
       },
     ]);
+  });
+
+  it("scales mock synthesis duration by optional prosodySpeed", async () => {
+    const gateway = new VoiceGateway({
+      adapters: [new MockVoiceProviderAdapter()],
+      routeId: "offline-local-first",
+    });
+    const base = {
+      requestId: "voice-synthesis-request-prosody",
+      stationRunId: "run_001",
+      actorId: "patient_robert_hayes_v1",
+      voiceId: "mock-robert-hayes",
+      text: "It started while I was walking upstairs.",
+      performancePlanId: "neutral-v1",
+      policy: {
+        requestPolicyId: "voice-offline-v1",
+        safetyPolicyVersion: "clinical-simulation-safety-v1",
+      },
+    };
+    const omitted = await collectVoiceStream(gateway.synthesize(base));
+    const one = await collectVoiceStream(gateway.synthesize({ ...base, prosodySpeed: 1 }));
+    const pain = await collectVoiceStream(gateway.synthesize({ ...base, prosodySpeed: 0.85 }));
+    const anxious = await collectVoiceStream(gateway.synthesize({ ...base, prosodySpeed: 0.95 }));
+    expect(omitted[0]?.durationMs).toBe(1100);
+    expect(one[0]?.durationMs).toBe(1100);
+    expect(pain[0]?.durationMs).toBe(1294);
+    expect(anxious[0]?.durationMs).toBe(1158);
+    expect(pain[0]?.durationMs).toBeGreaterThan(one[0]?.durationMs as number);
   });
 
   it("skips adapters with contradictory ready health blockers", async () => {
