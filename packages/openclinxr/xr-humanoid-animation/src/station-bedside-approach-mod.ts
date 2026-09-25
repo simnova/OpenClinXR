@@ -321,6 +321,17 @@ export type BedsideApproachRuntimeEvidence = {
      * jump) can be attributed to the correct leg. Null when the named bones are not on the rig.
      */
     kneeFlexionDeg: { left: number | null; right: number | null };
+    /**
+     * DEBUG/DIAGNOSTIC for the turn-jump investigation: whether `applyStanceToeXzPin` released
+     * (raw clip pose, not the pin) THIS frame, per side. Null when the pin was not attempted
+     * (weight 0, e.g. no settling turn active). Not part of `notEvidenceFor`'s claim scope.
+     */
+    pinReachReleased?: { left: boolean | null; right: boolean | null };
+    /** DEBUG/DIAGNOSTIC: this frame's pin anchor + weight per side. */
+    pinDebug?: {
+      left: { anchorXz: { x: number; z: number } | null; weight: number };
+      right: { anchorXz: { x: number; z: number } | null; weight: number };
+    };
   }>;
   startWorld: { x: number; y: number; z: number } | null;
   targetWorld: { x: number; y: number; z: number } | null;
@@ -435,6 +446,8 @@ export function publishBedsideApproachRuntimeEvidence(
         left: kneeFlexionDegreesFor(approach.actorSlot, "left"),
         right: kneeFlexionDegreesFor(approach.actorSlot, "right"),
       },
+      pinReachReleased: approach.clipTurn?.reachReleasedThisFrame ?? null,
+      pinDebug: approach.clipTurn?.pinDebugThisFrame ?? null,
     });
     while (samples.length > BEDSIDE_APPROACH_EVIDENCE_SAMPLE_LIMIT) samples.shift();
   }

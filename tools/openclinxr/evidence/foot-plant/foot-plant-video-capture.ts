@@ -80,6 +80,12 @@ type RuntimeSample = {
   travelledMeters?: number;
   correctionMeters?: { x: number; z: number };
   kneeFlexionDeg?: { left: number | null; right: number | null };
+  /** DEBUG/DIAGNOSTIC for the turn-jump investigation — see station-bedside-approach-mod.ts. */
+  pinReachReleased?: { left: boolean | null; right: boolean | null } | null;
+  pinDebug?: {
+    left: { anchorXz: { x: number; z: number } | null; weight: number };
+    right: { anchorXz: { x: number; z: number } | null; weight: number };
+  } | null;
 };
 
 type RuntimeEvidence = {
@@ -158,6 +164,12 @@ type FootPlantVideoReport = {
     travelledMeters: number | null;
     correctionMeters: { x: number; z: number } | null;
     kneeFlexionDeg: { left: number | null; right: number | null } | null;
+    /** DEBUG/DIAGNOSTIC for the turn-jump investigation — see station-bedside-approach-mod.ts. */
+    pinReachReleased: { left: boolean | null; right: boolean | null } | null;
+    pinDebug: {
+      left: { anchorXz: { x: number; z: number } | null; weight: number };
+      right: { anchorXz: { x: number; z: number } | null; weight: number };
+    } | null;
   }>;
   stanceWindows: StanceWindow[];
   maxSlideMeters: number;
@@ -2236,6 +2248,8 @@ async function main(): Promise<void> {
           travelledMeters: s.travelledMeters ?? null,
           correctionMeters: s.correctionMeters ?? null,
           kneeFlexionDeg: s.kneeFlexionDeg ?? null,
+          pinReachReleased: s.pinReachReleased ?? null,
+          pinDebug: s.pinDebug ?? null,
         })),
         stanceWindows: windows,
         maxSlideMeters: maxSlide,

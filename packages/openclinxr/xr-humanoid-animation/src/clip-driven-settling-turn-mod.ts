@@ -125,6 +125,18 @@ export type ClipDrivenSettlingTurnState = {
    * reach. Exposed so a caller can report how often the guard fired.
    */
   reachReleasedFrameCount: number;
+  /**
+   * DEBUG/DIAGNOSTIC, not part of the published contract otherwise: THIS FRAME's reach-release
+   * outcome per side, so a capture can attribute a toe jump to the pin releasing (raw clip pose
+   * showing through) versus some other cause. `null` when the pin was not attempted this frame
+   * (weight is 0) rather than a fabricated `false`.
+   */
+  reachReleasedThisFrame: { left: boolean | null; right: boolean | null };
+  /** DEBUG/DIAGNOSTIC: this frame's pin anchor + weight per side, for turn-jump attribution. */
+  pinDebugThisFrame: {
+    left: { anchorXz: { x: number; z: number } | null; weight: number };
+    right: { anchorXz: { x: number; z: number } | null; weight: number };
+  };
 };
 
 export function createClipDrivenSettlingTurnState(): ClipDrivenSettlingTurnState {
@@ -139,6 +151,8 @@ export function createClipDrivenSettlingTurnState(): ClipDrivenSettlingTurnState
     travelUnit: null,
     pin: { left: IDLE_FOOT_PIN_STATE, right: IDLE_FOOT_PIN_STATE },
     reachReleasedFrameCount: 0,
+    reachReleasedThisFrame: { left: null, right: null },
+    pinDebugThisFrame: { left: { anchorXz: null, weight: 0 }, right: { anchorXz: null, weight: 0 } },
   };
 }
 
@@ -243,6 +257,11 @@ export function applyClipDrivenSettlingTurn(input: {
   const stanceFootForY = downFoot ?? next.phaseFoot;
   let pin = next.pin;
   let reachReleasedFrameCount = next.reachReleasedFrameCount;
+  const reachReleasedThisFrame: { left: boolean | null; right: boolean | null } = { left: null, right: null };
+  const pinDebugThisFrame: ClipDrivenSettlingTurnState["pinDebugThisFrame"] = {
+    left: { anchorXz: null, weight: 0 },
+    right: { anchorXz: null, weight: 0 },
+  };
   const pinSides: readonly StanceFoot[] = ["left", "right"];
   for (const side of pinSides) {
     const toe = side === "left" ? input.leftToe : input.rightToe;
@@ -258,6 +277,7 @@ export function applyClipDrivenSettlingTurn(input: {
       if (weight === 0) anchorXz = null;
     }
     pin = { ...pin, [side]: { anchorXz, weight } };
+    pinDebugThisFrame[side] = { anchorXz, weight };
     if (weight > 0 && anchorXz !== null) {
       const result = applyStanceToeXzPin({
         actorSlot,
@@ -267,9 +287,10 @@ export function applyClipDrivenSettlingTurn(input: {
         weight,
       });
       if (result.reachReleased) reachReleasedFrameCount += 1;
+      reachReleasedThisFrame[side] = result.reachReleased;
     }
   }
-  next = { ...next, pin, reachReleasedFrameCount };
+  next = { ...next, pin, reachReleasedFrameCount, reachReleasedThisFrame, pinDebugThisFrame };
 
   const leftHeight = input.leftToe !== null ? worldXyz(input.leftToe).y - input.floorOriginY : Number.NaN;
   const rightHeight = input.rightToe !== null ? worldXyz(input.rightToe).y - input.floorOriginY : Number.NaN;

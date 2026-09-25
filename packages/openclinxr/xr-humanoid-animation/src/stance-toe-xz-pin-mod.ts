@@ -56,6 +56,30 @@ export const STANCE_TOE_PIN_RAMP_STEP = 1 / STANCE_TOE_PIN_RAMP_FRAMES;
  */
 const STANCE_TOE_PIN_MAX_REACH_FRACTION = 1.05;
 
+/**
+ * DIVERGENCE GUARD (measured 2026-09-25, turn-jump investigation). `reachDist > maxReach` only
+ * catches a target genuinely BEYOND leg reach; it stays FALSE when the target is reachable but the
+ * shared cosine-rule solve's hinge-axis choice (`solveTwoBoneIkForXzPin`'s own header on the
+ * FALLBACK AXIS branch) flips to a geometrically-valid-but-WRONG branch — which happens near full
+ * leg extension, exactly where `hip->knee` and `hip->target` go near-collinear
+ * (`hingeAxis.lengthSq() < 1e-6`). The settling pivot sweeps the hip through the fixed anchor's
+ * direction over its whole phase, so this collinearity is crossed in the ordinary course of a turn,
+ * not only in a contrived case. MEASURED on the real capture
+ * (`.openclinxr/evidence/foot-plant-video/foot-plant-video.json`, sample 79): right knee flexion
+ * dropped 9.5 -> 6.8 deg (near-straight) exactly the frame the toe jumped 0.18 m off a FIXED,
+ * unchanged anchor at weight 1 — `reachReleased` was `false` every frame in that window; the pin's
+ * own debug anchor/weight fields (added for this investigation) never moved.
+ *
+ * NOT a rewrite of the shared solver — that is explicitly out of scope (this file's own header
+ * records two prior rewrite attempts and why they were reverted; the FALLBACK AXIS branch is
+ * documented, not touched here). This instead measures whether the solve actually achieved what it
+ * targeted, the same "measure, don't assume" `reachDist` already applies BEFORE solving, just
+ * checked AFTER. The floor is well above the ~0.03-0.045 m residual the closed-loop position solve
+ * already carries at full weight even when it IS on the right branch (this file's own REMAINING
+ * DEFECT note), and well below the ~0.18-0.21 m this defect produces.
+ */
+const STANCE_TOE_PIN_DIVERGENCE_METERS = 0.08;
+
 export type FootPinState = {
   /** The toe's world XZ when this foot became stance, held fixed until liftoff clears it. */
   anchorXz: { x: number; z: number } | null;
@@ -228,11 +252,29 @@ export function applyStanceToeXzPin(input: {
   const ikResult = solveTwoBoneIkForXzPin(hip, knee, heel, heelTarget, softening, input.actorSlot);
 
   const w = Math.max(0, Math.min(1, input.weight));
+  const savedHipQuat = hip.quaternion.clone();
+  const savedKneeQuat = knee.quaternion.clone();
   const blendedHipDelta = new Quaternion().identity().slerp(ikResult.hipDelta, w);
   hip.quaternion.multiplyQuaternions(hip.quaternion, blendedHipDelta);
   knee.quaternion.slerp(ikResult.kneeQuat, w);
   hip.updateMatrixWorld(true);
   knee.updateMatrixWorld(true);
   toe.updateMatrixWorld(true);
+
+  // See `STANCE_TOE_PIN_DIVERGENCE_METERS`'s own header. Checked only at near-full weight: at
+  // partial weight (footfall/liftoff ramp) the target is deliberately only partly reached, so a
+  // large gap there is the ramp working as designed, not a wrong-branch solve.
+  if (w >= 0.9) {
+    const achieved = worldXz(toe);
+    const errorMeters = Math.hypot(achieved.x - input.anchorXz.x, achieved.z - input.anchorXz.z);
+    if (errorMeters > STANCE_TOE_PIN_DIVERGENCE_METERS) {
+      hip.quaternion.copy(savedHipQuat);
+      knee.quaternion.copy(savedKneeQuat);
+      hip.updateMatrixWorld(true);
+      knee.updateMatrixWorld(true);
+      toe.updateMatrixWorld(true);
+      return { applied: false, reachReleased: true };
+    }
+  }
   return { applied: true, reachReleased: false };
 }

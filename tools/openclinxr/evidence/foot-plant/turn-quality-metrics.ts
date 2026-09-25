@@ -30,6 +30,21 @@ export const FLOOR_PENETRATION_MIN_METERS = -0.005;
 export const STEP_LIFT_MIN_METERS = 0.015;
 export const PLANTED_SLIDE_MAX_METERS = 0.02;
 export const HEAD_LEAD_WITHIN_DEG = 10;
+/**
+ * A single-frame XZ toe jump above this is a teleport, not a step — a natural stride at 30-60 fps
+ * moves a few centimetres per frame at most. Flags a fake "step" produced by writing a toe bone's
+ * local position directly (moves only the toe, not the leg) rather than by real clip rotations —
+ * the trap this slice's own brief named explicitly.
+ */
+export const MAX_TOE_STEP_PER_FRAME_FLAG_METERS = 0.08;
+/**
+ * A single-frame XZ move of the STANCE-labelled foot above this is a plant defect — a stance foot
+ * has no clip rotation driving it and should not move at all frame to frame. Normal swing steps
+ * during walking run 0.06-0.10 m/frame (a swing foot peaks around 3 m/s) and must not trip this;
+ * only the foot currently labelled stance (and either foot across a stance-switch boundary, where
+ * the label itself is ambiguous for that one frame) is checked.
+ */
+export const STANCE_TOE_STEP_PER_FRAME_FLAG_METERS = 0.02;
 
 type Vec = { x: number; y: number; z: number };
 
@@ -66,6 +81,18 @@ export type TurnQuality = {
   plantedSlidePass: boolean | null;
   headLeadSeconds: number | null;
   headLeadPass: boolean | null;
+  /** Largest single-frame XZ toe displacement across the whole capture, either foot. */
+  maxToeStepPerFrameM: number | null;
+  /** True (a defect flag, not a pass/fail) when `maxToeStepPerFrameM` exceeds the teleport floor. */
+  maxToeStepPerFrameFlagged: boolean | null;
+  /**
+   * Largest single-frame XZ move of the foot labelled STANCE (or of either foot across a
+   * stance-switch boundary). Unlike `maxToeStepPerFrameM`, healthy swing steps do not trip this —
+   * only a stance (planted) foot moving, which real clip rotations should never produce.
+   */
+  stanceToeStepPerFrameM: number | null;
+  /** True (a defect flag, not a pass/fail) when `stanceToeStepPerFrameM` exceeds its floor. */
+  stanceToeStepPerFrameFlagged: boolean | null;
   allPass: boolean;
 };
 
@@ -81,6 +108,61 @@ function absoluteYawDelta(from: number, to: number): number {
 
 function dist2d(a: { x: number; z: number }, b: { x: number; z: number }): number {
   return Math.hypot(a.x - b.x, a.z - b.z);
+}
+
+/**
+ * Largest single-frame XZ displacement of either toe across consecutive samples in `frames`
+ * (whatever order/phases the caller passed — the whole capture by default). A frame-to-frame gap
+ * this large cannot come from real clip rotations at capture frame rate; it is the signature of a
+ * toe teleported by writing its local position directly, `MAX_TOE_STEP_PER_FRAME_FLAG_METERS`
+ * names the floor.
+ */
+function maxToeStepPerFrame(frames: readonly TurnQualityFrame[]): number | null {
+  let max = Number.NEGATIVE_INFINITY;
+  for (let index = 1; index < frames.length; index += 1) {
+    const previous = frames[index - 1];
+    const current = frames[index];
+    if (previous === undefined || current === undefined) continue;
+    for (const side of ["left", "right"] as const) {
+      const a = previous[side];
+      const b = current[side];
+      if (a === null || b === null) continue;
+      max = Math.max(max, dist2d(a, b));
+    }
+  }
+  return Number.isFinite(max) ? max : null;
+}
+
+/**
+ * Largest single-frame XZ move of the foot labelled STANCE across consecutive samples in
+ * `frames`, plus either foot during the two frames spanning a stance-switch boundary (the label
+ * itself is ambiguous for that transition, so both feet are checked there rather than assuming
+ * which one actually planted). Ignores frames with no stance label. A pinned stance foot should
+ * not move frame to frame at all; a healthy swing foot commonly moves 0.06-0.10 m/frame during
+ * walking and must not trip this metric the way `maxToeStepPerFrameM` does.
+ */
+function maxStanceToeStepPerFrame(frames: readonly TurnQualityFrame[]): number | null {
+  let max = Number.NEGATIVE_INFINITY;
+  for (let index = 1; index < frames.length; index += 1) {
+    const previous = frames[index - 1];
+    const current = frames[index];
+    if (previous === undefined || current === undefined) continue;
+    if (previous.stanceFoot !== "left" && previous.stanceFoot !== "right") continue;
+    if (current.stanceFoot !== "left" && current.stanceFoot !== "right") continue;
+    const stanceSwitched = previous.stanceFoot !== current.stanceFoot;
+    // Normal case: check only the foot BOTH frames agree is stance. Across a switch: check either
+    // foot, since the label just flipped and either side could be the one that actually planted.
+    const sidesToCheck: readonly ("left" | "right")[] = stanceSwitched
+      ? (["left", "right"] as const)
+      : ([current.stanceFoot] as const);
+    for (const side of sidesToCheck) {
+      const a = previous[side];
+      const b = current[side];
+      if (a === null || b === null) continue;
+      max = Math.max(max, dist2d(a, b));
+    }
+  }
+  return Number.isFinite(max) ? max : null;
 }
 
 /** Contiguous runs of settling-phase frames sharing the same swing (non-plant) foot. */
@@ -232,6 +314,20 @@ export function computeTurnQuality(input: TurnQualityInput): TurnQuality {
   const plantedSlidePass = plantedSlideM === null ? null : plantedSlideM <= PLANTED_SLIDE_MAX_METERS;
   const headLeadPass = headLeadSeconds === null ? null : headLeadSeconds > 0;
 
+  // (g) maxToeStepPerFrameM: over the WHOLE capture (walking + settling + arrived), so a teleport
+  // during any phase is caught, not only during the turn.
+  const maxToeStepPerFrameM = maxToeStepPerFrame(frames);
+  const maxToeStepPerFrameFlagged =
+    maxToeStepPerFrameM === null ? null : maxToeStepPerFrameM > MAX_TOE_STEP_PER_FRAME_FLAG_METERS;
+
+  // (h) stanceToeStepPerFrameM: over the WHOLE capture, same reasoning as (g) but scoped to the
+  // stance-labelled foot so healthy swing steps do not trip it.
+  const stanceToeStepPerFrameM = maxStanceToeStepPerFrame(frames);
+  const stanceToeStepPerFrameFlagged =
+    stanceToeStepPerFrameM === null
+      ? null
+      : stanceToeStepPerFrameM > STANCE_TOE_STEP_PER_FRAME_FLAG_METERS;
+
   return {
     residualTurnDeg,
     residualTurnPass,
@@ -245,6 +341,10 @@ export function computeTurnQuality(input: TurnQualityInput): TurnQuality {
     plantedSlidePass,
     headLeadSeconds,
     headLeadPass,
+    maxToeStepPerFrameM,
+    maxToeStepPerFrameFlagged,
+    stanceToeStepPerFrameM,
+    stanceToeStepPerFrameFlagged,
     allPass: [residualTurnPass, floorPenetrationPass, stepLiftPass, plantedSlidePass, headLeadPass].every(
       (pass) => pass === true,
     ),
@@ -286,6 +386,16 @@ function printReport(quality: TurnQuality): void {
     quality.plantedSlidePass,
   );
   line("headLeadSeconds", `${fmt(quality.headLeadSeconds, 3)} (target > 0)`, quality.headLeadPass);
+  line(
+    "maxToeStepPerFrameM",
+    `${fmt(quality.maxToeStepPerFrameM, 5)} (flag > ${MAX_TOE_STEP_PER_FRAME_FLAG_METERS})`,
+    quality.maxToeStepPerFrameFlagged === null ? null : !quality.maxToeStepPerFrameFlagged,
+  );
+  line(
+    "stanceToeStepPerFrameM",
+    `${fmt(quality.stanceToeStepPerFrameM, 5)} (flag > ${STANCE_TOE_STEP_PER_FRAME_FLAG_METERS})`,
+    quality.stanceToeStepPerFrameFlagged === null ? null : !quality.stanceToeStepPerFrameFlagged,
+  );
 }
 
 const invokedAsScript =
