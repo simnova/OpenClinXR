@@ -314,24 +314,15 @@ export type BedsideApproachRuntimeEvidence = {
      * heading.
      */
     headYawWorldRadians: number | null;
-    /**
-     * Knee flexion, in degrees, read off `hip->knee` vs `knee->heel` world vectors — 0 deg is a
-     * straight leg, larger is more bent. Published for BOTH legs every frame (stance or swing)
-     * regardless of which the lock is currently pinning, so a knee-pop (a large frame-to-frame
-     * jump) can be attributed to the correct leg. Null when the named bones are not on the rig.
-     */
+    /** Knee flexion in degrees (`hip->knee` vs `knee->heel`), both legs every frame regardless of
+     * which the lock pins, so a knee-pop attributes to the correct leg. Null off-rig. */
     kneeFlexionDeg: { left: number | null; right: number | null };
-    /**
-     * DEBUG/DIAGNOSTIC for the turn-jump investigation: whether `applyStanceToeXzPin` released
-     * (raw clip pose, not the pin) THIS frame, per side. Null when the pin was not attempted
-     * (weight 0, e.g. no settling turn active). Not part of `notEvidenceFor`'s claim scope.
-     */
+    /** DEBUG/DIAGNOSTIC — see `footBoneHeightMetersFor`'s own header. */
+    footBoneHeightMeters: { left: number | null; right: number | null };
+    /** DEBUG/DIAGNOSTIC: whether the pin released (raw clip pose) this frame; null if not attempted. */
     pinReachReleased?: { left: boolean | null; right: boolean | null };
     /** DEBUG/DIAGNOSTIC: this frame's pin anchor + weight per side. */
-    pinDebug?: {
-      left: { anchorXz: { x: number; z: number } | null; weight: number };
-      right: { anchorXz: { x: number; z: number } | null; weight: number };
-    };
+    pinDebug?: { left: { anchorXz: { x: number; z: number } | null; weight: number }; right: { anchorXz: { x: number; z: number } | null; weight: number } };
   }>;
   startWorld: { x: number; y: number; z: number } | null;
   targetWorld: { x: number; y: number; z: number } | null;
@@ -390,6 +381,16 @@ function kneeFlexionDegreesFor(actorSlot: Object3D, side: "left" | "right"): num
   return (Math.acos(Math.max(-1, Math.min(1, dot))) * 180) / Math.PI;
 }
 
+/** DEBUG/DIAGNOSTIC: HEEL/FOOT bone height above floor beside the published TOE height — the pin
+ * solves hip+knee only, foot/toe rotation is whatever the mixer wrote. */
+function footBoneHeightMetersFor(actorSlot: Object3D, side: "left" | "right", floorOriginY: number): number | null {
+  const chain = findStanceChain(actorSlot, side);
+  if (chain === null) return null;
+  chain.heel.updateMatrixWorld(true);
+  const heelW = worldOf(chain.heel);
+  return heelW === null ? null : heelW.y - floorOriginY;
+}
+
 /**
  * Publish this frame's observation onto the page, when there is a page to publish to.
  *
@@ -445,6 +446,10 @@ export function publishBedsideApproachRuntimeEvidence(
       kneeFlexionDeg: {
         left: kneeFlexionDegreesFor(approach.actorSlot, "left"),
         right: kneeFlexionDegreesFor(approach.actorSlot, "right"),
+      },
+      footBoneHeightMeters: {
+        left: footBoneHeightMetersFor(approach.actorSlot, "left", approach.floorOriginY),
+        right: footBoneHeightMetersFor(approach.actorSlot, "right", approach.floorOriginY),
       },
       pinReachReleased: approach.clipTurn?.reachReleasedThisFrame ?? null,
       pinDebug: approach.clipTurn?.pinDebugThisFrame ?? null,

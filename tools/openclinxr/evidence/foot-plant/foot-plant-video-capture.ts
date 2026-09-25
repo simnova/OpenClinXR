@@ -80,6 +80,7 @@ type RuntimeSample = {
   travelledMeters?: number;
   correctionMeters?: { x: number; z: number };
   kneeFlexionDeg?: { left: number | null; right: number | null };
+  footBoneHeightMeters?: { left: number | null; right: number | null };
   /** DEBUG/DIAGNOSTIC for the turn-jump investigation — see station-bedside-approach-mod.ts. */
   pinReachReleased?: { left: boolean | null; right: boolean | null } | null;
   pinDebug?: {
@@ -164,6 +165,7 @@ type FootPlantVideoReport = {
     travelledMeters: number | null;
     correctionMeters: { x: number; z: number } | null;
     kneeFlexionDeg: { left: number | null; right: number | null } | null;
+    footBoneHeightMeters: { left: number | null; right: number | null } | null;
     /** DEBUG/DIAGNOSTIC for the turn-jump investigation — see station-bedside-approach-mod.ts. */
     pinReachReleased: { left: boolean | null; right: boolean | null } | null;
     pinDebug: {
@@ -2248,6 +2250,7 @@ async function main(): Promise<void> {
           travelledMeters: s.travelledMeters ?? null,
           correctionMeters: s.correctionMeters ?? null,
           kneeFlexionDeg: s.kneeFlexionDeg ?? null,
+          footBoneHeightMeters: s.footBoneHeightMeters ?? null,
           pinReachReleased: s.pinReachReleased ?? null,
           pinDebug: s.pinDebug ?? null,
         })),
