@@ -22,6 +22,13 @@ import {
  */
 const SETTLE_TURN_TOLERANCE_RADIANS = (2 * Math.PI) / 180;
 
+/** Toe height above floor that counts as "lifted" for the stance-switch hold below — half the
+ * natural ~1.5-2 cm swing clearance this codebase already uses elsewhere as a lift floor. */
+const STANCE_LIFT_RELEASE_METERS = 0.015;
+/** Release-ramp rate once a held foot is allowed to let go: >= 4 frames, slower than the 3-frame
+ * footfall ramp (`STANCE_TOE_PIN_RAMP_STEP`) — a release is not a footfall. */
+const STANCE_TOE_PIN_RELEASE_STEP = 1 / 4;
+
 /**
  * The arrival turn, driven by the walk clip's own steps instead of a procedural rotate-and-slide.
  *
@@ -266,29 +273,35 @@ export function applyClipDrivenSettlingTurn(input: {
   const pinSides: readonly StanceFoot[] = ["left", "right"];
   for (const side of pinSides) {
     const toe = side === "left" ? input.leftToe : input.rightToe;
-    // HOLD THE OLD STANCE FOOT UNTIL THE HANDOFF IS CONFIRMED (measured 2026-09-25, turn-jump
-    // investigation; coordinator direction: "a stance switch should hand the old stance foot to
-    // swing only after it has lifted"). The raw PER-SAMPLE clip label (`labelled[side]`) can go
-    // false a few frames before the REPORTED switch (`stanceFootForY`, computed above from the
-    // smoothed `downFoot`/`phaseFoot`) — MEASURED on the real capture
-    // (`.openclinxr/evidence/foot-plant-video/foot-plant-video.json`): the left foot's pin weight
-    // started ramping down at sample 65 (1 -> 0.667 -> 0.333 -> ~0) while `stanceFoot` was still
-    // reported "left" through sample 66, so the pin's own correction weakened and the toe drifted
-    // 0.053, 0.122, 0.095 m across those three frames — growing as weight fell, not a footfall. A
-    // foot now counts as stance for the PIN as long as EITHER the raw label says so (so the
-    // INCOMING foot can still start ramping up early, preserving double-support overlap) OR it is
-    // still the currently-REPORTED stance foot (so the OUTGOING foot cannot start releasing before
-    // its own reported handoff), never anticipating a switch the rest of this function has not
-    // committed to yet.
-    const isStance = (labelled !== null && labelled[side]) || side === stanceFootForY;
+    const otherSide: StanceFoot = side === "left" ? "right" : "left";
+    // HOLD THE OLD STANCE FOOT UNTIL IT HAS ACTUALLY LEFT THE FLOOR (measured 2026-09-25,
+    // coordinator direction, second pass). The prior gate (reported `stanceFootForY`) still let a
+    // GROUNDED foot start releasing: MEASURED on the real capture — the left toe's own height
+    // stayed 0.005-0.007 m (never lifting) for the WHOLE sample 60-68 window while its pin weight
+    // ramped 1 -> 0.667 -> 0.333 -> 0 across samples 66-68 and its XZ position slid 0.076, 0.086,
+    // 0.096 m PER FRAME — a planted foot dragged along the floor as its correction weakened, not a
+    // footfall. `stanceFootForY` switches on the clip's own raw label, which is not evidence the
+    // foot is actually off the ground (leg-weight-blended settling shrinks swing LIFT too — see
+    // `station-bedside-approach-mod.ts`'s `footBoneHeightMeters`). So: a foot held stance (weight
+    // > 0) keeps that hold — regardless of the raw label or `stanceFootForY` — until EITHER its own
+    // toe clears `STANCE_LIFT_RELEASE_METERS` above the floor, OR the OTHER foot's raw label
+    // confirms it is down (the escape hatch: do not hold forever if this foot genuinely never
+    // lifts in this clip). Only past that does it ramp down, over >= 4 frames
+    // (`STANCE_TOE_PIN_RELEASE_STEP`), not the 3-frame footfall ramp.
+    const toeHeightAboveFloor = toe !== null ? worldXyz(toe).y - input.floorOriginY : null;
+    const liftedEnough = toeHeightAboveFloor !== null && toeHeightAboveFloor >= STANCE_LIFT_RELEASE_METERS;
+    const otherFootDown = labelled !== null && labelled[otherSide] === true;
+    const rawStance = labelled !== null && labelled[side];
     const current = pin[side];
+    const heldAndGrounded = current.weight > 0 && !liftedEnough && !otherFootDown;
+    const isStance = rawStance || side === stanceFootForY || heldAndGrounded;
     let anchorXz = current.anchorXz;
     let weight = current.weight;
     if (isStance) {
       if (anchorXz === null && toe !== null) anchorXz = worldXz(toe);
       weight = Math.min(1, weight + STANCE_TOE_PIN_RAMP_STEP);
     } else {
-      weight = Math.max(0, weight - STANCE_TOE_PIN_RAMP_STEP);
+      weight = Math.max(0, weight - STANCE_TOE_PIN_RELEASE_STEP);
       if (weight === 0) anchorXz = null;
     }
     pin = { ...pin, [side]: { anchorXz, weight } };
