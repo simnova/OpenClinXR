@@ -1,11 +1,17 @@
 #!/usr/bin/env node
+import type { IncomingMessage, ServerResponse } from "node:http";
 /**
  * Local OpenAI-compatible proxy: Muse → OpenRouter then OpenCode Go;
  * DeepSeek → Go then OpenRouter. Failover on 401/402/403/408/429/5xx
  * and network errors. Secrets from env only.
  */
 import http from "node:http";
-import type { IncomingMessage, ServerResponse } from "node:http";
+import {
+  goResponsesJsonToChatCompletion,
+  goResponsesStreamToChatChunks,
+  sseFromChatMessage,
+  translateChatRequestToGoResponses,
+} from "./provider-failover-go-responses.ts";
 
 export const DEFAULT_PORT = 38450;
 export const FAILOVER_STATUSES = new Set([401, 402, 403, 408, 429, 500, 502, 503, 504]);
@@ -161,68 +167,7 @@ export function isEmptyCompletion(body: unknown): boolean {
   return content === undefined || content === null || content === "";
 }
 
-/**
- * Returns true if the request can be safely translated to Go /responses.
- * The translation only supports a single user turn with no tools, no assistant/tool messages.
- */
-function canFailoverToGoResponses(body: Record<string, unknown>): boolean {
-  const messages = body.messages;
-  if (!Array.isArray(messages)) return false;
-  // Must have exactly one non-system message, and it must be a user message
-  let nonSystemCount = 0;
-  for (const m of messages) {
-    const role = (m as { role?: string })?.role;
-    if (role === "system") continue;
-    nonSystemCount += 1;
-    if (role !== "user") return false;
-  }
-  if (nonSystemCount !== 1) return false;
-  // No tools or tool_choice allowed
-  if (body.tools !== undefined || body.tool_choice !== undefined) return false;
-  return true;
-}
-
-function lastUserText(messages: unknown): string {
-  if (!Array.isArray(messages)) return "";
-  for (let i = messages.length - 1; i >= 0; i -= 1) {
-    const m = messages[i] as { role?: string; content?: unknown };
-    if (m?.role !== "user") continue;
-    if (typeof m.content === "string") return m.content;
-    if (Array.isArray(m.content)) {
-      return m.content
-        .map((p) => (typeof p === "string" ? p : (p as { text?: string })?.text ?? ""))
-        .join("\n");
-    }
-  }
-  return "";
-}
-
-export function chatToGoResponses(body: Record<string, unknown>, model: string): Record<string, unknown> {
-  const text = lastUserText(body.messages);
-  return { model, input: text || JSON.stringify(body.messages ?? "") };
-}
-
-export function goResponsesToChat(raw: unknown, model: string): Record<string, unknown> {
-  const d = raw as {
-    output?: Array<{ content?: Array<{ text?: string }>; text?: string }>;
-    output_text?: string;
-  };
-  let content = "";
-  if (typeof d?.output_text === "string") content = d.output_text;
-  else if (Array.isArray(d?.output)) {
-    content = d.output
-      .flatMap((o) => o.content ?? [])
-      .map((c) => c.text ?? "")
-      .join("");
-  }
-  return {
-    id: "failover-go-muse",
-    object: "chat.completion",
-    created: Math.floor(Date.now() / 1000),
-    model,
-    choices: [{ index: 0, finish_reason: "stop", message: { role: "assistant", content } }],
-  };
-}
+export { chatToGoResponses, goResponsesToChat } from "./provider-failover-go-responses.ts";
 
 /**
  * True when the response body carries Server-Sent Events rather than one JSON document.
@@ -294,20 +239,6 @@ export function streamHasToolCalls(text: string): boolean {
   return false;
 }
 
-/** Renders one whole completion as an event stream for a client that asked for streaming. */
-function sseFromContent(content: string, model: string): string {
-  const created = Math.floor(Date.now() / 1000);
-  const chunk = (delta: unknown, finishReason?: string): string =>
-    `data: ${JSON.stringify({
-      id: "failover-stream",
-      object: "chat.completion.chunk",
-      created,
-      model,
-      choices: [{ index: 0, delta, finish_reason: finishReason ?? null }],
-    })}\n\n`;
-  return `${chunk({ role: "assistant" })}${chunk({ content })}${chunk({}, "stop")}data: [DONE]\n\n`;
-}
-
 export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
 
 export type ForwardResult = {
@@ -345,23 +276,28 @@ export async function forwardChat(opts: {
       continue;
     }
     const useGoResponses = up.name === "go" && up.model === "muse-spark-1.3-contributor";
-    // The /responses translation carries only the last user text: tools, system prompt and prior
-    // turns are dropped, so a failed-over agent turn would get a context-free answer. Such a request
-    // is not failed over. The primary's own error goes back and the client's retry handles it. The
+    // Full-request translation (system prompt, tools, tool_calls, tool results, history) — see
+    // provider-failover-go-responses.ts. Refusal is now the RESIDUAL case: a content part the
+    // translation cannot render as text (e.g. an image). The primary's own error goes back and the
     // Go circuit is untouched because Go was never called.
-    if (useGoResponses && !canFailoverToGoResponses(opts.body)) {
-      return (
-        last ?? {
-          status: 502,
-          json: { error: { message: "cannot fail over this request to the Go /responses translation" } },
-          via: "go-translation-refused",
-        }
-      );
+    let goTranslation: ReturnType<typeof translateChatRequestToGoResponses> | undefined;
+    if (useGoResponses) {
+      goTranslation = translateChatRequestToGoResponses(opts.body, up.model, wantStream);
+      if (!goTranslation.ok) {
+        return (
+          last ?? {
+            status: 502,
+            json: { error: { message: goTranslation.reason } },
+            via: "go-translation-refused",
+          }
+        );
+      }
     }
     const path = useGoResponses ? "/responses" : "/chat/completions";
-    const payload = useGoResponses
-      ? chatToGoResponses(opts.body, up.model)
-      : { ...opts.body, model: up.model, stream: wantStream };
+    const payload =
+      useGoResponses && goTranslation?.ok
+        ? goTranslation.payload
+        : { ...opts.body, model: up.model, stream: wantStream };
     const headers: Record<string, string> = {
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
@@ -376,10 +312,18 @@ export async function forwardChat(opts: {
       });
       const text = await res.text();
       if (res.ok && isSseResponse(res) && useGoResponses) {
-        // Responses-API events are not chat.completion.chunk objects, and a chat client cannot parse
-        // them. The translation never asks Go to stream, so an event stream here is a failure.
-        breaker.recordFailure(up.name, 500);
-        return { status: 502, json: { error: { message: "Go /responses answered as an event stream" } }, via: up.name };
+        // Go answered our /responses translation as an event stream (the normal case when the
+        // client asked to stream) — parse it into chat.completion.chunk SSE for the client.
+        const converted = goResponsesStreamToChatChunks(text, up.model);
+        if (!converted.hasContent && !converted.hasToolCalls) {
+          breaker.recordFailure(up.name, 500);
+          last = { status: 200, json: { error: { message: "empty streamed completion" } }, via: up.name };
+          if (up === order[order.length - 1]) return last;
+          continue;
+        }
+        breaker.recordSuccess(up.name);
+        const json = { choices: [{ index: 0, finish_reason: converted.finishReason, message: { role: "assistant" } }] };
+        return { status: 200, json, via: up.name, sse: converted.sse, contentType: "text/event-stream" };
       }
       if (res.ok && isSseResponse(res)) {
         const content = accumulateStreamContent(text);
@@ -408,7 +352,7 @@ export async function forwardChat(opts: {
         json = { error: { message: text.slice(0, 400) } };
       }
       if (res.ok) {
-        if (useGoResponses) json = goResponsesToChat(json, up.model);
+        if (useGoResponses) json = goResponsesJsonToChatCompletion(json, up.model);
         if (isEmptyCompletion(json)) {
           // HTTP 200 with empty body — treat as transient failure, failover.
           // Status 500 routes to TRANSIENT_COOLDOWN_MS (30 s) in cooldownMsFor:
@@ -420,14 +364,18 @@ export async function forwardChat(opts: {
         }
         breaker.recordSuccess(up.name);
         if (wantStream) {
-          const first = (json as { choices?: Array<{ message?: { content?: unknown } }> })?.choices?.[0];
-          const content = first?.message?.content;
-          if (typeof content === "string" && content !== "") {
+          const first = (
+            json as { choices?: Array<{ message?: { content?: unknown; tool_calls?: unknown } }> }
+          )?.choices?.[0];
+          const message = first?.message as { content?: unknown; tool_calls?: Array<{ id: string; type: "function"; function: { name: string; arguments: string } }> } | undefined;
+          const hasContent = typeof message?.content === "string" && message.content !== "";
+          const hasToolCalls = Array.isArray(message?.tool_calls) && message.tool_calls.length > 0;
+          if (message && (hasContent || hasToolCalls)) {
             return {
               status: 200,
               json,
               via: up.name,
-              sse: sseFromContent(content, up.model),
+              sse: sseFromChatMessage(message, up.model),
               contentType: "text/event-stream",
             };
           }

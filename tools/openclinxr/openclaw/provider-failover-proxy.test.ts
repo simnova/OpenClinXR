@@ -1,18 +1,29 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import type { Server } from "node:http";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { afterEach, describe, expect, it } from "vitest";
 import {
+  goResponsesJsonToChatCompletion,
+  goResponsesStreamToChatChunks,
+  translateChatRequestToGoResponses,
+} from "./provider-failover-go-responses.ts";
+import {
+  CircuitBreaker,
+  chatToGoResponses,
+  cooldownMsFor,
   createServer,
+  DEFAULT_PORT,
   forwardChat,
+  goResponsesToChat,
+  QUOTA_COOLDOWN_MS,
   routeFor,
   shouldFailover,
-  chatToGoResponses,
-  goResponsesToChat,
-  CircuitBreaker,
-  cooldownMsFor,
-  QUOTA_COOLDOWN_MS,
   TRANSIENT_COOLDOWN_MS,
-  DEFAULT_PORT,
 } from "./provider-failover-proxy.ts";
+
+const FIXTURES_DIR = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__");
+const readFixture = (name: string): string => readFileSync(join(FIXTURES_DIR, name), "utf8");
 
 describe("provider-failover-proxy", () => {
   it("routes muse to OpenRouter then Go", () => {
@@ -184,48 +195,65 @@ describe("provider-failover HTTP server", () => {
   });
 });
 
-describe("provider-failover: tool requests do not fail over to Go", () => {
-  it("tool-calling streamed request with OpenRouter 500 returns 500 and never calls Go", async () => {
+// ## CHANGED (2026-09-24): this describe block used to prove tool requests were REFUSED
+// (canFailoverToGoResponses) because the old translation carried only the last user text, so
+// grok's agentic turns never failed over. translateChatRequestToGoResponses now carries the full
+// request — system prompt, tools, history, tool_calls and tool results — across the wire, so these
+// scenarios now assert the opposite: Go IS called and the client gets a valid tool_calls stream.
+// The refusal path still exists for a genuinely untranslatable request (e.g. image content).
+describe("provider-failover: tool requests fail over to Go", () => {
+  it("## CHANGED: tool-calling streamed request with OpenRouter 500 fails over to Go and returns a tool_calls delta", async () => {
     process.env.OPENROUTER_API_KEY = "or-test";
     process.env.OPENCODE_API_KEY = "go-test";
     const calls: string[] = [];
+    const goToolCallSse = readFixture("go-responses-tool-call.sse");
     const fetchImpl: typeof fetch = async (url) => {
       calls.push(String(url));
       if (String(url).includes("openrouter")) {
         return new Response(JSON.stringify({ error: { message: "upstream error" } }), { status: 500 });
       }
-      // Go should never be called
-      return new Response(JSON.stringify({ output_text: "FROM_GO" }), { status: 200 });
+      return new Response(goToolCallSse, { status: 200, headers: { "content-type": "text/event-stream" } });
     };
     const out = await forwardChat({
       body: {
         model: "muse-spark-1",
         stream: true,
-        tools: [{ type: "function", function: { name: "test_fn", description: "test", parameters: { type: "object", properties: {} } } }],
+        tools: [{ type: "function", function: { name: "get_weather", description: "test", parameters: { type: "object", properties: {} } } }],
         messages: [
           { role: "system", content: "You are a test assistant" },
-          { role: "user", content: "hello" },
+          { role: "user", content: "What is the weather in Boston?" },
         ],
       },
       route: routeFor("muse-spark-1")!,
       fetchImpl,
       breaker: new CircuitBreaker(),
     });
-    // Should return the primary error, not failover
-    expect(out.status).toBe(500);
-    expect(out.via).toBe("openrouter");
-    // Go should never have been called
-    expect(calls.filter((u) => u.includes("opencode.ai"))).toHaveLength(0);
+    expect(out.status).toBe(200);
+    expect(out.via).toBe("go");
+    expect(calls.filter((u) => u.includes("opencode.ai"))).toHaveLength(1);
+    const dataLines = (out.sse as string).split("\n").filter((l) => l.startsWith("data:") && l.slice(5).trim() !== "[DONE]");
+    const chunks = dataLines.map((l) => JSON.parse(l.slice(5).trim()));
+    for (const chunk of chunks) expect(chunk.object).toBe("chat.completion.chunk");
+    const toolChunks = chunks.filter((c) => c.choices[0].delta.tool_calls);
+    expect(toolChunks.length).toBeGreaterThan(0);
+    expect(toolChunks[0].choices[0].delta.tool_calls[0].function.name).toBe("get_weather");
+    const args = toolChunks.map((c) => c.choices[0].delta.tool_calls[0].function.arguments ?? "").join("");
+    expect(args).toContain("Boston");
+    expect(chunks.at(-1).choices[0].finish_reason).toBe("tool_calls");
   });
 
-  it("a refused tool request leaves the Go circuit closed", async () => {
+  it("## CHANGED: a request with an untranslatable content part (image) leaves the Go circuit closed", async () => {
     process.env.OPENROUTER_API_KEY = "or-test";
     process.env.OPENCODE_API_KEY = "go-test";
     const breaker = new CircuitBreaker();
     const fetchImpl: typeof fetch = async () =>
       new Response(JSON.stringify({ error: { message: "upstream error" } }), { status: 500 });
     await forwardChat({
-      body: { model: "muse-spark-1", stream: true, tools: [{ type: "function", function: { name: "f" } }], messages: [{ role: "user", content: "hi" }] },
+      body: {
+        model: "muse-spark-1",
+        stream: true,
+        messages: [{ role: "user", content: [{ type: "image_url", image_url: { url: "https://example.com/x.png" } }] }],
+      },
       route: routeFor("muse-spark-1")!,
       fetchImpl,
       breaker,
@@ -234,7 +262,7 @@ describe("provider-failover: tool requests do not fail over to Go", () => {
     expect(breaker.snapshot()["go"]).toBeUndefined();
   });
 
-  it("a multi-turn request with an assistant turn is not failed over either", async () => {
+  it("## CHANGED: a multi-turn request with an assistant turn now fails over too", async () => {
     process.env.OPENROUTER_API_KEY = "or-test";
     process.env.OPENCODE_API_KEY = "go-test";
     let goCalled = false;
@@ -249,19 +277,18 @@ describe("provider-failover: tool requests do not fail over to Go", () => {
       fetchImpl,
       breaker: new CircuitBreaker(),
     });
-    expect(out.status).toBe(503);
-    expect(goCalled).toBe(false);
+    expect(out.status).toBe(200);
+    expect(out.via).toBe("go");
+    expect(goCalled).toBe(true);
   });
 
-  it("a Go event-stream answer is a failure, never passed through raw", async () => {
+  it("## CHANGED: a Go event-stream text answer now parses into valid content chunks instead of failing", async () => {
     process.env.OPENROUTER_API_KEY = "or-test";
     process.env.OPENCODE_API_KEY = "go-test";
+    const goTextSse = readFixture("go-responses-text.sse");
     const fetchImpl: typeof fetch = async (url) => {
       if (String(url).includes("openrouter")) return new Response("{}", { status: 500 });
-      return new Response('event: response.output_text.delta\ndata: {"type":"response.output_text.delta","delta":"X"}\n\n', {
-        status: 200,
-        headers: { "content-type": "text/event-stream" },
-      });
+      return new Response(goTextSse, { status: 200, headers: { "content-type": "text/event-stream" } });
     };
     const out = await forwardChat({
       body: { model: "muse-spark-1", stream: true, messages: [{ role: "user", content: "hi" }] },
@@ -269,8 +296,56 @@ describe("provider-failover: tool requests do not fail over to Go", () => {
       fetchImpl,
       breaker: new CircuitBreaker(),
     });
-    expect(out.status).toBe(502);
-    expect(out.sse).toBeUndefined();
+    expect(out.status).toBe(200);
+    expect(out.via).toBe("go");
+    expect(out.sse).toBeDefined();
+    const converted = goResponsesStreamToChatChunks(goTextSse, "muse-spark-1.3-contributor");
+    expect(converted.hasContent).toBe(true);
+    expect(converted.finishReason).toBe("stop");
+  });
+
+  it("translates a follow-up turn (assistant tool_call + tool result) into function_call / function_call_output items", () => {
+    const result = translateChatRequestToGoResponses(
+      {
+        messages: [
+          { role: "user", content: "What is the weather in Boston?" },
+          {
+            role: "assistant",
+            content: null,
+            tool_calls: [{ id: "call_1", type: "function", function: { name: "get_weather", arguments: '{"city":"Boston"}' } }],
+          },
+          { role: "tool", tool_call_id: "call_1", content: '{"tempF":52,"condition":"cloudy"}' },
+        ],
+      },
+      "muse-spark-1.3-contributor",
+      true,
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error("unreachable");
+    const input = result.payload.input as Array<Record<string, unknown>>;
+    expect(input[0]).toMatchObject({ type: "message", role: "user" });
+    expect(input[1]).toMatchObject({ type: "function_call", call_id: "call_1", name: "get_weather", arguments: '{"city":"Boston"}' });
+    expect(input[2]).toMatchObject({ type: "function_call_output", call_id: "call_1", output: '{"tempF":52,"condition":"cloudy"}' });
+  });
+
+  it("the recorded fixtures round-trip through the translator", () => {
+    const text = goResponsesStreamToChatChunks(readFixture("go-responses-text.sse"), "m");
+    expect(text.hasContent).toBe(true);
+    expect(text.finishReason).toBe("stop");
+
+    const tool = goResponsesStreamToChatChunks(readFixture("go-responses-tool-call.sse"), "m");
+    expect(tool.hasToolCalls).toBe(true);
+    expect(tool.finishReason).toBe("tool_calls");
+    expect(tool.sse).toContain("get_weather");
+    expect(tool.sse).toContain("Boston");
+
+    const followup = goResponsesStreamToChatChunks(readFixture("go-responses-followup.sse"), "m");
+    expect(followup.hasContent).toBe(true);
+    expect(followup.finishReason).toBe("stop");
+    expect(followup.sse).toContain("52");
+
+    const nonStream = goResponsesJsonToChatCompletion({ output_text: "ALIVE" }, "m");
+    expect((nonStream.choices as Array<{ message: { content: string } }>)[0]?.message.content).toBe("ALIVE");
   });
 
   it("plain single-turn streamed request with OpenRouter 500 and Go JSON response produces valid chat.completion.chunk events", async () => {
@@ -328,16 +403,20 @@ describe("provider-failover HTTP server: tool requests", () => {
     server = undefined;
   });
 
-  it("tool request with OpenRouter 500 returns upstream error status, not 200 event stream", async () => {
+  // ## CHANGED (2026-09-24): used to prove a tool request was refused and never reached Go
+  // (500 from OpenRouter, no failover). Now the full request translates, so it fails over end to
+  // end through the real HTTP server and the client receives a valid tool_calls SSE stream.
+  it("## CHANGED: tool request with OpenRouter 500 fails over to Go through the HTTP server", async () => {
     process.env.OPENROUTER_API_KEY = "or-test";
     process.env.OPENCODE_API_KEY = "go-test";
     let goCalled = false;
+    const goToolCallSse = readFixture("go-responses-tool-call.sse");
     const fetchImpl: typeof fetch = async (url) => {
       if (String(url).includes("openrouter")) {
         return new Response(JSON.stringify({ error: { message: "upstream error" } }), { status: 500 });
       }
       goCalled = true;
-      return new Response(JSON.stringify({ output_text: "FROM_GO" }), { status: 200 });
+      return new Response(goToolCallSse, { status: 200, headers: { "content-type": "text/event-stream" } });
     };
     server = createServer(fetchImpl, new CircuitBreaker());
     await new Promise<void>((resolve) => server!.listen(0, "127.0.0.1", resolve));
@@ -349,17 +428,19 @@ describe("provider-failover HTTP server: tool requests", () => {
       body: JSON.stringify({
         model: "muse-spark-1",
         stream: true,
-        tools: [{ type: "function", function: { name: "test_fn", description: "test", parameters: { type: "object", properties: {} } } }],
+        tools: [{ type: "function", function: { name: "get_weather", description: "test", parameters: { type: "object", properties: {} } } }],
         messages: [
           { role: "system", content: "You are a test assistant" },
-          { role: "user", content: "hello" },
+          { role: "user", content: "What is the weather in Boston?" },
         ],
       }),
     });
-    // Should return 500, not a 200 event stream
-    expect(res.status).toBe(500);
-    expect(goCalled).toBe(false);
-    const body = await res.json();
-    expect(body.error).toBeDefined();
+    expect(res.status).toBe(200);
+    expect(goCalled).toBe(true);
+    expect(res.headers.get("content-type")).toContain("text/event-stream");
+    expect(res.headers.get("x-openclinxr-via")).toBe("go");
+    const text = await res.text();
+    expect(text).toContain("get_weather");
+    expect(text).toContain('"finish_reason":"tool_calls"');
   });
 });
