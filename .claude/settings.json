@@ -5,8 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node",
-            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/skill-preflight.js"],
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/skill-preflight.js\"",
             "timeout": 5
           }
         ]
@@ -18,8 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node",
-            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/bothy-board-token-guard.js"],
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/bothy-board-token-guard.js\"",
             "timeout": 5
           }
         ]
@@ -31,8 +29,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node",
-            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/bothy-board-token-guard.js", "--post"],
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/bothy-board-token-guard.js\" --post",
             "timeout": 5
           }
         ]
