@@ -1431,3 +1431,194 @@ is caused by the runtime's foot-lock IK interacting differently with Kimodo's st
 shipped clip's, or is a downstream consequence of the heading deviation itself (the character
 walking a different, possibly longer or more corrective path); clinical usability of any of this
 motion (no clinical review was performed at any point in this cagematch).
+
+---
+
+# Round 10, same day — test Kimodo in the role the runtime actually uses: a looping walk cycle, not a scripted approach
+
+Coordinator, after grading round 9's runtime graft: the head match and the runtime-graft mechanism
+are good, but the 108.7 deg heading error is a category mismatch, not a retarget defect. The
+runtime treats the locomotion clip as a looping walk CYCLE — it measures the clip's own forward
+travel to set heading (`travelYawForClipForward`) and does the final turn itself, via the settling
+turn. A whole walk+turn+stop clip's measured "forward" is skewed by the turn baked into it. Correct
+test: generate a straight, constant-heading calm walk, cut one clean loopable cycle from the steady
+middle, and run THAT through the runtime.
+
+## 1. Straight, constant-heading walk, 3 seeds, cut to one loopable cycle
+
+Constraint set built directly from `kimodo/constraints.py`'s own `Root2DConstraintSet` API (read
+from source, not guessed): `frame_indices` = every frame (105, dense, matching round 3's own
+pattern), `smooth_root_2d` linearly interpolated from (0, 0) to (0, 3.6) m — straight along Z, no
+lateral drift — and `global_root_heading` held CONSTANT at `[cos(0), sin(0)]` for every frame (no
+turn scheduled at all, unlike round 3's deliberate 90 degree schedule). Script:
+`.openclinxr/kimodo-scratch/build_straight_walk_constraints.py` (not committed, scratch).
+
+```sh
+python3 build_straight_walk_constraints.py straight_walk_constraints.json
+kimodo_gen "A physician walks calmly and steadily in a straight line." \
+  --model Kimodo-SOMA-RP-v1.1 --duration 3.5 --diffusion_steps 20 --seed <42|7|1001> \
+  --constraints straight_walk_constraints.json --no-postprocess --bvh --output straight_walk_seed<N>
+```
+
+**Constraint tracking, all 3 seeds** (read from each seed's own `root_positions` /
+`global_root_heading` output arrays):
+
+| seed | root Z travelled (m, target 3.6) | heading range (deg, target 0) |
+|---|---|---|
+| 42 | 3.677 | -0.58 to 0.81 |
+| 7 | 3.671 | -0.74 to 0.73 |
+| 1001 | 3.652 | -0.76 to 0.72 |
+
+Both constraints track cleanly on every seed — under 2.5% distance error, under 1 degree of
+heading drift, no turn leaking in.
+
+**Loop cycle: one full stride (two steps) cut from the steady middle, using Kimodo's own
+foot-contact labels to find the boundary** — a full period runs from one left-heel-strike to the
+next, avoiding the transient first/last ~10 frames of the 105-frame clip:
+
+| seed | cycle (frames) | duration (s) | stride length (m) | speed (m/s) |
+|---|---|---|---|---|
+| 42 | 34→69 (35) | 1.167 | 1.274 | 1.092 |
+| 7 | 23→60 (37) | 1.233 | 1.360 | 1.103 |
+| 1001 | 25→61 (36) | 1.200 | 1.267 | 1.056 |
+
+**Loop-seam pose delta**, measured two ways. First on the raw source positions (relative to hips,
+`posed_joints` frame `f0` vs `f1` of the cycle boundary above — the boundary frame and its repeat,
+not the exported sub-clip):
+
+| seed | mean joint delta (m) | max joint delta (m) | joint |
+|---|---|---|---|
+| 42 | 0.0076 | 0.0240 | LeftHandMiddle1 (fingertip) |
+| 7 | 0.0226 | 0.0739 | LeftToeEnd |
+| 1001 | 0.0113 | 0.0343 | LeftHandMiddle1 (fingertip) |
+
+Second, ground truth on the ACTUAL BAKED target GLB (137 bones, relative to root, first vs last
+frame of the exported cycle clip — this also picks up any residual root-orientation mismatch the
+source-only check cannot see):
+
+| seed | mean bone delta (m) | max bone delta (m) | bone |
+|---|---|---|---|
+| 42 | 0.0162 | 0.0496 | foot.L |
+| 7 | 0.0197 | 0.0431 | foot.L |
+| 1001 | 0.0217 | 0.0576 | lowerleg01.L |
+
+All three seeds close cleanly — small, plausible seam magnitudes (foot/shin bones, which are
+genuinely mid-motion at a stride boundary, dominate; unmapped rest-pose bones like fingers show a
+comparable magnitude too, which is the root's own small residual orientation delta between the two
+frames rather than a per-joint defect, disclosed rather than smoothed over). Render confirms
+visually: `~/.openclinxr-wip/kimodo/round10/preview-cycle-seed42/f001.png` and `f035.png` (not
+committed, scratch) show near-identical poses at the cycle's start and end.
+
+Seed 42 (cleanest seam) carried forward for the runtime graft.
+
+## 2. Bind and graft as the only `openclinxr_retarget_*` clip
+
+Same station, same committed formula (head/neck rest-local per round 9, round-7's plain per-bone
+world-space swing for every other bone, unchanged). Same graft mechanism as round 9: exported the
+35-frame cycle from the loop-boundary slice of the already-verified Z-up joint positions, bound with
+`--clip-name openclinxr_retarget_kimodo_r10_cycle_seed42`, then stripped the original
+`openclinxr_retarget_walk_source` action from the output (one-off Blender script, not committed) so
+the scratch GLB (`~/.openclinxr-wip/kimodo/round10/runtime-graft/physician-kimodo-cycle-seed42-graft.glb`,
+9,126,228 bytes) carries exactly one clip matching the runtime's selection prefix. Loaded via the
+existing `--humanoid=` flag on `foot-plant-video-capture.ts`; served and confirmed (3 requests,
+sha256 `596fa637d670...`).
+
+## 3. Walk-quality and turn-quality, measured with the repo's own metric scripts, beside a same-build shipped run
+
+Ran both `walk-quality-metrics.ts` and `turn-quality-metrics.ts` directly against each capture's own
+`foot-plant-video.json` — no new measurement code, these already exist and define the exact metrics
+asked for.
+
+**Walk quality:**
+
+| metric | Kimodo (cycle, seed 42) | shipped `openclinxr_retarget_walk_source` | target |
+|---|---|---|---|
+| groundSpeedMps | 1.241 (PASS) | 1.376 (PASS) | >= prescribed*0.75 |
+| steadyStateGroundSpeedMps | **8.584** | 1.440 | (info only) |
+| lurch | **7.922 (FAIL)** | 1.044 (PASS) | <= 1.4 |
+| medianHoldSlideMeters | **0.0000 (FAIL)** | 0.0135 (PASS) | <= 0.02 |
+| cadencePerMinute | **44.2 (FAIL)**, 1 step in 1.36s | 90.6 (PASS), 2 steps in 1.32s | 90-125 |
+
+**Turn quality:**
+
+| metric | Kimodo (cycle, seed 42) | shipped | target |
+|---|---|---|---|
+| residualTurnDeg | 73.62 (FAIL) | 62.30 (FAIL) | <= 45 |
+| settleSeconds | 0.726 | 1.518 | (info only) |
+| floorPenetrationM | **-0.02377 (FAIL)** | 0.00219 (PASS) | >= -0.005 |
+| minStepLiftM | **-0.01644 (FAIL)** | 0.01867 (PASS) | >= 0.015 |
+| plantedSlideM | **0.47915 (FAIL)** | 0.05704 (FAIL) | <= 0.02 |
+| headLeadSeconds | 0.297 (PASS) | 0.858 (PASS) | > 0 |
+| maxToeStepPerFrameM | **1.02980 (flagged)** | 0.13640 (flagged) | <= 0.08 |
+| stanceToeStepPerFrameM | **0.55078 (flagged)** | 0.09465 (flagged) | <= 0.02 |
+
+**A real, visually-confirmed defect, not a measurement artifact.** `maxToeStepPerFrameM` of 1.03 m
+is a single-frame toe teleport, and the raw per-frame toe track shows exactly that: consecutive
+walking-phase samples oscillate back and forth by up to ~0.9 m frame to frame
+(`~/.openclinxr-wip/kimodo/round10/runtime-graft/kimodo-cycle-capture/foot-plant-video.json`,
+`frames`), not a smooth stride. The contact-sheet PNG confirms it visually — the first frame shows a
+normal mid-stride pose, and by the later frames the character has visibly hunched forward at the
+torso with both knees bent and feet drawn close together, consistent with the measured floor
+penetration (-0.024 m) and the 0.479 m planted-foot slide:
+`~/.openclinxr-wip/kimodo/round10/runtime-graft/kimodo-cycle-capture/feet-side-contact.png`. The
+same contact sheet for the shipped clip shows an upright, straight-legged walk throughout
+(`~/.openclinxr-wip/kimodo/round10/runtime-graft/shipped-capture/feet-side-contact.png`) — the
+defect is specific to this graft, not a capture-harness artifact shared by both runs. **Not root-
+caused this round.** The clip's own loop seam is small and clean (measured in step 1, both on
+source positions and on the baked GLB), and the clip is much SHORTER (35 frames, ~1.17 s) than the
+shipped clip (~90 frames, ~3 s) it replaces — a plausible, unconfirmed hypothesis is that the
+runtime's stance-lock / ground-advance machinery (`locomotion-clip-playback-mod.ts`,
+`applyStanceLockedGroundAdvance`) makes an assumption about clip duration, expected stance-window
+count, or how many loop iterations occur within the short walking phase that a clip this short
+violates — but this was not traced into that module's internals this round, and is flagged as the
+most promising next step rather than asserted as the cause.
+
+Shipped clip is not clean either — `residualTurnDeg` (62.3, still over the 45 deg bar) and
+`plantedSlideM` (0.057 m, over the 0.02 bar) both fail, and `stanceToeStepPerFrameM`/
+`maxToeStepPerFrameM` are both flagged too, just at roughly 10-20x smaller magnitude than Kimodo's.
+Neither clip is a clean pass today; Kimodo's failure is categorically larger.
+
+Videos (both not committed, scratch):
+- Kimodo cycle: `~/.openclinxr-wip/kimodo/round10/runtime-graft/kimodo-cycle-capture/feet-side.mp4`,
+  `.../three-quarter.mp4`
+- Shipped: `~/.openclinxr-wip/kimodo/round10/runtime-graft/shipped-capture/feet-side.mp4`,
+  `.../three-quarter.mp4`
+
+Full reports: `~/.openclinxr-wip/kimodo/round10/runtime-graft/{kimodo-cycle,shipped}-capture/foot-plant-video.json`.
+
+## Noted, not built: a second integration option
+
+Per instruction, recorded here rather than implemented: **a baked whole-approach clip (walk +
+turn + stop, root motion included) played ONE-SHOT** instead of looped, as an alternative to the
+loop-cycle integration this round tested. This is what round 9's graft actually was in spirit — a
+single clip covering the whole approach — but round 9 played it through the runtime's EXISTING
+looping-cycle machinery (`travelYawForClipForward`, stance-lock ground-advance), which is built for
+a repeating stride, not a one-shot performance with its own baked turn and stop. A clean version of
+this option would need a RUNTIME ROOT-MOTION PLAYBACK MODE that does not exist today: play the
+clip's own baked root translation/rotation directly (frame-sampled, not derived from a
+looping-stance heuristic), handing heading and stopping-point control entirely to the generation
+step's own constraints rather than to the runtime's settling-turn logic. Not scoped or estimated
+this round — noted as the coordinator asked, not built.
+
+## claimScope / notEvidenceFor (round 10)
+
+**claimScope:** a straight, constant-heading calm walk was generated on all 3 seeds via
+`Root2DConstraintSet`, verified to track both constraints closely; one clean, small-seam loopable
+cycle was cut from the steady middle of each, measured two ways (raw source positions and the
+actual baked target GLB); the cycle was bound with the current committed formula (head/neck
+rest-local, round-7 arms) and grafted as the sole locomotion clip on a scratch GLB using the same
+zero-new-code mechanism as round 9; it was run through the actual runtime capture tooling beside a
+same-build shipped-clip run, and both `walk-quality-metrics.ts` and `turn-quality-metrics.ts` were
+run against both reports, unmodified, producing every metric the coordinator asked for. A large,
+visually-confirmed motion defect (toe teleports up to 1.03 m/frame, floor penetration, a hunched
+collapsing pose) was found in the Kimodo cycle graft's runtime behavior and is disclosed with full
+numbers, a contact-sheet comparison against the shipped clip's own (much cleaner) contact sheet, and
+videos for grading.
+
+**notEvidenceFor:** the root cause of the runtime-graft motion defect (a plausible hypothesis
+naming the stance-lock/ground-advance machinery's handling of a short looping clip is offered, not
+confirmed); whether the defect is specific to this exact clip length/seed or general to any
+short-cycle graft (only seed 42's cycle went through the runtime this round); whether the shipped
+clip's own failing metrics (residualTurnDeg, plantedSlideM, both toe-step flags) represent an
+accepted, already-known baseline or a comparably unaddressed defect (not investigated, only
+measured); clinical usability of any of this motion.
