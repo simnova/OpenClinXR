@@ -214,6 +214,7 @@ def apply_finish() -> int:
         kind = classify_mesh(obj.name)
         # Unclassified base shells (e.g. Infinigen "Cube") default to wall paint.
         target = wall_material if kind in ("wall", "other") else trim_material
+        kind = "wall" if kind == "other" else kind
         data = obj.data
         if len(data.materials) == 0:
             data.materials.append(target)
