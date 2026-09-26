@@ -15,7 +15,7 @@
 
 import { DEFAULT_PATIENT_CHAIR_POSITION } from "@openclinxr/asset-registry/actor-posture";
 import { ADDITIONAL_CAST_FRAMING_XZ } from "@openclinxr/xr-runtime-state";
-import { Group } from "three";
+import type { Group } from "three";
 
 export type EncounterActorFramingInput = {
   actor: Group;
@@ -196,56 +196,6 @@ export function applyCleanEncounterVisualReviewActorFraming(
     "deterministic_clean_encounter_review_framing_keeps_case_defined_actors_visible_without_cropping";
   // Floor-standing frame: slot y=0. Pair with resolveEffectiveVerticalOffsetMeters at load.
   actor.userData.openClinXrFloorStandingFrame = Math.abs(actor.position.y) < 0.2;
-}
-
-/**
- * The actor's world position AFTER staging, for a caller that has no live `Group` to run the
- * runtime's own framing pass against (build-time freeze generation).
- *
- * WHY THIS EXISTS (reanchor-determinism / ed-reanchor-refreeze investigation, 2026-09-26). ED's
- * frozen scene plan admitted at freeze time and refused on every candidate at runtime with an
- * IDENTICAL geometry digest. Measured: the freeze generator computed the nurse's "start" as
- * `composeSupportedActorWorldPosition(walkerPlacement.position, ...)` — the RAW manifest slot
- * position `(1.78, 0.95, 0.42)` — while the live runtime's actual staged position was
- * `(0.64, 0, 0.3)`, because `stageStationActors` unconditionally runs every STANDING actor through
- * `applyCleanEncounterVisualReviewActorFraming` (this file), which overwrites the manifest's XZ
- * for every non-capture boot (`skipFraming` is only true for face-detail / pose-review /
- * close-realism capture modes — a normal exam boot is none of those). Seated and supine actors are
- * exempt (their XZ is owned by their authored seat/deck anchor); a STANDING walker is not.
- *
- * The freeze generator was reading the manifest a second time and never running the framing pass
- * that the runtime always runs, so its "start" was for a room nobody's exam ever actually stands
- * in. This function closes that gap by running the EXACT SAME framing pass — not a re-derivation
- * of it — against a throwaway `Group`, so a build-time caller (the freeze generator) and the
- * runtime (`actor-staging.ts`, which calls `applyCleanEncounterVisualReviewActorFraming` directly
- * on the real staged `Group`) can never diverge: there is one function, called from two places,
- * never two readings of the same fact.
- *
- * A caller passing the SAME `manifestPosition`/`posture`/`role`/`slotKind` the runtime's own
- * `runtimeActorPlacement` resolves gets the SAME answer the runtime will stage, always, because
- * this is that code.
- */
-export function resolveActorFramedPosition(input: {
-  actorId: string;
-  scenarioId: string;
-  role: string;
-  slotKind: string;
-  posture: "standing" | "seated" | "supine" | undefined;
-  manifestPosition: { x: number; y: number; z: number };
-}): { x: number; y: number; z: number } {
-  const actor = new Group();
-  actor.position.set(input.manifestPosition.x, input.manifestPosition.y, input.manifestPosition.z);
-  actor.userData.openClinXrSlotKind = input.slotKind;
-  if (input.posture !== undefined) actor.userData.openClinXrActorPosture = input.posture;
-  applyCleanEncounterVisualReviewActorFraming({
-    actor,
-    actorId: input.actorId,
-    scenarioId: input.scenarioId,
-    role: input.role,
-    posture: input.posture,
-    skipFraming: false,
-  });
-  return { x: actor.position.x, y: actor.position.y, z: actor.position.z };
 }
 
 export function addGeneratedHumanoidRoleContinuityWardrobeCue(

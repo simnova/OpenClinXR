@@ -113,7 +113,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
         "approachSide": "patient_right",
         "standoffMeters": 0.75,
         "targetPosition": {
-          "x": -0.9,
+          "x": -0.78,
           "y": 0,
           "z": 1.1399999995529653
         },
@@ -125,8 +125,8 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "inpatient_ward_room_v1:door_leaf",
           "inpatient_ward_room_v1:wall_board"
         ],
-        "waypointCount": 10,
-        "routeLengthMeters": 3.017051540679223
+        "waypointCount": 5,
+        "routeLengthMeters": 1.3058713568030198
       },
       "arrival": {
         "arrivalErrorMeters": 0.0041,
@@ -157,11 +157,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-07877898b6dd48884aae82afdceb998d",
+      "planRevision": "plan-v1-21f5a9386f3722f2f4eb2e67bc9c086c",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-07877898b6dd48884aae82afdceb998d"
+        "acknowledgedPlanRevision": "plan-v1-21f5a9386f3722f2f4eb2e67bc9c086c"
       }
     },
     "ed_chest_pain_priority_v1": {
@@ -232,11 +232,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
         "approachSide": "patient_left",
         "standoffMeters": 0.75,
         "targetPosition": {
-          "x": -0.6000000000000001,
+          "x": 0,
           "y": 0,
           "z": -1.3399999995529652
         },
-        "targetHeadingRadians": -0.23737424705556845,
+        "targetHeadingRadians": -0.6278365939831692,
         "floorFrameId": "ed_exam_bay_v1:floor",
         "observedObstacleIds": [
           "ed_exam_bay_v1:stretcher",
@@ -245,50 +245,8 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "ed_exam_bay_v1:door_leaf",
           "ed_exam_bay_v1:wall_board"
         ],
-        "waypointCount": 14,
-        "routeLengthMeters": 2.6079056200417607,
-        "routeWaypoints": [
-          {
-            "x": 0.64,
-            "z": 0.3
-          },
-          {
-            "x": 0.5999999999999996,
-            "z": 0.1750000119209294
-          },
-          {
-            "x": 0.5999999999999996,
-            "z": -0.9249999880790707
-          },
-          {
-            "x": 0.5,
-            "z": -1.0249999880790708
-          },
-          {
-            "x": 0,
-            "z": -1.0249999880790708
-          },
-          {
-            "x": -0.10000000000000009,
-            "z": -1.1249999880790709
-          },
-          {
-            "x": -0.20000000000000018,
-            "z": -1.1249999880790709
-          },
-          {
-            "x": -0.2999999999999998,
-            "z": -1.2249999880790707
-          },
-          {
-            "x": -0.5,
-            "z": -1.2249999880790707
-          },
-          {
-            "x": -0.6000000000000001,
-            "z": -1.3399999995529652
-          }
-        ]
+        "waypointCount": 9,
+        "routeLengthMeters": 2.5031979543029426
       },
       "arrival": {
         "arrivalErrorMeters": 0.0041,
@@ -319,11 +277,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-8800218f572b4667cb6c5e44d464b3a2",
+      "planRevision": "plan-v1-9eaed3b35833d668dacb120ab83a0581",
       "acknowledgment": {
         "acknowledgedBy": "ed_chest_pain_priority_v1_build_time_freeze",
         "acknowledgedAtIso": "2026-09-25T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-8800218f572b4667cb6c5e44d464b3a2"
+        "acknowledgedPlanRevision": "plan-v1-9eaed3b35833d668dacb120ab83a0581"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);

@@ -16,6 +16,10 @@ const repoPath = (relative: string): string =>
   nodePath.isAbsolute(relative) ? relative : nodePath.join(REPO_ROOT, relative);
 
 import { revalidateAcceptedScenePlan } from "@openclinxr/asset-registry/accepted-scene-plan-evidence";
+import {
+  composeSupportedActorWorldPosition,
+  supineActorWorldPosition,
+} from "@openclinxr/asset-registry/actor-posture";
 import type { ObservedApproachGeometry } from "@openclinxr/asset-registry/case-approach-intent";
 import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-scene-plans";
 import {
@@ -39,7 +43,6 @@ import {
   observeScenePlanEvidence,
 } from "@openclinxr/asset-registry/scene-plan-freeze";
 import { observeMountedApproachGeometry } from "@openclinxr/xr-humanoid-animation/mounted-approach-geometry";
-import { resolveActorFramedPosition } from "../../../packages/openclinxr/xr-scene/src/encounter-actor-framing.js";
 import { buildStationEnvironment } from "@openclinxr/xr-station";
 import { Scene } from "three";
 import { describe, expect, it } from "vitest";
@@ -151,30 +154,28 @@ function stageWard(): {
     scenario: caseDocument as never,
     environmentId: SCENE_CLOSURE_ENVIRONMENT_ID,
   }).actorPlacements;
-  // #reanchor-determinism 2026-09-26 — use the SAME shared function the freeze generator and the
-  // runtime's actor-staging both call (`resolveActorFramedPosition`), not a second reading of the
-  // manifest via `composeSupportedActorWorldPosition`. The runtime always runs a STANDING actor
-  // through `applyCleanEncounterVisualReviewActorFraming` on a normal boot, overwriting the
-  // manifest's XZ; a synthetic scene that skips that pass computes a "start" nobody's exam ever
-  // actually stands at.
   const patientPlacement = placements[SCENE_CLOSURE_PINNED_CAST.patient];
-  const patientWorld = resolveActorFramedPosition({
-    actorId: SCENE_CLOSURE_PINNED_CAST.patient,
-    scenarioId: caseDocument.scenarioId,
-    role: "patient",
-    slotKind: patientPlacement?.slotKind ?? "primary_patient",
+  const patientWorld = composeSupportedActorWorldPosition({
     posture: "supine",
-    manifestPosition: patientPlacement?.position ?? { x: 0, y: 0, z: 0 },
+    fixtureAnchor: supineActorWorldPosition({}),
+    ...(patientPlacement?.plantOffsetMeters
+      ? { authoredOffsetMeters: patientPlacement.plantOffsetMeters }
+      : {}),
+    resolvedPosition: patientPlacement?.position ?? { x: 0, y: 0, z: 0 },
   });
   const physicianPlacement = placements[SCENE_CLOSURE_PINNED_CAST.physician];
-  const start = resolveActorFramedPosition({
-    actorId: SCENE_CLOSURE_PINNED_CAST.physician,
-    scenarioId: caseDocument.scenarioId,
-    role: "physician",
-    slotKind: physicianPlacement?.slotKind ?? "additional_cast",
+  const start = composeSupportedActorWorldPosition({
     posture: "standing",
-    manifestPosition: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
+    fixtureAnchor: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
+    ...(physicianPlacement?.plantOffsetMeters
+      ? { authoredOffsetMeters: physicianPlacement.plantOffsetMeters }
+      : {}),
+    resolvedPosition: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
+    ...(geometry.floorFrame ? { floorFrame: geometry.floorFrame } : {}),
   });
+  if ("refused" in patientWorld || "refused" in start) {
+    throw new Error("the ward staging refused to compose a patient or physician position");
+  }
   return { scene, geometry, patientWorld, start };
 }
 

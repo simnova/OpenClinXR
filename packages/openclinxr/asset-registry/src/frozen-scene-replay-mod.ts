@@ -85,7 +85,8 @@ export type FrozenSceneRefusalReason =
   | "unsatisfiable_intent"
   | "layout_not_reproduced"
   | "arrival_outside_rubric"
-  | "dialogue_identity_mismatch";
+  | "dialogue_identity_mismatch"
+  | "route_requires_waypoint_executor";
 
 export type FrozenSceneReproduction = {
   approachSide: "patient_left" | "patient_right";
@@ -222,6 +223,28 @@ export function reopenFrozenScene(
       detail:
         `variation.seed ${JSON.stringify(record.variation.seed)} is not a 64-hex digest, so it was `
         + "not derived and the layout it claims to reproduce was never seeded",
+      conflicts: [],
+    };
+  }
+
+  // GATE (2026-09-26, coordinator directive): the grid-A* route planner in `route-planner-mod.ts`
+  // / `layout-solve-mod.ts` can now resolve a candidate the STRAIGHT route refuses, and stamps the
+  // frozen plan with `resolvedLayout.routeWaypoints` when it did. The runtime EXECUTOR
+  // (`updateStationBedsideApproach`, `xr-humanoid-animation`) walks a straight line only; it does
+  // not yet follow a waypoint polyline. Admitting a routed plan today would walk the actor in a
+  // straight line from her start to the target — through whatever obstacle the router routed
+  // AROUND — which is worse than refusing. Refuse by name until the executor is built to follow
+  // `routeWaypoints`; this is a build-time-only capability for now, not a runtime one.
+  if (record.resolvedLayout.routeWaypoints !== undefined) {
+    return {
+      status: "refused",
+      reason: "route_requires_waypoint_executor",
+      detail:
+        `this plan's route needs ${record.resolvedLayout.routeWaypoints.length} waypoints around an `
+        + "obstacle the straight line crosses, and the runtime executor does not yet walk a routed "
+        + "polyline (it walks a straight line from start to target). Admitting this plan would drive "
+        + "the actor in a straight line through what the route was planned to avoid. Refused until "
+        + "the executor follows resolvedLayout.routeWaypoints.",
       conflicts: [],
     };
   }

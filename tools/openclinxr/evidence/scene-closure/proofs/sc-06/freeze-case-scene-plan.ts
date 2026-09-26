@@ -1,12 +1,15 @@
 import { writeFileSync } from "node:fs";
 import { chromium } from "playwright";
 import { type Object3D, Scene } from "three";
+import {
+  composeSupportedActorWorldPosition,
+  supineActorWorldPosition,
+} from "../../../../../../packages/openclinxr/asset-registry/src/actor-posture.js";
 import { geometryRevisionDigest } from "../../../../../../packages/openclinxr/asset-registry/src/case-approach-intent.js";
 import {
   createEdChestPainLocalLearnerRuntimeAssetBundle,
   createEdChestPainRuntimeSceneManifest,
 } from "../../../../../../packages/openclinxr/asset-registry/src/runtime-bundles-entry.js";
-import { resolveActorFramedPosition } from "../../../../../../packages/openclinxr/xr-scene/src/encounter-actor-framing.js";
 import {
   type FreezeScenePlanInput,
   freezeAcceptedScenePlan,
@@ -418,31 +421,28 @@ async function freezeOneCase(config: CaseConfig) {
     ...(caseDocument ? { scenario: caseDocument as never } : {}),
     environmentId: config.environmentId,
   }).actorPlacements;
-  // #reanchor-determinism 2026-09-26 — the freeze used to read the manifest a SECOND time
-  // (composeSupportedActorWorldPosition against the raw placement) and compute a "start"/
-  // "patientWorld" the runtime never actually stages. `stageStationActors` always runs every
-  // STANDING actor through `applyCleanEncounterVisualReviewActorFraming` on a normal (non-capture)
-  // boot, overwriting the manifest's XZ; seated/supine actors are exempt. Calling that SAME
-  // function here (via `resolveActorFramedPosition`, a thin wrapper with no logic of its own)
-  // means freeze-time and runtime cannot diverge — there is one function, not two readings.
   const patientPlacement = placements[config.patientActorId];
-  const patientWorld = resolveActorFramedPosition({
-    actorId: config.patientActorId,
-    scenarioId: config.caseId,
-    role: "patient",
-    slotKind: patientPlacement?.slotKind ?? "primary_patient",
+  const patientWorld = composeSupportedActorWorldPosition({
     posture: "supine",
-    manifestPosition: patientPlacement?.position ?? { x: 0, y: 0, z: 0 },
+    fixtureAnchor: supineActorWorldPosition({}),
+    ...(patientPlacement?.plantOffsetMeters
+      ? { authoredOffsetMeters: patientPlacement.plantOffsetMeters }
+      : {}),
+    resolvedPosition: patientPlacement?.position ?? { x: 0, y: 0, z: 0 },
   });
   const walkerPlacement = placements[config.walkerActorId];
-  const start = resolveActorFramedPosition({
-    actorId: config.walkerActorId,
-    scenarioId: config.caseId,
-    role: config.walkerRole,
-    slotKind: walkerPlacement?.slotKind ?? "clinical_team",
+  const start = composeSupportedActorWorldPosition({
     posture: "standing",
-    manifestPosition: walkerPlacement?.position ?? { x: 0, y: 0, z: 0 },
+    fixtureAnchor: walkerPlacement?.position ?? { x: 0, y: 0, z: 0 },
+    ...(walkerPlacement?.plantOffsetMeters
+      ? { authoredOffsetMeters: walkerPlacement.plantOffsetMeters }
+      : {}),
+    resolvedPosition: walkerPlacement?.position ?? { x: 0, y: 0, z: 0 },
+    ...(geometry.floorFrame ? { floorFrame: geometry.floorFrame } : {}),
   });
+  if ("refused" in patientWorld || "refused" in start) {
+    throw new Error(`${config.caseId}: the ward staging refused to compose a patient or walker position`);
+  }
 
   const bundleContent = {
     bundleId: `${config.stationId}:bundle`,

@@ -157,7 +157,17 @@ export function resolveBedsideLayoutFromSeed(input: {
       ? ALONG_BED_OFFSET_CANDIDATES_METERS
       : [input.intent.alongOffsetMeters];
 
+  type Candidate = {
+    approachSide: "patient_left" | "patient_right";
+    standoffMeters: number;
+    alongOffsetMeters: number;
+    target: BedsideTarget;
+  };
+  const candidates: Candidate[] = [];
   const unsatisfied: Array<{ approachSide: string; standoffMeters: number; reason: string }> = [];
+
+  // PASS 0 — footprint only, in seed order. A candidate whose STANDING FOOTPRINT collides never
+  // reaches either route pass; recording it here keeps this identical to the pre-router behaviour.
   for (const approachSide of sides) {
     for (const standoffMeters of standoffs) {
       for (const alongOffsetMeters of alongOffsets) {
@@ -180,99 +190,114 @@ export function resolveBedsideLayoutFromSeed(input: {
           });
           continue;
         }
-        // A clear standing footprint is not a clear ROUTE to it. When the caller supplies a start
-        // (widening the search itself, rather than `resolveCaseOwnedScenePlan`'s separate check
-        // refusing this exact candidate one call later), reject a candidate here too so the search
-        // keeps looking instead of returning a footprint that the route stage would refuse anyway.
-        if (input.start !== undefined) {
-          const routeTarget: Vector3 = { x: target.position.x, y: input.start.y, z: target.position.z };
-          const straightPlan = planBedsideApproach({
-            from: input.start,
-            target: routeTarget,
-            facing: input.patientPosition,
-            obstacles: input.obstacles,
-          });
-          const straightSwept = sweptRouteViolations({
-            waypoints: straightPlan.waypoints,
-            obstacles: input.obstacles,
-            ...(input.floorY === undefined ? {} : { floorY: input.floorY }),
-          });
-          const straightBlocked =
-            straightPlan.pathViolations.length > 0 || !straightPlan.arrivesAtTarget || straightSwept.length > 0;
-
-          if (!straightBlocked) {
-            return { resolved: true, seed, target, approachSide, standoffMeters };
-          }
-
-          // The straight route is blocked. Try a routed detour around the inflated fixture
-          // footprints before refusing this candidate — a human walking the room would step
-          // around the stretcher, not report it as unsatisfiable_intent.
-          const routedWaypoints = planRouteWaypoints({
-            start: { x: input.start.x, z: input.start.z },
-            target: { x: routeTarget.x, z: routeTarget.z },
-            obstacles: input.obstacles,
-            walkerRadiusMeters: ROUTE_PLANNER_WALKER_RADIUS_METERS,
-          });
-          if (routedWaypoints !== null && routedWaypoints.length >= 2) {
-            const polyline: Vector3[] = routedWaypoints.map((point) => ({
-              x: point.x,
-              y: input.start!.y,
-              z: point.z,
-            }));
-            const routedPlan = planRoutedBedsideApproach({
-              polyline,
-              target: routeTarget,
-              facing: input.patientPosition,
-              obstacles: input.obstacles,
-            });
-            const routedSwept = sweptRouteViolations({
-              waypoints: routedPlan.waypoints,
-              obstacles: input.obstacles,
-              ...(input.floorY === undefined ? {} : { floorY: input.floorY }),
-            });
-            const routedBlocked =
-              routedPlan.pathViolations.length > 0 || !routedPlan.arrivesAtTarget || routedSwept.length > 0;
-            if (!routedBlocked) {
-              return {
-                resolved: true,
-                seed,
-                target,
-                approachSide,
-                standoffMeters,
-                routeWaypoints: routedWaypoints,
-              };
-            }
-          }
-
-          const routeReasons: string[] = [];
-          if (straightPlan.pathViolations.length > 0) {
-            routeReasons.push(
-              `route: ${straightPlan.pathViolations.map((violation) => `${violation.obstacleId}: ${violation.reason}`).join("; ")}`,
-            );
-          }
-          if (!straightPlan.arrivesAtTarget) {
-            routeReasons.push(`does not arrive: final pose error ${straightPlan.finalPoseErrorMeters.toFixed(4)} m`);
-          }
-          if (straightSwept.length > 0) {
-            routeReasons.push(
-              `swept: ${straightSwept.map((violation) => `${violation.obstacleId}: ${violation.reason}`).join("; ")}`,
-            );
-          }
-          routeReasons.push(
-            routedWaypoints === null
-              ? "routed: no path found around the inflated fixture footprints"
-              : "routed: a detour was found but still failed clearance/swept checks",
-          );
-          unsatisfied.push({
-            approachSide,
-            standoffMeters,
-            reason: `along ${alongOffsetMeters}m: ${routeReasons.join("; ")}`,
-          });
-          continue;
-        }
-        return { resolved: true, seed, target, approachSide, standoffMeters };
+        candidates.push({ approachSide, standoffMeters, alongOffsetMeters, target });
       }
     }
+  }
+
+  if (input.start === undefined) {
+    const first = candidates[0];
+    if (first) {
+      return { resolved: true, seed, target: first.target, approachSide: first.approachSide, standoffMeters: first.standoffMeters };
+    }
+    return { resolved: false, seed, unsatisfied };
+  }
+  const start = input.start;
+
+  // PASS 1 — STRAIGHT LINE ONLY, over every footprint-clear candidate, in seed order. A candidate
+  // whose straight route is already clear is preferred over ANY routed candidate that comes
+  // earlier in the search: routing is a fallback for when nothing resolves the plain way, never a
+  // shortcut that preempts a nearer, simpler, already-clear candidate later in the list.
+  const straightResults = new Map<Candidate, { plan: ReturnType<typeof planBedsideApproach>; sweptCount: number }>();
+  for (const candidate of candidates) {
+    const routeTarget: Vector3 = { x: candidate.target.position.x, y: start.y, z: candidate.target.position.z };
+    const plan = planBedsideApproach({
+      from: start,
+      target: routeTarget,
+      facing: input.patientPosition,
+      obstacles: input.obstacles,
+    });
+    const swept = sweptRouteViolations({
+      waypoints: plan.waypoints,
+      obstacles: input.obstacles,
+      ...(input.floorY === undefined ? {} : { floorY: input.floorY }),
+    });
+    const blocked = plan.pathViolations.length > 0 || !plan.arrivesAtTarget || swept.length > 0;
+    if (!blocked) {
+      return {
+        resolved: true,
+        seed,
+        target: candidate.target,
+        approachSide: candidate.approachSide,
+        standoffMeters: candidate.standoffMeters,
+      };
+    }
+    straightResults.set(candidate, { plan, sweptCount: swept.length });
+  }
+
+  // PASS 2 — ROUTED FALLBACK, only reached when NO candidate resolved via a straight line. A human
+  // walking a room with no direct-across spot steps around the nearest obstacle rather than
+  // reporting it as unsatisfiable_intent; this is that step, tried in the SAME seed order, after
+  // the plain search has genuinely been exhausted.
+  for (const candidate of candidates) {
+    const routeTarget: Vector3 = { x: candidate.target.position.x, y: start.y, z: candidate.target.position.z };
+    const straight = straightResults.get(candidate);
+    const routedWaypoints = planRouteWaypoints({
+      start: { x: start.x, z: start.z },
+      target: { x: routeTarget.x, z: routeTarget.z },
+      obstacles: input.obstacles,
+      walkerRadiusMeters: ROUTE_PLANNER_WALKER_RADIUS_METERS,
+    });
+    let routedBlockedReason: string | null = null;
+    if (routedWaypoints !== null && routedWaypoints.length >= 2) {
+      const polyline: Vector3[] = routedWaypoints.map((point) => ({ x: point.x, y: start.y, z: point.z }));
+      const routedPlan = planRoutedBedsideApproach({
+        polyline,
+        target: routeTarget,
+        facing: input.patientPosition,
+        obstacles: input.obstacles,
+      });
+      const routedSwept = sweptRouteViolations({
+        waypoints: routedPlan.waypoints,
+        obstacles: input.obstacles,
+        ...(input.floorY === undefined ? {} : { floorY: input.floorY }),
+      });
+      const routedBlocked = routedPlan.pathViolations.length > 0 || !routedPlan.arrivesAtTarget || routedSwept.length > 0;
+      if (!routedBlocked) {
+        return {
+          resolved: true,
+          seed,
+          target: candidate.target,
+          approachSide: candidate.approachSide,
+          standoffMeters: candidate.standoffMeters,
+          routeWaypoints: routedWaypoints,
+        };
+      }
+      routedBlockedReason = "routed: a detour was found but still failed clearance/swept checks";
+    } else {
+      routedBlockedReason = "routed: no path found around the inflated fixture footprints";
+    }
+
+    const routeReasons: string[] = [];
+    if (straight) {
+      if (straight.plan.pathViolations.length > 0) {
+        routeReasons.push(
+          `route: ${straight.plan.pathViolations.map((violation) => `${violation.obstacleId}: ${violation.reason}`).join("; ")}`,
+        );
+      }
+      if (!straight.plan.arrivesAtTarget) {
+        routeReasons.push(`does not arrive: final pose error ${straight.plan.finalPoseErrorMeters.toFixed(4)} m`);
+      }
+      if (straight.sweptCount > 0) {
+        routeReasons.push(`swept: ${straight.sweptCount} obstacle(s) intersected along the straight route`);
+      }
+    }
+    routeReasons.push(routedBlockedReason);
+    unsatisfied.push({
+      approachSide: candidate.approachSide,
+      standoffMeters: candidate.standoffMeters,
+      reason: `along ${candidate.alongOffsetMeters}m: ${routeReasons.join("; ")}`,
+    });
   }
   return { resolved: false, seed, unsatisfied };
 }
