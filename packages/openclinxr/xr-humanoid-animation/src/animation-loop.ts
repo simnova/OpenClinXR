@@ -28,6 +28,11 @@ import {
 } from "./face-rig.js";
 import { buildHumanoidSpeechEvidence, resolveHumanoidGazeTargetWorld, updateHumanoidGazeCue, updateVirtualDeviceActorSpeechPulses } from "./gaze-evidence.js";
 import { playLocomotionClip } from "./locomotion-clip-playback.js";
+import {
+  applyLocomotionOrderStanceLocks,
+  createLocomotionOrderRegistry,
+  stepLocomotionOrders,
+} from "./locomotion-order-mod.js";
 import { recordMouthGazePoseComparatorEvidence } from "./mouth-gaze-pose-comparator-evidence.js";
 import { writeHumanoidSpeechFrameEvidence } from "./speech-evidence.js";
 import type {
@@ -82,13 +87,40 @@ export function pediatricAsthmaActingOverlayForSlot(
   };
 }
 
+/** Order-driven actors' approach state, keyed by actorId -- module-scoped, progress persists across frames. */
+const locomotionOrderRegistry = createLocomotionOrderRegistry();
+
 export function updateGeneratedHumanoidAnimations(
   ctx: HumanoidAnimationRuntimeContext,
   deltaSeconds: number,
   nowMs: number,
   camera: PerspectiveCamera,
-  drive?: HumanoidRuntimeDrive | null,
+  /** A map lets more than one actor be driven at once, each slot resolving its own drive by actorId. */
+  driveInput?: HumanoidRuntimeDrive | ReadonlyMap<string, HumanoidRuntimeDrive> | null,
+  /**
+   * Any actor that should walk to a point this frame, keyed by actorId. Stepped via
+   * `locomotion-order-mod.ts`'s `stepLocomotionOrders` -- the SAME producer
+   * (`createCaseOwnedApproachForOrder` / `advanceCaseOwnedBedsideApproach` /
+   * `applyCaseOwnedStanceLock`) the frozen-plan physician runs -- merged into the effective drive
+   * below; the stance lock for these actors runs AFTER the per-slot loop (see end of function).
+   */
+  locomotionOrders?: ReadonlyMap<string, { target: { x: number; z: number }; facing?: { x: number; z: number } | undefined }> | null,
 ): void {
+  let drive: HumanoidRuntimeDrive | ReadonlyMap<string, HumanoidRuntimeDrive> | null = driveInput ?? null;
+  if (locomotionOrders && locomotionOrders.size > 0) {
+    const slotsByActorId = new Map(ctx.slots.map((slot) => [slot.actorId, slot] as const));
+    const orderDrives = stepLocomotionOrders(locomotionOrders, slotsByActorId, locomotionOrderRegistry, nowMs, deltaSeconds);
+    if (orderDrives.size > 0) {
+      const merged = new Map<string, HumanoidRuntimeDrive>(orderDrives);
+      if (drive instanceof Map) {
+        for (const [actorId, entry] of drive as ReadonlyMap<string, HumanoidRuntimeDrive>) merged.set(actorId, entry);
+      } else if (drive !== null) {
+        const single = drive as HumanoidRuntimeDrive;
+        merged.set(single.actorId ?? "", single);
+      }
+      drive = merged;
+    }
+  }
   const actorCues: HumanoidActingCueRecord[] = [];
   for (const slot of ctx.slots) {
     if (slot.sourceComparatorFreezeEnabled) {
@@ -143,29 +175,32 @@ export function updateGeneratedHumanoidAnimations(
     const emotionalSway = Math.sin(t * 0.43) * 0.012;
     const dialogueWeightShift = isSpeaking ? Math.sin(t * 3.1) * 0.008 : 0;
     const pediatricAsthmaOverlay = pediatricAsthmaActingOverlayForSlot(ctx, slot, t, isSpeaking);
-    // `drive.actorId`, when set, scopes the LOCOMOTION effect to the one slot this drive was
-    // computed for — see `HumanoidRuntimeDrive.actorId`'s own header for why this guard exists.
-    // Gaze and viseme stay unscoped (unchanged): those were never gated on a clip the OTHER
-    // actors have only just started carrying, so binding the walk clip onto them did not turn a
-    // previously-safe shared value into a newly-unsafe one for those two.
-    const locomotionAppliesToThisSlot = drive?.actorId === undefined || drive.actorId === slot.actorId;
-    if (drive && !isSupineFrame) {
-      const locomotion = locomotionAppliesToThisSlot ? generatedDriveScalar(drive.locomotion) : null;
+    // A map resolves each slot's OWN drive by actorId, so more than one actor can be driven at
+    // once (see `updateGeneratedHumanoidAnimations`'s own parameter doc). A single drive keeps
+    // the pre-existing behaviour: `actorId`, when set, scopes the LOCOMOTION effect to the one
+    // slot it was computed for — see `HumanoidRuntimeDrive.actorId`'s own header for why. Gaze
+    // and viseme stay unscoped for the single-drive case (unchanged): those were never gated on
+    // a clip the OTHER actors have only just started carrying, so binding the walk clip onto
+    // them did not turn a previously-safe shared value into a newly-unsafe one for those two.
+    const slotDrive = drive instanceof Map ? (drive.get(slot.actorId) ?? null) : (drive ?? null);
+    const locomotionAppliesToThisSlot = slotDrive?.actorId === undefined || slotDrive.actorId === slot.actorId;
+    if (slotDrive && !isSupineFrame) {
+      const locomotion = locomotionAppliesToThisSlot ? generatedDriveScalar(slotDrive.locomotion) : null;
       if (locomotion !== null) {
         // A retargeted locomotion take, when the actor has one, drives the LEGS. Sliding the root
         // is what this line did unconditionally, and it is the ~100% foot slide the approach
         // executor's own metric reports: nothing animates the legs, so every planted foot travels
         // the whole distance. The clip is played only when the drive asks for locomotion, and only
         // on an actor that carries one, so an actor without a clip keeps the old behaviour exactly.
-        const locomotionTimeScaleFactor = generatedDriveScalar(drive.locomotionTimeScaleFactor) ?? 1;
-        const locomotionLegWeight = generatedDriveScalar(drive.locomotionLegWeight) ?? 1;
+        const locomotionTimeScaleFactor = generatedDriveScalar(slotDrive.locomotionTimeScaleFactor) ?? 1;
+        const locomotionLegWeight = generatedDriveScalar(slotDrive.locomotionLegWeight) ?? 1;
         if (!playLocomotionClip(slot, locomotion, deltaSeconds, locomotionTimeScaleFactor, locomotionLegWeight)) {
           slot.root.position.z = slot.baseZ + locomotion * 0.6;
         }
       }
-      const gaze = generatedDriveScalar(drive.gazeAversion ?? drive.gaze);
+      const gaze = generatedDriveScalar(slotDrive.gazeAversion ?? slotDrive.gaze);
       if (gaze !== null) applyGazeToHumanoid(slot.root, gaze);
-      const viseme = generatedDriveScalar(drive.lipSyncViseme ?? drive.lipSync);
+      const viseme = generatedDriveScalar(slotDrive.lipSyncViseme ?? slotDrive.lipSync);
       if (viseme !== null) applyGeneratedScalarVisemeToRoot(slot.root, viseme);
     }
     if (isSupineFrame) {
@@ -251,6 +286,9 @@ export function updateGeneratedHumanoidAnimations(
   }
   ctx.recordActingCueEvidence(actorCues);
   updateVirtualDeviceActorSpeechPulses(ctx, nowMs);
+  // AFTER the pose: a lock reading last frame's pose cancels nothing (same reasoning main.ts's own
+  // call to `applyStationBedsideStanceLock` after this function documents for the physician).
+  applyLocomotionOrderStanceLocks(locomotionOrderRegistry, deltaSeconds, nowMs);
 }
 
 export function updateHumanoidSpeechCue(

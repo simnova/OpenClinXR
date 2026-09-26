@@ -1,3 +1,4 @@
+import { planBedsideApproach } from "@openclinxr/asset-registry/bedside-approach-path";
 import type {
   ObservedApproachGeometry,
   ResolvedBedsideApproach,
@@ -318,4 +319,99 @@ export function createCaseOwnedBedsideApproach(input: {
     closeState: createArrivalCloseState(),
     floorBandPlant,
   };
+}
+
+/**
+ * `createCaseOwnedBedsideApproach` for an ARBITRARY actor and target, not the frozen physician
+ * plan. Added 2026-09-26 so an order-driven walker (`locomotion-order-mod.ts`) and the frozen-plan
+ * physician run through the SAME producer instead of a second, independently-built walker.
+ *
+ * WHY THIS WAS NEEDED, MEASURED NOT ASSUMED. A separate order-driven walker (straight-line-
+ * kinematics-then-stance-lock) was built first and measured against the physician himself as a
+ * control (same actor, same clip, same route length, frozen plan disabled for that run): lurch
+ * 4.5 (bar <= 1.4) and cadence 169.7/min, against the frozen-plan producer's own 1.044 / 90.6 on
+ * the identical actor and clip. The defect is in the SEPARATE walker, not the nurse's rig -- so
+ * the fix is not to debug a second implementation, it is to stop having one.
+ *
+ * A full `ResolvedBedsideApproach` needs a `plan` (clearance-checked waypoints) and other bedside-
+ * target fields that make sense for "walk to the patient's bedside" and not for an arbitrary order
+ * -- so this builds the MINIMAL valid one: `planBedsideApproach` with `obstacles: []` (clearance
+ * checking is out of scope for an order-driven walk; `notEvidenceFor` says so), and placeholder
+ * values for the bedside-specific bookkeeping fields (`standoffMeters: 0`, `approachSide:
+ * "patient_left"`, no swept/working clearance violations, no monitor visibility) that
+ * `createCaseOwnedBedsideApproach`/`advanceCaseOwnedBedsideApproach` never branch on for a route
+ * that carries no violations. `geometryRevision` is set equal to `observedGeometryRevision` --
+ * an order has no PERSISTED frozen plan to go stale against, so it is always "current" by
+ * construction, and `beginBedsideApproachExecution`'s revision-match check passes trivially.
+ *
+ * claimScope: the SAME producer (`createCaseOwnedBedsideApproach`) driving an arbitrary actor
+ * toward an arbitrary target, sharing its stance-lock integration, clip time-scale coupling and
+ * settling/arrival machinery with the frozen-plan physician.
+ * notEvidenceFor: obstacle avoidance or clearance checking for the ordered route (obstacles: []).
+ */
+export function createCaseOwnedApproachForOrder(input: {
+  actorId: string;
+  start: Vector3;
+  target: Vector3;
+  /** Facing once arrived. Defaults to facing the direction of travel. */
+  facing?: Vector3;
+  geometry: ObservedApproachGeometry;
+  observedGeometryRevision: string;
+  runId: string;
+  actorSlot: Object3D;
+  humanoidRoot: Object3D;
+  contactBandMeters: number;
+  clipAdvance: { metersPerSecond: number; forward: { x: number; z: number } };
+  clipCycleSeconds: number;
+}): CaseOwnedBedsideApproach | CaseOwnedBedsideApproachRefusal {
+  const floorFrame = input.geometry.floorFrame;
+  if (floorFrame === null) {
+    return { refused: true, reason: "no floor frame was observed, so a signed contact height has no datum" };
+  }
+  // DEFAULT FACING MUST NOT BE THE TARGET ITSELF. `facing ?? target` looks harmless but makes
+  // every heading below `atan2(0, 0)` -- a degenerate zero vector, not "face the direction you
+  // walked" -- because the arrival heading is computed FROM the target TO facing. Measured live:
+  // with no explicit facing, the settling turn was asked to reach heading 0 regardless of the
+  // actual travel heading, and on a route that already faced elsewhere it never converged (stuck
+  // in "settling" for the whole 30 s capture window). Default to a point one route-length further
+  // along the SAME direction of travel instead, so "no facing given" means "keep facing the way
+  // you were walking" -- already the target heading whenever travel heading needs no correction.
+  const facing = input.facing ?? {
+    x: input.target.x + (input.target.x - input.start.x),
+    y: input.target.y,
+    z: input.target.z + (input.target.z - input.start.z),
+  };
+  const routeHeadingRadians = Math.atan2(input.target.x - input.start.x, input.target.z - input.start.z);
+  const plan = planBedsideApproach({ from: input.start, target: input.target, facing, obstacles: [] });
+  const intent: ResolvedBedsideApproach = {
+    refused: false,
+    physicianActorId: input.actorId,
+    start: input.start,
+    target: {
+      position: input.target,
+      headingRadians: Math.atan2(facing.x - input.target.x, facing.z - input.target.z),
+      approachSide: "patient_left",
+    },
+    standoffMeters: 0,
+    approachSideSource: "case_authored_start_position",
+    plan,
+    sweptViolations: [],
+    workingClearanceViolations: [],
+    monitorVisibility: null,
+    observedObstacleIds: [],
+    floorFrameId: floorFrame.frameId,
+    geometryRevision: input.observedGeometryRevision,
+  };
+  return createCaseOwnedBedsideApproach({
+    intent,
+    geometry: input.geometry,
+    observedGeometryRevision: input.observedGeometryRevision,
+    runId: input.runId,
+    actorSlot: input.actorSlot,
+    humanoidRoot: input.humanoidRoot,
+    contactBandMeters: input.contactBandMeters,
+    clipAdvance: input.clipAdvance,
+    clipCycleSeconds: input.clipCycleSeconds,
+    routeHeadingRadians,
+  });
 }

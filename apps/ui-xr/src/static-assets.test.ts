@@ -918,7 +918,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("roleTintColor");
     expect(mainSource).toContain("tintGeneratedSceneMaterials");
     expect(mainSource).toContain("registerGeneratedHumanoidAnimation");
-    expect(mainSource).toContain("updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid)");
+    expect(mainSource).toContain("updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid, bundleLocomotionOrders())");
     expect(mainSource).toContain("procedural_idle_breathing_fallback");
     expect(mainSource).toContain("arms_lowered_from_generator_bind_pose_cue");
     expect(mainSource).toContain("applyGeneratedHumanoidRoleSpecificPosture");

@@ -3,6 +3,10 @@ import {
   resolveScenarioActorCast,
 } from "./actor-casting.js";
 import {
+  resolveRuntimeAssetBlobUrl,
+  resolveRuntimeAssetStoreConfig,
+} from "./runtime-bundle-asset-urls.js";
+import {
   generatedActorLabel,
   generatedActorPlacement,
   generatedEquipmentPlacement,
@@ -208,6 +212,18 @@ export type EncounterRuntimeSceneManifest = {
   actorPlacements: Record<string, EncounterRuntimeActorPlacement>;
   equipmentPlacements: Record<string, EncounterRuntimeEquipmentPlacement>;
   roomProps: EncounterRuntimeRoomProp[];
+  /**
+   * Case-owned orders for actors walking OUTSIDE the frozen-plan approach, by ROLE (not
+   * actorId). `targetOffsetMeters` is relative to that role's own placement -- not absolute --
+   * since this manifest is reused across cases with different placements. main.ts only forwards.
+   */
+  locomotionOrders?: ReadonlyArray<{
+    actorRole: string;
+    targetOffsetMeters: { x: number; z: number };
+    facing?: { x: number; z: number } | undefined;
+    ageYears?: number | undefined;
+    buildKey?: string | undefined;
+  }>;
   productionReadinessClaimed: false;
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
@@ -1519,6 +1535,16 @@ export function createEdChestPainRuntimeSceneManifest(input: {
       runtimeRoomProp("trash-liner-fold", "Liner", "e8eef0", "9e2f27", { x: -2.04, y: 0.56, z: 0.85 }, { x: 0.2, y: 0.035, z: 0.18 }, ["environmental_texture"]),
       runtimeRoomProp("call-light-remote", "Call", "fff4bf", "ba8d1c", { x: 0.62, y: 0.72, z: 0.54 }, { x: 0.09, y: 0.035, z: 0.2 }, ["ecg_request"]),
     ],
+    // Authored per case, by role not actorId -- main.ts reads this list and forwards it, it
+    // does not decide which actor walks where. Proof-only for scene_closure right now.
+    ...(manifestScenarioId === "scene_closure_supine_bedside_v1"
+      ? {
+          locomotionOrders: [
+            { actorRole: "nurse", targetOffsetMeters: { x: 1.2, z: 0 }, ageYears: 46, buildKey: "average" },
+            { actorRole: "family", targetOffsetMeters: { x: 0, z: 1.1 }, ageYears: 34, buildKey: "average" },
+          ],
+        }
+      : {}),
     productionReadinessClaimed: false,
     notEvidenceFor: [...LOCAL_RUNTIME_NOT_EVIDENCE_FOR],
   };
@@ -1567,42 +1593,14 @@ function runtimeRoomProp(
   };
 }
 
-export function resolveRuntimeAssetUrl(asset: EncounterRuntimeAsset): string {
-  return asset.blob.url;
-}
-
-export function resolveRuntimeAssetStoreConfig(config: RuntimeAssetStoreConfig): RuntimeAssetStoreConfig {
-  if (config.storeKind === "app_public_fixture") {
-    return {
-      storeKind: "app_public_fixture",
-      containerName: config.containerName || "ui-xr-public",
-      baseUrl: config.baseUrl,
-    };
-  }
-  if (config.storeKind === "azurite_blob") {
-    return {
-      storeKind: "azurite_blob",
-      containerName: config.containerName || "openclinxr-assets",
-      accountName: config.accountName || "devstoreaccount1",
-      baseUrl: config.baseUrl || "http://127.0.0.1:10000/devstoreaccount1",
-    };
-  }
-  return {
-    storeKind: "azure_blob",
-    containerName: config.containerName || "openclinxr-assets",
-    accountName: config.accountName || "openclinxrassets",
-    baseUrl: config.baseUrl || `https://${config.accountName || "openclinxrassets"}.blob.core.windows.net`,
-  };
-}
-
-export function resolveRuntimeAssetBlobUrl(config: RuntimeAssetStoreConfig, blobName: string): string {
-  const normalizedBlobName = blobName.replace(/^\/+/u, "");
-  if (config.storeKind === "app_public_fixture") {
-    return `${config.baseUrl ?? ""}/${normalizedBlobName}`;
-  }
-  const baseUrl = config.baseUrl?.replace(/\/+$/u, "") ?? "";
-  return `${baseUrl}/${config.containerName}/${normalizedBlobName}`;
-}
+// Moved to runtime-bundle-asset-urls.ts (2026-09-26) to make room without cramming; re-exported
+// here (and imported below for this file's own callers) so runtime-bundles-entry.ts's public
+// subpath is unaffected.
+export {
+  resolveRuntimeAssetBlobUrl,
+  resolveRuntimeAssetStoreConfig,
+  resolveRuntimeAssetUrl,
+} from "./runtime-bundle-asset-urls.js";
 
 const defaultEncounterFactoryDryRunStageIds = [
   "scenario_definition_to_asset_requirements",
@@ -1633,4 +1631,3 @@ function encounterFactoryDryRunEvidenceBoundaries(): EncounterFactoryDryRunSumma
     productionReadinessClaimed: false,
   };
 }
-

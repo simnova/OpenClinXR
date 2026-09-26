@@ -125,6 +125,16 @@ export type LocomotionClipSpeedMeasurement = {
   clipName: string;
   /** Stance-foot ground speed at timeScale 1, in m/s, measured off the bound clip. */
   groundSpeedMetersPerSecond: number;
+  /**
+   * The clip's own measured travel direction in BODY space (unit XZ), from the same stance window
+   * `groundSpeedMetersPerSecond` is measured off. Feed this to `travelYawForClipForward`
+   * (`@openclinxr/xr-runtime-state/bedside-approach-execution`) to get the slot yaw that points
+   * the clip's actual stepping direction along a route -- the shipped rig's local +Z is NOT
+   * reliably the clip's forward (measured 180 degrees off for the bound physician clip; see that
+   * function's own doc comment), so a caller that assumes local +Z=forward walks sideways or in
+   * place instead of along the route.
+   */
+  clipForwardBody: { x: number; z: number };
   cycleSeconds: number;
   /** This actor's own leg length in meters, or null when it could not be measured. */
   legLengthMeters: number | null;
@@ -166,6 +176,7 @@ export function resolveLocomotionClipTimeScale(
   const measurement: LocomotionClipSpeedMeasurement = {
     clipName,
     groundSpeedMetersPerSecond: groundSpeed,
+    clipForwardBody: advance.forward,
     cycleSeconds: sampled.cycleSeconds,
     legLengthMeters,
     targetSpeedMetersPerSecond,

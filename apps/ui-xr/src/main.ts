@@ -801,6 +801,22 @@ function runtimeClinicalTeamActorId(): string {
 function runtimeFamilyActorId(): string {
   return resolveRuntimeSlotAssignment().familyActorId;
 }
+/** Forwards `sceneManifest.locomotionOrders` (case-authored, by role) -- no case content here. */
+function bundleLocomotionOrders(): ReadonlyMap<string, { target: { x: number; z: number }; facing?: { x: number; z: number } }> {
+  const authored = encounterRuntimeAssetBundle.sceneManifest.locomotionOrders;
+  const orders = new Map<string, { target: { x: number; z: number }; facing?: { x: number; z: number } }>();
+  if (!authored) return orders;
+  for (const order of authored) {
+    const actor = encounterRuntimeAssetBundle.actors.find((a) => a.role === order.actorRole);
+    const slot = actor ? generatedHumanoidActorSlotsByActorId.get(actor.actorId) : undefined;
+    if (!actor || !slot) continue;
+    orders.set(actor.actorId, {
+      target: { x: slot.position.x + order.targetOffsetMeters.x, z: slot.position.z + order.targetOffsetMeters.z },
+      ...(order.facing ? { facing: order.facing } : {}),
+    });
+  }
+  return orders;
+}
 function runtimeAdditionalActorId(): string {
   return resolveRuntimeSlotAssignment().additionalActorId;
 }
@@ -3493,7 +3509,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     floor.userData.genDrive = approachFrame ? { actorId: runtimeWalkingActorId() /* HumanoidRuntimeDrive.actorId */, locomotion: approachFrame.locomotion, locomotionTimeScaleFactor: approachFrame.locomotionTimeScaleFactor, locomotionLegWeight: approachFrame.locomotionLegWeight, driveSource: approachFrame.driveSource } : floor.userData.genDrive;
     const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
     const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);
-    syncPreparedActorAudio(now); updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid);
+    syncPreparedActorAudio(now); updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid, bundleLocomotionOrders());
     window.__openClinXrSelectedCaseAudio = caseAudio.snapshot();
     applyStationBedsideStanceLock(caseOwnedBedsideApproach, deltaSeconds); // AFTER the pose: a lock reading last frame's pose cancels nothing.
     applyPhysicsBoneTransforms(now); // capture-gated; extracted module
@@ -4379,8 +4395,8 @@ function seatedRoleClipAutoLoopActive(humanoidRoot: Object3D, actorId: string): 
   return carveout?.admitted === true;
 }
 
-function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, camera: PerspectiveCamera, drive?: GeneratedRuntimeDrive | null): void {
-  updatePackageGeneratedHumanoidAnimations(humanoidAnimationContext, deltaSeconds, nowMs, camera, drive ?? null);
+function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, camera: PerspectiveCamera, drive?: GeneratedRuntimeDrive | null, locomotionOrders?: ReadonlyMap<string, { target: { x: number; z: number }; facing?: { x: number; z: number } }> | null): void {
+  updatePackageGeneratedHumanoidAnimations(humanoidAnimationContext, deltaSeconds, nowMs, camera, drive ?? null, locomotionOrders ?? null);
 }
 
 /** Capture-gated physics bone apply (#83 split from main for file-size freeze). */
