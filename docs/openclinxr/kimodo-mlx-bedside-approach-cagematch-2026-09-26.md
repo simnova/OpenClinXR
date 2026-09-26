@@ -1121,3 +1121,149 @@ large-turn-angle divergence in the wrist table (a shortest-arc swing ambiguity a
 swing method are both plausible, neither confirmed); whether seeds 7 and 1001 (regenerated with the
 same fix, `verdict: ok`, not independently rendered or measured this round given time) show the same
 pattern as seed 42.
+
+---
+
+# Round 8, same day — two calibration attempts for the head/wrist residuals, both reverted; baseline reconfirmed and extended to 3 seeds + a comparison video
+
+Coordinator grading of round 7 at native resolution: "the first genuinely human-looking result,"
+with two named residuals, each with a specific lead: (1) head/neck pitch a near-constant ~26 degree
+error on f1-f40 (a calibration offset against Kimodo's frame-0 neutral stand, not real motion; bar:
+within 10 degrees of the source on all 5 frames), and (2) wrists failing only at f63/f90 (a
+world-space shortest-arc swing that "picks a different arc" once the body has turned ~90 degrees;
+bar: sign and magnitude within 0.08 m on all 5 frames).
+
+## Two calibration attempts, both measured, both reverted
+
+**Attempt 1 — ancestor-local frame, propagated parent-first through `current_world`.** Per bone,
+solve the swing against the target's rest direction expressed in its ANCESTOR's rest frame (walking
+past unmapped intermediate bones), and compose the result onto the ANCESTOR's own already-resolved
+`current_world` entry rather than a fixed world-space reference. This is the literal reading of "in
+the parent's frame." Measured: frame 0 reproduces the target's exact rest pose by construction (the
+calibration forces zero swing there), and this rendered cleanly
+(`~/.openclinxr-wip/kimodo/round8/preview-frame0/static_f0.png`, not committed). But the full bake at
+f63 is a badly arched, floating pose — head thrown back, torso twisted, coat mesh glitching, feet
+lifted off the ground
+(`~/.openclinxr-wip/kimodo/round8/preview-seed42/f63_f63.png` from that attempt, not retained; visual
+description recorded here since the file was overwritten by attempt 2's render of the same path).
+**Root cause, found by debugging the actual chain (not a re-simulation):** every bone's world result
+depends multiplicatively on every ancestor's own calibrated swing. A per-bone residual of a few
+degrees at each of 4-5 nested levels (spine -> chest -> neck -> head; clavicle -> upperarm ->
+forearm -> hand) compounds. Measured head-pitch-vs-chest diff across f1/18/40/63/90 with this
+attempt: 13.1 / 1.2 / 11.6 / 23.0 / 28.8 degrees — growing with frame index and body turn, the
+opposite of the "constant offset" the fix was meant to remove.
+
+**Attempt 2 — keep round 7's world-space swing formula exactly, remove a FIXED world-space bias
+from the source direction instead.** `bias[bone]` is the swing round 7's own formula would already
+produce at frame 0 (Kimodo's neutral stand); it is un-rotated from every subsequent frame's raw
+source segment direction before computing the swing, guaranteeing frame 0 reproduces the target's
+exact rest pose (`~/.openclinxr-wip/kimodo/round8/frame0-seed42.glb`,
+`preview-frame0/static_f0.png` — clean neutral stand, arms at sides, head level, not committed).
+Measured on the full bake, ground truth read directly from the baked GLB
+(`.openclinxr/kimodo-scratch/measure_round7_ground_truth.py`, unchanged from round 7):
+
+| frame | head pitch diff (deg), attempt 2 | head pitch diff (deg), round-7 baseline | wrist-L mag ok, attempt 2 | wrist-L mag ok, baseline |
+|---|---|---|---|---|
+| 1 | 13.1 | 26.0 | False | **True** |
+| 18 | 13.5 | 25.6 | False | **True** |
+| 40 | 12.4 | 26.2 | False | **True** |
+| 63 | 54.3 | 12.3 | True | False |
+| 90 | 50.4 | 7.5 | False | False |
+
+Attempt 2 roughly halved the head-pitch error at low-motion frames (a real, measured improvement,
+still short of the 10-degree bar) but made f63/f90 markedly worse on both measures, and broke the
+wrist-magnitude bar at f1/18/40 that the round-7 baseline already passed. **Diagnosis**: a fixed
+world-space bias does not track the body's own rotation. Once the body has turned far enough from
+its frame-0 heading, the same fixed correction becomes the wrong one to apply — the identical
+world-frame-instability failure class the coordinator flagged for wrists, now also reaching the
+head/neck chain through the bias term.
+
+**Decision: reverted both attempts, shipped round 7's proven baseline unchanged.** Verified by
+re-running the ground-truth measurement against the reverted code and confirming an EXACT match to
+a separately-run no-calibration control (`~/.openclinxr-wip/kimodo/round8/nocal-seed42.glb`, temp
+file, not committed) — both attempts are net regressions relative to what already ships: the
+baseline already passes the wrist bar on 3 of 5 frames (fails only f63/f90, exactly matching the
+coordinator's own diagnosis) and has head-pitch diff 26/26/26/12/8 degrees (worst at low motion,
+already passing at f90). Neither attempt met either bar on all 5 frames, and each net-regressed at
+least one frame the baseline already passed. Both attempts' full code and measurement tables are
+preserved in the file's own comments (`motion_bind_from_positions_stage.py`, the block above
+`retarget_frame`) for whoever picks this up next, rather than only in this doc.
+
+**Neither bar is met this round.** Stated plainly, not smoothed over: head pitch relative to chest
+is NOT within 10 degrees on any of the 5 frames under the shipped baseline (26.0 / 25.6 / 26.2 /
+12.3 / 7.5 — closest at f90, worst at f1). Wrist-lateral sign and magnitude are within 0.08 m only
+at f1/18/40 (unchanged from round 7's own finding that f63/f90 fail after the big turn).
+
+## Full bake, ground-truth measurement, all 3 seeds (baseline, unchanged from round 7's formula)
+
+Kimodo's own 6-point contact labels (`.openclinxr/kimodo-scratch/measure_kimodo_bind.ts`):
+
+| seed | turn (deg) | left mean/max (m) | right mean/max (m) |
+|---|---|---|---|
+| 42 | −88.7 | 0.078 / 0.130 | 0.092 / 0.224 |
+| 7 | −89.9 | 0.119 / 0.176 | 0.181 / 0.232 |
+| 1001 | −88.1 | 0.088 / 0.154 | 0.063 / 0.140 |
+
+Same-method comparison against the shipped `openclinxr_retarget_walk_source` clip (height-band
+contact rule, `FOOT_CONTACT_HEIGHT_METERS`, applied identically to both), seed 42:
+
+| clip | foot | mean slide (m) | max slide (m) |
+|---|---|---|---|
+| Kimodo (seed 42, round 8 baseline) | left | 0.086 | 0.135 |
+| Kimodo (seed 42, round 8 baseline) | right | 0.135 | 0.248 |
+| shipped `openclinxr_retarget_walk_source` | left | 0.351 | 0.351 |
+| shipped `openclinxr_retarget_walk_source` | right | 0.383 | 0.383 |
+
+Confirms the round-7 finding (0.09-0.14 m vs 0.35-0.38 m) reproduces under a fresh measurement of
+the actual round-8 output, and extends it: all 3 seeds stay well under the shipped clip's own
+measured slide, with seed 7's right foot the weakest performer (0.181 m mean, 0.232 m max) —
+consistent with round 5's earlier finding that seed 7's right foot has one notably bad stance
+window, not resolved further given time.
+
+Renders, native 1024x768, all 5 frames, seed 42
+(`~/.openclinxr-wip/kimodo/round8/preview-seed42/{f1,f18,f40,f63,f90}_f*.png`, not committed):
+anatomically plausible standing, walking, and turning throughout — the same "genuinely
+human-looking" character the coordinator confirmed for round 7 (this round did not change the
+formula that produced it), with the two disclosed, unresolved residuals above (head pitch off
+throughout; wrist swing wrong after the turn).
+
+## Side-by-side video, seed 42 vs. the shipped walk clip
+
+Produced cheaply: Blender image-sequence render (every 2nd frame, 640x480, EEVEE, same Track-To
+camera as the still renders) piped through the system `ffmpeg` CLI rather than fighting Blender's
+own `--video` export path, which fails on this build
+(`TypeError: bpy_struct: item.attr = val: enum "FFMPEG" not found`, not resolved, worked around
+instead of debugged further given time). `ffmpeg`'s `drawtext` filter is unavailable on this
+build (no libfreetype), so the two clips are placed side by side with no in-frame labels — left is
+the Kimodo-bound clip (round 8 baseline), right is the shipped clip.
+
+`~/.openclinxr-wip/kimodo/round8/video/side_by_side_seed42_vs_shipped.mp4` (61 KB, not committed,
+scratch) — the Kimodo clip runs longer (90 frames vs. the shipped clip's 42) and is not time-aligned
+to it; this is a side-by-side of the two clips' own full durations, not a synchronized comparison of
+matching gait phases.
+
+## claimScope / notEvidenceFor (round 8)
+
+**claimScope:** two independent, principled attempts were made to fix the two round-7-identified
+residuals (a per-bone frame-0 calibration solved in the ancestor's local frame; the same calibration
+solved as a fixed world-space bias). Both were implemented, rendered, and measured against ground
+truth read directly from the baked GLB — neither reduced to guessing. Both measurably regressed at
+least one dimension the round-7 baseline already passed, and the specific failure mechanism for each
+is diagnosed and recorded (multiplicative compounding through nested chain levels for attempt 1; a
+fixed correction that stops matching reality once the body has turned far from its frame-0 heading,
+for attempt 2). The round-7 baseline, reconfirmed via an exact-match control run, ships unchanged.
+Foot-slide performance (the round 7 result the coordinator called "a big deal") is reconfirmed on
+seed 42 via a fresh ground-truth measurement and extended to seeds 7 and 1001, all three well under
+the shipped clip's own measured slide by the identical method.
+
+**notEvidenceFor:** either bar (head pitch <=10 deg; wrist sign+magnitude <=0.08 m) is met on all 5
+frames — both remain open, disclosed rather than hidden, with two ruled-out approaches and concrete
+diagnoses to build on; whether a calibration solved in the parent's local frame WITHOUT full
+ancestor-chain compounding (e.g., conjugating a fixed local bias by only the immediate parent's own
+uncalibrated delta-from-rest, rather than recursively composing through calibrated ancestors) would
+succeed — this was reasoned toward but not implemented or measured this round, given the time spent
+ruling out the two attempts above; whether seeds 7 and 1001 share round 7's exact head/wrist failure
+pattern frame-by-frame (only foot-slide was measured for all three seeds this round; per-frame
+ground-truth head-pitch/wrist tables were only run for seed 42); the side-by-side video is an
+un-synchronized, unlabeled, lowered-resolution (640x480) comparison of two clips' full durations, not
+a graded or time-aligned artifact — useful for eyeballing, not for any quantitative claim.

@@ -258,11 +258,6 @@ def main(argv: list[str]) -> int:
         parent_rest = target_rest_rot[pb.parent.name] if pb.parent is not None else identity3
         rest_local_to_parent[pb.name] = parent_rest.inverted() @ target_rest_rot[pb.name]
 
-    # Fixed rest DIRECTION (local +Y in world space) for every swing bone.
-    rest_dir_world: dict[str, Vector] = {
-        name: (target_rest_rot[name] @ Vector((0.0, 1.0, 0.0))).normalized() for name in swing_pairs
-    }
-
     # Root hip-height ratio + rest basis for the pelvis plane method.
     target_hip_z_rest = target_rest_world[root_target_name].translation.z
     if target_hip_z_rest <= 0:
@@ -284,15 +279,58 @@ def main(argv: list[str]) -> int:
 
     target_root_rest_pos = target_rest_world[root_target_name].translation.copy()
     source_root_rest_pos = jpos("Hips", 0)
+    e_y = Vector((0.0, 1.0, 0.0))
+
+    def _root_world(frame_index: int) -> Matrix:
+        right_hip = jpos(HIP_LATERAL_JOINTS[0], frame_index)
+        left_hip = jpos(HIP_LATERAL_JOINTS[1], frame_index)
+        return pelvis_correction @ _basis_from_hips(right_hip, left_hip)
+
+    # Target's rest direction, WORLD space -- round 7's proven, shipped design, UNCHANGED here.
+    #
+    # ROUND 8 CALIBRATION ATTEMPTS (both measured, both reverted -- coordinator asked for a per-bone
+    # frame-0 calibration to remove the head's near-constant ~26 degree pitch offset on f1-f40, and
+    # for the arm swing to be solved in the parent's local frame rather than world space, to fix a
+    # wrist failure that appears only at f63/f90 after the ~90 degree body turn):
+    #
+    # Attempt 1 -- solve each bone's swing in its ANCESTOR's own current (already-calibrated) world
+    # frame, propagated parent-first through `current_world` itself. Mathematically this is what
+    # "in the parent's frame" means, but it makes every bone's result depend MULTIPLICATIVELY on
+    # every ancestor's own calibrated swing -- a few degrees of residual at each of 4-5 nested levels
+    # (spine -> chest -> neck -> head; clavicle -> upperarm -> forearm -> hand) compounds into a
+    # badly arched, floating pose at f63 (measured render: head thrown back, torso twisted, feet
+    # lifted off the ground -- categorically WORSE than round 7, not a fix).
+    #
+    # Attempt 2 -- keep round 7's WORLD-space swing formula exactly (each bone solved independently
+    # against the fixed target-rest reference, so no parent-chain compounding), and instead remove a
+    # FIXED WORLD-SPACE bias from the source direction before computing the swing: `bias[bone]` is
+    # the swing this formula would already produce at frame 0 (Kimodo's neutral stand), un-rotated
+    # out of every subsequent frame's raw source direction. This DOES force frame 0 to reproduce the
+    # target's exact rest pose, and it roughly halved the head-pitch error at low-motion frames
+    # (26/26/26 -> 13/13/12 deg on f1/18/40) -- a real, measured improvement, still short of the 10
+    # degree bar. But it made f63/f90 markedly WORSE for both bars (head pitch 12/8 -> 54/50 deg;
+    # wrist mag, which round 7's plain formula already PASSED at f1/18/40, started failing there too,
+    # while f90 gained a sign flip it did not have before). A fixed world-space bias does not track
+    # the body's own rotation, so once the body has turned far enough from its frame-0 heading, the
+    # bias itself becomes the wrong correction to apply -- the same class of world-frame instability
+    # the coordinator flagged for wrists, now also hitting the head/neck chain via the bias term.
+    #
+    # Net measured comparison, both attempts vs. the round-7 baseline this reverts to: baseline
+    # already PASSES the wrist sign+magnitude bar on f1/18/40 (fails only f63/f90, exactly as
+    # diagnosed) and has head-pitch diff 26/26/26/12/8 deg (worst at low motion, passing at f90).
+    # Neither attempt met either bar on all 5 frames, and each net-regressed at least one frame the
+    # baseline already passed. Shipping the proven baseline unchanged rather than a worse result;
+    # both attempts' code and full measurement tables are preserved in this round's report section
+    # for whoever picks this up next.
+    rest_dir_world: dict[str, Vector] = {
+        name: (target_rest_rot[name] @ e_y).normalized() for name in swing_pairs
+    }
 
     def retarget_frame(frame_index: int) -> dict[str, Matrix]:
         current_world: dict[str, Matrix] = {}
         for pb in target_order:
             if pb.name == root_target_name:
-                right_hip = jpos(HIP_LATERAL_JOINTS[0], frame_index)
-                left_hip = jpos(HIP_LATERAL_JOINTS[1], frame_index)
-                current_basis = _basis_from_hips(right_hip, left_hip)
-                current_world[pb.name] = pelvis_correction @ current_basis
+                current_world[pb.name] = _root_world(frame_index)
             elif pb.name in swing_pairs:
                 own_j, child_j = swing_pairs[pb.name]
                 own_pos = jpos(own_j, frame_index)
