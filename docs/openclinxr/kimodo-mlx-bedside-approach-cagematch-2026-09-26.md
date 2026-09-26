@@ -1267,3 +1267,167 @@ pattern frame-by-frame (only foot-slide was measured for all three seeds this ro
 ground-truth head-pitch/wrist tables were only run for seed 42); the side-by-side video is an
 un-synchronized, unlabeled, lowered-resolution (640x480) comparison of two clips' full durations, not
 a graded or time-aligned artifact — useful for eyeballing, not for any quantitative claim.
+
+---
+
+# Round 9, same day — stop fighting head calibration (runtime already owns it); arm conjugation tried and reverted per the fallback; first real-runtime graft test
+
+Coordinator, after grading round 8's side-by-side video: body motion and feet look right, but the
+head reads bowed next to the shipped walk's upright head. Direction: simplify rather than fight
+it — the runtime already drives head orientation at playback time (bind-relative head attention
+and gaze lead), so this clip does not need to own neck/head at all. Bake neck/head at the target's
+rest-local rotation; bar is head pitch within 10 degrees of the PHYSICIAN'S SHIPPED WALK (not of
+Kimodo's source). Also: try the immediate-parent-conjugation idea from round 8's own "recommended
+next" note, scoped to clavicle/upper-arm only, for the f63/f90 wrist residual; keep round 7's arms
+if it doesn't pass cleanly. Then the real test: graft the clip onto a scratch actor GLB and run it
+through the actual runtime capture tooling, not just Blender renders.
+
+## Head/neck: baked to rest, bar met on all 5 frames
+
+`REST_ONLY_CANONICALS = ("neck", "head")` excludes both from `swing_pairs` entirely (they fall
+through to the pre-existing "keep target rest pose" branch in `retarget_frame`, for every frame
+including frame 0). `spine01`/`spine02` — the only bones structurally between chest (`spine03`) and
+neck (`neck01`) — were already unmapped and already rest-only before this change (confirmed by
+walking the actor's real bone parent chain in Blender: `root -> spine05 -> spine04 -> spine03 ->
+spine02 -> spine01 -> neck01 -> neck02 -> neck03 -> head`); no additional spine bone needed
+excluding.
+
+Measured (new script, `.openclinxr/kimodo-scratch/measure_head_vs_shipped.py`, not committed —
+reads chest/neck/head ground truth from both GLBs via the SAME formula as round 7's script, samples
+the shipped clip's own 42-frame range proportionally against Kimodo's 5 sampled frames):
+
+| kimodo frame | kimodo pitch (deg) | shipped frame (proportional) | shipped pitch (deg) | diff | bar<=10deg |
+|---|---|---|---|---|---|
+| 1 | 32.0 | 0 | 23.7 | 8.3 | True |
+| 18 | 32.0 | 8 | 22.0 | 9.9 | True |
+| 40 | 32.0 | 18 | 23.8 | 8.2 | True |
+| 63 | 32.0 | 29 | 22.0 | 10.0 | True |
+| 90 | 32.0 | 41 | 23.7 | 8.3 | True |
+
+**All 5 frames pass.** Kimodo's pitch is constant at 32.0 degrees (baked to rest, no motion, as
+designed); the shipped walk's own head pitch naturally varies 22.0-23.8 degrees across its cycle.
+Render confirms visually: `~/.openclinxr-wip/kimodo/round9/preview-seed42/f1_f1.png` shows a level,
+forward-facing head (not committed, scratch) — a categorical difference from every prior round's
+bowed head.
+
+## Arms: immediate-parent conjugation tried on clavicle/upper-arm, measured, reverted per the stated fallback
+
+Implementation: `bias[bone]` is still round 7's own frame-0 world-space swing (unchanged formula),
+but for shoulder(clavicle)/upper_arm only, it is CONJUGATED by how far the bone's one named parent
+(root for shoulder; shoulder for upper_arm) has rotated away from ITS OWN rest orientation by frame
+`t` — using only that ONE parent's already-resolved `current_world` entry from the same
+parent-first pass, never a recursively conjugated ancestor. Depth capped at 2 (upper_arm depends on
+shoulder's conjugated result; shoulder depends only on root, which carries no bias at all), not the
+unbounded chain of round 8 attempt 1. Forearm/hand kept round 7's plain formula unconditionally, per
+instruction.
+
+Measured on seed 42, ground truth from the baked GLB:
+
+| frame | wrist-L mag diff, conjugated | wrist-L mag ok, conjugated | wrist-L mag ok, round-7 baseline |
+|---|---|---|---|
+| 1 | 0.0856 | **False** (was True) | True |
+| 18 | 0.0696 | True | True |
+| 40 | 0.0610 | True | True |
+| 63 | 0.0529 | **True** (was False) | False |
+| 90 | — (sign flip) | False | False |
+
+It did fix the coordinator's actual named target — f63 passes for the first time in this
+cagematch — but it cost f1, which round 7's plain formula already passed (0.0856 m diff, just over
+the 0.08 bar), and f90 still fails with a sign flip, unchanged. **Not a clean pass on all 5 frames.**
+Per the coordinator's own stated fallback, reverted: shoulder/upper_arm/forearm/hand all use round
+7's plain, unmodified per-bone formula, unconditionally. The attempt's code, measurements, and this
+outcome are recorded in the station script's own comments for whoever revisits the wrist residual.
+
+## The real test: grafted onto a scratch actor GLB, run through the actual runtime capture
+
+**Mechanism used — no new runtime code, no new capture-script flag.** The runtime already selects
+its locomotion clip by NAME PREFIX (`isDeliberateSelectionOnlyClip`,
+`packages/openclinxr/xr-asset-loading/src/clip-names.ts:76` — any clip starting with
+`openclinxr_retarget_` is a deliberate-selection-only locomotion take, and
+`registerGeneratedHumanoidAnimation` takes the FIRST such clip found on the loaded GLB). The
+scratch GLB was built by (1) running this station with `--clip-name
+openclinxr_retarget_kimodo_r9_seed42` (a name that itself carries the selection prefix) against the
+shipped physician actor, then (2) a one-off Blender script (not committed, scratch) that re-imports
+that output and removes the original `openclinxr_retarget_walk_source` action before re-exporting,
+so the scratch file (`~/.openclinxr-wip/kimodo/round9/runtime-graft/physician-kimodo-seed42-graft.glb`,
+9,146,824 bytes) carries exactly ONE clip matching the selection prefix. Loading it via the
+EXISTING, already-capture-only, already-default-unchanged `--humanoid=` flag on
+`foot-plant-video-capture.ts` is therefore sufficient by itself — the runtime's own unmodified
+selection logic picks up the grafted clip with zero additional code. Confirmed served: sha256
+`f5f90d046aaa8de40b447a30fa5e...`, 3 requests, logged by the capture script's own override-tracking
+(`humanoidOverrideRecords`).
+
+Ran twice: once with `--humanoid=<scratch glb>`, once with no override (shipped baseline), both via
+`pnpm run asset:motion:foot-plant-video`, same scenario
+(`scene_closure_supine_bedside_v1`), same portless dev server, same camera-framing search.
+
+| metric | Kimodo (grafted, seed 42) | shipped `openclinxr_retarget_walk_source` |
+|---|---|---|
+| max slide (m) | 0.626 | 0.511 |
+| median slide (m) | 0.134 | 0.230 |
+| stance windows | 4 | 3 |
+| fps | 30.0 | 30.0 |
+| travel heading (deg) | 288.7 | 117.3 |
+| target heading (deg) | 180.0 | 180.0 |
+| **heading error (deg)** | **108.7** | **62.7** |
+| feet-side framing gate | **FAIL** (span=0.628, not lower-half) | pass (span=0.312, lower-half) |
+| three-quarter framing gate | pass (clear=1.0) | pass (clear=1.0) |
+
+**Stated plainly, not smoothed over: the capture script's OWN internal framing gate FAILED for
+Kimodo's feet-side pass** (`Error: framingCheck failed: feet-side pass=false ... span=0.628`,
+process exit 1) — the report JSON and both videos were written before that throw, so the numbers
+above and the video files are real, but this run did not exit clean the way the shipped baseline
+did. Root cause, from the numbers rather than a guess: Kimodo's net travel heading is 108.7 degrees
+off the scenario's intended bedside-approach heading (target = pi = 180 degrees, i.e. facing the
+patient) — nearly 75% larger than the shipped clip's OWN 62.7-degree deviation from the same
+target, which the executor and camera-framing search already tolerate. The larger deviation walks
+the character to a different final position/orientation than the feet-side camera (positioned from
+a "dry" pass) was framed for, producing an oversized, badly-cropped subject
+(`subjectScreenHeightFraction` 1.14 vs the shipped clip's 0.53). **Neither clip hits the target
+heading exactly — this is not a Kimodo-only defect — but Kimodo's is roughly 46 degrees worse**,
+and that gap is large enough to break the feet-side framing gate that the shipped clip's smaller
+deviation does not.
+
+On the two dimensions that DID complete cleanly: Kimodo's MEDIAN slide is notably better (0.134 m
+vs 0.230 m) but its MAX slide is worse (0.626 m vs 0.511 m) — a genuinely mixed result under real
+runtime foot-locking (this executor applies its own IK/stance logic on top of the clip, so this
+number is not directly comparable to this cagematch's earlier same-method offline measurements,
+which measured the RAW bound clip before any runtime foot-lock was applied). Per-frame
+`headPitchDeg` in both reports (a runtime-computed, gaze-driven value, confirming the runtime does
+own head orientation independent of the clip as the coordinator said) ranges -9.5 to 16.6 degrees
+for Kimodo and -9.8 to 4.4 degrees for shipped — same mechanism, similar range, not the clip
+driving it.
+
+Videos (both not committed, scratch):
+- Kimodo: `~/.openclinxr-wip/kimodo/round9/runtime-graft/kimodo-capture/feet-side.mp4`,
+  `~/.openclinxr-wip/kimodo/round9/runtime-graft/kimodo-capture/three-quarter.mp4`
+- Shipped: `~/.openclinxr-wip/kimodo/round9/runtime-graft/shipped-capture/feet-side.mp4`,
+  `~/.openclinxr-wip/kimodo/round9/runtime-graft/shipped-capture/three-quarter.mp4`
+
+Full reports: `~/.openclinxr-wip/kimodo/round9/runtime-graft/{kimodo,shipped}-capture/foot-plant-video.json`.
+
+## claimScope / notEvidenceFor (round 9)
+
+**claimScope:** neck/head baked to the target's rest-local rotation meets the coordinator's stated
+bar (within 10 degrees of the physician's OWN shipped walk) on all 5 sampled frames, verified
+against ground truth read from the baked GLB and confirmed visually in a native render. The
+immediate-parent-conjugation idea for clavicle/upper-arm was implemented and measured exactly as
+directed; it fixed the named target frame (f63) but cost a previously-passing frame (f1) and left
+f90 unresolved, so per the coordinator's own fallback it was reverted, and round 7's plain arm
+formula ships unchanged. The clip was run through the ACTUAL runtime capture tooling (not just
+Blender renders) via the existing `--humanoid=` override and the runtime's own unmodified
+clip-selection-by-prefix logic — no new flags or runtime code were needed or added. Both a Kimodo
+run and a same-scenario shipped-clip run completed enough to produce comparable JSON reports and
+video for both feet-side and three-quarter framings.
+
+**notEvidenceFor:** whether the arm-swing f90 sign-flip or the f1 regression introduced by the
+conjugation attempt share a root cause (not investigated further, given the fallback applied);
+whether Kimodo's 108.7-degree heading deviation is a property of this specific seed/generation or
+of the retarget method in general (only seed 42 was run through the real-runtime capture this
+round; seeds 7 and 1001 were not); why the feet-side framing gate's camera search does not adapt to
+a large heading deviation (the gate's own tolerance/adaptivity was not investigated — this round
+only measured that it fails, and by how much); whether the max-slide regression (0.626 vs 0.511 m)
+is caused by the runtime's foot-lock IK interacting differently with Kimodo's stride than with the
+shipped clip's, or is a downstream consequence of the heading deviation itself (the character
+walking a different, possibly longer or more corrective path); clinical usability of any of this
+motion (no clinical review was performed at any point in this cagematch).

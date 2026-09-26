@@ -100,6 +100,16 @@ SWING_SEGMENTS: dict[str, tuple[str, str]] = {
     "foot.R": ("RightFoot", "RightToeBase"),
     "toe.R": ("RightToeBase", "RightToeEnd"),
 }
+# Coordinator direction 2026-09-26 (round 9): the runtime already drives head orientation at
+# playback time (bind-relative head attention and gaze lead), so this clip does not need to own
+# neck/head at all -- and round 8's side-by-side video showed exactly the cost of having it try:
+# Kimodo's head reads visibly bowed next to the shipped walk's upright head. Simpler than
+# calibrating the source's own head/neck segment convention (round 8 tried and reverted two
+# calibration attempts for this) is to not drive these bones from Kimodo data at all. Excluded from
+# `swing_pairs` here so they fall through to the existing "keep target rest pose" branch in
+# `retarget_frame` for every frame, including frame 0 -- i.e. baked at the target's rest-local
+# rotation, verbatim, for the whole clip.
+REST_ONLY_CANONICALS = ("neck", "head")
 HIP_LATERAL_JOINTS = ("RightLeg", "LeftLeg")  # (right, left) -- matches SkeletonBase.hip_joint_idx convention
 
 
@@ -236,13 +246,15 @@ def main(argv: list[str]) -> int:
     # both source joint names are present in the exported positions.
     swing_pairs: dict[str, tuple[str, str]] = {}
     for canonical, (own_j, child_j) in SWING_SEGMENTS.items():
+        if canonical in REST_ONLY_CANONICALS:
+            continue
         target_name = canonical_to_target.get(canonical)
         if not target_name or target_name not in target_actor.pose.bones:
             continue
         if own_j not in joints or child_j not in joints:
             continue
         swing_pairs[target_name] = (own_j, child_j)
-    log.append(f"swing_pairs={len(swing_pairs)}")
+    log.append(f"swing_pairs={len(swing_pairs)} rest_only={list(REST_ONLY_CANONICALS)}")
     if len(swing_pairs) < MIN_DRIVEN_BONES:
         return _reject(args.report, "too_few_swing_pairs", "\n".join(log), extra={"pairs": list(swing_pairs)})
 
@@ -326,6 +338,26 @@ def main(argv: list[str]) -> int:
         name: (target_rest_rot[name] @ e_y).normalized() for name in swing_pairs
     }
 
+    # ROUND 9, coordinator-directed: "try your immediate-parent conjugation idea only for the
+    # clavicle/upper-arm chain, and measure it. If it doesn't pass cleanly, keep round 7's arms."
+    # Tried and MEASURED, then reverted -- kept here as a record, not as dead code left silently in
+    # place. The idea: `bias[bone]` is round 7's own frame-0 swing (a WORLD-space rotation, computed
+    # via the unmodified per-bone formula below), but instead of removing it as a FIXED world
+    # rotation (round 8 attempt 2's mistake), CONJUGATE it by how far the bone's one named parent
+    # (root for shoulder/clavicle; shoulder for upper_arm) has itself rotated away from its own rest
+    # orientation by frame `t` -- i.e. treat it as defined in the parent's local frame, re-expressed
+    # in world space using only the parent's already-resolved current state, never the parent's own
+    # conjugated bias recursively (depth capped at 2, not the unbounded chain of round 8 attempt 1).
+    #
+    # Measured on seed 42, ground truth read from the baked GLB
+    # (`.openclinxr/kimodo-scratch/measure_round7_ground_truth.py`, unchanged): wrist-L
+    # sign+magnitude passed on f18/f40/f63 (63 is the coordinator's actual target, and it DID start
+    # passing -- src/tgt lateral 0.291/0.238, diff 0.053, under the 0.08 bar for the first time in
+    # this cagematch) but FAILED f1 (0.0856 m diff, just over the 0.08 bar -- a frame that round 7's
+    # plain formula already passed) and still failed f90 (a sign flip, unchanged from round 7). Not
+    # a clean pass on all 5 frames, and it cost a previously-passing frame to fix a previously-
+    # failing one. Per the coordinator's own stated fallback, reverted: shoulder/upper_arm/forearm/
+    # hand all use round 7's plain, unmodified per-bone WORLD-space formula below, unconditionally.
     def retarget_frame(frame_index: int) -> dict[str, Matrix]:
         current_world: dict[str, Matrix] = {}
         for pb in target_order:
