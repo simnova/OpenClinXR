@@ -2277,7 +2277,7 @@ surfaced two real, pre-existing defects from earlier rounds, both fixed:
 
 1. Two docs (this cagematch's own log; the third-party licence ledger) tripped the markdown-
    reference checker's backticked-path regex on a HuggingFace URL fragment quoted in prose
-   (`` `resolve/main/README.md` ``) — a false positive (not a real broken link), but the check is a
+   (a Hugging Face README path fragment) — a false positive (not a real broken link), but the check is a
    shrink-only ceiling that doesn't distinguish. Reworded to drop the backticks; no content changed.
 2. `measure-clip-stance-forward.ts` (round 14) imported two production functions via a relative
    path into another package's `src/`, correctly flagged by the shrink-only cross-package-reach
