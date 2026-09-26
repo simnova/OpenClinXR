@@ -61,8 +61,8 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "patient_margaret_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
-          "assetSha256": "02b631e58a1c32f5254598bbce7136a4da3f8545efc0b8632ec8917edac5f7f1",
-          "byteCount": 18765736
+          "assetSha256": "00381ac3903a4124998824ff1f6422c58c2ae0bb28e2cf0692f5a84f56e3cf43",
+          "byteCount": 18987808
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:senior_resident_ward_v1",
@@ -77,16 +77,16 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "ward_nurse_patel_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-          "assetSha256": "5e22b3a99f9f5c956906a35fe4bf7ca6e880bec0582d1143aa45f1b9d1fbfc4f",
-          "byteCount": 8396648
+          "assetSha256": "931cf26de4e2ee9a70b5ce98bd4ee9743ba96564eb2b12b5c5ef4c54f84f1b5a",
+          "byteCount": 8615768
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:daughter_lena_ellis_v1",
           "kind": "actor",
           "contentId": "daughter_lena_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-          "assetSha256": "fa8358be3d7ab312d28628572419e585aff9e042abc65ead9627b7d2efd31b79",
-          "byteCount": 10149968
+          "assetSha256": "6546809008fab1e529848d385e72b148e69b1e75e230b40b5be8b87b29633f7f",
+          "byteCount": 10369096
         }
       ],
       "revisions": {
@@ -148,11 +148,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-9a1c193171195800cca3d251c3c5c651",
+      "planRevision": "plan-v1-b516ef55ea6e2d9d1b2f4bc13f027cef",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-9a1c193171195800cca3d251c3c5c651"
+        "acknowledgedPlanRevision": "plan-v1-b516ef55ea6e2d9d1b2f4bc13f027cef"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);
