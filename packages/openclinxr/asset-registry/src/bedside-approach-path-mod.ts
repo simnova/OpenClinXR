@@ -148,14 +148,27 @@ export function planBedsideApproach(input: {
     waypoints.push({ position, headingRadians });
   }
 
-  // Continuous-path collision: every waypoint is checked, not just the destination. A route that
-  // ends clear having passed through a cart is the failure this exists to catch.
+  return finishApproachPlan(waypoints, input.target, input.obstacles);
+}
+
+/**
+ * Continuous-path collision: every waypoint is checked, not just the destination. A route that
+ * ends clear having passed through a cart is the failure this exists to catch. Shared by
+ * `planBedsideApproach` (a straight line) and `planRoutedBedsideApproach` (a polyline) — the
+ * checking and arrival rule are ONE function, so a routed plan is graded identically to a
+ * straight one, never more leniently.
+ */
+function finishApproachPlan(
+  waypoints: ApproachWaypoint[],
+  target: Vector3,
+  obstacles: readonly MeasuredObstacle[],
+): BedsideApproachPlan {
   const pathViolations: ClearanceViolation[] = [];
   const seen = new Set<string>();
   for (const waypoint of waypoints) {
     for (const violation of bedsideClearanceViolations({
       standingPosition: waypoint.position,
-      obstacles: input.obstacles,
+      obstacles,
     })) {
       const key = `${violation.kind}:${violation.obstacleId}`;
       if (seen.has(key)) continue;
@@ -166,7 +179,7 @@ export function planBedsideApproach(input: {
 
   const last = waypoints[waypoints.length - 1];
   const finalPoseErrorMeters = last
-    ? Math.hypot(last.position.x - input.target.x, last.position.z - input.target.z)
+    ? Math.hypot(last.position.x - target.x, last.position.z - target.z)
     : Number.POSITIVE_INFINITY;
 
   return {
@@ -177,4 +190,53 @@ export function planBedsideApproach(input: {
     arrivesAtTarget: finalPoseErrorMeters <= 0.001 && pathViolations.length === 0,
     finalPoseErrorMeters,
   };
+}
+
+/**
+ * A bounded walk along a MULTI-SEGMENT polyline (a routed path around obstacles), sampled the same
+ * way `planBedsideApproach` samples a straight one.
+ *
+ * `polyline` is `[start, ...intermediate corners..., target]` in world XZ (see
+ * `route-planner-mod.ts` for how a polyline is produced). Each segment is resampled at
+ * `spacingMeters`; every waypoint faces the NEXT corner it is walking toward, and the very last
+ * waypoint faces `facing` (the patient), exactly like the straight-line planner.
+ */
+export function planRoutedBedsideApproach(input: {
+  polyline: readonly Vector3[];
+  target: Vector3;
+  facing: Vector3;
+  obstacles: readonly MeasuredObstacle[];
+  spacingMeters?: number;
+}): BedsideApproachPlan {
+  const spacing = input.spacingMeters ?? APPROACH_WAYPOINT_SPACING_METERS;
+  if (input.polyline.length < 2) {
+    return finishApproachPlan([], input.target, input.obstacles);
+  }
+  const waypoints: ApproachWaypoint[] = [];
+  const lastSegmentIndex = input.polyline.length - 2;
+  for (let seg = 0; seg <= lastSegmentIndex; seg += 1) {
+    const from = input.polyline[seg]!;
+    const to = input.polyline[seg + 1]!;
+    const dx = to.x - from.x;
+    const dz = to.z - from.z;
+    const length = Math.hypot(dx, dz);
+    const steps = Math.max(1, Math.ceil(length / spacing));
+    // Segment 0 emits its own start point (i=0); every later segment picks up at i=1 so the
+    // shared corner between two segments is not emitted twice.
+    const startAt = seg === 0 ? 0 : 1;
+    for (let i = startAt; i <= steps; i += 1) {
+      const t = i / steps;
+      const position: Vector3 = {
+        x: from.x + dx * t,
+        y: to.y,
+        z: from.z + dz * t,
+      };
+      const isFinalWaypoint = seg === lastSegmentIndex && i === steps;
+      const headingRadians = isFinalWaypoint
+        ? headingRadiansToward(position, input.facing)
+        : headingRadiansToward(position, to);
+      waypoints.push({ position, headingRadians });
+    }
+  }
+  return finishApproachPlan(waypoints, input.target, input.obstacles);
 }

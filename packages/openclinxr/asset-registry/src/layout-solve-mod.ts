@@ -1,4 +1,4 @@
-import { planBedsideApproach, sweptRouteViolations } from "./bedside-approach-path-mod.js";
+import { planBedsideApproach, planRoutedBedsideApproach, sweptRouteViolations } from "./bedside-approach-path-mod.js";
 import { bedsideClearanceViolations, type MeasuredObstacle } from "./bedside-clearance.js";
 import {
   type BedsideTarget,
@@ -7,6 +7,26 @@ import {
   type SupportBounds,
   type Vector3,
 } from "./bedside-target.js";
+import { planRouteWaypoints } from "./route-planner-mod.js";
+
+/** The walker's standing-footprint radius the route planner inflates obstacles by (SC-00's 0.3 m). */
+export const ROUTE_PLANNER_WALKER_RADIUS_METERS = 0.3;
+
+/**
+ * One corner of a routed (non-straight) approach, world XZ, in walking order including the start
+ * and the target. Y is not carried here — a consumer re-attaches the floor Y it already has.
+ *
+ * FORMAT FOR THE NEXT STEP (runtime executor, xr-humanoid-animation, not built here): this is the
+ * waypoint polyline `resolvedLayout.routeWaypoints` on a `DurableAcceptedScenePlanRecord`, first
+ * point is the walker's staged start, last point is the bedside target
+ * (`resolvedLayout.targetPosition`), and every point in between is a corner the route planner found
+ * around an inflated fixture footprint. An executor plays the walk as a sequence of straight
+ * segments between consecutive points, in order — no smoothing or curve-fitting is implied or
+ * required; `bedside-approach-path-mod.ts`'s `sweptRouteViolations` already validates the polyline
+ * as straight SEGMENTS, so an executor that walks straight lines between points reproduces exactly
+ * what was checked.
+ */
+export type RouteWaypoint = { x: number; z: number };
 
 /**
  * The BROWSER-SAFE half of deterministic layout variation: the candidate search, given a seed.
@@ -34,6 +54,13 @@ export type ResolvedLayout =
       target: BedsideTarget;
       approachSide: "patient_left" | "patient_right";
       standoffMeters: number;
+      /**
+       * Present only when the STRAIGHT route was blocked and the grid-A* planner
+       * (`route-planner-mod.ts`) found a clear detour around the inflated fixture footprints.
+       * Absent means the straight line already cleared — the common case, and the cheapest to
+       * walk. See this file's `RouteWaypoint` doc for the format a runtime executor consumes.
+       */
+      routeWaypoints?: readonly RouteWaypoint[] | undefined;
     }
   | {
       resolved: false;
@@ -159,39 +186,89 @@ export function resolveBedsideLayoutFromSeed(input: {
         // keeps looking instead of returning a footprint that the route stage would refuse anyway.
         if (input.start !== undefined) {
           const routeTarget: Vector3 = { x: target.position.x, y: input.start.y, z: target.position.z };
-          const plan = planBedsideApproach({
+          const straightPlan = planBedsideApproach({
             from: input.start,
             target: routeTarget,
             facing: input.patientPosition,
             obstacles: input.obstacles,
           });
-          const routeReasons: string[] = [];
-          if (plan.pathViolations.length > 0) {
-            routeReasons.push(
-              `route: ${plan.pathViolations.map((violation) => `${violation.obstacleId}: ${violation.reason}`).join("; ")}`,
-            );
-          }
-          if (!plan.arrivesAtTarget) {
-            routeReasons.push(`does not arrive: final pose error ${plan.finalPoseErrorMeters.toFixed(4)} m`);
-          }
-          const swept = sweptRouteViolations({
-            waypoints: plan.waypoints,
+          const straightSwept = sweptRouteViolations({
+            waypoints: straightPlan.waypoints,
             obstacles: input.obstacles,
             ...(input.floorY === undefined ? {} : { floorY: input.floorY }),
           });
-          if (swept.length > 0) {
+          const straightBlocked =
+            straightPlan.pathViolations.length > 0 || !straightPlan.arrivesAtTarget || straightSwept.length > 0;
+
+          if (!straightBlocked) {
+            return { resolved: true, seed, target, approachSide, standoffMeters };
+          }
+
+          // The straight route is blocked. Try a routed detour around the inflated fixture
+          // footprints before refusing this candidate — a human walking the room would step
+          // around the stretcher, not report it as unsatisfiable_intent.
+          const routedWaypoints = planRouteWaypoints({
+            start: { x: input.start.x, z: input.start.z },
+            target: { x: routeTarget.x, z: routeTarget.z },
+            obstacles: input.obstacles,
+            walkerRadiusMeters: ROUTE_PLANNER_WALKER_RADIUS_METERS,
+          });
+          if (routedWaypoints !== null && routedWaypoints.length >= 2) {
+            const polyline: Vector3[] = routedWaypoints.map((point) => ({
+              x: point.x,
+              y: input.start!.y,
+              z: point.z,
+            }));
+            const routedPlan = planRoutedBedsideApproach({
+              polyline,
+              target: routeTarget,
+              facing: input.patientPosition,
+              obstacles: input.obstacles,
+            });
+            const routedSwept = sweptRouteViolations({
+              waypoints: routedPlan.waypoints,
+              obstacles: input.obstacles,
+              ...(input.floorY === undefined ? {} : { floorY: input.floorY }),
+            });
+            const routedBlocked =
+              routedPlan.pathViolations.length > 0 || !routedPlan.arrivesAtTarget || routedSwept.length > 0;
+            if (!routedBlocked) {
+              return {
+                resolved: true,
+                seed,
+                target,
+                approachSide,
+                standoffMeters,
+                routeWaypoints: routedWaypoints,
+              };
+            }
+          }
+
+          const routeReasons: string[] = [];
+          if (straightPlan.pathViolations.length > 0) {
             routeReasons.push(
-              `swept: ${swept.map((violation) => `${violation.obstacleId}: ${violation.reason}`).join("; ")}`,
+              `route: ${straightPlan.pathViolations.map((violation) => `${violation.obstacleId}: ${violation.reason}`).join("; ")}`,
             );
           }
-          if (routeReasons.length > 0) {
-            unsatisfied.push({
-              approachSide,
-              standoffMeters,
-              reason: `along ${alongOffsetMeters}m: ${routeReasons.join("; ")}`,
-            });
-            continue;
+          if (!straightPlan.arrivesAtTarget) {
+            routeReasons.push(`does not arrive: final pose error ${straightPlan.finalPoseErrorMeters.toFixed(4)} m`);
           }
+          if (straightSwept.length > 0) {
+            routeReasons.push(
+              `swept: ${straightSwept.map((violation) => `${violation.obstacleId}: ${violation.reason}`).join("; ")}`,
+            );
+          }
+          routeReasons.push(
+            routedWaypoints === null
+              ? "routed: no path found around the inflated fixture footprints"
+              : "routed: a detour was found but still failed clearance/swept checks",
+          );
+          unsatisfied.push({
+            approachSide,
+            standoffMeters,
+            reason: `along ${alongOffsetMeters}m: ${routeReasons.join("; ")}`,
+          });
+          continue;
         }
         return { resolved: true, seed, target, approachSide, standoffMeters };
       }

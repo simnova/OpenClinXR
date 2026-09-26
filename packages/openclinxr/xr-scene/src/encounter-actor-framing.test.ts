@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { Group } from "three";
-import { applyCleanEncounterVisualReviewActorFraming } from "./encounter-actor-framing.js";
+import {
+  applyCleanEncounterVisualReviewActorFraming,
+  resolveActorFramedPosition,
+} from "./encounter-actor-framing.js";
 
 /**
  * OBSERVABLE: when the visual-review framing pass overrides a placement another source resolved,
@@ -115,4 +118,59 @@ describe("the visual-review framing pass does not silently discard a declared pl
    *     an override is a discarded declared placement, not a framing touch.
    *   - skip path untouched (clause (2) green); framing still frames (clause (3) green).
    */
+});
+
+/**
+ * ed-reanchor-refreeze investigation (2026-09-26). `resolveActorFramedPosition` is the SHARED
+ * function a build-time caller (the sc-06 freeze generator, which has no live `Group` to stage a
+ * real actor into) must call to compute the SAME "start" / "patientWorld" position the runtime
+ * actually stages — because the runtime ALWAYS runs a standing actor through
+ * `applyCleanEncounterVisualReviewActorFraming` on a normal (non-capture) boot, overwriting any
+ * manifest-declared position.
+ *
+ * PINNED VALUES. Measured live (intercepted bundle route + a real ui-xr boot) on 2026-09-26: the
+ * ED nurse's manifest declares `(1.78, 0.95, 0.42)` and the runtime actually stages her at
+ * `(0.64, 0, 0.3)` — the fixed "clinical_team" framing point, because she is STANDING and the
+ * framing pass only exempts seated/supine actors. These two tests pin that value through the
+ * shared function so a change to the framing table is caught here, at the same place the freeze
+ * generator and the runtime both read it from.
+ */
+describe("resolveActorFramedPosition matches what the runtime actually stages", () => {
+  it("frames a standing clinical_team actor at the fixed clinical review point, not the manifest position", () => {
+    const result = resolveActorFramedPosition({
+      actorId: "nurse_maria_alvarez_v1",
+      scenarioId: "ed_chest_pain_priority_v1",
+      role: "nurse",
+      slotKind: "clinical_team",
+      posture: "standing",
+      manifestPosition: { x: 1.78, y: 0.95, z: 0.42 },
+    });
+    expect(result).toEqual({ x: 0.64, y: 0, z: 0.3 });
+  });
+
+  it("leaves a SUPINE patient's manifest position untouched (her XZ is owned by her deck anchor)", () => {
+    const result = resolveActorFramedPosition({
+      actorId: "patient_robert_hayes_v1",
+      scenarioId: "ed_chest_pain_priority_v1",
+      role: "patient",
+      slotKind: "primary_patient",
+      posture: "supine",
+      manifestPosition: { x: -0.9, y: 0, z: -0.1 },
+    });
+    expect(result).toEqual({ x: -0.9, y: 0, z: -0.1 });
+  });
+
+  it("frames the ward physician (additional_cast) at the fixed additional-cast framing point", () => {
+    // scene_closure's walker is cast into additional_cast, not clinical_team — a different fixed
+    // point (ADDITIONAL_CAST_FRAMING_XZ). Pinned so the two cases cannot silently share one value.
+    const result = resolveActorFramedPosition({
+      actorId: "senior_resident_ward_v1",
+      scenarioId: "scene_closure_supine_bedside_v1",
+      role: "physician",
+      slotKind: "additional_cast",
+      posture: "standing",
+      manifestPosition: { x: -1.95, y: 0, z: 1.72 },
+    });
+    expect(result).toEqual({ x: 1.95, y: 0, z: 0.15 });
+  });
 });

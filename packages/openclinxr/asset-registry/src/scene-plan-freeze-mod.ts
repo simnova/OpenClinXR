@@ -254,6 +254,7 @@ export function freezeAcceptedScenePlan(input: FreezeScenePlanInput): FreezeScen
       observedObstacleIds: [...resolved.observedObstacleIds],
       waypointCount: resolved.plan.waypoints.length,
       routeLengthMeters: routeLengthMeters(resolved),
+      ...(resolved.routeWaypoints ? { routeWaypoints: resolved.routeWaypoints.map((point) => ({ ...point })) } : {}),
     },
     arrival: { ...input.arrival },
     eventOrder: input.eventOrder.map((event) => ({ ...event })),

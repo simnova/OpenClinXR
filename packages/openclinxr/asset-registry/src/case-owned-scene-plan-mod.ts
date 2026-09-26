@@ -1,8 +1,17 @@
-import { type BedsideApproachPlan, planBedsideApproach, sweptRouteViolations } from "./bedside-approach-path-mod.js";
+import {
+  type BedsideApproachPlan,
+  planBedsideApproach,
+  planRoutedBedsideApproach,
+  sweptRouteViolations,
+} from "./bedside-approach-path-mod.js";
 import type { MeasuredObstacle } from "./bedside-clearance.js";
 import type { BedsideTarget, SupportBounds, Vector3 } from "./bedside-target.js";
 import { geometryRevisionDigest, type ObservedApproachGeometry } from "./case-approach-intent-mod.js";
-import { type BedsideLayoutIntent, resolveBedsideLayoutFromSeed } from "./layout-solve-mod.js";
+import {
+  type BedsideLayoutIntent,
+  resolveBedsideLayoutFromSeed,
+  type RouteWaypoint,
+} from "./layout-solve-mod.js";
 
 /**
  * THE CASE-OWNED PRODUCTION CONSUMER of the deterministic layout solver.
@@ -85,6 +94,8 @@ export type CaseOwnedScenePlan = {
   /** Obstacle ids actually observed, so an empty observation cannot masquerade as a clear room. */
   observedObstacleIds: string[];
   floorFrameId: string;
+  /** See `layout-solve-mod.ts`'s `RouteWaypoint` doc. Absent when the straight route cleared. */
+  routeWaypoints?: readonly RouteWaypoint[] | undefined;
 };
 
 export type CaseOwnedScenePlanResult = CaseOwnedScenePlan | CaseOwnedScenePlanRefusal;
@@ -184,15 +195,29 @@ export function resolveCaseOwnedScenePlan(input: {
     y: input.start.y,
     z: layout.target.position.z,
   };
-  const plan = planBedsideApproach({
-    from: input.start,
-    target: destination,
-    facing: input.patientWorldPosition,
-    obstacles,
-    ...(input.waypointSpacingMeters === undefined
-      ? {}
-      : { spacingMeters: input.waypointSpacingMeters }),
-  });
+  // The solver may have resolved this candidate via a ROUTED detour (`layout.routeWaypoints`) when
+  // the straight line was blocked. Re-check the SAME polyline here, not a fresh straight line — a
+  // caller re-deriving the straight route after the solver found a routed answer would refuse a
+  // candidate the solver just proved was reachable.
+  const plan = layout.routeWaypoints
+    ? planRoutedBedsideApproach({
+        polyline: layout.routeWaypoints.map((point) => ({ x: point.x, y: input.start.y, z: point.z })),
+        target: destination,
+        facing: input.patientWorldPosition,
+        obstacles,
+        ...(input.waypointSpacingMeters === undefined
+          ? {}
+          : { spacingMeters: input.waypointSpacingMeters }),
+      })
+    : planBedsideApproach({
+        from: input.start,
+        target: destination,
+        facing: input.patientWorldPosition,
+        obstacles,
+        ...(input.waypointSpacingMeters === undefined
+          ? {}
+          : { spacingMeters: input.waypointSpacingMeters }),
+      });
   const conflicts: CaseScenePlanConflict[] = [];
   if (plan.pathViolations.length > 0) {
     conflicts.push({
@@ -241,5 +266,6 @@ export function resolveCaseOwnedScenePlan(input: {
     geometryRevision,
     observedObstacleIds,
     floorFrameId: floorFrame.frameId,
+    ...(layout.routeWaypoints ? { routeWaypoints: layout.routeWaypoints } : {}),
   };
 }

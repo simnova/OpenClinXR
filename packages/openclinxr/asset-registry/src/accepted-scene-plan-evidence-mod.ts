@@ -64,6 +64,12 @@ export type DurableAcceptedScenePlanRecord = {
     observedObstacleIds: string[];
     waypointCount: number;
     routeLengthMeters: number;
+    /**
+     * Present only when the straight route was blocked and the grid-A* planner
+     * (`route-planner-mod.ts`) found a clear detour around inflated fixture footprints. Format:
+     * `[start, ...corners, target]` in world XZ; see `layout-solve-mod.ts`'s `RouteWaypoint` doc.
+     */
+    routeWaypoints?: ReadonlyArray<{ x: number; z: number }> | undefined;
   };
   arrival: {
     arrivalErrorMeters: number;

@@ -1,10 +1,6 @@
 import { readFileSync } from "node:fs";
 import nodePath from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  composeSupportedActorWorldPosition,
-  supineActorWorldPosition,
-} from "@openclinxr/asset-registry/actor-posture";
 import { geometryRevisionDigest } from "@openclinxr/asset-registry/case-approach-intent";
 import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-scene-plans";
 import { admitFrozenScenePlanForObservedScene } from "@openclinxr/asset-registry/encounter-bundle-admission";
@@ -13,6 +9,7 @@ import {
   createEdChestPainRuntimeSceneManifest,
 } from "@openclinxr/asset-registry/runtime-bundles";
 import { observeMountedApproachGeometry } from "@openclinxr/xr-humanoid-animation/mounted-approach-geometry";
+import { resolveActorFramedPosition } from "../../../packages/openclinxr/xr-scene/src/encounter-actor-framing.js";
 import { buildStationEnvironment } from "@openclinxr/xr-station";
 import { type Object3D, Scene } from "three";
 import { describe, expect, it } from "vitest";
@@ -156,28 +153,24 @@ function stageAdmissionScene(options?: { reanchor?: boolean }): {
     environmentId: WARD,
   }).actorPlacements;
   const patientPlacement = placements[SCENE_CLOSURE_PINNED_CAST.patient];
-  const patientWorld = composeSupportedActorWorldPosition({
+  const patientWorld = resolveActorFramedPosition({
+    actorId: SCENE_CLOSURE_PINNED_CAST.patient,
+    scenarioId: caseDocument.scenarioId,
+    role: "patient",
+    slotKind: patientPlacement?.slotKind ?? "primary_patient",
     posture: "supine",
-    fixtureAnchor: supineActorWorldPosition({}),
-    ...(patientPlacement?.plantOffsetMeters
-      ? { authoredOffsetMeters: patientPlacement.plantOffsetMeters }
-      : {}),
-    resolvedPosition: patientPlacement?.position ?? { x: 0, y: 0, z: 0 },
+    manifestPosition: patientPlacement?.position ?? { x: 0, y: 0, z: 0 },
   });
   const physicianPlacement = placements[SCENE_CLOSURE_PINNED_CAST.physician];
   const geometry = observeMountedApproachGeometry(scene, { supportInstanceId: SUPPORT });
-  const start = composeSupportedActorWorldPosition({
+  const start = resolveActorFramedPosition({
+    actorId: SCENE_CLOSURE_PINNED_CAST.physician,
+    scenarioId: caseDocument.scenarioId,
+    role: "physician",
+    slotKind: physicianPlacement?.slotKind ?? "additional_cast",
     posture: "standing",
-    fixtureAnchor: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
-    ...(physicianPlacement?.plantOffsetMeters
-      ? { authoredOffsetMeters: physicianPlacement.plantOffsetMeters }
-      : {}),
-    resolvedPosition: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
-    ...(geometry.floorFrame ? { floorFrame: geometry.floorFrame } : {}),
+    manifestPosition: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
   });
-  if ("refused" in patientWorld || "refused" in start) {
-    throw new Error("the ward staging refused to compose a patient or physician position");
-  }
   return {
     scene,
     patientWorld,
@@ -218,28 +211,24 @@ describe("the runtime reproduces the frozen room digest", () => {
       environmentId: WARD,
     }).actorPlacements;
     const patientPlacement = placements[SCENE_CLOSURE_PINNED_CAST.patient];
-    const patientWorld = composeSupportedActorWorldPosition({
+    const patientWorld = resolveActorFramedPosition({
+      actorId: SCENE_CLOSURE_PINNED_CAST.patient,
+      scenarioId: caseDocument.scenarioId,
+      role: "patient",
+      slotKind: patientPlacement?.slotKind ?? "primary_patient",
       posture: "supine",
-      fixtureAnchor: supineActorWorldPosition({}),
-      ...(patientPlacement?.plantOffsetMeters
-        ? { authoredOffsetMeters: patientPlacement.plantOffsetMeters }
-        : {}),
-      resolvedPosition: patientPlacement?.position ?? { x: 0, y: 0, z: 0 },
+      manifestPosition: patientPlacement?.position ?? { x: 0, y: 0, z: 0 },
     });
     const physicianPlacement = placements[SCENE_CLOSURE_PINNED_CAST.physician];
     const geometry = observeMountedApproachGeometry(scene, { supportInstanceId: SUPPORT });
-    const start = composeSupportedActorWorldPosition({
+    const start = resolveActorFramedPosition({
+      actorId: SCENE_CLOSURE_PINNED_CAST.physician,
+      scenarioId: caseDocument.scenarioId,
+      role: "physician",
+      slotKind: physicianPlacement?.slotKind ?? "additional_cast",
       posture: "standing",
-      fixtureAnchor: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
-      ...(physicianPlacement?.plantOffsetMeters
-        ? { authoredOffsetMeters: physicianPlacement.plantOffsetMeters }
-        : {}),
-      resolvedPosition: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
-      ...(geometry.floorFrame ? { floorFrame: geometry.floorFrame } : {}),
+      manifestPosition: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
     });
-    if ("refused" in patientWorld || "refused" in start) {
-      throw new Error("the ward staging refused to compose a patient or physician position");
-    }
     const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
       scenarioId: CASE_ID,
       stationId: frozen!.case.stationId,
@@ -285,28 +274,24 @@ describe("the runtime reproduces the frozen room digest", () => {
       environmentId: WARD,
     }).actorPlacements;
     const patientPlacement = placements[SCENE_CLOSURE_PINNED_CAST.patient];
-    const patientWorld = composeSupportedActorWorldPosition({
+    const patientWorld = resolveActorFramedPosition({
+      actorId: SCENE_CLOSURE_PINNED_CAST.patient,
+      scenarioId: caseDocument.scenarioId,
+      role: "patient",
+      slotKind: patientPlacement?.slotKind ?? "primary_patient",
       posture: "supine",
-      fixtureAnchor: supineActorWorldPosition({}),
-      ...(patientPlacement?.plantOffsetMeters
-        ? { authoredOffsetMeters: patientPlacement.plantOffsetMeters }
-        : {}),
-      resolvedPosition: patientPlacement?.position ?? { x: 0, y: 0, z: 0 },
+      manifestPosition: patientPlacement?.position ?? { x: 0, y: 0, z: 0 },
     });
     const physicianPlacement = placements[SCENE_CLOSURE_PINNED_CAST.physician];
     const geometry = observeMountedApproachGeometry(scene, { supportInstanceId: SUPPORT });
-    const start = composeSupportedActorWorldPosition({
+    const start = resolveActorFramedPosition({
+      actorId: SCENE_CLOSURE_PINNED_CAST.physician,
+      scenarioId: caseDocument.scenarioId,
+      role: "physician",
+      slotKind: physicianPlacement?.slotKind ?? "additional_cast",
       posture: "standing",
-      fixtureAnchor: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
-      ...(physicianPlacement?.plantOffsetMeters
-        ? { authoredOffsetMeters: physicianPlacement.plantOffsetMeters }
-        : {}),
-      resolvedPosition: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
-      ...(geometry.floorFrame ? { floorFrame: geometry.floorFrame } : {}),
+      manifestPosition: physicianPlacement?.position ?? { x: 0, y: 0, z: 0 },
     });
-    if ("refused" in patientWorld || "refused" in start) {
-      throw new Error("the ward staging refused to compose a patient or physician position");
-    }
     admitFrozenScenePlanForObservedScene({
       admission: { status: "no_plan_carried" },
       bundle: createEdChestPainLocalLearnerRuntimeAssetBundle({

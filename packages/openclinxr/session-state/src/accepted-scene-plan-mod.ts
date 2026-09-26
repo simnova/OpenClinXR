@@ -122,6 +122,8 @@ export type DurableAcceptedScenePlanRecord = {
     observedObstacleIds: string[];
     waypointCount: number;
     routeLengthMeters: number;
+    /** Present only when a grid-A* detour was needed around inflated fixture footprints. */
+    routeWaypoints?: ReadonlyArray<{ x: number; z: number }> | undefined;
   };
   arrival: {
     arrivalErrorMeters: number;

@@ -59,6 +59,7 @@
     "@openclinxr/shared-schemas"
   ],
   "tests": [
+    "src/a-blocked-straight-route-gets-a-routed-detour.test.ts",
     "src/a-runtime-actor-placement-carries-a-heading.test.ts",
     "src/an-authored-offset-needs-a-frame.test.ts",
     "src/asset-registry.test.ts",
