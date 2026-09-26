@@ -1535,16 +1535,13 @@ export function createEdChestPainRuntimeSceneManifest(input: {
       runtimeRoomProp("trash-liner-fold", "Liner", "e8eef0", "9e2f27", { x: -2.04, y: 0.56, z: 0.85 }, { x: 0.2, y: 0.035, z: 0.18 }, ["environmental_texture"]),
       runtimeRoomProp("call-light-remote", "Call", "fff4bf", "ba8d1c", { x: 0.62, y: 0.72, z: 0.54 }, { x: 0.09, y: 0.035, z: 0.2 }, ["ecg_request"]),
     ],
-    // Authored per case, by role not actorId -- main.ts reads this list and forwards it, it
-    // does not decide which actor walks where. Proof-only for scene_closure right now.
-    ...(manifestScenarioId === "scene_closure_supine_bedside_v1"
-      ? {
-          locomotionOrders: [
-            { actorRole: "nurse", targetOffsetMeters: { x: 1.2, z: 0 }, ageYears: 46, buildKey: "average" },
-            { actorRole: "family", targetOffsetMeters: { x: 0, z: 1.1 }, ageYears: 34, buildKey: "average" },
-          ],
-        }
-      : {}),
+    // `locomotionOrders` (main.ts reads this list and forwards it -- it does not decide which
+    // actor walks where) is not authored on any shipped case yet: the order-driven walker can
+    // walk through an unmapped fixture (measured on scene_closure's nurse -- she cut through the
+    // white shelving unit on her ordered route; the coming grid-A*-routed executor is what fixes
+    // that). No case authors an entry here until the routed executor lands; the capability, the
+    // idle-sway skip and the settling-turn fix stay live and are proved by
+    // order-driven-walker-video-capture.ts's own capture-only injection flag instead.
     productionReadinessClaimed: false,
     notEvidenceFor: [...LOCAL_RUNTIME_NOT_EVIDENCE_FOR],
   };
