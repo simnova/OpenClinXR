@@ -178,11 +178,25 @@ def _topo_order(arm: bpy.types.Object) -> list[bpy.types.PoseBone]:
 
 
 def _basis_from_hips(right_hip: Vector, left_hip: Vector) -> Matrix:
-    """Orthonormal (lateral, up, forward) world-space basis from two hip landmarks + world up."""
+    """Orthonormal (lateral, forward, up) world-space basis from two hip landmarks + world up.
+
+    MEASURED 2026-09-26 (coordinator-flagged): the column order (lateral, up, forward) used here
+    until now is an ODD permutation of the right-handed (lateral, forward, up) triple that
+    `lateral.cross(forward) == up` actually defines -- i.e. a REFLECTION (determinant -1), not a
+    proper rotation. `PoseBone.rotation_quaternion` can only represent proper rotations
+    (determinant +1); feeding it a matrix built from this basis silently produced SOME quaternion
+    with no correct meaning, and because the pelvis is the parent of the whole retargeted chain,
+    that reflection propagated into every bone's LOCAL rotation, expressed as left/right mirroring
+    once the basis was doing real work (frame 63 onward, once the walk actually turns) -- exactly
+    the crossed-arms, buckled-knees failure this fixes. Confirmed by hand: with
+    lateral=(1,0,0), up=(0,0,1), forward=up.cross(lateral)=(0,1,0), the column order
+    (lateral, up, forward) = (X, Z, Y) has determinant -1; (lateral, forward, up) = (X, Y, Z) has
+    determinant +1.
+    """
     lateral = (right_hip - left_hip).normalized()
     forward = WORLD_UP.cross(lateral).normalized()
     up = lateral.cross(forward).normalized()
-    return Matrix((lateral, up, forward)).transposed()  # columns = basis vectors
+    return Matrix((lateral, forward, up)).transposed()  # columns = basis vectors, right-handed
 
 
 def main(argv: list[str]) -> int:

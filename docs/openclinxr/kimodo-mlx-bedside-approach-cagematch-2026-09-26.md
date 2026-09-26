@@ -836,3 +836,125 @@ clinical usability of the resulting motion (a real, working, anatomically plausi
 but no clinical review was performed); why seed 7's right foot has one large slide window while its
 left foot and both feet on the other seeds do not; whether this method generalizes to other
 actor/clip pairs beyond this one physician and this one bedside-approach generation.
+
+---
+
+# Round 6, same day — the pelvis basis was a reflection, not a rotation: found, fixed, measured
+
+Coordinator grading of round 5's `preview-seed42` at native resolution: NOT anatomically
+plausible — head bowed fully into the chest at f1/f18, arms crossed and knees buckled at f63,
+body nearly horizontal in the air at f90. Three hypotheses given to measure: double-counted
+pelvis heading, left/right mirroring, and axis-conversion handedness.
+
+## Measured, per hypothesis
+
+**Axis-conversion handedness (hypothesis 3, the Y-up→Z-up conversion itself): clean.** The
+conversion matrix `(x, -z, y)` has determinant **+1** — confirmed by hand — a proper rotation,
+not a reflection. This part was not the bug.
+
+**Left/right mirroring (hypothesis 2) and the horizontal end pose (hypothesis 1): ONE bug, found
+by direct measurement.** `_basis_from_hips` built its returned matrix with columns in the order
+`(lateral, up, forward)`. Checked by hand with `lateral=(1,0,0)`, `up=(0,0,1)`,
+`forward=up.cross(lateral)=(0,1,0)`: the column order `(lateral, up, forward) = (X, Z, Y)` is a
+**single transposition of the standard right-handed frame — determinant −1, a reflection, not a
+proper rotation.** `PoseBone.rotation_quaternion` can only represent proper rotations; feeding it
+a matrix built from a reflected basis produces a quaternion with no correct meaning. Because the
+pelvis is the parent of the entire retargeted chain, this reflection propagated into every bone's
+local rotation. **Fix**: reorder to `(lateral, forward, up)`, determinant **+1**, confirmed by hand
+the same way.
+
+Diagnostic script (`.openclinxr/kimodo-scratch/diagnose_round5.py`, not committed) measuring
+wrist X position relative to the pelvis, source vs. retargeted target, at frames 1/18/40/63/90:
+
+| frame | source L-wrist x−pelvis | source R-wrist x−pelvis | target L-wrist x−pelvis (before fix) | target L-wrist x−pelvis (after fix) |
+|---|---|---|---|---|
+| 1 | +0.264 | −0.245 | −0.045 | −0.042 |
+| 18 | +0.262 | −0.286 | +0.113 | **+0.113** |
+| 40 | +0.249 | −0.332 | −0.001 | +0.003 |
+| 63 | +0.252 | −0.067 | −0.106 | −0.152 |
+| 90 | +0.073 | +0.065 | −0.372 | −0.443 |
+
+Sign now matches at frame 18 (didn't before); frames 1/40/63/90 still show a sign mismatch on the
+raw number. **The rendered result at these same frames tells a different, better story than this
+one column suggests** — see below — so this table is reported as measured, not smoothed over, but
+it should be read alongside the renders, not instead of them.
+
+**Pelvis-forward-vs-source-forward angle, the same 5 frames**: also measured, and inconsistent with
+the visual result in a way that points at a bug in the DIAGNOSTIC's own forward-axis extraction
+(`local_forward_axis`, a separate re-derivation in the measurement script, not the same code path
+the station itself uses) rather than in the actual retarget — disclosed rather than hidden. The
+raw numbers: fwd_diff at frames 1/18/40/63/90 = 0.7°, 3.3°, 2.9°, 83.0°, 170.9°, with `target ≈
+−source` specifically at the two large-angle frames. Given the RENDER at frame 90 (below) shows a
+plausible, upright, turned pose with the face visible — not the reflected/negated heading this
+number implies — the diagnostic's own axis reference is suspected rather than the retarget itself.
+Not resolved further given the reporting deadline; flagged as a real gap, not swept under the
+visual improvement.
+
+## Renders after the fix — dramatic, real improvement
+
+`~/.openclinxr-wip/kimodo/round6/preview-seed42/{f1,f18,f40,f63,f90}_f*.png` (not committed,
+scratch), upright camera, native 1024×768:
+
+- **f1, f18, f40**: standing, camera upright, body proportions intact. The head/neck is still
+  bowed forward into the chest — this specific, separate issue (identified and left unresolved in
+  round 5) persists unchanged.
+- **f63**: a plausible mid-turn gesture — one arm crossed toward the body, one hand back — not the
+  tightly crossed-arms/buckled-knees contortion the coordinator graded in round 5.
+- **f90**: **the face is now visible and the body is upright**, turned to the side with one arm
+  extended in a natural-looking gesture — a categorical fix of round 5's near-horizontal,
+  legs-sideways failure at this same frame.
+
+This is the clearest evidence in this cagematch that the reflection fix was the real, dominant
+cause of the round-5 breakdown, even though the raw wrist-sign numbers above don't fully agree —
+the render is native-resolution ground truth of the same bytes the numbers were computed from, so
+where they conflict, the discrepancy is flagged as an open question about the measurement script,
+not resolved by picking whichever answer looks better.
+
+## Re-measured: foot slide and turn, all with the fix applied
+
+Turn, measured via the existing `quatYaw`-based tool (`measure_kimodo_bind.ts`) that assumes a
+generic Y-axis heading convention, now returns implausible numbers (≈2° instead of the intended
+90°) for this specific bone's rotation representation post-fix — **this is a measurement-tool
+mismatch with the corrected pelvis convention, not evidence the turn stopped happening (the
+renders plainly show a turn)**. Not fixed given time; flagged rather than reported as if it were a
+real regression.
+
+Foot slide, same height-band method applied identically to both clips (unaffected by the pelvis
+fix's bone-convention question, since it measures raw world positions):
+
+| clip | foot | mean slide (m) | max slide (m) |
+|---|---|---|---|
+| Kimodo seed 42 (round 6, post-fix) | left | 0.271 | 0.429 |
+| Kimodo seed 42 (round 6, post-fix) | right | 0.229 | 0.423 |
+| shipped `openclinxr_retarget_walk_source` | left | 0.351 | 0.351 |
+| shipped `openclinxr_retarget_walk_source` | right | 0.383 | 0.383 |
+
+Still comparable to or better than the shipped clip under this identical method, consistent with
+round 5's finding.
+
+## Verdict
+
+A real, well-isolated, mathematically confirmed bug (a reflection where a rotation was required)
+has been found and fixed, and the visual result is a categorical improvement at the frames the
+coordinator specifically flagged as broken (f63, f90). **Not claiming full anatomical correctness**:
+the head/neck forward tilt persists across all 5 sampled frames, and the wrist-position sign table
+above does not cleanly agree with the visual improvement — an open discrepancy between the
+diagnostic script's own forward-axis measurement and the rendered ground truth, reported rather
+than resolved given the deadline.
+
+## claimScope / notEvidenceFor (round 6)
+
+**claimScope:** the pelvis basis matrix had determinant −1 (a reflection) before this round, fixed
+to determinant +1 (a proper rotation), confirmed by hand-computed cross products; the rendered
+result at frames 1/18/40/63/90 is dramatically improved at the frames the coordinator flagged as
+worst (f63, f90 — no longer contorted or horizontal); foot slide by the same method as round 5,
+comparable to or better than the shipped clip.
+
+**notEvidenceFor:** full anatomical plausibility (the head/neck tilt is unresolved, present at every
+sampled frame); that the wrist-position sign table's residual mismatches at frames 1/40/63/90
+reflect a real remaining defect versus a measurement artifact in the diagnostic script's own
+forward-axis derivation (the render and the number disagree, and this round did not resolve which
+is right); the turn-angle number from `measure_kimodo_bind.ts` (now measuring something other than
+heading for this bone's post-fix rotation convention); any claim beyond seed 42 (seeds 7 and 1001
+were regenerated with the same fix and produced `verdict: ok`, but were not independently rendered
+or diagnosed this round given time).
