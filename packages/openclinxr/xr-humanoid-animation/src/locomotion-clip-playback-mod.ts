@@ -1,13 +1,14 @@
-import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 import {
   CLINICIAN_WALK_SPEED_MPS,
   FOOT_CONTACT_HEIGHT_METERS,
 } from "@openclinxr/asset-registry/approach-executor";
 import type { OwnedChain } from "@openclinxr/xr-pose";
-import { measureStanceGroundAdvance } from "./case-owned-approach-runtime-mod.js";
 import { sampleLocomotionStanceTrack } from "./case-owned-approach-frame-mod.js";
+import { measureStanceGroundAdvance } from "./case-owned-approach-runtime-mod.js";
 import { resolveLocomotionStanceLabels } from "./locomotion-stance-labels.js";
+import { resolveHipBone } from "./resolve-hip-bone.js";
 import { resolveToeBones } from "./resolve-toe-bones.js";
+import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 
 /**
  * Play this actor's retargeted locomotion take, if it has one, instead of sliding its root.
@@ -49,25 +50,87 @@ import { resolveToeBones } from "./resolve-toe-bones.js";
  * Leg claim stays until fade completes. Head is NOT claimed (gaze/attention stays with posture).
  */
 /**
+ * Standard gravitational acceleration, m/s^2. The one physical constant the gait rule needs.
+ */
+export const GRAVITY_MPS2 = 9.81;
+
+/**
+ * Dimensionless walking speed (Alexander 1976): Fr = v^2 / (g * L), L the leg length (hip height).
+ * A calm walk sits around Fr 0.2-0.25 across body sizes — this is WHY a Froude-derived target
+ * scales down for a shorter leg automatically, rather than by a hand-picked per-actor multiplier.
+ * Chosen at the low end of that band on purpose: the coupling below (timeScale = target /
+ * measured-clip-speed, then the stance lock re-derives the body's actual advance from the planted
+ * foot every frame) means the PRESCRIBED target and the CAPTURED walking speed are not the same
+ * number — the capture in `docs/openclinxr/progress-log` measured a physician prescribed 1.1 m/s
+ * land at a captured 0.739 m/s, roughly two-thirds. A higher Fr would prescribe a faster target and
+ * likely land closer to a comfortable adult pace after that same attenuation; 0.2 is the
+ * conservative starting point this constant records, calibrated against a real capture rather than
+ * asserted.
+ */
+export const CALM_WALK_FROUDE_NUMBER = 0.2;
+
+/** v = sqrt(Fr * g * L). Zero or negative leg length returns 0 (unmeasurable, not a divide fault). */
+export function froudeWalkSpeedMetersPerSecond(
+  legLengthMeters: number,
+  froude: number = CALM_WALK_FROUDE_NUMBER,
+): number {
+  if (!(legLengthMeters > 0)) return 0;
+  return Math.sqrt(froude * GRAVITY_MPS2 * legLengthMeters);
+}
+
+/**
+ * This actor's own leg length, in meters, for the Froude rule above.
+ *
+ * Measured as the hip bone's PEAK height above the floor across one full cycle of its own bound
+ * walk clip — sampled with the same `sampleLocomotionStanceTrack` calibration mixer the stance
+ * measurement below uses, so it costs no new machinery and reads the SAME rig the clip will
+ * actually play on (a child's shorter thigh+shin, not an adult constant). Peak rather than the
+ * first sampled frame: the hip dips slightly during double support, and its peak during
+ * single-support stance is closest to standing leg length. Null when the rig carries no hip bone
+ * this package's naming table knows (`resolve-hip-bone.ts`) or the clip cannot be sampled — the
+ * caller falls back to the fixed constant rather than dividing by an unmeasured length.
+ */
+export function measureActorLegLengthMeters(slot: GeneratedHumanoidAnimationSlot): number | null {
+  const hips = resolveHipBone(slot.root);
+  const hip = hips.left ?? hips.right;
+  if (hip === null) return null;
+  const sampled = sampleLocomotionStanceTrack(slot, {
+    toe: hip,
+    sampleCount: 48,
+    referenceFrame: slot.actorSlot ?? slot.root,
+  });
+  if (sampled === null || sampled.samples.length === 0) return null;
+  const peak = Math.max(...sampled.samples.map((sample) => sample.position.y));
+  return peak > 0 ? peak : null;
+}
+
+/**
  * The walk action's playback rate, DERIVED from the bound clip — never fitted.
  *
- * The executor prescribes the route at `CLINICIAN_WALK_SPEED_MPS` (1.1 m/s) while the
- * stance lock derives the body's actual advance from the planted foot, so the ground
- * speed that shows up is the CLIP's own stance speed. The grafted `Walk` take walks at
- * ~0.77 m/s (72 steps/min against general gait literature's ~100-120 for typical adults),
- * which stretched the bedside walk from ~4.3 s to ~6.7 s and left SC-05's 12 s run still
- * walking. The rate that reunites them is `CLINICIAN_WALK_SPEED_MPS / clipGroundSpeed`,
- * where the denominator is the clip's stance-foot travel per cycle over its cycle
- * duration, measured off the bound clip at timeScale 1 — the same stance-window
- * measurement the approach producer trusts (`sampleLocomotionStanceTrack` plus
- * `measureStanceGroundAdvance`), computed once and stored on the slot.
+ * The executor prescribes the route at this actor's OWN Froude-derived target speed (leg-length
+ * scaled — see `measureActorLegLengthMeters` / `froudeWalkSpeedMetersPerSecond` above; falls back
+ * to the fixed `CLINICIAN_WALK_SPEED_MPS` only when this actor's leg length cannot be measured)
+ * while the stance lock derives the body's actual advance from the planted foot, so the ground
+ * speed that shows up is the CLIP's own stance speed. The grafted `Walk` take walks at a raw
+ * ~0.4-0.9 m/s depending on the actor's own stride (72 steps/min against general gait literature's
+ * ~100-120 for typical adults), which the fixed 1.1 m/s target used to stretch or compress by a
+ * different factor per body regardless of whether that body could naturally cover ground that
+ * fast. The rate that reunites clip and target is `target / clipGroundSpeed`, where the
+ * denominator is the clip's stance-foot travel per cycle over its cycle duration, measured off the
+ * bound clip at timeScale 1 — the same stance-window measurement the approach producer trusts
+ * (`sampleLocomotionStanceTrack` plus `measureStanceGroundAdvance`), computed once and stored on
+ * the slot.
  */
 export type LocomotionClipSpeedMeasurement = {
   clipName: string;
   /** Stance-foot ground speed at timeScale 1, in m/s, measured off the bound clip. */
   groundSpeedMetersPerSecond: number;
   cycleSeconds: number;
-  /** `CLINICIAN_WALK_SPEED_MPS / groundSpeedMetersPerSecond`; 1 when unmeasurable. */
+  /** This actor's own leg length in meters, or null when it could not be measured. */
+  legLengthMeters: number | null;
+  /** The Froude-derived (or fallback-constant) target this timeScale was chosen to hit. */
+  targetSpeedMetersPerSecond: number;
+  /** `targetSpeedMetersPerSecond / groundSpeedMetersPerSecond`; 1 when unmeasurable. */
   timeScale: number;
 };
 
@@ -97,11 +160,16 @@ export function resolveLocomotionClipTimeScale(
     floorOriginY: 0,
   });
   const groundSpeed = advance.metersPerSecond;
+  const legLengthMeters = measureActorLegLengthMeters(slot);
+  const targetSpeedMetersPerSecond =
+    legLengthMeters !== null ? froudeWalkSpeedMetersPerSecond(legLengthMeters) : CLINICIAN_WALK_SPEED_MPS;
   const measurement: LocomotionClipSpeedMeasurement = {
     clipName,
     groundSpeedMetersPerSecond: groundSpeed,
     cycleSeconds: sampled.cycleSeconds,
-    timeScale: groundSpeed > 0 ? CLINICIAN_WALK_SPEED_MPS / groundSpeed : 1,
+    legLengthMeters,
+    targetSpeedMetersPerSecond,
+    timeScale: groundSpeed > 0 ? targetSpeedMetersPerSecond / groundSpeed : 1,
   };
   rootUserData["openClinXrLocomotionClipSpeed"] = measurement;
   return measurement;

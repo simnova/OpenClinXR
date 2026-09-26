@@ -7,8 +7,30 @@ import { readFile } from "node:fs/promises";
  *  - groundSpeedMps: toe-midpoint straight displacement / walking time.
  *  - lurch: toe-midpoint path length / straight displacement.
  *  - medianHoldSlideMeters: median holdSlideMeters over windows with pinnedFrames > 0.
- *  - cadencePerMinute: stanceFoot changes between windows that each hold >= 3
- *    pinned frames, per minute of walking time.
+ *  - cadencePerMinute: stanceFoot changes between CONSECUTIVE stance windows, per minute of
+ *    walking time.
+ *
+ * MEASURED 2026-09-25, cadence read 0 on every actor after a leg-length-scaled walk speed (see
+ * `locomotion-clip-playback-mod.ts`'s Froude rule) shortened the walking phase to roughly
+ * 1.3-1.5 s at 30 fps: a captured nurse run produced exactly 3 stance windows,
+ * `[right pinnedFrames=0, left pinnedFrames=3, right pinnedFrames=0]`. The PREVIOUS rule required
+ * `pinnedFrames >= 3` before a window could count toward a step, which qualified only the middle
+ * window here — and the alternation loop needs TWO qualified windows to register even one step, so
+ * cadence read 0 while the capture's own foot track shows two genuine alternations (right to left,
+ * left to right).
+ *
+ * `pinnedFrames` answers a DIFFERENT question than "did a stance happen": it counts how many
+ * frames the stance LOCK actively corrected that foot, which `medianHoldSlideMeters` needs (a
+ * window with nothing to correct is not evidence of hold quality). Whether a stance happened at
+ * all is already decided by the window's EXISTENCE — the underlying track only opens a new window
+ * when a foot enters the floor-contact band, alternates the label by which foot that is, and
+ * closes it on release (see the producer this file's `QualityInput.stanceWindows` is built from).
+ * A window with `pinnedFrames: 0` still means the lock detected and held that foot in contact for
+ * its recorded span; it simply needed no corrective nudge that time. Requiring a pin count before
+ * counting the alternation therefore discarded real footfalls, and did so more often as the walk
+ * got faster and each stance window shortened. Cadence now counts every recorded stance-window
+ * alternation, unfiltered — on the nurse run above: 2 alternations in 1.32 s = 90.9 steps/min, a
+ * plausible adult cadence recovered from data that was already there.
  *
  * claimScope: walking-phase runtime toe and slot positions in foot-plant-video.json.
  * notEvidenceFor: gait realism, clinical plausibility, Quest performance.
@@ -94,10 +116,9 @@ export function computeWalkQuality(input: QualityInput): WalkQuality {
   const holds = input.stanceWindows
     .filter((w) => w.pinnedFrames > 0)
     .map((w) => w.holdSlideMeters);
-  const qualified = input.stanceWindows.filter((w) => w.pinnedFrames >= 3);
   let steps = 0;
-  for (let i = 1; i < qualified.length; i += 1) {
-    if (qualified[i]!.foot !== qualified[i - 1]!.foot) steps += 1;
+  for (let i = 1; i < input.stanceWindows.length; i += 1) {
+    if (input.stanceWindows[i]!.foot !== input.stanceWindows[i - 1]!.foot) steps += 1;
   }
   const cadencePerMinute = walkingSeconds > 0 ? (steps / walkingSeconds) * 60 : 0;
   const speedPass = speedTargetMps !== null && groundSpeedMps >= speedTargetMps;
