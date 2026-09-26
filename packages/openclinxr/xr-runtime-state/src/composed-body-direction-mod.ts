@@ -104,10 +104,23 @@ export function applyStationIdleSway(input: {
       amplitudeRadians: 0.08,
     });
   }
-  input.nurse.rotation.y = composedIdleBodyHeading({
-    baseHeadingRadians: base(input.nurse.userData),
-    nowMs: input.nowMs,
-    periodMs: 900,
-    amplitudeRadians: 0.12,
-  });
+  // AN ORDER-DRIVEN ACTOR IS SKIPPED, same reasoning as the supine exclusion above: this composer
+  // has no idea a locomotion order exists, and unconditionally overwriting rotation.y here every
+  // frame silently discards the settling turn's own yaw progress. Measured live (2026-09-26): a
+  // nurse under an order walked and entered "settling" needing a ~110 deg turn, applied real
+  // per-phase increments (`clip-driven-settling-turn-mod.ts`), and STILL never converged --
+  // `applyStationIdleSway` ran one line later in `apps/ui-xr/src/main.ts`'s frame loop and
+  // reasserted `baseHeadingRadians + sin(...)*0.12` over her rotation every single frame, which is
+  // why her own settling-turn instrumentation showed a value at the TOP of the next frame's stance
+  // lock that did not match the value written at the END of the previous frame's. `locomotion-
+  // order-mod.ts` (xr-humanoid-animation) stamps this flag while an order is walking or settling,
+  // and clears it once arrived (or refused), so a nurse who is NOT under an order still sways.
+  if (Reflect.get(input.nurse.userData, "openClinXrLocomotionOrderActive") !== true) {
+    input.nurse.rotation.y = composedIdleBodyHeading({
+      baseHeadingRadians: base(input.nurse.userData),
+      nowMs: input.nowMs,
+      periodMs: 900,
+      amplitudeRadians: 0.12,
+    });
+  }
 }

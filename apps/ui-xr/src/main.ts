@@ -803,17 +803,14 @@ function runtimeFamilyActorId(): string {
 }
 /** Forwards `sceneManifest.locomotionOrders` (case-authored, by role) -- no case content here. */
 function bundleLocomotionOrders(): ReadonlyMap<string, { target: { x: number; z: number }; facing?: { x: number; z: number } }> {
-  const authored = encounterRuntimeAssetBundle.sceneManifest.locomotionOrders;
   const orders = new Map<string, { target: { x: number; z: number }; facing?: { x: number; z: number } }>();
-  if (!authored) return orders;
+  const authored = encounterRuntimeAssetBundle.sceneManifest.locomotionOrders; if (!authored) return orders;
   for (const order of authored) {
     const actor = encounterRuntimeAssetBundle.actors.find((a) => a.role === order.actorRole);
-    const slot = actor ? generatedHumanoidActorSlotsByActorId.get(actor.actorId) : undefined;
-    if (!actor || !slot) continue;
+    const slot = actor ? generatedHumanoidActorSlotsByActorId.get(actor.actorId) : undefined; if (!actor || !slot) continue;
     orders.set(actor.actorId, {
       target: { x: slot.position.x + order.targetOffsetMeters.x, z: slot.position.z + order.targetOffsetMeters.z },
-      ...(order.facing ? { facing: order.facing } : {}),
-    });
+      ...(order.facing ? { facing: order.facing } : {}) });
   }
   return orders;
 }
@@ -825,8 +822,7 @@ function runtimeAdditionalActorId(): string {
  * not app-owned data or a new package export), not a slot-count accident.
  */
 function runtimeWalkingActorId(): string {
-  const role =
-    frozenScenePlanAdmission.status === "admitted" ? frozenScenePlanAdmission.record.case.walkerRole : undefined;
+  const role = frozenScenePlanAdmission.status === "admitted" ? frozenScenePlanAdmission.record.case.walkerRole : undefined;
   return encounterRuntimeAssetBundle.actors.find((actor) => actor.role === role)?.actorId ?? runtimeAdditionalActorId();
 }
 

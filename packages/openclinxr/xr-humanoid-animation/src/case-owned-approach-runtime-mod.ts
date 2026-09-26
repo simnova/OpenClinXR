@@ -363,6 +363,30 @@ export function createCaseOwnedApproachForOrder(input: {
   contactBandMeters: number;
   clipAdvance: { metersPerSecond: number; forward: { x: number; z: number } };
   clipCycleSeconds: number;
+  /**
+   * SETTLING-STALL ROOT CAUSE, MEASURED WITH FRAME NUMBERS (2026-09-26). Without this,
+   * `createCaseOwnedBedsideApproach` returns `stanceLabelSlot: null` (its own hardcoded default),
+   * and NOTHING else ever sets it for an order-driven actor -- the only assignment anywhere in
+   * this package is `station-bedside-approach-mod.ts:252`, physician-only orchestration this
+   * module does not call. `resolveClipStanceForFrame` (case-owned-approach-frame-mod.ts) can then
+   * never resolve `approach.stanceLabels`, so `applyClipDrivenSettlingTurn` never receives a
+   * labelled stance and never picks a `phaseFoot`.
+   *
+   * Captured live on the nurse's order-driven walk (fixed 1/30 s fake-clock, 1198 samples): she
+   * enters "settling" at frame 25 (atMs 3771) needing a ~110 deg turn (targetHeadingRadians
+   * 1.5708, observedHeadingRadians -0.354, remainingTurnRadians 1.925). Every one of the following
+   * 1173 settling frames (25 through 1197, the full 40 s capture) reads `phaseFoot: null`,
+   * `phaseBudgetRadians: 0`, `phaseElapsedSeconds: 0`, `phaseAppliedRadians: 0` and
+   * `labelledStance: null` -- the turn never starts, so `remainingTurnRadians` only ever drifts
+   * with gait wobble (0.94-1.95 rad across the run) and never approaches `SETTLE_TURN_TOLERANCE_
+   * RADIANS` (~0.035 rad), which is why `phase: "arrived"` (bedside-approach-execution-mod.ts's
+   * own condition: `abs(remainingTurn) <= tolerance && stoppedSeconds >= 0.3`) never triggers.
+   *
+   * Passing this (the same `Pick<...>` shape `station-bedside-approach-mod.ts` builds) closes the
+   * gap: `resolveClipStanceForFrame` can now sample the bound clip's own stance track for this
+   * actor exactly as it does for the frozen-plan physician.
+   */
+  stanceLabelSlot: Pick<GeneratedHumanoidAnimationSlot, "mixer" | "locomotionClipName" | "responseClips" | "root" | "actorSlot">;
 }): CaseOwnedBedsideApproach | CaseOwnedBedsideApproachRefusal {
   const floorFrame = input.geometry.floorFrame;
   if (floorFrame === null) {
@@ -402,7 +426,7 @@ export function createCaseOwnedApproachForOrder(input: {
     floorFrameId: floorFrame.frameId,
     geometryRevision: input.observedGeometryRevision,
   };
-  return createCaseOwnedBedsideApproach({
+  const approach = createCaseOwnedBedsideApproach({
     intent,
     geometry: input.geometry,
     observedGeometryRevision: input.observedGeometryRevision,
@@ -414,4 +438,9 @@ export function createCaseOwnedApproachForOrder(input: {
     clipCycleSeconds: input.clipCycleSeconds,
     routeHeadingRadians,
   });
+  // See the `stanceLabelSlot` parameter's own doc comment: without this, the settling turn never
+  // starts for an order-driven actor. `station-bedside-approach-mod.ts:252` does the same
+  // assignment for the physician, after its own call to `createCaseOwnedBedsideApproach`.
+  if (!("refused" in approach)) approach.stanceLabelSlot = input.stanceLabelSlot as never;
+  return approach;
 }

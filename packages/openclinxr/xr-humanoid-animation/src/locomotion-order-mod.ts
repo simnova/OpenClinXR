@@ -112,6 +112,7 @@ export function stepLocomotionOrders(
         contactBandMeters: FOOT_CONTACT_HEIGHT_METERS,
         clipAdvance: { metersPerSecond: measurement.targetSpeedMetersPerSecond, forward: measurement.clipForwardBody },
         clipCycleSeconds: measurement.cycleSeconds / measurement.timeScale,
+        stanceLabelSlot: slot,
       });
       approach = "refused" in created ? null : created;
       registry.set(actorId, approach);
@@ -146,6 +147,18 @@ export function applyLocomotionOrderStanceLocks(registry: LocomotionOrderRegistr
   for (const [actorId, approach] of registry) {
     applyCaseOwnedStanceLock(approach, deltaSeconds);
     publishLocomotionOrderRuntimeEvidence(actorId, approach, nowMs);
+    // ROOT CAUSE of the settling stall, MEASURED (2026-09-26): `applyStationIdleSway`
+    // (@openclinxr/xr-runtime-state/composed-body-direction) unconditionally overwrites this
+    // actor's `actorSlot.rotation.y` every frame with `baseHeadingRadians + sin(...)`, one line
+    // after `apps/ui-xr/src/main.ts` calls the stance-lock functions above -- it has no idea an
+    // order exists. That composer now skips a nurse carrying this flag (see its own doc comment).
+    // Set while actually turning/walking (so the settling turn's own increments are not
+    // discarded); cleared once arrived or refused, so ordinary idle sway resumes.
+    if (approach !== null && (approach.execution.phase === "walking" || approach.execution.phase === "settling")) {
+      (approach.actorSlot.userData as Record<string, unknown>)["openClinXrLocomotionOrderActive"] = true;
+    } else if (approach !== null) {
+      delete (approach.actorSlot.userData as Record<string, unknown>)["openClinXrLocomotionOrderActive"];
+    }
   }
 }
 
@@ -171,9 +184,31 @@ function publishLocomotionOrderRuntimeEvidence(actorId: string, approach: CaseOw
       right: { x: number; y: number; z: number } | null;
       stanceFoot: "left" | "right" | null;
       correctionMeters: { x: number; z: number };
+      // READ-ONLY SETTLING DIAGNOSTICS (2026-09-26): every field below is a plain read off
+      // `approach`/`approach.clipTurn` -- nothing here changes what the approach does, only what
+      // this opt-in evidence sample reports about it. Added to instrument the nurse's settling
+      // stall without editing clip-driven-settling-turn-mod.ts or stance-toe-xz-pin-mod.ts.
+      targetHeadingRadians: number;
+      observedHeadingRadians: number;
+      remainingTurnRadians: number;
+      stoppedSeconds: number;
+      phaseFoot: "left" | "right" | null;
+      phaseBudgetRadians: number;
+      phaseElapsedSeconds: number;
+      phaseAppliedRadians: number;
+      pinLeftWeight: number;
+      pinRightWeight: number;
+      labelledStance: { left: boolean; right: boolean } | null;
+      driveLocomotion: number;
     }>>
     | undefined) ?? {};
   const samples = byActor[actorId] ?? [];
+  const targetHeadingRadians = approach.intent.target.headingRadians;
+  const observedHeadingRadians = approach.actorSlot.rotation.y;
+  const remainingTurnRadians = Math.atan2(
+    Math.sin(targetHeadingRadians - observedHeadingRadians),
+    Math.cos(targetHeadingRadians - observedHeadingRadians),
+  );
   samples.push({
     atMs: nowMs,
     phase: approach.execution.phase,
@@ -181,6 +216,18 @@ function publishLocomotionOrderRuntimeEvidence(actorId: string, approach: CaseOw
     right: approach.rightToe ? worldXyz(approach.rightToe) : null,
     stanceFoot: approach.lock.stanceFoot,
     correctionMeters: approach.lock.correctionMeters,
+    targetHeadingRadians,
+    observedHeadingRadians,
+    remainingTurnRadians,
+    stoppedSeconds: approach.execution.stoppedSeconds,
+    phaseFoot: approach.clipTurn.phaseFoot,
+    phaseBudgetRadians: approach.clipTurn.phaseBudgetRadians,
+    phaseElapsedSeconds: approach.clipTurn.phaseElapsedSeconds,
+    phaseAppliedRadians: approach.clipTurn.phaseAppliedRadians,
+    pinLeftWeight: approach.clipTurn.pin.left.weight,
+    pinRightWeight: approach.clipTurn.pin.right.weight,
+    labelledStance: approach.lock.labelledStance,
+    driveLocomotion: approach.execution.drive.locomotion,
   });
   while (samples.length > 4000) samples.shift();
   byActor[actorId] = samples;
