@@ -2,8 +2,9 @@
 
 Reads the recipe JSON written by run.ts (--recipe-json), applies the palette
 to wall/trim mesh materials (matched by name), and creates one EMPTY per
-signage anchor at the wall positions. Emits finish geometry (T-bar grid,
-paneled door kit, crash rail, exit sign) as real meshes.
+signage anchor at the wall positions. Emits finish geometry (ceiling field,
+floor field, T-bar grid, wall-seated paneled door kit, crash rail, exit sign,
+exam table) as real meshes.
 
 Usage (spawned by run.ts, never by hand):
   blender --background --python compose.py -- --input work.glb --output work.glb \
@@ -92,7 +93,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None) -> dict:
 
     TBAR_Z = 2.744
     created: list[str] = []
-    counts = {"ceiling": 0, "floor": 0, "tbar": 0, "door": 0, "rail": 0, "sign": 0}
+    counts = {"ceiling": 0, "floor": 0, "tbar": 0, "door": 0, "rail": 0, "sign": 0, "table": 0}
 
     def mat_for(name: str, albedo: list, roughness: float):
         m = bpy.data.materials.get(name)
@@ -153,22 +154,37 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None) -> dict:
         for iz in range(3):
             new_box("openclinxr_tbar_%d_%d" % (ix, iz), -2.4 + ix * 1.2, -1.2 + iz * 1.2, TBAR_Z, 0.05, 2.4, 0.05, tbar_m)
             counts["tbar"] += 1
-    # Paneled door kit: slab + 4 recessed-look panels + lever + kick plate
-    new_box("openclinxr_door_slab", 1.5, 0.0, 1.05, 0.08, 0.9, 2.1, door_m)
+    # Door kit seated flush in the back wall (y=+2.4 plane): frame jambs +
+    # header surround the slab so it reads as an opening, not a floating panel.
+    # Back wall inner face sits at y=2.4; slab face lands just proud of it.
+    new_box("openclinxr_door_jamb_l", 0.99, 2.36, 1.05, 0.1, 0.12, 2.2, trim_m)
+    new_box("openclinxr_door_jamb_r", 2.01, 2.36, 1.05, 0.1, 0.12, 2.2, trim_m)
+    new_box("openclinxr_door_header", 1.5, 2.36, 2.2, 1.12, 0.12, 0.15, trim_m)
+    counts["door"] += 3
+    new_box("openclinxr_door_slab", 1.5, 2.34, 1.05, 0.92, 0.08, 2.1, door_m)
     counts["door"] += 1
     for iy in range(2):
         for iz in range(2):
-            new_box("openclinxr_door_panel_%d_%d" % (iy, iz), 1.54, -0.22 + iy * 0.44, 0.6 + iz * 0.9, 0.02, 0.36, 0.7, door_m)
+            new_box("openclinxr_door_panel_%d_%d" % (iy, iz), 1.5 - 0.23 + iy * 0.46, 2.29, 0.6 + iz * 0.9, 0.36, 0.02, 0.7, door_m)
             counts["door"] += 1
-    new_box("openclinxr_door_lever", 1.58, 0.32, 1.0, 0.04, 0.16, 0.04, trim_m)
-    new_box("openclinxr_door_kick", 1.55, 0.0, 0.15, 0.02, 0.8, 0.25, tbar_m)
+    new_box("openclinxr_door_lever", 1.82, 2.27, 1.0, 0.16, 0.04, 0.04, trim_m)
+    new_box("openclinxr_door_kick", 1.5, 2.29, 0.15, 0.8, 0.02, 0.25, tbar_m)
     counts["door"] += 2
     # Crash rail along corridor wall
     new_box("openclinxr_crash_rail", 0.0, -1.98, 0.9, 4.0, 0.08, 0.15, rail_m)
     counts["rail"] += 1
-    # Exit sign box above door
-    new_box("openclinxr_exit_sign", 1.5, 0.0, 2.3, 0.1, 0.4, 0.15, sign_m)
+    # Exit sign box above door, on the back wall face
+    new_box("openclinxr_exit_sign", 1.5, 2.28, 2.45, 0.4, 0.1, 0.15, sign_m)
     counts["sign"] += 1
+    # Exam table volume: base cabinet + cushion + raised backrest, center-room
+    exam_m = mat_for("openclinxr_finish_exam_base", [0.78, 0.80, 0.79], 0.7)
+    cushion_m = mat_for("openclinxr_finish_exam_cushion", [0.30, 0.55, 0.68], 0.8)
+    new_box("openclinxr_exam_base", -0.5, 0.3, 0.45, 0.7, 1.9, 0.9, exam_m)
+    counts["table"] += 1
+    new_box("openclinxr_exam_cushion", -0.5, 0.3, 0.96, 0.74, 1.3, 0.12, cushion_m)
+    counts["table"] += 1
+    new_box("openclinxr_exam_backrest", -0.5, 1.25, 1.15, 0.74, 0.6, 0.12, cushion_m)
+    counts["table"] += 1
     return {"meshes": created, "counts": counts, "tbarZ": TBAR_Z, "seed": seed}
 
 
