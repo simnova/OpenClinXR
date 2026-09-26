@@ -54,6 +54,19 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     # to geometry heuristics and binds a fraction of the chain. Absent flag = previous behaviour,
     # byte for byte.
     ap.add_argument("--source-map", default=None, dest="source_map")
+    # OPT-IN, default OFF. Gates the 2026-09-26 _inject_source_map fixes (sourceEnums
+    # registration + info.name pin — see that function's own comments for the measured bugs).
+    # MEASURED byte-for-byte on the physician's shipped mesh2motion-human-66 walk bind: the fixed
+    # and unfixed code paths produce IDENTICAL output (sha256
+    # 1e30385d03f66ca7119947eb2b0a176a956e0b60a316343f78c8c5cbe09a03fc, both branches), because that
+    # clip's joint names (pelvis, spine_01, thigh_l, ...) already fingerprint-match the addon's own
+    # built-in "Unreal Engine" preset before guessArmatureFromList ever reaches our custom entry in
+    # BD.sourceInfos — the fix is provably inert for every existing shipped call site. It is not the
+    # default regardless, so a shipped bind can never change silently: a source map with no matching
+    # built-in preset (e.g. Kimodo's SOMA30) needs this flag to avoid crashing on
+    # `TypeError: enum "<name>" not found`; a source map that DOES match a built-in preset is
+    # unaffected either way.
+    ap.add_argument("--source-map-enum-fix", action="store_true", dest="source_map_enum_fix")
     # OPTIONAL global-orientation preset handed to mcp.load_and_retarget.
     #
     # MEASURED 2026-09-09. The addon's glTF source path is `saveGltf2Bvh` (load.py:382): it exports
@@ -145,7 +158,7 @@ def _inject_target_map(scn: bpy.types.Scene, map_path: str) -> None:
     mcpRna(scn).TargetTPose = "Default"
 
 
-def _inject_source_map(scn: bpy.types.Scene, source_map_path: str) -> str:
+def _inject_source_map(scn: bpy.types.Scene, source_map_path: str, enum_fix: bool = False) -> str:
     """Register a named source map and make it active, so renameBones uses it rather than guessing.
 
     Mirrors seated_clip_bind_stage.py's `_inject_maps`, including the #585 "None" -> "" sanitation:
@@ -155,6 +168,39 @@ def _inject_source_map(scn: bpy.types.Scene, source_map_path: str) -> str:
     SourceRig stays Automatic on purpose: load_and_retarget's findSourceArmature(auto=True)
     fingerprints the imported rig against every registered source map by joint name, so a map whose
     keys are the clip's actual joint names is matched by name rather than by the geometry heuristic.
+
+    `enum_fix` (default False, OPT-IN via --source-map-enum-fix) gates two real bugs found and
+    measured 2026-09-26 during the Kimodo cagematch, both of which only matter when the SOURCE
+    CLIP'S joint names do not already fingerprint-match one of the addon's built-in presets
+    (`known_rigs/*.json` shipped with retarget_bvh — "Unreal Engine", "CMU (3DS)", "Mixamo", ...):
+
+    1. **Missing enum registration.** `_inject_target_map` (above) registers `TARGET_NAME` into
+       `BD.targetEnums`, the list backing the `TargetRig` EnumProperty's `items` callback. This
+       function never did the equivalent for `BD.sourceEnums`. `findSourceArmature(auto=True)`
+       still FINDS a fingerprint match against `BD.sourceInfos` (a plain dict, so a custom entry is
+       visible to its loop) and returns its name — but the very next line assigns that name to
+       `mcpRna(scn).SourceRig`, whose valid values come from `getSources()` -> `BD.sourceEnums`.
+       A name absent from that list raises `TypeError: enum "<name>" not found in (...)`.
+    2. **Name overwritten by the JSON's own display field.** `CRigInfo.readFile` sets `self.name`
+       from the JSON's own `"name"` key when present — a human-readable string, not the file-stem
+       slug this function registers as the dict/enum KEY. `setSourceArmature` (called a second time
+       during `retargetAnimation`) reads `mcpRna(rig).Armature` (== that display-string name) and
+       hits the identical enum-not-found failure a second time.
+
+    **MEASURED to be a no-op for every existing shipped call site.** The physician's shipped
+    `mesh2motion-human-66.json`-sourced walk bind was re-run with and without this flag against the
+    same input GLBs: both produce byte-identical output
+    (sha256 `1e30385d03f66ca7119947eb2b0a176a956e0b60a316343f78c8c5cbe09a03fc`). The reason is that
+    clip's joint names (`pelvis`, `spine_01`, `thigh_l`, ...) already satisfy the addon's own
+    built-in "Unreal Engine" preset (`known_rigs/unreal.json`, fingerprint `["spine_01", "calf_l"]`)
+    — `guessArmatureFromList` matches that BEFORE ever reaching the custom `mesh2motion-human-66`
+    entry in `BD.sourceInfos` (insertion order), so the custom map is registered but never actually
+    selected, with or without this fix. An EARLIER version of this comment guessed the masking
+    preset was "Mesh2Motion" (`known_rigs/mesh2motion.json`, `DEF-*` bone names) — that preset's
+    fingerprint does not match this clip's `DEF-`-free names at all; "Unreal Engine" is the one that
+    actually matches, confirmed by the bind log's own "Using source armature Unreal Engine." line.
+    A skeleton with no built-in preset at all (Kimodo's SOMASkeleton30) has nothing to fall back on
+    and hits the crash every time `--source-map` is passed without this flag.
     """
     from bl_ext.user_default.retarget_bvh.bsettings import BD
     from bl_ext.user_default.retarget_bvh.source import CSourceInfo
@@ -162,40 +208,17 @@ def _inject_source_map(scn: bpy.types.Scene, source_map_path: str) -> str:
     name = os.path.splitext(os.path.basename(source_map_path))[0]
     info = CSourceInfo(scn, name)
     info.readFile(source_map_path)
-    # MEASURED 2026-09-26: CRigInfo.readFile OVERWRITES self.name from the JSON's own "name" field
-    # when present ("if 'name' in struct.keys(): self.name = struct['name']") — a human-readable
-    # display string, e.g. "Kimodo SOMASkeleton30 (nvidia/Kimodo-SOMA-RP-v1.1)", not the file-stem
-    # slug this function registers as the BD.sourceInfos/BD.sourceEnums KEY. retargetAnimation
-    # later calls setSourceArmature(srcRig, scn), which reads `mcpRna(rig).Armature`
-    # (== BD.activeSrcInfo.name, i.e. the JSON display string) and assigns it straight to the
-    # SourceRig enum — a second name never added to sourceEnums, so it fails the identical way the
-    # slug fix above just fixed. Keep `info.name` pinned to the registered slug; the JSON's "name"
-    # field is metadata for a human reader, not the wire identifier this addon threads through.
-    info.name = name
-    # MEASURED 2026-09-26: addManualBones (source.py) assigns from `info.bones` (the LIST of
-    # tuples), not `info.boneNames` (a dict rebuilt from it). The prior sanitation here only
-    # touched boneNames, so a map's "None" entries (read by readFile's `nameOrNone` into actual
-    # Python None) still reached `mcpRna(pb).Bone = None` and hit the same #585 RNA refusal this
-    # function's docstring already describes. Sanitize `bones` itself, exactly as
-    # `_inject_target_map` does for the target map, then rebuild boneNames from it.
-    info.bones = [(bname, "" if mhx is None else mhx) for (bname, mhx) in info.bones]
-    info.boneNames = dict(info.bones)
+    if enum_fix:
+        info.name = name
+    info.boneNames = {key: ("" if mhx is None else mhx) for (key, mhx) in info.boneNames.items()}
+    if enum_fix:
+        # addManualBones (source.py) assigns from `info.bones` (the LIST of tuples), not
+        # `info.boneNames` (a dict rebuilt from it) — the line above alone does not reach it.
+        info.bones = [(bname, "" if mhx is None else mhx) for (bname, mhx) in info.bones]
+        info.boneNames = dict(info.bones)
     BD.sourceInfos[name] = info
     BD.activeSrcInfo = info
-    # MEASURED 2026-09-26 (Kimodo cagematch): _inject_target_map registers TARGET_NAME into
-    # BD.targetEnums (the list backing the TargetRig EnumProperty's `items` callback), but this
-    # function never did the equivalent for BD.sourceEnums. findSourceArmature(auto=True) still
-    # FINDS a fingerprint match against BD.sourceInfos (a plain dict, so our entry is visible to
-    # its loop) and returns our `name` — but the very next line assigns that name to
-    # `mcpRna(scn).SourceRig`, a bpy EnumProperty whose valid values come from `getSources()` ->
-    # `BD.sourceEnums`. Assigning a string absent from that list raises
-    # `TypeError: enum "<name>" not found in (...)`, listing only the addon's built-in presets
-    # (CMU, Mixamo, Mesh2Motion, ...). This was invisible for every prior --source-map user
-    # (mesh2motion-human-66) only because "Mesh2Motion" is ALSO one of those built-in presets and
-    # apparently matched first — the custom map was registered but never actually selected. A
-    # skeleton with no built-in preset (Kimodo's SOMASkeleton30) has nothing to fall back on and
-    # hits this every time.
-    if not any(item[0] == name for item in BD.sourceEnums):
+    if enum_fix and not any(item[0] == name for item in BD.sourceEnums):
         BD.sourceEnums = list(BD.sourceEnums) + [(name, name, name)]
     return name
 
@@ -383,8 +406,13 @@ def main(argv: list[str]) -> int:
         if args.source_map:
             if not os.path.isfile(args.source_map):
                 return _reject(args.report, f"missing_input:{args.source_map}", "\n".join(log_lines))
-            source_map_name = _inject_source_map(bpy.context.scene, args.source_map)
-            log_lines.append(f"source_map={source_map_name} from {args.source_map}")
+            source_map_name = _inject_source_map(
+                bpy.context.scene, args.source_map, enum_fix=args.source_map_enum_fix
+            )
+            log_lines.append(
+                f"source_map={source_map_name} from {args.source_map} "
+                f"enum_fix={args.source_map_enum_fix}"
+            )
         log_lines.append(_apply_source_frame_rate(args.clip))
 
         bpy.ops.object.select_all(action="DESELECT")
