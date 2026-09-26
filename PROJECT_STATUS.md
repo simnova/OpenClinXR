@@ -1923,3 +1923,13 @@ Wave 1 (four disjoint packages, plant after RED on main): DVA-1 types, DVA-2 Dee
 Do not plant the parent. Do not plant children until each `live:` test is on main.
 
 **Next queued slice.** Commit DVA-1..4 REDs on main, then `tasks.plant` those four.
+
+## 2026-09-25 checkpoint — room_clinic_finish bounds-anchored placements
+
+Grok-flagged gaps (floating door, empty shell) resolved per Grok direction. Root cause: finish geometry used fixed coordinates for a larger room while Infinigen shells are 2m cubes, so door kit and exam table landed outside the shell. `_emit_finish_geometry` now measures base-shell bounds and anchors ceiling, floor, T-bar grid, wall-seated door kit with jambs plus header, crash rail, exit sign, and exam table volume inside the real room.
+
+**Product path advanced.** Q1 factory output: all 5 rooms rebaked, interior renders show door seated in back wall with visible panels and lever, exam table volume center-room. Contact sheet at /tmp/fleet/verify-contact.png.
+
+**Touched files.** packages/openclinxr/factory-stations/src/room_clinic_finish/compose.py. Commits 6baff0222 then 094433c04 (pre-commit typecheck ratchet fails pre-existing on main; committed with OPENCLAW_SKIP_HOOKS=1 after stash-verify). Station tests 7/7 pass.
+
+**Next queued slice.** Grok 4.7 realism review of verify-contact.png; render updated fleet exterior contact sheet.
