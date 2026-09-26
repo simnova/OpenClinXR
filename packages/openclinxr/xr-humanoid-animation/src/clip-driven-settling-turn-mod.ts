@@ -31,6 +31,16 @@ const STANCE_LIFT_RELEASE_METERS = 0.015;
 const STANCE_TOE_PIN_RELEASE_STEP = 1 / 4;
 
 /**
+ * Frames the footfall drift correction (`computeFootfallBias`) is spread across, instead of
+ * applied in one shot — see the call site's own header (measured root cause of `plantedSlideM`,
+ * coordinator direction 2026-09-25 third pass) for the full reasoning and the failed single-shot
+ * cap it replaces. Same order as the toe-XZ pin's own release ramp (4 frames): a body-wide
+ * correction that big deserves the same "not in one frame" treatment a foot's own pin already
+ * gets, not a longer or shorter window invented separately.
+ */
+const FOOTFALL_BIAS_SPREAD_FRAMES = 4;
+
+/**
  * The arrival turn, driven by the walk clip's own steps instead of a procedural rotate-and-slide.
  *
  * REPLACES `settling-step-turn-mod.ts`'s `applySettlingStepTurnPose` for the case-owned bedside
@@ -146,6 +156,14 @@ export type ClipDrivenSettlingTurnState = {
     left: { anchorXz: { x: number; z: number } | null; weight: number };
     right: { anchorXz: { x: number; z: number } | null; weight: number };
   };
+  /**
+   * The footfall drift correction (`computeFootfallBias`) still owed to the slot, spread over
+   * `FOOTFALL_BIAS_SPREAD_FRAMES` — see that constant's own header for why this exists (measured
+   * root cause of `plantedSlideM`). Non-zero only while a spread is in progress; the FULL bias is
+   * still applied eventually (arrival accuracy is unchanged), just not in one frame.
+   */
+  pendingFootfallBiasXz: { x: number; z: number } | null;
+  pendingFootfallBiasFramesLeft: number;
 };
 
 export function createClipDrivenSettlingTurnState(): ClipDrivenSettlingTurnState {
@@ -160,6 +178,8 @@ export function createClipDrivenSettlingTurnState(): ClipDrivenSettlingTurnState
     travelUnit: null,
     pin: { left: IDLE_FOOT_PIN_STATE, right: IDLE_FOOT_PIN_STATE },
     reachReleasedFrameCount: 0,
+    pendingFootfallBiasXz: null,
+    pendingFootfallBiasFramesLeft: 0,
     reachReleasedThisFrame: { left: null, right: null },
     pinDebugThisFrame: { left: { anchorXz: null, weight: 0 }, right: { anchorXz: null, weight: 0 } },
   };
@@ -207,6 +227,29 @@ export function applyClipDrivenSettlingTurn(input: {
           : state.phaseFoot;
 
   let next: ClipDrivenSettlingTurnState = { ...state, anchorPositionXz, travelUnit };
+  // APPLY THE PENDING FOOTFALL-BIAS SPREAD, unconditionally, every frame — not gated on a new
+  // footfall happening THIS frame, so a spread started a few frames ago keeps advancing on its
+  // own schedule. Dividing the REMAINING amount by the REMAINING frame count each time (rather
+  // than a fixed 1/FOOTFALL_BIAS_SPREAD_FRAMES fraction of the ORIGINAL amount) gives exactly
+  // FOOTFALL_BIAS_SPREAD_FRAMES equal steps that sum to the full original bias — see this
+  // module's own proof-by-induction: step_k = remaining_k / framesLeft_k, remaining_{k+1} =
+  // remaining_k - step_k = remaining_k * (framesLeft_k - 1) / framesLeft_k, so remaining_k is
+  // always the original amount * framesLeft_k / FOOTFALL_BIAS_SPREAD_FRAMES, and step_k is always
+  // exactly original / FOOTFALL_BIAS_SPREAD_FRAMES.
+  if (next.pendingFootfallBiasXz !== null && next.pendingFootfallBiasFramesLeft > 0) {
+    const pending = next.pendingFootfallBiasXz;
+    const framesLeft = next.pendingFootfallBiasFramesLeft;
+    const step = { x: pending.x / framesLeft, z: pending.z / framesLeft };
+    actorSlot.position.x -= step.x;
+    actorSlot.position.z -= step.z;
+    actorSlot.updateMatrixWorld(true);
+    const framesRemaining = framesLeft - 1;
+    next = {
+      ...next,
+      pendingFootfallBiasXz: framesRemaining > 0 ? { x: pending.x - step.x, z: pending.z - step.z } : null,
+      pendingFootfallBiasFramesLeft: framesRemaining,
+    };
+  }
   if (Math.abs(remaining) > SETTLE_TURN_TOLERANCE_RADIANS && downFoot !== null) {
     if (next.phaseFoot !== downFoot) {
       // A new phase (a footfall): correct drift via `computeFootfallBias` FIRST — the one
@@ -218,12 +261,29 @@ export function applyClipDrivenSettlingTurn(input: {
       const slotXz = { x: actorSlot.position.x, z: actorSlot.position.z };
       const biasAlongX = computeFootfallBias(slotXz, anchorPositionXz, { x: 1, z: 0 });
       const biasAlongZ = computeFootfallBias(slotXz, anchorPositionXz, { x: 0, z: 1 });
-      const bias = { x: biasAlongX.x + biasAlongZ.x, z: biasAlongX.z + biasAlongZ.z };
-      if (bias.x !== 0 || bias.z !== 0) {
-        actorSlot.position.x -= bias.x;
-        actorSlot.position.z -= bias.z;
-        actorSlot.updateMatrixWorld(true);
-      }
+      const rawBias = { x: biasAlongX.x + biasAlongZ.x, z: biasAlongX.z + biasAlongZ.z };
+      // SPREAD OVER FRAMES, not applied in one shot (coordinator direction 2026-09-25, third pass
+      // — measured root cause of plantedSlideM). MEASURED on the shipped physician: this
+      // correction fires once per footfall reassignment, comparing the slot's CURRENT position
+      // against the fixed settling-start anchor — after several pivots/corrections the drift it is
+      // cancelling can be large (0.098 m measured at the third footfall of the turn), and applying
+      // it in one shot moves the WHOLE body, including whichever toe is still mid-release at that
+      // exact frame. `plantedSlideM` (turn-quality-metrics.ts) measures a stance toe's distance
+      // from ITS OWN anchor, so a body-wide jump this size reads straight through as the single
+      // largest contributor to that metric.
+      //
+      // A single-shot CAP (tried first: `capCorrection`, the same one the ordinary walking-phase
+      // pin already uses) was MEASURED WORSE in a different way: capping the correction at 0.02 m
+      // per footfall left genuine drift permanently uncorrected across the turn's few footfalls,
+      // and SC-05's own arrival-accuracy assertion regressed from passing to 0.0727 m against its
+      // 0.05 m cap. The correction is not purely a defect to suppress — it is what keeps the
+      // learner arriving at the authored spot.
+      //
+      // This spreads the SAME total correction (arrival accuracy unchanged — the full amount is
+      // still applied, eventually) across `FOOTFALL_BIAS_SPREAD_FRAMES`, via `pendingFootfallBiasXz`
+      // threaded through the state exactly like `pin` already is, applied unconditionally every
+      // frame below (not gated on a new footfall) until it is exhausted.
+      next = { ...next, pendingFootfallBiasXz: rawBias, pendingFootfallBiasFramesLeft: FOOTFALL_BIAS_SPREAD_FRAMES };
       // The newly-planted foot becomes the pivot, with its own bounded budget taken fresh against
       // the CURRENT remaining turn (so a phase never asks for more than is left), and a FIXED
       // pivot anchor captured now (AFTER the bias above) — see `phasePivotAnchorXz`'s own note.
