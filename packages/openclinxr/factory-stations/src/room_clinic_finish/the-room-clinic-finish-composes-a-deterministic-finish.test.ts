@@ -81,6 +81,19 @@ describe("the room clinic finish station composes a deterministic finish", () =>
       runRoomClinicFinish(validInput({ preset: "nope" }), { blender: "blender", workGlb: "", recipeJsonOut: "", report: "" }),
     ).rejects.toThrow(/unknown preset/);
   });
+
+  it("(7) geometry stage wired: recipe, plan, and compose cover geometry", () => {
+    const recipe = designRoomFinishRecipe(validInput() as { environmentId: string; preset: string; seed: number });
+    expect(recipe.modules.map((entry) => entry.module)).toContain("geometry");
+    expect(recipe.modules.find((entry) => entry.module === "geometry")?.version).toBe("clinic-finish-geometry-v1");
+    const planned = planRoomClinicFinish(validInput());
+    expect(planned.issues !== undefined).toBe(false);
+    if (planned.issues !== undefined) return;
+    expect((planned.plan["modules"] as string[])).toContain("geometry");
+    expect((planned.plan["moduleScripts"] as string[]).some((entry) => entry.endsWith("geometry.py"))).toBe(true);
+    const composeSrc = readFileSync(join(SRC, "compose.py"), "utf8");
+    expect(composeSrc).toContain("clinic-finish-geometry-v1");
+  });
 });
 
 // NOT TESTED: live Blender compose.py execution; palette appearance in Model Vetting;

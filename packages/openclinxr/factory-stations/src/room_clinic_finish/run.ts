@@ -40,7 +40,7 @@ export type RoomClinicFinishPlanInput = {
   modules?: string[];
 };
 
-const CLINIC_FINISH_MODULE_FILES = ["ceiling", "floor", "door", "corridor_cues"] as const;
+const CLINIC_FINISH_MODULE_FILES = ["ceiling", "floor", "door", "corridor_cues", "geometry"] as const;
 
 export function planRoomClinicFinish(input: unknown): RoomClinicFinishPlanResult {
   if (input === null || typeof input !== "object" || Array.isArray(input)) {
@@ -68,7 +68,7 @@ export function planRoomClinicFinish(input: unknown): RoomClinicFinishPlanResult
       (CLINIC_FINISH_MODULE_FILES as readonly string[]).includes(entry),
   );
   if (modules.length === 0) {
-    return { issues: [{ message: "modules must name at least one of ceiling, floor, door, corridor_cues" }] };
+    return { issues: [{ message: "modules must name at least one of ceiling, floor, door, corridor_cues, geometry" }] };
   }
   return {
     value,

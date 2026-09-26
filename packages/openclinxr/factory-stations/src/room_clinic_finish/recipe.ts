@@ -35,7 +35,7 @@ export type RoomFinishPalette = {
 };
 
 export type RoomFinishModule = {
-  module: "ceiling" | "floor" | "door" | "corridor_cues";
+  module: "ceiling" | "floor" | "door" | "corridor_cues" | "geometry";
   version: string;
 };
 
@@ -44,6 +44,7 @@ export const ROOM_FINISH_MODULES: RoomFinishModule[] = [
   { module: "floor", version: "clinic-finish-floor-v1" },
   { module: "door", version: "clinic-finish-door-v1" },
   { module: "corridor_cues", version: "clinic-finish-corridor-cues-v1" },
+  { module: "geometry", version: "clinic-finish-geometry-v1" },
 ];
 
 export type RoomFinishRecipe = {

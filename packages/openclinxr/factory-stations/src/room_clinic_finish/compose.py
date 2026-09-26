@@ -22,6 +22,7 @@ EXPECTED_MODULE_VERSIONS = {
     "floor": "clinic-finish-floor-v1",
     "door": "clinic-finish-door-v1",
     "corridor_cues": "clinic-finish-corridor-cues-v1",
+    "geometry": "clinic-finish-geometry-v1",
 }
 
 TRIM_NAME_RE_PARTS = ("skirt", "casing", "door", "window", "trim", "baseboard")
@@ -63,7 +64,7 @@ def load_recipe(recipe_path: str) -> dict:
             raise ValueError("module %r must carry version %r, got %r" % (name, expected, version))
         seen.add(name)
     if seen != set(EXPECTED_MODULE_VERSIONS):
-        raise ValueError("recipe.modules must cover ceiling, floor, door, corridor_cues")
+        raise ValueError("recipe.modules must cover ceiling, floor, door, corridor_cues, geometry")
     for key in ("wallAlbedo", "trimAlbedo", "accentAlbedo"):
         albedo = palette.get(key)
         if (
