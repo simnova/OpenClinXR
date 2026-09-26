@@ -45,6 +45,7 @@
     "src/lighting_design/the-lighting-design-station-emits-a-deterministic-rig.test.ts",
     "src/lip_sync/the-lip-sync-station-rhubarb-on-wav-not-say.test.ts",
     "src/motion_retarget/extract-library-clip.test.ts",
+    "src/room_clinic_finish/the-room-clinic-finish-composes-a-deterministic-finish.test.ts",
     "src/room_generate/the-room-bake-links-objects-into-the-view-layer.test.ts",
     "src/room_generate/the-room-simplify-after-the-bake-keeps-trim.test.ts",
     "src/the-body-param-stage-is-split-into-modules.test.ts",
