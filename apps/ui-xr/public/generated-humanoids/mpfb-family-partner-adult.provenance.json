@@ -49,21 +49,21 @@
  ],
  "sourceNotes": [
   "Issue #403 first adult MPFB2 migration slice: the 19-slot Anny nurse/spouse pair is replaced by two MPFB2 adults generated from the tracked Anny references. The Anny GLBs stay on disk as comparators.",
-  "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults \u2014 only age + height are driven by reference measurement this slice.",
-  "Exact MADR 0051 \u00a75 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
-  "Family-class body is a different bake from the nurse-class body: different reference (1.66 m vs 1.76 m), different macro height (0.5 vs 0.5827), different wardrobe/iris/hair \u2014 two distinct identities.",
+  "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
+  "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
+  "Family-class body is a different bake from the nurse-class body: different reference (1.66 m vs 1.76 m), different macro height (0.5 vs 0.5827), different wardrobe/iris/hair — two distinct identities.",
   "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris).",
-  "Rebaked 2026-08-14 (medical wardrobe): same reference/role, scalp RULE now fires \u2014 `scalp_placeholder_retired_for` suppresses the placeholder `openclinxr_mesh_native_scalp_hair_surface` shell wherever a fitted hair mesh exists (e4880c99). Same wardrobe: toigo t-shirt (muted_rose), cortu_cargo_pants (CC0 ledger row; named-uuid GARMENT_PAGE_CC0_OVERRIDE because its `.mhclo` declares CC0 on the author line, not a `# license` line), toigo_mj_cloth_shoes, toigo_curled_under_bob hair. scalpTris=0, hairTris=2852 measured on the exported GLB.",
+  "Rebaked 2026-08-14 (medical wardrobe): same reference/role, scalp RULE now fires — `scalp_placeholder_retired_for` suppresses the placeholder `openclinxr_mesh_native_scalp_hair_surface` shell wherever a fitted hair mesh exists (e4880c99). Same wardrobe: toigo t-shirt (muted_rose), cortu_cargo_pants (CC0 ledger row; named-uuid GARMENT_PAGE_CC0_OVERRIDE because its `.mhclo` declares CC0 on the author line, not a `# license` line), toigo_mj_cloth_shoes, toigo_curled_under_bob hair. scalpTris=0, hairTris=2852 measured on the exported GLB.",
   "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-family-partner-adult.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed).",
-  "2026-09-12 clothing_consume: replaced the 2,789-tri body-derived cargo cover shell with pants02 elvs_jeans_bootcut fitted via ClothesService.fit_clothes_to_human on the live MPFB hm08 basemesh (macros live, mhclo vertex bindings). Source mens_elv_jeans1f.obj 2,854 faces; shipped lower 5,708 tris (exact x2). LOWER_GATE covers raycast 0.9362. Waist meet gapped 0 / min +5.0 mm. Nurse 2,704 and street 5,708 unchanged. outputSha256 0b1b9c991e11\u2026 / 8,151,256 B -> 354624a6c76c\u2026 / 10,414,636 B.",
+  "2026-09-12 clothing_consume: replaced the 2,789-tri body-derived cargo cover shell with pants02 elvs_jeans_bootcut fitted via ClothesService.fit_clothes_to_human on the live MPFB hm08 basemesh (macros live, mhclo vertex bindings). Source mens_elv_jeans1f.obj 2,854 faces; shipped lower 5,708 tris (exact x2). LOWER_GATE covers raycast 0.9362. Waist meet gapped 0 / min +5.0 mm. Nurse 2,704 and street 5,708 unchanged. outputSha256 0b1b9c991e11… / 8,151,256 B -> 354624a6c76c… / 10,414,636 B.",
   "2026-09-12 clothing_consume cloth_offset: covering-library lower no longer snapped to CLOTH_STANDOFF_M after mhclo fit (materialize_mpfb_humanoid_candidate.py covering-library else-branch). Family-partner rebaked --reference ed_chest_pain_spouse_adult --actor-role family; meshopt --simplify-ratio 0.4 --simplify-error 0.001 --simplify-only; chest-anchor 0.085 m; CC-BY notice. Lower still 5,708 tris. Pants standoff p5 3.848 / med 10.637 / p95 51.463 mm (was 14.464 / 15.000 / 15.027). Nurse and street not rebaked.",
   "2026-09-20: garment-provenance-stamp extras on remaining garments. Geometry unchanged. outputSha256/outputBytes re-recorded."
  ],
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-12T16:29:00Z",
- "outputSha256": "6546809008fab1e529848d385e72b148e69b1e75e230b40b5be8b87b29633f7f",
- "outputBytes": 10369096,
+ "outputSha256": "dc5dec43210748c25a586dfc0c803923004160a8467787022045301cf3462b49",
+ "outputBytes": 10529168,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-09T20:55:55.787Z",
@@ -109,6 +109,15 @@
     "quest_readiness",
     "runtime_playback"
    ]
+  }
+ ],
+ "retiredMotionClips": [
+  {
+   "clipName": "openclinxr_retarget_walk_source",
+   "removedAt": "2026-09-26T00:49:00.574Z",
+   "removedBy": "tools/openclinxr/factory/graft-bound-clip.ts --remove-clip",
+   "channels": 411,
+   "reason": "rebound with corrected --source-orientation: travel MISMATCHES rest (restZ=0.0646, advanceForwardZ=-0.9962, windowFrames=10, mps=0.381)"
   }
  ]
 }

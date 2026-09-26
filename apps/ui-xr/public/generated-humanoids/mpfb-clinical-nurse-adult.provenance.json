@@ -52,14 +52,14 @@
  ],
  "sourceNotes": [
   "Issue #403 first adult MPFB2 migration slice: the 19-slot Anny nurse/spouse pair is replaced by two MPFB2 adults generated from the tracked Anny references. The Anny GLBs stay on disk as comparators.",
-  "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults \u2014 only age + height are driven by reference measurement this slice.",
-  "Exact MADR 0051 \u00a75 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
-  "Physician/respiratory_therapist/medical_assistant roles share this nurse-class body by design (named clinical-team look-alike) \u2014 not a third bake.",
+  "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
+  "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
+  "Physician/respiratory_therapist/medical_assistant roles share this nurse-class body by design (named clinical-team look-alike) — not a third bake.",
   "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris).",
   "2026-08-14 medical wardrobe (nurse-adult): LONG_SLEEVE_UPPER_BY_REFERENCE[ed_chest_pain_nurse_adult]=None so the clinician branch selects WojackOWL CC-BY Scrub_Shirt (9384 tris) + Scrub_Pants (2704 tris, fit BEFORE #318 strip because x_scale refs 13868/14308 are helper verts). Cargo pants and toigo_fisherman_sweater gone on this actor. HAIR_STYLE_BY_REFERENCE kept toigo_blunt_bob (2858 tris). Scalp emit is a RULE (fitted hair present => no openclinxr_mesh_native_scalp_hair_surface). Licence re-read on both mhclo headers (CC-BY). Midriff measured +2.6 mm min overlap / 0 of 36 gapped buckets (closed). Attribution: WojackOWL, Medical Scrubs Kit, CC-BY.",
-  "2026-08-21 #502: toigo_flats leopard 'Shoe' baseColorTexture stripped from the footwear material (per-actor swap, gown-patient precedent) and baseColorFactor set to (0.10,0.09,0.08,1.0) \u2014 a nurse in leopard party flats is not clinically plausible. Only the footwear material changed; skin, rig and morph targets untouched.",
-  "2026-08-29 #0 (re-materialization record): this file's derivationNote predates the #598/#740 re-materialization \u2014 the shipped bytes now carry mat_makeclothes_library_footwear_toigo_mj_cloth_shoes with MJ-shoes3 (1,418,657 B), and SHOE_BY_REFERENCE maps no cast role to toigo_flats (measured in the one-garment-one-material re-measurement; the #502 strip entry above described the previous toigo_flats footwear).",
-  "2026-09-03 #0 (chest-anchor separation): tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both \u2014 one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The ClinicalIdleConversation translation keyframes for both joints were moved with the rest nodes so the clip cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and both animations' rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-clinical-nurse-adult.json. Gate: tools/openclinxr/evidence/the-chest-anchor-joints-are-not-one-point.test.ts (3 passed).",
+  "2026-08-21 #502: toigo_flats leopard 'Shoe' baseColorTexture stripped from the footwear material (per-actor swap, gown-patient precedent) and baseColorFactor set to (0.10,0.09,0.08,1.0) — a nurse in leopard party flats is not clinically plausible. Only the footwear material changed; skin, rig and morph targets untouched.",
+  "2026-08-29 #0 (re-materialization record): this file's derivationNote predates the #598/#740 re-materialization — the shipped bytes now carry mat_makeclothes_library_footwear_toigo_mj_cloth_shoes with MJ-shoes3 (1,418,657 B), and SHOE_BY_REFERENCE maps no cast role to toigo_flats (measured in the one-garment-one-material re-measurement; the #502 strip entry above described the previous toigo_flats footwear).",
+  "2026-09-03 #0 (chest-anchor separation): tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both — one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The ClinicalIdleConversation translation keyframes for both joints were moved with the rest nodes so the clip cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and both animations' rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-clinical-nurse-adult.json. Gate: tools/openclinxr/evidence/the-chest-anchor-joints-are-not-one-point.test.ts (3 passed).",
   "HB-07 nurse hole-guard promote (2026-09-12): full chain materialize (hole-guard) -> #695 optimize_glb_meshopt.mjs --simplify-ratio 0.4 --simplify-error 0.001 --simplify-only (92118 -> 41807) -> #737 optimize_glb_lash_lod.mjs --ratio 0.12 --error 0.005 (lashes 3237 -> 388, total 38958) -> bake-humanoid-albedo.ts (0 materials baked; factors already white or untextured) -> separate_chest_anchor_joints.mjs --half-span-m 0.085 -> write-shipped-licence-notice.ts. Shirt atlas NOT copied: makehuman-community-scrub-shirt/Scrubs_Main_BaseColor_Utility PNG is truncated (2,173,517 B, no IEND, OpenImageIO IDAT EOF), so materialize exported untextured role colour [0.05,0.48,0.52] and HB-02 left it (untextured factor IS the albedo). The 74b62af6 GLB-to-GLB shirt copy is undone. Body 12833 vs shipped 12892 (59-tri hole-guard delta). command/generatedAt/outputSha256/outputBytes recorded from this bake.",
   "2026-09-12 waistband hem-fit: withdrew the scrub skip on fit_upper_hem_to_waistband in materialize_mpfb_humanoid_candidate.py (WAIST_MEET_UPPER pushed 36 verts, maxDeficit 7.65 mm). Same postopt ladder #695/#737 (38958 tris). measureWaistFit gapped 0 / min +5.0 mm; waist-box first-hits skin 0 hidden 0 (was 308/27).",
   "2026-09-20: garment-provenance-stamp wrote Scrub_Shirt.mhclo / Scrub_Pants.mhclo CC-BY extras. Geometry unchanged. outputSha256/outputBytes re-recorded."
@@ -67,8 +67,8 @@
  "claimScope": "nurse_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_toigo_blunt_bob_kept",
  "promotionGates": false,
  "generatedAt": "2026-09-12T09:29:57.027Z",
- "outputSha256": "931cf26de4e2ee9a70b5ce98bd4ee9743ba96564eb2b12b5c5ef4c54f84f1b5a",
- "outputBytes": 8615768,
+ "outputSha256": "c4bc395875048103172e755af5ada72d36d028ab7f598d57ef9726e37891e4ec",
+ "outputBytes": 8775848,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-09T20:55:55.296Z",
@@ -115,6 +115,15 @@
     "quest_readiness",
     "runtime_playback"
    ]
+  }
+ ],
+ "retiredMotionClips": [
+  {
+   "clipName": "openclinxr_retarget_walk_source",
+   "removedAt": "2026-09-26T00:48:46.901Z",
+   "removedBy": "tools/openclinxr/factory/graft-bound-clip.ts --remove-clip",
+   "channels": 411,
+   "reason": "rebound with corrected --source-orientation: travel MISMATCHES rest (restZ=0.0695, advanceForwardZ=-0.9969, windowFrames=9, mps=0.432)"
   }
  ]
 }

@@ -74,7 +74,13 @@ const NURSE_ACTOR_ID = "ward_nurse_patel_v1";
 const WARD_BED_INSTANCE_ID = `${WARD_ENVIRONMENT_ID}:stretcher`;
 const PHYSICIAN_GLB = "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb";
 export const SC05_MEASUREMENT_RUN_ID = "sc05-shipped-approach";
-const WALK_CLIP = "openclinxr_retarget_walk_formal_cc0";
+// MEASURED 2026-09-25, pre-existing and unrelated to any per-actor walk-clip work: the physician's
+// shipped clip was renamed to `openclinxr_retarget_walk_source` in 90f179882 (walk_formal_cc0 was
+// retired the same commit, per its provenance.retiredMotionClips), and this constant was never
+// updated — so `decodePhysician` failed with "no clip named openclinxr_retarget_walk_formal_cc0"
+// on the ALREADY-COMMITTED tree, before any change in this slice. Corrected to the clip the
+// physician GLB actually carries.
+const WALK_CLIP = "openclinxr_retarget_walk_source";
 const CONTACT_JOINTS = ["toe1-1.L", "toe1-1.R"] as const;
 /** SC-00's frozen floor frame id for this encounter's room, and the plane it names. */
 const SIMULATION_HZ = 60;

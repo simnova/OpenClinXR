@@ -22,51 +22,51 @@
   "derivationCommits": [
    {
     "commit": "af1fed4e",
-    "did": "#490 L5 \u2014 bake cast-eligible gowned MPFB adult patient off the mpfb-viseme-inspect base; declare MPFB_GOWN_ADULT_PATIENT_GLB"
+    "did": "#490 L5 — bake cast-eligible gowned MPFB adult patient off the mpfb-viseme-inspect base; declare MPFB_GOWN_ADULT_PATIENT_GLB"
    },
    {
     "commit": "e9ef9e3f",
-    "did": "#542 \u2014 CC0 brows/lashes/teeth/tongue across all eleven MPFB actors"
+    "did": "#542 — CC0 brows/lashes/teeth/tongue across all eleven MPFB actors"
    },
    {
     "commit": "99c56fd5",
-    "did": "#598 \u2014 swap toigo_flats for the plain CC0 cloth shoes"
+    "did": "#598 — swap toigo_flats for the plain CC0 cloth shoes"
    },
    {
     "commit": "f3bf8d13",
-    "did": "#651 \u2014 body height driven by the case declaration"
+    "did": "#651 — body height driven by the case declaration"
    },
    {
     "commit": "e0d36c44",
-    "did": "#684 \u2014 restore the hospital gown without giving back the #651 height"
+    "did": "#684 — restore the hospital gown without giving back the #651 height"
    },
    {
     "commit": "e59dc492",
-    "did": "#686 \u2014 give the gown bodice its own drape"
+    "did": "#686 — give the gown bodice its own drape"
    },
    {
     "commit": "0f1d0b9c",
-    "did": "#695 \u2014 meshopt decimation wired into the humanoid pipeline"
+    "did": "#695 — meshopt decimation wired into the humanoid pipeline"
    },
    {
     "commit": "f82e1cc2",
-    "did": "#683 \u2014 fitted CC0 eyelashes01 replace the hm08 helper stubs"
+    "did": "#683 — fitted CC0 eyelashes01 replace the hm08 helper stubs"
    },
    {
     "commit": "de57fc4d",
-    "did": "#739 \u2014 per-asset teeth retreat"
+    "did": "#739 — per-asset teeth retreat"
    },
    {
     "commit": "a55067d1",
-    "did": "#740 \u2014 re-materialize the fleet with garment textures restored"
+    "did": "#740 — re-materialize the fleet with garment textures restored"
    },
    {
     "commit": "404c723a",
-    "did": "#737 \u2014 lash-only LOD; restore the gown UVs #714 dropped"
+    "did": "#737 — lash-only LOD; restore the gown UVs #714 dropped"
    },
    {
     "commit": "aa64d2ea",
-    "did": "#746 \u2014 gown shell clears the body at armpit and sleeve root"
+    "did": "#746 — gown shell clears the body at armpit and sleeve root"
    },
    {
     "commit": "91b12607",
@@ -81,7 +81,7 @@
    {
     "mesh": "mpfb_robert_reference_body",
     "record": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json",
-    "standing": "CONTRADICTED UPSTREAM \u2014 a stale 2016 README asserts AGPL against a 2020 LICENSE.md saying CC0, with no dated relicensing announcement. Unresolved, and it is the mesh under every body this project generates. SC-04 records it rather than clearing it."
+    "standing": "CONTRADICTED UPSTREAM — a stale 2016 README asserts AGPL against a 2020 LICENSE.md saying CC0, with no dated relicensing announcement. Unresolved, and it is the mesh under every body this project generates. SC-04 records it rather than clearing it."
    },
    {
     "mesh": "makeclothes_library_eyes_low_poly_*",
@@ -138,10 +138,10 @@
   "castEligible": true,
   "realismGraded": false,
   "publicRenderCleared": false,
-  "publicRenderBlockedBy": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json \u2014 the hm08 basemesh AGPL/CC0 contradiction is unresolved upstream"
+  "publicRenderBlockedBy": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json — the hm08 basemesh AGPL/CC0 contradiction is unresolved upstream"
  },
- "outputSha256": "00381ac3903a4124998824ff1f6422c58c2ae0bb28e2cf0692f5a84f56e3cf43",
- "outputBytes": 18987808,
+ "outputSha256": "ceb34c139a5f21460cd4518e2fb023fabed45279a87d48d983bc22b9dd744643",
+ "outputBytes": 19149628,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-09T20:55:55.570Z",
@@ -216,6 +216,15 @@
     "quest_readiness",
     "runtime_playback"
    ]
+  }
+ ],
+ "retiredMotionClips": [
+  {
+   "clipName": "openclinxr_retarget_walk_source",
+   "removedAt": "2026-09-26T00:49:15.615Z",
+   "removedBy": "tools/openclinxr/factory/graft-bound-clip.ts --remove-clip",
+   "channels": 414,
+   "reason": "rebound with corrected --source-orientation: travel MISMATCHES rest (restZ=0.0760, advanceForwardZ=-0.9998, windowFrames=19, mps=0.543)"
   }
  ]
 }
