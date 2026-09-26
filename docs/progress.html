@@ -27,6 +27,48 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-26T0206">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 117 &middot; 2026-09-26 02:06 UTC</p>
+          <h2>Seven more characters can now walk, each at a speed set by its own leg length.</h2>
+        </div>
+        <p>
+          Until today only the physician's model carried a walk clip, so none of the walking and foot-planting work reached any other character. One command, <code>tools/openclinxr/factory/bind-walk-clip-all.ts</code>, now fits the walk to every ambulatory character through the same retarget stage the physician used: the nurse, the family partner, the street-clothed adult, the pediatric nurse, the gowned patient, the child patient and the OB patient. It refuses to publish a clip that travels backwards relative to the body's own facing.
+        </p>
+        <div class="motion-proof" style="margin-top:16px;">
+          <video class="motion-proof__video" controls loop playsinline preload="metadata"
+            poster="assets/nurse-walk-before-after-poster-2026-09-26.png"
+            aria-label="Nurse walking the bedside approach, same camera. Left half: first bind, where the clip ran backwards and the body twisted. Right half: now, walking forward.">
+            <source src="assets/nurse-walk-before-after-2026-09-26.mp4" type="video/mp4">
+            Your browser does not support this video.
+          </video>
+          <div>
+            <p class="status-copy">
+              Left: the nurse on the first bind, where the clip's travel ran opposite to the body's facing and the runtime twisted her through most of a half turn. Right: now. Same scene, camera and capture script; before the first bind she could not walk at all.
+            </p>
+          </div>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Measured on the walking part of the bedside approach, same capture script for all three characters.</caption>
+            <thead><tr><th scope="col">Character</th><th scope="col">Leg length</th><th scope="col">Walking speed</th><th scope="col">Speed floor for that leg length</th><th scope="col">Lurch (1.4 or less)</th><th scope="col">Steps per minute</th></tr></thead>
+            <tbody>
+              <tr><td>Physician</td><td>0.96 m</td><td>1.38 m/s</td><td>1.03 m/s</td><td>1.04</td><td>91</td></tr>
+              <tr><td>Nurse</td><td>0.98 m</td><td>1.36 m/s</td><td>1.04 m/s</td><td>1.05</td><td>91</td></tr>
+              <tr><td>Child patient</td><td>0.68 m</td><td>1.18 m/s</td><td>0.87 m/s</td><td>1.03</td><td>118</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          The target speed follows a standard gait rule (Froude number 0.2), so a child walks slower with a quicker step than an adult. The nurse's lurch was 1.52 on the first bind. The same session also made the planted-foot corrections shared across characters: one guard, scaled by leg length, now covers every leg correction, and it removed a 0.18 m single-frame foot jump on the child.
+        </p>
+        <p class="evidence-note">
+          Commits <code>91aa4b5d3</code> (bind the walk to seven characters), <code>7d71273e3</code> (travel heading fix and publish gate), <code>64b2dc476</code> (speed from leg length), <code>17e420303</code> (speed measure excludes the capture probe's frames), <code>7d90da90b</code> (shared leg-length-scaled guard). Metrics: <code>tools/openclinxr/evidence/foot-plant/walk-quality-metrics.ts</code>. Scenario <code>scene_closure_supine_bedside_v1</code>.
+        </p>
+        <p class="status-copy">
+          <strong>notEvidenceFor:</strong> gait realism judged by a clinician, whether each character walks in its own scenes (only the bedside approach was captured), headset playback, Quest performance, clinical validity, scoring validity, licensure, or exam equivalence.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-25T1920">
         <div class="section-heading">
           <p class="eyebrow">Entry 116 &middot; 2026-09-25 19:20 UTC</p>
