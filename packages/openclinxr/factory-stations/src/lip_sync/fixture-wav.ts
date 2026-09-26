@@ -7,16 +7,56 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 
+/** Apple Speech Synthesis default for `say` (words per minute). */
+export const MACOS_SAY_DEFAULT_WPM = 175;
+
+export type LipSyncFixtureWavOptions = {
+  /** Frozen-plan mapper speed (0.7–1.5). Omit to keep historical `say` argv (no `-r`). */
+  prosodySpeed?: number;
+  /** `say -v` voice name. Omit for the system default. */
+  voice?: string;
+};
+
+/** Map mapper speed onto `say -r` WPM. Pain 0.85 → 149; anxious 0.95 → 166; 1.0 → 175. */
+export function sayRateWpmFromProsodySpeed(speed: number): number {
+  const clamped = Math.min(1.5, Math.max(0.7, speed));
+  return Math.round(MACOS_SAY_DEFAULT_WPM * clamped);
+}
+
+/** Argv for fixture `say`. Does not include the binary name. */
+export function sayFixtureArgv(
+  aiffPath: string,
+  utterance: string,
+  options: LipSyncFixtureWavOptions = {},
+): string[] {
+  const args: string[] = [];
+  if (options.voice !== undefined && options.voice.length > 0) {
+    args.push("-v", options.voice);
+  }
+  if (options.prosodySpeed !== undefined) {
+    args.push("-r", String(sayRateWpmFromProsodySpeed(options.prosodySpeed)));
+  }
+  args.push("-o", aiffPath, utterance);
+  return args;
+}
+
 /**
  * Offline fixture TTS for local macOS. Production `runLipSync` takes a wav path
  * and never shells the system speech synthesizer.
  */
-export async function writeLipSyncFixtureWav(utterance: string, outDir: string): Promise<string> {
+export async function writeLipSyncFixtureWav(
+  utterance: string,
+  outDir: string,
+  options: LipSyncFixtureWavOptions = {},
+): Promise<string> {
   await mkdir(outDir, { recursive: true });
-  const base = `utterance-${createHash("sha1").update(utterance).digest("hex").slice(0, 10)}`;
+  const rateKey =
+    options.prosodySpeed === undefined ? "" : `\0r${sayRateWpmFromProsodySpeed(options.prosodySpeed)}`;
+  const voiceKey = options.voice ? `\0v${options.voice}` : "";
+  const base = `utterance-${createHash("sha1").update(`${utterance}${rateKey}${voiceKey}`).digest("hex").slice(0, 10)}`;
   const aiffPath = path.join(outDir, `${base}.aiff`);
   const wavPath = path.join(outDir, `${base}.wav`);
-  await execFileAsync("say", ["-o", aiffPath, utterance]);
+  await execFileAsync("say", sayFixtureArgv(aiffPath, utterance, options));
   await execFileAsync("afconvert", ["-f", "WAVE", "-d", "LEI16@22050", "-c", "1", aiffPath, wavPath]);
   return wavPath;
 }

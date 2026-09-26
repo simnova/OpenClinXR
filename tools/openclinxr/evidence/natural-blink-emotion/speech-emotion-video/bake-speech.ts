@@ -5,6 +5,7 @@ import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } fro
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { utteranceIdForText } from "../../../../../packages/openclinxr/xr-dialogue/src/viseme-utterance-hash.ts";
+import { sayFixtureArgv } from "../../../../../packages/openclinxr/factory-stations/src/lip_sync/fixture-wav.ts";
 import { runLipSync } from "../../../../../packages/openclinxr/factory-stations/src/lip_sync/run.ts";
 
 const ACTOR_ID = "nurse_maria_alvarez_v1";
@@ -76,7 +77,12 @@ for (const line of LINES) {
   const id = utteranceIdForText(line.text);
   const aiff = join(tmp, `utterance-${id}.aiff`);
   const wav = join(wavDir, `utterance-${id}.wav`);
-  execFileSync("say", ["-v", "Samantha", "-o", aiff, line.text], { stdio: "inherit" });
+  // Same numbers as conversation-policy PROSODY_ROWS (pain 0.85, anxious 0.95, else 1.0).
+  const prosodySpeed =
+    line.emotion === "pain" ? 0.85 : line.emotion === "anxious" ? 0.95 : 1;
+  execFileSync("say", sayFixtureArgv(aiff, line.text, { voice: "Samantha", prosodySpeed }), {
+    stdio: "inherit",
+  });
   execFileSync("afconvert", ["-f", "WAVE", "-d", "LEI16@22050", "-c", "1", aiff, wav], { stdio: "inherit" });
   const duration = wavDurationSeconds(wav);
   const result = await runLipSync(
