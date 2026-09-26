@@ -586,3 +586,106 @@ between this constraint's straight-line-approximated route and the frozen plan's
 5-waypoint path (not recorded in the durable plan, so not reproducible exactly); any comparison of foot
 slide against the shipped clip (not measured with a common method); whether the leg-length-ratio root
 scaling is the right general technique for other clip/actor pairs, versus a fit specific to this one.
+
+---
+
+# Round 4, same day — world-space rotation-delta retarget: still wrong, stopping per instruction
+
+Per instruction: stop after step 1 and report the frame-0 render if the retarget still looks wrong.
+**It still looks wrong.** Reporting now rather than continuing to guess.
+
+## What was implemented
+
+Replaced round 3's Child-Of constraints with the specified formula, computed directly in Python
+(no Blender constraints at all for rotation): `target_world(t) = source_world(t) @
+inverse(source_rest_world) @ target_rest_world`, applied bone-by-bone in parent-first bind order,
+converted to each bone's local (parent-relative) rotation and keyframed directly. Root translation:
+horizontal and vertical displacement from rest scaled by hip-height ratio (target/source), on the
+already-Z-up-post-import world (Blender's own BVH importer converts the source clip's Y-up
+convention at import time — verified, not assumed: both armatures' rest hip Z is a plausible,
+positive, human-scale value in the same coordinate frame). Foot locking implemented as specified:
+per contact-labelled stance window, a two-bone IK constraint on the shin bone targets an Empty
+keyed at the window's own first-frame foot position, influence keyframed 0/1 with a 1-frame
+ease, then `bpy.ops.nla.bake` folds it in.
+
+**Two real bugs found and fixed while building this, before the remaining problem was isolated:**
+
+1. **Full 4x4 affine matrices in the rotation-delta formula.** The first draft composed
+   `source_world(t) @ source_rest^-1 @ target_rest` using FULL 4x4 matrices (rotation AND
+   translation). For general affine matrices this does not decompose independently — the result's
+   translation becomes a nonsensical function of the SOURCE's moving world position multiplied
+   through rotation matrices, not the target's own rest position. This sent limbs flying meters
+   from the torso on every animated frame. Fixed by switching the entire per-frame delta chain to
+   rotation-only 3x3 matrices, with translation handled separately by the (already-correct)
+   hip-height-ratio root logic.
+2. **The `--frame0-only` verification path was checking nothing.** `export_animations=False`
+   exports the armature's REST pose (`bone.matrix_local`), not the pose-bone rotations
+   `apply_pose()` had just set — so the first "frame 0 looks fine" render in this round was
+   silently rendering the physician's own unmodified rest pose, not the retarget's output at all.
+   Fixed by keyframing frame 0 and exporting with animation enabled, so the exported bytes are
+   the actual computed result.
+
+## The frame-0 render, after both fixes
+
+With both bugs fixed, frame 0 (the file's own first frame, not a synthetic neutral pose) still
+renders as a severely broken, contorted pose — limbs at wrong angles, body twisted, nothing like a
+neutral standing physician. Frames:
+`~/.openclinxr-wip/kimodo/round4/preview-frame0v2/start_f1.png` (and the identical pose recurs at
+`mid_walk`/`mid_turn`/`end` in the full bake — the WHOLE clip is wrong, not just frame 0, and wrong
+in nearly the same way at every frame, which is itself a clue: see below). Not committed (scratch).
+
+## Diagnosis of the remaining problem — not fixed, reported as found
+
+Dumped the actual rest-pose and delta matrices for one bone chain (`chest`, `upper_arm.L`,
+`shoulder.L`) as Euler angles. Two things stand out:
+
+1. **The two rigs' REST-POSE EULER ANGLES for "the same" bone are wildly different** — e.g.
+   `chest`: source rest ≈ (90°, 82°, 0°), target rest ≈ (78°, 0°, 0°). Direction alone (which way the
+   bone points) should be comparable between a BVH-derived skeleton and MPFB's rig; the full 3-axis
+   orientation being this different suggests the ROLL (rotation around the bone's own long axis) is
+   not comparable at all.
+2. **The computed "delta" (how far the source has rotated from ITS OWN rest) is enormous even at
+   frame 1** — tens of degrees on multiple axes for a chest/shoulder that should barely move at the
+   start of a calm walk. That is consistent with (1): if `source_rest_world` doesn't reflect a real,
+   anatomically comparable reference orientation on the roll axis, then "how far frame 1 has rotated
+   away from it" is not a meaningful measurement, and the formula faithfully propagates that
+   meaningless delta onto the target.
+
+**Leading hypothesis, not confirmed:** BVH format does not encode bone roll/twist at all — a BVH
+`OFFSET` line gives a direction vector (where the child bone is), never orientation around that
+axis. Blender's BVH importer has to invent a roll for each edit bone at import time (some
+convention or heuristic, not a captured anatomical reference), so `bone.matrix_local` for the
+imported SOMA skeleton is only reliable as a "rest reference" for the bone's pointing direction, not
+for its full 3-axis orientation. Using it as-is in a formula that needs the FULL rest rotation to
+be anatomically meaningful (not just directionally reasonable) would explain both observations
+above without needing anything else to be wrong. **This was not verified against Blender's BVH
+importer source or documentation before time ran out** — it is a diagnosis, not a proven root
+cause. The working addon (`retarget_bvh`) likely handles exactly this with its own "Auto T-pose"
+machinery, which does something more than a raw rest-matrix lookup; that machinery was not
+inspected for this specific question.
+
+## Not done, per the stop instruction
+
+Steps 2-4 (foot-lock verification, camera-fixed multi-frame render of a working clip, and the
+same-method foot-slide comparison against the shipped clip) were not meaningfully exercised — foot
+locking and the render pipeline both ran mechanically (no crashes) and are wired correctly as far as
+their own logic goes, but there is no point measuring or comparing a clip whose FK rotations are
+already wrong before any foot-locking or measurement even starts. Stopping here per instruction
+rather than producing measurements against a known-broken clip.
+
+## claimScope / notEvidenceFor (round 4)
+
+**claimScope:** the world-space rotation-delta formula was implemented as specified, in bind order,
+with root translation handled by hip-height ratio; two real implementation bugs found and fixed
+(4x4-affine-matrix corruption of the delta chain; a verification path that exported the unposed
+rest skeleton instead of the retarget's actual output); the fixed implementation still produces a
+severely wrong pose at frame 0 and throughout the clip; the two rigs' rest-pose Euler angles for
+matched bones differ far beyond what direction-only correspondence would predict.
+
+**notEvidenceFor:** the exact root cause (the BVH-roll-ambiguity hypothesis is a diagnosis, not a
+verified fact — Blender's BVH importer internals were not read to confirm it); whether foot locking
+or the measurement/render pipeline would work correctly on a CORRECTLY-retargeted clip (their logic
+was exercised mechanically but never validated against good input); any comparison with the shipped
+clip (not attempted, per the stop instruction); whether a fix exists within this same formula
+(e.g., deriving rest orientations from a shared T-pose reference instead of raw
+`bone.matrix_local`) or requires a structurally different approach.
