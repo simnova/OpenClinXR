@@ -1165,7 +1165,17 @@ async function dryPass(
     // Occlusion is decided here, in realtime: a probe screenshot under the fake
     // clock whites out every later capture, so record passes take no probes.
     await hideDomUi(page);
-    const frame = approachFrame(evidence.startWorld, evidence.targetWorld);
+    // FRAMED FROM THE RECORDED FOOT PATH, not the planned route endpoints. `approachFrame`
+    // (start, target) assumed the toes actually swing through the full straight-line
+    // start-to-target distance — true only while walk speed and heading were both fixed
+    // constants. MEASURED: after 64b2dc476 (per-actor Froude walk speed — a longer stride
+    // covers the same route in fewer, wider steps, changing how far the recorded toes actually
+    // travel) and 7d71273e3 (corrected travel heading on the rebound actors), the physician's
+    // feet-side toeSpanFraction fell to 0.293, just under the 0.3 floor — the fixed camera
+    // distance, sized for the OLD assumed excursion, no longer matches what the feet actually
+    // do. `approachFrameFromFootPath` below reads the walking-phase samples themselves.
+    const walkingSamplesForFraming = evidence.samples.filter((s) => s.phase === "walking");
+    const frame = approachFrameFromFootPath(walkingSamplesForFraming, evidence.startWorld, evidence.targetWorld);
     const roomResult = (await page.evaluate(`(${ROOM_SOURCE})()`)) as {
       ok: boolean;
       c?: [number, number, number];
@@ -1195,7 +1205,7 @@ async function dryPass(
     };
     // Spread refs across the walk for three-quarter: the arrived pelvis sits
     // against furniture and misjudges mid-walk clearance.
-    const walkingSamples = evidence.samples.filter((s) => s.phase === "walking");
+    const walkingSamples = walkingSamplesForFraming;
     const stride = Math.max(1, Math.floor(walkingSamples.length / 8));
     const walkRefs: FramingRef[] = walkingSamples
       .filter((_, i) => i % stride === 0)
@@ -1317,6 +1327,13 @@ type ApproachFrame = {
   hx: number;
   hz: number;
   sideDistanceMeters: number;
+  /**
+   * The along-heading extent (metres, including body margin) this frame was sized to fit —
+   * `sideDistanceMeters`'s own basis at its fov=32 half-angle. `feetSideCandidates`' wide-FOV
+   * (55°) candidates derive their OWN distance from this instead of a hardcoded absolute number,
+   * so both FOV families track the same measured extent rather than only one of them.
+   */
+  extentMeters: number;
 };
 
 function approachFrame(start: Vec3, target: Vec3): ApproachFrame {
@@ -1336,8 +1353,84 @@ function approachFrame(start: Vec3, target: Vec3): ApproachFrame {
   // 2.4 m left the stepping at 0.29 of frame width.
   const halfVert = (32 * Math.PI) / 360;
   const halfHoriz = Math.atan(Math.tan(halfVert) * (VIDEO_WIDTH / VIDEO_HEIGHT));
-  const sideDistanceMeters = Math.max(2.4, (len + 0.8) / 2 / Math.tan(halfHoriz));
-  return { mid, px, pz, hx, hz, sideDistanceMeters };
+  const extentMeters = len + 0.8;
+  const sideDistanceMeters = Math.max(2.4, extentMeters / 2 / Math.tan(halfHoriz));
+  return { mid, px, pz, hx, hz, sideDistanceMeters, extentMeters };
+}
+
+/**
+ * The world-fixed camera frame, derived from the RECORDED walking-phase toe path rather than the
+ * planned route endpoints `approachFrame` (above) uses.
+ *
+ * WHY. `approachFrame(start, target)` sizes the camera for the straight-line start-to-target
+ * distance, which was a safe proxy for "how far the toes actually swing" only while walk speed and
+ * heading were both fixed constants. MEASURED: after 64b2dc476 (per-actor Froude walk speed — a
+ * longer stride covers the same route in fewer, wider steps) and 7d71273e3 (corrected travel
+ * heading on the rebound actors), the physician's `toeSpanFraction` fell to 0.293, under the 0.3
+ * floor — the toes now swing through less of the frame than the fixed camera distance assumes.
+ * Deriving both heading AND extent from the actual recorded samples means any future change to
+ * speed, stride, heading, or executor overshoot/undershoot is absorbed automatically; nothing here
+ * is retuned for a specific rig or clip.
+ *
+ * Heading comes from the NET displacement between the first and last walking-phase slot position —
+ * the route actually travelled, not the planned one. Extent comes from projecting every recorded
+ * toe sample onto that heading axis and taking the observed min/max, which is what the feet-side
+ * camera must actually fit — the toes can swing past the slot's own start/end (a stride overshoots
+ * its endpoint) or fall short of it (the executor stops early), and only the toe samples themselves
+ * know which.
+ *
+ * Falls back to the endpoint-based `approachFrame` when the recorded path is degenerate (fewer than
+ * two walking samples, or a slot that never moved) — a genuine gap in the capture, not something a
+ * derived frame can paper over, but not worth failing the whole run over when the endpoints are
+ * still there to fall back to.
+ */
+function approachFrameFromFootPath(
+  walkingSamples: readonly RuntimeSample[],
+  fallbackStart: Vec3,
+  fallbackTarget: Vec3,
+): ApproachFrame {
+  // HEADING AND MID come from the route's own endpoints, exactly as `approachFrame` computes them
+  // — those already reflect whatever the intent resolver decided (including a heading correction
+  // like 7d71273e3's), and they are DETERMINISTIC per scenario, unlike the recorded samples below.
+  // MEASURED: deriving `mid` from the recorded samples too (an earlier version of this function)
+  // introduced real run-to-run jitter (natural timing variance in exactly which frames the async
+  // dry pass captures as "walking"), and that jitter occasionally pushed every close "+perp"
+  // candidate outside `eyeInRoom`'s bounds on one run, leaving the lone dark "-perp/2.4" fallback
+  // as the only surviving candidate — a badly cropped frame, worse than the span defect this
+  // function exists to fix. Keeping position derivation on the stable route endpoints avoids that
+  // failure mode entirely.
+  const base = approachFrame(fallbackStart, fallbackTarget);
+  if (walkingSamples.length < 2) return base;
+  // EXTENT is what actually needs to come from the recorded path: `approachFrame` sizes the camera
+  // for the full start-to-target route length, which was a safe proxy for "how far the toes swing"
+  // only while walk speed was a fixed constant. MEASURED: after 64b2dc476's per-actor Froude walk
+  // speed, a longer stride can cover the same route in fewer, wider — but not necessarily
+  // longer-reaching — steps, and the physician's actually-recorded toeSpanFraction fell to 0.293,
+  // under the 0.3 floor. Project every recorded toe sample onto the route's own heading axis
+  // (`base.hx`/`base.hz`) and take the observed excursion; a stride can overshoot the route
+  // endpoint or the executor can stop short of it, and only the toe samples themselves know which.
+  const first = walkingSamples[0]!;
+  const along: number[] = [];
+  for (const sample of walkingSamples) {
+    for (const toe of [sample.leftToe, sample.rightToe]) {
+      if (toe === null) continue;
+      along.push((toe.x - first.slot.x) * base.hx + (toe.z - first.slot.z) * base.hz);
+    }
+  }
+  if (along.length < 2) return base;
+  const recordedExtent = Math.max(...along) - Math.min(...along);
+  // USE THE RECORDED EXTENT DIRECTLY, not a floor against the route length. The measured defect
+  // (`toeSpanFraction` 0.293, under the 0.3 floor) is the camera sitting too FAR BACK for how far
+  // the toes actually swing — `approachFrame`'s route-length sizing overestimates that excursion
+  // now, so flooring at the route length again would leave the exact defect this function exists
+  // to fix. A small absolute floor guards only against a genuinely degenerate (near-zero) recorded
+  // excursion, not against sizing smaller than the route.
+  const len = Math.max(0.5, recordedExtent);
+  const halfVert = (32 * Math.PI) / 360;
+  const halfHoriz = Math.atan(Math.tan(halfVert) * (VIDEO_WIDTH / VIDEO_HEIGHT));
+  const extentMeters = len + 0.8;
+  const sideDistanceMeters = Math.max(2.4, extentMeters / 2 / Math.tan(halfHoriz));
+  return { ...base, sideDistanceMeters, extentMeters };
 }
 
 /** Side-on, 0.35 m high, feet low in frame; offsets walk the camera off the mattress. */
@@ -1351,13 +1444,20 @@ function feetSideCandidates(frame: ApproachFrame): Array<{ name: string; pose: C
     look: { x: frame.mid.x + frame.hx * 0.35, y: 0.12, z: frame.mid.z + frame.hz * 0.35 },
     fov,
   });
+  // The lit +perp side at midpoint distance sits inside the mattress or past the wall (all
+  // midtone=0.000), so probe close+wide near the start end too. DERIVED from `frame.extentMeters`
+  // (the measured toe excursion plus margin), not hardcoded 1.5/2.0/2.4 m literals — those assumed
+  // a fixed ~1.2-1.3 m excursion (the old 1.1 m/s constant-speed walk) and stopped fitting once
+  // walk speed (64b2dc476) or heading (7d71273e3) changed what that excursion actually is. Uses
+  // fov=55's own half-angle, not `sideDistanceMeters`'s fov=32 basis, since these candidates are
+  // the wide lens.
+  const halfVertWide = (55 * Math.PI) / 360;
+  const halfHorizWide = Math.atan(Math.tan(halfVertWide) * (VIDEO_WIDTH / VIDEO_HEIGHT));
+  const wideDist = Math.max(1.2, frame.extentMeters / 2 / Math.tan(halfHorizWide));
   return [
-    // The lit +perp side at midpoint distance sits inside the mattress or past
-    // the wall (all midtone=0.000), so probe close+wide near the start end too:
-    // a wide lens still fits the whole 1.31 m segment from 1.5 m.
-    { name: "+perp/1.5/back1.2/fov55", pose: at(1, 1.5, 1.2, 55) },
-    { name: "+perp/2.0/back1.2/fov55", pose: at(1, 2.0, 1.2, 55) },
-    { name: "+perp/2.4/back1.5/fov55", pose: at(1, 2.4, 1.5, 55) },
+    { name: "+perp/wide0.85x/back1.2/fov55", pose: at(1, wideDist * 0.85, 1.2, 55) },
+    { name: "+perp/wide1.0x/back1.2/fov55", pose: at(1, wideDist, 1.2, 55) },
+    { name: "+perp/wide1.2x/back1.5/fov55", pose: at(1, wideDist * 1.2, 1.5, 55) },
     { name: "+perp/2.4", pose: at(1, frame.sideDistanceMeters, 0, 32) },
     { name: "-perp/2.4", pose: at(-1, frame.sideDistanceMeters, 0, 32) },
   ];
