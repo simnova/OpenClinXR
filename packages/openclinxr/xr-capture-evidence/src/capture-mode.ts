@@ -12,8 +12,18 @@ export function readSelectedCaptureMode(search: string): string {
     ?? "";
 }
 
+/**
+ * `globalThis` rather than the bare `window` identifier: this module is reachable from
+ * `tools/**` (via `tools/openclinxr/factory/mount-bundle-declared-content.ts`), whose relaxed
+ * typecheck config carries no DOM lib. `globalThis` IS `window` in every browser this code
+ * actually runs in, so this is behavior-identical at runtime.
+ */
+function browserLocationSearch(): string {
+  return (globalThis as unknown as { window?: { location?: { search?: string } } }).window?.location?.search ?? "";
+}
+
 export function selectedCaptureMode(): string {
-  return readSelectedCaptureMode(window.location.search);
+  return readSelectedCaptureMode(browserLocationSearch());
 }
 
 export function isActorCloseRealismCaptureMode(captureMode: string = selectedCaptureMode()): boolean {
@@ -57,7 +67,7 @@ export function isPhysicsClinicalTouchCapture(
 ): boolean {
   if (!captureMode.includes("physics-clinical-touch") && !captureMode.includes("physics-touch")) return false;
   const cmp = comparator
-    ?? new URLSearchParams(window.location.search).get("humanoidSourceComparator")?.trim()
+    ?? new URLSearchParams(browserLocationSearch()).get("humanoidSourceComparator")?.trim()
     ?? null;
   return cmp === "ed_anny_real_garment_patient" || cmp === "peds_anny_real_garment_patient";
 }

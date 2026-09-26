@@ -91,11 +91,14 @@ export function createLocomotionOrderRegistry(): LocomotionOrderRegistry {
   return new Map();
 }
 
-/** The walker's own standing-footprint radius, matching asset-registry's SC-00-derived convention
- * (`ROUTE_PLANNER_WALKER_RADIUS_METERS` in `layout-solve-mod.ts`) -- not imported, since that
- * package internal is not exported across the boundary (see `order-route-planner-mod.ts`'s own
- * doc comment for why); the same measured value is used here rather than a different one. */
-const ORDER_WALKER_RADIUS_METERS = 0.3;
+/** The walker's own standing-footprint radius: asset-registry's rig-derived
+ * `STANDING_FOOTPRINT_RADIUS_METERS`, evaluated here with the identical expression (0.3681 / 2
+ * + 0.05 — measured shoulder-joint separation plus stated clearance; see `bedside-clearance.ts`
+ * for the derivation, which is the single source) so the value is bit-identical rather than a
+ * separately rounded literal. Kept as an expression, not imported, since that package internal
+ * is not exported across the boundary (see `order-route-planner-mod.ts`'s own doc comment for
+ * why); if the rig is ever re-measured, update this expression to the new derivation. */
+const ORDER_WALKER_RADIUS_METERS = 0.3681 / 2 + 0.05;
 
 /**
  * A static, zero-obstacle geometry, used ONLY when the caller supplies no scene to observe (a unit
@@ -211,8 +214,7 @@ function resolveLocomotionOrder(
   let legTarget = finalTarget;
   let legFacing = finalFacing;
   let remainingCorners: readonly OrderRouteVector2[] = [];
-  if (straightBlocked) {
-    const corners = planOrderRouteWaypoints({
+  if (straightBlocked) {    const corners = planOrderRouteWaypoints({
       start: startXz,
       target: targetXz,
       obstacles,

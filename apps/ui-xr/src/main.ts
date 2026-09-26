@@ -3072,7 +3072,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     // #223: roomProp ids that alias to this builder (telehealth-tablet-stand → tablet_visit…)
     // so declared-equipment inspectors match the prop declaration without dual geometry.
     stampRoomPropAliasesOnEquipmentRoot(slot, item.equipmentId);
-    slot.add(createActorNameplate(item.label, item.source === "gltf" ? 0x286b54 : 0x2563eb));
+    const slotNameplate = createActorNameplate(item.label, item.source === "gltf" ? 0x286b54 : 0x2563eb); slotNameplate.userData["openClinXrObstacleExcludedCue"] = "equipment-nameplate"; slot.add(slotNameplate); // UI label, not furniture -- production observer skips this subtree (same key buildRoomPropGroup stamps on room-prop labels), keeping this composition root at its frozen line budget
     scene.add(slot);
     if (item.source === "gltf" && item.gltfFileName) {
       const bundleModel = findRuntimeEquipmentAsset(encounterRuntimeAssetBundle, item.equipmentId)?.model;

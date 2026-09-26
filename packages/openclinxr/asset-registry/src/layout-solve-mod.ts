@@ -1,5 +1,5 @@
 import { planBedsideApproach, planRoutedBedsideApproach, sweptRouteViolations } from "./bedside-approach-path-mod.js";
-import { bedsideClearanceViolations, type MeasuredObstacle } from "./bedside-clearance.js";
+import { bedsideClearanceViolations, type MeasuredObstacle, STANDING_FOOTPRINT_RADIUS_METERS } from "./bedside-clearance.js";
 import {
   type BedsideTarget,
   bedsideTargetForClinician,
@@ -9,8 +9,12 @@ import {
 } from "./bedside-target.js";
 import { planRouteWaypoints } from "./route-planner-mod.js";
 
-/** The walker's standing-footprint radius the route planner inflates obstacles by (SC-00's 0.3 m). */
-export const ROUTE_PLANNER_WALKER_RADIUS_METERS = 0.3;
+/**
+ * The walker's standing-footprint radius the route planner inflates obstacles by: the same
+ * rig-derived value `bedside-clearance.ts` checks stances against (0.3681 / 2 + 0.05), not a
+ * second guess. Imported, not re-stated, so the two can never drift apart.
+ */
+export const ROUTE_PLANNER_WALKER_RADIUS_METERS = STANDING_FOOTPRINT_RADIUS_METERS;
 
 /**
  * One corner of a routed (non-straight) approach, world XZ, in walking order including the start
@@ -182,7 +186,10 @@ export function resolveBedsideLayoutFromSeed(input: {
           standingPosition: target.position,
           obstacles: input.obstacles,
         });
-        if (violations.length > 0) {
+        // Trip-level ledges are reported, not blocking: only a bodily collision rejects a stance.
+        // The refusal reason still lists them, so a reviewer sees the whole picture.
+        const blocking = violations.filter((violation) => violation.kind !== "trip_hazard");
+        if (blocking.length > 0) {
           unsatisfied.push({
             approachSide,
             standoffMeters,

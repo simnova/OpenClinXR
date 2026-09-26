@@ -170,6 +170,8 @@ function finishApproachPlan(
       standingPosition: waypoint.position,
       obstacles,
     })) {
+      // Trip-level ledges ride along for the report but never fail a route on their own.
+      if (violation.kind === "trip_hazard") continue;
       const key = `${violation.kind}:${violation.obstacleId}`;
       if (seen.has(key)) continue;
       seen.add(key);

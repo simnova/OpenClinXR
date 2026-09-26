@@ -23,6 +23,7 @@ import {
   SCENE_CLOSURE_STATION_ID,
   sceneClosureCaseDocument,
 } from "../../../tools/openclinxr/factory/scene-closure-case-source.js";
+import { mountBundleDeclaredContent } from "../../../tools/openclinxr/factory/mount-bundle-declared-content.js";
 
 /**
  * THE RUNTIME OBSERVES A DIFFERENT ROOM THAN THE FROZEN PLAN BINDS.
@@ -75,6 +76,21 @@ import {
  * that refusal stays terminal. Unmapped/failed/compiled-room paths never enter
  * `pending` and are judged immediately (the procedural box is then the room).
  *
+ * ## FIXED
+ * The committed freeze now binds equipment + room props, not just fixtures:
+ * `observeMountedApproachGeometry` was extended to recognise
+ * `openClinXrEquipmentId`-tagged room-prop/equipment nodes as obstacles, and
+ * SC-06 re-froze `scene_closure_supine_bedside_v1` at `geom-v1-c83aeaee-17`
+ * (17 obstacles). This test's scenes previously mounted only the raw
+ * fixture-tagged shell, so their digest could never match. Every scene in this
+ * file now mounts the case's declared equipment + room props via
+ * `mountBundleDeclaredContent` (the same helper the SC-06 freeze generator
+ * calls, same position relative to `buildStationEnvironment`), built from a
+ * bundle that carries the case document as `scenario` so equipment realizes
+ * from the case's own equipmentDecisions. Measured 2026-09-26: parametric
+ * (shell + declared content, pre-reanchor) `geom-v1-532f79a5-17`; reanchored
+ * `geom-v1-c83aeaee-17`, equal to the committed freeze.
+ *
  * claimScope: geometryRevisionDigest of the inpatient ward fixtures the
  * admission observes, versus the committed freeze.
  * notEvidenceFor: clinical validity, worn-headset, scoring, exam equivalence.
@@ -85,7 +101,7 @@ const WARD = SCENE_CLOSURE_ENVIRONMENT_ID;
 const SUPPORT = `${WARD}:stretcher`;
 const CASE_ID = SCENE_CLOSURE_CASE_ID;
 /** Live digest measured after Infinigen reanchor; not a target. */
-const REANCHORED_DIGEST = "geom-v1-cdaa4a22-7";
+const REANCHORED_DIGEST = "geom-v1-c83aeaee-17";
 /** Measured movedMeters from reanchorWallFixturesToRoom on infinigen-inpatient-ward.glb. */
 const DOOR_REANCHOR_METERS = 1.4647948216987885;
 const BOARD_REANCHOR_METERS = -1.4647949591247098;
@@ -145,10 +161,19 @@ function stageAdmissionScene(options?: { reanchor?: boolean }): {
 } {
   const frozen = CASE_FROZEN_SCENE_PLANS[CASE_ID];
   if (frozen === undefined) throw new Error("the scene-closure case has no committed freeze");
+  // The bundle is built BEFORE the scene so its declared equipment + room props can be mounted
+  // the same way the SC-06 freeze generator does. `scenario` is required: equipment realizes
+  // from the case's own equipmentDecisions, and without it the bundle carries the ED default set.
+  const caseDocument = sceneClosureCaseDocument();
+  const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
+    scenarioId: CASE_ID,
+    stationId: frozen.case.stationId,
+    scenario: caseDocument as never,
+  });
   const scene = new Scene();
   scene.add(buildStationEnvironment({ environmentId: WARD }) as never);
+  mountBundleDeclaredContent(scene, bundle as never, CASE_ID);
   if (options?.reanchor === true) applyMeasuredInfinigenReanchor(scene);
-  const caseDocument = sceneClosureCaseDocument();
   const placements = createEdChestPainRuntimeSceneManifest({
     scenarioId: caseDocument.scenarioId,
     stationId: SCENE_CLOSURE_STATION_ID,
@@ -182,10 +207,7 @@ function stageAdmissionScene(options?: { reanchor?: boolean }): {
     scene,
     patientWorld,
     start,
-    bundle: createEdChestPainLocalLearnerRuntimeAssetBundle({
-      scenarioId: CASE_ID,
-      stationId: frozen.case.stationId,
-    }),
+    bundle,
   };
 }
 
@@ -195,11 +217,18 @@ describe("the runtime reproduces the frozen room digest", () => {
     expect(frozen, "the scene-closure case has no committed freeze").toBeTruthy();
     const frozenDigest = frozen!.revisions.geometryRevision;
 
+    const caseDocument = sceneClosureCaseDocument();
+    const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
+      scenarioId: CASE_ID,
+      stationId: frozen!.case.stationId,
+      scenario: caseDocument as never,
+    });
     const scene = new Scene();
     scene.add(buildStationEnvironment({ environmentId: WARD }) as never);
+    mountBundleDeclaredContent(scene, bundle as never, CASE_ID);
     const parametricDigest = digestOf(scene);
     expect(parametricDigest, "node parametric shell drifted from the original measured freeze").toBe(
-      "geom-v1-c45e274d-7",
+      "geom-v1-532f79a5-17",
     );
     expect(parametricDigest, "freeze still describes the pre-hull parametric shell").not.toBe(frozenDigest);
 
@@ -210,7 +239,6 @@ describe("the runtime reproduces the frozen room digest", () => {
     );
     expect(reanchoredDigest, "freeze must bind the post-reanchor room").toBe(frozenDigest);
 
-    const caseDocument = sceneClosureCaseDocument();
     const placements = createEdChestPainRuntimeSceneManifest({
       scenarioId: caseDocument.scenarioId,
       stationId: SCENE_CLOSURE_STATION_ID,
@@ -240,10 +268,6 @@ describe("the runtime reproduces the frozen room digest", () => {
     if ("refused" in patientWorld || "refused" in start) {
       throw new Error("the ward staging refused to compose a patient or physician position");
     }
-    const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
-      scenarioId: CASE_ID,
-      stationId: frozen!.case.stationId,
-    });
     const admission = admitFrozenScenePlanForObservedScene({
       admission: { status: "no_plan_carried" },
       bundle,
@@ -272,12 +296,18 @@ describe("the runtime reproduces the frozen room digest", () => {
   it("admission does not restore wall anchors — that re-opens #342c", () => {
     const frozen = CASE_FROZEN_SCENE_PLANS[CASE_ID];
     expect(frozen).toBeTruthy();
+    const caseDocument = sceneClosureCaseDocument();
+    const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
+      scenarioId: CASE_ID,
+      stationId: frozen!.case.stationId,
+      scenario: caseDocument as never,
+    });
     const scene = new Scene();
     scene.add(buildStationEnvironment({ environmentId: WARD }) as never);
+    mountBundleDeclaredContent(scene, bundle as never, CASE_ID);
     applyMeasuredInfinigenReanchor(scene);
     const doorX = fixtureRoot(scene, "door_leaf").position.x;
     const boardX = fixtureRoot(scene, "wall_board").position.x;
-    const caseDocument = sceneClosureCaseDocument();
     const placements = createEdChestPainRuntimeSceneManifest({
       scenarioId: caseDocument.scenarioId,
       stationId: SCENE_CLOSURE_STATION_ID,
@@ -309,10 +339,7 @@ describe("the runtime reproduces the frozen room digest", () => {
     }
     admitFrozenScenePlanForObservedScene({
       admission: { status: "no_plan_carried" },
-      bundle: createEdChestPainLocalLearnerRuntimeAssetBundle({
-        scenarioId: CASE_ID,
-        stationId: frozen!.case.stationId,
-      }),
+      bundle,
       scene,
       environmentId: WARD,
       observeGeometry: observeMountedApproachGeometry,
@@ -418,7 +445,7 @@ describe("the runtime reproduces the frozen room digest", () => {
     });
     expect(mismatched.status, "a hull whose digest is not the freeze must refuse").toBe("refused");
     if (mismatched.status !== "refused") return;
-    expect(mismatched.observedGeometryRevision).toBe("geom-v1-c45e274d-7");
+    expect(mismatched.observedGeometryRevision).toBe("geom-v1-532f79a5-17");
 
     applyMeasuredInfinigenReanchor(staged.scene);
     const afterMatchWouldSucceed = admitFrozenScenePlanForObservedScene({
@@ -464,6 +491,6 @@ describe("the runtime reproduces the frozen room digest", () => {
     expect(failed.detail).toContain("network timeout");
     expect(failed.detail).toContain("procedural box is not the room the freeze captured");
     // The observed geometry revision should be the parametric shell (since the hull never loaded)
-    expect(failed.observedGeometryRevision).toBe("geom-v1-c45e274d-7");
+    expect(failed.observedGeometryRevision).toBe("geom-v1-532f79a5-17");
   });
 });

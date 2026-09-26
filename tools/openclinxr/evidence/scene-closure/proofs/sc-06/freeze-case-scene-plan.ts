@@ -16,7 +16,9 @@ import {
 } from "../../../../../../packages/openclinxr/asset-registry/src/scene-plan-freeze.js";
 import { acceptedScenePlanProblems } from "../../../../../../packages/openclinxr/session-state/src/accepted-scene-plan.js";
 import { observeMountedApproachGeometry } from "../../../../../../packages/openclinxr/xr-humanoid-animation/src/mounted-approach-geometry.js";
-import { buildStationEnvironment } from "../../../../../../packages/openclinxr/xr-station/src/index.js";
+import {
+  buildStationEnvironment,
+} from "../../../../../../packages/openclinxr/xr-station/src/index.js";
 import {
   SCENE_CLOSURE_CASE_ID,
   SCENE_CLOSURE_CASE_SOURCE_VERSION,
@@ -27,6 +29,7 @@ import {
   SCENE_CLOSURE_STATION_ID,
   sceneClosureCaseDocument,
 } from "../../../../factory/scene-closure-case-source.js";
+import { mountBundleDeclaredContent } from "../../../../factory/mount-bundle-declared-content.js";
 import { newEvidencePage } from "../../../lib/evidence-page.js";
 import { spawnPortlessDevServer, stopPortlessDevServer } from "../../../lib/portless-server.js";
 
@@ -99,6 +102,8 @@ type LiveHullObservation = {
    */
   observedGeometryRevision: string | null;
   reanchor: LiveWallReanchor[];
+  /** The walker slot's staged world position: the start the admission re-solves from. */
+  walkerStart: { x: number; y: number; z: number };
 };
 
 type CaseConfig = {
@@ -164,58 +169,21 @@ const CASE_CONFIGS: readonly CaseConfig[] = [
     acceptedAtIso: "2026-09-10T00:00:00.000Z",
     acknowledgedAtIso: "2026-09-10T00:05:00.000Z",
   },
-  {
-    // ed_chest_pain_priority_v1's OWN production cast and placements (resolveScenarioActorCast,
-    // createEdChestPainRuntimeSceneManifest) — not a synthetic case document. The nurse
-    // (nurse_maria_alvarez_v1) is the one this encounter's exam most needs walking: she starts at
-    // the equipment counter and the exam does not begin at the bedside until she reaches it.
-    caseId: "ed_chest_pain_priority_v1",
-    caseVersion: 1,
-    caseSourceVersion: "openclinxr.scenario-fixtures.ed-chest-pain.v1",
-    caseSourcePath: "packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts",
-    stationId: "ed_chest_pain_station_v1",
-    environmentId: "ed_exam_bay_v1",
-    walkerRole: "nurse",
-    patientActorId: "patient_robert_hayes_v1",
-    walkerActorId: "nurse_maria_alvarez_v1",
-    selectedAssetManifest: {
-      selected: [
-        {
-          actorId: "patient_robert_hayes_v1",
-          role: "patient",
-          assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
-          rig: "mpfb2_standard_137_joint",
-        },
-        {
-          actorId: "nurse_maria_alvarez_v1",
-          role: "nurse",
-          assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-          rig: "mpfb2_standard_137_joint",
-        },
-        {
-          actorId: "spouse_anna_hayes_v1",
-          role: "family",
-          assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-          rig: "mpfb2_standard_137_joint",
-        },
-      ],
-    },
-    bundleRoute: "**/xr-assets/generated/ed_chest_pain_priority_v1/learner-runtime-bundle.v1.json",
-    buildUrl: (serverUrl) =>
-      `${serverUrl}?openclinxrScenarioId=ed_chest_pain_priority_v1`
-      + "&stationId=ed_chest_pain_station_v1"
-      + "&openclinxrEnvironmentId=ed_exam_bay_v1"
-      + "&openclinxrPortalStart=encounter"
-      + "&openclinxrAcceleratedExam=1",
-    assetRevisionSeedInput: "2026-09-25",
-    planId: "ed_chest_pain_priority_v1_plan_v1",
-    runId: "ed_chest_pain_priority_v1_build_time_freeze",
-    acceptedAtIso: "2026-09-25T00:00:00.000Z",
-    acknowledgedAtIso: "2026-09-25T00:05:00.000Z",
-    // No authored approachSide/standoffMeters: resolveBedsideLayoutFromSeed now searches side x
-    // standoff x along-bed offset x route/swept together (layout-solve-mod.ts), so the room's own
-    // measured fixtures pick the standing spot instead of a hand-authored one per room.
-  },
+  // ed_chest_pain_priority_v1 REMOVED 2026-09-26 (room-obstacles): once the observer honestly
+  // recognises every real obstacle (fixtures + case-authored room props, ~19-25 depending on the
+  // room), resolveCaseOwnedScenePlan finds every bedside-stance candidate (both sides, every
+  // standoff) blocked by the ed_exam_bay_v1 monitor and wall_board fixtures -- a genuine room
+  // conflict this freeze cannot resolve into an accepted plan, not a bug in this generator or in
+  // the geometry observer (measured: neither fixture's footprint carries a stray bracket/arm/
+  // cable/label child; both are legitimate body geometry). The PRIOR frozen entry for this case
+  // was accepted against an 8-obstacle set (geom-v1-c1acec27-8) that never saw these fixtures at
+  // this precision, so keeping it would freeze a plan against a room the honest observer says is
+  // unwalkable -- exactly the false record `admitFrozenScenePlan`'s own doc comment warns against.
+  // `CASE_FROZEN_SCENE_PLANS` no longer carries an entry for this case; per that file's own header,
+  // "A CASE ABSENT FROM THIS MAP HAS NO FROZEN PLAN... that is the honest answer, not a failure."
+  // ED already refuses live admission on origin/main (layout_not_reproduced), so no learner-visible
+  // behaviour changes. Follow-up: either re-author the ED room's monitor/wall_board placement (or
+  // the bedside-stance standoff candidates) so a real approach exists, then re-add this case here.
 ];
 
 function fixtureRoot(scene: Scene, slotId: string): Object3D {
@@ -268,7 +236,7 @@ async function captureLiveHullObservation(
     const url = config.buildUrl(server.url);
     await page.goto(url, { waitUntil: "networkidle", timeout: 180_000 });
     await page.waitForFunction(
-      (bootstrap: boolean) => {
+      (flags: { bootstrap: boolean; walkerActorId: string }) => {
         const scene = (globalThis as {
           __openClinXrDebugScene?: {
             traverse?: (cb: (o: { userData?: Record<string, unknown> }) => void) => void;
@@ -277,33 +245,63 @@ async function captureLiveHullObservation(
         if (!scene?.traverse) return false;
         let hull = false;
         let reanchored = false;
+        let walkerStaged = false;
         scene.traverse((o) => {
           const ud = o.userData ?? {};
           if (ud["openClinXrEnvironmentSource"] === "infinigen-generated-room") hull = true;
           if (ud["openClinXrWallAnchorReanchored"] !== undefined) reanchored = true;
+          if (ud["openClinXrActorId"] === flags.walkerActorId) walkerStaged = true;
         });
+        if (!hull || !reanchored || !walkerStaged) return false;
         // On a BOOTSTRAP case, `admitFrozenScenePlanForObservedScene` never observes geometry —
         // it short-circuits on `admission.status !== "admitted"` before touching the scene — so
         // there is no `observedGeometryRevision` to wait for; hull+reanchor is the whole signal.
-        if (bootstrap) return hull && reanchored;
+        if (flags.bootstrap) return true;
         const admission = (globalThis as {
           __openClinXrFrozenScenePlanAdmission?: { observedGeometryRevision?: string | null };
         }).__openClinXrFrozenScenePlanAdmission;
-        return hull && reanchored && typeof admission?.observedGeometryRevision === "string";
+        return typeof admission?.observedGeometryRevision === "string";
       },
-      isBootstrap,
+      { bootstrap: isBootstrap, walkerActorId: config.walkerActorId },
       { timeout: 180_000 },
     );
-    const live = await page.evaluate(() => {
+    const live = await page.evaluate((walkerActorId: string) => {
       const scene = (globalThis as {
-        __openClinXrDebugScene?: { traverse: (cb: (o: { userData?: Record<string, unknown> }) => void) => void };
+        __openClinXrDebugScene?: {
+          traverse: (cb: (o: { userData?: Record<string, unknown> }) => void) => void;
+          updateMatrixWorld?: (force: boolean) => void;
+        };
       }).__openClinXrDebugScene;
+      scene?.updateMatrixWorld?.(true);
       const admission = (globalThis as {
         __openClinXrFrozenScenePlanAdmission?: { observedGeometryRevision?: string | null };
       }).__openClinXrFrozenScenePlanAdmission;
       const reanchor: LiveWallReanchor[] = [];
+      // The walker's staged slot group: GLB descendants share its actor id, but only the slot
+      // group itself carries openClinXrSlotKind — match on both, so cues and meshes never win.
+      // Its world position is the start the admission re-solves from.
+      let walkerStart: { x: number; y: number; z: number } | null = null;
       scene?.traverse((o) => {
         const ud = o.userData ?? {};
+        if (
+          ud["openClinXrActorId"] === walkerActorId
+          && typeof ud["openClinXrSlotKind"] === "string"
+          && walkerStart === null
+        ) {
+          const node = o as unknown as {
+            updateWorldMatrix?: (updateParents: boolean, updateChildren: boolean) => void;
+            matrixWorld?: { elements: ArrayLike<number> };
+          };
+          node.updateWorldMatrix?.(true, false);
+          const elements = node.matrixWorld?.elements;
+          if (elements !== undefined) {
+            walkerStart = {
+              x: Number(elements[12]),
+              y: Number(elements[13]),
+              z: Number(elements[14]),
+            };
+          }
+        }
         const moved = ud["openClinXrWallAnchorReanchored"] as
           | { method?: unknown; movedMeters?: unknown }
           | undefined;
@@ -319,8 +317,12 @@ async function captureLiveHullObservation(
       return {
         observedGeometryRevision: admission?.observedGeometryRevision ?? null,
         reanchor,
+        walkerStart,
       };
-    });
+    }, config.walkerActorId);
+    if (live.walkerStart === null) {
+      throw new Error(`${config.caseId}: the shipped runtime staged no slot for walker ${config.walkerActorId}`);
+    }
     if (
       !isBootstrap
       && (typeof live.observedGeometryRevision !== "string" || live.observedGeometryRevision.length === 0)
@@ -343,6 +345,7 @@ async function captureLiveHullObservation(
     return {
       observedGeometryRevision: live.observedGeometryRevision,
       reanchor: live.reanchor,
+      walkerStart: live.walkerStart,
     };
   } finally {
     await browser.close();
@@ -368,19 +371,20 @@ async function freezeOneCase(config: CaseConfig) {
   // why `admitFrozenScenePlanForObservedScene` cannot publish geometry for one.
   const isBootstrap = !(await isAlreadyFrozen(config.caseId));
 
-  const scene = new Scene();
-  scene.add(buildStationEnvironment({ environmentId: config.environmentId }) as never);
-  const parametricGeometry = observeMountedApproachGeometry(scene as never, {
-    supportInstanceId: `${config.environmentId}:stretcher`,
-  });
-  const parametricDigest = geometryRevisionDigest(parametricGeometry);
-
   const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
     scenarioId: config.caseId,
     stationId: config.stationId,
     ...(caseDocument ? { scenario: caseDocument as never } : {}),
   });
   const bundleJson = `${JSON.stringify(bundle, null, 2)}\n`;
+
+  const scene = new Scene();
+  scene.add(buildStationEnvironment({ environmentId: config.environmentId }) as never);
+  mountBundleDeclaredContent(scene, bundle as never, config.caseId);
+  const parametricGeometry = observeMountedApproachGeometry(scene as never, {
+    supportInstanceId: `${config.environmentId}:stretcher`,
+  });
+  const parametricDigest = geometryRevisionDigest(parametricGeometry);
 
   const live = await captureLiveHullObservation(bundleJson, config, isBootstrap);
   applyLiveHullReanchor(scene, live.reanchor);
@@ -431,17 +435,18 @@ async function freezeOneCase(config: CaseConfig) {
     resolvedPosition: patientPlacement?.position ?? { x: 0, y: 0, z: 0 },
   });
   const walkerPlacement = placements[config.walkerActorId];
-  const start = composeSupportedActorWorldPosition({
-    posture: "standing",
-    fixtureAnchor: walkerPlacement?.position ?? { x: 0, y: 0, z: 0 },
-    ...(walkerPlacement?.plantOffsetMeters
-      ? { authoredOffsetMeters: walkerPlacement.plantOffsetMeters }
-      : {}),
-    resolvedPosition: walkerPlacement?.position ?? { x: 0, y: 0, z: 0 },
-    ...(geometry.floorFrame ? { floorFrame: geometry.floorFrame } : {}),
-  });
-  if ("refused" in patientWorld || "refused" in start) {
-    throw new Error(`${config.caseId}: the ward staging refused to compose a patient or walker position`);
+  // The walker's start is the LIVE staged slot position, not a node-side composition: the
+  // admission re-solves from the slot the shipped runtime actually staged, and the node shell
+  // frame the composition would use is not the live shell frame (measured 2026-09-26: the
+  // node-composed start put the closure physician in the west corner while the live slot stands
+  // mid-room east, so every live route failed and admission refused `unsatisfiable_intent` on a
+  // geometry that matched to the digest). Same ground-truth discipline as the reanchor rows.
+  const start = { x: live.walkerStart.x, y: live.walkerStart.y, z: live.walkerStart.z };
+  if ("refused" in patientWorld) {
+    throw new Error(`${config.caseId}: the ward staging refused to compose a patient position`);
+  }
+  if (walkerPlacement === undefined) {
+    throw new Error(`${config.caseId}: no manifest placement for walker ${config.walkerActorId}`);
   }
 
   const bundleContent = {

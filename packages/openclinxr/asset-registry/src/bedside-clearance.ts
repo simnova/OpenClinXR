@@ -16,10 +16,25 @@ import type { Vector3 } from "./bedside-target.js";
  *
  * WHERE THE NUMBERS COME FROM, because a threshold with no provenance is an invented one:
  *
- * - `STANDING_FOOTPRINT_RADIUS_METERS = 0.3` — half of a ~0.6 m adult shoulder breadth. An
- *   external anatomical floor, not a value fitted to make this station pass.
- * - `APPROACH_CORRIDOR_HALF_WIDTH_METERS = 0.35` — the same body plus a small margin, which is
- *   what a corridor has to admit for the body to pass along it.
+ * - `WALKER_SHOULDER_JOINT_SEPARATION_METERS = 0.3681` — the rest-pose `upperarm01.L/R`
+ *   (shoulder-joint) separation measured off the shipped physician rig's own bytes
+ *   (`apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb`, node
+ *   translations composed through the hierarchy, no textures loaded). The shipped nurse rig
+ *   measures 0.3323 m at the same joints and 0.2040 m at the hips (`upperleg01.L/R`;
+ *   physician hips 0.2212 m), so the physician's shoulders are the widest shipped walker and
+ *   the constant covers every shipped walker role. Shoulder JOINTS, not skin: the joint
+ *   centres sit inside the deltoid, and the clearance margin below covers flesh, clothing
+ *   and arm swing.
+ * - `WALKER_BODY_CLEARANCE_METERS = 0.05` — the stated margin on top of the measured
+ *   half-breadth: soft tissue and clothing past the joint centres plus swing while walking.
+ * - `STANDING_FOOTPRINT_RADIUS_METERS` — the derivation, not a literal: half the measured
+ *   shoulder separation plus the stated clearance (0.3681 / 2 + 0.05 ≈ 0.234). It replaces
+ *   the old 0.3 m (half of a generic ~0.6 m shoulder breadth) with the shipped rig's own
+ *   width. `locomotion-order-mod.ts` and `layout-solve-mod.ts` use this same evaluated
+ *   value rather than their own guesses; the derivation lives here.
+ * - `APPROACH_CORRIDOR_HALF_WIDTH_METERS` — the same body plus one more clearance margin
+ *   for lateral sway while walking (≈ 0.284), which is what a corridor has to admit for
+ *   the body to pass along it.
  *
  * Both are stated as adult standing dimensions. A paediatric or seated clinician is out of scope
  * and would need its own figures rather than a scale factor applied to these.
@@ -31,8 +46,26 @@ export type WorldAabb = { min: Vector3; max: Vector3 };
 /** A mounted thing the clinician must not stand inside or walk through. */
 export type MeasuredObstacle = { id: string; bounds: WorldAabb };
 
-export const STANDING_FOOTPRINT_RADIUS_METERS = 0.3;
-export const APPROACH_CORRIDOR_HALF_WIDTH_METERS = 0.35;
+/**
+ * Rest-pose shoulder-joint separation of the widest shipped walker rig (see provenance above).
+ * Evaluate once here; every walker-radius consumer uses the evaluated value.
+ */
+export const WALKER_SHOULDER_JOINT_SEPARATION_METERS = 0.3681;
+
+/** Stated clearance on top of the measured half-breadth: flesh, clothing, arm swing. */
+export const WALKER_BODY_CLEARANCE_METERS = 0.05;
+
+export const STANDING_FOOTPRINT_RADIUS_METERS =
+  WALKER_SHOULDER_JOINT_SEPARATION_METERS / 2 + WALKER_BODY_CLEARANCE_METERS;
+export const APPROACH_CORRIDOR_HALF_WIDTH_METERS =
+  STANDING_FOOTPRINT_RADIUS_METERS + WALKER_BODY_CLEARANCE_METERS;
+
+/**
+ * An obstacle entirely below this height above the floor is underfoot, not in the body: a
+ * trip-level report, never a blocking one. 0.03 m is shoe-sole/step-over scale — anything
+ * taller reaches the shin and collides with the body properly.
+ */
+export const TRIP_HAZARD_HEIGHT_METERS = 0.03;
 
 /**
  * The vertical band a standing body occupies, in metres above the floor.
@@ -46,12 +79,23 @@ export const APPROACH_CORRIDOR_HALF_WIDTH_METERS = 0.35;
 export const STANDING_BODY_HEIGHT_METERS = 1.8;
 
 export type ClearanceViolation = {
-  kind: "body_clearance" | "approach_corridor";
+  /**
+   * `trip_hazard` is NOT blocking: the obstacle is entirely below `TRIP_HAZARD_HEIGHT_METERS`
+   * above the floor, so it is underfoot rather than in the body. It is still reported (with
+   * its height) so a reviewer sees the trip ledge; every blocking decision site filters to
+   * `body_clearance` / `approach_corridor`. Silently dropping it would hide a real fall risk.
+   */
+  kind: "body_clearance" | "approach_corridor" | "trip_hazard";
   obstacleId: string;
   /** Metres of overlap. Positive is an intrusion; it is never reported at or below zero. */
   overlapMeters: number;
   reason: string;
 };
+
+/** True when the whole obstacle sits below trip height above the floor: underfoot, not bodily. */
+function isTripLevel(bounds: WorldAabb, floorY: number): boolean {
+  return bounds.max.y - floorY < TRIP_HAZARD_HEIGHT_METERS;
+}
 
 /** True when the obstacle's vertical span overlaps the band a standing body occupies. */
 function overlapsStandingHeight(bounds: WorldAabb, floorY: number, bodyHeight: number): boolean {
@@ -106,14 +150,26 @@ export function bedsideClearanceViolations(input: {
   const violations: ClearanceViolation[] = [];
 
   for (const obstacle of input.obstacles) {
+    const floor = input.floorY ?? 0;
     const overlap = circleBoxOverlapXz(
       input.standingPosition,
       STANDING_FOOTPRINT_RADIUS_METERS,
       obstacle.bounds,
       input.bodyHeightMeters ?? STANDING_BODY_HEIGHT_METERS,
-      input.floorY ?? 0,
+      floor,
     );
     if (overlap > 0) {
+      if (isTripLevel(obstacle.bounds, floor)) {
+        violations.push({
+          kind: "trip_hazard",
+          obstacleId: obstacle.id,
+          overlapMeters: overlap,
+          reason:
+            `trip-level ledge ${obstacle.id}: ${(obstacle.bounds.max.y - floor).toFixed(3)} m above the floor, `
+            + `within the standing footprint by ${overlap.toFixed(3)} m — reported, not blocking`,
+        });
+        continue;
+      }
       violations.push({
         kind: "body_clearance",
         obstacleId: obstacle.id,
@@ -133,6 +189,7 @@ export function bedsideClearanceViolations(input: {
 
   const stepMeters = 0.04;
   const steps = Math.max(1, Math.ceil(length / stepMeters));
+  const corridorFloor = input.floorY ?? 0;
   for (const obstacle of input.obstacles) {
     let worst = 0;
     for (let i = 0; i <= steps; i += 1) {
@@ -147,11 +204,22 @@ export function bedsideClearanceViolations(input: {
         APPROACH_CORRIDOR_HALF_WIDTH_METERS,
         obstacle.bounds,
         input.bodyHeightMeters ?? STANDING_BODY_HEIGHT_METERS,
-        input.floorY ?? 0,
+        corridorFloor,
       );
       if (overlap > worst) worst = overlap;
     }
     if (worst > 0) {
+      if (isTripLevel(obstacle.bounds, corridorFloor)) {
+        violations.push({
+          kind: "trip_hazard",
+          obstacleId: obstacle.id,
+          overlapMeters: worst,
+          reason:
+            `trip-level ledge ${obstacle.id}: ${(obstacle.bounds.max.y - corridorFloor).toFixed(3)} m above the floor, `
+            + `crossing the approach corridor by ${worst.toFixed(3)} m — reported, not blocking`,
+        });
+        continue;
+      }
       violations.push({
         kind: "approach_corridor",
         obstacleId: obstacle.id,

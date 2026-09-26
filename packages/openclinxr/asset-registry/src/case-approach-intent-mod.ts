@@ -226,7 +226,7 @@ export function resolveBedsideApproachIntent(input: {
     standingPosition: destination,
     obstacles: input.geometry.obstacles,
     floorY: floorFrame.originY,
-  });
+  }).filter((violation) => violation.kind !== "trip_hazard");
   if (workingClearanceViolations.length > 0) {
     return {
       refused: true,

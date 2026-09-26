@@ -1,7 +1,19 @@
 import type { EncounterRuntimeRoomProp } from "@openclinxr/asset-registry/runtime-bundles";
+import type { EnvironmentStateEvidence } from "@openclinxr/xr-runtime-state";
 import type { Group } from "three";
 import { BoxGeometry, CylinderGeometry, Mesh, MeshStandardMaterial } from "three";
 import type { SceneCueEnvironmentVisualContext, SceneCueRoomPropContext } from "./types.js";
+
+/**
+ * `globalThis` rather than the bare `window` identifier: this module is reachable from
+ * `tools/**` (via `tools/openclinxr/factory/mount-bundle-declared-content.ts`), whose relaxed
+ * typecheck config carries no DOM lib. `globalThis` IS `window` in every browser this code
+ * actually runs in, so this is behavior-identical at runtime.
+ */
+function browserEnvironmentStateEvidence(): EnvironmentStateEvidence | undefined {
+  return (globalThis as unknown as { window?: { __openClinXrEnvironmentStateEvidence?: EnvironmentStateEvidence } })
+    .window?.__openClinXrEnvironmentStateEvidence;
+}
 
 export function createDetailedEdRoomProps(ctx: SceneCueRoomPropContext, 
   manifestProps: readonly EncounterRuntimeRoomProp[],
@@ -155,7 +167,7 @@ export function addDetailedRoomPropVisuals(
 }
 
 export function updateEnvironmentRealismAnimations(ctx: SceneCueEnvironmentVisualContext, deltaSeconds: number, nowMs: number): void {
-  const evidence = window.__openClinXrEnvironmentStateEvidence;
+  const evidence = browserEnvironmentStateEvidence();
   const activeProps = new Set(evidence?.activePropIds ?? []);
   const pulse = evidence?.environmentMotionCueMode === "deterministic_visual_pulse"
     ? 0.5 + Math.sin(nowMs / 260) * 0.5

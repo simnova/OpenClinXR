@@ -178,6 +178,12 @@ export function buildRoomPropGroup(input: BuildRoomPropInput): Group | null {
   const cueId = input.affordanceCueIds[0] ?? `${input.propId}:visual_context`;
   const marker = input.createAffordanceMarker(cueId, input.accentColor);
   marker.position.set(0, markerY, 0);
+  // Obstacle-excluded cue: the marker is a UI affordance (hidden unless affordance
+  // capture, rotated every rendered frame by updateEnvironmentRealismAnimations), not
+  // collidable furniture. `observeMountedApproachGeometry` skips this subtree so the
+  // frozen geometry digest is the furniture body, identical in node and in the browser
+  // regardless of animation phase or marker factory (real nameplate vs node stub).
+  marker.userData["openClinXrObstacleExcludedCue"] = "affordance-marker";
   group.add(marker);
 
   // Nameplates on cues re-introduce pale slabs; keep them on physical props only.
@@ -186,6 +192,7 @@ export function buildRoomPropGroup(input: BuildRoomPropInput): Group | null {
     labelPlate.name = `${group.name}.label`;
     labelPlate.position.set(0, labelY, 0);
     labelPlate.scale.set(0.48, 0.48, 0.48);
+    labelPlate.userData["openClinXrObstacleExcludedCue"] = "nameplate-label";
     group.add(labelPlate);
   }
 

@@ -64,7 +64,9 @@ describe("the bedside clearance has controls", () => {
     expect(violations[0]?.kind).toBe("body_clearance");
     expect(violations[0]?.obstacleId).toBe("iv_pole_in_the_way");
     // The overlap is a MEASUREMENT, not a boolean: the footprint radius minus zero distance.
-    expect(violations[0]?.overlapMeters).toBeCloseTo(0.3, 6);
+    // 0.23405 is the evaluated STANDING_FOOTPRINT_RADIUS_METERS (0.3681 / 2 + 0.05, rig-derived
+    // in bedside-clearance.ts), stated here rather than imported so this control pins the value.
+    expect(violations[0]?.overlapMeters).toBeCloseTo(0.23405, 6);
   });
 
   it("(3) KNOWN-BAD, corridor: an obstacle the clinician must walk THROUGH is reported even though the target itself is clear", () => {
@@ -127,8 +129,7 @@ describe("the bedside clearance has controls", () => {
     ).toEqual([]);
   });
 
-  it("(6) the body band is measured from the FLOOR, not from whatever y the caller passed", () => {
-    // A review flagged this: taking the band from the probe's own y flattens the check. A runtime
+  it("(6) the body band is measured from the FLOOR, not from whatever y the caller passed", () => {    // A review flagged this: taking the band from the probe's own y flattens the check. A runtime
     // placement position carries y 0.95 (the actor slot's offset), which made the band 0.95-2.75 m
     // — a stool underfoot vanished and a ceiling fixture came back. Both directions, one clause.
     const stool = {
@@ -146,5 +147,40 @@ describe("the bedside clearance has controls", () => {
     expect(
       bedsideClearanceViolations({ standingPosition: atSlotHeight, obstacles: [ceiling] }),
     ).toEqual([]);
+  });
+
+  it("(7) TRIP-LEVEL: a floor ledge under 0.03 m is reported, never blocking", () => {
+    // A 2 cm floor cable under the stance is a fall risk, not a wall: it must show up in the
+    // report (dropping it would hide it) without failing a stance the way a cabinet does.
+    const target = bedsideTargetForClinician({ patientPosition: PATIENT, supportBounds: ED_STRETCHER_DECK_BOUNDS });
+    const cable = {
+      id: "floor_cable",
+      bounds: {
+        min: { x: target.position.x - 0.3, y: 0, z: target.position.z - 0.05 },
+        max: { x: target.position.x + 0.3, y: 0.02, z: target.position.z + 0.05 },
+      },
+    };
+    const violations = bedsideClearanceViolations({
+      standingPosition: target.position,
+      obstacles: [cable],
+    });
+    expect(violations).toHaveLength(1);
+    expect(violations[0]?.kind).toBe("trip_hazard");
+    expect(violations[0]?.obstacleId).toBe("floor_cable");
+    // The blocking decision every solver makes: trip hazards do not count.
+    expect(violations.filter((violation) => violation.kind !== "trip_hazard")).toEqual([]);
+    // And one centimetre taller, the same ledge IS bodily (shin height collides properly).
+    const shinCable = {
+      id: "shin_cable",
+      bounds: {
+        min: { x: target.position.x - 0.3, y: 0, z: target.position.z - 0.05 },
+        max: { x: target.position.x + 0.3, y: 0.04, z: target.position.z + 0.05 },
+      },
+    };
+    const bodily = bedsideClearanceViolations({
+      standingPosition: target.position,
+      obstacles: [shinCable],
+    });
+    expect(bodily.map((violation) => violation.kind)).toEqual(["body_clearance"]);
   });
 });

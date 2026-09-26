@@ -87,8 +87,9 @@ describe("the approach path stops at the proven target", () => {
   });
 
   it("(4) COUNTERWEIGHT: the waypoints are SAMPLED, so a thin obstacle between two of them is still caught", () => {
-    // Waypoints are 0.35 m apart, and the corridor test at each one has a 0.3 m radius, so a
-    // 0.05 m pole exactly between two samples is the adversarial case. It must still be found.
+    // Waypoints are 0.35 m apart, and the stance test at each one uses the rig-derived
+    // footprint radius (~0.234 m), so a 0.05 m pole exactly between two samples is the
+    // adversarial case. It must still be found.
     const to = target();
     const t = 0.5;
     const between = {
