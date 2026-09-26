@@ -22,7 +22,8 @@
  * frozen-plan approach (unaffected by this walker; see the sibling capture for his metrics).
  */
 
-import { mkdir, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright";
 import { newEvidencePage } from "../lib/evidence-page.js";
@@ -38,6 +39,9 @@ import { computeWalkQuality, type QualityInput, type WalkQuality } from "./walk-
 const OUTPUT_DIR = ".openclinxr/evidence/order-driven-walker-video";
 const DEFAULT_WALKER_ACTOR_ID = "ward_nurse_patel_v1";
 const MAX_WAIT_SECONDS = 30;
+const FFMPEG = "/opt/homebrew/bin/ffmpeg";
+/** Frame stills kept on disk beside the video, not every simulated frame -- see main()'s comment. */
+const KEEP_STILL_EVERY_N_FRAMES = 5;
 
 type Vec3 = { x: number; y: number; z: number };
 type OrderEvidenceSample = {
@@ -136,9 +140,20 @@ async function main(): Promise<void> {
     const pinMs = (await page.evaluate(() => Date.now())) as number;
     await page.clock.pauseAt(pinMs + 2000);
 
+    // FRAME-BY-FRAME CAPTURE, walk start through arrival, for the coordinator's own grading (not
+    // just a metrics report): one screenshot every simulated frame, assembled into an mp4 with
+    // ffmpeg at the SAME 30 fps the fake clock steps at -- so real time in the video matches
+    // simulated time in the evidence JSON. A representative subset of the raw PNGs (every
+    // `KEEP_STILL_EVERY_N_FRAMES`th, plus the very first and last) is kept on disk beside the
+    // video rather than all of them, so a reviewer can open one still without decoding the mp4.
+    const stagingDir = path.join(OUTPUT_DIR, `${actorId}-frames-staging`);
+    await mkdir(stagingDir, { recursive: true });
+    const stillsDir = path.join(OUTPUT_DIR, `${actorId}-stills`);
+    await mkdir(stillsDir, { recursive: true });
     let samples: OrderEvidenceSample[] = [];
     let arrivedAt: number | null = null;
     const STEP_MS = 1000 / 30;
+    let frameIndex = 0;
     for (let step = 0; step < (MAX_WAIT_SECONDS * 1000) / STEP_MS; step += 1) {
       await page.clock.fastForward(STEP_MS);
       await page.waitForTimeout(30); // real settle: the compositor/rAF fires in wall time.
@@ -148,15 +163,34 @@ async function main(): Promise<void> {
           | undefined;
         return byActor?.[id] ?? [];
       }, actorId);
-      if (samples.length > 0 && samples[samples.length - 1]!.phase === "arrived") {
+      const frameFile = path.join(stagingDir, `frame-${String(frameIndex).padStart(4, "0")}.png`);
+      const buf = await page.screenshot();
+      await writeFile(frameFile, buf);
+      const arrived = samples.length > 0 && samples[samples.length - 1]!.phase === "arrived";
+      if (frameIndex % KEEP_STILL_EVERY_N_FRAMES === 0 || arrived) {
+        await writeFile(path.join(stillsDir, `still-${String(frameIndex).padStart(4, "0")}.png`), buf);
+      }
+      frameIndex += 1;
+      if (arrived) {
         arrivedAt = samples[samples.length - 1]!.atMs;
         break;
       }
     }
+    const totalFrames = frameIndex;
 
-    // Native-frame still: both actors visible, for a clipping check by eye.
+    // Native-frame still: both actors visible, for a clipping check by eye (arrival, or last
+    // captured frame if she never arrived).
     const stillPath = path.join(OUTPUT_DIR, `${actorId}-arrival.png`);
     await page.screenshot({ path: stillPath });
+
+    const videoPath = path.join(OUTPUT_DIR, `${actorId}-walk.mp4`);
+    execFileSync(FFMPEG, [
+      "-y", "-framerate", "30",
+      "-i", path.join(stagingDir, "frame-%04d.png"),
+      "-c:v", "libx264", "-pix_fmt", "yuv420p",
+      videoPath,
+    ]);
+    await rm(stagingDir, { recursive: true, force: true });
 
     const frames: QualityInput["frames"] = samples.map((s) => ({
       tMs: s.atMs,
@@ -179,7 +213,11 @@ async function main(): Promise<void> {
       timedOutWithoutArrival: arrivedAt === null,
       lastSample: samples[samples.length - 1] ?? null,
       quality,
+      videoPath,
+      totalVideoFrames: totalFrames,
+      videoFps: 30,
       stillPath,
+      stillsDir,
       claimScope:
         "runtime displayed toe positions of the named order-driven actor while her LocomotionOrder runs",
       notEvidenceFor: ["gait_realism", "clinical_plausibility", "quest_performance", "physician_metrics"],
@@ -187,7 +225,7 @@ async function main(): Promise<void> {
     const reportPath = path.join(OUTPUT_DIR, `${actorId}-report.json`);
     await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
-    process.stdout.write(`\n[order-driven-walker-video-capture] wrote ${reportPath} and ${stillPath}\n`);
+    process.stdout.write(`\n[order-driven-walker-video-capture] wrote ${reportPath}, ${videoPath}, ${stillsDir}, ${stillPath}\n`);
   } finally {
     await browser.close();
     await stopPortlessDevServer(server.proc);

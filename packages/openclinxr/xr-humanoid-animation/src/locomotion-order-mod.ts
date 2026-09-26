@@ -10,7 +10,7 @@ import {
 } from "./case-owned-approach-runtime-mod.js";
 import { resolveLocomotionClipTimeScale } from "./locomotion-clip-playback-mod.js";
 import { worldXyz } from "./stance-lock-ik.js";
-import type { GeneratedHumanoidAnimationSlot, HumanoidRuntimeDrive } from "./types.js";
+import type { GeneratedHumanoidAnimationSlot, HumanoidRuntimeDrive, LocomotionOrderInput } from "./types.js";
 
 /**
  * A shared, per-actor locomotion entry point: any actor in any scene can be told to walk
@@ -81,7 +81,7 @@ const ORDER_DRIVEN_GEOMETRY: ObservedApproachGeometry = {
  * why the split, not one call, matters).
  */
 export function stepLocomotionOrders(
-  orders: ReadonlyMap<string, { target: { x: number; z: number }; facing?: { x: number; z: number } | undefined }>,
+  orders: ReadonlyMap<string, LocomotionOrderInput>,
   slotsByActorId: ReadonlyMap<string, GeneratedHumanoidAnimationSlot>,
   registry: LocomotionOrderRegistry,
   nowMs: number,

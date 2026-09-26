@@ -1,3 +1,4 @@
+import type { GeneratedHumanoidAnimationSlot } from "@openclinxr/xr-humanoid-animation";
 import { Group } from "three";
 import { describe, expect, it } from "vitest";
 import {
@@ -5,7 +6,6 @@ import {
   createLocomotionOrderRegistry,
   stepLocomotionOrders,
 } from "./locomotion-order-mod.js";
-import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 
 /**
  * A bare `Group`-based fake slot: no real skeleton, mixer or clip. `resolveLocomotionClipTimeScale`

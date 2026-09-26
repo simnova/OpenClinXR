@@ -111,6 +111,17 @@ export type HumanoidRuntimeDrive = {
   lipSyncViseme?: GeneratedDriveScalarInput;
 };
 
+/**
+ * One order-driven actor's walk target for this frame, keyed by actorId in the map
+ * `updateGeneratedHumanoidAnimations` accepts. Named here (not an inline anonymous type at each
+ * call site) so a composition root can type its own wrapper without repeating the shape.
+ */
+export type LocomotionOrderInput = {
+  target: { x: number; z: number };
+  /** Facing once arrived. Defaults to facing the direction of travel. */
+  facing?: { x: number; z: number } | undefined;
+};
+
 export type HumanoidActingCueRecord = {
   actorId: string;
   role: string | null;

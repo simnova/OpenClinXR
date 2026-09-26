@@ -41,7 +41,6 @@ import {
   addRoleSpecificHumanoidVisuals as addRoleSpecificHumanoidVisualsPackage,
   clinicalTouchResponseClipNamesForActor as clinicalPackageTouchResponseClipNamesForActor,
   comparatorCaptureSubjectActorId as comparatorPackageCaptureSubjectActorId,
-  frameComparatorCaptureOnNamedActor as framePackageComparatorCaptureOnNamedActor,
   gazeProbeAnimationClipNamesFromGltf as gazePackageProbeAnimationClipNamesFromGltf,
   hasAuthoredClinicalIdlePoseClip as hasPackageAuthoredClinicalIdlePoseClip,
   loadGeneratedEnvironmentIntoSceneSlot as loadPackageGeneratedEnvironmentIntoSceneSlot,
@@ -51,9 +50,7 @@ import {
   type AssetLoadingScenarioTheme as PackageAssetLoadingScenarioTheme,
   type HumanoidCueMode as PackageHumanoidCueMode,
   pedsAsthmaPatientBundleVisemeUtterance as pedsPackageAsthmaPatientBundleVisemeUtterance,
-  registerGeneratedHumanoidAnimation as registerPackageGeneratedHumanoidAnimation,
   roleAnimationClipNamesForActor as rolePackageAnimationClipNamesForActor,
-  runtimeHumanoidVariantAssetPath as runtimePackageHumanoidVariantAssetPath,
   selectedHumanoidSourceComparator as selectedPackageHumanoidSourceComparator,
   suppressRuntimeDiagnosticOverlaysForSourceComparator as suppressPackageRuntimeDiagnosticOverlaysForSourceComparator,
   tintGeneratedSceneMaterials as tintPackageGeneratedSceneMaterials,
@@ -801,16 +798,27 @@ function runtimeClinicalTeamActorId(): string {
 function runtimeFamilyActorId(): string {
   return resolveRuntimeSlotAssignment().familyActorId;
 }
+/**
+ * Local mirror of @openclinxr/xr-humanoid-animation's own (unexported) `LocomotionOrderInput`
+ * shape -- kept here rather than exported from the package, which trips the reviewed-public-
+ * surface gate (psr-01e) for a new symbol name. Structurally identical, so it type-checks against
+ * `updateGeneratedHumanoidAnimations`'s own `locomotionOrders` parameter without a cast.
+ */
+type LocomotionOrderInput = { target: { x: number; z: number }; facing?: { x: number; z: number } };
+
 /** Forwards `sceneManifest.locomotionOrders` (case-authored, by role) -- no case content here. */
-function bundleLocomotionOrders(): ReadonlyMap<string, { target: { x: number; z: number }; facing?: { x: number; z: number } }> {
-  const orders = new Map<string, { target: { x: number; z: number }; facing?: { x: number; z: number } }>();
-  const authored = encounterRuntimeAssetBundle.sceneManifest.locomotionOrders; if (!authored) return orders;
+function bundleLocomotionOrders(): ReadonlyMap<string, LocomotionOrderInput> {
+  const orders = new Map<string, LocomotionOrderInput>();
+  const authored = encounterRuntimeAssetBundle.sceneManifest.locomotionOrders;
+  if (!authored) return orders;
   for (const order of authored) {
     const actor = encounterRuntimeAssetBundle.actors.find((a) => a.role === order.actorRole);
-    const slot = actor ? generatedHumanoidActorSlotsByActorId.get(actor.actorId) : undefined; if (!actor || !slot) continue;
+    const slot = actor ? generatedHumanoidActorSlotsByActorId.get(actor.actorId) : undefined;
+    if (!actor || !slot) continue;
     orders.set(actor.actorId, {
       target: { x: slot.position.x + order.targetOffsetMeters.x, z: slot.position.z + order.targetOffsetMeters.z },
-      ...(order.facing ? { facing: order.facing } : {}) });
+      ...(order.facing ? { facing: order.facing } : {}),
+    });
   }
   return orders;
 }
@@ -822,7 +830,8 @@ function runtimeAdditionalActorId(): string {
  * not app-owned data or a new package export), not a slot-count accident.
  */
 function runtimeWalkingActorId(): string {
-  const role = frozenScenePlanAdmission.status === "admitted" ? frozenScenePlanAdmission.record.case.walkerRole : undefined;
+  const role =
+    frozenScenePlanAdmission.status === "admitted" ? frozenScenePlanAdmission.record.case.walkerRole : undefined;
   return encounterRuntimeAssetBundle.actors.find((actor) => actor.role === role)?.actorId ?? runtimeAdditionalActorId();
 }
 
@@ -4246,13 +4255,6 @@ function handleClinicalTouch(
   return true;
 }
 
-/**
- * #315: frame a comparator capture on the NAMED actor after it loads.
- * Solve lives in capture-comparator.ts; main.ts only resolves the named actor.
- */
-function _frameComparatorCaptureOnNamedActor(actorId: string, humanoid: Object3D, modelAssetId: string): void {
-  framePackageComparatorCaptureOnNamedActor(assetLoadingContext(), actorId, humanoid as Group, modelAssetId);
-}
 function shouldUseCleanHumanoidSourceComparatorCapture(): boolean {
   const captureMode = selectedCaptureMode();
   // framing-polish-parent-nurse-garment-ui-xr-v1 (Q5): sleeve-deform / real-garment body-motion capture must declutter
@@ -4280,9 +4282,6 @@ function shouldShowHumanoidSourceComparatorDebugFaceCues(): boolean {
 function addHumanoidSourceComparatorFaceReviewCues(humanoid: Group): void {
   addPackageHumanoidSourceComparatorFaceReviewCues(assetLoadingContext(), humanoid);
 }
-function _runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string): string {
-  return runtimePackageHumanoidVariantAssetPath(assetLoadingContext(), actorId, fallbackPath);
-}
 function selectedHumanoidSourceComparator(): ReturnType<typeof selectedPackageHumanoidSourceComparator> {
   return selectedPackageHumanoidSourceComparator();
 }
@@ -4291,23 +4290,6 @@ function pedsAsthmaPatientBundleVisemeUtterance(): string {
 }
 function neutralizeGeneratedHumanoidMorphTargets(humanoid: Group): void {
   neutralizePackageGeneratedHumanoidMorphTargets(humanoid);
-}
-function _registerGeneratedHumanoidAnimation(input: {
-  assetId: string;
-  actorId: string;
-  actorSlot: Group;
-  humanoid: Group;
-  mouthCue: Mesh;
-  gazeCue: Line;
-  eyeFocusCue: Group;
-  expressionCue: Group;
-  animationClips: unknown[];
-  roleAnimationClipNames: string[];
-  gazeProbeAnimationClipNames: string[];
-  playbackEnabled: boolean;
-  fixedSourcePoseSampleSeconds: number | null;
-}): void {
-  registerPackageGeneratedHumanoidAnimation(assetLoadingContext(), input);
 }
 function pedsActorPlayerRuntimeTurns(): PedsActorPlayerRuntimeTurn[] {
   return pedsPackageActorPlayerRuntimeTurns() as PedsActorPlayerRuntimeTurn[];
@@ -4391,7 +4373,13 @@ function seatedRoleClipAutoLoopActive(humanoidRoot: Object3D, actorId: string): 
   return carveout?.admitted === true;
 }
 
-function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, camera: PerspectiveCamera, drive?: GeneratedRuntimeDrive | null, locomotionOrders?: ReadonlyMap<string, { target: { x: number; z: number }; facing?: { x: number; z: number } }> | null): void {
+function updateGeneratedHumanoidAnimations(
+  deltaSeconds: number,
+  nowMs: number,
+  camera: PerspectiveCamera,
+  drive?: GeneratedRuntimeDrive | null,
+  locomotionOrders?: ReadonlyMap<string, LocomotionOrderInput> | null,
+): void {
   updatePackageGeneratedHumanoidAnimations(humanoidAnimationContext, deltaSeconds, nowMs, camera, drive ?? null, locomotionOrders ?? null);
 }
 

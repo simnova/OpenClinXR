@@ -43,6 +43,7 @@
     "src/inner-mouth-cavity-drive.test.ts",
     "src/jaw-viseme-drive.test.ts",
     "src/lip-seal-drive.test.ts",
+    "src/locomotion-order-mod.test.ts",
     "src/natural-blink-and-emotion.test.ts",
     "src/reassured-drives-mouth-corner-puller.test.ts",
     "src/the-arrived-stance-closes.test.ts",
@@ -66,6 +67,6 @@
     "contexts": {
       "HumanoidAnimationRuntimeContext": 35
     },
-    "testInternalImports": 5
+    "testInternalImports": 6
   }
 }

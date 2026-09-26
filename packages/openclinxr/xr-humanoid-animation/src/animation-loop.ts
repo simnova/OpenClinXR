@@ -41,6 +41,7 @@ import type {
   HumanoidAnimationRuntimeContext,
   HumanoidExpressionWeights,
   HumanoidRuntimeDrive,
+  LocomotionOrderInput,
 } from "./types.js";
 
 
@@ -104,7 +105,7 @@ export function updateGeneratedHumanoidAnimations(
    * `applyCaseOwnedStanceLock`) the frozen-plan physician runs -- merged into the effective drive
    * below; the stance lock for these actors runs AFTER the per-slot loop (see end of function).
    */
-  locomotionOrders?: ReadonlyMap<string, { target: { x: number; z: number }; facing?: { x: number; z: number } | undefined }> | null,
+  locomotionOrders?: ReadonlyMap<string, LocomotionOrderInput> | null,
 ): void {
   let drive: HumanoidRuntimeDrive | ReadonlyMap<string, HumanoidRuntimeDrive> | null = driveInput ?? null;
   if (locomotionOrders && locomotionOrders.size > 0) {
