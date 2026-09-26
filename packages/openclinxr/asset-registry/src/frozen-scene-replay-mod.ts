@@ -7,6 +7,7 @@ import {
   type ScenePlanEvidenceConflict,
 } from "./accepted-scene-plan-evidence-mod.js";
 import type { ObservedApproachGeometry } from "./case-approach-intent-mod.js";
+import type { MeasuredObstacle } from "./bedside-clearance.js";
 import {
   type CaseOwnedScenePlanResult,
   resolveCaseOwnedScenePlan,
@@ -140,6 +141,49 @@ function severestConflict(conflicts: readonly ScenePlanEvidenceConflict[]): Froz
 const DIALOGUE_EVENT_TYPES = new Set(["actor_turn", "learner_turn", "dialogue_turn"]);
 
 /**
+ * A causal trace of what admission judged, published for diagnosis of a refusal that does not
+ * reproduce a plan frozen against the same geometry.
+ *
+ * WHY THIS EXISTS. `ed_chest_pain_priority_v1` froze cleanly (SC-06's generator observed zero
+ * clearance violations) and then refused on the shipped runtime with `unsatisfiable_intent` across
+ * every side/standoff/along-bed-offset candidate -- not intermittently, but every boot, once this
+ * function actually ran (an earlier read that only waited for `admissionStatus` to settle caught an
+ * optimistic pre-geometry `"admitted"` that flipped to `"refused"` roughly two seconds later, which
+ * is why five boots looked clean until the wait was long enough to see the real judgement). The
+ * frozen record's own geometry digest and the live digest can agree while the WALKER'S START
+ * POSITION still differs -- the digest covers room/obstacle geometry, not where the actor is
+ * standing -- so this trace is the only way to see that difference without re-deriving it from the
+ * refusal text. `window.__openClinXrAdmissionJudgeTrace` is INERT in Node (guarded below); in a
+ * browser it carries the caseId, timestamp, exactly the `patientWorldPosition`/`start` this
+ * judgement used, and every obstacle's id + world AABB, so a suspect input is visible without
+ * re-instrumenting the call site each time.
+ */
+export type AdmissionJudgeTrace = {
+  source: "window.__openClinXrAdmissionJudgeTrace";
+  caseId: string;
+  judgedAtMs: number;
+  patientWorldPosition: { x: number; y: number; z: number };
+  start: { x: number; y: number; z: number };
+  obstacles: ReadonlyArray<{ id: string; bounds: MeasuredObstacle["bounds"] }>;
+  floorFrameId: string | null;
+};
+
+function publishAdmissionJudgeTrace(caseId: string, observation: FrozenSceneObservation): void {
+  const host = (globalThis as unknown as { window?: Record<string, unknown> }).window;
+  if (host === undefined) return; // Node (SC-06 generator, tests): no window, nothing to publish.
+  const trace: AdmissionJudgeTrace = {
+    source: "window.__openClinXrAdmissionJudgeTrace",
+    caseId,
+    judgedAtMs: Date.now(),
+    patientWorldPosition: observation.patientWorldPosition,
+    start: observation.start,
+    obstacles: observation.geometry.obstacles.map((obstacle) => ({ id: obstacle.id, bounds: obstacle.bounds })),
+    floorFrameId: observation.geometry.floorFrame?.frameId ?? null,
+  };
+  host["__openClinXrAdmissionJudgeTrace"] = trace;
+}
+
+/**
  * Reopen a frozen encounter through the normal consumer, or refuse with what disagreed.
  *
  * The order of the gates is the contract, cheapest and most decisive first: a record that is not a
@@ -216,6 +260,7 @@ export function reopenFrozenScene(
     };
   }
 
+  publishAdmissionJudgeTrace(record.case.caseId, observation);
   const resolved: CaseOwnedScenePlanResult = resolveCaseOwnedScenePlan({
     seed: record.variation.seed,
     variationIndex: record.variation.variationIndex,
