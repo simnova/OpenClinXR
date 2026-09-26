@@ -1768,3 +1768,154 @@ whether `residualTurnDeg`'s lack of improvement (73.6 to 97.5, both failing) is 
 these fixes or an independent, pre-existing issue (round 9's heading-tracking question, not reopened
 this round); whether seeds 7 and 1001 behave the same way through the runtime (only seed 42 was
 re-run).
+
+---
+
+# Round 12, same day — measured the runtime's own clip-forward instead of assuming it, found the real fix was wrong once and corrected it, discovered a likely-dominant second cause
+
+Coordinator, grading round 11's three-quarter capture frame by frame: posture is fixed, but during
+the walking frames (0-24) the body faces roughly 90 degrees away from its direction of travel — it
+crabs sideways, legs stepping across the path — and only turns to face correctly once the settling
+turn takes over (~frame 30). Instruction: log the runtime's own measured clip forward (and
+timeScale / rate-1 stance speed) for both clips in the capture; then rotate the cycle about the
+vertical so it steps along the same local axis and sign as the shipped clip, measured on the
+shipped clip, not assumed.
+
+## Logged the runtime's own measurement, not an offline re-derivation
+
+Added a small, additive diagnostic (`station-bedside-approach-mod.ts`): right where
+`measureStanceGroundAdvance` is already called on the live sampled stance track, publish its result
+plus `resolveLocomotionClipTimeScale`'s own timeScale onto
+`window.__openClinXrBedsideApproachClipForwardDiagnostic` — the same pattern as every other
+`__openClinXr*Evidence` global this codebase already uses. `foot-plant-video-capture.ts`'s dry pass
+reads it back and logs it (`[dry] clip forward: ...`) and now carries it in the report's
+`walkDiagnostics.clipForwardDiagnostic`. This is the RUNTIME's own number, from the actual browser
+run, not an offline reproduction.
+
+Measured, both clips, same build:
+
+| clip | clip yaw (deg) | rate-1 m/s | timeScale | scaled m/s | window frames |
+|---|---|---|---|---|---|
+| shipped `openclinxr_retarget_walk_source` | -0.86 to -0.89 | 0.845-0.853 | 1.62-1.63 | 1.37-1.38 | 12-13 |
+| Kimodo cycle (round 11, before this round's fix) | -162.32 | 0.022 | 61.99 | 1.36 | 15 |
+
+Confirms the coordinator's diagnosis exactly: the shipped clip's own measured stepping direction is
+essentially the rig's canonical +Z (yaw ≈ 0); round 11's cycle measured ~162 degrees away from
+that — not quite the ~90 degrees eyeballed from the video, but in the same class of defect, and this
+number is what the runtime's real alignment logic (`travelYawForClipForward`) actually uses.
+
+**A second, independently significant number surfaced in the same measurement**: the round-11
+cycle's timeScale is **62x** the shipped clip's **1.6x**. `resolveLocomotionClipTimeScale` scales
+the clip's playback rate to make its own measured (tiny, near-zero after root-stripping) stance
+advance match the prescribed walk speed — a rate-1 speed of 0.022 m/s forced up to 1.36 m/s needs a
+62x multiplier. Playing an animation at 62x its authored rate is very likely a major, independent
+contributor to the toe-teleport/jitter defect this cagematch has been chasing since round 10 — not
+raised or fixed this round (out of the explicit scope: check the yaw, fix the yaw, report), but
+flagged prominently since it may be the DOMINANT remaining cause, larger than the axis mismatch.
+
+## First fix attempt: wrong, measured wrong, corrected before shipping it
+
+**Attempt 1 (reverted): rotate the raw source joint positions before any retarget math runs.**
+Implemented, then verified on the actual baked GLB before trusting it — and it was NOT a rigid
+transform. Every limb's swing is `rest_dir_world[bone].rotation_difference(seg)` against a FIXED
+world-space reference that does not itself rotate; rotating `seg` changes the swing rotation's AXIS,
+not just its heading, subtly redistributing the leg chain's geometry. Measured effect: toe height
+shifted from ~0.05 m (round 11, unrotated) to ~0.062-0.065 m — just over the runtime's own
+`FOOT_CONTACT_HEIGHT_METERS` (0.06 m) — and the runtime's OWN contact detection then found **zero**
+stance windows at all (confirmed via a direct browser check:
+`{"refusal": "the locomotion clip has no measurable stance window...", "windowFrames": 0}`). A
+razor-thin, easy-to-miss regression that would have shipped a strictly worse clip had the pre-flight
+check (verifying floor contact before running the full capture) not caught it.
+
+**Attempt 2 (kept): a genuine rigid rotation of the COMPUTED per-bone world orientations.** Applied
+uniformly, in `retarget_frame`'s return, to every bone's already-computed `current_world` matrix
+(`current_world[name] = yaw_correction_matrix @ current_world[name]`), and to the root's horizontal
+TRANSLATION DELTA (not the absolute position) in `apply_pose`, using the same rotation matrix. A
+rotation about the vertical axis applied identically to a parent and all its descendants preserves
+every relative geometric relationship exactly, including height — proven, not just argued: re-baking
+with this fix produces toe heights bit-identical to round 11's unrotated bind at every checked frame
+(`f1: toeL.z=0.0499` both rounds, to 4 decimal places). New flag `--yaw-correction-degrees` (default
+0.0, identity, every prior round's output unaffected).
+
+Correction value: `shipped_yaw - kimodo_yaw = -0.86 - (-162.32) = 161.46` degrees, using the
+round-11 measurement above as the pre-correction baseline (the more reliable, real-runtime number,
+not an offline approximation).
+
+## Re-measured after the correct fix
+
+Runtime's own clip-forward, re-measured on the corrected bind:
+
+| clip | clip yaw (deg) | rate-1 m/s | timeScale |
+|---|---|---|---|
+| shipped | -0.89 | 0.845 | 1.63 |
+| Kimodo cycle (round 12, corrected) | **-3.66** | 0.024 | 55.92 |
+
+Yaw is now within 2.8 degrees of the shipped clip's own convention — the stepping-axis mismatch is
+resolved. The timeScale finding persists unchanged (55.92x here vs. 61.99x before the yaw fix,
+same order of magnitude) — as expected, since the yaw rotation does not touch the stance-advance
+MAGNITUDE, only its direction.
+
+**Walk quality:**
+
+| metric | round 11 | round 12 | shipped | target |
+|---|---|---|---|---|
+| lurch | 4.596 (FAIL) | 3.848 (FAIL, -16%) | 1.044 (PASS) | <= 1.4 |
+| medianHoldSlideMeters | 0.0000 (FAIL) | 0.0000 (FAIL) | 0.0135 (PASS) | <= 0.02 |
+| cadencePerMinute | 176.7 (FAIL) | 181.1 (FAIL) | 90.6 (PASS) | 90-125 |
+
+**Turn quality:**
+
+| metric | round 11 | round 12 | shipped | target |
+|---|---|---|---|---|
+| residualTurnDeg | 97.50 (FAIL) | **59.08 (FAIL, -39%, close to shipped's own 62.30)** | 62.30 (FAIL) | <= 45 |
+| floorPenetrationM | 0.00117 (PASS) | -0.00149 (PASS) | 0.00210 (PASS) | >= -0.005 |
+| minStepLiftM | 0.00951 (FAIL) | **0.03072 (PASS)** | 0.01948 (PASS) | >= 0.015 |
+| plantedSlideM | 0.34293 (FAIL) | 0.37313 (FAIL, ~unchanged) | 0.05759 (FAIL) | <= 0.02 |
+| headLeadSeconds | 0.297 (PASS) | **-0.198 (FAIL, new regression)** | 0.858 (PASS) | > 0 |
+| maxToeStepPerFrameM | 0.63578 (flagged) | 0.76306 (flagged, worse) | 0.13641 (flagged) | <= 0.08 |
+| stanceToeStepPerFrameM | 0.57587 (flagged) | 0.76306 (flagged, worse) | 0.09463 (flagged) | <= 0.02 |
+
+**Genuinely mixed, reported honestly.** `residualTurnDeg` and `minStepLiftM` (now passing for the
+first time) both improved meaningfully — the yaw fix helped exactly the dimensions it targeted.
+`headLeadSeconds` newly fails (went negative), and the toe-step/lurch numbers did not improve and in
+two cases got numerically worse. Given the timeScale finding above, the most likely explanation is
+that the yaw fix corrected the STEPPING AXIS but did nothing about the 55-62x playback-rate blowup,
+which independently drives large per-frame toe motion regardless of which direction it points —
+consistent with `maxToeStepPerFrameM` staying large (and even growing slightly) while the
+DIRECTIONAL metrics (residualTurnDeg, minStepLiftM) clearly improved.
+
+**Visual confirmation.** The feet-side contact sheet
+(`~/.openclinxr-wip/kimodo/round12/runtime-graft/kimodo-cycle-capture/feet-side-contact.png`) shows
+the character stepping forward in a consistent direction throughout, no longer the sideways-crabbing
+pattern implied by round 11's yaw mismatch — legs swing and plant in a plausible walking pattern
+matching the shipped clip's own general posture, upright with straight legs, consistent with round
+11's already-fixed vertical placement.
+
+Videos (not committed, scratch):
+`~/.openclinxr-wip/kimodo/round12/runtime-graft/kimodo-cycle-capture/{feet-side,three-quarter}.mp4`,
+`~/.openclinxr-wip/kimodo/round12/runtime-graft/shipped-capture/{feet-side,three-quarter}.mp4`.
+
+Full reports: `~/.openclinxr-wip/kimodo/round12/runtime-graft/{kimodo-cycle,shipped}-capture/foot-plant-video.json`.
+
+## claimScope / notEvidenceFor (round 12)
+
+**claimScope:** the runtime's own measured clip-forward, rate-1 stance speed and playback timeScale
+were logged for both clips via a small additive diagnostic global, not re-derived offline, and
+confirm the coordinator's diagnosis precisely (shipped ≈ 0 degrees, round-11 cycle ≈ -162 degrees).
+A first fix attempt (rotating raw source positions) was implemented, measured against the actual
+baked GLB rather than assumed correct, found to break floor contact via an FK side effect, and
+reverted in favor of a provably rigid rotation of the computed per-bone orientations plus the root's
+translation delta — verified bit-identical to the unrotated bind's own toe heights. The corrected
+fix brings the runtime's measured clip yaw within 2.8 degrees of the shipped clip's own convention,
+and produces real, measured improvement on `residualTurnDeg` and `minStepLiftM` (now passing). A
+second, likely-dominant defect (a 55-62x clip playback-rate multiplier, independent of the yaw
+question) was discovered in the same measurement and is disclosed with numbers, not fixed.
+
+**notEvidenceFor:** that the yaw fix alone resolves the walk/turn-quality defect — it does not;
+lurch, plantedSlideM, cadencePerMinute and both toe-step metrics remain failing or flagged, one
+(headLeadSeconds) newly regressed; whether the 55-62x timeScale finding, if addressed, would resolve
+the remaining toe-step jitter on its own (a plausible, evidence-consistent hypothesis, not tested);
+why `resolveLocomotionClipTimeScale` produces such an extreme multiplier for a stripped-root cycle
+specifically, or whether that function's own design assumes a clip with non-trivial rate-1 stance
+advance (not traced into that module this round); whether seeds 7 and 1001 show the same yaw
+mismatch magnitude (only seed 42 was measured and corrected this round).

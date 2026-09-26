@@ -348,6 +348,8 @@ type FootPlantVideoReport = {
     targetWorld: Vec3 | null;
     travelHeadingRadians: number | null;
     targetHeadingRadians: number | null;
+    /** The runtime's OWN measured clip-forward diagnostic, from the dry pass. See dryPass(). */
+    clipForwardDiagnostic: ClipForwardDiagnostic | null;
   };
   /**
    * Non-null only when `--humanoid=` was passed. `requestedFile` is the flag's value;
@@ -1173,6 +1175,15 @@ function realSleep(ms: number): Promise<void> {
  * case-owned drive, expected physician), measure the real-time rAF cadence
  * (candidate B), and capture the frozen approach path for camera placement.
  */
+/** See station-bedside-approach-mod.ts's `__openClinXrBedsideApproachClipForwardDiagnostic` write. */
+type ClipForwardDiagnostic = {
+  schemaVersion: string;
+  rateOneAdvance: { metersPerSecond: number; forward: { x: number; z: number }; windowFrames: number };
+  playbackTimeScale: number;
+  scaledMetersPerSecond: number;
+  clipYawDeg: number;
+};
+
 async function dryPass(
   server: PortlessDevServer,
   browser: Browser,
@@ -1183,6 +1194,7 @@ async function dryPass(
   poses: { feetSide: CameraPose; threeQuarter: CameraPose; sideDistanceMeters: number };
   rankedThreeQuarter: ScoredCandidate[];
   fill: { feetSide: boolean; threeQuarter: boolean };
+  clipForwardDiagnostic: ClipForwardDiagnostic | null;
 }> {
   const context = await browser.newContext({
     viewport: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT },
@@ -1292,6 +1304,25 @@ async function dryPass(
     }
     const feetSide = await decidePose(page, "feet-side", feetSideCandidates(frame), [arrivedRef], dryFloorY, room);
     const threeQuarter = await decidePose(page, "three-quarter", threeQuarterCandidates(frame), walkRefs, dryFloorY, room);
+    // DIAGNOSTIC (kimodo cagematch, round 12): the runtime's OWN measured clip forward, rate-1
+    // stance speed and playback timeScale, published by station-bedside-approach-mod.ts onto
+    // `window.__openClinXrBedsideApproachClipForwardDiagnostic` (additive, mirrors every other
+    // `__openClinXr*Evidence` global). Read here, not re-derived offline, per instruction: this is
+    // literally the vector `travelYawForClipForward` uses to yaw the body.
+    const clipForwardDiagnostic = (await page.evaluate(
+      () => (globalThis as Record<string, unknown>).__openClinXrBedsideApproachClipForwardDiagnostic ?? null,
+    )) as ClipForwardDiagnostic | null;
+    if (clipForwardDiagnostic) {
+      process.stdout.write(
+        `[dry] clip forward: x=${clipForwardDiagnostic.rateOneAdvance.forward.x.toFixed(4)} `
+          + `z=${clipForwardDiagnostic.rateOneAdvance.forward.z.toFixed(4)} `
+          + `yawDeg=${clipForwardDiagnostic.clipYawDeg.toFixed(2)} `
+          + `rate1Mps=${clipForwardDiagnostic.rateOneAdvance.metersPerSecond.toFixed(4)} `
+          + `timeScale=${clipForwardDiagnostic.playbackTimeScale.toFixed(4)} `
+          + `scaledMps=${clipForwardDiagnostic.scaledMetersPerSecond.toFixed(4)} `
+          + `windowFrames=${clipForwardDiagnostic.rateOneAdvance.windowFrames}\n`,
+      );
+    }
     return {
       evidence,
       gpuFps,
@@ -1303,6 +1334,7 @@ async function dryPass(
       rankedThreeQuarter: threeQuarter.scored,
       // Fill light only for the unlit far side; the lit side needs none.
       fill: { feetSide: feetSide.name.startsWith("-perp"), threeQuarter: threeQuarter.name.startsWith("-perp") },
+      clipForwardDiagnostic,
     };
   } finally {
     await context.close().catch(() => undefined);
@@ -2195,7 +2227,7 @@ async function main(): Promise<void> {
     });
     try {
       const dry = await dryPass(server, browser, bundleJson);
-      const { evidence: dryEvidence, gpuFps, poses } = dry;
+      const { evidence: dryEvidence, gpuFps, poses, clipForwardDiagnostic } = dry;
       if (dryEvidence.physicianActorId !== activeWalkerActorId()) {
         throw new Error(`approaching actor is ${String(dryEvidence.physicianActorId)}, not the resolved walker ${activeWalkerActorId()}`);
       }
@@ -2505,6 +2537,7 @@ async function main(): Promise<void> {
           targetWorld: evidence.targetWorld ?? null,
           travelHeadingRadians: evidence.travelHeadingRadians ?? null,
           targetHeadingRadians: evidence.targetHeadingRadians ?? null,
+          clipForwardDiagnostic,
         },
         humanoidOverride: humanoidOverride
           ? { requestedFile: humanoidOverride, served: humanoidOverrideRecords.slice() }

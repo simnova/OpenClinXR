@@ -60,6 +60,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import sys
 import traceback
@@ -142,6 +143,30 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
             "7.9x) without knowing the cause; this flag removes it at the source by holding the root "
             "bone's horizontal (X, Y) position fixed at the target's own rest position every frame, "
             "matching the shipped clip's convention exactly, so a runtime loop never re-triggers it.",
+        ),
+    )
+    ap.add_argument(
+        "--yaw-correction-degrees",
+        type=float,
+        default=0.0,
+        help=(
+            "Apply a RIGID rotation about the vertical (Blender Z) axis, by this many degrees, to "
+            "every bone's COMPUTED world orientation (in `retarget_frame`'s return) and to the "
+            "root's horizontal translation delta (in `apply_pose`) -- the whole body turns as one "
+            "rigid unit, with zero effect on any relative bone geometry or height (see the long "
+            "comment above `jpos` for why this must NOT be done by rotating the raw source "
+            "positions instead, which was tried and measured to break floor contact). "
+            "Coordinator-directed fix, round 12, 2026-09-26: graded round 11's three-quarter "
+            "capture and found the body facing roughly 90 degrees away from its travel direction "
+            "during the walking phase ('crabbing', legs stepping across the path), consistent with "
+            "the measured lurch (4.6) and cross-stepping toe oscillation. MEASURED, not assumed: "
+            "the runtime's own `travelYawForClipForward` yaws the body so the CLIP's measured "
+            "stance-foot-advance direction (`clipAdvance.forward`, read from the runtime's own "
+            "diagnostic global during a real capture) points down the route. The shipped clip's "
+            "own measured forward is -0.86 degrees (body +Z, i.e. the rig's own canonical "
+            "forward); this cycle's (round 11, before this fix) measured forward is -162.32 "
+            "degrees -- ~161 degrees off. Default 0.0 (no rotation, prior rounds' output "
+            "unchanged, identity matrix, not applied).",
         ),
     )
     return ap.parse_args(argv)
@@ -249,6 +274,23 @@ def main(argv: list[str]) -> int:
         frame_count = int(joints.pop("_frames"))
     except Exception as exc:  # noqa: BLE001
         return _reject(args.report, "joint_positions_load_failed", f"{exc!r}\n{traceback.format_exc()}")
+
+    # YAW CORRECTION (coordinator-directed fix, round 12): see `yaw_correction_matrix` below, applied
+    # as a rigid rotation of the COMPUTED per-bone world orientations, not here on the raw source
+    # positions. An earlier version of this fix rotated the raw joint positions at this point,
+    # before any retarget math ran -- measured WRONG: it is not a rigid transform, because each
+    # limb's swing is `rest_dir_world[bone].rotation_difference(seg)` against a FIXED reference that
+    # does NOT rotate with the source data, so rotating `seg` changes the swing's rotation AXIS, not
+    # just its heading, subtly redistributing the leg chain's geometry. Measured effect: round 12's
+    # first attempt shifted toe height from ~0.05 m (round 11, no yaw) to ~0.062-0.065 m -- just
+    # over the runtime's own `FOOT_CONTACT_HEIGHT_METERS` (0.06 m) -- and the runtime's OWN contact
+    # detection then found ZERO stance windows at all (`"the locomotion clip has no measurable
+    # stance window"`, confirmed via the clip-forward diagnostic reading `windowFrames: 0`). A pure
+    # rigid rotation cannot do this: applied uniformly to every bone's ALREADY-COMPUTED world
+    # orientation (see below), relative bone geometry -- including every height -- is unchanged by
+    # construction, because rotation about the vertical axis preserves the Z-component of any
+    # vector it is applied to identically for parent and child alike.
+    log.append(f"yaw_correction_degrees={args.yaw_correction_degrees}")
 
     def jpos(name: str, frame_index: int) -> Vector:
         return Vector(joints[name][frame_index])
@@ -370,6 +412,18 @@ def main(argv: list[str]) -> int:
         name: (target_rest_rot[name] @ e_y).normalized() for name in swing_pairs
     }
 
+    # YAW CORRECTION (coordinator-directed fix, round 12), correctly this time: a RIGID rotation
+    # about the vertical (Z) axis, applied uniformly to every bone's ALREADY-COMPUTED world
+    # orientation in `retarget_frame`'s return (below) and to the root's horizontal translation
+    # delta in `apply_pose` (further down) -- never to the raw source positions feeding the swing
+    # math (see the long comment above `jpos` for why that first attempt was wrong). Identity
+    # (`None`) at the default 0.0, so every prior round's output is bit-for-bit unaffected.
+    yaw_correction_matrix: Matrix | None = (
+        Matrix.Rotation(math.radians(args.yaw_correction_degrees), 3, "Z")
+        if args.yaw_correction_degrees != 0.0
+        else None
+    )
+
     # ROUND 9, coordinator-directed: "try your immediate-parent conjugation idea only for the
     # clavicle/upper-arm chain, and measure it. If it doesn't pass cleanly, keep round 7's arms."
     # Tried and MEASURED, then reverted -- kept here as a record, not as dead code left silently in
@@ -408,6 +462,9 @@ def main(argv: list[str]) -> int:
                     current_world[pb.name] = swing @ target_rest_rot[pb.name]
             else:
                 current_world[pb.name] = target_rest_rot[pb.name]
+        if yaw_correction_matrix is not None:
+            for name in current_world:
+                current_world[name] = yaw_correction_matrix @ current_world[name]
         return current_world
 
     def apply_pose(frame_number: int, current_world: dict[str, Matrix], keyframe: bool) -> None:
@@ -431,12 +488,17 @@ def main(argv: list[str]) -> int:
         # docstring) -- then the root's horizontal position is held at the target's own rest
         # position every frame, matching the shipped clip's in-place convention exactly.
         if args.strip_horizontal_root_motion:
-            horizontal_x = target_root_rest_pos.x
-            horizontal_y = target_root_rest_pos.y
+            horizontal_delta = Vector((0.0, 0.0, 0.0))
         else:
             horizontal_delta = (src_pos - source_root_rest_pos) * hip_height_ratio
-            horizontal_x = target_root_rest_pos.x + horizontal_delta.x
-            horizontal_y = target_root_rest_pos.y + horizontal_delta.y
+        # Rotate the DELTA (a relative offset from the target's own rest position), not the
+        # absolute world position -- so a rigid yaw correction turns the whole travel path about
+        # the target's own starting point, consistent with rotating every bone's orientation the
+        # same way above. A no-op when stripped to zero, or when no correction was requested.
+        if yaw_correction_matrix is not None:
+            horizontal_delta = yaw_correction_matrix @ horizontal_delta
+        horizontal_x = target_root_rest_pos.x + horizontal_delta.x
+        horizontal_y = target_root_rest_pos.y + horizontal_delta.y
         # VERTICAL (coordinator-directed fix, 2026-09-26): target's own rest hip height plus
         # Kimodo's bob relative to ITS OWN MEAN over this clip -- see `source_hip_z_mean` above.
         # Applies unconditionally (not gated behind the strip-horizontal flag): this is a

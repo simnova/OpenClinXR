@@ -4,6 +4,7 @@ import {
   supineActorWorldPosition,
 } from "@openclinxr/asset-registry/actor-posture";
 import { FOOT_CONTACT_HEIGHT_METERS } from "@openclinxr/asset-registry/approach-executor";
+import { publishClipForwardDiagnostic } from "./bedside-approach-clip-forward-diagnostic.js";
 import { geometryRevisionDigest, resolveBedsideApproachIntent } from "@openclinxr/asset-registry/case-approach-intent";
 import type { EncounterRuntimeActorPlacement } from "@openclinxr/asset-registry/runtime-bundles";
 import type { Object3D } from "three";
@@ -223,6 +224,7 @@ export function resolveStationBedsideApproach(
     contactBandMeters: FOOT_CONTACT_HEIGHT_METERS,
     floorOriginY: 0,
   });
+  publishClipForwardDiagnostic(rateOneAdvance, playbackTimeScale);
   const approach = createCaseOwnedBedsideApproach({
     intent,
     geometry,
