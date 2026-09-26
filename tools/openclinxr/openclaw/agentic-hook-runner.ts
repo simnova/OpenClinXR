@@ -596,6 +596,26 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): Hook
   // guard them (measured 2026-08-24: three files red for 18, 5 and 2 days behind exactly this gap).
   const openclawCodeChanged = matchesAnyPath(changedFiles, [/^tools\/openclinxr\/openclaw\//u]);
 
+  // Same pattern, scoped to `tools/openclinxr/evidence/scene-closure/proofs/sc-05/`. `tools/` is
+  // not a pnpm workspace package (see `pnpm-workspace.yaml`), so `packages:test:affected` — the
+  // ONLY test step `pre-push` runs for `productCodeChanged` — can never reach it: turbo filters to
+  // `@openclinxr/*` / `@cellix/*` package names, and nothing under `tools/` has one. MEASURED: two
+  // SC-05 proof tests here sat red on main from 90f179882 onward with no gate ever failing on
+  // them — the walk-clip rename that broke `decodePhysician()` shipped clean because nothing
+  // pre-push runs ever imported that file.
+  //
+  // SCOPED TO SC-05, NOT THE WHOLE `tools/openclinxr/evidence/` TREE. `//#test:tools` (`vitest run
+  // tools/`, root `vitest.config.ts` — what `pnpm test` and `pnpm test:tools` already run) covers
+  // the whole tree, but MEASURED: `tools/openclinxr/evidence/scene-closure/proofs/sc-00/
+  // rubric-controls.ts` carries the SAME retired-clip-name defect this slice fixed in the SC-05
+  // proofs (`SHIPPED_WALK_CLIP = "openclinxr_retarget_walk_formal_cc0"`), and running the whole tree
+  // would make THIS step red on a pre-existing, unrelated SC-00 defect this slice was not asked to
+  // fix. Wiring exactly the directory this slice was asked to un-rot avoids importing that failure
+  // into the gate; the SC-00 defect is a separate, tracked follow-up.
+  const sc05EvidenceChanged = matchesAnyPath(changedFiles, [
+    /^tools\/openclinxr\/evidence\/scene-closure\/proofs\/sc-05\//u,
+  ]);
+
   const steps: HookStep[] = [];
 
   const biomeStep = buildBiomeStep(changedFiles);
@@ -637,6 +657,15 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): Hook
       label: "Affected package tests",
       command: pnpm("packages:test:affected"),
       reason: "code changes get a Turbo-scoped test pass before leaving the machine",
+    });
+  }
+
+  if (profile === "pre-push" && sc05EvidenceChanged) {
+    steps.push({
+      label: "SC-05 evidence proofs (tools/openclinxr/evidence/scene-closure/proofs/sc-05 changed)",
+      command: ["pnpm", "exec", "vitest", "run", "tools/openclinxr/evidence/scene-closure/proofs/sc-05/"],
+      reason:
+        "sc-05 is not a workspace package, so 'Affected package tests' above never reaches it — this is the only pre-push step that does",
     });
   }
 

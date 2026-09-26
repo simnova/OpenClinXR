@@ -172,4 +172,33 @@ describe("agentic-hook-runner path-scoped architecture", () => {
     );
     expect(stepsForProfile("pre-push", ["package.json"]).some((s) => s.label === "E18e analyze")).toBe(true);
   });
+
+  it("runs the SC-05 evidence proofs on pre-push when that directory is touched — SC-05 is not a workspace package, so 'Affected package tests' never reaches it", () => {
+    const label = "SC-05 evidence proofs (tools/openclinxr/evidence/scene-closure/proofs/sc-05 changed)";
+    const sc05Step = stepsForProfile("pre-push", [
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-05/runtime-approach-measurement.ts",
+    ]).find((s) => s.label === label);
+    expect(sc05Step?.command).toEqual([
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tools/openclinxr/evidence/scene-closure/proofs/sc-05/",
+    ]);
+    // Neither ordinary product source nor a different evidence directory (sc-00's own
+    // retired-clip-name defect is unrelated and out of scope) should pay for this step — it stays
+    // scoped to exactly the directory it guards, same as the openclaw step.
+    expect(stepsForProfile("pre-push", ["apps/api/src/server.ts"]).some((s) => s.label === label)).toBe(false);
+    expect(
+      stepsForProfile("pre-push", ["tools/openclinxr/evidence/scene-closure/proofs/sc-00/rubric-controls.ts"]).some(
+        (s) => s.label === label,
+      ),
+    ).toBe(false);
+    // Not on pre-commit: this is a pre-push-only cost, same tier as "Affected package tests".
+    expect(
+      stepsForProfile("pre-commit", [
+        "tools/openclinxr/evidence/scene-closure/proofs/sc-05/runtime-approach-measurement.ts",
+      ]).some((s) => s.label === label),
+    ).toBe(false);
+  });
 });

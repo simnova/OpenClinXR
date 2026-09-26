@@ -368,7 +368,6 @@ const FROZEN: readonly string[] = [
   "tools/openclinxr/evidence/scene-closure/proofs/sc-05/runtime-approach-measurement.ts -> ../../../../../../packages/openclinxr/xr-scene/src/encounter-actor-framing.js",
   "tools/openclinxr/evidence/scene-closure/proofs/sc-05/runtime-approach-measurement.ts -> ../../../../../../packages/openclinxr/xr-station-room/src/mounted-support-observation.js",
   "tools/openclinxr/evidence/scene-closure/proofs/sc-05/runtime-approach-measurement.ts -> ../../../../../../packages/openclinxr/xr-station/src/index.js",
-  "tools/openclinxr/evidence/scene-closure/proofs/sc-05/the-terminal-turn-replants-without-drag.test.ts -> ../../../../../../packages/openclinxr/asset-registry/src/approach-executor.js",
   "tools/openclinxr/evidence/scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.ts -> ../../../../../../packages/openclinxr/asset-registry/src/runtime-bundles.js",
   "tools/openclinxr/evidence/scene-closure/proofs/sc-06/baseline-replay-probe.ts -> ../../../../../../packages/openclinxr/asset-registry/src/actor-posture.js",
   "tools/openclinxr/evidence/scene-closure/proofs/sc-06/baseline-replay-probe.ts -> ../../../../../../packages/openclinxr/asset-registry/src/case-approach-intent.js",
