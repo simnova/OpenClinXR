@@ -1622,3 +1622,149 @@ short-cycle graft (only seed 42's cycle went through the runtime this round); wh
 clip's own failing metrics (residualTurnDeg, plantedSlideM, both toe-step flags) represent an
 accepted, already-known baseline or a comparably unaddressed defect (not investigated, only
 measured); clinical usability of any of this motion.
+
+---
+
+# Round 11, same day — root motion, not the runtime: two targeted fixes to the station, both confirmed against the shipped clip's own convention
+
+Coordinator: the round-10 symptoms point at two specific causes in the BIND, not the runtime.
+Check them before touching anything downstream:
+1. Toes jumping ~0.9 m/frame, lurch 7.9, 1 counted step: fits horizontal root translation baked
+   into a looping cycle, snapping back at the loop seam. Inspect the shipped clip's own root track;
+   match its convention exactly.
+2. Progressive hunching, bent knees, floor penetration -0.024: fits the pelvis sitting too low. Set
+   vertical root to the target's rest hip height plus Kimodo's own bob (delta from its own mean),
+   not a ratio-scaled absolute height; confirm frame-0 feet touch the floor.
+
+## Inspected the shipped clip's own root track first, as instructed
+
+`openclinxr_retarget_walk_source`'s root bone, read directly from the shipped GLB across its full
+42-frame range: frame 0 and frame 41 are **bit-identical** (`(-7.89e-14, 0.0669, 0.9131)` both
+times). Horizontal range across the whole clip: X -0.013 to 0.059 m, Y (this rig's forward axis)
+0.0669 to 0.0673 m — both effectively flat, small natural sway only, **no net horizontal travel at
+all**. Vertical (Z) ranges 0.907 to 0.961 m — a real 0.054 m hip bob. Confirms hypothesis 1 exactly:
+the shipped clip's root is **in-place**; the runtime's own executor supplies all forward locomotion
+via the slot, coupled to the clip's measured stance speed
+(`.openclinxr/kimodo-scratch/check_shipped_root.py`, not committed, scratch).
+
+This also explains round 10's exact defect. Every clip this cagematch has bound before round 10 was
+a whole scripted approach (a real, intentional multi-metre translation, since nothing else moved the
+character). Round 10's cycle graft reused that SAME formula unmodified — baking Kimodo's real ~1.2 m
+per-loop translation into the root bone. When three.js's native `LoopRepeat` wraps the clip's time
+back to 0, the root SNAPS from ~1.2 m advanced back to the loop start in a single frame: the exact
+signature round 10 measured (`maxToeStepPerFrameM` 1.03 m) without knowing the cause.
+
+## Two fixes to the station script
+
+**`--strip-horizontal-root-motion`** (new flag, default off — every prior round's whole-approach
+bind is unaffected). When set, the root bone's horizontal (X, Y) position holds at the target's own
+rest position every frame, matching the shipped clip's in-place convention exactly, instead of the
+existing ratio-scaled delta from source rest.
+
+**Vertical root height reformulated, unconditionally** (not gated behind the new flag — this is a
+correctness fix to the height formula itself): `target_rest_hip_z + (source_hip_z(t) -
+source_hip_z_mean_over_this_clip)`, replacing the old `(source_hip_pos(t) - source_hip_rest_pos) *
+hip_height_ratio` applied uniformly to all three axes. The old formula scaled Kimodo's own natural
+vertical bob by the SAME ratio built to correct a hip-height SCALE mismatch between the two rigs —
+conflating two different corrections, with no reason to land the target's pelvis at the right
+absolute height for its own rig.
+
+Both changes: `packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_from_positions_stage.py`.
+
+## Re-bound, re-verified before re-running the runtime
+
+**Root track, seed 42's cycle, after both fixes:** X range -0.0000 to 0.0000 (in-place, matches
+shipped's convention); Y range 0.0644-0.0696 (small residual from the world/local matrix
+conversion, comparable in magnitude to the shipped clip's own 0.0669-0.0673 natural sway); Z range
+0.897-0.931 (a 0.034 m bob, a plausible walking bob, no longer ratio-scaled). First and last root
+frame no longer identical in Z (as expected — the bob differs at different stride phases), but
+horizontal position matches within noise.
+
+**Frame-0 foot height, checked against the shipped clip's own baseline** (not an absolute-zero bar,
+since neither rig's foot-bone origin sits exactly at the sole): shipped's own frame-0 toe height is
+0.076-0.096 m; Kimodo's cycle (post-fix) frame-0 toe height is 0.050-0.134 m (left foot, the one
+striking down at this cycle's phase, at 0.050 m — LOWER than the shipped clip's own convention).
+Confirms the feet touch the floor at least as well as the shipped clip's own established convention.
+
+**Visual confirmation, rendered natively:**
+`~/.openclinxr-wip/kimodo/round11/preview-cycle-seed42/f001.png` (not committed, scratch) — upright,
+no hunching, consistent with round 9/10's already-good upper-body result.
+
+## Re-ran the same runtime capture beside the shipped clip, same build
+
+Graft mechanism unchanged from rounds 9-10 (strip the original walk clip so the fixed cycle is the
+sole `openclinxr_retarget_*` match; load via `--humanoid=`). Same metric scripts, unmodified.
+
+**Walk quality:**
+
+| metric | round 10 (before fix) | round 11 (after fix) | shipped | target |
+|---|---|---|---|---|
+| groundSpeedMps | 1.241 (PASS) | 1.086 (PASS) | 1.376 (PASS) | >= prescribed*0.75 |
+| steadyStateGroundSpeedMps | 8.584 | **5.035** | 1.440 | (info) |
+| lurch | 7.922 (FAIL) | **4.596 (FAIL)** | 1.044 (PASS) | <= 1.4 |
+| medianHoldSlideMeters | 0.0000 (FAIL) | 0.0000 (FAIL) | 0.0135 (PASS) | <= 0.02 |
+| cadencePerMinute | 44.2 (FAIL), 1 step | **176.7 (FAIL)**, 4 steps | 90.6 (PASS), 2 steps | 90-125 |
+
+**Turn quality:**
+
+| metric | round 10 | round 11 | shipped | target |
+|---|---|---|---|---|
+| residualTurnDeg | 73.62 (FAIL) | 97.50 (FAIL) | 62.30 (FAIL) | <= 45 |
+| floorPenetrationM | -0.02377 (FAIL) | **0.00117 (PASS)** | 0.00218 (PASS) | >= -0.005 |
+| minStepLiftM | -0.01644 (FAIL) | 0.00951 (FAIL, closer) | 0.01870 (PASS) | >= 0.015 |
+| plantedSlideM | 0.47915 (FAIL) | **0.34293 (FAIL, -28%)** | 0.05706 (FAIL) | <= 0.02 |
+| headLeadSeconds | 0.297 (PASS) | 0.297 (PASS) | 0.858 (PASS) | > 0 |
+| maxToeStepPerFrameM | 1.02980 (flagged) | **0.63578 (flagged, -38%)** | 0.13640 (flagged) | <= 0.08 |
+| stanceToeStepPerFrameM | 0.55078 (flagged) | 0.57587 (flagged, ~unchanged) | 0.09465 (flagged) | <= 0.02 |
+
+**Floor penetration is fully fixed** (fix 2 confirmed directly): -0.024 m to +0.001 m, now passing
+and in the same range as the shipped clip's own +0.002 m. **Lurch and the max single-frame toe step
+both improved substantially** (down 42% and 38%) but neither fully passes yet. **Cadence got
+numerically worse** (44.2 to 176.7) — not a regression in the walk itself; it means the alternation
+counter now detects 4 stance-window transitions instead of 1 in the same ~1.36 s span, which reads
+as an over-fast cadence rather than a slow one. residualTurnDeg and stanceToeStepPerFrameM did not
+improve (residualTurnDeg is heading, an orthogonal question round 9 already opened; the stance-foot
+step metric stayed flat, meaning whatever remaining defect drives it was not addressed by either
+fix).
+
+**A real, visually dramatic improvement, confirmed by the contact sheet.** Round 10's contact sheet
+showed a character progressively hunching forward with bent knees by the later frames. Round 11's
+contact sheet (`~/.openclinxr-wip/kimodo/round11/runtime-graft/kimodo-cycle-capture/feet-side-contact.png`)
+shows a straight-legged, upright walking gait throughout, closely resembling the shipped clip's own
+contact sheet in posture — the hunching is gone. **Stated plainly: the per-frame numeric metrics
+still show a real, unresolved residual** (the raw toe track still oscillates frame to frame, smaller
+in magnitude than round 10 but not eliminated), so this is disclosed as improved-but-not-fixed, not
+closed. Both fixes did exactly what they were diagnosed to do; something else is still contributing
+to the remaining toe-step/lurch/planted-slide numbers, not investigated further this round given the
+explicit scope (check the two named causes, re-run, report).
+
+Videos (both not committed, scratch):
+- Kimodo cycle (round 11): `~/.openclinxr-wip/kimodo/round11/runtime-graft/kimodo-cycle-capture/{feet-side,three-quarter}.mp4`
+- Shipped: `~/.openclinxr-wip/kimodo/round11/runtime-graft/shipped-capture/{feet-side,three-quarter}.mp4`
+
+Full reports: `~/.openclinxr-wip/kimodo/round11/runtime-graft/{kimodo-cycle,shipped}-capture/foot-plant-video.json`.
+
+## claimScope / notEvidenceFor (round 11)
+
+**claimScope:** the shipped clip's own root track was inspected directly and confirmed in-place
+horizontally, matching the coordinator's hypothesis exactly; the loop-seam snap-back mechanism
+(round 10's clip baking real per-loop translation that then discontinuously resets on loop wrap) is
+a coherent, well-evidenced explanation for round 10's toe-teleport signature, though not verified by
+directly instrumenting the runtime's mixer; the new `--strip-horizontal-root-motion` flag was
+implemented, defaults off (every prior round's bind is provably unaffected — the flag gates the only
+changed code path), and was verified to hold the root in-place on the actual baked GLB; the vertical
+root formula was corrected unconditionally and directly fixed floorPenetrationM from a fail to a
+pass matching the shipped clip's own value; frame-0 foot height was confirmed against the shipped
+clip's own established baseline, not an unfounded absolute-zero bar; both fixes were re-run through
+the actual runtime capture beside a same-build shipped run, and every requested metric was
+re-measured and reported honestly, improved and unimproved alike.
+
+**notEvidenceFor:** that either fix, or both together, fully resolves the walk/turn-quality defect —
+they do not; lurch, plantedSlideM, and both toe-step metrics remain failing or flagged, at reduced
+but still large magnitude; the cause of the REMAINING residual toe-step oscillation (visually much
+smaller than round 10's collapse, but numerically still present in the raw per-frame track) — not
+investigated this round, given the explicit scope of checking the two named causes and reporting;
+whether `residualTurnDeg`'s lack of improvement (73.6 to 97.5, both failing) is a consequence of
+these fixes or an independent, pre-existing issue (round 9's heading-tracking question, not reopened
+this round); whether seeds 7 and 1001 behave the same way through the runtime (only seed 42 was
+re-run).

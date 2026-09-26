@@ -123,6 +123,27 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     ap.add_argument("--report", required=True)
     ap.add_argument("--foot-contacts", default=None)
     ap.add_argument("--frame0-only", action="store_true")
+    ap.add_argument(
+        "--strip-horizontal-root-motion",
+        action="store_true",
+        help=(
+            "For a LOOPING WALK CYCLE clip meant to be advanced by the runtime's own "
+            "stance-lock/ground-advance executor (round 10), not a one-shot scripted approach. "
+            "Default off, preserving existing whole-approach-clip behavior. Confirmed 2026-09-26 by "
+            "reading the shipped openclinxr_retarget_walk_source's own root bone track: it is "
+            "IN-PLACE horizontally (frame 0 and the last frame are bit-identical; x/y range under "
+            "0.07 m, natural sway only, no net travel) -- the runtime's own executor supplies all "
+            "forward locomotion via the slot, coupled to the clip's measured stance speed. A cycle "
+            "clip that instead bakes real horizontal root translation (as every prior round's "
+            "Root2DConstraintSet-driven position data does, honestly, since that IS the generated "
+            "motion) travels ~1.2 m across the loop and then SNAPS BACK to the loop start the instant "
+            "three.js wraps the clip's time -- a real, single-frame teleport, not a measurement "
+            "artifact. Round 10 measured this exact signature (maxToeStepPerFrameM 1.03 m, lurch "
+            "7.9x) without knowing the cause; this flag removes it at the source by holding the root "
+            "bone's horizontal (X, Y) position fixed at the target's own rest position every frame, "
+            "matching the shipped clip's convention exactly, so a runtime loop never re-triggers it.",
+        ),
+    )
     return ap.parse_args(argv)
 
 
@@ -293,6 +314,17 @@ def main(argv: list[str]) -> int:
     source_root_rest_pos = jpos("Hips", 0)
     e_y = Vector((0.0, 1.0, 0.0))
 
+    # VERTICAL ROOT HEIGHT (coordinator-directed fix, 2026-09-26): the round-10 cycle capture's
+    # progressive hunching, bent knees and floor penetration (-0.024 m) fit the pelvis sitting too
+    # low. The formula this replaces scaled the WHOLE position delta (horizontal AND vertical) from
+    # source rest by `hip_height_ratio` -- a ratio built to correct a genuine SCALE difference
+    # between the two rigs' hip heights, applied uniformly to Kimodo's own natural vertical bob too,
+    # which conflates two different corrections and has no reason to land the target's pelvis at the
+    # right absolute height for ITS OWN rig. Fixed: the target's own rest hip height PLUS Kimodo's
+    # bob measured relative to ITS OWN MEAN over this clip's frames (not scaled by any ratio) --
+    # `hip_height_ratio` no longer touches the vertical axis, kept only for the report/log field.
+    source_hip_z_mean = sum(jpos("Hips", i).z for i in range(frame_count)) / frame_count
+
     def _root_world(frame_index: int) -> Matrix:
         right_hip = jpos(HIP_LATERAL_JOINTS[0], frame_index)
         left_hip = jpos(HIP_LATERAL_JOINTS[1], frame_index)
@@ -394,8 +426,23 @@ def main(argv: list[str]) -> int:
         root_pb = target_actor.pose.bones[root_target_name]
         frame_index = frame_number - 1  # BVH-derived frame numbers start at 1; positions are 0-indexed
         src_pos = jpos("Hips", max(0, frame_index))
-        delta = (src_pos - source_root_rest_pos) * hip_height_ratio
-        world_target_pos = target_root_rest_pos + delta
+        # HORIZONTAL (coordinator-directed fix, 2026-09-26): unchanged, ratio-scaled delta from
+        # source rest, UNLESS `--strip-horizontal-root-motion` is set (see that flag's own
+        # docstring) -- then the root's horizontal position is held at the target's own rest
+        # position every frame, matching the shipped clip's in-place convention exactly.
+        if args.strip_horizontal_root_motion:
+            horizontal_x = target_root_rest_pos.x
+            horizontal_y = target_root_rest_pos.y
+        else:
+            horizontal_delta = (src_pos - source_root_rest_pos) * hip_height_ratio
+            horizontal_x = target_root_rest_pos.x + horizontal_delta.x
+            horizontal_y = target_root_rest_pos.y + horizontal_delta.y
+        # VERTICAL (coordinator-directed fix, 2026-09-26): target's own rest hip height plus
+        # Kimodo's bob relative to ITS OWN MEAN over this clip -- see `source_hip_z_mean` above.
+        # Applies unconditionally (not gated behind the strip-horizontal flag): this is a
+        # correctness fix to the height formula itself, not specific to the cycle-clip use case.
+        vertical_bob = src_pos.z - source_hip_z_mean
+        world_target_pos = Vector((horizontal_x, horizontal_y, target_root_rest_pos.z + vertical_bob))
         local_pos = target_actor.matrix_world.inverted() @ world_target_pos
         rest_local_pos = root_pb.bone.matrix_local.translation
         root_pb.location = local_pos - rest_local_pos
