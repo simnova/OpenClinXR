@@ -162,9 +162,41 @@ def _inject_source_map(scn: bpy.types.Scene, source_map_path: str) -> str:
     name = os.path.splitext(os.path.basename(source_map_path))[0]
     info = CSourceInfo(scn, name)
     info.readFile(source_map_path)
-    info.boneNames = {key: ("" if mhx is None else mhx) for (key, mhx) in info.boneNames.items()}
+    # MEASURED 2026-09-26: CRigInfo.readFile OVERWRITES self.name from the JSON's own "name" field
+    # when present ("if 'name' in struct.keys(): self.name = struct['name']") — a human-readable
+    # display string, e.g. "Kimodo SOMASkeleton30 (nvidia/Kimodo-SOMA-RP-v1.1)", not the file-stem
+    # slug this function registers as the BD.sourceInfos/BD.sourceEnums KEY. retargetAnimation
+    # later calls setSourceArmature(srcRig, scn), which reads `mcpRna(rig).Armature`
+    # (== BD.activeSrcInfo.name, i.e. the JSON display string) and assigns it straight to the
+    # SourceRig enum — a second name never added to sourceEnums, so it fails the identical way the
+    # slug fix above just fixed. Keep `info.name` pinned to the registered slug; the JSON's "name"
+    # field is metadata for a human reader, not the wire identifier this addon threads through.
+    info.name = name
+    # MEASURED 2026-09-26: addManualBones (source.py) assigns from `info.bones` (the LIST of
+    # tuples), not `info.boneNames` (a dict rebuilt from it). The prior sanitation here only
+    # touched boneNames, so a map's "None" entries (read by readFile's `nameOrNone` into actual
+    # Python None) still reached `mcpRna(pb).Bone = None` and hit the same #585 RNA refusal this
+    # function's docstring already describes. Sanitize `bones` itself, exactly as
+    # `_inject_target_map` does for the target map, then rebuild boneNames from it.
+    info.bones = [(bname, "" if mhx is None else mhx) for (bname, mhx) in info.bones]
+    info.boneNames = dict(info.bones)
     BD.sourceInfos[name] = info
     BD.activeSrcInfo = info
+    # MEASURED 2026-09-26 (Kimodo cagematch): _inject_target_map registers TARGET_NAME into
+    # BD.targetEnums (the list backing the TargetRig EnumProperty's `items` callback), but this
+    # function never did the equivalent for BD.sourceEnums. findSourceArmature(auto=True) still
+    # FINDS a fingerprint match against BD.sourceInfos (a plain dict, so our entry is visible to
+    # its loop) and returns our `name` — but the very next line assigns that name to
+    # `mcpRna(scn).SourceRig`, a bpy EnumProperty whose valid values come from `getSources()` ->
+    # `BD.sourceEnums`. Assigning a string absent from that list raises
+    # `TypeError: enum "<name>" not found in (...)`, listing only the addon's built-in presets
+    # (CMU, Mixamo, Mesh2Motion, ...). This was invisible for every prior --source-map user
+    # (mesh2motion-human-66) only because "Mesh2Motion" is ALSO one of those built-in presets and
+    # apparently matched first — the custom map was registered but never actually selected. A
+    # skeleton with no built-in preset (Kimodo's SOMASkeleton30) has nothing to fall back on and
+    # hits this every time.
+    if not any(item[0] == name for item in BD.sourceEnums):
+        BD.sourceEnums = list(BD.sourceEnums) + [(name, name, name)]
     return name
 
 

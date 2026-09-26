@@ -1,0 +1,46 @@
+{
+  "name": "Kimodo SOMASkeleton30 (nvidia/Kimodo-SOMA-RP-v1.1)",
+  "url": "https://github.com/nv-tlabs/kimodo/blob/main/kimodo/skeleton/definitions.py",
+  "licence": "Apache-2.0 (nv-tlabs/kimodo code, definitions.py); weights nvidia/Kimodo-SOMA-RP-v1.1 under the NVIDIA Open Model License",
+  "source": "kimodo-mlx generation output (BVH-exported), joint order/names/parents verified against nv-tlabs/kimodo kimodo/skeleton/definitions.py:SOMASkeleton30.bone_order_names_with_parents and cross-checked against kimodo_mlx/motion.py:SOMA_PARENTS (exact index-for-index match, both read 2026-09-26)",
+  "measuredSourceJoints": 30,
+  "fingerprint": ["Chest", "LeftForeArm", "RightToeBase"],
+  "bones": {
+    "Hips": "hips",
+    "Spine1": "spine",
+    "Spine2": "spine-1",
+    "Chest": "chest",
+    "Neck1": "neck",
+    "Neck2": "None",
+    "Head": "head",
+    "Jaw": "None",
+    "LeftEye": "None",
+    "RightEye": "None",
+
+    "LeftShoulder": "shoulder.L",
+    "LeftArm": "upper_arm.L",
+    "LeftForeArm": "forearm.L",
+    "LeftHand": "hand.L",
+    "LeftHandThumbEnd": "None",
+    "LeftHandMiddleEnd": "None",
+
+    "RightShoulder": "shoulder.R",
+    "RightArm": "upper_arm.R",
+    "RightForeArm": "forearm.R",
+    "RightHand": "hand.R",
+    "RightHandThumbEnd": "None",
+    "RightHandMiddleEnd": "None",
+
+    "LeftLeg": "thigh.L",
+    "LeftShin": "shin.L",
+    "LeftFoot": "foot.L",
+    "LeftToeBase": "toe.L",
+
+    "RightLeg": "thigh.R",
+    "RightShin": "shin.R",
+    "RightFoot": "foot.R",
+    "RightToeBase": "toe.R"
+  },
+  "optional": ["Neck2", "Jaw", "LeftEye", "RightEye", "LeftHandThumbEnd", "LeftHandMiddleEnd", "RightHandThumbEnd", "RightHandMiddleEnd"],
+  "ik-bones": []
+}

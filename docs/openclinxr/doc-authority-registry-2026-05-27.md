@@ -370,6 +370,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/humanoid-scene-layout-research-brief-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-vetting-2026-09-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/kimodo-mlx-bedside-approach-cagematch-2026-09-26.md` - evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
 - `docs/openclinxr/kimodo-soma-rp-v11-cagematch-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

@@ -4035,6 +4035,13 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
+      "path": "docs/openclinxr/kimodo-mlx-bedside-approach-cagematch-2026-09-26.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
       "path": "docs/openclinxr/kimodo-soma-rp-v11-cagematch-2026-09-09.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
