@@ -3,11 +3,12 @@
  *
  * Pure TypeScript recipe layer (no Blender): same room + finish preset + seed
  * produces the same finish plan. The Blender compose stage (compose.py)
- * materializes wall/trim paint, baseboard contrast, and signage anchors;
+ * materializes wall/trim paint, baseboard contrast, signage anchors,
+ * and finish geometry (T-bar, door kit, rail, sign);
  * the TypeScript runner (run.ts) spawns it once per work GLB.
  *
  * No Quest, animation, or clinical claims. Palette stays in calm indoor
- * ranges; the finish pass never moves geometry, only materials and anchors.
+ * ranges; the finish pass paints materials and emits finish geometry.
  */
 
 export const ROOM_CLINIC_FINISH_SCHEMA_VERSION = "openclinxr.room-clinic-finish.v1";

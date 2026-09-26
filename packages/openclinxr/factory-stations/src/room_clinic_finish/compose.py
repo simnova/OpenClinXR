@@ -85,6 +85,53 @@ def classify_mesh(name: str) -> str:
     return "other"
 
 
+def _emit_finish_geometry(seed: int = 7) -> dict:
+    """Build real finish meshes: T-bar grid, paneled door kit, crash rail, exit sign."""
+    import bpy  # type: ignore[import-not-found]
+
+    TBAR_Z = 2.744
+    created: list[str] = []
+    counts = {"tbar": 0, "door": 0, "rail": 0, "sign": 0}
+
+    def new_box(name: str, x: float, y: float, z: float, dx: float, dy: float, dz: float) -> None:
+        mesh = bpy.data.meshes.new(name + "_mesh")
+        obj = bpy.data.objects.new(name, mesh)
+        bpy.context.scene.collection.objects.link(obj)
+        verts = [
+            (x - dx / 2, y - dy / 2, z - dz / 2), (x + dx / 2, y - dy / 2, z - dz / 2),
+            (x + dx / 2, y + dy / 2, z - dz / 2), (x - dx / 2, y + dy / 2, z - dz / 2),
+            (x - dx / 2, y - dy / 2, z + dz / 2), (x + dx / 2, y - dy / 2, z + dz / 2),
+            (x + dx / 2, y + dy / 2, z + dz / 2), (x - dx / 2, y + dy / 2, z + dz / 2),
+        ]
+        faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+        mesh.from_pydata(verts, [], faces)
+        mesh.update()
+        created.append(name)
+
+    # T-bar grid: 5 x 3 strips at ceiling height
+    for ix in range(5):
+        for iz in range(3):
+            new_box("openclinxr_tbar_%d_%d" % (ix, iz), -2.4 + ix * 1.2, -1.2 + iz * 1.2, TBAR_Z, 0.05, 2.4, 0.05)
+            counts["tbar"] += 1
+    # Paneled door kit: slab + 4 recessed-look panels + lever + kick plate
+    new_box("openclinxr_door_slab", 1.5, 0.0, 1.05, 0.08, 0.9, 2.1)
+    counts["door"] += 1
+    for iy in range(2):
+        for iz in range(2):
+            new_box("openclinxr_door_panel_%d_%d" % (iy, iz), 1.54, -0.22 + iy * 0.44, 0.6 + iz * 0.9, 0.02, 0.36, 0.7)
+            counts["door"] += 1
+    new_box("openclinxr_door_lever", 1.58, 0.32, 1.0, 0.04, 0.16, 0.04)
+    new_box("openclinxr_door_kick", 1.55, 0.0, 0.15, 0.02, 0.8, 0.25)
+    counts["door"] += 2
+    # Crash rail along corridor wall
+    new_box("openclinxr_crash_rail", 0.0, -1.98, 0.9, 4.0, 0.08, 0.15)
+    counts["rail"] += 1
+    # Exit sign box above door
+    new_box("openclinxr_exit_sign", 1.5, 0.0, 2.3, 0.1, 0.4, 0.15)
+    counts["sign"] += 1
+    return {"meshes": created, "counts": counts, "tbarZ": TBAR_Z, "seed": seed}
+
+
 def apply_finish() -> int:
     args = parse_args(sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else [])
     recipe = load_recipe(args.recipe_json)
@@ -143,6 +190,8 @@ def apply_finish() -> int:
         empty.empty_display_type = "PLAIN_AXES"
         stamped.append(empty_name)
 
+    emitted = _emit_finish_geometry(seed=int(recipe.get("seed", 7)))
+
     bpy.ops.wm.save_as_mainfile(filepath=args.output.replace(".glb", ".blend"))
     bpy.ops.export_scene.gltf(filepath=args.output, export_format="GLB")
 
@@ -152,7 +201,9 @@ def apply_finish() -> int:
         "preset": recipe.get("preset"),
         "painted": painted,
         "signageAnchors": stamped,
-        "movedGeometry": False,
+        "movedGeometry": True,
+        "emittedMeshes": emitted["counts"],
+        "emittedCount": len(emitted["meshes"]),
     }
     with open(args.report, "w", encoding="utf-8") as handle:
         json.dump(report, handle, indent=2)

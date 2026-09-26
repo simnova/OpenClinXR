@@ -22,8 +22,9 @@ import { designRoomFinishRecipe } from "./recipe.js";
  *
  * plan() is pure (recipe + script paths, no Blender). run() writes the
  * recipe JSON, then spawns compose.py once against the work GLB. The compose
- * stage paints wall/trim materials from the recipe palette and stamps
- * signage anchors as empties; it never moves geometry.
+ * stage paints wall/trim materials from the recipe palette, stamps
+ * signage anchors as empties, and emits finish geometry (T-bar grid,
+ * paneled door kit, crash rail, exit sign); the report records movedGeometry.
  *
  * Tests must call plan(), not run().
  */

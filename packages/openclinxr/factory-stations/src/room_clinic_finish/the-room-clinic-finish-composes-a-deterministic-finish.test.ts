@@ -63,7 +63,7 @@ describe("the room clinic finish station composes a deterministic finish", () =>
     expect(planRoomClinicFinish(noPreset).issues !== undefined).toBe(true);
   });
 
-  it("(5) compose.py validates the recipe schema and never moves geometry", () => {
+  it("(5) compose.py validates the recipe schema and emits finish geometry", () => {
     const composeSrc = readFileSync(join(SRC, "compose.py"), "utf8");
     expect(composeSrc).toContain("--recipe-json");
     expect(composeSrc).toContain("--report");
