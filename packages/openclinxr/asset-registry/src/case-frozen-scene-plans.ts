@@ -131,12 +131,12 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           ":biohazard-trash",
           ":supply-cabinet",
           ":hand-sanitizer",
-          ":privacy-curtain",
           ":wall-clock",
-          ":patient-blanket"
+          ":patient-blanket",
+          ":privacy-curtain"
         ],
-        "waypointCount": 10,
-        "routeLengthMeters": 2.9039628095268153
+        "waypointCount": 5,
+        "routeLengthMeters": 1.3058713568030198
       },
       "arrival": {
         "arrivalErrorMeters": 0.0041,
@@ -167,11 +167,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-844f80f777b3244ec3a483db20812218",
+      "planRevision": "plan-v1-8f0de33912777c90eadb25f01275c135",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-844f80f777b3244ec3a483db20812218"
+        "acknowledgedPlanRevision": "plan-v1-8f0de33912777c90eadb25f01275c135"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);

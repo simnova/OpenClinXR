@@ -744,7 +744,20 @@ describe("the normal encounter physician approaches and stops", () => {
       x: ((midpointA?.x ?? 0) + (midpointB?.x ?? 0)) / 2,
       z: ((midpointA?.z ?? 0) + (midpointB?.z ?? 0)) / 2,
     };
-    const lateral = 0.3;
+    // `lateral` is deliberately set EQUAL to the walker's own standing-footprint radius: the
+    // pole's near edge then sits at (lateral - poleHalfWidth) = (radius - 0.025) from the route
+    // line, always inside the swept corridor, with exactly the pole's own half-width (0.025 m)
+    // as headroom -- the same relationship the original literal 0.3 encoded when the radius was
+    // a flat 0.3 m (lateral == radius then too). room-obstacles (2026-09-26) re-derived the
+    // radius from the rig's measured shoulder-joint separation (0.3681 m / 2 + 0.05 m clearance
+    // = 0.234...), which is smaller than the old flat 0.3 m literal, so a fixed lateral=0.3 no
+    // longer reaches this pole (0.3 - 0.025 = 0.275 m > the new 0.234 m radius) and the control
+    // stopped blocking. Expression duplicated from bedside-clearance.ts's
+    // `STANDING_FOOTPRINT_RADIUS_METERS` rather than imported: that internal is not exported
+    // across the package boundary (see e.g. locomotion-order-mod.ts's own
+    // `ORDER_WALKER_RADIUS_METERS` for the same repo convention); re-measure and update this
+    // expression together with that one if the rig is ever re-measured.
+    const lateral = 0.3681 / 2 + 0.05;
     const routeDx = intent.target.position.x - intent.start.x;
     const routeDz = intent.target.position.z - intent.start.z;
     const routeLength = Math.hypot(routeDx, routeDz);

@@ -239,33 +239,78 @@ async function captureLiveHullObservation(
       (flags: { bootstrap: boolean; walkerActorId: string }) => {
         const scene = (globalThis as {
           __openClinXrDebugScene?: {
-            traverse?: (cb: (o: { userData?: Record<string, unknown> }) => void) => void;
+            traverse?: (cb: (o: {
+              userData?: Record<string, unknown>;
+              updateWorldMatrix?: (updateParents: boolean, updateChildren: boolean) => void;
+              matrixWorld?: { elements: ArrayLike<number> };
+            }) => void) => void;
           };
         }).__openClinXrDebugScene;
         if (!scene?.traverse) return false;
         let hull = false;
         let reanchored = false;
-        let walkerStaged = false;
+        let walkerNode: {
+          updateWorldMatrix?: (updateParents: boolean, updateChildren: boolean) => void;
+          matrixWorld?: { elements: ArrayLike<number> };
+        } | null = null;
         scene.traverse((o) => {
           const ud = o.userData ?? {};
           if (ud["openClinXrEnvironmentSource"] === "infinigen-generated-room") hull = true;
           if (ud["openClinXrWallAnchorReanchored"] !== undefined) reanchored = true;
-          if (ud["openClinXrActorId"] === flags.walkerActorId) walkerStaged = true;
+          // The walker's staged slot group: GLB descendants share its actor id, but only the
+          // slot group itself carries openClinXrSlotKind — match on both, so cues/meshes never
+          // win over the group whose world position IS the start the admission re-solves from.
+          if (
+            walkerNode === null
+            && ud["openClinXrActorId"] === flags.walkerActorId
+            && typeof ud["openClinXrSlotKind"] === "string"
+          ) {
+            walkerNode = o;
+          }
         });
-        if (!hull || !reanchored || !walkerStaged) return false;
+        if (!hull || !reanchored || walkerNode === null) return false;
         // On a BOOTSTRAP case, `admitFrozenScenePlanForObservedScene` never observes geometry —
         // it short-circuits on `admission.status !== "admitted"` before touching the scene — so
         // there is no `observedGeometryRevision` to wait for; hull+reanchor is the whole signal.
-        if (flags.bootstrap) return true;
-        const admission = (globalThis as {
-          __openClinXrFrozenScenePlanAdmission?: { observedGeometryRevision?: string | null };
-        }).__openClinXrFrozenScenePlanAdmission;
-        return typeof admission?.observedGeometryRevision === "string";
+        if (!flags.bootstrap) {
+          const admission = (globalThis as {
+            __openClinXrFrozenScenePlanAdmission?: { observedGeometryRevision?: string | null };
+          }).__openClinXrFrozenScenePlanAdmission;
+          if (typeof admission?.observedGeometryRevision !== "string") return false;
+        }
+        // Capture the walker's position HERE, the instant every condition first holds, rather
+        // than in a later page.evaluate: once admitted, main.ts drives the physician's bedside
+        // approach every rendered frame, so a position read after this poll returns would be
+        // however far he has already walked by then. Measured 2026-09-26 with the previous
+        // 500ms-polling + later-read shape: two consecutive freezes captured x -1.7767 and
+        // -1.8080 (a ~3cm drift purely from poll timing), which changed the solved route's
+        // waypoint count (10 vs 4) even though the geometryRevision digest -- computed from the
+        // static room, not the walker -- stayed identical. `polling: "raf"` below plus capturing
+        // in the same predicate call that first returns true closes that gap to a single frame.
+        const host = globalThis as unknown as {
+          __openClinXrFreezeCapturedWalkerStart?: { x: number; y: number; z: number };
+        };
+        if (host.__openClinXrFreezeCapturedWalkerStart === undefined) {
+          const node = walkerNode as {
+            updateWorldMatrix?: (updateParents: boolean, updateChildren: boolean) => void;
+            matrixWorld?: { elements: ArrayLike<number> };
+          };
+          node.updateWorldMatrix?.(true, false);
+          const elements = node.matrixWorld?.elements;
+          if (elements !== undefined) {
+            host.__openClinXrFreezeCapturedWalkerStart = {
+              x: Number(elements[12]),
+              y: Number(elements[13]),
+              z: Number(elements[14]),
+            };
+          }
+        }
+        return true;
       },
       { bootstrap: isBootstrap, walkerActorId: config.walkerActorId },
-      { timeout: 180_000 },
+      { timeout: 180_000, polling: "raf" },
     );
-    const live = await page.evaluate((walkerActorId: string) => {
+    const live = await page.evaluate(() => {
       const scene = (globalThis as {
         __openClinXrDebugScene?: {
           traverse: (cb: (o: { userData?: Record<string, unknown> }) => void) => void;
@@ -277,31 +322,8 @@ async function captureLiveHullObservation(
         __openClinXrFrozenScenePlanAdmission?: { observedGeometryRevision?: string | null };
       }).__openClinXrFrozenScenePlanAdmission;
       const reanchor: LiveWallReanchor[] = [];
-      // The walker's staged slot group: GLB descendants share its actor id, but only the slot
-      // group itself carries openClinXrSlotKind — match on both, so cues and meshes never win.
-      // Its world position is the start the admission re-solves from.
-      let walkerStart: { x: number; y: number; z: number } | null = null;
       scene?.traverse((o) => {
         const ud = o.userData ?? {};
-        if (
-          ud["openClinXrActorId"] === walkerActorId
-          && typeof ud["openClinXrSlotKind"] === "string"
-          && walkerStart === null
-        ) {
-          const node = o as unknown as {
-            updateWorldMatrix?: (updateParents: boolean, updateChildren: boolean) => void;
-            matrixWorld?: { elements: ArrayLike<number> };
-          };
-          node.updateWorldMatrix?.(true, false);
-          const elements = node.matrixWorld?.elements;
-          if (elements !== undefined) {
-            walkerStart = {
-              x: Number(elements[12]),
-              y: Number(elements[13]),
-              z: Number(elements[14]),
-            };
-          }
-        }
         const moved = ud["openClinXrWallAnchorReanchored"] as
           | { method?: unknown; movedMeters?: unknown }
           | undefined;
@@ -314,12 +336,18 @@ async function captureLiveHullObservation(
           movedMeters: Number(moved.movedMeters),
         });
       });
+      // Captured inside the `waitForFunction` predicate above, the instant every readiness
+      // condition first held (not re-derived here): see that predicate's own comment for why a
+      // later read races the physician's already-driving bedside approach.
+      const walkerStart = (globalThis as {
+        __openClinXrFreezeCapturedWalkerStart?: { x: number; y: number; z: number };
+      }).__openClinXrFreezeCapturedWalkerStart ?? null;
       return {
         observedGeometryRevision: admission?.observedGeometryRevision ?? null,
         reanchor,
         walkerStart,
       };
-    }, config.walkerActorId);
+    });
     if (live.walkerStart === null) {
       throw new Error(`${config.caseId}: the shipped runtime staged no slot for walker ${config.walkerActorId}`);
     }
@@ -441,12 +469,40 @@ async function freezeOneCase(config: CaseConfig) {
   // node-composed start put the closure physician in the west corner while the live slot stands
   // mid-room east, so every live route failed and admission refused `unsatisfiable_intent` on a
   // geometry that matched to the digest). Same ground-truth discipline as the reanchor rows.
-  const start = { x: live.walkerStart.x, y: live.walkerStart.y, z: live.walkerStart.z };
-  if ("refused" in patientWorld) {
-    throw new Error(`${config.caseId}: the ward staging refused to compose a patient position`);
-  }
+  //
+  // ## RECONSIDERED 2026-09-26 (room-obstacles determinism fix)
+  // The live capture is real-time-driven (main.ts drives the physician's approach every frame),
+  // so it is not just an approximation of a fixed spawn point -- it is genuinely nondeterministic
+  // run to run: the polling window between "conditions hold" and "position read" is measured in
+  // browser render frames, not a fixed delay, so how far into his walk he already is when read
+  // varies. That is fine for THIS freeze's own room-mount digest checks, which do not depend on
+  // start. It is NOT fine for `verifyCommittedScenePlanAgainstDisk`
+  // (apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts), which
+  // re-derives routeLengthMeters with an EXACT (!==) comparison using its OWN deterministic
+  // `composeSupportedActorWorldPosition` start -- a value this freeze can reproduce byte for
+  // byte, and the live one structurally cannot. Measured just now: the deterministic start
+  // computed the same way resolves a route here (not the "west corner" unsatisfiable case the
+  // 2026-09-26 note above describes), so that failure mode is stale for the room this branch
+  // ships (the obstacle/room-prop set changed since it was written). Switched to the
+  // deterministic composition so the frozen record is reproducible by definition rather than by
+  // luck of frame timing. If a future room genuinely reproduces the west-corner failure, that is
+  // a real unsatisfiable-intent case to fix at the room/placement level, not a reason to
+  // reintroduce a live capture that cannot be exactly reproduced by any other caller.
   if (walkerPlacement === undefined) {
     throw new Error(`${config.caseId}: no manifest placement for walker ${config.walkerActorId}`);
+  }
+  const start = composeSupportedActorWorldPosition({
+    posture: "standing",
+    fixtureAnchor: walkerPlacement.position ?? { x: 0, y: 0, z: 0 },
+    ...(walkerPlacement.plantOffsetMeters ? { authoredOffsetMeters: walkerPlacement.plantOffsetMeters } : {}),
+    resolvedPosition: walkerPlacement.position ?? { x: 0, y: 0, z: 0 },
+    ...(geometry.floorFrame ? { floorFrame: geometry.floorFrame } : {}),
+  });
+  if ("refused" in start) {
+    throw new Error(`${config.caseId}: the ward staging refused to compose a walker start position`);
+  }
+  if ("refused" in patientWorld) {
+    throw new Error(`${config.caseId}: the ward staging refused to compose a patient position`);
   }
 
   const bundleContent = {
