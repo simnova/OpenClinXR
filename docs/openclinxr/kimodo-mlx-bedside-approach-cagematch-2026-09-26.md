@@ -424,3 +424,165 @@ round); any comparison against `Kimodo-SMPLX-RP-v1` or other non-SOMA-RP-v1.1 ch
 render of the official BVH's motion (attempted — a bare Blender armature has no rendered geometry, only
 a viewport overlay, so `bpy.ops.render.render()` on the imported bones alone produces an empty frame
 regardless of camera framing; not worked around within this round's time).
+
+---
+
+# Round 3, same day — a bound clip, finally, via constraints instead of the addon's bake
+
+Per instruction: do not debug `retarget_bvh` further. Three items.
+
+## 1. Generate with `nv-tlabs/kimodo` + `Root2DConstraintSet`, from the frozen scene plan
+
+Frozen numbers used verbatim from `packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts`,
+`scene_closure_supine_bedside_v1.resolvedLayout`: `routeLengthMeters` 1.3058713568030198,
+`approachSide` "patient_right", `targetHeadingRadians` π. **Not recorded in that durable record**: the
+5 intermediate waypoints, or a start position — only the target, route length and heading are frozen.
+Approximated as a straight-line approach with a perpendicular 90° final turn (documented in full in
+the constraint-builder script's own docstring), which is the shape `approachSide: patient_right`
+implies (walk up alongside, then turn to face the bed) rather than a literal reproduction of the
+solved 5-waypoint path.
+
+Prompt: *"A physician walks calmly toward a hospital bed, then turns to face the patient."* 90 frames
+(3s @ 30fps), 20 diffusion steps, `Kimodo-SOMA-RP-v1.1` (checkpoint sha256
+`ef0a0ca45a6089ab4532dde609785771ae3f38755b4ae6cf314b0213e07cd4a3`, same as round 1), 3 seeds (42, 7,
+1001), `--no-postprocess`, native `--bvh` export with foot-contact labels.
+
+**A real bug caught and fixed before trusting the result.** `kimodo/motion_rep/feature_utils.py`'s
+`compute_global_heading` stacks `[cos(angle), sin(angle)]`. The constraint-builder script's first draft
+wrote `[sin(theta), cos(theta)]` — swapped. Caught by round-tripping seed 42's own OUTPUT
+`global_root_heading` back through `atan2`: the requested "hold at 0°, turn to 90°" schedule came back
+as "hold at 90°, turn to 0°" — an exact inversion, diagnostic of exactly this class of bug. Fixed,
+re-verified on the corrected run: heading tracks the intended schedule closely across all 3 seeds
+(0.3-0.4° at frame 0, ~40° at the scheduled turn midpoint, 90.3-91.2° by the last frame). Position
+constraint tracked well from the start (root Z reaches 1.25-1.33 m against a 1.306 m target, all 3
+seeds) — no comparable bug there. The constraint builder script and its full method/interpretive-choice
+documentation: `.openclinxr/kimodo-scratch/build_bedside_constraints.py` (gitignored scratch, not
+committed — reproducible from the command below).
+
+```sh
+python3 build_bedside_constraints.py bedside_constraints.json   # frozen-plan-derived Root2DConstraintSet
+kimodo_gen "A physician walks calmly toward a hospital bed, then turns to face the patient." \
+  --model Kimodo-SOMA-RP-v1.1 --duration 3.0 --diffusion_steps 20 --seed <42|7|1001> \
+  --constraints bedside_constraints.json --no-postprocess --bvh --output bedside_seed<N>
+```
+
+## 2. Retarget without the addon's bake: Child-Of constraints + `bpy.ops.nla.bake`
+
+New station: `packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_via_constraints_stage.py`,
+beside (not replacing) `motion_bind_stage.py`. Mechanism, in full in the file's own docstring:
+
+1. Import actor GLB + source BVH into one scene.
+2. Pair every (target bone, source bone) resolving to the same MHX canonical name via the existing
+   `mpfb2-default-no-toes.json` (target) and `kimodo-soma-skeleton30.json` (source) maps — 22 real
+   pairs found and driven (of 137 total target pose bones; the rest are fingers/face/twist bones the
+   30-joint SOMA source has no data for).
+3. Per paired bone: a **Child-Of** constraint (rotation only — location/scale unchecked), with
+   `inverse_matrix` computed directly from the rest-pose relationship between the two bones. This is
+   the substitution for the brief's literal "Copy Rotation ... with rest-pose offset correction":
+   plain Copy Rotation has no offset-correction field at all; Child-Of restricted to rotation, with its
+   `inverse_matrix` captured at rest, is Blender's actual supported mechanism for exactly that effect
+   (what the interactive `constraint.childof_set_inverse` operator does — computed here directly since
+   that operator needs a live 3D-view context this headless script does not have).
+4. Root **translation** handled separately, not via a constraint: source root's per-frame world
+   displacement from its own rest position, scaled by the ratio of the two rigs' leg lengths
+   (thigh+shin bone length at rest: target/source = 0.0035 — the source BVH's raw offsets are in
+   centimeters and Blender's BVH importer applies no unit conversion by default, so this ratio is doing
+   real, necessary unit correction as well as anatomical scaling), applied directly to the target root
+   bone's location channel.
+5. `bpy.ops.nla.bake(visual_keying=True, clear_constraints=True)` samples the fully-evaluated pose at
+   every frame into a clean action, then removes the constraints.
+6. Verified every frame is keyed: same shape check as `motion_bind_stage.py`'s `zero_or_thin_channels`
+   (`keyframes >= expected` and `totalDeltaRad > threshold`), applied to the BAKED action via the
+   Blender-5-layered-action-aware fcurve iterator.
+
+**Result: `verdict: "ok"` on all 3 seeds.** `driven: 137, real: 22` each — every one of the 22 paired
+bones carries the full 90 keyframes with real rotation delta, not the addon's 1-keyframe failure. This
+is the exact `zero_or_thin_channels` check that rejected every `motion_bind_stage.py` attempt in rounds
+1-2, now passing.
+
+**One real bug found and fixed while building this**: the station's first draft exported a stray
+default-scene `Cube` object into the output GLB (`--background --python` still loads the default
+startup scene unless `--factory-startup` is passed; confirmed via a raw glTF node scan of the first
+output — 151 nodes, one literally named "Cube"). Fixed by explicitly clearing the scene before
+importing the actor (`_clear_default_scene()`); re-verified the corrected output has no such node.
+
+## 3. Graft, measure, render
+
+**Graft**: `--output` already writes to a **new path in scratch** (`~/.openclinxr-wip/kimodo/round3/`),
+never touching the shipped `mpfb-clinical-physician-adult.glb`, with a new clip name per seed
+(`openclinxr_retarget_kimodo_bedside_seed<N>`) — this satisfies "graft as a new clip name onto a COPY
+... in scratch" directly as part of the station's own export step, no separate graft pass needed.
+
+**Foot slide, from the clip's own `foot_contacts` labels** (not the generic height-band heuristic
+`bound-clip-foot-track.ts` uses for clips with no contact data — exported per-frame boolean contact for
+6 points: L/R heel, toe, toe-end). Measurement script (scratch, not committed):
+`.openclinxr/kimodo-scratch/measure_kimodo_bind.ts`, using the existing `boundClipJointTrack` reader
+against `toe1-1.L`/`toe1-1.R` (the target rig's actual bone names for canonical `toe.L`/`toe.R`) for
+world position, and the clip's own toe-contact column to define stance windows.
+
+| seed | left-foot stance windows | left slide mean/max (m) | right-foot stance windows | right slide mean/max (m) | turn (root yaw, deg) |
+|---|---|---|---|---|---|
+| 42 | 3 | 0.377 / 0.612 | 3 | 0.336 / 0.507 | −89.0 |
+| 7 | 3 | 0.378 / 0.557 | 2 | 0.568 / 0.614 | −92.5 |
+| 1001 | 3 | 0.388 / 0.575 | 3 | 0.296 / 0.496 | −85.6 |
+
+**Turn matches the constraint closely (85.6-92.5° against a 90° target) across all 3 seeds — the
+constraint-to-bake pipeline correctly propagates the intended heading change end to end.**
+
+**Foot slide is large — 0.3-0.6 m per stance window, not a small numeric artifact.** This is a genuine,
+measured limitation of the method, not a bug to paper over: the Child-Of rotation-copy retarget has no
+foot-locking or IK correction, and the two rigs' limb-segment proportions differ (SOMA's generic
+proportions vs. the physician's specific MPFB build), so a foot the SOURCE model considers planted
+does not stay planted once the same rotations drive a different-proportioned skeleton. The shipped
+`openclinxr_retarget_walk_source` clip (bound through the addon, by hand, with real limb-proportion
+awareness baked into that specific retarget) has no comparably-measured contact-label-based number to
+compare against apples-to-apples (its own foot-plant evidence uses the height-band heuristic, not
+per-frame labels) — a fair comparison would need the same measurement method applied to both, not
+done here given time.
+
+**Render: mechanically produced, visually shows a real deformation problem.** Native 1024x768 EEVEE
+render of the actual skinned, bound GLB (not a bare armature — this time real cloth/skin geometry is
+visible). Two bugs hit and one fixed: (1) mesh `bound_box` returned stale unit-cube data for these
+skinned glTF imports in background mode — worked around by framing from pose-bone world positions
+instead, which are reliable; (2) **the resulting frame is upside-down and the pose shows visibly torn,
+displaced garment geometry with the arms spread to an anatomically implausible width** — a real,
+visible symptom of the Child-Of retarget's lack of twist-bone decomposition and joint-limit correction,
+not a rendering artifact. The camera-orientation bug was not fixed within this round's time; the
+deformation is not a rendering bug and would look the same right-side up. Frames:
+`~/.openclinxr-wip/kimodo/round3/preview-seed42/{first_f1,mid_f45,last_f90}.png` (scratch, not
+committed — regenerate with `.openclinxr/kimodo-scratch/render_bound_clip_preview.py`).
+
+## Round 3 verdict
+
+**Mechanically unblocked, visually not yet usable.** The `zero_or_thin_channels` gate that rejected
+every prior attempt now passes on all 3 seeds via a from-scratch Blender bake (Child-Of + `nla.bake`)
+that avoids the addon entirely, exactly as instructed. The turn constraint propagates correctly
+end-to-end (85.6-92.5° measured against a 90° target) and every frame is genuinely keyed. But the
+retarget quality itself — visible garment tearing, anatomically implausible arm spread, and 0.3-0.6 m
+of measured foot slide per stance window — is not close to what the shipped, addon-bound
+`openclinxr_retarget_walk_source` clip achieves. This is the honest state: a working bake pipeline
+producing a poor-quality result, not a finished clip ready to cast.
+
+**Not done, stated plainly:** the camera-orientation bug in the preview render; any comparison of foot
+slide against the shipped clip using the SAME measurement method; any attempt to improve retarget
+quality (twist-bone splitting, joint limits, or a proper foot-IK pass) beyond the single rest-pose
+Child-Of correction described above; qualitative/clinical judgment of whether this motion is usable at
+all in its current form (it visibly is not, on the arm-spread and clothing evidence alone).
+
+## claimScope / notEvidenceFor (round 3)
+
+**claimScope:** that `Root2DConstraintSet` position and heading constraints, built from the frozen
+scene plan's real route-length and approach-side fields, correctly drive `nv-tlabs/kimodo` generation
+end to end (measured, with one real convention bug caught and fixed); that a Child-Of-constraint +
+`bpy.ops.nla.bake` retarget produces a genuinely multi-frame-keyed clip on all 3 seeds where the
+addon's own bake could not (measured, `verdict: ok`, 22 real driven bones each); the measured turn
+angle and foot-slide-per-stance-window numbers for all 3 seeds, from the clip's own contact labels; the
+default-scene-Cube export bug found and fixed in the new station.
+
+**notEvidenceFor:** clinical or visual usability of the resulting clip (the render itself shows it is
+not usable as-is); any claim that Child-Of retargeting is an adequate long-term substitute for the
+addon's per-bone locks/limits or a proper IK-based foot-lock pass; the exact real-world correspondence
+between this constraint's straight-line-approximated route and the frozen plan's actual solved
+5-waypoint path (not recorded in the durable plan, so not reproducible exactly); any comparison of foot
+slide against the shipped clip (not measured with a common method); whether the leg-length-ratio root
+scaling is the right general technique for other clip/actor pairs, versus a fit specific to this one.
