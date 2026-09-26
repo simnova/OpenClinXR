@@ -1,6 +1,6 @@
 import { boundClipJointTrack } from "../evidence/foot-plant/bound-clip-foot-track.js";
-import { measureStanceGroundAdvance } from "../../../packages/openclinxr/xr-humanoid-animation/src/case-owned-approach-runtime-mod.js";
-import { FOOT_CONTACT_HEIGHT_METERS } from "../../../packages/openclinxr/asset-registry/src/approach-executor-mod.js";
+import { FOOT_CONTACT_HEIGHT_METERS } from "@openclinxr/asset-registry/approach-executor";
+import { measureStanceGroundAdvance } from "@openclinxr/xr-humanoid-animation/case-owned-approach-runtime";
 
 /**
  * Measure a bound clip's own stance-advance direction and speed, OFFLINE, using the SAME

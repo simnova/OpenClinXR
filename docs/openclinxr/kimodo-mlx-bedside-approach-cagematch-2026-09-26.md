@@ -45,7 +45,7 @@ Full detail and URLs are in `docs/openclinxr/third-party-asset-licence-ledger.md
 | component | licence | gated? | verified how |
 |---|---|---|---|
 | `NomaDamas/kimodo-mlx` (code) | MIT | n/a (public repo) | read `LICENSE` at the clone |
-| `nvidia/Kimodo-SOMA-RP-v1.1` (weights) | NVIDIA Open Model License, "ready for commercial use" | **No** — measured: unauthenticated `hf download` succeeded, unauthenticated `resolve/main/README.md` returns 200, HF API `"gated": false` | model card + repo `LICENSE` + HF API |
+| `nvidia/Kimodo-SOMA-RP-v1.1` (weights) | NVIDIA Open Model License, "ready for commercial use" | **No** — measured: unauthenticated `hf download` succeeded, an unauthenticated GET on its resolve/main/README.md path returns 200, HF API `"gated": false` | model card + repo `LICENSE` + HF API |
 | `LocalAI-io/Llama-3-Kimodo-GGML` (converted text encoder) | Meta Llama 3 Community License, compliant redistribution (ships `LICENSE-META-LLAMA-3.txt` + `NOTICE`) | **No** — `"gated": false`, unauthenticated download succeeded | HF API + repo files |
 | `meta-llama/Meta-Llama-3-8B-Instruct` (the underlying model the above converts) | Meta Llama 3 Community License | **Yes**, `"gated": "manual"` | HF API |
 | `localai-org/kimodo.cpp` (not used, re-checked in passing) | **Now Apache-2.0** — corrects the 2026-08-23 cagematch's "no licence file" finding | n/a | `gh api repos/localai-org/kimodo.cpp --jq .license` |
