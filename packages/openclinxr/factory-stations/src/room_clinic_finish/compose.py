@@ -2,7 +2,8 @@
 
 Reads the recipe JSON written by run.ts (--recipe-json), applies the palette
 to wall/trim mesh materials (matched by name), and creates one EMPTY per
-signage anchor at the wall positions. Never moves geometry; materials only.
+signage anchor at the wall positions. Emits finish geometry (T-bar grid,
+paneled door kit, crash rail, exit sign) as real meshes.
 
 Usage (spawned by run.ts, never by hand):
   blender --background --python compose.py -- --input work.glb --output work.glb \
@@ -85,15 +86,47 @@ def classify_mesh(name: str) -> str:
     return "other"
 
 
-def _emit_finish_geometry(seed: int = 7) -> dict:
-    """Build real finish meshes: T-bar grid, paneled door kit, crash rail, exit sign."""
+def _emit_finish_geometry(seed: int = 7, palette: dict | None = None) -> dict:
+    """Build real finish meshes: ceiling, floor, T-bar grid, paneled door kit, crash rail, exit sign."""
     import bpy  # type: ignore[import-not-found]
 
     TBAR_Z = 2.744
     created: list[str] = []
-    counts = {"tbar": 0, "door": 0, "rail": 0, "sign": 0}
+    counts = {"ceiling": 0, "floor": 0, "tbar": 0, "door": 0, "rail": 0, "sign": 0}
 
-    def new_box(name: str, x: float, y: float, z: float, dx: float, dy: float, dz: float) -> None:
+    def mat_for(name: str, albedo: list, roughness: float):
+        m = bpy.data.materials.get(name)
+        if m is None:
+            m = bpy.data.materials.new(name=name)
+            m.use_nodes = True
+        for n in m.node_tree.nodes:
+            if n.type == "BSDF_PRINCIPLED":
+                n.inputs["Base Color"].default_value = (float(albedo[0]), float(albedo[1]), float(albedo[2]), 1.0)
+                if "Roughness" in n.inputs:
+                    n.inputs["Roughness"].default_value = float(roughness)
+                break
+        return m
+
+    pal = palette or {}
+    rough = float(pal.get("roughness", 0.85))
+    trim_m = mat_for("openclinxr_finish_trim", pal.get("trimAlbedo", [0.96, 0.96, 0.94]), rough)
+    floor_m = mat_for("openclinxr_finish_floor", [0.62, 0.63, 0.60], 0.9)
+    tbar_m = mat_for("openclinxr_finish_tbar", [0.88, 0.89, 0.87], 0.6)
+    door_m = mat_for("openclinxr_finish_door", [0.55, 0.42, 0.30], 0.6)
+    rail_m = mat_for("openclinxr_finish_rail", [0.35, 0.55, 0.70], 0.5)
+    sign_m = mat_for("openclinxr_finish_sign", [0.9, 0.15, 0.1], 0.4)
+    sign_m.use_nodes = True
+    for n in sign_m.node_tree.nodes:
+        if n.type == "BSDF_PRINCIPLED":
+            emission = n.inputs.get("Emission Color")
+            if emission is not None:
+                emission.default_value = (0.9, 0.1, 0.08, 1.0)
+            strength = n.inputs.get("Emission Strength")
+            if strength is not None:
+                strength.default_value = 2.0
+            break
+
+    def new_box(name: str, x: float, y: float, z: float, dx: float, dy: float, dz: float, mat: object = None) -> None:
         mesh = bpy.data.meshes.new(name + "_mesh")
         obj = bpy.data.objects.new(name, mesh)
         bpy.context.scene.collection.objects.link(obj)
@@ -106,28 +139,35 @@ def _emit_finish_geometry(seed: int = 7) -> dict:
         faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
         mesh.from_pydata(verts, [], faces)
         mesh.update()
+        if mat is not None:
+            mesh.materials.append(mat)
         created.append(name)
 
+    # Ceiling tile field + vinyl floor close the shell
+    new_box("openclinxr_ceiling_field", 0.0, 0.0, TBAR_Z + 0.04, 6.0, 4.8, 0.05, trim_m)
+    counts["ceiling"] += 1
+    new_box("openclinxr_floor_field", 0.0, 0.0, -0.03, 6.0, 4.8, 0.05, floor_m)
+    counts["floor"] += 1
     # T-bar grid: 5 x 3 strips at ceiling height
     for ix in range(5):
         for iz in range(3):
-            new_box("openclinxr_tbar_%d_%d" % (ix, iz), -2.4 + ix * 1.2, -1.2 + iz * 1.2, TBAR_Z, 0.05, 2.4, 0.05)
+            new_box("openclinxr_tbar_%d_%d" % (ix, iz), -2.4 + ix * 1.2, -1.2 + iz * 1.2, TBAR_Z, 0.05, 2.4, 0.05, tbar_m)
             counts["tbar"] += 1
     # Paneled door kit: slab + 4 recessed-look panels + lever + kick plate
-    new_box("openclinxr_door_slab", 1.5, 0.0, 1.05, 0.08, 0.9, 2.1)
+    new_box("openclinxr_door_slab", 1.5, 0.0, 1.05, 0.08, 0.9, 2.1, door_m)
     counts["door"] += 1
     for iy in range(2):
         for iz in range(2):
-            new_box("openclinxr_door_panel_%d_%d" % (iy, iz), 1.54, -0.22 + iy * 0.44, 0.6 + iz * 0.9, 0.02, 0.36, 0.7)
+            new_box("openclinxr_door_panel_%d_%d" % (iy, iz), 1.54, -0.22 + iy * 0.44, 0.6 + iz * 0.9, 0.02, 0.36, 0.7, door_m)
             counts["door"] += 1
-    new_box("openclinxr_door_lever", 1.58, 0.32, 1.0, 0.04, 0.16, 0.04)
-    new_box("openclinxr_door_kick", 1.55, 0.0, 0.15, 0.02, 0.8, 0.25)
+    new_box("openclinxr_door_lever", 1.58, 0.32, 1.0, 0.04, 0.16, 0.04, trim_m)
+    new_box("openclinxr_door_kick", 1.55, 0.0, 0.15, 0.02, 0.8, 0.25, tbar_m)
     counts["door"] += 2
     # Crash rail along corridor wall
-    new_box("openclinxr_crash_rail", 0.0, -1.98, 0.9, 4.0, 0.08, 0.15)
+    new_box("openclinxr_crash_rail", 0.0, -1.98, 0.9, 4.0, 0.08, 0.15, rail_m)
     counts["rail"] += 1
     # Exit sign box above door
-    new_box("openclinxr_exit_sign", 1.5, 0.0, 2.3, 0.1, 0.4, 0.15)
+    new_box("openclinxr_exit_sign", 1.5, 0.0, 2.3, 0.1, 0.4, 0.15, sign_m)
     counts["sign"] += 1
     return {"meshes": created, "counts": counts, "tbarZ": TBAR_Z, "seed": seed}
 
@@ -168,11 +208,12 @@ def apply_finish() -> int:
     for obj in list(bpy.data.objects):
         if obj.type != "MESH":
             continue
-        kind = classify_mesh(obj.name)
-        target = wall_material if kind == "wall" else trim_material if kind == "trim" else None
-        if target is None:
-            painted["other"] += 1
+        # Emitted finish meshes already carry materials; only paint base-shell input.
+        if obj.name.startswith("openclinxr_"):
             continue
+        kind = classify_mesh(obj.name)
+        # Unclassified base shells (e.g. Infinigen "Cube") default to wall paint.
+        target = wall_material if kind in ("wall", "other") else trim_material
         data = obj.data
         if len(data.materials) == 0:
             data.materials.append(target)
@@ -190,7 +231,7 @@ def apply_finish() -> int:
         empty.empty_display_type = "PLAIN_AXES"
         stamped.append(empty_name)
 
-    emitted = _emit_finish_geometry(seed=int(recipe.get("seed", 7)))
+    emitted = _emit_finish_geometry(seed=int(recipe.get("seed", 7)), palette=palette)
 
     bpy.ops.wm.save_as_mainfile(filepath=args.output.replace(".glb", ".blend"))
     bpy.ops.export_scene.gltf(filepath=args.output, export_format="GLB")
