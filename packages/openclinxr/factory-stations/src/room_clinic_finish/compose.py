@@ -17,6 +17,13 @@ import sys
 
 RECIPE_SCHEMA_VERSION = "openclinxr.room-clinic-finish.v1"
 
+EXPECTED_MODULE_VERSIONS = {
+    "ceiling": "clinic-finish-ceiling-v1",
+    "floor": "clinic-finish-floor-v1",
+    "door": "clinic-finish-door-v1",
+    "corridor_cues": "clinic-finish-corridor-cues-v1",
+}
+
 TRIM_NAME_RE_PARTS = ("skirt", "casing", "door", "window", "trim", "baseboard")
 WALL_NAME_RE_PARTS = ("wall", "partition")
 
@@ -42,6 +49,21 @@ def load_recipe(recipe_path: str) -> dict:
     palette = recipe.get("palette")
     if not isinstance(palette, dict):
         raise ValueError("recipe.palette must be an object")
+    modules = recipe.get("modules")
+    if not isinstance(modules, list) or not modules:
+        raise ValueError("recipe.modules must be a non-empty list")
+    seen: set[str] = set()
+    for entry in modules:
+        if not isinstance(entry, dict):
+            raise ValueError("recipe.modules entries must be objects")
+        name = entry.get("module")
+        version = entry.get("version")
+        expected = EXPECTED_MODULE_VERSIONS.get(name) if isinstance(name, str) else None
+        if expected is None or version != expected or not isinstance(name, str):
+            raise ValueError("module %r must carry version %r, got %r" % (name, expected, version))
+        seen.add(name)
+    if seen != set(EXPECTED_MODULE_VERSIONS):
+        raise ValueError("recipe.modules must cover ceiling, floor, door, corridor_cues")
     for key in ("wallAlbedo", "trimAlbedo", "accentAlbedo"):
         albedo = palette.get(key)
         if (

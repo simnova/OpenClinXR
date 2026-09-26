@@ -34,12 +34,26 @@ export type RoomFinishPalette = {
   signageAnchors: string[];
 };
 
+export type RoomFinishModule = {
+  module: "ceiling" | "floor" | "door" | "corridor_cues";
+  version: string;
+};
+
+export const ROOM_FINISH_MODULES: RoomFinishModule[] = [
+  { module: "ceiling", version: "clinic-finish-ceiling-v1" },
+  { module: "floor", version: "clinic-finish-floor-v1" },
+  { module: "door", version: "clinic-finish-door-v1" },
+  { module: "corridor_cues", version: "clinic-finish-corridor-cues-v1" },
+];
+
 export type RoomFinishRecipe = {
   schemaVersion: typeof ROOM_CLINIC_FINISH_SCHEMA_VERSION;
   environmentId: string;
   preset: RoomFinishPreset;
   seed: number;
   palette: RoomFinishPalette;
+  modules: RoomFinishModule[];
+  light: { exposure: "xr"; floorResponse: "xt_matte" };
   finishPassLlm: false;
 };
 
@@ -111,6 +125,8 @@ export function parseRoomFinishRecipe(input: Record<string, unknown>): { issues:
         roughness: def.roughness,
         signageAnchors: [...def.signageAnchors],
       },
+      modules: ROOM_FINISH_MODULES.map((entry) => ({ ...entry })),
+      light: { exposure: "xr", floorResponse: "xt_matte" },
       finishPassLlm: false,
     },
   };
