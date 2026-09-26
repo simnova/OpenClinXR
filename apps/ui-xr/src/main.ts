@@ -4380,7 +4380,7 @@ function updateGeneratedHumanoidAnimations(
   drive?: GeneratedRuntimeDrive | null,
   locomotionOrders?: ReadonlyMap<string, LocomotionOrderInput> | null,
 ): void {
-  updatePackageGeneratedHumanoidAnimations(humanoidAnimationContext, deltaSeconds, nowMs, camera, drive ?? null, locomotionOrders ?? null);
+  updatePackageGeneratedHumanoidAnimations(humanoidAnimationContext, deltaSeconds, nowMs, camera, drive ?? null, locomotionOrders ?? null, window.__openClinXrDebugScene ?? null);
 }
 
 /** Capture-gated physics bone apply (#83 split from main for file-size freeze). */

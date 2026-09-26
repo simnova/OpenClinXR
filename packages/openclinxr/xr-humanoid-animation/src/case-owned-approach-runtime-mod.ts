@@ -335,19 +335,31 @@ export function createCaseOwnedBedsideApproach(input: {
  *
  * A full `ResolvedBedsideApproach` needs a `plan` (clearance-checked waypoints) and other bedside-
  * target fields that make sense for "walk to the patient's bedside" and not for an arbitrary order
- * -- so this builds the MINIMAL valid one: `planBedsideApproach` with `obstacles: []` (clearance
- * checking is out of scope for an order-driven walk; `notEvidenceFor` says so), and placeholder
- * values for the bedside-specific bookkeeping fields (`standoffMeters: 0`, `approachSide:
- * "patient_left"`, no swept/working clearance violations, no monitor visibility) that
+ * -- so this builds the MINIMAL valid one: `planBedsideApproach` against the caller's REAL observed
+ * obstacles (see `input.geometry.obstacles` below -- CHANGED 2026-09-26, was `obstacles: []`;
+ * measured on scene_closure's nurse walking straight through the white shelving unit with no check
+ * at all), and placeholder values for the bedside-specific bookkeeping fields (`standoffMeters: 0`,
+ * `approachSide: "patient_left"`, no swept/working clearance violations, no monitor visibility) that
  * `createCaseOwnedBedsideApproach`/`advanceCaseOwnedBedsideApproach` never branch on for a route
  * that carries no violations. `geometryRevision` is set equal to `observedGeometryRevision` --
  * an order has no PERSISTED frozen plan to go stale against, so it is always "current" by
  * construction, and `beginBedsideApproachExecution`'s revision-match check passes trivially.
  *
+ * A STRAIGHT LINE THAT CLIPS AN OBSTACLE REFUSES HERE, FOR FREE. `createCaseOwnedBedsideApproach`'s
+ * own `beginBedsideApproachExecution` call already refuses when `plan.pathViolations.length > 0` or
+ * `!plan.arrivesAtTarget` -- that refusal path existed and was simply never reachable while
+ * `obstacles` was hardcoded empty. Routing AROUND a blocked straight line (the grid-A*, waypoint-
+ * polyline case) is the caller's job: `locomotion-order-mod.ts`'s `stepLocomotionOrders` computes
+ * the corner sequence with `order-route-planner-mod.ts` and calls this function once per LEG,
+ * reusing this same straight-line, footprint-checked producer for each corridor between two
+ * corners rather than teaching this function a second, multi-segment geometry.
+ *
  * claimScope: the SAME producer (`createCaseOwnedBedsideApproach`) driving an arbitrary actor
  * toward an arbitrary target, sharing its stance-lock integration, clip time-scale coupling and
- * settling/arrival machinery with the frozen-plan physician.
- * notEvidenceFor: obstacle avoidance or clearance checking for the ordered route (obstacles: []).
+ * settling/arrival machinery with the frozen-plan physician, now checked against the caller's real
+ * obstacle footprints for the ONE LEG (straight line) it is asked to walk.
+ * notEvidenceFor: 3D navigation, dynamic obstacles, or that the ordered route is short -- a long
+ * detour around several obstacles is still walked one straight, checked leg at a time.
  */
 export function createCaseOwnedApproachForOrder(input: {
   actorId: string;
@@ -406,7 +418,7 @@ export function createCaseOwnedApproachForOrder(input: {
     z: input.target.z + (input.target.z - input.start.z),
   };
   const routeHeadingRadians = Math.atan2(input.target.x - input.start.x, input.target.z - input.start.z);
-  const plan = planBedsideApproach({ from: input.start, target: input.target, facing, obstacles: [] });
+  const plan = planBedsideApproach({ from: input.start, target: input.target, facing, obstacles: input.geometry.obstacles });
   const intent: ResolvedBedsideApproach = {
     refused: false,
     physicianActorId: input.actorId,

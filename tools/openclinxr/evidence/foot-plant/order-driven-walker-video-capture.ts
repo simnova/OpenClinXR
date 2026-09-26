@@ -144,6 +144,20 @@ const CAPTURE_ONLY_ACTOR_ROLE: Record<string, string> = {
   senior_resident_ward_v1: "physician",
 };
 
+/** `--target-offset=x,z` overrides the injected order's target, for proving routing/refusal
+ * against a specific real fixture rather than the default proof target. */
+function captureOnlyTargetOffset(): { x: number; z: number } {
+  const flag = process.argv.find((arg) => arg.startsWith("--target-offset="));
+  if (!flag) return { x: 1.2, z: 0 };
+  const [xRaw, zRaw] = flag.slice("--target-offset=".length).split(",");
+  const x = Number(xRaw);
+  const z = Number(zRaw);
+  if (!Number.isFinite(x) || !Number.isFinite(z)) {
+    throw new Error(`--target-offset must be "x,z" (got ${JSON.stringify(flag)})`);
+  }
+  return { x, z };
+}
+
 function withCaptureOnlyLocomotionOrder(bundleJson: string, actorId: string): string {
   const role = CAPTURE_ONLY_ACTOR_ROLE[actorId];
   if (!role) {
@@ -153,7 +167,7 @@ function withCaptureOnlyLocomotionOrder(bundleJson: string, actorId: string): st
   }
   const bundle = JSON.parse(bundleJson) as { sceneManifest: { locomotionOrders?: unknown } };
   bundle.sceneManifest.locomotionOrders = [
-    { actorRole: role, targetOffsetMeters: { x: 1.2, z: 0 }, ageYears: 46, buildKey: "average" },
+    { actorRole: role, targetOffsetMeters: captureOnlyTargetOffset(), ageYears: 46, buildKey: "average" },
   ];
   return `${JSON.stringify(bundle, null, 2)}\n`;
 }
@@ -390,16 +404,27 @@ async function main(): Promise<void> {
     const pinMs = (await dryPage.evaluate(() => Date.now())) as number;
     await dryPage.clock.pauseAt(pinMs + 2000);
     const bounds = await measureRouteBounds(dryPage, actorId);
+    const refusalReason = await dryPage.evaluate((id: string) => {
+      const byActor = (globalThis as Record<string, unknown>)["__openClinXrLocomotionOrderRefusals"] as
+        | Record<string, string>
+        | undefined;
+      return byActor?.[id] ?? null;
+    }, actorId);
     await dryPage.close();
     process.stdout.write(`[dry] route bounds: ${JSON.stringify(bounds)}\n`);
+    if (refusalReason !== null) {
+      process.stdout.write(`[dry] REFUSED for "${actorId}": ${refusalReason}\n`);
+    }
     if (Number.isNaN(bounds.startX)) {
-      // No locomotion order ran (`--no-inject-order`, or a shipped bundle that authors none):
+      // No locomotion order ran (`--no-inject-order`, a shipped bundle that authors none, or a
+      // named refusal above -- e.g. no clear straight or routed path to an impossible target):
       // zero toe samples were published, so there is no route to frame a camera on. This IS the
-      // proof `--no-inject-order` exists to produce -- report it plainly instead of crashing on
-      // a NaN camera pose.
+      // proof `--no-inject-order` (and a refused order) exists to produce -- report it plainly
+      // instead of crashing on a NaN camera pose.
       process.stdout.write(
         `[dry] no walk observed for "${actorId}" -- shipped bundle authors no locomotionOrders `
-          + "entry for this actor (or --no-inject-order was passed). Nothing to record.\n",
+          + "entry for this actor, --no-inject-order was passed, or the injected order was refused "
+          + "(see REFUSED line above, if any). Nothing to record.\n",
       );
       return;
     }

@@ -3,8 +3,8 @@ import {
   type HumanoidAnimationRuntimeContext,
   updateGeneratedHumanoidAnimations,
 } from "@openclinxr/xr-humanoid-animation";
-import { Group } from "three";
-import { describe, expect, it, vi } from "vitest";
+import { BoxGeometry, Group, Mesh, MeshBasicMaterial } from "three";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 /**
  * Exercises `locomotion-order-mod.ts` (`stepLocomotionOrders` / `applyLocomotionOrderStanceLocks`
@@ -106,6 +106,39 @@ function fakeSlot(actorId: string, startX: number, startZ: number): GeneratedHum
 
 const CAMERA = { position: { x: 0, y: 0, z: 5 } } as unknown as Parameters<typeof updateGeneratedHumanoidAnimations>[3];
 
+/** A floor slab `observeMountedApproachGeometry` recognises: an `environmentId` plus a policy
+ * string containing "floor". Real `BoxGeometry` so `Box3().setFromObject` reads a real extent. */
+function floorSlab(): Mesh {
+  const floor = new Mesh(new BoxGeometry(20, 0.1, 20), new MeshBasicMaterial());
+  floor.position.set(0, -0.05, 0);
+  floor.userData = { environmentId: "test_env", openClinXrSceneNecessityPolicy: "floor" };
+  return floor;
+}
+
+/** One obstacle `observeMountedApproachGeometry` picks up: a fixture slot under the environment. */
+function obstacleBox(id: string, centerX: number, centerZ: number, sizeX: number, sizeZ: number): Mesh {
+  const box = new Mesh(new BoxGeometry(sizeX, 1.2, sizeZ), new MeshBasicMaterial());
+  box.position.set(centerX, 0.6, centerZ);
+  box.userData = { fixtureSlotId: id };
+  return box;
+}
+
+function sceneWithObstacles(obstacles: Mesh[]): Group {
+  const root = new Group();
+  root.userData = { environmentId: "test_env" };
+  root.add(floorSlab());
+  for (const obstacle of obstacles) root.add(obstacle);
+  root.updateMatrixWorld(true);
+  return root;
+}
+
+type Refusals = Record<string, string>;
+type EvidenceHost = { __openClinXrLocomotionOrderEvidenceEnabled?: boolean; __openClinXrLocomotionOrderRefusals?: Refusals };
+
+function evidenceHost(): EvidenceHost {
+  return globalThis as unknown as EvidenceHost;
+}
+
 describe("locomotionOrders (updateGeneratedHumanoidAnimations)", () => {
   it("refuses an order for an actor whose clip speed cannot be measured (no bound clip on the fake slot), without throwing", () => {
     const slot = fakeSlot("nurse", 0, 0);
@@ -139,5 +172,65 @@ describe("locomotionOrders (updateGeneratedHumanoidAnimations)", () => {
     const ctx = stubContext([slot]);
     expect(() => updateGeneratedHumanoidAnimations(ctx, 1 / 30, 0, CAMERA, null, null)).not.toThrow();
     expect(slot.actorSlot.position.x).toBe(1);
+  });
+});
+
+describe("locomotionOrders obstacle validation (2026-09-26: orders must never walk through fixtures)", () => {
+  afterEach(() => {
+    delete evidenceHost().__openClinXrLocomotionOrderEvidenceEnabled;
+    delete evidenceHost().__openClinXrLocomotionOrderRefusals;
+  });
+
+  it("refuses with a named reason when the target is fully enclosed and no straight or routed path exists", () => {
+    evidenceHost().__openClinXrLocomotionOrderEvidenceEnabled = true;
+    // A closed ring of obstacles around (5, 5): north/south each span the FULL outer width and
+    // east/west each span the FULL outer height, so every corner is doubly covered -- no diagonal
+    // gap at a corner the way two same-length perpendicular strips would leave. The target sits in
+    // a sealed room with no doorway.
+    const ring = [
+      obstacleBox("wall_n", 5, 6.0, 2.6, 0.6),
+      obstacleBox("wall_s", 5, 4.0, 2.6, 0.6),
+      obstacleBox("wall_e", 6.0, 5, 0.6, 2.6),
+      obstacleBox("wall_w", 4.0, 5, 0.6, 2.6),
+    ];
+    const scene = sceneWithObstacles(ring);
+    const slot = fakeSlot("boxed_in_actor", 0, 0);
+    const ctx = stubContext([slot]);
+    const orders = new Map([["boxed_in_actor", { target: { x: 5, z: 5 } }]]);
+    expect(() => updateGeneratedHumanoidAnimations(ctx, 1 / 30, 0, CAMERA, null, orders, scene)).not.toThrow();
+    const reason = evidenceHost().__openClinXrLocomotionOrderRefusals?.["boxed_in_actor"];
+    expect(reason).toBeDefined();
+    expect(reason).toContain("no clear path");
+    expect(reason).toContain("4 observed obstacle(s)");
+    // A refused order never moves the actor.
+    expect(slot.actorSlot.position.x).toBe(0);
+    expect(slot.actorSlot.position.z).toBe(0);
+  });
+
+  it("does NOT report a no-path refusal when a routed detour exists around a single mid-route obstacle", () => {
+    evidenceHost().__openClinXrLocomotionOrderEvidenceEnabled = true;
+    // One obstacle square in the middle of the straight line from (0,0) to (3,0), with clear room
+    // to route around it on either side -- a detour exists.
+    const obstacle = obstacleBox("cart_mid_route", 1.5, 0, 0.6, 0.6);
+    const scene = sceneWithObstacles([obstacle]);
+    const slot = fakeSlot("detour_actor", 0, 0);
+    const ctx = stubContext([slot]);
+    const orders = new Map([["detour_actor", { target: { x: 3, z: 0 } }]]);
+    expect(() => updateGeneratedHumanoidAnimations(ctx, 1 / 30, 0, CAMERA, null, orders, scene)).not.toThrow();
+    // The fake slot has no bound clip, so leg construction itself never runs (and never publishes
+    // a refusal) -- what this test guards is that the NO-PATH reason specifically was never
+    // published, because a detour around this single obstacle does exist.
+    const reason = evidenceHost().__openClinXrLocomotionOrderRefusals?.["detour_actor"] ?? "";
+    expect(reason).not.toContain("no clear path");
+  });
+
+  it("does NOT publish a no-path refusal for a straight route with no obstacles at all (unchanged behaviour)", () => {
+    evidenceHost().__openClinXrLocomotionOrderEvidenceEnabled = true;
+    const scene = sceneWithObstacles([]);
+    const slot = fakeSlot("clear_route_actor", 0, 0);
+    const ctx = stubContext([slot]);
+    const orders = new Map([["clear_route_actor", { target: { x: 3, z: 0 } }]]);
+    expect(() => updateGeneratedHumanoidAnimations(ctx, 1 / 30, 0, CAMERA, null, orders, scene)).not.toThrow();
+    expect(evidenceHost().__openClinXrLocomotionOrderRefusals?.["clear_route_actor"]).toBeUndefined();
   });
 });

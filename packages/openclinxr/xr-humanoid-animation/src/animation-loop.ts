@@ -13,7 +13,7 @@ import {
   reapplySupineHeadToStoredPillow,
 } from "@openclinxr/xr-pose";
 import { generatedDriveScalar } from "@openclinxr/xr-runtime-state";
-import type { PerspectiveCamera } from "three";
+import type { Object3D, PerspectiveCamera } from "three";
 import {
   applyHumanoidFaceRigControls,
   applyHumanoidMorphTargetCue,
@@ -106,11 +106,17 @@ export function updateGeneratedHumanoidAnimations(
    * below; the stance lock for these actors runs AFTER the per-slot loop (see end of function).
    */
   locomotionOrders?: ReadonlyMap<string, LocomotionOrderInput> | null,
+  /**
+   * The running scene root, for real obstacle observation (`observeMountedApproachGeometry`).
+   * A plain parameter, not a `HumanoidAnimationRuntimeContext` field: that context's frozen
+   * `arch-ceiling.json` field count is a shrink-only ratchet already over its normal budget.
+   */
+  locomotionOrdersScene?: Object3D | null,
 ): void {
   let drive: HumanoidRuntimeDrive | ReadonlyMap<string, HumanoidRuntimeDrive> | null = driveInput ?? null;
   if (locomotionOrders && locomotionOrders.size > 0) {
     const slotsByActorId = new Map(ctx.slots.map((slot) => [slot.actorId, slot] as const));
-    const orderDrives = stepLocomotionOrders(locomotionOrders, slotsByActorId, locomotionOrderRegistry, nowMs, deltaSeconds);
+    const orderDrives = stepLocomotionOrders(locomotionOrders, slotsByActorId, locomotionOrderRegistry, nowMs, deltaSeconds, locomotionOrdersScene ?? undefined);
     if (orderDrives.size > 0) {
       const merged = new Map<string, HumanoidRuntimeDrive>(orderDrives);
       if (drive instanceof Map) {
