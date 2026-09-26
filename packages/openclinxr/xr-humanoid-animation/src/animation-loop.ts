@@ -17,6 +17,7 @@ import type { PerspectiveCamera } from "three";
 import {
   applyHumanoidFaceRigControls,
   applyHumanoidMorphTargetCue,
+  applyHumanoidRestBlink,
   computeAffectRampIntensity,
   computeHumanoidEyeMotionMetrics,
   normalizeHumanoidAnimationAngle,
@@ -24,7 +25,6 @@ import {
   roundHumanoidExpressionWeights,
   updateHumanoidEmotionExpression,
   visemeOpenness,
-  applyHumanoidRestBlink,
 } from "./face-rig.js";
 import { buildHumanoidSpeechEvidence, resolveHumanoidGazeTargetWorld, updateHumanoidGazeCue, updateVirtualDeviceActorSpeechPulses } from "./gaze-evidence.js";
 import { playLocomotionClip } from "./locomotion-clip-playback.js";
@@ -143,8 +143,14 @@ export function updateGeneratedHumanoidAnimations(
     const emotionalSway = Math.sin(t * 0.43) * 0.012;
     const dialogueWeightShift = isSpeaking ? Math.sin(t * 3.1) * 0.008 : 0;
     const pediatricAsthmaOverlay = pediatricAsthmaActingOverlayForSlot(ctx, slot, t, isSpeaking);
+    // `drive.actorId`, when set, scopes the LOCOMOTION effect to the one slot this drive was
+    // computed for — see `HumanoidRuntimeDrive.actorId`'s own header for why this guard exists.
+    // Gaze and viseme stay unscoped (unchanged): those were never gated on a clip the OTHER
+    // actors have only just started carrying, so binding the walk clip onto them did not turn a
+    // previously-safe shared value into a newly-unsafe one for those two.
+    const locomotionAppliesToThisSlot = drive?.actorId === undefined || drive.actorId === slot.actorId;
     if (drive && !isSupineFrame) {
-      const locomotion = generatedDriveScalar(drive.locomotion);
+      const locomotion = locomotionAppliesToThisSlot ? generatedDriveScalar(drive.locomotion) : null;
       if (locomotion !== null) {
         // A retargeted locomotion take, when the actor has one, drives the LEGS. Sliding the root
         // is what this line did unconditionally, and it is the ~100% foot slide the approach

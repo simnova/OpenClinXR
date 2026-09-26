@@ -77,6 +77,20 @@ export type GeneratedHumanoidAnimationSlot = {
 };
 
 export type HumanoidRuntimeDrive = {
+  /**
+   * MEASURED 2026-09-25. This ONE drive object is applied, unscoped, to every slot in
+   * `updateGeneratedHumanoidAnimations`'s loop (`animation-loop.ts`) — before the walk-clip bind,
+   * that was safe by ACCIDENT rather than by design: only the physician ever carried a
+   * `locomotionClipName`, so `playLocomotionClip` could only ever find a playable clip on the
+   * physician's own slot. Binding the same clip onto the OTHER scene_closure actors
+   * (nurse/family/patient, per the walk-clip-all factory step) removed that accident: any actor
+   * now sharing this drive's non-null `locomotion` AND carrying a locomotion clip would start
+   * stepping in place too, whether or not that actor is the one this drive was computed for.
+   * `actorId`, when set, scopes the locomotion effect (both the clip-play branch and its
+   * no-clip fallback) to exactly that slot; absent (the pre-existing default) preserves the old,
+   * unscoped behaviour for any caller that has not adopted it yet.
+   */
+  actorId?: string | undefined;
   locomotion?: GeneratedDriveScalarInput;
   /**
    * Multiplies the locomotion clip's derived playback rate. Absent/null means 1 (the normal

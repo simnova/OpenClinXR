@@ -3486,7 +3486,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       },
       { nowMs: now, deltaSeconds },
     ) : null;
-    floor.userData.genDrive = approachFrame ? { locomotion: approachFrame.locomotion, locomotionTimeScaleFactor: approachFrame.locomotionTimeScaleFactor, locomotionLegWeight: approachFrame.locomotionLegWeight, driveSource: approachFrame.driveSource } : floor.userData.genDrive;
+    floor.userData.genDrive = approachFrame ? { actorId: runtimeAdditionalActorId() /* HumanoidRuntimeDrive.actorId */, locomotion: approachFrame.locomotion, locomotionTimeScaleFactor: approachFrame.locomotionTimeScaleFactor, locomotionLegWeight: approachFrame.locomotionLegWeight, driveSource: approachFrame.driveSource } : floor.userData.genDrive;
     const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
     const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);
     syncPreparedActorAudio(now); updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid);
