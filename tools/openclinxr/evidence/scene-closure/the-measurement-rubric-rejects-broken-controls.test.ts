@@ -176,7 +176,10 @@ describe("the measurement rubric rejects broken controls", () => {
     // ---------------------------------------------------------------- the oracle has no pass flag
     // The only producer-authored assertion the rubric accepts is `clipDeclaredPlayed`, and it
     // exists so the rubric can contradict it. A still track labelled as a played walk fails.
-    const flagged = { ...good, clipDeclaredPlayed: true, clipName: "openclinxr_retarget_walk_formal_cc0" };
+    // The name here is an arbitrary label (this is `good` unmodified except for the flag and name,
+    // not a GLB decode), updated to the clip the physician GLB actually ships so it stops reading as
+    // a reference to the retired openclinxr_retarget_walk_formal_cc0 clip.
+    const flagged = { ...good, clipDeclaredPlayed: true, clipName: "openclinxr_retarget_walk_source" };
     expect(gradeMotionMeasurement(flagged).failedMetrics).toStrictEqual(["clip-motion-observed"]);
 
     // ---------------------------------------------------------------- the SHIPPED clip FAILS

@@ -42,7 +42,13 @@ import {
 
 export const SHIPPED_PHYSICIAN_GLB = "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb";
 export const SHIPPED_PATIENT_GLB = "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb";
-export const SHIPPED_WALK_CLIP = "openclinxr_retarget_walk_formal_cc0";
+// MEASURED 2026-09-26, pre-existing and unrelated to this card's own work: the physician's shipped
+// walk clip was renamed to `openclinxr_retarget_walk_source` in 90f179882 (walk_formal_cc0 was
+// retired the same commit), and this constant was never updated here — so `shippedWalkMeasurement`
+// failed with "no clip named openclinxr_retarget_walk_formal_cc0" on the already-committed tree,
+// before any change in this slice. The same staleness was fixed for SC-05's own copy of this
+// constant in 7d71273e3. Corrected to the clip the physician GLB actually carries.
+export const SHIPPED_WALK_CLIP = "openclinxr_retarget_walk_source";
 export const SHIPPED_IDLE_CLIP = "ClinicalIdleConversation";
 export const SHIPPED_CONTACT_JOINTS = ["toe1-1.L", "toe1-1.R"] as const;
 
@@ -199,8 +205,13 @@ export async function shippedWalkMeasurement(groundAdvanceMetersPerSecond: numbe
     floorOriginY: SELECTED_FLOOR_FRAME.originY,
     floorFrameId: SELECTED_FLOOR_FRAME.frameId,
     groundAdvanceMetersPerSecond,
-    // Measured off the clip's own longest stance window: it walks very nearly along -Z.
-    forward: { x: -0.0122, z: -0.9999 },
+    // MEASURED (current, on openclinxr_retarget_walk_source): off the right toe's longest stance
+    // window (12 frames, 0.383 m travel vs the left toe's 11 frames / 0.351 m), via
+    // stanceDerivedGroundAdvance — it walks very nearly along +Z. The retired
+    // openclinxr_retarget_walk_formal_cc0 clip's longest window walked along -Z instead
+    // ({ x: -0.0122, z: -0.9999 }, preserved here as history, not as today's direction); the two
+    // clips are unrelated retargets and there is no reason to expect the same heading.
+    forward: { x: 0.0209, z: 0.9998 },
     clipDeclaredPlayed: true,
   });
   return { ...walk, support: good.support, supportedContactSamples: good.supportedContactSamples, route: good.route, arrival: good.arrival, settled: good.settled };
@@ -450,7 +461,9 @@ export async function buildRubricControls(): Promise<RubricControl[]> {
 
   controls.push({
     controlId: "shipped-walk-formal-fails-foot-slide",
-    trigger: `the SHIPPED openclinxr_retarget_walk_formal_cc0 clip on the shipped physician GLB, graded at the executor's ${CLINICIAN_WALK_SPEED_MPS} m/s advance. This is not a damaged control: it is the asset SC-04 landed, and it fails.`,
+    // controlId keeps its original "walk-formal" name for continuity with existing evidence
+    // artifacts and reports keyed on it; the trigger text below names the clip actually measured.
+    trigger: `the SHIPPED ${SHIPPED_WALK_CLIP} clip on the shipped physician GLB, graded at the executor's ${CLINICIAN_WALK_SPEED_MPS} m/s advance. This is not a damaged control: it is the asset the physician GLB currently ships, and it fails.`,
     expectation: { kind: "fail", metric: "foot-slide" },
     measurement: await shippedWalkMeasurement(CLINICIAN_WALK_SPEED_MPS),
   });

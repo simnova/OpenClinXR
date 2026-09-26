@@ -126,7 +126,11 @@ async function main(): Promise<void> {
 
   // The shipped clip, graded at both advances, written out so the verdict is retrievable bytes.
   const executorGrade = gradeMotionMeasurement(await shippedWalkMeasurement(CLINICIAN_WALK_SPEED_MPS));
-  const clipOwnGrade = gradeMotionMeasurement(await shippedWalkMeasurement(0.6764));
+  // MEASURED (current, on openclinxr_retarget_walk_source): the right toe's longest-stance-window
+  // speed (see rubric-controls.ts's forward comment), rounded to 4 places to match this file's prior
+  // convention. Was 0.6764 for the retired openclinxr_retarget_walk_formal_cc0 clip; that number is
+  // not comparable, since it came from a different clip's own stance window.
+  const clipOwnGrade = gradeMotionMeasurement(await shippedWalkMeasurement(0.8353));
   const physicianCensus = await censusSkinnedGeometry(SHIPPED_PHYSICIAN_GLB);
   const patientCensus = await censusSkinnedGeometry(SHIPPED_PATIENT_GLB);
   writeFileSync(
@@ -140,7 +144,7 @@ async function main(): Promise<void> {
         glbSha256: sha256(readFileSync(SHIPPED_PHYSICIAN_GLB)),
         clipName: SHIPPED_WALK_CLIP,
         atExecutorAdvance: { metersPerSecond: CLINICIAN_WALK_SPEED_MPS, ok: executorGrade.ok, failedMetrics: executorGrade.failedMetrics, findings: executorGrade.findings },
-        atClipOwnStanceAdvance: { metersPerSecond: 0.6764, ok: clipOwnGrade.ok, failedMetrics: clipOwnGrade.failedMetrics, findings: clipOwnGrade.findings },
+        atClipOwnStanceAdvance: { metersPerSecond: 0.8353, ok: clipOwnGrade.ok, failedMetrics: clipOwnGrade.failedMetrics, findings: clipOwnGrade.findings },
         skinnedGeometry: { physician: physicianCensus, patient: patientCensus },
       },
       null,
@@ -387,7 +391,7 @@ async function main(): Promise<void> {
         "No Pages push and no public claim. The perceptual floor is derived from the capture camera's framing, not from any published capture.",
       ],
       unresolvedDefects: [
-        "THE SHIPPED LOCOMOTION CLIP FAILS THIS RUBRIC. openclinxr_retarget_walk_formal_cc0 on the shipped physician violates foot-slide at both the executor's 1.1 m/s advance and the clip's own 0.676 m/s stance-derived advance, by 8.0x and 20.0x on worst-frame slide for the left and right toe. It satisfies the other sixteen metrics. SC-05 owns the repair; the rubric was not widened to admit it.",
+        "THE SHIPPED LOCOMOTION CLIP FAILS THIS RUBRIC. openclinxr_retarget_walk_formal_cc0 on the shipped physician violates foot-slide at both the executor's 1.1 m/s advance and the clip's own 0.676 m/s stance-derived advance, by 8.0x and 20.0x on worst-frame slide for the left and right toe. It satisfies the other sixteen metrics. SC-05 owns the repair; the rubric was not widened to admit it. MEASURED (current, on openclinxr_retarget_walk_source at 859dadb1b, after the physician GLB's shipped clip was renamed in 90f179882 and walk_formal_cc0 was retired the same commit): the 8.0x/20.0x figures above describe the RETIRED clip and are not evidence about the clip shipped today, which is a different retarget with a different stance window. The shipped openclinxr_retarget_walk_source clip STILL FAILS foot-slide and nothing else, but by a smaller margin: worst-frame slide is 2.9x (left toe) and 2.7x (right toe) the 0.005 m allowance at the executor's 1.1 m/s advance, and 1.2x (left) / 1.05x (right) at the clip's own 0.8353 m/s stance-derived advance. SC-05 still owns the repair; the rubric was not widened to admit it.",
         "The retired CMU 02_01 clip would also have failed: sc-04.json records its worst single-frame slide at 0.0181 m, 3.6x the 0.005 m allowance. No locomotion clip this pipeline has produced meets the plant threshold, so SC-05's remedy is foot-lock IK or an equivalent stance constraint, not a different clip.",
         "mpfb-peds-parent-aisha.motion-bind.glb carries the same glTF-source orientation defect SC-04 found and fixed in its own bind path. Outside SC-00's scope and recorded so it is not rediscovered.",
         "Support, route, arrival and settled heading have no shipped producer at this baseline. Their controls supply those sections from real measured dimensions and are labelled instrument controls; they are not evidence that any placement or run occurred.",
