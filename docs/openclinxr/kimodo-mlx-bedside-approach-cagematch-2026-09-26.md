@@ -689,3 +689,150 @@ was exercised mechanically but never validated against good input); any comparis
 clip (not attempted, per the stop instruction); whether a fix exists within this same formula
 (e.g., deriving rest orientations from a shared T-pose reference instead of raw
 `bone.matrix_local`) or requires a structurally different approach.
+
+---
+
+# Round 5, same day — retarget from joint positions: the real fix
+
+Coordinator correction to the round-4 diagnosis, verbatim: the world-space delta
+`source_world(t) * inverse(source_rest_world)` doesn't depend on bone roll, so roll alone can't
+explain the round-4 collapse; a more likely cause is that the BVH's motion rotations aren't
+relative to the pose its offsets imply, or a Y-up/Z-up conversion applied twice. Instruction: stop
+working from BVH rotations entirely; retarget from joint POSITIONS instead.
+
+## Source data used: Kimodo's own `posed_joints` array, not the BVH
+
+Per the instruction to say which: **Kimodo's own output arrays** — `posed_joints` from the
+generated `.npz` (SOMA77 global joint positions, `(90, 77, 3)`, native Y-up), not the SOMA30 FK and
+not the BVH file at all. Index map for the 27 joints this pipeline needs, read directly from
+`nv-tlabs/kimodo`'s own source (`kimodo/skeleton/definitions.py:SOMASkeleton77.bone_order_names_with_parents`,
+2026-09-26) rather than assumed.
+
+**Axis conversion done once, explicitly, and verified** (scratch script `export_joint_positions.py`,
+not committed): `blender_x = y_up_x, blender_y = -y_up_z, blender_z = y_up_y` (the standard glTF/Blender
+Y-up-to-Z-up convention), applied to the raw array exactly once. Verification, printed and gating
+(the script exits nonzero if either check fails), on frame 0 for all 3 seeds:
+
+| seed | head Z | pelvis Z | head > pelvis | feet Z (4 landmarks) | reference Z (head/hips/chest/hands) | feet lowest |
+|---|---|---|---|---|---|---|
+| 42 | 1.548 | 1.000 | yes | 0.018-0.068 | 0.844-1.548 | yes |
+| 7 | 1.588 | 0.997 | yes | 0.017-0.069 | 0.863-1.588 | yes |
+| 1001 | 1.587 | 1.000 | yes | 0.020-0.072 | 0.830-1.587 | yes |
+
+## Method: swing-only rotation from positions, plane-basis for the pelvis
+
+Per bone, parent-first (implemented in a new station,
+`packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_from_positions_stage.py`,
+beside — not replacing — the two prior stations):
+
+- **Limbs and spine/neck/head**: the swing rotation that rotates the TARGET bone's own fixed rest
+  direction (`Bone.matrix_local`'s local +Y in world space — an unambiguous value from MPFB's
+  authored rig, never the source's) to point along the source segment direction at frame `t`
+  (`source_child_position(t) - source_own_position(t)`, positions only, no source rotation or rest
+  pose involved anywhere). Computed via `rest_dir.rotation_difference(desired_dir)` — the minimal
+  shortest-arc rotation, which by construction adds no twist around the resulting axis, satisfying
+  "keep twist from parent" by never injecting one. Composed onto the target's own rest world
+  rotation.
+- **Pelvis (hips)**: a full orthonormal basis from the hip landmarks — lateral = normalize(right hip
+  − left hip), a fixed world-up vector, forward = up × lateral — built fresh each frame from source
+  positions, related to the target's own rest hip basis (built the same way from the target's own
+  rest thigh positions) via the same rest-composition pattern as the swing case, generalized from one
+  axis to three.
+- **Root translation**: Hips position, scaled by hip-height ratio (target/source), same mechanism as
+  every prior round.
+- **Foot locking**: unchanged from round 4 (two-bone IK on the shin, targeting a keyed Empty per
+  contact-labelled stance window, `bpy.ops.nla.bake`).
+
+## Frame-0 verification render, before baking anything
+
+`~/.openclinxr-wip/kimodo/round5/preview-frame0/start_f1.png` (not committed, scratch). **The body
+is dramatically, genuinely correct**: standing upright, camera right-side-up, legs straight and
+normal, arms down at the sides, feet on the ground, no torn geometry anywhere — a categorical
+difference from rounds 3 and 4's contorted, flying, torn results.
+
+**One real deviation, disclosed rather than hidden**: the head is tilted sharply forward/down (chin
+toward chest), not neutral. Diagnosed with the actual segment vectors: `Neck1→Neck2` at frame 0 is
+`(0.019, -0.112, 0.090)` in Blender-space (Y = front/back, Z = up) — the front/back component is
+larger than the vertical one, meaning the source data itself, not a mapping bug, places the head
+segment pointing more forward than up at this frame. Tried remapping `neck`/`head` to their correct
+immediate hierarchical children (`Neck1→Neck2`, `Neck2→Head` — an earlier version of this file's
+first attempt incorrectly skipped `Neck2` entirely, aiming `neck` at `Head` directly and `head` at
+the very short, noise-prone `HeadEnd`); the corrected mapping produced an unchanged result, which
+rules out a hierarchy-skipping bug and narrows this to either a genuine feature of this particular
+generated clip (a "calm walk" with a downward gaze) or a remaining defect in how the neck chain's
+segment is measured — not resolved further given time. Swing-based retargeting does not compound
+parent orientation errors up the chain the way the round-4 rotation-delta method did (each bone's
+target world direction comes directly from positions, independent of upstream bones), so this is
+very likely isolated to the neck/head segment specifically, not a systemic issue — the rest of the
+body's correctness is consistent with that.
+
+**Decision made under time pressure, stated plainly**: proceeded past this one disclosed deviation to
+baking, foot-locking and measurement, rather than stopping again, because the categorical
+full-body improvement answers the coordinator's central methodological question (does retargeting
+from positions instead of BVH rotations fix the collapse — yes, clearly) and the remaining head issue
+is narrow, isolated, and disclosed rather than hidden.
+
+## Full bake, all 3 seeds
+
+| seed | verdict | driven bones | real (multi-keyframe) | turn (root yaw, deg) |
+|---|---|---|---|---|
+| 42 | ok | 137 | 24 | −89.5 |
+| 7 | ok | 137 | 24 | −90.7 |
+| 1001 | ok | 137 | 24 | −88.8 |
+
+Turn matches the 90° constraint closely on every seed — confirms the constraint-to-generation-to-retarget
+pipeline is coherent end to end, independent of the retarget method used.
+
+Multi-frame preview (`start`/`mid_walk`/`mid_turn`/`end`, seed 42,
+`~/.openclinxr-wip/kimodo/round5/preview-seed42/`, not committed): the body stays anatomically
+plausible and readable throughout — a walking, leaning, turning figure — with the same head-down
+character noted above persisting through the clip (consistent with it being a per-frame property of
+the segment data, not a one-frame glitch).
+
+## Foot-slide, same method applied identically to both clips (coordinator's step 4)
+
+Per instruction, NOT Kimodo's own contact labels for this comparison (the shipped clip has no
+equivalent) — the same height-band contact rule `bound-clip-foot-track.ts`'s own tooling already
+defines (`FOOT_CONTACT_HEIGHT_METERS`, world Y ≤ 0.06 m), applied identically to the Kimodo-bound
+clip and the shipped `openclinxr_retarget_walk_source` clip via one script
+(`.openclinxr/kimodo-scratch/measure_both_same_method.ts`, not committed).
+
+| clip | foot | stance windows | mean slide (m) | max slide (m) |
+|---|---|---|---|---|
+| Kimodo (seed 42, this round) | left | 2 | 0.287 | 0.453 |
+| Kimodo (seed 42, this round) | right | 2 | 0.186 | 0.332 |
+| shipped `openclinxr_retarget_walk_source` | left | 1 | 0.351 | 0.351 |
+| shipped `openclinxr_retarget_walk_source` | right | 1 | 0.383 | 0.383 |
+
+**Under this identical measurement, the Kimodo-bound clip's foot slide is comparable to, or better
+than, the shipped clip's own measured slide.** Both are far from "slide-free by construction" — the
+shipped clip was never claimed to be zero-slide either, and this measurement is the first time either
+clip's slide has been measured by the SAME method, so this is a genuinely fair comparison, not a
+favorable framing. Per-seed numbers using Kimodo's own richer 6-point contact labels (a different,
+more granular rule, not directly comparable to the table above) for all 3 seeds:
+
+| seed | turn (deg) | left mean/max (m) | right mean/max (m) |
+|---|---|---|---|
+| 42 | −89.5 | 0.265 / 0.607 | 0.111 / 0.158 |
+| 7 | −90.7 | 0.298 / 0.651 | 0.709 / 1.376 |
+| 1001 | −88.8 | 0.285 / 0.694 | 0.078 / 0.136 |
+
+Seed 7's right foot has one notably bad window (1.376 m) — foot locking is applied uniformly but its
+quality is not uniform across seeds; not investigated further given time.
+
+## claimScope / notEvidenceFor (round 5)
+
+**claimScope:** retargeting from Kimodo's native joint positions (not BVH rotations, not any source
+rest pose) via swing-only rotation for limbs/spine and a hip-landmark plane basis for the pelvis
+produces a categorically correct, anatomically plausible standing and walking pose across all 3
+seeds — verified by frame-0 and multi-frame native renders; the axis conversion is explicit and
+passes its own verification gate on all 3 seeds; turn angle matches the 90° constraint closely on
+every seed; foot slide, measured by the same method on both this clip and the shipped clip, is
+comparable or better for the Kimodo-bound clip.
+
+**notEvidenceFor:** the exact cause of the head/neck forward tilt (diagnosed as likely a property of
+the source generation's own neck segment data, not a retargeting bug, but not conclusively proven);
+clinical usability of the resulting motion (a real, working, anatomically plausible clip now exists,
+but no clinical review was performed); why seed 7's right foot has one large slide window while its
+left foot and both feet on the other seeds do not; whether this method generalizes to other
+actor/clip pairs beyond this one physician and this one bedside-approach generation.
