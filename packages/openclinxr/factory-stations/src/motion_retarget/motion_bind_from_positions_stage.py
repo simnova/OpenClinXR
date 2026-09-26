@@ -309,15 +309,18 @@ def main(argv: list[str]) -> int:
         return current_world
 
     def apply_pose(frame_number: int, current_world: dict[str, Matrix], keyframe: bool) -> None:
-        for pb in target_order:
-            if pb.name != root_target_name and pb.name not in swing_pairs:
-                continue
-            parent_world = current_world[pb.parent.name] if pb.parent is not None else identity3
-            local = rest_local_to_parent[pb.name].inverted() @ parent_world.inverted() @ current_world[pb.name]
-            pb.rotation_quaternion = local.to_quaternion()
-            if keyframe:
-                pb.keyframe_insert("rotation_quaternion", frame=frame_number, group=pb.name)
-
+        # MEASURED 2026-09-26 (coordinator-directed diagnosis): the hand-derived parent-relative
+        # formula this replaced (`rest_local_to_parent^-1 @ parent_world^-1 @ current_world`) matched
+        # Blender's own FK evaluation EXACTLY for the root (0.01 degree) but diverged 22-44 degrees
+        # for every child bone tested (upperarm01.L, lowerarm01.L, clavicle.L) -- a real bug in that
+        # formula or in one of its inputs, not merely a downstream symptom of the swing math. Rather
+        # than keep hunting for the exact flaw in a hand-rolled matrix derivation, this uses
+        # Blender's OWN supported mechanism instead: assigning a full world-space matrix directly to
+        # `PoseBone.matrix` makes Blender solve for the correct `matrix_basis` (local pose transform)
+        # against whatever the ACTUAL current parent chain is -- not a second, independently
+        # maintained Python prediction of it. Requires processing bones in bind order (already
+        # guaranteed by `target_order`) with a `view_layer.update()` after each one, so each child
+        # reads its parent's REAL just-applied transform, not an assumption about it.
         root_pb = target_actor.pose.bones[root_target_name]
         frame_index = frame_number - 1  # BVH-derived frame numbers start at 1; positions are 0-indexed
         src_pos = jpos("Hips", max(0, frame_index))
@@ -326,8 +329,23 @@ def main(argv: list[str]) -> int:
         local_pos = target_actor.matrix_world.inverted() @ world_target_pos
         rest_local_pos = root_pb.bone.matrix_local.translation
         root_pb.location = local_pos - rest_local_pos
+        parent_rot = current_world[root_target_name] if root_target_name in current_world else identity3
+        local_root = rest_local_to_parent[root_target_name].inverted() @ parent_rot
+        root_pb.rotation_quaternion = local_root.to_quaternion()
         if keyframe:
+            root_pb.keyframe_insert("rotation_quaternion", frame=frame_number, group=root_pb.name)
             root_pb.keyframe_insert("location", frame=frame_number, group=root_pb.name)
+        bpy.context.view_layer.update()
+
+        for pb in target_order:
+            if pb.name == root_target_name or pb.name not in swing_pairs:
+                continue
+            current_translation = (target_actor.matrix_world @ pb.matrix).translation.copy()
+            desired_world = Matrix.Translation(current_translation) @ current_world[pb.name].to_4x4()
+            pb.matrix = target_actor.matrix_world.inverted() @ desired_world
+            bpy.context.view_layer.update()
+            if keyframe:
+                pb.keyframe_insert("rotation_quaternion", frame=frame_number, group=pb.name)
 
     frame_start, frame_end = 1, frame_count  # 1-indexed to match this repo's other BVH-sourced clips
 

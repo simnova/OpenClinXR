@@ -958,3 +958,166 @@ is right); the turn-angle number from `measure_kimodo_bind.ts` (now measuring so
 heading for this bone's post-fix rotation convention); any claim beyond seed 42 (seeds 7 and 1001
 were regenerated with the same fix and produced `verdict: ok`, but were not independently rendered
 or diagnosed this round given time).
+
+---
+
+# Round 7, same day — the real arm/spine bug: hand-derived local rotation didn't match Blender's own FK
+
+Coordinator grading of round 6: the reflection fix was real (upright in every frame, f90 no longer
+lying down), but new defects visible: head bowed fully forward in f1/f18/f40, forearm folded across
+the chest at f63, leaning back with one arm raised at f90. The coordinator's own reading of the
+round-6 wrist table ("source's left wrist sits at +0.25 lateral in every frame while the target's is
+near 0 or negative") was trusted over the render impression, correctly — the render was a plausible-
+looking but wrong pose, and the table was the real signal.
+
+## Task 1 (arm mapping) — side mapping is correct; the bug is elsewhere
+
+Checked `SWING_SEGMENTS` against `SOMASkeleton77` names directly: every `.L`/`.R` pair is internally
+consistent (`shoulder.L → LeftShoulder/LeftArm`, `shoulder.R → RightShoulder/RightArm`, etc.), and the
+source's own wrist-lateral values in the round-7 measurement below (left consistently negative,
+right consistently positive, on the "right hip minus left hip" lateral axis) confirm the SOURCE index
+labeling is internally correct. Also checked whether the assumption "target bone's local +Y in world
+space equals its head-to-child direction" holds for this GLTF-imported MPFB armature (a real risk,
+since glTF joints don't have to follow Blender's edit-bone Y-along-bone convention): measured directly
+— dot product between the assumed direction and the real geometric head-to-child direction is
+0.937–1.000 across 5 bone pairs tested. **Not the bug.**
+
+## The actual bug, found by a direct round-trip check
+
+Computed my own Python prediction of each bone's intended WORLD rotation (`current_world[bone]`,
+the swing/pelvis-basis math), then compared it against what Blender's OWN forward-kinematics
+evaluation actually produced for that same bone, at the same frame, after `apply_pose()` ran. For
+the ROOT bone (no parent conversion involved) the two matched to 0.01°. **For every child bone
+tested — `upperarm01.L`, `lowerarm01.L`, `clavicle.L` — they diverged by 22–44°.** My hand-derived
+parent-relative conversion formula (`rest_local_to_parent^-1 @ parent_world^-1 @ current_world`,
+converting an intended absolute world rotation into the bone's local `rotation_quaternion`) was
+producing a value that, once Blender composed it back through the ACTUAL bone hierarchy, did not
+reproduce the intended world orientation — a real bug in that hand-rolled matrix algebra or one of
+its inputs, not a downstream symptom of the swing computation itself (which was already verified
+correct in round 5).
+
+**Fix**: stopped hand-deriving the parent-relative conversion entirely. Blender's own
+`PoseBone.matrix` property, when ASSIGNED a full world-space matrix, solves for the correct local
+pose transform against whatever the actual current parent state is — this is the supported
+mechanism for exactly this operation, and it is not vulnerable to the same class of algebra bug
+because Blender does the composition, not a second independent Python re-derivation of it. Applied
+bone-by-bone in bind order (already guaranteed by `target_order`), with `view_layer.update()` after
+each bone so the next child reads its parent's REAL just-applied transform.
+
+**Verified against the actual output GLB** (not a re-simulation): `upper_arm.L`'s real baked world
+direction now matches the source `LeftArm→LeftForeArm` segment direction to a small, CONSTANT
+4.41° offset across all 5 sampled frames (not growing with turn angle) — consistent with an
+expected residual from swing-only retargeting not controlling twist, not a remaining defect.
+
+## Task 1 continued — wrist-lateral table, re-measured against the fixed output
+
+Same measurement as round 6 (lateral = signed projection onto the pelvis's own right-minus-left hip
+axis), now against the ACTUAL post-fix GLB:
+
+| frame | source L | source R | target L | target R | sign matches | magnitude ≤0.08 m |
+|---|---|---|---|---|---|---|
+| 1 | −0.269 | +0.239 | −0.248 | +0.238 | yes | yes |
+| 18 | −0.259 | +0.283 | −0.243 | +0.295 | yes | yes |
+| 40 | −0.256 | +0.333 | −0.243 | +0.310 | yes | yes |
+| 63 | −0.291 | +0.318 | −0.124 | −0.189 | yes (L only) | no |
+| 90 | −0.415 | +0.332 | +0.250 | −0.367 | no | no |
+
+**Bar not fully met**: 3 of 5 frames pass both sign and magnitude cleanly; frames 63 and 90 — both
+during or after the real 90° turn — still diverge. This is a large, real improvement over round 6
+(which failed nearly everywhere), not a full fix. Not chased further given the reporting deadline;
+the remaining divergence is concentrated specifically at large turn angles, which may point at a
+`rotation_difference` shortest-arc ambiguity for the arm's swing when the required rotation is large,
+or at the fixed swing method's known limitation (no shoulder/elbow joint-limit awareness) becoming
+visible only once the torso has actually turned. Reported as an open gap, not resolved.
+
+## Task 2 (spine/neck/head in the chest's frame) — improved, still fails the 10° bar
+
+Head pitch measured relative to the CHEST's own frame (not world): chest "up" from its actual
+computed world rotation, chest "forward"/"lateral" from the target's own rest shoulder positions
+carried through that same rotation — for source, the equivalent built directly from Chest/Neck1/
+shoulder positions.
+
+| frame | source pitch | target pitch | diff | bar ≤10° |
+|---|---|---|---|---|
+| 1 | 45.1° | 71.1° | 26.0° | no |
+| 18 | 39.3° | 64.9° | 25.6° | no |
+| 40 | 32.5° | 58.7° | 26.2° | no |
+| 63 | 30.6° | 43.0° | 12.3° | no |
+| 90 | 23.9° | 31.4° | 7.5° | **yes** |
+
+Improved from round 5/6 (diffs were 43–58° there) to a roughly constant ~26° offset for most frames,
+dropping to within bar only at frame 90. The `pb.matrix`-setter fix reduced this defect substantially
+(consistent with the head/neck chain sitting downstream of the same parent-conversion bug that
+affected the arms) but did not eliminate it. Given the improvement pattern (an offset that shrinks
+as the clip progresses, rather than a constant unrelated error), this may share a root cause with the
+arm table's large-turn-angle divergence — not confirmed, given time.
+
+## Task 3 (fix `turnDegrees`) — fixed and verified against independent ground truth
+
+The existing tool read the exported "root" node's raw rotation channel and extracted yaw assuming a
+generic local-Y-axis convention, reporting ~2° for a visibly ~90° turn. Root-caused: **glTF is
+always Y-up by specification** — Blender's exporter converts its own Z-up internal representation on
+export, so the raw channel quaternions are expressed in Y-up space regardless of the source
+armature's Blender-side convention. Fixed by computing the signed twist of the relative rotation
+(`last * first⁻¹`) about the Y axis via a standard swing-twist decomposition
+(`2*atan2(q.y, q.w)`), which is architecture-agnostic and does not depend on which local bone axis
+any given rig calls "forward."
+
+**Verified independently**, not just self-consistently: read the SAME two frames' pelvis world
+rotation directly in Blender (`arm.matrix_world @ pose_bone.matrix`, Blender's own Z-up space) and
+computed both the total rotation angle (89.53°) and the twist about world Z (−88.70°) by an entirely
+separate method. The fixed TS tool now reports **−88.70°** for the same clip — an exact match to the
+independent Blender measurement, and closely matching the intended 90° constraint.
+
+Foot slide, re-measured with the fixed retarget (same height-band method as rounds 5–6, applied
+identically to both clips):
+
+| clip | foot | mean slide (m) | max slide (m) |
+|---|---|---|---|
+| Kimodo seed 42 (round 7, post-fix) | left | 0.086 | 0.135 |
+| Kimodo seed 42 (round 7, post-fix) | right | 0.135 | 0.248 |
+| shipped `openclinxr_retarget_walk_source` | left | 0.351 | 0.351 |
+| shipped `openclinxr_retarget_walk_source` | right | 0.383 | 0.383 |
+
+**Now clearly better than the shipped clip**, not merely comparable — roughly a 4× and 3× reduction
+in mean slide for the left and right foot respectively, under the identical measurement method.
+
+## Renders after the fix
+
+`~/.openclinxr-wip/kimodo/round7/preview-seed42/{f1,f18,f40,f63,f90}_f*.png` (scratch, not
+committed), native 1024×768, upright camera: **arms now hang naturally at the sides in f1/f18/f40** —
+no crossing, no folding across the chest. f63 and f90 show a plausible, natural turning motion with
+one arm gesturing forward, ending in a clean profile pose at f90 with the face fully visible. The
+head/neck forward tilt persists (matching the task-2 measurement above), and is the most visible
+remaining defect on inspection.
+
+## Verdict
+
+The dominant remaining defect after round 6 (arms crossing, forearm folded across the chest) is now
+traced to a concrete, verified bug — a hand-derived local-rotation formula that did not match
+Blender's actual FK for any non-root bone — and fixed by using Blender's own `PoseBone.matrix`
+setter instead. The fix produces large, measured improvements on every axis checked (wrist-lateral
+matches on 3 of 5 frames instead of ~0; head pitch improves from 43–58° to a roughly constant 26°
+with one frame passing; foot slide roughly 3–4× better than the shipped clip; the turn-angle tool
+itself fixed and independently verified). **Not claiming full anatomical correctness**: the
+wrist-lateral table still fails at the two large-turn-angle frames, and the head/neck pitch offset,
+while improved, does not meet the requested 10° bar except at frame 90.
+
+## claimScope / notEvidenceFor (round 7)
+
+**claimScope:** the arm/spine bug was a hand-derived parent-relative rotation formula that diverged
+22–44° from Blender's own FK for non-root bones (root itself was exact), found by a direct
+prediction-vs-actual comparison and fixed by switching to Blender's `PoseBone.matrix` setter;
+verified against the real output GLB (not a re-simulation) that a representative arm bone's world
+direction now matches its source segment to a small constant residual; the `turnDegrees` tool was
+reading yaw in the wrong axis convention (Z instead of Y, because glTF export is always Y-up) and is
+now fixed and independently verified against a Blender ground-truth measurement of the same two
+frames; foot slide is now measurably better than the shipped clip under the same method as rounds
+5-6.
+
+**notEvidenceFor:** full anatomical correctness of the retarget (the wrist-lateral bar fails at
+frames 63/90, and head pitch fails the 10° bar at 4 of 5 frames); the exact cause of the remaining
+large-turn-angle divergence in the wrist table (a shortest-arc swing ambiguity and a joint-limit-free
+swing method are both plausible, neither confirmed); whether seeds 7 and 1001 (regenerated with the
+same fix, `verdict: ok`, not independently rendered or measured this round given time) show the same
+pattern as seed 42.
