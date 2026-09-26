@@ -85,9 +85,17 @@ export function bedsideTargetForClinician(input: {
   supportBounds?: SupportBounds | undefined;
   approachSide?: "patient_left" | "patient_right";
   standoffMeters?: number;
+  /**
+   * Slide along the support's LONG axis (head/foot), in metres, positive toward the support's
+   * max on that axis. A factory should not need a hand-authored standing spot per room: this is
+   * the second free dimension `resolveBedsideLayoutFromSeed` searches when the direct-across
+   * position (offset 0) is blocked by a fixture the standoff alone cannot clear.
+   */
+  alongOffsetMeters?: number;
 }): BedsideTarget {
   const side = input.approachSide ?? "patient_right";
   const standoff = input.standoffMeters ?? BEDSIDE_STANDOFF_METERS;
+  const along = input.alongOffsetMeters ?? 0;
   const sign = side === "patient_right" ? 1 : -1;
   const bounds = input.supportBounds;
 
@@ -96,8 +104,8 @@ export function bedsideTargetForClinician(input: {
     const spanX = bounds.max.x - bounds.min.x;
     const spanZ = bounds.max.z - bounds.min.z;
     position = spanX >= spanZ
-      ? { x: input.patientPosition.x, y: input.patientPosition.y, z: (sign > 0 ? bounds.max.z : bounds.min.z) + sign * standoff }
-      : { x: (sign > 0 ? bounds.max.x : bounds.min.x) + sign * standoff, y: input.patientPosition.y, z: input.patientPosition.z };
+      ? { x: input.patientPosition.x + along, y: input.patientPosition.y, z: (sign > 0 ? bounds.max.z : bounds.min.z) + sign * standoff }
+      : { x: (sign > 0 ? bounds.max.x : bounds.min.x) + sign * standoff, y: input.patientPosition.y, z: input.patientPosition.z + along };
   } else {
     position = { x: input.patientPosition.x, y: input.patientPosition.y, z: input.patientPosition.z + sign * standoff };
   }

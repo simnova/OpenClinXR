@@ -35,6 +35,8 @@ export type DurableAcceptedScenePlanRecord = {
     caseContentSha256: string;
     stationId: string;
     environmentId: string;
+    /** Which role this case's frozen bedside approach drives to walk — see the session-state twin. */
+    walkerRole: string;
   };
   bundle: { bundleId: string; bundleSha256: string };
   instances: Array<{

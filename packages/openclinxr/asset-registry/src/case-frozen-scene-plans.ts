@@ -6,12 +6,12 @@ import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evide
 
 /**
  * GENERATED — do not hand-edit. Regenerate with:
- *   pnpm exec tsx tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts
+ *   pnpm exec tsx tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts [caseId...]
  *
  * The accepted scene plan each case was frozen with, keyed by scenario id, so the shipped runtime
  * has something to reopen without a server round trip.
  *
- * IT IS A REAL FREEZE OUTPUT. The generator reads the case document and the four selected humanoid
+ * IT IS A REAL FREEZE OUTPUT. The generator reads each case's document and its selected humanoid
  * GLBs off disk and hashes their bytes with `node:crypto`; nothing here was typed. Geometry is
  * captured from the shipped UI-XR entry after Infinigen hull load and hull_inset reanchor — the
  * room a learner sees — then observed with the production observer. The browser cannot produce the
@@ -19,16 +19,144 @@ import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evide
  *
  * A CASE ABSENT FROM THIS MAP HAS NO FROZEN PLAN, and `admitFrozenScenePlan` returns
  * `no_plan_carried` for it. That is the honest answer, not a failure: most encounters have never
- * been frozen. Only the scene-closure case has been.
+ * been frozen.
  *
- * IF A BOUND ASSET IS REPUBLISHED this record goes stale, and the footgun lands on the EVIDENCE
- * GATE rather than the browser runtime: `verify.ts` rehashes the bytes off disk and refuses with
- * a digest drift, while the runtime's observed-room admission carries the record's own digests and
- * answers geometry only. The repair is to run
- * the generator again, which re-reads the bytes and is therefore a fresh observation.
+ * WHICH ROLE WALKS for an admitted case is carried on the record itself, `case.walkerRole`
+ * (this generator's `CASE_CONFIGS.walkerRole`), NOT inferred from a runtime slot position — a
+ * case's walker is a property of the case, not an accident of how many humanoids it casts.
+ * `apps/ui-xr/src/main.ts` reads it off `frozenScenePlanAdmission.record.case.walkerRole` and
+ * resolves it against the booted bundle's own actor list. It is a field on the already-exported
+ * `DurableAcceptedScenePlanRecord` type, not a new export name, so it does not need an admission
+ * overlay against this package's closed psr-01d reviewed public surface.
+ *
+ * IF A BOUND ASSET IS REPUBLISHED that case's record goes stale, and the footgun lands on the
+ * EVIDENCE GATE rather than the browser runtime: `verify.ts` rehashes the bytes off disk and
+ * refuses with a digest drift, while the runtime's observed-room admission carries the record's own
+ * digests and answers geometry only. The repair is to run the generator again for that case, which
+ * re-reads the bytes and is therefore a fresh observation.
  */
 export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedScenePlanRecord>> =
   Object.freeze({
+    "ed_chest_pain_priority_v1": {
+      "schemaVersion": "openclinxr.accepted-scene-plan.v1",
+      "planId": "ed_chest_pain_priority_v1_plan_v1",
+      "durableStore": "database_source_of_truth",
+      "run": {
+        "stationRunId": "ed_chest_pain_priority_v1_build_time_freeze",
+        "sessionId": "ed_chest_pain_priority_v1_build_time_freeze",
+        "acceptedAtIso": "2026-09-25T00:00:00.000Z"
+      },
+      "case": {
+        "caseId": "ed_chest_pain_priority_v1",
+        "caseVersion": 1,
+        "caseSourceVersion": "openclinxr.scenario-fixtures.ed-chest-pain.v1",
+        "caseContentSha256": "f7f10dacdbc512748d9871d2c71bc2553e5653839bca5d876600921780b156ef",
+        "stationId": "ed_chest_pain_station_v1",
+        "environmentId": "ed_exam_bay_v1",
+        "walkerRole": "nurse"
+      },
+      "bundle": {
+        "bundleId": "ed_chest_pain_station_v1:bundle",
+        "bundleSha256": "ae277a60a6f0b2021fb8a5cc7bba85094f8df00fb6c136ab0a17001ad8b19a8d"
+      },
+      "instances": [
+        {
+          "instanceId": "ed_exam_bay_v1:stretcher",
+          "kind": "support",
+          "contentId": "ward_stretcher_v1"
+        },
+        {
+          "instanceId": "ed_chest_pain_station_v1:patient_robert_hayes_v1",
+          "kind": "actor",
+          "contentId": "patient_robert_hayes_v1",
+          "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+          "assetSha256": "ceb34c139a5f21460cd4518e2fb023fabed45279a87d48d983bc22b9dd744643",
+          "byteCount": 19149628
+        },
+        {
+          "instanceId": "ed_chest_pain_station_v1:nurse_maria_alvarez_v1",
+          "kind": "actor",
+          "contentId": "nurse_maria_alvarez_v1",
+          "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+          "assetSha256": "c4bc395875048103172e755af5ada72d36d028ab7f598d57ef9726e37891e4ec",
+          "byteCount": 8775848
+        },
+        {
+          "instanceId": "ed_chest_pain_station_v1:spouse_anna_hayes_v1",
+          "kind": "actor",
+          "contentId": "spouse_anna_hayes_v1",
+          "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+          "assetSha256": "dc5dec43210748c25a586dfc0c803923004160a8467787022045301cf3462b49",
+          "byteCount": 10529168
+        }
+      ],
+      "revisions": {
+        "solverVersion": "openclinxr.bedside-layout-solver.v1",
+        "rigRevision": "mpfb2_standard_137_joint",
+        "clipRevision": "openclinxr_retarget_walk_source",
+        "geometryRevision": "geom-v1-c1acec27-8",
+        "rubricVersion": "openclinxr.scene-closure-arrival-rubric.v1"
+      },
+      "variation": {
+        "seed": "573b75fa166992a204f91676abc79f669d1eb7af0e3beef45658c9b64be6e1aa",
+        "variationIndex": 0
+      },
+      "resolvedLayout": {
+        "approachSide": "patient_left",
+        "standoffMeters": 0.75,
+        "targetPosition": {
+          "x": 0,
+          "y": 0,
+          "z": -1.3399999995529652
+        },
+        "targetHeadingRadians": -0.6278365939831692,
+        "floorFrameId": "ed_exam_bay_v1:floor",
+        "observedObstacleIds": [
+          "ed_exam_bay_v1:stretcher",
+          "ed_exam_bay_v1:monitor",
+          "ed_exam_bay_v1:ecg_cart",
+          "ed_exam_bay_v1:door_leaf",
+          "ed_exam_bay_v1:wall_board"
+        ],
+        "waypointCount": 9,
+        "routeLengthMeters": 2.5031979543029426
+      },
+      "arrival": {
+        "arrivalErrorMeters": 0.0041,
+        "settledHeadingErrorDegrees": 1.7,
+        "stoppedSeconds": 2.4,
+        "stoppedRootTravelMeters": 0.0009
+      },
+      "eventOrder": [
+        {
+          "sequence": 1,
+          "eventId": "evt-admitted",
+          "eventType": "encounter_admitted",
+          "atSecond": 0
+        },
+        {
+          "sequence": 2,
+          "eventId": "turn-001",
+          "eventType": "actor_turn",
+          "atSecond": 1.5
+        },
+        {
+          "sequence": 3,
+          "eventId": "evt-arrived",
+          "eventType": "bedside_arrival",
+          "atSecond": 6.2
+        }
+      ],
+      "dialogueTurnIds": [
+        "turn-001"
+      ],
+      "planRevision": "plan-v1-9eaed3b35833d668dacb120ab83a0581",
+      "acknowledgment": {
+        "acknowledgedBy": "ed_chest_pain_priority_v1_build_time_freeze",
+        "acknowledgedAtIso": "2026-09-25T00:05:00.000Z",
+        "acknowledgedPlanRevision": "plan-v1-9eaed3b35833d668dacb120ab83a0581"
+      }
+    },
     "scene_closure_supine_bedside_v1": {
       "schemaVersion": "openclinxr.accepted-scene-plan.v1",
       "planId": "scene_closure_supine_bedside_plan_v1",
@@ -44,7 +172,8 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
         "caseSourceVersion": "openclinxr.scene-closure-case-source.v2",
         "caseContentSha256": "1b36d9562b773ee693bb1aba0a474afdacd8a998d5492b2955c1b7cb91e2f82d",
         "stationId": "scene_closure_supine_bedside_station_v1",
-        "environmentId": "inpatient_ward_room_v1"
+        "environmentId": "inpatient_ward_room_v1",
+        "walkerRole": "physician"
       },
       "bundle": {
         "bundleId": "scene_closure_supine_bedside_station_v1:bundle",
@@ -148,11 +277,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-90209f261b4c1a29e5d121329c6a0404",
+      "planRevision": "plan-v1-21f5a9386f3722f2f4eb2e67bc9c086c",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-90209f261b4c1a29e5d121329c6a0404"
+        "acknowledgedPlanRevision": "plan-v1-21f5a9386f3722f2f4eb2e67bc9c086c"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);

@@ -155,6 +155,11 @@ export function resolveCaseOwnedScenePlan(input: {
     supportBounds: bounds,
     obstacles,
     ...(input.intent === undefined ? {} : { intent: input.intent }),
+    // Widen the solver's own search over the route too (side x standoff x along-bed offset), so a
+    // room with no direct-across spot is not refused when a spot off-centre along the bed clears
+    // every fixture. The checks below then confirm what the solver already verified.
+    start: input.start,
+    floorY: floorFrame.originY,
   });
   if (!layout.resolved) {
     return {

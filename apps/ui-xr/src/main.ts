@@ -39,12 +39,8 @@ import {
   addReusableExteriorPreEncounterRoom as addPackageReusableExteriorPreEncounterRoom,
   addScenarioSpecificClinicalSetDressing as addPackageScenarioSpecificClinicalSetDressing,
   addRoleSpecificHumanoidVisuals as addRoleSpecificHumanoidVisualsPackage,
-  addScenarioSpecificClinicalTeamCue as addScenarioSpecificClinicalTeamCuePackage,
-  addScenarioSpecificFamilyCue as addScenarioSpecificFamilyCuePackage,
-  addScenarioSpecificPatientCue as addScenarioSpecificPatientCuePackage,
   clinicalTouchResponseClipNamesForActor as clinicalPackageTouchResponseClipNamesForActor,
   comparatorCaptureSubjectActorId as comparatorPackageCaptureSubjectActorId,
-  configureSemanticRolePoseOverlay as configureSemanticRolePoseOverlayPackage,
   frameComparatorCaptureOnNamedActor as framePackageComparatorCaptureOnNamedActor,
   gazeProbeAnimationClipNamesFromGltf as gazePackageProbeAnimationClipNamesFromGltf,
   hasAuthoredClinicalIdlePoseClip as hasPackageAuthoredClinicalIdlePoseClip,
@@ -59,7 +55,6 @@ import {
   roleAnimationClipNamesForActor as rolePackageAnimationClipNamesForActor,
   runtimeHumanoidVariantAssetPath as runtimePackageHumanoidVariantAssetPath,
   selectedHumanoidSourceComparator as selectedPackageHumanoidSourceComparator,
-  shouldShowProceduralHumanoidDetailCues as shouldShowProceduralHumanoidDetailCuesPackage,
   suppressRuntimeDiagnosticOverlaysForSourceComparator as suppressPackageRuntimeDiagnosticOverlaysForSourceComparator,
   tintGeneratedSceneMaterials as tintPackageGeneratedSceneMaterials,
 } from "@openclinxr/xr-asset-loading";
@@ -808,6 +803,15 @@ function runtimeFamilyActorId(): string {
 }
 function runtimeAdditionalActorId(): string {
   return resolveRuntimeSlotAssignment().additionalActorId;
+}
+/**
+ * A property of the case's own frozen record (record.case.walkerRole, an existing-type field,
+ * not app-owned data or a new package export), not a slot-count accident.
+ */
+function runtimeWalkingActorId(): string {
+  const role =
+    frozenScenePlanAdmission.status === "admitted" ? frozenScenePlanAdmission.record.case.walkerRole : undefined;
+  return encounterRuntimeAssetBundle.actors.find((actor) => actor.role === role)?.actorId ?? runtimeAdditionalActorId();
 }
 
 /**
@@ -3464,7 +3468,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       environmentId: resolveActiveEnvironmentId(),
       observeGeometry: observeMountedApproachGeometry,
       patientWorldPosition: generatedHumanoidActorSlotsByActorId.get(runtimePatientActorId())?.position ?? { x: 0, y: 0, z: 0 },
-      start: generatedHumanoidActorSlotsByActorId.get(runtimeAdditionalActorId())?.position ?? { x: 0, y: 0, z: 0 },
+      start: generatedHumanoidActorSlotsByActorId.get(runtimeWalkingActorId())?.position ?? { x: 0, y: 0, z: 0 },
     });
     const frozenScenePlanReproduced = frozenScenePlanAdmission.status === "admitted"
       && frozenScenePlanAdmission.reproduced !== null;
@@ -3472,21 +3476,21 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       caseOwnedBedsideApproach,
       {
         scene,
-        physicianSlot: generatedHumanoidActorSlotsByActorId.get(runtimeAdditionalActorId()) ?? null,
-        physicianActorId: runtimeAdditionalActorId(),
+        physicianSlot: generatedHumanoidActorSlotsByActorId.get(runtimeWalkingActorId()) ?? null,
+        physicianActorId: runtimeWalkingActorId(),
         firstClinicalSlotActorId: runtimeClinicalTeamActorId(),
         firstClinicalSlotRole: runtimeActorRole(runtimeClinicalTeamActorId()) ?? "",
         patientActorId: runtimePatientActorId(),
         placements: encounterRuntimeAssetBundle.sceneManifest.actorPlacements ?? {},
         runId: remoteStationRunId ?? "local_station_run",
-        animationSlot: generatedHumanoidAnimationSlotsByActorId.get(runtimeAdditionalActorId()),
+        animationSlot: generatedHumanoidAnimationSlotsByActorId.get(runtimeWalkingActorId()),
         // `!== false`: an ABSENT slot is not a revoked one, and `?? false` collapsed the two. Measured
         // in a browser: the walk stopped with "support acceptance was lost" when the room GLB landed.
         supportAccepted: generatedHumanoidActorSlotsByActorId.get(runtimePatientActorId())?.userData?.openClinXrPlacementAccepted !== false,
       },
       { nowMs: now, deltaSeconds },
     ) : null;
-    floor.userData.genDrive = approachFrame ? { actorId: runtimeAdditionalActorId() /* HumanoidRuntimeDrive.actorId */, locomotion: approachFrame.locomotion, locomotionTimeScaleFactor: approachFrame.locomotionTimeScaleFactor, locomotionLegWeight: approachFrame.locomotionLegWeight, driveSource: approachFrame.driveSource } : floor.userData.genDrive;
+    floor.userData.genDrive = approachFrame ? { actorId: runtimeWalkingActorId() /* HumanoidRuntimeDrive.actorId */, locomotion: approachFrame.locomotion, locomotionTimeScaleFactor: approachFrame.locomotionTimeScaleFactor, locomotionLegWeight: approachFrame.locomotionLegWeight, driveSource: approachFrame.driveSource } : floor.userData.genDrive;
     const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
     const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);
     syncPreparedActorAudio(now); updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid);
@@ -3776,12 +3780,6 @@ function formatTechnicalGapStatus(summary: ManualPerformanceCaptureSummary | nul
   return formatPackageTraceTechnicalGapStatus(summary);
 }
 
-function _configureSemanticRolePoseOverlay(mesh: Mesh, cueId: string): void {
-  configureSemanticRolePoseOverlayPackage(assetLoadingContext(), mesh, cueId);
-}
-function _shouldShowProceduralHumanoidDetailCues(faceCueMode: PackageHumanoidCueMode): boolean {
-  return shouldShowProceduralHumanoidDetailCuesPackage(assetLoadingContext(), faceCueMode);
-}
 function _addRoleSpecificHumanoidVisuals(
   humanoid: Group,
   actorId: string,
@@ -3824,15 +3822,6 @@ function addScenarioExpectationPanel(scene: Scene, stationContext: ReturnType<ty
   }
 }
 
-function _addScenarioSpecificPatientCue(humanoid: Group, actorId: string): void {
-  addScenarioSpecificPatientCuePackage(assetLoadingContext(), humanoid, actorId);
-}
-function _addScenarioSpecificClinicalTeamCue(humanoid: Group, actorId: string): void {
-  addScenarioSpecificClinicalTeamCuePackage(assetLoadingContext(), humanoid, actorId);
-}
-function _addScenarioSpecificFamilyCue(humanoid: Group, actorId: string): void {
-  addScenarioSpecificFamilyCuePackage(assetLoadingContext(), humanoid, actorId);
-}
 function _addActorSpecificIdentityVariantCue(
   humanoid: Group,
   actorId: string,

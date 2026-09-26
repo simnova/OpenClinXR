@@ -1,3 +1,4 @@
+import { planBedsideApproach, sweptRouteViolations } from "./bedside-approach-path-mod.js";
 import { bedsideClearanceViolations, type MeasuredObstacle } from "./bedside-clearance.js";
 import {
   type BedsideTarget,
@@ -45,6 +46,14 @@ export type ResolvedLayout =
 export const STANDOFF_CANDIDATES_METERS = [0.75, 0.9, 1.05] as const;
 
 /**
+ * Slide along the bed's head/foot axis the resolver will try, nearest-to-centre first, when the
+ * direct-across position (0) is blocked. A factory should not need a hand-authored standing spot
+ * per room: this is the second free dimension search, alongside side and standoff, over the room's
+ * own measured fixtures.
+ */
+export const ALONG_BED_OFFSET_CANDIDATES_METERS = [0, 0.3, -0.3, 0.6, -0.6, 0.9, -0.9] as const;
+
+/**
  * Explicit authored intent for the bedside target.
  *
  * Brief §3, deterministic solving: *"fail unsatisfied explicit intent rather than substituting a
@@ -58,6 +67,7 @@ export const STANDOFF_CANDIDATES_METERS = [0.75, 0.9, 1.05] as const;
 export type BedsideLayoutIntent = {
   approachSide?: "patient_left" | "patient_right" | undefined;
   standoffMeters?: number | undefined;
+  alongOffsetMeters?: number | undefined;
 };
 
 /** A seed is a lowercase hex digest. Rejected here so a caller cannot pass a wall clock. */
@@ -80,6 +90,16 @@ export function resolveBedsideLayoutFromSeed(input: {
   obstacles: readonly MeasuredObstacle[];
   /** Authored intent. Absent means the seed explores; present means it does not. */
   intent?: BedsideLayoutIntent | undefined;
+  /**
+   * Where the walker starts, so a candidate is also checked for a clear ROUTE and swept
+   * occupancy, not only a clear standing footprint. Absent (the historical signature) means the
+   * search stays footprint-only, as `resolveCaseOwnedScenePlan`'s own separate route/swept check
+   * already covers — a caller passing this widens the search itself instead of hand-authoring a
+   * standing spot per room.
+   */
+  start?: Vector3 | undefined;
+  /** Required with `start`: the floor's world Y, for the swept-occupancy sample height. */
+  floorY?: number | undefined;
 }): ResolvedLayout {
   if (!LAYOUT_SEED_PATTERN.test(input.seed)) {
     throw new Error(
@@ -105,28 +125,76 @@ export function resolveBedsideLayoutFromSeed(input: {
     input.intent?.standoffMeters === undefined
       ? STANDOFF_CANDIDATES_METERS
       : [input.intent.standoffMeters];
+  const alongOffsets =
+    input.intent?.alongOffsetMeters === undefined
+      ? ALONG_BED_OFFSET_CANDIDATES_METERS
+      : [input.intent.alongOffsetMeters];
 
   const unsatisfied: Array<{ approachSide: string; standoffMeters: number; reason: string }> = [];
   for (const approachSide of sides) {
     for (const standoffMeters of standoffs) {
-      const target = bedsideTargetForClinician({
-        patientPosition: input.patientPosition,
-        supportBounds: bounds,
-        approachSide,
-        standoffMeters,
-      });
-      const violations = bedsideClearanceViolations({
-        standingPosition: target.position,
-        obstacles: input.obstacles,
-      });
-      if (violations.length === 0) {
+      for (const alongOffsetMeters of alongOffsets) {
+        const target = bedsideTargetForClinician({
+          patientPosition: input.patientPosition,
+          supportBounds: bounds,
+          approachSide,
+          standoffMeters,
+          alongOffsetMeters,
+        });
+        const violations = bedsideClearanceViolations({
+          standingPosition: target.position,
+          obstacles: input.obstacles,
+        });
+        if (violations.length > 0) {
+          unsatisfied.push({
+            approachSide,
+            standoffMeters,
+            reason: `along ${alongOffsetMeters}m: ${violations.map((violation) => violation.reason).join("; ")}`,
+          });
+          continue;
+        }
+        // A clear standing footprint is not a clear ROUTE to it. When the caller supplies a start
+        // (widening the search itself, rather than `resolveCaseOwnedScenePlan`'s separate check
+        // refusing this exact candidate one call later), reject a candidate here too so the search
+        // keeps looking instead of returning a footprint that the route stage would refuse anyway.
+        if (input.start !== undefined) {
+          const routeTarget: Vector3 = { x: target.position.x, y: input.start.y, z: target.position.z };
+          const plan = planBedsideApproach({
+            from: input.start,
+            target: routeTarget,
+            facing: input.patientPosition,
+            obstacles: input.obstacles,
+          });
+          const routeReasons: string[] = [];
+          if (plan.pathViolations.length > 0) {
+            routeReasons.push(
+              `route: ${plan.pathViolations.map((violation) => `${violation.obstacleId}: ${violation.reason}`).join("; ")}`,
+            );
+          }
+          if (!plan.arrivesAtTarget) {
+            routeReasons.push(`does not arrive: final pose error ${plan.finalPoseErrorMeters.toFixed(4)} m`);
+          }
+          const swept = sweptRouteViolations({
+            waypoints: plan.waypoints,
+            obstacles: input.obstacles,
+            ...(input.floorY === undefined ? {} : { floorY: input.floorY }),
+          });
+          if (swept.length > 0) {
+            routeReasons.push(
+              `swept: ${swept.map((violation) => `${violation.obstacleId}: ${violation.reason}`).join("; ")}`,
+            );
+          }
+          if (routeReasons.length > 0) {
+            unsatisfied.push({
+              approachSide,
+              standoffMeters,
+              reason: `along ${alongOffsetMeters}m: ${routeReasons.join("; ")}`,
+            });
+            continue;
+          }
+        }
         return { resolved: true, seed, target, approachSide, standoffMeters };
       }
-      unsatisfied.push({
-        approachSide,
-        standoffMeters,
-        reason: violations.map((violation) => violation.reason).join("; "),
-      });
     }
   }
   return { resolved: false, seed, unsatisfied };

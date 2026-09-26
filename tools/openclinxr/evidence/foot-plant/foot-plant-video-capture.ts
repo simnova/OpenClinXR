@@ -1,13 +1,18 @@
 /**
- * Foot-plant video capture: record the NATURAL locked bedside approach of the
- * physician (`senior_resident_ward_v1`) in `scene_closure_supine_bedside_v1` from
- * two world-fixed camera framings, and measure the displayed toe plants from the
+ * Foot-plant video capture: record the NATURAL locked bedside approach of a frozen case's
+ * walker from two world-fixed camera framings, and measure the displayed toe plants from the
  * same runs.
+ *
+ * `--scenario=<id>` (default `scene_closure_supine_bedside_v1`) selects the case; the walker is
+ * resolved the same way the runtime resolves it (`case.walkerRole` off `CASE_FROZEN_SCENE_PLANS`,
+ * matched against the built bundle's own actor/role list) rather than assumed to be the physician
+ * -- see `buildScenario` below. `ed_chest_pain_priority_v1` is the second wired scenario.
  *
  * SC-05 path, reused not copied: the bundle interception, scenario URL and
  * no-recorder-global discipline come from
  * `scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.ts`
- * (`buildSceneClosureBundleJson`, `buildSceneClosureUrl`). The runtime evidence
+ * (`buildSceneClosureBundleJson`/`buildEdChestPainBundleJson`,
+ * `buildSceneClosureUrl`/`buildEdChestPainUrl`). The runtime evidence
  * global `window.__openClinXrBedsideApproachEvidence` carries per-frame slot pose
  * plus both toe bones off the loaded skeleton with phase and stanceFoot, so this
  * script never looks up joints itself.
@@ -39,15 +44,78 @@ import {
   spawnPortlessDevServer,
   stopPortlessDevServer,
 } from "../lib/portless-server.js";
+import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-scene-plans";
 import {
+  buildEdChestPainBundleJson,
+  buildEdChestPainUrl,
   buildSceneClosureBundleJson,
   buildSceneClosureUrl,
+  ED_CHEST_PAIN_VIDEO_BUNDLE_ROUTE,
+  ED_CHEST_PAIN_VIDEO_SCENARIO_ID,
   SCENE_CLOSURE_BUNDLE_ROUTE,
-  SCENE_CLOSURE_PHYSICIAN_ACTOR_ID,
   SCENE_CLOSURE_SCENARIO_ID,
 } from "../scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.js";
 
 const OUTPUT_DIR = ".openclinxr/evidence/foot-plant-video";
+
+/**
+ * `--scenario=<id>` (default scene_closure_supine_bedside_v1). Per-case bundle/URL construction
+ * plus the walker resolved from the SAME case-owned mechanism the runtime uses
+ * (`case.walkerRole` off `CASE_FROZEN_SCENE_PLANS`, matched against the built bundle's own
+ * actor/role list) -- not the physician assumed. Reusing that resolution, rather than hardcoding
+ * the physician's actorId here a second time, is what makes this script usable for any frozen
+ * case: a defect in the resolver shows up as a real refusal below (the runtime disagreeing with
+ * this independently-recomputed expectation), not as two copies quietly agreeing with each other.
+ */
+function scenarioIdFromArgv(): string {
+  const flag = process.argv.find((arg) => arg.startsWith("--scenario="));
+  return flag ? flag.slice("--scenario=".length) : SCENE_CLOSURE_SCENARIO_ID;
+}
+
+type ScenarioBuild = {
+  scenarioId: string;
+  bundleRoute: string;
+  buildUrl: (baseUrl: string) => string;
+  bundleJson: string;
+  walkerActorId: string;
+};
+
+function buildScenario(scenarioId: string): ScenarioBuild {
+  if (scenarioId !== SCENE_CLOSURE_SCENARIO_ID && scenarioId !== ED_CHEST_PAIN_VIDEO_SCENARIO_ID) {
+    throw new Error(`unknown --scenario ${scenarioId}: only scene_closure_supine_bedside_v1 and ${ED_CHEST_PAIN_VIDEO_SCENARIO_ID} are wired`);
+  }
+  const isEd = scenarioId === ED_CHEST_PAIN_VIDEO_SCENARIO_ID;
+  const bundleRoute = isEd ? ED_CHEST_PAIN_VIDEO_BUNDLE_ROUTE : SCENE_CLOSURE_BUNDLE_ROUTE;
+  const buildUrl = isEd ? buildEdChestPainUrl : buildSceneClosureUrl;
+  const bundleJson = isEd ? buildEdChestPainBundleJson() : buildSceneClosureBundleJson();
+  const bundle = JSON.parse(bundleJson) as { actors: Array<{ actorId: string; role: string }> };
+  const walkerRole = CASE_FROZEN_SCENE_PLANS[scenarioId]?.case.walkerRole;
+  if (!walkerRole) {
+    throw new Error(`no frozen plan (or no case.walkerRole) for scenario ${scenarioId} in CASE_FROZEN_SCENE_PLANS`);
+  }
+  const walker = bundle.actors.find((actor) => actor.role === walkerRole);
+  if (!walker) {
+    throw new Error(`scenario ${scenarioId}: no actor with role ${walkerRole} in the built bundle's cast`);
+  }
+  return { scenarioId, bundleRoute, buildUrl, bundleJson, walkerActorId: walker.actorId };
+}
+
+/**
+ * Set once in main() before any page/browser work begins, from --scenario. This script runs one
+ * scenario per process invocation, so a module-level active selection is simpler and lower-risk
+ * than threading the same four values through every probe function below.
+ */
+let ACTIVE_SCENARIO_ID: string = SCENE_CLOSURE_SCENARIO_ID;
+let ACTIVE_BUNDLE_ROUTE: string = SCENE_CLOSURE_BUNDLE_ROUTE;
+let ACTIVE_BUILD_URL: (baseUrl: string) => string = buildSceneClosureUrl;
+let ACTIVE_WALKER_ACTOR_ID: string | null = null;
+
+function activeWalkerActorId(): string {
+  if (ACTIVE_WALKER_ACTOR_ID === null) {
+    throw new Error("ACTIVE_WALKER_ACTOR_ID read before buildScenario() ran in main()");
+  }
+  return ACTIVE_WALKER_ACTOR_ID;
+}
 /**
  * `--humanoid=<glb-filename>` (or `FOOT_PLANT_HUMANOID_GLB`) swaps the loaded GLB for the SAME
  * physician actor slot (`SCENE_CLOSURE_PHYSICIAN_ACTOR_ID`), by intercepting the NETWORK REQUEST
@@ -1062,7 +1130,7 @@ type DrawnSubjectResult = {
 
 async function checkDrawnSubject(page: Page, mode: CamMode): Promise<DrawnSubjectResult> {
   const result = (await page.evaluate(
-    `${DRAWN_SUBJECT_SOURCE}(${JSON.stringify({ actorId: SCENE_CLOSURE_PHYSICIAN_ACTOR_ID })})`,
+    `${DRAWN_SUBJECT_SOURCE}(${JSON.stringify({ actorId: activeWalkerActorId() })})`,
   )) as { ok: boolean; subjectVisibleMeshes?: number; nonSubjectVisibleMeshes?: number; subjectScreenHeightFraction?: number; upright?: boolean; reason?: string };
   if (!result.ok) throw new Error(`drawn-subject check failed: ${result.reason ?? "unknown"}`);
   return {
@@ -1083,7 +1151,7 @@ async function projectPoints(page: Page, points: Array<Vec3 | null>): Promise<Nd
 
 async function queryOcclusion(page: Page, eye: Vec3, pelvis: Vec3): Promise<OcclusionResult> {
   const result = (await page.evaluate(
-    `${OCCLUDE_SOURCE}(${JSON.stringify({ eye, pelvis, actorId: SCENE_CLOSURE_PHYSICIAN_ACTOR_ID })})`,
+    `${OCCLUDE_SOURCE}(${JSON.stringify({ eye, pelvis, actorId: activeWalkerActorId() })})`,
   )) as OcclusionResult;
   if (!result.ok) throw new Error(`occlusion query failed: ${result.reason ?? "unknown"}`);
   return result;
@@ -1124,10 +1192,10 @@ async function dryPass(
   try {
     const override = humanoidGlbOverride();
     if (override) await installHumanoidOverrideRoute(page, override);
-    await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
+    await page.route(ACTIVE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
     });
-    await page.goto(buildSceneClosureUrl(server.url), { waitUntil: "load", timeout: 180_000 });
+    await page.goto(ACTIVE_BUILD_URL(server.url), { waitUntil: "load", timeout: 180_000 });
     await page.waitForFunction(
       () => (globalThis as Record<string, unknown>).__openClinXrBedsideApproachEvidence !== undefined,
       undefined,
@@ -1676,10 +1744,10 @@ async function recordPass(
     const override = humanoidGlbOverride();
     if (override) await installHumanoidOverrideRoute(page, override);
     await page.clock.install();
-    await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
+    await page.route(ACTIVE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
     });
-    await page.goto(buildSceneClosureUrl(server.url), { waitUntil: "load", timeout: 180_000 });
+    await page.goto(ACTIVE_BUILD_URL(server.url), { waitUntil: "load", timeout: 180_000 });
     await hideDomUi(page);
     // Freeze the fake clock: install() alone leaves Date tracking wall time
     // (measured +1504 ms over 1500 ms wall), so pin it with pauseAt.
@@ -1733,7 +1801,7 @@ async function recordPass(
     // Each pass owns its page, so nothing is restored afterwards.
     let isolated = "not requested";
     if (isolate) {
-      const isolatePayload = { ...isolate, actorId: SCENE_CLOSURE_PHYSICIAN_ACTOR_ID };
+      const isolatePayload = { ...isolate, actorId: activeWalkerActorId() };
       const iso = (await page.evaluate(
         `${ISOLATE_SOURCE}(${JSON.stringify(isolatePayload)})`,
       )) as { ok: boolean; hiddenCount?: number; floorAdded?: boolean; reason?: string };
@@ -2100,7 +2168,13 @@ async function main(): Promise<void> {
     force: true,
   });
 
-  const bundleJson = buildSceneClosureBundleJson();
+  const scenario = buildScenario(scenarioIdFromArgv());
+  ACTIVE_SCENARIO_ID = scenario.scenarioId;
+  ACTIVE_BUNDLE_ROUTE = scenario.bundleRoute;
+  ACTIVE_BUILD_URL = scenario.buildUrl;
+  ACTIVE_WALKER_ACTOR_ID = scenario.walkerActorId;
+  process.stdout.write(`[scenario] ${scenario.scenarioId}, walker actorId ${scenario.walkerActorId}\n`);
+  const bundleJson = scenario.bundleJson;
   const humanoidOverride = humanoidGlbOverride();
   if (humanoidOverride) process.stderr.write(`[humanoid] override requested: ${humanoidOverride}\n`);
   let server: PortlessDevServer | null = null;
@@ -2122,8 +2196,8 @@ async function main(): Promise<void> {
     try {
       const dry = await dryPass(server, browser, bundleJson);
       const { evidence: dryEvidence, gpuFps, poses } = dry;
-      if (dryEvidence.physicianActorId !== SCENE_CLOSURE_PHYSICIAN_ACTOR_ID) {
-        throw new Error(`approaching actor is ${String(dryEvidence.physicianActorId)}, not the physician`);
+      if (dryEvidence.physicianActorId !== activeWalkerActorId()) {
+        throw new Error(`approaching actor is ${String(dryEvidence.physicianActorId)}, not the resolved walker ${activeWalkerActorId()}`);
       }
       if (dryEvidence.driveSource !== "case_owned_bedside_approach") {
         throw new Error(`drive came from ${String(dryEvidence.driveSource)}, not the case-owned producer`);
@@ -2392,8 +2466,8 @@ async function main(): Promise<void> {
       const report: FootPlantVideoReport = {
         schemaVersion: "openclinxr.foot-plant-video.v1",
         measuredAt: new Date().toISOString(),
-        scenario: SCENE_CLOSURE_SCENARIO_ID,
-        actorId: SCENE_CLOSURE_PHYSICIAN_ACTOR_ID,
+        scenario: ACTIVE_SCENARIO_ID,
+        actorId: activeWalkerActorId(),
         driveSource: evidence.driveSource,
         recorderGlobalPresent: false,
         fpsCandidates: {

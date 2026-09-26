@@ -206,12 +206,20 @@ async function sampleFrame(page: Page, joints: readonly string[]): Promise<{
 
 ${SKINNED_WORLD_SAMPLING_SOURCE}
 
+    // More than one bound humanoid can carry this clip on its own GLB (a factory step binds it
+    // onto every actor that should walk, not one). The first found in traversal order is not
+    // necessarily the DRIVEN one: prefer whichever candidate's own playback flag is truthy right
+    // now, and only fall back to the first candidate found when none are (a scenario with exactly
+    // one bound actor keeps behaving exactly as before).
     let humanoid = null;
+    let firstCandidate = null;
     scene.traverse(function (o) {
-      if (humanoid) return;
       const ud = o.userData || {};
-      if (typeof ud.openClinXrLocomotionClipName === "string" && ud.openClinXrLocomotionClipName) humanoid = o;
+      if (typeof ud.openClinXrLocomotionClipName !== "string" || !ud.openClinXrLocomotionClipName) return;
+      if (!firstCandidate) firstCandidate = o;
+      if (!humanoid && ud.openClinXrLocomotionClipPlayback) humanoid = o;
     });
+    if (!humanoid) humanoid = firstCandidate;
     if (!humanoid) return null;
     if (typeof humanoid.updateMatrixWorld === "function") humanoid.updateMatrixWorld(true);
 

@@ -88,6 +88,13 @@ export type DurableAcceptedScenePlanRecord = {
     caseContentSha256: string;
     stationId: string;
     environmentId: string;
+    /**
+     * Which role this case's frozen bedside approach drives to walk (e.g. "physician",
+     * "nurse") — a property of the case, not an accident of how many actors it casts into
+     * the runtime's fourth ("additional_cast") slot. The runtime resolves this against the
+     * booted bundle's own actor/role list.
+     */
+    walkerRole: string;
   };
   bundle: {
     bundleId: string;
@@ -226,7 +233,7 @@ export function acceptedScenePlanProblems(
   const caseSection = asRecord(candidate.case);
   if (caseSection === null) problems.push("case section is missing");
   else {
-    for (const field of ["caseId", "caseSourceVersion", "caseContentSha256", "stationId", "environmentId"]) {
+    for (const field of ["caseId", "caseSourceVersion", "caseContentSha256", "stationId", "environmentId", "walkerRole"]) {
       if (!nonblank(caseSection[field])) problems.push(`case.${field} is blank`);
     }
     if (!Number.isInteger(caseSection["caseVersion"])) problems.push("case.caseVersion is not an integer");

@@ -75,6 +75,39 @@ export function buildSceneClosureUrl(baseUrl: string): string {
   );
 }
 
+/**
+ * The real ED chest-pain case: no `scenario` document override needed (unlike scene_closure),
+ * because `createEdChestPainLocalLearnerRuntimeAssetBundle` already defaults its cast and station
+ * to the real ED scenario when neither is supplied. Exported for the same reason as the
+ * scene-closure builders above: the video capture runs the SAME bundle/URL construction a second
+ * case uses, rather than re-deriving it.
+ */
+const ED_CHEST_PAIN_SCENARIO_ID = "ed_chest_pain_priority_v1";
+const ED_CHEST_PAIN_STATION_ID = "ed_chest_pain_station_v1";
+const ED_CHEST_PAIN_ENVIRONMENT_ID = "ed_exam_bay_v1";
+const ED_CHEST_PAIN_BUNDLE_ROUTE = `**/xr-assets/generated/${ED_CHEST_PAIN_SCENARIO_ID}/learner-runtime-bundle.v1.json`;
+
+export const ED_CHEST_PAIN_VIDEO_SCENARIO_ID = ED_CHEST_PAIN_SCENARIO_ID;
+export const ED_CHEST_PAIN_VIDEO_BUNDLE_ROUTE = ED_CHEST_PAIN_BUNDLE_ROUTE;
+
+export function buildEdChestPainBundleJson(): string {
+  const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
+    scenarioId: ED_CHEST_PAIN_SCENARIO_ID,
+    stationId: ED_CHEST_PAIN_STATION_ID,
+  });
+  return `${JSON.stringify(bundle, null, 2)}\n`;
+}
+
+export function buildEdChestPainUrl(baseUrl: string): string {
+  return (
+    `${baseUrl}?openclinxrScenarioId=${ED_CHEST_PAIN_SCENARIO_ID}`
+    + `&stationId=${ED_CHEST_PAIN_STATION_ID}`
+    + `&openclinxrEnvironmentId=${ED_CHEST_PAIN_ENVIRONMENT_ID}`
+    + "&openclinxrPortalStart=encounter"
+    + "&openclinxrAcceleratedExam=1"
+  );
+}
+
 /** `acceptance-v2.md`'s engineering limits for the bounded demo, quoted rather than restated. */
 const ARRIVAL_ERROR_MAX_METERS = 0.05;
 const SETTLED_YAW_ERROR_MAX_DEGREES = 10;

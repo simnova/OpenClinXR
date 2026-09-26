@@ -62,6 +62,8 @@ export type FreezeScenePlanInput = {
     caseSourcePath: string;
     stationId: string;
     environmentId: string;
+    /** Which role this case's frozen bedside approach drives to walk (e.g. "physician", "nurse"). */
+    walkerRole: string;
   };
   bundle: {
     bundleId: string;
@@ -228,6 +230,7 @@ export function freezeAcceptedScenePlan(input: FreezeScenePlanInput): FreezeScen
       caseContentSha256,
       stationId: input.case.stationId,
       environmentId: input.case.environmentId,
+      walkerRole: input.case.walkerRole,
     },
     bundle: {
       bundleId: input.bundle.bundleId,

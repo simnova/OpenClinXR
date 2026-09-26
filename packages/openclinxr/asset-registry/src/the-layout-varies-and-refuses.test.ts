@@ -113,8 +113,8 @@ describe("the layout varies deterministically and refuses when nothing fits", ()
     });
     expect(layout.resolved).toBe(false);
     if (layout.resolved) throw new Error("unreachable");
-    // Every candidate tried is reported: 2 sides x 3 standoffs.
-    expect(layout.unsatisfied).toHaveLength(6);
+    // Every candidate tried is reported: 2 sides x 3 standoffs x 7 along-bed offsets.
+    expect(layout.unsatisfied).toHaveLength(42);
     for (const candidate of layout.unsatisfied) {
       expect(candidate.reason.length).toBeGreaterThan(0);
     }

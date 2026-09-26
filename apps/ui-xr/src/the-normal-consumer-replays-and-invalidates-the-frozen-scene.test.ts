@@ -218,6 +218,7 @@ function freezeInput(
       caseSourcePath: CASE_SOURCE_PATH,
       stationId: SCENE_CLOSURE_STATION_ID,
       environmentId: SCENE_CLOSURE_ENVIRONMENT_ID,
+      walkerRole: "physician",
     },
     bundle: { bundleId: BUNDLE_CONTENT.bundleId, bundleContent: BUNDLE_CONTENT },
     instances: [
@@ -389,53 +390,52 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
     expect(reopened.reproduced.waypointCount).toBe(record.resolvedLayout.waypointCount);
 
     // ── (c) Several permitted variation indices explore AUTHORIZED choices ──────────────────────
-    // MEASURED in this ward, indices 0-9: six resolve to `patient_right @ 0.75 m` and four refuse
-    // with `route_blocked`, because the seed's first byte flips which side the solver tries first
-    // and the case's authored start cannot reach the patient's left without crossing the bed. Both
-    // outcomes are the index reaching the solver's DECISION, which is the claim; asserting only that
-    // the seeds differ would have passed on a solver nobody called.
+    // MEASURED in this ward, indices 0-9 now ALL resolve to `patient_right @ 0.75 m`. Before the
+    // ED-bedside-approach factory fix, four of them (whose seed tried the left side first) refused
+    // here: `resolveBedsideLayoutFromSeed` returned the first side whose STANDING FOOTPRINT was
+    // clear (left, immediately) without knowing its route crossed the bed, and this consumer's own
+    // route check — which never retries the solver, by design — refused with no fallback to the
+    // working right side. The solver now checks the route as part of its own search (side x
+    // standoff x along-bed offset x route/swept together), so those four now correctly continue
+    // past left and land on the right-side answer the other six already found: a real capability
+    // fix, not a loosened assertion. Clause (d) below still exercises a genuine refusal, with an
+    // authored intent no candidate can satisfy, so "a refusal names what defeated it" stays covered.
     const seeds = new Set<string>();
     const resolvedIndices: number[] = [];
-    const refusedIndices: number[] = [];
     for (const variationIndex of CASE_SCENE_PLAN_AUTHORIZED_VARIATION_INDICES) {
       const attempt = freezeAcceptedScenePlan(
         freezeInput(ward, { variation: { variationIndex, assetRevision: "2026-09-09" } }),
       );
-      if (attempt.frozen) {
-        seeds.add(attempt.record.variation.seed);
-        resolvedIndices.push(variationIndex);
-        expect(["patient_left", "patient_right"], `index ${variationIndex}`).toContain(
-          attempt.record.resolvedLayout.approachSide,
+      if (!attempt.frozen) {
+        const conflicts = attempt.unresolved?.resolved === false ? attempt.unresolved.conflicts : [];
+        throw new Error(
+          `index ${variationIndex} unexpectedly refused: ${conflicts.map((conflict) => conflict.reason).join("; ")}`,
         );
-        // Every authorized choice that resolves must also REOPEN, or "explore" would mean
-        // "produce something nobody can replay".
-        const varied = reopen(attempt.record, {
-          evidence: observeNow(ward, {
-            geometryRevision: attempt.record.revisions.geometryRevision,
-            stationRunId: attempt.record.run.stationRunId,
-          }),
-          geometry: ward.geometry,
-          patientWorldPosition: ward.patientWorld,
-          start: ward.start,
-        });
-        expect(
-          varied.status,
-          varied.status === "reopened" ? "" : `index ${variationIndex}: ${varied.detail}`,
-        ).toBe("reopened");
-        continue;
       }
-      refusedIndices.push(variationIndex);
-      // A refusal must NAME what defeated it. An empty conflict list would be a refusal with no
-      // reason, which is indistinguishable from the solver never running.
-      const conflicts = attempt.unresolved?.resolved === false ? attempt.unresolved.conflicts : [];
-      expect(conflicts.length, `index ${variationIndex}`).toBeGreaterThan(0);
-      for (const conflict of conflicts) {
-        expect(conflict.reason.length, `index ${variationIndex}`).toBeGreaterThan(0);
-      }
+      seeds.add(attempt.record.variation.seed);
+      resolvedIndices.push(variationIndex);
+      expect(["patient_left", "patient_right"], `index ${variationIndex}`).toContain(
+        attempt.record.resolvedLayout.approachSide,
+      );
+      // Every authorized choice that resolves must also REOPEN, or "explore" would mean
+      // "produce something nobody can replay".
+      const varied = reopen(attempt.record, {
+        evidence: observeNow(ward, {
+          geometryRevision: attempt.record.revisions.geometryRevision,
+          stationRunId: attempt.record.run.stationRunId,
+        }),
+        geometry: ward.geometry,
+        patientWorldPosition: ward.patientWorld,
+        start: ward.start,
+      });
+      expect(
+        varied.status,
+        varied.status === "reopened" ? "" : `index ${variationIndex}: ${varied.detail}`,
+      ).toBe("reopened");
     }
-    // The index reaches the decision: the authorized set produces BOTH outcomes, not one repeated.
-    expect(resolvedIndices.length).toBeGreaterThan(0);
-    expect(refusedIndices.length).toBeGreaterThan(0);
+    // The whole authorized set now resolves in this ward — see the comment above for why that is
+    // a fix, not a weakened claim.
+    expect(resolvedIndices.length).toBe(CASE_SCENE_PLAN_AUTHORIZED_VARIATION_INDICES.length);
     // Every resolving index has its own seed, so no index is a duplicate of another.
     expect(seeds.size).toBe(resolvedIndices.length);
 
@@ -1111,7 +1111,7 @@ describe("the normal consumer replays and invalidates the frozen scene", () => {
       { observationId: "sc06-a09-fields-present", metric: "a09_fields_present_on_record", unit: "count", value: a09Present, source: "counted off the frozen record" },
       { observationId: "sc06-reproduction-offset", metric: "layout_reproduction_offset_meters", unit: "meters", value: reopened.reproduced.targetOffsetMeters, source: "reopenFrozenScene" },
       { observationId: "sc06-variation-resolved", metric: "authorized_indices_that_resolved", unit: "count", value: resolvedIndices.length, source: "freezeAcceptedScenePlan" },
-      { observationId: "sc06-variation-refused", metric: "authorized_indices_refused_with_named_conflicts", unit: "count", value: refusedIndices.length, source: "freezeAcceptedScenePlan" },
+      { observationId: "sc06-variation-refused", metric: "forced_impossible_intent_refused_with_named_conflicts", unit: "count", value: namedConflicts.length, source: "freezeAcceptedScenePlan" },
       { observationId: "sc06-distinct-refusals", metric: "distinct_evidence_refusal_kinds", unit: "count", value: distinctRefusalKinds.size, source: "reasons returned by reopenFrozenScene" },
       { observationId: "sc06-frozen-plan-revision", metric: "frozen_plan_revision", unit: "digest", value: record.planRevision, source: "scenePlanRevision" },
       { observationId: "sc06-frozen-seed", metric: "frozen_layout_seed", unit: "digest", value: record.variation.seed, source: "deriveLayoutVariationSeed" },
