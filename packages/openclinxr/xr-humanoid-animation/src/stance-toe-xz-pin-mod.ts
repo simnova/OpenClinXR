@@ -1,6 +1,7 @@
 import { MathUtils, type Object3D, Quaternion, Vector3 } from "three";
 import { findStanceChain, worldXyz } from "./stance-lock-ik.js";
 import type { StanceFoot } from "./stance-lock-mod.js";
+import { applyGuardedTwoBoneBlend } from "./two-bone-blend-guard-mod.js";
 
 /**
  * Split out of `clip-driven-settling-turn-mod.ts` to clear that file's 500-line zone budget
@@ -57,28 +58,17 @@ export const STANCE_TOE_PIN_RAMP_STEP = 1 / STANCE_TOE_PIN_RAMP_FRAMES;
 const STANCE_TOE_PIN_MAX_REACH_FRACTION = 1.05;
 
 /**
- * DIVERGENCE GUARD (measured 2026-09-25, turn-jump investigation). `reachDist > maxReach` only
- * catches a target genuinely BEYOND leg reach; it stays FALSE when the target is reachable but the
- * shared cosine-rule solve's hinge-axis choice (`solveTwoBoneIkForXzPin`'s own header on the
- * FALLBACK AXIS branch) flips to a geometrically-valid-but-WRONG branch — which happens near full
- * leg extension, exactly where `hip->knee` and `hip->target` go near-collinear
- * (`hingeAxis.lengthSq() < 1e-6`). The settling pivot sweeps the hip through the fixed anchor's
- * direction over its whole phase, so this collinearity is crossed in the ordinary course of a turn,
- * not only in a contrived case. MEASURED on the real capture
- * (`.openclinxr/evidence/foot-plant-video/foot-plant-video.json`, sample 79): right knee flexion
- * dropped 9.5 -> 6.8 deg (near-straight) exactly the frame the toe jumped 0.18 m off a FIXED,
- * unchanged anchor at weight 1 — `reachReleased` was `false` every frame in that window; the pin's
- * own debug anchor/weight fields (added for this investigation) never moved.
- *
- * NOT a rewrite of the shared solver — that is explicitly out of scope (this file's own header
- * records two prior rewrite attempts and why they were reverted; the FALLBACK AXIS branch is
- * documented, not touched here). This instead measures whether the solve actually achieved what it
- * targeted, the same "measure, don't assume" `reachDist` already applies BEFORE solving, just
- * checked AFTER. The floor is well above the ~0.03-0.045 m residual the closed-loop position solve
- * already carries at full weight even when it IS on the right branch (this file's own REMAINING
- * DEFECT note), and well below the ~0.18-0.21 m this defect produces.
+ * DIVERGENCE GUARD — moved to `two-bone-blend-guard-mod.ts` (`applyGuardedTwoBoneBlend`,
+ * coordinator direction 2026-09-25, fourth pass), and leg-length scaled there rather than the
+ * fixed 0.08 m this file used until now. MOVED, not just relocated: this file's own guard was the
+ * ONLY one of the (then two, now more) callers of `solveTwoBoneIkForXzPin` that had one —
+ * `applySwingFootLiftAssist` below had none, and on the real-clip peds-child capture that gap, not
+ * this one, produced a 0.29 m one-frame toe flight (`reachReleased: false` throughout). One shared
+ * helper now backs every caller, so a THIRD caller cannot repeat the omission. See that module's
+ * own header for the full "FALLBACK AXIS branch" mechanism this guards against, and this file's
+ * own git history (`git log -p` on this constant) for the original single-rig measurement that
+ * calibrated the now-superseded fixed threshold.
  */
-const STANCE_TOE_PIN_DIVERGENCE_METERS = 0.08;
 
 export type FootPinState = {
   /** The toe's world XZ when this foot became stance, held fixed until liftoff clears it. */
@@ -244,39 +234,41 @@ export function applyStanceToeXzPin(input: {
     z: input.anchorXz.z - heelToToe.z,
   };
 
-  const maxReach = STANCE_TOE_PIN_MAX_REACH_FRACTION * (upperLen + lowerLen);
+  const legLengthMeters = upperLen + lowerLen;
+  const maxReach = STANCE_TOE_PIN_MAX_REACH_FRACTION * legLengthMeters;
   const reachDist = hipWorld.distanceTo(new Vector3(heelTarget.x, heelTarget.y, heelTarget.z));
-  if (reachDist > maxReach) return { applied: false, reachReleased: true };
-
   const softening = 0.005;
+  // SOFT REACH RAMP, not a hard on/off cutoff (coordinator direction 2026-09-25, fifth pass).
+  // MEASURED on a real retargeted clip on `mpfb-peds-patient-child.glb`: the footfall anchor's own
+  // reach ratio hovers right at this guard's boundary frame to frame (natural fluctuation from the
+  // ongoing yaw pivot), and the OLD hard cutoff turned that into a SNAP — full correction one
+  // frame, none the next — each transition itself a 0.12-0.18 m toe jump.
+  //
+  // FIRST VERSION ramped the WHOLE 100-105% band and MEASURED WORSE on the physician
+  // (plantedSlideM 0.055 -> 0.101 m): this guard's own header already documents the physician's
+  // natural standing reach at 98.1-103.6% — that whole band was always meant to be full weight.
+  // This version ramps over `softening` (5 mm, already used below, not a new constant) immediately
+  // below `maxReach` — the natural-stance band stays full weight, only the last sliver before the
+  // cutoff is smoothed, narrow enough to leave the physician's calibration untouched and wide
+  // enough to turn the child's boundary-straddling frames into a blend instead of a snap.
+  const reachFactor = MathUtils.clamp((maxReach - reachDist) / softening, 0, 1);
+  if (reachFactor <= 0) return { applied: false, reachReleased: true };
+
   const ikResult = solveTwoBoneIkForXzPin(hip, knee, heel, heelTarget, softening, input.actorSlot);
 
-  const w = Math.max(0, Math.min(1, input.weight));
-  const savedHipQuat = hip.quaternion.clone();
-  const savedKneeQuat = knee.quaternion.clone();
-  const blendedHipDelta = new Quaternion().identity().slerp(ikResult.hipDelta, w);
-  hip.quaternion.multiplyQuaternions(hip.quaternion, blendedHipDelta);
-  knee.quaternion.slerp(ikResult.kneeQuat, w);
-  hip.updateMatrixWorld(true);
-  knee.updateMatrixWorld(true);
-  toe.updateMatrixWorld(true);
-
-  // See `STANCE_TOE_PIN_DIVERGENCE_METERS`'s own header. Checked only at near-full weight: at
-  // partial weight (footfall/liftoff ramp) the target is deliberately only partly reached, so a
-  // large gap there is the ramp working as designed, not a wrong-branch solve.
-  if (w >= 0.9) {
-    const achieved = worldXz(toe);
-    const errorMeters = Math.hypot(achieved.x - input.anchorXz.x, achieved.z - input.anchorXz.z);
-    if (errorMeters > STANCE_TOE_PIN_DIVERGENCE_METERS) {
-      hip.quaternion.copy(savedHipQuat);
-      knee.quaternion.copy(savedKneeQuat);
-      hip.updateMatrixWorld(true);
-      knee.updateMatrixWorld(true);
-      toe.updateMatrixWorld(true);
-      return { applied: false, reachReleased: true };
-    }
-  }
-  return { applied: true, reachReleased: false };
+  // See `two-bone-blend-guard-mod.ts`'s own header — the SAME guard every caller of this solve
+  // now goes through, leg-length scaled rather than the physician's own fixed 0.08 m. `weight` is
+  // scaled by `reachFactor` so a near-boundary frame blends in partially rather than snapping.
+  const guarded = applyGuardedTwoBoneBlend({
+    hip,
+    knee,
+    toe,
+    ikResult,
+    weight: input.weight * reachFactor,
+    intendedToeXz: input.anchorXz,
+    legLengthMeters,
+  });
+  return { applied: guarded.applied, reachReleased: guarded.diverged };
 }
 
 /** Toe clearance target for `correctPlantedFootHeight`: on the floor, not embedded in it. */
@@ -371,11 +363,20 @@ export function applySwingFootLiftAssist(input: {
   };
   const softening = 0.005;
   const ikResult = solveTwoBoneIkForXzPin(hip, knee, heel, heelTarget, softening, actorSlot);
-  const blendedHipDelta = new Quaternion().identity().slerp(ikResult.hipDelta, w);
-  hip.quaternion.multiplyQuaternions(hip.quaternion, blendedHipDelta);
-  knee.quaternion.slerp(ikResult.kneeQuat, w);
-  hip.updateMatrixWorld(true);
-  knee.updateMatrixWorld(true);
+  // GUARDED (coordinator direction 2026-09-25, fourth pass): this call had NO divergence check
+  // until now — see `two-bone-blend-guard-mod.ts`'s own header for the measured consequence (a
+  // 0.29 m one-frame toe flight on the real-clip peds-child capture, this call site specifically).
+  // `intendedToeXz` is the toe's OWN pre-solve XZ: this function only means to change toe Y (see
+  // this function's own header), so XZ drifting at all is itself the divergence to catch.
+  applyGuardedTwoBoneBlend({
+    hip,
+    knee,
+    toe,
+    ikResult,
+    weight: w,
+    intendedToeXz: { x: toeWorld.x, z: toeWorld.z },
+    legLengthMeters: legLength,
+  });
   heel.updateMatrixWorld(true);
   toe.updateMatrixWorld(true);
   return { applied: true, targetClearanceMeters: desiredClearanceMeters, currentClearanceMeters };
