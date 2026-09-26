@@ -2221,3 +2221,92 @@ finding (reasoned from the metric's own formula and the station's own measured i
 into `resolveLocomotionClipTimeScale`'s internals); whether a DIFFERENT lever (e.g. a shorter
 route/faster prescribed speed at the scenario level, rather than the clip's own authored timing)
 would move cadence — not tried, out of this round's "only if cheap" scope.
+
+---
+
+# Round 15, same day — child cadence corrected, branch rebased and landable
+
+Coordinator: nurse/child three-quarter strips graded well, the station is exactly what was asked
+for. Two follow-ups: (1) round 14's child cadence (275.8/min) overstates plausibility — real
+children walk ~140-180/min; diagnose and fix within 130-190/min, lurch <= 1.4. (2) get the branch
+landable: rebase onto origin/main (conflicts in `foot-plant-video-capture.ts`), run
+`packages:test:affected` and `pnpm architecture`, confirm no shipped GLB changes and that the
+runtime diagnostic module is additive only.
+
+## 1. Child cadence: diagnosed and fixed
+
+Measured cause, exactly as the coordinator named it: the round-14 child clip's rate-1 stance speed
+(0.36 m/s) sat far below its Froude-derived target (~1.15 m/s from the child's own leg length),
+forcing `resolveLocomotionClipTimeScale` to a ~3.2x playback multiplier — playing a naturally slow,
+short-stride generated walk fast enough to hit the prescribed speed produces an implausibly high
+step rate, not a genuinely faster child gait.
+
+Regenerated with a faster-paced prompt ("a young child walks quickly with a hurried, energetic
+gait") and a higher average-speed constraint (3.6 m / 2.8 s, ~1.29 m/s average, vs. round 14's 3.0 m
+/ 4.5 s, ~0.67 m/s): rate-1 stance speed rose to 0.61-0.70 m/s (live runtime / offline measurement),
+timeScale dropped from 3.46x to 1.85x. Re-ran the full runtime capture:
+
+| metric | round 14 child | round 15 child (fixed) | bar |
+|---|---|---|---|
+| cadencePerMinute | 275.8 (4 steps) | **157.6 (4 steps in 1.52s)** | 130-190 |
+| lurch | 1.064 (already passing) | **1.040 (PASS)** | <= 1.4 |
+| plantedSlideM | 0.021 | **0.012 (PASS)** | <= 0.02 |
+| medianHoldSlideMeters | 0.009 (PASS) | 0.024 (FAIL, new) | <= 0.02 |
+
+Both coordinator-named bars are met. `plantedSlideM` improved to a clean pass too.
+`medianHoldSlideMeters` newly fails, narrowly (0.024 vs 0.02) — not one of the two named bars,
+disclosed rather than hidden. Contact sheet confirms upright, plausible gait:
+`~/.openclinxr-wip/kimodo/round15/child-fast-capture/feet-side-contact.png`.
+
+**Which of the two named hypotheses was it?** The generated stride being too short for the prompt,
+not the Froude number being wrong — a faster-paced prompt and constraint alone closed most of the
+gap (0.36 to ~0.65 m/s average) without touching the Froude formula. The Froude number itself was
+not adjusted or found to need adjustment.
+
+## 2. Branch rebased, landable, verified
+
+Rebased `wt/kimodo-cagematch` onto `origin/main` (14 commits, 9 commits of upstream drift). One
+conflict, in `tools/openclinxr/evidence/foot-plant/foot-plant-video-capture.ts`: main generalized
+the hardcoded physician-actor check to `activeWalkerActorId()`; this branch's round-12 commit added
+the `clipForwardDiagnostic` destructure at the same line. Resolved to keep both: main's
+generalization plus this branch's diagnostic field.
+
+Running `pnpm architecture` for the first time against this branch (never previously run — this
+cagematch's own pre-commit hook profile only runs `docs:drift-check`, a different, narrower check)
+surfaced two real, pre-existing defects from earlier rounds, both fixed:
+
+1. Two docs (this cagematch's own log; the third-party licence ledger) tripped the markdown-
+   reference checker's backticked-path regex on a HuggingFace URL fragment quoted in prose
+   (`` `resolve/main/README.md` ``) — a false positive (not a real broken link), but the check is a
+   shrink-only ceiling that doesn't distinguish. Reworded to drop the backticks; no content changed.
+2. `measure-clip-stance-forward.ts` (round 14) imported two production functions via a relative
+   path into another package's `src/`, correctly flagged by the shrink-only cross-package-reach
+   freeze as a new violation. Switched both to the packages' own declared public subpaths
+   (`@openclinxr/asset-registry/approach-executor`, `@openclinxr/xr-humanoid-animation/case-owned-
+   approach-runtime`) — the exact pattern `bind-walk-clip-all.ts` already uses for the same two
+   symbols. Re-verified the tool still measures correctly against the shipped clip.
+
+`packages:test:affected` (87/87 tasks) and `pnpm architecture` (242/242 tests, 22/22 files) are both
+green. Confirmed: no shipped GLB touched (`git diff origin/main..HEAD --stat --
+apps/ui-xr/public/generated-humanoids/` is empty); the runtime diagnostic module is additive only
+(`station-bedside-approach-mod.ts` diff: 2 insertions, 0 deletions — one new import, one new
+function call, no existing line touched;
+`bedside-approach-clip-forward-diagnostic.ts` is a new file). Main checkout unaffected throughout
+(verified before and after: `859dadb1b`).
+
+Final sha: `b051eed92d8eb4efd59907b5aa0211c3a8c7b3dc`, on `wt/kimodo-cagematch`, not pushed.
+
+## claimScope / notEvidenceFor (round 15)
+
+**claimScope:** the child's implausible cadence was diagnosed to the coordinator's own named
+mechanism (rate-1 speed far below the Froude target, forcing a large timeScale) and fixed by
+generating a faster, longer-strided walk, landing both named bars (cadence 130-190, lurch <= 1.4).
+The branch rebases cleanly onto `origin/main` with one resolved conflict preserving both sides'
+changes, and is verified green on `packages:test:affected`, `pnpm architecture`, no-shipped-GLB-
+change, and additive-only diagnostic module.
+
+**notEvidenceFor:** whether the Froude number itself is well-calibrated for pediatric gait (not
+tested — the fix worked by matching the CLIP to the existing target, not by questioning the
+target); the newly-introduced `medianHoldSlideMeters` near-miss on the fixed child clip (0.024 vs
+0.02, not one of the two named bars, not investigated); whether nurse's own cadence (also 88.4, like
+the physician) would respond to the same fix if asked for.
