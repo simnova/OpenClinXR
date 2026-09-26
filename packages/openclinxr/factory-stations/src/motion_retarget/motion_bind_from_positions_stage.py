@@ -324,6 +324,24 @@ def main(argv: list[str]) -> int:
     for pb in target_actor.pose.bones:
         pb.rotation_mode = "QUATERNION"
 
+    # FRESH ACTION (bug found round 13, 2026-09-26): `keyframe_insert` below implicitly targets
+    # whatever action `target_actor.animation_data.action` ALREADY holds -- and the glTF importer
+    # leaves the LAST-processed imported clip (e.g. the shipped 90-frame walk) active on this
+    # armature. Every prior round never noticed because the bake-time foot-lock's
+    # `bpy.ops.nla.bake(..., use_current_action=False)` always replaced whatever action existed with
+    # a brand-new one scoped to exactly `frame_start..frame_end`. Skipping that bake for an in-place
+    # cycle (this round's own fix) exposed it directly: a 35-frame cycle inserted keyframes into a
+    # stale 90-frame action, leaving frames 36-89 holding the OLD clip's own constant-extrapolated
+    # tail and frame 90 an outright discontinuity -- confirmed on the actual exported GLB
+    # (`action.frame_range` read 3.75 s = 90 frames at this exporter's fps, not the intended 35).
+    # Fixed at the source, unconditionally, so the retarget loop is correct with or without the
+    # optional bake regardless of any future change to it: always keyframe into a FRESH, empty
+    # action, never whatever the importer happened to leave active.
+    if target_actor.animation_data is None:
+        target_actor.animation_data_create()
+    fresh_action = bpy.data.actions.new(name=f"{args.clip_name}__wip")
+    target_actor.animation_data.action = fresh_action
+
     target_order = _topo_order(target_actor)
     target_rest_world: dict[str, Matrix] = {pb.name: _rest_world_matrix(target_actor, pb.name) for pb in target_order}
     target_rest_rot: dict[str, Matrix] = {name: m.to_3x3() for name, m in target_rest_world.items()}
@@ -561,8 +579,23 @@ def main(argv: list[str]) -> int:
         return _reject(args.report, "no_action_after_retarget", "\n".join(log))
     baked_action.name = args.clip_name
 
+    # BAKE-TIME FOOT LOCK, skipped for an in-place cycle (coordinator-directed fix, round 13,
+    # 2026-09-26). The lock pins each stance foot at a fixed WORLD position for its whole contact
+    # window -- correct while the root travelled underneath it (every whole-approach clip), because
+    # the foot's OWN clip-authored motion needs to slide backward relative to the root at walking
+    # speed for a planted foot to look stationary in world space once the root's translation is
+    # added back. With `--strip-horizontal-root-motion` the root no longer travels, so pinning the
+    # foot to a fixed world position ALSO fixes it relative to the (now-stationary) root -- the
+    # foot stops moving in either frame, `measureStanceGroundAdvance`'s rate-1 stance speed
+    # collapses to near-zero, and `resolveLocomotionClipTimeScale` then multiplies playback ~62x to
+    # reach the prescribed walk speed, which is the actual cause of round 10-12's toe-teleport
+    # jitter (round 12 found the number; this is the mechanism). Fix: for an in-place cycle, leave
+    # the runtime's OWN stance lock to plant the feet at playback time, exactly as it already does
+    # for the shipped clip (which carries no bake-time IK lock at all) -- do not also lock at bake
+    # time. `--foot-contacts` is silently unused in this mode rather than refused, since supplying
+    # it for an in-place cycle is a reasonable, harmless mistake, not a contract violation.
     ik_used = False
-    if args.foot_contacts:
+    if args.foot_contacts and not args.strip_horizontal_root_motion:
         try:
             contacts = json.loads(Path(args.foot_contacts).read_text(encoding="utf-8"))
         except Exception as exc:  # noqa: BLE001
@@ -622,36 +655,38 @@ def main(argv: list[str]) -> int:
                     ik.keyframe_insert("influence", frame=f)
             ik_used = True
         log.append(f"foot_locking_applied={ik_used}")
+    elif args.foot_contacts and args.strip_horizontal_root_motion:
+        log.append("foot_locking_skipped=in_place_cycle")
 
-        if ik_used:
-            bpy.ops.object.select_all(action="DESELECT")
-            target_actor.select_set(True)
-            bpy.context.view_layer.objects.active = target_actor
-            bpy.ops.object.mode_set(mode="POSE")
-            bpy.ops.pose.select_all(action="SELECT")
-            try:
-                bpy.ops.nla.bake(
-                    frame_start=frame_start,
-                    frame_end=frame_end,
-                    only_selected=True,
-                    visual_keying=True,
-                    clear_constraints=True,
-                    clear_parents=False,
-                    use_current_action=False,
-                    bake_types={"POSE"},
-                )
-            except Exception as exc:  # noqa: BLE001
-                bpy.ops.object.mode_set(mode="OBJECT")
-                return _reject(args.report, "footlock_bake_failed", "\n".join(log) + f"\n{exc!r}\n{traceback.format_exc()}")
+    if ik_used:
+        bpy.ops.object.select_all(action="DESELECT")
+        target_actor.select_set(True)
+        bpy.context.view_layer.objects.active = target_actor
+        bpy.ops.object.mode_set(mode="POSE")
+        bpy.ops.pose.select_all(action="SELECT")
+        try:
+            bpy.ops.nla.bake(
+                frame_start=frame_start,
+                frame_end=frame_end,
+                only_selected=True,
+                visual_keying=True,
+                clear_constraints=True,
+                clear_parents=False,
+                use_current_action=False,
+                bake_types={"POSE"},
+            )
+        except Exception as exc:  # noqa: BLE001
             bpy.ops.object.mode_set(mode="OBJECT")
-            old_action = baked_action
-            baked_action = target_actor.animation_data.action
-            if old_action is not None and old_action != baked_action and old_action.name == args.clip_name:
-                old_action.name = f"{args.clip_name}__pre_footlock"
-                bpy.data.actions.remove(old_action, do_unlink=True)
-            baked_action.name = args.clip_name
-            for empty_ob in [ob for ob in bpy.context.scene.objects if ob.name.startswith("ik_target_")]:
-                bpy.data.objects.remove(empty_ob, do_unlink=True)
+            return _reject(args.report, "footlock_bake_failed", "\n".join(log) + f"\n{exc!r}\n{traceback.format_exc()}")
+        bpy.ops.object.mode_set(mode="OBJECT")
+        old_action = baked_action
+        baked_action = target_actor.animation_data.action
+        if old_action is not None and old_action != baked_action and old_action.name == args.clip_name:
+            old_action.name = f"{args.clip_name}__pre_footlock"
+            bpy.data.actions.remove(old_action, do_unlink=True)
+        baked_action.name = args.clip_name
+        for empty_ob in [ob for ob in bpy.context.scene.objects if ob.name.startswith("ik_target_")]:
+            bpy.data.objects.remove(empty_ob, do_unlink=True)
 
     def iter_fcurves(action: bpy.types.Action):
         fcs = getattr(action, "fcurves", None)
