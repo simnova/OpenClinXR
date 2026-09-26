@@ -21,7 +21,6 @@ import {
   measureStanceGroundAdvance,
 } from "./case-owned-approach-runtime-mod.js";
 import { resolveLocomotionClipTimeScale } from "./locomotion-clip-playback-mod.js";
-import { resolveLocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import { observeMountedApproachGeometry } from "./mounted-approach-geometry-mod.js";
 import { resolveToeBones } from "./resolve-toe-bones.js";
 import { findStanceChain } from "./stance-lock-ik.js";
@@ -241,16 +240,16 @@ export function resolveStationBedsideApproach(
     state.refusal = approach.reason;
     return;
   }
-  // The clip's own stance labels, resolved once per bound clip off the physician's live slot.
-  // The lock pins only labelled stance feet; without a slot (offline probes) it keeps the band.
+  // Only the SLOT is set here. `resolveClipStanceForFrame` (case-owned-approach-frame-mod.ts)
+  // resolves `approach.stanceLabels` from it LAZILY, on the first frame either the walking lock or
+  // the settling turn needs them — not this constructor. This used to call
+  // `resolveLocomotionStanceLabels` eagerly right here, which made this the ONE place that knew
+  // labels had to be resolved at all: any other caller of the shared case-owned approach that
+  // populated a slot without also remembering this call got null labels forever (the offline SC-05
+  // proof did exactly that for months). The lock pins only labelled stance feet; without a slot
+  // (offline probes with no clip at all) it keeps the legacy height band.
   if (context.animationSlot !== undefined) {
-    try {
-      approach.stanceLabels = resolveLocomotionStanceLabels(context.animationSlot as never);
-      approach.stanceLabelSlot = context.animationSlot as never;
-    } catch {
-      approach.stanceLabels = null;
-      approach.stanceLabelSlot = null;
-    }
+    approach.stanceLabelSlot = context.animationSlot as never;
   }
   state.approach = approach;
   state.settled = true;

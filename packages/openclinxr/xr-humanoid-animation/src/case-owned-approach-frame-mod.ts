@@ -15,7 +15,7 @@ import {
   createClipDrivenSettlingTurnState,
 } from "./clip-driven-settling-turn-mod.js";
 import { applyHeadGazeLeadYaw } from "./head-gaze-lead-mod.js";
-import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
+import { type LocomotionStanceLabels, resolveLocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import { applySettledPostureCorrection } from "./settled-posture-correction.js";
 import {
   restoreSettlingRestToePose,
@@ -259,13 +259,29 @@ export function readHeadYawWorldRadians(actorSlot: Object3D | null): number | nu
  * the stance toe to at or above floorOriginY without moving actorSlot Y. This is a NEW call
  * site with its own gate, NOT a deletion of the locomotion gate.
  */
-/** The clip's own stance labels with this frame's action time, or undefined with nothing bound. */
+/**
+ * The clip's own stance labels with this frame's action time, or undefined with nothing bound.
+ *
+ * RESOLVES LAZILY, AT THE SOURCE. Previously the caller had to have already populated
+ * `approach.stanceLabels` itself (only `station-bedside-approach-mod.ts` ever did, via an eager
+ * `resolveLocomotionStanceLabels` call at approach creation) — any other consumer of the shared
+ * case-owned approach (the offline SC-05 harness, a future station, a different humanoid) that
+ * populated `stanceLabelSlot` without ALSO remembering that separate call got `stanceLabels: null`
+ * forever, and `applyClipDrivenSettlingTurn`'s `downFoot` has no fallback for a null label — the
+ * settling turn's yaw then never increments and the phase never closes. Resolving here instead
+ * means every caller that supplies a real `stanceLabelSlot` (root + mixer + clip) gets labels for
+ * free on first use. `resolveLocomotionStanceLabels` caches its result on
+ * `stanceSlot.root.userData`, so calling it every frame after the first is a userData read, not a
+ * re-measurement.
+ */
 function resolveClipStanceForFrame(
   approach: CaseOwnedBedsideApproach,
 ): { labels: LocomotionStanceLabels; actionTimeSeconds: number } | undefined {
   const stanceSlot = approach.stanceLabelSlot;
-  const labels = approach.stanceLabels;
-  if (stanceSlot === null || labels === null || stanceSlot.mixer === undefined) return undefined;
+  if (stanceSlot === null || stanceSlot.mixer === undefined) return undefined;
+  const labels = approach.stanceLabels ?? resolveLocomotionStanceLabels(stanceSlot);
+  if (labels === null) return undefined;
+  approach.stanceLabels = labels;
   const clipName = stanceSlot.locomotionClipName;
   const clip = clipName ? stanceSlot.responseClips?.find((candidate) => candidate.name === clipName) : undefined;
   const action = clip && stanceSlot.mixer ? stanceSlot.mixer.existingAction(clip) : null;
@@ -462,17 +478,10 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
   const routeDx = approach.target.x - approach.start.x;
   const routeDz = approach.target.z - approach.start.z;
   const routeLength = Math.hypot(routeDx, routeDz);
-  // The clip labels stance once per bound clip; the action time is this frame's.
-  // The slot is set by the station resolve (browser) or stays null (probe rigs).
-  let clipStance: { labels: LocomotionStanceLabels; actionTimeSeconds: number } | undefined;
-  const stanceSlot = approach.stanceLabelSlot;
-  const labels = approach.stanceLabels;
-  if (stanceSlot !== null && labels !== null && stanceSlot.mixer !== undefined) {
-    const clipName = stanceSlot.locomotionClipName;
-    const clip = clipName ? stanceSlot.responseClips?.find((candidate) => candidate.name === clipName) : undefined;
-    const action = clip && stanceSlot.mixer ? stanceSlot.mixer.existingAction(clip) : null;
-    if (action) clipStance = { labels, actionTimeSeconds: action.time };
-  }
+  // The clip labels stance once per bound clip; the action time is this frame's. The slot is set
+  // by the station resolve (browser), the offline harness, or stays null (rigs with no clip) —
+  // `resolveClipStanceForFrame` resolves and caches `approach.stanceLabels` lazily either way.
+  const clipStance = resolveClipStanceForFrame(approach);
   approach.lock = applyStanceLockedGroundAdvance({
     actorSlot: approach.actorSlot,
     leftToe: approach.leftToe,

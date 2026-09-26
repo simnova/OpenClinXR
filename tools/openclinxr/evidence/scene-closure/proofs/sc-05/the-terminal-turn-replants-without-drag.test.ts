@@ -55,6 +55,30 @@ import { footSlideFinding, measureShippedApproach } from "./runtime-approach-mea
  *
  * The terminal-turn defect this file is named for is fixed and stays fixed: the settling turn now
  * releases and replants with zero measured slide, and the run reaches "arrived" and holds there.
+ *
+ * ## RELOCATED TO THE SOURCE (2026-09-25, same day) — the paragraph above describes an interim fix
+ *
+ * The "Fixed here by computing `LocomotionStanceLabels` directly..." paragraph above described a
+ * fix living IN THIS PROOF FILE — a hand-written copy of `computeLocomotionStanceLabels` /
+ * `forwardFromTracks` that let the proof pass while production kept the exact gap that caused it
+ * (only `station-bedside-approach-mod.ts` ever called `resolveLocomotionStanceLabels`; any other
+ * caller of the shared case-owned approach — this harness, a future station, a different humanoid —
+ * still got null labels forever). That copy is deleted. The fix now lives in the SHARED approach
+ * path: `resolveClipStanceForFrame` (case-owned-approach-frame-mod.ts) resolves and caches
+ * `approach.stanceLabels` from `approach.stanceLabelSlot` LAZILY, via the real
+ * `resolveLocomotionStanceLabels`, on the first frame either the walking lock or the settling turn
+ * needs it. `station-bedside-approach-mod.ts` no longer resolves labels itself either — it only
+ * populates `stanceLabelSlot` now, same as this harness. Both are symmetric, and both are correct
+ * for free the moment either supplies a real slot.
+ *
+ * This harness's own job shrank to matching what a real loaded skeleton provides: a `Group` root
+ * carrying two named toe bones, and a real `AnimationClip` (`VectorKeyframeTrack`s built from the
+ * decoded joint samples, not empty placeholder tracks) so `resolveLocomotionStanceLabels`'s
+ * calibration step samples real data. Measured duty factor from the real resolver on this harness:
+ * 0.510 for both toes — closer to `locomotion-stance-labels.ts`'s own documented reference (0.531,
+ * from the real browser skeleton) than the deleted local reproduction's 0.475 ever got. Every number
+ * in the "Measured after that fix" table above is unchanged under the relocated fix — re-measured,
+ * not assumed.
  */
 
 const SETTLED_YAW_ERROR_MAX_DEGREES = 10;

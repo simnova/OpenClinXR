@@ -1,6 +1,16 @@
 import { appendFileSync } from "node:fs";
 import { NodeIO } from "@gltf-transform/core";
-import { AnimationClip, AnimationMixer, BoxGeometry, Group, Mesh, MeshBasicMaterial, Object3D, Scene } from "three";
+import {
+  AnimationClip,
+  AnimationMixer,
+  BoxGeometry,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  PropertyBinding,
+  Scene,
+  VectorKeyframeTrack,
+} from "three";
 import {
   composeSupportedActorWorldPosition,
   supineActorWorldPosition,
@@ -211,143 +221,6 @@ function sampleTrack(samples: readonly JointSample[], clipMs: number, decoded: D
   return { ...fallback.position };
 }
 
-// ── Local reproductions of locomotion-stance-labels.ts's PURE functions ─────────────────────────
-//
-// NOT an import of `packages/openclinxr/xr-humanoid-animation/src/locomotion-stance-labels.ts`.
-// `nothing-reaches-across-a-package-boundary-by-path.test.ts` freezes this package's cross-package
-// relative-src reaches SHRINK-ONLY ("a new specifier fails until the reach is removed" — this file
-// had none into that module before today), and routing through the package's reviewed public
-// subpath (`case-owned-approach-runtime.ts`) instead trips a SEPARATE gate
-// (`packages-publish-a-reviewed-surface.test.ts` / `admission-overlays-do-not-launder-closed-
-// removes.test.ts`), which pins an approval file's bytes and needs an actual review cycle to move,
-// not a same-slice edit. Reproducing these two PURE, already-tested functions here is the same
-// pattern this file already uses for the skeleton itself (see `decodePhysician`'s header: "the
-// skeleton comes from the same decoder SC-00 measured with: forward kinematics over the GLB's node
-// chain" — an independent reproduction, not a direct import of the browser's GLTFLoader path,
-// because Node cannot run that loader either).
-//
-// KEEP BYTE-IDENTICAL TO `locomotion-stance-labels.ts`. If that module's `forwardFromTracks` or
-// `computeLocomotionStanceLabels` changes, this copy must change with it or the offline harness
-// silently diverges from the browser's stance-label computation again.
-
-type StanceTrackSample = { atMs: number; position: { x: number; y: number; z: number } };
-
-/** Copy of `forwardFromTracks` (locomotion-stance-labels.ts) — see the header above this block. */
-function localForwardFromTracks(input: {
-  left: ReadonlyArray<StanceTrackSample>;
-  right: ReadonlyArray<StanceTrackSample>;
-}): { x: number; z: number } {
-  const candidates = [input.left, input.right];
-  let best = { x: 0, z: 1, travel: 0 };
-  for (const track of candidates) {
-    if (track.length < 2) continue;
-    const heights = track.map((sample) => sample.position.y);
-    const minHeight = Math.min(...heights);
-    const maxHeight = Math.max(...heights);
-    const lowHeightCut = minHeight + 0.5 * (maxHeight - minHeight);
-    let runStart = -1;
-    let bestRun = { start: -1, end: -1, length: 0 };
-    for (let index = 0; index <= track.length; index += 1) {
-      const low = index < track.length && (heights[index] ?? Number.POSITIVE_INFINITY) <= lowHeightCut;
-      if (low) {
-        if (runStart === -1) runStart = index;
-      } else if (runStart !== -1) {
-        const length = index - runStart;
-        if (length > bestRun.length) bestRun = { start: runStart, end: index - 1, length };
-        runStart = -1;
-      }
-    }
-    if (bestRun.length < 2) continue;
-    const first = track[bestRun.start];
-    const last = track[bestRun.end];
-    if (first === undefined || last === undefined) continue;
-    const dx = first.position.x - last.position.x;
-    const dz = first.position.z - last.position.z;
-    const travel = Math.hypot(dx, dz);
-    if (travel > best.travel) best = { x: dx, z: dz, travel };
-  }
-  const length = Math.hypot(best.x, best.z);
-  return length > 0 ? { x: best.x / length, z: best.z / length } : { x: 0, z: 1 };
-}
-
-/**
- * Copy of `computeLocomotionStanceLabels` (locomotion-stance-labels.ts) — see the header above
- * this block. Returns the same shape as `LocomotionStanceLabels`, structurally, without importing
- * that type across the package boundary either.
- */
-function localComputeLocomotionStanceLabels(input: {
-  clipName: string;
-  cycleSeconds: number;
-  forward: { x: number; z: number };
-  left: ReadonlyArray<StanceTrackSample>;
-  right: ReadonlyArray<StanceTrackSample>;
-}): {
-  clipName: string;
-  cycleSeconds: number;
-  forward: { x: number; z: number };
-  stanceSpeedMetersPerSecond: number;
-  speedToleranceMetersPerSecond: number;
-  heightCutMeters: number;
-  atMs: number[];
-  left: boolean[];
-  right: boolean[];
-} {
-  const length = Math.hypot(input.forward.x, input.forward.z);
-  const forward = length > 0 ? { x: input.forward.x / length, z: input.forward.z / length } : { x: 0, z: 1 };
-  const count = input.left.length;
-  type Sample = { x: number; y: number; z: number };
-  const alongOf = (track: ReadonlyArray<{ atMs: number; position: Sample }>, index: number): number => {
-    const previous = track[(index - 1 + track.length) % track.length];
-    const next = track[(index + 1) % track.length];
-    if (previous === undefined || next === undefined) return 0;
-    const dtSeconds = (next.atMs - previous.atMs) / 1000;
-    if (!(dtSeconds > 0)) return 0;
-    return (
-      ((next.position.x - previous.position.x) * forward.x + (next.position.z - previous.position.z) * forward.z) /
-      dtSeconds
-    );
-  };
-  const backwardSpeeds: number[] = [];
-  for (let index = 0; index < count; index += 1) {
-    const alongLeft = input.left.length > 0 ? alongOf(input.left, index) : 0;
-    const alongRight = input.right.length > 0 ? alongOf(input.right, index) : 0;
-    if (alongLeft < 0) backwardSpeeds.push(-alongLeft);
-    if (alongRight < 0) backwardSpeeds.push(-alongRight);
-  }
-  const sorted = [...backwardSpeeds].sort((a, b) => a - b);
-  const median = sorted.length > 0 ? (sorted[Math.floor(sorted.length / 2)] ?? 0) : 0;
-  const deviations = sorted.map((value) => Math.abs(value - median)).sort((a, b) => a - b);
-  const mad = deviations.length > 0 ? (deviations[Math.floor(deviations.length / 2)] ?? 0) : 0;
-  const stanceSpeedMetersPerSecond = median;
-  const speedToleranceMetersPerSecond = Math.max(2 * mad, 0.1 * median);
-  const backwardSpeedsSorted = [...backwardSpeeds].sort((a, b) => a - b);
-  const lowerSpeedMetersPerSecond = backwardSpeedsSorted.length > 0 ? (backwardSpeedsSorted[0] ?? 0) : 0;
-  const allHeights: number[] = [];
-  for (const sample of input.left) allHeights.push(sample.position.y);
-  for (const sample of input.right) allHeights.push(sample.position.y);
-  const minHeight = allHeights.length > 0 ? Math.min(...allHeights) : 0;
-  const maxHeight = allHeights.length > 0 ? Math.max(...allHeights) : 0;
-  const heightCutMeters = minHeight + 0.5 * (maxHeight - minHeight) + 0.005;
-  const labelOne = (track: ReadonlyArray<{ atMs: number; position: Sample }>): boolean[] =>
-    track.map((sample, index) => {
-      const backward = -alongOf(track, index);
-      const speedOk =
-        backward >= lowerSpeedMetersPerSecond && backward <= stanceSpeedMetersPerSecond + speedToleranceMetersPerSecond;
-      return speedOk && sample.position.y <= heightCutMeters;
-    });
-  return {
-    clipName: input.clipName,
-    cycleSeconds: input.cycleSeconds,
-    forward,
-    stanceSpeedMetersPerSecond,
-    speedToleranceMetersPerSecond,
-    heightCutMeters,
-    atMs: input.left.map((sample) => sample.atMs),
-    left: labelOne(input.left),
-    right: labelOne(input.right),
-  };
-}
-
 // ── Staging, exactly as the browser entry builds it ─────────────────────────────────────────────
 
 
@@ -524,9 +397,18 @@ export function runApproach(input: {
   // yields an EMPTY box whose `min.y` is +Infinity.
   const marker = (): Mesh => new Mesh(new BoxGeometry(1e-6, 1e-6, 1e-6), new MeshBasicMaterial());
   const toeL = marker();
-  toeL.name = "toe1-1.L";
+  // SANITIZED, not the raw GLB name: `resolve-toe-bones.ts`'s own header explains why — GLTFLoader
+  // runs every node name through `PropertyBinding.sanitizeNodeName` (which strips dots, a
+  // three.js animation-track path separator), so a REAL loaded rig's toe bones are named
+  // "toe1-1L"/"toe1-1R", not "toe1-1.L"/"toe1-1.R". Naming these markers with the raw dotted form
+  // let `resolveToeBones` find them (it tries both), but broke `PropertyBinding`'s own track-name
+  // parser when this harness started binding a real `AnimationClip` to them (a dotted node-name
+  // segment is ambiguous against the "nodeName.property" track-name grammar) — silently produced
+  // "PropertyBinding: No target node found for track" and sampled nothing. Matching what a real
+  // loaded rig is actually named fixes both at once.
+  toeL.name = PropertyBinding.sanitizeNodeName("toe1-1.L");
   const toeR = marker();
-  toeR.name = "toe1-1.R";
+  toeR.name = PropertyBinding.sanitizeNodeName("toe1-1.R");
   humanoid.add(toeL);
   humanoid.add(toeR);
   // The sole, at the decoded body's own lowest skinned vertex, so the production floor-band plant
@@ -563,64 +445,53 @@ export function runApproach(input: {
     approach.rightToe = null;
   }
 
-  // WIRE THE CLIP'S OWN STANCE LABELS — an OFFLINE HARNESS GAP, found and fixed here (not a real
-  // runtime difference). `createCaseOwnedBedsideApproach` always starts `stanceLabels`/
-  // `stanceLabelSlot` at null (case-owned-approach-runtime-mod.ts), and the BROWSER path fills
-  // them in every frame from `station-bedside-approach-mod.ts` (`resolveLocomotionStanceLabels`
-  // off the loaded skeleton's real bones + a playing AnimationMixer action). This harness has no
-  // GLTFLoader skeleton and no playing action — it drives `toeL`/`toeR` by hand from the decoded
-  // track — so it never called that resolver and `stanceLabels` stayed null for the WHOLE run.
-  // `applyClipDrivenSettlingTurn`'s `downFoot` has no fallback for a null label
-  // (`labelled === null ? null : ...`), so with no labels the settling turn's yaw NEVER
-  // increments and the phase can never close: MEASURED, `heading` moved 0.004 rad in 1108 frames
-  // (18.5 s) while the target was over 1 rad away, `locomotion` stayed at 1 for the whole run, and
-  // the phase never left `settling` to reach `arrived` — exactly "walkEnd 92, stopStart -1".
+  // WIRE A REAL STANCE-LABEL SLOT — the offline harness gap this proof exists to close. Fixed AT
+  // THE SOURCE (case-owned-approach-frame-mod.ts's `resolveClipStanceForFrame`), not here: the
+  // shared approach path now resolves `approach.stanceLabels` LAZILY from `stanceLabelSlot` via the
+  // real `resolveLocomotionStanceLabels`, on the first frame either the walking lock or the
+  // settling turn needs it. This harness's only remaining job is to populate `stanceLabelSlot` with
+  // a REAL clip and a REAL root carrying REAL toe bones — exactly what a browser's loaded skeleton
+  // provides — not to compute labels itself. `station-bedside-approach-mod.ts` does the identical
+  // thing now (see its own history): this harness and the browser path are symmetric, both feeding
+  // the same shared resolver rather than one of them privately reimplementing it.
   //
-  // Computed the SAME `LocomotionStanceLabels` `resolveLocomotionStanceLabels` would, resampled at
-  // the same 48-point cadence `sampleLocomotionStanceTrack` uses (not the raw 41 decoded keyframes)
-  // and reusing `localForwardFromTracks` (a byte-identical local reproduction of that module's
-  // `forwardFromTracks` — see its own header above for why this is a copy, not a cross-package
-  // import) rather than re-deriving a forward vector, so the shape of the input matches the browser
-  // resolver's exactly. Assigned for the WHOLE approach, at
-  // creation — same as `station-bedside-approach-mod.ts:246-254`, which resolves it once and does
-  // not scope it to any one phase. `applyStanceLockedGroundAdvance` (walking) and
-  // `applyClipDrivenSettlingTurn` (settling) both read whatever is on `approach.stanceLabels` /
-  // `stanceLabelSlot`; giving the walking phase a null label here while the browser never does would
-  // be a SECOND harness gap in the other direction.
+  // BEFORE THIS FIX: `createCaseOwnedBedsideApproach` always started `stanceLabels`/`stanceLabelSlot`
+  // at null, and the ONLY caller that ever resolved labels was `station-bedside-approach-mod.ts`.
+  // This harness populated neither, so `applyClipDrivenSettlingTurn`'s `downFoot` (no fallback for a
+  // null label) never incremented the settling turn's yaw: MEASURED, `heading` moved 0.004 rad in
+  // 1108 frames (18.5 s) while the target was over 1 rad away, and the phase never reached
+  // "arrived" — exactly "walkEnd 92, stopStart -1".
   //
-  // MEASURED, and separated from this fix rather than folded into it: with labels engaged (this
-  // wiring) OR fully disabled for the whole run (proving the fields never left null), walking's
-  // own `footSlideFinding` measures the SAME violation — one ~40-frame window per foot, ~0.083-0.090m
-  // total, worst frame 0.0032-0.0033m (`.scratch-turn-freeze/diag-walk-isolated.mjs` reproduces it
-  // against pure `leftHeight <= contactBandMeters`, no clip labels anywhere in the call graph). So
-  // this is not a defect this fix introduces or could remove by choosing where to arm the labels: the
-  // shipped `openclinxr_retarget_walk_source` clip's first stance phase sits below the 0.06 m band
-  // for ~40 consecutive 60 Hz frames while still carrying real body-frame velocity, and neither the
-  // legacy height-band lock nor this reconstruction's clip labels fully arrest it — see the terminal
-  // turn test's own header for the measured current numbers and the recommended follow-up.
-  const stanceCadenceSamples = 48;
-  const stanceStepMs = input.decoded.periodMs / stanceCadenceSamples;
-  const resample = (track: JointSample[]): JointSample[] =>
-    Array.from({ length: stanceCadenceSamples + 1 }, (_, index) => ({
-      atMs: index * stanceStepMs,
-      position: sampleTrack(track, index * stanceStepMs, input.decoded),
-    }));
-  const resampledLeft = resample(input.decoded.left);
-  const resampledRight = resample(input.decoded.right);
-  const stanceForward = localForwardFromTracks({ left: resampledLeft, right: resampledRight });
-  approach.stanceLabels = localComputeLocomotionStanceLabels({
-    clipName: WALK_CLIP,
-    cycleSeconds: input.decoded.periodMs / 1000,
-    forward: stanceForward,
-    left: resampledLeft,
-    right: resampledRight,
-  });
-  const stanceClip = new AnimationClip(WALK_CLIP, input.decoded.periodMs / 1000, []);
-  const stanceMixer = new AnimationMixer(new Object3D());
+  // The clip carries REAL `VectorKeyframeTrack`s for `toe1-1.L.position` / `toe1-1.R.position`,
+  // built directly from the decoded joint samples (0-based seconds, `sample.atMs - firstMs`, one
+  // full cycle) — the same samples `toeL`/`toeR` are already driven from below, so
+  // `resolveLocomotionStanceLabels`'s internal calibration mixer (a private, throwaway
+  // `AnimationMixer` over `stanceSlot.root` — see `sampleLocomotionStanceTrack`'s own header for why
+  // it never touches `stanceSlot.mixer`) samples the identical trajectory this harness's own
+  // simulation loop plays.
+  const cycleSeconds = input.decoded.periodMs / 1000;
+  const trackTimes = (track: JointSample[]): Float32Array =>
+    new Float32Array(track.map((sample) => (sample.atMs - input.decoded.firstMs) / 1000));
+  const trackValues = (track: JointSample[]): Float32Array =>
+    new Float32Array(track.flatMap((sample) => [sample.position.x, sample.position.y, sample.position.z]));
+  const stanceClip = new AnimationClip(WALK_CLIP, cycleSeconds, [
+    new VectorKeyframeTrack(`${toeL.name}.position`, trackTimes(input.decoded.left), trackValues(input.decoded.left)),
+    new VectorKeyframeTrack(`${toeR.name}.position`, trackTimes(input.decoded.right), trackValues(input.decoded.right)),
+  ]);
+  // `stanceMixer` is bound to `humanoid` so `PropertyBinding` can actually find "toe1-1L"/"toe1-1R"
+  // (an unbound throwaway root logged "No target node found" every run — harmless, since `.update`
+  // still tracked time correctly, but confusing). It runs BEFORE the manual `sampleTrack` calls in
+  // the frame loop below, which always overwrite `toeL`/`toeR` afterward with the identical value —
+  // this mixer never gets the last word on position, only on `.existingAction(clip).time`, which is
+  // what `resolveClipStanceForFrame` actually reads. `resolveLocomotionStanceLabels`'s own
+  // calibration step uses a further SEPARATE, private mixer over `stanceSlot.root` — see
+  // `sampleLocomotionStanceTrack`'s header — so this one never interferes with that either.
+  const stanceMixer = new AnimationMixer(humanoid);
   const stanceAction = stanceMixer.clipAction(stanceClip);
   stanceAction.play();
   approach.stanceLabelSlot = {
     root: humanoid,
+    actorSlot: slot,
     mixer: stanceMixer,
     locomotionClipName: WALK_CLIP,
     responseClips: [stanceClip],

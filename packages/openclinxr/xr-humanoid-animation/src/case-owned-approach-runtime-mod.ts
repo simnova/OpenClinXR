@@ -10,23 +10,23 @@ import {
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
 import { Box3, type Object3D } from "three";
 import {
-  createSettlingStepTurnState,
-  type SettlingStepTurnState,
-} from "./settling-step-turn-mod.js";
-import {
-  createClipDrivenSettlingTurnState,
-  type ClipDrivenSettlingTurnState,
-} from "./clip-driven-settling-turn-mod.js";
-import {
-  createArrivalCloseState,
   type ArrivalCloseState,
+  createArrivalCloseState,
   type RestStanceSnapshot,
 } from "./arrival-stance-close-mod.js";
-import { createStanceLockState, type StanceLockState } from "./stance-lock-mod.js";
+import {
+  type ClipDrivenSettlingTurnState,
+  createClipDrivenSettlingTurnState,
+} from "./clip-driven-settling-turn-mod.js";
 import type {
   LocomotionStanceLabels,
 } from "./locomotion-stance-labels.js";
 import { resolveToeBones } from "./resolve-toe-bones.js";
+import {
+  createSettlingStepTurnState,
+  type SettlingStepTurnState,
+} from "./settling-step-turn-mod.js";
+import { createStanceLockState, type StanceLockState } from "./stance-lock-mod.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 
 /**
@@ -59,8 +59,22 @@ export type CaseOwnedBedsideApproach = {
    * SC-05 probe rig (which carries marker toes, not the physician's skeleton) and on any
    * actor without a bound clip, where the lock keeps its legacy height-band decision.
    */
+  /**
+   * Resolved LAZILY from `stanceLabelSlot` by `resolveClipStanceForFrame`
+   * (case-owned-approach-frame-mod.ts) the first frame either the walking lock or the settling
+   * turn needs it — not by whoever constructs the approach. Starts null even when
+   * `stanceLabelSlot` is populated; that is normal, not a bug, until the first frame reads it.
+   */
   stanceLabels: LocomotionStanceLabels | null;
-  /** The slot carrying the playing walk action, or null when no action is playing. */
+  /**
+   * The slot carrying the playing walk action, or null when there is nothing to resolve labels
+   * from. `resolveClipStanceForFrame` calls `resolveLocomotionStanceLabels(stanceLabelSlot)`
+   * lazily and caches the result onto `stanceLabels` above — ANY caller that populates this field
+   * gets labels for free, so a caller no longer has to remember to resolve them itself (that
+   * asymmetry — only `station-bedside-approach-mod.ts` ever called
+   * `resolveLocomotionStanceLabels` — is what left the offline SC-05 harness's settling turn stuck
+   * forever with null labels; see that file's own history).
+   */
   stanceLabelSlot:
     | Pick<
       GeneratedHumanoidAnimationSlot,
@@ -68,7 +82,10 @@ export type CaseOwnedBedsideApproach = {
       // `case-owned-approach-frame-mod.ts` can read the clip action's own
       // `openClinXrLocomotionLegWeight` off `root.userData` — the same source
       // `locomotion-clip-playback-mod.ts` writes it to — rather than re-deriving it.
-      "mixer" | "locomotionClipName" | "responseClips" | "root"
+      // "actorSlot" added 2026-09-25 (lazy stance-label resolution): `resolveLocomotionStanceLabels`
+      // samples the toe tracks IN this reference frame (`sampleTrack`'s `slot.actorSlot ?? slot.root`),
+      // and its own type (`SlotLike`, locomotion-stance-labels.ts) requires the field.
+      "mixer" | "locomotionClipName" | "responseClips" | "root" | "actorSlot"
     >
     | null;
   floorOriginY: number;
