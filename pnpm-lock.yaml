@@ -104,6 +104,9 @@ importers:
       '@openclinxr/xr-asset-loading':
         specifier: workspace:*
         version: link:packages/openclinxr/xr-asset-loading
+      '@openclinxr/xr-capture-evidence':
+        specifier: workspace:*
+        version: link:packages/openclinxr/xr-capture-evidence
       '@openclinxr/xr-humanoid-animation':
         specifier: workspace:*
         version: link:packages/openclinxr/xr-humanoid-animation
@@ -116,6 +119,9 @@ importers:
       '@openclinxr/xr-scene':
         specifier: workspace:*
         version: link:packages/openclinxr/xr-scene
+      '@openclinxr/xr-scene-cues':
+        specifier: workspace:*
+        version: link:packages/openclinxr/xr-scene-cues
       '@openclinxr/xr-station':
         specifier: workspace:*
         version: link:packages/openclinxr/xr-station

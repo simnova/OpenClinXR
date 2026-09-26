@@ -8,8 +8,8 @@
  */
 import { readFileSync } from "node:fs";
 import { type Object3D, type Scene, BoxGeometry, Mesh, Group, SphereGeometry, MeshBasicMaterial } from "three";
-import { createDetailedEdRoomProps } from "../../../packages/openclinxr/xr-scene-cues/src/room-props.js";
-import { shouldRenderRoomPropInVisualReview } from "../../../packages/openclinxr/xr-capture-evidence/src/visual-review-filter.js";
+import { createDetailedEdRoomProps } from "@openclinxr/xr-scene-cues";
+import { shouldRenderRoomPropInVisualReview } from "@openclinxr/xr-capture-evidence";
 import {
   buildDeclaredEquipmentGeometry,
   buildGltfEquipmentPlaceholderSlot,
@@ -21,7 +21,7 @@ import {
   roomPropSuppressedByFixtureOwnership,
   stampRoomPropAliasesOnEquipmentRoot,
   stampSuppressedDeclaredEquipmentOntoFixtures,
-} from "../../../packages/openclinxr/xr-station/src/index.js";
+} from "@openclinxr/xr-station";
 
 type GltfMirrorNode = {
   translation: [number, number, number];
