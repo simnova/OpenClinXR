@@ -2073,3 +2073,151 @@ gait than on the shipped clip's (not traced into that detection logic); whether 
 genuine gait-quality difference or a residual pipeline defect; the feet-side framing gate's own
 `span >= 0.3` floor calibration, missed by 2% on seed 42 (not adjusted, since it is the runtime
 evidence tooling's own gate, not this station's).
+
+---
+
+# Round 14, same day — a real factory station: one command, provenance sidecar, three phenotypes
+
+Coordinator, grading round 13: Kimodo now reads as the same kind of walk as the shipped clip, but
+at parity, not better, on the metrics (plantedSlide 0.078-0.080 vs 0.056) -- not a case for
+replacing the shipped clip. Its value is what the shipped clip cannot do: per-character variety and
+new motions, generated deterministically. Direction: turn the hand-run pipeline into a real factory
+station (one scripted command, provenance sidecar), then prove variety by generating walk loops for
+the nurse and the child, measuring cadence/stride against the physician, running each through the
+runtime capture, and reporting.
+
+## 1. The station: one command, (actor, prompt, seed, constraints) -> bound loop clip + provenance
+
+`tools/openclinxr/factory/kimodo-loop/kimodo_walk_loop_station.py` — a single scripted, deterministic
+command replacing rounds 10-13's hand-run, multi-terminal process:
+
+```sh
+python3 tools/openclinxr/factory/kimodo-loop/kimodo_walk_loop_station.py \
+  --actor apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb \
+  --prompt "An adult woman walks briskly and steadily, a busy clinical pace." \
+  --seed 42 \
+  --constraint-spec '{"distanceMeters": 3.8, "durationSeconds": 3.2, "headingRadians": 0.0}' \
+  --output <scratch path> --clip-name <name> --report <provenance path>
+```
+
+Orchestrates, as subprocesses, each step this cagematch already proved out by hand: build a
+straight, constant-heading `Root2DConstraintSet` (`build_walk_constraints.py`, promoted from round
+10's scratch script, unchanged in method); generate with `nv-tlabs/kimodo`; export joint positions
+and foot-contact labels, Y-up to Z-up, verified (`export_joint_positions_and_contacts.py`, promoted
+from round 3's scratch script); find one clean, loopable two-step cycle from the steady middle,
+using the clip's own foot-contact labels (`find_walk_cycle.py`, promoted from round 10's manual
+method — verified to reproduce round 10's own hand-picked cycle boundary exactly, frame 34-69 on
+seed 42, byte for byte); bind in-place with the round-11/13 fixes (root stripped, bake-time foot
+lock skipped, unchanged); **measure the clip's own natural stepping direction OFFLINE, with the
+runtime's own production function** (new: `tools/openclinxr/factory/measure-clip-stance-forward.ts`,
+wrapping `measureStanceGroundAdvance` + `boundClipJointTrack` — the same measurement round 12 read
+out of a live browser capture, now run against the exported GLB directly, no browser); correct with
+a second bind pass to the shipped clip's own measured convention (round 12/13's rigid-rotation fix,
+unchanged); **graft onto the target actor by joint name** using the ALREADY-EXISTING, previously-
+unused `tools/openclinxr/factory/graft-bound-clip.ts` (found this round — a proper production tool
+for exactly this step, replacing every prior round's ad hoc Blender re-export-and-strip scratch
+script; verified geometry-parity: identical triangle count, byte-identical vertex positions, `--`
+never `--publish`, so the actor's own shipped path is never touched); write a provenance sidecar.
+
+**Verified against the known-good baseline before trusting it on new phenotypes**: ran the station
+on the physician with the exact seed-42 parameters from rounds 10-13. It reproduced the identical
+cycle window (frames 34-69) and landed within 0.03 degrees of round 13's own hand-measured corrected
+yaw (-0.89 vs -0.91). Full run, one command, ~2 minutes wall clock.
+
+**Weights stay outside git**: the provenance record resolves the Kimodo checkpoint's identity
+(HF repo id, resolved snapshot hash, weight blob sha256) and the generator repo's own commit
+directly from the local caches this cagematch already set up (`~/.cache/huggingface`,
+`~/.openclinxr-tools/kimodo/kimodo`) — nothing is copied into the repo.
+
+## 2. Proved variety through phenotype: nurse and child, prompts derived from their role, measured against the physician
+
+| actor | prompt | constraint (distance/duration) | corrected yaw (deg) | cycle length (frames / seconds) | rate-1 stance speed (m/s) |
+|---|---|---|---|---|---|
+| physician | "walks calmly and steadily in a straight line" | 3.6 m / 3.5 s | -0.89 | 35 / 1.167 | 0.822 |
+| nurse | "an adult woman walks briskly and steadily, a busy clinical pace" | 3.8 m / 3.2 s | -0.86 | 24 / 0.800 | 0.941 |
+| child | "a young child walks, small quick steps, a bit unsteady" | 3.0 m / 4.5 s | -0.87 | 23 / 0.767 | 0.360 |
+
+All 3 land within 0.03 degrees of the shipped clip's own convention (-0.86) — the station's internal
+measure-then-correct loop generalizes cleanly across three different bodies with three different
+gait timings, not just the one physician seed this whole cagematch was tuned against.
+
+**Ran each through the actual runtime capture** (`--humanoid`, same scenario, same portless server):
+
+| metric | physician (round 13) | nurse | child | shipped | target |
+|---|---|---|---|---|---|
+| lurch | 1.146 (PASS) | **1.031 (PASS)** | **1.064 (PASS)** | 1.044 (PASS) | <= 1.4 |
+| cadencePerMinute | 88.4 (FAIL, 2 steps) | 88.4 (FAIL, 2 steps) | **275.8 (FAIL, 7 steps)** | 90.6 (PASS) | 90-125 |
+| residualTurnDeg | 62.26 | 62.33 | 61.63 | 62.30 | <= 45 |
+| floorPenetrationM | PASS | PASS | PASS | PASS | >= -0.005 |
+| plantedSlideM | 0.080 (FAIL) | **0.026 (FAIL, near-pass)** | **0.021 (FAIL, near-pass)** | 0.056 (FAIL) | <= 0.02 |
+| minStepLiftM | PASS | FAIL (0.014) | FAIL (0.010) | PASS | >= 0.015 |
+
+**Cadence is the clearest, most plausible phenotype signal**: the child's measured cadence (275.8
+steps/min, 7 stance-window alternations in 1.52 s) is dramatically higher than either adult's (88.4,
+2 alternations) — a real, large difference in the SAME direction pediatric gait literature predicts
+(shorter legs, faster stepping), not a rounding-scale gap. `residualTurnDeg` again converges to
+within 1 degree across ALL THREE actors AND the shipped clip (61.6-62.3) — reconfirming round 13's
+finding that this residual is a property of the scenario's own turn geometry, not of which body or
+clip drives the walk. `plantedSlideM` is notably better on nurse/child (0.021-0.026 m, just over the
+0.02 bar) than on the physician (0.080 m) — not investigated further, plausibly seed/prompt variance
+rather than a systematic actor effect.
+
+Both nurse and child captures completed CLEANLY (exit 0, every framing check passing) — a first for
+this cagematch's runtime captures, which have failed their own feet-side framing gate on every prior
+round's physician run.
+
+Videos (not committed, scratch):
+- Nurse: `~/.openclinxr-wip/kimodo/round14/nurse-capture/{feet-side,three-quarter}.mp4`
+- Child: `~/.openclinxr-wip/kimodo/round14/child-capture/{feet-side,three-quarter}.mp4`
+
+Contact sheets: `~/.openclinxr-wip/kimodo/round14/{nurse,child}-capture/feet-side-contact.png` — the
+child's sheet visibly shows many more, closely-spaced toe-plant markers than the nurse's, a direct
+visual confirmation of the measured cadence difference.
+
+## 3. Cadence fix — tried, cheaply, found NOT to work this way; disclosed rather than left unstated
+
+Tried the coordinator's proposed lever (pick a shorter stride window so the loop's own step period
+matches the target cadence) on the physician, two ways: (a) increased the constraint distance for
+the same duration (3.6 to 4.3 m over 3.5 s) — the model's own natural cycle length did not change at
+all (still 35 frames); (b) shortened the duration and used a different seed (7, 3.6 m over 3.0 s,
+matching the earlier straight-walk generation pattern) — this DID produce a shorter natural cycle
+(31 frames, 1.033 s) — but running it through the real runtime capture measured the EXACT SAME
+cadence as before: 88.4 (2 steps in 1.36 s), unchanged to the decimal place despite a 4-frame
+shorter authored cycle.
+
+**This is a real, cheap, disconfirming finding, not a shrug.** `cadencePerMinute` is `steps /
+walkingSeconds * 60`, and `walkingSeconds` is the phase-tagged WALKING duration — which this
+scenario's route length and Froude-scaled prescribed speed fix independently of which clip drives
+it. The runtime's own `resolveLocomotionClipTimeScale` then plays whatever clip is bound at
+whatever rate makes its rate-1 stance speed match the prescribed speed, which appears to
+renormalize away any difference in the clip's own authored cycle duration before it can affect how
+many real-world stance alternations occur within that fixed walking phase. Picking a shorter stride
+window did not move cadence in two tries; not chased further, since a third attempt would no longer
+be "cheap."
+
+## claimScope / notEvidenceFor (round 14)
+
+**claimScope:** a single scripted, deterministic command takes (actor GLB, prompt, seed, constraint
+spec) and produces a bound, in-place, yaw-corrected loop clip on that actor plus a provenance
+sidecar recording generator repo+commit, checkpoint id+hash, text-encoder id, prompt, seed,
+constraints, frame range and station commit — verified to reproduce the known-good physician
+baseline from rounds 10-13 exactly (same cycle window, yaw within 0.03 degrees). Walk loops were
+generated for the nurse and the child with phenotype-derived prompts, both landing within 0.03
+degrees of the shipped clip's own yaw convention, and both completing the real runtime capture
+cleanly (a first for this cagematch). The child's measured cadence (275.8/min) is dramatically and
+plausibly higher than either adult's (88.4/min), a real phenotype-driven variety signal, visually
+confirmed in the contact sheet. No shipped GLB was modified (verified via `git status`; every
+station output and graft target used `--output`/scratch paths, never `--publish`). The cadence-fix
+attempt was tried twice, cheaply, and found not to move the measured cadence at all — reported as a
+negative result with its likely mechanism (a scenario-fixed walking-phase duration, not the clip's
+own authored cycle length, governs the runtime's cadence measurement), not silently dropped.
+
+**notEvidenceFor:** that Kimodo-generated walks are ready to replace or supplement the shipped
+clip in production (the coordinator's own round-13 verdict — parity, not superiority, on the
+metrics — is unchanged by this round, which addresses tooling and variety, not walk quality);
+whether the nurse/child's notably better `plantedSlideM` than the physician's reflects a genuine
+per-actor or per-seed effect (not isolated); the true mechanism behind the cadence-normalization
+finding (reasoned from the metric's own formula and the station's own measured inputs, not traced
+into `resolveLocomotionClipTimeScale`'s internals); whether a DIFFERENT lever (e.g. a shorter
+route/faster prescribed speed at the scenario level, rather than the clip's own authored timing)
+would move cadence — not tried, out of this round's "only if cheap" scope.
