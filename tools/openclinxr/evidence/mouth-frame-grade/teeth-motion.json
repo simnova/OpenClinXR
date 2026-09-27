@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "openclinxr.mouth-frame-grade.v1",
+  "generatedAt": "2026-09-27T22:09:29.383Z",
+  "glb": "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "glbSha256": "1c94d737877d9cc2a9fb1e9fe9d1b7a7f49702ec0129d630c420140bf0597333",
+  "aaJawRadians": 0.15086,
+  "teethMeshName": "openclinxr_hm08_teeth_mpfb_peds_anxious_parent_mesh",
+  "teethVertexCount": 136,
+  "strongestSkinJointCounts": {
+    "head": 136
+  },
+  "teethCentroidDeltaM": 0,
+  "upperHalfCentroidDeltaM": 0,
+  "upperHalfVertexCount": 67,
+  "claimScope": "teeth_follow_phoneme_jaw",
+  "notEvidenceFor": [
+    "clinical",
+    "Quest",
+    "pixel grade"
+  ]
+}
