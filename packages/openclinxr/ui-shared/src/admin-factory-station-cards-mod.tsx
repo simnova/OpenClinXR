@@ -12,10 +12,10 @@ export type FactoryStationCardsProps = {
   onAddTrellisModel?: (payload: { modelId: string; subjectId: string; packId: string }) => void;
 };
 
-function defaultValue(type: "string" | "number" | "boolean" | "object"): unknown {
+function defaultValue(type: "string" | "number" | "boolean" | "object", format?: "vector3"): unknown {
   if (type === "number") return 0;
   if (type === "boolean") return false;
-  if (type === "object") return { x: 0, y: 0, z: 0 };
+  if (type === "object") return format === "vector3" ? { x: 0, y: 0, z: 0 } : "";
   return "";
 }
 
@@ -54,7 +54,7 @@ export function FactoryStationCards({ values, onChange, onAddTrellisModel }: Fac
               <Space direction="vertical" size={8} style={{ width: "100%" }}>
                 {Object.entries(json.properties).map(([name, prop]) => {
                   const label = `${stationId}.${name}`;
-                  const value = current[name] ?? defaultValue(prop.type);
+                  const value = current[name] ?? defaultValue(prop.type, prop.format);
                   // htmlFor/id, not just aria-label: biome's noLabelWithoutControl cannot see
                   // an antd component as a form control, and the explicit association is what
                   // actually lets a screen reader move focus from the label to the input.
@@ -81,6 +81,31 @@ export function FactoryStationCards({ values, onChange, onAddTrellisModel }: Fac
                           aria-label={label}
                           value={typeof value === "number" ? value : 0}
                           onChange={(next) => patch(stationId, current, name, next ?? 0)}
+                        />
+                      </label>
+                    );
+                  }
+                  if (prop.type === "object" && prop.format !== "vector3") {
+                    // Free-form object payload (footprintMeters, door): one
+                    // JSON text control. Unparseable input stays a string so
+                    // Apply rejects it with the schema message.
+                    const text = typeof value === "string" ? value : JSON.stringify(value ?? null);
+                    return (
+                      <label key={name} htmlFor={controlId}>
+                        {name}
+                        <Input
+                          id={controlId}
+                          aria-label={label}
+                          value={text}
+                          placeholder='{"key": value}'
+                          onChange={(event) => {
+                            const raw = event.target.value;
+                            try {
+                              patch(stationId, current, name, JSON.parse(raw) as unknown);
+                            } catch {
+                              patch(stationId, current, name, raw);
+                            }
+                          }}
                         />
                       </label>
                     );

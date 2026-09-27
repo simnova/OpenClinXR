@@ -53,6 +53,9 @@ export type StandardResult<Output = Record<string, unknown>> =
 export type StationPropertySchema = {
   type: "string" | "number" | "boolean" | "object";
   description?: string;
+  /** Present only for vector3 fields: marks the object as {x,y,z}. A bare
+   * "object" without format is a free-form payload (JSON edited). */
+  format?: "vector3";
 };
 
 export type StationJsonSchema = {
@@ -84,7 +87,7 @@ export type FactoryStationSchema<Output = Record<string, unknown>> = {
 };
 
 type FieldDef = {
-  type: "string" | "number" | "boolean" | "vector3" | "enum";
+  type: "string" | "number" | "boolean" | "object" | "vector3" | "enum";
   description?: string;
   required?: boolean;
   nullable?: boolean;
@@ -99,7 +102,11 @@ function defineStation(stationId: ProductionStationId, fields: Record<string, Fi
   const properties: Record<string, StationPropertySchema> = {};
   for (const [name, def] of Object.entries(fields)) {
     const jsonType = def.type === "vector3" ? "object" : def.type === "enum" ? "string" : def.type;
-    properties[name] = { type: jsonType, ...(def.description ? { description: def.description } : {}) };
+    properties[name] = {
+      type: jsonType,
+      ...(def.type === "vector3" ? { format: "vector3" as const } : {}),
+      ...(def.description ? { description: def.description } : {}),
+    };
   }
 
   const toJson = (target = "draft-2020-12"): StationJsonSchema => ({
@@ -140,6 +147,11 @@ function defineStation(stationId: ProductionStationId, fields: Record<string, Fi
         const val = rec[name];
         if (typeof val !== "string" || !def.values?.includes(val)) {
           issues.push({ message: `${name} unknown value`, path: [name] });
+        }
+      } else if (def.type === "object") {
+        const val = rec[name];
+        if (val === null || typeof val !== "object" || Array.isArray(val)) {
+          issues.push({ message: `${name} expected object`, path: [name] });
         }
       } else {
         const got = typeof rec[name];
@@ -217,6 +229,12 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
     infinigenPrompt: { type: "string", required: true },
     seed: { type: "number", required: true },
     layoutVariant: { type: "string", required: true, description: "schema-only field for card derivation" },
+    // Opt-in fixed-footprint GENERATE payload. Both optional; absent = legacy
+    // shape (workGlb already exists, bake/simplify only). The generic
+    // "object" type above only checks "is an object" — the INTERNAL shape
+    // (positive dims, closed doorWall enum) is enforced in planRoomGenerate.
+    footprintMeters: { type: "object", required: false, description: "interior clear-floor target { width, depth, ceilingHeight } in meters" },
+    door: { type: "object", required: false, description: "{ doorWall: '+x'|'-x'|'+y'|'-y', wallOffsetM, hingeSide, widthM, heightM }" },
   }),
   equipment_generate: defineStation("equipment_generate", {
     subjectId: { type: "string", required: true },

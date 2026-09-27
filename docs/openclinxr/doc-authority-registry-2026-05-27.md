@@ -237,6 +237,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `packages/openclinxr/arena/model-vetting/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/arena/multi-actor-state-spike/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/arena/physics-touch-contract/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/README.md` - current-reference; Apply-on-install record for the room_generate Infinigen GENERATE step (fixed-footprint driver, door-wall generalization, Concrete vertical-kwarg patch vs sha b11700eb) plus fresh-install patch procedure. Subordinate to protected + drift rules.
 - `packages/openclinxr/physics-touch-artifacts/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `templates/decision-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/risk-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
