@@ -15,6 +15,7 @@
 import {
   driveVisemeTimeline,
   frameDurationSeconds,
+  JAW_OPEN_TEETH_CLEAR_RADIANS,
   totalTimelineDurationSeconds,
   type PhonemeCue,
   type VisemeFrame,
@@ -100,6 +101,8 @@ export type NamedVisemeDriveResult = {
   weights: Record<string, number>;
   /** Jaw bone aperture from the driven frame (#552). */
   jawOpenRadians: number;
+  /** Same frame as `jawOpenRadians`, scaled to 0–1 of the teeth-clear aperture. */
+  jawFraction: number;
   availableTargets: string[];
   appliedMeshCount: number;
   /** How many `jaw` bones received the aperture rotation. */
@@ -313,6 +316,7 @@ export function applyDialogueVisemeTimelineToRoot(
   const { frame, index } = pickFrame(frames, clampedProgress);
   const weights = frame.weights;
   const jawOpenRadians = frame.jawOpenRadians ?? 0;
+  const jawFraction = Math.min(1, Math.max(0, jawOpenRadians / JAW_OPEN_TEETH_CLEAR_RADIANS));
 
   let appliedMeshCount = 0;
   root.traverse((object) => {
@@ -331,6 +335,7 @@ export function applyDialogueVisemeTimelineToRoot(
     influence: active.influence,
     weights,
     jawOpenRadians,
+    jawFraction,
     availableTargets,
     appliedMeshCount,
     jawBonesTouched,
@@ -385,6 +390,7 @@ export function applyGeneratedScalarVisemeToRoot(root: MorphRootLike, weight: nu
       weights: scaled,
       influence: clamped,
       jawOpenRadians: scaledJaw,
+      jawFraction: Math.min(1, Math.max(0, scaledJaw / JAW_OPEN_TEETH_CLEAR_RADIANS)),
       jawBonesTouched,
     };
   }

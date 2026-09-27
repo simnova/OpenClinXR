@@ -1,12 +1,24 @@
 import { Mesh } from "three";
 import type { Group } from "three";
 
+/** Animation-loop clock stamped on the root. Absent callers stay on frame 0. */
+export function speechFrameNowMs(root: Group): number {
+  const clock = root.userData["openClinXrSpeechNowMs"];
+  return typeof clock === "number" ? clock : 0;
+}
+
+/** Jaw fraction from the named phoneme frame, or the coarse fallback when no frame was written. */
+export function namedJawFraction(root: Group, fallback: number): number {
+  const jawFraction = (root.userData["openClinXrNamedVisemeDrive"] as { jawFraction?: number } | undefined)?.jawFraction;
+  return typeof jawFraction === "number" ? jawFraction : fallback;
+}
+
 /**
  * Lip-seal drive: the named viseme_PP never seals on this body, so closed
  * visemes (PP/sil/rest/closed) zero every viseme_* except viseme_sil, then pin
  * FACS `mouth-compression` (AU24) to 1 and shut FACS `mouth-open` to 0.
  * Open frames clear a leftover mouth-compression to 0 and leave viseme_* alone.
- * Jaw drive in jaw-viseme-drive.ts is untouched.
+ * Jaw aperture is the named phoneme writer. This seal does not rotate the jaw.
  */
 
 const SEALED = new Set(["pp", "sil", "silence", "rest", "closed"]);

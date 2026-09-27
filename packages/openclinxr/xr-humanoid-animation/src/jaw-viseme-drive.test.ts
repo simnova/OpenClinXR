@@ -1,19 +1,16 @@
 /**
- * Jaw bone follows viseme openness so skin-weighted teeth move with the lips.
+ * One phoneme frame owns the jaw bone. Teeth are skin on that bone.
  *
- * WHY: CEO grade of native 200x180 mouth crops — viseme_sil shows a white teeth line
- * between closed lips, viseme_PP is unsealed with upper teeth in the gap, viseme_aa
- * leaves a static upper-teeth row. Measured: fitted teeth carry no morphs (~50% verts
- * on `jaw`, ~50% on `head`), viseme morphs live only on the body, jaw never rotates.
- * Drives the PUBLIC speech loop (`updateGeneratedHumanoidAnimations`, the path the
- * runtime actually calls) with a speaking slot and a `jaw` bone on the root: an open
- * viseme rotates the jaw off rest, and returning to silence restores rest (0).
- * Counterweight: a rest viseme through the same path restores rest (openness 0).
+ * WHY: two writers fought. applyJawOpenToRoot uses +X and the phoneme table
+ * (AA ≈ 0.151 rad). applyJawVisemeToRoot then added −0.12 × coarse visemeOpenness.
+ * The animation-loop nowMs and performance.now() also picked different frames.
+ * This drives updateGeneratedHumanoidAnimations: early nowMs holds AA (positive
+ * jaw, stable on a second call), late nowMs holds PP (jaw at rest, lips sealed).
  *
- * claimScope: the jaw bone tracks viseme openness through the runtime speech path.
- * notEvidenceFor: pixel grades of a new capture, or anatomical jaw correctness.
+ * claimScope: jaw rotation and lip seal follow the same phoneme clock.
+ * notEvidenceFor: pixel grades, or upper-teeth head-weight lag.
  */
-import { BoxGeometry, Group, Line, Mesh, MeshBasicMaterial, Object3D, PerspectiveCamera } from "three";
+import { Bone, BoxGeometry, Group, Line, Mesh, MeshBasicMaterial, PerspectiveCamera } from "three";
 import { describe, expect, it } from "vitest";
 import {
   createHumanoidEmotionExpressionState,
@@ -25,10 +22,10 @@ import {
 function speakingSlot(actorId: string, visemeSequence: string[]): GeneratedHumanoidAnimationSlot {
   const root = new Group();
   const face = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
-  face.morphTargetDictionary = {};
-  face.morphTargetInfluences = [];
+  face.morphTargetDictionary = { "mouth-open": 0, "mouth-compression": 1 };
+  face.morphTargetInfluences = [0, 0];
   root.add(face);
-  const jaw = new Object3D();
+  const jaw = new Bone();
   jaw.name = "jaw";
   root.add(jaw);
   const actorSlot = new Group();
@@ -44,7 +41,12 @@ function speakingSlot(actorId: string, visemeSequence: string[]): GeneratedHuman
       actorId, assetId: `${actorId}-asset`, gazeTargetKind: "learner_camera", gazeTargetActorId: null,
       text: "ah", emotion: "neutral",
       emotionContext: { emotion: "neutral", source: "plan_missing", baselineMood: [], cueIds: [] },
-      phonemeSequence: ["AA"], visemeSequence, startedAtMs: 0, durationMs: 60_000,
+      phonemeSequence: ["AA"],
+      bakedCues: [
+        { phoneme: "AA", atSecond: 0, durationSeconds: 30 },
+        { phoneme: "PP", atSecond: 30, durationSeconds: 30 },
+      ],
+      visemeSequence, startedAtMs: 0, durationMs: 60_000,
     },
   };
   return slot;
@@ -73,29 +75,42 @@ function context(slots: GeneratedHumanoidAnimationSlot[]): HumanoidAnimationRunt
   };
 }
 
-function jawOf(slot: GeneratedHumanoidAnimationSlot): Object3D {
+function jawOf(slot: GeneratedHumanoidAnimationSlot): Bone {
   const jaw = slot.root.getObjectByName("jaw");
-  if (!jaw) throw new Error("jaw bone missing from fixture");
+  if (!(jaw instanceof Bone)) throw new Error("jaw bone missing from fixture");
   return jaw;
 }
 
+function influence(slot: GeneratedHumanoidAnimationSlot, name: string): number {
+  let found = 0;
+  slot.root.traverse((object) => {
+    if (!(object instanceof Mesh) || !object.morphTargetDictionary || !object.morphTargetInfluences) return;
+    const index = object.morphTargetDictionary[name];
+    if (typeof index === "number") found = object.morphTargetInfluences[index] ?? 0;
+  });
+  return found;
+}
+
 describe("jaw viseme drive", () => {
-  it("an open viseme rotates the jaw off rest through the speech path", () => {
-    const slot = speakingSlot("patient", ["open"]);
+  it("early nowMs holds AA: positive jaw, and a second call does not stack", () => {
+    const slot = speakingSlot("patient", ["AA"]);
     const ctx = context([slot]);
     const camera = new PerspectiveCamera();
     updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
-    expect(jawOf(slot).rotation.x).toBeLessThan(-0.02);
+    const first = jawOf(slot).rotation.x;
+    expect(first).toBeGreaterThan(0.1);
+    expect(first).toBeLessThan(0.2);
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
+    expect(jawOf(slot).rotation.x).toBeCloseTo(first, 5);
   });
 
-  it("COUNTERWEIGHT: a rest viseme restores the jaw to rest", () => {
-    const slot = speakingSlot("patient", ["open"]);
+  it("COUNTERWEIGHT: late nowMs holds PP — jaw at rest and lips sealed", () => {
+    const slot = speakingSlot("patient", ["PP"]);
     const ctx = context([slot]);
     const camera = new PerspectiveCamera();
-    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
-    expect(jawOf(slot).rotation.x).toBeLessThan(-0.02);
-    if (slot.activeSpeech) slot.activeSpeech.visemeSequence = ["rest"];
-    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 2000, camera);
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 45_000, camera);
     expect(jawOf(slot).rotation.x).toBeCloseTo(0, 5);
+    expect(influence(slot, "mouth-compression")).toBeGreaterThanOrEqual(0.9);
+    expect(influence(slot, "mouth-open")).toBe(0);
   });
 });

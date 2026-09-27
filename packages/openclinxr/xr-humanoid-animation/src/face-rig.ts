@@ -8,8 +8,8 @@ import {
   MOUTH_OPEN_CAP,
 } from "@openclinxr/xr-dialogue";
 import type { SpeechSlotLike } from "@openclinxr/xr-dialogue";
-import { applyJawVisemeToRoot } from "./jaw-viseme-drive.js";
-import { applyLipSealForClosedViseme } from "./lip-seal-drive.js";
+import { applyInnerMouthCavity } from "./inner-mouth-cavity-drive.js";
+import { applyLipSealForClosedViseme, namedJawFraction, speechFrameNowMs } from "./lip-seal-drive.js";
 import type {
   GeneratedHumanoidAnimationSlot,
   HumanoidEmotionExpressionState,
@@ -391,6 +391,7 @@ export function applyHumanoidMorphTargetCue(
     openclinxr_brow_concern: null,
     openclinxr_cheek_tension: null,
   };
+  const named = applyNamedVisemes(slot, speechFrameNowMs(slot.root)); const mouthDrive = namedJawFraction(slot.root, openness);
   slot.root.traverse((object) => {
     if (!(object instanceof Mesh) || !object.morphTargetDictionary || !object.morphTargetInfluences) {
       return;
@@ -413,18 +414,17 @@ export function applyHumanoidMorphTargetCue(
         drivenTargetNames.add(target);
       }
     };
-    driveGroup("openclinxr_mouth_open", openness + expressionWeights.mouthOpen * 0.18, MOUTH_OPEN_CAP);
+    driveGroup("openclinxr_mouth_open", mouthDrive + expressionWeights.mouthOpen * 0.18, MOUTH_OPEN_CAP);
     driveGroup("openclinxr_brow_concern", expressionWeights.browConcern + (viseme === "rest" ? 0 : 0.05), 0.95);
-    driveGroup("openclinxr_cheek_tension", expressionWeights.cheekTension + openness * 0.22, 0.95);
+    driveGroup("openclinxr_cheek_tension", expressionWeights.cheekTension + mouthDrive * 0.22, 0.95);
     if (isReassuredExpressionWeights(expressionWeights)) {
       driveGroup("mouth-corner-puller", 0.5, 0.95);
     }
   });
-  const named = applyNamedVisemes(slot, performance.now());
   if (named.activeTargetName) applied += 1; applyLipSealForClosedViseme(slot.root, viseme, named.activeTargetName);
   slot.root.userData["openClinXrMorphTargetRuntimeCue"] = {
     currentViseme: named.activeTargetName ?? viseme,
-    mouthOpenness: Number(openness.toFixed(3)),
+    mouthOpenness: Number(mouthDrive.toFixed(3)),
     expressionWeights: roundHumanoidExpressionWeights(expressionWeights),
     appliedTargetCount: applied,
     resolvedTargets,
@@ -453,10 +453,10 @@ export function applyHumanoidFaceRigControls(
   const leftUpperEyelid = slot.root.getObjectByName("openclinxr_left_upper_eyelid_blink_control");
   const rightUpperEyelid = slot.root.getObjectByName("openclinxr_right_upper_eyelid_blink_control");
 
-  offsetHumanoidRigControl(upperLip, 0, openness * 0.006, openness * 0.004);
-  offsetHumanoidRigControl(lowerLip, 0, -openness * 0.024, openness * 0.01);
   applyMorphTargetCue(slot, openness, viseme, expressionWeights);
-  applyJawVisemeToRoot(slot.root, openness);
+  const lip = namedJawFraction(slot.root, openness);
+  offsetHumanoidRigControl(upperLip, 0, lip * 0.006, lip * 0.004); offsetHumanoidRigControl(lowerLip, 0, -lip * 0.024, lip * 0.01);
+  applyInnerMouthCavity(slot.root, 0);
 
   const gazeOrigin = new Vector3(0, 1.57, 0.29);
   const targetWorld = resolveGazeTargetWorld(speech, camera);

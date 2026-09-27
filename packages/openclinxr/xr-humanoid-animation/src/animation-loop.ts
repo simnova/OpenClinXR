@@ -304,6 +304,7 @@ export function updateHumanoidSpeechCue(
   nowMs: number,
   camera: PerspectiveCamera,
 ): void {
+  slot.root.userData["openClinXrSpeechNowMs"] = nowMs;
   const speech = slot.activeSpeech;
   if (!speech) {
     slot.mouthCue.visible = false;
