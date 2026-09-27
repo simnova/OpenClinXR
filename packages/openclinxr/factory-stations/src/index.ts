@@ -50,9 +50,19 @@ export {
   runLipSync,
 } from "./lip_sync/run.js";
 export {
+  designLightingRig,
+  LIGHTING_MOODS,
+  planLightingDesign,
+  runLightingDesign,
+} from "./lighting_design/run.js";
+export {
   planMotionRetarget,
   runMotionRetarget,
 } from "./motion_retarget/run.js";
+export {
+  planRoomClinicFinish,
+  runRoomClinicFinish,
+} from "./room_clinic_finish/run.js";
 export {
   planRoomGenerate,
   ROOM_ALBEDO_REL,

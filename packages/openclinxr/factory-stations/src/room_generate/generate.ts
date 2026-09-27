@@ -178,10 +178,15 @@ export async function runInfinigenGenerate(
   const timeoutMs = options.timeoutMs ?? 1_200_000;
   const durationsMs: Record<string, number> = {};
 
-  mkdirSync(path.dirname(options.workGlb), { recursive: true });
+  // The driver spawn runs with cwd=infinigenSource, so a repo-relative
+  // workGlb would resolve (and write scene.blend) under the Infinigen
+  // source tree while the existence checks below run against the caller
+  // cwd. Absolutize once against the caller's cwd so every stage agrees.
+  const workGlb = path.resolve(options.cwd ?? root, options.workGlb);
+  mkdirSync(path.dirname(workGlb), { recursive: true });
   const outputDir = path.join(
-    path.dirname(options.workGlb),
-    `${path.basename(options.workGlb, ".glb")}-infinigen-s${seed}`,
+    path.dirname(workGlb),
+    `${path.basename(workGlb, ".glb")}-infinigen-s${seed}`,
   );
   mkdirSync(outputDir, { recursive: true });
   const sceneBlend = path.join(outputDir, "scene.blend");
@@ -282,7 +287,7 @@ export async function runInfinigenGenerate(
       "--segment",
       "0",
       "--output",
-      options.workGlb,
+      workGlb,
       "--allow-predicate-refuse",
       "--predicate-output",
       predicatePath,
@@ -290,7 +295,7 @@ export async function runInfinigenGenerate(
     { cwd: options.cwd ?? root, timeoutMs },
   );
   durationsMs["extractMs"] = Date.now() - started;
-  if (extracted.code !== 0 || !existsSync(options.workGlb)) {
+  if (extracted.code !== 0 || !existsSync(workGlb)) {
     throw new Error(
       `room extract failed (exit ${extracted.code}):\n${extracted.stderr.slice(-2000)}`,
     );
@@ -338,7 +343,7 @@ export async function runInfinigenGenerate(
     outputDir,
     sceneBlend,
     workBlend,
-    workGlb: options.workGlb,
+    workGlb,
     predicatePath,
     probePath,
     probe,
