@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 397,
+    "keep-evidence": 401,
     "ignore-local-cache": 2771,
     "keep-current": 226,
     "keep-compatibility-input": 24,
@@ -23840,6 +23840,34 @@
       "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/s3-tone-mapping/captures/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/s3-tone-mapping/captures/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/s3-tone-mapping/captures/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/s3-tone-mapping/s3-tone-mapping-grade.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-00.json",

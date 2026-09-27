@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "glb": "/Volumes/files/src/openclinxr-wt/infinigen-room/.openclinxr/evidence/room-infinigen-stage2/stage2-room.glb",
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -1.1,
+        "y": 1.6,
+        "z": 1.6
+      },
+      "look": {
+        "x": 0.3,
+        "y": 1.25,
+        "z": -3.885
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/s3-tone-mapping/docs/openclinxr/room-realism/s3-tone-mapping/captures/runtime-01-toward-door.png",
+      "pngBytes": 14414,
+      "pngSha256": "46259a29c73f7382dfe4416d13178f220461ab9509836208f3a53f39291692c9"
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": 0,
+        "y": 1.6,
+        "z": -3
+      },
+      "look": {
+        "x": 0,
+        "y": 1.35,
+        "z": 3.885
+      },
+      "fov": 48,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/s3-tone-mapping/docs/openclinxr/room-realism/s3-tone-mapping/captures/runtime-02-toward-bed-wall.png",
+      "pngBytes": 26231,
+      "pngSha256": "1f2e8e9c63956092e4d42cc358b679e022b493e9072ab6f01ef3546c8f556dc5"
+    }
+  ]
+}

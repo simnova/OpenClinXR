@@ -355,6 +355,7 @@ import {
   updateXrStatus as updatePackageTraceXrStatus,
 } from "@openclinxr/xr-trace-readiness";
 import {
+  ACESFilmicToneMapping,
   type AnimationClip,
   type AnimationMixer,
   BoxGeometry,
@@ -2860,6 +2861,9 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   recordBootPhase("station_scene_start");
   const doorwayTheme = scenarioDoorwayVisualTheme();
   const renderer = new WebGLRenderer({ canvas, antialias: true });
+  // S3: ACES filmic curve compresses the stacked rig highlights so the
+  // existing rig exposure value takes effect (NoToneMapping ignored it).
+  renderer.toneMapping = ACESFilmicToneMapping;
   renderer.xr.enabled = true;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(doorwayTheme.backgroundColor);
