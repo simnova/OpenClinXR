@@ -141,6 +141,11 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
         mesh = bpy.data.meshes.new(name + "_mesh")
         obj = bpy.data.objects.new(name, mesh)
         bpy.context.scene.collection.objects.link(obj)
+        # Finish dressing, not hull: survives glTF export as node extras (needs
+        # export_extras=True at export) and lands in three.js as
+        # object.userData.openClinXrFinishDecoration so roomInteriorAndHull can
+        # exclude it from the interior/hull unions.
+        obj["openClinXrFinishDecoration"] = True
         verts = [
             (x - dx / 2, y - dy / 2, z - dz / 2), (x + dx / 2, y - dy / 2, z - dz / 2),
             (x + dx / 2, y + dy / 2, z - dz / 2), (x - dx / 2, y + dy / 2, z - dz / 2),
@@ -275,6 +280,10 @@ def apply_finish() -> int:
         if empty is None:
             empty = bpy.data.objects.new(empty_name, None)
             bpy.context.scene.collection.objects.link(empty)
+        # Same finish-dressing marker as new_box meshes: signage anchors are
+        # station-emitted openclinxr_ nodes, so they carry the flag for a
+        # total pipeline invariant (exported via export_extras=True).
+        empty["openClinXrFinishDecoration"] = True
         empty.empty_display_type = "PLAIN_AXES"
         stamped.append(empty_name)
 
@@ -290,7 +299,7 @@ def apply_finish() -> int:
     emitted = _emit_finish_geometry(seed=int(recipe.get("seed", 7)), palette=palette, bounds=shell)
 
     bpy.ops.wm.save_as_mainfile(filepath=args.output.replace(".glb", ".blend"))
-    bpy.ops.export_scene.gltf(filepath=args.output, export_format="GLB")
+    bpy.ops.export_scene.gltf(filepath=args.output, export_format="GLB", export_extras=True)
 
     report = {
         "schemaVersion": RECIPE_SCHEMA_VERSION,
