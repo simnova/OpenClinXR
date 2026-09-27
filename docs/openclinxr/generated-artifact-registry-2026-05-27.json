@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 401,
+    "keep-evidence": 405,
     "ignore-local-cache": 2771,
     "keep-current": 226,
     "keep-compatibility-input": 24,
@@ -23864,6 +23864,34 @@
     },
     {
       "path": "docs/openclinxr/room-realism/s3-tone-mapping/s3-tone-mapping-grade.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/face-notonemapping.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/face-aces.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/fullbody-notonemapping.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/fullbody-aces.png",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",

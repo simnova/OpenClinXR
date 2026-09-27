@@ -355,7 +355,6 @@ import {
   updateXrStatus as updatePackageTraceXrStatus,
 } from "@openclinxr/xr-trace-readiness";
 import {
-  ACESFilmicToneMapping,
   type AnimationClip,
   type AnimationMixer,
   BoxGeometry,
@@ -392,7 +391,7 @@ import {
 } from "./capture-comparator.js";
 import { bootLearnerRuntimeFromAssembledExam, type PinnedEncounterBundleRuntimeTrace, resolveAssembledExamPinnedBundleId } from "./encounter-bundle-boot/index.js";
 import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
-import { applyStationInteriorLightingForEnvironment } from "./lighting-rig-runtime.js";
+import { applyStationInteriorLightingForEnvironment, configureStationRendererToneMapping } from "./lighting-rig-runtime.js";
 import {
   type PedsAdaptiveDialogueBranchResolution,
   resolvePedsAdaptiveDialogueBranch,
@@ -2863,7 +2862,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   const renderer = new WebGLRenderer({ canvas, antialias: true });
   // S3: ACES filmic curve compresses the stacked rig highlights so the
   // existing rig exposure value takes effect (NoToneMapping ignored it).
-  renderer.toneMapping = ACESFilmicToneMapping;
+  configureStationRendererToneMapping(renderer);
   renderer.xr.enabled = true;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(doorwayTheme.backgroundColor);

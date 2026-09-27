@@ -8,6 +8,7 @@
  * by the capture key light.
  */
 import {
+  ACESFilmicToneMapping,
   DirectionalLight,
   type Light,
   PointLight,
@@ -37,6 +38,18 @@ export {
 };
 
 export const LIGHTING_RIG_PUBLIC_DIR = "/xr-assets/lighting";
+
+/**
+ * S3: the station renderer uses the ACES filmic curve so the rig exposure
+ * value takes effect (three.js NoToneMapping ignores toneMappingExposure and
+ * lets stacked rig highlights clip). Centralised here so the choice is pinned
+ * by unit test, not just discovered visually.
+ */
+export function configureStationRendererToneMapping(
+  renderer: Pick<WebGLRenderer, "toneMapping">,
+): void {
+  renderer.toneMapping = ACESFilmicToneMapping;
+}
 
 /** Blender bake energy -> three.js intensity. Key 234.7 -> ~2.35. */
 const RIG_ENERGY_TO_THREE = 0.01;
