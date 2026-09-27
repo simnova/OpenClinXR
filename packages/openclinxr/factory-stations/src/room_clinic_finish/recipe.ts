@@ -14,7 +14,7 @@
 export const ROOM_CLINIC_FINISH_SCHEMA_VERSION = "openclinxr.room-clinic-finish.v1";
 
 /** Closed finish-preset enum. No free text: the factory stays deterministic. */
-export const ROOM_FINISH_PRESETS = ["peds_calm", "clinic_day", "evening_calm"] as const;
+export const ROOM_FINISH_PRESETS = ["peds_calm", "clinic_day", "evening_calm", "ward_photo"] as const;
 
 export type RoomFinishPreset = (typeof ROOM_FINISH_PRESETS)[number];
 
@@ -25,6 +25,7 @@ export const ROOM_FINISH_KNOWN_ROOMS = [
   "primary_care_clinic_room_v1",
   "urgent_care_clinic_room_v1",
   "pediatric_fever_urgent_care_bay_v1",
+  "inpatient_ward_room_v1",
 ] as const;
 
 export type RoomFinishPalette = {
@@ -88,6 +89,24 @@ const PRESET_DEFS: Record<RoomFinishPreset, PresetDef> = {
     accentAlbedo: [0.45, 0.55, 0.7],
     roughness: 0.9,
     signageAnchors: ["door_header"],
+  },
+  // ward_photo: pixel-sampled from docs/openclinxr/room-realism/imagine-multiview/
+  // (Grok Imagine session d7dd6d8a, see asset-licence-records row-31). Albedo
+  // convention is sRGB/255, matching the presets above. wallAlbedo is the mean
+  // of three daylight wall boxes (02 box 500,280,780,420; 06 box 250,230,550,300;
+  // 01 box 200,200,500,450) -> (184.5, 187.8, 184.4)/255; the value bakes in the
+  // reference lighting (lit-photo mean, not a paint chip). trimAlbedo is the
+  // white door casing in 04 (box 200,100,232,700) -> (176.4, 186.4, 190.0)/255,
+  // single clean box. accentAlbedo is the flat-lit grey vinyl cove base in 02
+  // (box 500,600,780,625) -> (134.2, 140.4, 142.9)/255. roughness 0.85 is a
+  // reasoned estimate (matte wall per peds_calm; vinyl sheen unresolvable
+  // from stills; one palette-wide value).
+  ward_photo: {
+    wallAlbedo: [0.72, 0.74, 0.72],
+    trimAlbedo: [0.69, 0.73, 0.75],
+    accentAlbedo: [0.53, 0.55, 0.56],
+    roughness: 0.85,
+    signageAnchors: ["door_header", "bed_wall"],
   },
 };
 

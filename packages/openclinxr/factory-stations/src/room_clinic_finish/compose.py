@@ -31,6 +31,123 @@ EXPECTED_MODULE_VERSIONS = {
 TRIM_NAME_RE_PARTS = ("skirt", "casing", "door", "window", "trim", "baseboard")
 WALL_NAME_RE_PARTS = ("wall", "partition")
 
+# Photo-texture sources for the ward realism pass (imagine-multiview reference,
+# asset-licence-records row-31; crops cut by the ward-finish-chain dispatch).
+# Resolved relative to this file so the Blender-spawned stage stays
+# self-contained. Fail closed at compose time when a file is absent.
+# The ceiling has no photo texture in this worktree (flat trim paint); only
+# floor and door are photo-textured.
+TEXTURE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "textures")
+FLOOR_TEXTURE_FILE = "floor-vinyl.jpg"
+DOOR_TEXTURE_FILE = "door-maple.jpg"
+# Object-space tiling scale. floor-vinyl.jpg is a representative sheet-vinyl
+# patch, so one repeat spans 1.2 m (same convention as the ward-finish
+# lineage's FLOOR_OBJECT_SCALE).
+FLOOR_OBJECT_SCALE = 1.0 / 1.2
+
+
+def _texture_path(filename: str) -> str:
+    path = os.path.join(TEXTURE_DIR, filename)
+    if not os.path.exists(path):
+        raise SystemExit("room_clinic_finish texture missing: %s" % path)
+    return path
+
+
+def _load_photo_image(path: str):
+    """Load a photo texture with sRGB colour space (Blender runtime only)."""
+    import bpy  # type: ignore[import-not-found]
+
+    img = bpy.data.images.load(path, check_existing=True)
+    img.colorspace_settings.name = "sRGB"
+    return img
+
+
+def _photo_object_material(name: str, filename: str, scale_xy: float, roughness: float):
+    """Photo material with Object-space tiling: no UV layer required, the
+    Mapping scale sets the real-world repeat. The vinyl floor field uses this.
+    """
+    import bpy  # type: ignore[import-not-found]
+
+    mat = bpy.data.materials.get(name)
+    if mat is None:
+        mat = bpy.data.materials.new(name=name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = _load_photo_image(_texture_path(filename))
+    tex.extension = "REPEAT"
+    coord = nt.nodes.new("ShaderNodeTexCoord")
+    mapping = nt.nodes.new("ShaderNodeMapping")
+    mapping.inputs["Scale"].default_value = (scale_xy, scale_xy, scale_xy)
+    nt.links.new(coord.outputs["Object"], mapping.inputs["Vector"])
+    nt.links.new(mapping.outputs["Vector"], tex.inputs["Vector"])
+    nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+    bsdf.inputs["Roughness"].default_value = float(roughness)
+    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
+def _photo_uv_material(name: str, filename: str, roughness: float):
+    """Photo material with UV mapping: one full-frame image per face (the mesh
+    carries a full 0..1 UV layer via _uv_full_face). The maple door leaf uses
+    this.
+    """
+    import bpy  # type: ignore[import-not-found]
+
+    mat = bpy.data.materials.get(name)
+    if mat is None:
+        mat = bpy.data.materials.new(name=name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = _load_photo_image(_texture_path(filename))
+    tex.extension = "EXTEND"
+    coord = nt.nodes.new("ShaderNodeTexCoord")
+    nt.links.new(coord.outputs["UV"], tex.inputs["Vector"])
+    nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+    bsdf.inputs["Roughness"].default_value = float(roughness)
+    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
+def _uv_full_face(obj_name: str, front_poly: int = 2) -> None:
+    """UVs for photo-textured finish boxes (Blender runtime only).
+
+    The hero face (front_poly index into new_box polygon order: 0 bottom,
+    1 top, 2..5 sides) carries the whole photo once. Every other face gets
+    its own thin strip island so baked lighting from several faces never
+    shares texels. A real (non-degenerate) UV layer also survives the room
+    bake's ensure_uv instead of being smart-projected away.
+    """
+    import bpy  # type: ignore[import-not-found]
+
+    obj = bpy.data.objects.get(obj_name)
+    if obj is None or obj.type != "MESH":
+        raise SystemExit("room_clinic_finish: mesh missing for UVs: %s" % obj_name)
+    mesh = obj.data
+    layer = mesh.uv_layers.get("openclinxr_photo")
+    if layer is None:
+        layer = mesh.uv_layers.new(name="openclinxr_photo")
+    mesh.uv_layers.active = layer
+    corners = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]
+    others = [index for index in range(len(mesh.polygons)) if index != front_poly]
+    for position, poly in enumerate(mesh.polygons):
+        if position == front_poly:
+            for corner_pos, loop_index in enumerate(poly.loop_indices):
+                layer.data[loop_index].uv = corners[corner_pos % 4]
+            continue
+        slot = others.index(position)
+        u0, v0 = 0.985, slot * 0.19
+        for corner_pos, loop_index in enumerate(poly.loop_indices):
+            corner = corners[corner_pos % 4]
+            layer.data[loop_index].uv = (u0 + corner[0] * 0.015, min(1.0, v0 + corner[1] * 0.18))
+
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Clinic room finish compose stage")
@@ -121,7 +238,16 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     pal = palette or {}
     rough = float(pal.get("roughness", 0.85))
     trim_m = mat_for("openclinxr_finish_trim", pal.get("trimAlbedo", [0.96, 0.96, 0.94]), rough)
-    floor_m = mat_for("openclinxr_finish_floor", [0.62, 0.63, 0.60], 0.9)
+    # Photo-texture finish materials. Built by the _photo_* builders above,
+    # never by mat_for, so the flat-paint loop in apply_finish() cannot stomp
+    # them (it only assigns wall/trim materials to base-shell meshes;
+    # openclinxr_ finish meshes are skipped). Floor: sheet-vinyl crop with
+    # Object-space tiling at a 1.2 m repeat, slight vinyl sheen (0.45). Door
+    # leaf: maple crop mapped full-face via _uv_full_face (front_poly=2 is the
+    # room-facing y-min side of the slab box), satin maple (0.48).
+    floor_photo_m = _photo_object_material("openclinxr_finish_floor_photo", FLOOR_TEXTURE_FILE,
+                                           FLOOR_OBJECT_SCALE, 0.45)
+    door_photo_m = _photo_uv_material("openclinxr_finish_door_photo", DOOR_TEXTURE_FILE, 0.48)
     tbar_m = mat_for("openclinxr_finish_tbar", [0.88, 0.89, 0.87], 0.6)
     door_m = mat_for("openclinxr_finish_door", [0.55, 0.42, 0.30], 0.6)
     rail_m = mat_for("openclinxr_finish_rail", [0.35, 0.55, 0.70], 0.5)
@@ -162,7 +288,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     # Ceiling tile field + vinyl floor close the shell
     new_box("openclinxr_ceiling_field", cx, cy, TBAR_Z + 0.04, w, d, 0.05, trim_m)
     counts["ceiling"] += 1
-    new_box("openclinxr_floor_field", cx, cy, minz + 0.03, w, d, 0.05, floor_m)
+    new_box("openclinxr_floor_field", cx, cy, minz + 0.03, w, d, 0.05, floor_photo_m)
     counts["floor"] += 1
     # T-bar grid strips at ceiling height, scaled to room size
     nx, nz = max(2, int(round(w / 1.2))), max(2, int(round(d / 1.2)))
@@ -180,8 +306,9 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     new_box("openclinxr_door_jamb_r", door_x + door_w / 2 + 0.05, maxy - 0.04, door_cz, 0.1, 0.12, door_h + 0.1, trim_m)
     new_box("openclinxr_door_header", door_x, maxy - 0.04, minz + door_h + 0.07, door_w + 0.2, 0.12, 0.15, trim_m)
     counts["door"] += 3
-    new_box("openclinxr_door_slab", door_x, maxy - 0.06, door_cz, door_w, 0.08, door_h, door_m)
+    new_box("openclinxr_door_slab", door_x, maxy - 0.06, door_cz, door_w, 0.08, door_h, door_photo_m)
     counts["door"] += 1
+    _uv_full_face("openclinxr_door_slab")
     for iy in range(2):
         for iz in range(2):
             new_box("openclinxr_door_panel_%d_%d" % (iy, iz), door_x - door_w / 4 + iy * door_w / 2, maxy - 0.11, minz + door_h * 0.28 + iz * door_h * 0.44, door_w * 0.36, 0.02, door_h * 0.34, door_m)

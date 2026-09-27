@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "openclinxr.room-realism.imagine-multiview.v1",
+  "generatedOn": "2026-09-27",
+  "tool": "image_gen",
+  "namespace": "grok_build",
+  "model": "grok-4.7",
+  "aspectRatio": "16:9",
+  "imageGenSessionId": "d7dd6d8a-4828-406b-9d70-6d4b06234dd3",
+  "requestingSessionId": "01a0e146-57e0-7942-9229-836797999c0e",
+  "room": "empty modern hospital exam/ward room: off-white walls, maple door with a narrow vertical vision-lite, 2x4 recessed troffer seated flush in an acoustic-tile T-bar grid, gray vinyl cove base, pale sheet-vinyl floor",
+  "images": [
+    {
+      "filename": "01-toward-door.jpg",
+      "viewpoint": "Eye-level toward the door",
+      "prompt": "An empty modern hospital exam room, photographed at standing eye level from a few meters inside the room, looking straight toward the door. No people, no text, no equipment clutter. Off-white painted walls, a pale sheet-vinyl floor with a faint seam, a gray vinyl cove base at the wall-floor junction, a suspended acoustic-tile ceiling with a T-bar grid, one 2x4 (0.6 m by 1.2 m) recessed fluorescent troffer seated flush in the tile plane so its lens and frame are coplanar with the surrounding tiles, a maple wood door with a narrow vertical vision-lite window, and a simple white door casing. The maple door is centered a few meters ahead. Soft even daylight plus the ceiling light. Photoreal, 16:9.",
+      "aspectRatio": "16:9",
+      "toolCallId": "call-27746a22-e915-4ffe-9b15-e453689a7bb5-0",
+      "sourceSessionImage": "images/1.jpg",
+      "pixelSize": [
+        1280,
+        720
+      ]
+    },
+    {
+      "filename": "02-toward-bed-wall.jpg",
+      "viewpoint": "Eye-level toward the opposite bed wall",
+      "prompt": "An empty modern hospital exam room, photographed at standing eye level looking away from the door toward the opposite bed wall, the plain wall where a hospital bed would sit. No people, no text, no equipment clutter. Off-white painted walls, a pale sheet-vinyl floor with a faint seam, a gray vinyl cove base at the wall-floor junction, a suspended acoustic-tile ceiling with a T-bar grid, one 2x4 (0.6 m by 1.2 m) recessed fluorescent troffer seated flush in the tile plane so its lens and frame are coplanar with the surrounding tiles, a maple wood door with a narrow vertical vision-lite window, and a simple white door casing. The bare bed wall fills the frame and the door is behind the camera. Soft even daylight plus the ceiling light. Photoreal, 16:9.",
+      "aspectRatio": "16:9",
+      "toolCallId": "call-27746a22-e915-4ffe-9b15-e453689a7bb5-1",
+      "sourceSessionImage": "images/3.jpg",
+      "pixelSize": [
+        1280,
+        720
+      ]
+    },
+    {
+      "filename": "03-ceiling-corner.jpg",
+      "viewpoint": "Corner view looking up at the ceiling grid and troffer",
+      "prompt": "An empty modern hospital exam room, photographed from a floor corner looking steeply up at the ceiling grid and the troffer. No people, no text, no equipment clutter. Off-white painted walls, a pale sheet-vinyl floor with a faint seam, a gray vinyl cove base at the wall-floor junction, a suspended acoustic-tile ceiling with a T-bar grid, one 2x4 (0.6 m by 1.2 m) recessed fluorescent troffer seated flush in the tile plane so its lens and frame are coplanar with the surrounding tiles, a maple wood door with a narrow vertical vision-lite window, and a simple white door casing. The T-bar grid and the flush troffer dominate the frame, the troffer face sitting in the tile plane rather than proud of it or hanging below it. Soft even daylight plus the ceiling light. Photoreal, 16:9.",
+      "aspectRatio": "16:9",
+      "toolCallId": "call-27746a22-e915-4ffe-9b15-e453689a7bb5-2",
+      "sourceSessionImage": "images/2.jpg",
+      "pixelSize": [
+        1280,
+        720
+      ]
+    },
+    {
+      "filename": "04-door-inside.jpg",
+      "viewpoint": "Door viewed from inside the room, closer",
+      "prompt": "An empty modern hospital exam room, photographed from inside the room close to the door so the casing, trim, and vision-lite read clearly. No people, no text, no equipment clutter. Off-white painted walls, a pale sheet-vinyl floor with a faint seam, a gray vinyl cove base at the wall-floor junction, a suspended acoustic-tile ceiling with a T-bar grid, one 2x4 (0.6 m by 1.2 m) recessed fluorescent troffer seated flush in the tile plane so its lens and frame are coplanar with the surrounding tiles, a maple wood door with a narrow vertical vision-lite window, and a simple white door casing. The maple door and its white casing fill most of the frame. Soft even daylight plus the ceiling light. Photoreal, 16:9.",
+      "aspectRatio": "16:9",
+      "toolCallId": "call-27746a22-e915-4ffe-9b15-e453689a7bb5-3",
+      "sourceSessionImage": "images/5.jpg",
+      "pixelSize": [
+        1280,
+        720
+      ]
+    },
+    {
+      "filename": "05-troffer-junction.jpg",
+      "viewpoint": "Close-up of the troffer/T-bar junction",
+      "prompt": "A close-up of the troffer and T-bar junction in an empty modern hospital exam room, framed tight on how the light fixture's edge meets the surrounding ceiling tiles. No people, no text, no equipment clutter. Off-white painted walls, a pale sheet-vinyl floor with a faint seam, a gray vinyl cove base at the wall-floor junction, a suspended acoustic-tile ceiling with a T-bar grid, one 2x4 (0.6 m by 1.2 m) recessed fluorescent troffer seated flush in the tile plane so its lens and frame are coplanar with the surrounding tiles, a maple wood door with a narrow vertical vision-lite window, and a simple white door casing. The troffer edge sits flush in the tile plane, coplanar with the T-bar and the acoustic tiles, not proud of the ceiling and not hanging below it. Soft even daylight plus the ceiling light. Photoreal, 16:9.",
+      "aspectRatio": "16:9",
+      "toolCallId": "call-27746a22-e915-4ffe-9b15-e453689a7bb5-4",
+      "sourceSessionImage": "images/6.jpg",
+      "pixelSize": [
+        1280,
+        720
+      ]
+    },
+    {
+      "filename": "06-floor-base.jpg",
+      "viewpoint": "Floor/base detail",
+      "prompt": "A close-up of the floor and base in an empty modern hospital exam room, framed on the vinyl floor meeting the cove base so the sheet material and the base profile are clear. No people, no text, no equipment clutter. Off-white painted walls, a pale sheet-vinyl floor with a faint seam, a gray vinyl cove base at the wall-floor junction, a suspended acoustic-tile ceiling with a T-bar grid, one 2x4 (0.6 m by 1.2 m) recessed fluorescent troffer seated flush in the tile plane so its lens and frame are coplanar with the surrounding tiles, a maple wood door with a narrow vertical vision-lite window, and a simple white door casing. The gray cove base curves from the pale sheet-vinyl floor up the off-white wall. Soft even daylight plus the ceiling light. Photoreal, 16:9.",
+      "aspectRatio": "16:9",
+      "toolCallId": "call-27746a22-e915-4ffe-9b15-e453689a7bb5-5",
+      "sourceSessionImage": "images/4.jpg",
+      "pixelSize": [
+        1280,
+        720
+      ]
+    }
+  ]
+}

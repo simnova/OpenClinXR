@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -93,6 +93,30 @@ describe("the room clinic finish station composes a deterministic finish", () =>
     expect((planned.plan["moduleScripts"] as string[]).some((entry) => entry.endsWith("geometry.py"))).toBe(true);
     const composeSrc = readFileSync(join(SRC, "compose.py"), "utf8");
     expect(composeSrc).toContain("clinic-finish-geometry-v1");
+  });
+
+  it("(8) ward preset + room resolve, and floor/door photo-textures are wired with bytes on disk", () => {
+    const ward = designRoomFinishRecipe(
+      validInput({ environmentId: "inpatient_ward_room_v1", preset: "ward_photo" }) as {
+        environmentId: string;
+        preset: string;
+        seed: number;
+      },
+    );
+    expect(ward.environmentId).toBe("inpatient_ward_room_v1");
+    expect(ward.preset).toBe("ward_photo");
+    expect(ward.palette.wallAlbedo).toEqual([0.72, 0.74, 0.72]);
+    expect(ROOM_FINISH_PRESETS).toContain("ward_photo");
+    const composeSrc = readFileSync(join(SRC, "compose.py"), "utf8");
+    expect(composeSrc).toContain("_photo_object_material");
+    expect(composeSrc).toContain("_photo_uv_material");
+    expect(composeSrc).toContain("_uv_full_face");
+    expect(composeSrc).toContain("floor-vinyl.jpg");
+    expect(composeSrc).toContain("door-maple.jpg");
+    expect(composeSrc).toContain("openclinxr_finish_floor_photo");
+    expect(composeSrc).toContain("openclinxr_finish_door_photo");
+    expect(existsSync(join(SRC, "textures", "floor-vinyl.jpg"))).toBe(true);
+    expect(existsSync(join(SRC, "textures", "door-maple.jpg"))).toBe(true);
   });
 });
 

@@ -34,9 +34,9 @@
     }
   ],
   "counts": {
-    "keep-evidence": 405,
+    "keep-evidence": 415,
     "ignore-local-cache": 2771,
-    "keep-current": 226,
+    "keep-current": 228,
     "keep-compatibility-input": 24,
     "keep-template": 6
   },
@@ -24064,6 +24064,90 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Dated tightjeans rebake evidence note; .md must not join generatedExtensions (doc-authority collision)."
+    },
+    {
+      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl.jpg",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish station input: sheet-vinyl crop from imagine-multiview 06-floor-base.jpg (row-31 provenance); consumed by room_clinic_finish/compose.py floor photo-texture path."
+    },
+    {
+      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple.jpg",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish station input: maple leaf crop from imagine-multiview 04-door-inside.jpg (row-31 provenance); consumed by room_clinic_finish/compose.py door photo-texture path."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/01-toward-door.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/02-toward-bed-wall.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/03-ceiling-corner.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/04-door-inside.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/05-troffer-junction.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/06-floor-base.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/grading-checklist.md",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/asset-licence-records/row-30-operator-generated-grok-imagine-room-surface-photos.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated (not third-party) provenance record for Grok Imagine room images used as finish-station texture/preset sources."
+    },
+    {
+      "path": "docs/openclinxr/asset-licence-records/row-31-operator-generated-grok-imagine-room-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated (not third-party) provenance record for Grok Imagine room images used as finish-station texture/preset sources."
     }
   ]
 }
