@@ -44,9 +44,6 @@ export {
   findEquipmentSubject,
 } from "./equipment_generate/subjects.js";
 export {
-  runLightingDesign,
-} from "./lighting_design/run.js";
-export {
   writeLipSyncFixtureWav,
 } from "./lip_sync/fixture-wav.js";
 export {
@@ -56,9 +53,6 @@ export {
   planMotionRetarget,
   runMotionRetarget,
 } from "./motion_retarget/run.js";
-export {
-  runRoomClinicFinish,
-} from "./room_clinic_finish/run.js";
 export {
   planRoomGenerate,
   ROOM_ALBEDO_REL,
