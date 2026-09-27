@@ -43,6 +43,7 @@
     "src/clothing_consume/the-rig-refit-lands-on-animated-figures.test.ts",
     "src/equipment_generate/the-equipment-station-publishes-a-runtime-asset-url.test.ts",
     "src/lighting_design/the-lighting-design-station-emits-a-deterministic-rig.test.ts",
+    "src/hair_editor/the-hair-editor-station-is-an-alternative-to-mhclo.test.ts",
     "src/lip_sync/the-lip-sync-station-rhubarb-on-wav-not-say.test.ts",
     "src/motion_retarget/extract-library-clip.test.ts",
     "src/room_clinic_finish/the-room-clinic-finish-composes-a-deterministic-finish.test.ts",

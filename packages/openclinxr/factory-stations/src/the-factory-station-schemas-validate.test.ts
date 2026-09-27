@@ -62,6 +62,13 @@ const VALID: Record<ProductionStationId, Record<string, unknown>> = {
     mood: "ed_exam_bright",
     seed: 7,
   },
+  hair_editor: {
+    actorId: "actor_a",
+    family: "bob",
+    hairAsset: "UNRESOLVED",
+    targetReadJson: '{"length_class":"jaw","curl_class":"wave","color_name":"dark_brown","volume_class":"natural","density_class":"normal"}',
+    round: 0,
+  },
 };
 
 describe("the factory station schemas validate", () => {
