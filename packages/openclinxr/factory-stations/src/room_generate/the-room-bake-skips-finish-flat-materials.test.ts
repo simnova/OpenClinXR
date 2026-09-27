@@ -1,10 +1,20 @@
 import { execFile } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { repoRoot } from "../repo-root.js";
+
+/** Repo root without importing the station internals (keeps the test import ceiling flat). */
+function findRepoRoot(): string {
+  let dir = path.dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 12; i += 1) {
+    if (existsSync(path.join(dir, "pnpm-workspace.yaml"))) return dir;
+    dir = path.dirname(dir);
+  }
+  throw new Error("repo root not found");
+}
 
 /**
  * Finish materials meant to keep a flat Base Color must skip the albedo bake
@@ -67,13 +77,13 @@ describe("the room bake leaves finish flat materials unbaked", () => {
     const driver = path.join(work, "finish_flat_driver.py");
     writeFileSync(driver, DRIVER, "utf8");
     const bakePy = path.join(
-      repoRoot(),
+      findRepoRoot(),
       "packages/openclinxr/factory-stations/src/room_generate/room-albedo-ao-bake.py",
     );
     let output = "";
     try {
       const result = await execFileAsync("blender", ["--background", "--python", driver, "--", bakePy], {
-        cwd: repoRoot(),
+        cwd: findRepoRoot(),
         timeout: 300_000,
       });
       output = `${result.stdout}\n${result.stderr}`;

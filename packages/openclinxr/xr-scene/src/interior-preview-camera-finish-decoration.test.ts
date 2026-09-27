@@ -1,13 +1,18 @@
 import { BoxGeometry, Group, Mesh, MeshStandardMaterial } from "three";
 import { describe, expect, it } from "vitest";
-import { roomInteriorAndHull } from "./interior-preview-camera.js";
+import { deriveInteriorPreviewCamera } from "./index.js";
 
 /**
  * A full-span finish ceiling (edges exactly on the shell outer span) must not
  * pollute the INTERIOR measurement. Without the finish-decoration exclusion
  * it pins the interior union to the hull on every side, collapsing the
- * derived wall thickness toward zero.
+ * derived wall thickness toward zero and pushing the preview eye out.
+ *
+ * Routed through the public entrypoint (deriveInteriorPreviewCamera), which
+ * measures via roomInteriorAndHull internally.
  */
+
+const ACTORS = [{ min: [-0.4, 0, -1] as const, max: [0.4, 1.8, -0.5] as const }];
 
 function shellRoom(): Group {
   const room = new Group();
@@ -22,18 +27,14 @@ function shellRoom(): Group {
   return room;
 }
 
-function wallThicknessMeters(room: Group): number {
-  const { interior, hull } = roomInteriorAndHull(room);
-  if (interior === null || hull === null) throw new Error("expected measured interior and hull");
-  return hull.max.z - interior.max.z;
-}
-
 describe("finish dressing does not collapse the interior-to-hull gap", () => {
   it("bare shell measures a 0.2 m wall thickness", () => {
-    expect(wallThicknessMeters(shellRoom())).toBeCloseTo(0.2, 5);
+    const result = deriveInteriorPreviewCamera({ roomRoot: shellRoom(), actorWorldBoxes: ACTORS });
+    expect(result).not.toBeNull();
+    expect(result!.wallThicknessMeters).toBeCloseTo(0.2, 5);
   });
 
-  it("a full-span tagged finish ceiling leaves the gap intact", () => {
+  it("a full-span tagged finish ceiling leaves the camera measurement intact", () => {
     const room = shellRoom();
     const ceiling = new Mesh(new BoxGeometry(6.4, 0.05, 6.4), new MeshStandardMaterial());
     ceiling.name = "openclinxr_ceiling_field";
@@ -41,9 +42,11 @@ describe("finish dressing does not collapse the interior-to-hull gap", () => {
     ceiling.userData["openClinXrFinishDecoration"] = true;
     room.add(ceiling);
     room.updateMatrixWorld(true);
-    const { interior } = roomInteriorAndHull(room);
-    if (interior === null) throw new Error("expected measured interior");
-    expect(interior.max.z).toBeCloseTo(3.0, 5);
-    expect(wallThicknessMeters(room)).toBeGreaterThan(0.1);
+    const result = deriveInteriorPreviewCamera({ roomRoot: room, actorWorldBoxes: ACTORS });
+    expect(result).not.toBeNull();
+    expect(result!.wallThicknessMeters).toBeGreaterThan(0.1);
+    const bare = deriveInteriorPreviewCamera({ roomRoot: shellRoom(), actorWorldBoxes: ACTORS });
+    expect(result!.wallThicknessMeters).toBeCloseTo(bare!.wallThicknessMeters, 5);
+    expect(result!.eye.toArray()).toEqual(bare!.eye.toArray());
   });
 });
