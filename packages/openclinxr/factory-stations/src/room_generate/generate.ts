@@ -126,8 +126,10 @@ function lastLineJson(stdout: string): Record<string, unknown> {
 
 /**
  * GENERATE step: runs the fixed-footprint Infinigen driver, strips shell
- * placeholders, extracts the single room to workGlb, and probes door
- * placement. Opt-in: runRoomGenerate calls this only when footprintMeters
+ * placeholders, bakes shell materials from the live blend (S2 pre-export
+ * bake: DIFFUSE COLOR-only + NORMAL + ROUGHNESS into BAKE_UV, node trees
+ * replaced with Image Texture -> Principled), extracts the single room to
+ * workGlb, and probes door placement. Opt-in: runRoomGenerate calls this only when footprintMeters
  * is present; legacy callers never reach here.
  */
 export async function runInfinigenGenerate(
@@ -269,6 +271,35 @@ export async function runInfinigenGenerate(
   if (stripped.code !== 0 || !existsSync(workBlend)) {
     throw new Error(
       `room shell strip failed (exit ${stripped.code}):\n${stripped.stderr.slice(-2000)}`,
+    );
+  }
+
+  // S2 pre-export shell bake: work.blend still holds every procedural node
+  // tree (the exporter writes no image for them, so a post-extract bake sees
+  // no hue). Bake DIFFUSE COLOR-only + NORMAL + ROUGHNESS into BAKE_UV here;
+  // the unchanged extract below then exports the now-baked blend. In place:
+  // workBlend is the strip output and the extract input.
+  started = Date.now();
+  const shellBaked = await spawnProcess(
+    options.blender,
+    [
+      "--background",
+      "--python",
+      path.join(moduleDir, "bake_shell_materials.py"),
+      "--",
+      "--blend",
+      workBlend,
+      "--output",
+      workBlend,
+      "--seed",
+      String(seed),
+    ],
+    { cwd: options.cwd ?? root, timeoutMs },
+  );
+  durationsMs["shellBakeMs"] = Date.now() - started;
+  if (shellBaked.code !== 0 || !existsSync(workBlend)) {
+    throw new Error(
+      `room shell bake failed (exit ${shellBaked.code}):\n${shellBaked.stderr.slice(-2000)}\n${shellBaked.stdout.slice(-2000)}`,
     );
   }
 

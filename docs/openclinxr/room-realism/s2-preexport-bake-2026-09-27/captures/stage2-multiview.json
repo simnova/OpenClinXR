@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "glb": "/tmp/s2-a/ward-s2.work.glb",
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -1.1,
+        "y": 1.6,
+        "z": 1.6
+      },
+      "look": {
+        "x": 0.3,
+        "y": 1.25,
+        "z": -3.885
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/s2-preexport-bake/docs/openclinxr/room-realism/s2-preexport-bake-2026-09-27/captures/runtime-01-toward-door.png",
+      "pngBytes": 832892,
+      "pngSha256": "01d0fddbdc8ffa9b9570054097f88a0c37c86e7fd7baae0990028affb28ccb97"
+    }
+  ]
+}

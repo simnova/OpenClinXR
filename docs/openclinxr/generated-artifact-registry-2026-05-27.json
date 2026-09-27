@@ -22,11 +22,11 @@
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py",
-      "reason": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script."
+      "reason": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard \u2014 a different producer than the seated-clip script."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
-      "reason": "Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
+      "reason": "Texture-resize candidate (JPEG q85 2048\u00b2) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 429,
+    "keep-evidence": 431,
     "ignore-local-cache": 2771,
     "keep-current": 228,
     "keep-compatibility-input": 24,
@@ -24049,14 +24049,14 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script."
+      "rationale": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard \u2014 a different producer than the seated-clip script."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
+      "rationale": "Texture-resize candidate (JPEG q85 2048\u00b2) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
@@ -24246,6 +24246,20 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Ward-finish-chain part 3 capture manifest: per-pose bytes/sha provenance for the 6 runtime frames."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/s2-preexport-bake-2026-09-27/captures/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "S2 pre-export shell bake runtime capture (pose 01-toward-door) against the seed-205 shell-baked GLB at runtime placement, hand-placed pose, no reseat; mint walls and parquet floor expected at this slice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/s2-preexport-bake-2026-09-27/captures/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "S2 pre-export shell-bake pose-01 runtime capture manifest; keep unless a later explicit stale pattern supersedes it."
     }
   ]
 }
