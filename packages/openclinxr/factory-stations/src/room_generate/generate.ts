@@ -31,6 +31,8 @@ export type RoomGenerateDoor = {
   hingeSide?: string;
   widthM?: number;
   heightM?: number;
+  /** Optional Infinigen door-factory pin: "panel" | "glass_panel" | "louver" | "lite". Absent = random draw. */
+  style?: string;
 };
 
 export type InfinigenGenerateInput = {
@@ -57,7 +59,7 @@ export type InfinigenGenerateReport = {
   footprintMeters: RoomGenerateFootprint;
   /** Effective door (explicit fields plus legacy-pin defaults). */
   door: Required<Pick<RoomGenerateDoor, "doorWall" | "wallOffsetM" | "hingeSide">> &
-    Pick<RoomGenerateDoor, "widthM" | "heightM">;
+    Pick<RoomGenerateDoor, "widthM" | "heightM" | "style">;
   outputDir: string;
   sceneBlend: string;
   workBlend: string;
@@ -170,6 +172,7 @@ export async function runInfinigenGenerate(
     hingeSide: input.door?.hingeSide ?? "+x",
     ...(input.door?.widthM !== undefined ? { widthM: input.door.widthM } : {}),
     ...(input.door?.heightM !== undefined ? { heightM: input.door.heightM } : {}),
+    ...(input.door?.style !== undefined ? { style: input.door.style } : {}),
   };
   const seed = Math.trunc(input.seed);
   const timeoutMs = options.timeoutMs ?? 1_200_000;
@@ -214,6 +217,7 @@ export async function runInfinigenGenerate(
     String(input.footprintMeters.ceilingHeight + ROOM_GENERATE_WALL_THICKNESS_M),
     ...(door.widthM !== undefined ? ["--door-width-m", String(door.widthM)] : []),
     ...(door.heightM !== undefined ? ["--door-height-m", String(door.heightM)] : []),
+    ...(door.style !== undefined ? [`--door-style=${door.style}`] : []),
     "-p",
     "compose_indoors.terrain_enabled=False",
     "compose_indoors.room_windows_enabled=False",

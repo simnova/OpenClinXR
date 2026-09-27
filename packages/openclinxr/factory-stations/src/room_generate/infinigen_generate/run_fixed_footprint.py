@@ -24,6 +24,7 @@
 #     -g singleroom disable/clinical_single_furnished \
 #     --interior-width 8.77 --interior-depth 7.77 \
 #     --door-wall +y --door-offset 0.50 \
+#     [--door-style lite] \
 #     -p compose_indoors.terrain_enabled=False compose_indoors.room_windows_enabled=False compose_indoors.solve_large_enabled=False compose_indoors.solve_medium_enabled=False compose_indoors.solve_small_enabled=False populate_doors.n_doors=3 \
 #     -t coarse
 #
@@ -67,6 +68,14 @@ def main():
     parser.add_argument("--wall-height", type=float, default=None)
     parser.add_argument("--door-width-m", type=float, default=None)
     parser.add_argument("--door-height-m", type=float, default=None)
+    # Optional door-factory pin. Absent keeps the upstream random draw
+    # (random_door_factory weights [4,2,3,3]); present bypasses it.
+    # "lite" is the vision-lite leaf the Imagine reference shows.
+    parser.add_argument(
+        "--door-style",
+        choices=["panel", "glass_panel", "louver", "lite"],
+        default=None,
+    )
     args = parser.parse_args()
     args.overrides = [b for group in args.overrides for b in group]
 
@@ -251,6 +260,36 @@ def main():
     print("[fixed_footprint] patched BlueprintSolidifier.make_entrance_cutter (pinned)", flush=True)
 
     scene_seed = init.apply_scene_seed(args.seed)
+    # Optional door-style pin (Task: door.style). Upstream populate_doors
+    # builds its factories via random_door_factory() (weights [4,2,3,3]),
+    # imported by name into the decorate namespace -- so BOTH bindings are
+    # patched to return the requested class. decorate.populate_doors then
+    # draws the pinned factory for every door without further changes.
+    # Absent --door-style leaves both bindings untouched (random draw).
+    if args.door_style is not None:
+        from infinigen.assets.objects.elements import doors as doors_mod
+        from infinigen.assets.objects.elements.doors.lite import LiteDoorFactory
+        from infinigen.assets.objects.elements.doors.louver import LouverDoorFactory
+        from infinigen.assets.objects.elements.doors.panel import (
+            GlassPanelDoorFactory,
+            PanelDoorFactory,
+        )
+        from infinigen.core.constraints.example_solver.room import decorate as room_decorate
+
+        pinned = {
+            "panel": PanelDoorFactory,
+            "glass_panel": GlassPanelDoorFactory,
+            "louver": LouverDoorFactory,
+            "lite": LiteDoorFactory,
+        }[args.door_style]
+
+        def _pinned_door_factory():
+            return pinned
+
+        doors_mod.random_door_factory = _pinned_door_factory
+        room_decorate.random_door_factory = _pinned_door_factory
+        print(f"[fixed_footprint] pinned door factory to {pinned.__name__}", flush=True)
+
     init.apply_gin_configs(
         configs=["base_indoors.gin"] + args.configs,
         overrides=args.overrides,

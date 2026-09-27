@@ -234,7 +234,7 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
     // "object" type above only checks "is an object" — the INTERNAL shape
     // (positive dims, closed doorWall enum) is enforced in planRoomGenerate.
     footprintMeters: { type: "object", required: false, description: "interior clear-floor target { width, depth, ceilingHeight } in meters" },
-    door: { type: "object", required: false, description: "{ doorWall: '+x'|'-x'|'+y'|'-y', wallOffsetM, hingeSide, widthM, heightM }" },
+    door: { type: "object", required: false, description: "{ doorWall: '+x'|'-x'|'+y'|'-y', wallOffsetM, hingeSide (perpendicular axis to doorWall), widthM, heightM, style?: 'panel'|'glass_panel'|'louver'|'lite' }" },
   }),
   equipment_generate: defineStation("equipment_generate", {
     subjectId: { type: "string", required: true },

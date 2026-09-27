@@ -41,6 +41,9 @@ export function planRoomGenerate(input: unknown): StationPlanResult {
 /** Closed door-wall enum for the fixed-footprint generate step. */
 export const ROOM_GENERATE_DOOR_WALLS = ["+x", "-x", "+y", "-y"] as const;
 
+/** Closed door-style enum; pins the Infinigen door factory. Absent = random draw. */
+export const ROOM_GENERATE_DOOR_STYLES = ["panel", "glass_panel", "louver", "lite"] as const;
+
 export type RoomGenerateDoorWall = (typeof ROOM_GENERATE_DOOR_WALLS)[number];
 
 function isPositiveNumber(value: unknown): value is number {
@@ -76,8 +79,35 @@ export function validateRoomGenerateOptions(value: Record<string, unknown>): { m
       }
     }
     if ("hingeSide" in door && door["hingeSide"] !== undefined) {
-      if (typeof door["hingeSide"] !== "string" || !(ROOM_GENERATE_DOOR_WALLS as readonly string[]).includes(door["hingeSide"])) {
+      const hinge = door["hingeSide"];
+      if (typeof hinge !== "string" || !(ROOM_GENERATE_DOOR_WALLS as readonly string[]).includes(hinge)) {
         issues.push({ message: `door.hingeSide must be one of "+x", "-x", "+y", "-y"`, path: ["door", "hingeSide"] });
+      } else if (
+        typeof wall === "string" &&
+        (ROOM_GENERATE_DOOR_WALLS as readonly string[]).includes(wall)
+      ) {
+        // The leaf swings in the wall's own extent from a jamb-mounted
+        // hinge, so the hinge axis must be perpendicular to the wall normal.
+        const wallAxis = wall.includes("x") ? "x" : "y";
+        const hingeAxis = (hinge as string).includes("x") ? "x" : "y";
+        if (wallAxis === hingeAxis) {
+          issues.push({
+            message: `door.hingeSide ${JSON.stringify(hinge)} must be on the perpendicular axis to doorWall ${JSON.stringify(wall)} (a ${wall} wall hinges on ${wallAxis === "x" ? '"+y" or "-y"' : '"+x" or "-x"'})`,
+            path: ["door", "hingeSide"],
+          });
+        }
+      }
+    }
+    if ("style" in door && door["style"] !== undefined) {
+      const style = door["style"];
+      if (
+        typeof style !== "string" ||
+        !(ROOM_GENERATE_DOOR_STYLES as readonly string[]).includes(style)
+      ) {
+        issues.push({
+          message: `door.style must be one of "panel", "glass_panel", "louver", "lite" (got ${JSON.stringify(style) ?? "missing"})`,
+          path: ["door", "style"],
+        });
       }
     }
     for (const dim of ["widthM", "heightM"] as const) {
@@ -126,7 +156,7 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
     const door = ("door" in planned.value && planned.value["door"] !== undefined
       ? (planned.value["door"] as Record<string, unknown>)
       : undefined) as
-      | { doorWall?: string; wallOffsetM?: number; hingeSide?: string; widthM?: number; heightM?: number }
+      | { doorWall?: string; wallOffsetM?: number; hingeSide?: string; widthM?: number; heightM?: number; style?: string }
       | undefined;
     generate = await runInfinigenGenerate(
       {
