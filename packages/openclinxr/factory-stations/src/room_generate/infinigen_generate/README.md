@@ -30,7 +30,13 @@ here the wall and along-wall offset are parameters (`--door-wall`,
 - `0001-room-walls-concrete-vertical-kwarg.patch` — versioned Infinigen source
   patch (widens the upstream Brick guard to `("Brick", "Concrete")` in
   `room_walls`, `decorate.py`). Target revision `b11700eb` (v1.14.0).
-- `apply-patches.sh` — applies the patch to a fresh tool install.
+- `0003-room-walls-plaster-floors-rug-realism-env.patch` — versioned
+  Infinigen source patch (pins `room_walls` to Plaster, skips the
+  wainscot/alternative pass, and pins `room_floors` to Rug when
+  `OPENCLINXR_ROOM_REALISM=1`, `decorate.py`). Same target revision.
+  The floor pin to Rug is a placeholder S5 replaces with vinyl; the wall
+  pin to Plaster is the S4 contract. Applies after 0001.
+- `apply-patches.sh` — applies the patches to a fresh tool install.
 
 ## Fresh Infinigen install
 
@@ -40,9 +46,9 @@ sh packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/app
 # dry run first: sh apply-patches.sh --check-only
 ```
 
-The current tool install already carries this fix live (plus unrelated
-live-only edits that stay out of this patch: `OPENCLINXR_ROOM_REALISM`
-branches, the casing bevel-weight fix, the terrain `__init__` re-export).
+The current tool install already carries these fixes live (plus unrelated
+live-only edits that stay out of these patches: the casing bevel-weight fix,
+the terrain `__init__` re-export).
 The driver additionally needs the `door_params` / `window_params` /
 `populate_windows` `@gin.configurable` bindings (sibling `0002` patch),
 which the tool install also carries live; the driver fails closed with the

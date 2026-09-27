@@ -167,6 +167,14 @@ export async function runInfinigenGenerate(
       `infinigen source lacks the Concrete wall patch; apply it first: sh ${path.join(moduleDir, "apply-patches.sh")}`,
     );
   }
+  // Fail closed on a fresh install without the S4 realism patch: without it
+  // the chain draws residential wall/floor classes (hex tile, parquet, mint)
+  // instead of the pinned ward shell.
+  if (!decorateSrc.includes("OPENCLINXR_ROOM_REALISM")) {
+    throw new Error(
+      `infinigen source lacks the S4 realism patch; apply it first: sh ${path.join(moduleDir, "apply-patches.sh")}`,
+    );
+  }
 
   const door: InfinigenGenerateReport["door"] = {
     doorWall: input.door?.doorWall ?? "+y",
@@ -239,7 +247,11 @@ export async function runInfinigenGenerate(
   const generated = await spawnProcess(venvPython, driverArgs, {
     cwd: infinigenSource,
     timeoutMs,
-    env: { PYTHONPATH: moduleDir, CUDA_VISIBLE_DEVICES: "None" },
+    // OPENCLINXR_ROOM_REALISM=1 pins room_walls to Plaster (S4 shell
+    // contract) and room_floors to Rug (placeholder S5 replaces with vinyl).
+    // decorate.py reads it via os.environ in-process, so it must ride the
+    // driver spawn env, not just the caller shell.
+    env: { PYTHONPATH: moduleDir, CUDA_VISIBLE_DEVICES: "None", OPENCLINXR_ROOM_REALISM: "1" },
   });
   durationsMs["generateMs"] = Date.now() - started;
   if (generated.code !== 0 || !existsSync(sceneBlend)) {

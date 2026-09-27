@@ -1,0 +1,42 @@
+diff --git a/infinigen/core/constraints/example_solver/room/decorate.py b/infinigen/core/constraints/example_solver/room/decorate.py
+--- a/infinigen/core/constraints/example_solver/room/decorate.py
++++ b/infinigen/core/constraints/example_solver/room/decorate.py
+@@ -208,7 +208,11 @@ pillar_rooms = {
+ 
+ 
+ def room_walls(walls: list[bpy.types.Object], constants: RoomConstants, n_walls=3):
+-    wall_fns = list(weighted_sample(room_wall_fns[room_type(r.name)])() for r in walls)
++    if os.environ.get("OPENCLINXR_ROOM_REALISM") == "1":
++        plaster_wall = material_assignments.ceramic.Plaster()
++        wall_fns = [plaster_wall for _ in walls]
++    else:
++        wall_fns = list(weighted_sample(room_wall_fns[room_type(r.name)])() for r in walls)
+     logger.debug(
+         f"{room_walls.__name__} adding materials to {len(walls)=}, using {len(wall_fns)=}"
+     )
+@@ -234,6 +238,8 @@ def room_walls(walls: list[bpy.types.Object], constants: RoomConstants, n_walls=
+         logger.debug(
+             f"{room_walls.__name__} adding materials to {len(walls)=}, using {len(wall_fns)=}"
+         )
++        if os.environ.get("OPENCLINXR_ROOM_REALISM") == "1":
++            continue
+         fn = rg(room_wall_alternative_fns[room_type(w.name)])
+         match fn:
+             case "none":
+@@ -323,9 +329,13 @@ def room_ceilings(ceilings):
+ def room_floors(floors, n_floors=3):
+ 
+     floor_material_gens = []
+-    for r in floors:
+-        gen_class = weighted_sample(room_floor_fns[room_type(r.name)])
+-        floor_material_gens.append(gen_class())
++    if os.environ.get("OPENCLINXR_ROOM_REALISM") == "1":
++        rug = material_assignments.fabric.Rug()
++        floor_material_gens = [rug for _ in floors]
++    else:
++        for r in floors:
++            gen_class = weighted_sample(room_floor_fns[room_type(r.name)])
++            floor_material_gens.append(gen_class())
+ 
+     logger.debug(
+         f"{room_floors.__name__} adding materials to {len(floors)=}, using {len(floor_material_gens)=}"

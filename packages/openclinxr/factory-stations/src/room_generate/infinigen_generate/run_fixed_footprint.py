@@ -41,6 +41,7 @@
 #     the 0002 gin-configurable patch, which the tool install carries).
 
 import argparse
+import os
 from pathlib import Path
 
 # Must match RoomConstants.global_params segment_margin default (1.4),
@@ -78,6 +79,11 @@ def main():
     )
     args = parser.parse_args()
     args.overrides = [b for group in args.overrides for b in group]
+
+    # S4 shell contract: this driver only serves the ward chain, so default
+    # the realism pin on here too. An explicit caller env still wins
+    # (setdefault), and generate.ts always sets it on the spawn env.
+    os.environ.setdefault("OPENCLINXR_ROOM_REALISM", "1")
 
     import fixed_footprint_state as ffs
 
