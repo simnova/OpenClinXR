@@ -182,8 +182,10 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
   const bakeOcclusion = options.bakeOcclusion !== false;
   let albedoExit: number | null = null;
   let occlusionExit: number | null = null;
-  let stdout = "";
-  let stderr = "";
+  let albedoStdout = "";
+  let albedoStderr = "";
+  let occlusionStdout = "";
+  let occlusionStderr = "";
   if (options.bakeAlbedo) {
     if (!existsSync(albedoScript)) throw new Error(`room albedo script missing: ${albedoScript}`);
     const albedoArgs = options.albedoExtraArgs ?? [
@@ -200,8 +202,15 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
       { cwd, timeoutMs },
     );
     albedoExit = albedo.code;
-    stdout = albedo.stdout;
-    stderr = albedo.stderr;
+    albedoStdout = albedo.stdout;
+    albedoStderr = albedo.stderr;
+    // Fail closed: a crashed albedo pass must stop the chain here, before
+    // the occlusion pass overwrites the evidence (S1: Blender used to exit
+    // 0 on the link-failure RuntimeError and the occlusion output replaced
+    // albedo's stdout/stderr, so the chain never noticed).
+    if (albedoExit !== 0) {
+      throw new Error(`room albedo bake failed with exit ${albedoExit}:\n${albedoStderr.slice(-2000)}`);
+    }
   }
   if (bakeOcclusion) {
     if (!existsSync(occlusionScript)) {
@@ -221,8 +230,11 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
       { cwd, timeoutMs },
     );
     occlusionExit = occlusion.code;
-    stdout = occlusion.stdout;
-    stderr = occlusion.stderr;
+    occlusionStdout = occlusion.stdout;
+    occlusionStderr = occlusion.stderr;
+    if (occlusionExit !== 0) {
+      throw new Error(`room occlusion bake failed with exit ${occlusionExit}:\n${occlusionStderr.slice(-2000)}`);
+    }
   }
   let simplify: RoomSimplifyReport | null = null;
   if (options.simplifyAfterBake !== false && options.workGlb !== "") {
@@ -233,9 +245,16 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
     seed,
     environmentId,
     albedoExit,
+    occlusionExit,
     blenderExit: occlusionExit ?? albedoExit,
-    stdout,
-    stderr,
+    albedoStdout,
+    albedoStderr,
+    occlusionStdout,
+    occlusionStderr,
+    // Legacy combined view: albedo first so a passing occlusion run can no
+    // longer hide a crashed albedo pass. Prefer the per-pass fields above.
+    stdout: `${albedoStdout}${occlusionStdout}`,
+    stderr: `${albedoStderr}${occlusionStderr}`,
     simplify,
     generate,
   };

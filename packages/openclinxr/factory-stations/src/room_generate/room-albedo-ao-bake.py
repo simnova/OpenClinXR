@@ -84,8 +84,20 @@ def link_bake_object(obj) -> None:
     moves 0 pixels). The active layer collection's collection is always in the
     view layer. Fail closed: raise if the link still leaves the object outside
     the view layer.
+
+    S1 measured root cause (2026-09-27, Blender 5.1.1, ward-finish-chain
+    seed-205 extract path): the link itself always succeeded — neither
+    clear_scene() nor the glTF import leaves the active layer collection
+    excluded (diagnostic dump shows exclude=False throughout and the object
+    present in the collection right after link). The guard fired because
+    `view_layer.objects` is stale immediately after
+    `collection.objects.link()` until `view_layer.update()` runs: membership
+    reads False with no update and True after it on the same linked object.
+    So sync the view layer before the membership check. The check itself is
+    load-bearing — do not remove or loosen it.
     """
     bpy.context.view_layer.active_layer_collection.collection.objects.link(obj)
+    bpy.context.view_layer.update()
     if obj.name not in bpy.context.view_layer.objects:
         raise RuntimeError(f"bake object {obj.name!r} not in view layer after link")
 

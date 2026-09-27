@@ -90,10 +90,18 @@ async function auditMaterials(glbPath: string): Promise<{ meshes: string[]; mate
 }
 
 function assertBlenderOk(stage: string, result: Record<string, unknown>): void {
-  const code = result["blenderExit"];
-  if (code !== 0 && code !== null) {
-    const stderr = typeof result["stderr"] === "string" ? (result["stderr"] as string) : "";
-    throw new Error(`${stage} blender exit ${String(code)}:\n${stderr.slice(-2000)}`);
+  // Fail the chain on a non-zero exit from ANY Blender pass, not just the
+  // rollup. runRoomGenerate reports per-pass exits (S1: blenderExit used to
+  // carry only the occlusion code, hiding a crashed albedo pass).
+  const codes: Record<string, unknown> = { blenderExit: result["blenderExit"] };
+  for (const key of ["albedoExit", "occlusionExit"] as const) {
+    if (key in result) codes[key] = result[key];
+  }
+  for (const [key, code] of Object.entries(codes)) {
+    if (code !== 0 && code !== null && code !== undefined) {
+      const stderr = typeof result["stderr"] === "string" ? (result["stderr"] as string) : "";
+      throw new Error(`${stage} ${key} ${String(code)}:\n${stderr.slice(-2000)}`);
+    }
   }
 }
 
@@ -166,6 +174,16 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
     throw err;
   });
   await stageLog("generate", genResult);
+  // S1: albedo stdout/stderr get their OWN log files. runRoomGenerate used
+  // to overwrite stdout/stderr with the occlusion pass's output, so the
+  // albedo crash left no trace in the evidence dir.
+  for (const pass of ["albedo", "occlusion"] as const) {
+    for (const stream of ["stdout", "stderr"] as const) {
+      const field = `${pass}${stream === "stdout" ? "Stdout" : "Stderr"}`;
+      const content = typeof genResult[field] === "string" ? (genResult[field] as string) : "";
+      await writeFile(path.join(outDir, `ward-chain.${pass}.${stream}.log`), content, "utf8");
+    }
+  }
   assertBlenderOk("room_generate", genResult);
   const afterGenerate = await auditMaterials(workGlb);
   process.stdout.write(
