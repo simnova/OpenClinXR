@@ -30,15 +30,21 @@ async function writeFixtureGlb(outputPath: string): Promise<void> {
 }
 
 function glbNodeNames(glbPath: string): string[] {
+  return glbNodes(glbPath).map((node) => node.name ?? "");
+}
+
+type GlbNode = { name?: string; mesh?: number; extras?: Record<string, unknown> };
+
+function glbNodes(glbPath: string): GlbNode[] {
   const raw = readFileSync(glbPath);
   const view = new DataView(raw.buffer, raw.byteOffset, raw.byteLength);
   const chunkLength = view.getUint32(12, true);
   const chunkType = view.getUint32(16, true);
   if (chunkType !== 0x4e4f534a) throw new Error("first GLB chunk is not JSON");
   const json = JSON.parse(raw.subarray(20, 20 + chunkLength).toString("utf8")) as {
-    nodes?: Array<{ name?: string }>;
+    nodes?: GlbNode[];
   };
-  return (json.nodes ?? []).map((node) => node.name ?? "");
+  return json.nodes ?? [];
 }
 
 describe("the room clinic finish compose stage imports its input GLB", () => {
@@ -60,5 +66,37 @@ describe("the room clinic finish compose stage imports its input GLB", () => {
       expect(names).toContain(mesh);
     }
     expect(names).not.toContain("Cube");
+  }, 300_000);
+});
+
+describe("the room clinic finish compose stage flags its finish geometry for export", () => {
+  it("every openclinxr_ node in the real-runner output GLB carries extras.openClinXrFinishDecoration, shell nodes do not", async () => {
+    const work = mkdtempSync(path.join(tmpdir(), "clinic-finish-flag-"));
+    const fixture = path.join(work, "fixture.glb");
+    const workGlb = path.join(work, "work.glb");
+    const recipeJsonOut = path.join(work, "recipe.json");
+    const report = path.join(work, "report.json");
+    await writeFixtureGlb(fixture);
+    copyFileSync(fixture, workGlb);
+    const result = await runRoomClinicFinish(
+      { environmentId: "ed_exam_bay_v1", preset: "clinic_day", seed: 7 },
+      { blender: "blender", workGlb, recipeJsonOut, report, timeoutMs: 300_000 },
+    );
+    expect(result["blenderExit"]).toBe(0);
+    // Direct GLB JSON-chunk parse via DataView (no three.js loader needed):
+    // the flag must survive Blender export as node extras.
+    const nodes = glbNodes(workGlb);
+    const finishNodes = nodes.filter((node) => (node.name ?? "").startsWith("openclinxr_"));
+    expect(finishNodes.length).toBeGreaterThan(0);
+    const unflagged = finishNodes.filter((node) => node.extras?.["openClinXrFinishDecoration"] !== true);
+    expect(
+      unflagged.map((node) => node.name),
+      `finish nodes missing extras.openClinXrFinishDecoration: ${JSON.stringify(unflagged.map((node) => node.name))}`,
+    ).toEqual([]);
+    for (const mesh of FIXTURE_MESHES) {
+      const shell = nodes.find((node) => node.name === mesh);
+      expect(shell).toBeDefined();
+      expect(shell!.extras?.["openClinXrFinishDecoration"] ?? false).toBe(false);
+    }
   }, 300_000);
 });
