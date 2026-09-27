@@ -27,12 +27,7 @@ import { pathToFileURL } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, EXTMeshoptCompression } from "@gltf-transform/extensions";
 import { MeshoptDecoder } from "meshoptimizer";
-import { runRoomGenerate } from "@openclinxr/factory-stations";
-// runRoomClinicFinish / runLightingDesign stay off the package barrel (no
-// public-surface widening): tools reach the station modules relatively,
-// the same precedent as tools/openclinxr/evidence lip_sync deep imports.
-import { runRoomClinicFinish } from "../../../../packages/openclinxr/factory-stations/src/room_clinic_finish/run.js";
-import { runLightingDesign } from "../../../../packages/openclinxr/factory-stations/src/lighting_design/run.js";
+import { runLightingDesign, runRoomClinicFinish, runRoomGenerate } from "@openclinxr/factory-stations";
 
 export const WARD_CHAIN_ENVIRONMENT_ID = "inpatient_ward_room_v1";
 export const WARD_CHAIN_DEFAULT_SEED = 205;
