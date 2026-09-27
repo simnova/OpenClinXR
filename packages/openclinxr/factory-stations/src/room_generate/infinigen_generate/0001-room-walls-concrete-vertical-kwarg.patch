@@ -1,0 +1,12 @@
+--- a/infinigen/core/constraints/example_solver/room/decorate.py
++++ b/infinigen/core/constraints/example_solver/room/decorate.py
+@@ -224,6 +224,8 @@ def room_walls(walls: list[bpy.types.Object], constants: RoomConstants, n_walls=
+             if wall_fn.__class__.__name__ == "Plaster":
+                 for r in rooms__:
+                     unwrap_normal(r, selection=None)
+-            if wall_fn.__class__.__name__ == "Brick":
++            if wall_fn.__class__.__name__ in ("Brick", "Concrete"):
++                # Concrete.generate() takes no kwargs, same as Brick (upstream
++                # fixed Brick in 2e8a159b/v1.13.2 but missed Concrete).
+                 kwargs = {}
+             surface.assign_material(rooms__, wall_fn(**kwargs))

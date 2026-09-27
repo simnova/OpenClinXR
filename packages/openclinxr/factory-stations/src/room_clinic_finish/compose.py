@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 
 RECIPE_SCHEMA_VERSION = "openclinxr.room-clinic-finish.v1"
@@ -140,6 +141,11 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
         mesh = bpy.data.meshes.new(name + "_mesh")
         obj = bpy.data.objects.new(name, mesh)
         bpy.context.scene.collection.objects.link(obj)
+        # Finish dressing, not hull: survives glTF export as node extras (needs
+        # export_extras=True at export) and lands in three.js as
+        # object.userData.openClinXrFinishDecoration so roomInteriorAndHull can
+        # exclude it from the interior/hull unions.
+        obj["openClinXrFinishDecoration"] = True
         verts = [
             (x - dx / 2, y - dy / 2, z - dz / 2), (x + dx / 2, y - dy / 2, z - dz / 2),
             (x + dx / 2, y + dy / 2, z - dz / 2), (x - dx / 2, y + dy / 2, z - dz / 2),
@@ -210,6 +216,21 @@ def apply_finish() -> int:
 
     import bpy  # type: ignore[import-not-found]  # Blender runtime only
 
+    if not os.path.exists(args.input):
+        raise SystemExit("input GLB not found: %s" % args.input)
+
+    bpy.ops.object.select_all(action="SELECT")
+    bpy.ops.object.delete()
+    bpy.ops.import_scene.gltf(filepath=args.input)
+
+    # Idempotent re-entry guard: the station runs in-place (work GLB is both
+    # input and output), so a second run would import the previous run's
+    # finish meshes. Drop any stale openclinxr_-prefixed objects from a prior
+    # run before regenerating.
+    for obj in list(bpy.data.objects):
+        if obj.name.startswith("openclinxr_"):
+            bpy.data.objects.remove(obj, do_unlink=True)
+
     bpy.ops.object.select_all(action="DESELECT")
     painted = {"wall": 0, "trim": 0, "other": 0}
 
@@ -259,6 +280,10 @@ def apply_finish() -> int:
         if empty is None:
             empty = bpy.data.objects.new(empty_name, None)
             bpy.context.scene.collection.objects.link(empty)
+        # Same finish-dressing marker as new_box meshes: signage anchors are
+        # station-emitted openclinxr_ nodes, so they carry the flag for a
+        # total pipeline invariant (exported via export_extras=True).
+        empty["openClinXrFinishDecoration"] = True
         empty.empty_display_type = "PLAIN_AXES"
         stamped.append(empty_name)
 
@@ -274,7 +299,7 @@ def apply_finish() -> int:
     emitted = _emit_finish_geometry(seed=int(recipe.get("seed", 7)), palette=palette, bounds=shell)
 
     bpy.ops.wm.save_as_mainfile(filepath=args.output.replace(".glb", ".blend"))
-    bpy.ops.export_scene.gltf(filepath=args.output, export_format="GLB")
+    bpy.ops.export_scene.gltf(filepath=args.output, export_format="GLB", export_extras=True)
 
     report = {
         "schemaVersion": RECIPE_SCHEMA_VERSION,

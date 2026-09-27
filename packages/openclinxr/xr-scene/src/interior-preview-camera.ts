@@ -25,6 +25,16 @@ export function isDoorLeafOccluderName(name: string): boolean {
   return DOOR_LEAF_OCCLUDER_NAME.test(name);
 }
 
+/** Finish dressing meshes (room_clinic_finish `openclinxr_*`) carry this userData flag. */
+export const FINISH_DECORATION_USER_DATA_FLAG = "openClinXrFinishDecoration";
+
+export function isFinishDecorationMesh(obj: Object3D): boolean {
+  const flag = (obj as Object3D & { userData?: Record<string, unknown> }).userData?.[
+    FINISH_DECORATION_USER_DATA_FLAG
+  ];
+  return flag === true;
+}
+
 /** World AABB union of a subtree's meshes, split by whether the name reads "exterior". */
 export function roomInteriorAndHull(roomRoot: Object3D): { interior: Box3 | null; hull: Box3 | null } {
   let interior: Box3 | null = null;
@@ -32,6 +42,7 @@ export function roomInteriorAndHull(roomRoot: Object3D): { interior: Box3 | null
   roomRoot.updateMatrixWorld(true);
   roomRoot.traverse((obj: Object3D) => {
     if (!(obj instanceof Mesh) || !obj.isMesh) return;
+    if (isFinishDecorationMesh(obj)) return;
     const box = new Box3().setFromObject(obj);
     if (box.isEmpty() || !Number.isFinite(box.min.x)) return;
     if (/exterior/i.test(obj.name)) hull = hull === null ? box : (hull as Box3).union(box);

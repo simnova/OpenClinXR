@@ -149,6 +149,17 @@ def place_rig_probe_lights(rig_lights: List[Dict[str, object]]) -> None:
     print(f"[room-bake] probe lights from lighting rig: {len(rig_lights)}")
 
 
+# Finish-pipeline flat materials (room_clinic_finish compose.py paints these
+# flat: walls stay flat while only ceiling/floor/door/troffer carry texture).
+# A DIFFUSE bake over the flat wall bakes room lighting into the albedo and
+# the runtime light then darkens it twice; the vinyl cove and T-bar flats
+# bake to near-black in their shadow slots while the reference reads flat
+# medium/light gray. These materials keep their flat Base Color: no bake
+# image, no texture link. Gated on the exact finish-pipeline material name
+# so the shared bank pipeline (shader_plaster etc.) is unaffected.
+FINISH_FLAT_SKIP_MATERIALS = ("openclinxr_finish_wall", "openclinxr_finish_cove", "openclinxr_finish_tbar")
+
+
 def bake_image_name_for_material(mat: bpy.types.Material, surface: str = "") -> str:
     """One albedo image per material, tagged with the surface role.
 
@@ -518,6 +529,22 @@ def bake_materials(resolution: int, restore_albedo: bool) -> Dict[str, Dict[str,
         if not mat.use_nodes or mat.node_tree is None:
             mat.use_nodes = True
         mesh_names = [o.name for o in objs_]
+        if mat_name in FINISH_FLAT_SKIP_MATERIALS:
+            bsdf = find_bsdf(mat)
+            flat = bsdf.inputs["Base Color"].default_value[:] if bsdf is not None else (0.9, 0.9, 0.88, 1.0)
+            mean_l = (0.299 * flat[0] + 0.587 * flat[1] + 0.114 * flat[2]) * 255.0
+            results[mat_name] = {
+                "image": "",
+                "resolution": 0,
+                "meshes": len(objs_),
+                "surface": "wall",
+                "meanL": mean_l,
+                "meshNames": mesh_names,
+                "skipped": True,
+                "skipReason": "finish-flat-wall",
+            }
+            print(f"[room-bake] skipped {mat_name} (finish flat wall, {len(objs_)} mesh(es)) meanL={mean_l:.2f}")
+            continue
         surface = classify_surface(mat_name, mesh_names)
         img_name = bake_image_name_for_material(mat, surface)
         if restore_albedo:
