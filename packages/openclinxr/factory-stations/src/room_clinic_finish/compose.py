@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 
 RECIPE_SCHEMA_VERSION = "openclinxr.room-clinic-finish.v1"
@@ -209,6 +210,21 @@ def apply_finish() -> int:
     anchors = palette.get("signageAnchors", [])
 
     import bpy  # type: ignore[import-not-found]  # Blender runtime only
+
+    if not os.path.exists(args.input):
+        raise SystemExit("input GLB not found: %s" % args.input)
+
+    bpy.ops.object.select_all(action="SELECT")
+    bpy.ops.object.delete()
+    bpy.ops.import_scene.gltf(filepath=args.input)
+
+    # Idempotent re-entry guard: the station runs in-place (work GLB is both
+    # input and output), so a second run would import the previous run's
+    # finish meshes. Drop any stale openclinxr_-prefixed objects from a prior
+    # run before regenerating.
+    for obj in list(bpy.data.objects):
+        if obj.name.startswith("openclinxr_"):
+            bpy.data.objects.remove(obj, do_unlink=True)
 
     bpy.ops.object.select_all(action="DESELECT")
     painted = {"wall": 0, "trim": 0, "other": 0}
