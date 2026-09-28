@@ -10,7 +10,7 @@ emits deterministic params for compose.py. No Blender here.
 from __future__ import annotations
 
 CEILING_MODULE_VERSION = "clinic-finish-ceiling-v1"
-CEILING_TEXTURE_REF = "ceiling-acoustic-tile.jpg"
+CEILING_TEXTURE_REF = "ceiling-tile-face.png"
 # T-bar suspension drop below the measured ceiling plane (S6 grid anchor).
 TBAR_DROP_M = 0.06
 

@@ -40,17 +40,20 @@ EXPECTED_MODULE_VERSIONS = {
 TRIM_NAME_RE_PARTS = ("skirt", "casing", "door", "window", "trim", "baseboard")
 WALL_NAME_RE_PARTS = ("wall", "partition")
 
-# Photo-texture sources for the ward realism pass (imagine-multiview reference,
-# asset-licence-records row-31; crops cut by the ward-finish-chain dispatch).
+# Photo-texture sources for the ward realism pass (row-30 for the floor and
+# door photos; the ceiling tile face is procedural speckle, the troffer lens
+# a flat emissive panel -- neither carries a photo, so neither needs one).
 # Resolved relative to this file so the Blender-spawned stage stays
 # self-contained. Fail closed at compose time when a file is absent.
-# S5 wires floor vinyl and the real-leaf maple. S6 wires the ceiling grid +
-# troffer below, so all four staged photos are now in use.
+# S5 wires floor vinyl and the real-leaf maple. S6 wires the ceiling
+# tile-face repeat, the real T-bar strip grid, and the flat troffer below.
 TEXTURE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "textures")
 FLOOR_TEXTURE_FILE = "floor-vinyl.jpg"
 DOOR_TEXTURE_FILE = "door-maple.jpg"
-CEILING_TEXTURE_FILE = "ceiling-acoustic-tile.jpg"
-TROFFER_TEXTURE_FILE = "troffer-light.jpg"
+# Single acoustic-tile FACE (procedural speckle, no photo): holds no T-bar
+# lines at all, so no baked grid can double against the real strips below.
+# One repeat spans exactly one 0.6 m module.
+CEILING_TEXTURE_FILE = "ceiling-tile-face.png"
 # Object-space tiling scale. floor-vinyl.jpg is a representative sheet-vinyl
 # patch, so one repeat spans 1.2 m (same convention as the ward-finish
 # lineage's FLOOR_OBJECT_SCALE). Only the kept door leaf still uses
@@ -63,11 +66,15 @@ FLOOR_OBJECT_SCALE = 1.0 / 1.2
 # Real-world repeats for the baked UV0 coordinates (U = x_m / REPEAT).
 FLOOR_REPEAT_M = 1.2
 CEILING_MODULE_M = 0.6
-# ceiling-acoustic-tile.jpg photographs a 4x4 tile field with its own T-bar
-# lines (1024 px, grid pitch ~256 px measured 2026-09-28), so one repeat
-# spans 4 modules: each photographed tile renders at the 0.6 m module.
-CEILING_TILES_PER_REPEAT = 4
-CEILING_REPEAT_M = CEILING_MODULE_M * CEILING_TILES_PER_REPEAT
+# The tile-face texture holds exactly one tile face, so one repeat spans one
+# 0.6 m module: every tile renders at the v2 spec module, and the grid lines
+# the room shows are the real T-bar strips below, never baked photo lines.
+CEILING_REPEAT_M = CEILING_MODULE_M
+# White T-bar strip width (24 mm) on the 0.6 m module.
+TBAR_WIDTH_M = 0.024
+# T-bar strips sit 2 mm proud of the tile underside so they read as real
+# lines instead of hiding inside the tile-field slab.
+TBAR_PROUD_M = 0.002
 # 2x4 troffer lens: spans two 0.6 m cells by one.
 TROFFER_LONG_M = 1.2
 TROFFER_SHORT_M = 0.6
@@ -75,7 +82,10 @@ TROFFER_SHORT_M = 0.6
 # ceiling recipe fragment's TBAR_DROP_M (ceiling.py); the troffer-face and
 # grid assertions pin this value against the export, so a drift fails loud.
 CEILING_TBAR_DROP_M = 0.06
-# Troffer lens readout: emissive strength over the troffer-light photo.
+# Flat lay-in LED panel face: near-white, no photo. Matches the v2 reference
+# troffer lens (flat, diffuse, bright against the tiles).
+TROFFER_FACE_RGB = (0.93, 0.93, 0.92)
+# Troffer lens readout: emission strength of the flat panel face.
 TROFFER_EMISSION_STRENGTH = 2.0
 
 
@@ -133,7 +143,7 @@ def _photo_uv_material(name: str, filename: str, roughness: float,
     exporter can silently drop. Floor and ceiling use this; the caller must
     bake matching UVs (_assign_world_xy_uv / _assign_top_unit_uv) or the
     texture reads stretched. With emissive=True the photo also drives the
-    Principled Emission Color (troffer lens); no Blender light object.
+    Principled Emission Color; no Blender light object.
     """
     import bpy  # type: ignore[import-not-found]
 
@@ -153,6 +163,34 @@ def _photo_uv_material(name: str, filename: str, roughness: float,
     nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
     if emissive:
         nt.links.new(tex.outputs["Color"], bsdf.inputs["Emission Color"])
+        bsdf.inputs["Emission Strength"].default_value = float(emission_strength)
+    bsdf.inputs["Roughness"].default_value = float(roughness)
+    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
+def _flat_material(name: str, rgb: tuple, roughness: float,
+                   emissive: bool = False, emission_strength: float = 1.0):
+    """Flat Principled material with NO image node at all (Blender runtime
+    only). The white T-bar strips and the flat lay-in troffer lens use this:
+    the v2 spec wants plain white metal/paint and a plain diffuse panel face,
+    not photos. With emissive=True the face colour also drives the Principled
+    Emission Color (troffer lens); no Blender light object.
+    """
+    import bpy  # type: ignore[import-not-found]
+
+    mat = bpy.data.materials.get(name)
+    if mat is None:
+        mat = bpy.data.materials.new(name=name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    rgba = (float(rgb[0]), float(rgb[1]), float(rgb[2]), 1.0)
+    bsdf.inputs["Base Color"].default_value = rgba
+    if emissive:
+        bsdf.inputs["Emission Color"].default_value = rgba
         bsdf.inputs["Emission Strength"].default_value = float(emission_strength)
     bsdf.inputs["Roughness"].default_value = float(roughness)
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
@@ -314,8 +352,14 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     # Object-space mapping (its shell-bake atlas has no usable UVs).
     floor_photo_m = _photo_uv_material("openclinxr_finish_floor_photo", FLOOR_TEXTURE_FILE, 0.45)
     ceiling_photo_m = _photo_uv_material("openclinxr_finish_ceiling_photo", CEILING_TEXTURE_FILE, 0.9)
-    troffer_m = _photo_uv_material("openclinxr_finish_troffer_emissive", TROFFER_TEXTURE_FILE, 0.4,
-                                   emissive=True, emission_strength=TROFFER_EMISSION_STRENGTH)
+    # Flat lay-in LED panel: plain near-white emissive face, no photo (the
+    # louvred-fixture photo is gone -- v2 wants a flat diffuse panel).
+    troffer_m = _flat_material("openclinxr_finish_troffer_emissive", TROFFER_FACE_RGB, 0.4,
+                               emissive=True, emission_strength=TROFFER_EMISSION_STRENGTH)
+    # White T-bar strips: flat paint, no texture. Named for the bake skip
+    # list in room-albedo-ao-bake.py (FINISH_FLAT_SKIP_MATERIALS) so a later
+    # rebake keeps the flat Base Color instead of baking it near-black.
+    tbar_m = _flat_material("openclinxr_finish_tbar", (0.93, 0.93, 0.92), 0.6)
     rail_m = mat_for("openclinxr_finish_rail", [0.35, 0.55, 0.70], 0.5)
 
     def new_box(name: str, x: float, y: float, z: float, dx: float, dy: float, dz: float, mat: object = None):
@@ -371,11 +415,57 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                           tbar_z - 0.001 - 0.005, TROFFER_LONG_M, TROFFER_SHORT_M, 0.01, troffer_m)
     _assign_top_unit_uv(troffer_obj, troffer_x0, troffer_x1, troffer_y0, troffer_y1)
     counts["troffer"] += 1
+    # Real T-bar grid: 24 mm white strips on the 0.6 m module lines anchored
+    # to the grid origin above, 2 mm proud of the tile underside so they read
+    # as geometry instead of hiding in the tile slab. Strips stop at the
+    # troffer footprint (the fixture replaces the tiles there; the grid
+    # frames it on all four edges exactly like the v2 reference).
+    tbar_lines_x: list[float] = []
+    tbar_lines_y: list[float] = []
+    tbar_count = 0
+    strip_margin = TBAR_WIDTH_M / 2 + 0.002
+    kx = math.ceil((minx - grid_ox) / CEILING_MODULE_M)
+    while True:
+        line = grid_ox + kx * CEILING_MODULE_M
+        if line > maxx + 1e-6:
+            break
+        if line >= minx - 1e-6:
+            tbar_lines_x.append(line)
+            spans = [(miny, maxy)]
+            if troffer_x0 - strip_margin <= line <= troffer_x1 + strip_margin:
+                spans = [(miny, troffer_y0), (troffer_y1, maxy)]
+            for index, (ya, yb) in enumerate(spans):
+                if yb - ya < 0.001:
+                    continue
+                new_box("openclinxr_tbar_x_%d_%d" % (kx, index), line, (ya + yb) / 2,
+                        tbar_z - TBAR_PROUD_M + 0.01, TBAR_WIDTH_M, yb - ya, 0.02, tbar_m)
+                tbar_count += 1
+        kx += 1
+    ky = math.ceil((miny - grid_oy) / CEILING_MODULE_M)
+    while True:
+        line = grid_oy + ky * CEILING_MODULE_M
+        if line > maxy + 1e-6:
+            break
+        if line >= miny - 1e-6:
+            tbar_lines_y.append(line)
+            spans = [(minx, maxx)]
+            if troffer_y0 - strip_margin <= line <= troffer_y1 + strip_margin:
+                spans = [(minx, troffer_x0), (troffer_x1, maxx)]
+            for index, (xa, xb) in enumerate(spans):
+                if xb - xa < 0.001:
+                    continue
+                new_box("openclinxr_tbar_y_%d_%d" % (ky, index), (xa + xb) / 2, line,
+                        tbar_z - TBAR_PROUD_M + 0.01, xb - xa, TBAR_WIDTH_M, 0.02, tbar_m)
+                tbar_count += 1
+        ky += 1
+    counts["tbar"] = tbar_count
     ceiling_grid = {
         "origin": [grid_ox, grid_oy],
         "module": CEILING_MODULE_M,
         "tbarZ": tbar_z,
         "shellCeilingZ": ceiling_plane_z,
+        "tbarLinesX": tbar_lines_x,
+        "tbarLinesY": tbar_lines_y,
         "troffer": {"minX": troffer_x0, "maxX": troffer_x1,
                     "minY": troffer_y0, "maxY": troffer_y1, "topZ": tbar_z - 0.001},
     }

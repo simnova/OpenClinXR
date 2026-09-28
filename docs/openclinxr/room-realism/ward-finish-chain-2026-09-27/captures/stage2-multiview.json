@@ -1,6 +1,7 @@
 {
   "schemaVersion": "openclinxr.stage2-multiview.v1",
-  "glb": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/packages/openclinxr/factory-stations/.openclinxr/evidence/ward-finish-chain/infinigen-inpatient-ward.chain.glb",
+  "glb": "/Volumes/files/src/openclinxr-wt/s6-ceiling-tbar-troffer/apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb",
+  "glbSha256": "0b568439a46e26093784e439b0229211b507b5c2d6c40ac66a6d23b6a26a77b7",
   "captures": [
     {
       "id": "runtime-01-toward-door",
@@ -16,9 +17,11 @@
       },
       "fov": 55,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-01-toward-door.png",
+      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-tbar-troffer/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-01-toward-door.png",
       "pngBytes": 271833,
-      "pngSha256": "9d7dad1254675b37190cfd02f7943a75d406c12e2066a315e23e509238710dee"
+      "pngSha256": "9d7dad1254675b37190cfd02f7943a75d406c12e2066a315e23e509238710dee",
+      "stale": true,
+      "staleReason": "Not re-captured against this worktree's post-S6 GLB (job F/F2/F3b only re-ran poses 03/05); file bytes are unchanged from an earlier run and have not been re-verified against the current finish."
     },
     {
       "id": "runtime-02-toward-bed-wall",
@@ -34,9 +37,11 @@
       },
       "fov": 48,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-02-toward-bed-wall.png",
+      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-tbar-troffer/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-02-toward-bed-wall.png",
       "pngBytes": 229990,
-      "pngSha256": "87681eda5d699d5d079261cccf7db9c9d5eaa395a1444da8f8b0ee941ea06c36"
+      "pngSha256": "87681eda5d699d5d079261cccf7db9c9d5eaa395a1444da8f8b0ee941ea06c36",
+      "stale": true,
+      "staleReason": "Not re-captured against this worktree's post-S6 GLB (job F/F2/F3b only re-ran poses 03/05); file bytes are unchanged from an earlier run and have not been re-verified against the current finish."
     },
     {
       "id": "runtime-03-ceiling-corner",
@@ -52,9 +57,10 @@
       },
       "fov": 62,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-03-ceiling-corner.png",
-      "pngBytes": 507429,
-      "pngSha256": "4bc76693cf4f38b0d6d4005cf943f3767fc99f7642bd2787af198f06c35b3c3d"
+      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-tbar-troffer/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-03-ceiling-corner.png",
+      "pngBytes": 312808,
+      "pngSha256": "287afcd4437a3414a673ec08f8ad6e466077b8946a652a905ba32f1c9e69edb5",
+      "refreshedBy": "job F3b, 2026-09-28, against the post-S6 chain (ward-chain-report.json generated 2026-09-28T09:40:31Z)"
     },
     {
       "id": "runtime-04-door-inside",
@@ -70,9 +76,11 @@
       },
       "fov": 50,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-04-door-inside.png",
+      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-tbar-troffer/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-04-door-inside.png",
       "pngBytes": 224194,
-      "pngSha256": "b7a44ac22623486b0526b7df3212556651b09afc6466ac7371695bbca2ef77c0"
+      "pngSha256": "b7a44ac22623486b0526b7df3212556651b09afc6466ac7371695bbca2ef77c0",
+      "stale": true,
+      "staleReason": "Not re-captured against this worktree's post-S6 GLB (job F/F2/F3b only re-ran poses 03/05); file bytes are unchanged from an earlier run and have not been re-verified against the current finish."
     },
     {
       "id": "runtime-05-troffer-junction",
@@ -88,9 +96,10 @@
       },
       "fov": 45,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-05-troffer-junction.png",
-      "pngBytes": 493439,
-      "pngSha256": "fc18041cb10f2cc1da4ab74bcb525a77b188c694e2e4fd8d0779e2f7083bcecb"
+      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-tbar-troffer/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-05-troffer-junction.png",
+      "pngBytes": 320875,
+      "pngSha256": "f9aaca8980e9b23b8595f576d5f43e202ce690861f9ccfc13edb032183eecbc4",
+      "refreshedBy": "job F3b, 2026-09-28, against the post-S6 chain (ward-chain-report.json generated 2026-09-28T09:40:31Z)"
     },
     {
       "id": "runtime-06-floor-base",
@@ -106,9 +115,11 @@
       },
       "fov": 60,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-06-floor-base.png",
+      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-tbar-troffer/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-06-floor-base.png",
       "pngBytes": 132626,
-      "pngSha256": "d7e7e978e3e43de7d8ba084242fde7301edbf969b9ecaeb1468e76952795ed95"
+      "pngSha256": "d7e7e978e3e43de7d8ba084242fde7301edbf969b9ecaeb1468e76952795ed95",
+      "stale": true,
+      "staleReason": "Not re-captured against this worktree's post-S6 GLB (job F/F2/F3b only re-ran poses 03/05); file bytes are unchanged from an earlier run and have not been re-verified against the current finish."
     }
   ]
 }

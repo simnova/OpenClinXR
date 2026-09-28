@@ -116,12 +116,15 @@ describe("the room clinic finish station composes a deterministic finish", () =>
     expect(composeSrc).toContain("openclinxr_finish_door_photo");
     expect(existsSync(join(SRC, "textures", "floor-vinyl.jpg"))).toBe(true);
     expect(existsSync(join(SRC, "textures", "door-maple.jpg"))).toBe(true);
-    expect(existsSync(join(SRC, "textures", "ceiling-acoustic-tile.jpg"))).toBe(true);
+    expect(existsSync(join(SRC, "textures", "ceiling-tile-face.png"))).toBe(true);
   });
 
   it("(9) S5 finish rework: corridor props deleted, crash rail off by default, no fixed ceiling height", () => {
     const composeSrc = readFileSync(join(SRC, "compose.py"), "utf8");
-    // Deleted emissions: exam table, exit sign, hand-built door kit, T-bar, ceiling field.
+    // Deleted emissions: exam table, exit sign, hand-built door kit, old
+    // ceiling field name. (S6 rebuilds the ceiling properly: the tile field
+    // is openclinxr_ceiling_tiles and the T-bar grid is real openclinxr_tbar_*
+    // strip geometry -- see the ceiling-grid-and-flat-troffer test.)
     for (const gone of [
       "openclinxr_exam_table",
       "openclinxr_exam_base",
@@ -134,7 +137,6 @@ describe("the room clinic finish station composes a deterministic finish", () =>
       "openclinxr_door_panel_",
       "openclinxr_door_lever",
       "openclinxr_door_kick",
-      "openclinxr_tbar_",
       "openclinxr_ceiling_field",
       "2.744",
     ]) {

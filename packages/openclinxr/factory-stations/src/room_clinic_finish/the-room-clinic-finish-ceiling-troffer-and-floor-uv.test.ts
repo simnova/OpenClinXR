@@ -262,9 +262,9 @@ describe("the room clinic finish ceiling grid and flush troffer", () => {
     expect(ceiling.length).toBeGreaterThan(0);
     for (const entry of ceiling) {
       expect(entry.uv, "ceiling primitive must carry TEXCOORD_0").not.toBeNull();
-      // 8.77 m at a 2.4 m repeat (4 photographed tiles per repeat, one
-      // tile per 0.6 m module) tiles ~3.6 times: a stretched single image
-      // would span at most 1.
+      // 8.77 m at a 0.6 m repeat (one tile face per repeat, one tile per
+      // 0.6 m module) tiles ~14.6 times: a stretched single image would
+      // span at most 1.
       expect(entry.uv!.maxU - entry.uv!.minU).toBeGreaterThan(2.5);
       expect(entry.uv!.maxV - entry.uv!.minV).toBeGreaterThan(2.5);
     }
@@ -272,4 +272,5 @@ describe("the room clinic finish ceiling grid and flush troffer", () => {
 });
 
 // NOT TESTED: runtime tone-mapped appearance (covered by the pose captures);
-// T-bar strip geometry (the tile texture carries the grid, no strips).
+// T-bar edge structure and strip positions (covered by
+// the-room-clinic-finish-ceiling-grid-and-flat-troffer.test.ts).
