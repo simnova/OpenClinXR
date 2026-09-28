@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 226
-- keep-evidence: 397
+- keep-evidence: 408
 - keep-template: 6
 
 ## Cleanup Actions
@@ -3440,6 +3440,17 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/scene-closure-2026-09-09/evidence/sc-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/scene-closure-2026-09-09/evidence/sc-10.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/security-audit-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/albedo-llm.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/cavity-llm.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/imagine-4up-manifest.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/input-quad-sheet-baseline.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/input-tpose-front-back-baseline.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/normal-llm.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/output-quad-sheet-llm-rejected-face.jpg` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/output-quad-sheet-llm.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/output-tpose-front-back-rebaked.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/realism-judgment.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/roughness-llm.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/stablegen-blender-background-trial-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/third-party-asset-licence-ledger.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ui-xr-ob-humanoid-source-closeup-comparator-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.

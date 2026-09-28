@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 397,
+    "keep-evidence": 408,
     "ignore-local-cache": 2771,
     "keep-current": 226,
     "keep-compatibility-input": 24,
@@ -23917,6 +23917,83 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Reusable template/checklist/policy fixture."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/albedo-llm.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/cavity-llm.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/imagine-4up-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/input-quad-sheet-baseline.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/input-tpose-front-back-baseline.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/normal-llm.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/output-quad-sheet-llm-rejected-face.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/output-quad-sheet-llm.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/output-tpose-front-back-rebaked.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/realism-judgment.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/roughness-llm.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/stablegen-blender-background-trial-2026-06-06.json",
