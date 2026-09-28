@@ -55,7 +55,6 @@
     "src/room_generate/the-room-generate-door-style-and-hinge.test.ts",
     "src/room_generate/the-room-generate-produces-the-footprint.test.ts",
     "src/room_generate/the-room-simplify-after-the-bake-keeps-trim.test.ts",
-    "src/room_generate/the-shell-bake-runs-before-the-extract.test.ts",
     "src/the-body-param-stage-is-split-into-modules.test.ts",
     "src/the-factory-station-schemas-validate.test.ts",
     "src/the-spawn-blender-fails-closed-on-python-exceptions.test.ts",
@@ -70,7 +69,7 @@
     "lint": "pnpm --filter @openclinxr/factory-stations lint"
   },
   "ceilings": {
-    "testInternalImports": 20,
+    "testInternalImports": 18,
     "rootEntrypointExports": 28
   }
 }
