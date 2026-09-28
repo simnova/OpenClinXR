@@ -1,0 +1,89 @@
+{
+  "script": "make_imagine_textures_tileable.py",
+  "pillow": "12.3.0",
+  "numpy": "2.5.1",
+  "seamHalfWidthPx": 24,
+  "seamFalloff": "0.5*(1+cos(pi*d/SEAM_HALF_WIDTH)), row/col bands combined by max",
+  "healBlur": "GaussianBlur radius 8",
+  "normalHeight": "Rec.709 luminance/255",
+  "normalOperator": "Sobel 3x3 with wraparound sampling",
+  "normalStrength": 2.0,
+  "roughnessFormula": "1-(std-min)/(max-min); std = local luminance stddev in ROUGH_WINDOW square box window with wraparound",
+  "roughWindow": 5,
+  "tileableJpegQ": 95,
+  "previewJpegQ": 90,
+  "textures": [
+    {
+      "source": "ceiling-tile-face.jpg",
+      "sourceMd5": "bf3bfc4326f3b775fd24260587094d39",
+      "size": [
+        1024,
+        1024
+      ],
+      "tiled": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-tile-face-tileable.jpg",
+      "tiledMd5": "15d6a1254d756b3467d15c815bad6317",
+      "normal": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-tile-face-normal.png",
+      "normalMd5": "894223a86071549c11dbe95f053ca93f",
+      "roughness": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-tile-face-roughness.png",
+      "roughnessMd5": "445eaa42548b5eb9981bd42f81663042",
+      "roughnessStdMin": 0.0,
+      "roughnessStdMax": 49.082559020884396,
+      "preview": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-ceiling-tile-face.jpg",
+      "previewMd5": "fc360d6f529fc91ed534a276729a5431"
+    },
+    {
+      "source": "floor-vinyl.jpg",
+      "sourceMd5": "e5c135c3530f866f2aacd3c24dab69be",
+      "size": [
+        1024,
+        1024
+      ],
+      "tiled": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl-tileable.jpg",
+      "tiledMd5": "b3ca51537356a5e97d49d6e72a2b3337",
+      "normal": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl-normal.png",
+      "normalMd5": "09e6e24903ab0b8252f6e21335b4d5aa",
+      "roughness": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl-roughness.png",
+      "roughnessMd5": "a64d9025c61b61b3ae2d30ec84309d32",
+      "roughnessStdMin": 0.0,
+      "roughnessStdMax": 10.885880769068258,
+      "preview": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-floor-vinyl.jpg",
+      "previewMd5": "408dfc69ece1181fd2cd85313d2021e9"
+    },
+    {
+      "source": "wall-plaster.jpg",
+      "sourceMd5": "734fe96c282446a18bba7d1e1527b35e",
+      "size": [
+        1024,
+        1024
+      ],
+      "tiled": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster-tileable.jpg",
+      "tiledMd5": "43b23b4e7d2a3b00b80175dc67e0d7b2",
+      "normal": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster-normal.png",
+      "normalMd5": "8f97f020fd1f7913dba5ab943974d583",
+      "roughness": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster-roughness.png",
+      "roughnessMd5": "1195a729364625b8b16d38407a7927ec",
+      "roughnessStdMin": 0.0,
+      "roughnessStdMax": 20.84280211544187,
+      "preview": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-wall-plaster.jpg",
+      "previewMd5": "364f661a68f51313f47976f4f0987f73"
+    },
+    {
+      "source": "door-maple.jpg",
+      "sourceMd5": "f26ca3e8e0d124c05e8f3bda9f203f3d",
+      "size": [
+        1024,
+        1024
+      ],
+      "tiled": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-tileable.jpg",
+      "tiledMd5": "94539386eb802d050ecd826fe5f81c13",
+      "normal": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-normal.png",
+      "normalMd5": "1d2aa9385812e66f40414505647c4c8e",
+      "roughness": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-roughness.png",
+      "roughnessMd5": "c34c53f40381a028b7794baeeb27b671",
+      "roughnessStdMin": 0.0,
+      "roughnessStdMax": 18.906442576064247,
+      "preview": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-door-maple.jpg",
+      "previewMd5": "0de42fe0dcc4f26c1307bfc3c1dd6ed0"
+    }
+  ]
+}
