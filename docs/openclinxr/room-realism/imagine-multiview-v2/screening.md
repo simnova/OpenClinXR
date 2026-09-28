@@ -32,6 +32,31 @@ garbled geometry.
   wall/ceiling junction (v1's `05-troffer-junction.jpg` defect) and no floor curving into a
   bench (v1's `06-floor-base.jpg` defect).
 
+## Correction (2026-09-28): door offset in ROOM-SPEC.md
+
+`ROOM-SPEC.md`'s "Position" sentence (Door section) and its two cross-references (views 01 and
+04) originally read "4.20 m from the west corner ... slightly east of the wall's midpoint,"
+with clearance figures "3.72 m ... east edge and 3.53 m ... west edge." That sentence was
+internally inconsistent, on two independent counts caught during a downstream dispatch that
+measured the built room against it:
+
+1. **Arithmetic**: 4.20 m from the west corner, on an 8.77 m wide wall with a midpoint at
+   4.385 m, is 0.185 m WEST of midpoint — the opposite of what the same sentence claims
+   ("slightly east").
+2. **Clearance sum**: 3.72 + 0.95 (leaf width) + 3.53 = 8.20 m, not 8.77 m (the wall's own
+   stated width) — short by 0.57 m, so the clearance figures do not even describe a consistent
+   door position on this wall by themselves.
+
+Three other signals in this same spec and its own reference images agreed with each other and
+disagreed with the "4.20 m" figure: the "slightly east of the midpoint" clause, view 01's
+"centered-right" framing description, and the door's visible right-of-center position in the
+`01-toward-door.jpg` / `04-door-inside.jpg` reference photos themselves (the actual grading
+target). Since the images are the ground truth this spec exists to describe, east wins:
+**corrected to 4.885 m from the west corner (0.50 m east of midpoint), 3.41 m clear to the east
+edge and 4.41 m to the west edge** (3.41 + 0.95 + 4.41 = 8.77 m, now consistent). This also
+matches this codebase's already-live door pin (`WARD_CHAIN_DOOR.wallOffsetM = +0.50`), which
+predates this correction and was never the thing in error.
+
 ## Not independently re-measured
 
 Exact vanishing-point angle agreement between views (the v1 defect was a measured 50.7-degree

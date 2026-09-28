@@ -41,9 +41,12 @@ camera position inside it. Nothing in this spec varies between views.
 - Leaf: maple wood veneer, 0.95 m wide x 2.10 m tall, with a single narrow vertical
   vision-lite (glazed strip) positioned in the upper half of the leaf, offset toward the
   hinge side. Simple white painted door casing/trim frames the opening.
-- Position: the door's centerline sits 4.20 m from the west corner of the north wall (i.e.
-  slightly east of the wall's midpoint, leaving 3.72 m of clear wall to the door's east edge
-  and 3.53 m to its west edge, after the 0.95 m leaf width).
+- Position: the door's centerline sits 4.885 m from the west corner of the north wall (0.50 m
+  east of the wall's midpoint), leaving 3.41 m of clear wall to the door's east edge and 4.41 m
+  to its west edge, after the 0.95 m leaf width (3.41 + 0.95 + 4.41 = 8.77 m, the full wall).
+  Corrected 2026-09-28 from an internally inconsistent earlier draft that gave 4.20 m / west of
+  midpoint for this same sentence while its own clearance figures, the "centered-right" view-01
+  description, and the reference photos all agreed on an east offset; see screening.md.
 - Hinges: on the **east jamb** (the right side, as seen by someone standing inside the room
   facing the door). The door swings inward, into the room, toward the west.
 - The door is shown **closed** in every view. No view shows it ajar or opening into another
@@ -77,7 +80,7 @@ north" means facing the door wall.
 1. **01-toward-door** (master / canonical view). Camera stands near the room's center,
    roughly 4.4 m south of the north (door) wall and 4.4 m east of the west wall, at eye
    level, facing north directly at the door. The door appears centered-right in the frame
-   per its true offset position (4.20 m from the west corner), fully visible, closed, hinge
+   per its true offset position (4.885 m from the west corner), fully visible, closed, hinge
    on its right (east) side as seen from this view. Ceiling grid, troffer and both side walls
    are visible converging toward the door wall in correct one-point perspective toward a
    single vanishing point near the door.
@@ -98,7 +101,7 @@ north" means facing the door wall.
    side, same position, same wall as view 01 and view 03), facing north, closer than view 01
    so the maple leaf, white casing, and vertical vision-lite read clearly at larger scale.
    The door is closed. This is the same physical door as every other view: same wall, same
-   4.20 m offset, same east-jamb hinge, same inward swing.
+   4.885 m offset, same east-jamb hinge, same inward swing.
 
 5. **05-troffer-junction**. Camera stands under the troffer, tilted up, framed tight on where
    one long edge of the flat troffer lens meets the surrounding acoustic tile and T-bar grid.
