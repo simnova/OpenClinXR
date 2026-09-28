@@ -132,7 +132,19 @@ export function parseWardChainArgs(args: readonly string[]): { seed: number; out
 }
 
 export async function runWardFinishChain(args = process.argv.slice(2)): Promise<void> {
-  const { seed, outDir } = parseWardChainArgs(args);
+  const { seed, outDir: outDirArg } = parseWardChainArgs(args);
+  // Measured 2026-09-27 (a recurrence of the same class of bug fixed in
+  // room_generate/run.ts): auditMaterials below is pure Node I/O -- it
+  // resolves a relative workGlb against process.cwd(), which is the PACKAGE
+  // directory under `pnpm --filter @openclinxr/factory-stations exec` (the
+  // real CLI invocation shape), not repoRoot(). runRoomGenerate now
+  // absolutizes its own copy of workGlb internally, so stage 1 completes,
+  // but this module's OWN workGlb (used for auditMaterials both before and
+  // after each stage) was still the raw relative string from --out-dir and
+  // ENOENTs the same way. Absolutize outDir once, up front, so every path
+  // derived from it (workGlb, recipeJson, reports, logs) is consistent
+  // regardless of the caller's cwd.
+  const outDir = path.resolve(outDirArg);
   const blender = process.env["BLENDER"] ?? "blender";
   await mkdir(outDir, { recursive: true });
   const workGlb = path.join(outDir, "ward-chain.work.glb");
