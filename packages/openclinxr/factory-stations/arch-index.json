@@ -54,6 +54,7 @@
     "src/room_generate/the-room-generate-accepts-footprint-and-door.test.ts",
     "src/room_generate/the-room-generate-door-generalizes.test.ts",
     "src/room_generate/the-room-generate-door-style-and-hinge.test.ts",
+    "src/room_generate/the-room-generate-persists-blender-logs-on-failure.test.ts",
     "src/room_generate/the-room-generate-produces-the-footprint.test.ts",
     "src/room_generate/the-room-generate-resolves-workglb-against-repo-root.test.ts",
     "src/room_generate/the-room-simplify-after-the-bake-keeps-trim.test.ts",

@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import { repoRoot } from "../repo-root.js";
@@ -122,6 +122,25 @@ function lastLineJson(stdout: string): Record<string, unknown> {
     }
   }
   throw new Error(`no JSON summary line in process output:\n${stdout.slice(-2000)}`);
+}
+
+/**
+ * Full failure streams for a crashed GENERATE pass, written into the pass
+ * output directory at the point of failure. Callers only persist logs after
+ * a successful return, so the throw site must write them first.
+ */
+function persistGenerateFailureLogs(
+  outputDir: string,
+  stage: "generate" | "strip" | "shell-bake" | "extract" | "probe",
+  stdout: string,
+  stderr: string,
+): { stdoutLog: string; stderrLog: string } {
+  const stdoutLog = path.join(outputDir, `${stage}.stdout.log`);
+  const stderrLog = path.join(outputDir, `${stage}.stderr.log`);
+  mkdirSync(outputDir, { recursive: true });
+  writeFileSync(stdoutLog, stdout, "utf8");
+  writeFileSync(stderrLog, stderr, "utf8");
+  return { stdoutLog, stderrLog };
 }
 
 /**
@@ -255,8 +274,14 @@ export async function runInfinigenGenerate(
   });
   durationsMs["generateMs"] = Date.now() - started;
   if (generated.code !== 0 || !existsSync(sceneBlend)) {
+    const { stdoutLog, stderrLog } = persistGenerateFailureLogs(
+      outputDir,
+      "generate",
+      generated.stdout,
+      generated.stderr,
+    );
     throw new Error(
-      `infinigen generate failed (exit ${generated.code}):\n${generated.stderr.slice(-4000)}`,
+      `infinigen generate failed (exit ${generated.code}):\n${generated.stderr.slice(-4000)}\n(full stdout: ${stdoutLog}; full stderr: ${stderrLog})`,
     );
   }
 
@@ -281,8 +306,14 @@ export async function runInfinigenGenerate(
   );
   durationsMs["stripMs"] = Date.now() - started;
   if (stripped.code !== 0 || !existsSync(workBlend)) {
+    const { stdoutLog, stderrLog } = persistGenerateFailureLogs(
+      outputDir,
+      "strip",
+      stripped.stdout,
+      stripped.stderr,
+    );
     throw new Error(
-      `room shell strip failed (exit ${stripped.code}):\n${stripped.stderr.slice(-2000)}`,
+      `room shell strip failed (exit ${stripped.code}):\n${stripped.stderr.slice(-2000)}\n(full stdout: ${stdoutLog}; full stderr: ${stderrLog})`,
     );
   }
 
@@ -310,8 +341,14 @@ export async function runInfinigenGenerate(
   );
   durationsMs["shellBakeMs"] = Date.now() - started;
   if (shellBaked.code !== 0 || !existsSync(workBlend)) {
+    const { stdoutLog, stderrLog } = persistGenerateFailureLogs(
+      outputDir,
+      "shell-bake",
+      shellBaked.stdout,
+      shellBaked.stderr,
+    );
     throw new Error(
-      `room shell bake failed (exit ${shellBaked.code}):\n${shellBaked.stderr.slice(-2000)}\n${shellBaked.stdout.slice(-2000)}`,
+      `room shell bake failed (exit ${shellBaked.code}):\n${shellBaked.stderr.slice(-2000)}\n${shellBaked.stdout.slice(-2000)}\n(full stdout: ${stdoutLog}; full stderr: ${stderrLog})`,
     );
   }
 
@@ -339,8 +376,14 @@ export async function runInfinigenGenerate(
   );
   durationsMs["extractMs"] = Date.now() - started;
   if (extracted.code !== 0 || !existsSync(workGlb)) {
+    const { stdoutLog, stderrLog } = persistGenerateFailureLogs(
+      outputDir,
+      "extract",
+      extracted.stdout,
+      extracted.stderr,
+    );
     throw new Error(
-      `room extract failed (exit ${extracted.code}):\n${extracted.stderr.slice(-2000)}`,
+      `room extract failed (exit ${extracted.code}):\n${extracted.stderr.slice(-2000)}\n(full stdout: ${stdoutLog}; full stderr: ${stderrLog})`,
     );
   }
   const extractSummary = lastLineJson(extracted.stdout);
@@ -373,7 +416,15 @@ export async function runInfinigenGenerate(
   );
   durationsMs["probeMs"] = Date.now() - started;
   if (probed.code !== 0 || !existsSync(probePath)) {
-    throw new Error(`door probe failed (exit ${probed.code}):\n${probed.stderr.slice(-2000)}`);
+    const { stdoutLog, stderrLog } = persistGenerateFailureLogs(
+      outputDir,
+      "probe",
+      probed.stdout,
+      probed.stderr,
+    );
+    throw new Error(
+      `door probe failed (exit ${probed.code}):\n${probed.stderr.slice(-2000)}\n(full stdout: ${stdoutLog}; full stderr: ${stderrLog})`,
+    );
   }
   const probe = JSON.parse(readFileSync(probePath, "utf8")) as Record<string, unknown>;
 

@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { factoryStationSchemas } from "../catalog.js";
 import { repoRoot } from "../repo-root.js";
@@ -136,6 +136,34 @@ export type RoomGenerateRunOptions = {
   venvPython?: string;
 };
 
+/**
+ * Sibling log paths for a crashed bake pass, next to the work GLB. The
+ * chain's own per-stage persistence only runs after a successful return,
+ * so the failure site must persist the full streams itself.
+ */
+function roomBakeFailureLogPaths(
+  workGlb: string,
+  pass: "albedo" | "occlusion",
+): { stdoutLog: string; stderrLog: string } {
+  const dir = workGlb ? path.dirname(workGlb) : ".";
+  const base = workGlb ? path.basename(workGlb, ".glb") : "room-generate";
+  return {
+    stdoutLog: path.join(dir, `${base}.${pass}.stdout.log`),
+    stderrLog: path.join(dir, `${base}.${pass}.stderr.log`),
+  };
+}
+
+function persistBakeFailureLogs(
+  stdoutLog: string,
+  stderrLog: string,
+  stdout: string,
+  stderr: string,
+): void {
+  mkdirSync(path.dirname(stdoutLog), { recursive: true });
+  writeFileSync(stdoutLog, stdout, "utf8");
+  writeFileSync(stderrLog, stderr, "utf8");
+}
+
 /** Unique spawn of room albedo/occlusion bake scripts. Tests must call plan(), not run(). */
 export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOptions): Promise<Record<string, unknown>> {
   const planned = planRoomGenerate(input);
@@ -224,7 +252,11 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
     // 0 on the link-failure RuntimeError and the occlusion output replaced
     // albedo's stdout/stderr, so the chain never noticed).
     if (albedoExit !== 0) {
-      throw new Error(`room albedo bake failed with exit ${albedoExit}:\n${albedoStderr.slice(-2000)}`);
+      const { stdoutLog, stderrLog } = roomBakeFailureLogPaths(options.workGlb, "albedo");
+      persistBakeFailureLogs(stdoutLog, stderrLog, albedoStdout, albedoStderr);
+      throw new Error(
+        `room albedo bake failed with exit ${albedoExit}:\n${albedoStderr.slice(-2000)}\n(full stdout: ${stdoutLog}; full stderr: ${stderrLog})`,
+      );
     }
   }
   if (bakeOcclusion) {
@@ -248,7 +280,11 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
     occlusionStdout = occlusion.stdout;
     occlusionStderr = occlusion.stderr;
     if (occlusionExit !== 0) {
-      throw new Error(`room occlusion bake failed with exit ${occlusionExit}:\n${occlusionStderr.slice(-2000)}`);
+      const { stdoutLog, stderrLog } = roomBakeFailureLogPaths(options.workGlb, "occlusion");
+      persistBakeFailureLogs(stdoutLog, stderrLog, occlusionStdout, occlusionStderr);
+      throw new Error(
+        `room occlusion bake failed with exit ${occlusionExit}:\n${occlusionStderr.slice(-2000)}\n(full stdout: ${stdoutLog}; full stderr: ${stderrLog})`,
+      );
     }
   }
   let simplify: RoomSimplifyReport | null = null;
