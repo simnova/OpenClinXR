@@ -3,6 +3,24 @@
   "glb": "/Volumes/files/src/openclinxr-wt/item5-poses-v2/.openclinxr/evidence/ward-finish-chain/ward-chain.work.glb",
   "captures": [
     {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.4,
+        "y": 1.6,
+        "z": 0.8
+      },
+      "look": {
+        "x": -0.4,
+        "y": 1.25,
+        "z": -3.885
+      },
+      "fov": 70,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/item5-poses-v2/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures-v2/runtime-01-toward-door.png",
+      "pngBytes": 743684,
+      "pngSha256": "2c188cc452de14781e8420d30f90a92865dff6ac8739a57549a9b625f9fd9b07"
+    },
+    {
       "id": "runtime-06-floor-base",
       "eye": {
         "x": -0.05,
