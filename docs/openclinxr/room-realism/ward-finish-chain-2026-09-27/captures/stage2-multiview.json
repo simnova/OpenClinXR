@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.stage2-multiview.v1",
-  "glb": "/Volumes/files/src/openclinxr-wt/ward-finish-chain/apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb",
+  "glb": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/packages/openclinxr/factory-stations/.openclinxr/evidence/ward-finish-chain/infinigen-inpatient-ward.chain.glb",
   "captures": [
     {
       "id": "runtime-01-toward-door",
@@ -16,9 +16,9 @@
       },
       "fov": 55,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/ward-finish-chain/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-01-toward-door.png",
-      "pngBytes": 112577,
-      "pngSha256": "366fc0283b30d0d6b9e89884096a42b2a57b22af3d40833767d513b1bb23cafc"
+      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-01-toward-door.png",
+      "pngBytes": 271833,
+      "pngSha256": "9d7dad1254675b37190cfd02f7943a75d406c12e2066a315e23e509238710dee"
     },
     {
       "id": "runtime-02-toward-bed-wall",
@@ -34,9 +34,9 @@
       },
       "fov": 48,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/ward-finish-chain/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-02-toward-bed-wall.png",
-      "pngBytes": 172810,
-      "pngSha256": "de194e17221137747d88d4f8a48b74c2b0454439db04b34a81e6845c886ca400"
+      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-02-toward-bed-wall.png",
+      "pngBytes": 229990,
+      "pngSha256": "87681eda5d699d5d079261cccf7db9c9d5eaa395a1444da8f8b0ee941ea06c36"
     },
     {
       "id": "runtime-03-ceiling-corner",
@@ -52,9 +52,9 @@
       },
       "fov": 62,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/ward-finish-chain/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-03-ceiling-corner.png",
-      "pngBytes": 92315,
-      "pngSha256": "beef92f81deff5d36fecab949d022920925f73cdd3989e99b0833f691cc9dbb2"
+      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-03-ceiling-corner.png",
+      "pngBytes": 507429,
+      "pngSha256": "4bc76693cf4f38b0d6d4005cf943f3767fc99f7642bd2787af198f06c35b3c3d"
     },
     {
       "id": "runtime-04-door-inside",
@@ -70,9 +70,9 @@
       },
       "fov": 50,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/ward-finish-chain/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-04-door-inside.png",
-      "pngBytes": 151726,
-      "pngSha256": "bc3f90c8dd9523bb07270443bbb2b3524f7a8d04ac780214e72ef75a9e6c6b9b"
+      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-04-door-inside.png",
+      "pngBytes": 224194,
+      "pngSha256": "b7a44ac22623486b0526b7df3212556651b09afc6466ac7371695bbca2ef77c0"
     },
     {
       "id": "runtime-05-troffer-junction",
@@ -88,9 +88,9 @@
       },
       "fov": 45,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/ward-finish-chain/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-05-troffer-junction.png",
-      "pngBytes": 135107,
-      "pngSha256": "01eeb912c2ec8ba199c7cb7c44a66d240c7ad64b60c0fb454a81274e3fa24441"
+      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-05-troffer-junction.png",
+      "pngBytes": 493439,
+      "pngSha256": "fc18041cb10f2cc1da4ab74bcb525a77b188c694e2e4fd8d0779e2f7083bcecb"
     },
     {
       "id": "runtime-06-floor-base",
@@ -106,9 +106,9 @@
       },
       "fov": 60,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/ward-finish-chain/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-06-floor-base.png",
-      "pngBytes": 35495,
-      "pngSha256": "9c0959b99602e6f6264692d34bc55eb1f89dfb21e02a7abcf9eb3eb4bcd03d7b"
+      "png": "/Volumes/files/src/openclinxr-wt/s6-ceiling-visibility-fix/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-06-floor-base.png",
+      "pngBytes": 132626,
+      "pngSha256": "d7e7e978e3e43de7d8ba084242fde7301edbf969b9ecaeb1468e76952795ed95"
     }
   ]
 }

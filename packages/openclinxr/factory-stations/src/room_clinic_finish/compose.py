@@ -12,7 +12,8 @@ hand-built door kit is replaced by the real Infinigen leaf/casing/skirting
 kept through the strip+extract, and the flat ceiling field + T-bar grid are
 deleted (S6 rebuilds the ceiling grid properly, in _emit_finish_geometry
 below: a textured acoustic-tile field plus one flush troffer, both anchored
-to the measured shell bounds).
+to the shell ceiling mesh's own room-facing plane, never the pooled
+cross-shell maxz).
 
 Usage (spawned by run.ts, never by hand):
   blender --background --python compose.py -- --input work.glb --output work.glb \
@@ -258,7 +259,7 @@ def classify_mesh(name: str) -> str:
 
 
 def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: dict | None = None,
-                         crash_rail: bool = False) -> dict:
+                         crash_rail: bool = False, ceiling_z: float | None = None) -> dict:
     """Build finish meshes: the vinyl floor field and the S6 acoustic-tile
     ceiling field plus one flush troffer always; the crash rail only when
     explicitly enabled (off by default; some other room type may want it).
@@ -266,9 +267,14 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     S5 deletions (DUAL90 corridor 90-breakers, owned by S6 where noted):
     exam table, exit sign, the whole hand-built door kit (replaced by
     Infinigen's own kept leaf, textured in apply_finish), the flat ceiling
-    field and the T-bar grid (rebuilt below from measured bounds: the tile
-    field spans the shell at the T-bar plane, the troffer lens sits flush
-    in it -- emissive material only, no Blender light object or node cut).
+    field and the T-bar grid (rebuilt below from the measured ceiling plane:
+    the tile field spans the shell at the T-bar plane, the troffer lens sits
+    flush in it -- emissive material only, no Blender light object or node
+    cut).
+
+    ceiling_z is the shell ceiling mesh's own room-facing (inner) face height
+    measured by apply_finish; None keeps the legacy pooled cross-shell maxz
+    (single-box fixtures with no ceiling mesh).
     """
     import bpy  # type: ignore[import-not-found]
     import math
@@ -341,12 +347,17 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     _assign_world_xy_uv(floor_obj, 1.0 / FLOOR_REPEAT_M)
     counts["floor"] += 1
     # S6 ceiling: the acoustic-tile field spans the shell with its underside
-    # exactly on the T-bar plane (measured ceiling minus the suspension
-    # drop, never a fixed constant), tiled at the 0.6 m module via baked
-    # UV0. One 2x4 troffer lens sits near the room centre with its top face
-    # 1 mm below the tile underside (flush read, no z-fighting): edges snap
-    # to the grid origin below, so every long edge lands on a 0.6 m line.
-    tbar_z = maxz - CEILING_TBAR_DROP_M
+    # exactly on the T-bar plane (the shell ceiling's own room-facing face
+    # minus the suspension drop, never the pooled cross-shell maxz: the
+    # exterior mesh's top cap sits ~11 cm above the ceiling plane on the real
+    # ward shell, and hanging the field off maxz parked the tiles above the
+    # visible plane so the room saw flat-painted shell), tiled at the 0.6 m
+    # module via baked UV0. One 2x4 troffer lens sits near the room centre
+    # with its top face 1 mm below the tile underside (flush read, no
+    # z-fighting): edges snap to the grid origin below, so every long edge
+    # lands on a 0.6 m line.
+    ceiling_plane_z = ceiling_z if ceiling_z is not None else maxz
+    tbar_z = ceiling_plane_z - CEILING_TBAR_DROP_M
     ceil_obj = new_box("openclinxr_ceiling_tiles", cx, cy, tbar_z + 0.01, w, d, 0.02, ceiling_photo_m)
     _assign_world_xy_uv(ceil_obj, 1.0 / CEILING_REPEAT_M)
     counts["ceiling"] += 1
@@ -364,7 +375,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
         "origin": [grid_ox, grid_oy],
         "module": CEILING_MODULE_M,
         "tbarZ": tbar_z,
-        "shellCeilingZ": maxz,
+        "shellCeilingZ": ceiling_plane_z,
         "troffer": {"minX": troffer_x0, "maxX": troffer_x1,
                     "minY": troffer_y0, "maxY": troffer_y1, "topZ": tbar_z - 0.001},
     }
@@ -500,16 +511,36 @@ def apply_finish() -> int:
         stamped.append(empty_name)
 
     # Measure base-shell bounds so emitted finish lands inside the real room.
+    # The ceiling plane is measured off the shell ceiling mesh's OWN
+    # room-facing (inner) face, not the pooled cross-shell maxz: on the real
+    # ward shell the exterior mesh's top cap reaches ~11 cm above the
+    # zero-thickness ceiling plane, so maxz is not the plane a viewer sees.
+    # The ceiling mesh is the non-trim shell mesh carrying the Infinigen
+    # ceiling segment name ("<room>_<seg>/<seg>.ceiling"); the trim
+    # classification excludes skirting_ceiling, and the topmost inner face
+    # wins when several match. No ceiling mesh (single-box fixtures) falls
+    # back to the pooled maxz, the previous behaviour.
     xs, ys, zs = [], [], []
+    ceiling_inner_z: float | None = None
     for obj in bpy.data.objects:
         if obj.type != "MESH" or obj.name.startswith("openclinxr_"):
             continue
+        mesh_min_z: float | None = None
         for v in obj.data.vertices:
             wv = obj.matrix_world @ v.co
             xs.append(wv.x); ys.append(wv.y); zs.append(wv.z)
+            if mesh_min_z is None or wv.z < mesh_min_z:
+                mesh_min_z = wv.z
+        if (
+            mesh_min_z is not None
+            and "ceiling" in obj.name.lower()
+            and classify_mesh(obj.name) != "trim"
+        ):
+            if ceiling_inner_z is None or mesh_min_z > ceiling_inner_z:
+                ceiling_inner_z = mesh_min_z
     shell = {"x": [min(xs), max(xs)], "y": [min(ys), max(ys)], "z": [min(zs), max(zs)]} if xs else None
     emitted = _emit_finish_geometry(seed=int(recipe.get("seed", 7)), palette=palette, bounds=shell,
-                                    crash_rail=crash_rail_enabled(recipe))
+                                    crash_rail=crash_rail_enabled(recipe), ceiling_z=ceiling_inner_z)
     # S5: Infinigen's own kept leaf gets the maple photo skin; the casing and
     # skirting keep the trim flat paint from the loop above (no trim photo
     # exists in the licensed set). Fail closed when the strip did not keep
