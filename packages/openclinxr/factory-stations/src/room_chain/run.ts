@@ -23,6 +23,7 @@
  */
 import { copyFileSync, existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, EXTMeshoptCompression } from "@gltf-transform/extensions";
@@ -31,6 +32,15 @@ import { runLightingDesign } from "../lighting_design/run.js";
 import { repoRoot } from "../repo-root.js";
 import { runRoomClinicFinish } from "../room_clinic_finish/run.js";
 import { runRoomGenerate } from "../room_generate/run.js";
+import {
+  collectStageKeyInputs,
+  lookupStageCache,
+  readCachedResult,
+  restoreStageCache,
+  storeStageCache,
+  type CollectStageKeyResult,
+  type RoomChainCacheStage,
+} from "./cache.js";
 
 export const WARD_CHAIN_ENVIRONMENT_ID = "inpatient_ward_room_v1";
 export const WARD_CHAIN_DEFAULT_SEED = 205;
@@ -150,20 +160,23 @@ export function parseWardChainArgs(args: readonly string[]): {
   seed: number;
   outDir: string;
   passTimeoutMs: number;
+  noCache: boolean;
 } {
   let seed = WARD_CHAIN_DEFAULT_SEED;
   let outDir = WARD_CHAIN_OUT_DIR;
   let passTimeoutMs = WARD_CHAIN_PASS_TIMEOUT_MS;
+  let noCache = false;
   for (let i = 0; i < args.length; i += 1) {
     if (args[i] === "--seed") seed = Number(args[i + 1]);
     if (args[i] === "--out-dir") outDir = String(args[i + 1]);
     if (args[i] === "--pass-timeout-ms") passTimeoutMs = Number(args[i + 1]);
+    if (args[i] === "--no-cache") noCache = true;
   }
   if (!Number.isFinite(seed)) throw new Error("--seed must be a finite number");
   if (!Number.isFinite(passTimeoutMs) || passTimeoutMs <= 0) {
     throw new Error("--pass-timeout-ms must be a positive number of milliseconds");
   }
-  return { seed, outDir, passTimeoutMs };
+  return { seed, outDir, passTimeoutMs, noCache };
 }
 
 /**
@@ -187,8 +200,42 @@ export function resolveChainOutDir(outDirArg: string, base: string = repoRoot())
   return path.resolve(base, outDirArg);
 }
 
+/** Live `ps` count of real Blender processes across ALL worktrees on this machine. */
+function runningBlenderCount(): number {
+  try {
+    const out = execFileSync(
+      "sh",
+      ["-c", 'ps aux | grep "Blender.app/Contents/MacOS/Blender" | grep -v grep | wc -l'],
+      { encoding: "utf8", timeout: 15_000 },
+    );
+    const count = Number(String(out).trim());
+    return Number.isFinite(count) ? count : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Wait until fewer than 2 real Blender processes are running elsewhere.
+ * Covers this module's own `blender --version` key probe; the stage spawns
+ * themselves rely on operator scheduling (sibling jobs carry no lock this
+ * chain could honor unilaterally). Fail closed rather than contend.
+ */
+async function waitForBlenderSlot(): Promise<void> {
+  for (let i = 0; ; i += 1) {
+    if (runningBlenderCount() < 2) return;
+    if (i >= 1080) {
+      throw new Error("waited 3h for a Blender slot (2 busy); refusing to contend");
+    }
+    if (i % 6 === 0) process.stdout.write("[ward-chain] waiting for a Blender slot (2 busy)...\n");
+    await new Promise((resolve) => setTimeout(resolve, 10_000));
+  }
+}
+
+export type WardChainCacheStatus = Record<RoomChainCacheStage, { hit: boolean; key: string | null }>;
+
 export async function runWardFinishChain(args = process.argv.slice(2)): Promise<void> {
-  const { seed, outDir: outDirArg, passTimeoutMs } = parseWardChainArgs(args);
+  const { seed, outDir: outDirArg, passTimeoutMs, noCache } = parseWardChainArgs(args);
   // Measured 2026-09-27 (a recurrence of the same class of bug fixed in
   // room_generate/run.ts): auditMaterials below is pure Node I/O -- it
   // resolves a relative workGlb against process.cwd(), which is the PACKAGE
@@ -219,6 +266,70 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
 
   // Stage 1: generate + bake + simplify. GENERATE creates workGlb from
   // scratch; a stale work file from an earlier run must not survive.
+  // The stage cache wraps each stage: on hit the cached output is copied
+  // into place and the Blender spawns are skipped; on miss the stage runs
+  // for real and its output is stored. --no-cache forces every stage to run
+  // (still writing to cache after) and skips all reads.
+  const cacheStatus: WardChainCacheStatus = {
+    room_generate: { hit: false, key: null },
+    room_clinic_finish: { hit: false, key: null },
+    lighting_design: { hit: false, key: null },
+  };
+  let sharedBlenderVersion: string | undefined;
+  if (noCache) process.stdout.write("[ward-chain] --no-cache: every stage runs for real\n");
+  const collectKey = (
+    stage: RoomChainCacheStage,
+    input: Record<string, unknown>,
+    workGlbPath?: string,
+    upstream?: CollectStageKeyResult,
+  ): CollectStageKeyResult => {
+    if (upstream !== undefined && !upstream.ok) {
+      const refused: CollectStageKeyResult = {
+        ok: false,
+        warning: `cache skip ${stage}: upstream key unavailable`,
+      };
+      process.stdout.write(`${refused.warning}\n`);
+      return refused;
+    }
+    const collected = collectStageKeyInputs(stage, {
+      input,
+      ...(workGlbPath !== undefined ? { workGlbPath } : {}),
+      upstreamKey: upstream?.ok ? upstream.key : null,
+      blender,
+      ...(sharedBlenderVersion !== undefined
+        ? { overrides: { blenderVersion: sharedBlenderVersion } }
+        : {}),
+    });
+    if (collected.ok) sharedBlenderVersion = collected.inputs.blenderVersion;
+    else process.stdout.write(`${collected.warning}\n`);
+    return collected;
+  };
+  const runCachedStage = async (
+    stage: RoomChainCacheStage,
+    key: CollectStageKeyResult,
+    dest: Record<string, string>,
+    run: () => Promise<Record<string, unknown>>,
+  ): Promise<Record<string, unknown>> => {
+    if (key.ok && !noCache) {
+      const entry = lookupStageCache(stage, key.key);
+      if (entry !== null) {
+        restoreStageCache(entry, dest);
+        cacheStatus[stage] = { hit: true, key: key.key };
+        process.stdout.write(`cache hit ${stage} ${key.key}\n`);
+        return readCachedResult(entry);
+      }
+      process.stdout.write(`cache miss ${stage} ${key.key}\n`);
+    }
+    const result = await run();
+    if (key.ok) {
+      storeStageCache(stage, key.key, key.inputs, result, dest);
+      cacheStatus[stage] = { hit: false, key: key.key };
+    } else {
+      cacheStatus[stage] = { hit: false, key: null };
+    }
+    return result;
+  };
+
   const genInput = {
     environmentId: WARD_CHAIN_ENVIRONMENT_ID,
     infinigenPrompt: "inpatient ward room",
@@ -227,21 +338,25 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
     footprintMeters: { ...WARD_CHAIN_FOOTPRINT },
     door: { ...WARD_CHAIN_DOOR },
   };
+  await waitForBlenderSlot();
   process.stdout.write(`[ward-chain] stage 1 room_generate seed=${seed} ...\n`);
-  const genResult = await runRoomGenerate(genInput, {
-    blender,
-    workGlb,
-    bakeAlbedo: true,
-    timeoutMs: passTimeoutMs,
-    generateTimeoutMs: 3_600_000,
-  }).catch(async (err: unknown) => {
-    await writeFile(
-      path.join(outDir, "ward-chain.generate.error.txt"),
-      err instanceof Error ? (err.stack ?? err.message) : String(err),
-      "utf8",
-    );
-    throw err;
-  });
+  const genKey = collectKey("room_generate", genInput);
+  const genResult = await runCachedStage("room_generate", genKey, { "work.glb": workGlb }, () =>
+    runRoomGenerate(genInput, {
+      blender,
+      workGlb,
+      bakeAlbedo: true,
+      timeoutMs: passTimeoutMs,
+      generateTimeoutMs: 3_600_000,
+    }).catch(async (err: unknown) => {
+      await writeFile(
+        path.join(outDir, "ward-chain.generate.error.txt"),
+        err instanceof Error ? (err.stack ?? err.message) : String(err),
+        "utf8",
+      );
+      throw err;
+    }),
+  );
   await stageLog("generate", genResult);
   // S1: albedo stdout/stderr get their OWN log files. runRoomGenerate used
   // to overwrite stdout/stderr with the occlusion pass's output, so the
@@ -264,9 +379,24 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
   process.stdout.write(`[ward-chain] decompress meshopt bridge ...\n`);
   await decompressWorkGlb(workGlb);
   process.stdout.write(`[ward-chain] stage 2 room_clinic_finish preset=${WARD_CHAIN_PRESET} ...\n`);
-  const finishResult = await runRoomClinicFinish(
-    { environmentId: WARD_CHAIN_ENVIRONMENT_ID, preset: WARD_CHAIN_PRESET, seed },
-    { blender, workGlb, recipeJsonOut: recipeJson, report: finishReport, timeoutMs: passTimeoutMs },
+  const finishInput = {
+    environmentId: WARD_CHAIN_ENVIRONMENT_ID,
+    preset: WARD_CHAIN_PRESET,
+    seed,
+  };
+  const finishKey = collectKey("room_clinic_finish", finishInput, workGlb, genKey);
+  const finishResult = await runCachedStage(
+    "room_clinic_finish",
+    finishKey,
+    { "work.glb": workGlb, "recipe.json": recipeJson, "report.json": finishReport },
+    () =>
+      runRoomClinicFinish(finishInput, {
+        blender,
+        workGlb,
+        recipeJsonOut: recipeJson,
+        report: finishReport,
+        timeoutMs: passTimeoutMs,
+      }),
   );
   await stageLog("finish", finishResult);
   assertBlenderOk("room_clinic_finish", finishResult, { timeoutMs: passTimeoutMs, outDir });
@@ -286,13 +416,19 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
     seed,
   };
   process.stdout.write(`[ward-chain] stage 3 lighting_design mood=${WARD_CHAIN_MOOD} ...\n`);
-  const lightResult = await runLightingDesign(lightInput, {
-    blender,
-    outRigJson: rigJson,
-    report: lightingReport,
-    roomGlb: workGlb,
-    timeoutMs: passTimeoutMs,
-  });
+  const lightResult = await runCachedStage(
+    "lighting_design",
+    collectKey("lighting_design", lightInput, workGlb, finishKey),
+    { "rig.json": rigJson, "report.json": lightingReport },
+    () =>
+      runLightingDesign(lightInput, {
+        blender,
+        outRigJson: rigJson,
+        report: lightingReport,
+        roomGlb: workGlb,
+        timeoutMs: passTimeoutMs,
+      }),
+  );
   await stageLog("lighting", lightResult);
   assertBlenderOk("lighting_design", lightResult, { timeoutMs: passTimeoutMs, outDir });
   const final = await auditMaterials(workGlb);
@@ -307,6 +443,7 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
     door: WARD_CHAIN_DOOR,
     preset: WARD_CHAIN_PRESET,
     mood: WARD_CHAIN_MOOD,
+    cache: cacheStatus,
     workGlb,
     stages: {
       roomGenerate: { result: genResult, materialAudit: afterGenerate },
