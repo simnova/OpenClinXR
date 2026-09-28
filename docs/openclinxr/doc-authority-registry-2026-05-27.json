@@ -5,9 +5,9 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 107,
-    "current-reference": 212,
+    "current-reference": 213,
     "archive-candidate": 116,
-    "evidence": 137,
+    "evidence": 138,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5204,11 +5204,25 @@
       "rationale": "Independent reproduction of the room footprint tile-grid measurement (width/depth/height ranges, pixel evidence) for the room-dimensions-fix job."
     },
     {
+      "path": "docs/openclinxr/room-realism/imagine-multiview-v2/ROOM-SPEC.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Written room spec (envelope, finishes, door wall/position/hinge, no-windows decision, six camera views) used verbatim in every v2 imagine-multiview reference prompt; keep alongside the v2 reference set it drove (row-32 provenance)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview-v2/screening.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Screening record (pass/fail plus reason per candidate) for the v2 imagine-multiview reference set, graded against ROOM-SPEC.md."
+    },
+    {
       "path": "docs/openclinxr/room-realism/ao-overlap-fix/REPORT.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
-      "rationale": "AO overlap fix report: measured (a)/(b) split, RED/GREEN overlap fractions (0.9956 -> 0.0), captures, and the disclosed triangulation-diagonal residual + trim/casing gap follow-ups."
+      "rationale": "AO overlap fix report: measured (a)/(b) split, RED/GREEN overlap fractions, captures, and disclosed follow-ups. Landed as part of the UV-separation groundwork carried into the Cycles AO bake."
     }
   ]
 }

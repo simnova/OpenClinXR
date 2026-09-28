@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "openclinxr.room-realism.imagine-multiview.v2",
+  "generatedOn": "2026-09-28",
+  "tool": "image_gen",
+  "namespace": "grok_build",
+  "model": "grok-4.7",
+  "aspectRatio": "16:9",
+  "invokedVia": "grok CLI (general-purpose agent, --tools image_gen,image_edit,read_file,write,list_dir), one image_gen call per view, requested by a Claude Sonnet 5 (Claude Code) session per operator direction to replace the v1 imagine-multiview reference set",
+  "room": "one empty modern hospital inpatient ward exam room, per docs/openclinxr/room-realism/imagine-multiview-v2/ROOM-SPEC.md: 8.77m x 7.77m interior, 2.42m flat suspended ceiling, off-white walls, straight 100mm grey vinyl cove base, pale sheet-vinyl floor, square 600mm acoustic-tile T-bar grid, one flat 600x1200mm lay-in LED troffer, one maple door (0.95m x 2.10m, narrow vertical vision-lite, white casing) on the north wall offset 4.20m from the west corner with hinges on the east jamb, no windows",
+  "attempt": 1,
+  "attemptsAllowed": 3,
+  "screening": "docs/openclinxr/room-realism/imagine-multiview-v2/screening.md",
+  "images": [
+    {
+      "filename": "01-toward-door.jpg",
+      "viewpoint": "Eye-level toward the door (master/canonical view)",
+      "imageGenSessionId": "01a0e63c-452c-7f61-a445-ebe1614e312d",
+      "sourceSessionImage": "images/1.jpg",
+      "pixelSize": [1280, 720],
+      "prompt": "Photoreal interior architectural photograph of an empty modern hospital inpatient ward exam room, 16:9, eye-level standing height (~1.6 m), camera positioned near the center of the room, facing directly toward one wall which holds a single closed door. Room: rectangular, 8.77 m wide by 7.77 m deep, flat 2.42 m suspended ceiling, perfectly flat walls with square corners, no curved surfaces anywhere. Walls: off-white matte painted drywall, flat and planar. Base: a straight grey vinyl cove base, 100 mm tall, running along the wall-floor junction; it is a thin strip that stays flat against the wall and only curves in a small ~15 mm radius where it meets the floor -- never a tall curved bench or ledge shape. Floor: pale near-white sheet vinyl flooring with faint linear seams, perfectly flat and level, meeting the cove base at a sharp straight line. Ceiling: suspended acoustic ceiling with perfectly square 600mm x 600mm acoustic tiles set in a straight white T-bar grid running parallel to the walls; grid lines are dead straight in both directions. Light fixture: exactly one flat rectangular recessed LED troffer panel, 600mm x 1200mm, centered in the ceiling grid roughly in the middle of the room, its lens flush and coplanar with the surrounding ceiling tiles. It is a FLAT panel -- absolutely NOT a cylindrical tube fixture, NOT a parabolic louvered fixture, and it does not hang below or sit proud of the ceiling plane. Door: one maple wood veneer door, 0.95 m wide by 2.10 m tall, closed, centered on the wall the camera faces but offset slightly right of center (its centerline sits 4.20 m from the left corner of that wall). It has a single narrow vertical vision-lite window in its upper half, offset toward its right edge, and a simple white painted door casing/trim. The door's hinges are on its right side (as seen in this view) and it is shown closed. No windows anywhere in the room. No furniture, no people, no equipment, no clutter, no text, no signage, no watermark, no logo. Daylight-balanced, even, shadowless lighting throughout."
+    },
+    {
+      "filename": "02-toward-bed-wall.jpg",
+      "viewpoint": "Eye-level toward the opposite bed wall",
+      "imageGenSessionId": "01a0e63d-59b9-7de1-ac93-a473d51d6d92",
+      "sourceSessionImage": "images/1.jpg",
+      "pixelSize": [1280, 720],
+      "prompt": "Photoreal interior architectural photograph of an empty modern hospital inpatient ward exam room, 16:9, eye-level standing height (~1.6 m), camera positioned near the center of the room, facing directly toward the wall OPPOSITE the door -- the bare wall where a hospital bed would sit. The door is behind the camera, out of frame. Room: rectangular, 8.77 m wide by 7.77 m deep, flat 2.42 m suspended ceiling, perfectly flat walls with square corners, no curved surfaces anywhere. Walls: off-white matte painted drywall, flat and planar, completely bare (no door, no window, no fixtures on this wall). Base: a straight grey vinyl cove base, 100 mm tall, running along the wall-floor junction; it is a thin strip that stays flat against the wall and only curves in a small ~15 mm radius where it meets the floor -- never a tall curved bench or ledge shape. Floor: pale near-white sheet vinyl flooring with faint linear seams, perfectly flat and level, meeting the cove base at a sharp straight line. Ceiling: suspended acoustic ceiling with perfectly square 600mm x 600mm acoustic tiles set in a straight white T-bar grid running parallel to the walls; grid lines are dead straight in both directions. Light fixture: exactly one flat rectangular recessed LED troffer panel, 600mm x 1200mm, centered in the ceiling grid roughly in the middle of the room, its lens flush and coplanar with the surrounding ceiling tiles. It is a FLAT panel -- absolutely NOT a cylindrical tube fixture, NOT a parabolic louvered fixture, and it does not hang below or sit proud of the ceiling plane. No windows anywhere in the room. No furniture, no people, no equipment, no clutter, no text, no signage, no watermark, no logo. Daylight-balanced, even, shadowless lighting throughout."
+    },
+    {
+      "filename": "03-ceiling-corner.jpg",
+      "viewpoint": "Corner view looking up at the ceiling grid and troffer",
+      "imageGenSessionId": "01a0e63d-6212-7203-b029-d9181370a392",
+      "sourceSessionImage": "images/1.jpg",
+      "pixelSize": [1280, 720],
+      "prompt": "Photoreal interior architectural photograph of an empty modern hospital inpatient ward exam room, 16:9, camera positioned low in the room's southwest floor corner, tilted steeply upward toward the ceiling, looking diagonally toward the room's center. Room: rectangular, 8.77 m wide by 7.77 m deep, flat 2.42 m suspended ceiling, perfectly flat walls with a square, straight, un-curved wall-to-wall and wall-to-ceiling corner visible in the lower frame. No soffit, bulkhead, or ceiling height change anywhere. Walls: off-white matte painted drywall, flat and planar. Ceiling: suspended acoustic ceiling with perfectly square 600mm x 600mm acoustic tiles set in a straight white T-bar grid running parallel to the walls in both directions; grid lines are dead straight, tiles are perfectly square, receding correctly in one-point perspective with no warping or sagging anywhere. Light fixture: exactly one flat rectangular recessed LED troffer panel, 600mm x 1200mm, positioned mid-ceiling, its lens flush and perfectly coplanar with the surrounding ceiling tiles. It is a FLAT panel -- absolutely NOT a cylindrical tube fixture, NOT a parabolic louvered fixture, and it does not hang below or sit proud of the ceiling plane. Dominates the upper-middle of the frame. No windows anywhere. No furniture, no people, no equipment, no clutter, no text, no signage, no watermark, no logo. Daylight-balanced, even, shadowless lighting throughout."
+    },
+    {
+      "filename": "04-door-inside.jpg",
+      "viewpoint": "Door viewed from inside the room, closer",
+      "imageGenSessionId": "01a0e63d-6840-71f2-bd80-8299364b7f73",
+      "sourceSessionImage": "images/1.jpg",
+      "pixelSize": [1280, 720],
+      "prompt": "Photoreal interior architectural photograph of an empty modern hospital inpatient ward exam room, 16:9, camera standing 1.5 m from a closed door, on-axis facing it directly, close enough that the door leaf, casing, and vision-lite read clearly at large scale filling most of the frame. Door: one maple wood veneer door, 0.95 m wide by 2.10 m tall, closed, set into a simple white painted door casing/trim in an off-white wall. It has a single narrow vertical vision-lite window in its upper half, offset toward its right edge. The door's hinges are on its right side (as seen in this view), matching a door that is offset slightly right of the center of its wall. Surrounding room glimpsed at the edges: off-white matte painted walls, straight grey vinyl cove base (100 mm) at the wall-floor junction, pale sheet-vinyl floor, suspended acoustic-tile ceiling with a straight white T-bar grid, one flat 600mm x 1200mm recessed LED troffer panel flush with the tile plane (not cylindrical, not louvered, not hanging below the ceiling). The room is otherwise empty. No windows. No furniture, no people, no equipment, no clutter, no text, no signage, no watermark, no logo. Daylight-balanced, even, shadowless lighting throughout."
+    },
+    {
+      "filename": "05-troffer-junction.jpg",
+      "viewpoint": "Close-up of the troffer/T-bar junction",
+      "imageGenSessionId": "01a0e63d-6f30-70e0-8a3a-103aa53f3fe6",
+      "sourceSessionImage": "images/1.jpg",
+      "pixelSize": [1280, 720],
+      "prompt": "Photoreal interior architectural photograph, tight close-up, 16:9, camera positioned directly below a ceiling light fixture, tilted straight up, framed close enough that no wall or corner is visible -- only ceiling fills the frame. Subject: one flat rectangular recessed LED troffer light panel, 600mm x 1200mm, seen where one of its long edges meets the surrounding acoustic ceiling tiles. The troffer's lens and metal frame sit perfectly flush and coplanar with the plane of the surrounding 600mm x 600mm square acoustic tiles -- it is NOT proud of the ceiling, NOT recessed below it, and it is absolutely NOT a cylindrical tube fixture and NOT a parabolic louvered fixture; it is a flat, smooth rectangular lens panel evenly lit from behind. The surrounding ceiling: perfectly square acoustic tiles in a straight white T-bar grid, dead-straight grid lines running parallel in both directions, no warping, no sagging, no soffit or bulkhead visible. No text, no signage, no watermark, no logo, no people. Daylight-balanced, even lighting."
+    },
+    {
+      "filename": "06-floor-base.jpg",
+      "viewpoint": "Floor/base detail",
+      "imageGenSessionId": "01a0e63d-790a-7123-8bce-00a62f3eb0cf",
+      "sourceSessionImage": "images/1.jpg",
+      "pixelSize": [1280, 720],
+      "prompt": "Photoreal interior architectural photograph, tight close-up, 16:9, camera low and close to the floor, framed on a straight stretch of wall away from any corner, showing where the floor meets the wall base. Subject: pale near-white sheet-vinyl flooring with a faint linear seam, perfectly flat and level all the way to the frame's edges -- it does NOT curve upward, does NOT form a bench or ledge shape, and does NOT rise into any raised surface. It meets a straight grey vinyl cove base, 100 mm tall, at a sharp, flat, well-defined junction. The cove base is a thin strip flat against the wall above, with only a small ~15 mm curve at its very bottom where it meets the floor, then the off-white wall continues flat above it. No furniture, no people, no text, no signage, no watermark, no logo. Daylight-balanced, even, shadowless lighting."
+    }
+  ]
+}

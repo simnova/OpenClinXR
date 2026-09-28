@@ -1,0 +1,13 @@
+{
+  "cells": [
+    "Operator-generated Grok Imagine multiview v2 of one empty inpatient ward exam room, replacing the row-31 v1 set after the operator reported the v1 set was unrealistic (inconsistent door wall/hinge/position between views, a window appearing in one view only, a cylindrical/louvred fixture in an irregular tile grid, a curved wall/ceiling junction, and a floor curving into a bench-like cove). Generated via `grok` CLI (`general-purpose` agent, `--tools image_gen,image_edit,read_file,write,list_dir`, model grok-4.7), one image_gen call per view, aspect_ratio 16:9, invoked from a Claude Sonnet 5 (Claude Code) session per operator direction against a written spec (`docs/openclinxr/room-realism/imagine-multiview-v2/ROOM-SPEC.md`). Filed as `docs/openclinxr/room-realism/imagine-multiview-v2/01-toward-door.jpg`, `02-toward-bed-wall.jpg`, `03-ceiling-corner.jpg`, `04-door-inside.jpg`, `05-troffer-junction.jpg`, `06-floor-base.jpg` (JPEG, 1280x720, bytes copied unchanged from each generation's session image at `images/1.jpg`; per-view Grok session IDs recorded in `manifest.json`).",
+    "**OPERATOR-GENERATED -- not third-party.** Produced with Grok Imagine (`image_gen`, aspect_ratio 16:9) as room-realism reference views of one room. No external licence applies; no attribution obligation. Recorded here so the byte lineage of the filed reference set is explicit.",
+    "Six viewpoint references of one consistent room built from a single written spec (docs/openclinxr/room-realism/imagine-multiview-v2/ROOM-SPEC.md): 8.77m x 7.77m interior, 2.42m flat suspended ceiling, off-white walls, straight 100mm grey vinyl cove base, pale sheet-vinyl floor, square 600mm acoustic-tile T-bar grid, one flat 600x1200mm lay-in LED troffer (not cylindrical/louvred), one maple door (0.95m x 2.10m, narrow vertical vision-lite offset toward the hinge side, white casing) on the north wall offset 4.20m from the west corner with hinges on the east jamb, no windows. Exact per-view prompts are recorded in `manifest.json` alongside each view's Grok image_gen session id; every candidate passed screening on its first of up to 3 allowed attempts (see `docs/openclinxr/room-realism/imagine-multiview-v2/screening.md`).",
+    "2026-09-28",
+    "Reference only for a later room-realism grading pass. Supersedes row-31's v1 set as the current reference (row-31's images remain on disk for history but should not be used for new grading). Not consumed by `room_clinic_finish/compose.py` or the ward bake.",
+    "**Keep.** Operator-owned reference set. Replace only if the operator supplies a new approved set or reports further flaws in this one."
+  ],
+  "id": "row-32-operator-generated-grok-imagine-room-multiview-v2",
+  "rowIndex": 32,
+  "section": "Acquired"
+}

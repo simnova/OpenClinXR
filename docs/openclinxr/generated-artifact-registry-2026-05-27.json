@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 538,
+    "keep-evidence": 549,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -24157,7 +24157,77 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
-      "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-02.json",
+      "path": "docs/openclinxr/asset-licence-records/row-32-operator-generated-grok-imagine-room-multiview-v2.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated (not third-party) provenance record for the row-31 v1 imagine-multiview reference set's replacement, regenerated after the operator reported v1 realism flaws."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview-v2/01-toward-door.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview-v2/02-toward-bed-wall.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview-v2/03-ceiling-corner.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview-v2/04-door-inside.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview-v2/05-troffer-junction.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview-v2/06-floor-base.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview-v2/manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview-v2/ROOM-SPEC.md",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Written room spec used verbatim in every v2 reference prompt (row-32 provenance); keep alongside the reference set it drove."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview-v2/screening.md",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Screening record for the v2 reference set (row-32 provenance); keep alongside the reference set it grades."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-01-toward-door.png",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -25121,6 +25191,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "AO Cycles-bake capture manifest: pose eye/look/fov plus per-capture sha256."
+    },
+    {
+      "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-02.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "SC-02 scene-closure evidence, carried through from the ward-reference-v2 branch lineage."
     }
   ]
 }

@@ -26,6 +26,8 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - keep-compatibility-input: 24
 - keep-current: 244
 - keep-evidence: 483
+- keep-current: 226
+- keep-evidence: 407
 - keep-template: 6
 
 ## Cleanup Actions
@@ -3191,6 +3193,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/asset-licence-records/row-29-makehuman-pants02-elvs-jeans-bootcut.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/asset-licence-records/row-30-operator-generated-grok-imagine-room-surface-photos.json` - keep-evidence; keep; Operator-generated (not third-party) provenance record for Grok Imagine room images used as finish-station texture/preset sources.
 - `docs/openclinxr/asset-licence-records/row-31-operator-generated-grok-imagine-room-multiview.json` - keep-evidence; keep; Operator-generated (not third-party) provenance record for Grok Imagine room images used as finish-station texture/preset sources.
+- `docs/openclinxr/asset-licence-records/row-32-operator-generated-grok-imagine-room-multiview-v2.json` - keep-evidence; keep; Operator-generated (not third-party) provenance record for the row-31 v1 imagine-multiview reference set's replacement.
 - `docs/openclinxr/bvh-retarget-lab-smoke-2026-08-03.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/bvh-retarget-lab-smoke-2026-08-05.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/bvh-retarget-smoke-2026-08-03.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -3464,6 +3467,15 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-floor-vinyl.jpg` - keep-evidence; keep; 2x2 tiled grading preview of the row-33 flattened tileable sheet vinyl albedo (JPEG q90); sent to the product owner before wiring.
 - `docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-wall-plaster.jpg` - keep-evidence; keep; 2x2 tiled grading preview of the row-33 flattened tileable painted plaster albedo (JPEG q90); sent to the product owner before wiring.
 - `docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-leaf-door-maple.jpg` - keep-evidence; keep; Single-leaf grading preview of the row-33 door maple leaf crop (leaf aspect 0.95:2.10, JPEG q90, not tiled); sent to the product owner before wiring.
+- `docs/openclinxr/room-realism/imagine-multiview-v2/01-toward-door.jpg` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws.
+- `docs/openclinxr/room-realism/imagine-multiview-v2/02-toward-bed-wall.jpg` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws.
+- `docs/openclinxr/room-realism/imagine-multiview-v2/03-ceiling-corner.jpg` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws.
+- `docs/openclinxr/room-realism/imagine-multiview-v2/04-door-inside.jpg` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws.
+- `docs/openclinxr/room-realism/imagine-multiview-v2/05-troffer-junction.jpg` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws.
+- `docs/openclinxr/room-realism/imagine-multiview-v2/06-floor-base.jpg` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws.
+- `docs/openclinxr/room-realism/imagine-multiview-v2/manifest.json` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws.
+- `docs/openclinxr/room-realism/imagine-multiview-v2/ROOM-SPEC.md` - keep-evidence; keep; Written room spec used verbatim in every v2 reference prompt (row-32 provenance).
+- `docs/openclinxr/room-realism/imagine-multiview-v2/screening.md` - keep-evidence; keep; Screening record for the v2 reference set (row-32 provenance).
 - `docs/openclinxr/room-realism/room-final-xu.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/room-realism/s2-preexport-bake-2026-09-27/captures/runtime-01-toward-door.png` - keep-evidence; keep; S2 pre-export shell bake runtime capture (pose 01-toward-door) against the seed-205 shell-baked GLB at runtime placement, hand-placed pose, no reseat; mint walls and parquet floor expected at this slice.
 - `docs/openclinxr/room-realism/s2-preexport-bake-2026-09-27/captures/stage2-multiview.json` - keep-evidence; keep; S2 pre-export shell-bake pose-01 runtime capture manifest; keep unless a later explicit stale pattern supersedes it.
