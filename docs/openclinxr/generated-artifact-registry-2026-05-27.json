@@ -24010,6 +24010,20 @@
       "rationale": "Floor-class (BumpyRubberFloor) grading sheet, pose 01 toward-door: v2 reference left, shell-only runtime frame right, seed 205."
     },
     {
+      "path": "docs/openclinxr/room-realism/tile-calibrate/03-ceiling-corner-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tile-calibrate (runtime-space albedo calibration) grading sheet, pose 03 ceiling-corner GREEN capture: v2 reference left, chain runtime frame right, albedo 193."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/tile-calibrate/05-troffer-junction-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tile-calibrate (runtime-space albedo calibration) grading sheet, pose 05 troffer-junction GREEN capture: v2 reference left, chain runtime frame right, albedo 193."
+    },
+    {
       "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/03-ceiling-corner-side-by-side.png",
       "authority": "keep-evidence",
       "tracked": true,
