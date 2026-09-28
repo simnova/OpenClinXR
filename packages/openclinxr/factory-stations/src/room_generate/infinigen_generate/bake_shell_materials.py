@@ -11,9 +11,13 @@
 # Technique: per surface role, box-project the role's objects into a
 # full-coverage ALB_<role> layer and bake DIFFUSE with COLOR only (pure
 # albedo, NO lighting baked in -- lighting folded into albedo darkens twice
-# under runtime lights); the trim role bakes an extra GLOSSY COLOR pass
-# screened with its diffuse (metals have no diffuse response, so COLOR-only
-# bakes them black); box-project ALL kept objects once into a shared BAKE_UV
+# under runtime lights); the trim role (door leaf/casing, window) bakes an
+# extra GLOSSY COLOR pass screened with its diffuse (metals have no diffuse
+# response, so COLOR-only bakes them black); the skirting role (floor cove +
+# ceiling cornice) bakes NOTHING -- it ships a pinned flat matte vinyl grey
+# (Infinigen assigns it random white plastic and trim's glossy/low-roughness
+# treatment renders it as a dark streaked metallic strip, measured seed 205);
+# box-project ALL kept objects once into a shared BAKE_UV
 # atlas and bake NORMAL (tangent) and ROUGHNESS there. Box (cube) projection
 # instead of Smart UV Project: measured on the seed-205 ward, smart-project's
 # packer collapses 94% of wall+trim loop-tris to zero UV area (wall role
@@ -33,16 +37,19 @@
 # Texture budget (decoded RGBA8 x1.33 mips, ward GLB <= 56 MB; 8 MB of the
 # 64 MB quest3AssetBudget reserved for fixtures):
 #   albedo floor 2048^2 (16 MB) + wall/ceiling/trim 1024^2 x3 (12 MB)
-#     + other 512^2 (1 MB) = 29
+#     + other 512^2 (1 MB) = 29 (skirting carries NO albedo image -- a flat
+#     pinned Base Color scalar -- so it adds nothing here)
 #   normal shared 1024^2 (4) + roughness shared 1024^2 (4) = 8 (one atlas
 #     each over ALL kept objects, so every surface keeps relief and finish
 #     variation without per-surface normal images)
-#   shell subtotal 37 MB; AO pass (untouched, 4x512^2) adds 4 MB
+#   shell subtotal 37 MB; AO pass (untouched, 4x512^2) adds 4 MB (one image
+#   per wired material: residue "other" ships unwired when uniform and shell
+#   "skirting" skips by name, so 6 materials wire 4 AO images)
 #   total 41 MB x 1.33 = 54.5 MB <= 56 MB
-# Trim gets its own 1024 albedo (door/casing/skirting are primary visible
+# Trim gets its own 1024 albedo (door/casing/window are primary visible
 # surfaces); "other" is residue (exterior hull faces, boolean cutters) and
 # drops to 512 to fund it. Every SURFACE image is >= 1024 px on its long
-# edge; only the residue atlas is smaller.
+# edge; only the residue atlas is smaller (skirting ships no image at all).
 #
 # Determinism: fixed SHELL_BAKE_SEED drives random.seed, scene.cycles.seed and
 # the bake sampling; cube projection is a pure function of face geometry
@@ -57,9 +64,11 @@
 # a packed atlas where bleed crosses unrelated islands.
 #
 # Materials are consolidated per surface role (shell_bake_wall/floor/ceiling/
-# trim/other): one atlas-cleared bake per role image, then every polygon of the
-# role's objects points at the role material. This keeps the material count
-# (and the later per-material AO image count) at 5.
+# trim/other/skirting): one atlas-cleared bake per role image (skirting: a
+# pinned flat instead of a bake), then every polygon of the role's objects
+# points at the role material. This keeps the material count at 6 (4 wired AO
+# images: residue "other" ships unwired when uniform and shell "skirting"
+# skips occlusion by name).
 #
 # Usage (inside Blender 5.1 headless):
 #   blender --background --python bake_shell_materials.py -- \
@@ -97,6 +106,21 @@ FILL_ALBEDO = (0.8, 0.8, 0.78, 1.0)
 FILL_NORMAL = (0.5, 0.5, 1.0, 1.0)
 FILL_ROUGHNESS = (0.9, 0.9, 0.9, 1.0)
 
+# Pinned shell skirting: the spec is a 100mm grey vinyl cove, matte, not
+# metal. Infinigen assigns skirting random white plastic per seed, so no bake
+# can produce the specced grey; the value below is pinned and calibrated in
+# RUNTIME space against imagine-multiview-v2 06-floor-base (strip boxes mean
+# ~127-155 sRGB, target ~140, near-neutral). Second-iteration derivation: an
+# isolation render of the first-iteration flat (0.42,0.42,0.415, no normal or
+# occlusion maps) read (160.5,157.3,150.1) sRGB, giving per-channel scene
+# gains (0.838,0.810,0.733) linear -- the capture scene light runs warm, so
+# the flat runs slightly cool (sRGB ~152,155,161) to render neutral 140.
+# Linear (Blender/three.js Base Color). GREEN re-capture reads 129 center /
+# 128 left / 135 right (reference strip spans 127-155; pose-01 brackets from
+# above), matte and neutral, streak-free.
+SKIRTING_BASE_COLOR_LINEAR = (0.313, 0.323, 0.352, 1.0)
+SKIRTING_ROUGHNESS = 0.9
+
 
 def _argv_after_double_dash() -> List[str]:
     if "--" in sys.argv:
@@ -112,18 +136,32 @@ def role_for_object(obj_name: str) -> str:
         return "wall"
     if ".ceiling" in n or "/ceiling" in n:
         return "ceiling"
-    # Trim (door leaf/casing, skirting, window): Infinigen's own trim parts,
-    # either renamed into the room prefix by strip_room_shell_placeholders.py
+    # Skirting (floor cove + ceiling cornice) is NOT trim: Infinigen builds it
+    # as dielectric white plastic (wall_decorations/skirting_board.py: a
+    # geometry-nodes SetMaterial with plastic_rough, roughness input 0.5-1.0
+    # mapped to a 0.05-0.25 glossy output) while the trim bucket exists for
+    # the metal door frame (hammered/grained metal + glass lite). Sharing
+    # trim's metal-aware GLOSSY screen and low-roughness atlas renders the
+    # cove as a dark streaked metallic strip (measured seed 205: runtime mean
+    # ~26 vs the ~140 vinyl-grey reference), so skirting gets its own role
+    # with a pinned flat matte vinyl grey. Post-strip names
+    # ("<room>_<seg>/<seg>.skirting_floor|skirting_ceiling") and raw factory
+    # names ("skirtingboard_*") both land here; checked BEFORE trim.
+    for part in (".skirting", "/skirting", "skirtingboard",
+                 ".baseboard", "/baseboard", ".skirt", "/skirt"):
+        if part in n:
+            return "skirting"
+    # Trim (door leaf/casing, window): Infinigen's own trim parts, either
+    # renamed into the room prefix by strip_room_shell_placeholders.py
     # ("<room>_<seg>/<seg>.door_leaf") or in raw factory shape
-    # ("DoorCasingFactory(...).spawn_asset", "skirtingboard_support").
+    # ("DoorCasingFactory(...).spawn_asset").
     # They must NOT fall into "other": the "other" atlas is residue space and
     # the downstream albedo pass treats "other" materials under ceiling
     # lighting assumptions. Substring list mirrors compose.py's
     # TRIM_NAME_RE_PARTS plus the strip step's keep_re suffixes.
     for part in (".door", "/door", "doorfactory", "doorcasingfactory",
-                 ".casing", "/casing", ".skirting", "/skirting", "skirtingboard",
-                 ".window", "/window", ".trim", "/trim",
-                 ".baseboard", "/baseboard", ".skirt", "/skirt"):
+                 ".casing", "/casing",
+                 ".window", "/window", ".trim", "/trim"):
         if part in n:
             return "trim"
     return "other"
@@ -378,6 +416,9 @@ def build_role_material(role: str, alb_layer: str, albedo_img, normal_img, rough
 
     Albedo samples the role's full-coverage layout (index 0, so the later AO
     pass keeps base colour there); normal/roughness sample the shared atlas.
+    Skirting is the exception: pinned flat Base Color plus scalar roughness
+    (matte vinyl, albedo_img is None so no image nodes); normal relief still
+    samples the shared atlas like every other role.
     """
     import bpy
 
@@ -396,15 +437,23 @@ def build_role_material(role: str, alb_layer: str, albedo_img, normal_img, rough
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     bsdf.inputs["Metallic"].default_value = 0.0
 
-    alb_uv = nt.nodes.new("ShaderNodeUVMap")
-    alb_uv.uv_map = alb_layer
-    alb_uv.location = (-700, 250)
-    albedo_tex = nt.nodes.new("ShaderNodeTexImage")
-    albedo_tex.image = albedo_img
-    albedo_tex.label = "shell albedo (COLOR only, no lighting)"
-    albedo_tex.location = (-400, 250)
-    nt.links.new(alb_uv.outputs["UV"], albedo_tex.inputs["Vector"])
-    nt.links.new(albedo_tex.outputs["Color"], bsdf.inputs["Base Color"])
+    if role == "skirting":
+        # Pinned matte vinyl: flat Base Color + scalar roughness, no image
+        # nodes. The downstream albedo pass skips this material by name
+        # (SHELL_FLAT_SKIP_MATERIALS in room-albedo-ao-bake.py), so the
+        # calibrated grey ships untouched; AO still applies.
+        bsdf.inputs["Base Color"].default_value = SKIRTING_BASE_COLOR_LINEAR
+        bsdf.inputs["Roughness"].default_value = SKIRTING_ROUGHNESS
+    else:
+        alb_uv = nt.nodes.new("ShaderNodeUVMap")
+        alb_uv.uv_map = alb_layer
+        alb_uv.location = (-700, 250)
+        albedo_tex = nt.nodes.new("ShaderNodeTexImage")
+        albedo_tex.image = albedo_img
+        albedo_tex.label = "shell albedo (COLOR only, no lighting)"
+        albedo_tex.location = (-400, 250)
+        nt.links.new(alb_uv.outputs["UV"], albedo_tex.inputs["Vector"])
+        nt.links.new(albedo_tex.outputs["Color"], bsdf.inputs["Base Color"])
 
     shared_uv = nt.nodes.new("ShaderNodeUVMap")
     shared_uv.uv_map = SHARED_UV_LAYER
@@ -421,12 +470,15 @@ def build_role_material(role: str, alb_layer: str, albedo_img, normal_img, rough
     nt.links.new(normal_tex.outputs["Color"], normal_map.inputs["Color"])
     nt.links.new(normal_map.outputs["Normal"], bsdf.inputs["Normal"])
 
-    rough_tex = nt.nodes.new("ShaderNodeTexImage")
-    rough_tex.image = roughness_img
-    rough_tex.label = "shell roughness"
-    rough_tex.location = (-400, -350)
-    nt.links.new(shared_uv.outputs["UV"], rough_tex.inputs["Vector"])
-    nt.links.new(rough_tex.outputs["Color"], bsdf.inputs["Roughness"])
+    if role != "skirting":
+        # Matte vinyl ships the scalar above; the baked atlas holds trim
+        # metal roughness and must not touch the cove.
+        rough_tex = nt.nodes.new("ShaderNodeTexImage")
+        rough_tex.image = roughness_img
+        rough_tex.label = "shell roughness"
+        rough_tex.location = (-400, -350)
+        nt.links.new(shared_uv.outputs["UV"], rough_tex.inputs["Vector"])
+        nt.links.new(rough_tex.outputs["Color"], bsdf.inputs["Roughness"])
     return mat
 
 
@@ -523,8 +575,26 @@ def main() -> Dict[str, object]:
     summary_roles: Dict[str, object] = {}
     for role in sorted(by_role):
         role_objects = by_role[role]
-        role_bakeable = bakeable(role_objects)
         alb_layer = f"{ALB_UV_PREFIX}{role}"
+        if role == "skirting":
+            # No bake: pinned flat matte vinyl (see SKIRTING_BASE_COLOR_LINEAR).
+            # The ALB_skirting layout above still exists (uniform layer contract:
+            # every mesh keeps [ALB_<role>, BAKE_UV]) but no image is created
+            # for it; normal relief still samples the shared atlas.
+            print(f"[shell-bake] role skirting: pinned flat, no bake ({len(role_objects)} object(s))")
+            originals = materials_of(role_objects)
+            role_mat = build_role_material(role, alb_layer, None, normal_img, roughness_img)
+            assign_role_material(role_objects, role_mat)
+            drop_original_materials(originals)
+            summary_roles[role] = {
+                "objects": sorted(o.name for o in role_objects),
+                "albedo": None,
+                "flatBaseColor": list(SKIRTING_BASE_COLOR_LINEAR),
+                "roughness": SKIRTING_ROUGHNESS,
+                "material": role_mat.name,
+            }
+            continue
+        role_bakeable = bakeable(role_objects)
         size = ALBEDO_SIZE_BY_ROLE.get(role, 1024)
         albedo_img = new_image(f"shell_bake_albedo_{role}", size, "sRGB")
         # DIFFUSE with COLOR only: pure albedo, no light contribution.
@@ -565,6 +635,10 @@ def main() -> Dict[str, object]:
     # which would make fill texels valid snap targets (measured: wall faces
     # snapping to fill gray instead of mint). Then fill what remains.
     for role in sorted(by_role):
+        if f"shell_bake_albedo_{role}" not in bpy.data.images:
+            # Flat roles (skirting) ship no albedo image: nothing to snap.
+            print(f"[shell-bake] role {role}: no albedo image, snap skipped")
+            continue
         snapped = snap_degenerate_faces(by_role[role], f"{ALB_UV_PREFIX}{role}",
                                         bpy.data.images[f"shell_bake_albedo_{role}"])
         print(f"[shell-bake] role {role}: snapped {snapped} degenerate face(s)")
@@ -575,6 +649,8 @@ def main() -> Dict[str, object]:
         img.pack()
         print(f"[shell-bake] fill {img.name}: {filled} texel(s)")
     for role in sorted(by_role):
+        if f"shell_bake_albedo_{role}" not in bpy.data.images:
+            continue
         img = bpy.data.images[f"shell_bake_albedo_{role}"]
         filled = fill_unpainted_texels(img, FILL_ALBEDO)
         img.pack()

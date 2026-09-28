@@ -170,6 +170,12 @@ def place_rig_probe_lights(rig_lights: List[Dict[str, object]]) -> None:
 # image, no texture link. Gated on the exact finish-pipeline material name
 # so the shared bank pipeline (shader_plaster etc.) is unaffected.
 FINISH_FLAT_SKIP_MATERIALS = ("openclinxr_finish_wall", "openclinxr_finish_cove", "openclinxr_finish_tbar")
+# Shell skirting ships a pinned matte vinyl grey (shell_bake_skirting: flat
+# Base Color scalar, no albedo image). The lit DIFFUSE rebake below would bake
+# shading into that flat -- the same defect class the finish flats skip for
+# (measured: bake lighting turns vinyl-cove flats near-black) -- so it skips
+# the same way and the calibrated grey ships untouched (AO still applies).
+SHELL_FLAT_SKIP_MATERIALS = ("shell_bake_skirting",)
 
 
 def bake_image_name_for_material(mat: bpy.types.Material, surface: str = "") -> str:
@@ -696,7 +702,8 @@ def bake_materials(resolution: int, restore_albedo: bool) -> Dict[str, Dict[str,
         if not mat.use_nodes or mat.node_tree is None:
             mat.use_nodes = True
         mesh_names = [o.name for o in objs_]
-        if mat_name in FINISH_FLAT_SKIP_MATERIALS:
+        if mat_name in FINISH_FLAT_SKIP_MATERIALS or mat_name in SHELL_FLAT_SKIP_MATERIALS:
+            kind = "finish" if mat_name in FINISH_FLAT_SKIP_MATERIALS else "shell"
             bsdf = find_bsdf(mat)
             flat = bsdf.inputs["Base Color"].default_value[:] if bsdf is not None else (0.9, 0.9, 0.88, 1.0)
             mean_l = (0.299 * flat[0] + 0.587 * flat[1] + 0.114 * flat[2]) * 255.0
@@ -708,9 +715,9 @@ def bake_materials(resolution: int, restore_albedo: bool) -> Dict[str, Dict[str,
                 "meanL": mean_l,
                 "meshNames": mesh_names,
                 "skipped": True,
-                "skipReason": "finish-flat-wall",
+                "skipReason": f"{kind}-flat-wall",
             }
-            print(f"[room-bake] skipped {mat_name} (finish flat wall, {len(objs_)} mesh(es)) meanL={mean_l:.2f}")
+            print(f"[room-bake] skipped {mat_name} ({kind} flat wall, {len(objs_)} mesh(es)) meanL={mean_l:.2f}")
             continue
         surface = classify_surface(mat_name, mesh_names)
         img_name = bake_image_name_for_material(mat, surface)

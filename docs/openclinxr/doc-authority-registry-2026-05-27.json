@@ -5174,6 +5174,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Grading rubric (enclosure, wall colour, troffer flush, T-bar grid, cove base, door trim, vinyl floor, ceiling tiles) for ward-finish runtime captures against the committed Imagine multiview reference set; recorded grades live in docs/openclinxr/room-realism/ward-multiview/grades.json."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/skirting-fix/README.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Skirting vinyl-cove fix runtime evidence (RED/GREEN seed-205 shell-only captures, diagnosis, calibration); use only when it verifies touched bake behavior."
     }
   ]
 }

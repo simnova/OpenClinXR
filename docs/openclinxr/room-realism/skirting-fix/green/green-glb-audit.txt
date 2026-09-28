@@ -1,0 +1,16 @@
+[inspect] /tmp/skirting-green2/ward-shell.glb bytes=7160412
+[inspect] mesh=Circle.002 primMat=shell_bake_wall
+[inspect] mesh=Circle.003 primMat=shell_bake_floor
+[inspect] mesh=Circle.004 primMat=shell_bake_ceiling
+[inspect] mesh=Circle.005 primMat=shell_bake_other
+[inspect] mesh=Plane primMat=shell_bake_skirting
+[inspect] mesh=Plane.001 primMat=shell_bake_skirting
+[inspect] mesh=Cube.004 primMat=shell_bake_trim
+[inspect] mesh=Cube.003 primMat=shell_bake_trim
+[inspect] tris=10052
+[inspect] material=shell_bake_wall baseFactor=[1,1,1,1] metallic=0 roughness=1 baseTex=true baseBytes=866104 occTex=true normalTex=true roughTex=true
+[inspect] material=shell_bake_floor baseFactor=[1,1,1,1] metallic=0 roughness=1 baseTex=true baseBytes=3529238 occTex=true normalTex=true roughTex=true
+[inspect] material=shell_bake_ceiling baseFactor=[1,1,1,1] metallic=0 roughness=1 baseTex=true baseBytes=109050 occTex=true normalTex=true roughTex=true
+[inspect] material=shell_bake_other baseFactor=[1,1,1,1] metallic=0 roughness=1 baseTex=true baseBytes=138964 occTex=false normalTex=true roughTex=true
+[inspect] material=shell_bake_skirting baseFactor=[0.31299999356269836,0.3230000138282776,0.35199999809265137,1] metallic=0 roughness=0.8999999761581421 baseTex=false baseBytes=0 occTex=false normalTex=true roughTex=false
+[inspect] material=shell_bake_trim baseFactor=[1,1,1,1] metallic=0 roughness=1 baseTex=true baseBytes=333366 occTex=true normalTex=true roughTex=true

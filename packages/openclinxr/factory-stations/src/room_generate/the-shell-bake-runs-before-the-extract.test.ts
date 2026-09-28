@@ -238,8 +238,9 @@ describe("the shell bake runs before the extract", () => {
     expect(src).toContain("cube_project");
     expect(src).not.toContain("smart_project");
     expect(src).toContain("ShaderNodeBsdfPrincipled");
-    // Trim has its own role (never "other"): door/casing/skirting patterns
-    // classify there, and a GLOSSY COLOR pass added onto the diffuse keeps
+    // Trim has its own role (never "other"): door/casing/window patterns
+    // classify there (skirting has its own matte role since the vinyl-cove
+    // fix), and a GLOSSY COLOR pass added onto the diffuse keeps
     // metallic trim from baking black (metals have no diffuse response).
     expect(src).toContain("door_leaf");
     expect(src).toContain('"GLOSSY"');

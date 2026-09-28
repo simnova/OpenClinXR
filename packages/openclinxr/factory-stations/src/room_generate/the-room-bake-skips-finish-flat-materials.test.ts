@@ -19,12 +19,16 @@ function findRepoRoot(): string {
 /**
  * Finish materials meant to keep a flat Base Color must skip the albedo bake
  * (defect: bake_materials bakes every material, and the bake lighting turns
- * these vinyl-cove/T-bar flats near-black against the reference).
+ * these vinyl-cove/T-bar flats near-black against the reference). The shell
+ * skirting material (shell_bake_skirting: pinned matte vinyl grey, no baked
+ * maps) skips the same way -- the lit DIFFUSE rebake would bake shading into
+ * the calibrated flat.
  *
  * Runs the REAL bake_materials (imported from the shipped
- * room-albedo-ao-bake.py, not a reimplementation) inside Blender on a probe
- * material named openclinxr_finish_wall with a distinctive flat Base Color,
- * and asserts the result records no bake image. Live Blender per dispatch.
+ * room-albedo-ao-bake.py, not a reimplementation) inside Blender on probe
+ * materials named openclinxr_finish_wall and shell_bake_skirting, each with
+ * a distinctive flat Base Color, and asserts both results record no bake
+ * image. Live Blender per dispatch.
  */
 
 const execFileAsync = promisify(execFile);
@@ -53,6 +57,16 @@ FLAT = (0.9, 0.1, 0.2, 1.0)
 bsdf.inputs["Base Color"].default_value = FLAT
 plane.data.materials.append(mat)
 
+bpy.ops.mesh.primitive_plane_add(size=2, location=(4, 0, 0))
+skirt_probe = bpy.context.active_object
+skirt_probe.name = "SkirtFlatProbe"
+skirt_mat = bpy.data.materials.new("shell_bake_skirting")
+skirt_mat.use_nodes = True
+skirt_bsdf = next(n for n in skirt_mat.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
+SKIRT_FLAT = (0.313, 0.323, 0.352, 1.0)
+skirt_bsdf.inputs["Base Color"].default_value = SKIRT_FLAT
+skirt_probe.data.materials.append(skirt_mat)
+
 bpy.context.scene.render.engine = "CYCLES"
 bpy.context.scene.cycles.samples = 1
 
@@ -69,11 +83,21 @@ if base.links or not all(math.isclose(a, b, abs_tol=1e-6) for a, b in zip(curren
     print("FAIL: flat Base Color was altered by the bake")
     raise SystemExit(1)
 print("PASS: openclinxr_finish_wall kept its flat Base Color with no bake image")
+skirt_meta = results.get("shell_bake_skirting")
+print("shell-flat probe results: %r" % (skirt_meta,))
+if not skirt_meta or skirt_meta.get("image"):
+    print("FAIL: shell_bake_skirting was baked instead of skipped")
+    raise SystemExit(1)
+skirt_base = skirt_bsdf.inputs["Base Color"]
+skirt_current = tuple(skirt_base.default_value)
+if skirt_base.links or not all(math.isclose(a, b, abs_tol=1e-6) for a, b in zip(skirt_current, SKIRT_FLAT)):
+    print("FAIL: shell flat Base Color was altered by the bake")
+    raise SystemExit(1)
+print("PASS: shell_bake_skirting kept its flat Base Color with no bake image")
 `;
 
-describe("the room bake leaves finish flat materials unbaked", () => {
-  it("bake_materials skips openclinxr_finish_wall with no bake image", async () => {
-    const work = mkdtempSync(path.join(tmpdir(), "room-bake-flat-"));
+describe("the room bake leaves flat materials unbaked", () => {
+  it("bake_materials skips openclinxr_finish_wall and shell_bake_skirting with no bake image", async () => {    const work = mkdtempSync(path.join(tmpdir(), "room-bake-flat-"));
     const driver = path.join(work, "finish_flat_driver.py");
     writeFileSync(driver, DRIVER, "utf8");
     const bakePy = path.join(
@@ -94,5 +118,6 @@ describe("the room bake leaves finish flat materials unbaked", () => {
       return;
     }
     expect(output).toContain("PASS: openclinxr_finish_wall kept its flat Base Color");
+    expect(output).toContain("PASS: shell_bake_skirting kept its flat Base Color");
   }, 300_000);
 });

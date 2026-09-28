@@ -22,11 +22,11 @@
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py",
-      "reason": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script."
+      "reason": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard \u2014 a different producer than the seated-clip script."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
-      "reason": "Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
+      "reason": "Texture-resize candidate (JPEG q85 2048\u00b2) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 447,
+    "keep-evidence": 456,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -24315,14 +24315,14 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script."
+      "rationale": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard \u2014 a different producer than the seated-clip script."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
+      "rationale": "Texture-resize candidate (JPEG q85 2048\u00b2) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
@@ -24479,11 +24479,74 @@
       "rationale": "2x2 tiled grading preview of the row-33 flattened tileable painted plaster albedo (JPEG q90); sent to the product owner before wiring."
     },
     {
-      "path": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-leaf-door-maple.jpg",
+      "path": "docs/openclinxr/room-realism/skirting-fix/red/runtime-01-toward-door.png",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "Single-leaf grading preview of the row-33 door maple leaf crop (leaf aspect 0.95:2.10, JPEG q90, not tiled); sent to the product owner before wiring."
+      "rationale": "RED unfixed seed-205 shell-only runtime frame (pose 01): dark metallic cove lines on every wall base."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/skirting-fix/red/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED unfixed seed-205 shell-only runtime frame (pose 06 close-up): cove renders near-black streaked metallic, mean ~26 vs ~140 reference."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/skirting-fix/red/01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED side-by-side sheet (pose 01): v2 Imagine reference left, unfixed runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/skirting-fix/red/06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED side-by-side sheet (pose 06): v2 Imagine reference cove left, unfixed near-black runtime cove right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/skirting-fix/red/red-workblend-roles.txt",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED baked work.blend probe: skirting_floor/ceiling carry shell_bake_trim with the metal door frame; trim albedo footprints."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/skirting-fix/green/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "GREEN fixed seed-205 shell-only runtime frame (pose 01): neutral matte grey cove lines, no dark edges."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/skirting-fix/green/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "GREEN fixed seed-205 shell-only runtime frame (pose 06 close-up): matte neutral cove, strip mean ~129 vs ~140 reference."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/skirting-fix/green/01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "GREEN side-by-side sheet (pose 01): v2 Imagine reference left, fixed runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/skirting-fix/green/06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "GREEN side-by-side sheet (pose 06): v2 Imagine reference cove left, fixed matte-grey runtime cove right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/skirting-fix/green/green-glb-audit.txt",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "GREEN final GLB audit: 6 materials, shell_bake_skirting flat (0.313,0.323,0.352) roughness 0.9, no albedo or occlusion texture."
     }
   ]
 }

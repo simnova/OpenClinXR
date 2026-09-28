@@ -94,6 +94,10 @@ AO_SAMPLE_SEED = 20260825
 
 GLTF_GROUP_NAMES = ("glTF Material Output", "glTF Settings")
 
+# Shell flats that skip occlusion wiring (mirrors room-albedo-ao-bake.py's
+# SHELL_FLAT_SKIP_MATERIALS: the same pinned materials skip both bakes).
+SHELL_FLAT_SKIP_MATERIALS = ("shell_bake_skirting",)
+
 
 def _argv_after_double_dash() -> List[str]:
     if "--" in sys.argv:
@@ -439,6 +443,28 @@ def bake_ao_per_material(resolution: int) -> Dict[str, Dict[str, object]]:
     gltf_group = ensure_gltf_settings_group()
     results: Dict[str, Dict[str, object]] = {}
     for mat_name, objs_ in by_mat.items():
+        if mat_name in SHELL_FLAT_SKIP_MATERIALS:
+            # Pinned shell flats (shell_bake_skirting: flat matte vinyl grey,
+            # no baked maps) must not get an occlusion texture: the
+            # smart_project AO_UV islands on dense contour geometry are
+            # slivers (measured seed 205: 99.4% of the 512^2 AO image is
+            # dilated gutter) sampling near-black over the whole strip, which
+            # crushes the calibrated grey to a black lower band at runtime
+            # (measured pose 06: cove lower ~70 with the map vs ~160 without).
+            # Contact shading still comes from runtime lights on the 0.9
+            # roughness. Name list mirrors room-albedo-ao-bake.py's
+            # SHELL_FLAT_SKIP_MATERIALS (same materials skip both bakes).
+            results[mat_name] = {
+                "image": "",
+                "resolution": 0,
+                "meshes": len(objs_),
+                "luminanceSd255": 0.0,
+                "wired": False,
+                "skipped": True,
+                "skipReason": "shell-flat",
+            }
+            print(f"[room-ao] SKIP {mat_name}: shell flat, occlusion not wired ({len(objs_)} mesh(es))")
+            continue
         mat = bpy.data.materials[mat_name]
         if not mat.use_nodes or mat.node_tree is None:
             mat.use_nodes = True
