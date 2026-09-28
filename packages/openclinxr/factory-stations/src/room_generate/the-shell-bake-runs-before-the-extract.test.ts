@@ -231,7 +231,12 @@ describe("the shell bake runs before the extract", () => {
     expect(src).toContain('"NORMAL"');
     expect(src).toContain('"ROUGHNESS"');
     expect(src).toContain("BAKE_UV");
-    expect(src).toContain("smart_project");
+    // Box (cube) projection, not Smart UV Project: smart-project's packer
+    // collapses 94% of wall+trim faces to zero UV area on ward-shell
+    // geometry (measured seed 205), cube leaves 8% (micro-faces the snap
+    // pass covers).
+    expect(src).toContain("cube_project");
+    expect(src).not.toContain("smart_project");
     expect(src).toContain("ShaderNodeBsdfPrincipled");
     // Trim has its own role (never "other"): door/casing/skirting patterns
     // classify there, and a GLOSSY COLOR pass added onto the diffuse keeps
@@ -239,7 +244,7 @@ describe("the shell bake runs before the extract", () => {
     expect(src).toContain("door_leaf");
     expect(src).toContain('"GLOSSY"');
     expect(src).toContain("combine_diffuse_glossy");
-    // Collapsed smart-project faces are snapped to painted texels; cleared
+    // Collapsed box-projection micro-faces are snapped to painted texels; cleared
     // backgrounds are neutral-filled (never sampled as garbage).
     expect(src).toContain("snap_degenerate_faces");
     expect(src).toContain("fill_unpainted_texels");

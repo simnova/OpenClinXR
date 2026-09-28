@@ -297,17 +297,25 @@ def referenced_by_material_list(mats) -> set:
     return names
 
 
-def smart_project_active(mesh_obj: bpy.types.Object) -> None:
-    """Smart-project the mesh's ACTIVE UV layer (deterministic settings)."""
+def box_project_active(mesh_obj: bpy.types.Object) -> None:
+    """Box-project the mesh's ACTIVE UV layer (deterministic settings).
+
+    Cube instead of Smart UV Project, same defect class as the S2 shell
+    bake: smart-project's packer collapses large flat faces to zero UV area
+    on ward-shell geometry (measured seed 205: 94% of wall+trim loop-tris
+    degenerate under smart, 8% under cube), and a collapsed rebake layer
+    bakes nothing. Planar projection along each face's dominant axis cannot
+    collapse a flat quad. Pure function of face geometry, no RNG."""
     bpy.ops.object.select_all(action="DESELECT")
     mesh_obj.select_set(True)
     bpy.context.view_layer.objects.active = mesh_obj
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.select_all(action="SELECT")
     try:
-        bpy.ops.uv.smart_project(angle_limit=66.0, island_margin=0.02)
+        bpy.ops.uv.cube_project(cube_size=1.0, correct_aspect=True,
+                                clip_to_bounds=False, scale_to_bounds=True)
     except TypeError:
-        bpy.ops.uv.smart_project()
+        bpy.ops.uv.cube_project()
     bpy.ops.object.mode_set(mode="OBJECT")
 
 
@@ -327,7 +335,7 @@ def ensure_uv(mesh_obj: bpy.types.Object) -> str:
     never used. Prefer an existing non-degenerate layer; REMOVE degenerate
     layers (the glTF exporter writes layer ORDER, not active-first, so a
     collapsed layer would still ship as TEXCOORD_0 and the runtime would keep
-    sampling the black corner); smart-project only when nothing survives.
+    sampling the black corner); box-project only when nothing survives.
 
     Layers referenced by material UV Map nodes (the S2 shell wiring) are
     never removed even when degenerate: the images baked for them stay
@@ -350,10 +358,10 @@ def ensure_uv(mesh_obj: bpy.types.Object) -> str:
             if REBAKE_UV_LAYER not in [u.name for u in mesh.uv_layers]:
                 mesh.uv_layers.new(name=REBAKE_UV_LAYER)
             mesh.uv_layers.active = mesh.uv_layers[REBAKE_UV_LAYER]
-            smart_project_active(mesh_obj)
+            box_project_active(mesh_obj)
             return REBAKE_UV_LAYER
     else:
-        smart_project_active(mesh_obj)
+        box_project_active(mesh_obj)
         return mesh.uv_layers.active.name
 
 
@@ -399,7 +407,7 @@ def agree_bake_layer_for_material(mat_name: str, mesh_names: List[str]) -> str |
                 # content (it may back a referenced S2 atlas image).
                 mesh.uv_layers.new(name=agreed)
                 mesh.uv_layers.active = mesh.uv_layers[agreed]
-                smart_project_active(obj)
+                box_project_active(obj)
             else:
                 mesh.uv_layers.active = existing
                 referenced_here = referenced_by_material_list(list(mesh.materials))
@@ -411,7 +419,7 @@ def agree_bake_layer_for_material(mat_name: str, mesh_names: List[str]) -> str |
                     mesh.uv_layers.remove(existing)
                     mesh.uv_layers.new(name=agreed)
                     mesh.uv_layers.active = mesh.uv_layers[agreed]
-                    smart_project_active(obj)
+                    box_project_active(obj)
                 else:
                     print(f"[room-bake] WARN {mesh_name}: material {mat_name} bakes into "
                           f"existing layer {agreed} (ensure_uv chose {name})")

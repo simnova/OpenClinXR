@@ -8,15 +8,22 @@
 # bake starts. This pass runs between the strip step and the extract step in
 # generate.ts and the unchanged extract then exports the now-baked blend.
 #
-# Technique: per surface role, unwrap the role's objects into a full-coverage
-# ALB_<role> layer and bake DIFFUSE with COLOR only (pure albedo, NO lighting
-# baked in -- lighting folded into albedo darkens twice under runtime lights);
-# the trim role bakes an extra GLOSSY COLOR pass screened with its diffuse
-# (metals have no diffuse response, so COLOR-only bakes them black);
-# unwrap ALL kept objects once into a shared BAKE_UV atlas and bake NORMAL
-# (tangent) and ROUGHNESS there; fill unpainted (alpha-0) texels with neutral
-# defaults so no cleared garbage is ever sampled; then replace each node tree
-# with an Image Texture -> Principled BSDF hookup (albedo via ALB_<role>,
+# Technique: per surface role, box-project the role's objects into a
+# full-coverage ALB_<role> layer and bake DIFFUSE with COLOR only (pure
+# albedo, NO lighting baked in -- lighting folded into albedo darkens twice
+# under runtime lights); the trim role bakes an extra GLOSSY COLOR pass
+# screened with its diffuse (metals have no diffuse response, so COLOR-only
+# bakes them black); box-project ALL kept objects once into a shared BAKE_UV
+# atlas and bake NORMAL (tangent) and ROUGHNESS there. Box (cube) projection
+# instead of Smart UV Project: measured on the seed-205 ward, smart-project's
+# packer collapses 94% of wall+trim loop-tris to zero UV area (wall role
+# 0.48 / trim role 0.05 non-degenerate on BAKE_UV; 38 of 79 m^2 of
+# center-visible wall rendering as flat snapped-texel faces), while cube
+# projection leaves 8% degenerate (micro-faces the snap pass covers); planar
+# projection along each face's dominant axis cannot collapse a flat wall
+# quad. Fill unpainted (alpha-0) texels with neutral defaults so no cleared
+# garbage is ever sampled; then replace each node tree with an Image Texture
+# -> Principled BSDF hookup (albedo via ALB_<role>,
 # normal/roughness via BAKE_UV). Contact AO stays in room-occlusion-bake.py on
 # TEXCOORD_1 (each mesh keeps [ALB_<role>, BAKE_UV] with ALB active at index 0,
 # so the AO pass appends AO_UV after them and its restore-active-to-layer-0
@@ -38,9 +45,16 @@
 # edge; only the residue atlas is smaller.
 #
 # Determinism: fixed SHELL_BAKE_SEED drives random.seed, scene.cycles.seed and
-# the bake sampling; smart-project has no RNG (fixed angle/margin); the
+# the bake sampling; cube projection is a pure function of face geometry
+# (fixed cube_size/correct_aspect/scale_to_bounds, no RNG); the
 # unpainted-texel fill is a pure function of the bake output. Two runs on the
 # same seed produce identical image bytes.
+#
+# Seams/bleed: cube projection lays each face's dominant-axis planar island
+# contiguously (no inter-island margin parameter exists). The fixed 4 px bake
+# bleed (BAKE_MARGIN_PX) therefore samples neighbour-face texels across
+# shared island edges -- neighbour-correct on a contiguous box unwrap, unlike
+# a packed atlas where bleed crosses unrelated islands.
 #
 # Materials are consolidated per surface role (shell_bake_wall/floor/ceiling/
 # trim/other): one atlas-cleared bake per role image, then every polygon of the
@@ -132,12 +146,18 @@ def ensure_uv_layer(obj, layer_name: str) -> None:
         me.uv_layers.new(name=layer_name)
 
 
-def smart_project_into(objects: List[object], layer_name: str) -> None:
+def box_project_into(objects: List[object], layer_name: str) -> None:
     """Unwrap `objects` into `layer_name`, filling the unit square.
 
     Run once per role (full-coverage albedo atlases) and once over all kept
-    objects (the shared normal/roughness atlas, non-overlapping by
-    construction). Deterministic: fixed angle and margin, no RNG."""
+    objects (the shared normal/roughness atlas). Cube (box) projection, NOT
+    Smart UV Project: smart-project's packer collapses nearly all wall+trim
+    faces to zero UV area on this geometry (measured seed 205: 94% of
+    wall+trim loop-tris degenerate, vs 8% under cube), and a collapsed face
+    bakes nothing -- it renders as one flat snapped texel. Planar projection
+    along each face's dominant axis cannot collapse a flat quad.
+    Deterministic: pure function of face geometry (fixed cube_size,
+    correct_aspect, scale_to_bounds), no RNG."""
     import bpy
 
     for obj in objects:
@@ -150,9 +170,10 @@ def smart_project_into(objects: List[object], layer_name: str) -> None:
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.select_all(action="SELECT")
     try:
-        bpy.ops.uv.smart_project(angle_limit=66.0, island_margin=0.02)
+        bpy.ops.uv.cube_project(cube_size=1.0, correct_aspect=True,
+                                clip_to_bounds=False, scale_to_bounds=True)
     except TypeError:
-        bpy.ops.uv.smart_project()
+        bpy.ops.uv.cube_project()
     bpy.ops.object.mode_set(mode="OBJECT")
     bpy.ops.object.select_all(action="DESELECT")
 
@@ -277,11 +298,11 @@ def fill_unpainted_texels(image, fill: Tuple[float, float, float, float]) -> int
 def snap_degenerate_faces(objects: List[object], layer_name: str, image) -> int:
     """Point zero-UV-area faces at the nearest painted texel.
 
-    Smart-project collapses some large faces (measured: 73 wall tris > 0.01
-    m^2 with zero UV area) to a point that may land on unpainted fill, which
-    would render as a flat gray quad. Snapping them to the nearest painted
-    texel gives each such face a neighbour-plausible flat colour instead.
-    Pure function of bake output: deterministic."""
+    Box projection still collapses micro-faces (measured seed 205: 8% of
+    wall+trim loop-tris, all tiny boolean slivers) to a point that may land
+    on unpainted fill, which would render as a flat gray quad. Snapping them
+    to the nearest painted texel gives each such face a neighbour-plausible
+    flat colour instead. Pure function of bake output: deterministic."""
     import bpy
     import numpy as np
 
@@ -479,9 +500,9 @@ def main() -> Dict[str, object]:
 
     # Per-role full-coverage albedo layouts (ALB_<role> created first).
     for role in sorted(by_role):
-        smart_project_into(by_role[role], f"{ALB_UV_PREFIX}{role}")
+        box_project_into(by_role[role], f"{ALB_UV_PREFIX}{role}")
     # Shared atlas for normal + roughness (non-overlapping across roles).
-    smart_project_into(objects, SHARED_UV_LAYER)
+    box_project_into(objects, SHARED_UV_LAYER)
 
     # Shared normal + roughness: one bake each over ALL bakeable objects.
     normal_img = new_image("shell_bake_normal", SHARED_NORMAL_SIZE, "Non-Color")
