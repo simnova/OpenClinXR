@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "glb": "/Volumes/files/src/openclinxr-wt/item5-poses-v2/.openclinxr/evidence/ward-finish-chain/ward-chain.work.glb",
+  "captures": [
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.05,
+        "y": 0.22,
+        "z": 3.45
+      },
+      "look": {
+        "x": 0.05,
+        "y": 0.12,
+        "z": 3.885
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/item5-poses-v2/docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures-v2/runtime-06-floor-base.png",
+      "pngBytes": 266874,
+      "pngSha256": "3f592cf3fca0752fec1ab0878651f3ca57c87700498d4e0420a3b9173883adce"
+    }
+  ]
+}
