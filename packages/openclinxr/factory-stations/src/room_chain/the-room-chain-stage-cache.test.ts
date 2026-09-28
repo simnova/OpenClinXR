@@ -9,6 +9,7 @@ import {
   readCachedResult,
   resolveStageKeyFiles,
   restoreStageCache,
+  scrubLightingKeyInput,
   sha256Hex,
   stageKeyDigest,
   storeStageCache,
@@ -142,6 +143,36 @@ describe("room-chain stage cache keys", () => {
     });
     expect(first.ok && second.ok).toBe(true);
     if (first.ok && second.ok) expect(first.key).not.toBe(second.key);
+  });
+
+  it("lighting key is outDir-independent: same GLB name, different dir, same key", () => {
+    const cold = { ...LIGHT_INPUT, roomGlbPath: "/repo/.openclinxr/evidence/red-cold/ward-chain.work.glb" };
+    const warm = { ...LIGHT_INPUT, roomGlbPath: "/repo/.openclinxr/evidence/red-warm/ward-chain.work.glb" };
+    const keyOf = (input: Record<string, unknown>): string => {
+      const collected = collectStageKeyInputs("lighting_design", {
+        input: scrubLightingKeyInput(input),
+        upstreamKey: "finish-key",
+        overrides: {
+          ...PROBE_OVERRIDES,
+          fileSha256: (absPath: string) =>
+            absPath.endsWith("ward-chain.work.glb") ? sha256Hex("glb-bytes") : fakeFileSha256(absPath),
+        },
+        workGlbPath: "/tmp/ward-chain.work.glb",
+      });
+      expect(collected.ok).toBe(true);
+      if (!collected.ok) throw new Error("unreachable");
+      return collected.key;
+    };
+    // Same basename but different byte content must still miss.
+    const sameDir = collectStageKeyInputs("lighting_design", {
+      input: scrubLightingKeyInput(cold),
+      upstreamKey: "finish-key",
+      overrides: { ...PROBE_OVERRIDES, fileSha256: fakeFileSha256 },
+      workGlbPath: "/tmp/ward-chain.work.glb",
+    });
+    expect(sameDir.ok).toBe(true);
+    expect(keyOf(cold)).toBe(keyOf(warm));
+    if (sameDir.ok) expect(keyOf(cold)).not.toBe(sameDir.key);
   });
 
   it("canonical JSON is field-order stable", () => {

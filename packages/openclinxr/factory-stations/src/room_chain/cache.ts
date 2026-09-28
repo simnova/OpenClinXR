@@ -222,8 +222,20 @@ export function resolveStageKeyFiles(stage: RoomChainCacheStage, planInput: unkn
   return [...files].sort();
 }
 
-export type CollectStageKeyOptions = {
-  /** Stage input object, exactly as run.ts hands it to the stage runner. */
+/**
+ * The lighting station input carries roomGlbPath as an absolute destination
+ * path, which varies with --out-dir while the content it points at does not.
+ * Keying the absolute path would make identical runs in different out-dirs
+ * miss (measured in RED 1: warm run missed lighting on the path alone).
+ * Scrub it to the basename for the key; the bytes are already keyed via
+ * workGlbSha256, so nothing content-bearing is lost.
+ */
+export function scrubLightingKeyInput(input: Record<string, unknown>): Record<string, unknown> {
+  if (typeof input["roomGlbPath"] !== "string") return { ...input };
+  return { ...input, roomGlbPath: path.basename(input["roomGlbPath"]) };
+}
+
+export type CollectStageKeyOptions = {  /** Stage input object, exactly as run.ts hands it to the stage runner. */
   input: Record<string, unknown>;
   /** Absolute work GLB path whose bytes join the key; omit for room_generate. */
   workGlbPath?: string;

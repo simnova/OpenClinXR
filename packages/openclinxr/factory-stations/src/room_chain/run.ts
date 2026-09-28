@@ -37,6 +37,7 @@ import {
   lookupStageCache,
   readCachedResult,
   restoreStageCache,
+  scrubLightingKeyInput,
   storeStageCache,
   type CollectStageKeyResult,
   type RoomChainCacheStage,
@@ -418,7 +419,7 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
   process.stdout.write(`[ward-chain] stage 3 lighting_design mood=${WARD_CHAIN_MOOD} ...\n`);
   const lightResult = await runCachedStage(
     "lighting_design",
-    collectKey("lighting_design", lightInput, workGlb, finishKey),
+    collectKey("lighting_design", scrubLightingKeyInput(lightInput), workGlb, finishKey),
     { "rig.json": rigJson, "report.json": lightingReport },
     () =>
       runLightingDesign(lightInput, {
