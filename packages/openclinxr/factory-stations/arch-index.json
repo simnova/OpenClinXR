@@ -46,6 +46,8 @@
     "src/lip_sync/the-lip-sync-station-rhubarb-on-wav-not-say.test.ts",
     "src/motion_retarget/extract-library-clip.test.ts",
     "src/room_chain/the-room-chain-resolves-outdir-against-repo-root.test.ts",
+    "src/room_clinic_finish/the-room-clinic-finish-ceiling-grid-and-flat-troffer.test.ts",
+    "src/room_clinic_finish/the-room-clinic-finish-ceiling-troffer-and-floor-uv.test.ts",
     "src/room_clinic_finish/the-room-clinic-finish-composes-a-deterministic-finish.test.ts",
     "src/room_clinic_finish/the-room-clinic-finish-imports-its-input-glb.test.ts",
     "src/room_generate/the-room-albedo-pass-bakes-a-shell-extract.test.ts",
