@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "glb": "/tmp/fps/chain/ward-chain.work.glb",
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.4,
+        "y": 1.6,
+        "z": 0.8
+      },
+      "look": {
+        "x": -0.4,
+        "y": 1.25,
+        "z": -3.885
+      },
+      "fov": 70,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/finish-preserve-shell/docs/openclinxr/room-realism/finish-preserve-shell/captures/runtime-01-toward-door.png",
+      "pngBytes": 657522,
+      "pngSha256": "4206181c3aa78ced4d353f47bc84e9410c559f211dbfc3b4b3dac666f6c00785"
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": 0,
+        "y": 1.6,
+        "z": -3
+      },
+      "look": {
+        "x": 0,
+        "y": 1.35,
+        "z": 3.885
+      },
+      "fov": 48,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/finish-preserve-shell/docs/openclinxr/room-realism/finish-preserve-shell/captures/runtime-02-toward-bed-wall.png",
+      "pngBytes": 665405,
+      "pngSha256": "c9113b41369bd3500e02d216562ab34c6273d34191888c724c00afd15ff5553d"
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.4,
+        "y": 0.55,
+        "z": 0.6
+      },
+      "look": {
+        "x": 1.6,
+        "y": 2.43,
+        "z": -3.2
+      },
+      "fov": 62,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/finish-preserve-shell/docs/openclinxr/room-realism/finish-preserve-shell/captures/runtime-03-ceiling-corner.png",
+      "pngBytes": 1025109,
+      "pngSha256": "9dbeb871d0822d30abf3839dbc9e0df836aec7f148beafe69dc56275a3805a7b"
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": 0.5,
+        "y": 1.55,
+        "z": -3.7
+      },
+      "look": {
+        "x": -0.6,
+        "y": 1.2,
+        "z": 2.5
+      },
+      "fov": 50,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/finish-preserve-shell/docs/openclinxr/room-realism/finish-preserve-shell/captures/runtime-04-door-inside.png",
+      "pngBytes": 632895,
+      "pngSha256": "30289023a7eacd4b309511a16686790b8d1b89f98fa0852fae0dc803617c33fb"
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": 0.5,
+        "y": 1.5,
+        "z": 0.2
+      },
+      "look": {
+        "x": 0.5,
+        "y": 2.43,
+        "z": -3
+      },
+      "fov": 45,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/finish-preserve-shell/docs/openclinxr/room-realism/finish-preserve-shell/captures/runtime-05-troffer-junction.png",
+      "pngBytes": 966155,
+      "pngSha256": "78c0ea6124fb31f31d87f433b3b97665622cc13cc761f51302a1b7d04baaa57d"
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.05,
+        "y": 0.22,
+        "z": 3.45
+      },
+      "look": {
+        "x": 0.05,
+        "y": 0.12,
+        "z": 3.885
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/finish-preserve-shell/docs/openclinxr/room-realism/finish-preserve-shell/captures/runtime-06-floor-base.png",
+      "pngBytes": 354958,
+      "pngSha256": "61cb957ac536a8fb7ab74f54ceba4c585278723b7f5e31198878ba0a4ff7d585"
+    }
+  ]
+}

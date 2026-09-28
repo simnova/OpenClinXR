@@ -1,0 +1,403 @@
+{
+  "glb": "/tmp/fps/chain/ward-chain.work.glb",
+  "glbSha256": "eba5a679faf1f20f67ef45e72bf4b551309e38cc838d951fe3bade27d6397d93",
+  "ok": true,
+  "rows": [
+    {
+      "mesh": "openclinxr_ceiling_tiles",
+      "material": "openclinxr_finish_ceiling_photo",
+      "map": true,
+      "normalMap": true,
+      "roughnessMap": true,
+      "metalness": 0,
+      "roughness": 1
+    },
+    {
+      "mesh": "bedroom_00door_leaf",
+      "material": "openclinxr_finish_door_photo",
+      "map": true,
+      "normalMap": true,
+      "roughnessMap": true,
+      "metalness": 0,
+      "roughness": 1
+    },
+    {
+      "mesh": "openclinxr_tbar_x_1_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_10_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_11_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_12_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_13_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_14_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_15_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_2_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_3_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_4_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_5_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_6_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_7_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_7_1",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_8_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_8_1",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_9_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_x_9_1",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_1_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_10_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_11_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_12_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_13_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_14_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_2_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_3_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_4_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_5_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_6_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_7_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_7_1",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_8_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_8_1",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_tbar_y_9_0",
+      "material": "openclinxr_finish_tbar",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.6000000238418579
+    },
+    {
+      "mesh": "openclinxr_troffer_lens",
+      "material": "openclinxr_finish_troffer_emissive",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "metalness": 0,
+      "roughness": 0.4000000059604645
+    },
+    {
+      "mesh": "bedroom_00ceiling",
+      "material": "shell_bake_ceiling",
+      "map": true,
+      "normalMap": true,
+      "roughnessMap": true,
+      "metalness": 0,
+      "roughness": 1
+    },
+    {
+      "mesh": "bedroom_00floor",
+      "material": "shell_bake_floor",
+      "map": true,
+      "normalMap": true,
+      "roughnessMap": true,
+      "metalness": 0,
+      "roughness": 1
+    },
+    {
+      "mesh": "bedroom_00exterior",
+      "material": "shell_bake_other",
+      "map": true,
+      "normalMap": true,
+      "roughnessMap": true,
+      "metalness": 0,
+      "roughness": 1
+    },
+    {
+      "mesh": "bedroom_00door_casing",
+      "material": "shell_bake_trim",
+      "map": true,
+      "normalMap": true,
+      "roughnessMap": true,
+      "metalness": 0,
+      "roughness": 1
+    },
+    {
+      "mesh": "bedroom_00skirting_ceiling",
+      "material": "shell_bake_trim",
+      "map": true,
+      "normalMap": true,
+      "roughnessMap": true,
+      "metalness": 0,
+      "roughness": 1
+    },
+    {
+      "mesh": "bedroom_00skirting_floor",
+      "material": "shell_bake_trim",
+      "map": true,
+      "normalMap": true,
+      "roughnessMap": true,
+      "metalness": 0,
+      "roughness": 1
+    },
+    {
+      "mesh": "bedroom_00wall",
+      "material": "shell_bake_wall",
+      "map": true,
+      "normalMap": true,
+      "roughnessMap": true,
+      "metalness": 0,
+      "roughness": 1
+    }
+  ]
+}

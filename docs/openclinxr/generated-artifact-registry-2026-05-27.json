@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 457,
+    "keep-evidence": 472,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -24553,7 +24553,117 @@
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "GREEN final GLB audit: 6 materials, shell_bake_skirting flat (0.313,0.323,0.352) roughness 0.9, no albedo or occlusion texture."
+      "rationale": "GREEN final GLB audit: 6 materials, shell_bake_skirting flat (0.313,0.323,0.352) roughness 0.9, no albedo or occlusion texture.",
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/01-toward-door-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell grading sheet, pose 01 toward-door: v2 reference left, ward_photo preserve-shell chain runtime frame right, seed 205."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/02-toward-bed-wall-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell grading sheet, pose 02 toward-bed-wall (wall calibration box): v2 reference left, ward_photo preserve-shell chain runtime frame right, seed 205."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/03-ceiling-corner-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell grading sheet, pose 03 ceiling-corner: v2 reference left, ward_photo preserve-shell chain runtime frame right, seed 205."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/03-ceiling-corner-nonormal-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell grading sheet, pose 03 ceiling-corner normal-map toggle (normal stripped): v2 reference left, ward_photo preserve-shell chain runtime frame right, seed 205."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/04-door-inside-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell grading sheet, pose 04 door-inside (maple leaf): v2 reference left, ward_photo preserve-shell chain runtime frame right, seed 205."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/05-troffer-junction-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell grading sheet, pose 05 troffer-junction: v2 reference left, ward_photo preserve-shell chain runtime frame right, seed 205."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/06-floor-base-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell grading sheet, pose 06 floor-base (floor calibration box): v2 reference left, ward_photo preserve-shell chain runtime frame right, seed 205."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/captures/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell runtime capture (pose 01) from the ward_photo preserve-shell chain (seed 205, GLB eba5a679); source frame for the grading side-by-side."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/captures/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell runtime capture (pose 02) from the ward_photo preserve-shell chain (seed 205, GLB eba5a679); source frame for the grading side-by-side."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/captures/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell runtime capture (pose 03) from the ward_photo preserve-shell chain (seed 205, GLB eba5a679); source frame for the grading side-by-side."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/captures/runtime-03-ceiling-corner-nonormal.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell runtime capture (pose 03 normal-stripped toggle) from the ward_photo preserve-shell chain (seed 205, GLB eba5a679); source frame for the grading side-by-side."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/captures/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell runtime capture (pose 04) from the ward_photo preserve-shell chain (seed 205, GLB eba5a679); source frame for the grading side-by-side."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/captures/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell runtime capture (pose 05) from the ward_photo preserve-shell chain (seed 205, GLB eba5a679); source frame for the grading side-by-side."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/captures/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell runtime capture (pose 06) from the ward_photo preserve-shell chain (seed 205, GLB eba5a679); source frame for the grading side-by-side."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/captures/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell capture manifest: pose eye/look/fov plus per-capture sha256, all hashes verified current at commit time."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/finish-preserve-shell/runtime-materials.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Finish-preserve-shell three.js runtime material probe: per-mesh map/normalMap/roughnessMap presence against the finished chain GLB (eba5a679)."
     }
   ]
 }

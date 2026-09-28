@@ -119,6 +119,30 @@ describe("the room clinic finish station composes a deterministic finish", () =>
     expect(existsSync(join(SRC, "textures", "ceiling-tile-face.png"))).toBe(true);
   });
 
+  it("(8b) ward_photo preserves the shell bake and wires full PBR on tile + leaf", () => {
+    const composeSrc = readFileSync(join(SRC, "compose.py"), "utf8");
+    // ward_photo scope: flat repaint + vinyl floor field gated off so the
+    // shell_bake_* materials pass through; other presets keep legacy paint.
+    expect(composeSrc).toContain('recipe.get("preset") == "ward_photo"');
+    expect(composeSrc).toContain("preserve_shell");
+    expect(composeSrc).toContain("emit_floor");
+    // Ceiling tile face: procedural albedo plus derived normal/roughness via
+    // the shell-bake Normal-Map pattern (files exist on disk).
+    expect(composeSrc).toContain("CEILING_NORMAL_FILE");
+    expect(composeSrc).toContain("CEILING_ROUGHNESS_FILE");
+    expect(composeSrc).toContain("ShaderNodeNormalMap");
+    expect(existsSync(join(SRC, "textures", "ceiling-tile-face-derived-normal.png"))).toBe(true);
+    expect(existsSync(join(SRC, "textures", "ceiling-tile-face-derived-roughness.png"))).toBe(true);
+    // Door leaf: leaf-aspect crop plus edge-clamped derived maps (files exist).
+    expect(composeSrc).toContain("DOOR_LEAF_FILE");
+    expect(composeSrc).toContain("door-maple-leaf.jpg");
+    expect(composeSrc).toContain("DOOR_NORMAL_FILE");
+    expect(composeSrc).toContain("DOOR_ROUGHNESS_FILE");
+    expect(existsSync(join(SRC, "textures", "door-maple-leaf.jpg"))).toBe(true);
+    expect(existsSync(join(SRC, "textures", "door-maple-normal.png"))).toBe(true);
+    expect(existsSync(join(SRC, "textures", "door-maple-roughness.png"))).toBe(true);
+  });
+
   it("(9) S5 finish rework: corridor props deleted, crash rail off by default, no fixed ceiling height", () => {
     const composeSrc = readFileSync(join(SRC, "compose.py"), "utf8");
     // Deleted emissions: exam table, exit sign, hand-built door kit, old

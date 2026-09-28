@@ -7,6 +7,11 @@ anchor at the wall positions. Emits finish geometry (the vinyl floor field,
 the S6 acoustic-tile ceiling field plus one flush troffer, plus the crash
 rail only when recipe options.crashRail is true).
 
+ward_photo preservation (dark-factory rule): under the ward_photo preset the
+flat wall/trim repaint is skipped and the vinyl floor field is not emitted,
+so the shell_bake_wall/floor/ceiling/trim materials pass through untouched;
+the ceiling tile face and door leaf carry full PBR (normal + roughness).
+
 S5 scope: the DUAL90 corridor props are gone (exam table, exit sign), the
 hand-built door kit is replaced by the real Infinigen leaf/casing/skirting
 kept through the strip+extract, and the flat ceiling field + T-bar grid are
@@ -54,6 +59,18 @@ DOOR_TEXTURE_FILE = "door-maple.jpg"
 # lines at all, so no baked grid can double against the real strips below.
 # One repeat spans exactly one 0.6 m module.
 CEILING_TEXTURE_FILE = "ceiling-tile-face.png"
+# Derived PBR maps for the procedural tile face (finish-preserve-shell):
+# height-from-luminance Sobel (strength 2.0) + inverted 5x5 local-contrast
+# roughness, wraparound sampling (the face repeats at runtime) -- the same
+# operators as the Imagine texture pipeline. Distinct -derived- names so
+# they never collide with that pipeline's -normal/-roughness files.
+CEILING_NORMAL_FILE = "ceiling-tile-face-derived-normal.png"
+CEILING_ROUGHNESS_FILE = "ceiling-tile-face-derived-roughness.png"
+# Door leaf crop (leaf aspect 0.95:2.10, single UV 0-1 map, never tiled)
+# plus its edge-clamped script-derived maps (Imagine row-33 working set).
+DOOR_LEAF_FILE = "door-maple-leaf.jpg"
+DOOR_NORMAL_FILE = "door-maple-normal.png"
+DOOR_ROUGHNESS_FILE = "door-maple-roughness.png"
 # Object-space tiling scale. floor-vinyl.jpg is a representative sheet-vinyl
 # patch, so one repeat spans 1.2 m (same convention as the ward-finish
 # lineage's FLOOR_OBJECT_SCALE). Only the kept door leaf still uses
@@ -105,7 +122,18 @@ def _load_photo_image(path: str):
     return img
 
 
-def _photo_object_material(name: str, filename: str, scale_xy: float, roughness: float):
+def _load_data_image(path: str):
+    """Load a normal/roughness map with Non-Color colour space (Blender runtime only)."""
+    import bpy  # type: ignore[import-not-found]
+
+    img = bpy.data.images.load(path, check_existing=True)
+    img.colorspace_settings.name = "Non-Color"
+    return img
+
+
+def _photo_object_material(name: str, filename: str, scale_xy: float, roughness: float,
+                           normal_filename: str | None = None,
+                           roughness_filename: str | None = None):
     """Photo material with Object-space tiling: no UV layer required, the
     Mapping scale sets the real-world repeat. Only the kept door leaf uses
     this now; floor and ceiling bake real UVs via _photo_uv_material (the
@@ -131,12 +159,34 @@ def _photo_object_material(name: str, filename: str, scale_xy: float, roughness:
     nt.links.new(mapping.outputs["Vector"], tex.inputs["Vector"])
     nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
     bsdf.inputs["Roughness"].default_value = float(roughness)
+    if normal_filename is not None or roughness_filename is not None:
+        # PBR pattern from bake_shell_materials.build_role_material (Normal
+        # Map node -> BSDF Normal; roughness texture -> BSDF Roughness);
+        # vector source is the shared Object-space Mapping (the leaf carries
+        # the shell-bake atlas, so no usable UV layer exists).
+        if normal_filename is not None:
+            ntex = nt.nodes.new("ShaderNodeTexImage")
+            ntex.image = _load_data_image(_texture_path(normal_filename))
+            ntex.extension = "REPEAT"
+            nmap = nt.nodes.new("ShaderNodeNormalMap")
+            nmap.space = "TANGENT"
+            nt.links.new(mapping.outputs["Vector"], ntex.inputs["Vector"])
+            nt.links.new(ntex.outputs["Color"], nmap.inputs["Color"])
+            nt.links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
+        if roughness_filename is not None:
+            rtex = nt.nodes.new("ShaderNodeTexImage")
+            rtex.image = _load_data_image(_texture_path(roughness_filename))
+            rtex.extension = "REPEAT"
+            nt.links.new(mapping.outputs["Vector"], rtex.inputs["Vector"])
+            nt.links.new(rtex.outputs["Color"], bsdf.inputs["Roughness"])
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     return mat
 
 
 def _photo_uv_material(name: str, filename: str, roughness: float,
-                       emissive: bool = False, emission_strength: float = 1.0):
+                       emissive: bool = False, emission_strength: float = 1.0,
+                       normal_filename: str | None = None,
+                       roughness_filename: str | None = None):
     """Photo material fed by the mesh's own UV layer (TexCoord "UV" output,
     no Mapping node), so the tiling the exporter writes is exactly the UV0
     coordinates baked onto the mesh -- no KHR_texture_transform, nothing the
@@ -165,6 +215,29 @@ def _photo_uv_material(name: str, filename: str, roughness: float,
         nt.links.new(tex.outputs["Color"], bsdf.inputs["Emission Color"])
         bsdf.inputs["Emission Strength"].default_value = float(emission_strength)
     bsdf.inputs["Roughness"].default_value = float(roughness)
+    if normal_filename is not None or roughness_filename is not None:
+        # PBR pattern from bake_shell_materials.build_role_material: UV Map
+        # node -> texture -> Normal Map node -> BSDF Normal input; roughness
+        # texture -> BSDF Roughness input. Shared "UVMap" node (the baked
+        # per-vertex UV0 layer the albedo already samples via TexCoord UV).
+        shared_uv = nt.nodes.new("ShaderNodeUVMap")
+        shared_uv.uv_map = "UVMap"
+        if normal_filename is not None:
+            ntex = nt.nodes.new("ShaderNodeTexImage")
+            ntex.image = _load_data_image(_texture_path(normal_filename))
+            ntex.extension = "REPEAT"
+            nmap = nt.nodes.new("ShaderNodeNormalMap")
+            nmap.space = "TANGENT"
+            nmap.uv_map = "UVMap"
+            nt.links.new(shared_uv.outputs["UV"], ntex.inputs["Vector"])
+            nt.links.new(ntex.outputs["Color"], nmap.inputs["Color"])
+            nt.links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
+        if roughness_filename is not None:
+            rtex = nt.nodes.new("ShaderNodeTexImage")
+            rtex.image = _load_data_image(_texture_path(roughness_filename))
+            rtex.extension = "REPEAT"
+            nt.links.new(shared_uv.outputs["UV"], rtex.inputs["Vector"])
+            nt.links.new(rtex.outputs["Color"], bsdf.inputs["Roughness"])
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     return mat
 
@@ -297,10 +370,17 @@ def classify_mesh(name: str) -> str:
 
 
 def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: dict | None = None,
-                         crash_rail: bool = False, ceiling_z: float | None = None) -> dict:
+                         crash_rail: bool = False, ceiling_z: float | None = None,
+                         emit_floor: bool = True) -> dict:
     """Build finish meshes: the vinyl floor field and the S6 acoustic-tile
     ceiling field plus one flush troffer always; the crash rail only when
     explicitly enabled (off by default; some other room type may want it).
+
+    emit_floor=False skips the vinyl floor field (ward_photo dark-factory
+    preservation: the shell_bake_floor is the source of truth for the floor,
+    so no photo overlay covers it). The ceiling tile field always emits: the
+    T-bar/tile/troffer assembly is what the shell bake structurally cannot
+    model, the legitimate finish addition.
 
     S5 deletions (DUAL90 corridor 90-breakers, owned by S6 where noted):
     exam table, exit sign, the whole hand-built door kit (replaced by
@@ -350,8 +430,11 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     # stomp them (it only assigns wall/trim materials to base-shell meshes;
     # openclinxr_ finish meshes are skipped). The door leaf keeps
     # Object-space mapping (its shell-bake atlas has no usable UVs).
-    floor_photo_m = _photo_uv_material("openclinxr_finish_floor_photo", FLOOR_TEXTURE_FILE, 0.45)
-    ceiling_photo_m = _photo_uv_material("openclinxr_finish_ceiling_photo", CEILING_TEXTURE_FILE, 0.9)
+    # The ceiling tile face carries full PBR (derived normal + roughness);
+    # the floor vinyl stays albedo-only (ward_photo drops the field anyway).
+    ceiling_photo_m = _photo_uv_material("openclinxr_finish_ceiling_photo", CEILING_TEXTURE_FILE, 0.9,
+                                         normal_filename=CEILING_NORMAL_FILE,
+                                         roughness_filename=CEILING_ROUGHNESS_FILE)
     # Flat lay-in LED panel: plain near-white emissive face, no photo (the
     # louvred-fixture photo is gone -- v2 wants a flat diffuse panel).
     troffer_m = _flat_material("openclinxr_finish_troffer_emissive", TROFFER_FACE_RGB, 0.4,
@@ -387,9 +470,13 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
 
     # Vinyl floor field closes the shell, with real-world tiling baked into
     # UV0 (U = x_m / 1.2, V = y_m / 1.2) so the repeat survives glTF export.
-    floor_obj = new_box("openclinxr_floor_field", cx, cy, minz + 0.03, w, d, 0.05, floor_photo_m)
-    _assign_world_xy_uv(floor_obj, 1.0 / FLOOR_REPEAT_M)
-    counts["floor"] += 1
+    # Skipped under ward_photo preservation (emit_floor=False): the shell
+    # floor passes through instead.
+    if emit_floor:
+        floor_photo_m = _photo_uv_material("openclinxr_finish_floor_photo", FLOOR_TEXTURE_FILE, 0.45)
+        floor_obj = new_box("openclinxr_floor_field", cx, cy, minz + 0.03, w, d, 0.05, floor_photo_m)
+        _assign_world_xy_uv(floor_obj, 1.0 / FLOOR_REPEAT_M)
+        counts["floor"] += 1
     # S6 ceiling: the acoustic-tile field spans the shell with its underside
     # exactly on the T-bar plane (the shell ceiling's own room-facing face
     # minus the suspension drop, never the pooled cross-shell maxz: the
@@ -477,7 +564,9 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
             "ceilingGrid": ceiling_grid}
 
 
-def _texture_kept_door_leaf() -> list[str]:
+def _texture_kept_door_leaf(albedo_file: str = DOOR_TEXTURE_FILE,
+                            normal_file: str | None = None,
+                            roughness_file: str | None = None) -> list[str]:
     """Assign the maple photo material to Infinigen's own kept door leaf
     (Blender runtime only). Matches objects the strip renamed into the room
     prefix ("<room>_<seg>/<seg>.door_leaf", multi-leaf "<seg>.door_leaf_N").
@@ -488,13 +577,18 @@ def _texture_kept_door_leaf() -> list[str]:
     (the lite's glass must not read as wood); every other slot goes maple.
     Post-S2-bake leaves carry consolidated shell_bake_* slots, so the whole
     leaf -- lite included -- reads maple there; recorded, not masked.
+
+    ward_photo passes the leaf-crop albedo plus its derived normal/roughness
+    (full PBR); other presets keep the legacy square maple, albedo-only.
     """
     import bpy  # type: ignore[import-not-found]
     import re
 
     leaf_re = re.compile(r"\.door_leaf(_\d+)?$")
-    leaf_m = _photo_object_material("openclinxr_finish_door_photo", DOOR_TEXTURE_FILE,
-                                    FLOOR_OBJECT_SCALE, 0.48)
+    leaf_m = _photo_object_material("openclinxr_finish_door_photo", albedo_file,
+                                    FLOOR_OBJECT_SCALE, 0.48,
+                                    normal_filename=normal_file,
+                                    roughness_filename=roughness_file)
     textured: list[str] = []
     for obj in list(bpy.data.objects):
         if obj.type != "MESH" or not leaf_re.search(obj.name):
@@ -547,6 +641,16 @@ def apply_finish() -> int:
     bpy.ops.object.select_all(action="DESELECT")
     painted = {"wall": 0, "trim": 0, "other": 0}
 
+    # ward_photo dark-factory preservation (finish-preserve-shell): the S2
+    # shell bake is the source of truth for wall, floor, ceiling shell, and
+    # trim (shell_bake_trim landed with the metal-aware glossy pass), so the
+    # flat wall/trim repaint is skipped entirely and those materials pass
+    # through untouched with their baked normal/roughness maps. Scoped to
+    # ward_photo only: peds_calm/clinic_day/evening_calm keep the legacy
+    # repaint (their tests + fixtures pin that behaviour; no real-chain
+    # calibration depends on changing them).
+    preserve_shell = recipe.get("preset") == "ward_photo"
+
     def ensure_material(name: str, albedo: list) -> object:
         material = bpy.data.materials.get(name)
         if material is None:
@@ -569,22 +673,23 @@ def apply_finish() -> int:
     wall_material = ensure_material("openclinxr_finish_wall", palette["wallAlbedo"])
     trim_material = ensure_material("openclinxr_finish_trim", palette["trimAlbedo"])
 
-    for obj in list(bpy.data.objects):
-        if obj.type != "MESH":
-            continue
-        # Emitted finish meshes already carry materials; only paint base-shell input.
-        if obj.name.startswith("openclinxr_"):
-            continue
-        kind = classify_mesh(obj.name)
-        # Unclassified base shells (e.g. Infinigen "Cube") default to wall paint.
-        target = wall_material if kind in ("wall", "other") else trim_material
-        kind = "wall" if kind == "other" else kind
-        data = obj.data
-        if len(data.materials) == 0:
-            data.materials.append(target)
-        else:
-            data.materials[0] = target
-        painted[kind] += 1
+    if not preserve_shell:
+        for obj in list(bpy.data.objects):
+            if obj.type != "MESH":
+                continue
+            # Emitted finish meshes already carry materials; only paint base-shell input.
+            if obj.name.startswith("openclinxr_"):
+                continue
+            kind = classify_mesh(obj.name)
+            # Unclassified base shells (e.g. Infinigen "Cube") default to wall paint.
+            target = wall_material if kind in ("wall", "other") else trim_material
+            kind = "wall" if kind == "other" else kind
+            data = obj.data
+            if len(data.materials) == 0:
+                data.materials.append(target)
+            else:
+                data.materials[0] = target
+            painted[kind] += 1
 
     stamped: list[str] = []
     for anchor in anchors:
@@ -630,12 +735,20 @@ def apply_finish() -> int:
                 ceiling_inner_z = mesh_min_z
     shell = {"x": [min(xs), max(xs)], "y": [min(ys), max(ys)], "z": [min(zs), max(zs)]} if xs else None
     emitted = _emit_finish_geometry(seed=int(recipe.get("seed", 7)), palette=palette, bounds=shell,
-                                    crash_rail=crash_rail_enabled(recipe), ceiling_z=ceiling_inner_z)
+                                    crash_rail=crash_rail_enabled(recipe), ceiling_z=ceiling_inner_z,
+                                    emit_floor=not preserve_shell)
     # S5: Infinigen's own kept leaf gets the maple photo skin; the casing and
     # skirting keep the trim flat paint from the loop above (no trim photo
-    # exists in the licensed set). Fail closed when the strip did not keep
+    # exists in the licensed set). Under ward_photo preservation there is no
+    # trim repaint, so casing/skirting keep their shell_bake_trim instead;
+    # the leaf still gets maple (deliberate dark-factory exception: Infinigen
+    # has no maple-veneer class), now as the leaf-aspect crop with full PBR.
+    # Fail closed when the strip did not keep
     # a leaf: a finish without a door would re-create the dark-hole capture.
-    door_leaf = _texture_kept_door_leaf()
+    if preserve_shell:
+        door_leaf = _texture_kept_door_leaf(DOOR_LEAF_FILE, DOOR_NORMAL_FILE, DOOR_ROUGHNESS_FILE)
+    else:
+        door_leaf = _texture_kept_door_leaf()
     if not door_leaf:
         raise SystemExit("room_clinic_finish: no kept door leaf (*.door_leaf) in input GLB")
 
@@ -646,6 +759,7 @@ def apply_finish() -> int:
         "schemaVersion": RECIPE_SCHEMA_VERSION,
         "environmentId": recipe.get("environmentId"),
         "preset": recipe.get("preset"),
+        "preserveShell": preserve_shell,
         "painted": painted,
         "signageAnchors": stamped,
         "movedGeometry": True,
