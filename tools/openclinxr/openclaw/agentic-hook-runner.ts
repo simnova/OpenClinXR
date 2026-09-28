@@ -616,6 +616,17 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): Hook
     /^tools\/openclinxr\/evidence\/scene-closure\/proofs\/sc-05\//u,
   ]);
 
+  // #739 follow-up: the teeth retreat is a post-export byte edit that any pipeline path which
+  // rewrites a shipped GLB without running the retreat station silently drops (measured
+  // 2026-09-27: the CC0 fitted-teeth rebake moved teeth forward ~10 mm while the retreat step
+  // only runs inside the materializer export path). Run the teeth-behind-face instrument when a
+  // shipped humanoid GLB changes or when the materializer/motion-bind stages change.
+  const teethRetreatChanged = matchesAnyPath(changedFiles, [
+    /^apps\/ui-xr\/public\/(?:generated-humanoids|xr-assets)\/.*\.glb$/u,
+    /^tools\/openclinxr\/evidence\/blender\/materialize_mpfb_humanoid_candidate\.py$/u,
+    /^tools\/openclinxr\/factory\/(?:bind-walk-clip-all|graft-bound-clip)\.ts$/u,
+  ]);
+
   const steps: HookStep[] = [];
 
   const biomeStep = buildBiomeStep(changedFiles);
@@ -666,6 +677,21 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): Hook
       command: ["pnpm", "exec", "vitest", "run", "tools/openclinxr/evidence/scene-closure/proofs/sc-05/"],
       reason:
         "sc-05 is not a workspace package, so 'Affected package tests' above never reaches it — this is the only pre-push step that does",
+    });
+  }
+
+  if (profile === "pre-push" && teethRetreatChanged) {
+    steps.push({
+      label: "Teeth-behind-face instrument (shipped GLB or bake stage changed)",
+      command: [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tools/openclinxr/evidence/every-humanoids-teeth-stay-behind-its-own-face.test.ts",
+      ],
+      reason:
+        "a rewritten humanoid GLB can silently drop the #739 teeth retreat — the instrument must run before the bytes leave the machine",
     });
   }
 

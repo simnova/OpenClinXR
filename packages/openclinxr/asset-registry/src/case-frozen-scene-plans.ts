@@ -70,7 +70,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "patient_margaret_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
-          "assetSha256": "ceb34c139a5f21460cd4518e2fb023fabed45279a87d48d983bc22b9dd744643",
+          "assetSha256": "d99e55ff594247af91d53ec5d0f4192a39bc898174f5d11b40da7a7c7d709276",
           "byteCount": 19149628
         },
         {
@@ -78,7 +78,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "senior_resident_ward_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-          "assetSha256": "ab6ba3138a62ff03d079979241b95dbadf65e9173d232de486976b20d7789e8f",
+          "assetSha256": "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
           "byteCount": 9618436
         },
         {
@@ -86,7 +86,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "ward_nurse_patel_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-          "assetSha256": "c4bc395875048103172e755af5ada72d36d028ab7f598d57ef9726e37891e4ec",
+          "assetSha256": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
           "byteCount": 8775848
         },
         {
@@ -94,8 +94,8 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "daughter_lena_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-          "assetSha256": "dc5dec43210748c25a586dfc0c803923004160a8467787022045301cf3462b49",
-          "byteCount": 10529168
+          "assetSha256": "4ca47db44375865bf51806abadccc1ac08c0a47a3a7a1835c77e1ce9dc830eaf",
+          "byteCount": 10529172
         }
       ],
       "revisions": {
@@ -167,11 +167,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-8f0de33912777c90eadb25f01275c135",
+      "planRevision": "plan-v1-d46713f1560b51fca238c56893add74d",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-8f0de33912777c90eadb25f01275c135"
+        "acknowledgedPlanRevision": "plan-v1-d46713f1560b51fca238c56893add74d"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);

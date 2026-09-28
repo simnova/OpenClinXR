@@ -84,7 +84,7 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-10T21:58:00Z",
- "outputSha256": "d35dae2caeb98b63b6b3063c01776871a32c12a85ffb0d0ade95efb88e30f640",
+ "outputSha256": "17381f02742809b8ba1c76972f43bcb3c46a8ab9402fbf3fe618cce9b3551ec9",
  "outputBytes": 16100688,
  "motionClips": [
   {
@@ -112,5 +112,26 @@
    "channels": 411,
    "reason": "rebound with corrected --source-orientation: travel MISMATCHES rest (restZ=0.0732, advanceForwardZ=-0.9996, windowFrames=19, mps=0.541)"
   }
- ]
+ ],
+ "byteLineage": {
+  "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+  "correctedAt": "2026-09-28T04:07:25.786Z",
+  "recordedBefore": {
+   "outputSha256": "d35dae2caeb98b63b6b3063c01776871a32c12a85ffb0d0ade95efb88e30f640",
+   "outputBytes": 16100688
+  },
+  "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb",
+  "preImageSha256": "d35dae2caeb98b63b6b3063c01776871a32c12a85ffb0d0ade95efb88e30f640",
+  "preImageBytes": 16100688,
+  "derivationArgv": [
+   "sh",
+   "-c",
+   "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0020",
+   "x",
+   "{pre}",
+   "{out}"
+  ],
+  "reproduction": "byte-identical to the shipped file",
+  "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+ }
 }

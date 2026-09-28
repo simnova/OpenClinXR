@@ -66,7 +66,7 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-11T23:26:23Z",
- "outputSha256": "38755a96e10945d34265b33b1ef6e8d2b17f34faa2cd84ae8ccdbd8da950c4de",
+ "outputSha256": "d412665fc9a6628efc7561cee1f31449590290c0d389150600ec8b3b19e7edd7",
  "outputBytes": 11743280,
  "albedoBakeWrittenAt": "2026-09-11T23:26:23Z",
  "albedoBakeNote": "HB-07 attempt 5 full-chain rebake (materialize -> bake-humanoid-albedo.ts -> separate_chest_anchor_joints.mjs; decimation skipped, chosenRungId=raw). Capture-aligned 4096 screen-space unhide after REHIDE; garment-only occluder; sleeve prim4 f79/f190 restored to skin.",
@@ -105,5 +105,26 @@
    "channels": 411,
    "reason": "rebound with corrected --source-orientation: travel MISMATCHES rest (restZ=0.0504, advanceForwardZ=-0.9984, windowFrames=22, mps=0.350)"
   }
- ]
+ ],
+ "byteLineage": {
+  "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+  "correctedAt": "2026-09-28T04:07:17.147Z",
+  "recordedBefore": {
+   "outputSha256": "38755a96e10945d34265b33b1ef6e8d2b17f34faa2cd84ae8ccdbd8da950c4de",
+   "outputBytes": 11743280
+  },
+  "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+  "preImageSha256": "38755a96e10945d34265b33b1ef6e8d2b17f34faa2cd84ae8ccdbd8da950c4de",
+  "preImageBytes": 11743280,
+  "derivationArgv": [
+   "sh",
+   "-c",
+   "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0016",
+   "x",
+   "{pre}",
+   "{out}"
+  ],
+  "reproduction": "byte-identical to the shipped file",
+  "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+ }
 }

@@ -67,32 +67,28 @@
  "claimScope": "nurse_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_toigo_blunt_bob_kept",
  "promotionGates": false,
  "generatedAt": "2026-09-12T09:29:57.027Z",
- "outputSha256": "c4bc395875048103172e755af5ada72d36d028ab7f598d57ef9726e37891e4ec",
+ "outputSha256": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
  "outputBytes": 8775848,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-09-09T20:55:55.296Z",
+  "correctedAt": "2026-09-28T04:05:58.471Z",
   "recordedBefore": {
-   "outputSha256": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d",
-   "outputBytes": 11112092
+   "outputSha256": "c4bc395875048103172e755af5ada72d36d028ab7f598d57ef9726e37891e4ec",
+   "outputBytes": 8775848
   },
-  "preImageRevision": "3d019031^:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-  "preImageSha256": "2e111a0da68f18f151a623a98e544154e610cdcd916ac106f6d9213d9d8c7089",
-  "preImageBytes": 11112080,
+  "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+  "preImageSha256": "c4bc395875048103172e755af5ada72d36d028ab7f598d57ef9726e37891e4ec",
+  "preImageBytes": 8775848,
   "derivationArgv": [
-   "node",
-   "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
-   "--input",
+   "sh",
+   "-c",
+   "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0085 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
+   "x",
    "{pre}",
-   "--output",
-   "{out}",
-   "--report",
-   ".openclinxr/evidence/scene-closure/sc-04/rederive/nurse-rederive-report.json",
-   "--half-span-m",
-   "0.085"
+   "{out}"
   ],
   "reproduction": "byte-identical to the shipped file",
-  "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte."
+  "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
  },
  "licenceNoticeWrittenAt": "2026-09-12T09:29:57.027Z",
  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here.",

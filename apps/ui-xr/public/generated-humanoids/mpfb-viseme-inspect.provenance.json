@@ -1,19 +1,40 @@
 {
-  "schemaVersion": "openclinxr.humanoid-provenance.declaration-only.v1",
-  "asset": "mpfb-viseme-inspect.glb",
-  "declarationOnly": true,
-  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
-  "runtimeRole": "inspection_fixture",
-  "runtimeRoleWhy": "Inspection subject for viseme contracts. Never cast; the shipped-bank cast resolver does not name it.",
-  "outputSha256": "b2a4ce31cf9d03429f674f4aa8723b544a519f88f236ec65934ee81bec0b5eb3",
-  "outputBytes": 13933096,
-  "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
-  "fitTimeLower": {
-    "garment": "punkduck_female_tight_jeans",
-    "sourceObjFaces": 2108,
-    "fittedTris": 4216,
-    "lowerGateCoverage": 0.98
+ "schemaVersion": "openclinxr.humanoid-provenance.declaration-only.v1",
+ "asset": "mpfb-viseme-inspect.glb",
+ "declarationOnly": true,
+ "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
+ "runtimeRole": "inspection_fixture",
+ "runtimeRoleWhy": "Inspection subject for viseme contracts. Never cast; the shipped-bank cast resolver does not name it.",
+ "outputSha256": "9d56a25ccf0fe3a1998a08d5880258a20eefc40f44d9c28f47f0fde4ecf35bff",
+ "outputBytes": 13933096,
+ "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
+ "fitTimeLower": {
+  "garment": "punkduck_female_tight_jeans",
+  "sourceObjFaces": 2108,
+  "fittedTris": 4216,
+  "lowerGateCoverage": 0.98
+ },
+ "albedoBakeWrittenAt": "2026-09-11T05:16:52.463Z",
+ "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt fp-r0.4 then chest-anchor 0.085 m. Shipped 69067 tris / 13932816 B (jeans 1958). Previous raw pin 7abbbac74220bba7 / 17035784.",
+ "byteLineage": {
+  "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+  "correctedAt": "2026-09-28T04:07:38.354Z",
+  "recordedBefore": {
+   "outputSha256": "b2a4ce31cf9d03429f674f4aa8723b544a519f88f236ec65934ee81bec0b5eb3",
+   "outputBytes": 13933096
   },
-  "albedoBakeWrittenAt": "2026-09-11T05:16:52.463Z",
-  "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt fp-r0.4 then chest-anchor 0.085 m. Shipped 69067 tris / 13932816 B (jeans 1958). Previous raw pin 7abbbac74220bba7 / 17035784."
+  "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
+  "preImageSha256": "b2a4ce31cf9d03429f674f4aa8723b544a519f88f236ec65934ee81bec0b5eb3",
+  "preImageBytes": 13933096,
+  "derivationArgv": [
+   "sh",
+   "-c",
+   "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0135 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
+   "x",
+   "{pre}",
+   "{out}"
+  ],
+  "reproduction": "byte-identical to the shipped file",
+  "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+ }
 }

@@ -140,29 +140,28 @@
   "publicRenderCleared": false,
   "publicRenderBlockedBy": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json — the hm08 basemesh AGPL/CC0 contradiction is unresolved upstream"
  },
- "outputSha256": "ceb34c139a5f21460cd4518e2fb023fabed45279a87d48d983bc22b9dd744643",
+ "outputSha256": "d99e55ff594247af91d53ec5d0f4192a39bc898174f5d11b40da7a7c7d709276",
  "outputBytes": 19149628,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-09-09T20:55:55.570Z",
-  "recordedBefore": {},
-  "preImageRevision": "91b12607^:apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
-  "preImageSha256": "029dbb504c6f655c7a2fc141948ff92dbd86190a306ee75ade8c50c39f8ab43f",
-  "preImageBytes": 18840716,
+  "correctedAt": "2026-09-28T04:06:25.232Z",
+  "recordedBefore": {
+   "outputSha256": "ceb34c139a5f21460cd4518e2fb023fabed45279a87d48d983bc22b9dd744643",
+   "outputBytes": 19149628
+  },
+  "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+  "preImageSha256": "ceb34c139a5f21460cd4518e2fb023fabed45279a87d48d983bc22b9dd744643",
+  "preImageBytes": 19149628,
   "derivationArgv": [
-   "node",
-   "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
-   "--input",
+   "sh",
+   "-c",
+   "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0037",
+   "x",
    "{pre}",
-   "--output",
-   "{out}",
-   "--report",
-   ".openclinxr/evidence/scene-closure/sc-04/rederive/gown-rederive-report.json",
-   "--half-span-m",
-   "0.085"
+   "{out}"
   ],
   "reproduction": "byte-identical to the shipped file",
-  "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte. This asset had no sidecar at all until SC-04 authored one; the pin below is the first it has ever carried."
+  "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
  },
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.392Z",
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",

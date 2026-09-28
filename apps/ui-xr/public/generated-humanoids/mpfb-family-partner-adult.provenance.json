@@ -62,32 +62,28 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-12T16:29:00Z",
- "outputSha256": "dc5dec43210748c25a586dfc0c803923004160a8467787022045301cf3462b49",
- "outputBytes": 10529168,
+ "outputSha256": "4ca47db44375865bf51806abadccc1ac08c0a47a3a7a1835c77e1ce9dc830eaf",
+ "outputBytes": 10529172,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-09-09T20:55:55.787Z",
+  "correctedAt": "2026-09-28T04:06:17.490Z",
   "recordedBefore": {
-   "outputSha256": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93",
-   "outputBytes": 8411080
+   "outputSha256": "dc5dec43210748c25a586dfc0c803923004160a8467787022045301cf3462b49",
+   "outputBytes": 10529168
   },
-  "preImageRevision": "91b12607^:apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-  "preImageSha256": "14a4167a9b6d6aec9d01f367b91c806d1c8e18568a0ebe36e6405240697e7a0c",
-  "preImageBytes": 8411072,
+  "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+  "preImageSha256": "dc5dec43210748c25a586dfc0c803923004160a8467787022045301cf3462b49",
+  "preImageBytes": 10529168,
   "derivationArgv": [
-   "node",
-   "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
-   "--input",
+   "sh",
+   "-c",
+   "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0082 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
+   "x",
    "{pre}",
-   "--output",
-   "{out}",
-   "--report",
-   ".openclinxr/evidence/scene-closure/sc-04/rederive/family-rederive-report.json",
-   "--half-span-m",
-   "0.085"
+   "{out}"
   ],
   "reproduction": "byte-identical to the shipped file",
-  "why": "separate_chest_anchor_joints.mjs mirrored breast.L/breast.R to x = +/- 0.085 m and moved the ClinicalIdleConversation translation keyframes that pinned them to the midline. The stage's own report under tools/openclinxr/evidence/chest-anchor-joints/ records the operation but no output hash, so this sidecar kept naming the pre-stage bytes. Re-running the stage on the pre-image reproduces the shipped file byte for byte."
+  "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
  },
  "albedoBakeWrittenAt": "2026-09-14T22:26:38.349Z",
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. 2026-09-14 tsk_2cdb306c4e7069af: targeted rebake through the producer-path station (bakeProducedHumanoidAlbedo on the shipped bytes, no re-fit): toigo t-shirt factor folded into its 2048x2048 texture and reset to white. Geometry, rig and animations unchanged; outputSha256/outputBytes re-recorded in the same change that moved the bytes.",

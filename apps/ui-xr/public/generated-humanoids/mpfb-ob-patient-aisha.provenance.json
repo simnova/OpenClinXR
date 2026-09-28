@@ -82,7 +82,7 @@
  ],
  "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
  "promotionGates": false,
- "outputSha256": "06ac92dcda85c230001a0fd04827507909d650c45b4733f4f450ebf72b198690",
+ "outputSha256": "7becc30f15d0e1b8a8adea433ef820a1dcab0f32e722b0e05390312fc37f11a6",
  "outputBytes": 10069444,
  "fitTimeLower": {
   "garment": "punkduck_female_tight_jeans",
@@ -96,28 +96,24 @@
  "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: ClothesService PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt iterate-optimize --face-preserving --face-preserving-ratio 0.4 then chest-anchor 0.085 m. Shipped 69093 tris / 13927908 B (jeans 1986). Fit-time faces x 2 lives in fitTimeLower; shipped shell-vs-fit is standoff spread. Previous raw pin cfdcd5a3c2828daa / 17002120. Report: female-covering-lower-acquisition-2026-09-12.md. 2026-09-14 tsk_2cdb306c4e7069af: targeted rebake through the producer-path station (bakeProducedHumanoidAlbedo on the shipped bytes, no re-fit): toigo t-shirt factor folded into its 2048x2048 texture and reset to white. Geometry, rig and animations unchanged; outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-09-13T05:47:31.192Z",
+  "correctedAt": "2026-09-28T04:06:48.298Z",
   "recordedBefore": {
-   "outputSha256": "ab33bff8f56240e6b89c0de4dbc262eee1835dd32b439a0dcf46cfd815629b95",
-   "outputBytes": 13927908
+   "outputSha256": "06ac92dcda85c230001a0fd04827507909d650c45b4733f4f450ebf72b198690",
+   "outputBytes": 10069444
   },
-  "preImageRevision": "2803b774^:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-  "preImageSha256": "7d66fa71be5c0bcb7e449c5754d3ec7b5f5457203d93485e4a30f4a6149a68fd",
-  "preImageBytes": 13170972,
+  "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+  "preImageSha256": "06ac92dcda85c230001a0fd04827507909d650c45b4733f4f450ebf72b198690",
+  "preImageBytes": 10069444,
   "derivationArgv": [
-   "pnpm",
-   "exec",
-   "tsx",
-   "tools/openclinxr/evidence/licence/fp-rung-rederive.ts",
-   "--input",
+   "sh",
+   "-c",
+   "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0135 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
+   "x",
    "{pre}",
-   "--out",
-   "{out}",
-   "--face-preserving-ratio",
-   "0.4"
+   "{out}"
   ],
   "reproduction": "byte-identical to the shipped file",
-  "why": "2803b774 applied the face-preserving decimation rung (iterate-optimize.ts --face-preserving --face-preserving-ratio 0.4) to the tightjeans re-baked bodies and touched no provenance file, so both sidecars kept naming the pre-decimation bytes. The commit records the rung in tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md but no output hash. Re-running that rung on the pre-image reproduces the shipped file byte for byte; the digest below is therefore a derivation, not a reading taken off disk."
+  "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
  },
  "motionClips": [
   {

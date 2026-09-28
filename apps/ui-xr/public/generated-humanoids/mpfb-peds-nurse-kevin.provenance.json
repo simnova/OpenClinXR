@@ -70,8 +70,8 @@
  "claimScope": "kevin_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_mhair02_kept",
  "promotionGates": false,
  "generatedAt": "2026-08-21T15:18:19.255Z",
- "outputSha256": "9ece440713a6d0a0bb1de80b55ad868784a9c5cad0a96e195dad822375e56809",
- "outputBytes": 7894884,
+ "outputSha256": "0de69b66a569d457c11985895f76b24a4c0cc99adc530720ee0e4ecaa78a22de",
+ "outputBytes": 7894888,
  "licenceNoticeWrittenAt": "2026-09-10T17:27:31.899Z",
  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here.",
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.423Z",
@@ -102,5 +102,26 @@
    "channels": 411,
    "reason": "rebound with corrected --source-orientation: travel MISMATCHES rest (restZ=0.0732, advanceForwardZ=-0.9996, windowFrames=19, mps=0.541)"
   }
- ]
+ ],
+ "byteLineage": {
+  "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+  "correctedAt": "2026-09-28T04:06:59.478Z",
+  "recordedBefore": {
+   "outputSha256": "9ece440713a6d0a0bb1de80b55ad868784a9c5cad0a96e195dad822375e56809",
+   "outputBytes": 7894884
+  },
+  "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+  "preImageSha256": "9ece440713a6d0a0bb1de80b55ad868784a9c5cad0a96e195dad822375e56809",
+  "preImageBytes": 7894884,
+  "derivationArgv": [
+   "sh",
+   "-c",
+   "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0082 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
+   "x",
+   "{pre}",
+   "{out}"
+  ],
+  "reproduction": "byte-identical to the shipped file",
+  "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+ }
 }
