@@ -22,11 +22,11 @@
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py",
-      "reason": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard \u2014 a different producer than the seated-clip script."
+      "reason": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
-      "reason": "Texture-resize candidate (JPEG q85 2048\u00b2) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
+      "reason": "Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
@@ -34,9 +34,9 @@
     }
   ],
   "counts": {
-    "keep-evidence": 431,
+    "keep-evidence": 436,
     "ignore-local-cache": 2771,
-    "keep-current": 228,
+    "keep-current": 230,
     "keep-compatibility-input": 24,
     "keep-template": 6
   },
@@ -21826,6 +21826,20 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/asset-licence-records/row-30-operator-generated-grok-imagine-room-surface-photos.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated (not third-party) provenance record for Grok Imagine room images used as finish-station texture/preset sources."
+    },
+    {
+      "path": "docs/openclinxr/asset-licence-records/row-31-operator-generated-grok-imagine-room-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated (not third-party) provenance record for Grok Imagine room images used as finish-station texture/preset sources."
+    },
+    {
       "path": "docs/openclinxr/bvh-retarget-lab-smoke-2026-08-03.json",
       "authority": "keep-evidence",
       "tracked": true,
@@ -23828,6 +23842,62 @@
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/01-toward-door.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/02-toward-bed-wall.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/03-ceiling-corner.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/04-door-inside.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/05-troffer-junction.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/06-floor-base.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/grading-checklist.md",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview/manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
+    },
+    {
       "path": "docs/openclinxr/room-realism/room-final-xu.png",
       "authority": "keep-evidence",
       "tracked": true,
@@ -23835,11 +23905,18 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
-      "path": "docs/openclinxr/runtime-realism-evidence-check-authored-idle-pose-required-2026-05-23.json",
-      "authority": "keep-compatibility-input",
+      "path": "docs/openclinxr/room-realism/s2-preexport-bake-2026-09-27/captures/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
       "tracked": true,
-      "action": "review-before-change",
-      "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
+      "action": "keep",
+      "rationale": "S2 pre-export shell bake runtime capture (pose 01-toward-door) against the seed-205 shell-baked GLB at runtime placement, hand-placed pose, no reseat; mint walls and parquet floor expected at this slice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/s2-preexport-bake-2026-09-27/captures/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "S2 pre-export shell-bake pose-01 runtime capture manifest; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/room-realism/s3-tone-mapping/captures/runtime-01-toward-door.png",
@@ -23863,7 +23940,7 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
-      "path": "docs/openclinxr/room-realism/s3-tone-mapping/s3-tone-mapping-grade.json",
+      "path": "docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/face-aces.png",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -23877,7 +23954,7 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
-      "path": "docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/face-aces.png",
+      "path": "docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/fullbody-aces.png",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -23891,11 +23968,144 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
-      "path": "docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/fullbody-aces.png",
+      "path": "docs/openclinxr/room-realism/s3-tone-mapping/s3-tone-mapping-grade.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/01-toward-door-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish-chain part 3 comparison sheet (01-toward-door): imagine-multiview reference left, chain runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/02-toward-bed-wall-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish-chain part 3 comparison sheet (02-toward-bed-wall): imagine-multiview reference left, chain runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/03-ceiling-corner-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish-chain part 3 comparison sheet (03-ceiling-corner): imagine-multiview reference left, chain runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/04-door-inside-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish-chain part 3 comparison sheet (04-door-inside): imagine-multiview reference left, chain runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/05-troffer-junction-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish-chain part 3 comparison sheet (05-troffer-junction): imagine-multiview reference left, chain runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/06-floor-base-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish-chain part 3 comparison sheet (06-floor-base): imagine-multiview reference left, chain runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures-v2/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures-v2/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures-v2/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish-chain part 3 runtime capture (01-toward-door) against the wired chain GLB at runtime placement, hand-placed pose, no reseat."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish-chain part 3 runtime capture (02-toward-bed-wall) against the wired chain GLB at runtime placement, hand-placed pose, no reseat."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish-chain part 3 runtime capture (03-ceiling-corner) against the wired chain GLB at runtime placement, hand-placed pose, no reseat."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish-chain part 3 runtime capture (04-door-inside) against the wired chain GLB at runtime placement, hand-placed pose, no reseat."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish-chain part 3 runtime capture (05-troffer-junction) against the wired chain GLB at runtime placement, hand-placed pose, no reseat."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish-chain part 3 runtime capture (06-floor-base) against the wired chain GLB at runtime placement, hand-placed pose, no reseat."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish-chain part 3 capture manifest: per-pose bytes/sha provenance for the 6 runtime frames."
+    },
+    {
+      "path": "docs/openclinxr/runtime-realism-evidence-check-authored-idle-pose-required-2026-05-23.json",
+      "authority": "keep-compatibility-input",
+      "tracked": true,
+      "action": "review-before-change",
+      "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-00.json",
@@ -24038,6 +24248,34 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-acoustic-tile.jpg",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish station input (S5): 4x4 acoustic-tile photo from the ward-finish lineage (row-30 provenance, 155,898 B); staged for the S6 ceiling-grid rebuild, unused by compose.py in S5."
+    },
+    {
+      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple.jpg",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish station input: maple leaf crop from imagine-multiview 04-door-inside.jpg (row-31 provenance); consumed by room_clinic_finish/compose.py door photo-texture path."
+    },
+    {
+      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl.jpg",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish station input: sheet-vinyl crop from imagine-multiview 06-floor-base.jpg (row-31 provenance); consumed by room_clinic_finish/compose.py floor photo-texture path."
+    },
+    {
+      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/troffer-light.jpg",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish station input (S5): troffer photo from the ward-finish lineage (row-30 provenance, 153,322 B); staged for the S6 troffer, unused by compose.py in S5."
+    },
+    {
       "path": "tools/openclinxr/evidence/blender/render_seated_clip_frames.py",
       "authority": "keep-current",
       "tracked": true,
@@ -24049,14 +24287,14 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard \u2014 a different producer than the seated-clip script."
+      "rationale": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Texture-resize candidate (JPEG q85 2048\u00b2) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
+      "rationale": "Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
@@ -24066,214 +24304,11 @@
       "rationale": "Dated tightjeans rebake evidence note; .md must not join generatedExtensions (doc-authority collision)."
     },
     {
-      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl.jpg",
-      "authority": "keep-current",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish station input: sheet-vinyl crop from imagine-multiview 06-floor-base.jpg (row-31 provenance); consumed by room_clinic_finish/compose.py floor photo-texture path."
-    },
-    {
-      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple.jpg",
-      "authority": "keep-current",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish station input: maple leaf crop from imagine-multiview 04-door-inside.jpg (row-31 provenance); consumed by room_clinic_finish/compose.py door photo-texture path."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/imagine-multiview/01-toward-door.jpg",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/imagine-multiview/02-toward-bed-wall.jpg",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/imagine-multiview/03-ceiling-corner.jpg",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/imagine-multiview/04-door-inside.jpg",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/imagine-multiview/05-troffer-junction.jpg",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/imagine-multiview/06-floor-base.jpg",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/imagine-multiview/manifest.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/imagine-multiview/grading-checklist.md",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source."
-    },
-    {
-      "path": "docs/openclinxr/asset-licence-records/row-30-operator-generated-grok-imagine-room-surface-photos.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Operator-generated (not third-party) provenance record for Grok Imagine room images used as finish-station texture/preset sources."
-    },
-    {
-      "path": "docs/openclinxr/asset-licence-records/row-31-operator-generated-grok-imagine-room-multiview.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Operator-generated (not third-party) provenance record for Grok Imagine room images used as finish-station texture/preset sources."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-01-toward-door.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish-chain part 3 runtime capture (01-toward-door) against the wired chain GLB at runtime placement, hand-placed pose, no reseat."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/01-toward-door-side-by-side.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish-chain part 3 comparison sheet (01-toward-door): imagine-multiview reference left, chain runtime frame right."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-02-toward-bed-wall.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish-chain part 3 runtime capture (02-toward-bed-wall) against the wired chain GLB at runtime placement, hand-placed pose, no reseat."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/02-toward-bed-wall-side-by-side.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish-chain part 3 comparison sheet (02-toward-bed-wall): imagine-multiview reference left, chain runtime frame right."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-03-ceiling-corner.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish-chain part 3 runtime capture (03-ceiling-corner) against the wired chain GLB at runtime placement, hand-placed pose, no reseat."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/03-ceiling-corner-side-by-side.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish-chain part 3 comparison sheet (03-ceiling-corner): imagine-multiview reference left, chain runtime frame right."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-04-door-inside.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish-chain part 3 runtime capture (04-door-inside) against the wired chain GLB at runtime placement, hand-placed pose, no reseat."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/04-door-inside-side-by-side.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish-chain part 3 comparison sheet (04-door-inside): imagine-multiview reference left, chain runtime frame right."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-05-troffer-junction.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish-chain part 3 runtime capture (05-troffer-junction) against the wired chain GLB at runtime placement, hand-placed pose, no reseat."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/05-troffer-junction-side-by-side.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish-chain part 3 comparison sheet (05-troffer-junction): imagine-multiview reference left, chain runtime frame right."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-06-floor-base.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish-chain part 3 runtime capture (06-floor-base) against the wired chain GLB at runtime placement, hand-placed pose, no reseat."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/06-floor-base-side-by-side.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish-chain part 3 comparison sheet (06-floor-base): imagine-multiview reference left, chain runtime frame right."
-    },
-    {
       "path": "tools/openclinxr/evidence/room-ward-finish-chain/hand-placed-poses.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
       "rationale": "Ward-finish-chain part 3 pose inputs: verbatim copy of the sibling wt/infinigen-room hand-placed poses (stage2-camera-fit), read-only source untouched."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/stage2-multiview.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish-chain part 3 capture manifest: per-pose bytes/sha provenance for the 6 runtime frames."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/s2-preexport-bake-2026-09-27/captures/runtime-01-toward-door.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "S2 pre-export shell bake runtime capture (pose 01-toward-door) against the seed-205 shell-baked GLB at runtime placement, hand-placed pose, no reseat; mint walls and parquet floor expected at this slice."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/s2-preexport-bake-2026-09-27/captures/stage2-multiview.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "S2 pre-export shell-bake pose-01 runtime capture manifest; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
-      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-acoustic-tile.jpg",
-      "authority": "keep-current",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish station input (S5): 4x4 acoustic-tile photo from the ward-finish lineage (row-30 provenance, 155,898 B); staged for the S6 ceiling-grid rebuild, unused by compose.py in S5."
-    },
-    {
-      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/troffer-light.jpg",
-      "authority": "keep-current",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Ward-finish station input (S5): troffer photo from the ward-finish lineage (row-30 provenance, 153,322 B); staged for the S6 troffer, unused by compose.py in S5."
     }
   ]
 }

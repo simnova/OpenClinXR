@@ -24,8 +24,8 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
-- keep-current: 226
-- keep-evidence: 397
+- keep-current: 230
+- keep-evidence: 436
 - keep-template: 6
 
 ## Cleanup Actions
@@ -3047,6 +3047,10 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `apps/ui-xr/public/xr-assets/medical-equipment/stretcher-sketchfab-ccby.provenance.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/medical-equipment/wall-clock-analog.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/medical-equipment/wall-clock-analog.provenance.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-acoustic-tile.jpg` - keep-current; keep; Ward-finish station input (S5): 4x4 acoustic-tile photo from the ward-finish lineage (row-30 provenance, 155,898 B); staged for the S6 ceiling-grid rebuild, unused by compose.py in S5.
+- `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple.jpg` - keep-current; keep; Ward-finish station input: maple leaf crop from imagine-multiview 04-door-inside.jpg (row-31 provenance); consumed by room_clinic_finish/compose.py door photo-texture path.
+- `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl.jpg` - keep-current; keep; Ward-finish station input: sheet-vinyl crop from imagine-multiview 06-floor-base.jpg (row-31 provenance); consumed by room_clinic_finish/compose.py floor photo-texture path.
+- `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/troffer-light.jpg` - keep-current; keep; Ward-finish station input (S5): troffer photo from the ward-finish lineage (row-30 provenance, 153,322 B); staged for the S6 troffer, unused by compose.py in S5.
 - `tools/openclinxr/evidence/blender/render_seated_clip_frames.py` - keep-current; keep; Hand-authored Blender producer for seated-clip frames, not generated output; tools/ is not a scan root.
 - `tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py` - keep-current; keep; EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script.
 - `tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg` - keep-current; keep; Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/.
@@ -3170,6 +3174,8 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/asset-licence-records/row-27-makehuman-system-asset-eyes-makehumansystemassets-pack-pack-.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/asset-licence-records/row-28-infinigen-indoors-princeton-vl-infinigen-indoors-stable-tag-.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/asset-licence-records/row-29-makehuman-pants02-elvs-jeans-bootcut.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/asset-licence-records/row-30-operator-generated-grok-imagine-room-surface-photos.json` - keep-evidence; keep; Operator-generated (not third-party) provenance record for Grok Imagine room images used as finish-station texture/preset sources.
+- `docs/openclinxr/asset-licence-records/row-31-operator-generated-grok-imagine-room-multiview.json` - keep-evidence; keep; Operator-generated (not third-party) provenance record for Grok Imagine room images used as finish-station texture/preset sources.
 - `docs/openclinxr/bvh-retarget-lab-smoke-2026-08-03.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/bvh-retarget-lab-smoke-2026-08-05.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/bvh-retarget-smoke-2026-08-03.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -3429,7 +3435,43 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/realvisxl-direct-texture-visual-review-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/realvisxl-skin-smoke-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/realvisxl-skin-smoke-2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/imagine-multiview/01-toward-door.jpg` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source.
+- `docs/openclinxr/room-realism/imagine-multiview/02-toward-bed-wall.jpg` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source.
+- `docs/openclinxr/room-realism/imagine-multiview/03-ceiling-corner.jpg` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source.
+- `docs/openclinxr/room-realism/imagine-multiview/04-door-inside.jpg` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source.
+- `docs/openclinxr/room-realism/imagine-multiview/05-troffer-junction.jpg` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source.
+- `docs/openclinxr/room-realism/imagine-multiview/06-floor-base.jpg` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source.
+- `docs/openclinxr/room-realism/imagine-multiview/grading-checklist.md` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source.
+- `docs/openclinxr/room-realism/imagine-multiview/manifest.json` - keep-evidence; keep; Operator-generated Grok Imagine ward reference set (row-31 provenance); preset derivation + texture-crop source.
 - `docs/openclinxr/room-realism/room-final-xu.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/s2-preexport-bake-2026-09-27/captures/runtime-01-toward-door.png` - keep-evidence; keep; S2 pre-export shell bake runtime capture (pose 01-toward-door) against the seed-205 shell-baked GLB at runtime placement, hand-placed pose, no reseat; mint walls and parquet floor expected at this slice.
+- `docs/openclinxr/room-realism/s2-preexport-bake-2026-09-27/captures/stage2-multiview.json` - keep-evidence; keep; S2 pre-export shell-bake pose-01 runtime capture manifest; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/s3-tone-mapping/captures/runtime-01-toward-door.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/s3-tone-mapping/captures/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/s3-tone-mapping/captures/stage2-multiview.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/face-aces.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/face-notonemapping.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/fullbody-aces.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/fullbody-notonemapping.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/s3-tone-mapping/s3-tone-mapping-grade.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/01-toward-door-side-by-side.png` - keep-evidence; keep; Ward-finish-chain part 3 comparison sheet (01-toward-door): imagine-multiview reference left, chain runtime frame right.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/02-toward-bed-wall-side-by-side.png` - keep-evidence; keep; Ward-finish-chain part 3 comparison sheet (02-toward-bed-wall): imagine-multiview reference left, chain runtime frame right.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/03-ceiling-corner-side-by-side.png` - keep-evidence; keep; Ward-finish-chain part 3 comparison sheet (03-ceiling-corner): imagine-multiview reference left, chain runtime frame right.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/04-door-inside-side-by-side.png` - keep-evidence; keep; Ward-finish-chain part 3 comparison sheet (04-door-inside): imagine-multiview reference left, chain runtime frame right.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/05-troffer-junction-side-by-side.png` - keep-evidence; keep; Ward-finish-chain part 3 comparison sheet (05-troffer-junction): imagine-multiview reference left, chain runtime frame right.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/06-floor-base-side-by-side.png` - keep-evidence; keep; Ward-finish-chain part 3 comparison sheet (06-floor-base): imagine-multiview reference left, chain runtime frame right.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/06-floor-base-v2-side-by-side.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures-v2/runtime-01-toward-door.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures-v2/runtime-06-floor-base.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures-v2/stage2-multiview.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-01-toward-door.png` - keep-evidence; keep; Ward-finish-chain part 3 runtime capture (01-toward-door) against the wired chain GLB at runtime placement, hand-placed pose, no reseat.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Ward-finish-chain part 3 runtime capture (02-toward-bed-wall) against the wired chain GLB at runtime placement, hand-placed pose, no reseat.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-03-ceiling-corner.png` - keep-evidence; keep; Ward-finish-chain part 3 runtime capture (03-ceiling-corner) against the wired chain GLB at runtime placement, hand-placed pose, no reseat.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-04-door-inside.png` - keep-evidence; keep; Ward-finish-chain part 3 runtime capture (04-door-inside) against the wired chain GLB at runtime placement, hand-placed pose, no reseat.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-05-troffer-junction.png` - keep-evidence; keep; Ward-finish-chain part 3 runtime capture (05-troffer-junction) against the wired chain GLB at runtime placement, hand-placed pose, no reseat.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/runtime-06-floor-base.png` - keep-evidence; keep; Ward-finish-chain part 3 runtime capture (06-floor-base) against the wired chain GLB at runtime placement, hand-placed pose, no reseat.
+- `docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures/stage2-multiview.json` - keep-evidence; keep; Ward-finish-chain part 3 capture manifest: per-pose bytes/sha provenance for the 6 runtime frames.
 - `docs/openclinxr/scene-closure-2026-09-09/evidence/sc-00.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01s.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -3448,6 +3490,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/value-decisions/issue-204.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/videos/iwsdk-mpfb-radial-pulse-interaction-poster-2026-09-04.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/viseme-chosen-rung-label-2026-09-15.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `tools/openclinxr/evidence/room-ward-finish-chain/hand-placed-poses.json` - keep-evidence; keep; Ward-finish-chain part 3 pose inputs: verbatim copy of the sibling wt/infinigen-room hand-placed poses (stage2-camera-fit), read-only source untouched.
 - `docs/openclinxr/garment-source-allowlist-template-2026-05-27.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
 - `docs/openclinxr/godot-quest-voice-evidence-template.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
 - `docs/openclinxr/quest-http3-compatibility-template.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
