@@ -24350,42 +24350,42 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Ward-finish station input: deterministic tileable pass of the row-32 acoustic ceiling tile face albedo (offset-by-half wrap + cosine seam heal, JPEG q95); staged for the ceiling-wiring follow-up."
+      "rationale": "Ward-finish station input: deterministic tileable pass of the row-33 illumination-flattened acoustic ceiling tile face albedo (flatten-first, then offset-by-half wrap + cosine seam heal, JPEG q95); staged for the ceiling-wiring follow-up."
     },
     {
       "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-tile-face-normal.png",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Ward-finish station input: tangent-space normal map derived from the row-32 tileable acoustic ceiling tile face albedo (Rec.709 heightfield, wraparound Sobel 3x3, strength 2.0); staged for the ceiling-wiring follow-up."
+      "rationale": "Ward-finish station input: tangent-space normal map derived from the row-33 flattened tileable acoustic ceiling tile face albedo (Rec.709 heightfield, wraparound Sobel 3x3, strength 2.0); staged for the ceiling-wiring follow-up."
     },
     {
       "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-tile-face-roughness.png",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Ward-finish station input: roughness map derived from the row-32 tileable acoustic ceiling tile face albedo (inverted normalized 5x5 local luminance stddev); staged for the ceiling-wiring follow-up."
+      "rationale": "Ward-finish station input: roughness map derived from the row-33 flattened tileable acoustic ceiling tile face albedo (inverted normalized 5x5 local luminance stddev); staged for the ceiling-wiring follow-up."
     },
     {
       "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl-tileable.jpg",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Ward-finish station input: deterministic tileable pass of the row-32 sheet vinyl albedo (offset-by-half wrap + cosine seam heal, JPEG q95); staged for the ceiling-wiring follow-up."
+      "rationale": "Ward-finish station input: deterministic tileable pass of the row-33 illumination-flattened sheet vinyl albedo (flatten-first, then offset-by-half wrap + cosine seam heal, JPEG q95); staged for the ceiling-wiring follow-up."
     },
     {
       "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl-normal.png",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Ward-finish station input: tangent-space normal map derived from the row-32 tileable sheet vinyl albedo (Rec.709 heightfield, wraparound Sobel 3x3, strength 2.0); staged for the ceiling-wiring follow-up."
+      "rationale": "Ward-finish station input: tangent-space normal map derived from the row-33 flattened tileable sheet vinyl albedo (Rec.709 heightfield, wraparound Sobel 3x3, strength 2.0); staged for the ceiling-wiring follow-up."
     },
     {
       "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl-roughness.png",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Ward-finish station input: roughness map derived from the row-32 tileable sheet vinyl albedo (inverted normalized 5x5 local luminance stddev); staged for the ceiling-wiring follow-up."
+      "rationale": "Ward-finish station input: roughness map derived from the row-33 flattened tileable sheet vinyl albedo (inverted normalized 5x5 local luminance stddev); staged for the ceiling-wiring follow-up."
     },
     {
       "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster.jpg",
@@ -24399,42 +24399,42 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Ward-finish station input: deterministic tileable pass of the row-32 painted plaster albedo (offset-by-half wrap + cosine seam heal, JPEG q95); staged for the ceiling-wiring follow-up."
+      "rationale": "Ward-finish station input: deterministic tileable pass of the row-33 illumination-flattened painted plaster albedo (flatten-first, then offset-by-half wrap + cosine seam heal, JPEG q95); staged for the ceiling-wiring follow-up."
     },
     {
       "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster-normal.png",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Ward-finish station input: tangent-space normal map derived from the row-32 tileable painted plaster albedo (Rec.709 heightfield, wraparound Sobel 3x3, strength 2.0); staged for the ceiling-wiring follow-up."
+      "rationale": "Ward-finish station input: tangent-space normal map derived from the row-33 flattened tileable painted plaster albedo (Rec.709 heightfield, wraparound Sobel 3x3, strength 2.0); staged for the ceiling-wiring follow-up."
     },
     {
       "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster-roughness.png",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Ward-finish station input: roughness map derived from the row-32 tileable painted plaster albedo (inverted normalized 5x5 local luminance stddev); staged for the ceiling-wiring follow-up."
+      "rationale": "Ward-finish station input: roughness map derived from the row-33 flattened tileable painted plaster albedo (inverted normalized 5x5 local luminance stddev); staged for the ceiling-wiring follow-up."
     },
     {
-      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-tileable.jpg",
+      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-leaf.jpg",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Ward-finish station input: deterministic tileable pass of the row-32 maple veneer albedo (offset-by-half wrap + cosine seam heal, JPEG q95); staged for the ceiling-wiring follow-up."
+      "rationale": "Ward-finish station input: door leaf maple veneer albedo (row-32 source center-cropped to leaf aspect 0.95:2.10, 463x1024, single UV 0-1 map, no tiling, JPEG q95); staged for the ceiling-wiring follow-up."
     },
     {
       "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-normal.png",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Ward-finish station input: tangent-space normal map derived from the row-32 tileable maple veneer albedo (Rec.709 heightfield, wraparound Sobel 3x3, strength 2.0); staged for the ceiling-wiring follow-up."
+      "rationale": "Ward-finish station input: tangent-space normal map derived from the row-33 door maple leaf crop (Rec.709 heightfield, edge-clamped Sobel 3x3, strength 2.0, not tiled); staged for the ceiling-wiring follow-up."
     },
     {
       "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-roughness.png",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Ward-finish station input: roughness map derived from the row-32 tileable maple veneer albedo (inverted normalized 5x5 local luminance stddev); staged for the ceiling-wiring follow-up."
+      "rationale": "Ward-finish station input: roughness map derived from the row-33 door maple leaf crop (inverted normalized 5x5 local luminance stddev, edge-clamped, not tiled); staged for the ceiling-wiring follow-up."
     },
     {
       "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/rejected/door-maple-rejected-attempt1.jpg",
@@ -24455,35 +24455,35 @@
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "Tileable-pass and normal/roughness derivation parameters plus per-file md5s for the row-32 texture set; regeneration record."
+      "rationale": "Tileable-pass and normal/roughness derivation parameters plus per-file md5s for the row-32/row-33 texture set (row-33: flatten-first retile of ceiling/floor/wall with seam metrics; door leaf-crop with no tiling); regeneration record."
     },
     {
       "path": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-ceiling-tile-face.jpg",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "2x2 tiled grading preview of the row-32 tileable acoustic ceiling tile face albedo (JPEG q90); sent to the product owner before wiring."
+      "rationale": "2x2 tiled grading preview of the row-33 flattened tileable acoustic ceiling tile face albedo (JPEG q90); sent to the product owner before wiring."
     },
     {
       "path": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-floor-vinyl.jpg",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "2x2 tiled grading preview of the row-32 tileable sheet vinyl albedo (JPEG q90); sent to the product owner before wiring."
+      "rationale": "2x2 tiled grading preview of the row-33 flattened tileable sheet vinyl albedo (JPEG q90); sent to the product owner before wiring."
     },
     {
       "path": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-wall-plaster.jpg",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "2x2 tiled grading preview of the row-32 tileable painted plaster albedo (JPEG q90); sent to the product owner before wiring."
+      "rationale": "2x2 tiled grading preview of the row-33 flattened tileable painted plaster albedo (JPEG q90); sent to the product owner before wiring."
     },
     {
-      "path": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-door-maple.jpg",
+      "path": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-leaf-door-maple.jpg",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "2x2 tiled grading preview of the row-32 tileable maple veneer albedo (JPEG q90); sent to the product owner before wiring."
+      "rationale": "Single-leaf grading preview of the row-33 door maple leaf crop (leaf aspect 0.95:2.10, JPEG q90, not tiled); sent to the product owner before wiring."
     }
   ]
 }

@@ -1,89 +1,121 @@
 {
   "script": "make_imagine_textures_tileable.py",
+  "revision": "row-33: flatten-first for runtime-tiled textures; door leaf-crop, no tiling",
   "pillow": "12.3.0",
   "numpy": "2.5.1",
+  "flattenFirst": "per-channel divide by GaussianBlur(radius=FLATTEN_BLUR_RADIUS~=W/8) copy, rescale each channel to its own original mean; applied to kept albedo BEFORE offset/blend",
+  "flattenBlurRadius": 128,
+  "seamBlend": "REUSED UNCHANGED from row-32 (offset-by-half wrap + cosine heal, SEAM_HALF_WIDTH=24, BLUR_RADIUS=8); no widening -- mismatch was low-frequency, not a local seam artifact",
   "seamHalfWidthPx": 24,
   "seamFalloff": "0.5*(1+cos(pi*d/SEAM_HALF_WIDTH)), row/col bands combined by max",
   "healBlur": "GaussianBlur radius 8",
+  "seamMetric": "mean abs Rec.709 luminance step across center seam pairs (col cw|cw-1, row ch|ch-1, averaged) vs SAME stat for every other adjacent interior pair (blend band +/-SEAM_HALF_WIDTH+1 excluded); PASS iff seam <= interior p95",
   "normalHeight": "Rec.709 luminance/255",
-  "normalOperator": "Sobel 3x3 with wraparound sampling",
+  "normalOperator": "Sobel 3x3 with wraparound sampling (tiled three); edge-clamped sampling (door leaf, not tiled)",
   "normalStrength": 2.0,
-  "roughnessFormula": "1-(std-min)/(max-min); std = local luminance stddev in ROUGH_WINDOW square box window with wraparound",
+  "roughnessFormula": "1-(std-min)/(max-min); std = local luminance stddev in ROUGH_WINDOW square box window (wraparound for tiled three, edge-clamped for door leaf)",
   "roughWindow": 5,
   "tileableJpegQ": 95,
   "previewJpegQ": 90,
+  "doorTreatment": "center-crop kept door-maple.jpg to leaf aspect 0.95:2.10 (W:H); single UV 0-1 map, no repeat, no offset-tiling; vision-lite cutout left to leaf mesh/UV",
+  "doorAspectWH": [
+    0.95,
+    2.1
+  ],
   "textures": [
     {
       "source": "ceiling-tile-face.jpg",
       "sourceMd5": "bf3bfc4326f3b775fd24260587094d39",
+      "treatment": "flatten-first then offset-by-half wrap + cosine seam heal",
       "size": [
         1024,
         1024
       ],
       "tiled": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-tile-face-tileable.jpg",
-      "tiledMd5": "15d6a1254d756b3467d15c815bad6317",
+      "tiledMd5": "40d3e6f1323a70bf8aab72a9156046bb",
+      "seamStep": 0.08860771484374917,
+      "seamInteriorP95": 4.779708398437501,
+      "seamPass": true,
       "normal": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-tile-face-normal.png",
-      "normalMd5": "894223a86071549c11dbe95f053ca93f",
+      "normalMd5": "e87c7f2630231f343b8a00f90cb031d6",
       "roughness": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-tile-face-roughness.png",
-      "roughnessMd5": "445eaa42548b5eb9981bd42f81663042",
+      "roughnessMd5": "44684b0ffee7cbb8e1fd86abe9302853",
       "roughnessStdMin": 0.0,
       "roughnessStdMax": 49.082559020884396,
       "preview": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-ceiling-tile-face.jpg",
-      "previewMd5": "fc360d6f529fc91ed534a276729a5431"
+      "previewMd5": "cbcb9a491c9b11aec4d4942c5f458639"
     },
     {
       "source": "floor-vinyl.jpg",
       "sourceMd5": "e5c135c3530f866f2aacd3c24dab69be",
+      "treatment": "flatten-first then offset-by-half wrap + cosine seam heal",
       "size": [
         1024,
         1024
       ],
       "tiled": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl-tileable.jpg",
-      "tiledMd5": "b3ca51537356a5e97d49d6e72a2b3337",
+      "tiledMd5": "c31201fa545f7bc76164546bc5b6cf91",
+      "seamStep": 0.04351923828125025,
+      "seamInteriorP95": 2.682625283203127,
+      "seamPass": true,
       "normal": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl-normal.png",
-      "normalMd5": "09e6e24903ab0b8252f6e21335b4d5aa",
+      "normalMd5": "c1d1ae53c153fabc169be621faee0564",
       "roughness": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl-roughness.png",
-      "roughnessMd5": "a64d9025c61b61b3ae2d30ec84309d32",
+      "roughnessMd5": "6809d5179f28a4965982d72cc05f23ef",
       "roughnessStdMin": 0.0,
       "roughnessStdMax": 10.885880769068258,
       "preview": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-floor-vinyl.jpg",
-      "previewMd5": "408dfc69ece1181fd2cd85313d2021e9"
+      "previewMd5": "bbaf34b5f601a29a7317722fe006e950"
     },
     {
       "source": "wall-plaster.jpg",
       "sourceMd5": "734fe96c282446a18bba7d1e1527b35e",
+      "treatment": "flatten-first then offset-by-half wrap + cosine seam heal",
       "size": [
         1024,
         1024
       ],
       "tiled": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster-tileable.jpg",
-      "tiledMd5": "43b23b4e7d2a3b00b80175dc67e0d7b2",
+      "tiledMd5": "b8f3f9fa270d159e3754da92b03cbfb3",
+      "seamStep": 0.043987304687500936,
+      "seamInteriorP95": 3.014246191406246,
+      "seamPass": true,
       "normal": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster-normal.png",
-      "normalMd5": "8f97f020fd1f7913dba5ab943974d583",
+      "normalMd5": "fb68f724c2da66efba8dc3baaa3666cb",
       "roughness": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster-roughness.png",
-      "roughnessMd5": "1195a729364625b8b16d38407a7927ec",
+      "roughnessMd5": "e03ce075a13ec22f04acd66208dd8cd8",
       "roughnessStdMin": 0.0,
-      "roughnessStdMax": 20.84280211544187,
+      "roughnessStdMax": 20.949451389191598,
       "preview": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-wall-plaster.jpg",
-      "previewMd5": "364f661a68f51313f47976f4f0987f73"
+      "previewMd5": "5cb1b54e11f1738191c47f993e37d268"
     },
     {
       "source": "door-maple.jpg",
       "sourceMd5": "f26ca3e8e0d124c05e8f3bda9f203f3d",
-      "size": [
+      "treatment": "center-crop to door leaf aspect 0.95:2.10; single UV 0-1 map, no repeat, no offset-tiling pipeline; vision-lite cutout left to leaf mesh/UV",
+      "sourceSize": [
         1024,
         1024
       ],
-      "tiled": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-tileable.jpg",
-      "tiledMd5": "94539386eb802d050ecd826fe5f81c13",
+      "leafSize": [
+        463,
+        1024
+      ],
+      "leafAspectWH": 0.4521484375,
+      "leafAspectTarget": 0.45238095238095233,
+      "leafAspectRelErr": 0.0005139802631577779,
+      "tiled": null,
+      "seamMetric": null,
+      "leaf": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-leaf.jpg",
+      "leafMd5": "aec91358877ff6b821ab3a15cfbe1aa9",
       "normal": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-normal.png",
-      "normalMd5": "1d2aa9385812e66f40414505647c4c8e",
+      "normalMd5": "f0157b48f4c6fe6acceb8b4848d9fede",
       "roughness": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-roughness.png",
-      "roughnessMd5": "c34c53f40381a028b7794baeeb27b671",
-      "roughnessStdMin": 0.0,
-      "roughnessStdMax": 18.906442576064247,
-      "preview": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-2x2-door-maple.jpg",
-      "previewMd5": "0de42fe0dcc4f26c1307bfc3c1dd6ed0"
+      "roughnessMd5": "742d966ef73e9622c0eb21453f53e84c",
+      "roughnessStdMin": 0.5571355296527122,
+      "roughnessStdMax": 18.906442574207876,
+      "preview": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-leaf-door-maple.jpg",
+      "previewMd5": "b9fe8c87ad8a71f9d5d3dab532b364b8"
     }
   ]
 }

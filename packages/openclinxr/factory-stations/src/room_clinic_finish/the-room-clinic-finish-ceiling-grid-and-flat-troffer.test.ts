@@ -227,10 +227,16 @@ describe("the room clinic finish ceiling grid and flat troffer", () => {
     // The repo texture file behind the baked bytes must be structure-free
     // too: locate it by matching the baked image's stem against the
     // textures directory (real file bytes, no source-text assertion).
+    // The directory also holds the Imagine working set for the same
+    // station (kept albedo .jpg plus the pipeline's -tileable/-normal/
+    // -roughness derivatives); only the wired albedo face itself is
+    // probed here, and there must be exactly one of it.
     const { readdirSync } = await import("node:fs");
     const stems = readdirSync(path.join(SRC, "textures"));
-    const ceilingFiles = stems.filter((f) => f.toLowerCase().includes("ceiling"));
-    expect(ceilingFiles.length, "exactly one ceiling texture file is wired").toBe(1);
+    const ceilingFiles = stems.filter(
+      (f) => f.toLowerCase().includes("ceiling") && f.endsWith(".png") && !/(-normal|-roughness)\.png$/u.test(f),
+    );
+    expect(ceilingFiles.length, "exactly one wired ceiling albedo face file").toBe(1);
     const fileBytes = readFileSync(path.join(SRC, "textures", ceilingFiles[0]!));
     const file = await edgeNumbersOf(fileBytes, prepared!.work, "ceiling-file");
     expect(
