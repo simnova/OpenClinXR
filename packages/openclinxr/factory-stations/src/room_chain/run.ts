@@ -28,6 +28,7 @@ import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, EXTMeshoptCompression } from "@gltf-transform/extensions";
 import { MeshoptDecoder } from "meshoptimizer";
 import { runLightingDesign } from "../lighting_design/run.js";
+import { repoRoot } from "../repo-root.js";
 import { runRoomClinicFinish } from "../room_clinic_finish/run.js";
 import { runRoomGenerate } from "../room_generate/run.js";
 
@@ -131,6 +132,27 @@ export function parseWardChainArgs(args: readonly string[]): { seed: number; out
   return { seed, outDir };
 }
 
+/**
+ * Resolve the chain's --out-dir against the repo root, not process.cwd().
+ *
+ * Third fix in the 44824ba98 -> 9962c6f52 sequence: 44824ba98 absolutized
+ * room_generate's workGlb against repoRoot() (Blender spawns run with
+ * cwd=repoRoot(), Node I/O resolves against process.cwd()); 9962c6f52
+ * absolutized room_chain's outDir but against process.cwd(), which is the
+ * PACKAGE directory under `pnpm --filter @openclinxr/factory-stations exec`
+ * (the real chain CLI's own invocation shape). The two still disagreed on
+ * the BASE: a relative --out-dir landed evidence under
+ * packages/openclinxr/factory-stations/.openclinxr/evidence/... while
+ * runRoomGenerate resolved the same relative workGlb under the repo root.
+ * Resolving here against repoRoot() -- the same base runRoomGenerate uses
+ * for options.cwd -- gives one base regardless of the invoker's cwd.
+ * Exported so the outDir-resolution logic is unit-testable without running
+ * the full GENERATE/bake/finish/lighting sequence.
+ */
+export function resolveChainOutDir(outDirArg: string, base: string = repoRoot()): string {
+  return path.resolve(base, outDirArg);
+}
+
 export async function runWardFinishChain(args = process.argv.slice(2)): Promise<void> {
   const { seed, outDir: outDirArg } = parseWardChainArgs(args);
   // Measured 2026-09-27 (a recurrence of the same class of bug fixed in
@@ -141,10 +163,11 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
   // absolutizes its own copy of workGlb internally, so stage 1 completes,
   // but this module's OWN workGlb (used for auditMaterials both before and
   // after each stage) was still the raw relative string from --out-dir and
-  // ENOENTs the same way. Absolutize outDir once, up front, so every path
-  // derived from it (workGlb, recipeJson, reports, logs) is consistent
-  // regardless of the caller's cwd.
-  const outDir = path.resolve(outDirArg);
+  // ENOENTs the same way. Absolutize outDir once, up front, against
+  // repoRoot() -- the same base runRoomGenerate resolves its workGlb
+  // against -- so every path derived from it (workGlb, recipeJson,
+  // reports, logs) agrees on one base regardless of the caller's cwd.
+  const outDir = resolveChainOutDir(outDirArg);
   const blender = process.env["BLENDER"] ?? "blender";
   await mkdir(outDir, { recursive: true });
   const workGlb = path.join(outDir, "ward-chain.work.glb");
