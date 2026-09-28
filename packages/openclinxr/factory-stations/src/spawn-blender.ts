@@ -21,11 +21,27 @@ function withFailClosedExitCode(args: string[]): string[] {
   return [...args.slice(0, backgroundAt + 1), ...PYTHON_EXIT_CODE_ARGS, ...args.slice(backgroundAt + 1)];
 }
 
+export type BlenderProcessResult = {
+  code: number;
+  stdout: string;
+  stderr: string;
+  /**
+   * True only when this wrapper's own timeout timer fired and killed the
+   * child (SIGTERM, then SIGKILL). A real Blender/Python crash reports
+   * timedOut: false with its own non-zero code, so callers can tell a
+   * timeout kill apart from a genuine failure instead of mapping both to
+   * a bare "exit 1".
+   */
+  timedOut: boolean;
+  /** The signal Node reported on close, if the process died from one. */
+  signal: string | null;
+};
+
 export function spawnBlenderProcess(
   blender: string,
   args: string[],
   opts: { cwd: string; timeoutMs: number },
-): Promise<{ code: number; stdout: string; stderr: string }> {
+): Promise<BlenderProcessResult> {
   return new Promise((resolve) => {
     const child = spawn(blender, withFailClosedExitCode(args), {
       cwd: opts.cwd,
@@ -34,9 +50,11 @@ export function spawnBlenderProcess(
     });
     let stdout = "";
     let stderr = "";
+    let timedOut = false;
     const timer =
       opts.timeoutMs > 0
         ? setTimeout(() => {
+            timedOut = true;
             child.kill("SIGTERM");
             setTimeout(() => child.kill("SIGKILL"), 5_000).unref();
           }, opts.timeoutMs)
@@ -49,11 +67,11 @@ export function spawnBlenderProcess(
     });
     child.on("error", (err: Error) => {
       if (timer) clearTimeout(timer);
-      resolve({ code: 127, stdout, stderr: `${stderr}\n${String(err)}` });
+      resolve({ code: 127, stdout, stderr: `${stderr}\n${String(err)}`, timedOut, signal: null });
     });
-    child.on("close", (code: number | null) => {
+    child.on("close", (code: number | null, signal: string | null) => {
       if (timer) clearTimeout(timer);
-      resolve({ code: code ?? 1, stdout, stderr });
+      resolve({ code: code ?? 1, stdout, stderr, timedOut, signal: signal ?? null });
     });
   });
 }

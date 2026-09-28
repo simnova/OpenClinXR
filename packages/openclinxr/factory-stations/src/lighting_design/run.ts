@@ -394,6 +394,9 @@ export async function runLightingDesign(
     rigPath: options.outRigJson,
     report: options.report,
     blenderExit: result.code,
+    timedOut: result.timedOut,
+    signal: result.signal,
+    timeoutMs: options.timeoutMs ?? 600_000,
     stdout: result.stdout,
     stderr: result.stderr,
   };

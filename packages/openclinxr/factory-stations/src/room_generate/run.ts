@@ -254,6 +254,11 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
     if (albedoExit !== 0) {
       const { stdoutLog, stderrLog } = roomBakeFailureLogPaths(options.workGlb, "albedo");
       persistBakeFailureLogs(stdoutLog, stderrLog, albedoStdout, albedoStderr);
+      if (albedo.timedOut) {
+        throw new Error(
+          `room albedo bake timed out after ${timeoutMs / 1000} s (signal ${albedo.signal ?? "unknown"}):\n${albedoStderr.slice(-2000)}\n(full stdout: ${stdoutLog}; full stderr: ${stderrLog})`,
+        );
+      }
       throw new Error(
         `room albedo bake failed with exit ${albedoExit}:\n${albedoStderr.slice(-2000)}\n(full stdout: ${stdoutLog}; full stderr: ${stderrLog})`,
       );
@@ -282,6 +287,11 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
     if (occlusionExit !== 0) {
       const { stdoutLog, stderrLog } = roomBakeFailureLogPaths(options.workGlb, "occlusion");
       persistBakeFailureLogs(stdoutLog, stderrLog, occlusionStdout, occlusionStderr);
+      if (occlusion.timedOut) {
+        throw new Error(
+          `room occlusion bake timed out after ${timeoutMs / 1000} s (signal ${occlusion.signal ?? "unknown"}):\n${occlusionStderr.slice(-2000)}\n(full stdout: ${stdoutLog}; full stderr: ${stderrLog})`,
+        );
+      }
       throw new Error(
         `room occlusion bake failed with exit ${occlusionExit}:\n${occlusionStderr.slice(-2000)}\n(full stdout: ${stdoutLog}; full stderr: ${stderrLog})`,
       );

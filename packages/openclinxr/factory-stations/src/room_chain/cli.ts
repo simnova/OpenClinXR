@@ -7,7 +7,8 @@
  *
  * Usage:
  *   pnpm --filter @openclinxr/factory-stations exec tsx src/room_chain/cli.ts \
- *     [--seed 205] [--out-dir .openclinxr/evidence/ward-finish-chain]
+ *     [--seed 205] [--out-dir .openclinxr/evidence/ward-finish-chain] \
+ *     [--pass-timeout-ms 3600000]
  */
 import { pathToFileURL } from "node:url";
 import { runWardFinishChain } from "./run.js";

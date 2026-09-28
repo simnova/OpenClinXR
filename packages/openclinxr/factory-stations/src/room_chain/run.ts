@@ -46,6 +46,13 @@ export const WARD_CHAIN_DOOR = {
 };
 export const WARD_CHAIN_PRESET = "ward_photo";
 export const WARD_CHAIN_MOOD = "clinic_day";
+// Measured 2026-09-28: a real chain albedo bake took 757 s (log timestamps
+// 03:59:13 to 04:11:50), so the old 600 s per-pass budget SIGTERMed a Blender
+// that had already finished its real work and the timeout race reported the
+// successful bake as a generic "exit 1". The 3600 s (1 hour) default below
+// keeps real margin over that measured figure; per the D9 operator directive
+// execution duration is refinable and must not fail a good bake.
+export const WARD_CHAIN_PASS_TIMEOUT_MS = 3_600_000;
 export const WARD_CHAIN_BBOX = {
   minX: -WARD_CHAIN_FOOTPRINT.width / 2,
   maxX: WARD_CHAIN_FOOTPRINT.width / 2,
@@ -90,7 +97,25 @@ async function auditMaterials(glbPath: string): Promise<{ meshes: string[]; mate
   };
 }
 
-function assertBlenderOk(stage: string, result: Record<string, unknown>): void {
+function assertBlenderOk(
+  stage: string,
+  result: Record<string, unknown>,
+  opts?: { timeoutMs?: number; outDir?: string },
+): void {
+  // A timeout kill must report as a timeout, never a bare exit code: the
+  // spawn wrapper marks its own timer kills with timedOut: true plus the
+  // signal Node reported, while a real crash keeps timedOut: false.
+  if (result["timedOut"] === true) {
+    const timeoutMs =
+      opts?.timeoutMs ??
+      (typeof result["timeoutMs"] === "number" ? (result["timeoutMs"] as number) : null);
+    const after =
+      timeoutMs !== null && timeoutMs !== undefined ? `timed out after ${timeoutMs / 1000} s` : "timed out";
+    const signal = typeof result["signal"] === "string" ? ` (signal ${result["signal"] as string})` : "";
+    const stderr = typeof result["stderr"] === "string" ? (result["stderr"] as string) : "";
+    const logs = opts?.outDir !== undefined ? ` (stage logs in ${opts.outDir})` : "";
+    throw new Error(`${stage} ${after}${signal}:${logs}\n${stderr.slice(-2000)}`);
+  }
   // Fail the chain on a non-zero exit from ANY Blender pass, not just the
   // rollup. runRoomGenerate reports per-pass exits (S1: blenderExit used to
   // carry only the occlusion code, hiding a crashed albedo pass).
@@ -121,15 +146,24 @@ async function decompressWorkGlb(glbPath: string): Promise<void> {
   await plain.write(glbPath, doc);
 }
 
-export function parseWardChainArgs(args: readonly string[]): { seed: number; outDir: string } {
+export function parseWardChainArgs(args: readonly string[]): {
+  seed: number;
+  outDir: string;
+  passTimeoutMs: number;
+} {
   let seed = WARD_CHAIN_DEFAULT_SEED;
   let outDir = WARD_CHAIN_OUT_DIR;
+  let passTimeoutMs = WARD_CHAIN_PASS_TIMEOUT_MS;
   for (let i = 0; i < args.length; i += 1) {
     if (args[i] === "--seed") seed = Number(args[i + 1]);
     if (args[i] === "--out-dir") outDir = String(args[i + 1]);
+    if (args[i] === "--pass-timeout-ms") passTimeoutMs = Number(args[i + 1]);
   }
   if (!Number.isFinite(seed)) throw new Error("--seed must be a finite number");
-  return { seed, outDir };
+  if (!Number.isFinite(passTimeoutMs) || passTimeoutMs <= 0) {
+    throw new Error("--pass-timeout-ms must be a positive number of milliseconds");
+  }
+  return { seed, outDir, passTimeoutMs };
 }
 
 /**
@@ -154,7 +188,7 @@ export function resolveChainOutDir(outDirArg: string, base: string = repoRoot())
 }
 
 export async function runWardFinishChain(args = process.argv.slice(2)): Promise<void> {
-  const { seed, outDir: outDirArg } = parseWardChainArgs(args);
+  const { seed, outDir: outDirArg, passTimeoutMs } = parseWardChainArgs(args);
   // Measured 2026-09-27 (a recurrence of the same class of bug fixed in
   // room_generate/run.ts): auditMaterials below is pure Node I/O -- it
   // resolves a relative workGlb against process.cwd(), which is the PACKAGE
@@ -198,7 +232,7 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
     blender,
     workGlb,
     bakeAlbedo: true,
-    timeoutMs: 600_000,
+    timeoutMs: passTimeoutMs,
     generateTimeoutMs: 3_600_000,
   }).catch(async (err: unknown) => {
     await writeFile(
@@ -219,7 +253,7 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
       await writeFile(path.join(outDir, `ward-chain.${pass}.${stream}.log`), content, "utf8");
     }
   }
-  assertBlenderOk("room_generate", genResult);
+  assertBlenderOk("room_generate", genResult, { timeoutMs: passTimeoutMs, outDir });
   const afterGenerate = await auditMaterials(workGlb);
   process.stdout.write(
     `[ward-chain] stage 1 done: tris=${afterGenerate.tris} ` +
@@ -232,10 +266,10 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
   process.stdout.write(`[ward-chain] stage 2 room_clinic_finish preset=${WARD_CHAIN_PRESET} ...\n`);
   const finishResult = await runRoomClinicFinish(
     { environmentId: WARD_CHAIN_ENVIRONMENT_ID, preset: WARD_CHAIN_PRESET, seed },
-    { blender, workGlb, recipeJsonOut: recipeJson, report: finishReport, timeoutMs: 600_000 },
+    { blender, workGlb, recipeJsonOut: recipeJson, report: finishReport, timeoutMs: passTimeoutMs },
   );
   await stageLog("finish", finishResult);
-  assertBlenderOk("room_clinic_finish", finishResult);
+  assertBlenderOk("room_clinic_finish", finishResult, { timeoutMs: passTimeoutMs, outDir });
   const afterFinish = await auditMaterials(workGlb);
   process.stdout.write(
     `[ward-chain] stage 2 done: tris=${afterFinish.tris} ` +
@@ -257,10 +291,10 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
     outRigJson: rigJson,
     report: lightingReport,
     roomGlb: workGlb,
-    timeoutMs: 600_000,
+    timeoutMs: passTimeoutMs,
   });
   await stageLog("lighting", lightResult);
-  assertBlenderOk("lighting_design", lightResult);
+  assertBlenderOk("lighting_design", lightResult, { timeoutMs: passTimeoutMs, outDir });
   const final = await auditMaterials(workGlb);
   const floorRows = final.materials.filter((m) => /floor/i.test(m.material));
 
