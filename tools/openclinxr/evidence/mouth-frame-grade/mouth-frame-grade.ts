@@ -134,11 +134,15 @@ const MEASURE = `(() => {
     const sorted = out.ys.slice().sort(function (a,b) { return a-b; });
     const med = sorted[Math.floor(sorted.length / 2)];
     const up = [0,0,0]; let un = 0;
+    const lo = [0,0,0]; let ln = 0;
     for (const p of per) {
       if (p[1] > med) { up[0]+=p[0]; up[1]+=p[1]; up[2]+=p[2]; un++; }
+      else if (p[1] < med) { lo[0]+=p[0]; lo[1]+=p[1]; lo[2]+=p[2]; ln++; }
     }
     out.upper = un ? up.map(function (s) { return s / un; }) : [0,0,0];
     out.upperCount = un;
+    out.lower = ln ? lo.map(function (s) { return s / ln; }) : [0,0,0];
+    out.lowerCount = ln;
     return out;
   }
   const atRest = centroids();
@@ -157,6 +161,8 @@ const MEASURE = `(() => {
     fullDeltaM: dist(atRest.full, atAA.full),
     upperDeltaM: dist(atRest.upper, atAA.upper),
     upperCount: atAA.upperCount,
+    lowerDeltaM: dist(atRest.lower, atAA.lower),
+    lowerCount: atAA.lowerCount,
   };
 })()`;
 
@@ -240,6 +246,8 @@ export async function runMouthFrameGrade(): Promise<void> {
       fullDeltaM: number;
       upperDeltaM: number;
       upperCount: number;
+      lowerDeltaM: number;
+      lowerCount: number;
     };
     const doc = {
       schemaVersion: "openclinxr.mouth-frame-grade.v1",
@@ -253,12 +261,14 @@ export async function runMouthFrameGrade(): Promise<void> {
       teethCentroidDeltaM: Number(m.fullDeltaM.toFixed(6)),
       upperHalfCentroidDeltaM: Number(m.upperDeltaM.toFixed(6)),
       upperHalfVertexCount: m.upperCount,
+      lowerHalfCentroidDeltaM: Number(m.lowerDeltaM.toFixed(6)),
+      lowerHalfVertexCount: m.lowerCount,
       claimScope: "teeth_follow_phoneme_jaw",
       notEvidenceFor: ["clinical", "Quest", "pixel grade"],
     };
     await writeFile(join(OUT_DIR, "teeth-motion.json"), `${JSON.stringify(doc, null, 2)}\n`, "utf8");
     process.stdout.write(
-      `teeth=${m.teethMeshName} fullDelta=${m.fullDeltaM.toFixed(6)}m upperDelta=${m.upperDeltaM.toFixed(6)}m joints=${JSON.stringify(m.strongestCounts)}\n`,
+      `teeth=${m.teethMeshName} fullDelta=${m.fullDeltaM.toFixed(6)}m upperDelta=${m.upperDeltaM.toFixed(6)}m lowerDelta=${m.lowerDeltaM.toFixed(6)}m joints=${JSON.stringify(m.strongestCounts)}\n`,
     );
   } finally {
     if (server) {

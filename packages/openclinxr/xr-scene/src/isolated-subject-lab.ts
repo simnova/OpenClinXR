@@ -37,8 +37,8 @@ import {
 import { type CaptureView, computeMeshBounds, frameCamera } from "./camera-fit-to-bounds.js";
 import { type FocusRegion, resolveFocus } from "./isolated-subject-focus.js";
 import { type PackFramingRecord, recordPackFraming } from "./isolated-pack-framing.js";
-import { buildPatientChair } from "@openclinxr/xr-station";
-import { buildDeclaredEquipmentGeometry } from "@openclinxr/xr-station";
+import { rebindHeadLockedTeeth } from "./humanoid-load-guard.js";
+import { buildDeclaredEquipmentGeometry, buildPatientChair } from "@openclinxr/xr-station";
 import {
   buildPatientStretcher,
   STRETCHER_DECK_TOP_METERS,
@@ -242,7 +242,7 @@ async function loadHumanoid(bodyGlb: string): Promise<Object3D> {
   loader.setMeshoptDecoder(MeshoptDecoder);
   const url = bodyGlb.startsWith("/") ? bodyGlb : `/${bodyGlb.replace(/^\.\//, "")}`;
   const gltf = await loader.loadAsync(url);
-  const root = gltf.scene;
+  const root = gltf.scene; rebindHeadLockedTeeth(root);
   root.name = "isolated_subject_humanoid";
   root.userData.openClinXrIsolatedSubject = true;
   return root;

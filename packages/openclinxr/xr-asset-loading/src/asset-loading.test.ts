@@ -1,7 +1,7 @@
-import { BoxGeometry, Color, Group, Mesh, MeshStandardMaterial } from "three";
+import { Bone, BoxGeometry, Color, Float32BufferAttribute, Group, Mesh, MeshStandardMaterial, Skeleton, SkinnedMesh } from "three";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { addActorSpecificIdentityVariantCue, addRoleSpecificHumanoidVisuals, addScenarioSpecificClinicalTeamCue, addScenarioSpecificFamilyCue, addScenarioSpecificPatientCue, configureSemanticRolePoseOverlay, runtimeHumanoidVariantAssetPath, shouldShowProceduralHumanoidDetailCues, tintGeneratedSceneMaterials } from "./index.js";
-import { readSelectedHumanoidSourceComparator } from "./generated-loaders.js";
+import { readSelectedHumanoidSourceComparator, rebindHeadLockedTeeth } from "./generated-loaders.js";
 import { tintGeneratedMaterial } from "./material-tint.js";
 import type { AssetLoadingContext } from "./types.js";
 
@@ -196,5 +196,65 @@ describe("xr-asset-loading", () => {
     const group = new Group();
     tintGeneratedSceneMaterials(group, 0xff0000);
     expect(group.children.length).toBe(0);
+  });
+});
+
+function buildHeadLockedTeeth(): { root: Group; mesh: SkinnedMesh } {
+  const head = new Bone();
+  head.name = "head";
+  const jaw = new Bone();
+  jaw.name = "jaw";
+  head.add(jaw);
+  const mesh = new SkinnedMesh(new BoxGeometry(1, 1, 1), new MeshStandardMaterial());
+  mesh.name = "teeth_mesh";
+  const pos = mesh.geometry.attributes.position;
+  if (!pos) throw new Error("box has no position");
+  pos.setY(0, 1);
+  pos.setY(1, 0.5);
+  pos.setY(2, -0.5);
+  pos.setY(3, -1);
+  const count = pos.count;
+  const si = new Float32Array(count * 4);
+  const sw = new Float32Array(count * 4);
+  for (let v = 0; v < count; v += 1) {
+    si[v * 4] = 0;
+    sw[v * 4] = 1;
+  }
+  mesh.geometry.setAttribute("skinIndex", new Float32BufferAttribute(si, 4));
+  mesh.geometry.setAttribute("skinWeight", new Float32BufferAttribute(sw, 4));
+  mesh.add(head);
+  mesh.bind(new Skeleton([head, jaw]));
+  const root = new Group();
+  root.add(mesh);
+  return { root, mesh };
+}
+
+function strongestJoint(mesh: SkinnedMesh, v: number): number {
+  const si = mesh.geometry.attributes.skinIndex;
+  const sw = mesh.geometry.attributes.skinWeight;
+  if (!si || !sw) throw new Error("missing skin attributes");
+  let bi = si.getX(v);
+  let bw = sw.getX(v);
+  if (sw.getY(v) > bw) { bi = si.getY(v); bw = sw.getY(v); }
+  if (sw.getZ(v) > bw) { bi = si.getZ(v); bw = sw.getZ(v); }
+  if (sw.getW(v) > bw) bi = si.getW(v);
+  return bi;
+}
+
+describe("rebindHeadLockedTeeth", () => {
+  it("moves the lower half onto the jaw and keeps the upper on head", () => {
+    const { root, mesh } = buildHeadLockedTeeth();
+    const pos = mesh.geometry.attributes.position;
+    if (!pos) throw new Error("box has no position");
+    const ys = [...Array(pos.count).keys()].map((v) => pos.getY(v)).sort((a, b) => a - b);
+    const median = ys[Math.floor(pos.count / 2)] ?? 0;
+    const lower = [0, 1, 2, 3].filter((v) => pos.getY(v) < median);
+    const upper = [0, 1, 2, 3].filter((v) => pos.getY(v) >= median);
+    expect(lower.length).toBe(2);
+    rebindHeadLockedTeeth(root);
+    for (const v of lower) expect(mesh.skeleton.bones[strongestJoint(mesh, v)]?.name).toBe("jaw");
+    for (const v of upper) expect(mesh.skeleton.bones[strongestJoint(mesh, v)]?.name).toBe("head");
+    rebindHeadLockedTeeth(root);
+    for (const v of upper) expect(mesh.skeleton.bones[strongestJoint(mesh, v)]?.name).toBe("head");
   });
 });
