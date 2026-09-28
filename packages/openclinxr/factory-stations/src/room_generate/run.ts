@@ -144,6 +144,21 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
   }
   const seed = Number(planned.value["seed"]);
   const environmentId = String(planned.value["environmentId"]);
+  // Measured 2026-09-27: every Blender subprocess below is spawned with
+  // cwd=repoCwd (repoRoot() by default), so a relative workGlb resolves
+  // there for Blender's own --input/--output. But simplifyRoomAfterBake
+  // below is pure Node I/O with no spawn involved -- it resolves the same
+  // relative workGlb against process.cwd(), which is the PACKAGE directory
+  // under `pnpm --filter <pkg> exec` (the real chain CLI's own invocation
+  // shape), not repoRoot(). 5-of-5 reproduction: relative workGlb + Blender
+  // bake succeeds + simplify ENOENTs, every time process.cwd() != repoRoot(),
+  // confirmed present at the repoRoot()-relative path and absent at the
+  // process.cwd()-relative path via statSync. Absolutize once, up front
+  // (same fix generate.ts already applies to its own workGlb use), so every
+  // stage -- Blender spawns and Node's own reads -- agrees on one file.
+  const repoCwd = options.cwd ?? repoRoot();
+  const workGlb = path.resolve(repoCwd, options.workGlb);
+  options = { ...options, workGlb, cwd: repoCwd };
   // Opt-in GENERATE step: only when footprintMeters is present. Legacy call
   // shape (absent) keeps existing behavior -- workGlb already exists.
   let generate: InfinigenGenerateReport | null = null;
