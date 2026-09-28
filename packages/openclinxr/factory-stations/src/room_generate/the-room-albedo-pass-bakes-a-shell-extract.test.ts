@@ -1,11 +1,13 @@
+import { execFile } from "node:child_process";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
-import { spawnBlenderProcess } from "../spawn-blender.js";
 
+const execFileAsync = promisify(execFile);
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 /**
@@ -19,6 +21,14 @@ const SRC = dirname(fileURLToPath(import.meta.url));
  * the bake ran to completion: exit 0, the `[room-bake] baked` log line
  * present, and the link-failure error string absent. Live Blender per
  * dispatch; walls-only fixture at --resolution 64 keeps it fast.
+ *
+ * Raw `execFile`, not the package-internal `spawnBlenderProcess` wrapper:
+ * this test only asserts the happy path (exit 0, log line present), so the
+ * wrapper's `--python-exit-code 1` fail-closed injection is not exercised
+ * here (`the-spawn-blender-fails-closed-on-python-exceptions.test.ts` pins
+ * that behavior directly, which does need the wrapper itself as its
+ * subject). Using raw execFile keeps this test import-surface clean, the
+ * same way the sibling "raw Blender" case in that file does.
  */
 
 describe("the room albedo pass bakes a shell extract", () => {
@@ -27,11 +37,17 @@ describe("the room albedo pass bakes a shell extract", () => {
     const input = path.join(SRC, "fixtures", "extract.glb");
     const output = path.join(work, "baked.glb");
     const script = path.join(SRC, "room-albedo-ao-bake.py");
-    const result = await spawnBlenderProcess(
+    const result = await execFileAsync(
       "blender",
       ["--background", "--python", script, "--", "--input", input, "--output", output, "--resolution", "64"],
-      { cwd: work, timeoutMs: 300_000 },
-    );
+      { timeout: 300_000 },
+    )
+      .then((ok) => ({ code: 0, stdout: ok.stdout, stderr: ok.stderr }))
+      .catch((err: { code?: number; stdout?: string; stderr?: string }) => ({
+        code: err.code ?? 1,
+        stdout: err.stdout ?? "",
+        stderr: err.stderr ?? "",
+      }));
     const combined = `${result.stdout}\n${result.stderr}`;
     expect(combined).not.toContain("not in view layer after link");
     expect(result.stdout).toContain("[room-bake] baked");
