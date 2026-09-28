@@ -267,7 +267,8 @@ export async function runInfinigenGenerate(
     cwd: infinigenSource,
     timeoutMs,
     // OPENCLINXR_ROOM_REALISM=1 pins room_walls to Plaster (S4 shell
-    // contract) and room_floors to Rug (placeholder S5 replaces with vinyl).
+    // contract) and room_floors to BumpyRubberFloor (calibrated shell-only
+    // base_color via apply(); S5 replaces with vinyl at finish).
     // decorate.py reads it via os.environ in-process, so it must ride the
     // driver spawn env, not just the caller shell.
     env: { PYTHONPATH: moduleDir, CUDA_VISIBLE_DEVICES: "None", OPENCLINXR_ROOM_REALISM: "1" },

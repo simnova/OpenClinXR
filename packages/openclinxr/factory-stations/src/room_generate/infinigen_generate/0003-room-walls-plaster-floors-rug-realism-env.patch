@@ -14,8 +14,7 @@ diff --git a/infinigen/core/constraints/example_solver/room/decorate.py b/infini
      logger.debug(
          f"{room_walls.__name__} adding materials to {len(walls)=}, using {len(wall_fns)=}"
      )
-@@ -223,7 +227,11 @@ def room_walls(walls: list[bpy.types.Object], constants: RoomConstants, n_walls=
-             rooms__ = [r for r, j in zip(rooms_, indices) if j == i]
+@@ -224,6 +228,10 @@ def room_walls(walls: list[bpy.types.Object], constants: RoomConstants, n_walls=
              if wall_fn.__class__.__name__ == "Plaster":
                  for r in rooms__:
                      unwrap_normal(r, selection=None)
@@ -26,7 +25,7 @@ diff --git a/infinigen/core/constraints/example_solver/room/decorate.py b/infini
              if wall_fn.__class__.__name__ in ("Brick", "Concrete"):
                  # Concrete.generate() takes no kwargs, same as Brick (upstream
                  # fixed Brick in 2e8a159b/v1.13.2 but missed Concrete).
-@@ -234,6 +238,8 @@ def room_walls(walls: list[bpy.types.Object], constants: RoomConstants, n_walls=
+@@ -234,6 +242,8 @@ def room_walls(walls: list[bpy.types.Object], constants: RoomConstants, n_walls=
          logger.debug(
              f"{room_walls.__name__} adding materials to {len(walls)=}, using {len(wall_fns)=}"
          )
@@ -35,7 +34,7 @@ diff --git a/infinigen/core/constraints/example_solver/room/decorate.py b/infini
          fn = rg(room_wall_alternative_fns[room_type(w.name)])
          match fn:
              case "none":
-@@ -323,9 +329,13 @@ def room_ceilings(ceilings):
+@@ -323,9 +333,13 @@ def room_ceilings(ceilings):
  def room_floors(floors, n_floors=3):
  
      floor_material_gens = []
@@ -43,8 +42,8 @@ diff --git a/infinigen/core/constraints/example_solver/room/decorate.py b/infini
 -        gen_class = weighted_sample(room_floor_fns[room_type(r.name)])
 -        floor_material_gens.append(gen_class())
 +    if os.environ.get("OPENCLINXR_ROOM_REALISM") == "1":
-+        rug = material_assignments.fabric.Rug()
-+        floor_material_gens = [rug for _ in floors]
++        rubber = material_assignments.plastic.BumpyRubberFloor()
++        floor_material_gens = [rubber for _ in floors]
 +    else:
 +        for r in floors:
 +            gen_class = weighted_sample(room_floor_fns[room_type(r.name)])
@@ -52,3 +51,17 @@ diff --git a/infinigen/core/constraints/example_solver/room/decorate.py b/infini
  
      logger.debug(
          f"{room_floors.__name__} adding materials to {len(floors)=}, using {len(floor_material_gens)=}"
+@@ -339,6 +353,13 @@ def room_floors(floors, n_floors=3):
+             if floor_fn.__class__.__name__ == "Plaster":
+                 for r in rooms__:
+                     unwrap_normal(r, selection=None)
++            if floor_fn.__class__.__name__ == "BumpyRubberFloor":
++                # Shell floor: BumpyRubberFloor.generate() takes no params,
++                # so base_color rides apply() only (same constraint class as
++                # the Plaster plaster_colored kwargs pin). apply() assigns
++                # the material itself, so assign_material is skipped here.
++                floor_fn.apply(rooms__, base_color=(0.43, 0.44, 0.46, 1.0))
++                continue
+             surface.assign_material(rooms__, floor_fn())
+             # floor_fn.apply(rooms__)
+ 
