@@ -31,11 +31,15 @@ here the wall and along-wall offset are parameters (`--door-wall`,
   patch (widens the upstream Brick guard to `("Brick", "Concrete")` in
   `room_walls`, `decorate.py`). Target revision `b11700eb` (v1.14.0).
 - `0003-room-walls-plaster-floors-rug-realism-env.patch` — versioned
-  Infinigen source patch (pins `room_walls` to Plaster, skips the
-  wainscot/alternative pass, and pins `room_floors` to Rug when
+  Infinigen source patch (pins `room_walls` to Plaster, pins that Plaster
+  draw to neutral `plaster_colored=False` via `kwargs` -- `Plaster` takes
+  no constructor args, the flag rides `generate()`/`apply()` only --
+  skips the wainscot/alternative pass, and pins `room_floors` to Rug when
   `OPENCLINXR_ROOM_REALISM=1`, `decorate.py`). Same target revision.
   The floor pin to Rug is a placeholder S5 replaces with vinyl; the wall
-  pin to Plaster is the S4 contract. Applies after 0001.
+  pin to Plaster is the S4 contract. Applies after 0001 (its
+  Plaster-branch hunk builds on 0001's Brick/Concrete guard, so
+  `apply-patches.sh` applies the files sequentially, not in one call).
 - `apply-patches.sh` — applies the patches to a fresh tool install.
 
 ## Fresh Infinigen install

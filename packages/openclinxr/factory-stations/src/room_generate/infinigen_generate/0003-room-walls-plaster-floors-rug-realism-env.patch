@@ -14,6 +14,18 @@ diff --git a/infinigen/core/constraints/example_solver/room/decorate.py b/infini
      logger.debug(
          f"{room_walls.__name__} adding materials to {len(walls)=}, using {len(wall_fns)=}"
      )
+@@ -223,7 +227,11 @@ def room_walls(walls: list[bpy.types.Object], constants: RoomConstants, n_walls=
+             rooms__ = [r for r, j in zip(rooms_, indices) if j == i]
+             if wall_fn.__class__.__name__ == "Plaster":
+                 for r in rooms__:
+                     unwrap_normal(r, selection=None)
++                # Neutral ward shell: Plaster takes no constructor kwargs --
++                # plaster_colored rides generate()/apply() only -- so pin it
++                # on kwargs before wall_fn(**kwargs) materializes the wall.
++                kwargs["plaster_colored"] = False
+             if wall_fn.__class__.__name__ in ("Brick", "Concrete"):
+                 # Concrete.generate() takes no kwargs, same as Brick (upstream
+                 # fixed Brick in 2e8a159b/v1.13.2 but missed Concrete).
 @@ -234,6 +238,8 @@ def room_walls(walls: list[bpy.types.Object], constants: RoomConstants, n_walls=
          logger.debug(
              f"{room_walls.__name__} adding materials to {len(walls)=}, using {len(wall_fns)=}"
