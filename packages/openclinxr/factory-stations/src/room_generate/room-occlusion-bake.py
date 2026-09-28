@@ -282,17 +282,21 @@ def _barycentric_uv(px, py, a, b, c):
     return l1, l2, 1.0 - l1 - l2
 
 
-def paint_bounded_ao(img, objects: List[bpy.types.Object], bvh: BVHTree) -> None:
+def paint_bounded_ao(img, objects: List[bpy.types.Object], bvh: BVHTree) -> bytearray:
     """Fill `img` by evaluating bounded AO PER TEXEL through each object's AO_UV layer.
 
     For every face, texels inside its UV footprint get the AO of their interpolated world
     position (barycentric over the face), so large coarse faces still carry real gradients.
-    Texels no face covers stay white (open) — the safe default for an occlusion map.
+    Returns a coverage mask (1 = a face footprint wrote the texel): the caller dilates
+    uncovered gutter texels from their nearest painted neighbour (dilate_unpainted_texels)
+    so bilinear/mip sampling at island borders blends with edge-like values instead of
+    the white clear colour.
     Determinism: a seeded per-texel jitter is consumed in face order, so output does not
     depend on object order and repeats byte-for-byte across runs.
     """
     W, H = img.size
     buf = [1.0] * (W * H)
+    covered = bytearray(W * H)
     rng = random.Random(AO_SAMPLE_SEED)
 
     plans = []
@@ -328,7 +332,7 @@ def paint_bounded_ao(img, objects: List[bpy.types.Object], bvh: BVHTree) -> None
                 py = (yy + 0.5) / H
                 for xx in range(x0, x1 + 1):
                     px = (xx + 0.5) / W
-                    covered = False
+                    hit = False
                     ao_acc = 0.0
                     w_acc = 0.0
                     for (i0, i1, i2) in uv_tris:
@@ -338,23 +342,74 @@ def paint_bounded_ao(img, objects: List[bpy.types.Object], bvh: BVHTree) -> None
                         )
                         if l1 < -0.02 or l2 < -0.02 or l3 < -0.02:
                             continue
-                        covered = True
+                        hit = True
                         w = max(0.0, l1) + max(0.0, l2) + max(0.0, l3)
                         wp = corners[i0] * max(0.0, l1) + corners[i1] * max(0.0, l2) + corners[i2] * max(0.0, l3)
                         jitter = rng.random() * 2.0 * math.pi
                         ao_acc += bounded_ao_at(bvh, wp, nrm, jitter) * w
                         w_acc += w
-                    if not covered or w_acc <= 0.0:
+                    if not hit or w_acc <= 0.0:
                         continue
                     idx = row + xx
                     ao = ao_acc / w_acc
                     if ao < buf[idx]:
                         buf[idx] = ao
+                    covered[idx] = 1
 
     rgba = []
     for v in buf:
         rgba.extend((v, v, v, 1.0))
     img.pixels.foreach_set(rgba)
+    return covered
+
+
+def dilate_unpainted_texels(img, covered: bytearray) -> int:
+    """Fill uncovered (gutter/background) texels with their nearest painted value.
+
+    smart_project packs UV islands with white gutters between them; leaving those at
+    the clear colour (open = 1.0) outlines every island with a bright seam under the
+    runtime's bilinear/mip sampling (measured on a shipped 512px plaster AO map: 41.7%
+    white background, edge-ring texels +10.4/255 brighter than interiors, 28.7% white-ish
+    at mip level 3). Breadth-first dilation from all painted texels (row-major seed order,
+    4-neighbourhood) gives each gutter texel the closest island-edge value, so border
+    sampling blends with edge-like tones. Covered texels are never touched.
+    Determinism: pure function of (covered, painted values) — no RNG, row-major order.
+    Returns the filled texel count (0 when nothing was painted: the image stays white,
+    preserving the old safe default for that degenerate case).
+    """
+    W, H = img.size
+    n = W * H
+    if n == 0 or not any(covered):
+        return 0
+    px = list(img.pixels)
+    vals = [px[i * 4] for i in range(n)]
+    nearest = [-1] * n
+    from collections import deque
+    queue: deque = deque()
+    for idx in range(n):
+        if covered[idx]:
+            nearest[idx] = idx
+            queue.append(idx)
+    while queue:
+        cur = queue.popleft()
+        x = cur % W
+        y = cur // W
+        for nb in (cur - 1 if x > 0 else -1, cur + 1 if x < W - 1 else -1,
+                   cur - W if y > 0 else -1, cur + W if y < H - 1 else -1):
+            if nb >= 0 and nearest[nb] < 0:
+                nearest[nb] = nearest[cur]
+                queue.append(nb)
+    filled = 0
+    for idx in range(n):
+        if not covered[idx]:
+            v = vals[nearest[idx]]
+            px[idx * 4] = v
+            px[idx * 4 + 1] = v
+            px[idx * 4 + 2] = v
+            filled += 1
+    if filled:
+        img.pixels.foreach_set(px)
+    return filled
 
 
 def bake_ao_per_material(resolution: int) -> Dict[str, Dict[str, object]]:
@@ -451,8 +506,14 @@ def bake_ao_per_material(resolution: int) -> Dict[str, Dict[str, object]]:
         # whose reach Blender 5.1 cannot bound (max_ray_distance and world distance both
         # ignored) and which self-occludes closed rooms to a cave.
         bpy.ops.object.select_all(action="DESELECT")
-        paint_bounded_ao(img, objs_, scene_bvh)
+        covered = paint_bounded_ao(img, objs_, scene_bvh)
+        # Gutter dilation (wall-facets-ao-seams): nearest-edge fill of the smart_project
+        # background so island borders do not sample the white clear colour at runtime.
+        # Covered texels are untouched, so bake interiors are byte-identical with/without.
+        filled = dilate_unpainted_texels(img, covered)
         img.pack()
+        if filled:
+            print(f"[room-ao] dilated {mat_name}: {filled} gutter texel(s)")
 
         # Measure luminance sd over the packed pixels (same 0-255 scale as the contract gate).
         px = list(img.pixels)
