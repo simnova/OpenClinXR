@@ -23996,6 +23996,20 @@
       "rationale": "Ward-finish-chain part 3 comparison sheet (02-toward-bed-wall): imagine-multiview reference left, chain runtime frame right."
     },
     {
+      "path": "docs/openclinxr/room-realism/floor-class/06-floor-base-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-class (BumpyRubberFloor) grading sheet, pose 06 floor-base: v2 reference left, shell-only runtime frame right, seed 205."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-class/01-toward-door-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-class (BumpyRubberFloor) grading sheet, pose 01 toward-door: v2 reference left, shell-only runtime frame right, seed 205."
+    },
+    {
       "path": "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/03-ceiling-corner-side-by-side.png",
       "authority": "keep-evidence",
       "tracked": true,
