@@ -95,7 +95,7 @@ describe("the room clinic finish station composes a deterministic finish", () =>
     expect(composeSrc).toContain("clinic-finish-geometry-v1");
   });
 
-  it("(8) ward preset + room resolve, and floor/door photo-textures are wired with bytes on disk", () => {
+  it("(8) ward preset + room resolve, and floor/kept-leaf photo-textures are wired with bytes on disk", () => {
     const ward = designRoomFinishRecipe(
       validInput({ environmentId: "inpatient_ward_room_v1", preset: "ward_photo" }) as {
         environmentId: string;
@@ -109,14 +109,55 @@ describe("the room clinic finish station composes a deterministic finish", () =>
     expect(ROOM_FINISH_PRESETS).toContain("ward_photo");
     const composeSrc = readFileSync(join(SRC, "compose.py"), "utf8");
     expect(composeSrc).toContain("_photo_object_material");
-    expect(composeSrc).toContain("_photo_uv_material");
-    expect(composeSrc).toContain("_uv_full_face");
+    expect(composeSrc).toContain("_texture_kept_door_leaf");
     expect(composeSrc).toContain("floor-vinyl.jpg");
     expect(composeSrc).toContain("door-maple.jpg");
     expect(composeSrc).toContain("openclinxr_finish_floor_photo");
     expect(composeSrc).toContain("openclinxr_finish_door_photo");
     expect(existsSync(join(SRC, "textures", "floor-vinyl.jpg"))).toBe(true);
     expect(existsSync(join(SRC, "textures", "door-maple.jpg"))).toBe(true);
+    expect(existsSync(join(SRC, "textures", "ceiling-acoustic-tile.jpg"))).toBe(true);
+  });
+
+  it("(9) S5 finish rework: corridor props deleted, crash rail off by default, no fixed ceiling height", () => {
+    const composeSrc = readFileSync(join(SRC, "compose.py"), "utf8");
+    // Deleted emissions: exam table, exit sign, hand-built door kit, T-bar, ceiling field.
+    for (const gone of [
+      "openclinxr_exam_table",
+      "openclinxr_exam_base",
+      "openclinxr_exam_cushion",
+      "openclinxr_exam_backrest",
+      "openclinxr_exit_sign",
+      "openclinxr_door_jamb",
+      "openclinxr_door_header",
+      "openclinxr_door_slab",
+      "openclinxr_door_panel_",
+      "openclinxr_door_lever",
+      "openclinxr_door_kick",
+      "openclinxr_tbar_",
+      "openclinxr_ceiling_field",
+      "2.744",
+    ]) {
+      expect(composeSrc).not.toContain(gone);
+    }
+    // Crash rail gated behind options.crashRail, default off.
+    expect(composeSrc).toContain("openclinxr_crash_rail");
+    expect(composeSrc).toContain("crash_rail_enabled");
+    const defaultRecipe = designRoomFinishRecipe(validInput() as { environmentId: string; preset: string; seed: number });
+    expect(defaultRecipe.options).toEqual({ crashRail: false });
+    const railed = designRoomFinishRecipe(
+      validInput({ crashRail: true }) as { environmentId: string; preset: string; seed: number; crashRail?: boolean },
+    );
+    expect(railed.options).toEqual({ crashRail: true });
+    // Ceiling fragment derives the T-bar height from measured bounds, no fixed constant.
+    const ceilingSrc = readFileSync(join(SRC, "ceiling.py"), "utf8");
+    expect(ceilingSrc).not.toContain("2.744");
+    expect(ceilingSrc).toContain("ceiling_tbar_z");
+    // The kept Infinigen leaf/casing/skirting survive the strip into the room prefix.
+    const stripSrc = readFileSync(join(SRC, "..", "room_generate", "infinigen_generate", "strip_room_shell_placeholders.py"), "utf8");
+    for (const want of ["door_leaf", "door_casing", "skirting_floor", "skirting_ceiling", "DoorCasingFactory", "skirtingboard_"]) {
+      expect(stripSrc).toContain(want);
+    }
   });
 });
 

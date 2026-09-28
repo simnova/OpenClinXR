@@ -22,10 +22,10 @@ import { designRoomFinishRecipe } from "./recipe.js";
  *
  * plan() is pure (recipe + script paths, no Blender). run() writes the
  * recipe JSON, then spawns compose.py once against the work GLB. The compose
- * stage paints wall/trim materials from the recipe palette, stamps
- * signage anchors as empties, and emits finish geometry (ceiling/floor fields,
- * T-bar grid, wall-seated paneled door kit, crash rail, exit sign, exam
- * table); the report records movedGeometry.
+ * stage paints wall/trim materials from the recipe palette, skins Infinigen's
+ * own kept door leaf with the maple photo material, stamps signage anchors
+ * as empties, and emits the vinyl floor field (plus the crash rail only when
+ * recipe options.crashRail is true); the report records movedGeometry.
  *
  * Tests must call plan(), not run().
  */

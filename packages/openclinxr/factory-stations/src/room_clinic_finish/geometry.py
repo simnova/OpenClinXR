@@ -1,7 +1,7 @@
-"""room_clinic_finish geometry stage: T-bar, paneled door kit, rail, sign.
+"""room_clinic_finish geometry stage: floor field, kept-leaf door skin, gated rail.
 
-Grok 4.7 verdict: recipe.ts cannot emit door/ceiling/corridor geometry the
-seed-7 log still lacks. This stage builds it. Bevel via attributes API
+S5 deleted the T-bar grid, the paneled door kit and the exit sign; S6 owns
+the ceiling grid rebuild. Bevel via attributes API
 (attributes['bevel_weight_edge']) since edges.foreach_set bevel_weight
 throws on bpy 4.2.0. Deterministic on seed. No-op dict when bpy absent.
 """
@@ -9,7 +9,6 @@ throws on bpy 4.2.0. Deterministic on seed. No-op dict when bpy absent.
 from __future__ import annotations
 
 GEOMETRY_STAGE_VERSION = "clinic-finish-geometry-v1"
-TBAR_Z = 2.744
 
 
 def geometry_stage(seed: int = 7) -> dict:
@@ -20,9 +19,7 @@ def geometry_stage(seed: int = 7) -> dict:
             "stage": "geometry",
             "version": GEOMETRY_STAGE_VERSION,
             "blender": False,
-            "ops": ["tbar_grid", "paneled_door_kit", "crash_rail", "exit_sign"],
-            "tbarZ": TBAR_Z,
-            "bevelApi": "attributes['bevel_weight_edge'].data.foreach_set",
+            "ops": ["floor_field", "kept_leaf_maple_skin", "crash_rail_gated_off"],
             "seed": seed,
         }
     from .ceiling import ceiling_module
@@ -37,7 +34,5 @@ def geometry_stage(seed: int = 7) -> dict:
         "door": door_module(seed),
         "corridor": corridor_cues_module(seed),
         "floor": floor_module(seed),
-        "tbarZ": TBAR_Z,
-        "bevelApi": "attributes['bevel_weight_edge'].data.foreach_set",
         "seed": seed,
     }

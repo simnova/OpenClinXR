@@ -57,6 +57,8 @@ export type RoomFinishRecipe = {
   palette: RoomFinishPalette;
   modules: RoomFinishModule[];
   light: { exposure: "xr"; floorResponse: "xt_matte" };
+  /** S5: crash rail gate, off by default (compose.py reads options.crashRail). */
+  options: { crashRail: boolean };
   finishPassLlm: false;
 };
 
@@ -114,6 +116,8 @@ export type RoomFinishRecipeInput = {
   environmentId: string;
   preset: string;
   seed: number;
+  /** Opt-in crash rail (some other room type may want it); default off. */
+  crashRail?: boolean;
 };
 
 /** Parse + refusal rules shared by plan() and the runner. */
@@ -133,6 +137,11 @@ export function parseRoomFinishRecipe(input: Record<string, unknown>): { issues:
   }
   if (issues.length > 0) return { issues };
   const def = PRESET_DEFS[preset as RoomFinishPreset];
+  const crashRail = input["crashRail"];
+  if (crashRail !== undefined && typeof crashRail !== "boolean") {
+    issues.push("crashRail must be a boolean when present");
+  }
+  if (issues.length > 0) return { issues };
   return {
     recipe: {
       schemaVersion: ROOM_CLINIC_FINISH_SCHEMA_VERSION,
@@ -148,6 +157,7 @@ export function parseRoomFinishRecipe(input: Record<string, unknown>): { issues:
       },
       modules: ROOM_FINISH_MODULES.map((entry) => ({ ...entry })),
       light: { exposure: "xr", floorResponse: "xt_matte" },
+      options: { crashRail: crashRail === true },
       finishPassLlm: false,
     },
   };

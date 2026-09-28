@@ -14,7 +14,7 @@ import { runRoomClinicFinish } from "./run.js";
  * into the output GLB. Live Blender in this test per dispatch; timeout 5 min.
  */
 
-const FIXTURE_MESHES = ["TestFloor", "TestWall_North", "TestWall_South", "TestWall_East", "TestWall_West"];
+const FIXTURE_MESHES = ["TestFloor", "TestWall_North", "TestWall_South", "TestWall_East", "TestWall_West", "TestRoom_0.door_leaf"];
 
 async function writeFixtureGlb(outputPath: string): Promise<void> {
   const doc = new Document();

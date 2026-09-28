@@ -24260,6 +24260,20 @@
       "tracked": true,
       "action": "keep",
       "rationale": "S2 pre-export shell-bake pose-01 runtime capture manifest; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-acoustic-tile.jpg",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish station input (S5): 4x4 acoustic-tile photo from the ward-finish lineage (row-30 provenance, 155,898 B); staged for the S6 ceiling-grid rebuild, unused by compose.py in S5."
+    },
+    {
+      "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/troffer-light.jpg",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward-finish station input (S5): troffer photo from the ward-finish lineage (row-30 provenance, 153,322 B); staged for the S6 troffer, unused by compose.py in S5."
     }
   ]
 }
