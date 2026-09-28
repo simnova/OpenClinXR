@@ -27,6 +27,36 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-28T0230">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 119 &middot; 2026-09-28 02:30 UTC</p>
+          <h2>On parent Aisha the lower teeth follow the jaw. The upper row stays on the head.</h2>
+        </div>
+        <p>
+          At load, teeth vertices below the mesh median are weighted fully to the jaw bone. The shipped GLB bytes are unchanged. On <code>mpfb-peds-parent-aisha.motion-bind.glb</code> the teeth mesh has 136 vertices: 67 strongest on the jaw, 69 strongest on the head. With the jaw at rest plus 0.15086 rad, the lower-half centroid moves 0.010234 m and the upper-half centroid moves 0 m.
+        </p>
+        <p>
+          Isolated-subject lab, focus head, native 1280×960. The AA frame pins that jaw angle and sets <code>viseme_AA</code> and <code>mouth-open</code> to 1. The PP frame sets <code>mouth-compression</code> to 1 and those open targets to 0. The two full frames differ in 18148 pixels, bounding box x506–658, y522–708. Inside that box, 1110 pixels are more than 40 levels brighter on AA than on PP, in x541–628, y573–672. The crops are 1:1 from origin (466, 442), 232×306, with no resample.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>1:1 crops of the same capture. Left: AA. Right: PP.</caption>
+            <thead><tr><th scope="col">AA, jaw open</th><th scope="col">PP, mouth closed</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><img src="assets/teeth-jaw-aa-2026-09-28.png" alt="1:1 crop, 232 by 306, parent Aisha, focus head. Jaw pinned to rest plus 0.15086 rad. viseme_AA and mouth-open set to 1." width="232" height="306" style="width:232px; height:auto; display:block;"></td>
+                <td><img src="assets/teeth-jaw-pp-2026-09-28.png" alt="1:1 crop, 232 by 306, same head and camera. mouth-compression set to 1. viseme and mouth-open targets set to 0." width="232" height="306" style="width:232px; height:auto; display:block;"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="evidence-note">
+          Commit <code>160cbb296</code>. Measurement file <code>tools/openclinxr/evidence/mouth-frame-grade/teeth-motion.json</code> (generated 2026-09-27T22:36:12Z). Full frames <code>tools/openclinxr/evidence/mouth-frame-grade/aa.png</code> and <code>pp.png</code>.
+        </p>
+        <p class="status-copy">
+          <strong>notEvidenceFor:</strong> a pixel grade of how the mouth looks, clinical validity, scoring, licensure, Quest readiness, or a change to the shipped GLB file.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-26T0206">
         <div class="section-heading">
           <p class="eyebrow">Entry 117 &middot; 2026-09-26 02:06 UTC</p>
