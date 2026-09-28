@@ -437,7 +437,6 @@ type DeclaredEquipmentMountEvidence = {
   notEvidenceFor: Array<"quest_readiness" | "clinical_validity" | "scoring_validity" | "production_readiness" | "equipment_asset_readiness">;
 };
 
-
 type GeneratedRuntimeDrive = {
   locomotion?: boolean | number | string | GeneratedDriveScalarValue | null;
   locomotionTimeScaleFactor?: boolean | number | string | GeneratedDriveScalarValue | null; locomotionLegWeight?: boolean | number | string | GeneratedDriveScalarValue | null; gaze?: boolean | number | string | GeneratedDriveScalarValue | null;
@@ -445,7 +444,6 @@ type GeneratedRuntimeDrive = {
   lipSync?: boolean | number | string | GeneratedDriveScalarValue | null;
   lipSyncViseme?: boolean | number | string | GeneratedDriveScalarValue | null;
 };
-
 
 type OpenClinXrFrameStats = ManualPerformanceFrameStats;
 
@@ -1474,7 +1472,6 @@ let lastObservedLocomotionSummary: {
 } | null = null;
 const roomEnvironmentalRealismCueIds = roomPackageEnvironmentalRealismCueIds;
 
-
 function formatUnknownError(error: unknown): string {
   return formatPackageUnknownError(error);
 }
@@ -2286,7 +2283,6 @@ function applyRuntimeEquipmentTraceVisuals(evidence: EnvironmentStateEvidence): 
   applyPackageRuntimeEquipmentTraceVisuals(sceneCueTraceVisuals(), evidence);
 }
 
-
 function runtimeEquipmentIdsForTraceTag(tag: string): string[] {
   return runtimePackageEquipmentIdsForTag(
     encounterRuntimeAssetBundle.equipment.map((equipment) => equipment.equipmentId),
@@ -2854,7 +2850,6 @@ function assetLoadingContext(): PackageAssetLoadingContext {
     registerEquipmentSlot: (assetId, slot) => { runtimeEquipmentSlotsByAssetId.set(assetId, slot); },
   };
 }
-
 
 async function createStationScene(): Promise<StationSceneRuntime> {
   recordBootPhase("station_scene_start");
@@ -3791,7 +3786,6 @@ function formatRuntimeLocomotionLine(
   return `Movement: none observed; ${formatLocomotionProbeSummary(captureSummary?.locomotionProbeSummary ?? null)}`;
 }
 
-
 function formatCaptureReadinessStatus(summary: ManualPerformanceCaptureSummary | null): string {
   if (!summary) {
     return "pending capture";
@@ -3889,8 +3883,6 @@ function createReadableVrTextPanel(options: {
   return createPackageReadableVrTextPanel(sceneCueClinicalPanel(), options);
 }
 
-
-
 function addControllerAffordances(
   renderer: WebGLRenderer,
   scene: Scene,
@@ -3972,7 +3964,6 @@ function addHandModels(renderer: WebGLRenderer, scene: Scene, input: {
   }
 }
 
-
 function createVirtualDeviceActorAffordance(actorId: string): Group {
   return createPackageVirtualDeviceActorAffordance(
     sceneCueVirtualDevice(),
@@ -3996,7 +3987,6 @@ function createDetailedEdRoomProps(
 function updateEnvironmentRealismAnimations(deltaSeconds: number, nowMs: number): void {
   updatePackageEnvironmentRealismAnimations(sceneCueEnvironmentVisuals(), deltaSeconds, nowMs);
 }
-
 
 function runtimeSceneObjectPrefix(): string {
   return `openclinxr.${encounterRuntimeAssetBundle.scenarioId}`;
@@ -4399,8 +4389,6 @@ function isGeneratedRuntimeDrive(value: unknown): value is GeneratedRuntimeDrive
   return isPackageGeneratedRuntimeDrive(value);
 }
 
-
-
 function createHumanoidEmotionExpressionState(): HumanoidEmotionExpressionState {
   return createPackageHumanoidEmotionExpressionState({ deterministicClock: isDeterministicCaptureClock() });
 }
@@ -4439,13 +4427,9 @@ function orientHumanoidEyeFocusCue(slot: GeneratedHumanoidAnimationSlot, gazeOri
   orientPackageHumanoidEyeFocusCue(slot, gazeOrigin, boundedTarget);
 }
 
-
 function orientHumanoidTowardGazeTarget(slot: GeneratedHumanoidAnimationSlot, targetWorld: Vector3): void {
   orientPackageHumanoidTowardGazeTarget(slot, targetWorld);
 }
-
-
-
 
 function _resolveHumanoidGazeTargetWorld(speech: HumanoidSpeechPlayback, camera: PerspectiveCamera): Vector3 {
   return resolvePackageHumanoidGazeTargetWorld(humanoidAnimationContext, speech, camera);
@@ -4672,8 +4656,6 @@ function updateManualEvidencePanel(): string {
   return updatePackageTraceManualEvidencePanel(manualEvidencePanelContext());
 }
 
-
-
 function formatActorPlayerRuntimeMetadataSummary(
   evidence: ActorPlayerRuntimeMetadataSummary | null,
   playback: PedsActorPlayerRuntimePlaybackEvidence | null = null,
@@ -4721,7 +4703,6 @@ function formatLocomotionProbeSummary(
   }
   return `probe ${summary.primaryReason}; ctrl ${summary.controllerSources.activeAfterDeadzone}/${summary.controllerSources.total}; hand ${summary.handGesture.pinching}/${summary.handGesture.handsObserved}`;
 }
-
 
 let start = performance.now();
 function tick(): void {
@@ -4802,7 +4783,6 @@ function buildHumanoidSpeechEvidence(
     actorRuntimeRealismRequirement,
   );
 }
-
 
 async function bootStationScene(): Promise<void> {
   await initializeLearnerRuntimeAssetBundle(stationApi);

@@ -10,12 +10,11 @@ import {
   applyStationInteriorLightingForEnvironment,
   colorForTemperatureK,
   loadLightingRig,
-  parseLightingRig,
   resolveLightingRigPublicPath,
   rigEnergyToThreeIntensity,
   type FetchLike,
-  type LightingRig,
 } from "./lighting-rig-runtime.js";
+import { parseLightingRig, type LightingRig } from "@openclinxr/xr-scene";
 
 const VALID_RIG: LightingRig = {
   schemaVersion: "openclinxr.lighting-rig.v1",

@@ -21,21 +21,7 @@ import {
   type StationInteriorLightingVariantId,
 } from "@openclinxr/xr-station";
 
-import {
-  LIGHTING_RIG_SCHEMA_VERSION,
-  parseLightingRig,
-  type LightingRig,
-  type LightingRigLight,
-  type RigLightType,
-} from "@openclinxr/xr-scene";
-
-export {
-  LIGHTING_RIG_SCHEMA_VERSION,
-  parseLightingRig,
-  type LightingRig,
-  type LightingRigLight,
-  type RigLightType,
-};
+import { parseLightingRig, type LightingRig } from "@openclinxr/xr-scene";
 
 export const LIGHTING_RIG_PUBLIC_DIR = "/xr-assets/lighting";
 
