@@ -233,6 +233,12 @@ describe("the shell bake runs before the extract", () => {
     expect(src).toContain("BAKE_UV");
     expect(src).toContain("smart_project");
     expect(src).toContain("ShaderNodeBsdfPrincipled");
+    // Trim has its own role (never "other"): door/casing/skirting patterns
+    // classify there, and a GLOSSY COLOR pass added onto the diffuse keeps
+    // metallic trim from baking black (metals have no diffuse response).
+    expect(src).toContain("door_leaf");
+    expect(src).toContain('"GLOSSY"');
+    expect(src).toContain("combine_diffuse_glossy");
     // Collapsed smart-project faces are snapped to painted texels; cleared
     // backgrounds are neutral-filled (never sampled as garbage).
     expect(src).toContain("snap_degenerate_faces");
@@ -244,22 +250,28 @@ describe("the shell bake runs before the extract", () => {
 
   it("(3) the baked images fit the 56 MB decoded ward budget", () => {
     const src = readFileSync(BAKE_PY, "utf8");
-    const albedoSizes = [...src.matchAll(/"(floor|wall|ceiling|other)":\s*(\d+)/g)].map((m) =>
-      Number(m[2]),
+    const albedoByRole = new Map(
+      [...src.matchAll(/"(floor|wall|ceiling|trim|other)":\s*(\d+)/g)].map((m) => [m[1], Number(m[2])]),
     );
-    expect(albedoSizes.length).toBeGreaterThanOrEqual(4);
+    expect(albedoByRole.size).toBeGreaterThanOrEqual(5);
     const normalSize = Number(src.match(/SHARED_NORMAL_SIZE\s*=\s*(\d+)/)?.[1]);
     const roughSize = Number(src.match(/SHARED_ROUGHNESS_SIZE\s*=\s*(\d+)/)?.[1]);
     expect(normalSize).toBeGreaterThanOrEqual(1024);
     expect(roughSize).toBeGreaterThanOrEqual(1024);
     // Shell images plus the untouched AO pass (4x512^2) must stay under budget.
     const shellMb =
-      albedoSizes.reduce((acc, s) => acc + (s * s * 4) / (1024 * 1024), 0) +
+      [...albedoByRole.values()].reduce((acc, s) => acc + (s * s * 4) / (1024 * 1024), 0) +
       ((normalSize * normalSize * 4) + (roughSize * roughSize * 4)) / (1024 * 1024);
     const totalMb = (shellMb + 4 * ((512 * 512 * 4) / (1024 * 1024))) * 1.33;
     expect(totalMb).toBeLessThanOrEqual(56);
-    // Resolution floor: every baked image >= 1024 px on its long edge.
-    for (const s of [...albedoSizes, normalSize, roughSize]) {
+    // Resolution floor: every SURFACE image >= 1024 px on its long edge.
+    // The "other" residue atlas (exterior hull faces, boolean cutters --
+    // never a primary visible surface) is the documented exception at 512.
+    for (const [role, s] of albedoByRole) {
+      if (role === "other") expect(s).toBe(512);
+      else expect(s).toBeGreaterThanOrEqual(1024);
+    }
+    for (const s of [normalSize, roughSize]) {
       expect(s).toBeGreaterThanOrEqual(1024);
     }
     expect(decodedMbWithMips(1024)).toBeCloseTo(5.32, 2);

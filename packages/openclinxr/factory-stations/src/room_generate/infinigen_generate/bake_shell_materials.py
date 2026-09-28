@@ -11,6 +11,8 @@
 # Technique: per surface role, unwrap the role's objects into a full-coverage
 # ALB_<role> layer and bake DIFFUSE with COLOR only (pure albedo, NO lighting
 # baked in -- lighting folded into albedo darkens twice under runtime lights);
+# the trim role bakes an extra GLOSSY COLOR pass screened with its diffuse
+# (metals have no diffuse response, so COLOR-only bakes them black);
 # unwrap ALL kept objects once into a shared BAKE_UV atlas and bake NORMAL
 # (tangent) and ROUGHNESS there; fill unpainted (alpha-0) texels with neutral
 # defaults so no cleared garbage is ever sampled; then replace each node tree
@@ -23,13 +25,17 @@
 #
 # Texture budget (decoded RGBA8 x1.33 mips, ward GLB <= 56 MB; 8 MB of the
 # 64 MB quest3AssetBudget reserved for fixtures):
-#   albedo floor 2048^2 (16 MB) + wall/ceiling/other 1024^2 x3 (12 MB) = 28
+#   albedo floor 2048^2 (16 MB) + wall/ceiling/trim 1024^2 x3 (12 MB)
+#     + other 512^2 (1 MB) = 29
 #   normal shared 1024^2 (4) + roughness shared 1024^2 (4) = 8 (one atlas
 #     each over ALL kept objects, so every surface keeps relief and finish
 #     variation without per-surface normal images)
-#   shell subtotal 36 MB; AO pass (untouched, 4x512^2) adds 4 MB
-#   total 40 MB x 1.33 = 53.2 MB <= 56 MB (3 AO maps: 51.9 MB)
-# Every image this script writes is >= 1024 px on its long edge.
+#   shell subtotal 37 MB; AO pass (untouched, 4x512^2) adds 4 MB
+#   total 41 MB x 1.33 = 54.5 MB <= 56 MB
+# Trim gets its own 1024 albedo (door/casing/skirting are primary visible
+# surfaces); "other" is residue (exterior hull faces, boolean cutters) and
+# drops to 512 to fund it. Every SURFACE image is >= 1024 px on its long
+# edge; only the residue atlas is smaller.
 #
 # Determinism: fixed SHELL_BAKE_SEED drives random.seed, scene.cycles.seed and
 # the bake sampling; smart-project has no RNG (fixed angle/margin); the
@@ -37,9 +43,9 @@
 # same seed produce identical image bytes.
 #
 # Materials are consolidated per surface role (shell_bake_wall/floor/ceiling/
-# other): one atlas-cleared bake per role image, then every polygon of the
+# trim/other): one atlas-cleared bake per role image, then every polygon of the
 # role's objects points at the role material. This keeps the material count
-# (and the later per-material AO image count) at 4.
+# (and the later per-material AO image count) at 5.
 #
 # Usage (inside Blender 5.1 headless):
 #   blender --background --python bake_shell_materials.py -- \
@@ -65,7 +71,7 @@ BAKE_SAMPLES = 4
 BAKE_MARGIN_PX = 4
 
 # Decoded RGBA8 bytes per image size (w*h*4); the budget table lives above.
-ALBEDO_SIZE_BY_ROLE = {"floor": 2048, "wall": 1024, "ceiling": 1024, "other": 1024}
+ALBEDO_SIZE_BY_ROLE = {"floor": 2048, "wall": 1024, "ceiling": 1024, "trim": 1024, "other": 512}
 SHARED_NORMAL_SIZE = 1024
 SHARED_ROUGHNESS_SIZE = 1024
 SHELL_MATERIAL_PREFIX = "shell_bake_"
@@ -92,6 +98,20 @@ def role_for_object(obj_name: str) -> str:
         return "wall"
     if ".ceiling" in n or "/ceiling" in n:
         return "ceiling"
+    # Trim (door leaf/casing, skirting, window): Infinigen's own trim parts,
+    # either renamed into the room prefix by strip_room_shell_placeholders.py
+    # ("<room>_<seg>/<seg>.door_leaf") or in raw factory shape
+    # ("DoorCasingFactory(...).spawn_asset", "skirtingboard_support").
+    # They must NOT fall into "other": the "other" atlas is residue space and
+    # the downstream albedo pass treats "other" materials under ceiling
+    # lighting assumptions. Substring list mirrors compose.py's
+    # TRIM_NAME_RE_PARTS plus the strip step's keep_re suffixes.
+    for part in (".door", "/door", "doorfactory", "doorcasingfactory",
+                 ".casing", "/casing", ".skirting", "/skirting", "skirtingboard",
+                 ".window", "/window", ".trim", "/trim",
+                 ".baseboard", "/baseboard", ".skirt", "/skirt"):
+        if part in n:
+            return "trim"
     return "other"
 
 
@@ -296,6 +316,42 @@ def snap_degenerate_faces(objects: List[object], layer_name: str, image) -> int:
     return moved
 
 
+def flood_image(image, fill: Tuple[float, float, float, float]) -> None:
+    """Paint every texel with `fill` (opaque). For roles with no bakeable
+    object (nothing carries a material, e.g. the material-less exterior
+    hull): no bake op ever touches the image, so without this the atlas
+    ships the blank-image default (opaque black) instead of the neutral
+    background. Pure constant: deterministic."""
+    W, H = image.size
+    n = W * H
+    image.pixels.foreach_set([fill[0], fill[1], fill[2], fill[3]] * n)
+
+
+def combine_diffuse_glossy(diffuse_img, glossy_img, out_img) -> None:
+    """Metal-aware albedo: diffuse COLOR screened with glossy COLOR.
+
+    Measured on the seed-205 ward bake: Infinigen's trim mixes metallic
+    (hammered/grained metal door frame) with dielectric (plastic skirting)
+    and glass (door lite) sometimes on ONE object. A DIFFUSE COLOR-only bake
+    writes ~black for the metal faces (metals have no diffuse response) and
+    nothing for the glass, so trim ships black. GLOSSY with COLOR only is
+    lighting-independent specular albedo: the metal tint for metals, ~F0
+    gray for dielectrics. Screen blend (D + G - D*G) keeps the full metal
+    tint where diffuse is black yet never clips bright dielectrics (a plain
+    sum clipped the near-white skirting to pure white); alpha comes from
+    the diffuse bake so the unpainted-texel fill keeps working. Pure
+    function of the two bake outputs: deterministic."""
+    import numpy as np
+
+    W, H = diffuse_img.size
+    d = np.array(diffuse_img.pixels[:], dtype=np.float32).reshape(H, W, 4)
+    g = np.array(glossy_img.pixels[:], dtype=np.float32).reshape(H, W, 4)
+    out = np.empty_like(d)
+    out[:, :, :3] = d[:, :, :3] + g[:, :, :3] * (1.0 - d[:, :, :3])
+    out[:, :, 3] = d[:, :, 3]
+    out_img.pixels.foreach_set(out.ravel().tolist())
+
+
 def build_role_material(role: str, alb_layer: str, albedo_img, normal_img, roughness_img):
     """Fresh Image Texture -> Principled hookup; the procedural tree is gone.
 
@@ -454,6 +510,20 @@ def main() -> Dict[str, object]:
         set_active_image_for_materials(materials_of(role_objects), albedo_img)
         if role_bakeable:
             bake_current_selection("DIFFUSE", alb_layer, role_bakeable, pass_filter={"COLOR"})
+        else:
+            # No object carries a material: no bake op will touch this
+            # image, so flood it now (otherwise it ships opaque black).
+            flood_image(albedo_img, FILL_ALBEDO)
+        if role == "trim" and role_bakeable:
+            # Metal-aware trim: a second GLOSSY COLOR pass into a scratch
+            # image, screened with the diffuse (see combine_diffuse_glossy).
+            # Without it the metal door frame bakes black (measured).
+            glossy_img = new_image("shell_bake_glossy_trim_scratch", size, "sRGB")
+            set_active_image_for_materials(materials_of(role_objects), glossy_img)
+            bake_current_selection("GLOSSY", alb_layer, role_bakeable, pass_filter={"COLOR"})
+            set_active_image_for_materials(materials_of(role_objects), albedo_img)
+            combine_diffuse_glossy(albedo_img, glossy_img, albedo_img)
+            bpy.data.images.remove(glossy_img)
         albedo_img.pack()
         print(f"[shell-bake] ALBEDO {role} {size}x{size} over {len(role_bakeable)} object(s)")
 

@@ -258,27 +258,47 @@ def non_degenerate_uv_fraction(mesh: bpy.types.Mesh) -> float:
     return ok / total if total else 0.0
 
 
-def ensure_uv(mesh_obj: bpy.types.Object) -> None:
-    """Bake-ready UVs: a non-degenerate ACTIVE layer, or smart-project.
+def uv_layers_referenced_by_materials(mesh_obj: bpy.types.Object) -> set:
+    """UV layer names wired into the object's materials via UV Map nodes.
 
-    #641: floor meshes shipped a collapsed active layer (peds-fever floor:
-    32/56 verts at one point, 30/48 triangles zero-area) so the bake wrote
-    almost nothing and the floor base-colour map came out black in all 14
-    rooms. The mesh carried a full, non-degenerate second layer that the bake
-    never used. Prefer an existing non-degenerate layer; REMOVE degenerate
-    layers (the glTF exporter writes layer ORDER, not active-first, so a
-    collapsed layer would still ship as TEXCOORD_0 and the runtime would keep
-    sampling the black corner); smart-project only when nothing survives.
+    The S2 shell bake samples albedo through ALB_<role> and normal/roughness
+    through the shared BAKE_UV atlas with explicit UV Map links; the glTF
+    import preserves those links (UV Map nodes survive the round trip, layer
+    names do not). Deleting such a layer orphans the image baked for it:
+    measured on the seed-205 ward bake, the wall/trim BAKE_UV islands are
+    majority-degenerate slivers, so the <0.5 rule below deleted the layer and
+    normal/roughness collapsed onto the albedo UV set (dark faceted walls,
+    chrome-streaked trim at runtime). Referenced layers are never deleted.
+    Raw procedural materials (the #641 floors) carry no UV Map nodes, so the
+    #641 prune behaviour is unchanged for them.
     """
-    if mesh_obj.data.uv_layers and len(mesh_obj.data.uv_layers) > 0:
-        mesh = mesh_obj.data
-        for layer in list(mesh.uv_layers):
-            mesh.uv_layers.active = layer
-            if non_degenerate_uv_fraction(mesh) < 0.5:
-                mesh.uv_layers.remove(layer)
-        if mesh.uv_layers:
-            mesh.uv_layers.active = mesh.uv_layers[0]
-            return
+    names = set()
+    try:
+        mats = mesh_obj.data.materials
+    except Exception:
+        return names
+    return referenced_by_material_list(list(mats))
+
+
+def referenced_by_material_list(mats) -> set:
+    """Subset of `referenced` collection working on a material list."""
+    names = set()
+    for mat in mats:
+        if mat is None or not mat.use_nodes or mat.node_tree is None:
+            continue
+        for node in mat.node_tree.nodes:
+            try:
+                if node.type == "UVMAP" and node.uv_map:
+                    names.add(node.uv_map)
+                elif node.type == "NORMAL_MAP" and node.uv_map:
+                    names.add(node.uv_map)
+            except Exception:
+                continue
+    return names
+
+
+def smart_project_active(mesh_obj: bpy.types.Object) -> None:
+    """Smart-project the mesh's ACTIVE UV layer (deterministic settings)."""
     bpy.ops.object.select_all(action="DESELECT")
     mesh_obj.select_set(True)
     bpy.context.view_layer.objects.active = mesh_obj
@@ -289,6 +309,133 @@ def ensure_uv(mesh_obj: bpy.types.Object) -> None:
     except TypeError:
         bpy.ops.uv.smart_project()
     bpy.ops.object.mode_set(mode="OBJECT")
+
+
+# Bake-layout layer appended when no surviving layer is healthy enough to
+# bake into. One fixed name so every mesh needing it agrees: a material
+# shared across meshes gets a single UV Map link, which resolves per mesh.
+REBAKE_UV_LAYER = "ALB_rebake"
+
+
+def ensure_uv(mesh_obj: bpy.types.Object) -> str:
+    """Bake-ready UVs: returns the name of the layer to bake into.
+
+    #641: floor meshes shipped a collapsed active layer (peds-fever floor:
+    32/56 verts at one point, 30/48 triangles zero-area) so the bake wrote
+    almost nothing and the floor base-colour map came out black in all 14
+    rooms. The mesh carried a full, non-degenerate second layer that the bake
+    never used. Prefer an existing non-degenerate layer; REMOVE degenerate
+    layers (the glTF exporter writes layer ORDER, not active-first, so a
+    collapsed layer would still ship as TEXCOORD_0 and the runtime would keep
+    sampling the black corner); smart-project only when nothing survives.
+
+    Layers referenced by material UV Map nodes (the S2 shell wiring) are
+    never removed even when degenerate: the images baked for them stay
+    valid. When nothing healthy survives, a fresh full-coverage layer is
+    APPENDED (never deleting the referenced ones) and the bake goes there;
+    the baked albedo is linked explicitly (see wire_textures_to_base_color),
+    so layer order/active juggling cannot misroute it.
+    """
+    mesh = mesh_obj.data
+    if mesh.uv_layers and len(mesh.uv_layers) > 0:
+        referenced = uv_layers_referenced_by_materials(mesh_obj)
+        for layer in list(mesh.uv_layers):
+            mesh.uv_layers.active = layer
+            if layer.name not in referenced and non_degenerate_uv_fraction(mesh) < 0.5:
+                mesh.uv_layers.remove(layer)
+        if mesh.uv_layers:
+            mesh.uv_layers.active = mesh.uv_layers[0]
+            if non_degenerate_uv_fraction(mesh) >= 0.5:
+                return mesh.uv_layers[0].name
+            if REBAKE_UV_LAYER not in [u.name for u in mesh.uv_layers]:
+                mesh.uv_layers.new(name=REBAKE_UV_LAYER)
+            mesh.uv_layers.active = mesh.uv_layers[REBAKE_UV_LAYER]
+            smart_project_active(mesh_obj)
+            return REBAKE_UV_LAYER
+    else:
+        smart_project_active(mesh_obj)
+        return mesh.uv_layers.active.name
+
+
+# Bake-layout layer choice per mesh (object name -> layer name), recorded by
+# ensure_uv; per material (material name -> layer name), agreed in
+# bake_materials. A material shared across meshes gets ONE UV Map link, which
+# resolves per mesh by name -- so every mesh behind one material must agree.
+BAKE_LAYER_BY_MESH: Dict[str, str] = {}
+BAKE_LAYER_BY_MATERIAL: Dict[str, str] = {}
+
+
+def agree_bake_layer_for_material(mat_name: str, mesh_names: List[str]) -> str | None:
+    """One bake-layout layer name for every mesh carrying this material.
+
+    Reads back the ensure_uv choices (pure function of each mesh's layers)
+    and gives outliers a fresh layer under the agreed name, so the single
+    UV Map link wire_textures_to_base_color adds resolves everywhere.
+    In practice S2 role materials agree already (a role's meshes share one
+    layout history); this is the fail-closed fallback. Returns the agreed
+    name, or None when no mesh survived.
+    """
+    choices: Dict[str, str] = {}
+    for mesh_name in mesh_names:
+        if mesh_name in BAKE_LAYER_BY_MESH:
+            choices[mesh_name] = BAKE_LAYER_BY_MESH[mesh_name]
+    if not choices:
+        return None
+    counts: Dict[str, int] = {}
+    for name in choices.values():
+        counts[name] = counts.get(name, 0) + 1
+    agreed = sorted(counts, key=lambda n: (-counts[n], n))[0]
+    for mesh_name, name in choices.items():
+        obj = bpy.data.objects.get(mesh_name)
+        if obj is None or obj.type != "MESH":
+            continue
+        mesh = obj.data
+        if name != agreed:
+            existing = mesh.uv_layers.get(agreed)
+            if existing is None:
+                # Fresh layer carrying the agreed name: the material's single
+                # UV Map link resolves per mesh by name. Only freshly created
+                # layers are unwrapped -- never touch an existing layer's
+                # content (it may back a referenced S2 atlas image).
+                mesh.uv_layers.new(name=agreed)
+                mesh.uv_layers.active = mesh.uv_layers[agreed]
+                smart_project_active(obj)
+            else:
+                mesh.uv_layers.active = existing
+                referenced_here = referenced_by_material_list(list(mesh.materials))
+                if non_degenerate_uv_fraction(mesh) < 0.5 and agreed not in referenced_here:
+                    # Stale degenerate shell: drop and recreate so every mesh
+                    # behind this material ends up with the same layer COUNT
+                    # (a 2-layer mesh sharing a material with 3-layer meshes
+                    # makes the exporter emit a duplicate material).
+                    mesh.uv_layers.remove(existing)
+                    mesh.uv_layers.new(name=agreed)
+                    mesh.uv_layers.active = mesh.uv_layers[agreed]
+                    smart_project_active(obj)
+                else:
+                    print(f"[room-bake] WARN {mesh_name}: material {mat_name} bakes into "
+                          f"existing layer {agreed} (ensure_uv chose {name})")
+                    mesh.uv_layers.active = mesh.uv_layers[agreed]
+        else:
+            mesh.uv_layers.active = mesh.uv_layers[agreed]
+        BAKE_LAYER_BY_MESH[mesh_name] = agreed
+    # Uniform layer shape per material: drop unreferenced non-agreed layers
+    # (their content is superseded by the rebake; normal/roughness live on
+    # referenced layers, which are kept). A 2-layer mesh sharing a material
+    # with 3-layer meshes otherwise makes the exporter emit a duplicate
+    # material (measured: shell_bake_trim.001 on the casing alone).
+    for mesh_name in choices:
+        obj = bpy.data.objects.get(mesh_name)
+        if obj is None or obj.type != "MESH":
+            continue
+        mesh = obj.data
+        referenced_here = referenced_by_material_list(list(mesh.materials))
+        for layer in list(mesh.uv_layers):
+            if layer.name != agreed and layer.name not in referenced_here:
+                mesh.uv_layers.remove(layer)
+        mesh.uv_layers.active = mesh.uv_layers[agreed]
+    BAKE_LAYER_BY_MATERIAL[mat_name] = agreed
+    return agreed
 
 
 def role_from_object_names(mesh_names: List[str]) -> str:
@@ -527,7 +674,7 @@ def bake_materials(resolution: int, restore_albedo: bool) -> Dict[str, Dict[str,
     """
     objs = [o for o in bpy.context.scene.objects if o.type == "MESH"]
     for o in objs:
-        ensure_uv(o)
+        BAKE_LAYER_BY_MESH[o.name] = ensure_uv(o)
 
     by_mat: Dict[str, List[bpy.types.Object]] = {}
     for obj in objs:
@@ -559,6 +706,9 @@ def bake_materials(resolution: int, restore_albedo: bool) -> Dict[str, Dict[str,
             continue
         surface = classify_surface(mat_name, mesh_names)
         img_name = bake_image_name_for_material(mat, surface)
+        # One bake-layout layer per material (explicit UV Map link below, so
+        # later layer appends/active juggling cannot misroute the albedo).
+        agree_bake_layer_for_material(mat_name, mesh_names)
         if restore_albedo:
             restore_bright_albedo(mat, surface)
 
@@ -649,6 +799,24 @@ def wire_textures_to_base_color() -> None:
         for link in list(bsdf.inputs["Base Color"].links):
             nt.links.remove(link)
         nt.links.new(img_tex.outputs["Color"], bsdf.inputs["Base Color"])
+        # Explicit UV Map link to the agreed bake layer ("Fixed" mapping at
+        # export, like the AO pass): a bare Vector samples the ACTIVE layer,
+        # so any later append/restore-active would silently remap the albedo
+        # onto the wrong UV set (measured: S2 normal/roughness collapsed to
+        # the albedo set and walls rendered dark and faceted).
+        layer_name = BAKE_LAYER_BY_MATERIAL.get(mat.name)
+        if layer_name:
+            uv_map = None
+            for node in nt.nodes:
+                if node.type == "UVMAP" and node.uv_map == layer_name:
+                    uv_map = node
+                    break
+            if uv_map is None:
+                uv_map = nt.nodes.new("ShaderNodeUVMap")
+                uv_map.uv_map = layer_name
+            for link in list(img_tex.inputs["Vector"].links):
+                nt.links.remove(link)
+            nt.links.new(uv_map.outputs["UV"], img_tex.inputs["Vector"])
 
 
 def write_means_log(
