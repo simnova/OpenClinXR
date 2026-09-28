@@ -1,0 +1,40 @@
+{
+  "unwrap": "box",
+  "allBoundary": {
+    "n": 13,
+    "mean": 39.76,
+    "max": 81.18,
+    "median": 43.5
+  },
+  "allInterior": {
+    "n": 47,
+    "mean": 11.12,
+    "max": 45.02,
+    "median": 7.24
+  },
+  "coplanarBoundary": {
+    "n": 0
+  },
+  "coplanarInterior": {
+    "n": 47,
+    "mean": 11.12,
+    "max": 45.02,
+    "median": 7.24
+  },
+  "coplanarBoundarySorted": [],
+  "islands": 9,
+  "islandSizes": [
+    15,
+    15,
+    10,
+    4,
+    4,
+    3,
+    2,
+    2,
+    1
+  ],
+  "cover": 262144,
+  "filled": 0,
+  "single": 3
+}

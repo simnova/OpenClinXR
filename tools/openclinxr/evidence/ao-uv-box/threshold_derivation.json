@@ -1,0 +1,12 @@
+{
+  "measured_at": "2026-09-28T08:50Z",
+  "code_state": "pre-box-projection (smart_project + dilation landed as a8336bc41)",
+  "input": "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb, wall object bedroom_0/0.wall (56 tris), resolution 512",
+  "method": "position-welded adjacent same-material triangle pairs, per-triangle mean AO from real paint_bounded_ao+dilate bake; HF noise = adjacent-texel abs diffs inside eroded interiors of large tris",
+  "baseline_residual_boundary": {"n": 41, "mean": 33.28, "median": 19.0, "max": 123.0, "unit": "/255"},
+  "degenerate": "44/56 tris single-texel (78.6% zero-area under smart_project); all 41 boundary pairs involve a degenerate",
+  "noise_floor_HF": {"overall_median": 4.0, "overall_mean": 5.42, "clean_per_tri": [4.85,4.81,4.93,4.81,4.45,4.4,4.58,5.11], "unit": "/255"},
+  "threshold": 12.0,
+  "derivation": "threshold = 3 * HF overall median (3*4.0=12.0). Standard 3x-noise detection floor. Residual median 19.0 clears it by 7.0; residual mean 33.28 clears it by 21.28; threshold clears noise median by 8.0 and noise mean by 6.58. Derived BEFORE box-projection implementation, not fitted to fix outcome.",
+  "RED": "current 33.28 (mean) / 19.0 (median) > 12.0 FAIL as required"
+}

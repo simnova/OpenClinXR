@@ -264,11 +264,17 @@ describe("the shell bake runs before the extract", () => {
     const roughSize = Number(src.match(/SHARED_ROUGHNESS_SIZE\s*=\s*(\d+)/)?.[1]);
     expect(normalSize).toBeGreaterThanOrEqual(1024);
     expect(roughSize).toBeGreaterThanOrEqual(1024);
-    // Shell images plus the untouched AO pass (4x512^2) must stay under budget.
+    // Shell images plus the AO pass (room-occlusion-bake.py AO_DEFAULT_RESOLUTION,
+    // uniform budget max) must stay under budget. AO size is read from the occlusion
+    // script so the two passes share one budget number instead of two literals.
+    const OCCLUSION_PY = path.join(SRC, "room-occlusion-bake.py");
+    const occSrc = readFileSync(OCCLUSION_PY, "utf8");
+    const aoSize = Number(occSrc.match(/AO_DEFAULT_RESOLUTION\s*=\s*(\d+)/)?.[1]);
+    expect(aoSize, "room-occlusion-bake.py must declare AO_DEFAULT_RESOLUTION").toBeGreaterThan(0);
     const shellMb =
       [...albedoByRole.values()].reduce((acc, s) => acc + (s * s * 4) / (1024 * 1024), 0) +
       ((normalSize * normalSize * 4) + (roughSize * roughSize * 4)) / (1024 * 1024);
-    const totalMb = (shellMb + 4 * ((512 * 512 * 4) / (1024 * 1024))) * 1.33;
+    const totalMb = (shellMb + 4 * ((aoSize * aoSize * 4) / (1024 * 1024))) * 1.33;
     expect(totalMb).toBeLessThanOrEqual(56);
     // Resolution floor: every SURFACE image >= 1024 px on its long edge.
     // The "other" residue atlas (exterior hull faces, boolean cutters --

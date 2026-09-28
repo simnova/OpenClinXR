@@ -42,9 +42,10 @@
 #   normal shared 1024^2 (4) + roughness shared 1024^2 (4) = 8 (one atlas
 #     each over ALL kept objects, so every surface keeps relief and finish
 #     variation without per-surface normal images)
-#   shell subtotal 37 MB; AO pass (untouched, 4x512^2) adds 4 MB (one image
-#   per wired material: residue "other" ships unwired when uniform and shell
-#   "skirting" skips by name, so 6 materials wire 4 AO images)
+#   shell subtotal 37 MB; AO pass (room-occlusion-bake.py AO_DEFAULT_RESOLUTION,
+#     uniform 512 -- the budget max, 4x512^2) adds 4 MB (one image per wired
+#     material: residue "other" ships unwired when uniform and shell
+#     "skirting" skips by name, so 6 materials wire 4 AO images)
 #   total 41 MB x 1.33 = 54.5 MB <= 56 MB
 # Trim gets its own 1024 albedo (door/casing/window are primary visible
 # surfaces); "other" is residue (exterior hull faces, boolean cutters) and

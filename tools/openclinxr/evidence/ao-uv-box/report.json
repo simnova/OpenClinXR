@@ -1,0 +1,29 @@
+{
+  "slice": "AO_UV box projection (per-wall cube unwrap, D3b BAKE_UV pattern 0711c8a71)",
+  "date": "2026-09-28",
+  "baselineInput": "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb, wall object bedroom_0/0.wall (56 tris), 512px, production paint_bounded_ao + dilate",
+  "baselineResidualAllBoundary": { "n": 41, "mean": 33.28, "median": 19.0, "max": 123.0, "unit": "/255" },
+  "baselineResidualCoplanarBoundary": { "n": 28, "mean": 21.14, "median": 11.0, "max": 123.0, "unit": "/255" },
+  "degeneratePre": "44/56 tris single-texel (78.6%), 37 islands for one wall object",
+  "noiseFloorHF": { "overallMedian": 4.0, "overallMean": 5.42, "unit": "/255" },
+  "threshold": 12.0,
+  "thresholdDerivation": "3 * HF overall median (3*4.0), standard 3x-noise floor, derived BEFORE the fix from the two measurements above. Residual coplanar mean 21.14 clears it by 9.14; it clears noise mean by 6.58.",
+  "RED": "smart coplanar mean 21.14 > 12.0 FAIL (all-boundary 33.28 > 12.0 FAIL)",
+  "GREEN": "box coplanar boundary n=0 (every same-plane neighbour pair shares an island), 47 coplanar interior pairs, 9 islands (was 37), 3 degenerate singles (was 44), full 512^2 coverage, dilation filled=0",
+  "aoResolution": 512,
+  "budgetJustification": "largest uniform power-of-two with shell 37MB + AO 4x512^2 (4MB) = 41MB x1.33 = 54.5MB <= 56MB ward cap; 4x1024^2 would be 53 raw x1.33 = 70.5MB > 56. Declared as AO_DEFAULT_RESOLUTION in room-occlusion-bake.py; shell-bake budget test reads it.",
+  "runtimeNote": "Ward finish GLB (infinigen-inpatient-ward.glb) carries zero occlusionTexture slots by design (photo finish), so runtime before/after uses full production rebakes of the shell room infinigen-primary-care-clinic.glb (3 AO maps, plaster.022): /tmp ward poses 01/02 applied as identical room-local coordinates via ward-finish-chain-capture (room subtree only, 4 shell meshes, actors hidden). Pose 01 lands inside the clinic wall (ward footprint 8.77x7.77 vs clinic 6.5m class) and is unusable; pose 02 frames the clinic interior with the far wall unlit black (capture-path lighting, identical both states). Comparison is therefore pose-02 side-wall fields only.",
+  "runtimePose02RightWall": { "before": { "mean": 213.81, "sd": 1.86, "hfMean": 0.21 }, "after": { "mean": 213.34, "sd": 1.86, "hfMean": 0.17 } },
+  "runtimeVisual": "Enlarged side-wall crops (wallcrop-02-*.png) show faint dotted island-border structure in both states at near-identical contrast; no clear before/after win at this contrast. The runtime capture therefore shows parity with a small HF improvement (0.21 -> 0.17, -19%), limited by pose transfer and capture-path lighting. Primary evidence is the bake-level GREEN (0 coplanar facet edges vs 28 before). A ward-shell (not finish) rebake with native ward poses would be needed for a conclusive runtime facet grade; no ward shell GLB was available (ward work.glb is mid-bake in another worktree).",
+  "images": [
+    "runtime-01-clinic-before.png (unusable: camera inside clinic wall)",
+    "runtime-01-clinic-after.png (unusable: same)",
+    "runtime-02-clinic-before.png",
+    "runtime-02-clinic-after.png",
+    "wallcrop-02-before.png",
+    "wallcrop-02-after.png",
+    "plaster-ao-before.png (smart: 54% background, 141798 gutter texels dilated)",
+    "plaster-ao-after.png (box: full coverage, filled=0)"
+  ],
+  "rawMeasurements": ["threshold_derivation.json", "baseline_v4_512.json", "coplanar_smart.json", "coplanar_box.json"]
+}

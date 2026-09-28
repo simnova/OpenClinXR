@@ -63,6 +63,7 @@
     "src/room_generate/the-room-generate-produces-the-footprint.test.ts",
     "src/room_generate/the-room-generate-reports-a-timeout-as-a-timeout.test.ts",
     "src/room_generate/the-room-generate-resolves-workglb-against-repo-root.test.ts",
+    "src/room_generate/the-room-occlusion-box-projects-its-ao-uv.test.ts",
     "src/room_generate/the-room-occlusion-dilates-its-gutters.test.ts",
     "src/room_generate/the-room-simplify-after-the-bake-keeps-trim.test.ts",
     "src/room_generate/the-shell-bake-gives-skirting-its-own-matte-role.test.ts",

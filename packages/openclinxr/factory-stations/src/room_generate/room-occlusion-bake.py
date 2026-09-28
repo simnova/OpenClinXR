@@ -46,13 +46,19 @@ UV handling (the question the brief flagged): the shipped rooms already carry TE
 The shell's TEXCOORD_0 is a per-face cube unwrap, non-overlapping, reused for base colour.
 The Infinigen room's wall/ceiling UVs are TILED (span -2.6..4.2) and its exterior hull is a
 single collapsed (0,0) point — an AO bake into TEXCOORD_0 there would smear. So every mesh
-gets a SECOND UV layer "AO_UV" via smart_project (per material group, so islands cannot
-overlap between meshes sharing a material), the AO bakes into it, and the occlusion texture
-references TEXCOORD_1. Base colour keeps TEXCOORD_0 untouched.
+gets a SECOND UV layer "AO_UV" via box/cube projection (per material group, so islands
+cannot overlap between meshes sharing a material), the AO bakes into it, and the occlusion
+texture references TEXCOORD_1. Base colour keeps TEXCOORD_0 untouched. Cube, not Smart UV
+Project: smart-project's packer collapses most wall faces to zero UV area on ward-shell
+geometry (measured on the shipped inpatient ward wall: 44 of 56 tris single-texel, 78.6%
+degenerate, 37 islands for one wall object), and a collapsed face bakes as one flat snapped
+texel — the per-island tonal steps behind the wall facets. Planar projection along each
+face's dominant axis cannot collapse a flat wall quad, so each wall plane becomes one or a
+small few large islands. Same pattern as D3b's BAKE_UV box_project_into (0711c8a71).
 
 Usage (inside Blender 5.1 headless):
   blender --background --python room-occlusion-bake.py -- \
-    --input <room.glb> --output <baked.glb> [--resolution 512]
+    --input <room.glb> --output <baked.glb> [--resolution 512 (AO_DEFAULT_RESOLUTION, budget max)]
 
 Exit 0 on success; non-zero with a printed error on any bake failure (the input GLB is
 never modified in place).
@@ -91,6 +97,14 @@ AO_RAY_ORIGIN_OFFSET = 0.02
 AO_SAMPLES_PER_RING = 16
 AO_RINGS = (30.0, 60.0, 80.0)  # tilt angles from the surface normal, degrees
 AO_SAMPLE_SEED = 20260825
+
+# AO texture resolution: budget-derived, not a bare literal. Texture budget (decoded RGBA8
+# x1.33 mips, ward GLB <= 56 MB; see bake_shell_materials.py's budget table): shell 37 MB
+# + AO 4x512^2 (4 MB) = 41 MB x1.33 = 54.5 MB <= 56 MB. 512 is the largest uniform
+# power-of-two AO size that fits: 4x1024^2 would be 16 MB AO + 37 shell = 53 raw x1.33 =
+# 70.5 MB > 56. Per-role AO sizes would break the exporter's single-UVMap-link assumption
+# (one material = one image = one size), so the whole pass stays uniform at the budget max.
+AO_DEFAULT_RESOLUTION = 512
 
 GLTF_GROUP_NAMES = ("glTF Material Output", "glTF Settings")
 
@@ -141,8 +155,9 @@ def ensure_gltf_settings_group() -> bpy.types.NodeGroup:
 
 
 def ensure_ao_uv(mesh_obj: bpy.types.Object) -> str:
-    """Create/return the second UV layer name for AO. Uses smart_project on the material
-    GROUP so islands from different meshes sharing a material cannot overlap in one image."""
+    """Create/return the second UV layer name for AO. Unwrapped by box_project_group
+    (per material group, so islands from different meshes sharing a material cannot
+    overlap in one image)."""
     layer_name = "AO_UV"
     me = mesh_obj.data
     if layer_name not in [u.name for u in me.uv_layers]:
@@ -150,9 +165,15 @@ def ensure_ao_uv(mesh_obj: bpy.types.Object) -> str:
     return layer_name
 
 
-def smart_project_group(objects: List[bpy.types.Object], layer_name: str) -> None:
+def box_project_group(objects: List[bpy.types.Object], layer_name: str) -> None:
     """Unwrap all selected objects' faces into `layer_name` in ONE pass (non-overlapping
-    islands across the group, island_margin so texels do not bleed between islands)."""
+    islands across the group). Cube/box projection, NOT Smart UV Project: smart-project's
+    packer collapses most wall faces to zero UV area on ward-shell geometry (measured on
+    the shipped ward wall: 44/56 tris degenerate, 78.6%), and a collapsed face bakes as
+    one flat snapped texel (the wall-facet tonal steps). Planar projection along each
+    face's dominant axis cannot collapse a flat quad, so each wall plane becomes one or a
+    small few large islands. Same settings as D3b's BAKE_UV box_project_into (0711c8a71):
+    pure function of face geometry, no RNG."""
     for obj in objects:
         me = obj.data
         if layer_name in [u.name for u in me.uv_layers]:
@@ -164,9 +185,10 @@ def smart_project_group(objects: List[bpy.types.Object], layer_name: str) -> Non
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.select_all(action="SELECT")
     try:
-        bpy.ops.uv.smart_project(angle_limit=66.0, island_margin=0.02)
+        bpy.ops.uv.cube_project(cube_size=1.0, correct_aspect=True,
+                                clip_to_bounds=False, scale_to_bounds=True)
     except TypeError:
-        bpy.ops.uv.smart_project()
+        bpy.ops.uv.cube_project()
     bpy.ops.object.mode_set(mode="OBJECT")
     bpy.ops.object.select_all(action="DESELECT")
 
@@ -370,7 +392,9 @@ def paint_bounded_ao(img, objects: List[bpy.types.Object], bvh: BVHTree) -> byte
 def dilate_unpainted_texels(img, covered: bytearray) -> int:
     """Fill uncovered (gutter/background) texels with their nearest painted value.
 
-    smart_project packs UV islands with white gutters between them; leaving those at
+    Box-projected UV islands still leave background between differently-oriented planes;
+    leaving those at the clear colour (open = 1.0) outlines every island with a bright
+    seam under the runtime's bilinear/mip sampling (measured on a shipped 512px plaster
     the clear colour (open = 1.0) outlines every island with a bright seam under the
     runtime's bilinear/mip sampling (measured on a shipped 512px plaster AO map: 41.7%
     white background, edge-ring texels +10.4/255 brighter than interiors, 28.7% white-ish
@@ -475,7 +499,7 @@ def bake_ao_per_material(resolution: int) -> Dict[str, Dict[str, object]]:
 
         for obj in objs_:
             ensure_ao_uv(obj)
-        smart_project_group(objs_, "AO_UV")
+        box_project_group(objs_, "AO_UV")
 
         img_name = f"openclinxr_room_ao_{mat_name}"
         if img_name in bpy.data.images:
@@ -533,7 +557,7 @@ def bake_ao_per_material(resolution: int) -> Dict[str, Dict[str, object]]:
         # ignored) and which self-occludes closed rooms to a cave.
         bpy.ops.object.select_all(action="DESELECT")
         covered = paint_bounded_ao(img, objs_, scene_bvh)
-        # Gutter dilation (wall-facets-ao-seams): nearest-edge fill of the smart_project
+        # Gutter dilation (wall-facets-ao-seams): nearest-edge fill of the UV-island
         # background so island borders do not sample the white clear colour at runtime.
         # Covered texels are untouched, so bake interiors are byte-identical with/without.
         filled = dilate_unpainted_texels(img, covered)
@@ -580,7 +604,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--input", required=True)
     ap.add_argument("--output", required=True)
-    ap.add_argument("--resolution", type=int, default=512)
+    ap.add_argument("--resolution", type=int, default=AO_DEFAULT_RESOLUTION)
     args = ap.parse_args(_argv_after_double_dash())
 
     if not os.path.exists(args.input):
