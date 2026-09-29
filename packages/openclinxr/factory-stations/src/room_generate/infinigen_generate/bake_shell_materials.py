@@ -96,6 +96,29 @@ BAKE_MARGIN_PX = 4
 
 # Decoded RGBA8 bytes per image size (w*h*4); the budget table lives above.
 ALBEDO_SIZE_BY_ROLE = {"floor": 2048, "wall": 1024, "ceiling": 1024, "trim": 1024, "other": 512}
+# Per-role reflectance scale on the baked COLOR albedo (linear RGB
+# multipliers, applied multiplicatively so Infinigen's texture variance and
+# detail survive -- never a flatten or clip). The COLOR bake transcribes
+# Infinigen's own base colours unscaled and the wall base is ~1.0
+# (near-white), far above plausible matte-plaster reflectance, so the
+# runtime overexposes (measured 2026-09-29 on the uncalibrated chain: wall
+# box 226.8 vs v2 ref 203.6; floor box 241.0 vs v2 ref 214.5). Calibrated in
+# RUNTIME space: pose-02 wall box (500,280,780,420) to v2 ref
+# (203.6,202.7,197.1) and crop-verified floor box (500,640,620,700) to v2
+# ref (214.5,213.5,209.0), each within +/-8 per channel; every constant
+# below records the bake iteration that set it. Pure constants, so the
+# room_chain generate-stage content hash over this file picks up every
+# change as a cache miss automatically. Roles at 1.0 are out of scope with
+# reason: ceiling hides under the finish T-bar/tile/troffer assembly (no
+# gradeable shell surface); trim's visible door leaf is a stage-2 finish
+# maple material; "other" is exterior-hull residue invisible from inside.
+ALBEDO_REFLECTANCE_SCALE_BY_ROLE = {
+    "wall": (1.0, 1.0, 1.0),  # iteration 0 (unscaled baseline; calibrate next)
+    "floor": (1.0, 1.0, 1.0),  # iteration 0 (unscaled baseline; calibrate next)
+    "ceiling": (1.0, 1.0, 1.0),  # out of scope: hidden under finish assembly
+    "trim": (1.0, 1.0, 1.0),  # out of scope: visible leaf is finish maple
+    "other": (1.0, 1.0, 1.0),  # out of scope: exterior residue
+}
 SHARED_NORMAL_SIZE = 1024
 SHARED_ROUGHNESS_SIZE = 1024
 SHELL_MATERIAL_PREFIX = "shell_bake_"
@@ -431,6 +454,25 @@ def combine_diffuse_glossy(diffuse_img, glossy_img, out_img) -> None:
     out_img.pixels.foreach_set(out.ravel().tolist())
 
 
+def scale_albedo_image(image, scale: Tuple[float, float, float]) -> None:
+    """Multiply albedo RGB by a per-channel reflectance scale (alpha kept).
+
+    Multiplicative so the bake's variance/detail survives; values above 1.0
+    would push texels toward clip (the defect this calibration removes from
+    the other end), so scales stay at or below 1.0. Pure function of the
+    bake output plus constants: deterministic."""
+    import numpy as np
+
+    if tuple(scale) == (1.0, 1.0, 1.0):
+        return
+    W, H = image.size
+    px = np.array(image.pixels[:], dtype=np.float32).reshape(H, W, 4)
+    px[:, :, 0] *= scale[0]
+    px[:, :, 1] *= scale[1]
+    px[:, :, 2] *= scale[2]
+    image.pixels.foreach_set(px.ravel().tolist())
+
+
 def build_role_material(role: str, alb_layer: str, albedo_img, normal_img, roughness_img):
     """Fresh Image Texture -> Principled hookup; the procedural tree is gone.
 
@@ -645,6 +687,11 @@ def main() -> Dict[str, object]:
             set_active_image_for_materials(materials_of(role_objects), albedo_img)
             combine_diffuse_glossy(albedo_img, glossy_img, albedo_img)
             bpy.data.images.remove(glossy_img)
+        # Per-role reflectance calibration (ALBEDO_REFLECTANCE_SCALE_BY_ROLE):
+        # scale, never flatten -- Infinigen's texture variance ships through.
+        scale = ALBEDO_REFLECTANCE_SCALE_BY_ROLE.get(role, (1.0, 1.0, 1.0))
+        scale_albedo_image(albedo_img, scale)
+        print(f"[shell-bake] ALBEDO {role}: reflectance scale {scale}")
         albedo_img.pack()
         print(f"[shell-bake] ALBEDO {role} {size}x{size} over {len(role_bakeable)} object(s)")
 

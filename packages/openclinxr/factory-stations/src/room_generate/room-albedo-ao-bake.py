@@ -176,6 +176,22 @@ FINISH_FLAT_SKIP_MATERIALS = ("openclinxr_finish_wall", "openclinxr_finish_cove"
 # (measured: bake lighting turns vinyl-cove flats near-black) -- so it skips
 # the same way and the calibrated grey ships untouched (AO still applies).
 SHELL_FLAT_SKIP_MATERIALS = ("shell_bake_skirting",)
+# Textured shell-bake materials (shell_bake_wall/floor/trim/ceiling/other:
+# every shell_bake_* role EXCEPT the flat skirting above) ship a COLOR-only
+# baked albedo image wired as Base Color by bake_shell_materials.py. The lit
+# DIFFUSE re-bake below must not touch them: with --restore-albedo defaulting
+# True, restore_bright_albedo() disconnects the COLOR-only albedo image and
+# the pass then bakes DIRECT+INDIRECT+COLOR over a flat, which (a) discards
+# Infinigen's wall/floor/trim/ceiling textures entirely and (b) folds the hot
+# bake rig into the albedo so the runtime lights it a second time (measured
+# 2026-09-29 on the uncalibrated chain: wall box 226.8 vs v2 ref 203.6).
+# They skip the bake op the way the flats do and keep their COLOR image
+# wired. Contact AO still comes from the separate room-occlusion-bake.py
+# pass, whose own skip list covers only shell_bake_skirting, so these
+# materials keep their AO wiring there. Prefix-gated (not name-listed) so a
+# new textured shell role is safe by default; the shared bank pipeline
+# (shader_plaster etc.) never carries this prefix and is unaffected.
+SHELL_BAKE_PREFIX = "shell_bake_"
 
 
 def bake_image_name_for_material(mat: bpy.types.Material, surface: str = "") -> str:
@@ -718,6 +734,43 @@ def bake_materials(resolution: int, restore_albedo: bool) -> Dict[str, Dict[str,
                 "skipReason": f"{kind}-flat-wall",
             }
             print(f"[room-bake] skipped {mat_name} ({kind} flat wall, {len(objs_)} mesh(es)) meanL={mean_l:.2f}")
+            continue
+        if mat_name.startswith(SHELL_BAKE_PREFIX):
+            # Textured shell-bake role (see SHELL_BAKE_PREFIX): keep the
+            # COLOR-only albedo image wired as Base Color, skip the lit
+            # re-bake entirely (no restore, no bake op, no rewire). Fail
+            # closed when the expected Base Color image link is missing --
+            # silently shipping an untextured shell would be a worse defect
+            # than stopping the chain.
+            bsdf = find_bsdf(mat)
+            alb_name = ""
+            if bsdf is not None:
+                for link in list(bsdf.inputs["Base Color"].links):
+                    from_node = link.from_node
+                    if from_node is not None and from_node.type == "TEX_IMAGE":
+                        img = from_node.image
+                        if img is not None:
+                            alb_name = img.name
+                            break
+            if not alb_name:
+                raise RuntimeError(
+                    f"material {mat_name} carries the shell-bake prefix but has "
+                    "no Base Color image link to keep"
+                )
+            surface = classify_surface(mat_name, mesh_names)
+            alb_img = bpy.data.images.get(alb_name)
+            mean_l = image_mean_l(alb_img) if alb_img is not None else 0.0
+            results[mat_name] = {
+                "image": alb_name,
+                "resolution": alb_img.size[0] if alb_img is not None else 0,
+                "meshes": len(objs_),
+                "surface": surface,
+                "meanL": mean_l,
+                "meshNames": mesh_names,
+                "skipped": True,
+                "skipReason": "shell-textured-albedo",
+            }
+            print(f"[room-bake] skipped {mat_name} (shell textured albedo {alb_name}, {len(objs_)} mesh(es)) meanL={mean_l:.2f}")
             continue
         surface = classify_surface(mat_name, mesh_names)
         img_name = bake_image_name_for_material(mat, surface)

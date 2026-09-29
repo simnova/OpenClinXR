@@ -55,6 +55,7 @@
     "src/room_generate/the-room-bake-links-objects-into-the-view-layer.test.ts",
     "src/room_generate/the-room-bake-preserves-the-shared-normal-wiring.test.ts",
     "src/room_generate/the-room-bake-skips-finish-flat-materials.test.ts",
+    "src/room_generate/the-room-bake-skips-shell-textured-materials.test.ts",
     "src/room_generate/the-room-floors-pin-bumpy-rubber.test.ts",
     "src/room_generate/the-room-generate-accepts-footprint-and-door.test.ts",
     "src/room_generate/the-room-generate-door-generalizes.test.ts",
