@@ -87,7 +87,11 @@ gin-configurable), so the specced cove is not parameterizable in
 `room_generate`. Deterministic and cache-keyed: the cove runs derive
 wall inner-face planes from the shell wall meshes and the door gap from
 the kept leaf bbox at compose time (seed-independent geometry, no
-randomness; `compose.py` joins the finish stage cache key). The 100 mm
+randomness; `compose.py` joins the finish stage cache key). Profile is
+a draft triangle leaning back into the wall (no flat shelf: a box top
+and a chamfer cap both glared into bright bands at the pose-06
+glancing angle); field and cove anchor to the measured shell floor
+plane (fail-closed when absent). The 100 mm
 height and matte vinyl grey land inside the existing
 `room-albedo-ao-bake.py` `openclinxr_finish_cove` flat-skip entry and
 the shell `SKIRTING_BASE_COLOR_LINEAR` calibration. Ceiling skirting

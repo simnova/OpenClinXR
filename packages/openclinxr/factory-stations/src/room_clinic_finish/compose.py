@@ -138,13 +138,14 @@ SKIRTING_COVE_HEIGHT_M = 0.10
 SKIRTING_COVE_THICKNESS_M = 0.018
 SKIRTING_COVE_RGB_LINEAR = (0.313, 0.323, 0.352)
 SKIRTING_COVE_ROUGHNESS = 0.9
-# Chamfer cap rise: the run is a wedge prism, not a box -- a flat box top
-# face glares into a bright band (measured seed-205 pose 06: a 195 spike
-# between the 190 wall and the 158 cove face, i.e. the double edge the
-# reference never shows). The chamfer climbs 12 mm over the 18 mm run
-# into the wall, so the wall->cap->face falloff is monotonic and the
-# profile shows one soft edge the width of the reference S-curve.
-SKIRTING_COVE_CHAMFER_M = 0.012
+# Draft-triangle profile: the run leans back 10 degrees so its top edge
+# dies into the wall plane -- no flat shelf, hence no glare band. (A box
+# top face rendered a 195 spike; a 12 mm chamfer cap rendered a 19-row
+# 193 shelf: any up-facing flat at this glancing angle outshines both
+# neighbors. The triangle's sloped room face reads near-vertical
+# brightness with a single intersection line at the top, the reference
+# anatomy.) Back edge sits 1 mm inside the wall so no coplanar faces
+# remain (single-sided, backface-culled from the room).
 # Tile field top lift above the measured shell floor plane: the shell
 # floor is a zero-thickness plane (measured z=0 on the seed-205 ward)
 # while the shell bounds min sits ~0.13 lower (exterior bottom cap), so
@@ -784,15 +785,16 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
 
         def cove_run(name: str, plane_pos: float, seg_lo: float, seg_hi: float,
                      axis: str, side: str) -> None:
-            # Wedge prism extruded along the run axis: vertical room face,
-            # chamfer cap climbing into the wall, back buried in the wall.
+            # Draft-triangle prism extruded along the run axis: sloped
+            # room face from the field top to an apex 1 mm inside the
+            # wall plane, back buried in the wall, bottom on the field.
             # Cross-section (u = offset from the wall face into the room,
-            # v = height above the field top): (0,0)->(t,0)->(t,H-ch)->(0,H).
-            # Winding below is verified outward face by face (see the
-            # native winding probe in the cove fix commit).
+            # v = height above the field top): A=(-0.001,0), B=(t,0),
+            # C=(-0.001,H). Faces: bottom/slope/back quads plus two end
+            # triangles (closed solid, so normals_make_consistent below
+            # orients outward regardless of authored winding).
             t = SKIRTING_COVE_THICKNESS_M
             h = SKIRTING_COVE_HEIGHT_M
-            ch = SKIRTING_COVE_CHAMFER_M
             zb = floor_top + FLOOR_FIELD_LIFT_M
             mesh = bpy.data.meshes.new(name + "_mesh")
             obj = bpy.data.objects.new(name, mesh)
@@ -802,32 +804,24 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                 # Run varies along y at fixed x; wall face at plane_pos,
                 # room lies toward +x (x0 side) or -x (x1 side).
                 direction = 1.0 if side == "x0" else -1.0
-                xw, xr = plane_pos, plane_pos + direction * t
+                xw = plane_pos - direction * 0.001
+                xr = plane_pos + direction * t
                 verts = [
-                    (xw, seg_lo, zb), (xw, seg_hi, zb), (xr, seg_hi, zb), (xr, seg_lo, zb),
-                    (xw, seg_lo, zb + h), (xw, seg_hi, zb + h),
-                    (xr, seg_hi, zb + h - ch), (xr, seg_lo, zb + h - ch),
+                    (xw, seg_lo, zb), (xr, seg_lo, zb), (xw, seg_lo, zb + h),
+                    (xw, seg_hi, zb), (xr, seg_hi, zb), (xw, seg_hi, zb + h),
                 ]
             else:
                 direction = 1.0 if side == "y0" else -1.0
-                yw, yr = plane_pos, plane_pos + direction * t
+                yw = plane_pos - direction * 0.001
+                yr = plane_pos + direction * t
                 verts = [
-                    (seg_lo, yw, zb), (seg_hi, yw, zb), (seg_hi, yr, zb), (seg_lo, yr, zb),
-                    (seg_lo, yw, zb + h), (seg_hi, yw, zb + h),
-                    (seg_hi, yr, zb + h - ch), (seg_lo, yr, zb + h - ch),
+                    (seg_lo, yw, zb), (seg_lo, yr, zb), (seg_lo, yw, zb + h),
+                    (seg_hi, yw, zb), (seg_hi, yr, zb), (seg_hi, yw, zb + h),
                 ]
-            # (bottom, room face, chamfer cap, back, 2 ends). Winding
-            # depends on which side the room lies: FWD when the run axis
-            # and the room direction agree, REV otherwise (verified face
-            # by face with a native winding probe).
-            faces_fwd = [(0, 1, 2, 3), (3, 2, 6, 7), (7, 6, 5, 4),
-                         (1, 0, 4, 5), (0, 3, 7, 4), (1, 2, 6, 5)]
-            faces_rev = [(0, 3, 2, 1), (3, 7, 6, 2), (7, 4, 5, 6),
-                         (1, 5, 4, 0), (0, 4, 7, 3), (1, 5, 6, 2)]
-            use_fwd = (axis == "y") == (direction > 0)
-            mesh.from_pydata(verts, [], faces_fwd if use_fwd else faces_rev)
+            faces = [(0, 3, 4, 1), (1, 4, 5, 2), (2, 5, 3, 0), (0, 1, 2), (3, 4, 5)]
+            mesh.from_pydata(verts, [], faces)
             mesh.update()
-            # Safety net: closed manifold, so consistent orientation is
+            # Safety net: closed solid, so consistent orientation is
             # outward regardless of the authored winding above.
             bpy.context.view_layer.objects.active = obj
             bpy.ops.object.mode_set(mode="EDIT")
