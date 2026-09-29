@@ -97,12 +97,23 @@
   ],
   "seed": 205
  },
- "litAlbedoMetal": "pending Part 3 (cold-chain CPU time 3.2s => below 30s threshold; no determinism attempt per job rule)",
+ "litAlbedoMetal": {
+  "cpuTimeInColdChainS": {
+   "cold1": 3.239,
+   "cold2": 3.144
+  },
+  "thresholdS": 30,
+  "rule": "only attempt a determinism fix if still > 30 s",
+  "determinismAttempt": "none (threshold not met)",
+  "priorEvidence": "report.md: Metal ~95 s vs CPU ~578 s but Metal run-to-run differs +/-1/255 on a few texels (fails byte-identical rule)",
+  "decision": "leave lit albedo pass on CPU; no code change",
+  "reason": "3.2 s is Blender import/export overhead with zero bake ops (all six shell roles skip); there is no lit bake left to accelerate on this fixture"
+ },
  "method": "BLENDER timing shim (no product code change): BLENDER=/tmp/room-timing-2026-09-29/blender-shim.sh logs PASS_START/PASS_END with epoch, elapsed_s, machine-wide Blender count at start/end, and --python script name; chain wall time via date +%s around CLI; generate-driver split via durationsMs in ward-chain-report.json",
  "outDirs": {},
  "parts": {
   "part2": "done",
-  "part3": "pending"
+  "part3": "done"
  },
  "runs": [
   {

@@ -62,4 +62,15 @@ vs SwiftShader rasterisation differences; no grade impact.
 
 Decision: keep the hardware (ANGLE Metal) default. No product change.
 
-## Part 3: lit albedo on Metal (pending — cold-chain CPU time 3.2 s is below the 30 s threshold, so no determinism attempt per the job rule; full verdict after Part 2)
+## Part 3: lit albedo on Metal (done — left on CPU, no attempt per rule)
+
+The cold chain measures the lit albedo pass at 3.2 s / 3.1 s on CPU with
+all six shell roles skipped (`shell-textured-albedo`, no bake op, no
+rewire) — far below the job's 30 s threshold for attempting a determinism
+fix. So no fix was tried and none of the adoption criteria were re-tested.
+Prior standing evidence (`report.md`): Metal ~95 s vs CPU ~578 s, but Metal
+run-to-run differs by +/-1/255 on a few texels, failing the byte-identical
+rule. The remaining 3 s is Blender import/export overhead with zero bake
+ops left to accelerate on this fixture.
+
+Decision: leave the lit albedo pass on CPU. No product change.
