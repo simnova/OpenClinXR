@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 472,
+    "keep-evidence": 473,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -24553,7 +24553,9 @@
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "GREEN final GLB audit: 6 materials, shell_bake_skirting flat (0.313,0.323,0.352) roughness 0.9, no albedo or occlusion texture.",
+      "rationale": "GREEN final GLB audit: 6 materials, shell_bake_skirting flat (0.313,0.323,0.352) roughness 0.9, no albedo or occlusion texture."
+    },
+    {
       "path": "docs/openclinxr/room-realism/finish-preserve-shell/01-toward-door-side-by-side.png",
       "authority": "keep-evidence",
       "tracked": true,
