@@ -61,15 +61,18 @@ Infinigen-first was investigated per part and recorded in
   driver pins them as post-draw constants (seeded, recorded in the
   generate report, in the stage cache key via the driver hash + params).
 - Vision glass: NOT FOUND in Infinigen-through-our-bake. `LiteDoorFactory`
-  cuts the opening and tags a glass selection, but
-  `bake_shell_materials.assign_role_material` clears every slot into one
-  `shell_bake_trim` material, so the lite bakes and reads as wood. The
-  finish fits a real-transmission glass pane (`openclinxr_door_glass`,
-  KHR_materials_transmission) plus a steel lite frame; maple stays on the
-  leaf. The opening rect is measured from the leaf's own hole rims
-  (boundary edges of the joined solid); the recipe fractions place it only
-  when the leaf carries no hole, and the run fails closed when neither
-  exists.
+  cuts blind recessed pockets (the joined leaf is a closed solid -- 0
+  boundary edges, verified on the seed-205 `work.blend`) and tags a glass
+  selection, but `bake_shell_materials.assign_role_material` clears every
+  slot into one `shell_bake_trim` material, so the lite bakes and reads as
+  wood. The finish glazes the pocket mouth with a frosted
+  transmission pane (`openclinxr_door_glass`, KHR_materials_transmission,
+  mid roughness so the maple recess floor blurs into a pale wash) plus a
+  steel lite frame; maple stays on the leaf. The opening rect comes from
+  the deterministic recipe fractions (single-sourced from the chain's
+  `WARD_CHAIN_DOOR`, guarded door-like); a sane measured rim loop only
+  cross-checks (recorded as `rimCheck`, never placed), because simplify
+  can open outer edges that masquerade as a leaf-spanning rim.
 - Hinges: NOT FOUND in Infinigen (no hinge symbol anywhere under
   `assets/objects/elements/doors/`). The finish adds three steel hinge
   plates + knuckles on the recipe hinge-side jamb.

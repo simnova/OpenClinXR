@@ -397,6 +397,15 @@ def main():
         def _pinned_ward_factory():
             return _WardDoorFactory
 
+        # Spawned Blender object names embed the factory class __name__
+        # (factory.py spawn_asset: obj.name = f"{repr(self)}.spawn_asset({i})"
+        # with repr from __class__.__name__). Downstream matchers key on
+        # those names -- strip_room_shell_placeholders.py leaf_re/casing_re
+        # and probe_door.py is_leaf/is_casing -- so the subclass names must
+        # still match: "DoorCasingFactory(...)" exactly for the casing,
+        # "*DoorFactory(...)" (not preceded by "Casing") for the leaf.
+        _WardDoorFactory.__name__ = "WardDoorFactory"
+
         doors_mod.random_door_factory = _pinned_ward_factory
         room_decorate.random_door_factory = _pinned_ward_factory
         print(
@@ -423,6 +432,9 @@ def main():
             # DoorCasingFactory" inside the property body).
             elements_pkg.DoorCasingFactory = _WardCasing
             doors_base_mod.DoorCasingFactory = _WardCasing
+            # Same spawn-name contract as the leaf above: the strip keep_re
+            # and the probe is_casing match "DoorCasingFactory(...)" exactly.
+            _WardCasing.__name__ = "DoorCasingFactory"
             print(
                 "[fixed_footprint] ward casing margin=%.3f" % _casing_margin,
                 flush=True,

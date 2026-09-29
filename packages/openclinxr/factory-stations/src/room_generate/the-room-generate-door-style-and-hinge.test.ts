@@ -102,3 +102,57 @@ describe("the room generate tightens hingeSide to the perpendicular axis", () =>
     });
   }
 });
+
+describe("the room generate pins the ward door details", () => {
+  it("(handle) lever plans and is carried on the door payload", () => {
+    const planned = planRoomGenerate({
+      ...BASE,
+      footprintMeters: FOOTPRINT,
+      door: { ...DOOR, style: "lite", handle: "lever" },
+    });
+    expect(planned.issues).toBeUndefined();
+    if (planned.issues !== undefined) return;
+    expect((planned.plan["door"] as Record<string, unknown>)["handle"]).toBe("lever");
+  });
+
+  it('(handle) "ball" is refused with a closed-enum error', () => {
+    const planned = planRoomGenerate({
+      ...BASE,
+      footprintMeters: FOOTPRINT,
+      door: { ...DOOR, handle: "ball" },
+    });
+    expect(planned.issues).not.toBeUndefined();
+    const messages = (planned.issues ?? []).map((issue) => issue.message).join("; ");
+    expect(messages).toMatch(/door\.handle/);
+  });
+
+  it("(liteRect) ordered fractions in [0, 1] plan", () => {
+    const planned = planRoomGenerate({
+      ...BASE,
+      footprintMeters: FOOTPRINT,
+      door: { ...DOOR, style: "lite", liteRect: [0.64, 0.8, 0.58, 0.87] },
+    });
+    expect(planned.issues).toBeUndefined();
+  });
+
+  it("(liteRect) inverted fractions are refused", () => {
+    const planned = planRoomGenerate({
+      ...BASE,
+      footprintMeters: FOOTPRINT,
+      door: { ...DOOR, liteRect: [0.8, 0.64, 0.58, 0.87] },
+    });
+    expect(planned.issues).not.toBeUndefined();
+    const messages = (planned.issues ?? []).map((issue) => issue.message).join("; ");
+    expect(messages).toMatch(/door\.liteRect/);
+  });
+
+  it("(bevelMm/casingMarginM) non-positive values are refused", () => {
+    for (const door of [
+      { ...DOOR, bevelMm: -1 },
+      { ...DOOR, casingMarginM: 0 },
+    ]) {
+      const planned = planRoomGenerate({ ...BASE, footprintMeters: FOOTPRINT, door });
+      expect(planned.issues).not.toBeUndefined();
+    }
+  });
+});

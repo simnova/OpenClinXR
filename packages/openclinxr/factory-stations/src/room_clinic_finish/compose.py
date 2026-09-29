@@ -954,11 +954,16 @@ def _door_glass_material():
     bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
     bsdf.inputs["Base Color"].default_value = (0.92, 0.95, 0.96, 1.0)
     bsdf.inputs["Metallic"].default_value = 0.0
-    bsdf.inputs["Roughness"].default_value = 0.08
+    # Frosted ward lite: the Infinigen lite reads as blind recessed pockets
+    # (no through-opening exists to see through), so the pane glazes the
+    # pocket mouth over a maple recess floor -- mid roughness plus partial
+    # transmission blurs that floor into a pale wash instead of a wood
+    # print or an opaque white slab.
+    bsdf.inputs["Roughness"].default_value = 0.45
     if "Transmission Weight" in bsdf.inputs:
-        bsdf.inputs["Transmission Weight"].default_value = 0.92
+        bsdf.inputs["Transmission Weight"].default_value = 0.75
     elif "Transmission" in bsdf.inputs:
-        bsdf.inputs["Transmission"].default_value = 0.92
+        bsdf.inputs["Transmission"].default_value = 0.75
     if "IOR" in bsdf.inputs:
         bsdf.inputs["IOR"].default_value = 1.5
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
@@ -998,12 +1003,15 @@ def _world_bbox(obj) -> dict:
 
 
 def _lite_opening_from_mesh(obj) -> dict | None:
-    """Measured vision-lite opening from the leaf's own hole rims.
+    """Measured vision-lite rim loop when the leaf carries a sane one.
 
-    The joined leaf is a closed solid except at the lite through-opening,
-    so boundary edges belong to the hole rims (front + back) and nothing
-    else. Returns the opening rect in the leaf face plane plus the leaf
-    depth center, or None when the leaf has no hole. Deterministic.
+    Returns the smallest boundary-edge loop bbox covering less than 30% of
+    the leaf face (a vision-lite rim), or None. The joined Infinigen leaf
+    is usually a fully closed solid (the lite reads as blind recessed
+    pockets, 0 boundary edges) or carries simplify-opened outer edges
+    (rim spans the whole leaf) -- neither is a usable opening, so both
+    read as None and the caller falls back to the recipe fractions.
+    Deterministic.
     """
     import bmesh  # type: ignore[import-not-found]
     import bpy  # type: ignore[import-not-found]
@@ -1012,39 +1020,70 @@ def _lite_opening_from_mesh(obj) -> dict | None:
     bm = bmesh.new()
     try:
         bm.from_mesh(mesh)
-        rim = [v for e in bm.edges if e.is_boundary for v in e.verts]
+        bedges = [e for e in bm.edges if e.is_boundary]
+        if not bedges:
+            return None
+        adj: dict[int, list[int]] = {}
+        for e in bedges:
+            a, b = (v.index for v in e.verts)
+            adj.setdefault(a, []).append(b)
+            adj.setdefault(b, []).append(a)
+        seen: set[int] = set()
+        loops: list[list[int]] = []
+        for start in adj:
+            if start in seen:
+                continue
+            stack = [start]
+            seen.add(start)
+            comp = []
+            while stack:
+                v = stack.pop()
+                comp.append(v)
+                for w in adj.get(v, []):
+                    if w not in seen:
+                        seen.add(w)
+                        stack.append(w)
+            loops.append(comp)
+        coords = []
+        for v in mesh.vertices:
+            coords.append(obj.matrix_world @ v.co)
+        box = _world_bbox(obj)
+        extents = [box["max"][i] - box["min"][i] for i in range(3)]
+        thin = min(range(3), key=lambda i: extents[i])
+        face_axes = [i for i in range(3) if i != thin]
+        face_area = extents[face_axes[0]] * extents[face_axes[1]]
+        mw = obj.matrix_world
+        for comp in sorted(loops, key=len, reverse=True):
+            us = [(mw @ mesh.vertices[i].co)[face_axes[0]] for i in comp]
+            vs = [(mw @ mesh.vertices[i].co)[face_axes[1]] for i in comp]
+            area = (max(us) - min(us)) * (max(vs) - min(vs))
+            if area < 0.3 * face_area:
+                return {
+                    "thinAxis": thin,
+                    "uAxis": face_axes[0],
+                    "vAxis": face_axes[1],
+                    "u0": min(us), "u1": max(us),
+                    "v0": min(vs), "v1": max(vs),
+                    "depthCenter": (box["min"][thin] + box["max"][thin]) / 2,
+                    "depth": extents[thin],
+                }
+        return None
     finally:
         bm.free()
-    if not rim:
-        return None
-    box = _world_bbox(obj)
-    extents = [box["max"][i] - box["min"][i] for i in range(3)]
-    thin = min(range(3), key=lambda i: extents[i])
-    face_axes = [i for i in range(3) if i != thin]
-    us, vs = [], []
-    for v in rim:
-        wv = obj.matrix_world @ v.co
-        us.append(wv[face_axes[0]])
-        vs.append(wv[face_axes[1]])
-    return {
-        "thinAxis": thin,
-        "uAxis": face_axes[0],
-        "vAxis": face_axes[1],
-        "u0": min(us), "u1": max(us),
-        "v0": min(vs), "v1": max(vs),
-        "depthCenter": (box["min"][thin] + box["max"][thin]) / 2,
-        "depth": extents[thin],
-    }
 
 
 def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
     """Glass + lite frame + hinges + casing repaint (Blender runtime only).
 
-    The lite rect comes from the leaf's measured hole rims; when the leaf
-    carries no hole (fixture input, or a lite pin that failed to cut) the
-    recipe options.door.lite fractions place it from the leaf bbox instead.
-    Fail closed under ward_photo when neither exists: a ward door without
-    a vision panel re-creates the defect this slice fixes.
+    The lite rect comes from the deterministic recipe options.door.lite
+    fractions mapped onto the kept leaf bbox: the Infinigen lite reads as
+    blind recessed pockets (the joined leaf is a closed solid, 0 boundary
+    edges), and simplify can open outer edges that masquerade as a
+    leaf-spanning rim, so no measured rim is usable for placement. A sane
+    measured rim only cross-checks (recorded as rimCheck, never placed).
+    Fail closed when the fractions are absent or the leaf is not
+    door-like: a ward door without a vision panel re-creates the defect
+    this slice fixes.
     """
     import bpy  # type: ignore[import-not-found]
     import re
@@ -1103,46 +1142,70 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
     for leaf in leaves:
         box = _world_bbox(leaf)
         extents = [box["max"][i] - box["min"][i] for i in range(3)]
-        opening = _lite_opening_from_mesh(leaf)
-        source = "measured-rim"
-        if opening is None:
-            if (not isinstance(lite_frac, (list, tuple)) or len(lite_frac) != 4
-                    or not all(isinstance(v, (int, float)) for v in lite_frac)):
-                raise SystemExit(
-                    "room_clinic_finish: leaf %s has no lite opening and "
-                    "recipe options.door.lite fractions are absent" % leaf.name)
-            thin = min(range(3), key=lambda i: extents[i])
-            axes = [i for i in range(3) if i != thin]
-            # Width axis = the wider horizontal face axis; v is vertical (z).
-            u_axis = axes[0]
-            v_axis = 2
-            if extents[axes[0]] < extents[axes[1]] and axes[1] != 2:
-                u_axis = axes[1]
-            fx0, fx1, fy0, fy1 = (float(v) for v in lite_frac)
-            span_u = box["max"][u_axis] - box["min"][u_axis]
-            span_v = box["max"][v_axis] - box["min"][v_axis]
-            opening = {
-                "thinAxis": thin, "uAxis": u_axis, "vAxis": v_axis,
-                "u0": box["min"][u_axis] + fx0 * span_u,
-                "u1": box["min"][u_axis] + fx1 * span_u,
-                "v0": box["min"][v_axis] + fy0 * span_v,
-                "v1": box["min"][v_axis] + fy1 * span_v,
-                "depthCenter": (box["min"][thin] + box["max"][thin]) / 2,
-                "depth": extents[thin],
+        # Fractions primary: the Infinigen lite reads as blind recessed
+        # pockets (no measurable through-opening), and simplify can open
+        # outer edges that masquerade as a leaf-spanning rim -- so the
+        # deterministic recipe fractions place the opening, and a sane
+        # measured rim only cross-checks (recorded, never placed).
+        if (not isinstance(lite_frac, (list, tuple)) or len(lite_frac) != 4
+                or not all(isinstance(v, (int, float)) for v in lite_frac)):
+            raise SystemExit(
+                "room_clinic_finish: ward door furniture needs "
+                "recipe options.door.lite fractions")
+        thin = min(range(3), key=lambda i: extents[i])
+        axes = [i for i in range(3) if i != thin]
+        # Blender space is Z-up: the leaf width is the horizontal face
+        # axis, height is z. Guard door-like (width ~0.95, height ~2.1).
+        if 2 not in axes:
+            raise SystemExit(
+                "room_clinic_finish: leaf %s bbox %r is not door-like" % (leaf.name, box))
+        height_axis = 2
+        width_axis = axes[0] if axes[1] == 2 else axes[1]
+        # Door-like guard: width ~0.95, height ~2.1 (world metres).
+        if height_axis != 2 or not (0.8 <= extents[width_axis] <= 1.1):
+            raise SystemExit(
+                "room_clinic_finish: leaf %s bbox %r is not door-like" % (leaf.name, box))
+        if not (1.9 <= extents[height_axis] <= 2.3):
+            raise SystemExit(
+                "room_clinic_finish: leaf %s bbox %r is not door-like" % (leaf.name, box))
+        fx0, fx1, fy0, fy1 = (float(v) for v in lite_frac)
+        span_u = box["max"][width_axis] - box["min"][width_axis]
+        span_v = box["max"][height_axis] - box["min"][height_axis]
+        opening = {
+            "thinAxis": thin, "uAxis": width_axis, "vAxis": height_axis,
+            "u0": box["min"][width_axis] + fx0 * span_u,
+            "u1": box["min"][width_axis] + fx1 * span_u,
+            "v0": box["min"][height_axis] + fy0 * span_v,
+            "v1": box["min"][height_axis] + fy1 * span_v,
+            "depthCenter": (box["min"][thin] + box["max"][thin]) / 2,
+            "depth": extents[thin],
+        }
+        source = "recipe-fractions"
+        rim = _lite_opening_from_mesh(leaf)
+        rim_agreement = None
+        if rim is not None:
+            rim_agreement = {
+                k: round(rim[k], 4) for k in ("u0", "u1", "v0", "v1")
             }
-            source = "recipe-fractions"
+            rim_agreement["maxAbsDiff"] = round(max(
+                abs(rim[k] - opening[k]) for k in ("u0", "u1", "v0", "v1")), 4)
+        furnished["rimCheck"] = rim_agreement
         furnished["opening"] = {k: (round(v, 4) if isinstance(v, float) else v)
                                 for k, v in opening.items()}
         furnished["openingSource"] = source
         thin, ua, va = opening["thinAxis"], opening["uAxis"], opening["vAxis"]
         u0, u1 = opening["u0"], opening["u1"]
         v0, v1 = opening["v0"], opening["v1"]
-        # Glass pane: opening plus overlap, thin in the leaf-depth axis.
+        # Glass pane: opening plus overlap, glazed at the pocket mouth --
+        # the room-side leaf face sunk 1 mm into the blind recess, so the
+        # steel frame (proud 3 mm) overlaps the pane edges all around.
         center = [0.0, 0.0, 0.0]
         size = [0.0, 0.0, 0.0]
         center[ua] = (u0 + u1) / 2
         center[va] = (v0 + v1) / 2
-        center[thin] = opening["depthCenter"]
+        room_sign = 1.0 if room_center[thin] > (box["min"][thin] + box["max"][thin]) / 2 else -1.0
+        face = (box["max"][thin] if room_sign > 0 else box["min"][thin])
+        center[thin] = face - room_sign * 0.001
         size[ua] = (u1 - u0) + 2 * LITE_GLASS_OVERLAP_M
         size[va] = (v1 - v0) + 2 * LITE_GLASS_OVERLAP_M
         size[thin] = LITE_GLASS_THICK_M
@@ -1150,8 +1213,6 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
         furnished["glass"].append(glass_obj.name)
         # Steel lite frame: four rails on the room-side face around the
         # opening, proud of the leaf face.
-        room_sign = 1.0 if room_center[thin] > center[thin] else -1.0
-        face = (box["max"][thin] if room_sign > 0 else box["min"][thin])
         rail_c = face + room_sign * LITE_FRAME_PROUD_M
         fw = LITE_FRAME_WIDTH_M
         rails = [

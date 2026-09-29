@@ -53,6 +53,7 @@
     "src/room_clinic_finish/the-room-clinic-finish-cove-base.test.ts",
     "src/room_clinic_finish/the-room-clinic-finish-floor-tile.test.ts",
     "src/room_clinic_finish/the-room-clinic-finish-imports-its-input-glb.test.ts",
+    "src/room_clinic_finish/the-room-clinic-finish-ward-door.test.ts",
     "src/room_generate/the-room-albedo-pass-bakes-a-shell-extract.test.ts",
     "src/room_generate/the-room-bake-links-objects-into-the-view-layer.test.ts",
     "src/room_generate/the-room-bake-preserves-the-shared-normal-wiring.test.ts",
