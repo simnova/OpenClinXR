@@ -40,7 +40,7 @@ _CONFIG = {
     # +0.25 on "+y" is the room-dimensions-fix pin (0.50 scaled
     # proportionally from the 8.77 m stage-2 wall to the 4.3 m wall, so the
     # door keeps its east-of-center relative position per ref 01).
-    "door_offset": 0.50,
+    "door_offset": 0.25,
 }
 
 
